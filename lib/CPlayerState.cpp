@@ -23,26 +23,6 @@ PlayerState::PlayerState()
 	setNodeType(PLAYER);
 }
 
-PlayerState::PlayerState(PlayerState && other) noexcept:
-	CBonusSystemNode(std::move(other)),
-	color(other.color),
-	human(other.human),
-	team(other.team),
-	resources(other.resources),
-	cheated(other.cheated),
-	enteredWinningCheatCode(other.enteredWinningCheatCode),
-	enteredLosingCheatCode(other.enteredLosingCheatCode),
-	status(other.status),
-	daysWithoutCastle(other.daysWithoutCastle)
-{
-	std::swap(visitedObjects, other.visitedObjects);
-	std::swap(heroes, other.heroes);
-	std::swap(towns, other.towns);
-	std::swap(dwellings, other.dwellings);
-	std::swap(quests, other.quests);
-	std::swap(battleBonuses, other.battleBonuses);
-}
-
 PlayerState::~PlayerState() = default;
 
 std::string PlayerState::nodeName() const

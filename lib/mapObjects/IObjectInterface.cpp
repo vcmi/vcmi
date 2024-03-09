@@ -21,8 +21,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-IGameCallback * IObjectInterface::cb = nullptr;
-
 void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
 	InfoWindow iw;
@@ -30,7 +28,7 @@ void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInf
 	iw.player = getOwner();
 	iw.type = mode;
 	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txtID);
-	IObjectInterface::cb->sendAndApply(&iw);
+	cb->sendAndApply(&iw);
 }
 
 ///IObjectInterface
@@ -46,7 +44,10 @@ void IObjectInterface::newTurn(CRandomGenerator & rand) const
 void IObjectInterface::initObj(CRandomGenerator & rand)
 {}
 
-void IObjectInterface::setProperty( ui8 what, ui32 val )
+void IObjectInterface::pickRandomObject(CRandomGenerator & rand)
+{}
+
+void IObjectInterface::setProperty(ObjProperty what, ObjPropertyID identifier)
 {}
 
 bool IObjectInterface::wasVisited (PlayerColor player) const
@@ -86,11 +87,23 @@ int3 IBoatGenerator::bestLocation() const
 		int3 targetTile = getObject()->visitablePos() + offset;
 		const TerrainTile *tile = getObject()->cb->getTile(targetTile, false);
 
-		if(tile) //tile is in the map
+		if(!tile)
+			continue; // tile not visible / outside the map
+
+		if(!tile->terType->isWater())
+			continue;
+
+		if (tile->blocked)
 		{
-			if(tile->terType->isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
-				return targetTile;
+			bool hasBoat = false;
+			for (auto const * object : tile->blockingObjects)
+				if (object->ID == Obj::BOAT || object->ID == Obj::HERO)
+					hasBoat = true;
+
+			if (!hasBoat)
+				continue; // tile is blocked, but not by boat -> check next potential position
 		}
+		return targetTile;
 	}
 	return int3 (-1,-1,-1);
 }
@@ -102,14 +115,14 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 	if(!tile.valid())
 		return TILE_BLOCKED; //no available water
 
-	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
+	const TerrainTile *t = getObject()->cb->getTile(tile);
 	if(!t)
 		return TILE_BLOCKED; //no available water
 
 	if(t->blockingObjects.empty())
 		return GOOD; //OK
 
-	if(t->blockingObjects.front()->ID == Obj::BOAT)
+	if(t->blockingObjects.front()->ID == Obj::BOAT || t->blockingObjects.front()->ID == Obj::HERO)
 		return BOAT_ALREADY_BUILT; //blocked with boat
 
 	return TILE_BLOCKED; //blocked
@@ -141,11 +154,6 @@ void IShipyard::getBoatCost(TResources & cost) const
 {
 	cost[EGameResID::WOOD] = 10;
 	cost[EGameResID::GOLD] = 1000;
-}
-
-const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
-{
-	return dynamic_cast<const IShipyard *>(obj);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -12,7 +12,7 @@
 #include "TerrainHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -138,11 +138,6 @@ std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 	while (terrainParser.endLine());
 
 	return result;
-}
-
-std::vector<bool> TerrainTypeHandler::getDefaultAllowed() const
-{
-	return {};
 }
 
 bool TerrainType::isLand() const

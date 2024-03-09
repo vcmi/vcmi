@@ -31,6 +31,7 @@
 #include "../ScriptHandler.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
+#include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"
 #include "../spells/CSpellHandler.h"
@@ -44,7 +45,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string
 {
 	for(auto & node : originalData)
 	{
-		node.setMeta(ModScope::scopeBuiltin());
+		node.setModScope(ModScope::scopeBuiltin());
 	}
 }
 
@@ -52,7 +53,7 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const std::
 {
 	bool result = false;
 	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
-	data.setMeta(modName);
+	data.setModScope(modName);
 
 	ModInfo & modInfo = modData[modName];
 
@@ -103,7 +104,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 		const std::string & name = entry.first;
 		JsonNode & data = entry.second;
 
-		if (data.meta != modName)
+		if (data.getModScope() != modName)
 		{
 			// in this scenario, entire object record comes from another mod
 			// normally, this is used to "patch" object from another mod (which is legal)
@@ -111,15 +112,17 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			// - another mod attempts to add object into this mod (technically can be supported, but might lead to weird edge cases)
 			// - another mod attempts to edit object from this mod that no longer exist - DANGER since such patch likely has very incomplete data
 			// so emit warning and skip such case
-			logMod->warn("Mod %s attempts to edit object %s from mod %s but no such object exist!", data.meta, name, modName);
+			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.getModScope(), name, objectName, modName);
 			continue;
 		}
 
-		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
-		{
-			if (modName != "core")
-				logMod->warn("Mod %s is attempting to load original data! This should be reserved for built-in mod.", modName);
+		bool hasIndex = vstd::contains(data.Struct(), "index") && !data["index"].isNull();
 
+		if (hasIndex && modName != "core")
+			logMod->error("Mod %s is attempting to load original data! This option is reserved for built-in mod.", modName);
+
+		if (hasIndex && modName == "core")
+		{
 			// try to add H3 object data
 			size_t index = static_cast<size_t>(data["index"].Float());
 
@@ -155,28 +158,55 @@ void ContentTypeHandler::loadCustom()
 
 void ContentTypeHandler::afterLoadFinalization()
 {
+	for (auto const & data : modData)
+	{
+		if (data.second.modData.isNull())
+		{
+			for (auto node : data.second.patches.Struct())
+				logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.getModScope(), node.first, data.first);
+		}
+
+		for(auto & otherMod : modData)
+		{
+			if (otherMod.first == data.first)
+				continue;
+
+			if (otherMod.second.modData.isNull())
+				continue;
+
+			for(auto & otherObject : otherMod.second.modData.Struct())
+			{
+				if (data.second.modData.Struct().count(otherObject.first))
+				{
+					logMod->warn("Mod '%s' have added object with name '%s' that is also available in mod '%s'", data.first, otherObject.first, otherMod.first);
+					logMod->warn("Two objects with same name were loaded. Please use form '%s:%s' if mod '%s' needs to modify this object instead", otherMod.first, otherObject.first, data.first);
+				}
+			}
+		}
+	}
+
 	handler->afterLoadFinalization();
 }
 
 void CContentHandler::init()
 {
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
-	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
-	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
-	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
-	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh, "object")));
-	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
-	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
-	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
-	handlers.insert(std::make_pair("templates", ContentTypeHandler(VLC->tplh, "template")));
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(VLC->heroclassesh.get(), "heroClass")));
+	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth.get(), "artifact")));
+	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh.get(), "creature")));
+	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh.get(), "faction")));
+	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh.get(), "object")));
+	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh.get(), "hero")));
+	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh.get(), "spell")));
+	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh.get(), "skill")));
+	handlers.insert(std::make_pair("templates", ContentTypeHandler(VLC->tplh.get(), "template")));
 #if SCRIPTING_ENABLED
-	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler.get(), "script")));
 #endif
-	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler, "battlefield")));
-	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler, "terrain")));
-	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler, "river")));
-	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler, "road")));
-	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler, "obstacle")));
+	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler.get(), "battlefield")));
+	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler.get(), "terrain")));
+	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler.get(), "river")));
+	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler.get(), "road")));
+	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler.get(), "obstacle")));
 	//TODO: any other types of moddables?
 }
 

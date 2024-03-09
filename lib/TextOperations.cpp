@@ -11,6 +11,10 @@
 #include "TextOperations.h"
 
 #include "CGeneralTextHandler.h"
+#include "Languages.h"
+#include "CConfigHandler.h"
+
+#include <vstd/DateUtils.h>
 
 #include <boost/locale.hpp>
 
@@ -209,5 +213,16 @@ std::string TextOperations::escapeString(std::string input)
 
 	return input;
 }
+
+std::string TextOperations::getFormattedDateTimeLocal(std::time_t dt)
+{
+	return vstd::getFormattedDateTime(dt, Languages::getLanguageOptions(settings["general"]["language"].String()).dateTimeFormat);
+}
+
+std::string TextOperations::getFormattedTimeLocal(std::time_t dt)
+{
+	return vstd::getFormattedDateTime(dt, "%H:%M");
+}
+
 
 VCMI_LIB_NAMESPACE_END

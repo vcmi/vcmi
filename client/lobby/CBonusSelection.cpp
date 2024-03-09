@@ -15,6 +15,7 @@
 #include <vcmi/spells/Service.h>
 
 #include "CSelectionBase.h"
+#include "ExtraOptionsTab.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -72,6 +73,7 @@ CBonusSelection::CBonusSelection()
 
 	buttonStart = std::make_shared<CButton>(Point(475, 536), AnimationPath::builtin("CBBEGIB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), EShortcut::GLOBAL_ACCEPT);
 	buttonRestart = std::make_shared<CButton>(Point(475, 536), AnimationPath::builtin("CBRESTB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), EShortcut::GLOBAL_ACCEPT);
+	buttonVideo = std::make_shared<CButton>(Point(705, 214), AnimationPath::builtin("CBVIDEB.DEF"), CButton::tooltip(), [this](){ GH.windows().createAndPushWindow<CPrologEpilogVideo>(getCampaign()->scenario(CSH->campaignMap).prolog, [this](){ redraw(); }); });
 	buttonBack = std::make_shared<CButton>(Point(624, 536), AnimationPath::builtin("CBCANCB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), EShortcut::GLOBAL_CANCEL);
 
 	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
@@ -85,7 +87,7 @@ CBonusSelection::CBonusSelection()
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 292, 108), 1);
 
-	labelChooseBonus = std::make_shared<CLabel>(511, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
+	labelChooseBonus = std::make_shared<CLabel>(475, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
 
 	flagbox = std::make_shared<CFlagBox>(Rect(486, 407, 335, 23));
@@ -93,17 +95,17 @@ CBonusSelection::CBonusSelection()
 	std::vector<std::string> difficulty;
 	std::string difficultyString = CGI->generaltexth->allTexts[492];
 	boost::split(difficulty, difficultyString, boost::is_any_of(" "));
-	labelDifficulty = std::make_shared<CLabel>(689, 432, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, difficulty.back());
+	labelDifficulty = std::make_shared<CLabel>(724, settings["general"]["enableUiEnhancements"].Bool() ? 457 : 432, FONT_MEDIUM, ETextAlignment::TOPCENTER, Colors::WHITE, difficulty.back());
 
 	for(size_t b = 0; b < difficultyIcons.size(); ++b)
 	{
-		difficultyIcons[b] = std::make_shared<CAnimImage>(AnimationPath::builtinTODO("GSPBUT" + std::to_string(b + 3) + ".DEF"), 0, 0, 709, 455);
+		difficultyIcons[b] = std::make_shared<CAnimImage>(AnimationPath::builtinTODO("GSPBUT" + std::to_string(b + 3) + ".DEF"), 0, 0, 709, settings["general"]["enableUiEnhancements"].Bool() ? 480 : 455);
 	}
 
 	if(getCampaign()->playerSelectedDifficulty())
 	{
-		buttonDifficultyLeft = std::make_shared<CButton>(Point(694, 508), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
-		buttonDifficultyRight = std::make_shared<CButton>(Point(738, 508), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
+		buttonDifficultyLeft = std::make_shared<CButton>(settings["general"]["enableUiEnhancements"].Bool() ? Point(693, 495) : Point(694, 508), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
+		buttonDifficultyRight = std::make_shared<CButton>(settings["general"]["enableUiEnhancements"].Bool() ? Point(739, 495) : Point(738, 508), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
 	}
 
 	for(auto scenarioID : getCampaign()->allScenarios())
@@ -116,6 +118,16 @@ CBonusSelection::CBonusSelection()
 
 	if (!getCampaign()->getMusic().empty())
 		CCS->musich->playMusic( getCampaign()->getMusic(), true, false);
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
+		tabExtraOptions->recActions = UPDATE | SHOWALL | LCLICK | RCLICK_POPUP;
+		tabExtraOptions->recreate(true);
+		tabExtraOptions->setEnabled(false);
+		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); GH.windows().totalRedraw(); }, EShortcut::NONE);
+		buttonExtraOptions->setTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
+	}
 }
 
 void CBonusSelection::createBonusesIcons()
@@ -125,7 +137,7 @@ void CBonusSelection::createBonusesIcons()
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
 
-	static const char * bonusPics[] =
+	constexpr std::array bonusPics =
 	{
 		"SPELLBON.DEF",	// Spell
 		"TWCRPORT.DEF", // Monster
@@ -151,17 +163,17 @@ void CBonusSelection::createBonusesIcons()
 		{
 		case CampaignBonusType::SPELL:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
-			desc.replaceLocalString(EMetaText::SPELL_NAME, bonDescs[i].info2);
+			desc.replaceName(SpellID(bonDescs[i].info2));
 			break;
 		case CampaignBonusType::MONSTER:
 			picNumber = bonDescs[i].info2 + 2;
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
 			desc.replaceNumber(bonDescs[i].info3);
-			desc.replaceLocalString(EMetaText::CRE_PL_NAMES, bonDescs[i].info2);
+			desc.replaceNamePlural(bonDescs[i].info2);
 			break;
 		case CampaignBonusType::BUILDING:
 		{
-			int faction = -1;
+			FactionID faction;
 			for(auto & elem : CSH->si->playerInfos)
 			{
 				if(elem.second.isControlledByHuman())
@@ -187,11 +199,11 @@ void CBonusSelection::createBonusesIcons()
 		}
 		case CampaignBonusType::ARTIFACT:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
-			desc.replaceLocalString(EMetaText::ART_NAMES, bonDescs[i].info2);
+			desc.replaceName(ArtifactID(bonDescs[i].info2));
 			break;
 		case CampaignBonusType::SPELL_SCROLL:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 716);
-			desc.replaceLocalString(EMetaText::ART_NAMES, bonDescs[i].info2);
+			desc.replaceName(ArtifactID(bonDescs[i].info2));
 			break;
 		case CampaignBonusType::PRIMARY_SKILL:
 		{
@@ -229,44 +241,36 @@ void CBonusSelection::createBonusesIcons()
 		case CampaignBonusType::SECONDARY_SKILL:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 718);
 			desc.replaceTextID(TextIdentifier("core", "genrltxt", "levels", bonDescs[i].info3 - 1).get());
-			desc.replaceLocalString(EMetaText::SEC_SKILL_NAME, bonDescs[i].info2);
+			desc.replaceName(SecondarySkill(bonDescs[i].info2));
 			picNumber = bonDescs[i].info2 * 3 + bonDescs[i].info3 - 1;
 
 			break;
 		case CampaignBonusType::RESOURCE:
 		{
-			int serialResID = 0;
+			desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
+
 			switch(bonDescs[i].info1)
 			{
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-			case 6:
-				serialResID = bonDescs[i].info1;
-				break;
-			case 0xFD: //wood + ore
-				serialResID = 7;
-				break;
-			case 0xFE: //rare resources
-				serialResID = 8;
-				break;
+				case 0xFD: //wood + ore
+				{
+					desc.replaceLocalString(EMetaText::GENERAL_TXT, 721);
+					picNumber = 7;
+					break;
+				}
+				case 0xFE: //wood + ore
+				{
+					desc.replaceLocalString(EMetaText::GENERAL_TXT, 722);
+					picNumber = 8;
+					break;
+				}
+				default:
+				{
+					desc.replaceName(GameResID(bonDescs[i].info1));
+					picNumber = bonDescs[i].info1;
+				}
 			}
-			picNumber = serialResID;
 
-			desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
 			desc.replaceNumber(bonDescs[i].info2);
-			
-			if(serialResID <= 6)
-			{
-				desc.replaceLocalString(EMetaText::RES_NAMES, serialResID);
-			}
-			else
-			{
-				desc.replaceLocalString(EMetaText::GENERAL_TXT, 714 + serialResID);
-			}
 			break;
 		}
 		case CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO:
@@ -281,30 +285,27 @@ void CBonusSelection::createBonusesIcons()
 		}
 
 		case CampaignBonusType::HERO:
-
-			desc.appendLocalString(EMetaText::GENERAL_TXT, 718);
-			desc.replaceTextID(TextIdentifier("core", "genrltxt", "capColors", bonDescs[i].info1).get());
 			if(bonDescs[i].info2 == 0xFFFF)
 			{
-				desc.replaceLocalString(EMetaText::GENERAL_TXT, 101);
+				desc.appendLocalString(EMetaText::GENERAL_TXT, 720); // Start with random hero
 				picNumber = -1;
 				picName = "CBONN1A3.BMP";
 			}
 			else
 			{
+				desc.appendLocalString(EMetaText::GENERAL_TXT, 715); // Start with %s
 				desc.replaceTextID(CGI->heroh->objects[bonDescs[i].info2]->getNameTextID());
 			}
 			break;
 		}
 
-		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath(), CButton::tooltip(desc.toString(), desc.toString()));
+		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()));
 
 		if(picNumber != -1)
-			picName += ":" + std::to_string(picNumber);
+			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));
+		else
+			bonusButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin(picName)));
 
-		auto anim = GH.renderHandler().createAnimation();
-		anim->setCustom(picName, 0);
-		bonusButton->setImage(anim);
 		if(CSH->campaignBonus == i)
 			bonusButton->setBorderColor(Colors::BRIGHT_YELLOW);
 		groupBonuses->addToggle(i, bonusButton);
@@ -316,19 +317,18 @@ void CBonusSelection::createBonusesIcons()
 
 void CBonusSelection::updateAfterStateChange()
 {
-	if(CSH->state != EClientState::GAMEPLAY)
+	if(CSH->getState() != EClientState::GAMEPLAY)
 	{
 		buttonRestart->disable();
+		buttonVideo->disable();
 		buttonStart->enable();
-		if(!getCampaign()->conqueredScenarios().empty())
-			buttonBack->block(true);
-		else
-			buttonBack->block(false);
+		buttonBack->block(!getCampaign()->conqueredScenarios().empty());
 	}
 	else
 	{
 		buttonStart->disable();
 		buttonRestart->enable();
+		buttonVideo->enable();
 		buttonBack->block(false);
 		if(buttonDifficultyLeft)
 			buttonDifficultyLeft->disable();
@@ -365,7 +365,7 @@ void CBonusSelection::updateAfterStateChange()
 
 void CBonusSelection::goBack()
 {
-	if(CSH->state != EClientState::GAMEPLAY)
+	if(CSH->getState() != EClientState::GAMEPLAY)
 	{
 		GH.windows().popWindows(2);
 	}
@@ -411,6 +411,7 @@ void CBonusSelection::startMap()
 	//block buttons immediately
 	buttonStart->block(true);
 	buttonRestart->block(true);
+	buttonVideo->block(true);
 	buttonBack->block(true);
 
 	if(LOCPLINT) // we're currently ingame, so ask for starting new map and end game

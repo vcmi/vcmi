@@ -79,7 +79,7 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 
 SlotID CCreatureSet::getSlotFor(const CreatureID & creature, ui32 slotsAmount) const /*returns -1 if no slot available */
 {
-	return getSlotFor(VLC->creh->objects[creature], slotsAmount);
+	return getSlotFor(creature.toCreature(), slotsAmount);
 }
 
 SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
@@ -141,7 +141,7 @@ bool CCreatureSet::isCreatureBalanced(const CCreature * c, TQuantity ignoreAmoun
 {
 	assert(c && c->valid());
 	TQuantity max = 0;
-	TQuantity min = std::numeric_limits<TQuantity>::max();
+	auto min = std::numeric_limits<TQuantity>::max();
 
 	for(const auto & elem : stacks)
 	{
@@ -304,7 +304,7 @@ void CCreatureSet::sweep()
 
 void CCreatureSet::addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging)
 {
-	const CCreature *c = VLC->creh->objects[cre];
+	const CCreature *c = cre.toCreature();
 
 	if(!hasStackAtSlot(slot))
 	{
@@ -415,12 +415,9 @@ int CCreatureSet::stacksCount() const
 	return static_cast<int>(stacks.size());
 }
 
-void CCreatureSet::setFormation(bool tight)
+void CCreatureSet::setFormation(EArmyFormation mode)
 {
-	if (tight)
-		formation = EArmyFormation::TIGHT;
-	else
-		formation = EArmyFormation::LOOSE;
+	formation = mode;
 }
 
 void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)
@@ -458,7 +455,7 @@ const CStackInstance & CCreatureSet::getStack(const SlotID & slot) const
 	return *getStackPtr(slot);
 }
 
-const CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
+CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
 {
 	if(hasStackAtSlot(slot))
 		return stacks.find(slot)->second;
@@ -742,27 +739,26 @@ void CStackInstance::giveStackExp(TExpType exp)
 	if (!vstd::iswithin(level, 1, 7))
 		level = 0;
 
-	CCreatureHandler * creh = VLC->creh;
-	ui32 maxExp = creh->expRanks[level].back();
+	ui32 maxExp = VLC->creh->expRanks[level].back();
 
 	vstd::amin(exp, static_cast<TExpType>(maxExp)); //prevent exp overflow due to different types
-	vstd::amin(exp, (maxExp * creh->maxExpPerBattle[level])/100);
+	vstd::amin(exp, (maxExp * VLC->creh->maxExpPerBattle[level])/100);
 	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
 }
 
 void CStackInstance::setType(const CreatureID & creID)
 {
-	if(creID.getNum() >= 0 && creID.getNum() < VLC->creh->objects.size())
-		setType(VLC->creh->objects[creID]);
+	if (creID == CreatureID::NONE)
+		setType(nullptr);//FIXME: unused branch?
 	else
-		setType((const CCreature*)nullptr);
+		setType(creID.toCreature());
 }
 
 void CStackInstance::setType(const CCreature *c)
 {
 	if(type)
 	{
-		detachFrom(const_cast<CCreature&>(*type));
+		detachFromSource(*type);
 		if (type->isMyUpgrade(c) && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
 	}
@@ -770,7 +766,7 @@ void CStackInstance::setType(const CCreature *c)
 	CStackBasicDescriptor::setType(c);
 
 	if(type)
-		attachTo(const_cast<CCreature&>(*type));
+		attachToSource(*type);
 }
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
@@ -812,7 +808,7 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 {
 	if(!randomStack)
 	{
-		return (type  &&  type == VLC->creh->objects[type->getId()]);
+		return (type && type == type->getId().toEntity(VLC));
 	}
 	else
 		return allowUnrandomized;
@@ -870,7 +866,7 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 CStackInstance::ArtPlacementMap CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
 	assert(!getArt(pos));
-	assert(art->artType->canBePutAt(this, pos));
+	assert(art->canBePutAt(this, pos));
 
 	attachTo(*art);
 	return CArtifactSet::putArtifact(pos, art);
@@ -995,14 +991,14 @@ ArtBearer::ArtBearer CCommanderInstance::bearerType() const
 
 bool CCommanderInstance::gainsLevel() const
 {
-	return experience >= static_cast<TExpType>(VLC->heroh->reqExp(level + 1));
+	return experience >= VLC->heroh->reqExp(level + 1);
 }
 
 //This constructor should be placed here to avoid side effects
 CStackBasicDescriptor::CStackBasicDescriptor() = default;
 
 CStackBasicDescriptor::CStackBasicDescriptor(const CreatureID & id, TQuantity Count):
-	type(VLC->creh->objects[id]), 
+	type(id.toCreature()),
 	count(Count)
 {
 }
@@ -1015,6 +1011,11 @@ CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count
 const Creature * CStackBasicDescriptor::getType() const
 {
 	return type;
+}
+
+CreatureID CStackBasicDescriptor::getId() const
+{
+	return type->getId();
 }
 
 TQuantity CStackBasicDescriptor::getCount() const
@@ -1053,7 +1054,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 		std::string typeName;
 		handler.serializeString("type", typeName);
 		if(!typeName.empty())
-			setType(VLC->creh->getCreature(ModScope::scopeMap(), typeName));
+			setType(CreatureID(CreatureID::decode(typeName)).toCreature());
 	}
 }
 

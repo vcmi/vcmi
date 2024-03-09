@@ -36,7 +36,7 @@ struct DLL_LINKAGE AttackableTiles
 {
 	std::set<BattleHex> hostileCreaturePositions;
 	std::set<BattleHex> friendlyCreaturePositions; //for Dragon Breath
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & hostileCreaturePositions;
 		h & friendlyCreaturePositions;
@@ -52,11 +52,6 @@ struct DLL_LINKAGE BattleClientInterfaceData
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
 public:
-	enum ERandomSpell
-	{
-		RANDOM_GENIE, RANDOM_AIMED
-	};
-
 	std::optional<int> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const override;
@@ -103,7 +98,7 @@ public:
 	/// returns pair <min dmg, max dmg>
 	DamageEstimation battleEstimateDamage(const BattleAttackInfo & bai, DamageEstimation * retaliationDmg = nullptr) const;
 	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPosition, DamageEstimation * retaliationDmg = nullptr) const;
-	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, DamageEstimation * retaliationDmg = nullptr) const;
+	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int getMovementRange, DamageEstimation * retaliationDmg = nullptr) const;
 
 	bool battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const;
 	bool battleHasDistancePenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const;
@@ -121,8 +116,7 @@ public:
 	int32_t battleGetSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const; //returns true if there are no general issues preventing from casting a spell
 
-	SpellID battleGetRandomStackSpell(CRandomGenerator & rand, const CStack * stack, ERandomSpell mode) const;
-	SpellID getRandomBeneficialSpell(CRandomGenerator & rand, const CStack * subject) const;
+	SpellID getRandomBeneficialSpell(CRandomGenerator & rand, const battle::Unit * caster, const battle::Unit * target) const;
 	SpellID getRandomCastedSpell(CRandomGenerator & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
 	std::vector<PossiblePlayerBattleAction> getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data);

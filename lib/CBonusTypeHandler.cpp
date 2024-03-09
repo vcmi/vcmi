@@ -13,12 +13,12 @@
 
 #include "CBonusTypeHandler.h"
 
-#include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 
 #include "GameConstants.h"
 #include "CCreatureHandler.h"
 #include "CGeneralTextHandler.h"
+#include "json/JsonUtils.h"
 #include "spells/CSpellHandler.h"
 
 template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
@@ -76,10 +76,10 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	if (text.find("${val}") != std::string::npos)
 		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 
-	if (text.find("${subtype.creature}") != std::string::npos)
+	if (text.find("${subtype.creature}") != std::string::npos && bonus->subtype.as<CreatureID>().hasValue())
 		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
 
-	if (text.find("${subtype.spell}") != std::string::npos)
+	if (text.find("${subtype.spell}") != std::string::npos && bonus->subtype.as<SpellID>().hasValue())
 		boost::algorithm::replace_all(text, "${subtype.spell}", bonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
 
 	return text;
@@ -95,8 +95,11 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 	case BonusType::SPELL_IMMUNITY:
 	{
 		fullPath = true;
-		const CSpell * sp = bonus->subtype.as<SpellID>().toSpell();
-		fileName = sp->getIconImmune();
+		if (bonus->subtype.as<SpellID>().hasValue())
+		{
+			const CSpell * sp = bonus->subtype.as<SpellID>().toSpell();
+			fileName = sp->getIconImmune();
+		}
 		break;
 	}
 	case BonusType::SPELL_DAMAGE_REDUCTION: //Spell damage reduction for all schools
@@ -173,6 +176,9 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 
 		if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
 			fileName = "DamageReductionRanged.bmp";
+
+		if (bonus->subtype == BonusCustomSubtype::damageTypeAll)
+			fileName = "DamageReductionAll.bmp";
 
 		break;
 	}

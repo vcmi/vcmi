@@ -18,6 +18,7 @@
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
 
+#include "../../lib/CPlayerState.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
@@ -63,6 +64,8 @@ void BattleProcessor::restartBattlePrimary(const BattleID & battleID, const CArm
 	auto battle = gameHandler->gameState()->getBattle(battleID);
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+	if(!lastBattleQuery)
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[1].color));
 
 	assert(lastBattleQuery);
 
@@ -122,14 +125,16 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	{
 		for(auto bonus : attackerInfo->battleBonuses)
 		{
-			GiveBonus giveBonus(GiveBonus::ETarget::HERO);
-			giveBonus.id = hero1->id.getNum();
+			GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
+			giveBonus.id = hero1->id;
 			giveBonus.bonus = bonus;
 			gameHandler->sendAndApply(&giveBonus);
 		}
 	}
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+	if(!lastBattleQuery)
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[1].color));
 
 	if (lastBattleQuery)
 	{
@@ -183,7 +188,13 @@ BattleID BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2]
 	engageIntoBattle(bs.info->sides[1].color);
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->sides[0].color));
-	bs.info->replayAllowed = lastBattleQuery == nullptr && !bs.info->sides[1].color.isValidPlayer();
+	if(!lastBattleQuery)
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->sides[1].color));
+	bool isDefenderHuman = bs.info->sides[1].color.isValidPlayer() && gameHandler->getPlayerState(bs.info->sides[1].color)->isHuman();
+	bool isAttackerHuman = gameHandler->getPlayerState(bs.info->sides[0].color)->isHuman();
+
+	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
+	bs.info->replayAllowed = lastBattleQuery == nullptr && onlyOnePlayerHuman;
 
 	gameHandler->sendAndApply(&bs);
 

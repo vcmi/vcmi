@@ -14,6 +14,7 @@
 #include "../RmgMap.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjects/CGTownInstance.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../spells/CSpellHandler.h" //for choosing random spells
@@ -71,7 +72,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		
 		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
 
-		CGTownInstance * town = dynamic_cast<CGTownInstance *>(townFactory->create());
+		CGTownInstance * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->tempOwner = player;
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
@@ -179,7 +180,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 {
 	for(int i = 0; i < count; i++)
 	{
-		si32 subType = zone.getTownType();
+		FactionID subType = zone.getTownType();
 		
 		if(totalTowns>0)
 		{
@@ -193,7 +194,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 		}
 		
 		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, subType);
-		auto * town = dynamic_cast<CGTownInstance *>(townFactory->create());
+		auto * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->ID = Obj::TOWN;
 		
 		town->tempOwner = player;
@@ -223,7 +224,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 	}
 }
 
-si32 TownPlacer::getRandomTownType(bool matchUndergroundType)
+FactionID TownPlacer::getRandomTownType(bool matchUndergroundType)
 {
 	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes());
 	if(matchUndergroundType)

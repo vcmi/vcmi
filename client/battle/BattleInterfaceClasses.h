@@ -35,10 +35,11 @@ class BattleInterface;
 class CPicture;
 class CFilledTexture;
 class CButton;
-class CToggleButton;
 class CLabel;
+class CMultiLineLabel;
 class CTextBox;
 class CAnimImage;
+class TransparentFilledRectangle;
 class CPlayerInterface;
 class BattleRenderer;
 
@@ -144,6 +145,23 @@ public:
 	void update(const InfoAboutHero & updatedInfo);
 };
 
+class StackInfoBasicPanel : public CIntObject
+{
+private:
+	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CPicture> background2;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::vector<std::shared_ptr<CMultiLineLabel>> labelsMultiline;
+	std::vector<std::shared_ptr<CAnimImage>> icons;
+public:
+	StackInfoBasicPanel(const CStack * stack, bool initializeBackground = true);
+
+	void show(Canvas & to) override;
+
+	void initializeData(const CStack * stack);
+	void update(const CStack * updatedInfo);
+};
+
 class HeroInfoWindow : public CWindowObject
 {
 private:
@@ -206,19 +224,21 @@ class StackQueue : public CIntObject
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CLabel> amount;
 		std::shared_ptr<CAnimImage> stateIcon;
+		std::shared_ptr<CLabel> round;
+		std::shared_ptr<TransparentFilledRectangle> roundRect;
 
 		void show(Canvas & to) override;
 		void showAll(Canvas & to) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 
 		bool isBoundUnitHighlighted() const;
 	public:
 		StackBox(StackQueue * owner);
-		void setUnit(const battle::Unit * unit, size_t turn = 0);
+		void setUnit(const battle::Unit * unit, size_t turn = 0, std::optional<ui32> currentTurn = std::nullopt);
 		std::optional<uint32_t> getBoundUnitID() const;
-
 	};
 
-	static const int QUEUE_SIZE = 10;
+	static const int QUEUE_SIZE_BIG = 10;
 	std::shared_ptr<CFilledTexture> background;
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
 	BattleInterface & owner;

@@ -109,13 +109,13 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 	});
 }
 
-TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate) const
+TStacks CBattleInfoEssentials::battleGetStacksIf(const TStackFilter & predicate) const
 {
 	RETURN_IF_NOT_BATTLE(TStacks());
 	return getBattle()->getStacksIf(std::move(predicate));
 }
 
-battle::Units CBattleInfoEssentials::battleGetUnitsIf(battle::UnitFilter predicate)  const
+battle::Units CBattleInfoEssentials::battleGetUnitsIf(const battle::UnitFilter & predicate)  const
 {
 	RETURN_IF_NOT_BATTLE(battle::Units());
 	return getBattle()->getUnitsIf(predicate);
@@ -282,7 +282,7 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 		return false;
 
 	//we are besieged defender
-	if(side == BattleSide::DEFENDER && battleGetSiegeLevel())
+	if(side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr)
 	{
 		const auto * town = battleGetDefendedTown();
 		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL))
@@ -357,7 +357,7 @@ bool CBattleInfoEssentials::battleCanSurrender(const PlayerColor & player) const
 	const auto side = playerToSide(player);
 	if(!side)
 		return false;
-	bool iAmSiegeDefender = (side.value() == BattleSide::DEFENDER && battleGetSiegeLevel());
+	bool iAmSiegeDefender = (side.value() == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr);
 	//conditions like for fleeing (except escape tunnel presence) + enemy must have a hero
 	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(otherSide(side.value()));
 }
@@ -401,10 +401,9 @@ PlayerColor CBattleInfoEssentials::battleGetOwner(const battle::Unit * unit) con
 
 	PlayerColor initialOwner = getBattle()->getSidePlayer(unit->unitSide());
 
-	static CSelector selector = Selector::type()(BonusType::HYPNOTIZED);
-	static std::string cachingString = "type_103s-1";
+	static const CSelector selector = Selector::type()(BonusType::HYPNOTIZED);
 
-	if(unit->hasBonus(selector, cachingString))
+	if(unit->hasBonus(selector))
 		return otherPlayer(initialOwner);
 	else
 		return initialOwner;

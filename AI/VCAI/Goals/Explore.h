@@ -46,7 +46,7 @@ namespace Goals
 		TSubgoal whatToDoToAchieve() override;
 		std::string completeMessage() const override;
 		bool fulfillsMe(TSubgoal goal) override;
-		virtual bool operator==(const Explore & other) const override;
+		bool operator==(const Explore & other) const override;
 
 	private:
 		TSubgoal exploreNearestNeighbour(HeroPtr h) const;

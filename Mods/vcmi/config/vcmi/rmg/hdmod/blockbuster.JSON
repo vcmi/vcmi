@@ -1,9 +1,9 @@
 {
 	"Blockbuster M" :
-	//(ban fly/DD, 2 player, 15-Jun-03, midnight design)
 	{
 		"minSize" : "m", "maxSize" : "m",
 		"players" : "2",
+		"description" : "Ban fly/DD, 2 player, 15-Jun-03, Midnight design",
 		"zones" :
 		{
 			"1" :
@@ -119,6 +119,7 @@
 	{
 		"minSize" : "l", "maxSize" : "l",
 		"players" : "2",
+		"description" : "Ban fly/DD, 2 player, 15-Jun-03, Midnight design",
 		"zones" :
 		{
 			"1" :
@@ -246,6 +247,7 @@
 	{
 		"minSize" : "xl", "maxSize" : "xl",
 		"players" : "2",
+		"description" : "Ban fly/DD, 2 player, 15-Jun-03, Midnight design",
 		"zones" :
 		{
 			"1" :

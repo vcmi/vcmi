@@ -12,7 +12,6 @@
 
 #include "VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
-#include "JsonNode.h"
 #include "constants/StringConstants.h"
 #include "CCreatureHandler.h"
 #include "CHeroHandler.h"
@@ -23,6 +22,7 @@
 #include "filesystem/Filesystem.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/Propagators.h"
+#include "json/JsonBonus.h"
 #include "ResourceSet.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
@@ -75,7 +75,7 @@ const BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
 
 std::string CBuilding::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 std::string CBuilding::getNameTranslated() const
@@ -144,17 +144,17 @@ CFaction::~CFaction()
 
 int32_t CFaction::getIndex() const
 {
-	return index;
+	return index.getNum();
 }
 
 int32_t CFaction::getIconIndex() const
 {
-	return index; //???
+	return index.getNum(); //???
 }
 
 std::string CFaction::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 void CFaction::registerIcons(const IconRegistar & cb) const
@@ -172,8 +172,8 @@ void CFaction::registerIcons(const IconRegistar & cb) const
 		cb(info.icons[1][0] + 2, 0, "ITPA", info.iconSmall[1][0]);
 		cb(info.icons[1][1] + 2, 0, "ITPA", info.iconSmall[1][1]);
 
-		cb(index, 1, "CPRSMALL", info.towerIconSmall);
-		cb(index, 1, "TWCRPORT", info.towerIconLarge);
+		cb(index.getNum(), 1, "CPRSMALL", info.towerIconSmall);
+		cb(index.getNum(), 1, "TWCRPORT", info.towerIconLarge);
 
 	}
 }
@@ -241,11 +241,6 @@ CTown::~CTown()
 
 	for(auto & str : clientInfo.structures)
 		str.dellNull();
-}
-
-std::string CTown::getRandomNameTranslated(size_t index) const
-{
-	return VLC->generaltexth->translate(getRandomNameTextID(index));
 }
 
 std::string CTown::getRandomNameTextID(size_t index) const
@@ -317,7 +312,7 @@ CTownHandler::CTownHandler():
 
 CTownHandler::~CTownHandler()
 {
-	delete randomTown;
+	delete randomFaction; // will also delete randomTown
 }
 
 JsonNode readBuilding(CLegacyConfigParser & parser)
@@ -336,9 +331,9 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	return ret;
 }
 
-TPropagatorPtr & CTownHandler::emptyPropagator()
+const TPropagatorPtr & CTownHandler::emptyPropagator()
 {
-	static TPropagatorPtr emptyProp(nullptr);
+	static const TPropagatorPtr emptyProp(nullptr);
 	return emptyProp;
 }
 
@@ -534,7 +529,7 @@ R CTownHandler::getMappedValue(const JsonNode & node, const R defval, const std:
 void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 {
 	std::shared_ptr<Bonus> b;
-	static TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
+	static const TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
 
 	if(building->bid == BuildingID::TAVERN)
 	{
@@ -578,7 +573,7 @@ std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType ty
 	return createBonus(build, type, val, subtype, emptyPropagator());
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, TPropagatorPtr & prop) const
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, const TPropagatorPtr & prop) const
 {
 	std::ostringstream descr;
 	descr << build->getNameTranslated();
@@ -589,7 +584,7 @@ std::shared_ptr<Bonus> CTownHandler::createBonusImpl(const BuildingID & building
 													 const FactionID & faction,
 													 BonusType type,
 													 int val,
-													 TPropagatorPtr & prop,
+													 const TPropagatorPtr & prop,
 													 const std::string & description,
 													 BonusSubtypeID subtype) const
 {
@@ -622,7 +617,7 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source)
 {
 	assert(stringID.find(':') == std::string::npos);
-	assert(!source.meta.empty());
+	assert(!source.getModScope().empty());
 
 	auto * ret = new CBuilding();
 	ret->bid = getMappedValue<BuildingID, std::string>(stringID, BuildingID::NONE, MappedKeys::BUILDING_NAMES_TO_TYPES, false);
@@ -645,11 +640,11 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->height = getMappedValue<CBuilding::ETowerHeight>(source["height"], CBuilding::HEIGHT_NO_TOWER, CBuilding::TOWER_TYPES);
 
 	ret->identifier = stringID;
-	ret->modScope = source.meta;
+	ret->modScope = source.getModScope();
 	ret->town = town;
 
-	VLC->generaltexth->registerString(source.meta, ret->getNameTextID(), source["name"].String());
-	VLC->generaltexth->registerString(source.meta, ret->getDescriptionTextID(), source["description"].String());
+	VLC->generaltexth->registerString(source.getModScope(), ret->getNameTextID(), source["name"].String());
+	VLC->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"].String());
 
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
@@ -686,7 +681,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	//MODS COMPATIBILITY FOR 0.96
 	if(!ret->produce.nonZero())
 	{
-		switch (ret->bid) {
+		switch (ret->bid.toEnum()) {
 			break; case BuildingID::VILLAGE_HALL: ret->produce[EGameResID::GOLD] = 500;
 			break; case BuildingID::TOWN_HALL :   ret->produce[EGameResID::GOLD] = 1000;
 			break; case BuildingID::CITY_HALL :   ret->produce[EGameResID::GOLD] = 2000;
@@ -734,7 +729,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	ret->town->buildings[ret->bid] = ret;
 
-	registerObject(source.meta, ret->town->getBuildingScope(), ret->identifier, ret->bid);
+	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, ret->bid.getNum());
 }
 
 void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
@@ -756,14 +751,14 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	ret->building = nullptr;
 	ret->buildable = nullptr;
 
-	VLC->identifiers()->tryRequestIdentifier( source.meta, "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
+	VLC->identifiers()->tryRequestIdentifier( source.getModScope(), "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
 	{
 		ret->building = town.buildings[BuildingID(identifier)];
 	});
 
 	if (source["builds"].isNull())
 	{
-		VLC->identifiers()->tryRequestIdentifier( source.meta, "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
+		VLC->identifiers()->tryRequestIdentifier( source.getModScope(), "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
 		{
 			ret->building = town.buildings[BuildingID(identifier)];
 		});
@@ -949,7 +944,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	}
 	else
 	{
-		VLC->identifiers()->requestIdentifier( source.meta, "spell", "castleMoat", [=](si32 ability)
+		VLC->identifiers()->requestIdentifier( source.getModScope(), "spell", "castleMoat", [=](si32 ability)
 		{
 			town->moatAbility = SpellID(ability);
 		});
@@ -989,9 +984,9 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		VLC->identifiers()->requestIdentifier(node.second.meta, "heroClass",node.first, [=](si32 classID)
+		VLC->identifiers()->requestIdentifier(node.second.getModScope(), "heroClass",node.first, [=](si32 classID)
 		{
-			VLC->heroh->classes[HeroClassID(classID)]->selectionProbability[town->faction->getId()] = chance;
+			VLC->heroclassesh->objects[classID]->selectionProbability[town->faction->getId()] = chance;
 		});
 	}
 
@@ -999,7 +994,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		VLC->identifiers()->requestIdentifier(node.second.meta, "spell", node.first, [=](si32 spellID)
+		VLC->identifiers()->requestIdentifier(node.second.getModScope(), "spell", node.first, [=](si32 spellID)
 		{
 			VLC->spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
 		});
@@ -1115,19 +1110,19 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	if (object->town)
 	{
 		auto & info = object->town->clientInfo;
-		info.icons[0][0] = 8 + object->index * 4 + 0;
-		info.icons[0][1] = 8 + object->index * 4 + 1;
-		info.icons[1][0] = 8 + object->index * 4 + 2;
-		info.icons[1][1] = 8 + object->index * 4 + 3;
+		info.icons[0][0] = 8 + object->index.getNum() * 4 + 0;
+		info.icons[0][1] = 8 + object->index.getNum() * 4 + 1;
+		info.icons[1][0] = 8 + object->index.getNum() * 4 + 2;
+		info.icons[1][1] = 8 + object->index.getNum() * 4 + 3;
 
 		VLC->identifiers()->requestIdentifier(scope, "object", "town", [=](si32 index)
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
 			config["faction"].String() = name;
-			config["faction"].meta = scope;
-			if (config.meta.empty())// MODS COMPATIBILITY FOR 0.96
-				config.meta = scope;
+			config["faction"].setModScope(scope, false);
+			if (config.getModScope().empty())// MODS COMPATIBILITY FOR 0.96
+				config.setModScope(scope, false);
 			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
 
 			// MODS COMPATIBILITY FOR 0.96
@@ -1142,7 +1137,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		});
 	}
 
-	registerObject(scope, "faction", name, object->index);
+	registerObject(scope, "faction", name, object->index.getNum());
 }
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -1158,28 +1153,28 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	if (object->town)
 	{
 		auto & info = object->town->clientInfo;
-		info.icons[0][0] = (GameConstants::F_NUMBER + object->index) * 2 + 0;
-		info.icons[0][1] = (GameConstants::F_NUMBER + object->index) * 2 + 1;
-		info.icons[1][0] = object->index * 2 + 0;
-		info.icons[1][1] = object->index * 2 + 1;
+		info.icons[0][0] = (GameConstants::F_NUMBER + object->index.getNum()) * 2 + 0;
+		info.icons[0][1] = (GameConstants::F_NUMBER + object->index.getNum()) * 2 + 1;
+		info.icons[1][0] = object->index.getNum() * 2 + 0;
+		info.icons[1][1] = object->index.getNum() * 2 + 1;
 
 		VLC->identifiers()->requestIdentifier(scope, "object", "town", [=](si32 index)
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
 			config["faction"].String() = name;
-			config["faction"].meta = scope;
+			config["faction"].setModScope(scope, false);
 			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
 		});
 	}
 
-	registerObject(scope, "faction", name, object->index);
+	registerObject(scope, "faction", name, object->index.getNum());
 }
 
 void CTownHandler::loadRandomFaction()
 {
 	JsonNode randomFactionJson(JsonPath::builtin("config/factions/random.json"));
-	randomFactionJson.setMeta(ModScope::scopeBuiltin(), true);
+	randomFactionJson.setModScope(ModScope::scopeBuiltin(), true);
 	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
 }
 
@@ -1206,7 +1201,7 @@ void CTownHandler::initializeRequirements()
 			{
 				logMod->error("Unexpected length of town buildings requirements: %d", node.Vector().size());
 				logMod->error("Entry contains: ");
-				logMod->error(node.toJson());
+				logMod->error(node.toString());
 			}
 
 			auto index = VLC->identifiers()->getIdentifier(requirement.town->getBuildingScope(), node[0]);
@@ -1259,31 +1254,28 @@ void CTownHandler::initializeWarMachines()
 	warMachinesToLoad.clear();
 }
 
-std::vector<bool> CTownHandler::getDefaultAllowed() const
+std::set<FactionID> CTownHandler::getDefaultAllowed() const
 {
-	std::vector<bool> allowedFactions;
-	allowedFactions.reserve(objects.size());
+	std::set<FactionID> allowedFactions;
+
 	for(auto town : objects)
-	{
-		allowedFactions.push_back(town->town != nullptr);
-	}
+		if (town->town != nullptr)
+			allowedFactions.insert(town->getId());
+
 	return allowedFactions;
 }
 
 std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const
 {
-	std::set<FactionID> allowedFactions;
-	std::vector<bool> allowed;
 	if (withTown)
-		allowed = getDefaultAllowed();
-	else
-		allowed.resize( objects.size(), true);
+		return getDefaultAllowed();
 
-	for (size_t i=0; i<allowed.size(); i++)
-		if (allowed[i])
-			allowedFactions.insert(static_cast<FactionID>(i));
+	std::set<FactionID> result;
+	for(auto town : objects)
+		result.insert(town->getId());
 
-	return allowedFactions;
+	return result;
+
 }
 
 const std::vector<std::string> & CTownHandler::getTypeNames() const

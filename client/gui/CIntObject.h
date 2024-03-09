@@ -19,6 +19,10 @@ class CGuiHandler;
 class CPicture;
 class Canvas;
 
+VCMI_LIB_NAMESPACE_BEGIN
+class CArmedInstance;
+VCMI_LIB_NAMESPACE_END
+
 class IUpdateable
 {
 public:
@@ -104,7 +108,7 @@ public:
 	bool isPopupWindow() const override;
 
 	/// called only for windows whenever screen size changes
-	/// default behavior is to re-center, can be overriden
+	/// default behavior is to re-center, can be overridden
 	void onScreenResize() override;
 
 	/// returns true if UI elements wants to handle event of specific type (LCLICK, SHOW_POPUP ...)
@@ -150,6 +154,15 @@ protected:
 class IGarrisonHolder
 {
 public:
+	bool holdsGarrisons(std::vector<const CArmedInstance *> armies)
+	{
+		for (auto const * army : armies)
+			if (holdsGarrison(army))
+				return true;
+		return false;
+	}
+
+	virtual bool holdsGarrison(const CArmedInstance * army) = 0;
 	virtual void updateGarrisons() = 0;
 };
 

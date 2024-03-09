@@ -15,6 +15,12 @@
 struct SDL_Surface;
 struct SDL_Texture;
 
+enum class EVideoType : ui8
+{
+	INTRO = 0, // use entire window: stopOnKey = true, scale = true, overlay = false
+	SPELLBOOK  // overlay video: stopOnKey = false, scale = false, overlay = true
+};
+
 class IVideoPlayer : boost::noncopyable
 {
 public:
@@ -31,15 +37,17 @@ public:
 class IMainVideoPlayer : public IVideoPlayer
 {
 public:
+	virtual ~IMainVideoPlayer() = default;
 	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> restart = nullptr){}
-	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false)
+	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, EVideoType videoType)
 	{
 		return false;
 	}
 	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) { return std::make_pair(nullptr, 0); };
+	virtual Point size() { return Point(0, 0); };
 };
 
-class CEmptyVideoPlayer : public IMainVideoPlayer
+class CEmptyVideoPlayer final : public IMainVideoPlayer
 {
 public:
 	int curFrame() const override {return -1;};
@@ -64,7 +72,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CInputStream;
 VCMI_LIB_NAMESPACE_END
 
-class CVideoPlayer : public IMainVideoPlayer
+class CVideoPlayer final : public IMainVideoPlayer
 {
 	int stream;					// stream index in video
 	AVFormatContext *format;
@@ -88,7 +96,7 @@ class CVideoPlayer : public IMainVideoPlayer
 	double frameTime;
 	bool doLoop;				// loop through video
 
-	bool playVideo(int x, int y, bool stopOnKey);
+	bool playVideo(int x, int y, bool stopOnKey, bool overlay);
 	bool open(const VideoPath & fname, bool loop, bool useOverlay = false, bool scale = false);
 public:
 	CVideoPlayer();
@@ -104,9 +112,11 @@ public:
 	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> onVideoRestart = nullptr) override; //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
 
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
-	bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false) override;
+	bool openAndPlayVideo(const VideoPath & name, int x, int y, EVideoType videoType) override;
 
 	std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) override;
+
+	Point size() override;
 
 	//TODO:
 	bool wait() override {return false;};

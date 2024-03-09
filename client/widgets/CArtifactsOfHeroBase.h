@@ -11,6 +11,8 @@
 
 #include "CArtifactHolder.h"
 
+class CButton;
+
 class CArtifactsOfHeroBase : public CIntObject
 {
 protected:
@@ -19,17 +21,19 @@ protected:
 
 public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
-	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CHeroArtPlace&)>;
+	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CArtPlace&, const Point&)>;
 	using PutBackPickedArtCallback = std::function<void()>;
 
-	ClickFunctor leftClickCallback;
+	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;
+	ClickFunctor gestureCallback;
 	
 	CArtifactsOfHeroBase();
 	virtual void putBackPickedArtifact();
 	virtual void setPutBackPickedArtifactCallback(PutBackPickedArtCallback callback);
-	virtual void leftClickArtPlace(CHeroArtPlace & artPlace);
-	virtual void rightClickArtPlace(CHeroArtPlace & artPlace);
+	virtual void clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
+	virtual void showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
+	virtual void gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
 	virtual void setHero(const CGHeroInstance * hero);
 	virtual const CGHeroInstance * getHero() const;
 	virtual void scrollBackpack(int offset);
@@ -40,6 +44,7 @@ public:
 	virtual void updateBackpackSlots();
 	virtual void updateSlot(const ArtifactPosition & slot);
 	virtual const CArtifactInstance * getPickedArtifact();
+	void addGestureCallback(CArtPlace::ClickFunctor callback);
 
 protected:
 	const CGHeroInstance * curHero;
@@ -52,18 +57,17 @@ protected:
 
 	const std::vector<Point> slotPos =
 	{
-		Point(509,30),  Point(567,240), Point(509,80),  //0-2
-		Point(383,68),  Point(564,183), Point(509,130), //3-5
-		Point(431,68),  Point(610,183), Point(515,295), //6-8
-		Point(383,143), Point(399,194), Point(415,245), //9-11
-		Point(431,296), Point(564,30),  Point(610,30), //12-14
+		Point(509,30),  Point(568,242), Point(509,80),  //0-2
+		Point(383,69),  Point(562,184), Point(509,131), //3-5
+		Point(431,69),  Point(610,184), Point(515,295), //6-8
+		Point(383,143), Point(399,193), Point(415,244), //9-11
+		Point(431,295), Point(564,30),  Point(610,30), //12-14
 		Point(610,76),  Point(610,122), Point(610,310), //15-17
-		Point(381,296) //18
+		Point(381,295) //18
 	};
 
 	virtual void init(CHeroArtPlace::ClickFunctor lClickCallback, CHeroArtPlace::ClickFunctor showPopupCallback,
 		const Point & position, BpackScrollFunctor scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
-	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot, const CArtifactSet & artSet);
-	virtual void scrollBackpackForArtSet(int offset, const CArtifactSet & artSet);
+	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot);
 };

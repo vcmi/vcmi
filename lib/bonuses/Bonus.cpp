@@ -10,7 +10,6 @@
 
 #include "StdInc.h"
 #include "Bonus.h"
-#include "CBonusSystemNode.h"
 #include "Limiters.h"
 #include "Updaters.h"
 #include "Propagators.h"
@@ -72,26 +71,26 @@ si32 CAddInfo::operator[](size_type pos) const
 
 std::string CAddInfo::toString() const
 {
-	return toJsonNode().toJson(true);
+	return toJsonNode().toCompactString();
 }
 
 JsonNode CAddInfo::toJsonNode() const
 {
 	if(size() < 2)
 	{
-		return JsonUtils::intNode(operator[](0));
+		return JsonNode(operator[](0));
 	}
 	else
 	{
-		JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+		JsonNode node;
 		for(si32 value : *this)
-			node.Vector().push_back(JsonUtils::intNode(value));
+			node.Vector().emplace_back(value);
 		return node;
 	}
 }
 std::string Bonus::Description(std::optional<si32> customValue) const
 {
-	std::ostringstream str;
+	std::string str;
 
 	if(description.empty())
 	{
@@ -100,38 +99,42 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			switch(source)
 			{
 			case BonusSource::ARTIFACT:
-				str << sid.as<ArtifactID>().toArtifact(VLC->artifacts())->getNameTranslated();
+				str = sid.as<ArtifactID>().toEntity(VLC)->getNameTranslated();
 				break;
 			case BonusSource::SPELL_EFFECT:
-				str << sid.as<SpellID>().toSpell(VLC->spells())->getNameTranslated();
+				str = sid.as<SpellID>().toEntity(VLC)->getNameTranslated();
 				break;
 			case BonusSource::CREATURE_ABILITY:
-				str << sid.as<CreatureID>().toCreature(VLC->creatures())->getNamePluralTranslated();
+				str = sid.as<CreatureID>().toEntity(VLC)->getNamePluralTranslated();
 				break;
 			case BonusSource::SECONDARY_SKILL:
-				str << VLC->skills()->getById(sid.as<SecondarySkill>())->getNameTranslated();
+				str = VLC->skills()->getById(sid.as<SecondarySkill>())->getNameTranslated();
 				break;
 			case BonusSource::HERO_SPECIAL:
-				str << VLC->heroTypes()->getById(sid.as<HeroTypeID>())->getNameTranslated();
+				str = VLC->heroTypes()->getById(sid.as<HeroTypeID>())->getNameTranslated();
 				break;
 			default:
 				//todo: handle all possible sources
-				str << "Unknown";
+				str = "Unknown";
 				break;
 			}
 		}
 		else
-			str << stacking;
+			str = stacking;
 	}
 	else
 	{
-		str << description;
+		str = description;
 	}
 
-	if(auto value = customValue.value_or(val))
-		str << " " << std::showpos << value;
+	if(auto value = customValue.value_or(val)) {
+		//arraytxt already contains +-value
+		std::string valueString = boost::str(boost::format(" %+d") % value);
+		if(!boost::algorithm::ends_with(str, valueString))
+			str += valueString;
+	}
 
-	return str.str();
+	return str;
 }
 
 static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
@@ -139,7 +142,7 @@ static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 	switch(type)
 	{
 	case BonusType::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
+		return JsonNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
 	default:
 		return addInfo.toJsonNode();
 	}
@@ -147,7 +150,7 @@ static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 
 JsonNode Bonus::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 	// only add values that might reasonably be found in config files
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
 	if(subtype != BonusSubtypeID())

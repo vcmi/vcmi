@@ -321,7 +321,7 @@ namespace ERMConverter
 		{
 			ParamIO ret;
 			ret.isInput = true;
-			ret.name = (std::visit(LVL1IexpToVar(), cmp)).str();;
+			ret.name = (std::visit(LVL1IexpToVar(), cmp)).str();
 			return ret;
 		}
 
@@ -1377,7 +1377,7 @@ struct ScriptScanner
 	{
 		if(std::holds_alternative<Tcommand>(cmd)) //TCommand
 		{
-			Tcommand tcmd = std::get<Tcommand>(cmd);
+			auto tcmd = std::get<Tcommand>(cmd);
 			struct Visitor
 			{
 				void operator()(const ERM::Ttrigger& t) const
@@ -1423,7 +1423,7 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 {
 	if(std::holds_alternative<ERM::TVExp>(line))
 	{
-		TVExp vexp = std::get<TVExp>(line);
+		auto vexp = std::get<TVExp>(line);
 		if(vexp.children.empty())
 			return false;
 
@@ -1442,7 +1442,7 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 	}
 	else if(std::holds_alternative<TERMline>(line))
 	{
-		TERMline ermline = std::get<TERMline>(line);
+		auto ermline = std::get<TERMline>(line);
 		return std::holds_alternative<ERM::Tcommand>(ermline) && isCMDATrigger( std::get<ERM::Tcommand>(ermline) );
 	}
 	else
@@ -1511,10 +1511,10 @@ ERM::TTriggerBase & ERMInterpreter::retrieveTrigger(ERM::TLine & line)
 {
 	if(std::holds_alternative<ERM::TERMline>(line))
 	{
-		ERM::TERMline &tl = std::get<ERM::TERMline>(line);
+		auto &tl = std::get<ERM::TERMline>(line);
 		if(std::holds_alternative<ERM::Tcommand>(tl))
 		{
-			ERM::Tcommand &tcm = std::get<ERM::Tcommand>(tl);
+			auto &tcm = std::get<ERM::Tcommand>(tl);
 			if(std::holds_alternative<ERM::Ttrigger>(tcm.cmd))
 			{
 				return std::get<ERM::Ttrigger>(tcm.cmd);

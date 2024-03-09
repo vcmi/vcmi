@@ -12,13 +12,13 @@
 #include "RoadHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 RoadTypeHandler::RoadTypeHandler()
 {
-	objects.push_back(new RoadType);
+	objects.push_back(new RoadType());
 
 	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
@@ -56,11 +56,6 @@ std::vector<JsonNode> RoadTypeHandler::loadLegacyData()
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_ROAD);
 
 	objects.resize(dataSize);
-	return {};
-}
-
-std::vector<bool> RoadTypeHandler::getDefaultAllowed() const
-{
 	return {};
 }
 

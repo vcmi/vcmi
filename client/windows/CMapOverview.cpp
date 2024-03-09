@@ -13,8 +13,6 @@
 
 #include "../lobby/SelectionTab.h"
 
-#include <vstd/DateUtils.h>
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -29,6 +27,7 @@
 #include "../render/Graphics.h"
 
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMap.h"
@@ -39,9 +38,10 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
-#include "../../lib/serializer/BinaryDeserializer.h"
+#include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/rmg/CMapGenOptions.h"
+#include "../../lib/Languages.h"
 
 CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), tabType(tabType)
@@ -98,13 +98,13 @@ Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, in
 
 std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) const
 {
-	std::vector<Canvas> ret = std::vector<Canvas>();
+	auto ret = std::vector<Canvas>();
 
 	CMapService mapService;
 	std::unique_ptr<CMap> map;
 	try
 	{
-		map = mapService.loadMap(resource);
+		map = mapService.loadMap(resource, nullptr);
 	}
 	catch (const std::exception & e)
 	{
@@ -117,7 +117,7 @@ std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) co
 
 std::vector<Canvas> CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map) const
 {
-	std::vector<Canvas> ret = std::vector<Canvas>();
+	auto ret = std::vector<Canvas>();
 
 	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
 		ret.push_back(createMinimapForLayer(map, i));
@@ -161,15 +161,15 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		std::unique_ptr<CMap> campaignMap = nullptr;
 		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), ESerializationVersion::MINIMAL);
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 
-			std::unique_ptr<CMapHeader> mapHeader = std::make_unique<CMapHeader>();
+			auto mapHeader = std::make_unique<CMapHeader>();
 			StartInfo * startInfo;
 			lf >> *(mapHeader) >> startInfo;
 
 			if(startInfo->campState)
-				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario());
+				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario(), nullptr);
 			res = ResourcePath(startInfo->fileURI, EResType::MAP);
 		}
 		if(!campaignMap)
@@ -199,7 +199,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		if(p.date.empty())
 		{
 			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP)));
-			w->setText(vstd::getFormattedDateTime(time));
+			w->setText(TextOperations::getFormattedDateTimeLocal(time));
 		}
 		else
 			w->setText(p.date);

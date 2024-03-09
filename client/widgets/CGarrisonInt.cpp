@@ -196,16 +196,18 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 			artSelected = true;
 			if (myStack) // try dropping the artifact only if the slot isn't empty
 			{
-				ArtifactLocation src(srcHero, ArtifactPosition::TRANSITION_POS);
-				ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
-				if(pickedArtInst->canBePutAt(dst, true))
+				ArtifactLocation src(srcHero->id, ArtifactPosition::TRANSITION_POS);
+				ArtifactLocation dst(getObj()->id, ArtifactPosition::CREATURE_SLOT);
+				dst.creature = getSlot();
+
+				if(pickedArtInst->canBePutAt(myStack, ArtifactPosition::CREATURE_SLOT, true))
 				{	//equip clicked stack
-					if(dst.getArt())
+					if(auto dstArt = myStack->getArt(ArtifactPosition::CREATURE_SLOT))
 					{
 						//creature can wear only one active artifact
 						//if we are placing a new one, the old one will be returned to the hero's backpack
-						LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero,
-							ArtifactUtils::getArtBackpackPosition(srcHero, dst.getArt()->getTypeId())));
+						LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero->id,
+							ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId())));
 					}
 					LOCPLINT->cb->swapArtifacts(src, dst);
 				}
@@ -232,7 +234,8 @@ bool CGarrisonSlot::split()
 	const CGarrisonSlot * selection = owner->getSelection();
 	owner->setSplittingMode(false);
 
-	int minLeft=0, minRight=0;
+	int minLeft=0;
+	int minRight=0;
 
 	if(upg != selection->upg) // not splitting within same army
 	{
@@ -430,6 +433,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 
 	selectionImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 1);
 	selectionImage->disable();
+	selectionImage->center(creatureImage->pos.center());
 
 	if(Owner->smallIcons)
 	{

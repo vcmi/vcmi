@@ -16,10 +16,11 @@
 #include "../CGeneralTextHandler.h"
 #include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CArmedInstance::randomizeArmy(int type)
+void CArmedInstance::randomizeArmy(FactionID type)
 {
 	for (auto & elem : stacks)
 	{
@@ -39,13 +40,14 @@ void CArmedInstance::randomizeArmy(int type)
 // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
 CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX);
 
-CArmedInstance::CArmedInstance()
-	:CArmedInstance(false)
+CArmedInstance::CArmedInstance(IGameCallback *cb)
+	:CArmedInstance(cb, false)
 {
 }
 
-CArmedInstance::CArmedInstance(bool isHypotetic):
-	CBonusSystemNode(isHypotetic),
+CArmedInstance::CArmedInstance(IGameCallback *cb, bool isHypothetic):
+	CGObjectInstance(cb),
+	CBonusSystemNode(isHypothetic),
 	nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector),
 	battle(nullptr)
 {
@@ -73,7 +75,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	for(const auto & slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
-		const CCreature * creature  = VLC->creh->objects[inst->getCreatureID()];
+		const auto * creature  = inst->getCreatureID().toEntity(VLC);
 
 		factions.insert(creature->getFaction());
 		// Check for undead flag instead of faction (undead mummies are neutral)
@@ -92,7 +94,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		for(auto f : factions)
 		{
-			if (VLC->factions()->getByIndex(f)->getAlignment() != EAlignment::EVIL)
+			if (VLC->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)
@@ -110,8 +112,13 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
 		b->val = 2 - static_cast<si32>(factionsInArmy);
-		description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
-		description = b->description.substr(0, description.size()-2);//trim value
+		MetaString formatter;
+		formatter.appendTextID("core.arraytxt.114"); //Troops of %d alignments %d
+		formatter.replaceNumber(factionsInArmy);
+		formatter.replaceNumber(b->val);
+
+		description = formatter.toString();
+		description = description.substr(0, description.size()-3);//trim value
 	}
 	
 	boost::algorithm::trim(description);

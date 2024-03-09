@@ -217,11 +217,6 @@ const Script * ScriptHandler::resolveScript(const std::string & name) const
 	}
 }
 
-std::vector<bool> ScriptHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>();
-}
-
 std::vector<JsonNode> ScriptHandler::loadLegacyData()
 {
 	return std::vector<JsonNode>();
@@ -230,7 +225,7 @@ std::vector<JsonNode> ScriptHandler::loadLegacyData()
 ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::string & scope,
 	const JsonNode & json, const std::string & identifier) const
 {
-	ScriptPtr ret = std::make_shared<ScriptImpl>(this);
+	auto ret = std::make_shared<ScriptImpl>(this);
 
 	JsonDeserializer handler(nullptr, json);
 	ret->identifier = identifier;
@@ -284,7 +279,7 @@ void ScriptHandler::loadState(const JsonNode & state)
 
 		const JsonNode & scriptData = keyValue.second;
 
-		ScriptPtr script = std::make_shared<ScriptImpl>(this);
+		auto script = std::make_shared<ScriptImpl>(this);
 
 		JsonDeserializer handler(nullptr, scriptData);
 		script->serializeJsonState(handler);

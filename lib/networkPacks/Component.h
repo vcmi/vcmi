@@ -9,44 +9,67 @@
  */
 #pragma once
 
+#include "../constants/VariantIdentifier.h"
+#include "../constants/EntityIdentifiers.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CStackBasicDescriptor;
+enum class ComponentType : int8_t
+{
+	NONE = -1,
+	PRIM_SKILL,
+	SEC_SKILL,
+	RESOURCE,
+	RESOURCE_PER_DAY,
+	CREATURE,
+	ARTIFACT,
+	SPELL_SCROLL,
+	MANA,
+	EXPERIENCE,
+	LEVEL,
+	SPELL,
+	MORALE,
+	LUCK,
+	BUILDING,
+	HERO_PORTRAIT,
+	FLAG
+};
+
+using ComponentSubType = VariantIdentifier<PrimarySkill, SecondarySkill, GameResID, CreatureID, ArtifactID, SpellID, BuildingTypeUniqueID, HeroTypeID, PlayerColor>;
 
 struct Component
 {
-	enum class EComponentType : uint8_t
-	{
-		PRIM_SKILL,
-		SEC_SKILL,
-		RESOURCE,
-		CREATURE,
-		ARTIFACT,
-		EXPERIENCE,
-		SPELL,
-		MORALE,
-		LUCK,
-		BUILDING,
-		HERO_PORTRAIT,
-		FLAG,
-		INVALID //should be last
-	};
-	EComponentType id = EComponentType::INVALID;
-	ui16 subtype = 0; //id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels
-	si32 val = 0; // + give; - take
-	si16 when = 0; // 0 - now; +x - within x days; -x - per x days
+	ComponentType type = ComponentType::NONE;
+	ComponentSubType subType;
+	std::optional<int32_t> value; // + give; - take
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
-		h & id;
-		h & subtype;
-		h & val;
-		h & when;
+		h & type;
+		h & subType;
+		h & value;
 	}
+
 	Component() = default;
-	DLL_LINKAGE explicit Component(const CStackBasicDescriptor &stack);
-	Component(Component::EComponentType Type, ui16 Subtype, si32 Val, si16 When)
-		:id(Type),subtype(Subtype),val(Val),when(When)
+
+	template<typename Numeric, std::enable_if_t<std::is_arithmetic_v<Numeric>, bool> = true>
+	Component(ComponentType type, Numeric value)
+		: type(type)
+		, value(value)
+	{
+	}
+
+	template<typename IdentifierType, std::enable_if_t<std::is_base_of_v<IdentifierBase, IdentifierType>, bool> = true>
+	Component(ComponentType type, IdentifierType subType)
+		: type(type)
+		, subType(subType)
+	{
+	}
+
+	Component(ComponentType type, ComponentSubType subType, int32_t value)
+		: type(type)
+		, subType(subType)
+		, value(value)
 	{
 	}
 };

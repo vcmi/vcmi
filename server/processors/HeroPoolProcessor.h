@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../../lib/constants/EntityIdentifiers.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 enum class TavernHeroSlot : int8_t;
@@ -29,8 +31,11 @@ class HeroPoolProcessor : boost::noncopyable
 	/// per-player random generators
 	std::map<PlayerColor, std::unique_ptr<CRandomGenerator>> playerSeed;
 
+	/// per-hero random generators used to randomize skills
+	std::map<HeroTypeID, std::unique_ptr<CRandomGenerator>> heroSeed;
+
 	void clearHeroFromSlot(const PlayerColor & color, TavernHeroSlot slot);
-	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveStartingArmy);
+	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveStartingArmy, const HeroTypeID & nextHero = HeroTypeID::NONE);
 
 	std::vector<const CHeroClass *> findAvailableClassesFor(const PlayerColor & player) const;
 	std::vector<CGHeroInstance *> findAvailableHeroesFor(const PlayerColor & player, const CHeroClass * heroClass) const;
@@ -54,12 +59,15 @@ public:
 
 	void onNewWeek(const PlayerColor & color);
 
-	/// Incoming net pack handling
-	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player);
+	CRandomGenerator & getHeroSkillsRandomGenerator(const HeroTypeID & hero);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	/// Incoming net pack handling
+	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player, const HeroTypeID & nextHero);
+
+	template <typename Handler> void serialize(Handler &h)
 	{
 		// h & gameHandler; // FIXME: make this work instead of using deserializationFix in gameHandler
 		h & playerSeed;
+		h & heroSeed;
 	}
 };

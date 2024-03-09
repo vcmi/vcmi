@@ -24,7 +24,9 @@ namespace
 {
 QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
 {
-	filesToExtract = ZipArchive::listFiles(qstringToPath(path));
+	ZipArchive archive(qstringToPath(path));
+
+	filesToExtract = archive.listFiles();
 
 	QString modDirName;
 
@@ -159,9 +161,6 @@ bool CModManager::canInstallMod(QString modname)
 
 	if(mod.isInstalled())
 		return addError(modname, "Mod is already installed");
-
-	if(!mod.isAvailable())
-		return addError(modname, "Mod is not available");
 	return true;
 }
 
@@ -192,7 +191,7 @@ bool CModManager::canEnableMod(QString modname)
 	if(!mod.isCompatible())
 		return addError(modname, "Mod is not compatible, please update VCMI and checkout latest mod revisions");
 
-	for(auto modEntry : mod.getValue("depends").toStringList())
+	for(auto modEntry : mod.getDependencies())
 	{
 		if(!modList->hasMod(modEntry)) // required mod is not available
 			return addError(modname, QString("Required mod %1 is missing").arg(modEntry));
@@ -205,11 +204,11 @@ bool CModManager::canEnableMod(QString modname)
 		auto mod = modList->getMod(modEntry);
 
 		// "reverse conflict" - enabled mod has this one as conflict
-		if(mod.isEnabled() && mod.getValue("conflicts").toStringList().contains(modname))
+		if(mod.isEnabled() && mod.getConflicts().contains(modname))
 			return addError(modname, QString("This mod conflicts with %1").arg(modEntry));
 	}
 
-	for(auto modEntry : mod.getValue("conflicts").toStringList())
+	for(auto modEntry : mod.getConflicts())
 	{
 		// check if conflicting mod installed and enabled
 		if(modList->hasMod(modEntry) && modList->getMod(modEntry).isEnabled())
@@ -232,7 +231,7 @@ bool CModManager::canDisableMod(QString modname)
 	{
 		auto current = modList->getMod(modEntry);
 
-		if(current.getValue("depends").toStringList().contains(modname) && current.isEnabled())
+		if(current.getDependencies().contains(modname) && current.isEnabled())
 			return addError(modname, QString("This mod is needed to run %1").arg(modEntry));
 	}
 	return true;
@@ -285,14 +284,23 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if(!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
 	
-	auto futureExtract = std::async(std::launch::async, [&archivePath, &destDir, &filesToExtract]()
+	std::atomic<int> filesCounter = 0;
+
+	auto futureExtract = std::async(std::launch::async, [&archivePath, &destDir, &filesCounter, &filesToExtract]()
 	{
-		return ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir), filesToExtract);
+		ZipArchive archive(qstringToPath(archivePath));
+		for (auto const & file : filesToExtract)
+		{
+			if (!archive.extract(qstringToPath(destDir), file))
+				return false;
+			++filesCounter;
+		}
+		return true;
 	});
 	
-	while(futureExtract.wait_for(std::chrono::milliseconds(50)) != std::future_status::ready)
+	while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 	{
-		emit extractionProgress(0, 0);
+		emit extractionProgress(filesCounter, filesToExtract.size());
 		qApp->processEvents();
 	}
 	

@@ -21,7 +21,7 @@ class AdventureOptions : public CWindowObject
 	std::shared_ptr<CButton> puzzle;
 	std::shared_ptr<CButton> dig;
 	std::shared_ptr<CButton> scenInfo;
-	/*std::shared_ptr<CButton> replay*/
+	std::shared_ptr<CButton> replay;
 
 public:
 	AdventureOptions();

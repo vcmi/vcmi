@@ -103,7 +103,7 @@ std::string CompleteQuest::questToString() const
 		return "inactive quest";
 
 	MetaString ms;
-	q.quest->getRolloverText(ms, false);
+	q.quest->getRolloverText(q.obj->cb, ms, false);
 
 	return ms.toString();
 }
@@ -241,7 +241,7 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 {
 	TGoalVec solutions;
 
-	auto obj = cb->getObjByQuestIdentifier(q.quest->killTarget);
+	auto obj = cb->getObj(q.quest->killTarget);
 
 	if(!obj)
 		return ai->ah->howToVisitObj(q.obj);

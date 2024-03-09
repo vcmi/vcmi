@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../JsonNode.h"
+#include "../constants/IdentifierBase.h"
+#include "../json/JsonNode.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../VCMI_Lib.h"
@@ -137,18 +138,6 @@ public:
 	///may assume that object index is valid
 	using TEncoder = std::function<std::string(si32)>;
 
-	using TSerialize = std::function<void(JsonSerializeFormat &)>;
-
-	struct LIC
-	{
-		LIC(const std::vector<bool> & Standard, TDecoder Decoder, TEncoder Encoder);
-
-		const std::vector<bool> & standard;
-		const TDecoder decoder;
-		const TEncoder encoder;
-		std::vector<bool> all, any, none;
-	};
-
 	struct LICSet
 	{
 		LICSet(const std::set<si32> & Standard, TDecoder Decoder, TEncoder Encoder);
@@ -156,7 +145,9 @@ public:
 		const std::set<si32> & standard;
 		const TDecoder decoder;
 		const TEncoder encoder;
-		std::set<si32> all, any, none;
+		std::set<si32> all;
+		std::set<si32> any;
+		std::set<si32> none;
 	};
 
 	const bool saving;
@@ -211,13 +202,28 @@ public:
 	 * @param value target value, must be resized properly
 	 *
 	 */
-	virtual void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value) = 0;
+	virtual void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value) = 0;
 
-	/** @brief Complete serialization of Logical identifier condition
-	 */
-	virtual void serializeLIC(const std::string & fieldName, LIC & value) = 0;
+	template<typename T>
+	void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<T> & standard, std::set<T> & value)
+	{
+		std::set<int32_t> standardInt;
+		std::set<int32_t> valueInt;
 
-	/** @brief Complete serialization of Logical identifier condition. (Special version)
+		for (auto entry : standard)
+			standardInt.insert(entry.getNum());
+
+		for (auto entry : value)
+			valueInt.insert(entry.getNum());
+
+		serializeLIC(fieldName, decoder, encoder, standardInt, valueInt);
+
+		value.clear();
+		for (auto entry : valueInt)
+			value.insert(T(entry));
+	}
+
+	/** @brief Complete serialization of Logical identifier condition.
 	 * Assumes that all values are allowed by default, and standard contains them
 	 */
 	virtual void serializeLIC(const std::string & fieldName, LICSet & value) = 0;
@@ -295,14 +301,16 @@ public:
 	}
 
 	///si32-convertible identifier <-> Json string
-	template <typename T, typename U, typename E = T>
-	void serializeId(const std::string & fieldName, T & value, const U & defaultValue)
+	template <typename IdentifierType, typename IdentifierTypeBase = IdentifierType>
+	void serializeId(const std::string & fieldName, IdentifierType & value, const IdentifierTypeBase & defaultValue = IdentifierType::NONE)
 	{
+		static_assert(std::is_base_of_v<IdentifierBase, IdentifierType>, "This method can only serialize Identifier classes!");
+
 		if (saving)
 		{
 			if (value != defaultValue)
 			{
-				std::string fieldValue = E::encode(value);
+				std::string fieldValue = IdentifierType::encode(value.getNum());
 				serializeString(fieldName, fieldValue);
 			}
 		}
@@ -313,13 +321,13 @@ public:
 
 			if (!fieldValue.empty())
 			{
-				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue, [&value](int32_t index){
-					value = T(index);
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), IdentifierType::entityType(), fieldValue, [&value](int32_t index){
+					value = IdentifierType(index);
 				});
 			}
 			else
 			{
-				value = T(defaultValue);
+				value = IdentifierType(defaultValue);
 			}
 		}
 	}
@@ -333,7 +341,7 @@ public:
 			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-				fieldValue.push_back(E::encode(vitem));
+				fieldValue.push_back(E::encode(vitem.getNum()));
 
 			serializeInternal(fieldName, fieldValue);
 		}
@@ -362,7 +370,7 @@ public:
 			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-				fieldValue.push_back(U::encode(vitem));
+				fieldValue.push_back(U::encode(vitem.getNum()));
 
 			serializeInternal(fieldName, fieldValue);
 		}
@@ -387,7 +395,24 @@ public:
 		const TDecoder decoder = std::bind(&IInstanceResolver::decode, instanceResolver, _1);
 		const TEncoder encoder = std::bind(&IInstanceResolver::encode, instanceResolver, _1);
 
-		serializeId<T>(fieldName, value, defaultValue, decoder, encoder);
+		if (saving)
+		{
+			if (value != defaultValue)
+			{
+				std::string fieldValue = encoder(value.getNum());
+				serializeString(fieldName, fieldValue);
+			}
+		}
+		else
+		{
+			std::string fieldValue;
+			serializeString(fieldName, fieldValue);
+
+			if (!fieldValue.empty())
+				value = T(decoder(fieldValue));
+			else
+				value = T(defaultValue);
+		}
 	}
 
 	///any serializable object <-> Json struct
@@ -434,6 +459,8 @@ protected:
 
 	virtual void serializeInternal(std::string & value) = 0;
 	virtual void serializeInternal(int64_t & value) = 0;
+
+	void readLICPart(const JsonNode & part, const JsonSerializeFormat::TDecoder & decoder, std::set<si32> & value) const;
 
 private:
 	const IInstanceResolver * instanceResolver;

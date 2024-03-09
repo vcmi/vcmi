@@ -13,14 +13,16 @@
 
 using namespace Load;
 
-Progress::Progress(): _progress(std::numeric_limits<Type>::min())
-{
-	setupSteps(100);
-}
+Progress::Progress()
+	: Progress(100)
+{}
 
-Progress::Progress(int steps): _progress(std::numeric_limits<Type>::min())
+Progress::Progress(int steps)
+	: _progress(std::numeric_limits<Type>::min())
+	, _target(std::numeric_limits<Type>::max())
+	, _step(std::numeric_limits<Type>::min())
+	, _maxSteps(steps)
 {
-	setupSteps(steps);
 }
 
 Type Progress::get() const

@@ -45,7 +45,6 @@ private slots:
 	void on_comboBoxAutoSave_currentIndexChanged(int index);
 	void on_comboBoxLanguage_currentIndexChanged(int index);
 	void on_comboBoxCursorType_currentIndexChanged(int index);
-	void on_listWidgetSettings_currentRowChanged(int currentRow);
 	void on_pushButtonTranslation_clicked();
 
 	void on_comboBoxLanguageBase_currentIndexChanged(int index);
@@ -76,9 +75,12 @@ private slots:
 
 	void on_spinBoxReservedArea_valueChanged(int arg1);
 
+	void on_comboBoxRendererType_currentTextChanged(const QString &arg1);
+
 private:
 	Ui::CSettingsView * ui;
 
+	void fillValidRenderers();
 	void fillValidResolutionsForScreen(int screenIndex);
 	void fillValidScalingRange();
 	QSize getPreferredRenderingResolution();

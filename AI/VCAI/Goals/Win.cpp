@@ -51,18 +51,18 @@ TSubgoal Win::whatToDoToAchieve()
 		switch(goal.condition)
 		{
 		case EventCondition::HAVE_ARTIFACT:
-			return sptr(GetArtOfType(goal.objectType));
+			return sptr(GetArtOfType(goal.objectType.as<ArtifactID>()));
 		case EventCondition::DESTROY:
 		{
-			if(goal.object)
+			if(goal.objectID != ObjectInstanceID::NONE)
 			{
-				auto obj = cb->getObj(goal.object->id);
+				auto obj = cb->getObj(goal.objectID);
 				if(obj)
 					if(obj->getOwner() == ai->playerID) //we can't capture our own object
 						return sptr(Conquer());
 
 
-				return sptr(VisitObj(goal.object->id.getNum()));
+				return sptr(VisitObj(goal.objectID.getNum()));
 			}
 			else
 			{
@@ -78,7 +78,7 @@ TSubgoal Win::whatToDoToAchieve()
 			// goal.object = optional, town in which building should be built
 			// Represents "Improve town" condition from H3 (but unlike H3 it consists from 2 separate conditions)
 
-			if(goal.objectType == BuildingID::GRAIL)
+			if(goal.objectType.as<BuildingID>() == BuildingID::GRAIL)
 			{
 				if(auto h = ai->getHeroWithGrail())
 				{
@@ -124,13 +124,13 @@ TSubgoal Win::whatToDoToAchieve()
 		}
 		case EventCondition::CONTROL:
 		{
-			if(goal.object)
+			if(goal.objectID != ObjectInstanceID::NONE)
 			{
-				auto objRelations = cb->getPlayerRelations(ai->playerID, goal.object->tempOwner);
+				auto obj = cb->getObj(goal.objectID);
 				
-				if(objRelations == PlayerRelations::ENEMIES)
+				if(obj && cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES)
 				{
-					return sptr(VisitObj(goal.object->id.getNum()));
+					return sptr(VisitObj(goal.objectID.getNum()));
 				}
 				else
 				{
@@ -149,9 +149,9 @@ TSubgoal Win::whatToDoToAchieve()
 		case EventCondition::HAVE_RESOURCES:
 			//TODO mines? piles? marketplace?
 			//save?
-			return sptr(CollectRes(static_cast<EGameResID>(goal.objectType), goal.value));
+			return sptr(CollectRes(goal.objectType.as<GameResID>(), goal.value));
 		case EventCondition::HAVE_CREATURES:
-			return sptr(GatherTroops(goal.objectType, goal.value));
+			return sptr(GatherTroops(goal.objectType.as<CreatureID>(), goal.value));
 		case EventCondition::TRANSPORT:
 		{
 			//TODO. merge with bring Grail to town? So AI will first dig grail, then transport it using this goal and builds it
@@ -173,11 +173,6 @@ TSubgoal Win::whatToDoToAchieve()
 		case EventCondition::CONST_VALUE:
 			break;
 
-		case EventCondition::HAVE_0:
-		case EventCondition::HAVE_BUILDING_0:
-		case EventCondition::DESTROY_0:
-			//TODO: support new condition format
-			return sptr(Conquer());
 		default:
 			assert(0);
 		}

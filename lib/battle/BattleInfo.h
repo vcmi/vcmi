@@ -34,7 +34,8 @@ public:
 		DEFENDER
 	};
 	std::array<SideInBattle, 2> sides; //sides[0] - attacker, sides[1] - defender
-	si32 round, activeStack;
+	si32 round;
+	si32 activeStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
 	bool creatureBank; //auxilary field, do not serialize
@@ -49,7 +50,7 @@ public:
 	ui8 tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & battleID;
 		h & sides;
@@ -65,10 +66,7 @@ public:
 		h & tacticsSide;
 		h & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
-		if (version > 824)
-			h & replayAllowed;
-		else
-			replayAllowed = false;
+		h & replayAllowed;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -85,9 +83,9 @@ public:
 
 	int32_t getActiveStackID() const override;
 
-	TStacks getStacksIf(TStackFilter predicate) const override;
+	TStacks getStacksIf(const TStackFilter & predicate) const override;
 
-	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
+	battle::Units getUnitsIf(const battle::UnitFilter & predicate) const override;
 
 	BattleField getBattlefieldType() const override;
 	TerrainId getTerrainType() const override;

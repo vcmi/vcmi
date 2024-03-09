@@ -28,7 +28,7 @@ class JsonSerializeFormat;
  * Font: .fnt
  * Image: .bmp, .jpg, .pcx, .png, .tga
  * Sound: .wav .82m
- * Video: .smk, .bik .mjpg .mpg
+ * Video: .smk, .bik .mjpg .mpg .webm
  * Music: .mp3, .ogg
  * Archive: .lod, .snd, .vid .pac .zip
  * Palette: .pal
@@ -102,7 +102,7 @@ public:
 
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & type;
 		h & name;

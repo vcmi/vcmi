@@ -15,54 +15,86 @@
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleStacksController.h"
-
-#include "../render/EFont.h"
-#include "../render/Graphics.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/TextAlignment.h"
+#include "../render/Graphics.h"
 #include "../widgets/Images.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/TextControls.h"
+
 #include "../../CCallback.h"
-#include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
-#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/CStack.h"
+#include "../../lib/StartInfo.h"
 
-TurnTimerWidget::DrawRect::DrawRect(const Rect & r, const ColorRGBA & c):
-	CIntObject(), rect(r), color(c)
-{
-}
+TurnTimerWidget::TurnTimerWidget(const Point & position)
+	: TurnTimerWidget(position, PlayerColor::NEUTRAL)
+{}
 
-void TurnTimerWidget::DrawRect::showAll(Canvas & to)
+TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
+	: CIntObject(TIME)
+	, lastSoundCheckSeconds(0)
+	, isBattleMode(player.isValidPlayer())
 {
-	to.drawColor(rect, color);
-	
-	CIntObject::showAll(to);
-}
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-TurnTimerWidget::TurnTimerWidget():
-	InterfaceObjectConfigurable(TIME),
-	turnTime(0), lastTurnTime(0), cachedTurnTime(0), lastPlayer(PlayerColor::CANNOT_DETERMINE)
-{
-	REGISTER_BUILDER("drawRect", &TurnTimerWidget::buildDrawRect);
-	
+	pos += position;
+	pos.w = 0;
+	pos.h = 0;
 	recActions &= ~DEACTIVATE;
-	
-	const JsonNode config(JsonPath::builtin("config/widgets/turnTimer.json"));
-	
-	build(config);
-	
-	std::transform(variables["notificationTime"].Vector().begin(),
-				   variables["notificationTime"].Vector().end(),
-				   std::inserter(notifications, notifications.begin()),
-				   [](const JsonNode & node){ return node.Integer(); });
-}
+	const auto & timers = LOCPLINT->cb->getStartInfo()->turnTimerInfo;
 
-std::shared_ptr<TurnTimerWidget::DrawRect> TurnTimerWidget::buildDrawRect(const JsonNode & config) const
-{
-	logGlobal->debug("Building widget TurnTimerWidget::DrawRect");
-	auto rect = readRect(config["rect"]);
-	auto color = readColor(config["color"]);
-	return std::make_shared<TurnTimerWidget::DrawRect>(rect, color);
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos); // 1 px smaller on all sides
+
+	if (isBattleMode)
+		backgroundBorder = std::make_shared<TransparentFilledRectangle>(pos, ColorRGBA(0, 0, 0, 128), Colors::BRIGHT_YELLOW);
+	else
+		backgroundBorder = std::make_shared<TransparentFilledRectangle>(pos, ColorRGBA(0, 0, 0, 128), Colors::BLACK);
+
+	if (isBattleMode)
+	{
+		pos.w = 76;
+
+		pos.h += 20;
+		playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+
+		if (timers.battleTimer != 0)
+		{
+			pos.h += 20;
+			playerLabelsBattle[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+		}
+
+		if (!timers.accumulatingUnitTimer && timers.unitTimer != 0)
+		{
+			pos.h += 20;
+			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+		}
+
+		updateTextLabel(player, LOCPLINT->cb->getPlayerTurnTime(player));
+	}
+	else
+	{
+		if (!timers.accumulatingTurnTimer && timers.baseTimer != 0)
+			pos.w = 120;
+		else
+			pos.w = 60;
+
+		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+		{
+			if (LOCPLINT->cb->getStartInfo()->playerInfos.count(player) == 0)
+				continue;
+
+			if (!LOCPLINT->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman())
+				continue;
+
+			pos.h += 20;
+			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+
+			updateTextLabel(player, LOCPLINT->cb->getPlayerTurnTime(player));
+		}
+	}
+
+	backgroundTexture->pos = Rect::createAround(pos, -1);
+	backgroundBorder->pos = pos;
 }
 
 void TurnTimerWidget::show(Canvas & to)
@@ -70,98 +102,95 @@ void TurnTimerWidget::show(Canvas & to)
 	showAll(to);
 }
 
-void TurnTimerWidget::setTime(PlayerColor player, int time)
+void TurnTimerWidget::updateNotifications(PlayerColor player, int timeMs)
 {
-	int newTime = time / 1000;
-	if(player == LOCPLINT->playerID
-	   && newTime != turnTime
-	   && notifications.count(newTime))
-	{
-		CCS->soundh->playSound(AudioPath::fromJson(variables["notificationSound"]));
-	}
+	if(player != LOCPLINT->playerID)
+		return;
 
-	turnTime = newTime;
+	int newTimeSeconds = timeMs / 1000;
 
-	if(auto w = widget<CLabel>("timer"))
+	if (newTimeSeconds != lastSoundCheckSeconds && notificationThresholds.count(newTimeSeconds))
+		CCS->soundh->playSound(AudioPath::builtin("WE5"));
+
+	lastSoundCheckSeconds = newTimeSeconds;
+}
+
+static std::string msToString(int timeMs)
+{
+	int timeSeconds = timeMs / 1000;
+	std::ostringstream oss;
+	oss << timeSeconds / 60 << ":" << std::setw(2) << std::setfill('0') << timeSeconds % 60;
+	return oss.str();
+}
+
+void TurnTimerWidget::updateTextLabel(PlayerColor player, const TurnTimerInfo & timer)
+{
+	const auto & timerSettings = LOCPLINT->cb->getStartInfo()->turnTimerInfo;
+	auto mainLabel = playerLabelsMain[player];
+
+	if (isBattleMode)
 	{
-		std::ostringstream oss;
-		oss << turnTime / 60 << ":" << std::setw(2) << std::setfill('0') << turnTime % 60;
-		w->setText(oss.str());
-		
-		if(graphics && LOCPLINT && LOCPLINT->cb
-		   && variables["textColorFromPlayerColor"].Bool()
-		   && player.isValidPlayer())
+		mainLabel->setText(msToString(timer.baseTimer + timer.turnTimer));
+
+		if (timerSettings.battleTimer != 0)
 		{
-			w->setColor(graphics->playerColors[player]);
+			auto battleLabel = playerLabelsBattle[player];
+			if (timer.battleTimer != 0)
+			{
+				if (timerSettings.accumulatingUnitTimer)
+					battleLabel->setText("+" + msToString(timer.battleTimer + timer.unitTimer));
+				else
+					battleLabel->setText("+" + msToString(timer.battleTimer));
+			}
+			else
+				battleLabel->setText("");
 		}
+
+		if (!timerSettings.accumulatingUnitTimer && timerSettings.unitTimer != 0)
+		{
+			auto unitLabel = playerLabelsUnit[player];
+			if (timer.unitTimer != 0)
+				unitLabel->setText("+" + msToString(timer.unitTimer));
+			else
+				unitLabel->setText("");
+		}
+	}
+	else
+	{
+		if (!timerSettings.accumulatingTurnTimer && timerSettings.baseTimer != 0)
+			mainLabel->setText(msToString(timer.baseTimer) + "+" + msToString(timer.turnTimer));
+		else
+			mainLabel->setText(msToString(timer.baseTimer + timer.turnTimer));
 	}
 }
 
 void TurnTimerWidget::updateTimer(PlayerColor player, uint32_t msPassed)
 {
-	const auto & time = LOCPLINT->cb->getPlayerTurnTime(player);
-	if(time.isActive)
-		cachedTurnTime -= msPassed;
-	
-	if(cachedTurnTime < 0)
-		cachedTurnTime = 0; //do not go below zero
-	
-	if(lastPlayer != player)
-	{
-		lastPlayer = player;
-		lastTurnTime = 0;
-	}
-	
-	auto timeCheckAndUpdate = [&](int time)
-	{
-		if(time / 1000 != lastTurnTime / 1000)
-		{
-			//do not update timer on this tick
-			lastTurnTime = time;
-			cachedTurnTime = time;
-		}
-		else
-			setTime(player, cachedTurnTime);
-	};
-	
-	auto * playerInfo = LOCPLINT->cb->getPlayer(player);
-	if(player.isValidPlayer() || (playerInfo && playerInfo->isHuman()))
-	{
-		if(time.isBattle)
-			timeCheckAndUpdate(time.creatureTimer);
-		else
-			timeCheckAndUpdate(time.turnTimer);
-	}
-	else
-		timeCheckAndUpdate(0);
+	const auto & gamestateTimer = LOCPLINT->cb->getPlayerTurnTime(player);
+	updateNotifications(player, gamestateTimer.valueMs());
+	updateTextLabel(player, gamestateTimer);
 }
 
 void TurnTimerWidget::tick(uint32_t msPassed)
 {
-	if(!LOCPLINT || !LOCPLINT->cb)
-		return;
-
-	if(LOCPLINT->battleInt)
+	for(const auto & player : playerLabelsMain)
 	{
-		if(auto * stack = LOCPLINT->battleInt->stacksController->getActiveStack())
-			updateTimer(stack->getOwner(), msPassed);
-		else
-			updateTimer(PlayerColor::NEUTRAL, msPassed);
-	}
-	else
-	{
-		if(LOCPLINT->makingTurn)
-			updateTimer(LOCPLINT->playerID, msPassed);
-		else
+		if (LOCPLINT->battleInt)
 		{
-			for(PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
-			{
-				if(LOCPLINT->cb->isPlayerMakingTurn(p))
-				{
-					updateTimer(p, msPassed);
-					break;
-				}
-			}
+			const auto & battle = LOCPLINT->battleInt->getBattle();
+
+			bool isDefender = battle->sideToPlayer(BattleSide::DEFENDER) == player.first;
+			bool isAttacker = battle->sideToPlayer(BattleSide::ATTACKER) == player.first;
+			bool isMakingUnitTurn = battle->battleActiveUnit() && battle->battleActiveUnit()->unitOwner() == player.first;
+			bool isEngagedInBattle = isDefender || isAttacker;
+
+			// Due to way our network message queue works during battle animation
+			// client actually does not receives updates from server as to which timer is active when game has battle animations playing
+			// so during battle skip updating timer unless game is waiting for player to select action
+			if (isEngagedInBattle && !isMakingUnitTurn)
+				continue;
 		}
+
+		updateTimer(player.first, msPassed);
 	}
 }

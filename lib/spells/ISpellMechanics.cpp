@@ -48,7 +48,7 @@ namespace spells
 
 static std::shared_ptr<TargetCondition> makeCondition(const CSpell * s)
 {
-	std::shared_ptr<TargetCondition> res = std::make_shared<TargetCondition>();
+	auto res = std::make_shared<TargetCondition>();
 
 	JsonDeserializer deser(nullptr, s->targetCondition);
 	res->serializeJson(deser, TargetConditionItemFactory::getDefault());
@@ -139,7 +139,6 @@ public:
 BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_):
 	spell(spell_),
 	cb(cb_),
-	gameCb(IObjectInterface::cb), //FIXME: pass player callback (problem is that BattleAI do not have one)
 	caster(caster_),
 	mode(mode_),
 	smart(boost::logic::indeterminate),
@@ -150,7 +149,6 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, 
 BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
 	: spell(orig.spell),
 	cb(orig.cb),
-	gameCb(orig.gameCb),
 	caster(caster_),
 	mode(Mode::MAGIC_MIRROR),
 	magicSkillLevel(orig.magicSkillLevel),
@@ -182,11 +180,6 @@ const Caster * BattleCast::getCaster() const
 const CBattleInfoCallback * BattleCast::getBattle() const
 {
 	return cb;
-}
-
-const IGameInfoCallback * BattleCast::getGame() const
-{
-	return gameCb;
 }
 
 BattleCast::OptionalValue BattleCast::getSpellLevel() const
@@ -417,8 +410,7 @@ BaseMechanics::BaseMechanics(const IBattleCast * event):
 	mode(event->getMode()),
 	smart(event->isSmart()),
 	massive(event->isMassive()),
-	cb(event->getBattle()),
-	gameCb(event->getGame())
+	cb(event->getBattle())
 {
 	caster = event->getCaster();
 
@@ -483,13 +475,13 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 				return adaptGenericProblem(target);
 
 			//Recanter's Cloak or similar effect. Try to retrieve bonus
-			const auto b = hero->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
+			const auto b = hero->getFirstBonus(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
 			//TODO what about other values and non-artifact sources?
 			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
 				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
-				text.replaceLocalString(EMetaText::ART_NAMES, b->sid.as<ArtifactID>());
+				text.replaceName(b->sid.as<ArtifactID>());
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
@@ -696,11 +688,6 @@ const Service * BaseMechanics::spells() const
 	return VLC->spells(); //todo: redirect
 }
 
-const IGameInfoCallback * BaseMechanics::game() const
-{
-	return gameCb;
-}
-
 const CBattleInfoCallback * BaseMechanics::battle() const
 {
 	return cb;
@@ -717,7 +704,7 @@ IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
 
 std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
-	switch (s->id)
+	switch(s->id.toEnum())
 	{
 	case SpellID::SUMMON_BOAT:
 		return std::make_unique<SummonBoatMechanics>(s);

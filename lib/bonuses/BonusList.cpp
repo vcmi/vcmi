@@ -10,8 +10,7 @@
 
 #include "StdInc.h"
 #include "CBonusSystemNode.h"
-
-#include "../JsonNode.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -214,7 +213,7 @@ int BonusList::valOfBonuses(const CSelector &select) const
 
 JsonNode BonusList::toJsonNode() const
 {
-	JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+	JsonNode node;
 	for(const std::shared_ptr<Bonus> & b : bonuses)
 		node.Vector().push_back(b->toJsonNode());
 	return node;

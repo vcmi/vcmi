@@ -1,0 +1,343 @@
+{
+	"library" : [
+		"config/widgets/turnOptionsDropdownLibrary.json",
+		"config/widgets/commonPrimitives.json",
+	],
+
+	"customTypes" : {
+		"verticalLayout66" : {
+			"type" : "layout",
+			"vertical" : true,
+			"dynamic" : false,
+			"distance" : 66
+		},
+		"labelTitle" : {
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "yellow"
+		},
+		"labelDescription" : {
+			"type": "multiLineLabel",
+			"font": "tiny",
+			"alignment": "center",
+			"color": "white",
+			"rect": {"x": 0, "y": 0, "w": 300, "h": 35},
+			"adoptHeight": true
+		},
+		"timeInput" : {
+			"type": "textInput",
+			"alignment": "center",
+			"text": "00:00",
+			"rect": {"x": 0, "y": 0, "w": 86, "h": 23},
+			"offset": {"x": 0, "y": 0}
+		},
+		"timeInputBackground" : {
+			"type": "boxWithBackground",
+			"rect": {"x": 0, "y": 0, "w": 86, "h": 23}
+		}
+	},
+	
+	"items":
+	[
+		{
+			"name": "background",
+			"type": "picture",
+			"image": "RANMAPBK",
+			"position": {"x": 0, "y": 6}
+		},
+		
+		{
+			"name": "labelTitle",
+			"type": "label",
+			"font": "big",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.optionsTab.turnOptions.hover",
+			"position": {"x": 222, "y": 36}
+		},
+		
+		{
+			"name": "labelSubTitle",
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "vcmi.optionsTab.turnOptions.help",
+			"rect": {"x": 60, "y": 48, "w": 320, "h": 0},
+			"adoptHeight": true
+		},
+	
+		{
+			"type" : "dropDownTimers",
+			"name": "timerPresetSelector",
+			"position": {"x": 160, "y": 78},
+			"dropDownPosition": {"x": 0, "y": 20}
+		},
+		{
+			"type" : "dropDownSimturns",
+			"name": "simturnsPresetSelector",
+			"position": {"x": 160, "y": 98},
+			"dropDownPosition": {"x": 0, "y": 20}
+		},
+		
+		{
+			"type": "texture",
+			"image": "DiBoxBck",
+			"color" : "blue", 
+			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124}
+		},
+		
+		{
+			"type": "boxWithNoBackground",
+			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124}
+		},
+		{
+			"type": "horizontalLine",
+			"rect": {"x" : 65, "y" : 416, "w": 314, "h": 2}
+		},
+		{
+			"type": "horizontalLine",
+			"rect": {"x" : 65, "y" : 466, "w": 314, "h": 2}
+		},
+
+		{
+			"type" : "verticalLayout66",
+			"customType" : "labelTitle",
+			"position": {"x": 70, "y": 133},
+			"items":
+			[
+				{
+					"text": "vcmi.optionsTab.chessFieldBase.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldTurn.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldBattle.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldUnit.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.simturnsTitle"
+				}
+			]
+		},
+		
+		{
+			"type" : "verticalLayout66",
+			"customType" : "labelDescription",
+			"position": {"x": 70, "y": 155},
+			"items":
+			[
+				{
+					"text": "vcmi.optionsTab.chessFieldBase.help"
+				},
+				{
+					"name": "chessFieldTurnLabel"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldBattle.help"
+				},
+				{
+					"name": "chessFieldUnitLabel"
+				}
+			]
+		},
+		
+		{
+			"name": "buttonTurnTimerAccumulate",
+			"position": {"x": 160, "y": 195},
+			"type": "toggleButton",
+			"image": "lobby/checkbox",
+			"callback" : "setTurnTimerAccumulate"
+		},
+		{
+			"name": "buttonUnitTimerAccumulate",
+			"position": {"x": 160, "y": 327},
+			"type": "toggleButton",
+			"image": "lobby/checkbox",
+			"callback" : "setUnitTimerAccumulate"
+		},
+		
+		{
+			"type" : "labelTitle",
+			"position": {"x": 195, "y": 199},
+			"text" : "vcmi.optionsTab.accumulate"
+		},
+		{
+			"type" : "labelTitle",
+			"position": {"x": 195, "y": 331},
+			"text" : "vcmi.optionsTab.accumulate"
+		},
+
+		{
+			"type" : "verticalLayout66",
+			"customType" : "timeInputBackground",
+			"position": {"x": 294, "y": 129},
+			"items":
+			[
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+
+		{
+			"type" : "verticalLayout66",
+			"customType" : "timeInput",
+			"position": {"x": 294, "y": 129},
+			"items":
+			[
+				{
+					"name": "chessFieldBase",
+					"callback": "parseAndSetTimer_base",
+					"help": "vcmi.optionsTab.chessFieldBase.help"
+				},
+				{
+					"name": "chessFieldTurn",
+					"callback": "parseAndSetTimer_turn",
+					"help": "vcmi.optionsTab.chessFieldTurnAccumulate.help"
+				},
+				{
+					"name": "chessFieldBattle",
+					"callback": "parseAndSetTimer_battle",
+					"help": "vcmi.optionsTab.chessFieldBattle.help"
+				},
+				{
+					"name": "chessFieldUnit",
+					"callback": "parseAndSetTimer_unit",
+					"help": "vcmi.optionsTab.chessFieldUnitAccumulate.help"
+				}
+			]
+		},
+
+		{
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.optionsTab.simturnsMin.hover",
+			"position": {"x": 70, "y": 420}
+		},
+		{
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.optionsTab.simturnsMax.hover",
+			"position": {"x": 70, "y": 470}
+		},
+
+		{
+			"name": "simturnsDurationMin",
+			"type": "slider",
+			"orientation": "horizontal",
+			"position": {"x": 178, "y": 420},
+			"size": 200,
+			"callback": "setSimturnDurationMin",
+			"items": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 28, 35, 42, 49, 56, 84, 112, 140, 168 ],
+			"selected": 0,
+			"style": "blue",
+			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
+			"panningStep": 20
+		},
+		{
+			"name": "simturnsDurationMax",
+			"type": "slider",
+			"orientation": "horizontal",
+			"position": {"x": 178, "y": 470},
+			"size": 200,
+			"callback": "setSimturnDurationMax",
+			"items": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 28, 35, 42, 49, 56, 84, 112, 140, 168, 1000000 ],
+			"selected": 0,
+			"style": "blue",
+			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
+			"panningStep": 20
+		},
+		{
+			"name": "labelSimturnsDurationValueMin",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"position": {"x": 278, "y": 428}
+		},
+		{
+			"name": "labelSimturnsDurationValueMax",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"position": {"x": 278, "y": 478}
+		},
+		{
+			"text": "vcmi.optionsTab.simturnsMin.help",
+			"type": "multiLineLabel",
+			"font": "tiny",
+			"alignment": "center",
+			"color": "white",
+			"rect": {"x": 70, "y": 430, "w": 300, "h": 40}
+		},
+		{
+			"text": "vcmi.optionsTab.simturnsMax.help",
+			"type": "multiLineLabel",
+			"font": "tiny",
+			"alignment": "center",
+			"color": "white",
+			"rect": {"x": 70, "y": 480, "w": 300, "h": 40}
+		},
+		{
+			"name": "buttonSimturnsAI",
+			"position": {"x": 70, "y": 535},
+			"help" : "vcmi.optionsTab.simturnsAI",
+			"type": "toggleButton",
+			"image": "lobby/checkbox",
+			"callback" : "setSimturnAI"
+		},
+		{
+			"name": "labelSimturnsAI",
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "yellow",
+			"text": "vcmi.optionsTab.simturnsAI.hover",
+			"position": {"x": 110, "y": 538}
+		}
+	],
+	
+	"variables":
+	{
+		"timerPresets" :
+		[
+			[    0,    0,   0, 0, false, false],
+			[    0,   60,   0, 0, false, false],
+			[    0,  120,   0, 0, false, false],
+			[    0,  300,   0, 0, false, false],
+			[    0,  600,   0, 0, false, false],
+			[    0, 1200,   0, 0, false, false],
+			[    0, 1800,   0, 0, false, false],
+			[ 1200,  600, 120, 0, true, false],
+			[  960,  480,  90, 0, true, false],
+			[  480,  240,  60, 0, true, false],
+			[  240,  120,  30, 0, true, false],
+			[  120,   60,  15, 0, true, false],
+			[   60,   60,   0, 0, true, false]
+		],
+		"simturnsPresets" :
+		[
+			[   0,  0, false],
+			[ 999,  0, false],
+			[   7,  0, false],
+			[  14,  0, false],
+			[  28,  0, false],
+			[   7,  7, false],
+			[  14, 14, false],
+			[  28, 28, false]
+		]
+	}
+}

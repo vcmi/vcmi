@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
 class CMapEditManager;
+class CRandomGenerator;
 class TileInfo;
 class CMapGenOptions;
 class Zone;
@@ -27,11 +28,13 @@ class playerInfo;
 class RmgMap
 {
 public:
+	int getDecorationsPercentage() const;
+
 	mutable std::unique_ptr<CMap> mapInstance;
 	std::shared_ptr<MapProxy> getMapProxy() const;
 	CMap & getMap(const CMapGenerator *) const; //limited access
 	
-	RmgMap(const CMapGenOptions& mapGenOptions);
+	RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb);
 	~RmgMap() = default;
 
 	CMapEditManager* getEditManager() const;
@@ -61,7 +64,7 @@ public:
 	TerrainTile & getTile(const int3 & tile) const;
 		
 	float getNearestObjectDistance(const int3 &tile) const;
-	void setNearestObjectDistance(int3 &tile, float value);
+	void setNearestObjectDistance(const int3 &tile, float value);
 	
 	TRmgTemplateZoneId getZoneID(const int3& tile) const;
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);

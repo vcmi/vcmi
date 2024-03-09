@@ -18,8 +18,18 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 static JsonNode addMeta(JsonNode config, const std::string & meta)
 {
-	config.setMeta(meta);
+	config.setModScope(meta);
 	return config;
+}
+
+std::set<TModID> CModInfo::readModList(const JsonNode & input)
+{
+	std::set<TModID> result;
+
+	for (auto const & string : input.convertTo<std::set<std::string>>())
+		result.insert(boost::to_lower_copy(string));
+
+	return result;
 }
 
 CModInfo::CModInfo():
@@ -32,14 +42,18 @@ CModInfo::CModInfo():
 
 CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config):
 	identifier(identifier),
-	dependencies(config["depends"].convertTo<std::set<std::string>>()),
-	conflicts(config["conflicts"].convertTo<std::set<std::string>>()),
+	dependencies(readModList(config["depends"])),
+	conflicts(readModList(config["conflicts"])),
 	explicitlyEnabled(false),
 	implicitlyEnabled(true),
 	validation(PENDING),
 	config(addMeta(config, identifier))
 {
-	verificationInfo.name = config["name"].String();
+	if (!config["name"].String().empty())
+		verificationInfo.name = config["name"].String();
+	else
+		verificationInfo.name = identifier;
+
 	verificationInfo.version = CModVersion::fromString(config["version"].String());
 	verificationInfo.parent = identifier.substr(0, identifier.find_last_of('.'));
 	if(verificationInfo.parent == identifier)
@@ -113,7 +127,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 
 	if (config["modType"].String() == "Translation")
 	{
-		if (baseLanguage != VLC->generaltexth->getPreferredLanguage())
+		if (baseLanguage != CGeneralTextHandler::getPreferredLanguage())
 		{
 			if (identifier.find_last_of('.') == std::string::npos)
 				logGlobal->warn("Translation mod %s was not loaded: language mismatch!", verificationInfo.name);
@@ -177,8 +191,9 @@ bool CModInfo::checkModGameplayAffecting() const
 	return *modGameplayAffecting;
 }
 
-const CModInfo::VerificationInfo & CModInfo::getVerificationInfo() const
+const ModVerificationInfo & CModInfo::getVerificationInfo() const
 {
+	assert(!verificationInfo.name.empty());
 	return verificationInfo;
 }
 

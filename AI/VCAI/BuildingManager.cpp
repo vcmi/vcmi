@@ -139,17 +139,17 @@ void BuildingManager::setAI(VCAI * AI)
 //Set of buildings for different goals. Does not include any prerequisites.
 static const std::vector<BuildingID> essential = { BuildingID::TAVERN, BuildingID::TOWN_HALL };
 static const std::vector<BuildingID> basicGoldSource = { BuildingID::TOWN_HALL, BuildingID::CITY_HALL };
+static const std::vector<BuildingID> defence = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE };
 static const std::vector<BuildingID> capitolAndRequirements = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::CAPITOL };
 static const std::vector<BuildingID> unitsSource = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
 BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
 static const std::vector<BuildingID> unitsUpgrade = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
 BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP };
-static const std::vector<BuildingID> unitGrowth = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
-BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR };
+static const std::vector<BuildingID> unitGrowth = { BuildingID::HORDE_1, BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR };
 static const std::vector<BuildingID> _spells = { BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
 BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5 };
-static const std::vector<BuildingID> extra = { BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
-BuildingID::SPECIAL_4, BuildingID::SHIPYARD }; // all remaining buildings
+static const std::vector<BuildingID> extra = { BuildingID::MARKETPLACE, BuildingID::BLACKSMITH, BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2,
+BuildingID::SPECIAL_3, BuildingID::SPECIAL_4, BuildingID::SHIPYARD }; // all remaining buildings
 
 bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 {
@@ -172,33 +172,32 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	if(tryBuildAnyStructure(t, essential))
 		return true;
 
-	//the more gold the better and less problems later //TODO: what about building mage guild / marketplace etc. with city hall disabled in editor?
-	if(tryBuildNextStructure(t, basicGoldSource))
+	if (cb->getDate(Date::DAY_OF_WEEK) < 5) // first 4 days of week - try to focus on dwellings
+	{
+		if (tryBuildNextStructure(t, unitsSource, 4))
+			return true;
+	}
+
+	if (cb->getDate(Date::DAY_OF_WEEK) > 4) // last 3 days of week - try to focus on growth by building Fort/Citadel/Castle
+	{
+		if (tryBuildNextStructure(t, defence, 3))
+			return true;
+	}
+
+	if (t->hasBuilt(BuildingID::CASTLE))
+	{
+		if (tryBuildAnyStructure(t, unitGrowth))
+			return true;
+	}
+
+	//try to make City Hall
+	if (tryBuildNextStructure(t, basicGoldSource))
 		return true;
 
 	//workaround for mantis #2696 - build capitol with separate algorithm if it is available
 	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
 	{
 		if(tryBuildNextStructure(t, capitolAndRequirements))
-			return true;
-	}
-
-	if(!t->hasBuilt(BuildingID::FORT)) //in vast majority of situations fort is top priority building if we already have city hall, TODO: unite with unitGrowth building chain
-		if(tryBuildThisStructure(t, BuildingID::FORT))
-			return true;
-
-
-
-	if (cb->getDate(Date::DAY_OF_WEEK) > 6) // last 2 days of week - try to focus on growth
-	{
-		if (tryBuildNextStructure(t, unitGrowth, 2))
-			return true;
-	}
-
-	//try building dwellings
-	if (t->hasBuilt(BuildingID::FORT))
-	{
-		if (tryBuildAnyStructure(t, unitsSource, 8 - cb->getDate(Date::DAY_OF_WEEK)))
 			return true;
 	}
 

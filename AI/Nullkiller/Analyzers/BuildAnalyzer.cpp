@@ -120,6 +120,11 @@ TResources BuildAnalyzer::getTotalResourcesRequired() const
 	return result;
 }
 
+bool BuildAnalyzer::isGoldPreasureHigh() const
+{
+	return goldPreasure > ai->settings->getMaxGoldPreasure();
+}
+
 void BuildAnalyzer::update()
 {
 	logAi->trace("Start analysing build");
@@ -318,7 +323,7 @@ bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{
-		if(tdi.town->subID == alignment && tdi.town->hasBuilt(bid))
+		if(tdi.town->getFaction() == alignment && tdi.town->hasBuilt(bid))
 			return true;
 	}
 

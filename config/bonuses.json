@@ -145,6 +145,14 @@
 		}
 	},
 
+	"ENEMY_ATTACK_REDUCTION":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/E_RATT"
+		}
+	},
+
 	"ENEMY_DEFENCE_REDUCTION":
 	{
 		"graphics":
@@ -182,6 +190,14 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_FEARL"
+		}
+	},
+
+	"FEROCITY":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/Ferocity"
 		}
 	},
 
@@ -425,6 +441,14 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_HARPY"
+		}
+	},
+
+	"REVENGE":
+	{
+		"graphics":
+		{
+			"icon": "zvs/Lib1.res/Revenge"
 		}
 	},
 

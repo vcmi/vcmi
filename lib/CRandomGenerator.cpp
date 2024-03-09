@@ -37,12 +37,16 @@ void CRandomGenerator::resetSeed()
 
 TRandI CRandomGenerator::getIntRange(int lower, int upper)
 {
-	return std::bind(TIntDist(lower, upper), std::ref(rand));
+	if (lower <= upper)
+		return std::bind(TIntDist(lower, upper), std::ref(rand));
+	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
 }
 
 vstd::TRandI64 CRandomGenerator::getInt64Range(int64_t lower, int64_t upper)
 {
-	return std::bind(TInt64Dist(lower, upper), std::ref(rand));
+	if(lower <= upper)
+		return std::bind(TInt64Dist(lower, upper), std::ref(rand));
+	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
 }
 
 int CRandomGenerator::nextInt(int upper)
@@ -62,7 +66,10 @@ int CRandomGenerator::nextInt()
 
 vstd::TRand CRandomGenerator::getDoubleRange(double lower, double upper)
 {
-    return std::bind(TRealDist(lower, upper), std::ref(rand));
+	if(lower <= upper)
+		return std::bind(TRealDist(lower, upper), std::ref(rand));
+	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
+
 }
 
 double CRandomGenerator::nextDouble(double upper)

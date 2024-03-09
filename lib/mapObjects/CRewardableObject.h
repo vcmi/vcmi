@@ -67,9 +67,9 @@ public:
 
 	void initObj(CRandomGenerator & rand) override;
 	
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
-	CRewardableObject();
+	CRewardableObject(IGameCallback *cb);
 	
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
@@ -80,7 +80,7 @@ public:
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & static_cast<Rewardable::Interface&>(*this);

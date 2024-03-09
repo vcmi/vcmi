@@ -40,6 +40,6 @@ namespace Goals
 		TGoalVec getAllPossibleSubgoals() override;
 		TSubgoal whatToDoToAchieve() override;
 		bool fulfillsMe(TSubgoal goal) override;
-		virtual bool operator==(const ClearWayTo & other) const override;
+		bool operator==(const ClearWayTo & other) const override;
 	};
 }

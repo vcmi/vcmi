@@ -32,6 +32,7 @@ class DLL_LINKAGE CIdentifierStorage
 		std::string name;        /// string ID
 		std::function<void(si32)> callback;
 		bool optional;
+		bool dynamicType;
 
 		/// Builds callback from identifier in form "targetMod:type.name"
 		static ObjectCallback fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional);
@@ -52,12 +53,6 @@ class DLL_LINKAGE CIdentifierStorage
 		{
 			return id == other.id && scope == other.scope;
 		}
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & id;
-			h & scope;
-		}
 	};
 
 	std::multimap<std::string, ObjectData> registeredObjects;
@@ -75,6 +70,8 @@ class DLL_LINKAGE CIdentifierStorage
 	bool resolveIdentifier(const ObjectCallback & callback) const;
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback) const;
 
+	void showIdentifierResolutionErrorDetails(const ObjectCallback & callback) const;
+	std::optional<si32> getIdentifierImpl(const ObjectCallback & callback, bool silent) const;
 public:
 	CIdentifierStorage();
 	virtual ~CIdentifierStorage() = default;
@@ -102,12 +99,6 @@ public:
 
 	/// called at the very end of loading to check for any missing ID's
 	void finalize();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & registeredObjects;
-		h & state;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

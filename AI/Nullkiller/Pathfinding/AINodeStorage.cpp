@@ -35,6 +35,8 @@ const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN = 5000;
 const uint64_t MIN_ARMY_STRENGTH_FOR_NEXT_ACTOR = 1000;
 const uint64_t CHAIN_MAX_DEPTH = 4;
 
+const bool DO_NOT_SAVE_TO_COMMITED_TILES = false;
+
 AISharedStorage::AISharedStorage(int3 sizes)
 {
 	if(!shared){
@@ -90,7 +92,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 	const PlayerColor fowPlayer = ai->playerID;
-	const auto fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
+	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
 	const int3 sizes = gs->getMapSize();
 
 	//Each thread gets different x, but an array of y located next to each other in memory
@@ -234,6 +236,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPath
 		heroNode.specialAction.reset();
 		heroNode.armyLoss = 0;
 		heroNode.chainOther = nullptr;
+		heroNode.dayFlags = DayFlags::NONE;
 		heroNode.update(coord, layer, accessibility);
 	}
 }
@@ -265,7 +268,8 @@ void AINodeStorage::commit(
 	EPathNodeAction action, 
 	int turn, 
 	int movementLeft, 
-	float cost) const
+	float cost,
+	bool saveToCommited) const
 {
 	destination->action = action;
 	destination->setCost(cost);
@@ -291,9 +295,14 @@ void AINodeStorage::commit(
 		destination->actor->armyValue);
 #endif
 
-	if(destination->turns <= heroChainTurn)
+	if(saveToCommited && destination->turns <= heroChainTurn)
 	{
 		commitedTiles.insert(destination->coord);
+	}
+
+	if(destination->turns == source->turns)
+	{
+		destination->dayFlags = source->dayFlags;
 	}
 }
 
@@ -323,7 +332,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
-EPathfindingLayer phisycalLayers[2] = {EPathfindingLayer::LAND, EPathfindingLayer::SAIL};
+constexpr std::array phisycalLayers = {EPathfindingLayer::LAND, EPathfindingLayer::SAIL};
 
 bool AINodeStorage::increaseHeroChainTurnLimit()
 {
@@ -778,7 +787,14 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 			continue;
 		}
 
-		storage.commit(exchangeNode, carrier, carrier->action, chainInfo.turns, chainInfo.moveRemains, chainInfo.getCost());
+		storage.commit(
+			exchangeNode,
+			carrier,
+			carrier->action,
+			chainInfo.turns,
+			chainInfo.moveRemains, 
+			chainInfo.getCost(),
+			DO_NOT_SAVE_TO_COMMITED_TILES);
 
 		if(carrier->specialAction || carrier->chainOther)
 		{
@@ -827,6 +843,7 @@ ExchangeCandidate HeroChainCalculationTask::calculateExchange(
 	candidate.turns = carrierParentNode->turns;
 	candidate.setCost(carrierParentNode->getCost() + otherParentNode->getCost() / 1000.0);
 	candidate.moveRemains = carrierParentNode->moveRemains;
+	candidate.danger = carrierParentNode->danger;
 
 	if(carrierParentNode->turns < otherParentNode->turns)
 	{
@@ -1070,7 +1087,8 @@ struct TowmPortalFinder
 				EPathNodeAction::TELEPORT_NORMAL,
 				bestNode->turns,
 				bestNode->moveRemains - movementNeeded,
-				movementCost);
+				movementCost,
+				DO_NOT_SAVE_TO_COMMITED_TILES);
 
 			node->theNodeBefore = bestNode;
 			node->addSpecialAction(std::make_shared<AIPathfinding::TownPortalAction>(targetTown));
@@ -1247,8 +1265,8 @@ bool AINodeStorage::hasBetterChain(
 				&& nodeActor->heroFightingStrength >= candidateActor->heroFightingStrength
 				&& node.getCost() <= candidateNode->getCost())
 			{
-				if(nodeActor->heroFightingStrength == candidateActor->heroFightingStrength
-					&& node.getCost() == candidateNode->getCost()
+				if(vstd::isAlmostEqual(nodeActor->heroFightingStrength, candidateActor->heroFightingStrength)
+					&& vstd::isAlmostEqual(node.getCost(), candidateNode->getCost())
 					&& &node < candidateNode)
 				{
 					continue;

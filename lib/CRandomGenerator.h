@@ -14,7 +14,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-using TGenerator = std::mt19937;
+/// Generator to use for all randomization in game
+/// minstd_rand is selected due to following reasons:
+/// 1. Its randomization quality is below mt_19937 however this is unlikely to be noticeable in game
+/// 2. It has very low state size, leading to low overhead in size of saved games (due to large number of random generator instances in game)
+using TGenerator = std::minstd_rand;
 using TIntDist = std::uniform_int_distribution<int>;
 using TInt64Dist = std::uniform_int_distribution<int64_t>;
 using TRealDist = std::uniform_real_distribution<double>;
@@ -83,7 +87,7 @@ private:
 
 public:
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		if(h.saving)
 		{

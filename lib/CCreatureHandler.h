@@ -14,9 +14,7 @@
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
-#include "JsonNode.h"
 #include "IHandlerBase.h"
-#include "CRandomGenerator.h"
 #include "Color.h"
 #include "filesystem/ResourcePath.h"
 
@@ -29,6 +27,7 @@ class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class JsonSerializeFormat;
+class CRandomGenerator;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
@@ -52,7 +51,8 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
 
 public:
-	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
+	ui32 ammMin; // initial size of stack of these creatures on adventure map (if not set in editor)
+	ui32 ammMax;
 
 	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
 
@@ -83,11 +83,6 @@ public:
 		struct RayColor {
 			ColorRGBA start;
 			ColorRGBA end;
-
-			template <typename Handler> void serialize(Handler &h, const int version)
-			{
-				h & start & end;
-			}
 		};
 
 		double timeBetweenFidgets, idleAnimationTime,
@@ -100,25 +95,7 @@ public:
 
 		AnimationPath projectileImageName;
 		std::vector<RayColor> projectileRay;
-		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
 
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & timeBetweenFidgets;
-			h & idleAnimationTime;
-			h & walkAnimationTime;
-			h & attackAnimationTime;
-			h & upperRightMissleOffsetX;
-			h & rightMissleOffsetX;
-			h & lowerRightMissleOffsetX;
-			h & upperRightMissleOffsetY;
-			h & rightMissleOffsetY;
-			h & lowerRightMissleOffsetY;
-			h & missleFrameAngles;
-			h & attackClimaxFrame;
-			h & projectileImageName;
-			h & projectileRay;
-		}
 	} animation;
 
 	//sound info
@@ -132,18 +109,6 @@ public:
 		AudioPath wince; // attacked but did not die
 		AudioPath startMoving;
 		AudioPath endMoving;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & attack;
-			h & defend;
-			h & killed;
-			h & move;
-			h & shoot;
-			h & wince;
-			h & startMoving;
-			h & endMoving;
-		}
 	} sounds;
 
 	ArtifactID warMachine;
@@ -160,7 +125,7 @@ public:
 	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
-	virtual const IBonusBearer * getBonusBearer() const override;
+	const IBonusBearer * getBonusBearer() const override;
 
 	int32_t getAdvMapAmountMin() const override;
 	int32_t getAdvMapAmountMax() const override;
@@ -210,35 +175,6 @@ public:
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & cost;
-		h & upgrades;
-		h & fightValue;
-		h & AIValue;
-		h & growth;
-		h & hordeGrowth;
-		h & ammMin;
-		h & ammMax;
-		h & level;
-		h & animDefName;
-		h & iconIndex;
-		h & smallIconName;
-		h & largeIconName;
-
-		h & idNumber;
-		h & faction;
-		h & sounds;
-		h & animation;
-
-		h & doubleWide;
-		h & special;
-		h & identifier;
-		h & modScope;
-		h & warMachine;
-	}
-
 	CCreature();
 
 private:
@@ -285,8 +221,6 @@ public:
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
-	const CCreature * getCreature(const std::string & scope, const std::string & identifier) const;
-
 	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
 
 	CCreatureHandler();
@@ -302,20 +236,6 @@ public:
 
 	std::vector<JsonNode> loadLegacyData() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & doubledCreatures;
-		h & objects;
-		h & expRanks;
-		h & maxExpPerBattle;
-		h & expAfterUpgrade;
-		h & skillLevels;
-		h & skillRequirements;
-		h & commanderLevelPremy;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

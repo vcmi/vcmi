@@ -133,7 +133,6 @@ public:
 	HeroSlots(const CGTownInstance * town, Point garrPos, Point visitPos, std::shared_ptr<CGarrisonInt> Garrison, bool ShowEmpty);
 	~HeroSlots();
 
-	void splitClicked(); //for hero meeting only (splitting stacks is handled by garrison int)
 	void update();
 	void swapArmies(); //exchange garrisoned and visiting heroes or move hero to\from garrison
 };
@@ -227,7 +226,6 @@ class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 	std::shared_ptr<CTownInfo> fort;
 
 	std::shared_ptr<CButton> exit;
-	std::shared_ptr<CButton> split;
 	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
 	std::shared_ptr<LRClickableArea> fastMarket;
@@ -249,7 +247,8 @@ public:
 	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr);
 	~CCastleInterface();
 
-	virtual void updateGarrisons() override;
+	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 
 	void castleTeleport(int where);
 	void townChange();

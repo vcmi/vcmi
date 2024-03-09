@@ -125,9 +125,9 @@ void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 	execute(std::make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
 }
 
-void CMapEditManager::drawTerrain(TerrainId terType, CRandomGenerator * gen)
+void CMapEditManager::drawTerrain(TerrainId terType, int decorationsPercentage, CRandomGenerator * gen)
 {
-	execute(std::make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CDrawTerrainOperation>(map, terrainSel, terType, decorationsPercentage, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
 
@@ -142,8 +142,6 @@ void CMapEditManager::drawRiver(RiverId riverType, CRandomGenerator* gen)
 	execute(std::make_unique<CDrawRiversOperation>(map, terrainSel, riverType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
-
-
 
 void CMapEditManager::insertObject(CGObjectInstance * obj)
 {

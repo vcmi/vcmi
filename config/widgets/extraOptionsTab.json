@@ -1,0 +1,110 @@
+{
+	"library" : "config/widgets/settings/library.json",
+	
+	"items":
+	[
+		{
+			"name": "background",
+			"type": "picture",
+			"image": "ADVOPTBK",
+			"position": {"x": 0, "y": 6}
+		},
+		{
+			"name": "textureCampaignOverdraw",
+			"type": "texture",
+			"color" : "blue", 
+			"image": "DIBOXBCK",
+			"rect": {"x": 391, "y": 14, "w": 82, "h": 569}
+		},
+		{
+			"name": "labelTitle",
+			"type": "label",
+			"font": "big",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.optionsTab.extraOptions.hover",
+			"position": {"x": 222, "y": 36}
+		},
+		{
+			"name": "labelSubTitle",
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "vcmi.optionsTab.extraOptions.help",
+			"rect": {"x": 60, "y": 48, "w": 320, "h": 0},
+			"adoptHeight": true
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 54, "y": 127, "w": 335, "h": 2},
+			"color": [24, 41, 90, 255]
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 159, "y": 90, "w": 2, "h": 38},
+			"color": [24, 41, 90, 255]
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 235, "y": 90, "w": 2, "h": 38},
+			"color": [24, 41, 90, 255]
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 311, "y": 90, "w": 2, "h": 38},
+			"color": [24, 41, 90, 255]
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 55, "y": 556, "w": 335, "h": 19},
+			"color": [24, 41, 90, 255]
+		},
+		{
+			"name": "ExtraOptionsButtons",
+			"type" : "verticalLayout",
+			"customType" : "toggleButton",
+			"position": {"x": 70, "y": 100},
+			"items":
+			[
+				{
+					"name": "buttonCheatAllowed",
+					"image": "lobby/checkbox",
+					"callback" : "setCheatAllowed",
+					"help" : "vcmi.optionsTab.cheatAllowed",
+					"selected" : true
+				},
+				{
+					"name": "buttonUnlimitedReplay",
+					"image": "lobby/checkbox",
+					"callback" : "setUnlimitedReplay",
+					"help" : "vcmi.optionsTab.unlimitedReplay",
+					"selected" : true
+				}
+			]
+		},
+		{
+			"name": "ExtraOptionsLabels",
+			"type" : "verticalLayout",
+			"customType" : "label",
+			"position": {"x": 110, "y": 103},
+			"items":
+			[
+				{
+					"name": "labelCheatAllowed",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.cheatAllowed.hover"
+				},
+				{
+					"name": "labelUnlimitedReplay",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.unlimitedReplay.hover"
+				}
+			]
+		}
+	]
+}

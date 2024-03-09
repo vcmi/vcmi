@@ -42,164 +42,18 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 
-OptionsTab::OptionsTab() : humanPlayers(0)
+static JsonPath optionsTabConfigLocation()
 {
-	recActions = 0;
-		
-	addCallback("setTimerPreset", [&](int index){
-		if(!variables["timerPresets"].isNull())
-		{
-			auto tpreset = variables["timerPresets"].Vector().at(index).Vector();
-			TurnTimerInfo tinfo;
-			tinfo.baseTimer = tpreset.at(0).Integer() * 1000;
-			tinfo.turnTimer = tpreset.at(1).Integer() * 1000;
-			tinfo.battleTimer = tpreset.at(2).Integer() * 1000;
-			tinfo.creatureTimer = tpreset.at(3).Integer() * 1000;
-			CSH->setTurnTimerInfo(tinfo);
-		}
-	});
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		return JsonPath::builtin("config/widgets/playerOptionsTab.json");
+	else
+		return JsonPath::builtin("config/widgets/advancedOptionsTab.json");
+}
 
-	addCallback("setSimturnDuration", [&](int index){
-		SimturnsInfo info;
-		info.optionalTurns = index;
-		CSH->setSimturnsInfo(info);
-	});
-	
-	//helper function to parse string containing time to integer reflecting time in seconds
-	//assumed that input string can be modified by user, function shall support user's intention
-	// normal: 2:00, 12:30
-	// adding symbol: 2:005 -> 2:05, 2:305 -> 23:05,
-	// adding symbol (>60 seconds): 12:095 -> 129:05
-	// removing symbol: 129:0 -> 12:09, 2:0 -> 0:20, 0:2 -> 0:02
-	auto parseTimerString = [](const std::string & str) -> int
-	{
-		auto sc = str.find(":");
-		if(sc == std::string::npos)
-			return str.empty() ? 0 : std::stoi(str);
-		
-		auto l = str.substr(0, sc);
-		auto r = str.substr(sc + 1, std::string::npos);
-		if(r.length() == 3) //symbol added
-		{
-			l.push_back(r.front());
-			r.erase(r.begin());
-		}
-		else if(r.length() == 1) //symbol removed
-		{
-			r.insert(r.begin(), l.back());
-			l.pop_back();
-		}
-		else if(r.empty())
-			r = "0";
-		
-		int sec = std::stoi(r);
-		if(sec >= 60)
-		{
-			if(l.empty()) //9:00 -> 0:09
-				return sec / 10;
-			
-			l.push_back(r.front()); //0:090 -> 9:00
-			r.erase(r.begin());
-		}
-		else if(l.empty())
-			return sec;
-		
-		return std::stoi(l) * 60 + std::stoi(r);
-	};
-	
-	addCallback("parseAndSetTimer_base", [parseTimerString](const std::string & str){
-		int time = parseTimerString(str) * 1000;
-		if(time >= 0)
-		{
-			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
-			tinfo.baseTimer = time;
-			CSH->setTurnTimerInfo(tinfo);
-		}
-	});
-	addCallback("parseAndSetTimer_turn", [parseTimerString](const std::string & str){
-		int time = parseTimerString(str) * 1000;
-		if(time >= 0)
-		{
-			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
-			tinfo.turnTimer = time;
-			CSH->setTurnTimerInfo(tinfo);
-		}
-	});
-	addCallback("parseAndSetTimer_battle", [parseTimerString](const std::string & str){
-		int time = parseTimerString(str) * 1000;
-		if(time >= 0)
-		{
-			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
-			tinfo.battleTimer = time;
-			CSH->setTurnTimerInfo(tinfo);
-		}
-	});
-	addCallback("parseAndSetTimer_creature", [parseTimerString](const std::string & str){
-		int time = parseTimerString(str) * 1000;
-		if(time >= 0)
-		{
-			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
-			tinfo.creatureTimer = time;
-			CSH->setTurnTimerInfo(tinfo);
-		}
-	});
-	
-	const JsonNode config(JsonPath::builtin("config/widgets/optionsTab.json"));
-	build(config);
-	
-	//set timers combo box callbacks
-	if(auto w = widget<ComboBox>("timerModeSwitch"))
-	{
-		w->onConstructItems = [&](std::vector<const void *> & curItems){
-			if(variables["timers"].isNull())
-				return;
-			
-			for(auto & p : variables["timers"].Vector())
-			{
-				curItems.push_back(&p);
-			}
-		};
-		
-		w->onSetItem = [&](const void * item){
-			if(item)
-			{
-				if(auto * tObj = reinterpret_cast<const JsonNode *>(item))
-				{
-					for(auto wname : (*tObj)["hideWidgets"].Vector())
-					{
-						if(auto w = widget<CIntObject>(wname.String()))
-							w->setEnabled(false);
-					}
-					for(auto wname : (*tObj)["showWidgets"].Vector())
-					{
-						if(auto w = widget<CIntObject>(wname.String()))
-							w->setEnabled(true);
-					}
-					if((*tObj)["default"].isVector())
-					{
-						TurnTimerInfo tinfo;
-						tinfo.baseTimer = (*tObj)["default"].Vector().at(0).Integer() * 1000;
-						tinfo.turnTimer = (*tObj)["default"].Vector().at(1).Integer() * 1000;
-						tinfo.battleTimer = (*tObj)["default"].Vector().at(2).Integer() * 1000;
-						tinfo.creatureTimer = (*tObj)["default"].Vector().at(3).Integer() * 1000;
-						CSH->setTurnTimerInfo(tinfo);
-					}
-				}
-				redraw();
-			}
-		};
-		
-		w->getItemText = [this](int idx, const void * item){
-			if(item)
-			{
-				if(auto * tObj = reinterpret_cast<const JsonNode *>(item))
-					return readText((*tObj)["text"]);
-			}
-			return std::string("");
-		};
-		
-		w->setItem(0);
-	}
+OptionsTab::OptionsTab()
+	: OptionsTabBase(optionsTabConfigLocation())
+	, humanPlayers(0)
+{
 }
 
 void OptionsTab::recreate()
@@ -221,64 +75,7 @@ void OptionsTab::recreate()
 		entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second, * this)));
 	}
 
-	//Simultaneous turns
-	if(auto turnSlider = widget<CSlider>("labelSimturnsDurationValue"))
-		turnSlider->scrollTo(SEL->getStartInfo()->simturnsInfo.optionalTurns);
-
-	if(auto w = widget<CLabel>("labelSimturnsDurationValue"))
-	{
-		MetaString message;
-		message.appendRawString("Simturns: up to %d days");
-		message.replaceNumber(SEL->getStartInfo()->simturnsInfo.optionalTurns);
-		w->setText(message.toString());
-	}
-	
-	const auto & turnTimerRemote = SEL->getStartInfo()->turnTimerInfo;
-	
-	//classic timer
-	if(auto turnSlider = widget<CSlider>("sliderTurnDuration"))
-	{
-		if(!variables["timerPresets"].isNull() && !turnTimerRemote.battleTimer && !turnTimerRemote.creatureTimer && !turnTimerRemote.baseTimer)
-		{
-			for(int idx = 0; idx < variables["timerPresets"].Vector().size(); ++idx)
-			{
-				auto & tpreset = variables["timerPresets"].Vector()[idx];
-				if(tpreset.Vector().at(1).Integer() == turnTimerRemote.turnTimer / 1000)
-				{
-					turnSlider->scrollTo(idx);
-					if(auto w = widget<CLabel>("labelTurnDurationValue"))
-						w->setText(CGI->generaltexth->turnDurations[idx]);
-				}
-			}
-		}
-	}
-	
-	//chess timer
-	auto timeToString = [](int time) -> std::string
-	{
-		std::stringstream ss;
-		ss << time / 1000 / 60 << ":" << std::setw(2) << std::setfill('0') << time / 1000 % 60;
-		return ss.str();
-	};
-	
-	if(auto ww = widget<CTextInput>("chessFieldBase"))
-		ww->setText(timeToString(turnTimerRemote.baseTimer), false);
-	if(auto ww = widget<CTextInput>("chessFieldTurn"))
-		ww->setText(timeToString(turnTimerRemote.turnTimer), false);
-	if(auto ww = widget<CTextInput>("chessFieldBattle"))
-		ww->setText(timeToString(turnTimerRemote.battleTimer), false);
-	if(auto ww = widget<CTextInput>("chessFieldCreature"))
-		ww->setText(timeToString(turnTimerRemote.creatureTimer), false);
-	
-	if(auto w = widget<ComboBox>("timerModeSwitch"))
-	{
-		if(turnTimerRemote.battleTimer || turnTimerRemote.creatureTimer || turnTimerRemote.baseTimer)
-		{
-			if(auto turnSlider = widget<CSlider>("sliderTurnDuration"))
-				if(turnSlider->isActive())
-					w->setItem(1);
-		}
-	}
+	OptionsTabBase::recreate();
 }
 
 size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
@@ -401,7 +198,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 					return CGI->generaltexth->allTexts[522];
 
 			if(!playerSettings.heroNameTextId.empty())
-				return playerSettings.heroNameTextId;
+				return CGI->generaltexth->translate(playerSettings.heroNameTextId);
 			auto index = playerSettings.getHeroValidated();
 			return (*CGI->heroh)[index]->getNameTranslated();
 		}
@@ -561,27 +358,35 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeader()
 
 void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 {
+	auto factionIndex = playerSettings.getCastleValidated();
+
+	if (playerSettings.castle == FactionID::RANDOM)
+		return genBonusWindow();
+
 	pos = Rect(0, 0, 228, 290);
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
-	auto factionIndex = playerSettings.getCastleValidated();
 	std::vector<std::shared_ptr<CComponent>> components;
 	const CTown * town = (*CGI->townh)[factionIndex]->town;
 
 	for(auto & elem : town->creatures)
 	{
 		if(!elem.empty())
-			components.push_back(std::make_shared<CComponent>(CComponent::creature, elem.front(), 0, CComponent::tiny));
+			components.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, elem.front(), std::nullopt, CComponent::tiny));
 	}
-	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140));
+	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140), 20, 10, 22, 4);
 }
 
 void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
 {
+	auto heroIndex = playerSettings.getHeroValidated();
+
+	if (playerSettings.hero == HeroTypeID::RANDOM)
+		return genBonusWindow();
+
 	pos = Rect(0, 0, 292, 226);
 	genHeader();
 	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[78]);
-	auto heroIndex = playerSettings.getHeroValidated();
 
 	imageSpeciality = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), (*CGI->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
 	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->getSpecialtyNameTranslated());
@@ -595,12 +400,11 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
-OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
-	: CWindowObject(BORDERED)
+OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType _type)
+	: CWindowObject(BORDERED), color(color)
 {
 	addUsedEvents(LCLICK | SHOW_POPUP);
 
-	color = _color;
 	type = _type;
 
 	initialFaction = SEL->getStartInfo()->playerInfos.find(color)->second.castle;
@@ -610,10 +414,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 	selectedHero = initialHero;
 	selectedBonus = initialBonus;
 	allowedFactions = SEL->getPlayerInfo(color).allowedFactions;
-	std::vector<bool> allowedHeroesFlag = SEL->getMapInfo()->mapHeader->allowedHeroes;
-	for(int i = 0; i < allowedHeroesFlag.size(); i++)
-		if(allowedHeroesFlag[i])
-			allowedHeroes.insert(HeroTypeID(i));
+	allowedHeroes = SEL->getMapInfo()->mapHeader->allowedHeroes;
 
 	for(auto & player : SEL->getStartInfo()->playerInfos)
 	{
@@ -679,9 +480,10 @@ void OptionsTab::SelectionWindow::setSelection()
 
 void OptionsTab::SelectionWindow::reopen()
 {
-	std::shared_ptr<SelectionWindow> window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
+	auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
 	close();
-	GH.windows().pushWindow(window);
+	if(CSH->isMyColor(color) || CSH->isHost())
+		GH.windows().pushWindow(window);
 }
 
 void OptionsTab::SelectionWindow::recreate()
@@ -701,7 +503,7 @@ void OptionsTab::SelectionWindow::recreate()
 			int count = 0;
 			for(auto & elem : allowedHeroes)
 			{
-				CHero * type = VLC->heroh->objects[elem];
+				const CHero * type = elem.toHeroType();
 				if(type->heroClass->faction == selectedFaction)
 				{
 					count++;
@@ -735,11 +537,11 @@ void OptionsTab::SelectionWindow::recreate()
 
 void OptionsTab::SelectionWindow::drawOutlinedText(int x, int y, ColorRGBA color, std::string text)
 {
-	components.push_back(std::make_shared<CLabel>(x-1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
-	components.push_back(std::make_shared<CLabel>(x+1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
-	components.push_back(std::make_shared<CLabel>(x, y-1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
-	components.push_back(std::make_shared<CLabel>(x, y+1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
-	components.push_back(std::make_shared<CLabel>(x, y, FONT_TINY, ETextAlignment::CENTER, color, text));
+	components.push_back(std::make_shared<CLabel>(x-1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text, 56));
+	components.push_back(std::make_shared<CLabel>(x+1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text, 56));
+	components.push_back(std::make_shared<CLabel>(x, y-1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text, 56));
+	components.push_back(std::make_shared<CLabel>(x, y+1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text, 56));
+	components.push_back(std::make_shared<CLabel>(x, y, FONT_TINY, ETextAlignment::CENTER, color, text, 56));
 }
 
 void OptionsTab::SelectionWindow::genContentGrid(int lines)
@@ -830,7 +632,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 
 void OptionsTab::SelectionWindow::genContentBonus()
 {
-	PlayerSettings set = PlayerSettings();
+	PlayerSettings set = SEL->getStartInfo()->playerInfos.find(color)->second;
 
 	int i = 0;
 	for(auto elem : allowedBonus)
@@ -972,7 +774,7 @@ OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & playerSett
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	image = std::make_shared<CAnimImage>(getImageName(), getImageIndex());
-	subtitle = std::make_shared<CLabel>(23, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName());
+	subtitle = std::make_shared<CLabel>(24, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName(), 71);
 
 	pos = image->pos;
 
@@ -1087,10 +889,10 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 
 	background = std::make_shared<CPicture>(ImagePath::builtin(bgs[s->color]), 0, 0);
 	if(s->isControlledByAI() || CSH->isGuest())
-		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, name);
+		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, name, 95);
 	else
 	{
-		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, nullptr, false);
+		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, nullptr, ETextAlignment::CENTER, false);
 		labelPlayerNameEdit->setText(name);
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
@@ -1115,7 +917,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 			CGI->generaltexth->zelp[180],
 			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, *s)
 		);
-		flag->hoverable = true;
+		flag->setHoverable(true);
 		flag->block(CSH->isGuest());
 	}
 	else
@@ -1165,7 +967,7 @@ void OptionsTab::PlayerOptionsEntry::updateName() {
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
 {
-	if(ps.isControlledByAI() || humanPlayers > 0)
+	if(ps.isControlledByAI() || humanPlayers > 1)
 		CSH->setPlayer(ps.color);
 }
 

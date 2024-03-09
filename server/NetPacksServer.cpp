@@ -20,11 +20,11 @@
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/battle/IBattleState.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/Unit.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/serializer/Cast.h"
@@ -134,13 +134,15 @@ void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 
 void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
-	gh.throwIfWrongPlayer(&pack, pack.src.owningPlayer()); //second hero can be ally
+	if(gh.getHero(pack.src.artHolder))
+		gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
 	result = gh.moveArtifact(pack.src, pack.dst);
 }
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	gh.throwIfWrongOwner(&pack, pack.srcHero);
+	if(dynamic_cast<const IMarket*>(gh.getObj(pack.srcHero)) == nullptr)
+		gh.throwIfWrongOwner(&pack, pack.srcHero);
 	if(pack.swap)
 		gh.throwIfWrongOwner(&pack, pack.dstHero);
 	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
@@ -154,7 +156,7 @@ void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 
 void ApplyGhNetPackVisitor::visitEraseArtifactByClient(EraseArtifactByClient & pack)
 {
-	gh.throwIfWrongPlayer(&pack, pack.al.owningPlayer());
+	gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.al.artHolder));
 	result = gh.eraseArtifactByClient(pack.al);
 }
 
@@ -168,7 +170,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
 	const CGObjectInstance * object = gh.getObj(pack.marketId);
 	const CGHeroInstance * hero = gh.getHero(pack.heroId);
-	const IMarket * market = IMarket::castFrom(object);
+	const auto * market = dynamic_cast<const IMarket*>(object);
 
 	gh.throwIfWrongPlayer(&pack);
 
@@ -221,42 +223,49 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i], pack.r2[i]);
+			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sendResources(pack.val[i], pack.player, GameResID(pack.r1[i]), PlayerColor(pack.r2[i]));
+			result &= gh.sendResources(pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<PlayerColor>());
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellCreatures(pack.val[i], market, hero, SlotID(pack.r1[i]), GameResID(pack.r2[i]));
+			result &= gh.sellCreatures(pack.val[i], market, hero, pack.r1[i].as<SlotID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.buyArtifact(market, hero, GameResID(pack.r1[i]), ArtifactID(pack.r2[i]));
+			result &= gh.buyArtifact(market, hero, pack.r1[i].as<GameResID>(), pack.r2[i].as<ArtifactID>());
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellArtifact(market, hero, ArtifactInstanceID(pack.r1[i]), GameResID(pack.r2[i]));
+			result &= gh.sellArtifact(market, hero, pack.r1[i].as<ArtifactInstanceID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.transformInUndead(market, hero, SlotID(pack.r1[i]));
+			result &= gh.transformInUndead(market, hero, pack.r1[i].as<SlotID>());
 		break;
 	case EMarketMode::RESOURCE_SKILL:
 		for(int i = 0; i < pack.r2.size(); ++i)
-			result &= gh.buySecSkill(market, hero, SecondarySkill(pack.r2[i]));
+			result &= gh.buySecSkill(market, hero, pack.r2[i].as<SecondarySkill>());
 		break;
 	case EMarketMode::CREATURE_EXP:
 	{
-		std::vector<SlotID> slotIDs(pack.r1.begin(), pack.r1.end());
+		std::vector<SlotID> slotIDs;
 		std::vector<ui32> count(pack.val.begin(), pack.val.end());
+
+		for(auto const & slot : pack.r1)
+			slotIDs.push_back(slot.as<SlotID>());
+
 		result = gh.sacrificeCreatures(market, hero, slotIDs, count);
 		return;
 	}
 	case EMarketMode::ARTIFACT_EXP:
 	{
-		std::vector<ArtifactPosition> positions(pack.r1.begin(), pack.r1.end());
+		std::vector<ArtifactInstanceID> positions;
+		for(auto const & artInstId : pack.r1)
+			positions.push_back(artInstId.as<ArtifactInstanceID>());
+
 		result = gh.sacrificeArtifact(market, hero, positions);
 		return;
 	}
@@ -275,7 +284,7 @@ void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
 	gh.throwIfWrongPlayer(&pack);
 
-	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player);
+	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player, pack.nhid);
 }
 
 void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
@@ -320,9 +329,9 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.hid);
 
-	const CSpell * s = pack.sid.toSpell();
-	if(!s)
+	if (!pack.sid.hasValue())
 		gh.throwNotAllowedAction(&pack);
+
 	const CGHeroInstance * h = gh.getHero(pack.hid);
 	if(!h)
 		gh.throwNotAllowedAction(&pack);
@@ -331,6 +340,7 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 	p.caster = h;
 	p.pos = pack.pos;
 
+	const CSpell * s = pack.sid.toSpell();
 	result = s->adventureCast(gh.spellEnv, p);
 }
 

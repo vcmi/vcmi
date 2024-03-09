@@ -114,16 +114,20 @@ void CGuiHandler::renderFrame()
 	{
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-		if(nullptr != curInt)
+		if (nullptr != curInt)
 			curInt->update();
 
-		if(settings["video"]["showfps"].Bool())
+		if (settings["video"]["showfps"].Bool())
 			drawFPSCounter();
+	}
 
-		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
 
-		SDL_RenderClear(mainRenderer);
-		SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+
+	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
 		CCS->curh->render();
 
@@ -183,11 +187,17 @@ Point CGuiHandler::screenDimensions() const
 
 void CGuiHandler::drawFPSCounter()
 {
-	static SDL_Rect overlay = { 0, 0, 24, 24};
+	int x = 7;
+	int y = screen->h-20;
+	int width3digitFPSIncludingPadding = 48;
+	int heightFPSTextIncludingPadding = 11;
+	SDL_Rect overlay = { x, y, width3digitFPSIncludingPadding, heightFPSTextIncludingPadding};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
-	std::string fps = std::to_string(framerate().getFramerate());
-	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, Colors::YELLOW, Point(4, 2));
+
+	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
+
+	graphics->fonts[FONT_SMALL]->renderTextLeft(screen, fps, Colors::WHITE, Point(8, screen->h-22));
 }
 
 bool CGuiHandler::amIGuiThread()
@@ -241,8 +251,11 @@ void CGuiHandler::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
 	currentStatusBar = newStatusBar;
 }
 
-void CGuiHandler::onScreenResize()
+void CGuiHandler::onScreenResize(bool resolutionChanged)
 {
-	screenHandler().onScreenResize();
+	if(resolutionChanged)
+	{
+		screenHandler().onScreenResize();
+	}
 	windows().onScreenResize();
 }

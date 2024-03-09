@@ -2,7 +2,6 @@ set(battleAI_SRCS
 		AttackPossibility.cpp
 		BattleAI.cpp
 		BattleEvaluator.cpp
-		common.cpp
 		EnemyInfo.cpp
 		PossibleSpellcast.cpp
 		PotentialTargets.cpp
@@ -17,7 +16,6 @@ set(battleAI_HEADERS
 		AttackPossibility.h
 		BattleAI.h
 		BattleEvaluator.h
-		common.h
 		EnemyInfo.h
 		PotentialTargets.h
 		PossibleSpellcast.h
@@ -26,12 +24,12 @@ set(battleAI_HEADERS
 		BattleExchangeVariant.h
 )
 
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	list(APPEND battleAI_SRCS main.cpp StdInc.cpp)
 endif()
 assign_source_group(${battleAI_SRCS} ${battleAI_HEADERS})
 
-if(ENABLE_STATIC_AI_LIBS)
+if(ENABLE_STATIC_LIBS)
 	add_library(BattleAI STATIC ${battleAI_SRCS} ${battleAI_HEADERS})
 else()
 	add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
@@ -39,7 +37,7 @@ else()
 endif()
 
 target_include_directories(BattleAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(BattleAI PRIVATE ${VCMI_LIB_TARGET} TBB::tbb)
+target_link_libraries(BattleAI PRIVATE vcmi TBB::tbb)
 
 vcmi_set_output_dir(BattleAI "AI")
 enable_pch(BattleAI)

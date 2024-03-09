@@ -67,10 +67,7 @@ public:
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
 	//////////////////////////////////////////////////////////////////////////
-	static std::vector<const CArtifact *> merchantArtifacts; //vector of artifacts available at Artifact merchant, NULLs possible (for making empty space when artifact is bought)
-	static std::vector<int> universitySkills;//skills for university of magic
-
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
@@ -92,7 +89,18 @@ public:
 		for(auto * bonusingBuilding : bonusingBuildings)
 			bonusingBuilding->town = this;
 		
-		h & town;
+		if (h.saving)
+		{
+			CFaction * faction = town ? town->faction : nullptr;
+			h & faction;
+		}
+		else
+		{
+			CFaction * faction = nullptr;
+			h & faction;
+			town = faction ? faction->town : nullptr;
+		}
+
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
@@ -126,6 +134,7 @@ public:
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
 
 	std::string getNameTranslated() const;
+	std::string getNameTextID() const;
 	void setNameTextId(const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
@@ -139,9 +148,8 @@ public:
 	const IObjectInterface * getObject() const override;
 	int getMarketEfficiency() const override; //=market count
 	bool allowsTrade(EMarketMode mode) const override;
-	std::vector<int> availableItemsIds(EMarketMode mode) const override;
+	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
-	void setType(si32 ID, si32 subID) override;
 	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -161,7 +169,7 @@ public:
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(const BuildingID & buildingID) const;
-	bool hasBuilt(const BuildingID & buildingID, int townID) const;
+	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
 	TResources dailyIncome() const; //calculates daily income of this town
@@ -189,7 +197,7 @@ public:
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
 
-	CGTownInstance();
+	CGTownInstance(IGameCallback *cb);
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides
@@ -197,6 +205,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void onHeroLeave(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
 
@@ -204,18 +213,18 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
-	static void reset();
 
 	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
 	{
 		return defendingHero && garrisonHero && defendingHero != garrisonHero;
 	}
 protected:
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 private:
+	FactionID randomizeFaction(CRandomGenerator & rand);
 	void setOwner(const PlayerColor & owner) const;
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;

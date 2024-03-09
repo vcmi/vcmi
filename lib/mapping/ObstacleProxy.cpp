@@ -13,6 +13,7 @@
 #include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -65,7 +66,7 @@ bool ObstacleProxy::isProhibited(const rmg::Area& objArea) const
 	return false;
 };
 
-int ObstacleProxy::getWeightedObjects(const int3 & tile, CRandomGenerator & rand, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
+int ObstacleProxy::getWeightedObjects(const int3 & tile, CRandomGenerator & rand, IGameCallback * cb, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
 {
 	int maxWeight = std::numeric_limits<int>::min();
 	for(auto & possibleObstacle : possibleObstacles)
@@ -79,21 +80,32 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, CRandomGenerator & rand
 		for(const auto & temp : shuffledObstacles)
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(temp->id, temp->subid);
-			auto * obj = handler->create(temp);
+			auto * obj = handler->create(nullptr, temp);
 			allObjects.emplace_back(*obj);
 			rmg::Object * rmgObject = &allObjects.back();
 			for(const auto & offset : obj->getBlockedOffsets())
 			{
-				rmgObject->setPosition(tile - offset);
+				auto newPos = tile - offset;
 
-				if(!isInTheMap(rmgObject->getPosition()))
+				if(!isInTheMap(newPos))
 					continue;
 
-				if(!rmgObject->getArea().getSubarea([this](const int3 & t)
+				rmgObject->setPosition(newPos);
+
+				bool isInTheMapEntirely = true;
+				for (const auto & t : rmgObject->getArea().getTiles())
 				{
-					return !isInTheMap(t);
-				}).empty())
+					if (!isInTheMap(t))
+					{
+						isInTheMapEntirely = false;
+						break;
+					}
+
+				}
+				if (!isInTheMapEntirely)
+				{
 					continue;
+				}
 
 				if(isProhibited(rmgObject->getArea()))
 					continue;
@@ -135,7 +147,7 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, CRandomGenerator & rand
 	return maxWeight;
 }
 
-std::set<CGObjectInstance*> ObstacleProxy::createObstacles(CRandomGenerator & rand)
+std::set<CGObjectInstance*> ObstacleProxy::createObstacles(CRandomGenerator & rand, IGameCallback * cb)
 {
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	auto blockedTiles = blockedArea.getTilesVector();
@@ -148,7 +160,7 @@ std::set<CGObjectInstance*> ObstacleProxy::createObstacles(CRandomGenerator & ra
 
 		std::list<rmg::Object> allObjects;
 		std::vector<std::pair<rmg::Object*, int3>> weightedObjects;
-		int maxWeight = getWeightedObjects(tile, rand, allObjects, weightedObjects);
+		int maxWeight = getWeightedObjects(tile, rand, cb, allObjects, weightedObjects);
 
 		if(weightedObjects.empty())
 		{
@@ -210,7 +222,7 @@ bool EditorObstaclePlacer::isInTheMap(const int3& tile)
 
 std::set<CGObjectInstance*> EditorObstaclePlacer::placeObstacles(CRandomGenerator & rand)
 {
-	auto obstacles = createObstacles(rand);
+	auto obstacles = createObstacles(rand, map->cb);
 	finalInsertion(map->getEditManager(), obstacles);
 	return obstacles;
 }

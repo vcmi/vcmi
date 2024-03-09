@@ -66,7 +66,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	if(!config[name]["exitbutton"].isNull())
 	{
 		buttonBack = createExitButton(config[name]["exitbutton"]);
-		buttonBack->hoverable = true;
+		buttonBack->setHoverable(true);
 	}
 
 	for(const JsonNode & node : config[name]["items"].Vector())

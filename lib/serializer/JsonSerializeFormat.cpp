@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "JsonSerializeFormat.h"
 
-#include "../JsonNode.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 //JsonSerializeHelper
@@ -91,17 +89,6 @@ size_t JsonArraySerializer::size() const
     return thisNode->Vector().size();
 }
 
-//JsonSerializeFormat::LIC
-JsonSerializeFormat::LIC::LIC(const std::vector<bool> & Standard, TDecoder Decoder, TEncoder Encoder):
-	standard(Standard),
-	decoder(std::move(Decoder)),
-	encoder(std::move(Encoder))
-{
-	any.resize(standard.size(), false);
-	all.resize(standard.size(), false);
-	none.resize(standard.size(), false);
-}
-
 JsonSerializeFormat::LICSet::LICSet(const std::set<si32> & Standard, TDecoder Decoder, TEncoder Encoder):
 	standard(Standard),
 	decoder(std::move(Decoder)),
@@ -138,6 +125,25 @@ void JsonSerializeFormat::serializeBool(const std::string & fieldName, bool & va
 void JsonSerializeFormat::serializeBool(const std::string & fieldName, bool & value, const bool defaultValue)
 {
 	serializeBool<bool>(fieldName, value, true, false, defaultValue);
+}
+
+void JsonSerializeFormat::readLICPart(const JsonNode & part, const JsonSerializeFormat::TDecoder & decoder, std::set<si32> & value) const
+{
+	for(const auto & index : part.Vector())
+	{
+		const std::string & identifier = index.String();
+
+		try
+		{
+			const si32 rawId = decoder(identifier);
+			value.insert(rawId);
+		}
+		catch (const IdentifierResolutionException & e)
+		{
+			// downgrade exception to warning (printed as part of exception generation
+			// this is usually caused by loading allowed heroes / artifacts list from vmap's
+		}
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

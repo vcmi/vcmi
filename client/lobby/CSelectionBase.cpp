@@ -22,7 +22,6 @@
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
-#include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -30,7 +29,7 @@
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
@@ -43,11 +42,12 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../../lib/serializer/Connection.h"
+#include "../../lib/CRandomGenerator.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -69,7 +69,7 @@ int ISelectionScreenInfo::getCurrentDifficulty()
 
 PlayerInfo ISelectionScreenInfo::getPlayerInfo(PlayerColor color)
 {
-	return getMapInfo()->mapHeader->players[color.getNum()];
+	return getMapInfo()->mapHeader->players.at(color.getNum());
 }
 
 CSelectionBase::CSelectionBase(ESelectionScreen type)
@@ -135,7 +135,7 @@ InfoCard::InfoCard()
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
-	chat = std::make_shared<CChatBox>(Rect(26, 132, 340, 132));
+	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 	{
@@ -154,7 +154,7 @@ InfoCard::InfoCard()
 
 		iconDifficulty = std::make_shared<CToggleGroup>(0);
 		{
-			static const char * difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
+			constexpr std::array difButns = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
 
 			for(int i = 0; i < 5; i++)
 			{
@@ -209,7 +209,6 @@ void InfoCard::changeSelection()
 		return;
 
 	labelSaveDate->setText(mapInfo->date);
-	labelMapSize->setText(std::to_string(mapInfo->mapHeader->width) + "x" + std::to_string(mapInfo->mapHeader->height));
 	mapName->setText(mapInfo->getNameTranslated());
 	mapDescription->setText(mapInfo->getDescriptionTranslated());
 
@@ -220,14 +219,17 @@ void InfoCard::changeSelection()
 	if(SEL->screenType == ESelectionScreen::campaignList)
 		return;
 
-	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
 	const CMapHeader * header = mapInfo->mapHeader.get();
+
+	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height));
+	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
+
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
 	labelVictoryConditionText->setText(header->victoryMessage.toString());
 	iconsLossCondition->setFrame(header->defeatIconIndex);
 	labelLossConditionText->setText(header->defeatMessage.toString());
 	flagbox->recreate();
-	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + mapInfo->mapHeader->difficulty]);
+	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)]);
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
 	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
 		for(auto & button : iconDifficulty->buttons)
@@ -330,9 +332,12 @@ CChatBox::CChatBox(const Rect & rect)
 	setRedrawParent(true);
 
 	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
-	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height), EFonts::FONT_SMALL, 0);
+	Rect textInputArea(1, rect.h - height, rect.w - 1, height);
+	Rect chatHistoryArea(3, 1, rect.w - 3, rect.h - height - 1);
+	inputBackground = std::make_shared<TransparentFilledRectangle>(textInputArea, ColorRGBA(0,0,0,192));
+	inputBox = std::make_shared<CTextInput>(textInputArea, EFonts::FONT_SMALL, nullptr, ETextAlignment::TOPLEFT, true);
 	inputBox->removeUsedEvents(KEYBOARD);
-	chatHistory = std::make_shared<CTextBox>("", Rect(0, 0, rect.w, rect.h - height), 1);
+	chatHistory = std::make_shared<CTextBox>("", chatHistoryArea, 1);
 
 	chatHistory->label->color = Colors::GREEN;
 }

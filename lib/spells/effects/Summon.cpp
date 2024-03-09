@@ -42,6 +42,12 @@ void Summon::adjustTargetTypes(std::vector<TargetType> & types) const
 
 bool Summon::applicable(Problem & problem, const Mechanics * m) const
 {
+	if (creature == CreatureID::NONE)
+	{
+		logMod->error("Attempt to summon non-existing creature!");
+		return m->adaptGenericProblem(problem);
+	}
+
 	if(exclusive)
 	{
 		//check if there are summoned creatures of other type
@@ -66,7 +72,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 			{
 				text.replaceRawString(caster->getNameTranslated());
 
-				text.replaceLocalString(EMetaText::CRE_PL_NAMES, elemental->creatureIndex());
+				text.replaceNamePlural(elemental->creatureId());
 
 				if(caster->type->gender == EHeroGender::FEMALE)
 					text.replaceLocalString(EMetaText::GENERAL_TXT, 540);
@@ -107,7 +113,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 
 			if(summonByHealth)
 			{
-				const auto *creatureType = creature.toCreature(m->creatures());
+				const auto *creatureType = creature.toEntity(m->creatures());
 				auto creatureMaxHealth = creatureType->getMaxHealth();
 				amount = static_cast<int32_t>(valueWithBonus / creatureMaxHealth);
 			}

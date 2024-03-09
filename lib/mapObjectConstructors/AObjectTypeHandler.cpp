@@ -13,12 +13,16 @@
 
 #include "IObjectInfo.h"
 #include "../CGeneralTextHandler.h"
-#include "../modding/IdentifierStorage.h"
 #include "../VCMI_Lib.h"
+#include "../json/JsonUtils.h"
+#include "../modding/IdentifierStorage.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+AObjectTypeHandler::AObjectTypeHandler() = default;
+AObjectTypeHandler::~AObjectTypeHandler() = default;
 
 std::string AObjectTypeHandler::getJsonKey() const
 {
@@ -55,7 +59,8 @@ static ui32 loadJsonOrMax(const JsonNode & input)
 
 void AObjectTypeHandler::init(const JsonNode & input)
 {
-	base = input["base"];
+	if (!input["base"].isNull())
+		base = std::make_unique<JsonNode>(input["base"]);
 
 	if (!input["rmg"].isNull())
 	{
@@ -72,14 +77,15 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	for (auto entry : input["templates"].Struct())
 	{
 		entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
-		JsonUtils::inherit(entry.second, base);
+		if (base)
+			JsonUtils::inherit(entry.second, *base);
 
-		auto * tmpl = new ObjectTemplate;
+		auto tmpl = std::make_shared<ObjectTemplate>();
 		tmpl->id = Obj(type);
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
 		tmpl->readJson(entry.second);
-		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
+		templates.push_back(tmpl);
 	}
 
 	for(const JsonNode & node : input["sounds"]["ambient"].Vector())
@@ -95,6 +101,10 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		aiValue = std::nullopt;
 	else
 		aiValue = static_cast<std::optional<si32>>(input["aiValue"].Integer());
+
+	// TODO: Define properties, move them to actual object instance
+	blockVisit = input["blockVisit"].Bool();
+	removable = input["removable"].Bool();
 
 	battlefield = BattleField::NONE;
 
@@ -120,6 +130,8 @@ void AObjectTypeHandler::preInitObject(CGObjectInstance * obj) const
 	obj->subID = subtype;
 	obj->typeName = typeName;
 	obj->subTypeName = subTypeName;
+	obj->blockVisit = blockVisit;
+	obj->removable = removable;
 }
 
 void AObjectTypeHandler::initTypeData(const JsonNode & input)
@@ -165,13 +177,15 @@ void AObjectTypeHandler::addTemplate(const std::shared_ptr<const ObjectTemplate>
 void AObjectTypeHandler::addTemplate(JsonNode config)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not null
-	JsonUtils::inherit(config, base);
-	auto * tmpl = new ObjectTemplate;
+	if (base)
+		JsonUtils::inherit(config, *base);
+
+	auto tmpl = std::make_shared<ObjectTemplate>();
 	tmpl->id = Obj(type);
 	tmpl->subid = subtype;
 	tmpl->stringID.clear(); // TODO?
 	tmpl->readJson(config);
-	templates.emplace_back(tmpl);
+	templates.push_back(tmpl);
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTemplates() const
@@ -199,6 +213,26 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplat
 		return templates;
 	else
 		return filtered;
+}
+
+std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getMostSpecificTemplates(TerrainId terrainType) const
+{
+	auto templates = getTemplates(terrainType);
+	if (!templates.empty())
+	{
+		//Get terrain-specific template if possible
+		int leastTerrains = (*boost::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
+		{
+			return tmp1->getAllowedTerrains().size() < tmp2->getAllowedTerrains().size();
+		}))->getAllowedTerrains().size();
+
+		vstd::erase_if(templates, [leastTerrains](const std::shared_ptr<const ObjectTemplate> & tmp)
+		{
+			return tmp->getAllowedTerrains().size() > leastTerrains;
+		});
+	}
+
+	return templates;
 }
 
 std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TerrainId terrainType, const CGObjectInstance * object) const

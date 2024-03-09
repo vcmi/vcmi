@@ -24,13 +24,13 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
 	//this one is not fuzzy anymore, just calculate weighted average
 
-	auto objectInfo = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
+	auto objectInfo = bank->getObjectHandler()->getObjectInfo(bank->appearance);
 
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 
 	ui64 totalStrength = 0;
 	ui8 totalChance = 0;
-	for(auto config : bankInfo->getPossibleGuards())
+	for(auto config : bankInfo->getPossibleGuards(bank->cb))
 	{
 		totalStrength += config.second.totalStrength * config.first;
 		totalChance += config.first;
@@ -161,10 +161,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	}
 	case Obj::PYRAMID:
 	{
-		if(obj->subID == 0)
-			return estimateBankDanger(dynamic_cast<const CBank *>(obj));
-		else
-			return 0;
+		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
 	}
 	default:
 		return 0;

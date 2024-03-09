@@ -35,7 +35,6 @@
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
 	: bg(image)
-	, visible(true)
 	, needRefresh(false)
 {
 	pos += position;
@@ -53,7 +52,6 @@ CPicture::CPicture( const ImagePath & bmpname )
 
 CPicture::CPicture( const ImagePath & bmpname, const Point & position )
 	: bg(GH.renderHandler().loadImage(bmpname))
-	, visible(true)
 	, needRefresh(false)
 {
 	pos.x += position.x;
@@ -81,13 +79,13 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, in
 
 void CPicture::show(Canvas & to)
 {
-	if (visible && needRefresh)
+	if (needRefresh)
 		showAll(to);
 }
 
 void CPicture::showAll(Canvas & to)
 {
-	if(bg && visible)
+	if(bg)
 	{
 		if (srcRect.has_value())
 			to.draw(bg, pos.topLeft(), *srcRect);

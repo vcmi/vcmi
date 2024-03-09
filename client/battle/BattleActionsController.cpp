@@ -29,6 +29,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -568,7 +569,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 	switch (action.get())
 	{
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
-			return (targetStack && targetStackOwned && targetStack->speed() > 0);
+			return (targetStack && targetStackOwned && targetStack->getMovementRange() > 0);
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			return (targetStack && targetStackOwned && targetStack->alive());
@@ -616,8 +617,8 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
 			{
-				int spellID = owner.getBattle()->battleGetRandomStackSpell(CRandomGenerator::getDefault(), targetStack, CBattleInfoCallback::RANDOM_GENIE);
-				return spellID > -1;
+				SpellID spellID = owner.getBattle()->getRandomBeneficialSpell(CRandomGenerator::getDefault(), owner.stacksController->getActiveStack(), targetStack);
+				return spellID != SpellID::NONE;
 			}
 			return false;
 
@@ -750,7 +751,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 
 			if (!spellcastingModeActive())
 			{
-				if (action.spell().toSpell())
+				if (action.spell().hasValue())
 				{
 					owner.giveCommand(EActionType::MONSTER_SPELL, targetHex, action.spell());
 				}
@@ -887,17 +888,17 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 	{
 		// faerie dragon can cast only one, randomly selected spell until their next move
 		//TODO: faerie dragon type spell should be selected by server
-		const auto * spellToCast = owner.getBattle()->battleGetRandomStackSpell(CRandomGenerator::getDefault(), casterStack, CBattleInfoCallback::RANDOM_AIMED).toSpell();
+		const auto spellToCast = owner.getBattle()->getRandomCastedSpell(CRandomGenerator::getDefault(), casterStack);
 
-		if (spellToCast)
-			creatureSpells.push_back(spellToCast);
+		if (spellToCast.hasValue())
+			creatureSpells.push_back(spellToCast.toSpell());
 	}
 
 	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(BonusType::SPELLCASTER));
 
 	for(const auto & bonus : *bl)
 	{
-		if (bonus->additionalInfo[0] <= 0)
+		if (bonus->additionalInfo[0] <= 0 && bonus->subtype.as<SpellID>().hasValue())
 			creatureSpells.push_back(bonus->subtype.as<SpellID>().toSpell());
 	}
 }
@@ -905,7 +906,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 const spells::Caster * BattleActionsController::getCurrentSpellcaster() const
 {
 	if (heroSpellToCast)
-		return owner.getActiveHero();
+		return owner.currentHero();
 	else
 		return owner.stacksController->getActiveStack();
 }
@@ -999,7 +1000,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 		return action.spellcast();
 	};
 
-	bool isCurrentStackInSpellcastMode = std::all_of(possibleActions.begin(), possibleActions.end(), spellcastActionPredicate);
+	bool isCurrentStackInSpellcastMode = !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastActionPredicate);
 
 	if (spellcastingModeActive() || isCurrentStackInSpellcastMode)
 	{

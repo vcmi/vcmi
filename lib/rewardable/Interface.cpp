@@ -35,7 +35,7 @@ std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstanc
 	{
 		const Rewardable::VisitInfo & visit = configuration.info[i];
 
-		if(event == visit.visitType && visit.limiter.heroAllowed(hero))
+		if(event == visit.visitType && (!hero || visit.limiter.heroAllowed(hero)))
 		{
 			logGlobal->trace("Reward %d is allowed", i);
 			ret.push_back(static_cast<ui32>(i));
@@ -117,7 +117,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 	for(int i=0; i< info.reward.primary.size(); i++)
 		cb->changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
 
-	si64 expToGive = 0;
+	TExpType expToGive = 0;
 
 	if (info.reward.heroLevel > 0)
 		expToGive += VLC->heroh->reqExp(hero->level+info.reward.heroLevel) - VLC->heroh->reqExp(hero->level);
@@ -126,7 +126,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 		expToGive += hero->calculateXp(info.reward.heroExperience);
 
 	if(expToGive)
-		cb->changePrimSkill(hero, PrimarySkill::EXPERIENCE, expToGive);
+		cb->giveExperience(hero, expToGive);
 }
 
 void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Rewardable::VisitInfo & info, const CArmedInstance * army, const CGHeroInstance * hero) const
@@ -150,14 +150,14 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 	for(const Bonus & bonus : info.reward.bonuses)
 	{
 		GiveBonus gb;
-		gb.who = GiveBonus::ETarget::HERO;
+		gb.who = GiveBonus::ETarget::OBJECT;
 		gb.bonus = bonus;
-		gb.id = hero->id.getNum();
+		gb.id = hero->id;
 		cb->giveHeroBonus(&gb);
 	}
 
 	for(const ArtifactID & art : info.reward.artifacts)
-		cb->giveHeroNewArtifact(hero, VLC->arth->objects[art],ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(hero, art.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!info.reward.spells.empty())
 	{

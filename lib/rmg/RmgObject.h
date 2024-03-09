@@ -35,6 +35,8 @@ public:
 		
 		int3 getVisitablePosition() const;
 		bool isVisitableFrom(const int3 & tile) const;
+		bool isBlockedVisitable() const;
+		bool isRemovable() const;
 		const Area & getAccessibleArea() const;
 		void setTemplate(TerrainId terrain, CRandomGenerator &); //cache invalidation
 		void setAnyTemplate(CRandomGenerator &); //cache invalidation
@@ -49,6 +51,7 @@ public:
 		void finalize(RmgMap & map, CRandomGenerator &); //cache invalidation
 		void clear();
 		
+		std::function<void(CGObjectInstance *)> onCleared;
 	private:
 		mutable Area dBlockedAreaCache;
 		int3 dPosition;
@@ -66,11 +69,15 @@ public:
 	Instance & addInstance(CGObjectInstance & object);
 	Instance & addInstance(CGObjectInstance & object, const int3 & position);
 	
-	std::list<Instance*> instances();
-	std::list<const Instance*> instances() const;
+	std::list<Instance*> & instances();
+	std::list<const Instance*> & instances() const;
 	
 	int3 getVisitablePosition() const;
 	const Area & getAccessibleArea(bool exceptLast = false) const;
+	const Area & getBlockVisitableArea() const;
+	const Area & getVisitableArea() const;
+	const Area & getRemovableArea() const;
+	const Area getEntrableArea() const;
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
@@ -83,14 +90,21 @@ public:
 	void setGuardedIfMonster(const Instance & object);
 	
 	void finalize(RmgMap & map, CRandomGenerator &);
+	void clearCachedArea() const;
 	void clear();
 	
 private:
 	std::list<Instance> dInstances;
 	mutable Area dFullAreaCache;
-	mutable Area dAccessibleAreaCache, dAccessibleAreaFullCache;
+	mutable Area dAccessibleAreaCache;
+	mutable Area dAccessibleAreaFullCache;
+	mutable Area dBlockVisitableCache;
+	mutable Area dVisitableCache;
+	mutable Area dRemovableAreaCache;
 	int3 dPosition;
-	ui32 dStrength;
+	mutable std::optional<int3> visibleTopOffset;
+	mutable std::list<Object::Instance*> cachedInstanceList;
+	mutable std::list<const Object::Instance*> cachedInstanceConstList;
 	bool guarded;
 };
 }

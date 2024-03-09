@@ -63,7 +63,7 @@ private:
 class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, CRandomGenerator * gen);
+	CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, CRandomGenerator * gen);
 
 	void execute() override;
 	void undo() override;
@@ -83,7 +83,8 @@ private:
 
 	struct InvalidTiles
 	{
-		std::set<int3> foreignTiles, nativeTiles;
+		std::set<int3> foreignTiles;
+		std::set<int3> nativeTiles;
 		bool centerPosValid;
 
 		InvalidTiles() : centerPosValid(false) { }
@@ -101,6 +102,7 @@ private:
 
 	CTerrainSelection terrainSel;
 	TerrainId terType;
+	int decorationsPercentage;
 	CRandomGenerator* gen;
 	std::set<int3> invalidatedTerViews;
 };

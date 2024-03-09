@@ -2,7 +2,7 @@
 	"Worlds at War" :
 	{
 		"minSize" : "m+u", "maxSize" : "xl+u",
-		"players" : "2", "cpu" : "3",
+		"players" : "2", "humans" : "3",
 		"zones" :
 		{
 			"1" :

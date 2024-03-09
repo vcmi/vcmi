@@ -12,6 +12,7 @@
 #include "../gui/CIntObject.h"
 #include "../render/EFont.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/networkPacks/Component.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,11 +27,6 @@ class CLabel;
 class CComponent : public virtual CIntObject
 {
 public:
-	enum Etype
-	{
-		primskill, secskill, resource, creature, artifact, experience, spell, morale, luck, building, hero, flag, typeInvalid
-	};
-
 	//NOTE: not all types have exact these sizes or have less than 4 of them. In such cases closest one will be used
 	enum ESize
 	{
@@ -44,29 +40,24 @@ public:
 private:
 	std::vector<std::shared_ptr<CLabel>> lines;
 
-	size_t getIndex();
-	std::vector<AnimationPath> getFileName();
+	size_t getIndex() const;
+	std::vector<AnimationPath> getFileName() const;
 	void setSurface(const AnimationPath & defName, int imgPos);
-	std::string getSubtitleInternal();
 
-	void init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font = FONT_SMALL, std::string ValText="");
+	void init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts font, const std::string & ValText);
 
 public:
 	std::shared_ptr<CAnimImage> image;
-
-	Etype compType; //component type
+	Component data;
+	std::string customSubtitle;
 	ESize size; //component size.
 	EFonts font; //Font size of label
-	int subtype; //type-dependant subtype. See getSomething methods for details
-	int val; // value \ strength \ amount of component. See getSomething methods for details
-	std::string valText; // value instead of amount; currently only for resource
-	bool perDay; // add "per day" text to subtitle
 
-	std::string getDescription();
-	std::string getSubtitle();
+	std::string getDescription() const;
+	std::string getSubtitle() const;
 
-	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large, EFonts font = FONT_SMALL);
-	CComponent(Etype Type, int Subtype, std::string Val, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val = std::nullopt, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(ComponentType Type, ComponentSubType Subtype, const std::string & Val, ESize imageSize=large, EFonts font = FONT_SMALL);
 	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
 	void showPopupWindow(const Point & cursorPosition) override; //call-in
@@ -86,7 +77,7 @@ public:
 
 	void clickPressed(const Point & cursorPosition) override; //call-in
 	void clickDouble(const Point & cursorPosition) override; //call-in
-	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
+	CSelectableComponent(ComponentType Type, ComponentSubType Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
 	CSelectableComponent(const Component & c, std::function<void()> OnSelect = nullptr);
 };
 
@@ -101,7 +92,7 @@ class CComponentBox : public CIntObject
 	std::shared_ptr<CSelectableComponent> selected;
 	std::function<void(int newID)> onSelect;
 
-	static constexpr int defaultBetweenImagesMin = 20;
+	static constexpr int defaultBetweenImagesMin = 42;
 	static constexpr int defaultBetweenSubtitlesMin = 10;
 	static constexpr int defaultBetweenRows = 22;
 	static constexpr int defaultComponentsInRow = 4;

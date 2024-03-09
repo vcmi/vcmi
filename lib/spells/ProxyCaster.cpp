@@ -36,7 +36,7 @@ int32_t ProxyCaster::getCasterUnitId() const
 	return -1;
 }
 
-int32_t ProxyCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
+int32_t ProxyCaster::getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	if(actualCaster)
 		return actualCaster->getSpellSchoolLevel(spell, outSelectedSchool);

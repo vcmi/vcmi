@@ -11,6 +11,7 @@
 
 #include "PriorityEvaluator.h"
 #include "FuzzyHelper.h"
+#include "Settings.h"
 #include "AIMemory.h"
 #include "DeepDecomposer.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
@@ -23,7 +24,6 @@
 namespace NKAI
 {
 
-const float MAX_GOLD_PEASURE = 0.3f;
 const float MIN_PRIORITY = 0.01f;
 const float SMALL_SCAN_MIN_PRIORITY = 0.4f;
 
@@ -71,8 +71,10 @@ public:
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::unique_ptr<DeepDecomposer> decomposer;
 	std::unique_ptr<ArmyFormation> armyFormation;
+	std::unique_ptr<Settings> settings;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
+	std::mutex aiStateMutex;
 
 	Nullkiller();
 	void init(std::shared_ptr<CCallback> cb, PlayerColor playerID);

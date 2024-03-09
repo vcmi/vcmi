@@ -25,7 +25,7 @@ std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() c
 {
 	std::map<HeroTypeID, CGHeroInstance*> pool = heroesPool;
 	for(const auto & slot : currentTavern)
-		pool.erase(HeroTypeID(slot.hero->subID));
+		pool.erase(slot.hero->getHeroType());
 
 	return pool;
 }
@@ -34,13 +34,13 @@ TavernSlotRole TavernHeroesPool::getSlotRole(HeroTypeID hero) const
 {
 	for (auto const & slot : currentTavern)
 	{
-		if (HeroTypeID(slot.hero->subID) == hero)
+		if (slot.hero->getHeroType() == hero)
 			return slot.role;
 	}
 	return TavernSlotRole::NONE;
 }
 
-void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role)
+void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role, bool replenishPoints)
 {
 	vstd::erase_if(currentTavern, [&](const TavernSlot & entry){
 		return entry.player == player && entry.slot == slot;
@@ -53,6 +53,12 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 
 	if (h && army)
 		h->setToArmy(army);
+
+	if (h && replenishPoints)
+	{
+		h->setMovementPoints(h->movementPointsLimit(true));
+		h->mana = h->manaLimit();
+	}
 
 	TavernSlot newSlot;
 	newSlot.hero = h;
@@ -126,13 +132,13 @@ void TavernHeroesPool::onNewDay()
 			continue;
 
 		hero.second->setMovementPoints(hero.second->movementPointsLimit(true));
-		hero.second->mana = hero.second->manaLimit();
+		hero.second->mana = hero.second->getManaNewTurn();
 	}
 }
 
 void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)
 {
-	heroesPool[HeroTypeID(hero->subID)] = hero;
+	heroesPool[hero->getHeroType()] = hero;
 }
 
 void TavernHeroesPool::setAvailability(HeroTypeID hero, std::set<PlayerColor> mask)

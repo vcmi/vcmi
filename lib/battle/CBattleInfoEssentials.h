@@ -52,7 +52,7 @@ public:
 	BattleField battleGetBattlefieldType() const override;
 	int32_t battleGetEnchanterCounter(ui8 side) const;
 
-	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(std::optional<BattlePerspective::BattlePerspective> perspective = std::nullopt) const; //returns all obstacles on the battlefield
+	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstacles(std::optional<BattlePerspective::BattlePerspective> perspective = std::nullopt) const; //returns all obstacles on the battlefield
 
 	std::shared_ptr<const CObstacleInstance> battleGetObstacleByID(uint32_t ID) const;
 
@@ -62,8 +62,8 @@ public:
 	 * @return filtered stacks
 	 *
 	 */
-	TStacks battleGetStacksIf(TStackFilter predicate) const; //deprecated
-	battle::Units battleGetUnitsIf(battle::UnitFilter predicate) const override;
+	TStacks battleGetStacksIf(const TStackFilter & predicate) const; //deprecated
+	battle::Units battleGetUnitsIf(const battle::UnitFilter & predicate) const override;
 
 	const battle::Unit * battleGetUnitByID(uint32_t ID) const override;
 	const battle::Unit * battleActiveUnit() const override;

@@ -68,7 +68,7 @@ public:
 	void heroVisit(const CGObjectInstance * obj, bool started);
 
 
-	template<typename Handler> void serialize(Handler & h, const int version)
+	template<typename Handler> void serialize(Handler & h)
 	{
 		h & battle;
 		h & remainingQueries;
@@ -152,8 +152,8 @@ public:
 	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	void saveGame(BinarySerializer & h, const int version) override; //saving
-	void loadGame(BinaryDeserializer & h, const int version) override; //loading
+	void saveGame(BinarySerializer & h) override; //saving
+	void loadGame(BinaryDeserializer & h) override; //loading
 	void finish() override;
 
 	void availableCreaturesChanged(const CGDwelling * town) override;
@@ -251,7 +251,7 @@ public:
 	void retrieveVisitableObjs();
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
-	const CGObjectInstance * lookForArt(int aid) const;
+	const CGObjectInstance * lookForArt(ArtifactID aid) const;
 	bool isAccessible(const int3 & pos) const;
 	HeroPtr getHeroWithGrail() const;
 
@@ -301,7 +301,7 @@ public:
 	}
 	#endif
 
-	template<typename Handler> void serializeInternal(Handler & h, const int version)
+	template<typename Handler> void serializeInternal(Handler & h)
 	{
 		h & knownTeleportChannels;
 		h & knownSubterraneanGates;
@@ -341,7 +341,7 @@ public:
 							//we have to explicitly ignore invalid goal class type id
 							h & typeId;
 							Goals::AbstractGoal ignored2;
-							ignored2.serialize(h, version);
+							ignored2.serialize(h);
 						}
 					}
 				}
@@ -371,11 +371,7 @@ public:
 	{
 	}
 
-	virtual ~cannotFulfillGoalException() throw ()
-	{
-	};
-
-	const char * what() const throw () override
+	const char * what() const noexcept override
 	{
 		return msg.c_str();
 	}
@@ -394,11 +390,7 @@ public:
 		msg = goal->name();
 	}
 
-	virtual ~goalFulfilledException() throw ()
-	{
-	};
-
-	const char * what() const throw () override
+	const char * what() const noexcept override
 	{
 		return msg.c_str();
 	}

@@ -86,7 +86,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, BonusValueType ValType);
 	Bonus() = default;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & duration;
 		h & type;
@@ -160,6 +160,11 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	static bool UntilCommanderKilled(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::COMMANDER_KILLED;
+		return set.any();
+	}
+	static bool UntilOwnAttack(const Bonus *hb)
+	{
+		auto set = hb->duration & BonusDuration::UNTIL_OWN_ATTACK;
 		return set.any();
 	}
 	inline bool operator == (const BonusType & cf) const

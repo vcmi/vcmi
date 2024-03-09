@@ -246,7 +246,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	{
 		auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
 
-		if(heroRole == HeroRole::MAIN && path.turn() < SCOUT_TURN_DISTANCE_LIMIT)
+		if(heroRole == HeroRole::MAIN && path.turn() < ai->nullkiller->settings->getScoutHeroTurnDistanceLimit())
 			hasMainAround = true;
 	}
 
@@ -335,7 +335,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			if(!upgrade.upgradeValue
 				&& armyToGetOrBuy.upgradeValue > 20000
 				&& ai->nullkiller->heroManager->canRecruitHero(town)
-				&& path.turn() < SCOUT_TURN_DISTANCE_LIMIT)
+				&& path.turn() < ai->nullkiller->settings->getScoutHeroTurnDistanceLimit())
 			{
 				for(auto hero : cb->getAvailableHeroes(town))
 				{
@@ -344,7 +344,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
 						&& ai->nullkiller->getFreeGold() >20000
-						&& ai->nullkiller->buildAnalyzer->getGoldPreasure() < MAX_GOLD_PEASURE)
+						&& !ai->nullkiller->buildAnalyzer->isGoldPreasureHigh())
 					{
 						Composition recruitHero;
 

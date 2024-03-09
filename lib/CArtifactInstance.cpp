@@ -62,12 +62,9 @@ void CCombinedArtifactInstance::addPlacementMap(CArtifactSet::ArtPlacementMap & 
 SpellID CScrollArtifactInstance::getScrollSpellID() const
 {
 	auto artInst = static_cast<const CArtifactInstance*>(this);
-	const auto bonus = artInst->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
+	const auto bonus = artInst->getFirstBonus(Selector::type()(BonusType::SPELL));
 	if(!bonus)
-	{
-		logMod->warn("Warning: %s doesn't bear any spell!", artInst->nodeName());
 		return SpellID::NONE;
-	}
 	return bonus->subtype.as<SpellID>();
 }
 
@@ -110,7 +107,7 @@ void CArtifactInstance::init()
 	setNodeType(ARTIFACT_INSTANCE);
 }
 
-CArtifactInstance::CArtifactInstance(CArtifact * art)
+CArtifactInstance::CArtifactInstance(const CArtifact * art)
 {
 	init();
 	setType(art);
@@ -121,10 +118,10 @@ CArtifactInstance::CArtifactInstance()
 	init();
 }
 
-void CArtifactInstance::setType(CArtifact * art)
+void CArtifactInstance::setType(const CArtifact * art)
 {
 	artType = art;
-	attachTo(*art);
+	attachToSource(*art);
 }
 
 std::string CArtifactInstance::nodeName() const
@@ -155,9 +152,9 @@ void CArtifactInstance::setId(ArtifactInstanceID id)
 	this->id = id;
 }
 
-bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved) const
+bool CArtifactInstance::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
-	return artType->canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
+	return artType->canBePutAt(artSet, slot, assumeDestRemoved);
 }
 
 bool CArtifactInstance::isCombined() const
@@ -165,15 +162,20 @@ bool CArtifactInstance::isCombined() const
 	return artType->isCombined();
 }
 
-void CArtifactInstance::putAt(const ArtifactLocation & al)
+bool CArtifactInstance::isScroll() const
 {
-	auto placementMap = al.getHolderArtSet()->putArtifact(al.slot, this);
+	return artType->isScroll();
+}
+
+void CArtifactInstance::putAt(CArtifactSet & set, const ArtifactPosition slot)
+{
+	auto placementMap = set.putArtifact(slot, this);
 	addPlacementMap(placementMap);
 }
 
-void CArtifactInstance::removeFrom(const ArtifactLocation & al)
+void CArtifactInstance::removeFrom(CArtifactSet & set, const ArtifactPosition slot)
 {
-	al.getHolderArtSet()->removeArtifact(al.slot);
+	set.removeArtifact(slot);
 	for(auto & part : partsInfo)
 	{
 		if(part.slot != ArtifactPosition::PRE_FIRST)
@@ -181,10 +183,10 @@ void CArtifactInstance::removeFrom(const ArtifactLocation & al)
 	}
 }
 
-void CArtifactInstance::move(const ArtifactLocation & src, const ArtifactLocation & dst)
+void CArtifactInstance::move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot)
 {
-	removeFrom(src);
-	putAt(dst);
+	removeFrom(srcSet, srcSlot);
+	putAt(dstSet, dstSlot);
 }
 
 void CArtifactInstance::deserializationFix()

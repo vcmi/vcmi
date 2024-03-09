@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CMapService.h"
 
+#include "../json/JsonUtils.h"
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/CCompressedStream.h"
@@ -30,14 +31,14 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 
-std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name) const
+std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameCallback * cb) const
 {
 	std::string modName = VLC->modh->findResourceOrigin(name);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
 
 	auto stream = getStreamFromFS(name);
-	return getMapLoader(stream, name.getName(), modName, encoding)->loadMap();
+	return getMapLoader(stream, name.getName(), modName, encoding)->loadMap(cb);
 }
 
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name) const
@@ -50,10 +51,10 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMapHeader();
 }
 
-std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding) const
+std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding, IGameCallback * cb) const
 {
 	auto stream = getStreamFromMem(buffer, size);
-	std::unique_ptr<CMap> map(getMapLoader(stream, name, modName, encoding)->loadMap());
+	std::unique_ptr<CMap> map(getMapLoader(stream, name, modName, encoding)->loadMap(cb));
 	std::unique_ptr<CMapHeader> header(map.get());
 
 	//might be original campaign and require patch
@@ -94,7 +95,8 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 {
 	const auto & activeMods = VLC->modh->getActiveMods();
 	
-	ModCompatibilityInfo missingMods, missingModsFiltered;
+	ModCompatibilityInfo missingMods;
+	ModCompatibilityInfo missingModsFiltered;
 	for(const auto & mapMod : map.mods)
 	{
 		if(vstd::contains(activeMods, mapMod.first))
@@ -169,16 +171,13 @@ static JsonNode loadPatches(const std::string & path)
 	for (auto & entry : node.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 
-	node.setMeta(ModScope::scopeMap());
+	node.setModScope(ModScope::scopeMap());
 	return node;
 }
 
 std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName)
 {
-	static JsonNode node;
-
-	if (node.isNull())
-		node = loadPatches("config/mapOverrides.json");
+	static const JsonNode node = loadPatches("config/mapOverrides.json");
 
 	boost::to_lower(scenarioName);
 	logGlobal->debug("Request to patch map %s", scenarioName);

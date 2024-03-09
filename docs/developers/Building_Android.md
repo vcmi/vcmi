@@ -62,7 +62,7 @@ Building for Android is a 2-step process. First, native C++ code is compiled to 
 This is a traditional CMake project, you can build it from command line or some IDE. You're not required to pass any custom options (except Conan toolchain file), defaults are already good. If you wish to use your own CMake presets, inherit them from our `build-with-conan` preset. Example:
 
 ```
-cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug -D CMAKE_COMPILER_LAUNCHER=ccache --toolchain ...
+cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug -D ENABLE_CCACHE:BOOL=ON --toolchain ...
 cmake --build ../build
 ```
 

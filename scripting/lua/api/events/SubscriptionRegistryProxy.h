@@ -42,7 +42,7 @@ public:
 	using EventType = typename EventProxy::ObjectType;
 	using RegistryType = ::events::SubscriptionRegistry<EventType>;
 
-	static_assert(std::is_base_of<::events::Event, EventType>::value, "Invalid template parameter");
+	static_assert(std::is_base_of_v<::events::Event, EventType>, "Invalid template parameter");
 
 	static int subscribeBefore(lua_State * L)
 	{

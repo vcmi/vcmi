@@ -30,7 +30,7 @@ class CMapGenerator;
 class Modificator;
 class CRandomGenerator;
 
-extern std::function<bool(const int3 &)> AREA_NO_FILTER;
+extern const std::function<bool(const int3 &)> AREA_NO_FILTER;
 
 typedef std::list<std::shared_ptr<Modificator>> TModificators;
 
@@ -59,13 +59,14 @@ public:
 	void fractalize();
 	
 	FactionID getTownType() const;
-	void setTownType(si32 town);
+	void setTownType(FactionID town);
 	TerrainId getTerrainType() const;
 	void setTerrainType(TerrainId terrain);
 		
 	void connectPath(const rmg::Path & path);
 	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 	rmg::Path searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
+	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const rmg::Area & searchArea) const;
 
 	TModificators getModificators();
 
@@ -108,7 +109,7 @@ protected:
 	std::vector<int3> possibleQuestArtifactPos;
 	
 	//template info
-	si32 townType;
+	FactionID townType;
 	TerrainId terrainType;
 };
 

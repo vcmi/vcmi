@@ -96,6 +96,7 @@ public:
 	const std::vector<TownDevelopmentInfo> & getDevelopmentInfo() const { return developmentInfos; }
 	TResources getDailyIncome() const { return dailyIncome; }
 	float getGoldPreasure() const { return goldPreasure; }
+	bool isGoldPreasureHigh() const;
 	bool hasAnyBuilding(int32_t alignment, BuildingID bid) const;
 
 private:

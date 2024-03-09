@@ -18,6 +18,7 @@
 
 #include "../../lib/battle/Unit.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/serializer/JsonSerializeFormat.h"
 
 static const std::string APPLICABLE_GENERAL = "applicable";
@@ -75,7 +76,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m) const
 	if(response.getType() != JsonNode::JsonType::DATA_BOOL)
 	{
 		logMod->error("Invalid API response from script %s.", script->getName());
-		logMod->debug(response.toJson(true));
+		logMod->debug(response.toCompactString());
 		return false;
 	}
 	return response.Bool();
@@ -97,12 +98,12 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 	for(const auto & dest : target)
 	{
 		JsonNode targetData;
-		targetData.Vector().push_back(JsonUtils::intNode(dest.hexValue.hex));
+		targetData.Vector().emplace_back(dest.hexValue.hex);
 
 		if(dest.unitValue)
-			targetData.Vector().push_back(JsonUtils::intNode(dest.unitValue->unitId()));
+			targetData.Vector().emplace_back(dest.unitValue->unitId());
 		else
-			targetData.Vector().push_back(JsonUtils::intNode(-1));
+			targetData.Vector().emplace_back(-1);
 
 		requestP.Vector().push_back(targetData);
 	}
@@ -115,7 +116,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 	if(response.getType() != JsonNode::JsonType::DATA_BOOL)
 	{
 		logMod->error("Invalid API response from script %s.", script->getName());
-		logMod->debug(response.toJson(true));
+		logMod->debug(response.toCompactString());
 		return false;
 	}
 	return response.Bool();
@@ -140,12 +141,12 @@ void LuaSpellEffect::apply(ServerCallback * server, const Mechanics * m, const E
 	for(const auto & dest : target)
 	{
 		JsonNode targetData;
-		targetData.Vector().push_back(JsonUtils::intNode(dest.hexValue.hex));
+		targetData.Vector().emplace_back(dest.hexValue.hex);
 
 		if(dest.unitValue)
-			targetData.Vector().push_back(JsonUtils::intNode(dest.unitValue->unitId()));
+			targetData.Vector().emplace_back(dest.unitValue->unitId());
 		else
-			targetData.Vector().push_back(JsonUtils::intNode(-1));
+			targetData.Vector().emplace_back(-1);
 
 		requestP.Vector().push_back(targetData);
 	}

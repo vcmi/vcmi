@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/CGameInfoCallback.h"
 
 namespace spells
 {

@@ -2,7 +2,7 @@
 	"Newcomers" :
 	{
 		"minSize" : "m+u", "maxSize" : "xl+u",
-		"players" : "2-3", "cpu" : "1",
+		"players" : "2-3", "humans" : "1",
 		"zones" :
 		{
 			"1" :

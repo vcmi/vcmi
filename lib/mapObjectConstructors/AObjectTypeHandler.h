@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include "../constants/EntityIdentifiers.h"
 #include "RandomMapInfo.h"
 #include "SObjectSounds.h"
-#include "../JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,6 +19,7 @@ class ObjectTemplate;
 class CGObjectInstance;
 class CRandomGenerator;
 class IObjectInfo;
+class IGameCallback;
 
 /// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
@@ -27,7 +28,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	RandomMapInfo rmgInfo;
 
-	JsonNode base; /// describes base template
+	std::unique_ptr<JsonNode> base; /// describes base template
 
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 
@@ -43,6 +44,9 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	si32 type;
 	si32 subtype;
 
+	bool blockVisit;
+	bool removable;
+
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const;
@@ -51,7 +55,8 @@ protected:
 	virtual void initTypeData(const JsonNode & input);
 public:
 
-	virtual ~AObjectTypeHandler() = default;
+	AObjectTypeHandler();
+	virtual ~AObjectTypeHandler();
 
 	si32 getIndex() const;
 	si32 getSubIndex() const;
@@ -75,6 +80,7 @@ public:
 	/// returns all templates matching parameters
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates() const;
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(const TerrainId terrainType) const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getMostSpecificTemplates(TerrainId terrainType) const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
@@ -104,7 +110,7 @@ public:
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)
-	virtual CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const = 0;
+	virtual CGObjectInstance * create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const = 0;
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map
@@ -112,20 +118,6 @@ public:
 
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & type;
-		h & subtype;
-		h & templates;
-		h & rmgInfo;
-		h & modScope;
-		h & typeName;
-		h & subTypeName;
-		h & sounds;
-		h & aiValue;
-		h & battlefield;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

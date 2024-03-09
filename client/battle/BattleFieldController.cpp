@@ -11,6 +11,7 @@
 #include "BattleFieldController.h"
 
 #include "BattleInterface.h"
+#include "BattleWindow.h"
 #include "BattleActionsController.h"
 #include "BattleInterfaceClasses.h"
 #include "BattleEffectsController.h"
@@ -360,10 +361,7 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	if (!settings["battle"]["movementHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
 		return result;
 
-	auto hoveredHex = getHoveredHex();
-
-	// add possible movement hexes for stack under mouse
-	const CStack * const hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
+	auto hoveredStack = getHoveredStack();
 	if(hoveredStack)
 	{
 		std::vector<BattleHex> v = owner.getBattle()->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
@@ -591,10 +589,9 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
 	BattleHex hoveredHex = getHoveredHex();
-	if(hoveredHex == BattleHex::INVALID)
-		return;
-
 	const CStack * hoveredStack = getHoveredStack();
+	if(!hoveredStack && hoveredHex == BattleHex::INVALID)
+		return;
 
 	// skip range limit calculations if unit hovered is not a shooter
 	if(hoveredStack && hoveredStack->isShooter())
@@ -608,7 +605,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighligts);
 	}
 
-	auto const & hoveredMouseHexes = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
+	auto const & hoveredMouseHexes = hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
@@ -675,6 +672,14 @@ const CStack* BattleFieldController::getHoveredStack()
 {
 	auto hoveredHex = getHoveredHex();
 	const CStack* hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
+
+	if(owner.windowObject->getQueueHoveredUnitId().has_value())
+	{
+		auto stacks = owner.getBattle()->battleGetAllStacks();
+		for(const CStack * stack : stacks)
+			if(stack->unitId() == *owner.windowObject->getQueueHoveredUnitId())
+				hoveredStack = stack;
+	}
 
 	return hoveredStack;
 }

@@ -37,6 +37,10 @@ class PlayerMessageProcessor
 	void cheatVictory(PlayerColor player);
 	void cheatDefeat(PlayerColor player);
 	void cheatMapReveal(PlayerColor player, bool reveal);
+	void cheatPuzzleReveal(PlayerColor player);
+	void cheatMaxLuck(PlayerColor player, const CGHeroInstance * hero);
+	void cheatMaxMorale(PlayerColor player, const CGHeroInstance * hero);
+	void cheatFly(PlayerColor player, const CGHeroInstance * hero);
 
 public:
 	CGameHandler * gameHandler;
@@ -56,7 +60,7 @@ public:
 	/// Send message from specific player to all other players
 	void broadcastMessage(PlayerColor playerSender, const std::string & message);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 	}
 };

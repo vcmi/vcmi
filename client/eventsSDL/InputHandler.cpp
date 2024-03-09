@@ -116,7 +116,11 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	if(ev.type == SDL_QUIT)
 	{
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+#ifdef VCMI_ANDROID
 		handleQuit(false);
+#else
+		handleQuit(true);
+#endif
 		return;
 	}
 	else if(ev.type == SDL_KEYDOWN)
@@ -141,7 +145,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			Settings full = settings.write["video"]["fullscreen"];
 			full->Bool() = !full->Bool();
 
-			GH.onScreenResize();
+			GH.onScreenResize(false);
 			return;
 		}
 	}
@@ -159,14 +163,14 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #ifndef VCMI_IOS
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-				GH.onScreenResize();
+				GH.onScreenResize(false);
 			}
 #endif
 			break;
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-				if(settings["general"]["enableUiEnhancements"].Bool()) {
+				if(settings["general"]["audioMuteFocus"].Bool()) {
 					CCS->musich->setVolume(settings["general"]["music"].Integer());
 					CCS->soundh->setVolume(settings["general"]["sound"].Integer());
 				}
@@ -175,7 +179,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-				if(settings["general"]["enableUiEnhancements"].Bool()) {
+				if(settings["general"]["audioMuteFocus"].Bool()) {
 					CCS->musich->setVolume(0);
 					CCS->soundh->setVolume(0);
 				}
@@ -300,7 +304,7 @@ void InputHandler::dispatchMainThread(const std::function<void()> & functor)
 	auto heapFunctor = new std::function<void()>(functor);
 
 	SDL_Event event;
-	event.type = SDL_USEREVENT;
+	event.user.type = SDL_USEREVENT;
 	event.user.code = 0;
 	event.user.data1 = static_cast <void*>(heapFunctor);
 	event.user.data2 = nullptr;
@@ -312,6 +316,8 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 	auto heapFunctor = static_cast<std::function<void()>*>(current.data1);
 
 	(*heapFunctor)();
+
+	delete heapFunctor;
 }
 
 const Point & InputHandler::getCursorPosition() const

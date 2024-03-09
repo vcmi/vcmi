@@ -15,7 +15,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 class int3
 {
 public:
-	si32 x, y, z;
+	si32 x;
+	si32 y;
+	si32 z;
 
 	//c-tor: x, y, z initialized to 0
 	constexpr int3() : x(0), y(0), z(0) {} // I think that x, y, z should be left uninitialized.
@@ -82,19 +84,13 @@ public:
 
 	constexpr bool operator<(const int3 & i) const
 	{
-		if (z < i.z)
-			return true;
-		if (z > i.z)
-			return false;
-		if (y < i.y)
-			return true;
-		if (y > i.y)
-			return false;
-		if (x < i.x)
-			return true;
-		if (x > i.x)
-			return false;
-		return false;
+		if (z != i.z)
+			return z < i.z;
+
+		if (y != i.y)
+			return y < i.y;
+
+		return x < i.x;
 	}
 
 	enum EDistanceFormula
@@ -168,7 +164,7 @@ public:
 	}
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & x;
 		h & y;
@@ -180,12 +176,25 @@ public:
 		return { { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 			int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) } };
 	}
+
+	// Solution by ChatGPT
+
+	// Assume values up to +- 1000
+    friend std::size_t hash_value(const int3& v) {
+        // Since the range is [-1000, 1000], offsetting by 1000 maps it to [0, 2000]
+        std::size_t hx = v.x + 1000;
+        std::size_t hy = v.y + 1000;
+        std::size_t hz = v.z + 1000;
+
+        // Combine the hash values, multiplying them by prime numbers
+        return ((hx * 4000037u) ^ (hy * 2003u)) + hz;
+    }
 };
 
 template<typename Container>
 int3 findClosestTile (Container & container, int3 dest)
 {
-	static_assert(std::is_same<typename Container::value_type, int3>::value,
+	static_assert(std::is_same_v<typename Container::value_type, int3>,
 		"findClosestTile requires <int3> container.");
 
 	int3 result(-1, -1, -1);
@@ -204,14 +213,9 @@ int3 findClosestTile (Container & container, int3 dest)
 
 VCMI_LIB_NAMESPACE_END
 
-
 template<>
 struct std::hash<VCMI_LIB_WRAP_NAMESPACE(int3)> {
-	size_t operator()(VCMI_LIB_WRAP_NAMESPACE(int3) const& pos) const
-	{
-		size_t ret = std::hash<int>()(pos.x);
-		VCMI_LIB_WRAP_NAMESPACE(vstd)::hash_combine(ret, pos.y);
-		VCMI_LIB_WRAP_NAMESPACE(vstd)::hash_combine(ret, pos.z);
-		return ret;
+	std::size_t operator()(VCMI_LIB_WRAP_NAMESPACE(int3) const& pos) const noexcept {
+		return hash_value(pos);
 	}
 };

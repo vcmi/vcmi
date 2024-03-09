@@ -51,7 +51,10 @@ set(client_SRCS
 	lobby/CSavingScreen.cpp
 	lobby/CScenarioInfoScreen.cpp
 	lobby/CSelectionBase.cpp
+	lobby/TurnOptionsTab.cpp
+	lobby/ExtraOptionsTab.cpp
 	lobby/OptionsTab.cpp
+	lobby/OptionsTabBase.cpp
 	lobby/RandomMapTab.cpp
 	lobby/SelectionTab.cpp
 
@@ -92,6 +95,12 @@ set(client_SRCS
 	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
+	globalLobby/GlobalLobbyClient.cpp
+	globalLobby/GlobalLobbyLoginWindow.cpp
+	globalLobby/GlobalLobbyServerSetup.cpp
+	globalLobby/GlobalLobbyWidget.cpp
+	globalLobby/GlobalLobbyWindow.cpp
+
 	widgets/Buttons.cpp
 	widgets/CArtifactHolder.cpp
 	widgets/CComponent.cpp
@@ -99,6 +108,7 @@ set(client_SRCS
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
 	widgets/ComboBox.cpp
+	widgets/GraphicalPrimitiveCanvas.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
@@ -113,7 +123,12 @@ set(client_SRCS
 	widgets/CArtifactsOfHeroBackpack.cpp
 	widgets/CWindowWithArtifacts.cpp
 	widgets/RadialMenu.cpp
+	widgets/markets/CAltarArtifacts.cpp
+	widgets/markets/CAltarCreatures.cpp
+	widgets/markets/CTradeBase.cpp
+	widgets/markets/TradePanels.cpp
 
+	windows/CAltarWindow.cpp
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
 	windows/CHeroOverview.cpp
@@ -125,6 +140,7 @@ set(client_SRCS
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
 	windows/CTradeWindow.cpp
+	windows/CTutorialWindow.cpp
 	windows/CWindowObject.cpp
 	windows/CreaturePurchaseCard.cpp
 	windows/GUIClasses.cpp
@@ -149,6 +165,7 @@ set(client_SRCS
 	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
+	ServerRunner.cpp
 )
 
 set(client_HEADERS
@@ -208,7 +225,10 @@ set(client_HEADERS
 	lobby/CSavingScreen.h
 	lobby/CScenarioInfoScreen.h
 	lobby/CSelectionBase.h
+	lobby/TurnOptionsTab.h
+	lobby/ExtraOptionsTab.h
 	lobby/OptionsTab.h
+	lobby/OptionsTabBase.h
 	lobby/RandomMapTab.h
 	lobby/SelectionTab.h
 
@@ -258,6 +278,13 @@ set(client_HEADERS
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 
+	globalLobby/GlobalLobbyClient.h
+	globalLobby/GlobalLobbyDefines.h
+	globalLobby/GlobalLobbyLoginWindow.h
+	globalLobby/GlobalLobbyServerSetup.h
+	globalLobby/GlobalLobbyWidget.h
+	globalLobby/GlobalLobbyWindow.h
+
 	widgets/Buttons.h
 	widgets/CArtifactHolder.h
 	widgets/CComponent.h
@@ -265,6 +292,7 @@ set(client_HEADERS
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
 	widgets/ComboBox.h
+	widgets/GraphicalPrimitiveCanvas.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
@@ -279,7 +307,12 @@ set(client_HEADERS
 	widgets/CArtifactsOfHeroBackpack.h
 	widgets/CWindowWithArtifacts.h
 	widgets/RadialMenu.h
+	widgets/markets/CAltarArtifacts.h
+	widgets/markets/CAltarCreatures.h
+	widgets/markets/CTradeBase.h
+	widgets/markets/TradePanels.h
 
+	windows/CAltarWindow.h
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
 	windows/CHeroOverview.h
@@ -291,6 +324,7 @@ set(client_HEADERS
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
 	windows/CTradeWindow.h
+	windows/CTutorialWindow.h
 	windows/CWindowObject.h
 	windows/CreaturePurchaseCard.h
 	windows/GUIClasses.h
@@ -315,6 +349,7 @@ set(client_HEADERS
 	ClientNetPackVisitors.h
 	HeroMovementController.h
 	LobbyClientNetPackVisitors.h
+	ServerRunner.h
 	resource.h
 )
 
@@ -342,8 +377,7 @@ else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
-add_dependencies(vcmiclient vcmiserver)
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	add_dependencies(vcmiclient
 		BattleAI
 		EmptyAI
@@ -420,14 +454,13 @@ elseif(APPLE_IOS)
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
-if(ENABLE_SINGLE_APP_BUILD)
-	target_link_libraries(vcmiclient PRIVATE vcmiserver)
-	if(ENABLE_LAUNCHER)
-		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
-	endif()
+target_link_libraries(vcmiclient PRIVATE vcmiservercommon)
+if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
+	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()
+
 target_link_libraries(vcmiclient PRIVATE
-		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
 if(ffmpeg_LIBRARIES)

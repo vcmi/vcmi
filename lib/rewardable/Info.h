@@ -10,13 +10,14 @@
 
 #pragma once
 
-#include "../JsonNode.h"
+#include "../json/JsonNode.h"
 #include "../mapObjectConstructors/IObjectInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CRandomGenerator;
 class MetaString;
+class IGameCallback;
 
 namespace Rewardable
 {
@@ -38,13 +39,13 @@ class DLL_LINKAGE Info : public IObjectInfo
 	void replaceTextPlaceholders(MetaString & target, const Variables & variables) const;
 	void replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const;
 
-	void configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const;
-	void configureRewards(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source, Rewardable::EEventType mode, const std::string & textPrefix) const;
+	void configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const;
+	void configureRewards(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source, Rewardable::EEventType mode, const std::string & textPrefix) const;
 
-	void configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const;
-	Rewardable::LimitersList configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const;
+	void configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const;
+	Rewardable::LimitersList configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const;
 
-	void configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Reward & info, const JsonNode & source) const;
+	void configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Reward & info, const JsonNode & source) const;
 	void configureResetInfo(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::ResetInfo & info, const JsonNode & source) const;
 public:
 	const JsonNode & getParameters() const;
@@ -64,11 +65,11 @@ public:
 
 	bool givesBonuses() const override;
 
-	void configureObject(Rewardable::Configuration & object, CRandomGenerator & rng) const;
+	void configureObject(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb) const;
 
 	void init(const JsonNode & objectConfig, const std::string & objectTextID);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & parameters;
 	}

@@ -21,6 +21,7 @@
 
 #include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
@@ -427,11 +428,7 @@ size_t MapRendererWorldViewContext::overlayImageIndex(const int3 & coordinates) 
 		if(!object->visitableAt(coordinates.x, coordinates.y))
 			continue;
 
-		ObjectPosInfo info;
-		info.pos = coordinates;
-		info.id = object->ID;
-		info.subId = object->subID;
-		info.owner = object->tempOwner;
+		ObjectPosInfo info(object);
 
 		size_t iconIndex = selectOverlayImageForObject(info);
 

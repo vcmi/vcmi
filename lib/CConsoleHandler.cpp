@@ -143,13 +143,6 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
 	logGlobal->error("Crash info will be put in %s", mname);
 	
-	// flush loggers
-	std::string padding(1000, '@');
-
-	logGlobal->error(padding);
-	logAi->error(padding);
-	logNetwork->error(padding);
-
 	auto dumpType = MiniDumpWithDataSegs;
 	
 	if(settings["general"]["extraDump"].Bool())

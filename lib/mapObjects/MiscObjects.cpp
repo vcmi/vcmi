@@ -11,7 +11,10 @@
 #include "StdInc.h"
 #include "MiscObjects.h"
 
+#include "../ArtifactUtils.h"
+#include "../bonuses/Propagators.h"
 #include "../constants/StringConstants.h"
+#include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../CSkillHandler.h"
@@ -31,10 +34,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
-ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
-std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
-
 ///helpers
 static std::string visitedTxt(const bool visited)
 {
@@ -42,10 +41,10 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-void CTeamVisited::setPropertyDer(ui8 what, ui32 val)
+void CTeamVisited::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
-	if(what == CTeamVisited::OBJPROP_VISITED)
-		players.insert(PlayerColor(val));
+	if(what == ObjProperty::VISITED)
+		players.insert(identifier.as<PlayerColor>());
 }
 
 bool CTeamVisited::wasVisited(PlayerColor player) const
@@ -85,7 +84,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, subID == 7 ? 84 : 187);
+		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187);
 		cb->showBlockingDialog(&ynd);
 		return;
 	}
@@ -115,23 +114,39 @@ void CGMine::initObj(CRandomGenerator & rand)
 		putStack(SlotID(0), troglodytes);
 
 		assert(!abandonedMineResources.empty());
-		producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+		if (!abandonedMineResources.empty())
+		{
+			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+		}
+		else
+		{
+			logGlobal->error("Abandoned mine at (%s) has no valid resource candidates!", pos.toString());
+			producedResource = GameResID::GOLD;
+		}
 	}
 	else
 	{
-		producedResource = GameResID(subID);
+		producedResource = GameResID(getObjTypeIndex().getNum());
 	}
 	producedQuantity = defaultResProduction();
 }
 
 bool CGMine::isAbandoned() const
 {
-	return (subID >= 7);
+	return subID.getNum() >= 7;
+}
+
+ResourceSet CGMine::dailyIncome() const
+{
+	ResourceSet result;
+	result[producedResource] += defaultResProduction();
+
+	return result;
 }
 
 std::string CGMine::getObjectName() const
 {
-	return VLC->generaltexth->translate("core.minename", subID);
+	return VLC->generaltexth->translate("core.minename", getObjTypeIndex());
 }
 
 std::string CGMine::getHoverText(PlayerColor player) const
@@ -139,7 +154,7 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource] + ")";
+		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource.getNum()] + ")";
 
 	if(stacksCount())
 	{
@@ -159,9 +174,9 @@ void CGMine::flagMine(const PlayerColor & player) const
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::FLAGMINE;
-	iw.text.appendLocalString(EMetaText::MINE_EVNTS, producedResource); //not use subID, abandoned mines uses default mine texts
+	iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get()); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
-	iw.components.emplace_back(Component::EComponentType::RESOURCE, producedResource, producedQuantity, -1);
+	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, producedQuantity);
 	cb->showInfoDialog(&iw);
 }
 
@@ -200,18 +215,15 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CArmedInstance::serializeJsonOptions(handler);
-
+	serializeJsonOwner(handler);
 	if(isAbandoned())
 	{
 		if(handler.saving)
 		{
-			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
-			for(auto const & resID : abandonedMineResources)
-			{
-				JsonNode one(JsonNode::JsonType::DATA_STRING);
-				one.String() = GameConstants::RESOURCE_NAMES[resID];
-				node.Vector().push_back(one);
-			}
+			JsonNode node;
+			for(const auto & resID : abandonedMineResources)
+				node.Vector().emplace_back(GameConstants::RESOURCE_NAMES[resID.getNum()]);
+
 			handler.serializeRaw("possibleResources", node, std::nullopt);
 		}
 		else
@@ -231,15 +243,28 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 			}
 		}
 	}
-	else
-	{
-		serializeJsonOwner(handler);
-	}
+}
+
+GameResID CGResource::resourceID() const
+{
+	return getObjTypeIndex().getNum();
 }
 
 std::string CGResource::getHoverText(PlayerColor player) const
 {
-	return VLC->generaltexth->restypes[subID];
+	return VLC->generaltexth->restypes[resourceID().getNum()];
+}
+
+void CGResource::pickRandomObject(CRandomGenerator & rand)
+{
+	assert(ID == Obj::RESOURCE || ID == Obj::RANDOM_RESOURCE);
+
+	if (ID == Obj::RANDOM_RESOURCE)
+	{
+		ID = Obj::RESOURCE;
+		subID = rand.nextInt(EGameResID::WOOD, EGameResID::GOLD);
+		setType(ID, subID);
+	}
 }
 
 void CGResource::initObj(CRandomGenerator & rand)
@@ -248,7 +273,7 @@ void CGResource::initObj(CRandomGenerator & rand)
 
 	if(amount == CGResource::RANDOM_AMOUNT)
 	{
-		switch(static_cast<EGameResID>(subID))
+		switch(resourceID().toEnum())
 		{
 		case EGameResID::GOLD:
 			amount = rand.nextInt(5, 10) * 100;
@@ -285,7 +310,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGResource::collectRes(const PlayerColor & player) const
 {
-	cb->giveResource(player, static_cast<EGameResID>(subID), amount);
+	cb->giveResource(player, resourceID(), amount);
 	InfoWindow sii;
 	sii.player = player;
 	if(!message.empty())
@@ -297,9 +322,9 @@ void CGResource::collectRes(const PlayerColor & player) const
 	{
 		sii.type = EInfoWindowMode::INFO;
 		sii.text.appendLocalString(EMetaText::ADVOB_TXT,113);
-		sii.text.replaceLocalString(EMetaText::RES_NAMES, subID);
+		sii.text.replaceName(resourceID());
 	}
-	sii.components.emplace_back(Component::EComponentType::RESOURCE,subID,amount,0);
+	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
 	cb->showInfoDialog(&sii);
 	cb->removeObject(this, player);
@@ -442,14 +467,14 @@ void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<Telepo
 	}
 }
 
-TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, int SubID) const
+TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const
 {
 	for(auto obj : cb->gameState()->map->objects)
 	{
 		if(!obj)
 			continue;
 
-		const auto * teleportObj = dynamic_cast<const CGTeleport *>(cb->getObj(obj->id));
+		const auto * teleportObj = dynamic_cast<const CGMonolith *>(cb->getObj(obj->id));
 		if(teleportObj && vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
 			return teleportObj->channel;
 	}
@@ -507,7 +532,7 @@ void CGMonolith::initObj(CRandomGenerator & rand)
 {
 	std::vector<Obj> IDs;
 	IDs.push_back(ID);
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 		type = ENTRANCE;
@@ -553,13 +578,13 @@ void CGSubterraneanGate::initObj(CRandomGenerator & rand)
 	type = BOTH;
 }
 
-void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
+void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
 	for(auto & obj : cb->gameState()->map->objects)
 	{
-		if(!obj) // FIXME: Find out why there are nullptr objects right after initialization
+		if(!obj)
 			continue;
 
 		auto * hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
@@ -641,7 +666,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
-		iw.components.emplace_back(CStackBasicDescriptor(h->getCreature(targetstack), -countToTake));
+		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
 		cb->showInfoDialog(&iw);
 		cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
 	}
@@ -688,6 +713,44 @@ bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 	|| (h->stacksCount() == 1 && h->Slots().begin()->second->count == 1);
 }
 
+ArtifactID CGArtifact::getArtifact() const
+{
+	if(ID == Obj::SPELL_SCROLL)
+		return ArtifactID::SPELL_SCROLL;
+	else
+		return getObjTypeIndex().getNum();
+}
+
+void CGArtifact::pickRandomObject(CRandomGenerator & rand)
+{
+	switch(ID.toEnum())
+	{
+		case MapObjectID::RANDOM_ART:
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
+			break;
+		case MapObjectID::RANDOM_TREASURE_ART:
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE);
+			break;
+		case MapObjectID::RANDOM_MINOR_ART:
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR);
+			break;
+		case MapObjectID::RANDOM_MAJOR_ART:
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR);
+			break;
+		case MapObjectID::RANDOM_RELIC_ART:
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_RELIC);
+			break;
+	}
+
+	if (ID != MapObjectID::SPELL_SCROLL && ID != MapObjectID::ARTIFACT)
+	{
+		ID = MapObjectID::ARTIFACT;
+		setType(ID, subID);
+	}
+	else if (ID != MapObjectID::SPELL_SCROLL)
+		ID = MapObjectID::ARTIFACT;
+}
+
 void CGArtifact::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
@@ -700,20 +763,45 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 			storedArtifact = a;
 		}
 		if(!storedArtifact->artType)
-			storedArtifact->setType(VLC->arth->objects[subID]);
+			storedArtifact->setType(getArtifact().toArtifact());
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
 
 	assert(storedArtifact->artType);
-	assert(storedArtifact->getParentNodes().size());
+	assert(!storedArtifact->getParentNodes().empty());
 
 	//assert(storedArtifact->artType->id == subID); //this does not stop desync
 }
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->artifacts()->getByIndex(subID)->getNameTranslated();
+	return VLC->artifacts()->getById(getArtifact())->getNameTranslated();
+}
+
+std::string CGArtifact::getPopupText(PlayerColor player) const
+{
+	if (settings["general"]["enableUiEnhancements"].Bool())
+	{
+		std::string description = VLC->artifacts()->getById(getArtifact())->getDescriptionTranslated();
+		if (getArtifact() == ArtifactID::SPELL_SCROLL)
+			ArtifactUtils::insertScrrollSpellName(description, SpellID::NONE); // erase text placeholder
+		return description;
+	}
+	else
+		return getObjectName();
+}
+
+std::string CGArtifact::getPopupText(const CGHeroInstance * hero) const
+{
+	return getPopupText(hero->getOwner());
+}
+
+std::vector<Component> CGArtifact::getPopupComponents(PlayerColor player) const
+{
+	return {
+		Component(ComponentType::ARTIFACT, getArtifact())
+	};
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
@@ -726,27 +814,27 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 
 		if(storedArtifact->artType->canBePutAt(h))
 		{
-			switch (ID)
+			switch (ID.toEnum())
 			{
 			case Obj::ARTIFACT:
 			{
-				iw.components.emplace_back(Component::EComponentType::ARTIFACT, subID, 0, 0);
+				iw.components.emplace_back(ComponentType::ARTIFACT, getArtifact());
 				if(!message.empty())
 					iw.text = message;
 				else
-					iw.text.appendLocalString(EMetaText::ART_EVNTS, subID);
+					iw.text.appendTextID(getArtifact().toArtifact()->getEventTextID());
 			}
 			break;
 			case Obj::SPELL_SCROLL:
 			{
-				int spellID = storedArtifact->getScrollSpellID();
-				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
+				SpellID spell = storedArtifact->getScrollSpellID();
+				iw.components.emplace_back(ComponentType::SPELL, spell);
 				if(!message.empty())
 					iw.text = message;
 				else
 				{
 					iw.text.appendLocalString(EMetaText::ADVOB_TXT,135);
-					iw.text.replaceLocalString(EMetaText::SPELL_NAME, spellID);
+					iw.text.replaceName(spell);
 				}
 			}
 			break;
@@ -761,7 +849,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		switch(ID)
+		switch(ID.toEnum())
 		{
 		case Obj::ARTIFACT:
 			{
@@ -799,7 +887,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	if(cb->giveHeroArtifact(h, storedArtifact, ArtifactPosition::FIRST_AVAILABLE))
+	if(cb->putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), storedArtifact))
 		cb->removeObject(this, h->getOwner());
 }
 
@@ -838,7 +926,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
-		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
+		const auto & b = storedArtifact->getFirstBonus(Selector::type()(BonusType::SPELL));
 		SpellID spellId(b->subtype.as<SpellID>());
 
 		handler.serializeId("spell", spellId, SpellID::NONE);
@@ -852,7 +940,7 @@ void CGSignBottle::initObj(CRandomGenerator & rand)
 	{
 		auto vector = VLC->generaltexth->findStringsWithPrefix("core.randsign");
 		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
-		message.appendTextID(TextIdentifier("core", "randsign", messageIdentifier).get());
+		message.appendTextID(messageIdentifier);
 	}
 
 	if(ID == Obj::OCEAN_BOTTLE)
@@ -920,26 +1008,44 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 	CArmedInstance::serializeJsonOptions(handler);
 }
 
-void CGMagi::reset()
+void CGGarrison::initObj(CRandomGenerator &rand)
 {
-	eyelist.clear();
+	if(this->subID == MapObjectSubID::decode(this->ID, "antiMagic"))
+		addAntimagicGarrisonBonus();
+}
+
+void CGGarrison::addAntimagicGarrisonBonus()
+{
+	auto bonus = std::make_shared<Bonus>();
+	bonus->type = BonusType::BLOCK_ALL_MAGIC;
+	bonus->source = BonusSource::OBJECT_TYPE;
+	bonus->sid = BonusSourceID(this->ID);
+	bonus->propagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
+	bonus->duration = BonusDuration::PERMANENT;
+	this->addNewBonus(bonus);
 }
 
 void CGMagi::initObj(CRandomGenerator & rand)
 {
 	if (ID == Obj::EYE_OF_MAGI)
-	{
 		blockVisit = true;
-		eyelist[subID].push_back(id);
-	}
 }
+
 void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 {
 	if (ID == Obj::HUT_OF_MAGI)
 	{
 		h->showInfoDialog(61);
 
-		if (!eyelist[subID].empty())
+		std::vector<const CGObjectInstance *> eyes;
+
+		for (auto object : cb->gameState()->map->objects)
+		{
+			if (object && object->ID == Obj::EYE_OF_MAGI && object->subID == this->subID)
+				eyes.push_back(object);
+		}
+
+		if (!eyes.empty())
 		{
 			CenterView cv;
 			cv.player = h->tempOwner;
@@ -950,10 +1056,8 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 			fw.mode = ETileVisibility::REVEALED;
 			fw.waitForDialogs = true;
 
-			for(const auto & it : eyelist[subID])
+			for(const auto & eye : eyes)
 			{
-				const CGObjectInstance *eye = cb->getObj(it);
-
 				cb->getTilesInRange (fw.tiles, eye->pos, 10, ETileVisibility::HIDDEN, h->tempOwner);
 				cb->sendAndApply(&fw);
 				cv.pos = eye->pos;
@@ -971,7 +1075,8 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 	}
 }
 
-CGBoat::CGBoat()
+CGBoat::CGBoat(IGameCallback * cb)
+	: CGObjectInstance(cb)
 {
 	hero = nullptr;
 	direction = 4;
@@ -1028,7 +1133,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			xp = h->calculateXp(static_cast<int>(xp));
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT,132);
 			iw.text.replaceNumber(static_cast<int>(xp));
-			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, xp, false);
+			cb->giveExperience(h, xp);
 		}
 		else
 		{
@@ -1113,13 +1218,13 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 		cb->sendAndApply(&iw);
 
 		// increment general visited obelisks counter
-		cb->setObjProperty(id, CGObelisk::OBJPROP_INC, team.getNum());
+		cb->setObjPropertyID(id, ObjProperty::OBELISK_VISITED, team);
 		cb->showObjectWindow(this, EOpenWindowMode::PUZZLE_MAP, h, false);
 
 		// mark that particular obelisk as visited for all players in the team
 		for(const auto & color : ts->players)
 		{
-			cb->setObjProperty(id, CGObelisk::OBJPROP_VISITED, color.getNum());
+			cb->setObjPropertyID(id, ObjProperty::VISITED, color);
 		}
 	}
 	else
@@ -1132,13 +1237,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGObelisk::initObj(CRandomGenerator & rand)
 {
-	obeliskCount++;
-}
-
-void CGObelisk::reset()
-{
-	obeliskCount = 0;
-	visited.clear();
+	cb->gameState()->map->obeliskCount++;
 }
 
 std::string CGObelisk::getHoverText(PlayerColor player) const
@@ -1146,25 +1245,25 @@ std::string CGObelisk::getHoverText(PlayerColor player) const
 	return getObjectName() + " " + visitedTxt(wasVisited(player));
 }
 
-void CGObelisk::setPropertyDer( ui8 what, ui32 val )
+void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)
 	{
-		case CGObelisk::OBJPROP_INC:
+		case ObjProperty::OBELISK_VISITED:
 			{
-				auto progress = ++visited[TeamID(val)];
-				logGlobal->debug("Player %d: obelisk progress %d / %d", val, static_cast<int>(progress) , static_cast<int>(obeliskCount));
+				auto progress = ++cb->gameState()->map->obelisksVisited[identifier.as<TeamID>()];
+				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(cb->gameState()->map->obeliskCount));
 
-				if(progress > obeliskCount)
+				if(progress > cb->gameState()->map->obeliskCount)
 				{
-					logGlobal->error("Visited %d of %d", static_cast<int>(progress), obeliskCount);
-					throw std::runtime_error("internal error");
+					logGlobal->error("Visited %d of %d", static_cast<int>(progress), cb->gameState()->map->obeliskCount);
+					throw std::runtime_error("Player visited more obelisks than present on map!");
 				}
 
 				break;
 			}
 		default:
-			CTeamVisited::setPropertyDer(what, val);
+			CTeamVisited::setPropertyDer(what, identifier);
 			break;
 	}
 }
@@ -1181,7 +1280,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 		if(oldOwner.isValidPlayer()) //remove bonus from old owner
 		{
 			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
-			rb.whoID = oldOwner.getNum();
+			rb.whoID = oldOwner;
 			rb.source = BonusSource::OBJECT_INSTANCE;
 			rb.id = BonusSourceID(id);
 			cb->sendAndApply(&rb);
@@ -1203,7 +1302,7 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	GiveBonus gb(GiveBonus::ETarget::PLAYER);
 	gb.bonus.type = BonusType::MOVEMENT;
 	gb.bonus.val = 500;
-	gb.id = player.getNum();
+	gb.id = player;
 	gb.bonus.duration = BonusDuration::PERMANENT;
 	gb.bonus.source = BonusSource::OBJECT_INSTANCE;
 	gb.bonus.sid = BonusSourceID(id);

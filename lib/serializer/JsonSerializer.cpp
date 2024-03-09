@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "JsonSerializer.h"
 
-#include "../JsonNode.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 JsonSerializer::JsonSerializer(const IInstanceResolver * instanceResolver_, JsonNode & root_):
@@ -37,7 +35,7 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, si32 & val
 
 void JsonSerializer::serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue)
 {
-	if(!defaultValue || defaultValue.value() != value)
+	if(!defaultValue || !vstd::isAlmostEqual(defaultValue.value(), value))
 		currentObject->operator[](fieldName).Float() = value;
 }
 
@@ -62,11 +60,7 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, std::vecto
 	data.reserve(value.size());
 
 	for(const si32 rawId : value)
-	{
-		JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
-		jsonElement.String() = encoder(rawId);
-		data.push_back(std::move(jsonElement));
-	}
+		data.emplace_back(rawId);
 }
 
 void JsonSerializer::serializeInternal(const std::string & fieldName, std::vector<std::string> & value)
@@ -78,11 +72,7 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, std::vecto
 	data.reserve(value.size());
 
 	for(const auto & rawId : value)
-	{
-		JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
-		jsonElement.String() = rawId;
-		data.push_back(std::move(jsonElement));
-	}
+		data.emplace_back(rawId);
 }
 
 void JsonSerializer::serializeInternal(std::string & value)
@@ -95,22 +85,12 @@ void JsonSerializer::serializeInternal(int64_t & value)
 	currentObject->Integer() = value;
 }
 
-void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value)
+void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value)
 {
-	assert(standard.size() == value.size());
 	if(standard == value)
 		return;
 
 	writeLICPart(fieldName, "anyOf", encoder, value);
-}
-
-void JsonSerializer::serializeLIC(const std::string & fieldName, LIC & value)
-{
-	if(value.any != value.standard)
-		writeLICPart(fieldName, "anyOf", value.encoder, value.any);
-
-	writeLICPart(fieldName, "allOf", value.encoder, value.all);
-	writeLICPart(fieldName, "noneOf", value.encoder, value.none);
 }
 
 void JsonSerializer::serializeLIC(const std::string & fieldName, LICSet & value)
@@ -195,11 +175,7 @@ void JsonSerializer::writeLICPartBuffer(const std::string & fieldName, const std
 		auto & target = currentObject->operator[](fieldName)[partName].Vector();
 
 		for(auto & s : buffer)
-		{
-			JsonNode val(JsonNode::JsonType::DATA_STRING);
-			std::swap(val.String(), s);
-			target.push_back(std::move(val));
-		}
+			target.emplace_back(s);
 	}
 }
 

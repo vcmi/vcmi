@@ -13,7 +13,6 @@
 #include "VCMI_Lib.h"
 #include "GameConstants.h"
 #include "GameSettings.h"
-#include "JsonNode.h"
 #include "bonuses/BonusList.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"
@@ -93,6 +92,16 @@ int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 
 int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 {
+	int32_t maxGoodMorale = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
+	int32_t maxBadMorale = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+
+	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_MORALE))
+	{
+		if(bonusList && !bonusList->empty())
+			bonusList = std::make_shared<const BonusList>();
+		return maxGoodMorale;
+	}
+
 	static const auto unaffectedByMoraleSelector = Selector::type()(BonusType::NON_LIVING).Or(Selector::type()(BonusType::UNDEAD))
 													.Or(Selector::type()(BonusType::SIEGE_WEAPON)).Or(Selector::type()(BonusType::NO_MORALE));
 
@@ -109,14 +118,21 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 	static const std::string cachingStrMor = "type_MORALE";
 	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
 
-	int32_t maxGoodMorale = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
-	int32_t maxBadMorale = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
-
 	return std::clamp(bonusList->totalValue(), maxBadMorale, maxGoodMorale);
 }
 
 int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 {
+	int32_t maxGoodLuck = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
+	int32_t maxBadLuck = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+
+	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_LUCK))
+	{
+		if(bonusList && !bonusList->empty())
+			bonusList = std::make_shared<const BonusList>();
+		return maxGoodLuck;
+	}
+
 	if(getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
 		if(bonusList && !bonusList->empty())
@@ -127,9 +143,6 @@ int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 	static const auto luckSelector = Selector::type()(BonusType::LUCK);
 	static const std::string cachingStrLuck = "type_LUCK";
 	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
-
-	int32_t maxGoodLuck = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
-	int32_t maxBadLuck = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
 
 	return std::clamp(bonusList->totalValue(), maxBadLuck, maxGoodLuck);
 }
@@ -154,15 +167,14 @@ ui32 ACreature::getMaxHealth() const
 	return std::max(1, value); //never 0
 }
 
-ui32 ACreature::speed(int turn, bool useBind) const
+ui32 ACreature::getMovementRange(int turn) const
 {
 	//war machines cannot move
 	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::SIEGE_WEAPON).And(Selector::turns(turn))))
 	{
 		return 0;
 	}
-	//bind effect check - doesn't influence stack initiative
-	if(useBind && getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn))))
+	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn))))
 	{
 		return 0;
 	}

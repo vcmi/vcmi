@@ -43,10 +43,10 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 			return resID == GameResID(EGameResID::GOLD);
 			break;
 		case Obj::RESOURCE:
-			return obj->subID == resID;
+			return dynamic_cast<const CGResource*>(obj)->resourceID() == GameResID(resID);
 			break;
 		case Obj::MINE:
-			return (obj->subID == resID &&
+			return (dynamic_cast<const CGMine*>(obj)->producedResource == GameResID(resID) &&
 				(cb->getPlayerRelations(obj->tempOwner, ai->playerID) == PlayerRelations::ENEMIES)); //don't capture our mines
 			break;
 		case Obj::CAMPFIRE:
@@ -124,7 +124,9 @@ TSubgoal CollectRes::whatToDoToTrade()
 	ai->retrieveVisitableObjs(visObjs, true);
 	for(const CGObjectInstance * obj : visObjs)
 	{
-		if(const IMarket * m = IMarket::castFrom(obj, false); m && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
+		const auto * m = dynamic_cast<const IMarket*>(obj);
+
+		if(m && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
 		{
 			if(obj->ID == Obj::TOWN)
 			{
@@ -169,7 +171,8 @@ TSubgoal CollectRes::whatToDoToTrade()
 		{
 			if (i.getNum() == resID)
 				continue;
-			int toGive = -1, toReceive = -1;
+			int toGive = -1;
+			int toReceive = -1;
 			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
 			howManyCanWeBuy += toReceive * (ai->ah->freeResources()[i] / toGive);

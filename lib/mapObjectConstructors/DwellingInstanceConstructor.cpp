@@ -12,7 +12,7 @@
 
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
-#include "../JsonRandom.h"
+#include "../json/JsonRandom.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CGDwelling.h"
 #include "../modding/IdentifierStorage.h"
@@ -29,23 +29,23 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Dwelling %s missing name!", getJsonKey());
 
-	VLC->generaltexth->registerString( input.meta, getNameTextID(), input["name"].String());
+	VLC->generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"].String());
 
 	const JsonVector & levels = input["creatures"].Vector();
 	const auto totalLevels = levels.size();
 
 	availableCreatures.resize(totalLevels);
-	for(auto currentLevel = 0; currentLevel < totalLevels; currentLevel++)
+	for(int currentLevel = 0; currentLevel < totalLevels; currentLevel++)
 	{
 		const JsonVector & creaturesOnLevel = levels[currentLevel].Vector();
 		const auto creaturesNumber = creaturesOnLevel.size();
 		availableCreatures[currentLevel].resize(creaturesNumber);
 
-		for(auto currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
+		for(int currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
 		{
-			VLC->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [=] (si32 index)
+			VLC->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, currentLevel, currentCreature] (si32 index)
 			{
-				availableCreatures[currentLevel][currentCreature] = VLC->creh->objects[index];
+				availableCreatures.at(currentLevel).at(currentCreature) = CreatureID(index).toCreature();
 			});
 		}
 		assert(!availableCreatures[currentLevel].empty());
@@ -68,9 +68,9 @@ void DwellingInstanceConstructor::initializeObject(CGDwelling * obj) const
 	}
 }
 
-void DwellingInstanceConstructor::randomizeObject(CGDwelling * object, CRandomGenerator &rng) const
+void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, CRandomGenerator &rng) const
 {
-	auto * dwelling = dynamic_cast<CGDwelling *>(object);
+	JsonRandom randomizer(dwelling->cb);
 
 	dwelling->creatures.clear();
 	dwelling->creatures.reserve(availableCreatures.size());
@@ -94,7 +94,7 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * object, CRandomGe
 	else if(guards.getType() == JsonNode::JsonType::DATA_VECTOR) //custom guards (eg. Elemental Conflux)
 	{
 		JsonRandom::Variables emptyVariables;
-		for(auto & stack : JsonRandom::loadCreatures(guards, rng, emptyVariables))
+		for(auto & stack : randomizer.loadCreatures(guards, rng, emptyVariables))
 		{
 			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->getId(), stack.count));
 		}

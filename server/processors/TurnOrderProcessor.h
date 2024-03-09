@@ -28,7 +28,7 @@ class TurnOrderProcessor : boost::noncopyable
 		}
 
 		template<typename Handler>
-		void serialize(Handler & h, const int version)
+		void serialize(Handler & h)
 		{
 			h & a;
 			h & b;
@@ -62,7 +62,9 @@ class TurnOrderProcessor : boost::noncopyable
 	/// Starts turn for all players that can start turn
 	void tryStartTurnsForPlayers();
 
-	void updateContactStatus();
+	void updateAndNotifyContactStatus();
+
+	std::vector<PlayerPair> computeContactStatus() const;
 
 	void doStartNewDay();
 	void doStartPlayerTurn(PlayerColor which);
@@ -90,7 +92,7 @@ public:
 	void onGameStarted();
 
 	template<typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & blockedContacts;
 		h & awaitingPlayers;

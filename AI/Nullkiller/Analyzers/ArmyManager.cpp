@@ -63,9 +63,9 @@ std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
 	{
 		SlotInfo slot;
 
-		slot.creature = VLC->creh->objects[i.cre->getId()];
+		slot.creature = i.creID.toCreature();
 		slot.count = i.count;
-		slot.power = evaluateStackPower(i.cre, i.count);
+		slot.power = evaluateStackPower(i.creID.toCreature(), i.count);
 
 		result.push_back(slot);
 	}
@@ -117,7 +117,7 @@ std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<Slot
 		if(left.creature->getLevel() != right.creature->getLevel())
 			return left.creature->getLevel() < right.creature->getLevel();
 		
-		return left.creature->speed() > right.creature->speed();
+		return left.creature->getMovementRange() > right.creature->getMovementRange();
 	});
 
 	return weakest;
@@ -128,7 +128,7 @@ class TemporaryArmy : public CArmedInstance
 public:
 	void armyChanged() override {}
 	TemporaryArmy()
-		:CArmedInstance(true)
+		:CArmedInstance(nullptr, true)
 	{
 	}
 };
@@ -259,7 +259,7 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 		if(!ci.count || ci.creID == CreatureID::NONE)
 			continue;
 
-		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
+		vstd::amin(ci.count, availableRes / ci.creID.toCreature()->getFullRecruitCost()); //max count we can afford
 
 		if(!ci.count)
 			continue;
@@ -270,7 +270,7 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 			break;
 
 		army->setCreature(dst, ci.creID, ci.count);
-		availableRes -= ci.cre->getFullRecruitCost() * ci.count;
+		availableRes -= ci.creID.toCreature()->getFullRecruitCost() * ci.count;
 	}
 
 	return army;
@@ -287,7 +287,7 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(
 
 	for(const creInfo & ci : army)
 	{
-		aivalue += ci.count * ci.cre->getAIValue();
+		aivalue += ci.count * ci.creID.toCreature()->getAIValue();
 	}
 
 	return aivalue;
@@ -320,7 +320,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 
 		if(i < GameConstants::CREATURES_PER_TOWN && countGrowth)
 		{
-			ci.count += town ? town->creatureGrowth(i) : ci.cre->getGrowth();
+			ci.count += town ? town->creatureGrowth(i) : ci.creID.toCreature()->getGrowth();
 		}
 
 		if(!ci.count) continue;
@@ -334,13 +334,13 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 				freeHeroSlots--; //new slot will be occupied
 		}
 
-		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
+		vstd::amin(ci.count, availableRes / ci.creID.toCreature()->getFullRecruitCost()); //max count we can afford
 
 		if(!ci.count) continue;
 
 		ci.level = i; //this is important for Dungeon Summoning Portal
 		creaturesInDwellings.push_back(ci);
-		availableRes -= ci.cre->getFullRecruitCost() * ci.count;
+		availableRes -= ci.creID.toCreature()->getFullRecruitCost() * ci.count;
 	}
 
 	return creaturesInDwellings;

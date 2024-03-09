@@ -59,8 +59,8 @@ In order to make functional creature you also need:
 	// Basic growth of this creature in town or in external dwellings
 	"growth" : 0,
 	
-	// Bonus growth of this creature from built horde
-	"hordeGrowth" : 0,
+	// Bonus growth of this creature from built horde, if any
+	"horde" : 0,
 	
 	// Creature stats in battle
 	"attack" : 0,

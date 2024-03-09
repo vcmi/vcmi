@@ -56,7 +56,7 @@ extern CClientState * CCS;
 
 /// CGameInfo class
 /// for allowing different functions for accessing game informations
-class CGameInfo : public Services
+class CGameInfo final : public Services
 {
 public:
 	const ArtifactService * artifacts() const override;
@@ -78,19 +78,20 @@ public:
 	const spells::effects::Registry * spellEffects() const override;
 	spells::effects::Registry * spellEffects() override;
 
-	ConstTransitivePtr<CModHandler> modh; //public?
-	ConstTransitivePtr<BattleFieldHandler> battleFieldHandler;
-	ConstTransitivePtr<CHeroHandler> heroh;
-	ConstTransitivePtr<CCreatureHandler> creh;
-	ConstTransitivePtr<CSpellHandler> spellh;
-	ConstTransitivePtr<CSkillHandler> skillh;
-	ConstTransitivePtr<CObjectHandler> objh;
-	ConstTransitivePtr<TerrainTypeHandler> terrainTypeHandler;
-	ConstTransitivePtr<CObjectClassesHandler> objtypeh;
-	ConstTransitivePtr<ObstacleHandler> obstacleHandler;
-	CGeneralTextHandler * generaltexth;
-	CMapHandler * mh;
-	CTownHandler * townh;
+	std::shared_ptr<const CModHandler> modh;
+	std::shared_ptr<const BattleFieldHandler> battleFieldHandler;
+	std::shared_ptr<const CHeroHandler> heroh;
+	std::shared_ptr<const CCreatureHandler> creh;
+	std::shared_ptr<const CSpellHandler> spellh;
+	std::shared_ptr<const CSkillHandler> skillh;
+	std::shared_ptr<const CObjectHandler> objh;
+	std::shared_ptr<const TerrainTypeHandler> terrainTypeHandler;
+	std::shared_ptr<const CObjectClassesHandler> objtypeh;
+	std::shared_ptr<const ObstacleHandler> obstacleHandler;
+	std::shared_ptr<const CGeneralTextHandler> generaltexth;
+	std::shared_ptr<const CTownHandler> townh;
+
+	std::shared_ptr<CMapHandler> mh;
 
 	void setFromLib();
 
@@ -98,4 +99,4 @@ public:
 private:
 	const Services * globalServices;
 };
-extern const CGameInfo* CGI;
+extern CGameInfo* CGI;

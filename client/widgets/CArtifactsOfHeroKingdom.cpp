@@ -13,6 +13,7 @@
 #include "Buttons.h"
 
 #include "../CPlayerInterface.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 #include "../../CCallback.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
@@ -29,14 +30,15 @@ CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vecto
 	{
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
-		artPlace.second->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace.second->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace.second->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace.second->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
+	addGestureCallback(std::bind(&CArtifactsOfHeroBase::gestureArtPlace, this, _1, _2));
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
-		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	leftBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, -1));
 	rightBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, +1));
@@ -48,15 +50,3 @@ CArtifactsOfHeroKingdom::~CArtifactsOfHeroKingdom()
 {
 	putBackPickedArtifact();
 }
-
-void CArtifactsOfHeroKingdom::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
-{
-	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
-}
-
-void CArtifactsOfHeroKingdom::pickUpArtifact(CHeroArtPlace & artPlace)
-{
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, artPlace.slot),
-		ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
-}
-

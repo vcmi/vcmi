@@ -1,12 +1,14 @@
 {
-	"library" : "config/widgets/settings/library.json",
+	"library" : [
+		"config/widgets/settings/library.json",
+		"config/widgets/commonPrimitives.json",
+	],
 
 	"items":
 	[
 		{
 			"name": "lineLabelsEnd",
-			"type": "texture",
-			"image": "settingsWindow/lineHorizontal",
+			"type": "horizontalLine",
 			"rect": { "x" : 5, "y" : 229, "w": 365, "h": 3}
 		},
 /////////////////////////////////////// Left section - Hero Speed and Map Scrolling
@@ -279,7 +281,7 @@
 			"callback": "mapScrollSpeedChanged"
 		},
 		
-/////////////////////////////////////// Right section - Original H3 options
+/////////////////////////////////////// Right section - Original H3 options + some custom
 		{
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
@@ -294,6 +296,12 @@
 				},
 				{
 					"text": "core.genrltxt.574" // quick combat
+				},
+				{
+					"text": "vcmi.adventureOptions.showGrid.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.hideBackground.hover"
 				}
 			]
 		},
@@ -305,7 +313,7 @@
 			[
 				{
 					"name": "showMovePathPlaceholder",
-					"type": "checkboxFake",
+					"type": "checkboxFake"
 				},
 				{
 					"name": "heroReminderCheckbox",
@@ -317,6 +325,16 @@
 					"help": "core.help.362",
 					"callback": "quickCombatChanged"
 				},
+				{
+					"name": "showGridCheckbox",
+					"help": "vcmi.adventureOptions.showGrid",
+					"callback": "showGridChanged"
+				},
+				{
+					"name": "hideBackgroundCheckbox",
+					"help": "vcmi.adventureOptions.hideBackground",
+					"callback": "hideBackgroundChanged"
+				}
 			]
 		},
 /////////////////////////////////////// Bottom section - VCMI Options
@@ -333,7 +351,7 @@
 					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
 				},
 				{
-					"text": "vcmi.adventureOptions.showGrid.hover"
+					"text": "vcmi.adventureOptions.skipAdventureMapAnimations.hover"
 				},
 				{
 					"text": "vcmi.adventureOptions.infoBarPick.hover"
@@ -347,6 +365,9 @@
 				{
 					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
 					"created" : "desktop"
+				},
+				{
+					"text": "vcmi.adventureOptions.smoothDragging.hover"
 				}
 			]
 		},
@@ -367,9 +388,9 @@
 					"callback": "forceMovementInfoChanged"
 				},
 				{
-					"name": "showGridCheckbox",
-					"help": "vcmi.adventureOptions.showGrid",
-					"callback": "showGridChanged"
+					"name": "skipAdventureMapAnimationsCheckbox",
+					"help": "vcmi.adventureOptions.skipAdventureMapAnimations",
+					"callback": "skipAdventureMapAnimationsChanged"
 				},
 				{
 					"name": "infoBarPickCheckbox",
@@ -391,6 +412,11 @@
 					"help": "vcmi.adventureOptions.leftButtonDrag",
 					"callback": "leftButtonDragChanged",
 					"created" : "desktop"
+				},
+				{
+					"name": "smoothDraggingCheckbox",
+					"help": "vcmi.adventureOptions.smoothDragging",
+					"callback": "smoothDraggingChanged"
 				}
 			]
 		}

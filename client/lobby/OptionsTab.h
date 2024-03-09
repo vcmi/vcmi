@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include "OptionsTabBase.h"
 #include "../windows/CWindowObject.h"
 #include "../widgets/Scrollable.h"
-#include "../gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct PlayerSettings;
@@ -30,7 +30,7 @@ class CButton;
 class FilledTexturePlayerColored;
 
 /// The options tab which is shown at the map selection phase.
-class OptionsTab : public InterfaceObjectConfigurable
+class OptionsTab : public OptionsTabBase
 {
 	struct PlayerOptionsEntry;
 	
@@ -148,7 +148,7 @@ private:
 	public:
 		void reopen();
 
-		SelectionWindow(PlayerColor _color, SelType _type);
+		SelectionWindow(const PlayerColor & color, SelType _type);
 	};
 
 	/// Image with current town/hero/bonus

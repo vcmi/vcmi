@@ -13,7 +13,6 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Magic.h>
-#include "../JsonNode.h"
 #include "../IHandlerBase.h"
 #include "../ConstTransitivePtr.h"
 #include "../int3.h"
@@ -21,6 +20,7 @@
 #include "../battle/BattleHex.h"
 #include "../bonuses/Bonus.h"
 #include "../filesystem/ResourcePath.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -68,7 +68,7 @@ public:
 		///resource name
 		AnimationPath resourceName;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & minimumAngle;
 			h & resourceName;
@@ -84,11 +84,10 @@ public:
 
 		AnimationItem();
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & resourceName;
-			if (version > 806)
-				h & effectName;
+			h & effectName;
 			h & verticalPosition;
 			h & pause;
 		}
@@ -112,7 +111,7 @@ public:
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & projectile;
 			h & hit;
@@ -141,7 +140,7 @@ public:
 
 		JsonNode battleEffects;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & cost;
 			h & power;
@@ -203,6 +202,7 @@ public:
 	int64_t calculateDamage(const spells::Caster * caster) const override;
 
 	bool hasSchool(SpellSchool school) const override;
+	bool canCastOnSelf() const override;
 
 	/**
 	 * Calls cb for each school this spell belongs to
@@ -267,39 +267,6 @@ public:
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & identifier;
-		if (version > 820)
-			h & modScope;
-		h & id;
-		h & level;
-		h & power;
-		h & probabilities;
-		h & attributes;
-		h & combat;
-		h & creatureAbility;
-		h & positiveness;
-		h & counteredSpells;
-		h & rising;
-		h & damage;
-		h & offensive;
-		h & targetType;
-		h & targetCondition;
-		h & iconImmune;
-		h & defaultProbability;
-		h & special;
-		h & castSound;
-		h & iconBook;
-		h & iconEffect;
-		h & iconScenarioBonus;
-		h & iconScroll;
-		h & levels;
-		h & school;
-		h & animationInfo;
-		h & nonMagical;
-		h & onlyOnWaterMap;
-	}
 	friend class CSpellHandler;
 	friend class Graphics;
 	friend class test::CSpellTest;
@@ -362,6 +329,7 @@ private:
 	si32 power; //spell's power
 	bool combat; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
+	bool castOnSelf; // if set, creature caster can cast this spell on itself
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
@@ -382,16 +350,7 @@ public:
 	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.
 	 *
 	 */
-	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-		if(!h.saving)
-		{
-			afterLoadFinalization();
-		}
-	}
+	std::set<SpellID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

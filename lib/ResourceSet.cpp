@@ -12,30 +12,18 @@
 #include "GameConstants.h"
 #include "ResourceSet.h"
 #include "constants/StringConstants.h"
-#include "JsonNode.h"
 #include "serializer/JsonSerializeFormat.h"
 #include "mapObjects/CObjectHandler.h"
 #include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+ResourceSet::ResourceSet() = default;
+
 ResourceSet::ResourceSet(const JsonNode & node)
 {
 	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
 		container[i] = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
-}
-
-ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
-							TResource gems, TResource gold, TResource mithril)
-{
-	container[GameResID(EGameResID::WOOD)] = wood;
-	container[GameResID(EGameResID::MERCURY)] = mercury;
-	container[GameResID(EGameResID::ORE)] = ore;
-	container[GameResID(EGameResID::SULFUR)] = sulfur;
-	container[GameResID(EGameResID::CRYSTAL)] = crystal;
-	container[GameResID(EGameResID::GEMS)] = gems;
-	container[GameResID(EGameResID::GOLD)] = gold;
-	container[GameResID(EGameResID::MITHRIL)] = mithril;
 }
 
 void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)

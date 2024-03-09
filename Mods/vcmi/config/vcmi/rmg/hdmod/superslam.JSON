@@ -1,9 +1,9 @@
 {
 	"SuperSlam" :
-	//(2 player, Large or XL  no under)  For powermonger players, meet by SLAMMING thru super zones. Your chances are not over until the fat lady sings! Should ban spec log along with normal random rules
 	{
 		"minSize" : "l", "maxSize" : "xl",
 		"players" : "2",
+		"description" : "2 players, Large or XL, no under)  For powermonger players, meet by SLAMMING thru super zones. Your chances are not over until the fat lady sings! Should ban spec log along with normal random rules",
 		"zones" :
 		{
 			"1" :

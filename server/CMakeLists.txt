@@ -1,4 +1,4 @@
-set(server_SRCS
+set(vcmiservercommon_SRCS
 		StdInc.cpp
 
 		battles/BattleActionProcessor.cpp
@@ -16,6 +16,7 @@ set(server_SRCS
 		processors/TurnOrderProcessor.cpp
 
 		CGameHandler.cpp
+		GlobalLobbyProcessor.cpp
 		ServerSpellCastEnvironment.cpp
 		CVCMIServer.cpp
 		NetPacksServer.cpp
@@ -23,7 +24,7 @@ set(server_SRCS
 		TurnTimerHandler.cpp
 )
 
-set(server_HEADERS
+set(vcmiservercommon_HEADERS
 		StdInc.h
 
 		battles/BattleActionProcessor.h
@@ -41,6 +42,7 @@ set(server_HEADERS
 		processors/TurnOrderProcessor.h
 
 		CGameHandler.h
+		GlobalLobbyProcessor.h
 		ServerSpellCastEnvironment.h
 		CVCMIServer.h
 		LobbyNetPackVisitors.h
@@ -48,45 +50,28 @@ set(server_HEADERS
 		TurnTimerHandler.h
 )
 
-assign_source_group(${server_SRCS} ${server_HEADERS})
+assign_source_group(${vcmiservercommon_SRCS} ${vcmiservercommon_HEADERS})
 
-if(ENABLE_SINGLE_APP_BUILD)
-	add_library(vcmiserver STATIC ${server_SRCS} ${server_HEADERS})
-	target_compile_definitions(vcmiserver PUBLIC VCMI_DLL_STATIC=1)
-	set(server_LIBS vcmi_lib_server)
-else()
-	if(ANDROID)
-		add_library(vcmiserver SHARED ${server_SRCS} ${server_HEADERS})
-	else()
-		add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
-	endif()
-	set(server_LIBS vcmi)
-endif()
+add_library(vcmiservercommon STATIC ${vcmiservercommon_SRCS} ${vcmiservercommon_HEADERS})
+set(vcmiservercommon_LIBS vcmi)
 
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)
-	set(server_LIBS execinfo ${server_LIBS})
+	set(vcmiservercommon_LIBS execinfo ${vcmiservercommon_LIBS})
 endif()
-target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip)
 
-target_include_directories(vcmiserver
+target_link_libraries(vcmiservercommon PRIVATE ${vcmiservercommon_LIBS} minizip::minizip)
+
+target_include_directories(vcmiservercommon
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 if(WIN32)
-	set_target_properties(vcmiserver
+	set_target_properties(vcmiservercommon
 		PROPERTIES
-			OUTPUT_NAME "VCMI_server"
-			PROJECT_LABEL "VCMI_server"
+			OUTPUT_NAME "VCMI_vcmiservercommon"
+			PROJECT_LABEL "VCMI_vcmiservercommon"
 	)
 endif()
 
-vcmi_set_output_dir(vcmiserver "")
-enable_pch(vcmiserver)
-
-if(NOT ENABLE_SINGLE_APP_BUILD)
-	if(ANDROID)
-		install(TARGETS vcmiserver DESTINATION ${LIB_DIR})
-	else()
-		install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
-	endif()
-endif()
+vcmi_set_output_dir(vcmiservercommon "")
+enable_pch(vcmiservercommon)

@@ -26,12 +26,11 @@ class ResourceSet;
 class ResourceSet
 {
 private:
-	std::array<TResource, GameConstants::RESOURCE_QUANTITY> container;
+	std::array<TResource, GameConstants::RESOURCE_QUANTITY> container = {};
 public:
 	// read resources set from json. Format example: { "gold": 500, "wood":5 }
 	DLL_LINKAGE ResourceSet(const JsonNode & node);
-	DLL_LINKAGE ResourceSet(TResource wood = 0, TResource mercury = 0, TResource ore = 0, TResource sulfur = 0, TResource crystal = 0,
-							TResource gems = 0, TResource gold = 0, TResource mithril = 0);
+	DLL_LINKAGE ResourceSet();
 
 
 #define scalarOperator(OPSIGN)									\
@@ -181,7 +180,7 @@ public:
 // 			return true;
 // 		}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & container;
 	}

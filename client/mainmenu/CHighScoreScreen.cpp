@@ -17,7 +17,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
 
@@ -29,8 +29,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/TextOperations.h"
-
-#include "vstd/DateUtils.h"
+#include "../../lib/Languages.h"
 
 auto HighScoreCalculation::calculate()
 {
@@ -42,7 +41,8 @@ auto HighScoreCalculation::calculate()
 		bool cheater = false;
 	};
 	
-	Result firstResult, summary;
+	Result firstResult;
+	Result summary;
 	const std::array<double, 5> difficultyMultipliers{0.8, 1.0, 1.3, 1.6, 2.0}; 
 	for(auto & param : parameters)
 	{
@@ -252,7 +252,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	auto sortFunctor = [](const JsonNode & left, const JsonNode & right)
 	{
 		if(left["points"].Integer() == right["points"].Integer())
-			return left["posFlag"].Integer() > right["posFlag"].Integer();
+			return left["posFlag"].Bool() > right["posFlag"].Bool();
 		return left["points"].Integer() > right["points"].Integer();
 	};
 
@@ -264,7 +264,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 		newNode["scenarioName"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].scenarioName;
 	newNode["days"].Integer() = calc.calculate().sumDays;
 	newNode["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
-	newNode["datetime"].String() = vstd::getFormattedDateTime(std::time(nullptr));
+	newNode["datetime"].String() = TextOperations::getFormattedDateTimeLocal(std::time(nullptr));
 	newNode["posFlag"].Bool() = true;
 
 	baseNode.push_back(newNode);
@@ -325,7 +325,6 @@ void CHighScoreInputScreen::deactivate()
 {
 	CCS->videoh->close();
 	CCS->soundh->stopSound(videoSoundHandle);
-	CIntObject::deactivate();
 }
 
 void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
@@ -361,7 +360,7 @@ void CHighScoreInputScreen::keyPressed(EShortcut key)
 }
 
 CHighScoreInput::CHighScoreInput(std::string playerName, std::function<void(std::string text)> readyCB)
-	: CWindowObject(0, ImagePath::builtin("HIGHNAME")), ready(readyCB)
+	: CWindowObject(NEEDS_ANIMATED_BACKGROUND, ImagePath::builtin("HIGHNAME")), ready(readyCB)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -373,7 +372,7 @@ CHighScoreInput::CHighScoreInput(std::string playerName, std::function<void(std:
 	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CHighScoreInput::okay, this), EShortcut::GLOBAL_ACCEPT);
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], std::bind(&CHighScoreInput::abort, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
-	textInput = std::make_shared<CTextInput>(Rect(18, 104, 200, 25), FONT_SMALL, 0);
+	textInput = std::make_shared<CTextInput>(Rect(18, 104, 200, 25), FONT_SMALL, nullptr, ETextAlignment::CENTER, true);
 	textInput->setText(playerName);
 }
 

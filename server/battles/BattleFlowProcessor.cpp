@@ -181,6 +181,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	// send empty event to client
 	// temporary(?) workaround to force animations to trigger
 	StacksInjured fakeEvent;
+	fakeEvent.battleID = battle.getBattle()->getBattleID();
 	gameHandler->sendAndApply(&fakeEvent);
 }
 
@@ -583,10 +584,10 @@ void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & batt
 	auto bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTED)));
 	for(auto b : bl)
 	{
-		const CSpell * sp = b->subtype.as<SpellID>().toSpell();
-		if(!sp)
+		if (!b->subtype.as<SpellID>().hasValue())
 			continue;
 
+		const CSpell * sp = b->subtype.as<SpellID>().toSpell();
 		const int32_t val = bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
 		const int32_t level = ((val > 3) ? (val - 3) : val);
 
@@ -663,7 +664,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 
 		if (st->hasBonusOfType(BonusType::POISON))
 		{
-			std::shared_ptr<const Bonus> b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::POISON))).And(Selector::type()(BonusType::STACK_HEALTH)));
+			std::shared_ptr<const Bonus> b = st->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::POISON))).And(Selector::type()(BonusType::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(BonusType::POISON)));
@@ -676,8 +677,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		}
 		if(st->hasBonusOfType(BonusType::MANA_DRAIN) && !st->drainedMana)
 		{
-			const PlayerColor opponent = battle.otherPlayer(battle.battleGetOwner(st));
-			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(opponent);
+			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(st->unitSide()));
 			if(opponentHero)
 			{
 				ui32 manaDrained = st->valOfBonuses(BonusType::MANA_DRAIN);
@@ -712,6 +712,11 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			}
 		}
 		BonusList bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTER)));
+		bl.remove_if([](const Bonus * b)
+		{
+			return b->subtype.as<SpellID>() == SpellID::NONE;
+		});
+
 		int side = *battle.playerToSide(st->unitOwner());
 		if(st->canCast() && battle.battleGetEnchanterCounter(side) == 0)
 		{

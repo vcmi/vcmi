@@ -12,7 +12,6 @@
 
 #include "ResourceConverter.h"
 
-#include "../lib/JsonNode.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 
@@ -71,7 +70,7 @@ void ResourceConverter::splitDefFile(const std::string & fileName, const boost::
 {
 	if(CResourceHandler::get()->existsResource(ResourcePath("SPRITES/" + fileName)))
 	{
-		std::unique_ptr<Animation> anim = std::make_unique<Animation>(fileName);
+		auto anim = std::make_unique<Animation>(fileName);
 		anim->preload();
 		anim->exportBitmaps(pathToQString(sourceFolder));
 

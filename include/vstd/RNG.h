@@ -36,15 +36,38 @@ namespace RandomGeneratorUtil
 	template<typename Container>
 	auto nextItem(const Container & container, vstd::RNG & rand) -> decltype(std::begin(container))
 	{
-		assert(!container.empty());
+		if(container.empty())
+			throw std::runtime_error("Unable to select random item from empty container!");
+
 		return std::next(container.begin(), rand.getInt64Range(0, container.size() - 1)());
 	}
 
 	template<typename Container>
 	auto nextItem(Container & container, vstd::RNG & rand) -> decltype(std::begin(container))
 	{
-		assert(!container.empty());
+		if(container.empty())
+			throw std::runtime_error("Unable to select random item from empty container!");
+
 		return std::next(container.begin(), rand.getInt64Range(0, container.size() - 1)());
+	}
+
+	template<typename Container>
+	size_t nextItemWeighted(Container & container, vstd::RNG & rand)
+	{
+		assert(!container.empty());
+
+		int64_t totalWeight = std::accumulate(container.begin(), container.end(), 0);
+		assert(totalWeight > 0);
+
+		int64_t roll = rand.getInt64Range(0, totalWeight - 1)();
+
+		for (size_t i = 0; i < container.size(); ++i)
+		{
+			roll -= container[i];
+			if(roll < 0)
+				return i;
+		}
+		return container.size() - 1;
 	}
 
 	template<typename T>

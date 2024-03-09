@@ -119,7 +119,7 @@
 			"description" : "Number of players that will be present on map (human or AI)",
 			"type": "string"
 		},
-		"cpu" : {
+		"humans" : {
 			"description" : "Optional, number of AI-only players",
 			"type": "string"
 		},
@@ -133,6 +133,10 @@
 		},
 		"name" : {
 			"description" : "Optional name - useful to have several template variations with same name",
+			"type": "string"
+		},
+		"description" : {
+			"description" : "Optional info about template, author or special rules",
 			"type": "string"
 		},
 		"zones" : {

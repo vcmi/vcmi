@@ -10,7 +10,8 @@
 
 #include "StdInc.h"
 #include "Colors.h"
-#include "../../lib/JsonNode.h"
+
+#include "../../lib/json/JsonNode.h"
 
 const ColorRGBA Colors::YELLOW = { 229, 215, 123, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE = { 255, 243, 222, ColorRGBA::ALPHA_OPAQUE };
@@ -29,11 +30,11 @@ std::optional<ColorRGBA> Colors::parseColor(std::string text)
 {
 	std::smatch match;
 	std::regex expr("^#([0-9a-fA-F]{6})$");
-	ui8 rgb[3] = {0, 0, 0};
+	std::vector<ui8> rgb;
+	rgb.reserve(3);
 	if(std::regex_search(text, match, expr))
 	{
-		std::string tmp = boost::algorithm::unhex(match[1].str()); 
-		std::copy(tmp.begin(), tmp.end(), rgb);
+		boost::algorithm::unhex(match[1].str(), std::back_inserter(rgb)); 
 		return ColorRGBA(rgb[0], rgb[1], rgb[2]);
 	}
 
@@ -42,8 +43,7 @@ std::optional<ColorRGBA> Colors::parseColor(std::string text)
 	for(auto & color : colors) {
 		if(boost::algorithm::to_lower_copy(color.first) == boost::algorithm::to_lower_copy(text))
 		{
-			std::string tmp = boost::algorithm::unhex(color.second.String()); 
-			std::copy(tmp.begin(), tmp.end(), rgb);
+			boost::algorithm::unhex(color.second.String(), std::back_inserter(rgb)); 
 			return ColorRGBA(rgb[0], rgb[1], rgb[2]);
 		}
 	}

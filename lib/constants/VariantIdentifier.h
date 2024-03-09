@@ -13,13 +13,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-/// This class represents field that may contain value of multiple different identifer types
+/// This class represents field that may contain value of multiple different identifier types
 template<typename... Types>
-class DLL_LINKAGE VariantIdentifier
+class VariantIdentifier
 {
-	std::variant<Types...> value;
-public:
+	using Type = std::variant<Types...>;
+	Type value;
 
+public:
 	VariantIdentifier()
 	{}
 
@@ -58,7 +59,7 @@ public:
 			return IdentifierType();
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & value;
 	}

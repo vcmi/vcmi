@@ -18,6 +18,7 @@
 #include "../../bonuses/Limiters.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../json/JsonBonus.h"
 #include "../../serializer/JsonSerializeFormat.h"
 #include "../../networkPacks/PacksForClient.h"
 #include "../../networkPacks/PacksForClientBattle.h"
@@ -117,7 +118,7 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 		for(auto & b : converted)
 		{
 			GiveBonus gb(GiveBonus::ETarget::BATTLE);
-			gb.id = m->battle()->getBattle()->getBattleID().getNum();
+			gb.id = m->battle()->getBattle()->getBattleID();
 			gb.bonus = b;
 			server->apply(&gb);
 		}

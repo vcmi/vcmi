@@ -69,7 +69,7 @@ struct DLL_LINKAGE ResetInfo
 	
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & period;
 		h & visitors;
@@ -94,7 +94,7 @@ struct DLL_LINKAGE VisitInfo
 
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & limiter;
 		h & reward;
@@ -114,7 +114,7 @@ struct DLL_LINKAGE Variables
 
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & values;
 		h & preset;
@@ -168,13 +168,13 @@ struct DLL_LINKAGE Configuration
 	ui16 getResetDuration() const;
 
 	std::optional<int> getVariable(const std::string & category, const std::string & name) const;
-	JsonNode getPresetVariable(const std::string & category, const std::string & name) const;
+	const JsonNode & getPresetVariable(const std::string & category, const std::string & name) const;
 	void presetVariable(const std::string & category, const std::string & name, const JsonNode & value);
 	void initVariable(const std::string & category, const std::string & name, int value);
 	
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & onSelect;
 		h & description;

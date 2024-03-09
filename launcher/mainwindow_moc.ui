@@ -134,56 +134,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="lobbyButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>10</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Lobby</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>icons:menu-lobby.png</normaloff>icons:menu-lobby.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>64</width>
-          <height>64</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <property name="autoExclusive">
-         <bool>true</bool>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QToolButton" name="aboutButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -370,7 +320,6 @@
       </property>
       <widget class="CModListView" name="modlistView"/>
       <widget class="CSettingsView" name="settingsView"/>
-      <widget class="Lobby" name="lobbyView"/>
       <widget class="FirstLaunchView" name="setupView"/>
       <widget class="AboutProjectView" name="aboutView"/>
      </widget>
@@ -390,12 +339,6 @@
    <class>CSettingsView</class>
    <extends>QWidget</extends>
    <header>settingsView/csettingsview_moc.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Lobby</class>
-   <extends>QWidget</extends>
-   <header>lobby/lobby_moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

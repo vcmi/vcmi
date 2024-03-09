@@ -33,10 +33,11 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid)
 {
 	const auto * art = aid.toArtifact();
-	if(art->canBePutAt(target, ArtifactPosition::BACKPACK_START))
-	{
-		return ArtifactPosition::BACKPACK_START;
-	}
+	if(target->bearerType() == ArtBearer::HERO)
+		if(art->canBePutAt(target, ArtifactPosition::BACKPACK_START))
+		{
+			return ArtifactPosition::BACKPACK_START;
+		}
 	return ArtifactPosition::PRE_FIRST;
 }
 
@@ -69,6 +70,49 @@ DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::constituentWorn
 		ArtifactPosition::MISC3,
 		ArtifactPosition::MISC4,
 		ArtifactPosition::MISC5,
+	};
+
+	return positions;
+}
+
+DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::allWornSlots()
+{
+	static const std::vector<ArtifactPosition> positions =
+	{
+		ArtifactPosition::HEAD,
+		ArtifactPosition::SHOULDERS,
+		ArtifactPosition::NECK,
+		ArtifactPosition::RIGHT_HAND,
+		ArtifactPosition::LEFT_HAND,
+		ArtifactPosition::TORSO,
+		ArtifactPosition::RIGHT_RING,
+		ArtifactPosition::LEFT_RING,
+		ArtifactPosition::FEET,
+		ArtifactPosition::MISC1,
+		ArtifactPosition::MISC2,
+		ArtifactPosition::MISC3,
+		ArtifactPosition::MISC4,
+		ArtifactPosition::MISC5,
+		ArtifactPosition::MACH1,
+		ArtifactPosition::MACH2,
+		ArtifactPosition::MACH3,
+		ArtifactPosition::MACH4,
+		ArtifactPosition::SPELLBOOK
+	};
+
+	return positions;
+}
+
+DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::commanderSlots()
+{
+	static const std::vector<ArtifactPosition> positions =
+	{
+		ArtifactPosition::COMMANDER1,
+		ArtifactPosition::COMMANDER2,
+		ArtifactPosition::COMMANDER3,
+		ArtifactPosition::COMMANDER4,
+		ArtifactPosition::COMMANDER5,
+		ArtifactPosition::COMMANDER6
 	};
 
 	return positions;
@@ -107,11 +151,16 @@ DLL_LINKAGE bool ArtifactUtils::isSlotEquipment(const ArtifactPosition & slot)
 
 DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots)
 {
-	const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
-	if(backpackCap < 0)
-		return true;
+	if(target->bearerType() == ArtBearer::HERO)
+	{
+		const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+		if(backpackCap < 0)
+			return true;
+		else
+			return target->artifactsInBackpack.size() + reqSlots <= backpackCap;
+	}
 	else
-		return target->artifactsInBackpack.size() + reqSlots <= backpackCap;
+		return false;
 }
 
 DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
@@ -143,14 +192,14 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & sid)
 {
-	auto ret = new CArtifactInstance(VLC->arth->objects[ArtifactID::SPELL_SCROLL]);
+	auto ret = new CArtifactInstance(ArtifactID(ArtifactID::SPELL_SCROLL).toArtifact());
 	auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
 		BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(sid));
 	ret->addNewBonus(bonus);
 	return ret;
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifact * art)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const CArtifact * art)
 {
 	assert(art);
 
@@ -172,7 +221,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifa
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const ArtifactID & aid)
 {
-	return ArtifactUtils::createNewArtifactInstance(VLC->arth->objects[aid]);
+	return ArtifactUtils::createNewArtifactInstance(aid.toArtifact());
 }
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID)
@@ -211,10 +260,13 @@ DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description
 	// However other language versions don't have name placeholder at all, so we have to be careful
 	auto nameStart = description.find_first_of('[');
 	auto nameEnd = description.find_first_of(']', nameStart);
-	if(sid.getNum() >= 0)
+
+	if(nameStart != std::string::npos && nameEnd != std::string::npos)
 	{
-		if(nameStart != std::string::npos && nameEnd != std::string::npos)
-			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toSpell(VLC->spells())->getNameTranslated());
+		if(sid.getNum() >= 0)
+			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(VLC->spells())->getNameTranslated());
+		else
+			description = description.erase(nameStart, nameEnd - nameStart + 2); // erase "[spell name] " - including space
 	}
 }
 

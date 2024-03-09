@@ -1,12 +1,15 @@
 /client/vcmiclient
 /server/vcmiserver
+/launcher/.lupdate
 /launcher/vcmilauncher
+/mapeditor/.lupdate
 /launcher/vcmilauncher_automoc.cpp
 /conan-*
 
 build/
 .cache/*
 out/
+/.qt
 *.dll
 *.exe
 *.depend
@@ -41,6 +44,8 @@ VCMI_VS11.sdf
 VCMI_VS11.opensdf
 .DS_Store
 CMakeUserPresets.json
+compile_commands.json
+fuzzylite.pc
 
 # Visual Studio
 *.suo
@@ -60,6 +65,9 @@ CMakeUserPresets.json
 /AI/FuzzyLite.lib
 /deps
 .vs/
+
+# Visual Studio Code
+/.vscode/
 
 # CLion
 .idea/

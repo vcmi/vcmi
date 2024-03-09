@@ -2,7 +2,7 @@
 	"7SB0c" :
 	{
 		"minSize" : "s+u", "maxSize" : "l",
-		"players" : "2-6", "cpu" : "1",
+		"players" : "2-7", "humans" : "2-6",
 		"zones" :
 		{
 			"1" :

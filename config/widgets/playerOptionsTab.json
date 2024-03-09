@@ -1,0 +1,121 @@
+{
+	"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+	"items":
+	[
+		{
+			"name": "background",
+			"type": "picture",
+			"image": "ADVOPTBK",
+			"position": {"x": 0, "y": 6}
+		},
+
+		{
+			"name": "labelTitle",
+			"type": "label",
+			"font": "big",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.515",
+			"position": {"x": 222, "y": 36}
+		},
+		
+		{
+			"name": "labelSubTitle",
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "core.genrltxt.516",
+			"rect": {"x": 60, "y": 50, "w": 320, "h": 0},
+			"adoptHeight": true
+		},
+		
+		{
+			"name": "labelPlayerNameAndHandicap",
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.517",
+			"rect": {"x": 58, "y": 92, "w": 100, "h": 0},
+			"adoptHeight": true
+		},
+		
+		{
+			"name": "labelStartingTown",
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.518",
+			"rect": {"x": 163, "y": 92, "w": 70, "h": 0},
+			"adoptHeight": true
+		},
+		
+		{
+			"name": "labelStartingHero",
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.519",
+			"rect": {"x": 239, "y": 92, "w": 70, "h": 0},
+			"adoptHeight": true
+		},
+		
+		{
+			"name": "labelStartingBonus",
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.520",
+			"rect": {"x": 315, "y": 92, "w": 70, "h": 0},
+			"adoptHeight": true
+		},
+
+		{
+			"type" : "dropDownTimers",
+			"name": "timerPresetSelector",
+			"position": {"x": 56, "y": 535},
+			"dropDownPosition": {"x": 0, "y": -260}
+		},
+		{
+			"type" : "dropDownSimturns",
+			"name": "simturnsPresetSelector",
+			"position": {"x": 56, "y": 555},
+			"dropDownPosition": {"x": 0, "y": -160}
+		}
+	],
+
+	"variables":
+	{
+		"timerPresets" :
+		[
+			[    0,    0,   0, 0, false, false],
+			[    0,   60,   0, 0, false, false],
+			[    0,  120,   0, 0, false, false],
+			[    0,  300,   0, 0, false, false],
+			[    0,  600,   0, 0, false, false],
+			[    0, 1200,   0, 0, false, false],
+			[    0, 1800,   0, 0, false, false],
+			[  960,  480, 120, 0, true, false],
+			[  960,  480,  75, 0, true, false],
+			[  480,  240,  60, 0, true, false],
+			[  120,   90,  60, 0, true, false],
+			[  120,   60,  15, 0, true, false],
+			[   60,   60,   0, 0, true, false]
+		],
+		"simturnsPresets" :
+		[
+			[   0,  0, false],
+			[ 999,  0, false],
+			[   7,  0, false],
+			[  14,  0, false],
+			[  28,  0, false],
+			[   7,  7, false],
+			[  14, 14, false],
+			[  28, 28, false]
+		]
+	}
+}

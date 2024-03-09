@@ -12,12 +12,12 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
+#include "../json/JsonUtils.h"
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../CGeneralTextHandler.h"
 #include "../GameSettings.h"
-#include "../JsonNode.h"
 #include "../CSoundBase.h"
 
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
@@ -36,12 +36,13 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 CObjectClassesHandler::CObjectClassesHandler()
 {
-#define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
+#define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>
 #define SET_HANDLER(STRING, TYPENAME) handlerConstructors[STRING] = std::make_shared<CDefaultObjectTypeHandler<TYPENAME>>
 
 	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
@@ -96,11 +97,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 #undef SET_HANDLER
 }
 
-CObjectClassesHandler::~CObjectClassesHandler()
-{
-	for(auto * p : objects)
-		delete p;
-}
+CObjectClassesHandler::~CObjectClassesHandler() = default;
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 {
@@ -112,13 +109,13 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 
 	for (size_t i = 0; i < totalNumber; i++)
 	{
-		auto * tmpl = new ObjectTemplate;
+		auto tmpl = std::make_shared<ObjectTemplate>();
 
 		tmpl->readTxt(parser);
 		parser.endLine();
 
-		std::pair<si32, si32> key(tmpl->id.num, tmpl->subid);
-		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
+		std::pair key(tmpl->id, tmpl->subid);
+		legacyTemplates.insert(std::make_pair(key, tmpl));
 	}
 
 	objects.resize(256);
@@ -180,8 +177,10 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	auto object = loadSubObjectFromJson(scope, identifier, entry, obj, index);
 
 	assert(object);
-	assert(obj->objects[index] == nullptr); // ensure that this id was not loaded before
-	obj->objects[index] = object;
+	if (obj->objects.at(index) != nullptr)
+		throw std::runtime_error("Attempt to load already loaded object:" + identifier);
+
+	obj->objects.at(index) = object;
 
 	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
 	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
@@ -205,7 +204,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	auto createdObject = handlerConstructors.at(handler)();
 
 	createdObject->modScope = scope;
-	createdObject->typeName = obj->identifier;;
+	createdObject->typeName = obj->identifier;
 	createdObject->subTypeName = identifier;
 
 	createdObject->type = obj->id;
@@ -224,6 +223,9 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	return createdObject;
 }
 
+ObjectClass::ObjectClass() = default;
+ObjectClass::~ObjectClass() = default;
+
 std::string ObjectClass::getJsonKey() const
 {
 	return modScope + ':' + identifier;
@@ -239,9 +241,9 @@ std::string ObjectClass::getNameTranslated() const
 	return VLC->generaltexth->translate(getNameTextID());
 }
 
-ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
+std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
 {
-	auto * obj = new ObjectClass();
+	auto obj = std::make_unique<ObjectClass>();
 
 	obj->modScope = scope;
 	obj->identifier = name;
@@ -257,65 +259,73 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 	{
 		if (!subData.second["index"].isNull())
 		{
-			const std::string & subMeta = subData.second["index"].meta;
+			const std::string & subMeta = subData.second["index"].getModScope();
 
-			if ( subMeta != "core")
-				logMod->warn("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
-			size_t subIndex = subData.second["index"].Integer();
-			loadSubObject(subData.second.meta, subData.first, subData.second, obj, subIndex);
+			if ( subMeta == "core")
+			{
+				size_t subIndex = subData.second["index"].Integer();
+				loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get(), subIndex);
+			}
+			else
+			{
+				logMod->error("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
+				loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get());
+			}
 		}
 		else
-			loadSubObject(subData.second.meta, subData.first, subData.second, obj);
+			loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get());
 	}
+
+	if (obj->id == MapObjectID::MONOLITH_TWO_WAY)
+		generateExtraMonolithsForRMG(obj.get());
+
 	return obj;
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto * object = loadFromJson(scope, data, name, objects.size());
-	objects.push_back(object);
-	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
+	objects.push_back(loadFromJson(scope, data, name, objects.size()));
+
+	VLC->identifiersHandler->registerObject(scope, "object", name, objects.back()->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto * object = loadFromJson(scope, data, name, index);
-	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
-	objects[static_cast<si32>(index)] = object;
-	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
+	assert(objects.at(index) == nullptr); // ensure that this id was not loaded before
+
+	objects.at(index) = loadFromJson(scope, data, name, index);
+	VLC->identifiersHandler->registerObject(scope, "object", name, objects.at(index)->id);
 }
 
-void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, si32 ID, si32 subID)
+void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not NULL
-	assert(ID < objects.size());
-	assert(objects[ID]);
+	assert(objects.at(ID.getNum()));
 
-	if ( subID >= objects[ID]->objects.size())
-		objects[ID]->objects.resize(subID+1);
+	if ( subID.getNum() >= objects.at(ID.getNum())->objects.size())
+		objects.at(ID.getNum())->objects.resize(subID.getNum()+1);
 
-	JsonUtils::inherit(config, objects.at(ID)->base);
-	loadSubObject(config.meta, identifier, config, objects[ID], subID);
+	JsonUtils::inherit(config, objects.at(ID.getNum())->base);
+	loadSubObject(config.getModScope(), identifier, config, objects.at(ID.getNum()).get(), subID.getNum());
 }
 
-void CObjectClassesHandler::removeSubObject(si32 ID, si32 subID)
+void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID)
 {
-	assert(ID < objects.size());
-	assert(objects[ID]);
-	assert(subID < objects[ID]->objects.size());
-	objects[ID]->objects[subID] = nullptr;
+	assert(objects.at(ID.getNum()));
+	objects.at(ID.getNum())->objects.at(subID.getNum()) = nullptr;
 }
 
-std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>(); //TODO?
-}
-
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype) const
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObjectSubID subtype) const
 {
 	try
 	{
-		auto result = objects.at(type)->objects.at(subtype);
+		if (objects.at(type.getNum()) == nullptr)
+			return objects.front()->objects.front();
+
+		auto subID = subtype.getNum();
+		if (type == Obj::PRISON)
+			subID = 0;
+		auto result = objects.at(type.getNum())->objects.at(subID);
 
 		if (result != nullptr)
 			return result;
@@ -325,7 +335,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 		// Leave catch block silently
 	}
 
-	std::string errorString = "Failed to find object of type " + std::to_string(type) + "::" + std::to_string(subtype);
+	std::string errorString = "Failed to find object of type " + std::to_string(type.getNum()) + "::" + std::to_string(subtype.getNum());
 	logGlobal->error(errorString);
 	throw std::runtime_error(errorString);
 }
@@ -335,11 +345,11 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scop
 	std::optional<si32> id = VLC->identifiers()->getIdentifier(scope, "object", type);
 	if(id)
 	{
-		auto * object = objects[id.value()];
+		const auto & object = objects.at(id.value());
 		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
-			return object->objects[subID.value()];
+			return object->objects.at(subID.value());
 	}
 
 	std::string errorString = "Failed to find object of type " + type + "::" + subtype;
@@ -352,28 +362,28 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID comp
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
 }
 
-std::set<si32> CObjectClassesHandler::knownObjects() const
+std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
 {
-	std::set<si32> ret;
+	std::set<MapObjectID> ret;
 
-	for(auto * entry : objects)
+	for(auto & entry : objects)
 		if (entry)
 			ret.insert(entry->id);
 
 	return ret;
 }
 
-std::set<si32> CObjectClassesHandler::knownSubObjects(si32 primaryID) const
+std::set<MapObjectSubID> CObjectClassesHandler::knownSubObjects(MapObjectID primaryID) const
 {
-	std::set<si32> ret;
+	std::set<MapObjectSubID> ret;
 
-	if (!objects.at(primaryID))
+	if (!objects.at(primaryID.getNum()))
 	{
 		logGlobal->error("Failed to find object %d", primaryID);
 		return ret;
 	}
 
-	for(const auto & entry : objects.at(primaryID)->objects)
+	for(const auto & entry : objects.at(primaryID.getNum())->objects)
 		if (entry)
 			ret.insert(entry->subtype);
 
@@ -406,7 +416,7 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 
 void CObjectClassesHandler::afterLoadFinalization()
 {
-	for(auto * entry : objects)
+	for(auto & entry : objects)
 	{
 		if (!entry)
 			continue;
@@ -421,14 +431,12 @@ void CObjectClassesHandler::afterLoadFinalization()
 				logGlobal->warn("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
-
-	generateExtraMonolithsForRMG();
 }
 
-void CObjectClassesHandler::generateExtraMonolithsForRMG()
+void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container)
 {
 	//duplicate existing two-way portals to make reserve for RMG
-	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->objects;
+	auto& portalVec = container->objects;
 	//FIXME: Monoliths  in this vector can be already not useful for every terrain
 	const size_t portalCount = portalVec.size();
 
@@ -446,7 +454,6 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG()
 		//deep copy of noncopyable object :?
 		auto newPortal = std::make_shared<CDefaultObjectTypeHandler<CGMonolith>>();
 		newPortal->rmgInfo = portal->getRMGInfo();
-		newPortal->base = portal->base; //not needed?
 		newPortal->templates = portal->getTemplates();
 		newPortal->sounds = portal->getSounds();
 		newPortal->aiValue = portal->getAiValue();
@@ -456,21 +463,30 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG()
 		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size());
 		newPortal->type = portal->getIndex();
 
-		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
+		// Inconsintent original indexing: monolith1 has index 0
+		newPortal->subtype = portalVec.size() - 1; //indexes must be unique, they are returned as a set
+		newPortal->blockVisit = portal->blockVisit;
+		newPortal->removable = portal->removable;
+
 		portalVec.push_back(newPortal);
+
+		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
 	}
 }
 
-std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
+std::string CObjectClassesHandler::getObjectName(MapObjectID type, MapObjectSubID subtype) const
 {
 	const auto handler = getHandlerFor(type, subtype);
 	if (handler && handler->hasNameTextID())
 		return handler->getNameTranslated();
-	else
-		return objects[type]->getNameTranslated();
+
+	if (objects.at(type.getNum()))
+		return objects.at(type.getNum())->getNameTranslated();
+
+	return objects.front()->getNameTranslated();
 }
 
-SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) const
+SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObjectSubID subtype) const
 {
 	// TODO: these objects may have subID's that does not have associated handler:
 	// Prison: uses hero type as subID
@@ -479,21 +495,27 @@ SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) co
 	if(type == Obj::PRISON || type == Obj::HERO || type == Obj::SPELL_SCROLL)
 		subtype = 0;
 
-	assert(type < objects.size());
-	assert(objects[type]);
-	assert(subtype < objects[type]->objects.size());
-
-	return getHandlerFor(type, subtype)->getSounds();
+	if(objects.at(type.getNum()))
+		return getHandlerFor(type, subtype)->getSounds();
+	else
+		return objects.front()->objects.front()->getSounds();
 }
 
-std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
+std::string CObjectClassesHandler::getObjectHandlerName(MapObjectID type) const
 {
-	return objects.at(type)->handlerName;
+	if (objects.at(type.getNum()))
+		return objects.at(type.getNum())->handlerName;
+	else
+		return objects.front()->handlerName;
 }
 
-std::string CObjectClassesHandler::getJsonKey(si32 type) const
+std::string CObjectClassesHandler::getJsonKey(MapObjectID type) const
 {
-	return objects.at(type)->getJsonKey();
+	if (objects.at(type.getNum()) != nullptr)
+		return objects.at(type.getNum())->getJsonKey();
+
+	logGlobal->warn("Unknown object of type %d!", type);
+	return objects.front()->getJsonKey();
 }
 
 VCMI_LIB_NAMESPACE_END

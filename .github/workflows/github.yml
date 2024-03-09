@@ -6,9 +6,8 @@ on:
       - features/*
       - beta
       - master
+      - develop
   pull_request:
-  schedule:
-    - cron: '0 2 * * *'
   workflow_dispatch:
 
 env:
@@ -16,55 +15,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  check_last_build:
-    if: github.event.schedule != ''
-    runs-on: ubuntu-latest
-    outputs:
-      skip_build: ${{ steps.check_if_built.outputs.skip_build }}
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Get repo name
-        id: get_repo_name
-        run: echo "::set-output name=value::${GITHUB_REPOSITORY#*/}"
-      - name: Get last successful build for ${{ github.sha }}
-        uses: octokit/request-action@v2.1.0
-        id: get_last_scheduled_run
-        with:
-          route: GET /repos/{owner}/{repo}/actions/runs
-          owner: ${{ github.repository_owner }}
-          repo: ${{ steps.get_repo_name.outputs.value }}
-          status: success
-          per_page: 1
-          head_sha: ${{ github.sha }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Check if successful build of the current commit exists
-        id: check_if_built
-        run: |
-          if [ ${{ fromJson(steps.get_last_scheduled_run.outputs.data).total_count }} -gt 0 ]; then
-            echo '::set-output name=skip_build::1'
-          else
-            echo '::set-output name=skip_build::0'
-          fi
-      - name: Cancel current run
-        if: steps.check_if_built.outputs.skip_build == 1
-        uses: octokit/request-action@v2.1.0
-        with:
-          route: POST /repos/{owner}/{repo}/actions/runs/{run_id}/cancel
-          owner: ${{ github.repository_owner }}
-          repo: ${{ steps.get_repo_name.outputs.value }}
-          run_id: ${{ github.run_id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Wait for the run to be cancelled
-        if: steps.check_if_built.outputs.skip_build == 1
-        run: sleep 60
-
   build:
-    needs: check_last_build
-    if: always() && needs.check_last_build.skip_build != 1
     strategy:
       matrix:
         include:
@@ -73,8 +24,8 @@ jobs:
             test: 0
             preset: linux-clang-test
           - platform: linux
-            os: ubuntu-20.04
-            test: 0
+            os: ubuntu-22.04
+            test: 1
             preset: linux-gcc-test
           - platform: linux
             os: ubuntu-20.04
@@ -84,6 +35,7 @@ jobs:
             os: macos-12
             test: 0
             pack: 1
+            pack_type: Release
             extension: dmg
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
@@ -93,6 +45,7 @@ jobs:
             os: macos-12
             test: 0
             pack: 1
+            pack_type: Release
             extension: dmg
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
@@ -102,6 +55,7 @@ jobs:
             os: macos-12
             test: 0
             pack: 1
+            pack_type: Release
             extension: ipa
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
@@ -110,17 +64,29 @@ jobs:
             os: windows-latest
             test: 0
             pack: 1
+            pack_type: RelWithDebInfo
             extension: exe
             preset: windows-msvc-release-ccache
-          - platform: mingw-ubuntu
+          - platform: mingw
             os: ubuntu-22.04
             test: 0
             pack: 1
+            pack_type: Release
             extension: exe
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
+          - platform: mingw-32
+            os: ubuntu-22.04
+            test: 0
+            pack: 1
+            pack_type: Release
+            extension: exe
+            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
+            cmake_args: -G Ninja
+            preset: windows-mingw-conan-linux
+            conan_profile: mingw32-linux.jinja
           - platform: android-32
             os: ubuntu-22.04
             extension: apk
@@ -141,7 +107,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -150,7 +116,7 @@ jobs:
       run: |
         find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
         -o -path ./osx  -prune -o -type f \
-        -not -name '*.png' -and -not -name '*.vcxproj*' -and -not -name '*.props' -and -not -name '*.wav' -and -not -name '*.ico' -and -not -name '*.bat' -print0 | \
+        -not -name '*.png' -and -not -name '*.vcxproj*' -and -not -name '*.props' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -print0 | \
         { ! xargs -0 grep -l -z -P '\r\n'; }
 
     - name: Validate JSON
@@ -158,7 +124,7 @@ jobs:
       # also, running it on multiple presets is redundant and slightly increases already long CI built times
       if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
       run: |
-        pip3 install json5 jstyleson
+        pip3 install jstyleson
         python3 CI/linux-qt6/validate_json.py
 
     - name: Dependencies
@@ -168,7 +134,7 @@ jobs:
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
-    - name: Ccache for PRs
+    - name: ccache for PRs
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number != '' }}
       with:
@@ -180,9 +146,9 @@ jobs:
         max-size: "5G"
         verbose: 2
 
-    - name: Ccache for everything but PRs
+    - name: ccache for everything but PRs
       uses: hendrikmuhs/ccache-action@v1.2
-      if: ${{ github.event.number == '' }}
+      if: ${{ (github.repository == 'vcmi/vcmi' && github.event.number == '' && github.ref == 'refs/heads/develop') ||  github.repository != 'vcmi/vcmi' }}
       with:
         key: ${{ matrix.preset }}-no-PR
         restore-keys: |
@@ -191,7 +157,17 @@ jobs:
         max-size: "5G"
         verbose: 2
 
-    - uses: actions/setup-python@v4
+    - name: Prepare Heroes 3 data
+      env:
+        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
+      if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
+      run: |
+        wget --progress=dot:giga https://github.com/vcmi-mods/vcmi-test-data/releases/download/v1.0/h3_assets.zip
+        7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
+        mkdir -p ~/.local/share/vcmi/
+        mv h3_assets/* ~/.local/share/vcmi/
+
+    - uses: actions/setup-python@v5
       if: "${{ matrix.conan_profile != '' }}"
       with:
         python-version: '3.10'
@@ -211,10 +187,6 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
-    - name: Git branch name
-      id: git-branch-name
-      uses: EthanSK/git-branch-name-action@v1
-
     - name: Build Number
       run: |
         source '${{github.workspace}}/CI/get_package_name.sh'
@@ -227,18 +199,29 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: CMake Preset with ccache
+    - name: Configure
       run: |
-        cmake -DCMAKE_CXX_COMPILER_LAUNCHER=ccache --preset ${{ matrix.preset }}
+        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC13=1; fi
+        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC13:+-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13}
 
-    - name: Build Preset
+    - name: Build
       run: |
         cmake --build --preset ${{matrix.preset}}
 
     - name: Test
-      if: ${{ matrix.test == 1 }}
+      env:
+        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
+      if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
       run: |
         ctest --preset ${{matrix.preset}}
+
+    - name: Kill XProtect to work around CPack issue on macOS 
+      if: ${{ startsWith(matrix.platform, 'mac') }}
+      run: |
+        # Cf. https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
+        echo Killing...; sudo pkill -9 XProtect >/dev/null || true;
+        echo "Waiting..."; counter=0; while pgrep XProtect && ((counter < 20)); do sleep 3; ((counter++)); done
+        pgrep XProtect || true
 
     - name: Pack
       id: cpack
@@ -246,12 +229,12 @@ jobs:
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
-        "$CPACK_PATH" -C ${{env.BUILD_TYPE}} ${{ matrix.cpack_args }}
+        counter=0; until "$CPACK_PATH" -C ${{matrix.pack_type}} ${{ matrix.cpack_args }} || ((counter > 20)); do sleep 3; ((counter++)); done
         test -f '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' \
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
-    - name: Create android package
+    - name: Create Android package
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
         cd android
@@ -266,7 +249,7 @@ jobs:
 
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
@@ -274,22 +257,30 @@ jobs:
           
     - name: Android artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
+          
+    - name: Symbols
+      if: ${{ matrix.platform == 'msvc' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
+        path: |
+            ${{github.workspace}}/**/*.pdb
 
     - name: Android JNI ${{matrix.platform}}
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Android JNI ${{matrix.platform}}
         path: |
           ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs
 
     - name: Upload build
-      if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
+      if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' && matrix.platform != 'mingw-32' }}
       continue-on-error: true
       run: |
         if cd '${{github.workspace}}/android/vcmi-app/build/outputs/apk/daily' ; then
@@ -301,14 +292,6 @@ jobs:
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
-
-    - uses: act10ns/slack@v1
-      with:
-        status: ${{ job.status }}
-        channel: '#notifications'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: always()
   
   # copy-pasted mostly
   bundle_release:
@@ -331,7 +314,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -340,10 +323,11 @@ jobs:
       env:
         VCMI_BUILD_PLATFORM: x64
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       if: "${{ matrix.conan_profile != '' }}"
       with:
         python-version: '3.10'
+
     - name: Conan setup
       if: "${{ matrix.conan_profile != '' }}"
       run: |
@@ -358,10 +342,6 @@ jobs:
           ${{ matrix.conan_options }}
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
-
-    - name: Git branch name
-      id: git-branch-name
-      uses: EthanSK/git-branch-name-action@v1
 
     - name: Build Number
       run: |
@@ -384,12 +364,12 @@ jobs:
         cmake --build --preset ${{matrix.preset}}
 
     - name: Download libs x64
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: Android JNI android-64
         path: ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs/
  
-    - name: Create android package
+    - name: Create Android package
       run: |
         cd android
         ./gradlew bundleRelease --info
@@ -399,16 +379,8 @@ jobs:
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     - name: Android artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
-
-    - uses: act10ns/slack@v1
-      with:
-        status: ${{ job.status }}
-        channel: '#notifications'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: always()

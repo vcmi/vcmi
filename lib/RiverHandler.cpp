@@ -12,13 +12,13 @@
 #include "RiverHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 RiverTypeHandler::RiverTypeHandler()
 {
-	objects.push_back(new RiverType);
+	objects.push_back(new RiverType());
 
 	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
@@ -65,11 +65,6 @@ std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_RIVER);
 
 	objects.resize(dataSize);
-	return {};
-}
-
-std::vector<bool> RiverTypeHandler::getDefaultAllowed() const
-{
 	return {};
 }
 

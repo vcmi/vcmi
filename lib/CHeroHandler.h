@@ -31,11 +31,11 @@ class CRandomGenerator;
 class JsonSerializeFormat;
 class BattleField;
 
-enum class EHeroGender : uint8_t
+enum class EHeroGender : int8_t
 {
+	DEFAULT = -1, // from h3m, instance has same gender as hero type
 	MALE = 0,
 	FEMALE = 1,
-	DEFAULT = 0xff // from h3m, instance has same gender as hero type
 };
 
 class DLL_LINKAGE CHero : public HeroType
@@ -52,19 +52,12 @@ public:
 		ui32 minAmount;
 		ui32 maxAmount;
 		CreatureID creature;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & minAmount;
-			h & maxAmount;
-			h & creature;
-		}
 	};
 	si32 imageIndex = 0;
 
 	std::vector<InitialArmyStack> initialArmy;
 
-	CHeroClass * heroClass{};
+	const CHeroClass * heroClass = nullptr;
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	BonusList specialty;
 	std::set<SpellID> spells;
@@ -104,29 +97,6 @@ public:
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & ID;
-		h & imageIndex;
-		h & initialArmy;
-		h & heroClass;
-		h & secSkillsInit;
-		h & specialty;
-		h & spells;
-		h & haveSpellBook;
-		h & gender;
-		h & special;
-		h & onlyOnWaterMap;
-		h & onlyOnMapWithoutWater;
-		h & iconSpecSmall;
-		h & iconSpecLarge;
-		h & portraitSmall;
-		h & portraitLarge;
-		h & identifier;
-		h & modScope;
-		h & battleImage;
-	}
 };
 
 class DLL_LINKAGE CHeroClass : public HeroClass
@@ -151,13 +121,13 @@ public:
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
 
-	CCreature * commander;
+	const CCreature * commander;
 
 	std::vector<int> primarySkillInitial;  // initial primary skills
 	std::vector<int> primarySkillLowLevel; // probability (%) of getting point of primary skill when getting level
 	std::vector<int> primarySkillHighLevel;// same for high levels (> 10)
 
-	std::vector<int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
+	std::map<SecondarySkill, int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
 
 	std::map<FactionID, int> selectionProbability; //probability of selection in towns
 
@@ -183,32 +153,9 @@ public:
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & modScope;
-		h & identifier;
-		h & faction;
-		h & id;
-		h & defaultTavernChance;
-		h & primarySkillInitial;
-		h & primarySkillLowLevel;
-		h & primarySkillHighLevel;
-		h & secSkillProbability;
-		h & selectionProbability;
-		h & affinity;
-		h & commander;
-		h & imageBattleMale;
-		h & imageBattleFemale;
-		h & imageMapMale;
-		h & imageMapFemale;
-
-		if(!h.saving)
-		{
-			for(int & i : secSkillProbability)
-				vstd::amax(i, 0);
-		}
-	}
 	EAlignment getAlignment() const;
+
+	int tavernProbability(FactionID faction) const;
 };
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
@@ -220,14 +167,7 @@ public:
 
 	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
 	~CHeroClassHandler();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & objects;
-	}
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
@@ -238,8 +178,8 @@ protected:
 class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero, HeroTypeService>
 {
 	/// expPerLEvel[i] is amount of exp needed to reach level i;
-	/// consists of 201 values. Any higher levels require experience larger that ui64 can hold
-	std::vector<ui64> expPerLevel;
+	/// consists of 196 values. Any higher levels require experience larger that TExpType can hold
+	std::vector<TExpType> expPerLevel;
 
 	/// helpers for loading to avoid huge load functions
 	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
@@ -251,10 +191,9 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	std::vector<std::function<void()>> callAfterLoadFinalization;
 
 public:
-	CHeroClassHandler classes;
-
-	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
-	ui64 reqExp(ui32 level) const; //calculates experience required for given level
+	ui32 level(TExpType experience) const; //calculates level corresponding to given experience amount
+	TExpType reqExp(ui32 level) const; //calculates experience required for given level
+	ui32 maxSupportedLevel() const;
 
 	std::vector<JsonNode> loadLegacyData() override;
 
@@ -266,14 +205,7 @@ public:
 	CHeroHandler();
 	~CHeroHandler();
 
-	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & classes;
-		h & objects;
-		h & expPerLevel;
-	}
+	std::set<HeroTypeID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

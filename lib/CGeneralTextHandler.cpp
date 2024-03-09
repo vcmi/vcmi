@@ -264,11 +264,14 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 
 void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer & container)
 {
+	assert(!vstd::contains(subContainers, &container));
 	subContainers.push_back(&container);
 }
 
 void TextLocalizationContainer::removeSubContainer(const TextLocalizationContainer & container)
 {
+	assert(vstd::contains(subContainers, &container));
+
 	subContainers.erase(std::remove(subContainers.begin(), subContainers.end(), &container), subContainers.end());
 }
 
@@ -414,6 +417,28 @@ void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
 	}
 }
 
+TextContainerRegistrable::TextContainerRegistrable()
+{
+	VLC->generaltexth->addSubContainer(*this);
+}
+
+TextContainerRegistrable::~TextContainerRegistrable()
+{
+	VLC->generaltexth->removeSubContainer(*this);
+}
+
+TextContainerRegistrable::TextContainerRegistrable(const TextContainerRegistrable & other)
+	: TextLocalizationContainer(other)
+{
+	VLC->generaltexth->addSubContainer(*this);
+}
+
+TextContainerRegistrable::TextContainerRegistrable(TextContainerRegistrable && other) noexcept
+	:TextLocalizationContainer(other)
+{
+	VLC->generaltexth->addSubContainer(*this);
+}
+
 void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
 {
 	CLegacyConfigParser parser(TextPath::builtin(sourceName));
@@ -477,7 +502,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
 
-	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
+	static const std::string QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
 	if (CResourceHandler::get()->existsResource(TextPath::builtin(QE_MOD_COMMANDS)))
 		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 

@@ -35,14 +35,16 @@ public:
 
 	//TODO: fail all stub calls
 
-	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override {}
+	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) override {}
+	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {}
 	void showInfoDialog(InfoWindow * iw) override {}
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {}
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {}
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;}
-	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype = 0) override {};
+	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {}
+	void giveExperience(const CGHeroInstance * hero, TExpType val) override {}
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override {}
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}
 	void showBlockingDialog(BlockingDialog *iw) override {}
@@ -66,8 +68,7 @@ public:
 	void removeAfterVisit(const CGObjectInstance *object) override {} //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
-	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {return false;}
-	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {}
+	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;}
 	void removeArtifact(const ArtifactLocation &al) override {}
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;}
 
@@ -81,6 +82,7 @@ public:
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;}
 	void giveHeroBonus(GiveBonus * bonus) override {}
 	void setMovePoints(SetMovePoints * smp) override {}
+	void setMovePoints(ObjectInstanceID hid, int val, bool absolute) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {}
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {}
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {}

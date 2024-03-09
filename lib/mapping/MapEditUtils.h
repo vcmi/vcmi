@@ -23,8 +23,11 @@ struct DLL_LINKAGE MapRect
 {
 	MapRect();
 	MapRect(const int3 & pos, si32 width, si32 height);
-	si32 x, y, z;
-	si32 width, height;
+	si32 x;
+	si32 y;
+	si32 z;
+	si32 width;
+	si32 height;
 
 	si32 left() const;
 	si32 right() const;
@@ -199,12 +202,15 @@ struct DLL_LINKAGE TerrainViewPattern
 	/// If diffImages is true, different images/frames are used to place a rotated terrain view. If it's false
 	/// the same frame will be used and rotated.
 	bool diffImages;
+	/// If true, then this pattern describes decoration tiles and should be used with specified probability
+	bool decoration;
 	/// The rotationTypesCount is only used if diffImages is true and holds the number how many rotation types(horizontal, etc...)
 	/// are supported.
 	int rotationTypesCount;
 
 	/// The minimum and maximum points to reach to validate the pattern successfully.
-	int minPoints, maxPoints;
+	int minPoints;
+	int maxPoints;
 };
 
 /// The terrain view pattern config loads pattern data from the filesystem.

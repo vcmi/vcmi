@@ -1,10 +1,15 @@
 [Desktop Entry]
 Type=Application
 Name=VCMI
-GenericName=Strategy Game Engine
-Comment=Launcher for open engine of Heroes of Might and Magic 3
+GenericName=Strategy Game
+GenericName[cs]=Strategická hra
+GenericName[de]=Strategiespiel
+Comment=Open-source recreation of Heroes of Might & Magic III
+Comment[cs]=Spouštěč enginu s otevřeným kódem pro Heroes of Might and Magic III
+Comment[de]=Open-Source-Nachbau von Heroes of Might and Magic III
 Icon=vcmiclient
 Exec=vcmilauncher
 Categories=Game;StrategyGame;
-Version=1.0
-Keywords=heroes;homm3;
+Version=1.5
+Keywords=heroes of might and magic;heroes;homm;homm3;strategy;
+SingleMainWindow=true

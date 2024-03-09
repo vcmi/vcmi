@@ -46,7 +46,7 @@ int32_t CAmmo::available() const
 
 bool CAmmo::canUse(int32_t amount) const
 {
-	return !isLimited() || (available() - amount >= 0);
+	return (available() - amount >= 0) || !isLimited();
 }
 
 bool CAmmo::isLimited() const
@@ -99,7 +99,7 @@ CShots & CShots::operator=(const CShots & other)
 
 bool CShots::isLimited() const
 {
-	return !env->unitHasAmmoCart(owner) || !shooter.getHasBonus();
+	return !shooter.getHasBonus() || !env->unitHasAmmoCart(owner);
 }
 
 void CShots::setEnv(const IUnitEnvironment * env_)
@@ -428,7 +428,7 @@ const CGHeroInstance * CUnitState::getHeroCaster() const
 	return nullptr;
 }
 
-int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
+int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spell->getId())));
 	vstd::abetween(skill, 0, 3);
@@ -485,7 +485,7 @@ void CUnitState::getCastDescription(const spells::Spell * spell, const std::vect
 	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
 	getCasterName(text);
-	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
+	text.replaceName(spell->getId());
 }
 
 int32_t CUnitState::manaLimit() const

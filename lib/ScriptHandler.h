@@ -13,7 +13,7 @@
 #if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 #include "IHandlerBase.h"
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -97,7 +97,6 @@ public:
 
 	const Script * resolveScript(const std::string & name) const;
 
-	std::vector<bool> getDefaultAllowed() const override;
 	std::vector<JsonNode> loadLegacyData() override;
 
 	ScriptPtr loadFromJson(vstd::CLoggerBase * logger, const std::string & scope, const JsonNode & json, const std::string & identifier) const;
@@ -109,7 +108,7 @@ public:
 
 	void run(std::shared_ptr<Pool> pool) const override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		JsonNode state;
 		if(h.saving)

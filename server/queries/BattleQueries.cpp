@@ -16,14 +16,18 @@
 #include "../battles/BattleProcessor.h"
 
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/battle/SideInBattle.h"
+#include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
+#include "../../lib/serializer/Cast.h"
 
 void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	assert(result);
 
-	if(result)
+	if(result && !isAiVsHuman)
 		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
 }
 
@@ -33,6 +37,8 @@ CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 {
 	belligerents[0] = bi->getSideArmy(0);
 	belligerents[1] = bi->getSideArmy(1);
+
+	isAiVsHuman = bi->getSidePlayer(1).isValidPlayer() && gh->getPlayerState(bi->getSidePlayer(0))->isHuman() != gh->getPlayerState(bi->getSidePlayer(1))->isHuman();
 
 	addPlayer(bi->getSidePlayer(0));
 	addPlayer(bi->getSidePlayer(1));
@@ -46,8 +52,13 @@ CBattleQuery::CBattleQuery(CGameHandler * owner):
 
 bool CBattleQuery::blocksPack(const CPack * pack) const
 {
-	const char * name = typeid(*pack).name();
-	return strcmp(name, typeid(MakeAction).name()) != 0;
+	if(dynamic_ptr_cast<MakeAction>(pack) != nullptr)
+		return false;
+
+	if(dynamic_ptr_cast<GamePause>(pack) != nullptr)
+		return false;
+
+	return true;
 }
 
 void CBattleQuery::onRemoval(PlayerColor color)
@@ -67,9 +78,10 @@ void CBattleQuery::onExposure(QueryPtr topQuery)
 		owner->popQuery(*this);
 }
 
-CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi):
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi, std::optional<BattleResult> Br):
 	CDialogQuery(owner),
-	bi(bi)
+	bi(bi),
+	result(Br)
 {
 	addPlayer(bi->getSidePlayer(0));
 	addPlayer(bi->getSidePlayer(1));
@@ -77,6 +89,9 @@ CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo *
 
 void CBattleDialogQuery::onRemoval(PlayerColor color)
 {
+	if (!gh->getPlayerState(color)->isHuman())
+		return;
+
 	assert(answer);
 	if(*answer == 1)
 	{
@@ -93,6 +108,13 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	}
 	else
 	{
+		auto hero = bi->getSideHero(BattleSide::ATTACKER);
+		auto visitingObj = bi->getDefendedTown() ? bi->getDefendedTown() : gh->getVisitingObject(hero);
+		bool isAiVsHuman = bi->getSidePlayer(1).isValidPlayer() && gh->getPlayerState(bi->getSidePlayer(0))->isHuman() != gh->getPlayerState(bi->getSidePlayer(1))->isHuman();
+		
 		gh->battles->endBattleConfirm(bi->getBattleID());
+
+		if(visitingObj && result && isAiVsHuman)
+			visitingObj->battleFinished(hero, *result);
 	}
 }

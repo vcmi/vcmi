@@ -34,10 +34,6 @@ public:
 	/// If set to true, iamge will be redrawn on each frame
 	bool needRefresh;
 
-	/// If set to false, image will not be rendered
-	/// Deprecated, use CIntObject::disable()/enable() instead
-	bool visible;
-
 	std::shared_ptr<IImage> getSurface()
 	{
 		return bg;

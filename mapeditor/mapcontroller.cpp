@@ -94,24 +94,6 @@ void MapController::repairMap(CMap * map) const
 	if(!map)
 		return;
 	
-	//there might be extra skills, arts and spells not imported from map
-	if(VLC->skillh->getDefaultAllowed().size() > map->allowedAbilities.size())
-	{
-		map->allowedAbilities.resize(VLC->skillh->getDefaultAllowed().size());
-	}
-	if(VLC->arth->getDefaultAllowed().size() > map->allowedArtifact.size())
-	{
-		map->allowedArtifact.resize(VLC->arth->getDefaultAllowed().size());
-	}
-	if(VLC->spellh->getDefaultAllowed().size() > map->allowedSpells.size())
-	{
-		map->allowedSpells.resize(VLC->spellh->getDefaultAllowed().size());
-	}
-	if(VLC->heroh->getDefaultAllowed().size() > map->allowedHeroes.size())
-	{
-		map->allowedHeroes.resize(VLC->heroh->getDefaultAllowed().size());
-	}
-	
 	//make sure events/rumors has name to have proper identifiers
 	int emptyNameId = 1;
 	for(auto & e : map->events)
@@ -149,7 +131,12 @@ void MapController::repairMap(CMap * map) const
 		//fix hero instance
 		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
 		{
-			map->allowedHeroes.at(nih->subID) = true;
+			// All heroes present on map or in prisons need to be allowed to rehire them after they are defeated
+
+			// FIXME: How about custom scenarios where defeated hero cannot be hired again?
+
+			map->allowedHeroes.insert(nih->getHeroType());
+
 			auto type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
 			//TODO: find a way to get proper type name
@@ -166,7 +153,7 @@ void MapController::repairMap(CMap * map) const
 			}
 			
 			if(obj->ID != Obj::RANDOM_HERO)
-				nih->type = type;
+				nih->type = type.get();
 			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -216,8 +203,15 @@ void MapController::repairMap(CMap * map) const
 				auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 				art->storedArtifact = a;
 			}
-			else
-				map->allowedArtifact.at(art->subID) = true;
+		}
+		//fix mines 
+		if(auto * mine = dynamic_cast<CGMine*>(obj.get()))
+		{
+			if(!mine->isAbandoned())
+			{
+				mine->producedResource = GameResID(mine->subID);
+				mine->producedQuantity = mine->defaultResProduction();
+			}
 		}
 	}
 }
@@ -290,6 +284,8 @@ void MapController::resetMapHandler()
 
 void MapController::commitTerrainChange(int level, const TerrainId & terrain)
 {
+	static const int terrainDecorationPercentageLevel = 10;
+
 	std::vector<int3> v(_scenes[level]->selectionTerrainView.selection().begin(),
 						_scenes[level]->selectionTerrainView.selection().end());
 	if(v.empty())
@@ -299,7 +295,7 @@ void MapController::commitTerrainChange(int level, const TerrainId & terrain)
 	_scenes[level]->selectionTerrainView.draw();
 	
 	_map->getEditManager()->getTerrainSelection().setSelection(v);
-	_map->getEditManager()->drawTerrain(terrain, &CRandomGenerator::getDefault());
+	_map->getEditManager()->drawTerrain(terrain, terrainDecorationPercentageLevel, &CRandomGenerator::getDefault());
 	
 	for(auto & t : v)
 		_scenes[level]->terrainView.setDirty(t);
@@ -623,7 +619,7 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 		if(obj->ID == Obj::HERO)
 			continue; //stub! 
 		
-		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto handler = obj->getObjectHandler();
 		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
 		if(modName != "core")
 			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();

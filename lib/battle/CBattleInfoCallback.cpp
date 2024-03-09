@@ -25,6 +25,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -267,7 +268,7 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 		allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK); //all active stacks can attack
 		allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
 
-		if(stack->canMove() && stack->speed(0, true)) //probably no reason to try move war machines or bound stacks
+		if(stack->canMove() && stack->getMovementRange(0)) //probably no reason to try move war machines or bound stacks
 			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
 
 		const auto * siegedTown = battleGetDefendedTown();
@@ -324,22 +325,6 @@ std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const battle::Un
 	return attackedHexes;
 }
 
-SpellID CBattleInfoCallback::battleGetRandomStackSpell(CRandomGenerator & rand, const CStack * stack, ERandomSpell mode) const
-{
-	switch (mode)
-	{
-	case RANDOM_GENIE:
-		return getRandomBeneficialSpell(rand, stack); //target
-		break;
-	case RANDOM_AIMED:
-		return getRandomCastedSpell(rand, stack); //caster
-		break;
-	default:
-		logGlobal->error("Incorrect mode of battleGetRandomSpell (%d)", static_cast<int>(mode));
-		return SpellID::NONE;
-	}
-}
-
 const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyAlive) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
@@ -357,7 +342,7 @@ const battle::Unit * CBattleInfoCallback::battleGetUnitByPos(BattleHex pos, bool
 	auto ret = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		return !unit->isGhost()
-			&& vstd::contains(battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()), pos)
+			&& unit->coversPos(pos)
 			&& (!onlyAlive || unit->alive());
 	});
 
@@ -586,7 +571,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 	if(!unit->getPosition().isValid()) //turrets
 		return ret;
 
-	auto unitSpeed = unit->speed(0, true);
+	auto unitSpeed = unit->getMovementRange(0);
 
 	const bool tacticsPhase = battleTacticDist() && battleGetTacticsSide() == unit->unitSide();
 
@@ -757,15 +742,15 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * 
 {
 	RETURN_IF_NOT_BATTLE({});
 	auto reachability = battleGetDistances(attacker, attacker->getPosition());
-	int movementDistance = reachability[attackerPosition];
-	return battleEstimateDamage(attacker, defender, movementDistance, retaliationDmg);
+	int getMovementRange = reachability[attackerPosition];
+	return battleEstimateDamage(attacker, defender, getMovementRange, retaliationDmg);
 }
 
-DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, DamageEstimation * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int getMovementRange, DamageEstimation * retaliationDmg) const
 {
 	RETURN_IF_NOT_BATTLE({});
 	const bool shooting = battleCanShoot(attacker, defender->getPosition());
-	const BattleAttackInfo bai(attacker, defender, movementDistance, shooting);
+	const BattleAttackInfo bai(attacker, defender, getMovementRange, shooting);
 	return battleEstimateDamage(bai, retaliationDmg);
 }
 
@@ -812,7 +797,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 
 std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking) const
 {
-	std::vector<std::shared_ptr<const CObstacleInstance>> obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
+	auto obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
 	RETURN_IF_NOT_BATTLE(obstacles);
 	for(auto & obs : battleGetAllObstacles())
 	{
@@ -883,9 +868,10 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
 			const auto * hero = battleGetFightingHero(spellObstacle->casterSide);
 			auto caster = spells::ObstacleCasterProxy(getBattle()->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
-			const auto * sp = obstacle->getTrigger().toSpell();
-			if(obstacle->triggersEffects() && sp)
+
+			if(obstacle->triggersEffects() && obstacle->getTrigger().hasValue())
 			{
+				const auto * sp = obstacle->getTrigger().toSpell();
 				auto cast = spells::BattleCast(this, &caster, spells::Mode::PASSIVE, sp);
 				spells::detail::ProblemImpl ignored;
 				auto target = spells::Target(1, spells::Destination(&unit));
@@ -1155,7 +1141,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 
 BattleHex CBattleInfoCallback::getAvaliableHex(const CreatureID & creID, ui8 side, int initialPos) const
 {
-	bool twoHex = VLC->creh->objects[creID]->isDoubleWide();
+	bool twoHex = VLC->creatures()->getById(creID)->isDoubleWide();
 
 	int pos;
 	if (initialPos > -1)
@@ -1610,7 +1596,7 @@ std::set<const battle::Unit *> CBattleInfoCallback::battleAdjacentUnits(const ba
 	return ret;
 }
 
-SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, const CStack * subject) const
+SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, const battle::Unit * caster, const battle::Unit * subject) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 	//This is complete list. No spells from mods.
@@ -1658,12 +1644,22 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		std::stringstream cachingStr;
 		cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 
-		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID)), Selector::all, cachingStr.str())
-		 //TODO: this ability has special limitations
-		|| !(spellID.toSpell()->canBeCast(this, spells::Mode::CREATURE_ACTIVE, subject)))
+		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID)), Selector::all, cachingStr.str()))
 			continue;
 
-		switch (spellID)
+		auto spellPtr = spellID.toSpell();
+		spells::Target target;
+		target.emplace_back(subject);
+
+		spells::BattleCast cast(this, caster, spells::Mode::CREATURE_ACTIVE, spellPtr);
+
+		auto m = spellPtr->battleMechanics(&cast);
+		spells::detail::ProblemImpl problem;
+
+		if (!m->canBeCastAt(target, problem))
+			continue;
+
+		switch (spellID.toEnum())
 		{
 		case SpellID::SHIELD:
 		case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
@@ -1703,7 +1699,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		case SpellID::CURE: //only damaged units
 		{
 			//do not cast on affected by debuffs
-			if(!subject->canBeHealed())
+			if(subject->getFirstHPleft() == subject->getMaxHealth())
 				continue;
 		}
 			break;

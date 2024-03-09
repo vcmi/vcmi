@@ -156,7 +156,7 @@ void LoseConditions::update()
 			case 0: {
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
-				cond.objectType = Obj::TOWN;
+				cond.objectType = Obj(Obj::TOWN);
 				assert(loseTypeWidget);
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller->map()->objects[townIdx]->pos;
@@ -171,7 +171,7 @@ void LoseConditions::update()
 			case 1: {
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
-				cond.objectType = Obj::HERO;
+				cond.objectType = Obj(Obj::HERO);
 				assert(loseTypeWidget);
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller->map()->objects[townIdx]->pos;

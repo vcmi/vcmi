@@ -43,11 +43,13 @@
 
 #include "render/CAnimation.h"
 #include "render/IImage.h"
+#include "render/IRenderHandler.h"
 
 #include "widgets/Buttons.h"
 #include "widgets/CComponent.h"
 #include "widgets/CGarrisonInt.h"
 
+#include "windows/CAltarWindow.h"
 #include "windows/CCastleInterface.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CHeroWindow.h"
@@ -56,6 +58,7 @@
 #include "windows/CQuestLog.h"
 #include "windows/CSpellWindow.h"
 #include "windows/CTradeWindow.h"
+#include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
 #include "windows/InfoWindows.h"
 
@@ -72,7 +75,6 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/GameConstants.h"
-#include "../lib/JsonNode.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"
@@ -80,7 +82,6 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/VCMIDirs.h"
 
-#include "../lib/bonuses/CBonusSystemNode.h"
 #include "../lib/bonuses/Limiters.h"
 #include "../lib/bonuses/Propagators.h"
 #include "../lib/bonuses/Updaters.h"
@@ -109,11 +110,7 @@
 // They all assume that interface mutex is locked.
 #define EVENT_HANDLER_CALLED_BY_CLIENT
 
-#define BATTLE_EVENT_POSSIBLE_RETURN	\
-	if (LOCPLINT != this)				\
-		return;							\
-	if (isAutoFightOn && !battleInt)	\
-		return;
+#define BATTLE_EVENT_POSSIBLE_RETURN	if (LOCPLINT != this) return; if (isAutoFightOn && !battleInt) return
 
 CPlayerInterface * LOCPLINT;
 
@@ -148,6 +145,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
+	isAutoFightEndBattle = false;
 	ignoreEvents = false;
 	numOfMovedArts = 0;
 }
@@ -274,6 +272,8 @@ void CPlayerInterface::gamePause(bool pause)
 
 void CPlayerInterface::yourTurn(QueryID queryID)
 {
+	CTutorialWindow::openWindowFirstTime(TutorialMode::TOUCH_ADVENTUREMAP);
+
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	{
 		LOCPLINT = this;
@@ -293,7 +293,7 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			std::string msg = CGI->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
-			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));
+			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
 			showInfoDialog(msg, cmp);
 		}
 		else
@@ -326,7 +326,7 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 		auto playerColor = *cb->getPlayerID();
 
 		std::vector<Component> components;
-		components.emplace_back(Component::EComponentType::FLAG, playerColor.getNum(), 0, 0);
+		components.emplace_back(ComponentType::FLAG, playerColor);
 		MetaString text;
 
 		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;
@@ -337,13 +337,13 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 			if (daysWithoutCastle < 6)
 			{
 				text.appendLocalString(EMetaText::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
-				text.replaceLocalString(EMetaText::COLOR, playerColor.getNum());
+				text.replaceName(playerColor);
 				text.replaceNumber(7 - daysWithoutCastle);
 			}
 			else if (daysWithoutCastle == 6)
 			{
 				text.appendLocalString(EMetaText::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
-				text.replaceLocalString(EMetaText::COLOR, playerColor.getNum());
+				text.replaceName(playerColor);
 			}
 
 			showInfoDialogAndWait(components, text);
@@ -421,7 +421,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, Prim
 	if (which == PrimarySkill::EXPERIENCE)
 	{
 		for (auto ctw : GH.windows().findWindows<CAltarWindow>())
-			ctw->setExpToLevel();
+			ctw->updateExpToLevel();
 	}
 	else
 		adventureInt->onHeroChanged(hero);
@@ -498,8 +498,9 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	adventureInt->onHeroChanged(nullptr);
 	adventureInt->onTownChanged(town);
 
-	for (auto gh : GH.windows().findWindows<IGarrisonHolder>())
-		gh->updateGarrisons();
+	for (auto cgh : GH.windows().findWindows<IGarrisonHolder>())
+		if (cgh->holdsGarrison(town))
+			cgh->updateGarrisons();
 
 	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
 		ki->townChanged(town);
@@ -520,49 +521,42 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 
 void CPlayerInterface::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2)
 {
-	std::vector<const CGObjectInstance *> instances;
+	std::vector<const CArmedInstance *> instances;
 
-	if(auto obj = cb->getObj(id1))
+	if(auto obj = dynamic_cast<const CArmedInstance *>(cb->getObjInstance(id1)))
 		instances.push_back(obj);
 
 
 	if(id2 != ObjectInstanceID() && id2 != id1)
 	{
-		if(auto obj = cb->getObj(id2))
+		if(auto obj = dynamic_cast<const CArmedInstance *>(cb->getObjInstance(id2)))
 			instances.push_back(obj);
 	}
 
 	garrisonsChanged(instances);
 }
 
-void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> objs)
+void CPlayerInterface::garrisonsChanged(std::vector<const CArmedInstance *> objs)
 {
 	for (auto object : objs)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(object);
 		auto * town = dynamic_cast<const CGTownInstance*>(object);
 
+		if (town)
+			adventureInt->onTownChanged(town);
+
 		if (hero)
 		{
 			adventureInt->onHeroChanged(hero);
-
-			if(hero->inTownGarrison)
-			{
+			if(hero->inTownGarrison && hero->visitedTown != town)
 				adventureInt->onTownChanged(hero->visitedTown);
-			}
 		}
-		if (town)
-			adventureInt->onTownChanged(town);
 	}
 
 	for (auto cgh : GH.windows().findWindows<IGarrisonHolder>())
-		cgh->updateGarrisons();
-
-	for (auto cmw : GH.windows().findWindows<CTradeWindow>())
-	{
-		if (vstd::contains(objs, cmw->hero))
-			cmw->garrisonChanged();
-	}
+		if (cgh->holdsGarrisons(objs))
+			cgh->updateGarrisons();
 
 	GH.windows().totalRedraw();
 }
@@ -789,17 +783,20 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 
 		if(!battleInt)
 		{
-			bool allowManualReplay = queryID != QueryID::NONE;
+			bool allowManualReplay = queryID != QueryID::NONE && !isAutoFightEndBattle;
 
 			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, allowManualReplay);
 
-			if (allowManualReplay)
+			if (allowManualReplay || isAutoFightEndBattle)
 			{
 				wnd->resultCallback = [=](ui32 selection)
 				{
 					cb->selectionMade(selection, queryID);
 				};
 			}
+			
+			isAutoFightEndBattle = false;
+
 			GH.windows().pushWindow(wnd);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
@@ -1071,6 +1068,19 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
+	std::vector<ObjectInstanceID> tmpObjects;
+	if(objects.size() && dynamic_cast<const CGTownInstance *>(cb->getObj(objects[0])))
+	{
+		// sorting towns (like in client)
+		std::vector <const CGTownInstance*> Towns = LOCPLINT->localState->getOwnedTowns();
+		for(auto town : Towns)
+			for(auto item : objects)
+				if(town == cb->getObj(item))
+					tmpObjects.push_back(item);
+	}
+	else // other object list than town
+		tmpObjects = objects;
+
 	auto selectCallback = [=](int selection)
 	{
 		cb->sendQueryReply(selection, askID);
@@ -1085,9 +1095,9 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	const std::string localDescription = description.toString();
 
 	std::vector<int> tempList;
-	tempList.reserve(objects.size());
+	tempList.reserve(tmpObjects.size());
 
-	for(auto item : objects)
+	for(auto item : tmpObjects)
 		tempList.push_back(item.getNum());
 
 	CComponent localIconC(icon);
@@ -1095,8 +1105,24 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	std::shared_ptr<CIntObject> localIcon = localIconC.image;
 	localIconC.removeChild(localIcon.get(), false);
 
-	std::shared_ptr<CObjectListWindow> wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback);
+	std::vector<std::shared_ptr<IImage>> images;
+	for(auto & obj : tmpObjects)
+	{
+		if(!settings["general"]["enableUiEnhancements"].Bool())
+			break;
+		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->getObj(obj));
+		if(t)
+		{
+			std::shared_ptr<CAnimation> a = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITPA"));
+			a->preload();
+			images.push_back(a->getImage(t->town->clientInfo.icons[t->hasFort()][false] + 2)->scaleFast(Point(35, 23)));
+		}
+	}
+
+	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback, 0, images);
 	wnd->onExit = cancelCallback;
+	wnd->onPopup = [this, tmpObjects](int index) { CRClickPopup::createAndPush(cb->getObj(tmpObjects[index]), GH.getCursorPosition()); };
+	wnd->onClicked = [this, tmpObjects](int index) { adventureInt->centerOnObject(cb->getObj(tmpObjects[index])); GH.windows().totalRedraw(); };
 	GH.windows().pushWindow(wnd);
 }
 
@@ -1157,16 +1183,16 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	}
 }
 
-void CPlayerInterface::saveGame( BinarySerializer & h, const int version )
+void CPlayerInterface::saveGame( BinarySerializer & h )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	localState->serialize(h, version);
+	localState->serialize(h);
 }
 
-void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
+void CPlayerInterface::loadGame( BinaryDeserializer & h )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	localState->serialize(h, version);
+	localState->serialize(h);
 	firstCall = -1;
 }
 
@@ -1228,7 +1254,7 @@ void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, con
 		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getNameTranslated());
 
 		// Picture of assembled artifact at bottom.
-		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact->getIndex(), 0);
+		auto sc = std::make_shared<CComponent>(ComponentType::ARTIFACT, assembledArtifact->getId());
 		scs.push_back(sc);
 	}
 	else
@@ -1242,10 +1268,10 @@ void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, con
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
-	if(pa->packType == typeList.getTypeID<MoveHero>())
+	if(pa->packType == CTypeList::getInstance().getTypeID<MoveHero>(nullptr))
 		movementController->onMoveHeroApplied();
 
-	if(pa->packType == typeList.getTypeID<QueryReply>())
+	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
 		movementController->onQueryReplyApplied();
 }
 
@@ -1441,7 +1467,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			std::string msg = CGI->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
-			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));
+			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
 			makingTurn = true; //workaround for stiff showInfoDialog implementation
 			showInfoDialog(msg, cmp);
 			makingTurn = false;
@@ -1678,7 +1704,8 @@ void CPlayerInterface::showTavernWindow(const CGObjectInstance * object, const C
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onWindowClosed = [this, queryID](){
-		cb->selectionMade(0, queryID);
+		if (queryID != QueryID::NONE)
+			cb->selectionMade(0, queryID);
 	};
 	GH.windows().createAndPushWindow<CTavernWindow>(object, onWindowClosed);
 }
@@ -1753,8 +1780,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 {
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	if(hero)
+	if(auto hero = cb->getHero(al.artHolder))
 	{
 		auto art = hero->getArt(al.slot);
 		if(art == nullptr)
@@ -1770,15 +1796,13 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
 	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactRemoved(al);
@@ -1789,8 +1813,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), dst.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(dst.artHolder));
 
 	bool redraw = true;
 	// If a bulk transfer has arrived, then redrawing only the last art movement.
@@ -1815,8 +1838,7 @@ void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
 	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactAssembled(al);
@@ -1825,8 +1847,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
 	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactDisassembled(al);
@@ -1848,14 +1869,9 @@ void CPlayerInterface::proposeLoadingGame()
 		CGI->generaltexth->allTexts[68],
 		[]()
 		{
-			GH.dispatchMainThread(
-				[]()
-				{
-					CSH->endGameplay();
-					GH.defActionsDef = 63;
-					CMM->menu->switchToTab("load");
-				}
-			);
+			CSH->endGameplay();
+			GH.defActionsDef = 63;
+			CMM->menu->switchToTab("load");
 		},
 		nullptr
 	);

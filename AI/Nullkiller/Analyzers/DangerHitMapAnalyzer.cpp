@@ -11,11 +11,12 @@
 #include "DangerHitMapAnalyzer.h"
 
 #include "../Engine/Nullkiller.h"
+#include "../../../lib/CRandomGenerator.h"
 
 namespace NKAI
 {
 
-HitMapInfo HitMapInfo::NoThreat;
+const HitMapInfo HitMapInfo::NoThreat;
 
 double HitMapInfo::value() const
 {
@@ -165,7 +166,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
-			auto townHero = new CGHeroInstance();
+			auto townHero = new CGHeroInstance(town->cb);
 			CRandomGenerator rng;
 			auto visitablePos = town->visitablePos();
 			
@@ -225,7 +226,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 				}
 			}
 
-			if(ourDistance == enemyDistance)
+			if(vstd::isAlmostEqual(ourDistance, enemyDistance))
 			{
 				hitMap[pos.x][pos.y][pos.z].closestTown = nullptr;
 			}
@@ -265,8 +266,9 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 {
 	int3 tile = path.targetTile();
 	int turn = path.turn();
-	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
 
+	const auto& info = getTileThreat(tile);
+	
 	return (info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger))
 		|| (info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger));
 }
@@ -280,12 +282,8 @@ const HitMapNode & DangerHitMapAnalyzer::getObjectThreat(const CGObjectInstance 
 
 const HitMapNode & DangerHitMapAnalyzer::getTileThreat(const int3 & tile) const
 {
-	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
-
-	return info;
+	return hitMap[tile.x][tile.y][tile.z];
 }
-
-const std::set<const CGObjectInstance *> empty = {};
 
 std::set<const CGObjectInstance *> DangerHitMapAnalyzer::getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const
 {

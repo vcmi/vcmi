@@ -16,6 +16,7 @@
 
 #include "../CPlayerState.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -27,7 +28,7 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 	int3 pos;
 	const PlayerColor player = out.hero->tempOwner;
 	const int3 sizes = gs->getMapSize();
-	const auto fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
+	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 	const bool useFlying = options.useFlying;
@@ -99,6 +100,12 @@ std::vector<CGPathNode *> NodeStorage::calculateTeleportations(
 	for(auto & neighbour : accessibleExits)
 	{
 		auto * node = getNode(neighbour, source.node->layer);
+
+		if(!node->coord.valid())
+		{
+			logAi->debug("Teleportation exit is blocked " + neighbour.toString());
+			continue;
+		}
 
 		neighbours.push_back(node);
 	}

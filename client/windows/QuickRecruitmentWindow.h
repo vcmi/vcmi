@@ -42,7 +42,9 @@ private:
 	void purchaseUnits();
 
 	const CGTownInstance * town;
-	std::shared_ptr<CButton> maxButton, buyButton, cancelButton;
+	std::shared_ptr<CButton> maxButton;
+	std::shared_ptr<CButton> buyButton;
+	std::shared_ptr<CButton> cancelButton;
 	std::shared_ptr<CreatureCostBox> totalCost;
 	std::vector<std::shared_ptr<CreaturePurchaseCard>> cards;
 	std::shared_ptr<CFilledTexture> backgroundTexture;

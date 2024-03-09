@@ -22,7 +22,7 @@ Registry::Registry() = default;
 
 Registry * Registry::get()
 {
-	static std::unique_ptr<Registry> Instance = std::unique_ptr<Registry>(new Registry());
+	static auto Instance = std::unique_ptr<Registry>(new Registry());
 	return Instance.get();
 }
 
@@ -53,7 +53,7 @@ TypeRegistry::TypeRegistry()
 
 TypeRegistry * TypeRegistry::get()
 {
-	static std::unique_ptr<TypeRegistry> Instance = std::unique_ptr<TypeRegistry>(new TypeRegistry());
+	static auto Instance = std::unique_ptr<TypeRegistry>(new TypeRegistry());
 	return Instance.get();
 }
 

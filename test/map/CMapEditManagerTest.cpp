@@ -14,7 +14,6 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/JsonNode.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/int3.h"
 #include "../lib/CRandomGenerator.h"
@@ -25,7 +24,7 @@ TEST(MapManager, DrawTerrain_Type)
 {
 	try
 	{
-		auto map = std::make_unique<CMap>();
+		auto map = std::make_unique<CMap>(nullptr);
 		map->width = 52;
 		map->height = 52;
 		map->initTerrain();
@@ -34,7 +33,7 @@ TEST(MapManager, DrawTerrain_Type)
 
 		// 1x1 Blow up
 		editManager->getTerrainSelection().select(int3(5, 5, 0));
-		editManager->drawTerrain(ETerrainId::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS, 10);
 		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
 		for(const auto & tile : squareCheck)
 		{
@@ -43,20 +42,20 @@ TEST(MapManager, DrawTerrain_Type)
 
 		// Concat to square
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
-		editManager->drawTerrain(ETerrainId::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS, 10);
 		EXPECT_EQ(map->getTile(int3(6, 4, 0)).terType->getId(), ETerrainId::GRASS);
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
-		editManager->drawTerrain(ETerrainId::LAVA);
+		editManager->drawTerrain(ETerrainId::LAVA, 10);
 		EXPECT_EQ(map->getTile(int3(4, 4, 0)).terType->getId(), ETerrainId::GRASS);
 		EXPECT_EQ(map->getTile(int3(7, 4, 0)).terType->getId(), ETerrainId::LAVA);
 
 		// Special case water,rock
 		editManager->getTerrainSelection().selectRange(MapRect(int3(10, 10, 0), 10, 5));
-		editManager->drawTerrain(ETerrainId::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS, 10);
 		editManager->getTerrainSelection().selectRange(MapRect(int3(15, 17, 0), 10, 5));
-		editManager->drawTerrain(ETerrainId::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS, 10);
 		editManager->getTerrainSelection().select(int3(21, 16, 0));
-		editManager->drawTerrain(ETerrainId::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS, 10);
 		EXPECT_EQ(map->getTile(int3(20, 15, 0)).terType->getId(), ETerrainId::GRASS);
 
 		// Special case non water,rock
@@ -67,16 +66,16 @@ TEST(MapManager, DrawTerrain_Type)
 		{
 			editManager->getTerrainSelection().select(tile);
 		}
-		editManager->drawTerrain(ETerrainId::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS, 10);
 		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType->getId(), ETerrainId::WATER);
 
 		// Rock case
 		editManager->getTerrainSelection().selectRange(MapRect(int3(1, 1, 1), 15, 15));
-		editManager->drawTerrain(ETerrainId::SUBTERRANEAN);
+		editManager->drawTerrain(ETerrainId::SUBTERRANEAN, 10);
 		std::vector<int3> vec({ int3(6, 6, 1), int3(7, 6, 1), int3(8, 6, 1), int3(5, 7, 1), int3(6, 7, 1), int3(7, 7, 1),
 								int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
 		editManager->getTerrainSelection().setSelection(vec);
-		editManager->drawTerrain(ETerrainId::ROCK);
+		editManager->drawTerrain(ETerrainId::ROCK, 10);
 		EXPECT_TRUE(!map->getTile(int3(5, 6, 1)).terType->isPassable() || !map->getTile(int3(7, 8, 1)).terType->isPassable());
 
 		//todo: add checks here and enable, also use smaller size
@@ -114,8 +113,8 @@ TEST(MapManager, DrawTerrain_View)
 		const ResourcePath testMap("test/TerrainViewTest", EResType::MAP);
 		// Load maps and json config
 		CMapService mapService;
-		const auto originalMap = mapService.loadMap(testMap);
-		auto map = mapService.loadMap(testMap);
+		const auto originalMap = mapService.loadMap(testMap, nullptr);
+		auto map = mapService.loadMap(testMap, nullptr);
 
 		// Validate edit manager
 		auto editManager = map->getEditManager();
@@ -144,7 +143,7 @@ TEST(MapManager, DrawTerrain_View)
 				int3 pos((si32)posVector[0].Float(), (si32)posVector[1].Float(), (si32)posVector[2].Float());
 				const auto & originalTile = originalMap->getTile(pos);
 				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
-				editManager->drawTerrain(originalTile.terType->getId(), &gen);
+				editManager->drawTerrain(originalTile.terType->getId(), 10, &gen);
 				const auto & tile = map->getTile(pos);
 				bool isInRange = false;
 				for(const auto & range : mapping)

@@ -23,6 +23,7 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
+#include "../CPlayerState.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -30,11 +31,10 @@
 #include "../modding/ModUtility.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../spells/CSpellHandler.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 
 //TODO: Remove constructor
 CQuest::CQuest():
@@ -129,12 +129,12 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 	if(!mission.heroAllowed(h))
 		return false;
 	
-	if(killTarget != ObjectInstanceID::NONE)
+	if(killTarget.hasValue())
 	{
-		if(CGHeroInstance::cb->getObjByQuestIdentifier(killTarget))
+		PlayerColor owner = h->getOwner();
+		if (!h->cb->getPlayerState(owner)->destroyedObjects.count(killTarget))
 			return false;
 	}
-	
 	return true;
 }
 
@@ -144,7 +144,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	{
 		if(h->hasArt(elem))
 		{
-			cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
+			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(elem, false)));
 		}
 		else
 		{
@@ -153,7 +153,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			auto parts = assembly->getPartsInfo();
 
 			// Remove the assembly
-			cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(assembly)));
 
 			// Disassemble this backpack artifact
 			for(const auto & ci : parts)
@@ -168,7 +168,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	cb->giveResources(h->getOwner(), mission.resources);
 }
 
-void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & components) const
+void CQuest::addTextReplacements(IGameCallback * cb, MetaString & text, std::vector<Component> & components) const
 {
 	if(mission.heroLevel > 0)
 		text.replaceNumber(mission.heroLevel);
@@ -204,13 +204,13 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	
 	if(killTarget != ObjectInstanceID::NONE && !heroName.empty())
 	{
-		components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
+		components.emplace_back(ComponentType::HERO_PORTRAIT, heroPortrait);
 		addKillTargetReplacements(text);
 	}
 	
-	if(killTarget != ObjectInstanceID::NONE && stackToKill.type)
+	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE)
 	{
-		components.emplace_back(stackToKill);
+		components.emplace_back(ComponentType::CREATURE, stackToKill);
 		addKillTargetReplacements(text);
 	}
 	
@@ -223,7 +223,7 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 		for(const auto & elem : mission.artifacts)
 		{
 			loot.appendRawString("%s");
-			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
+			loot.replaceName(elem);
 		}
 		text.replaceRawString(loot.buildList());
 	}
@@ -234,7 +234,7 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 		for(const auto & elem : mission.creatures)
 		{
 			loot.appendRawString("%s");
-			loot.replaceCreatureName(elem);
+			loot.replaceName(elem);
 		}
 		text.replaceRawString(loot.buildList());
 	}
@@ -242,13 +242,13 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	if(mission.resources.nonZero())
 	{
 		MetaString loot;
-		for(int i = 0; i < 7; ++i)
+		for(auto i : GameResID::ALL_RESOURCES())
 		{
 			if(mission.resources[i])
 			{
 				loot.appendRawString("%d %s");
 				loot.replaceNumber(mission.resources[i]);
-				loot.replaceLocalString(EMetaText::RES_NAMES, i);
+				loot.replaceName(i);
 			}
 		}
 		text.replaceRawString(loot.buildList());
@@ -258,16 +258,16 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	{
 		MetaString loot;
 		for(auto & p : mission.players)
-			loot.appendLocalString(EMetaText::COLOR, p);
+			loot.appendName(p);
 		
 		text.replaceRawString(loot.buildList());
 	}
 	
 	if(lastDay >= 0)
-		text.replaceNumber(lastDay - IObjectInterface::cb->getDate(Date::DAY));
+		text.replaceNumber(lastDay - cb->getDate(Date::DAY));
 }
 
-void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
+void CQuest::getVisitText(IGameCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
 	mission.loadComponents(components, h);
@@ -280,10 +280,10 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	if(lastDay >= 0)
 		iwText.appendTextID(TextIdentifier("core", "seerhut", "time", textOption).get());
 	
-	addTextReplacements(iwText, components);
+	addTextReplacements(cb, iwText, components);
 }
 
-void CQuest::getRolloverText(MetaString &ms, bool onHover) const
+void CQuest::getRolloverText(IGameCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(onHover)
 		ms.appendRawString("\n\n");
@@ -293,15 +293,15 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, questState, textOption).get());
 
 	std::vector<Component> components;
-	addTextReplacements(ms, components);
+	addTextReplacements(cb, ms, components);
 }
 
-void CQuest::getCompletionText(MetaString &iwText) const
+void CQuest::getCompletionText(IGameCallback * cb, MetaString &iwText) const
 {
 	iwText.appendRawString(completedText.toString());
 	
 	std::vector<Component> components;
-	addTextReplacements(iwText, components);
+	addTextReplacements(cb, iwText, components);
 }
 
 void CQuest::defineQuestName()
@@ -314,7 +314,7 @@ void CQuest::defineQuestName()
 	if(!mission.spells.empty()) questName = CQuest::missionName(2);
 	if(!mission.secondary.empty()) questName = CQuest::missionName(2);
 	if(killTarget != ObjectInstanceID::NONE && !heroName.empty()) questName = CQuest::missionName(3);
-	if(killTarget != ObjectInstanceID::NONE && stackToKill.getType()) questName = CQuest::missionName(4);
+	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE) questName = CQuest::missionName(4);
 	if(!mission.artifacts.empty()) questName = CQuest::missionName(5);
 	if(!mission.creatures.empty()) questName = CQuest::missionName(6);
 	if(mission.resources.nonZero()) questName = CQuest::missionName(7);
@@ -326,10 +326,10 @@ void CQuest::defineQuestName()
 void CQuest::addKillTargetReplacements(MetaString &out) const
 {
 	if(!heroName.empty())
-		out.replaceTextID(heroName);
-	if(stackToKill.type)
+		out.replaceRawString(heroName);
+	if(stackToKill != CreatureID::NONE)
 	{
-		out.replaceCreatureName(stackToKill);
+		out.replaceNamePlural(stackToKill);
 		out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
 	}
 }
@@ -392,15 +392,15 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		
 		if(missionType == "Hero")
 		{
-			ui32 temp;
-			handler.serializeId<ui32, ui32, HeroTypeID>("hero", temp, 0);
+			HeroTypeID temp;
+			handler.serializeId("hero", temp, HeroTypeID::NONE);
 			mission.heroes.emplace_back(temp);
 		}
 		
 		if(missionType == "Player")
 		{
-			ui32 temp;
-			handler.serializeId<ui32, ui32, PlayerColor>("player", temp, PlayerColor::NEUTRAL);
+			PlayerColor temp;
+			handler.serializeId("player", temp, PlayerColor::NEUTRAL);
 			mission.players.emplace_back(temp);
 		}
 	}
@@ -412,9 +412,9 @@ bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 	return quest->checkQuest(h);
 }
 
-void IQuestObject::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
+void CGSeerHut::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	quest->getVisitText(text, components, FirstVisit, h);
+	quest->getVisitText(cb, text, components, FirstVisit, h);
 }
 
 void IQuestObject::afterAddToMapCommon(CMap * map) const
@@ -429,9 +429,8 @@ void CGSeerHut::setObjToKill()
 	
 	if(getCreatureToKill(true))
 	{
-		quest->stackToKill = getCreatureToKill(false)->getStack(SlotID(0)); //FIXME: stacks tend to disappear (desync?) on server :?
-		assert(quest->stackToKill.type);
-		quest->stackToKill.count = 0; //no count in info window
+		quest->stackToKill = getCreatureToKill(false)->getCreature();
+		assert(quest->stackToKill != CreatureID::NONE);
 		quest->stackDirection = checkDirection();
 	}
 	else if(getHeroToKill(true))
@@ -481,14 +480,14 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest-> questName, quest->missionState(2), quest->textOption).get());
 	}
 	
-	quest->getCompletionText(configuration.onSelect);
+	quest->getCompletionText(cb, configuration.onSelect);
 	for(auto & i : configuration.info)
-		quest->getCompletionText(i.message);
+		quest->getCompletionText(cb, i.message);
 }
 
 void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
 {
-	quest->getRolloverText(text, onHover);//TODO: simplify?
+	quest->getRolloverText(cb, text, onHover);//TODO: simplify?
 	if(!onHover)
 		text.replaceRawString(seerName);
 }
@@ -513,18 +512,49 @@ std::string CGSeerHut::getHoverText(PlayerColor player) const
 	return hoverName;
 }
 
-void CGSeerHut::setPropertyDer(ui8 what, ui32 val)
+std::string CGSeerHut::getHoverText(const CGHeroInstance * hero) const
+{
+	return getHoverText(hero->getOwner());
+}
+
+std::string CGSeerHut::getPopupText(PlayerColor player) const
+{
+	return getHoverText(player);
+}
+
+std::string CGSeerHut::getPopupText(const CGHeroInstance * hero) const
+{
+	return getHoverText(hero->getOwner());
+}
+
+std::vector<Component> CGSeerHut::getPopupComponents(PlayerColor player) const
+{
+	std::vector<Component> result;
+	if (quest->activeForPlayers.count(player))
+		quest->mission.loadComponents(result, nullptr);
+	return result;
+}
+
+std::vector<Component> CGSeerHut::getPopupComponents(const CGHeroInstance * hero) const
+{
+	std::vector<Component> result;
+	if (quest->activeForPlayers.count(hero->getOwner()))
+		quest->mission.loadComponents(result, hero);
+	return result;
+}
+
+void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)
 	{
-		case CGSeerHut::SEERHUT_VISITED:
+		case ObjProperty::SEERHUT_VISITED:
 		{
-			quest->activeForPlayers.emplace(val);
+			quest->activeForPlayers.emplace(identifier.as<PlayerColor>());
 			break;
 		}
-		case CGSeerHut::SEERHUT_COMPLETE:
+		case ObjProperty::SEERHUT_COMPLETE:
 		{
-			quest->isCompleted = val;
+			quest->isCompleted = identifier.getNum();
 			quest->activeForPlayers.clear();
 			break;
 		}
@@ -536,7 +566,7 @@ void CGSeerHut::newTurn(CRandomGenerator & rand) const
 	CRewardableObject::newTurn(rand);
 	if(quest->lastDay >= 0 && quest->lastDay <= cb->getDate() - 1) //time is up
 	{
-		cb->setObjProperty (id, CGSeerHut::SEERHUT_COMPLETE, true);
+		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, true);
 	}
 }
 
@@ -551,7 +581,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 
 		if(firstVisit)
 		{
-			cb->setObjProperty(id, CGSeerHut::SEERHUT_VISITED, h->getOwner());
+			cb->setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
 
 			AddQuest aq;
 			aq.quest = QuestInfo (quest, this, visitablePos());
@@ -582,7 +612,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 
 int CGSeerHut::checkDirection() const
 {
-	int3 cord = getCreatureToKill()->pos;
+	int3 cord = getCreatureToKill(false)->pos;
 	if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.34) //north
 	{
 		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //northwest
@@ -614,7 +644,7 @@ int CGSeerHut::checkDirection() const
 
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
+	const CGObjectInstance *o = cb->getObj(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGHeroInstance *>(o);
@@ -622,7 +652,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
+	const CGObjectInstance *o = cb->getObj(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGCreature *>(o);
@@ -634,7 +664,7 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 	if(answer)
 	{
 		quest->completeQuest(cb, hero);
-		cb->setObjProperty(id, CGSeerHut::SEERHUT_COMPLETE, !quest->repeatedQuest); //mission complete
+		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !quest->repeatedQuest); //mission complete
 	}
 }
 
@@ -724,7 +754,7 @@ void CGQuestGuard::init(CRandomGenerator & rand)
 	
 	configuration.info.push_back({});
 	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-	configuration.info.back().reward.removeObject = subID == 0 ? true : false;
+	configuration.info.back().reward.removeObject = subID.getNum() == 0 ? true : false;
 	configuration.canRefuse = true;
 }
 
@@ -733,7 +763,7 @@ void CGQuestGuard::onHeroVisit(const CGHeroInstance * h) const
 	if(!quest->isCompleted)
 		CGSeerHut::onHeroVisit(h);
 	else
-		cb->setObjProperty(id, CGSeerHut::SEERHUT_COMPLETE, false);
+		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, false);
 }
 
 bool CGQuestGuard::passableFor(PlayerColor color) const
@@ -747,25 +777,9 @@ void CGQuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 	quest->serializeJson(handler, "quest");
 }
 
-void CGKeys::reset()
-{
-	playerKeyMap.clear();
-}
-
-void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
-{
-	if (what >= 101 && what <= (100 + PlayerColor::PLAYER_LIMIT_I))
-	{
-		PlayerColor player(what-101);
-		playerKeyMap[player].insert(static_cast<ui8>(val));
-	}
-	else
-		logGlobal->error("Unexpected properties requested to set: what=%d, val=%d", static_cast<int>(what), val);
-}
-
 bool CGKeys::wasMyColorVisited(const PlayerColor & player) const
 {
-	return playerKeyMap.count(player) && vstd::contains(playerKeyMap[player], subID);
+	return cb->getPlayerState(player)->visitedObjectsGlobal.count({Obj::KEYMASTER, subID}) != 0;
 }
 
 std::string CGKeys::getHoverText(PlayerColor player) const
@@ -775,7 +789,7 @@ std::string CGKeys::getHoverText(PlayerColor player) const
 
 std::string CGKeys::getObjectName() const
 {
-	return VLC->generaltexth->tentColors[subID] + " " + CGObjectInstance::getObjectName();
+	return VLC->generaltexth->tentColors[subID.getNum()] + " " + CGObjectInstance::getObjectName();
 }
 
 bool CGKeymasterTent::wasVisited (PlayerColor player) const
@@ -788,7 +802,11 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	int txt_id;
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
-		cb->setObjProperty(id, h->tempOwner.getNum()+101, subID);
+		ChangeObjectVisitors cow;
+		cow.mode = ChangeObjectVisitors::VISITOR_GLOBAL;
+		cow.hero = h->id;
+		cow.object = id;
+		cb->sendAndApply(&cow);
 		txt_id=19;
 	}
 	else
@@ -810,7 +828,7 @@ void CGBorderGuard::getRolloverText(MetaString &text, bool onHover) const
 {
 	if (!onHover)
 	{
-		text.appendRawString(VLC->generaltexth->tentColors[subID]);
+		text.appendRawString(VLC->generaltexth->tentColors[subID.getNum()]);
 		text.appendRawString(" ");
 		text.appendRawString(VLC->objtypeh->getObjectName(Obj::KEYMASTER, subID));
 	}

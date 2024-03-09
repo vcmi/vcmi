@@ -7,13 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-
 #include "StdInc.h"
 
 #include "BonusEnum.h"
-
-#include "../JsonNode.h"
+#include "../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -44,6 +41,7 @@ const std::map<std::string, BonusDuration::Type> bonusDurationMap =
 	BONUS_ITEM(UNTIL_ATTACK)
 	BONUS_ITEM(STACK_GETS_TURN)
 	BONUS_ITEM(COMMANDER_KILLED)
+	BONUS_ITEM(UNTIL_OWN_ATTACK)
 	{ "UNITL_BEING_ATTACKED", BonusDuration::UNTIL_BEING_ATTACKED }//typo, but used in some mods
 };
 #undef BONUS_ITEM
@@ -69,13 +67,13 @@ namespace BonusDuration
 		}
 		if(durationNames.size() == 1)
 		{
-			return JsonUtils::stringNode(durationNames[0]);
+			return JsonNode(durationNames[0]);
 		}
 		else
 		{
-			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+			JsonNode node;
 			for(const std::string & dur : durationNames)
-				node.Vector().push_back(JsonUtils::stringNode(dur));
+				node.Vector().emplace_back(dur);
 			return node;
 		}
 	}

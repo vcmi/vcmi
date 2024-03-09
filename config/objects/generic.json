@@ -10,7 +10,11 @@
 			}
 		},
 		"types" : {
-			"prison" : { "index" : 0, "aiValue" : 5000 }
+			"prison" : {
+				"index" : 0,
+				"aiValue" : 5000,
+				"removable": true
+			}
 		}
 	},
 
@@ -136,6 +140,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 10000,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "ava0128.def", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				},
@@ -150,6 +155,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 				}
 			}
@@ -313,6 +319,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 0,
+				"removable": true,
 				"rmg" : {
 				}
 			}
@@ -444,6 +451,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 10000,
+				"removable": true,
 				"rmg" : {
 				}
 			}
@@ -495,6 +503,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 150
@@ -511,6 +520,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 					"value"		: 5000,
 					"rarity"	: 150
@@ -527,6 +537,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 					"value"		: 10000,
 					"rarity"	: 150
@@ -543,6 +554,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 					"value"		: 20000,
 					"rarity"	: 150
@@ -572,6 +584,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon1", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -584,6 +597,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon2", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -596,6 +610,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon3", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -608,6 +623,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon4", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -632,6 +648,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon6", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -644,6 +661,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon7", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -687,6 +705,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 0,
+				"removable": true,
 				"rmg" : {
 				}
 			}
@@ -723,6 +742,7 @@
 		"index" :95,
 		"handler": "generic",
 		"base" : {
+			"blockVisit": true,
 			"sounds" : {
 				"ambient" : ["LOOPTAV"],
 				"visit" : ["STORE"]
@@ -915,5 +935,16 @@
 	"grassHills"					: { "index" :208, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"roughHills"					: { "index" :209, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"subterraneanRocks"				: { "index" :210, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } }
+	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } },
+	
+	/// special object to handle invalid / unknown objects on some user-made maps
+	"nothing" : {
+		"index" : 0,
+		"handler": "generic",
+		"types" : {
+			"nothing" : {
+				"index" : 0
+			}
+		}
+	}
 }

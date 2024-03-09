@@ -11,7 +11,6 @@
 #include "ResourcePath.h"
 #include "FileInfo.h"
 
-#include "../JsonNode.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
@@ -119,6 +118,7 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".MJPG",  EResType::VIDEO},
 		{".MPG",   EResType::VIDEO},
 		{".AVI",   EResType::VIDEO},
+		{".WEBM",  EResType::VIDEO},
 		{".ZIP",   EResType::ARCHIVE_ZIP},
 		{".LOD",   EResType::ARCHIVE_LOD},
 		{".PAC",   EResType::ARCHIVE_LOD},

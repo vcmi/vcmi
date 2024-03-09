@@ -23,8 +23,9 @@ protected:
 	bool initialized;
 	int volume;					// from 0 (mute) to 100
 
-public:
 	CAudioBase(): initialized(false), volume(0) {};
+	~CAudioBase() = default;
+public:
 	virtual void init() = 0;
 	virtual void release() = 0;
 
@@ -32,7 +33,7 @@ public:
 	ui32 getVolume() const { return volume; };
 };
 
-class CSoundHandler: public CAudioBase
+class CSoundHandler final : public CAudioBase
 {
 private:
 	//update volume on configuration change
@@ -76,6 +77,7 @@ public:
 	void setChannelVolume(int channel, ui32 percent);
 
 	// Sounds
+	uint32_t getSoundDurationMilliseconds(const AudioPath & sound);
 	int playSound(soundBase::soundID soundID, int repeats=0);
 	int playSound(const AudioPath & sound, int repeats=0, bool cache=false);
 	int playSound(std::pair<std::unique_ptr<ui8 []>, si64> & data, int repeats=0, bool cache=false);
@@ -124,7 +126,7 @@ public:
 	bool stop(int fade_ms=0);
 };
 
-class CMusicHandler: public CAudioBase
+class CMusicHandler final: public CAudioBase
 {
 private:
 	//update volume on configuration change

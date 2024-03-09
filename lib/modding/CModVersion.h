@@ -10,13 +10,15 @@
 
 #pragma once
 
-#ifdef __UCLIBC__
+#if defined(__UCLIBC__) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #undef major
 #undef minor
 #undef patch
 #endif
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+using TModID = std::string;
 
 struct DLL_LINKAGE CModVersion
 {
@@ -36,7 +38,7 @@ struct DLL_LINKAGE CModVersion
 	bool compatible(const CModVersion & other, bool checkMinor = false, bool checkPatch = false) const;
 	bool isNull() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & major;
 		h & minor;

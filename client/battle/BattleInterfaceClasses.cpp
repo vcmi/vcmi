@@ -34,7 +34,9 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/CMessage.h"
+#include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
@@ -446,6 +448,117 @@ void HeroInfoBasicPanel::show(Canvas & to)
 	CIntObject::show(to);
 }
 
+
+StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBackground)
+	: CIntObject(0)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	if(initializeBackground)
+	{
+		background = std::make_shared<CPicture>(ImagePath::builtin("CCRPOP"));
+		background->pos.y += 37;
+		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
+		background->colorize(stack->getOwner());
+		background2 = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
+		background2->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
+		background2->colorize(stack->getOwner());
+	}
+
+	initializeData(stack);
+}
+
+void StackInfoBasicPanel::initializeData(const CStack * stack)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), stack->creatureId() + 2, 0, 10, 6));
+	labels.push_back(std::make_shared<CLabel>(10 + 58, 6 + 64, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, TextOperations::formatMetric(stack->getCount(), 4)));
+
+	auto attack = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
+	auto defense = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
+	auto damage = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
+	auto health = CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth();
+	auto morale = stack->moraleVal();
+	auto luck = stack->luckVal();
+
+	auto killed = stack->getKilled();
+	auto healthRemaining = TextOperations::formatMetric(std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, (si64)0), 4);
+
+	//primary stats*/
+	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[386] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[389] + ":"));
+
+	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, attack));
+	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, defense));
+	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, damage));
+	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(health)));
+
+	//morale+luck
+	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
+
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), morale + 3, 0, 47, 131));
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), luck + 3, 0, 47, 143));
+
+	//extra information
+	labels.push_back(std::make_shared<CLabel>(9, 168, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, VLC->generaltexth->translate("vcmi.battleWindow.killed") + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 180, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[389] + ":"));
+
+	labels.push_back(std::make_shared<CLabel>(69, 180, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(killed)));
+	labels.push_back(std::make_shared<CLabel>(69, 192, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, healthRemaining));
+
+	//spells
+	static const Point firstPos(15, 206); // position of 1st spell box
+	static const Point offset(0, 38);  // offset of each spell box from previous
+
+	for(int i = 0; i < 3; i++)
+		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), 78, 0, firstPos.x + offset.x * i, firstPos.y + offset.y * i));
+
+	int printed=0; //how many effect pics have been printed
+	std::vector<SpellID> spells = stack->activeSpells();
+	for(SpellID effect : spells)
+	{
+		//not all effects have graphics (for eg. Acid Breath)
+		//for modded spells iconEffect is added to SpellInt.def
+		const bool hasGraphics = (effect < SpellID::THUNDERBOLT) || (effect >= SpellID::AFTER_LAST);
+
+		if (hasGraphics)
+		{
+			//FIXME: support permanent duration
+			int duration = stack->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
+
+			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
+			if(settings["general"]["enableUiEnhancements"].Bool())
+				labels.push_back(std::make_shared<CLabel>(firstPos.x + offset.x * printed + 46, firstPos.y + offset.y * printed + 36, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(duration)));
+			if(++printed >= 3 || (printed == 2 && spells.size() > 3)) // interface limit reached
+				break;
+		}
+	}
+
+	if(spells.size() == 0)
+		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x, firstPos.y, 48, 36), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[674]));
+	if(spells.size() > 3)
+		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x + offset.x * 2, firstPos.y + offset.y * 2 - 4, 48, 36), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "..."));
+}
+
+void StackInfoBasicPanel::update(const CStack * updatedInfo)
+{
+	icons.clear();
+	labels.clear();
+	labelsMultiline.clear();
+
+	initializeData(updatedInfo);
+}
+
+void StackInfoBasicPanel::show(Canvas & to)
+{
+	showAll(to);
+	CIntObject::show(to);
+}
+
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("CHRPOP"))
 {
@@ -470,7 +583,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 	
-	if(allowReplay)
+	if(allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay)
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
@@ -739,12 +852,19 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	uint32_t queueSize = QUEUE_SIZE_BIG;
+
 	if(embedded)
 	{
-		pos.w = QUEUE_SIZE * 41;
+		int32_t queueSmallOutsideYOffset = 65;
+		bool queueSmallOutside = settings["battle"]["queueSmallOutside"].Bool() && (pos.y - queueSmallOutsideYOffset) >= 0;
+		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, queueSmallOutside ? GH.screenDimensions().x / 41 : 19);
+
+		pos.w = queueSize * 41;
 		pos.h = 49;
 		pos.x += parent->pos.w/2 - pos.w/2;
-		pos.y += 10;
+		pos.y += queueSmallOutside ? -queueSmallOutsideYOffset : 10;
 
 		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"));
 		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
@@ -765,7 +885,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	}
 	stateIcons->preload();
 
-	stackBoxes.resize(QUEUE_SIZE);
+	stackBoxes.resize(queueSize);
 	for (int i = 0; i < stackBoxes.size(); i++)
 	{
 		stackBoxes[i] = std::make_shared<StackBox>(this);
@@ -787,11 +907,16 @@ void StackQueue::update()
 	owner.getBattle()->battleGetTurnOrder(queueData, stackBoxes.size(), 0);
 
 	size_t boxIndex = 0;
+	ui32 tmpTurn = -1;
 
 	for(size_t turn = 0; turn < queueData.size() && boxIndex < stackBoxes.size(); turn++)
 	{
 		for(size_t unitIndex = 0; unitIndex < queueData[turn].size() && boxIndex < stackBoxes.size(); boxIndex++, unitIndex++)
-			stackBoxes[boxIndex]->setUnit(queueData[turn][unitIndex], turn);
+		{
+			ui32 currentTurn = owner.round + turn;
+			stackBoxes[boxIndex]->setUnit(queueData[turn][unitIndex], turn, tmpTurn != currentTurn && owner.round != 0 && (!embedded || tmpTurn != -1) ? (std::optional<ui32>)currentTurn : std::nullopt);
+			tmpTurn = currentTurn;
+		}
 	}
 
 	for(; boxIndex < stackBoxes.size(); boxIndex++)
@@ -829,11 +954,14 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 	{
 		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 5, 2);
 		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 7, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, 2, 48), ColorRGBA(0, 0, 0, 255), ColorRGBA(0, 255, 0, 255));
 	}
 	else
 	{
 		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 9, 1);
 		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 8, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
+		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, 15, 18), ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
+		round = std::make_shared<CLabel>(4, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
 		int icon_x = pos.w - 17;
 		int icon_y = pos.h - 18;
@@ -841,9 +969,10 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 		stateIcon = std::make_shared<CAnimImage>(owner->stateIcons, 0, 0, icon_x, icon_y);
 		stateIcon->visible = false;
 	}
+	roundRect->disable();
 }
 
-void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
+void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::optional<ui32> currentTurn)
 {
 	if(unit)
 	{
@@ -860,7 +989,18 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		if (unit->unitType()->getId() == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
+		roundRect->setEnabled(currentTurn.has_value());
+		if(!owner->embedded)
+			round->setEnabled(currentTurn.has_value());
+
 		amount->setText(TextOperations::formatMetric(unit->getCount(), 4));
+		if(currentTurn && !owner->embedded)
+		{
+			std::string tmp = std::to_string(*currentTurn);
+			int len = graphics->fonts[FONT_SMALL]->getStringWidth(tmp);
+			roundRect->pos.w = len + 6;
+			round->setText(tmp);
+		}
 
 		if(stateIcon)
 		{
@@ -918,4 +1058,12 @@ void StackQueue::StackBox::show(Canvas & to)
 
 	if(isBoundUnitHighlighted())
 		to.drawBorder(background->pos, Colors::CYAN, 2);
+}
+
+void StackQueue::StackBox::showPopupWindow(const Point & cursorPosition)
+{
+	auto stacks = owner->owner.getBattle()->battleGetAllStacks();
+	for(const CStack * stack : stacks)
+		if(boundUnitID.has_value() && stack->unitId() == *boundUnitID)
+			GH.windows().createAndPushWindow<CStackWindow>(stack, true);
 }

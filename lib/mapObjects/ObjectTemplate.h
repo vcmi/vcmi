@@ -43,8 +43,8 @@ class DLL_LINKAGE ObjectTemplate
 
 public:
 	/// H3 ID/subID of this object
-	Obj id;
-	si32 subid;
+	MapObjectID id;
+	MapObjectSubID subid;
 	/// print priority, objects with higher priority will be print first, below everything else
 	si32 printPriority;
 	/// animation file that should be used to display object
@@ -80,7 +80,7 @@ public:
 	bool isVisibleAt(si32 X, si32 Y) const;
 	bool isBlockedAt(si32 X, si32 Y) const;
 
-	inline std::set<int3> getBlockedOffsets() const
+	inline const std::set<int3> & getBlockedOffsets() const
 	{
 		return blockedOffsets;
 	};
@@ -156,7 +156,7 @@ private:
 	void calculateTopVisibleOffset();
 
 public:
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & usedTiles;
 		h & allowedTerrains;
@@ -164,7 +164,7 @@ public:
 		h & animationFile;
 		h & stringID;
 		h & id;
-		h & subid;
+		subid.serializeIdentifier(h, id);
 		h & printPriority;
 		h & visitDir;
 		h & editorAnimationFile;

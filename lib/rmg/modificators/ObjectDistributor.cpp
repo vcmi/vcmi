@@ -15,6 +15,7 @@
 #include "../RmgMap.h"
 #include "../CMapGenerator.h"
 #include "TreasurePlacer.h"
+#include "PrisonHeroPlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "TownPlacer.h"
 #include "TerrainPainter.h"
@@ -42,8 +43,6 @@ void ObjectDistributor::init()
 
 void ObjectDistributor::distributeLimitedObjects()
 {
-	//FIXME: Must be called after TerrainPainter::process()
-
 	ObjectInfo oi;
 	auto zones = map.getZones();
 
@@ -77,11 +76,12 @@ void ObjectDistributor::distributeLimitedObjects()
 
 					auto rmgInfo = handler->getRMGInfo();
 
+					RandomGeneratorUtil::randomShuffle(matchingZones, zone.getRand());
 					for (auto& zone : matchingZones)
 					{
-						oi.generateObject = [primaryID, secondaryID]() -> CGObjectInstance *
+						oi.generateObject = [cb=map.mapInstance->cb, primaryID, secondaryID]() -> CGObjectInstance *
 						{
-							return VLC->objtypeh->getHandlerFor(primaryID, secondaryID)->create();
+							return VLC->objtypeh->getHandlerFor(primaryID, secondaryID)->create(cb, nullptr);
 						};
 						
 						oi.value = rmgInfo.value;
@@ -146,7 +146,18 @@ void ObjectDistributor::distributePrisons()
 
 	RandomGeneratorUtil::randomShuffle(zones, zone.getRand());
 
-	size_t allowedPrisons = generator.getPrisonsRemaning();
+	// TODO: Some shorthand for unique Modificator
+	PrisonHeroPlacer * prisonHeroPlacer = nullptr;
+	for(auto & z : map.getZones())
+	{
+		prisonHeroPlacer = z.second->getModificator<PrisonHeroPlacer>();
+		if (prisonHeroPlacer)
+		{
+			break;
+		}
+	}
+
+	size_t allowedPrisons = prisonHeroPlacer->getPrisonsRemaning();
 	for (int i = zones.size() - 1; i >= 0; i--)
 	{
 		auto zone = zones[i].second;

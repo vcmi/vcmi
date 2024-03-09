@@ -18,6 +18,8 @@
 #include "../CPlayerState.h"
 #include "../CRandomGenerator.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../networkPacks/PacksForClient.h"
 
@@ -83,7 +85,7 @@ ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(SpellCastEnviron
 		for(const Bonus & b : bonuses)
 		{
 			GiveBonus gb;
-			gb.id = parameters.caster->getCasterUnitId();
+			gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
 			gb.bonus = b;
 			env->apply(&gb);
 		}
@@ -323,7 +325,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	}
 
 	GiveBonus gb;
-	gb.id = parameters.caster->getCasterUnitId();
+	gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
 	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, BonusSourceID(owner->id));
 	env->apply(&gb);
 
@@ -528,8 +530,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		request.player = parameters.caster->getCasterOwner();
 		request.title.appendLocalString(EMetaText::JK_TXT, 40);
 		request.description.appendLocalString(EMetaText::JK_TXT, 41);
-		request.icon.id = Component::EComponentType::SPELL;
-		request.icon.subtype = owner->id.toEnum();
+		request.icon = Component(ComponentType::SPELL, owner->id);
 
 		env->genericQuery(&request, request.player, queryCallback);
 
@@ -601,7 +602,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 
 	const auto spellLevel = parameters.caster->getSpellSchoolLevel(owner);
 
-	const auto fowMap = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner())->fogOfWarMap;
+	const auto & fowMap = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner())->fogOfWarMap;
 
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{

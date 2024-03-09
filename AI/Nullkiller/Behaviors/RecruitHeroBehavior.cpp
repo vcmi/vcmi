@@ -85,8 +85,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 				continue;
 
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
-				|| (ai->nullkiller->getFreeResources()[EGameResID::GOLD] > 10000
-					&& ai->nullkiller->buildAnalyzer->getGoldPreasure() < MAX_GOLD_PEASURE))
+				|| (ai->nullkiller->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->nullkiller->buildAnalyzer->isGoldPreasureHigh()))
 			{
 				tasks.push_back(Goals::sptr(Goals::RecruitHero(town).setpriority(3)));
 			}

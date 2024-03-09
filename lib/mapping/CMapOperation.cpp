@@ -12,7 +12,9 @@
 #include "CMapOperation.h"
 
 #include "../VCMI_Lib.h"
+#include "../CRandomGenerator.h"
 #include "../TerrainHandler.h"
+#include "../mapObjects/CGObjectInstance.h"
 #include "CMap.h"
 #include "MapEditUtils.h"
 
@@ -83,10 +85,11 @@ void CComposedOperation::addOperation(std::unique_ptr<CMapOperation>&& operation
 	operations.push_back(std::move(operation));
 }
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, CRandomGenerator * gen):
+CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, CRandomGenerator * gen):
 	CMapOperation(map),
 	terrainSel(std::move(terrainSel)),
 	terType(terType),
+	decorationsPercentage(decorationsPercentage),
 	gen(gen)
 {
 
@@ -286,14 +289,19 @@ void CDrawTerrainOperation::updateTerrainViews()
 		// Get mapping
 		const TerrainViewPattern& pattern = patterns[bestPattern][valRslt.flip];
 		std::pair<int, int> mapping;
-		if(valRslt.transitionReplacement.empty())
+
+		mapping = pattern.mapping[0];
+
+		if(pattern.decoration)
 		{
-			mapping = pattern.mapping[0];
+			if (pattern.mapping.size() < 2 || gen->nextInt(100) > decorationsPercentage)
+				mapping = pattern.mapping[0];
+			else
+				mapping = pattern.mapping[1];
 		}
-		else
-		{
+
+		if (!valRslt.transitionReplacement.empty())
 			mapping = valRslt.transitionReplacement == TerrainViewPattern::RULE_DIRT ? pattern.mapping[0] : pattern.mapping[1];
-		}
 
 		// Set terrain view
 		auto & tile = map->getTile(pos);
@@ -504,9 +512,8 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 		{
 			if(map->isInTheMap(pos))
 			{
-				auto * ptrConfig = VLC->terviewh;
 				const auto * terType = map->getTile(pos).terType;
-				auto valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById("n1")).result;
+				auto valid = validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById("n1")).result;
 
 				// Special validity check for rock & water
 				if(valid && (terType->isWater() || !terType->isPassable()))
@@ -514,7 +521,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 					static const std::string patternIds[] = { "s1", "s2" };
 					for(const auto & patternId : patternIds)
 					{
-						valid = !validateTerrainView(pos, ptrConfig->getTerrainTypePatternById(patternId)).result;
+						valid = !validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById(patternId)).result;
 						if(!valid) break;
 					}
 				}
@@ -524,7 +531,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 					static const std::string patternIds[] = { "n2", "n3" };
 					for(const auto & patternId : patternIds)
 					{
-						valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById(patternId)).result;
+						valid = validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById(patternId)).result;
 						if(valid) break;
 					}
 				}
@@ -555,12 +562,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap* map, CRandomGenerator* gen)
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::WATER, gen));
+	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::WATER, 0, gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::ROCK, gen));
+		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::ROCK, 0, gen));
 	}
 }
 

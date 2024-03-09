@@ -81,6 +81,20 @@ ArtifactID MapReaderH3M::readArtifact()
 	return ArtifactID::NONE;
 }
 
+ArtifactID MapReaderH3M::readArtifact8()
+{
+	ArtifactID result(reader->readUInt8());
+
+	if(result.getNum() == 0xff)
+		return ArtifactID::NONE;
+
+	if (result.getNum() < features.artifactsCount)
+		return remapIdentifier(result);
+
+	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	return ArtifactID::NONE;
+}
+
 ArtifactID MapReaderH3M::readArtifact32()
 {
 	ArtifactID result(reader->readInt32());
@@ -135,7 +149,7 @@ CreatureID MapReaderH3M::readCreature()
 		return CreatureID::NONE;
 
 	if(result.getNum() < features.creaturesCount)
-		return remapIdentifier(result);;
+		return remapIdentifier(result);
 
 	// this may be random creature in army/town, to be randomized later
 	CreatureID randomIndex(result.getNum() - features.creatureIdentifierInvalid - 1);
@@ -152,7 +166,7 @@ TerrainId MapReaderH3M::readTerrain()
 {
 	TerrainId result(readUInt8());
 	assert(result.getNum() < features.terrainsCount);
-	return remapIdentifier(result);;
+	return remapIdentifier(result);
 }
 
 RoadId MapReaderH3M::readRoad()
@@ -169,11 +183,18 @@ RiverId MapReaderH3M::readRiver()
 	return result;
 }
 
+PrimarySkill MapReaderH3M::readPrimary()
+{
+	PrimarySkill result(readUInt8());
+	assert(result <= PrimarySkill::KNOWLEDGE );
+	return result;
+}
+
 SecondarySkill MapReaderH3M::readSkill()
 {
 	SecondarySkill result(readUInt8());
 	assert(result.getNum() < features.skillsCount);
-	return remapIdentifier(result);;
+	return remapIdentifier(result);
 }
 
 SpellID MapReaderH3M::readSpell()
@@ -185,7 +206,7 @@ SpellID MapReaderH3M::readSpell()
 		return SpellID::PRESET;
 
 	assert(result.getNum() < features.spellsCount);
-	return remapIdentifier(result);;
+	return remapIdentifier(result);
 }
 
 SpellID MapReaderH3M::readSpell32()
@@ -194,6 +215,13 @@ SpellID MapReaderH3M::readSpell32()
 	if(result.getNum() == features.spellIdentifierInvalid)
 		return SpellID::NONE;
 	assert(result.getNum() < features.spellsCount);
+	return result;
+}
+
+GameResID MapReaderH3M::readGameResID()
+{
+	GameResID result(readInt8());
+	assert(result.getNum() < features.resourcesCount);
 	return result;
 }
 
@@ -266,12 +294,12 @@ void MapReaderH3M::readBitmaskHeroClassesSized(std::set<HeroClassID> & dest, boo
 	readBitmask(dest, classesBytes, classesCount, invert);
 }
 
-void MapReaderH3M::readBitmaskHeroes(std::vector<bool> & dest, bool invert)
+void MapReaderH3M::readBitmaskHeroes(std::set<HeroTypeID> & dest, bool invert)
 {
 	readBitmask<HeroTypeID>(dest, features.heroesBytes, features.heroesCount, invert);
 }
 
-void MapReaderH3M::readBitmaskHeroesSized(std::vector<bool> & dest, bool invert)
+void MapReaderH3M::readBitmaskHeroesSized(std::set<HeroTypeID> & dest, bool invert)
 {
 	uint32_t heroesCount = readUInt32();
 	uint32_t heroesBytes = (heroesCount + 7) / 8;
@@ -280,12 +308,12 @@ void MapReaderH3M::readBitmaskHeroesSized(std::vector<bool> & dest, bool invert)
 	readBitmask<HeroTypeID>(dest, heroesBytes, heroesCount, invert);
 }
 
-void MapReaderH3M::readBitmaskArtifacts(std::vector<bool> &dest, bool invert)
+void MapReaderH3M::readBitmaskArtifacts(std::set<ArtifactID> &dest, bool invert)
 {
 	readBitmask<ArtifactID>(dest, features.artifactsBytes, features.artifactsCount, invert);
 }
 
-void MapReaderH3M::readBitmaskArtifactsSized(std::vector<bool> &dest, bool invert)
+void MapReaderH3M::readBitmaskArtifactsSized(std::set<ArtifactID> &dest, bool invert)
 {
 	uint32_t artifactsCount = reader->readUInt32();
 	uint32_t artifactsBytes = (artifactsCount + 7) / 8;
@@ -294,19 +322,9 @@ void MapReaderH3M::readBitmaskArtifactsSized(std::vector<bool> &dest, bool inver
 	readBitmask<ArtifactID>(dest, artifactsBytes, artifactsCount, invert);
 }
 
-void MapReaderH3M::readBitmaskSpells(std::vector<bool> & dest, bool invert)
-{
-	readBitmask<SpellID>(dest, features.spellsBytes, features.spellsCount, invert);
-}
-
 void MapReaderH3M::readBitmaskSpells(std::set<SpellID> & dest, bool invert)
 {
 	readBitmask(dest, features.spellsBytes, features.spellsCount, invert);
-}
-
-void MapReaderH3M::readBitmaskSkills(std::vector<bool> & dest, bool invert)
-{
-	readBitmask<SecondarySkill>(dest, features.skillsBytes, features.skillsCount, invert);
 }
 
 void MapReaderH3M::readBitmaskSkills(std::set<SecondarySkill> & dest, bool invert)
@@ -315,7 +333,7 @@ void MapReaderH3M::readBitmaskSkills(std::set<SecondarySkill> & dest, bool inver
 }
 
 template<class Identifier>
-void MapReaderH3M::readBitmask(std::vector<bool> & dest, const int bytesToRead, const int objectsToRead, bool invert)
+void MapReaderH3M::readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert)
 {
 	for(int byte = 0; byte < bytesToRead; ++byte)
 	{
@@ -331,24 +349,13 @@ void MapReaderH3M::readBitmask(std::vector<bool> & dest, const int bytesToRead, 
 				Identifier h3mID(index);
 				Identifier vcmiID = remapIdentifier(h3mID);
 
-				if (vcmiID.getNum() >= dest.size())
-					dest.resize(vcmiID.getNum() + 1);
-				dest[vcmiID.getNum()] = result;
+				if (result)
+					dest.insert(vcmiID);
+				else
+					dest.erase(vcmiID);
 			}
 		}
 	}
-}
-
-template<class Identifier>
-void MapReaderH3M::readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert)
-{
-	std::vector<bool> bitmap;
-	bitmap.resize(objectsToRead, false);
-	readBitmask<Identifier>(bitmap, bytesToRead, objectsToRead, invert);
-
-	for(int i = 0; i < bitmap.size(); i++)
-		if(bitmap[i])
-			dest.insert(static_cast<Identifier>(i));
 }
 
 int3 MapReaderH3M::readInt3()
@@ -400,32 +407,35 @@ bool MapReaderH3M::readBool()
 	return result != 0;
 }
 
-ui8 MapReaderH3M::readUInt8()
+int8_t MapReaderH3M::readInt8Checked(int8_t lowerLimit, int8_t upperLimit)
+{
+	int8_t result = readInt8();
+	assert(result >= lowerLimit);
+	assert(result <= upperLimit);
+	return std::clamp(result, lowerLimit, upperLimit);
+}
+
+uint8_t MapReaderH3M::readUInt8()
 {
 	return reader->readUInt8();
 }
 
-si8 MapReaderH3M::readInt8()
+int8_t MapReaderH3M::readInt8()
 {
 	return reader->readInt8();
 }
 
-ui16 MapReaderH3M::readUInt16()
+uint16_t MapReaderH3M::readUInt16()
 {
 	return reader->readUInt16();
 }
 
-si16 MapReaderH3M::readInt16()
-{
-	return reader->readInt16();
-}
-
-ui32 MapReaderH3M::readUInt32()
+uint32_t MapReaderH3M::readUInt32()
 {
 	return reader->readUInt32();
 }
 
-si32 MapReaderH3M::readInt32()
+int32_t MapReaderH3M::readInt32()
 {
 	return reader->readInt32();
 }
@@ -433,11 +443,6 @@ si32 MapReaderH3M::readInt32()
 std::string MapReaderH3M::readBaseString()
 {
 	return reader->readBaseString();
-}
-
-CBinaryReader & MapReaderH3M::getInternalReader()
-{
-	return *reader;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -53,7 +53,6 @@ void MainWindow::computeSidePanelSizes()
 	QVector<QToolButton*> widgets = {
 		ui->modslistButton,
 		ui->settingsButton,
-		ui->lobbyButton,
 		ui->aboutButton,
 		ui->startEditorButton,
 		ui->startGameButton
@@ -86,10 +85,6 @@ MainWindow::MainWindow(QWidget * parent)
 
 	ui->setupUi(this);
 	
-	connect(ui->lobbyView, &Lobby::enableMod, ui->modlistView, &CModListView::enableModByName);
-	connect(ui->lobbyView, &Lobby::disableMod, ui->modlistView, &CModListView::disableModByName);
-	connect(ui->modlistView, &CModListView::modsChanged, ui->lobbyView, &Lobby::updateMods);
-
 	//load window settings
 	QSettings s(Ui::teamName, Ui::appName);
 
@@ -136,14 +131,14 @@ void MainWindow::detectPreferredLanguage()
 		for (auto const & vcmiLang : Languages::getLanguageList())
 			if (vcmiLang.tagIETF == userLang.toStdString())
 				selectedLanguage = vcmiLang.identifier;
-	}
 
-	logGlobal->info("Selected language: %s", selectedLanguage);
-
-	if (!selectedLanguage.empty())
-	{
-		Settings node = settings.write["general"]["language"];
-		node->String() = selectedLanguage;
+		if (!selectedLanguage.empty())
+		{
+			logGlobal->info("Selected language: %s", selectedLanguage);
+			Settings node = settings.write["general"]["language"];
+			node->String() = selectedLanguage;
+			return;
+		}
 	}
 }
 
@@ -151,7 +146,6 @@ void MainWindow::enterSetup()
 {
 	ui->startGameButton->setEnabled(false);
 	ui->startEditorButton->setEnabled(false);
-	ui->lobbyButton->setEnabled(false);
 	ui->settingsButton->setEnabled(false);
 	ui->aboutButton->setEnabled(false);
 	ui->modslistButton->setEnabled(false);
@@ -165,7 +159,6 @@ void MainWindow::exitSetup()
 
 	ui->startGameButton->setEnabled(true);
 	ui->startEditorButton->setEnabled(true);
-	ui->lobbyButton->setEnabled(true);
 	ui->settingsButton->setEnabled(true);
 	ui->aboutButton->setEnabled(true);
 	ui->modslistButton->setEnabled(true);
@@ -226,12 +219,6 @@ void MainWindow::on_settingsButton_clicked()
 {
 	ui->startGameButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::SETTINGS);
-}
-
-void MainWindow::on_lobbyButton_clicked()
-{
-	ui->startGameButton->setEnabled(false);
-	ui->tabListWidget->setCurrentIndex(TabRows::LOBBY);
 }
 
 void MainWindow::on_aboutButton_clicked()

@@ -11,6 +11,7 @@
 
 #include "../lib/CStopWatch.h"
 
+#include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CondSh.h"
 
@@ -34,9 +35,14 @@ VCMI_LIB_NAMESPACE_END
 
 class CClient;
 class CBaseForLobbyApply;
+class GlobalLobbyClient;
+class IServerRunner;
 
 class HighScoreCalculation;
 class HighScoreParameter;
+
+enum class ESelectionScreen : ui8;
+enum class ELoadMode : ui8;
 
 // TODO: Add mutex so we can't set CONNECTION_CANCELLED if client already connected, but thread not setup yet
 enum class EClientState : ui8
@@ -49,7 +55,14 @@ enum class EClientState : ui8
 	STARTING, // Gameplay interfaces being created, we pause netpacks retrieving
 	GAMEPLAY, // In-game, used by some UI
 	DISCONNECTING, // We disconnecting, drop all netpacks
-	CONNECTION_FAILED // We could not connect to server
+};
+
+enum class EServerMode : uint8_t
+{
+	NONE = 0,
+	LOCAL, // no global lobby
+	LOBBY_HOST, // We are hosting global server available via global lobby
+	LOBBY_GUEST // Connecting to a remote server via proxy provided by global lobby
 };
 
 class IServerAPI
@@ -72,6 +85,7 @@ public:
 	virtual void setDifficulty(int to) const = 0;
 	virtual void setTurnTimerInfo(const TurnTimerInfo &) const = 0;
 	virtual void setSimturnsInfo(const SimturnsInfo &) const = 0;
+	virtual void setExtraOptionsInfo(const ExtraOptionsInfo & info) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;
 	virtual void sendGuiAction(ui8 action) const = 0; // TODO: possibly get rid of it?
 	virtual void sendStartGame(bool allowOnlyAI = false) const = 0;
@@ -79,58 +93,68 @@ public:
 };
 
 /// structure to handle running server and connecting to it
-class CServerHandler : public IServerAPI, public LobbyInfo
+class CServerHandler final : public IServerAPI, public LobbyInfo, public INetworkClientListener, public INetworkTimerListener, boost::noncopyable
 {
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
-	
-	std::shared_ptr<CApplier<CBaseForLobbyApply>> applier;
 
-	std::shared_ptr<boost::recursive_mutex> mx;
-	std::list<CPackForLobby *> packsForLobbyScreen; //protected by mx
-	
+	std::unique_ptr<INetworkHandler> networkHandler;
+	std::shared_ptr<INetworkConnection> networkConnection;
+	std::unique_ptr<GlobalLobbyClient> lobbyClient;
+	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
+	std::unique_ptr<IServerRunner> serverRunner;
 	std::shared_ptr<CMapInfo> mapToStart;
-
-	std::vector<std::string> myNames;
-
+	std::vector<std::string> localPlayerNames;
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
-	void threadHandleConnection();
-	void threadRunServer();
-	void onServerFinished();
+	boost::thread threadNetwork;
+
+	std::atomic<EClientState> state;
+
+	void threadRunNetwork();
+	void waitForServerShutdown();
+
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
+	void onPacketReceived(const NetworkConnectionPtr &, const std::vector<std::byte> & message) override;
+	void onConnectionFailed(const std::string & errorMessage) override;
+	void onConnectionEstablished(const NetworkConnectionPtr &) override;
+	void onDisconnected(const NetworkConnectionPtr &, const std::string & errorMessage) override;
+	void onTimer() override;
+
+	void applyPackOnLobbyScreen(CPackForLobby & pack);
+
+	std::string serverHostname;
+	ui16 serverPort;
+
+	bool isServerLocal() const;
+
 public:
-	std::atomic<EClientState> state;
+	/// High-level connection overlay that is capable of (de)serializing network data
+	std::shared_ptr<CConnection> logicConnection;
+
 	////////////////////
 	// FIXME: Bunch of crutches to glue it all together
 
 	// For starting non-custom campaign and continue to next mission
 	std::shared_ptr<CampaignState> campaignStateToSend;
 
-	ui8 screenType; // To create lobby UI only after server is setup
-	ui8 loadMode; // For saves filtering in SelectionTab
+	ESelectionScreen screenType; // To create lobby UI only after server is setup
+	EServerMode serverMode;
+	ELoadMode loadMode; // For saves filtering in SelectionTab
 	////////////////////
 
 	std::unique_ptr<CStopWatch> th;
-	std::shared_ptr<boost::thread> threadRunLocalServer;
-
-	std::shared_ptr<CConnection> c;
-	CClient * client;
-
-	CondSh<bool> campaignServerRestartLock;
-
-	static const std::string localhostAddress;
+	std::unique_ptr<CClient> client;
 
 	CServerHandler();
+	~CServerHandler();
 	
-	std::string getHostAddress() const;
-	ui16 getHostPort() const;
+	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & playerNames);
+	void startLocalServerAndConnect(bool connectToLobby);
+	void connectToServer(const std::string & addr, const ui16 port);
 
-	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
-	void startLocalServerAndConnect();
-	void justConnectToServer(const std::string & addr, const ui16 port);
-	void applyPacksOnLobbyScreen();
-	void stopServerConnection();
+	GlobalLobbyClient & getGlobalLobby();
+	INetworkHandler & getNetworkHandler();
 
 	// Helpers for lobby state access
 	std::set<PlayerColor> getHumanColors();
@@ -138,12 +162,21 @@ public:
 	bool isMyColor(PlayerColor color) const;
 	ui8 myFirstId() const; // Used by chat only!
 
-	bool isServerLocal() const;
+	EClientState getState() const;
+	void setState(EClientState newState);
+
 	bool isHost() const;
 	bool isGuest() const;
+	bool inLobbyRoom() const;
+	bool inGame() const;
 
-	static ui16 getDefaultPort();
-	static std::string getDefaultPortStr();
+	const std::string & getCurrentHostname() const;
+	const std::string & getLocalHostname() const;
+	const std::string & getRemoteHostname() const;
+
+	ui16 getCurrentPort() const;
+	ui16 getLocalPort() const;
+	ui16 getRemotePort() const;
 
 	// Lobby server API for UI
 	void sendClientConnecting() const override;
@@ -158,6 +191,7 @@ public:
 	void setDifficulty(int to) const override;
 	void setTurnTimerInfo(const TurnTimerInfo &) const override;
 	void setSimturnsInfo(const SimturnsInfo &) const override;
+	void setExtraOptionsInfo(const ExtraOptionsInfo &) const override;
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
 	void sendRestartGame() const override;
@@ -168,15 +202,14 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
-	void endGameplay(bool closeConnection = true, bool restart = false);
+	void endGameplay();
+	void restartGameplay();
 	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});
 	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
 	int howManyPlayerInterfaces();
-	ui8 getLoadMode();
-
-	void restoreLastSession();
+	ELoadMode getLoadMode();
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);

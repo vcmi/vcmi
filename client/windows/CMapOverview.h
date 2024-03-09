@@ -24,7 +24,7 @@ class CTextBox;
 class IImage;
 class Canvas;
 class TransparentFilledRectangle;
-enum ESelectionScreen : ui8;
+enum class ESelectionScreen : ui8;
 
 class CMapOverview;
 

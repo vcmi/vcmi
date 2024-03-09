@@ -48,7 +48,10 @@ private:
 	std::shared_ptr<CMapInfo> mapInfo;
 	
 	//options allowed - need to store as impact each other
-	std::set<int> playerCountAllowed, playerTeamsAllowed, compCountAllowed, compTeamsAllowed;
+	std::set<int> playerCountAllowed;
+	std::set<int> playerTeamsAllowed;
+	std::set<int> compCountAllowed;
+	std::set<int> compTeamsAllowed;
 };
 
 class TeamAlignmentsWidget: public InterfaceObjectConfigurable
@@ -57,9 +60,12 @@ public:
 	TeamAlignmentsWidget(RandomMapTab & randomMapTab);
 	
 private:
+	void checkTeamCount();
+
 	std::shared_ptr<CFilledTexture> background;
 	std::shared_ptr<CLabelGroup> labels;
-	std::shared_ptr<CButton> buttonOk, buttonCancel;
+	std::shared_ptr<CButton> buttonOk;
+	std::shared_ptr<CButton> buttonCancel;
 	std::vector<std::shared_ptr<CToggleGroup>> players;
 	std::vector<std::shared_ptr<CIntObject>> placeholders;
 };

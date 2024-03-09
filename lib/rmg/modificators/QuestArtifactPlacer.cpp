@@ -40,9 +40,16 @@ void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 
 void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id)
 {
+	logGlobal->info("Need to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
 	RecursiveLock lock(externalAccessMutex);
-	logGlobal->info("Need to place quest artifact artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
 	questArtifactsToPlace.emplace_back(id);
+}
+
+void QuestArtifactPlacer::removeQuestArtifact(const ArtifactID& id)
+{
+	logGlobal->info("Will not try to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
+	RecursiveLock lock(externalAccessMutex);
+	vstd::erase_if_present(questArtifactsToPlace, id);
 }
 
 void QuestArtifactPlacer::rememberPotentialArtifactToReplace(CGObjectInstance* obj)
@@ -92,7 +99,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 
 			//Update appearance. Terrain is irrelevant.
 			auto handler = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, artifactToPlace);
-			auto newObj = handler->create();
+			auto newObj = handler->create(map.mapInstance->cb, nullptr);
 			auto templates = handler->getTemplates();
 			//artifactToReplace->appearance = templates.front();
 			newObj->appearance  = templates.front();
@@ -131,9 +138,10 @@ ArtifactID QuestArtifactPlacer::drawRandomArtifact()
 	RecursiveLock lock(externalAccessMutex);
 	if (!questArtifacts.empty())
 	{
+		RandomGeneratorUtil::randomShuffle(questArtifacts, zone.getRand());
 		ArtifactID ret = questArtifacts.back();
 		questArtifacts.pop_back();
-		RandomGeneratorUtil::randomShuffle(questArtifacts, zone.getRand());
+		generator.banQuestArt(ret);
 		return ret;
 	}
 	else
@@ -142,10 +150,11 @@ ArtifactID QuestArtifactPlacer::drawRandomArtifact()
 	}
 }
 
-void QuestArtifactPlacer::addRandomArtifact(ArtifactID artid)
+void QuestArtifactPlacer::addRandomArtifact(const ArtifactID & artid)
 {
 	RecursiveLock lock(externalAccessMutex);
 	questArtifacts.push_back(artid);
+	generator.unbanQuestArt(artid);
 }
 
 VCMI_LIB_NAMESPACE_END

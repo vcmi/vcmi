@@ -25,7 +25,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void CGMarket::initObj(CRandomGenerator & rand)
 {
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, rand);
 }
 
 void CGMarket::onHeroVisit(const CGHeroInstance * h) const
@@ -48,18 +48,18 @@ int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	return -1;
 }
 
-std::vector<int> CGMarket::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
 {
 	if(allowsTrade(mode))
 		return IMarket::availableItemsIds(mode);
-	return std::vector<int>();
+	return std::vector<TradeItemBuy>();
 }
 
-CGMarket::CGMarket()
-{
-}
+CGMarket::CGMarket(IGameCallback *cb):
+	CGObjectInstance(cb)
+{}
 
-std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) const
 {
 	switch(mode)
 	{
@@ -67,16 +67,16 @@ std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode mode) const
 		return IMarket::availableItemsIds(mode);
 	case EMarketMode::RESOURCE_ARTIFACT:
 		{
-			std::vector<int> ret;
+			std::vector<TradeItemBuy> ret;
 			for(const CArtifact *a : artifacts)
 				if(a)
 					ret.push_back(a->getId());
 				else
-					ret.push_back(-1);
+					ret.push_back(ArtifactID{});
 			return ret;
 		}
 	default:
-		return std::vector<int>();
+		return std::vector<TradeItemBuy>();
 	}
 }
 
@@ -91,26 +91,12 @@ void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 		return;
 
 	SetAvailableArtifacts saa;
-	saa.id = id.getNum();
+	saa.id = id;
 	cb->pickAllowedArtsSet(saa.arts, rand);
 	cb->sendAndApply(&saa);
 }
 
-void CGUniversity::initObj(CRandomGenerator & rand)
-{
-	CGMarket::initObj(rand);
-	
-	std::vector<int> toChoose;
-	for(int i = 0; i < VLC->skillh->size(); ++i)
-	{
-		if(!vstd::contains(skills, i) && cb->isAllowed(2, i))
-		{
-			toChoose.push_back(i);
-		}
-	}
-}
-
-std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) const
 {
 	switch (mode)
 	{
@@ -118,13 +104,18 @@ std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
 			return skills;
 
 		default:
-			return std::vector<int>();
+			return std::vector<TradeItemBuy>();
 	}
 }
 
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
 	cb->showObjectWindow(this, EOpenWindowMode::UNIVERSITY_WINDOW, h, true);
+}
+
+ArtBearer::ArtBearer CGArtifactsAltar::bearerType() const
+{
+	return ArtBearer::ALTAR;
 }
 
 VCMI_LIB_NAMESPACE_END

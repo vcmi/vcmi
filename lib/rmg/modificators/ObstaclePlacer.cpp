@@ -24,6 +24,7 @@
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/ObstacleProxy.h"
+#include "../../mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -51,7 +52,7 @@ void ObstaclePlacer::process()
 		do
 		{
 			toBlock.clear();
-			for (const auto& tile : zone.areaPossible().getTiles())
+			for (const auto& tile : zone.areaPossible().getTilesVector())
 			{
 				rmg::Area neighbors;
 				rmg::Area t;
@@ -76,7 +77,7 @@ void ObstaclePlacer::process()
 				}
 			}
 			zone.areaPossible().subtract(toBlock);
-			for (const auto& tile : toBlock.getTiles())
+			for (const auto& tile : toBlock.getTilesVector())
 			{
 				map.setOccupied(tile, ETileType::BLOCKED);
 			}
@@ -86,7 +87,7 @@ void ObstaclePlacer::process()
 		prohibitedArea.unite(zone.areaPossible());
 	}
 
-	auto objs = createObstacles(zone.getRand());
+	auto objs = createObstacles(zone.getRand(), map.mapInstance->cb);
 	mapProxy->insertObjects(objs);
 }
 

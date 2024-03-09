@@ -57,7 +57,7 @@ protected:
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	CFaction * faction = nullptr;
+	const CFaction * faction = nullptr;
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	void initializeObject(CGTownInstance * object) const override;
@@ -66,14 +66,6 @@ public:
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & filtersJson;
-		h & faction;
-		h & filters;
-		h & static_cast<CDefaultObjectTypeHandler<CGTownInstance>&>(*this);
-	}
 };
 
 class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance>
@@ -84,7 +76,7 @@ protected:
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	CHeroClass * heroClass = nullptr;
+	const CHeroClass * heroClass = nullptr;
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
 	void initializeObject(CGHeroInstance * object) const override;
@@ -93,14 +85,6 @@ public:
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & filtersJson;
-		h & heroClass;
-		h & filters;
-		h & static_cast<CDefaultObjectTypeHandler<CGHeroInstance>&>(*this);
-	}
 };
 
 class DLL_LINKAGE BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGBoat>
@@ -122,18 +106,6 @@ public:
 
 	/// Returns boat preview animation, for use in Shipyards
 	AnimationPath getBoatAnimationName() const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CDefaultObjectTypeHandler<CGBoat>&>(*this);
-		h & layer;
-		h & onboardAssaultAllowed;
-		h & onboardVisitAllowed;
-		h & bonuses;
-		h & actualAnimation;
-		h & overlayAnimation;
-		h & flagAnimations;
-	}
 };
 
 class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
@@ -145,19 +117,14 @@ protected:
 	JsonNode predefinedOffer;
 	int marketEfficiency;
 	
-	std::string title, speech;
+	std::string title;
+	std::string speech;
 	
 public:
-	CGMarket * createObject() const override;
+	CGMarket * createObject(IGameCallback * cb) const override;
 	void initializeObject(CGMarket * object) const override;
 	void randomizeObject(CGMarket * object, CRandomGenerator & rng) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CDefaultObjectTypeHandler<CGMarket>&>(*this);
-		h & marketModes;
-		h & marketEfficiency;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

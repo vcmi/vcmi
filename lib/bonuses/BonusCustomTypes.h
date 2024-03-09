@@ -13,10 +13,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE BonusCustomSource : public Identifier<BonusCustomSource>
+class DLL_LINKAGE BonusCustomSource : public StaticIdentifier<BonusCustomSource>
 {
 public:
-	using Identifier<BonusCustomSource>::Identifier;
+	using StaticIdentifier<BonusCustomSource>::StaticIdentifier;
 
 	static std::string encode(int32_t index);
 	static si32 decode(const std::string & identifier);
@@ -24,10 +24,10 @@ public:
 	static const BonusCustomSource undeadMoraleDebuff; // -2
 };
 
-class DLL_LINKAGE BonusCustomSubtype : public Identifier<BonusCustomSubtype>
+class DLL_LINKAGE BonusCustomSubtype : public StaticIdentifier<BonusCustomSubtype>
 {
 public:
-	using Identifier<BonusCustomSubtype>::Identifier;
+	using StaticIdentifier<BonusCustomSubtype>::StaticIdentifier;
 
 	static std::string encode(int32_t index);
 	static si32 decode(const std::string & identifier);
@@ -45,6 +45,10 @@ public:
 
 	static const BonusCustomSubtype deathStareGorgon; // 0
 	static const BonusCustomSubtype deathStareCommander;
+	static const BonusCustomSubtype deathStareNoRangePenalty;
+	static const BonusCustomSubtype deathStareRangePenalty;
+	static const BonusCustomSubtype deathStareObstaclePenalty;
+	static const BonusCustomSubtype deathStareRangeObstaclePenalty;
 
 	static const BonusCustomSubtype rebirthRegular; // 0
 	static const BonusCustomSubtype rebirthSpecial; // 1

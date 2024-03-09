@@ -90,7 +90,9 @@ void CSettingsView::loadSettings()
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
 	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
 	ui->comboBoxEnemyAI->setCurrentText(QString::fromStdString(settings["server"]["enemyAI"].String()));
+
 	ui->comboBoxEnemyPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
+	ui->comboBoxAlliedPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["alliedAI"].String()));
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
 
@@ -115,6 +117,7 @@ void CSettingsView::loadSettings()
     ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
 
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
+	fillValidRenderers();
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
@@ -161,6 +164,26 @@ void CSettingsView::fillValidScalingRange()
 
 #ifndef VCMI_MOBILE
 
+static QStringList getAvailableRenderingDrivers()
+{
+	SDL_Init(SDL_INIT_VIDEO);
+	QStringList result;
+
+	result += QString(); // empty value for autoselection
+
+	int driversCount = SDL_GetNumRenderDrivers();
+
+	for(int it = 0; it < driversCount; it++)
+	{
+		SDL_RendererInfo info;
+		if (SDL_GetRenderDriverInfo(it, &info) == 0)
+			result += QString::fromLatin1(info.name);
+	}
+
+	SDL_Quit();
+	return result;
+}
+
 static QVector<QSize> findAvailableResolutions(int displayIndex)
 {
 	// Ugly workaround since we don't actually need SDL in Launcher
@@ -195,12 +218,12 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
-	ui->comboBoxResolution->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
+	QSignalBlocker guard(ui->comboBoxResolution); // avoid saving wrong resolution after adding first item from the list
+
 	ui->comboBoxResolution->clear();
 
 	bool fullscreen = settings["video"]["fullscreen"].Bool();
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
-
 
 	if (!fullscreen || realFullscreen)
 	{
@@ -223,8 +246,21 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	// if selected resolution no longer exists, force update value to the largest (last) resolution
 	if(resIndex == -1)
 		ui->comboBoxResolution->setCurrentIndex(ui->comboBoxResolution->count() - 1);
+}
 
-	ui->comboBoxResolution->blockSignals(false);
+void CSettingsView::fillValidRenderers()
+{
+	QSignalBlocker guard(ui->comboBoxRendererType); // avoid saving wrong renderer after adding first item from the list
+
+	ui->comboBoxRendererType->clear();
+
+	auto driversList = getAvailableRenderingDrivers();
+	ui->comboBoxRendererType->addItems(driversList);
+
+	std::string rendererName = settings["video"]["driver"].String();
+
+	int index = ui->comboBoxRendererType->findText(QString::fromStdString(rendererName));
+	ui->comboBoxRendererType->setCurrentIndex(index);
 }
 #else
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
@@ -232,6 +268,13 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	// resolutions are not selectable on mobile platforms
 	ui->comboBoxResolution->hide();
 	ui->labelResolution->hide();
+}
+
+void CSettingsView::fillValidRenderers()
+{
+	// untested on mobile platforms
+	ui->comboBoxRendererType->hide();
+	ui->labelRendererType->hide();
 }
 #endif
 
@@ -352,25 +395,6 @@ void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["cursor"];
 	node->String() = cursorTypesList[index];
-}
-
-void CSettingsView::on_listWidgetSettings_currentRowChanged(int currentRow)
-{
-	QVector<QWidget*> targetWidgets = {
-		ui->labelGeneral,
-		ui->labelVideo,
-		ui->labelArtificialIntelligence,
-		ui->labelRepositories
-	};
-
-	QWidget * currentTarget = targetWidgets[currentRow];
-
-	// We want to scroll in a way that will put target widget in topmost visible position
-	// To show not just header, but all settings in this group as well
-	// In order to do that, let's scroll to the very bottom and the scroll back up until target widget is visible
-	int maxPosition = ui->settingsScrollArea->verticalScrollBar()->maximum();
-	ui->settingsScrollArea->verticalScrollBar()->setValue(maxPosition);
-	ui->settingsScrollArea->ensureWidgetVisible(currentTarget, 5, 5);
 }
 
 void CSettingsView::loadTranslation()
@@ -538,5 +562,12 @@ void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["reservedWidth"];
 	node->Float() = float(arg1) / 100; // percentage -> ratio
+}
+
+
+void CSettingsView::on_comboBoxRendererType_currentTextChanged(const QString &arg1)
+{
+	Settings node = settings.write["video"]["driver"];
+	node->String() = arg1.toStdString();
 }
 

@@ -11,7 +11,7 @@
 
 #include <vcmi/Entity.h>
 #include "BattleFieldHandler.h"
-#include "JsonNode.h"
+#include "json/JsonBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,6 +21,7 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 
 	auto * info = new BattleFieldInfo(BattleField(index), identifier);
 
+	info->modScope = scope;
 	info->graphics = ImagePath::fromJson(json["graphics"]);
 	info->icon = json["icon"].String();
 	info->name = json["name"].String();
@@ -49,14 +50,9 @@ std::vector<JsonNode> BattleFieldHandler::loadLegacyData()
 
 const std::vector<std::string> & BattleFieldHandler::getTypeNames() const
 {
-	static const  std::vector<std::string> types = std::vector<std::string> { "battlefield" };
+	static const auto types = std::vector<std::string> { "battlefield" };
 
 	return types;
-}
-
-std::vector<bool> BattleFieldHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>();
 }
 
 int32_t BattleFieldInfo::getIndex() const
@@ -71,7 +67,7 @@ int32_t BattleFieldInfo::getIconIndex() const
 
 std::string BattleFieldInfo::getJsonKey() const
 {
-	return identifier;
+	return modScope + ':' + identifier;
 }
 
 std::string BattleFieldInfo::getNameTextID() const

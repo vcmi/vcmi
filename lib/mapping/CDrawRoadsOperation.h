@@ -28,8 +28,10 @@ protected:
 	struct LinePattern
 	{
 		std::string data[9];
-		std::pair<int, int> roadMapping, riverMapping;
-		bool hasHFlip, hasVFlip;
+		std::pair<int, int> roadMapping;
+		std::pair<int, int> riverMapping;
+		bool hasHFlip;
+		bool hasVFlip;
 	};
 	
 	struct ValidationResult

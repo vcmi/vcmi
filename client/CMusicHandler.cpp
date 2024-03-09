@@ -17,7 +17,6 @@
 #include "eventsSDL/InputHandler.h"
 #include "gui/CGuiHandler.h"
 
-#include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/constants/StringConstants.h"
@@ -30,7 +29,7 @@
 #define VCMI_SOUND_FILE(y) #y,
 
 // sounds mapped to soundBase enum
-static std::string sounds[] = {
+static const std::string sounds[] = {
 	"", // invalid
 	"", // todo
 	VCMI_SOUND_LIST
@@ -181,6 +180,35 @@ void CSoundHandler::ambientStopSound(const AudioPath & soundId)
 {
 	stopSound(ambientChannels[soundId]);
 	setChannelVolume(ambientChannels[soundId], volume);
+}
+
+uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
+{
+	if (!initialized || sound.empty())
+		return 0;
+
+	auto resourcePath = sound.addPrefix("SOUNDS/");
+
+	if (!CResourceHandler::get()->existsResource(resourcePath))
+		return 0;
+
+	auto data = CResourceHandler::get()->load(resourcePath)->readAll();
+
+	SDL_AudioSpec spec;
+	uint32_t audioLen;
+	uint8_t *audioBuf;
+	uint32_t miliseconds = 0;
+
+	if(SDL_LoadWAV_RW(SDL_RWFromMem(data.first.get(), (int)data.second), 1, &spec, &audioBuf, &audioLen) != nullptr)
+	{
+		SDL_FreeWAV(audioBuf);
+		uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
+		uint32_t sampleCount = audioLen / sampleSize;
+		uint32_t sampleLen = sampleCount / spec.channels;
+		miliseconds = 1000 * sampleLen / spec.freq;
+	}
+
+	return miliseconds ;
 }
 
 // Plays a sound, and return its channel so we can fade it out later

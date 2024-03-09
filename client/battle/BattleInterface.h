@@ -136,6 +136,7 @@ public:
 	const CGHeroInstance *defendingHeroInstance;
 
 	bool tacticsMode;
+	ui32 round;
 
 	std::unique_ptr<BattleProjectileController> projectilesController;
 	std::unique_ptr<BattleSiegeController> siegeController;

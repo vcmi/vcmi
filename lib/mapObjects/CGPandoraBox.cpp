@@ -66,7 +66,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 		return text;
 	};
 	
-	auto sendInfoWindow = [h](const MetaString & text, const Rewardable::Reward & reward)
+	auto sendInfoWindow = [&](const MetaString & text, const Rewardable::Reward & reward)
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
@@ -135,7 +135,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 		for(auto c : vi.reward.creatures)
 		{
 			loot.appendRawString("%s");
-			loot.replaceCreatureName(c);
+			loot.replaceName(c);
 		}
 		
 		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].count == 1)
@@ -226,7 +226,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		handler.serializeInt("experience", vinfo.reward.heroExperience, 0);
 		handler.serializeInt("mana", vinfo.reward.manaDiff, 0);
 		
-		int val;
+		int val = 0;
 		handler.serializeInt("morale", val, 0);
 		if(val)
 			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
@@ -257,7 +257,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				const std::string skillName = p.first;
 				const std::string levelId = p.second.String();
 				
-				const int rawId = CSkillHandler::decodeSkill(skillName);
+				const int rawId = SecondarySkill::decode(skillName);
 				if(rawId < 0)
 				{
 					logGlobal->error("Invalid secondary skill %s", skillName);

@@ -31,6 +31,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
@@ -65,8 +66,8 @@ AdventureMapInterface::AdventureMapInterface():
 	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 
-	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.isEnabled() || LOCPLINT->cb->getStartInfo()->turnTimerInfo.isBattleEnabled())
-		watches = std::make_shared<TurnTimerWidget>();
+	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.turnTimer != 0)
+		watches = std::make_shared<TurnTimerWidget>(Point(24, 24));
 	
 	addUsedEvents(KEYBOARD | TIME);
 }
@@ -168,6 +169,15 @@ void AdventureMapInterface::show(Canvas & to)
 
 void AdventureMapInterface::dim(Canvas & to)
 {
+	if(settings["adventure"]["hideBackground"].Bool())
+		for (auto window : GH.windows().findWindows<IShowActivatable>())
+		{
+			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 800 && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 600)
+			{
+				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck")));
+				return;
+			}
+		}
 	for (auto window : GH.windows().findWindows<IShowActivatable>())
 	{
 		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow())
@@ -304,7 +314,7 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 		auto town = dynamic_cast<const CGTownInstance*>(sel);
 
 		widget->getInfoBar()->showTownSelection(town);
-		widget->getTownList()->updateWidget();;
+		widget->getTownList()->updateWidget();
 		widget->getTownList()->select(town);
 		widget->getHeroList()->select(nullptr);
 		onHeroChanged(nullptr);
@@ -329,6 +339,11 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 void AdventureMapInterface::onTownOrderChanged()
 {
 	widget->getTownList()->updateWidget();
+}
+
+void AdventureMapInterface::onHeroOrderChanged()
+{
+	widget->getHeroList()->updateWidget();
 }
 
 void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
@@ -441,7 +456,10 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		if(auto iw = GH.windows().topWindow<CInfoWindow>())
 			iw->close();
 
-		hotkeyEndingTurn();
+		GH.dispatchMainThread([this]()
+		{
+			hotkeyEndingTurn();
+		});
 	}
 }
 
@@ -459,6 +477,18 @@ void AdventureMapInterface::hotkeyEndingTurn()
 	LOCPLINT->cb->endTurn();
 
 	mapAudio->onPlayerTurnEnded();
+
+	// Normally, game will receive PlayerStartsTurn call almost instantly with new player ID that will switch UI to waiting mode
+	// However, when simturns are active it is possible for such call not to come because another player is still acting
+	// So find first player other than ours that is acting at the moment and update UI as if he had started turn
+	for (auto player = PlayerColor(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
+		if (player != LOCPLINT->playerID && LOCPLINT->cb->isPlayerMakingTurn(player))
+		{
+			onEnemyTurnStarted(player, LOCPLINT->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman());
+			break;
+		}
+	}
 }
 
 const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPos)
@@ -671,7 +701,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 			if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorMove[turns]);
 			else
-				CCS->curh->set(cursorSailVisit[turns]);
+				CCS->curh->set(cursorSail[turns]);
 			break;
 
 		case EPathNodeAction::VISIT:
@@ -686,6 +716,15 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 			}
 			else if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorVisit[turns]);
+			else if (pathNode->layer == EPathfindingLayer::SAIL &&
+					 objAtTile &&
+					 objAtTile->isCoastVisitable() &&
+					 pathNode->theNodeBefore &&
+					 pathNode->theNodeBefore->layer == EPathfindingLayer::LAND )
+			{
+				// exception - when visiting shipwreck located on coast from land - show 'horse' cursor, not 'ship' cursor
+				CCS->curh->set(cursorVisit[turns]);
+			}
 			else
 				CCS->curh->set(cursorSailVisit[turns]);
 			break;
@@ -813,7 +852,7 @@ Rect AdventureMapInterface::terrainAreaPixels() const
 
 const IShipyard * AdventureMapInterface::ourInaccessibleShipyard(const CGObjectInstance *obj) const
 {
-	const IShipyard *ret = IShipyard::castFrom(obj);
+	const auto *ret = dynamic_cast<const IShipyard *>(obj);
 
 	if(!ret ||
 		obj->tempOwner != currentPlayerID ||

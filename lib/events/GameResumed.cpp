@@ -20,7 +20,7 @@ namespace events
 
 SubscriptionRegistry<GameResumed> * GameResumed::getRegistry()
 {
-	static std::unique_ptr<SubscriptionRegistry<GameResumed>> Instance = std::make_unique<SubscriptionRegistry<GameResumed>>();
+	static auto Instance = std::make_unique<SubscriptionRegistry<GameResumed>>();
 	return Instance.get();
 }
 

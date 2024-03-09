@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../../lib/networkPacks/Component.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,6 +33,7 @@ class CCreatureAnim;
 class CComponent;
 class CAnimImage;
 class LRClickableArea;
+class TransparentFilledRectangle;
 
 /// Shows a text by moving the mouse cursor over the object
 class CHoverableArea: public virtual CIntObject
@@ -39,7 +41,7 @@ class CHoverableArea: public virtual CIntObject
 public:
 	std::string hoverText;
 
-	virtual void hover (bool on) override;
+	void hover (bool on) override;
 
 	CHoverableArea();
 	virtual ~CHoverableArea();
@@ -189,12 +191,15 @@ public:
 
 	CHeroArea(int x, int y, const CGHeroInstance * hero);
 	void addClickCallback(ClickFunctor callback);
+	void addRClickCallback(ClickFunctor callback);
 	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
 private:
 	const CGHeroInstance * hero;
 	std::shared_ptr<CAnimImage> portrait;
 	ClickFunctor clickFunctor;
+	ClickFunctor clickRFunctor;
 	ClickFunctor showPopupHandler;
 };
 
@@ -202,13 +207,12 @@ private:
 class LRClickableAreaWTextComp: public LRClickableAreaWText
 {
 public:
-	int type;
-	int baseType;
-	int bonusValue;
+	Component component;
+
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 
-	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
+	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), ComponentType baseType = ComponentType::NONE);
 	std::shared_ptr<CComponent> createComponent() const;
 };
 
@@ -235,6 +239,7 @@ public:
 class MoraleLuckBox : public LRClickableAreaWTextComp
 {
 	std::shared_ptr<CAnimImage> image;
+	std::shared_ptr<CLabel> label;
 public:
 	bool morale; //true if morale, false if luck
 	bool small;
@@ -244,23 +249,16 @@ public:
 	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
 };
 
-class TransparentFilledRectangle : public CIntObject
+class SelectableSlot : public LRClickableAreaWTextComp
 {
-	ColorRGBA color;
-	ColorRGBA colorLine;
-	bool drawLine;
-public:
-    TransparentFilledRectangle(Rect position, ColorRGBA color);
-    TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine);
-    void showAll(Canvas & to) override;
-};
+	std::shared_ptr<TransparentFilledRectangle> selection;
+	bool selected;
 
-class SimpleLine : public CIntObject
-{
-	Point pos1;
-	Point pos2;
-	ColorRGBA color;
 public:
-    SimpleLine(Point pos1, Point pos2, ColorRGBA color);
-    void showAll(Canvas & to) override;
+	SelectableSlot(Rect area, Point oversize, const int width);
+	SelectableSlot(Rect area, Point oversize);
+	SelectableSlot(Rect area, const int width = 1);
+	void selectSlot(bool on);
+	bool isSelected() const;
+	void setSelectionWidth(int width);
 };

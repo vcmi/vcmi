@@ -27,6 +27,7 @@ public:
 	bool isSpecial;
 	ImagePath graphics;
 	std::string name;
+	std::string modScope;
 	std::string identifier;
 	std::string icon;
 	si32 iconIndex;
@@ -53,19 +54,6 @@ public:
 	std::string getNameTranslated() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	BattleField getId() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & name;
-		h & identifier;
-		h & isSpecial;
-		h & graphics;
-		h & icon;
-		h & iconIndex;
-		h & battlefield;
-		h & impassableHexes;
-
-	}
 };
 
 class DLL_LINKAGE BattleFieldService : public EntityServiceT<BattleField, BattleFieldInfo>
@@ -82,14 +70,8 @@ public:
 		const std::string & identifier,
 		size_t index) override;
 
-	virtual const std::vector<std::string> & getTypeNames() const override;
-	virtual std::vector<JsonNode> loadLegacyData() override;
-	virtual std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
+	const std::vector<std::string> & getTypeNames() const override;
+	std::vector<JsonNode> loadLegacyData() override;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -22,7 +22,7 @@ public:
 	template<typename T>
 	CSelector(const T &t,	//SFINAE trick -> include this c-tor in overload resolution only if parameter is class
 							//(includes functors, lambdas) or function. Without that VC is going mad about ambiguities.
-		typename std::enable_if < boost::mpl::or_ < std::is_class<T>, std::is_function<T >> ::value>::type *dummy = nullptr)
+		typename std::enable_if_t < std::is_class_v<T> || std::is_function_v<T> > *dummy = nullptr)
 		: TBase(t)
 	{}
 
@@ -125,12 +125,12 @@ public:
 
 namespace Selector
 {
-	extern DLL_LINKAGE CSelectFieldEqual<BonusType> & type();
-	extern DLL_LINKAGE CSelectFieldEqual<BonusSubtypeID> & subtype();
-	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> & info();
-	extern DLL_LINKAGE CSelectFieldEqual<BonusSource> & sourceType();
-	extern DLL_LINKAGE CSelectFieldEqual<BonusSource> & targetSourceType();
-	extern DLL_LINKAGE CSelectFieldEqual<BonusLimitEffect> & effectRange();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusType> & type();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusSubtypeID> & subtype();
+	extern DLL_LINKAGE const CSelectFieldEqual<CAddInfo> & info();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusSource> & sourceType();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusSource> & targetSourceType();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusLimitEffect> & effectRange();
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;
 
@@ -139,6 +139,7 @@ namespace Selector
 	CSelector DLL_LINKAGE source(BonusSource source, BonusSourceID sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source);
 	CSelector DLL_LINKAGE valueType(BonusValueType valType);
+	CSelector DLL_LINKAGE typeSubtypeValueType(BonusType Type, BonusSubtypeID Subtype, BonusValueType valType);
 
 	/**
 	 * Selects all bonuses

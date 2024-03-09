@@ -13,7 +13,7 @@
 
 #include "CGObjectInstance.h"
 #include "../filesystem/ResourcePath.h"
-#include "../JsonNode.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,16 +26,6 @@ CObjectHandler::CObjectHandler()
 		resVals.push_back(static_cast<ui32>(price.Float()));
 	}
 	logGlobal->trace("\t\tDone loading resource prices!");
-}
-
-CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
-{
-
-}
-
-bool CGObjectInstanceBySubIdFinder::operator()(CGObjectInstance * obj) const
-{
-	return this->obj->subID == obj->subID;
 }
 
 VCMI_LIB_NAMESPACE_END

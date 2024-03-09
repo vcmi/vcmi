@@ -1,9 +1,9 @@
 {
 	"Poor Jebus" :
-	//(made by Bjorn190, modified by Maretti and Angelito)
 	{
 		"minSize" : "m", "maxSize" : "xl+u",
 		"players" : "2-4",
+		"description" : "Made by Bjorn190, modified by Maretti and Angelito",
 		"zones" :
 		{
 			"1" :

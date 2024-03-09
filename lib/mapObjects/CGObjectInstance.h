@@ -21,6 +21,8 @@ struct Component;
 class JsonSerializeFormat;
 class ObjectTemplate;
 class CMap;
+class AObjectTypeHandler;
+using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
 class DLL_LINKAGE CGObjectInstance : public IObjectInterface
 {
@@ -28,9 +30,9 @@ public:
 	/// Position of bottom-right corner of object on map
 	int3 pos;
 	/// Type of object, e.g. town, hero, creature.
-	Obj ID;
+	MapObjectID ID;
 	/// Subtype of object, depends on type
-	si32 subID;
+	MapObjectSubID subID;
 	/// Current owner of an object (when below PLAYER_LIMIT)
 	PlayerColor tempOwner;
 	/// Index of object in map's list of objects
@@ -42,16 +44,17 @@ public:
 	std::string typeName;
 	std::string subTypeName;
 
-	CGObjectInstance(); //TODO: remove constructor
+	CGObjectInstance(IGameCallback *cb);
 	~CGObjectInstance() override;
 
-	int32_t getObjGroupIndex() const override;
-	int32_t getObjTypeIndex() const override;
+	MapObjectID getObjGroupIndex() const override;
+	MapObjectSubID getObjTypeIndex() const override;
 
 	/// "center" tile from which the sight distance is calculated
 	int3 getSightCenter() const;
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
+	bool removable;
 
 	PlayerColor getOwner() const override
 	{
@@ -75,13 +78,16 @@ public:
 	bool coveringAt (const int3 & pos) const; //returns true if object covers with picture location (x, y) (h3m pos)
 
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
-	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
+	const std::set<int3> & getBlockedOffsets() const; //returns set of relative positions blocked by this object
 
 	/// returns true if object is visitable
 	bool isVisitable() const;
 
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	virtual bool isBlockedVisitable() const;
+
+	// If true, can be possibly removed from the map
+	virtual bool isRemovable() const;
 
 	/// If true this object can be visited by hero standing on the coast
 	virtual bool isCoastVisitable() const;
@@ -94,6 +100,8 @@ public:
 	std::optional<AudioPath> getVisitSound() const;
 	std::optional<AudioPath> getRemovalSound() const;
 
+	TObjectTypeHandler getObjectHandler() const;
+
 	/** VIRTUAL METHODS **/
 
 	/// Returns true if player can pass through visitable tiles of this object
@@ -102,10 +110,6 @@ public:
 	virtual int getSightRadius() const;
 	/// returns (x,y,0) offset to a visitable tile of object
 	virtual int3 getVisitableOffset() const;
-	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
-	virtual void setType(si32 ID, si32 subID);
-
-	/// returns text visible in status bar with specific hero/player active.
 
 	/// Returns generic name of object, without any player-specific info
 	virtual std::string getObjectName() const;
@@ -124,25 +128,27 @@ public:
 	/** OVERRIDES OF IObjectInterface **/
 
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
-	void setProperty(ui8 what, ui32 val) final;
+	void setProperty(ObjProperty what, ObjPropertyID identifier) final;
 
 	virtual void afterAddToMap(CMap * map);
 	virtual void afterRemoveFromMap(CMap * map);
 
 	///Entry point of binary (de-)serialization
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & instanceName;
 		h & typeName;
 		h & subTypeName;
 		h & pos;
 		h & ID;
-		h & subID;
+		subID.serializeIdentifier(h, ID);
 		h & id;
 		h & tempOwner;
 		h & blockVisit;
+		h & removable;
 		h & appearance;
 		//definfo is handled by map serializer
 	}
@@ -153,7 +159,10 @@ public:
 
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
-	virtual void setPropertyDer(ui8 what, ui32 val);
+	virtual void setPropertyDer(ObjProperty what, ObjPropertyID identifier);
+
+	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
+	void setType(MapObjectID ID, MapObjectSubID subID);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;

@@ -64,10 +64,10 @@ enum class EMarketMode : int8_t
 enum class EAiTactic : int8_t
 {
 	NONE = -1,
-	RANDOM,
-	WARRIOR,
-	BUILDER,
-	EXPLORER
+	RANDOM = 0,
+	WARRIOR = 1,
+	BUILDER = 2,
+	EXPLORER = 3
 };
 
 enum class EBuildingState : int8_t
@@ -244,6 +244,12 @@ enum class ETileVisibility : int8_t // Fog of war change
 {
 	HIDDEN,
 	REVEALED
+};
+
+enum class EArmyFormation : int8_t
+{
+	LOOSE,
+	TIGHT
 };
 
 VCMI_LIB_NAMESPACE_END

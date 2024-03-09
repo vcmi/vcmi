@@ -10,9 +10,10 @@
 #pragma once
 
 #include <QVariant>
-#include "../lib/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+class JsonNode;
 
 namespace JsonUtils
 {

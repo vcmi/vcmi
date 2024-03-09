@@ -276,12 +276,10 @@ creInfo infoFromDC(const dwellingContent & dc)
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
 	if (ci.creID != CreatureID::NONE)
 	{
-		ci.cre = VLC->creatures()->getById(ci.creID);
-		ci.level = ci.cre->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
+		ci.level = ci.creID.toCreature()->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
 	}
 	else
 	{
-		ci.cre = nullptr;
 		ci.level = 0;
 	}
 	return ci;
@@ -439,7 +437,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->cb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		return !ai->heroManager->heroCapReached();
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
 	case Obj::BOAT:

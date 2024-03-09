@@ -16,74 +16,52 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGDwelling;
 
-class DLL_LINKAGE CSpecObjInfo
+class DLL_LINKAGE CGDwellingRandomizationInfo
 {
 public:
-	CSpecObjInfo();
-	virtual ~CSpecObjInfo() = default;
-
-	virtual void serializeJson(JsonSerializeFormat & handler) = 0;
-
-	const CGDwelling * owner;
-};
-
-class DLL_LINKAGE CCreGenAsCastleInfo : public virtual CSpecObjInfo
-{
-public:
-	bool asCastle = false;
-	ui32 identifier = 0;//h3m internal identifier
-
-	std::vector<bool> allowedFactions;
+	std::set<FactionID> allowedFactions;
 
 	std::string instanceId;//vcmi map instance identifier
-	void serializeJson(JsonSerializeFormat & handler) override;
+	int32_t identifier = 0;//h3m internal identifier
+
+	uint8_t minLevel = 1;
+	uint8_t maxLevel = 7; //minimal and maximal level of creature in dwelling: <1, 7>
+
+	void serializeJson(JsonSerializeFormat & handler);
 };
-
-class DLL_LINKAGE CCreGenLeveledInfo : public virtual CSpecObjInfo
-{
-public:
-	ui8 minLevel = 1;
-	ui8 maxLevel = 7; //minimal and maximal level of creature in dwelling: <1, 7>
-
-	void serializeJson(JsonSerializeFormat & handler) override;
-};
-
-class DLL_LINKAGE CCreGenLeveledCastleInfo : public CCreGenAsCastleInfo, public CCreGenLeveledInfo
-{
-public:
-	CCreGenLeveledCastleInfo() = default;
-	void serializeJson(JsonSerializeFormat & handler) override;
-};
-
 
 class DLL_LINKAGE CGDwelling : public CArmedInstance
 {
 public:
 	typedef std::vector<std::pair<ui32, std::vector<CreatureID> > > TCreaturesSet;
 
-	CSpecObjInfo * info; //random dwelling options; not serialized
+	std::optional<CGDwellingRandomizationInfo> randomizationInfo; //random dwelling options; not serialized
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
-	CGDwelling();
+	CGDwelling(IGameCallback *cb);
 	~CGDwelling() override;
 
-	void initRandomObjectInfo();
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
+	FactionID randomizeFaction(CRandomGenerator & rand);
+	int randomizeLevel(CRandomGenerator & rand);
+
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void newTurn(CRandomGenerator & rand) const override;
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
 	void updateGuards() const;
 	void heroAcceptsCreatures(const CGHeroInstance *h) const;
 
 public:
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & creatures;

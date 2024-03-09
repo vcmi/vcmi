@@ -8,12 +8,12 @@ set(emptyAI_HEADERS
 		CEmptyAI.h
 )
 
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	list(APPEND emptyAI_SRCS main.cpp StdInc.cpp)
 endif()
 assign_source_group(${emptyAI_SRCS} ${emptyAI_HEADERS})
 
-if(ENABLE_STATIC_AI_LIBS)
+if(ENABLE_STATIC_LIBS)
 	add_library(EmptyAI STATIC ${emptyAI_SRCS} ${emptyAI_HEADERS})
 else()
 	add_library(EmptyAI SHARED ${emptyAI_SRCS} ${emptyAI_HEADERS})
@@ -21,7 +21,7 @@ else()
 endif()
 
 target_include_directories(EmptyAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(EmptyAI PRIVATE ${VCMI_LIB_TARGET})
+target_link_libraries(EmptyAI PRIVATE vcmi)
 
 vcmi_set_output_dir(EmptyAI "AI")
 enable_pch(EmptyAI)

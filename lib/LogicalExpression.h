@@ -9,8 +9,7 @@
  */
 #pragma once
 
-//FIXME: move some of code into .cpp to avoid this include?
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -57,7 +56,7 @@ namespace LogicalExpressionDetail
 			}
 
 			template <typename Handler>
-			void serialize(Handler & h, const int version)
+			void serialize(Handler & h)
 			{
 				h & expressions;
 			}
@@ -614,7 +613,7 @@ public:
 	}
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & data;
 	}

@@ -87,14 +87,6 @@ void Initializer::initialize(CGDwelling * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
-	
-	switch(o->ID)
-	{
-		case Obj::RANDOM_DWELLING:
-		case Obj::RANDOM_DWELLING_LVL:
-		case Obj::RANDOM_DWELLING_FACTION:
-			o->initRandomObjectInfo();
-	}
 }
 
 void Initializer::initialize(CGGarrison * o)
@@ -150,7 +142,7 @@ void Initializer::initialize(CGHeroInstance * o)
 		{
 			if(t->heroClass->getId() == HeroClassID(o->subID))
 			{
-				o->type = t;
+				o->type = t.get();
 				break;
 			}
 		}
@@ -194,7 +186,7 @@ void Initializer::initialize(CGArtifact * o)
 		std::vector<SpellID> out;
 		for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 		{
-			if(VLC->spellh->getDefaultAllowed().at(spell->id))
+			if(VLC->spellh->getDefaultAllowed().count(spell->id) != 0)
 			{
 				out.push_back(spell->id);
 			}
@@ -241,9 +233,9 @@ void Inspector::updateProperties(CGDwelling * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 	
-	if(dynamic_cast<CCreGenAsCastleInfo*>(o->info))
+	if (o->ID == Obj::RANDOM_DWELLING || o->ID == Obj::RANDOM_DWELLING_LVL)
 	{
 		auto * delegate = new PickObjectDelegate(controller, PickObjectDelegate::typedFilter<CGTownInstance>);
 		addProperty("Same as town", PropertyEditorPlaceholder(), delegate, false);
@@ -253,15 +245,15 @@ void Inspector::updateProperties(CGDwelling * o)
 void Inspector::updateProperties(CGLighthouse * o)
 {
 	if(!o) return;
-	
-	addProperty("Owner", o->tempOwner, false);
+
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 }
 
 void Inspector::updateProperties(CGGarrison * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 	addProperty("Removable units", o->removableUnits, false);
 }
 
@@ -269,14 +261,14 @@ void Inspector::updateProperties(CGShipyard * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 }
 
 void Inspector::updateProperties(CGHeroPlaceholder * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 	
 	bool type = false;
 	if(o->heroType.has_value())
@@ -306,7 +298,8 @@ void Inspector::updateProperties(CGHeroInstance * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, o->ID == Obj::PRISON); //field is not editable for prison
+	auto isPrison = o->ID == Obj::PRISON;
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller, isPrison), isPrison); //field is not editable for prison
 	addProperty<int>("Experience", o->exp, false);
 	addProperty("Hero class", o->type ? o->type->heroClass->getNameTranslated() : "", true);
 	
@@ -327,7 +320,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 		auto * delegate = new InspectorDelegate;
 		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
 		{
-			if(controller.map()->allowedHeroes.at(i))
+			if(controller.map()->allowedHeroes.count(HeroTypeID(i)) != 0)
 			{
 				if(o->ID == Obj::PRISON || (o->type && VLC->heroh->objects[i]->heroClass->getIndex() == o->type->heroClass->getIndex()))
 				{
@@ -364,7 +357,7 @@ void Inspector::updateProperties(CGArtifact * o)
 			auto * delegate = new InspectorDelegate;
 			for(auto spell : VLC->spellh->objects)
 			{
-				if(controller.map()->allowedSpells.at(spell->id))
+				if(controller.map()->allowedSpells.count(spell->id) != 0)
 					delegate->options.push_back({QObject::tr(spell->getNameTranslated().c_str()), QVariant::fromValue(int(spell->getId()))});
 			}
 			addProperty("Spell", VLC->spellh->getById(spellId)->getNameTranslated(), delegate, false);
@@ -376,9 +369,9 @@ void Inspector::updateProperties(CGMine * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 	addProperty("Resource", o->producedResource);
-	addProperty("Productivity", o->producedQuantity, false);
+	addProperty("Productivity", o->producedQuantity);
 }
 
 void Inspector::updateProperties(CGResource * o)
@@ -482,12 +475,7 @@ void Inspector::updateProperties()
 		addProperty("IsStatic", factory->isStaticObject());
 	}
 	
-	auto * delegate = new InspectorDelegate();
-	delegate->options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum())});
-	for(int p = 0; p < controller.map()->players.size(); ++p)
-		if(controller.map()->players[p].canAnyonePlay())
-			delegate->options.push_back({QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[p]), QVariant::fromValue(PlayerColor(p).getNum())});
-	addProperty("Owner", obj->tempOwner, delegate, true);
+	addProperty("Owner", obj->tempOwner, new OwnerDelegate(controller), true);
 	
 	UPDATE_OBJ_PROPERTIES(CArmedInstance);
 	UPDATE_OBJ_PROPERTIES(CGResource);
@@ -641,12 +629,12 @@ void Inspector::setProperty(CGDwelling * o, const QString & key, const QVariant 
 	
 	if(key == "Same as town")
 	{
-		if(auto * info = dynamic_cast<CCreGenAsCastleInfo*>(o->info))
-		{
-			info->instanceId = "";
-			if(CGTownInstance * town = data_cast<CGTownInstance>(value.toLongLong()))
-				info->instanceId = town->instanceName;
-		}
+		if (!o->randomizationInfo.has_value())
+			o->randomizationInfo = CGDwellingRandomizationInfo();
+
+		o->randomizationInfo->instanceId = "";
+		if(CGTownInstance * town = data_cast<CGTownInstance>(value.toLongLong()))
+			o->randomizationInfo->instanceId = town->instanceName;
 	}
 }
 
@@ -934,4 +922,13 @@ void InspectorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+OwnerDelegate::OwnerDelegate(MapController & controller, bool addNeutral)
+{
+	if(addNeutral)
+		options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum()) });
+	for(int p = 0; p < controller.map()->players.size(); ++p)
+		if(controller.map()->players[p].canAnyonePlay())
+			options.push_back({QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[p]), QVariant::fromValue(PlayerColor(p).getNum()) });
 }

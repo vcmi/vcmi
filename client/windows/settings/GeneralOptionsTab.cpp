@@ -162,6 +162,22 @@ GeneralOptionsTab::GeneralOptionsTab()
 		setBoolSetting("general", "enableUiEnhancements", value);
 	});
 
+	addCallback("enableLargeSpellbookChanged", [this](bool value)
+	{
+		setBoolSetting("gameTweaks", "enableLargeSpellbook", value);
+		std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
+		if(value)
+			spellbookAnimationCheckbox->disable();
+		else
+			spellbookAnimationCheckbox->enable();
+		redraw();
+	});
+
+	addCallback("audioMuteFocusChanged", [](bool value)
+	{
+		setBoolSetting("general", "audioMuteFocus", value);
+	});
+
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
 	{
@@ -186,6 +202,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
+	if(settings["gameTweaks"]["enableLargeSpellbook"].Bool())
+		spellbookAnimationCheckbox->disable();
+	else
+		spellbookAnimationCheckbox->enable();
 
 	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
 	if (fullscreenBorderlessCheckbox)
@@ -205,6 +225,14 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CToggleButton> enableUiEnhancementsCheckbox = widget<CToggleButton>("enableUiEnhancementsCheckbox");
 	if (enableUiEnhancementsCheckbox)
 		enableUiEnhancementsCheckbox->setSelected(settings["general"]["enableUiEnhancements"].Bool());
+
+	std::shared_ptr<CToggleButton> enableLargeSpellbookCheckbox = widget<CToggleButton>("enableLargeSpellbookCheckbox");
+	if (enableLargeSpellbookCheckbox)
+		enableLargeSpellbookCheckbox->setSelected(settings["gameTweaks"]["enableLargeSpellbook"].Bool());
+
+	std::shared_ptr<CToggleButton> audioMuteFocusCheckbox = widget<CToggleButton>("audioMuteFocusCheckbox");
+	if (audioMuteFocusCheckbox)
+		audioMuteFocusCheckbox->setSelected(settings["general"]["audioMuteFocus"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());
@@ -289,7 +317,7 @@ void GeneralOptionsTab::setGameResolution(int index)
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 
 	GH.dispatchMainThread([](){
-		GH.onScreenResize();
+		GH.onScreenResize(true);
 	});
 }
 
@@ -313,7 +341,7 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 	updateResolutionSelector();
 
 	GH.dispatchMainThread([](){
-		GH.onScreenResize();
+		GH.onScreenResize(true);
 	});
 }
 
@@ -372,7 +400,7 @@ void GeneralOptionsTab::setGameScaling(int index)
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 
 	GH.dispatchMainThread([](){
-		GH.onScreenResize();
+		GH.onScreenResize(true);
 	});
 }
 

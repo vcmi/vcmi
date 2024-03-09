@@ -18,6 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
 {
 public:
+	using CArmedInstance::CArmedInstance;
+
 	enum Action {
 		FIGHT = -2, FLEE = -1, JOIN_FOR_FREE = 0 //values > 0 mean gold price
 	};
@@ -40,27 +42,21 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
+	std::string getPopupText(PlayerColor player) const override;
+	std::string getPopupText(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void newTurn(CRandomGenerator & rand) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	CreatureID getCreature() const;
 
 	//stack formation depends on position,
 	bool containsUpgradedStack() const;
 	int getNumberOfStacks(const CGHeroInstance *hero) const;
 
-	struct DLL_LINKAGE formationInfo // info about merging stacks after battle back into one
-	{
-		si32 basicType;
-		ui8 upgrade; //random seed used to determine number of stacks and is there's upgraded stack
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & basicType;
-			h & upgrade;
-		}
-	} formation;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & identifier;
@@ -75,7 +71,7 @@ public:
 		h & formation;
 	}
 protected:
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:

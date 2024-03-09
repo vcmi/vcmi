@@ -14,11 +14,11 @@
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
 
-void CEmptyAI::saveGame(BinarySerializer & h, const int version)
+void CEmptyAI::saveGame(BinarySerializer & h)
 {
 }
 
-void CEmptyAI::loadGame(BinaryDeserializer & h, const int version)
+void CEmptyAI::loadGame(BinaryDeserializer & h)
 {
 }
 

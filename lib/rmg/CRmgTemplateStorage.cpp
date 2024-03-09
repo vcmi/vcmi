@@ -51,12 +51,6 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	}
 }
 
-std::vector<bool> CRmgTemplateStorage::getDefaultAllowed() const
-{
-	//all templates are allowed
-	return std::vector<bool>();
-}
-
 std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData()
 {
 	return std::vector<JsonNode>();

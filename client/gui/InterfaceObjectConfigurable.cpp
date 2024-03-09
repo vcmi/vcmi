@@ -22,14 +22,15 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
-#include "../../lib//constants/StringConstants.h"
+#include "../../lib/constants/StringConstants.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
@@ -56,6 +57,7 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("layout", &InterfaceObjectConfigurable::buildLayout);
 	REGISTER_BUILDER("comboBox", &InterfaceObjectConfigurable::buildComboBox);
 	REGISTER_BUILDER("textInput", &InterfaceObjectConfigurable::buildTextInput);
+	REGISTER_BUILDER("graphicalPrimitive", &InterfaceObjectConfigurable::buildGraphicalPrimitive);
 	REGISTER_BUILDER("transparentFilledRectangle", &InterfaceObjectConfigurable::buildTransparentFilledRectangle);
 	REGISTER_BUILDER("textBox", &InterfaceObjectConfigurable::buildTextBox);
 }
@@ -112,8 +114,20 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 	{
 		if (!config["library"].isNull())
 		{
-			const JsonNode library(JsonPath::fromJson(config["library"]));
-			loadCustomBuilders(library);
+			if (config["library"].isString())
+			{
+				const JsonNode library(JsonPath::fromJson(config["library"]));
+				loadCustomBuilders(library);
+			}
+
+			if (config["library"].isVector())
+			{
+				for (auto const & entry : config["library"].Vector())
+				{
+					const JsonNode library(JsonPath::fromJson(entry));
+					loadCustomBuilders(library);
+				}
+			}
 		}
 
 		loadCustomBuilders(config["customTypes"]);
@@ -129,6 +143,12 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 	
 	for(const auto & item : items->Vector())
 		addWidget(item["name"].String(), buildWidget(item));
+
+	// load only if set
+	if (!config["width"].isNull())
+		pos.w = config["width"].Integer();
+	if (!config["height"].isNull())
+		pos.h = config["height"].Integer();
 }
 
 void InterfaceObjectConfigurable::addConditional(const std::string & name, bool active)
@@ -301,7 +321,7 @@ EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 	EShortcut result = GH.shortcuts().findShortcut(config.String());
 	if (result == EShortcut::NONE)
 		logGlobal->error("Invalid hotkey '%s' in interface configuration!", config.String());
-	return result;;
+	return result;
 }
 
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
@@ -310,8 +330,6 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 	auto image = ImagePath::fromJson(config["image"]);
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
-	if(!config["visible"].isNull())
-		pic->visible = config["visible"].Bool();
 
 	if ( config["playerColored"].Bool() && LOCPLINT)
 		pic->colorize(LOCPLINT->playerID);
@@ -378,7 +396,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 	{
 		for(const auto & item : config["items"].Vector())
 		{
-			button->addOverlay(buildWidget(item));
+			button->setOverlay(buildWidget(item));
 		}
 	}
 	if(!config["selected"].isNull())
@@ -404,7 +422,7 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 	{
 		for(const auto & item : config["items"].Vector())
 		{
-			button->addOverlay(buildWidget(item));
+			button->setOverlay(buildWidget(item));
 		}
 	}
 	if(!config["imageOrder"].isNull())
@@ -501,12 +519,25 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto position = readPosition(config["position"]);
 	int length = config["size"].Integer();
 	auto style = config["style"].String() == "brown" ? CSlider::BROWN : CSlider::BLUE;
-	auto itemsVisible = config["itemsVisible"].Integer();
-	auto itemsTotal = config["itemsTotal"].Integer();
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
-	const auto & result =
-		std::make_shared<CSlider>(position, length, callbacks_int.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
+	auto orientation = horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL;
+
+	std::shared_ptr<CSlider> result;
+
+	if (config["items"].isNull())
+	{
+		auto itemsVisible = config["itemsVisible"].Integer();
+		auto itemsTotal = config["itemsTotal"].Integer();
+
+		result = std::make_shared<CSlider>(position, length, callbacks_int.at(config["callback"].String()), itemsVisible, itemsTotal, value, orientation, style);
+	}
+	else
+	{
+		auto items = config["items"].convertTo<std::vector<int>>();
+		result = std::make_shared<SliderNonlinear>(position, length, callbacks_int.at(config["callback"].String()), items, value, orientation, style);
+	}
+
 
 	if(!config["scrollBounds"].isNull())
 	{
@@ -549,14 +580,16 @@ std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonN
 {
 	logGlobal->debug("Building widget ComboBox");
 	auto position = readPosition(config["position"]);
+	auto dropDownPosition = readPosition(config["dropDownPosition"]);
 	auto image = AnimationPath::fromJson(config["image"]);
 	auto help = readHintText(config["help"]);
-	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"]);
+	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"], dropDownPosition);
+
 	if(!config["items"].isNull())
 	{
 		for(const auto & item : config["items"].Vector())
 		{
-			result->addOverlay(buildWidget(item));
+			result->setOverlay(buildWidget(item));
 		}
 	}
 	if(!config["imageOrder"].isNull())
@@ -685,6 +718,31 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 		anim->set(group, b, e);
 	}
 	return anim;
+}
+
+std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildGraphicalPrimitive(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget GraphicalPrimitiveCanvas");
+
+	auto rect = readRect(config["rect"]);
+	auto widget = std::make_shared<GraphicalPrimitiveCanvas>(rect);
+
+	for (auto const & entry : config["primitives"].Vector())
+	{
+		auto color = readColor(entry["color"]);
+		auto typeString = entry["type"].String();
+		auto pointA = readPosition(entry["a"]);
+		auto pointB = readPosition(entry["b"]);
+
+		if (typeString == "line")
+			widget->addLine(pointA, pointB, color);
+		if (typeString == "filledBox")
+			widget->addBox(pointA, pointB, color);
+		if (typeString == "rectangle")
+			widget->addRectangle(pointA, pointB, color);
+	}
+
+	return widget;
 }
 
 std::shared_ptr<TransparentFilledRectangle> InterfaceObjectConfigurable::buildTransparentFilledRectangle(const JsonNode & config) const

@@ -59,19 +59,7 @@ TResources ResourceManager::estimateIncome() const
 		if (obj->ID == Obj::MINE)
 		{
 			auto mine = dynamic_cast<const CGMine*>(obj);
-			switch (mine->producedResource.toEnum())
-			{
-			case EGameResID::WOOD:
-			case EGameResID::ORE:
-				ret[obj->subID] += WOOD_ORE_MINE_PRODUCTION;
-				break;
-			case EGameResID::GOLD:
-				ret[EGameResID::GOLD] += GOLD_MINE_PRODUCTION;
-				break;
-			default:
-				ret[obj->subID] += RESOURCE_MINE_PRODUCTION;
-				break;
-			}
+			ret += mine->dailyIncome();
 		}
 	}
 

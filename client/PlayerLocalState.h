@@ -42,15 +42,15 @@ public:
 	{
 		//on which page we left spellbook
 		int spellbookLastPageBattle = 0;
-		int spellbokLastPageAdvmap = 0;
+		int spellbookLastPageAdvmap = 0;
 		int spellbookLastTabBattle = 4;
 		int spellbookLastTabAdvmap = 4;
 
 		template<typename Handler>
-		void serialize(Handler & h, const int version)
+		void serialize(Handler & h)
 		{
 			h & spellbookLastPageBattle;
-			h & spellbokLastPageAdvmap;
+			h & spellbookLastPageAdvmap;
 			h & spellbookLastTabBattle;
 			h & spellbookLastTabAdvmap;
 		}
@@ -66,14 +66,14 @@ public:
 	const CGTownInstance * getOwnedTown(size_t index);
 	void addOwnedTown(const CGTownInstance * hero);
 	void removeOwnedTown(const CGTownInstance * hero);
-	void swapOwnedTowns(int pos1, int pos2);
+	void swapOwnedTowns(size_t pos1, size_t pos2);
 
 	const std::vector<const CGHeroInstance *> & getWanderingHeroes();
 	const CGHeroInstance * getWanderingHero(size_t index);
 	const CGHeroInstance * getNextWanderingHero(const CGHeroInstance * hero);
 	void addWanderingHero(const CGHeroInstance * hero);
 	void removeWanderingHero(const CGHeroInstance * hero);
-	void swapWanderingHero(int pos1, int pos2);
+	void swapWanderingHero(size_t pos1, size_t pos2);
 
 	void setPath(const CGHeroInstance * h, const CGPath & path);
 	bool setPath(const CGHeroInstance * h, const int3 & destination);
@@ -94,7 +94,7 @@ public:
 	void setSelection(const CArmedInstance *sel);
 
 	template<typename Handler>
-	void serialize(Handler & h, int version)
+	void serialize(Handler & h)
 	{
 		//WARNING: this code is broken and not used. See CClient::loadGame
 		std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest

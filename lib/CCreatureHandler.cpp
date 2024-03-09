@@ -14,11 +14,13 @@
 #include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
+#include "CRandomGenerator.h"
 #include "CTownHandler.h"
 #include "GameSettings.h"
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
+#include "json/JsonBonus.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
@@ -263,7 +265,7 @@ bool CCreature::isDoubleWide() const
  */
 bool CCreature::isGood () const
 {
-	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::GOOD;
+	return VLC->factions()->getById(faction)->getAlignment() == EAlignment::GOOD;
 }
 
 /**
@@ -272,7 +274,7 @@ bool CCreature::isGood () const
  */
 bool CCreature::isEvil () const
 {
-	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::EVIL;
+	return VLC->factions()->getById(faction)->getAlignment() == EAlignment::EVIL;
 }
 
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
@@ -324,7 +326,7 @@ bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 
 bool CCreature::valid() const
 {
-	return this == VLC->creh->objects[idNumber];
+	return this == (*VLC->creh)[idNumber];
 }
 
 std::string CCreature::nodeName() const
@@ -388,7 +390,7 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 	if(handler.updating)
 	{
 		cost.serializeJson(handler, "cost");
-		handler.serializeInt("faction", faction);//TODO: unify with deferred resolve
+		handler.serializeId("faction", faction);
 	}
 
 	handler.serializeInt("level", level);
@@ -397,25 +399,17 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 	if(!handler.saving)
 	{
 		if(ammMin > ammMax)
+		{
 			logMod->error("Invalid creature '%s' configuration, advMapAmount.min > advMapAmount.max", identifier);
+			std::swap(ammMin, ammMax);
+		}
 	}
 }
 
 CCreatureHandler::CCreatureHandler()
 	: expAfterUpgrade(0)
 {
-	VLC->creh = this;
 	loadCommanders();
-}
-
-const CCreature * CCreatureHandler::getCreature(const std::string & scope, const std::string & identifier) const
-{
-	std::optional<si32> index = VLC->identifiers()->getIdentifier(scope, "creature", identifier);
-
-	if(!index)
-		throw std::runtime_error("Creature not found "+identifier);
-
-	return objects[*index];
 }
 
 void CCreatureHandler::loadCommanders()
@@ -424,7 +418,7 @@ void CCreatureHandler::loadCommanders()
 
 	std::string modSource = VLC->modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
-	data.setMeta(modSource);
+	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
 
@@ -612,10 +606,20 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 
-	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
-	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
+	int minDamage = node["damage"]["min"].Integer();
+	int maxDamage = node["damage"]["max"].Integer();
 
-	assert(node["damage"]["min"].Integer() <= node["damage"]["max"].Integer());
+	if (minDamage <= maxDamage)
+	{
+		cre->addBonus(minDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
+		cre->addBonus(maxDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
+	}
+	else
+	{
+		logMod->error("Mod %s: creature %s has minimal damage (%d) greater than maximal damage (%d)!", scope, identifier, minDamage, maxDamage);
+		cre->addBonus(maxDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
+		cre->addBonus(minDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
+	}
 
 	if(!node["shots"].isNull())
 		cre->addBonus(node["shots"].Integer(), BonusType::SHOTS);
@@ -636,7 +640,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [=](si32 index)
 	{
 		JsonNode conf;
-		conf.setMeta(scope);
+		conf.setModScope(scope);
 
 		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!advMapFile.isNull())
@@ -645,7 +649,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 			templ["animation"] = advMapFile;
 			if (!advMapMask.isNull())
 				templ["mask"] = advMapMask;
-			templ.setMeta(scope);
+			templ.setModScope(scope);
 
 			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
 			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
@@ -664,18 +668,6 @@ const std::vector<std::string> & CCreatureHandler::getTypeNames() const
 {
 	static const std::vector<std::string> typeNames = { "creature" };
 	return typeNames;
-}
-
-std::vector<bool> CCreatureHandler::getDefaultAllowed() const
-{
-	std::vector<bool> ret;
-
-	ret.reserve(objects.size());
-	for(const CCreature * crea : objects)
-	{
-		ret.push_back(crea ? !crea->special : false);
-	}
-	return ret;
 }
 
 void CCreatureHandler::loadCrExpMod()
@@ -790,15 +782,13 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		}
 		do //parse everything that's left
 		{
-			CreatureID sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
+			CreatureID sid = parser.readNumber(); //id = this particular creature ID
 
 			b.sid = BonusSourceID(sid);
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
-			{
-				objects[sid]->addNewBonus(b); //add directly to CCreature Node
-			}
+				objects[sid.getNum()]->addNewBonus(b); //add directly to CCreature Node
 		}
 		while (parser.endLine());
 
@@ -855,8 +845,8 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 	missile["attackClimaxFrame"].Float() = parser.readNumber();
 
 	// assume that creature is not a shooter and should not have whole missile field
-	if (missile["frameAngles"].Vector()[0].Float() == 0 &&
-	    missile["attackClimaxFrame"].Float() == 0)
+	if (missile["frameAngles"].Vector()[0].Integer() == 0 &&
+		missile["attackClimaxFrame"].Integer() == 0)
 		graphics.Struct().erase("missile");
 }
 
@@ -998,10 +988,10 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			int lastVal = 0;
 			for (const JsonNode &val : values)
 			{
-				if (val.Float() != lastVal)
+				if (val.Integer() != lastVal)
 				{
 					JsonNode bonusInput = exp["bonus"];
-					bonusInput["val"].Float() = static_cast<int>(val.Float()) - lastVal;
+					bonusInput["val"].Float() = val.Integer() - lastVal;
 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
@@ -1350,34 +1340,23 @@ CCreatureHandler::~CCreatureHandler()
 
 CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const
 {
-	int r = 0;
-	if(tier == -1) //pick any allowed creature
+	std::vector<CreatureID> allowed;
+	for(const auto & creature : objects)
 	{
-		do
-		{
-			r = (*RandomGeneratorUtil::nextItem(objects, rand))->getId();
-		} while (objects[r] && objects[r]->special); // find first "not special" creature
+		if(creature->special)
+			continue;
+
+		if (creature->level == tier || tier == -1)
+			allowed.push_back(creature->getId());
 	}
-	else
+
+	if(allowed.empty())
 	{
-		assert(vstd::iswithin(tier, 1, 7));
-		std::vector<CreatureID> allowed;
-		for(const auto & creature : objects)
-		{
-			if(!creature->special && creature->level == tier)
-				allowed.push_back(creature->getId());
-		}
-
-		if(allowed.empty())
-		{
-			logGlobal->warn("Cannot pick a random creature of tier %d!", tier);
-			return CreatureID::NONE;
-		}
-
-		return *RandomGeneratorUtil::nextItem(allowed, rand);
+		logGlobal->warn("Cannot pick a random creature of tier %d!", tier);
+		return CreatureID::NONE;
 	}
-	assert (r >= 0); //should always be, but it crashed
-	return CreatureID(r);
+
+	return *RandomGeneratorUtil::nextItem(allowed, rand);
 }
 
 

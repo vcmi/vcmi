@@ -11,7 +11,6 @@
 #include "cmodlist.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/modding/CModVersion.h"
@@ -36,6 +35,9 @@ CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap 
 bool CModEntry::isEnabled() const
 {
 	if(!isInstalled())
+		return false;
+
+	if (!isVisible())
 		return false;
 
 	return modSettings["active"].toBool();
@@ -105,7 +107,7 @@ bool CModEntry::isVisible() const
 			return false;
 	}
 
-	return !localData.isEmpty() || !repository.isEmpty();
+	return !localData.isEmpty() || (!repository.isEmpty() && !repository.contains("mod"));
 }
 
 bool CModEntry::isTranslation() const
@@ -139,6 +141,22 @@ QString CModEntry::getName() const
 QVariant CModEntry::getValue(QString value) const
 {
 	return getValueImpl(value, true);
+}
+
+QStringList CModEntry::getDependencies() const
+{
+	QStringList result;
+	for (auto const & entry : getValue("depends").toStringList())
+		result.push_back(entry.toLower());
+	return result;
+}
+
+QStringList CModEntry::getConflicts() const
+{
+	QStringList result;
+	for (auto const & entry : getValue("conflicts").toStringList())
+		result.push_back(entry.toLower());
+	return result;
 }
 
 QVariant CModEntry::getBaseValue(QString value) const
@@ -341,8 +359,8 @@ QStringList CModList::getRequirements(QString modname)
 	{
 		auto mod = getMod(modname);
 
-		for(auto entry : mod.getValue("depends").toStringList())
-			ret += getRequirements(entry);
+		for(auto entry : mod.getDependencies())
+			ret += getRequirements(entry.toLower());
 	}
 	ret += modname;
 

@@ -21,23 +21,24 @@
 
 void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
-	double v = 0;
+	double newPosition = 0;
 	if(getOrientation() == Orientation::HORIZONTAL)
 	{
-		v = cursorPosition.x - pos.x - 24;
-		v *= positions;
-		v /= (pos.w - 48);
+		newPosition = cursorPosition.x - pos.x - 24;
+		newPosition *= positions;
+		newPosition /= (pos.w - 48);
 	}
 	else
 	{
-		v = cursorPosition.y - pos.y - 24;
-		v *= positions;
-		v /= (pos.h - 48);
+		newPosition = cursorPosition.y - pos.y - 24;
+		newPosition *= positions;
+		newPosition /= (pos.h - 48);
 	}
-	v += 0.5;
-	if(v!=value)
+
+	int positionInteger = std::round(newPosition);
+	if(positionInteger != value)
 	{
-		scrollTo(static_cast<int>(v));
+		scrollTo(static_cast<int>(newPosition));
 	}
 }
 
@@ -67,6 +68,11 @@ int CSlider::getAmount() const
 int CSlider::getValue() const
 {
 	return value;
+}
+
+void CSlider::setValue(int to)
+{
+	scrollTo(value);
 }
 
 int CSlider::getCapacity() const
@@ -119,7 +125,7 @@ void CSlider::scrollTo(int to)
 
 	updateSliderPos();
 
-	moved(to);
+	moved(getValue());
 }
 
 void CSlider::clickPressed(const Point & cursorPosition)
@@ -151,6 +157,11 @@ void CSlider::clickPressed(const Point & cursorPosition)
 
 bool CSlider::receiveEvent(const Point &position, int eventType) const
 {
+	if (eventType == LCLICK)
+	{
+		return pos.isInside(position) && !left->pos.isInside(position) && !right->pos.isInside(position);
+	}
+
 	if(eventType != WHEEL && eventType != GESTURE)
 	{
 		return CIntObject::receiveEvent(position, eventType);
@@ -164,7 +175,7 @@ bool CSlider::receiveEvent(const Point &position, int eventType) const
 	return testTarget.isInside(position);
 }
 
-CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, Orientation orientation, CSlider::EStyle style)
+CSlider::CSlider(Point position, int totalw, const std::function<void(int)> & Moved, int Capacity, int Amount, int Value, Orientation orientation, CSlider::EStyle style)
 	: Scrollable(LCLICK | DRAG, position, orientation ),
 	capacity(Capacity),
 	amount(Amount),
@@ -195,10 +206,10 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 		right = std::make_shared<CButton>(Point(), AnimationPath::builtin(getOrientation() == Orientation::HORIZONTAL ? "SCNRBRT.DEF" : "SCNRBDN.DEF"), CButton::tooltip());
 		slider = std::make_shared<CButton>(Point(), AnimationPath::builtin("SCNRBSL.DEF"), CButton::tooltip());
 	}
-	slider->actOnDown = true;
-	slider->soundDisabled = true;
-	left->soundDisabled = true;
-	right->soundDisabled = true;
+	slider->setActOnDown(true);
+	slider->setSoundDisabled(true);
+	left->setSoundDisabled(true);
+	right->setSoundDisabled(true);
 
 	if (getOrientation() == Orientation::HORIZONTAL)
 		right->moveBy(Point(totalw - right->pos.w, 0));
@@ -296,4 +307,32 @@ void CSlider::scrollToMin()
 void CSlider::scrollToMax()
 {
 	scrollTo(amount);
+}
+
+SliderNonlinear::SliderNonlinear(Point position, int length, const std::function<void(int)> & Moved, const std::vector<int> & values, int Value, Orientation orientation, EStyle style)
+	: CSlider(position, length, Moved, 1, values.size(), Value, orientation, style)
+	, scaledValues(values)
+{
+
+}
+
+int SliderNonlinear::getValue() const
+{
+	return scaledValues.at(CSlider::getValue());
+}
+
+void SliderNonlinear::setValue(int to)
+{
+	size_t nearest = 0;
+
+	for(size_t i = 0; i < scaledValues.size(); ++i)
+	{
+		int nearestDistance = std::abs(to - scaledValues[nearest]);
+		int currentDistance = std::abs(to - scaledValues[i]);
+
+		if(currentDistance < nearestDistance)
+			nearest = i;
+	}
+
+	scrollTo(nearest);
 }

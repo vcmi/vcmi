@@ -28,12 +28,8 @@ public:
 	explicit rmgException(const std::string& _Message) : msg(_Message)
 	{
 	}
-	
-	virtual ~rmgException() throw ()
-	{
-	};
-	
-	const char *what() const throw () override
+
+	const char *what() const noexcept override
 	{
 		return msg.c_str();
 	}

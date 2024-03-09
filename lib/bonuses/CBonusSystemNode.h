@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 using TNodes = std::set<CBonusSystemNode *>;
 using TCNodes = std::set<const CBonusSystemNode *>;
 using TNodesVector = std::vector<CBonusSystemNode *>;
+using TCNodesVector = std::vector<const CBonusSystemNode *>;
 
 class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public boost::noncopyable
 {
@@ -33,7 +34,8 @@ private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
 	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
 
-	TNodesVector parents; //parents -> we inherit bonuses from them, we may attach our bonuses to them
+	TCNodesVector parentsToInherit; // we inherit bonuses from them
+	TNodesVector parentsToPropagate; // we may attach our bonuses to them
 	TNodesVector children;
 
 	ENodeTypes nodeType;
@@ -54,8 +56,8 @@ private:
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr & updater) const;
 
-	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
-	void getRedAncestors(TNodes &out);
+	void getRedParents(TCNodes &out) const;  //retrieves list of red parent nodes (nodes bonuses propagate from)
+	void getRedAncestors(TCNodes &out) const;
 	void getRedChildren(TNodes &out);
 
 	void getAllParents(TCNodes & out) const;
@@ -66,8 +68,8 @@ private:
 	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
 	bool actsAsBonusSourceOnly() const;
 
-	void newRedDescendant(CBonusSystemNode & descendant); //propagation needed
-	void removedRedDescendant(CBonusSystemNode & descendant); //de-propagation needed
+	void newRedDescendant(CBonusSystemNode & descendant) const; //propagation needed
+	void removedRedDescendant(CBonusSystemNode & descendant) const; //de-propagation needed
 
 	std::string nodeShortInfo() const;
 
@@ -80,21 +82,23 @@ protected:
 public:
 	explicit CBonusSystemNode(bool isHypotetic = false);
 	explicit CBonusSystemNode(ENodeTypes NodeType);
-	CBonusSystemNode(CBonusSystemNode && other) noexcept;
 	virtual ~CBonusSystemNode();
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
-	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector & selector) const;
 
-	//non-const interface
-	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
-	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
+	/// Returns first bonus matching selector
+	std::shared_ptr<const Bonus> getFirstBonus(const CSelector & selector) const;
+
+	/// Provides write access to first bonus from this node that matches selector
+	std::shared_ptr<Bonus> getLocalBonus(const CSelector & selector);
 
 	void attachTo(CBonusSystemNode & parent);
+	void attachToSource(const CBonusSystemNode & parent);
 	void detachFrom(CBonusSystemNode & parent);
+	void detachFromSource(const CBonusSystemNode & parent);
 	void detachFromAll();
 	virtual void addNewBonus(const std::shared_ptr<Bonus>& b);
 	void accumulateBonus(const std::shared_ptr<Bonus>& b); //add value of bonus with same type/subtype or create new
@@ -115,7 +119,7 @@ public:
 	const BonusList & getExportedBonusList() const;
 	CBonusSystemNode::ENodeTypes getNodeType() const;
 	void setNodeType(CBonusSystemNode::ENodeTypes type);
-	const TNodesVector & getParentNodes() const;
+	const TCNodesVector & getParentNodes() const;
 
 	static void treeHasChanged();
 
@@ -126,13 +130,11 @@ public:
 		return PlayerColor::NEUTRAL;
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
-//		h & bonuses;
 		h & nodeType;
 		h & exportedBonuses;
 		BONUS_TREE_DESERIALIZATION_FIX
-		//h & parents & children;
 	}
 
 	friend class CBonusProxy;

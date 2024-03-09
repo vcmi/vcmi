@@ -28,10 +28,12 @@ This is list of all languages that are currently supported by VCMI. If your lang
 
 VCMI allows translating game data into languages other than English. In order to translate Heroes III in your language easiest approach is to:
 
-- Copy existing translation, such as English translation from here: https://github.com/vcmi-mods/h3-for-vcmi-englisation
+- Copy existing translation, such as English translation from here: https://github.com/vcmi-mods/h3-for-vcmi-englisation (delete sound and video folders)
 - Rename mod to indicate your language, preferred form is "(language)-translation"
 - Update mod.json to match your mod
 - Translate all texts strings from game.json, campaigns.json and maps.json
+- Replace images in data and sprites with translated ones (or delete it if you don't want to translate them)
+- If unicode characters needed for language: Create a submod with a free font like here: https://github.com/vcmi-mods/vietnamese-translation/tree/vcmi-1.4/vietnamese-translation/mods/VietnameseTrueTypeFonts
 
 If you have already existing Heroes III translation you can:
 
@@ -48,6 +50,7 @@ VCMI contains several new strings, to cover functionality not existing in Heroes
 - In-game texts, most noticeably - in-game settings menu.
 - Game Launcher
 - Map Editor
+- Linux specific
 - Android Launcher
 
 Before you start, make sure that you have copy of VCMI source code. If you are not familiar with git, you can use Github Desktop to clone VCMI repository.
@@ -75,10 +78,25 @@ Translation of Map Editor is identical, except for location of translation files
 
 TODO: how to test translation locally
 
-### Translation of Android Launcher
+### Translation of Linux specific files
+#### Translation of AppStream metainfo
 
-TODO
-see https://github.com/vcmi/vcmi/blob/develop/android/vcmi-app/src/main/res/values/strings.xml
+The [AppStream](https://freedesktop.org/software/appstream/docs/chap-Metadata.html) [metainfo file](https://github.com/vcmi/vcmi/blob/develop/launcher/eu.vcmi.VCMI.metainfo.xml) is used for Linux software centers.
+
+It can be translated using a text editor or using [jdAppStreamEdit](https://flathub.org/apps/page.codeberg.JakobDev.jdAppStreamEdit):
+- Install jdAppStreamEdit
+- Open `<VCMI>/launcher/eu.vcmi.VCMI.metainfo.xml`
+- Translate and save the file
+  
+#### Desktop file
+- Edit `<VCMI>/launcher/vcmilauncher.desktop` and `<VCMI>/launcher/vcmieditor.desktop`
+- Add `GenericName[xyz]` and `Comment[xyz]` with your language code and translation
+
+### Translation of Android Launcher
+- Copy `<VCMI>/android/vcmi-app/src/main/res/values/strings.xml` to `<VCMI>/android/vcmi-app/src/main/res/values-xyz/strings.xml` (`xyz` is your language code)
+- Translate this file
+
+See also here: https://developer.android.com/guide/topics/resources/localization
 
 ### Submitting changes
 

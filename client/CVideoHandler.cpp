@@ -41,8 +41,11 @@ extern "C" {
 static int lodRead(void* opaque, uint8_t* buf, int size)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+	int bytes = static_cast<int>(video->data->read(buf, size));
+	if(bytes == 0)
+    	return AVERROR_EOF;
 
-	return static_cast<int>(video->data->read(buf, size));
+	return bytes;
 }
 
 static si64 lodSeek(void * opaque, si64 pos, int whence)
@@ -59,8 +62,11 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 static int lodReadAudio(void* opaque, uint8_t* buf, int size)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+	int bytes = static_cast<int>(video->dataAudio->read(buf, size));
+	if(bytes == 0)
+    	return AVERROR_EOF;
 
-	return static_cast<int>(video->dataAudio->read(buf, size));
+	return bytes;
 }
 
 static si64 lodSeekAudio(void * opaque, si64 pos, int whence)
@@ -95,8 +101,8 @@ bool CVideoPlayer::open(const VideoPath & fname, bool scale)
 }
 
 // loop = to loop through the video
-// useOverlay = directly write to the screen.
-bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverlay, bool scale)
+// overlay = directly write to the screen.
+bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool overlay, bool scale)
 {
 	close();
 
@@ -193,7 +199,7 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 	}
 
 	// Allocate a place to put our YUV image on that screen
-	if (useOverlay)
+	if (overlay)
 	{
 		texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, pos.w, pos.h);
 	}
@@ -609,8 +615,16 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 	return dat;
 }
 
+Point CVideoPlayer::size()
+{
+	if(frame)
+		return Point(frame->width, frame->height);
+	else
+		return Point(0, 0);
+}
+
 // Plays a video. Only works for overlays.
-bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
+bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey, bool overlay)
 {
 	// Note: either the windows player or the linux player is
 	// broken. Compensate here until the bug is found.
@@ -619,6 +633,8 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 	pos.x = x;
 	pos.y = y;
 	frameTime = 0.0;
+
+	auto lastTimePoint = boost::chrono::steady_clock::now();
 
 	while(nextFrame())
 	{
@@ -631,6 +647,14 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 
 		SDL_Rect rect = CSDL_Ext::toSDL(pos);
 
+		if(overlay)
+		{
+			SDL_RenderFillRect(mainRenderer, &rect);
+		}
+		else
+		{
+			SDL_RenderClear(mainRenderer);
+		}
 		SDL_RenderCopy(mainRenderer, texture, nullptr, &rect);
 		SDL_RenderPresent(mainRenderer);
 
@@ -639,19 +663,43 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 #else
 		auto packet_duration = frame->duration;
 #endif
-		double frameDurationSec = packet_duration * av_q2d(format->streams[stream]->time_base);
-		uint32_t timeToSleepMillisec = 1000 * (frameDurationSec);
+		// Framerate delay
+		double targetFrameTimeSeconds = packet_duration * av_q2d(format->streams[stream]->time_base);
+		auto targetFrameTime = boost::chrono::milliseconds(static_cast<int>(1000 * (targetFrameTimeSeconds)));
 
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(timeToSleepMillisec));
+		auto timePointAfterPresent = boost::chrono::steady_clock::now();
+		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);
+
+		if (targetFrameTime > timeSpentBusy)
+			boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
+
+		lastTimePoint = boost::chrono::steady_clock::now();
 	}
 
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey, bool scale)
+bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, EVideoType videoType)
 {
+	bool scale;
+	bool stopOnKey;
+	bool overlay;
+
+	switch(videoType)
+	{
+		case EVideoType::INTRO:
+			stopOnKey = true;
+			scale = true;
+			overlay = false;
+			break;
+		case EVideoType::SPELLBOOK:
+		default:
+			stopOnKey = false;
+			scale = false;
+			overlay = true;
+	}
 	open(name, false, true, scale);
-	bool ret = playVideo(x, y,  stopOnKey);
+	bool ret = playVideo(x, y,  stopOnKey, overlay);
 	close();
 	return ret;
 }

@@ -182,6 +182,20 @@ void Canvas::drawColorBlended(const Rect & target, const ColorRGBA & color)
 	CSDL_Ext::fillRectBlended(surface, realTarget, CSDL_Ext::toSDL(color));
 }
 
+void Canvas::fillTexture(const std::shared_ptr<IImage>& image)
+{
+	assert(image);
+	if (!image)
+		return;
+		
+	Rect imageArea(Point(0, 0), image->dimensions());
+	for (int y=0; y < surface->h; y+= imageArea.h)
+	{
+		for (int x=0; x < surface->w; x+= imageArea.w)
+			image->draw(surface, renderArea.x + x, renderArea.y + y);
+	}
+}
+
 SDL_Surface * Canvas::getInternalSurface()
 {
 	return surface;

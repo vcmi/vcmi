@@ -13,7 +13,6 @@
 #include "CModHandler.h"
 #include "ModScope.h"
 
-#include "../JsonNode.h"
 #include "../VCMI_Lib.h"
 #include "../constants/StringConstants.h"
 #include "../spells/CSpellHandler.h"
@@ -26,9 +25,9 @@ CIdentifierStorage::CIdentifierStorage()
 {
 	//TODO: moddable spell schools
 	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
-		registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
+		registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id.getNum());
 
-	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(SpellSchool::ANY));
+	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool::ANY.getNum());
 
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 		registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
@@ -53,6 +52,10 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "heroMovementSea", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareGorgon", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareCommander", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareNoRangePenalty", 2);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareRangePenalty", 3);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareObstaclePenalty", 4);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareRangeObstaclePenalty", 5);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthRegular", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthSpecial", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsMonsters", 0);
@@ -132,6 +135,7 @@ CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameW
 	result.name = typeAndName.second;
 	result.callback = callback;
 	result.optional = optional;
+	result.dynamicType = true;
 	return result;
 }
 
@@ -160,6 +164,7 @@ CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameA
 	result.name = typeAndName.second;
 	result.callback = callback;
 	result.optional = optional;
+	result.dynamicType = false;
 	return result;
 }
 
@@ -175,12 +180,12 @@ void CIdentifierStorage::requestIdentifier(const std::string & scope, const std:
 
 void CIdentifierStorage::requestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
 {
-	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, false));
+	requestIdentifier(ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback) const
 {
-	requestIdentifier(ObjectCallback::fromNameWithType(name.meta, name.String(), callback, false));
+	requestIdentifier(ObjectCallback::fromNameWithType(name.getModScope(), name.String(), callback, false));
 }
 
 void CIdentifierStorage::tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const
@@ -190,63 +195,126 @@ void CIdentifierStorage::tryRequestIdentifier(const std::string & scope, const s
 
 void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
 {
-	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, true));
+	requestIdentifier(ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), callback, true));
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent) const
 {
 	assert(state != ELoadingState::LOADING);
 
-	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent));
-
-	if (idList.size() == 1)
-		return idList.front().id;
-	if (!silent)
-		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name , type ,scope);
-
-	return std::optional<si32>();
+	auto options = ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent);
+	return getIdentifierImpl(options, silent);
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, const JsonNode & name, bool silent) const
 {
 	assert(state != ELoadingState::LOADING);
 
-	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(name.meta, type, name.String(), std::function<void(si32)>(), silent));
+	auto options = ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), std::function<void(si32)>(), silent);
 
-	if (idList.size() == 1)
-		return idList.front().id;
-	if (!silent)
-		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), type, name.meta);
-
-	return std::optional<si32>();
+	return getIdentifierImpl(options, silent);
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent) const
 {
 	assert(state != ELoadingState::LOADING);
 
-	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(name.meta, name.String(), std::function<void(si32)>(), silent));
-
-	if (idList.size() == 1)
-		return idList.front().id;
-	if (!silent)
-		logMod->error("Failed to resolve identifier %s from mod %s", name.String(), name.meta);
-
-	return std::optional<si32>();
+	auto options = ObjectCallback::fromNameWithType(name.getModScope(), name.String(), std::function<void(si32)>(), silent);
+	return getIdentifierImpl(options, silent);
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & fullName, bool silent) const
 {
 	assert(state != ELoadingState::LOADING);
 
-	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(scope, fullName, std::function<void(si32)>(), silent));
+	auto options = ObjectCallback::fromNameWithType(scope, fullName, std::function<void(si32)>(), silent);
+	return getIdentifierImpl(options, silent);
+}
+
+std::optional<si32> CIdentifierStorage::getIdentifierImpl(const ObjectCallback & options, bool silent) const
+{
+	auto idList = getPossibleIdentifiers(options);
 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logMod->error("Failed to resolve identifier %s from mod %s", fullName, scope);
-
+		showIdentifierResolutionErrorDetails(options);
 	return std::optional<si32>();
+}
+
+void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallback & options) const
+{
+	auto idList = getPossibleIdentifiers(options);
+
+	logMod->error("Failed to resolve identifier '%s' of type '%s' from mod '%s'", options.name, options.type, options.localScope);
+
+	if (options.dynamicType && options.type.empty())
+	{
+		bool suggestionFound = false;
+
+		for (auto const & entry : registeredObjects)
+		{
+			if (!boost::algorithm::ends_with(entry.first, options.name))
+				continue;
+
+			suggestionFound = true;
+			logMod->error("Perhaps you wanted to use identifier '%s' from mod '%s' instead?", entry.first, entry.second.scope);
+		}
+
+		if (suggestionFound)
+			return;
+	}
+
+	if (idList.empty())
+	{
+		// check whether identifier is unavailable due to a missing dependency on a mod
+		ObjectCallback testOptions = options;
+		testOptions.localScope = ModScope::scopeGame();
+		testOptions.remoteScope = {};
+
+		auto testList = getPossibleIdentifiers(testOptions);
+		if (testList.empty())
+		{
+			logMod->error("Identifier '%s' of type '%s' does not exists in any loaded mod!", options.name, options.type);
+		}
+		else
+		{
+			// such identifiers exists, but were not picked for some reason
+			if (options.remoteScope.empty())
+			{
+				// attempt to access identifier from mods that is not dependency
+				for (auto const & testOption : testList)
+				{
+					logMod->error("Identifier '%s' exists in mod %s", options.name, testOption.scope);
+					logMod->error("Please add mod '%s' as dependency of mod '%s' to access this identifier", testOption.scope, options.localScope);
+				}
+			}
+			else
+			{
+				// attempt to access identifier in form 'modName:object', but identifier is only present in different mod
+				for (auto const & testOption : testList)
+				{
+					logMod->error("Identifier '%s' exists in mod '%s' but identifier was explicitly requested from mod '%s'!", options.name, testOption.scope, options.remoteScope);
+					if (options.dynamicType)
+						logMod->error("Please use form '%s.%s' or '%s:%s.%s' to access this identifier", options.type, options.name, testOption.scope, options.type, options.name);
+					else
+						logMod->error("Please use form '%s' or '%s:%s' to access this identifier", options.name, testOption.scope, options.name);
+				}
+			}
+		}
+	}
+	else
+	{
+		logMod->error("Multiple possible candidates:");
+		for (auto const & testOption : idList)
+		{
+			logMod->error("Identifier %s exists in mod %s", options.name, testOption.scope);
+			if (options.dynamicType)
+				logMod->error("Please use '%s:%s.%s' to access this identifier", testOption.scope, options.type, options.name);
+			else
+				logMod->error("Please use '%s:%s' to access this identifier", testOption.scope, options.name);
+		}
+	}
 }
 
 void CIdentifierStorage::registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier)
@@ -362,17 +430,7 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
 	}
 
 	// error found. Try to generate some debug info
-	if(identifiers.empty())
-		logMod->error("Unknown identifier!");
-	else
-		logMod->error("Ambiguous identifier request!");
-
-	 logMod->error("Request for %s.%s from mod %s", request.type, request.name, request.localScope);
-
-	for(const auto & id : identifiers)
-	{
-		logMod->error("\tID is available in mod %s", id.scope);
-	}
+	showIdentifierResolutionErrorDetails(request);
 	return false;
 }
 
@@ -381,26 +439,16 @@ void CIdentifierStorage::finalize()
 	assert(state == ELoadingState::LOADING);
 
 	state = ELoadingState::FINALIZING;
-	bool errorsFound = false;
 
 	while ( !scheduledRequests.empty() )
 	{
 		// Use local copy since new requests may appear during resolving, invalidating any iterators
 		auto request = scheduledRequests.back();
 		scheduledRequests.pop_back();
-
-		if (!resolveIdentifier(request))
-			errorsFound = true;
+		resolveIdentifier(request);
 	}
 
-	debugDumpIdentifiers();
-
-	if (errorsFound)
-		logMod->error("All known identifiers were dumped into log file");
-
-	assert(errorsFound == false);
 	state = ELoadingState::FINISHED;
-
 }
 
 void CIdentifierStorage::debugDumpIdentifiers()

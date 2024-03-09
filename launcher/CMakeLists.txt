@@ -15,10 +15,6 @@ set(launcher_SRCS
 		launcherdirs.cpp
 		jsonutils.cpp
 		updatedialog_moc.cpp
-		lobby/lobby.cpp
-		lobby/lobby_moc.cpp
-		lobby/lobbyroomrequest_moc.cpp
-		lobby/chat_moc.cpp
 )
 
 set(launcher_HEADERS
@@ -37,10 +33,6 @@ set(launcher_HEADERS
 		launcherdirs.h
 		jsonutils.h
 		updatedialog_moc.h
-		lobby/lobby.h
-		lobby/lobby_moc.h
-		lobby/lobbyroomrequest_moc.h
-		lobby/chat_moc.h
 		main.h
 )
 
@@ -52,13 +44,11 @@ set(launcher_FORMS
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
 		updatedialog_moc.ui
-		lobby/lobby_moc.ui
-		lobby/lobbyroomrequest_moc.ui
-		lobby/chat_moc.ui
 )
 
 set(launcher_TS
 	translation/chinese.ts
+	translation/czech.ts
 	translation/english.ts
 	translation/french.ts
 	translation/german.ts
@@ -145,7 +135,7 @@ if (NOT APPLE_IOS AND NOT ANDROID)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
-target_link_libraries(vcmilauncher ${VCMI_LIB_TARGET} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -174,12 +164,11 @@ if(APPLE_IOS)
 else()
 	set(RESOURCES_DESTINATION ${DATA_DIR}/launcher)
 
-	# Copy to build directory for easier debugging
+	# Link to build directory for easier debugging
 	add_custom_command(TARGET vcmilauncher POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher
-		COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
-		COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation
-
+		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation
 	)
 
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})

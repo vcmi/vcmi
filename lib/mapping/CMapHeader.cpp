@@ -15,6 +15,7 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CGeneralTextHandler.h"
+#include "../json/JsonUtils.h"
 #include "../modding/CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../Languages.h"
@@ -68,22 +69,15 @@ bool PlayerInfo::hasCustomMainHero() const
 }
 
 EventCondition::EventCondition(EWinLoseType condition):
-	object(nullptr),
-	metaType(EMetaclass::INVALID),
 	value(-1),
-	objectType(-1),
-	objectSubtype(-1),
 	position(-1, -1, -1),
 	condition(condition)
 {
 }
 
-EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectType, const int3 & position):
-	object(nullptr),
-	metaType(EMetaclass::INVALID),
+EventCondition::EventCondition(EWinLoseType condition, si32 value, TargetTypeID objectType, const int3 & position):
 	value(value),
 	objectType(objectType),
-	objectSubtype(-1),
 	position(position),
 	condition(condition)
 {}
@@ -124,18 +118,14 @@ void CMapHeader::setupEvents()
 }
 
 CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),
-	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
+	twoLevel(true), difficulty(EMapDifficulty::NORMAL), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {
 	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();
 	players.resize(PlayerColor::PLAYER_LIMIT_I);
-	VLC->generaltexth->addSubContainer(*this);
 }
 
-CMapHeader::~CMapHeader()
-{
-	VLC->generaltexth->removeSubContainer(*this);
-}
+CMapHeader::~CMapHeader() = default;
 
 ui8 CMapHeader::levels() const
 {
@@ -144,11 +134,9 @@ ui8 CMapHeader::levels() const
 
 void CMapHeader::registerMapStrings()
 {
-	VLC->generaltexth->removeSubContainer(*this);
-	VLC->generaltexth->addSubContainer(*this);
-	
 	//get supported languages. Assuming that translation containing most strings is the base language
-	std::set<std::string> mapLanguages, mapBaseLanguages;
+	std::set<std::string, std::less<>> mapLanguages;
+	std::set<std::string, std::less<>> mapBaseLanguages;
 	int maxStrings = 0;
 	for(auto & translation : translations.Struct())
 	{
@@ -162,7 +150,7 @@ void CMapHeader::registerMapStrings()
 	
 	if(maxStrings == 0 || mapLanguages.empty())
 	{
-		logGlobal->info("Map %s doesn't have any supported translation", name.toString());
+		logGlobal->trace("Map %s doesn't have any supported translation", name.toString());
 		return;
 	}
 	
@@ -173,7 +161,8 @@ void CMapHeader::registerMapStrings()
 			mapBaseLanguages.insert(translation.first);
 	}
 	
-	std::string baseLanguage, language;
+	std::string baseLanguage;
+	std::string language;
 	//english is preferrable as base language
 	if(mapBaseLanguages.count(Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier))
 		baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
@@ -200,7 +189,7 @@ void CMapHeader::registerMapStrings()
 		JsonUtils::mergeCopy(data, translations[language]);
 	
 	for(auto & s : data.Struct())
-		registerString("map", TextIdentifier(s.first), s.second.String(), language);
+		texts.registerString("map", TextIdentifier(s.first), s.second.String(), language);
 }
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
@@ -210,7 +199,7 @@ std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeade
 
 std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
-	mapHeader.registerString(modContext, UID, localized, language);
+	mapHeader.texts.registerString(modContext, UID, localized, language);
 	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
 	return UID.get();
 }

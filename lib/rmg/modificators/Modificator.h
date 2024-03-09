@@ -21,8 +21,8 @@ class Zone;
 class MapProxy;
 
 #define MODIFICATOR(x) x(Zone & z, RmgMap & m, CMapGenerator & g): Modificator(z, m, g) {setName(#x);}
-#define DEPENDENCY(x) 		dependency(zone.getModificator<x>());
-#define POSTFUNCTION(x)		postfunction(zone.getModificator<x>());
+#define DEPENDENCY(x) 		dependency(zone.getModificator<x>())
+#define POSTFUNCTION(x)		postfunction(zone.getModificator<x>())
 #define DEPENDENCY_ALL(x) 	for(auto & z : map.getZones()) \
 							{ \
 								dependency(z.second->getModificator<x>()); \

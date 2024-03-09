@@ -11,9 +11,12 @@
 #include "StdInc.h"
 #include "CGDwelling.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -26,41 +29,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CSpecObjInfo::CSpecObjInfo():
-	owner(nullptr)
-{
-
-}
-
-void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
+void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("sameAsTown", instanceId);
-
-	if(!handler.saving)
-	{
-		asCastle = !instanceId.empty();
-		allowedFactions.clear();
-	}
-
-	if(!asCastle)
-	{
-		std::vector<bool> standard;
-		standard.resize(VLC->townh->size(), true);
-
-		JsonSerializeFormat::LIC allowedLIC(standard, &FactionID::decode, &FactionID::encode);
-		allowedLIC.any = allowedFactions;
-
-		handler.serializeLIC("allowedFactions", allowedLIC);
-
-		if(!handler.saving)
-		{
-			allowedFactions = allowedLIC.any;
-		}
-	}
-}
-
-void CCreGenLeveledInfo::serializeJson(JsonSerializeFormat & handler)
-{
+	handler.serializeIdArray("allowedFactions", allowedFactions);
 	handler.serializeInt("minLevel", minLevel, static_cast<uint8_t>(1));
 	handler.serializeInt("maxLevel", maxLevel, static_cast<uint8_t>(7));
 
@@ -72,30 +44,142 @@ void CCreGenLeveledInfo::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-void CCreGenLeveledCastleInfo::serializeJson(JsonSerializeFormat & handler)
+CGDwelling::CGDwelling(IGameCallback *cb):
+	CArmedInstance(cb)
+{}
+
+CGDwelling::~CGDwelling() = default;
+
+FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 {
-	CCreGenAsCastleInfo::serializeJson(handler);
-	CCreGenLeveledInfo::serializeJson(handler);
+	if (ID == Obj::RANDOM_DWELLING_FACTION)
+		return FactionID(subID.getNum());
+
+	assert(ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_LVL);
+	assert(randomizationInfo.has_value());
+	if (!randomizationInfo)
+		return FactionID::CASTLE;
+
+	CGTownInstance * linkedTown = nullptr;
+
+	if (!randomizationInfo->instanceId.empty())
+	{
+		auto iter = cb->gameState()->map->instanceNames.find(randomizationInfo->instanceId);
+
+		if(iter == cb->gameState()->map->instanceNames.end())
+			logGlobal->error("Map object not found: %s", randomizationInfo->instanceId);
+		linkedTown = dynamic_cast<CGTownInstance *>(iter->second.get());
+	}
+
+	if (randomizationInfo->identifier != 0)
+	{
+		for(auto & elem : cb->gameState()->map->objects)
+		{
+			auto town = dynamic_cast<CGTownInstance*>(elem.get());
+			if(town && town->identifier == randomizationInfo->identifier)
+			{
+				linkedTown = town;
+				break;
+			}
+		}
+	}
+
+	if (linkedTown)
+	{
+		if(linkedTown->ID==Obj::RANDOM_TOWN)
+			linkedTown->pickRandomObject(rand); //we have to randomize the castle first
+
+		assert(linkedTown->ID == Obj::TOWN);
+		if(linkedTown->ID==Obj::TOWN)
+			return linkedTown->getFaction();
+	}
+
+	if(!randomizationInfo->allowedFactions.empty())
+		return *RandomGeneratorUtil::nextItem(randomizationInfo->allowedFactions, rand);
+
+
+	std::vector<FactionID> potentialPicks;
+
+	for (FactionID faction(0); faction < FactionID(VLC->townh->size()); ++faction)
+		if (VLC->factions()->getById(faction)->hasTown())
+			potentialPicks.push_back(faction);
+
+	assert(!potentialPicks.empty());
+	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
 }
 
-CGDwelling::CGDwelling()
-	: info(nullptr)
+int CGDwelling::randomizeLevel(CRandomGenerator & rand)
 {
+	if (ID == Obj::RANDOM_DWELLING_LVL)
+		return subID.getNum();
+
+	assert(ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_FACTION);
+	assert(randomizationInfo.has_value());
+
+	if (!randomizationInfo)
+		return rand.nextInt(1, 7) - 1;
+
+	if(randomizationInfo->minLevel == randomizationInfo->maxLevel)
+		return randomizationInfo->minLevel - 1;
+
+	return rand.nextInt(randomizationInfo->minLevel, randomizationInfo->maxLevel) - 1;
 }
 
-CGDwelling::~CGDwelling()
+void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 {
-	vstd::clear_pointer(info);
+	if (ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_LVL || ID == Obj::RANDOM_DWELLING_FACTION)
+	{
+		FactionID faction = randomizeFaction(rand);
+		int level = randomizeLevel(rand);
+		assert(faction != FactionID::NONE && faction != FactionID::NEUTRAL);
+		assert(level >= 0 && level <= 6);
+		randomizationInfo.reset();
+
+		CreatureID cid = (*VLC->townh)[faction]->town->creatures[level][0];
+
+		//NOTE: this will pick last dwelling with this creature (Mantis #900)
+		//check for block map equality is better but more complex solution
+		auto testID = [&](const Obj & primaryID) -> MapObjectSubID
+		{
+			auto dwellingIDs = VLC->objtypeh->knownSubObjects(primaryID);
+			for (MapObjectSubID entry : dwellingIDs)
+			{
+				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
+
+				if (handler->producesCreature(cid.toCreature()))
+					return MapObjectSubID(entry);
+			}
+			return MapObjectSubID();
+		};
+
+		ID = Obj::CREATURE_GENERATOR1;
+		subID = testID(Obj::CREATURE_GENERATOR1);
+
+		if (subID == MapObjectSubID())
+		{
+			ID = Obj::CREATURE_GENERATOR4;
+			subID = testID(Obj::CREATURE_GENERATOR4);
+		}
+
+		if (subID == MapObjectSubID())
+		{
+			logGlobal->error("Error: failed to find dwelling for %s of level %d", (*VLC->townh)[faction]->getNameTranslated(), int(level));
+			ID = Obj::CREATURE_GENERATOR1;
+			subID = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand);
+		}
+
+		setType(ID, subID);
+	}
 }
 
 void CGDwelling::initObj(CRandomGenerator & rand)
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
 		{
-			VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+			getObjectHandler()->configureObject(this, rand);
 
 			if (getOwner() != PlayerColor::NEUTRAL)
 				cb->gameState()->players[getOwner()].dwellings.emplace_back(this);
@@ -121,24 +205,7 @@ void CGDwelling::initObj(CRandomGenerator & rand)
 	}
 }
 
-void CGDwelling::initRandomObjectInfo()
-{
-	vstd::clear_pointer(info);
-	switch(ID)
-	{
-		case Obj::RANDOM_DWELLING: info = new CCreGenLeveledCastleInfo();
-			break;
-		case Obj::RANDOM_DWELLING_LVL: info = new CCreGenAsCastleInfo();
-			break;
-		case Obj::RANDOM_DWELLING_FACTION: info = new CCreGenLeveledInfo();
-			break;
-	}
-
-	if(info)
-		info->owner = this;
-}
-
-void CGDwelling::setPropertyDer(ui8 what, ui32 val)
+void CGDwelling::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
@@ -151,14 +218,14 @@ void CGDwelling::setPropertyDer(ui8 what, ui32 val)
 					std::vector<ConstTransitivePtr<CGDwelling> >* dwellings = &cb->gameState()->players[tempOwner].dwellings;
 					dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
 				}
-				if (PlayerColor(val) != PlayerColor::NEUTRAL) //can new owner be neutral?
-					cb->gameState()->players[PlayerColor(val)].dwellings.emplace_back(this);
+				if (identifier.as<PlayerColor>().isValidPlayer())
+					cb->gameState()->players[identifier.as<PlayerColor>()].dwellings.emplace_back(this);
 			}
 			break;
 		case ObjProperty::AVAILABLE_CREATURE:
 			creatures.resize(1);
 			creatures[0].second.resize(1);
-			creatures[0].second[0] = CreatureID(val);
+			creatures[0].second[0] = identifier.as<CreatureID>();
 			break;
 	}
 }
@@ -171,7 +238,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
-		iw.text.replaceLocalString(EMetaText::OBJ_NAMES, ID);
+		iw.text.replaceName(ID);
 		cb->sendAndApply(&iw);
 		return;
 	}
@@ -186,12 +253,12 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		BlockingDialog bd(true,false);
 		bd.player = h->tempOwner;
 		bd.text.appendLocalString(EMetaText::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
-		bd.text.replaceLocalString(ID == Obj::CREATURE_GENERATOR1 ? EMetaText::CREGENS : EMetaText::CREGENS4, subID);
+		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			bd.text.replaceRawString(CCreature::getQuantityRangeStringForId(Slots().begin()->second->getQuantityID()));
 		else
 			bd.text.replaceLocalString(EMetaText::ARRAY_TXT, 173 + (int)Slots().begin()->second->getQuantityID()*3);
-		bd.text.replaceCreatureName(*Slots().begin()->second);
+		bd.text.replaceName(*Slots().begin()->second);
 		cb->showBlockingDialog(&bd);
 		return;
 	}
@@ -207,16 +274,16 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	if(ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 	{
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, ID == Obj::CREATURE_GENERATOR1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
-		bd.text.replaceLocalString(ID == Obj::CREATURE_GENERATOR1 ? EMetaText::CREGENS : EMetaText::CREGENS4, subID);
+		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		for(const auto & elem : creatures)
-			bd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, elem.second[0]);
+			bd.text.replaceNamePlural(elem.second[0]);
 	}
 	else if(ID == Obj::REFUGEE_CAMP)
 	{
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 35); //{%s} Would you like to recruit %s?
-		bd.text.replaceLocalString(EMetaText::OBJ_NAMES, ID);
+		bd.text.replaceName(ID);
 		for(const auto & elem : creatures)
-			bd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, elem.second[0]);
+			bd.text.replaceNamePlural(elem.second[0]);
 	}
 	else if(ID == Obj::WAR_MACHINE_FACTORY)
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
@@ -237,7 +304,7 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 
 	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
-		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(rand));
+		cb->setObjPropertyID(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(rand));
 	}
 
 	bool change = false;
@@ -256,8 +323,8 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 			else
 				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
 
-			CCreature *cre = VLC->creh->objects[creatures[i].second[0]];
-			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(BonusType::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(BonusType::CREATURE_GROWTH);
+			const CCreature * cre =creatures[i].second[0].toCreature();
+			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(BonusType::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(cre->getLevel()));
 			if (creaturesAccumulate && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
 				sac.creatures[i].first += amount;
 			else
@@ -272,6 +339,30 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 	updateGuards();
 }
 
+std::vector<Component> CGDwelling::getPopupComponents(PlayerColor player) const
+{
+	if (getOwner() != player)
+		return {};
+
+	std::vector<Component> result;
+
+	if (ID == Obj::CREATURE_GENERATOR1 && !creatures.empty())
+	{
+		for (auto const & creature : creatures.front().second)
+			result.emplace_back(ComponentType::CREATURE, creature, creatures.front().first);
+	}
+
+	if (ID == Obj::CREATURE_GENERATOR4)
+	{
+		for (auto const & creatureLevel : creatures)
+		{
+			if (!creatureLevel.second.empty())
+				result.emplace_back(ComponentType::CREATURE, creatureLevel.second.back(), creatureLevel.first);
+		}
+	}
+	return result;
+}
+
 void CGDwelling::updateGuards() const
 {
 	//TODO: store custom guard config and use it
@@ -281,7 +372,7 @@ void CGDwelling::updateGuards() const
 	//default condition - creatures are of level 5 or higher
 	for (auto creatureEntry : creatures)
 	{
-		if (VLC->creatures()->getByIndex(creatureEntry.second.at(0))->getLevel() >= 5 && ID != Obj::REFUGEE_CAMP)
+		if (VLC->creatures()->getById(creatureEntry.second.at(0))->getLevel() >= 5 && ID != Obj::REFUGEE_CAMP)
 		{
 			guarded = true;
 			break;
@@ -292,7 +383,7 @@ void CGDwelling::updateGuards() const
 	{
 		for (auto creatureEntry : creatures)
 		{
-			const CCreature * crea = VLC->creh->objects[creatureEntry.second.at(0)];
+			const CCreature * crea = creatureEntry.second.at(0).toCreature();
 			SlotID slot = getSlotFor(crea->getId());
 
 			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
@@ -349,7 +440,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				iw.type = EInfoWindowMode::AUTO;
 				iw.player = h->tempOwner;
 				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 425);//The %s would join your hero, but there aren't enough provisions to support them.
-				iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, crid);
+				iw.text.replaceNamePlural(crid);
 				cb->showInfoDialog(&iw);
 			}
 			else //give creatures
@@ -365,7 +456,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				iw.player = h->tempOwner;
 				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 423); //%d %s join your army.
 				iw.text.replaceNumber(count);
-				iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, crid);
+				iw.text.replaceNamePlural(crid);
 
 				cb->showInfoDialog(&iw);
 				cb->sendAndApply(&sac);
@@ -377,7 +468,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			InfoWindow iw;
 			iw.type = EInfoWindowMode::AUTO;
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 422); //There are no %s here to recruit.
-			iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, crid);
+			iw.text.replaceNamePlural(crid);
 			iw.player = h->tempOwner;
 			cb->sendAndApply(&iw);
 		}
@@ -425,10 +516,7 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	if(!handler.saving)
-		initRandomObjectInfo();
-
-	switch (ID)
+	switch (ID.toEnum())
 	{
 	case Obj::WAR_MACHINE_FACTORY:
 	case Obj::REFUGEE_CAMP:
@@ -437,8 +525,10 @@ void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 	case Obj::RANDOM_DWELLING:
 	case Obj::RANDOM_DWELLING_LVL:
 	case Obj::RANDOM_DWELLING_FACTION:
-		info->serializeJson(handler);
-		//fall through
+		if (!handler.saving)
+			randomizationInfo = CGDwellingRandomizationInfo();
+		randomizationInfo->serializeJson(handler);
+		[[fallthrough]];
 	default:
 		serializeJsonOwner(handler);
 		break;

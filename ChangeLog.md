@@ -1,3 +1,463 @@
+# 1.4.5 -> 1.5.0
+
+### General
+* Added option to disable cheats in game
+
+### Interface
+* Town Portal dialog will now show town icons
+* Town Portal dialog will now show town info on right click
+* Town Portal dialog will center on town on clicking it
+* Town Portal dialog now uses same town ordering as in adventure map interface
+* Heroes can now be recruited from the tavern by double-clicking on them
+* Added status bar to the backpack window
+* Quick backpack window is now only available when enabled Interface enhancements
+* Fixed assembly of artifacts in the backpack when backpack is full
+* Attempt to use enemy turn replay feature will now show "Not implemented" message
+
+### Campaigns
+* Game will now correctly track who defeated the hero or wandering monsters for related quests and victory conditions
+* Birth of a Barbarian: Yog will now start the third scenario with Angelic Alliance in his inventory
+* Birth of a Barbarian: Heroes with Angelic Alliance components are now considered to be mission-critical and can't be dismissed or lost in combat
+* Birth of a Barbarian: Yog can no longer purchase spellbook from the Mage Guild
+* Birth of a Barbarian: Yog will no longer gain Spellpower or Knowledge when leveling up
+* Birth of a Barbarian: Scenarios with mission to deliver an artifact will no longer end after just defeating enemies
+* Gem will now have her class set to "Sorceress" in campaigns
+* Fixed missing names for heroes who have their names customized in map after being transferred to the next scenario
+* Artifact transfer will now work correctly if the hero holding the transferable artifact is not also transferring
+* Fixed crash on opening of some campaigns in the French version from gog.com
+* It is now possible to replay the intro movie from the scenario information window
+* When playing the intro video, the subtitles are now correctly synchronized with the audio
+
+### Battles
+* Added option to enable unlimited combat replays during game setup
+* Added option to instantly end battle using quick combat (shotcut: 'e')
+* Added option to replace auto-combat button action with instant end using quick combat
+* Battles against AI players can now be done using quick combat
+* Disabling battle queue will now correctly reposition hero statistics preview popup
+* Fixed positioning of unit stack size label
+
+### Launcher
+* Added Spanish translation to launcher
+
+### Map Editor
+* Added Chinese translation to map editor
+
+### AI
+* Fixed possible crash on updating NKAI pathfinding data
+* Fixed counting mana usage cost of Fly spell
+* Added estimation of value of Pyramid and Cyclops Stockpile
+
+### Modding
+* Added new game setting that allows inviting heroes to taverns
+* Fixed reversed Overlord and Warlock classes mapping
+
+# 1.4.4 -> 1.4.5
+
+### Stability
+* Fixed crash on creature spellcasting
+* Fixed crash on unit entering magical obstacles such as quicksands
+* Fixed freeze on map loading on some systems
+* Fixed crash on attempt to start campaign with unsupported map
+* Fixed crash on opening creature information window with invalid SPELL_IMMUNITY bonus
+
+### Random Maps Generator
+* Fixed placement of guards sometimes resulting into open connection into third zone
+* Fixed rare crash on multithreaded access during placement of artifacts or wandering monsters
+
+### Map Editor
+* Fixed inspector using wrong editor for some values
+
+### AI
+* Fixed bug leading to AI not attacking wandering monsters in some cases
+* Fixed crash on using StupidAI for autocombat or for enemy players 
+
+# 1.4.3 -> 1.4.4
+
+### General
+* Fixed crash on generation of random maps
+
+# 1.4.2 -> 1.4.3
+
+### General
+* Fixed the synchronisation of the audio and video of the opening movies.
+* Fixed a bug that caused spells from mods to not show up in the Mage's Guild.
+* Changed the default SDL driver on Windows from opengl to autodetection
+* When a hero visits a town with a garrisoned hero, they will now automatically exchange spells if one of them has the Scholar skill.
+* Movement and mana points are now replenished for new heroes in taverns.
+
+### Multiplayer
+* Simturn contact detection will now correctly check for hero moving range
+* Simturn contact detection will now ignore wandering monsters
+* Right-clicking the Simturns AI option now displays a tooltip
+* Interaction attempts with other players during simturns will now have more concise error messages
+* Turn timers are now limited to 24 hours in order to prevent bugs caused by an integer overflow.
+* Fixed delays when editing turn timer duration
+* Ending a turn during simturns will now block the interface correctly.
+
+### Campaigns
+* Player will no longer start the United Front of Song for the Father campaign with two Nimbuses.
+* Fixed missing campaign description after loading saved game
+* Campaign completion checkmarks will now be displayed after the entire campaign has been completed, rather than just after the first scenario.
+* Fixed positioning of prologue and epilogue text during campaign scenario intros
+
+### Interface
+* Added an option to hide adventure map window when town or battle window are open
+* Fixed switching between pages on small version of spellbook
+* Saves with long filenames are now truncated in the UI to prevent overflow.
+* Added option to sort saved games by change date
+* Game now shows correct resource when selecting start bonus
+* It is now possible to inspect commander skills during battles.
+* Fixed incorrect cursor being displayed when hovering over navigable water tiles
+* Fixed incorrect cursor display when hovering over water objects accessible from shore
+
+### Stability
+* Fixed a crash when using the 'vcmiobelisk' cheat more than once.
+* Fixed crash when reaching level 201. The maximum level is now limited to 197.
+* Fixed crash when accessing a spell with an invalid SPELLCASTER bonus
+* Fixed crash when trying to play music for an inaccessible tile 
+* Fixed memory corruption on loading of old mods with illegal 'index' field
+* Fixed possible crash on server shutdown on Android
+* Fixed possible crash when the affinity of the hero class is set to an invalid value
+* Fixed crash on invalid creature in hero army due to outdated or broken mods
+* Failure to initialise video subsystem now displays error message instead of silent crash
+
+### Random Maps Generator
+* Fixed possible creation of a duplicate hero in a random map when the player has chosen the starting hero.
+* Fixed banning of quest artifacts on random maps
+* Fixed banning of heroes in prison on random maps
+
+### Battles
+* Battle turn queue now displays current turn
+* Added option to show unit statistics sidebar in battle
+* Right-clicking on a unit in the battle turn queue now displays the unit details popup.
+* Fixed error messages for SUMMON_GUARDIANS and TRANSMUTATION bonuses
+* Fixed Dendroid Bind ability
+* Black Dragons no longer hate Giants, only Titans
+* Spellcasting units such as Archangels can no longer cast spells on themselves.
+* Coronius specialty will now correctly select affected units
+
+### Launcher
+* Welcome screen will automatically detect existing Heroes 3 installation on Windows
+* It is now possible to install mods by dragging and dropping onto the launcher.
+* It is now possible to install maps and campaigns by dragging and dropping onto the launcher.
+* Czech launcher translation added
+* Added option to select preferred SDL driver in launcher
+
+### Map Editor
+* Fixed saving of allowed abilities, spells, artifacts or heroes
+
+### AI
+* AI will no longer attempt to move immobilized units, such as those under the effect of Dendroid Bind.
+* Fixed shooters not shooting when they have a range penalty
+* Fixed Fire Elemental spell casting
+* Fixed rare bug where unit would sometimes do nothing in battle
+
+### Modding
+* Added better reporting of "invalid identifiers" errors with suggestions on how to fix them
+* Added FEROCITY bonus (HotA Aysiud)
+* Added ENEMY_ATTACK_REDUCTION bonus (HotA Nix)
+* Added REVENGE bonus (HotA Haspid)
+* Extended DEATH_STARE bonus to support Pirates ability (HotA)
+* DEATH_STARE now supports spell ID in addInfo field to override used spell
+* SPELL_BEFORE_ATTACK bonus now supports spell priorities
+* FIRST_STRIKE bonus supports subtypes damageTypeMelee, damageTypeRanged and damageTypeAll
+* BLOCKS_RETALIATION now also blocks FIRST_STRIKE bonus
+* Added 'canCastOnSelf' field for spells to allow creatures to cast spells on themselves.
+
+# 1.4.1 -> 1.4.2
+
+### General
+* Restored support for Windows 7
+* Restored support for 32-bit builds
+* Implemented quick backpack window for slot-specific artifact selection, activated via mouse wheel / swipe gesture
+* Added option to search for specific spell in the spellbook
+* Added option to skip fading animation on adventure map
+* Using alt-tab to switch to another application will no longer activate in-game console/chat
+* Increased frequency of checks for server startup to improve server connection time
+* added nwcfollowthewhiterabbit / vcmiluck cheat: the currently selected hero permanently gains maximum luck.
+* added nwcmorpheus / vcmimorale cheat: the currently selected hero permanently gains maximum morale.
+* added nwcoracle / vcmiobelisk cheat: the puzzle map is permanently revealed.
+* added nwctheone / vcmigod cheat: reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight to currently selected hero
+
+### Launcher
+* Launcher will now properly show mod installation progress
+* Launcher will now correctly select preferred language on first start
+
+### Multiplayer
+* Timers for all players will now be visible at once
+* Turn options menu will correctly open for guests when host switches to it
+* Guests will correctly see which roads are allowed for random maps by host
+* Game will now correctly deactivate unit when timer runs out in pvp battle
+* Game will show turn, battle and unit timers separately during battles
+* Timer in pvp battles will be only active if unit timer is non-zero
+* Timer during adventure map turn will be active only if turn timer is non-zero
+* Game will now send notifications to players when simultaneous turns end
+
+### Stability
+* Fixed crash on clicking town or hero list on MacOS and iOS
+* Fixed crash on closing vcmi on Android
+* Fixed crash on disconnection from multiplayer game
+* Fixed crash on finishing game on last day of the month
+* Fixed crash on loading h3m maps with mods that alter Witch Hut, Shrine or Scholar
+* Fixed crash on opening creature morale detalisation in some localizations
+* Fixed possible crash on starting a battle when opening sound from previous battle is still playing
+* Fixed crash on map loading in case if there is no suitable option for a random dwelling
+* Fixed crash on usage of radial wheel to reorder towns or heroes
+* Fixed possible crash on random map generation
+* Fixed crash on attempting to transfer last creature when stack experience is enabled
+* Fixed crash on accessing invalid settings options
+* Fixed server crash on receiving invalid message from player
+* Added check for presence of Armageddon Blade campaign files to avoid crash on some Heroes 3 versions
+
+### Random Maps Generator
+* Improved performance of random maps generation
+* Rebalance of treasure values and density
+* Improve junction zones generation by spacing Monoliths
+* Reduced amount of terrain decorations to level more in line with H3
+* Generator will now avoid path routing near map border
+* Generator will now check full object area for minimum distance requirement
+* Fixed routing of roads behind Subterranean Gates, Monoliths and Mines
+* Fixed remaining issues with placement of Corpse
+* Fixed placement of one-tile prisons from HotA
+* Fixed spawning of Armageddon's Blade and Vial of Dragon Blood on random maps
+
+### Interface
+* Right-clicking hero icon during levelup dialog will now show hero status window
+* Added indicator of current turn to unit turn order panel in battles
+* Reduces upscaling artifacts on large spellbook
+* Game will now display correct date of saved games on Android
+* Fixed black screen appearing during spellbook page flip animation 
+* Fixed description of "Start map with hero" bonus in campaigns
+* Fixed invisible chat text input in game lobby
+* Fixed positioning of chat history in game lobby
+* "Infobar Creature Management" option is now enabled by default
+* "Large Spellbook" option is now enabled by default
+
+### Mechanics
+* Anti-magic garrison now actually blocks spell casting
+* Berserk spell will no longer cancel if affected unit performs counterattack
+* Frenzy spell can no longer be casted on units that should be immune to it
+* Master Genie will no longer attempt to cast beneficial spell on creatures immune to it
+* Vitality and damage skills of a commander will now correctly grow with level
+
+### Modding
+* Added UNTIL_OWN_ATTACK duration type for bonuses
+* Configurable objects with visit mode "first" and "random" now respect "canRefuse" flag
+
+# 1.4.0 -> 1.4.1
+
+### General
+* Fixed position for interaction with starting heroes
+* Fixed smooth map scrolling when running at high framerate
+* Fixed calculation of Fire Shield damage when caster has artifacts that increase its damage
+* Fixed untranslated message when visiting signs with random text
+* Fixed slider scrolling to maximum value when clicking on "scroll right" button
+* Fixed events and seer huts not activating in some cases
+* Fixed bug leading to Artifact Merchant selling Grails in loaded saved games
+* Fixed placement of objects in random maps near the top border of the map
+* Creatures under Slayer spell will no longer deal additional damage to creatures not affected by Slayer
+* Description of a mod in Launcher will no longer be converted to lower-case
+* Game will no longer fail to generate random map when AI-only players option is set to non-zero value
+* Added option to mute audio when VCMI window is not active
+* Added option to disable smooth map scrolling
+* Reverted ban on U-turns in pathfinder
+
+### Stability
+* Fixed crash on using mods made for VCMI 1.3
+* Fixed crash on generating random map with large number of monoliths
+* Fixed crash on losing mission-critical hero in battle
+* Fixed crash on generating growth detalization in some localizations
+* Fixed crash on loading of some user-made maps
+
+# 1.3.2 -> 1.4.0
+
+### General
+* Implemented High Score screen
+* Implemented tracking of completed campaigns
+* "Secret" Heroes 3 campaigns now require completion of prerequisite campaigns first
+* Completing a campaign will now return player to campaign selection window instead of main menu
+* Game will now play video on winning or losing a game
+* Game will now correctly check for mod compatibility when loading saved games
+* Game client will no longer load conflicting mods if player have both of them enabled
+* If some mods fail to load due to missing dependencies or conflicts, game client will display message on opening main menu
+* Game will no longer crash on loading save with different mod versions and will show error message instead
+* Saved games are now 2-3 times smaller than before
+* Added Vietnamese translation
+* Failure to connect to a MP game will now show proper error message
+* Added VSync support
+* Implemented tutorial
+* Implemented support for playback of audio from video files
+* Windows Installer will now automatically add required firewall rules
+* Game audio will now be disabled if game window is not focused
+* Fixed formatting of date and time of a savegame on Android
+* Added list of VCMI authors to credits screen
+* Quick combat is now disabled by default
+* Spectator mode in single player is now disabled
+
+### Multiplayer
+* Implemented simultaneous turns
+* Implemented turn timers, including chess timers version
+* Game will now hide entire adventure map on hotseat turn transfer
+* Added option to pause game timer while on system options window
+* Implemented localization support for maps
+* Game will now use texts from local player instead of host
+* Multiple fixes to validation of player requests by server
+
+### Android
+* Heroes 3 data import now accepts files in any case
+* Fixed detection of Heroes 3 data presence when 'data' directory uses lower case
+
+### Touchscreen
+* Added tutorial video clips that explain supported touch gestures
+* Double tap will now be correctly interpreted as double click, e.g. to start scenario via double-click
+* Implemented snapping to 100% scale for adventure map zooming
+* Implemented smooth scrolling for adventure map
+* Implemented radial wheel to reorder list of owned towns and heroes
+* Implemented radial wheel for hero exchange in towns
+
+### Launcher
+* When a mod is being downloaded, the launcher will now correctly show progress as well as its total size
+* Double-clicking mod name will now perform expected action, e.g. install/update/enable or disable
+* Launcher will now show mod extraction progress instead of freezing
+* "Friendly AI" option will now correctly display current type of friendly AI
+* Player can now correctly switch to global chat after disconnect
+* "Resolve mods conflicts" button now attempts to fix all mods if nothing is selected
+* Implemented support for mention in game lobby
+* Implemented support for global and room channels in game lobby
+* Added option to reconnect to game lobby
+
+### Editor
+* It is now possible to configure rewards for Seer Hut, Pandora Boxes and Events
+* It is now possible to configure quest (limiter) in Seer Hut and Quest Guards
+* It is now possible to configure events and rumors in map editor
+* Improved army configuration interface
+* Added option to customize hero skills
+* It is now possible to select object on map for win/loss conditions or for main town
+* Random dwellings can now be linked to a random town
+* Added map editor zoom 
+* Added objects lock functionality 
+* It is now possible to configure hero placeholders in map editor
+* Fixed duplicate artifact image on mouse drag 
+* Lasso tool will no longer skip tiles
+* Fixed layout of roads and rivers
+
+### Stability
+* Fix possible crash on generating random map
+* Fixed multiple memory leaks in game client
+* Fixed crash on casting Hypnotize multiple times
+* Fixed crash on attempting to move all artifacts from hero that has no artifacts
+* Fixed crash on attempting to load corrupted .def file
+* Fixed crash on clicking on empty Altar of Sacrifice slots
+
+### AI
+* BattleAI should now see strong stacks even if blocked by weak stacks.
+* BattleAI will now prefers targets slower than own stack even if they are not reachable this turn.
+* Improved BattleAI performance when selecting spell to cast
+* Improved BattleAI performance when selection unit action
+* Improved BattleAI spell selection logic
+* Nullkiller AI can now use Fly and Water Walk spells
+
+### Campaigns
+* Implemented voice-over audio support for Heroes 3 campaigns
+* Fixes victory condition on 1st scenario of "Long Live the King" campaign 
+* Fixed loading of defeat/victory icon and message for some campaign scenarios
+
+### Interface
+* Implemented adventure map dimming on opening windows
+* Clicking town hall icon on town screen will now open town hall
+* Clicking buildings in town hall will now show which resources are missing (if any)
+* Fixed incorrect positioning of total experience text on Altar of Sacrifice
+* Game will now show correct video file on battle end
+* Game will now correctly loop battle end animation video
+* Implemented larger version of spellbooks that displays up to 24 spells at once
+* Spell scrolls in hero inventory now show icon of contained spell
+* Fixed incorrect hero morale tooltip after visiting adventure map objects
+* Fixed incorrect information for skills in hero exchange window
+* Confirmation button will now be disabled on automatic server connect dialog
+* Attempting to recruit creature in town with no free slots in garrisons will now correctly show error message
+
+### Main Menu
+* Implemented window for quick selection of starting hero, town and bonus
+* Implemented map preview in scenario selection and game load screen accessible via right click on map
+* Show exact map size in map selection
+* Added support for folders in scenario selection and save/load screens
+* Added support for "Show Random Maps" button in random map setup screen
+* Added starting hero preview screen
+* Added option to change name of player while in map setup screen
+* Implemented loading screen with progress bar
+* Game will now stay on loading screen while random map generation is in process
+* Team Alignments popup in scenario options will no longer show empty teams
+* Fixed missing borders on team alignments configuration window in random maps
+* Fixed map difficulty icon on save/load screen
+* Main menu animation will no longer appear on top of new game / load game text
+
+### Adventure Map Interface
+* Picking up an artifact on adventure map will now show artifact assembly dialog if such option exists
+* Minimap will now preserve correct aspect ratio on rectangular maps
+* Fixed slot highlighting when an artifact is being assembled
+* Ctrl-click on hero will now select him instead of changing path of active hero
+* In selection windows (level up window, treasure chest pickup, etc) it is now possible to select reward via double-click
+* Attacking wandering monsters with preconfigured message will now correctly show the message
+* Revisit object button will now be blocked if there is no object to revisit
+* Fixed missing tooltip for "revisit object" button
+* Fixed calculation of fow reveal range for all objects
+* Attempt to close game will now ask for confirmation
+* Right-clicking previously visited Seer Huts or Quest Guards will show icon with preview of quest goal
+* Right-clicking owned dwellings will show amount of creatures available to for recruitment
+* Right-clicking previously visited creature banks will show exact guards composition with their portraits
+* Right-clicking artifacts on map will show artifact description
+* Right-clicking objects that give bonus to hero will show object description
+
+### Mechanics
+* Heroes in tavern will correctly lose effects from spells or visited objects on new day
+* Fixed multiple bugs in offering of Wisdom and Spell Schools on levelup. Mechanic should now work identically to Heroes 3
+* Retreated heroes will no longer restore their entire mana pool on new day
+* Fixed Grail in Crypt on some custom maps
+* Added support for repeatable quests in Seer Huts
+* Using "Sacrifice All" on Altar will now correctly place all creatures but one on altar
+* Fixed probabilities of luck and morale
+* Blinded stack no longer can get morale 
+* Creature that attacks while standing in moat will now correctly receive moat damage
+* Player resources are now limited to 1 000 000 000 to prevent overflow
+* It is no longer possible to escape from town without fort
+* Pathfinder will no longer make U-turns when moving onto visitable objects while flying
+* Pathfinder will no longer make paths that go over teleporters without actually using them
+* Game will now correctly update guard status of tiles that are guarded by multiple wandering monsters
+* Moving onto Garrisons and Border Guards entrance tiles that are guarded by wandering monsters will now correctly trigger battle
+* It is no longer possible to build second boat in shipyard when shipyard should be blocked by boat with hero
+* Gundula is now Offense specialist and not Sorcery, as in H3
+
+### Random Maps Generator
+* Increased tolerance for placement of Subterranean Gates
+* Game will now select random object template out of available options instead of picking first one
+* It is no longer possible to create map with a single team
+* Game will no longer route roads through non-removable treasure objects, such as Corpse
+* Fixed placement of treasure piles with non-removable objects, such as Corpse
+* Fixed interface no displaying correct random map settings in some cases
+* Fixed misleading error "no info for player X found"
+* Fixed bug leading to AI players defeated on day one.
+
+### Modding
+* All bonuses now require string as a subtype. See documentation for exact list of possible strings for each bonus.
+* Changes to existing objects parameters in mods will now be applied to ongoing saves
+* Fixed handling of engine version compatibility check
+* Added support for giving arbitrary bonuses to AI players
+* Most mods of type "Translation" are now hidden in Launcher
+* Added new mod type: "Compatibility". Mods of this type are hidden in Launcher and are always active if they are compatible.
+* Added new mod type: "Maps"
+* Added new TERRAIN_NATIVE bonus that makes any terrain native to affected units
+* SPELL_DURATION now allows subtypes. If set to spell, bonus will only affect specified spell
+* Both game client and launcher will now correctly handle dependencies that are not in lower case
+* Implemented support for refusable Witch Hut and Scholar
+* Added "variables" to configurable objects that are shared between all rewards
+* Added visit mode "limiter" for configurable objects. Hero will be considered as "visited this object" if he fulfills provided condition
+* Added option to customize text displayed for visited objects, e.g. show "Already learned" instead of "Visited"
+* Added option to define custom description of configurable object, accessible via right-click
+* Added option to show object content icons on right-click
+* Object now allows checking whether hero can learn spell
+* Object limiter now allows checking whether hero can learn skill
+* Object reward may now reveal terrain around visiting hero (e.g. Redwood Observatory)
+
 # 1.3.1 -> 1.3.2
 
 ### GENERAL

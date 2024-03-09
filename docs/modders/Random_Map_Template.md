@@ -8,6 +8,8 @@
 {
 	//Optional name - useful to have several template variations with same name
 	"name" : "Custom template name",
+	//Any info you want to be displayed in random map menu
+	"description" : "Detailed info and recommended rules",
 
 	/// Minimal and maximal size of the map. Possible formats:
 	/// Size code: s, m, l or xl for size with optional suffix "+u" for underground
@@ -18,8 +20,8 @@
 	/// Number of players that will be present on map (human or AI)
 	"players" : "2-4",
 
-	/// Optional, number of AI-only players
-	"cpu" : "2",
+	/// Since 1.4.0 - Optional, number of human-only players (as in original templates)
+	"humans" : "1-4",
 
 	///Optional parameter allowing to prohibit some water modes. All modes are allowed if parameter is not specified
 	"allowedWaterContent" : ["none", "normal", "islands"]

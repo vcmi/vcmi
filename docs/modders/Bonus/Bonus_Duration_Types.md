@@ -14,3 +14,4 @@ Bonus may have any of these durations. They acts in disjunction.
 -   UNTIL_ATTACK: removed after attack and counterattacks are performed
 -   STACK_GETS_TURN: removed when stack gets its turn - used for defensive stance
 -   COMMANDER_KILLED
+-   UNTIL_OWN_ATTACK: removed after attack (not counterattack) is performed

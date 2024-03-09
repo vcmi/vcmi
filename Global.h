@@ -41,6 +41,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define VCMI_UNIX
 #  define VCMI_XDG
 #  define VCMI_FREEBSD
+#elif defined(__OpenBSD__)
+#  define VCMI_UNIX
+#  define VCMI_XDG
+#  define VCMI_OPENBSD
 #elif defined(__HAIKU__)
 #  define VCMI_UNIX
 #  define VCMI_XDG
@@ -99,6 +103,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 
 #define _USE_MATH_DEFINES
+
+#ifndef NDEBUG
+// Enable additional debug checks from glibc / libstdc++ when building with enabled assertions
+// Since these defines must be declared BEFORE including glibc header we can not check for __GLIBCXX__ macro to detect that glibc is in use
+#  define _GLIBCXX_ASSERTIONS
+#endif
 
 #include <algorithm>
 #include <any>
@@ -673,6 +683,23 @@ namespace vstd
 	Arithmetic lerp(const Arithmetic & a, const Arithmetic & b, const Floating & f)
 	{
 		return a + (b - a) * f;
+	}
+
+	template<typename Floating>
+	bool isAlmostZero(const Floating & value)
+	{
+		constexpr Floating epsilon(0.00001);
+		return std::abs(value) <= epsilon;
+	}
+
+	template<typename Floating1, typename Floating2>
+	bool isAlmostEqual(const Floating1 & left, const Floating2 & right)
+	{
+		using Floating = decltype(left + right);
+		constexpr Floating epsilon(0.00001);
+		const Floating relativeEpsilon = std::max(std::abs(left), std::abs(right)) * epsilon;
+		const Floating value = std::abs(left - right);
+		return value <= relativeEpsilon;
 	}
 
 	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr

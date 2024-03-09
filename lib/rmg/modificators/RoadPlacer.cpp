@@ -17,6 +17,7 @@
 #include "../CMapGenerator.h"
 #include "../threadpool/MapProxy.h"
 #include "../../mapping/CMapEditManager.h"
+#include "../../mapObjects/CGObjectInstance.h"
 #include "../../modding/IdentifierStorage.h"
 #include "../../modding/ModScope.h"
 #include "../../TerrainHandler.h"
@@ -85,7 +86,7 @@ bool RoadPlacer::createRoad(const int3 & dst)
 			{
 				if(areaIsolated().contains(dst) || areaIsolated().contains(src))
 				{
-					return 1e30;
+					return 1e12;
 				}
 			}
 			else
@@ -121,7 +122,7 @@ void RoadPlacer::drawRoads(bool secondary)
 		//Do not draw roads on underground rock or water
 		roads.erase_if([this](const int3& pos) -> bool
 		{
-			const auto* terrain = map.getTile(pos).terType;;
+			const auto* terrain = map.getTile(pos).terType;
 			return !terrain->isPassable() || !terrain->isLand();
 		});
 

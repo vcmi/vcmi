@@ -61,6 +61,12 @@ namespace AIPathfinding
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::WATER)
 		{
+			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::WATER_WALK_CAST)
+			{
+				destination.blocked = false;
+				return;
+			}
+
 			auto action = waterWalkingActions.find(nodeStorage->getHero(source.node));
 
 			if(action != waterWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
@@ -73,6 +79,12 @@ namespace AIPathfinding
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::AIR)
 		{
+			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::FLY_CAST)
+			{
+				destination.blocked = false;
+				return;
+			}
+
 			auto action = airWalkingActions.find(nodeStorage->getHero(source.node));
 
 			if(action != airWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
@@ -91,12 +103,12 @@ namespace AIPathfinding
 
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			if(hero->canCastThisSpell(waterWalk.toSpell()))
+			if(hero->canCastThisSpell(waterWalk.toSpell()) && hero->mana >= hero->getSpellCost(waterWalk.toSpell()))
 			{
 				waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero);
 			}
 
-			if(hero->canCastThisSpell(airWalk.toSpell()))
+			if(hero->canCastThisSpell(airWalk.toSpell()) && hero->mana >= hero->getSpellCost(airWalk.toSpell()))
 			{
 				airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero);
 			}
@@ -119,7 +131,7 @@ namespace AIPathfinding
 		{
 			if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 			{
-				if(const IShipyard * shipyard = IShipyard::castFrom(obj))
+				if(const auto * shipyard = dynamic_cast<const IShipyard *>(obj))
 					shipyards.push_back(shipyard);
 			}
 		}
@@ -178,11 +190,6 @@ namespace AIPathfinding
 		EPathNodeAction targetAction) const
 	{
 		bool result = false;
-
-		if(!specialAction->canAct(nodeStorage->getAINode(source.node)))
-		{
-			return false;
-		}
 
 		nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{

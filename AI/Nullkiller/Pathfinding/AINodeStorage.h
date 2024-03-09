@@ -24,9 +24,6 @@
 
 namespace NKAI
 {
-	const int SCOUT_TURN_DISTANCE_LIMIT = 5;
-	const int MAIN_TURN_DISTANCE_LIMIT = 10;
-
 namespace AIPathfinding
 {
 #ifdef ENVIRONMENT64
@@ -41,11 +38,19 @@ namespace AIPathfinding
 	const int CHAIN_MAX_DEPTH = 4;
 }
 
+enum DayFlags : ui8
+{
+	NONE = 0,
+	FLY_CAST = 1,
+	WATER_WALK_CAST = 2
+};
+
 struct AIPathNode : public CGPathNode
 {
 	uint64_t danger;
 	uint64_t armyLoss;
-	int32_t manaCost;
+	int16_t manaCost;
+	DayFlags dayFlags;
 	const AIPathNode * chainOther;
 	std::shared_ptr<const SpecialAction> specialAction;
 	const ChainActor * actor;
@@ -180,7 +185,7 @@ public:
 	bool selectFirstActor();
 	bool selectNextActor();
 
-	virtual std::vector<CGPathNode *> getInitialNodes() override;
+	std::vector<CGPathNode *> getInitialNodes() override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,
@@ -192,7 +197,7 @@ public:
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) override;
 
-	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
+	void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
 
 	void commit(
 		AIPathNode * destination,
@@ -200,7 +205,8 @@ public:
 		EPathNodeAction action,
 		int turn,
 		int movementLeft,
-		float cost) const;
+		float cost,
+		bool saveToCommited = true) const;
 
 	inline const AIPathNode * getAINode(const CGPathNode * node) const
 	{

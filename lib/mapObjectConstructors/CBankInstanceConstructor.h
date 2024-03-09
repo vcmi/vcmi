@@ -14,6 +14,7 @@
 
 #include "../CCreatureSet.h"
 #include "../ResourceSet.h"
+#include "../json/JsonNode.h"
 #include "../mapObjects/CBank.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -27,7 +28,7 @@ struct BankConfig
 	std::vector<ArtifactID> artifacts; //artifacts given in case of victory
 	std::vector<SpellID> spells; // granted spell(s), for Pyramid
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & chance;
 		h & guards;
@@ -55,13 +56,9 @@ class DLL_LINKAGE CBankInfo : public IObjectInfo
 public:
 	CBankInfo(const JsonVector & Config);
 
-	TPossibleGuards getPossibleGuards() const;
+	TPossibleGuards getPossibleGuards(IGameCallback * cb) const;
 	std::vector<PossibleReward<TResources>> getPossibleResourcesReward() const;
-	std::vector<PossibleReward<CStackBasicDescriptor>> getPossibleCreaturesReward() const;
-
-	// These functions should try to evaluate minimal possible/max possible guards to give provide information on possible thread to AI
-	CArmyStructure minGuards() const override;
-	CArmyStructure maxGuards() const override;
+	std::vector<PossibleReward<CStackBasicDescriptor>> getPossibleCreaturesReward(IGameCallback * cb) const;
 
 	bool givesResources() const override;
 	bool givesArtifacts() const override;
@@ -71,7 +68,7 @@ public:
 
 class CBankInstanceConstructor : public CDefaultObjectTypeHandler<CBank>
 {
-	BankConfig generateConfig(const JsonNode & conf, CRandomGenerator & rng) const;
+	BankConfig generateConfig(IGameCallback * cb, const JsonNode & conf, CRandomGenerator & rng) const;
 
 	JsonVector levels;
 
@@ -92,15 +89,6 @@ public:
 	bool hasNameTextID() const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & levels;
-		h & bankResetDuration;
-		h & blockVisit;
-		h & coastVisitable;
-		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

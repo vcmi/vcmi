@@ -1,18 +1,19 @@
 {
-	"library" : "config/widgets/settings/library.json",
+	"library" : [
+		"config/widgets/settings/library.json",
+		"config/widgets/commonPrimitives.json",
+	],
 
 	"items":
 	[
 		{
 			"name": "lineCreatureInfo",
-			"type": "texture",
-			"image": "settingsWindow/lineHorizontal",
+			"type": "horizontalLine",
 			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 		{
 			"name": "lineAnimationSpeed",
-			"type": "texture",
-			"image": "settingsWindow/lineHorizontal",
+			"type": "horizontalLine",
 			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
 		},
 		{
@@ -47,6 +48,9 @@
 				},
 				{
 					"text": "core.genrltxt.401" // First Aid Tent
+				},
+				{
+					"text": "vcmi.battleOptions.endWithAutocombat.hover"
 				}
 			]
 		},
@@ -69,7 +73,6 @@
 			[
 				{
 					"name": "enableAutocombatSpellsCheckbox",
-					"help": "vcmi.battleOptions.enableAutocombatSpells",
 					"callback": "enableAutocombatSpellsChanged"
 				}
 			]
@@ -85,6 +88,20 @@
 				{},
 				{},
 				{}
+			]
+		},
+
+		{
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
+			"position": {"x": 380, "y": 233},
+			"items":
+			[
+				{
+					"help": "vcmi.battleOptions.endWithAutocombat",
+					"name": "endWithAutocombatCheckbox",
+					"callback": "endWithAutocombatChanged"
+				}
 			]
 		},
 /////////////////////////////////////// Left section - checkboxes

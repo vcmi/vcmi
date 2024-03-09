@@ -42,8 +42,13 @@ public:
 
 		/// The starting town of the player ranging from 0 to town max count or RANDOM_TOWN.
 		/// The default value is RANDOM_TOWN.
-		si32 getStartingTown() const;
-		void setStartingTown(si32 value);
+		FactionID getStartingTown() const;
+		void setStartingTown(FactionID value);
+
+		/// The starting hero of the player ranging from 0 to hero max count or RANDOM_HERO.
+		/// The default value is RANDOM_HERO
+		HeroTypeID getStartingHero() const;
+		void setStartingHero(HeroTypeID value);
 
 		/// The default value is EPlayerType::AI.
 		EPlayerType getPlayerType() const;
@@ -55,19 +60,23 @@ public:
 
 	private:
 		PlayerColor color;
-		si32 startingTown;
+		FactionID startingTown;
+		HeroTypeID startingHero;
 		EPlayerType playerType;
 		TeamID team;
 
 	public:
 		template <typename Handler>
-		void serialize(Handler & h, const int version)
+		void serialize(Handler & h)
 		{
 			h & color;
 			h & startingTown;
 			h & playerType;
-			if(version >= 806)
-				h & team;
+			h & team;
+			if (h.version >= Handler::Version::RELEASE_143)
+				h & startingHero;
+			else
+				startingHero = HeroTypeID::RANDOM;
 		}
 	};
 
@@ -85,8 +94,12 @@ public:
 
 	/// The count of all (human or computer) players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random. If you call
 	/// this method, all player settings are reset to default settings.
-	si8 getPlayerCount() const;
-	void setPlayerCount(si8 value);
+	si8 getHumanOrCpuPlayerCount() const;
+	void setHumanOrCpuPlayerCount(si8 value);
+
+	si8 getMinPlayersCount(bool withTemplateLimit = true) const;
+	si8 getMaxPlayersCount(bool withTemplateLimit = true) const;
+	si8 getPlayerLimit() const;
 
 	/// The count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random.
 	si8 getTeamCount() const;
@@ -114,7 +127,9 @@ public:
 	/// The first player colors belong to standard players and the last player colors belong to comp only players.
 	/// All standard players are by default of type EPlayerType::AI.
 	const std::map<PlayerColor, CPlayerSettings> & getPlayersSettings() const;
-	void setStartingTownForPlayer(const PlayerColor & color, si32 town);
+	const std::map<PlayerColor, CPlayerSettings> & getSavedPlayersMap() const;
+	void setStartingTownForPlayer(const PlayerColor & color, FactionID town);
+	void setStartingHeroForPlayer(const PlayerColor & color, HeroTypeID hero);
 	/// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
 	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN.
 	void setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType playerType);
@@ -136,11 +151,15 @@ public:
 
 	/// Returns false if there is no template available which fits to the currently selected options.
 	bool checkOptions() const;
+	/// Returns true if player colors or teams were set in game GUI
+	bool arePlayersCustomized() const;
 
 	static const si8 RANDOM_SIZE = -1;
 
 private:
+	void initPlayersMap();
 	void resetPlayersMap();
+	void savePlayersMap();
 	int countHumanPlayers() const;
 	int countCompOnlyPlayers() const;
 	PlayerColor getNextPlayerColor() const;
@@ -148,24 +167,30 @@ private:
 	void updatePlayers();
 	const CRmgTemplate * getPossibleTemplate(CRandomGenerator & rand) const;
 
-	si32 width, height;
+	si32 width;
+	si32 height;
 	bool hasTwoLevels;
-	si8 playerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
+	si8 humanOrCpuPlayerCount;
+	si8 teamCount;
+	si8 compOnlyPlayerCount;
+	si8 compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
+	std::map<PlayerColor, CPlayerSettings> savedPlayerSettings;
 	std::set<RoadId> enabledRoads;
+	bool customizedPlayers;
 	
 	const CRmgTemplate * mapTemplate;
 
 public:
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & width;
 		h & height;
 		h & hasTwoLevels;
-		h & playerCount;
+		h & humanOrCpuPlayerCount;
 		h & teamCount;
 		h & compOnlyPlayerCount;
 		h & compOnlyTeamCount;
@@ -177,16 +202,13 @@ public:
 		{
 			templateName = mapTemplate->getId();
 		}
-		if(version >= 806)
+		h & templateName;
+		if(!h.saving)
 		{
-			h & templateName;
-			if(!h.saving)
-			{
-				setMapTemplate(templateName);
-			}
-			
-			h & enabledRoads;
+			setMapTemplate(templateName);
 		}
+
+		h & enabledRoads;
 	}
 };
 

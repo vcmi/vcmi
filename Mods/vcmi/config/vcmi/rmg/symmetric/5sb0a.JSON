@@ -2,7 +2,7 @@
 	"5SB0a" :
 	{
 		"minSize" : "s", "maxSize" : "m+u",
-		"players" : "2-3", "cpu" : "2",
+		"players" : "2-3", "humans" : "2",
 		"zones" :
 		{
 			"1" :

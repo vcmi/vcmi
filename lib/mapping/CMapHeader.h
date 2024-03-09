@@ -10,6 +10,9 @@
 
 #pragma once
 
+#include "../constants/EntityIdentifiers.h"
+#include "../constants/Enumerations.h"
+#include "../constants/VariantIdentifier.h"
 #include "../modding/CModInfo.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
@@ -20,7 +23,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 enum class EMapFormat : uint8_t;
-using ModCompatibilityInfo = std::map<std::string, CModInfo::VerificationInfo>;
+using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 
 /// The hero name struct consists of the hero id and the hero name.
 struct DLL_LINKAGE SHeroName
@@ -31,7 +34,7 @@ struct DLL_LINKAGE SHeroName
 	std::string heroName;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & heroId;
 		h & heroName;
@@ -75,7 +78,7 @@ struct DLL_LINKAGE PlayerInfo
 	TeamID team; /// The default value NO_TEAM
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & hasRandomHero;
 		h & mainCustomHeroId;
@@ -99,7 +102,6 @@ struct DLL_LINKAGE PlayerInfo
 struct DLL_LINKAGE EventCondition
 {
 	enum EWinLoseType {
-		//internal use, deprecated
 		HAVE_ARTIFACT,     // type - required artifact
 		HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
 		HAVE_RESOURCES,    // type - resource ID, value - amount to collect
@@ -108,42 +110,34 @@ struct DLL_LINKAGE EventCondition
 		DESTROY,           // position - position of object, optional, type - type of object
 		TRANSPORT,         // position - where artifact should be transported, type - type of artifact
 
-		//map format version pre 1.0
 		DAYS_PASSED,       // value - number of days from start of the game
 		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
 		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
 		STANDARD_WIN,      // normal defeat all enemies condition
 		CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true)
-
-		//map format version 1.0+
-		HAVE_0,
-		HAVE_BUILDING_0,
-		DESTROY_0
 	};
 
-	EventCondition(EWinLoseType condition = STANDARD_WIN);
-	EventCondition(EWinLoseType condition, si32 value, si32 objectType, const int3 & position = int3(-1, -1, -1));
+	using TargetTypeID = VariantIdentifier<ArtifactID, CreatureID, GameResID, BuildingID, MapObjectID>;
 
-	const CGObjectInstance * object; // object that was at specified position or with instance name on start
-	EMetaclass metaType;
+	EventCondition(EWinLoseType condition = STANDARD_WIN);
+	EventCondition(EWinLoseType condition, si32 value, TargetTypeID objectType, const int3 & position = int3(-1, -1, -1));
+
+	ObjectInstanceID objectID; // object that was at specified position or with instance name on start
 	si32 value;
-	si32 objectType;
-	si32 objectSubtype;
+	TargetTypeID objectType;
 	std::string objectInstanceName;
 	int3 position;
 	EWinLoseType condition;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
-		h & object;
+		h & objectID;
 		h & value;
 		h & objectType;
 		h & position;
 		h & condition;
-		h & objectSubtype;
 		h & objectInstanceName;
-		h & metaType;
 	}
 };
 
@@ -164,7 +158,7 @@ struct DLL_LINKAGE EventEffect
 	MetaString toOtherMessage;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & type;
 		h & toOtherMessage;
@@ -189,7 +183,7 @@ struct DLL_LINKAGE TriggeredEvent
 	EventEffect effect;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & identifier;
 		h & trigger;
@@ -199,8 +193,17 @@ struct DLL_LINKAGE TriggeredEvent
 	}
 };
 
+enum class EMapDifficulty : uint8_t
+{
+	EASY = 0,
+	NORMAL = 1,
+	HARD = 2,
+	EXPERT = 3,
+	IMPOSSIBLE = 4
+};
+
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
-class DLL_LINKAGE CMapHeader: public TextLocalizationContainer
+class DLL_LINKAGE CMapHeader
 {
 	void setupEvents();
 public:
@@ -226,7 +229,7 @@ public:
 	bool twoLevel; /// The default value is true.
 	MetaString name;
 	MetaString description;
-	ui8 difficulty; /// The default value is 1 representing a normal map difficulty.
+	EMapDifficulty difficulty;
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.
 	ui8 levelLimit;
@@ -238,8 +241,8 @@ public:
 
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;
-	std::vector<bool> allowedHeroes;
-	std::vector<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserverd for campaign
+	std::set<HeroTypeID> allowedHeroes;
+	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserverd for campaign
 
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
@@ -248,13 +251,14 @@ public:
 	
 	/// translations for map to be transferred over network
 	JsonNode translations;
+	TextContainerRegistrable texts;
 	
 	void registerMapStrings();
 
 	template <typename Handler>
-	void serialize(Handler & h, const int Version)
+	void serialize(Handler & h)
 	{
-		h & static_cast<TextLocalizationContainer&>(*this);
+		h & texts;
 		h & version;
 		h & mods;
 		h & name;
@@ -262,7 +266,12 @@ public:
 		h & width;
 		h & height;
 		h & twoLevel;
-		h & difficulty;
+		// FIXME: we should serialize enum's according to their underlying type
+		// should be fixed when we are making breaking change to save compatiblity
+		static_assert(Handler::Version::MINIMAL < Handler::Version::RELEASE_143);
+		uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
+		h & difficultyInteger;
+		difficulty = static_cast<EMapDifficulty>(difficultyInteger);
 		h & levelLimit;
 		h & areAnyPlayers;
 		h & players;

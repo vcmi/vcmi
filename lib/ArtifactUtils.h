@@ -31,6 +31,8 @@ namespace ArtifactUtils
 	// TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE const std::vector<ArtifactPosition> & unmovableSlots();
 	DLL_LINKAGE const std::vector<ArtifactPosition> & constituentWornSlots();
+	DLL_LINKAGE const std::vector<ArtifactPosition> & allWornSlots();
+	DLL_LINKAGE const std::vector<ArtifactPosition> & commanderSlots();
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, const ArtifactID & artID, const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
@@ -38,7 +40,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
 	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid);
 	DLL_LINKAGE CArtifactInstance * createScroll(const SpellID & sid);
-	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(CArtifact * art);
+	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(const CArtifact * art);
 	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(const ArtifactID & aid);
 	DLL_LINKAGE CArtifactInstance * createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID = SpellID::NONE);
 	DLL_LINKAGE void insertScrrollSpellName(std::string & description, const SpellID & sid);

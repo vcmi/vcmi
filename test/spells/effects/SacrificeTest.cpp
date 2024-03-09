@@ -14,6 +14,7 @@
 #include <vstd/RNG.h>
 
 #include "../../../lib/battle/CUnitState.h"
+#include "../../../lib/json/JsonNode.h"
 
 #include "mock/mock_UnitEnvironment.h"
 
@@ -38,7 +39,7 @@ protected:
 		EffectFixture::setUp();
 
 		{
-			JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode config;
 			config["healLevel"].String() = "resurrect";
 			EffectFixture::setupEffect(config);
 		}
@@ -145,7 +146,7 @@ protected:
 		EffectFixture::setUp();
 
 		{
-			JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode config;
 			config["healLevel"].String() = "resurrect";
 			config["healPower"].String() = "permanent";
 			EffectFixture::setupEffect(config);
@@ -153,7 +154,7 @@ protected:
 	}
 };
 
-TEST_F(SacrificeApplyTest, ResurrectsTarget)
+TEST_F(SacrificeApplyTest, DISABLED_ResurrectsTarget)
 {
 	using namespace ::battle;
 

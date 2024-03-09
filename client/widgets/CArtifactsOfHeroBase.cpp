@@ -39,11 +39,11 @@ void CArtifactsOfHeroBase::putBackPickedArtifact()
 		auto slot = ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->getTypeId());
 		if(slot == ArtifactPosition::PRE_FIRST)
 		{
-			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
+			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 		}
 		else
 		{
-			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero, slot));
+			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero->id, slot));
 		}
 	}
 	if(putBackPickedArtCallback)
@@ -56,8 +56,8 @@ void CArtifactsOfHeroBase::setPutBackPickedArtifactCallback(PutBackPickedArtCall
 }
 
 void CArtifactsOfHeroBase::init(
-	CHeroArtPlace::ClickFunctor lClickCallback,
-	CHeroArtPlace::ClickFunctor showPopupCallback,
+	CArtPlace::ClickFunctor lClickCallback,
+	CArtPlace::ClickFunctor showPopupCallback,
 	const Point & position,
 	BpackScrollFunctor scrollCallback)
 {
@@ -78,14 +78,14 @@ void CArtifactsOfHeroBase::init(
 	{
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
-		artPlace.second->leftClickCallback = lClickCallback;
-		artPlace.second->showPopupCallback = showPopupCallback;
+		artPlace.second->setClickPressedCallback(lClickCallback);
+		artPlace.second->setShowPopupCallback(showPopupCallback);
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
-		artPlace->leftClickCallback = lClickCallback;
-		artPlace->showPopupCallback = showPopupCallback;
+		artPlace->setClickPressedCallback(lClickCallback);
+		artPlace->setShowPopupCallback(showPopupCallback);
 	}
 	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [scrollCallback]() {scrollCallback(-1);}, EShortcut::MOVE_LEFT);
 	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [scrollCallback]() {scrollCallback(+1);}, EShortcut::MOVE_RIGHT);
@@ -95,16 +95,22 @@ void CArtifactsOfHeroBase::init(
 	setRedrawParent(true);
 }
 
-void CArtifactsOfHeroBase::leftClickArtPlace(CHeroArtPlace & artPlace)
+void CArtifactsOfHeroBase::clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
-	if(leftClickCallback)
-		leftClickCallback(*this, artPlace);
+	if(clickPressedCallback)
+		clickPressedCallback(*this, artPlace, cursorPosition);
 }
 
-void CArtifactsOfHeroBase::rightClickArtPlace(CHeroArtPlace & artPlace)
+void CArtifactsOfHeroBase::showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
 	if(showPopupCallback)
-		showPopupCallback(*this, artPlace);
+		showPopupCallback(*this, artPlace, cursorPosition);
+}
+
+void CArtifactsOfHeroBase::gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+{
+	if(gestureCallback)
+		gestureCallback(*this, artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
@@ -117,7 +123,7 @@ void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
 
 	for(auto slot : artWorn)
 	{
-		setSlotData(slot.second, slot.first, *curHero);
+		setSlotData(slot.second, slot.first);
 	}
 	scrollBackpack(0);
 }
@@ -129,15 +135,9 @@ const CGHeroInstance * CArtifactsOfHeroBase::getHero() const
 
 void CArtifactsOfHeroBase::scrollBackpack(int offset)
 {
-	scrollBackpackForArtSet(offset, *curHero);
-	redraw();
-}
-
-void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSet & artSet)
-{
 	// offset==-1 => to left; offset==1 => to right
 	using slotInc = std::function<ArtifactPosition(ArtifactPosition&)>;
-	auto artsInBackpack = static_cast<int>(artSet.artifactsInBackpack.size());
+	auto artsInBackpack = static_cast<int>(curHero->artifactsInBackpack.size());
 	auto scrollingPossible = artsInBackpack > backpack.size();
 
 	slotInc inc_straight = [](ArtifactPosition & slot) -> ArtifactPosition
@@ -164,7 +164,7 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 	auto slot = ArtifactPosition(ArtifactPosition::BACKPACK_START + backpackPos);
 	for(auto artPlace : backpack)
 	{
-		setSlotData(artPlace, slot, artSet);
+		setSlotData(artPlace, slot);
 		slot = inc(slot);
 	}
 
@@ -173,12 +173,14 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 		leftBackpackRoll->block(!scrollingPossible);
 	if(rightBackpackRoll)
 		rightBackpackRoll->block(!scrollingPossible);
+
+	redraw();
 }
 
 void CArtifactsOfHeroBase::markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved)
 {
 	for(auto artPlace : artWorn)
-		artPlace.second->selectSlot(art->artType->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
+		artPlace.second->selectSlot(art->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
 }
 
 void CArtifactsOfHeroBase::unmarkSlots()
@@ -229,7 +231,7 @@ void CArtifactsOfHeroBase::updateBackpackSlots()
 
 void CArtifactsOfHeroBase::updateSlot(const ArtifactPosition & slot)
 {
-	setSlotData(getArtPlace(slot), slot, *curHero);
+	setSlotData(getArtPlace(slot), slot);
 }
 
 const CArtifactInstance * CArtifactsOfHeroBase::getPickedArtifact()
@@ -241,7 +243,16 @@ const CArtifactInstance * CArtifactsOfHeroBase::getPickedArtifact()
 		return curHero->getArt(ArtifactPosition::TRANSITION_POS);
 }
 
-void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot, const CArtifactSet & artSet)
+void CArtifactsOfHeroBase::addGestureCallback(CArtPlace::ClickFunctor callback)
+{
+	for(auto & artPlace : artWorn)
+	{
+		artPlace.second->setGestureCallback(callback);
+		artPlace.second->addUsedEvents(GESTURE);
+	}
+}
+
+void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot)
 {
 	// Spurious call from artifactMoved in attempt to update hidden backpack slot
 	if(!artPlace && ArtifactUtils::isSlotBackpack(slot))
@@ -250,7 +261,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	}
 
 	artPlace->slot = slot;
-	if(auto slotInfo = artSet.getSlot(slot))
+	if(auto slotInfo = curHero->getSlot(slot))
 	{
 		artPlace->lockSlot(slotInfo->locked);
 		artPlace->setArtifact(slotInfo->artifact);
@@ -263,7 +274,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 				arts.insert(std::pair(combinedArt, 0));
 				for(const auto part : combinedArt->getConstituents())
 				{
-					if(artSet.hasArt(part->getId(), false))
+					if(curHero->hasArt(part->getId(), false))
 						arts.at(combinedArt)++;
 				}
 			}

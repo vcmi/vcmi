@@ -231,7 +231,7 @@ void generateRandomMap(CMapGenerator & gen, MainWindow * window)
 
 std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 {
-	std::unique_ptr<CMap> map(new CMap);
+	auto map = std::make_unique<CMap>(nullptr);
 	map->version = EMapFormat::VCMI;
 	map->width = options.getWidth();
 	map->height = options.getHeight();
@@ -281,7 +281,7 @@ void WindowNewMap::on_okButton_clicked()
 		if(ui->checkSeed->isChecked() && !ui->lineSeed->text().isEmpty())
 			seed = ui->lineSeed->text().toInt();
 			
-		CMapGenerator generator(mapGenOptions, seed);
+		CMapGenerator generator(mapGenOptions, nullptr, seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
 	
@@ -332,7 +332,7 @@ void WindowNewMap::on_humanCombo_activated(int index)
 		ui->humanCombo->setCurrentIndex(humans);
 	}
 
-	mapGenOptions.setPlayerCount(humans);
+	mapGenOptions.setHumanOrCpuPlayerCount(humans);
 
 	int teams = mapGenOptions.getTeamCount();
 	if(teams > humans - 1)
@@ -361,8 +361,10 @@ void WindowNewMap::on_humanCombo_activated(int index)
 
 void WindowNewMap::on_cpuCombo_activated(int index)
 {
-	int humans = mapGenOptions.getPlayerCount();
+	int humans = mapGenOptions.getHumanOrCpuPlayerCount();
 	int cpu = ui->cpuCombo->currentData().toInt();
+
+	// FIXME: Use mapGenOption method only to calculate actual number of players for current template
 	if(cpu > PlayerColor::PLAYER_LIMIT_I - humans)
 	{
 		cpu = PlayerColor::PLAYER_LIMIT_I - humans;
@@ -455,7 +457,7 @@ void WindowNewMap::on_checkSeed_toggled(bool checked)
 
 void WindowNewMap::on_humanTeamsCombo_activated(int index)
 {
-	int humans = mapGenOptions.getPlayerCount();
+	int humans = mapGenOptions.getHumanOrCpuPlayerCount();
 	int teams = ui->humanTeamsCombo->currentData().toInt();
 	if(teams >= humans)
 	{

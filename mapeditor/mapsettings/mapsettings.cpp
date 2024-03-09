@@ -30,36 +30,36 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	
 	show();
 
-	for(int i = 0; i < controller.map()->allowedAbilities.size(); ++i)
+	for(auto objectPtr : VLC->skillh->objects)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->skillh->objects[i]->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(controller.map()->allowedAbilities[i] ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(controller.map()->allowedAbilities.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listAbilities->addItem(item);
 	}
-	for(int i = 0; i < controller.map()->allowedSpells.size(); ++i)
+	for(auto objectPtr : VLC->spellh->objects)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->spellh->objects[i]->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(controller.map()->allowedSpells[i] ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(controller.map()->allowedSpells.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listSpells->addItem(item);
 	}
-	for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
+	for(auto objectPtr : VLC->arth->objects)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(controller.map()->allowedArtifact[i] ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(controller.map()->allowedArtifact.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listArts->addItem(item);
 	}
-	for(int i = 0; i < controller.map()->allowedHeroes.size(); ++i)
+	for(auto objectPtr : VLC->heroh->objects)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->heroh->objects[i]->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(controller.map()->allowedHeroes[i] ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(controller.map()->allowedHeroes.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listHeroes->addItem(item);
 	}
 
@@ -78,12 +78,14 @@ MapSettings::~MapSettings()
 
 void MapSettings::on_pushButton_clicked()
 {	
-	auto updateMapArray = [](const QListWidget * widget, std::vector<bool> & arr)
+	auto updateMapArray = [](const QListWidget * widget, auto & arr)
 	{
-		for(int i = 0; i < arr.size(); ++i)
+		arr.clear();
+		for(int i = 0; i < widget->count(); ++i)
 		{
 			auto * item = widget->item(i);
-			arr[i] = item->checkState() == Qt::Checked;
+			if (item->checkState() == Qt::Checked)
+				arr.emplace(i);
 		}
 	};
 	

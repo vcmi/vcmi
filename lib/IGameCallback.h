@@ -12,7 +12,7 @@
 #include <vcmi/Metatype.h>
 
 #include "CGameInfoCallback.h" // for CGameInfoCallback
-#include "CRandomGenerator.h"
+#include "networkPacks/ObjProperty.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,6 +22,7 @@ struct BlockingDialog;
 struct TeleportDialog;
 struct StackLocation;
 struct ArtifactLocation;
+class CRandomGenerator;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
@@ -60,7 +61,7 @@ public:
 	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
-	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand) const; 
+	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
 	template<typename Saver>
@@ -73,15 +74,17 @@ public:
 class DLL_LINKAGE IGameEventCallback
 {
 public:
-	virtual void setObjProperty(ObjectInstanceID objid, int prop, si64 val) = 0;
+	virtual void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) = 0;
+	virtual void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) = 0;
 
 	virtual void showInfoDialog(InfoWindow * iw) = 0;
 	virtual void showInfoDialog(const std::string & msg, PlayerColor player) = 0;
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
-	virtual void createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype = 0) = 0;
+	virtual void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
+	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0;
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
@@ -105,8 +108,7 @@ public:
 	virtual void removeAfterVisit(const CGObjectInstance *object) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
 	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) = 0;
-	virtual bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) = 0;
-	virtual void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) = 0;
+	virtual bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble = std::nullopt) = 0;
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
 	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
 
@@ -120,6 +122,7 @@ public:
 	virtual bool swapGarrisonOnSiege(ObjectInstanceID tid)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
+	virtual void setMovePoints(ObjectInstanceID hid, int val, bool absolute)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
 	virtual void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) = 0;
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)=0;
@@ -143,6 +146,7 @@ public:
 	using CGameInfoCallback::getTile;
 	using CGameInfoCallback::getArtInstance;
 	using CGameInfoCallback::getObjInstance;
+	using CGameInfoCallback::getArtSet;
 
 	PlayerState * getPlayerState(const PlayerColor & color, bool verbose = true);
 	TeamState * getTeam(const TeamID & teamID); //get team by team ID
@@ -153,6 +157,7 @@ public:
 	CArtifactInstance * getArtInstance(const ArtifactInstanceID & aid);
 	CGObjectInstance * getObjInstance(const ObjectInstanceID & oid);
 	CArmedInstance * getArmyInstance(const ObjectInstanceID & oid);
+	CArtifactSet * getArtSet(const ArtifactLocation & loc);
 
 	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
 };

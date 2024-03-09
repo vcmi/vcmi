@@ -27,7 +27,7 @@ public:
 	{
 		ConstTransitivePtr<CArtifactInstance> art;
 		ArtifactPosition slot;
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & art;
 			h & slot;
@@ -41,7 +41,7 @@ public:
 	const std::vector<PartInfo> & getPartsInfo() const;
 	void addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & partsInfo;
 	}
@@ -73,25 +73,27 @@ protected:
 
 	ArtifactInstanceID id;
 public:
-	ConstTransitivePtr<CArtifact> artType;
+	const CArtifact * artType = nullptr;
 
-	CArtifactInstance(CArtifact * art);
+	CArtifactInstance(const CArtifact * art);
 	CArtifactInstance();
-	void setType(CArtifact * art);
+	void setType(const CArtifact * art);
 	std::string nodeName() const override;
 	std::string getDescription() const;
 	ArtifactID getTypeId() const;
 	ArtifactInstanceID getId() const;
 	void setId(ArtifactInstanceID id);
 
-	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;
+	bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
+		bool assumeDestRemoved = false) const;
 	bool isCombined() const;
-	void putAt(const ArtifactLocation & al);
-	void removeFrom(const ArtifactLocation & al);
-	void move(const ArtifactLocation & src, const ArtifactLocation & dst);
+	bool isScroll() const;
+	void putAt(CArtifactSet & set, const ArtifactPosition slot);
+	void removeFrom(CArtifactSet & set, const ArtifactPosition slot);
+	void move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot);
 	
 	void deserializationFix();
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CCombinedArtifactInstance&>(*this);

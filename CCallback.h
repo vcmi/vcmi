@@ -12,6 +12,7 @@
 #include "lib/CGameInfoCallback.h"
 #include "lib/battle/CPlayerBattleCallback.h"
 #include "lib/int3.h" // for int3
+#include "lib/networkPacks/TradeItem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -72,14 +73,14 @@ public:
 	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1))=0; //cast adventure map spell
 
 	//town
-	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
+	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
 	virtual void recruitCreatures(const CGDwelling *obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
-	virtual void trade(const IMarket * market, EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero = nullptr)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
-	virtual void trade(const IMarket * market, EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr)=0;
+	virtual void trade(const IMarket * market, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero = nullptr)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
+	virtual void trade(const IMarket * market, EMarketMode mode, const std::vector<TradeItemSell> & id1, const std::vector<TradeItemBuy> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr)=0;
 
 	virtual int selectionMade(int selection, QueryID queryID) =0;
 	virtual int sendQueryReply(std::optional<int32_t> reply, QueryID queryID) =0;
@@ -94,7 +95,7 @@ public:
 	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos)=0;
 	virtual void endTurn()=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
-	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
+	virtual void setFormation(const CGHeroInstance * hero, EArmyFormation mode)=0;
 
 	virtual void save(const std::string &fname) = 0;
 	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
@@ -181,10 +182,10 @@ public:
 	void endTurn() override;
 	void swapGarrisonHero(const CGTownInstance *town) override;
 	void buyArtifact(const CGHeroInstance *hero, ArtifactID aid) override;
-	void trade(const IMarket * market, EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;
-	void trade(const IMarket * market, EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr) override;
-	void setFormation(const CGHeroInstance * hero, bool tight) override;
-	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero) override;
+	void trade(const IMarket * market, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;
+	void trade(const IMarket * market, EMarketMode mode, const std::vector<TradeItemSell> & id1, const std::vector<TradeItemBuy> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr) override;
+	void setFormation(const CGHeroInstance * hero, EArmyFormation mode) override;
+	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE) override;
 	void save(const std::string &fname) override;
 	void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) override;
 	void gamePause(bool pause) override;

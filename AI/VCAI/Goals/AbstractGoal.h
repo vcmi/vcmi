@@ -165,18 +165,18 @@ namespace Goals
 		virtual float accept(FuzzyHelper * f);
 
 		virtual bool operator==(const AbstractGoal & g) const;
-		bool operator<(AbstractGoal & g); //final
+//		bool operator<(AbstractGoal & g); //final
 		virtual bool fulfillsMe(Goals::TSubgoal goal) //TODO: multimethod instead of type check
 		{
 			return false; //use this method to check if goal is fulfilled by another (not equal) goal, operator == is handled spearately
 		}
 
-		bool operator!=(const AbstractGoal & g) const
-		{
-			return !(*this == g);
-		}
+//		bool operator!=(const AbstractGoal & g) const
+//		{
+//			return !(*this == g);
+//		}
 
-		template<typename Handler> void serialize(Handler & h, const int version)
+		template<typename Handler> void serialize(Handler & h)
 		{
 			h & goalType;
 			h & isElementar;

@@ -28,8 +28,8 @@ namespace Goals
 			sethero(targetHero);
 		}
 
-		virtual bool operator==(const HeroExchange & other) const override;
-		virtual std::string toString() const override;
+		bool operator==(const HeroExchange & other) const override;
+		std::string toString() const override;
 
 		uint64_t getReinforcementArmyStrength() const;
 	};

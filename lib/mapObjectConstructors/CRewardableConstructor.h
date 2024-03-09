@@ -25,18 +25,11 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 public:
 	bool hasNameTextID() const override;
 
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
+	CGObjectInstance * create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		AObjectTypeHandler::serialize(h, version);
-
-		h & objectInfo;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

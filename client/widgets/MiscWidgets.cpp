@@ -21,8 +21,9 @@
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../windows/CTradeWindow.h"
-#include "../widgets/TextControls.h"
 #include "../widgets/CGarrisonInt.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/TextControls.h"
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
@@ -95,16 +96,16 @@ void LRClickableAreaWTextComp::clickPressed(const Point & cursorPosition)
 	LOCPLINT->showInfoDialog(text, comp);
 }
 
-LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
-	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1)
+LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, ComponentType BaseType)
+	: LRClickableAreaWText(Pos)
 {
-	type = -1;
+	component.type = BaseType;
 }
 
 std::shared_ptr<CComponent> LRClickableAreaWTextComp::createComponent() const
 {
-	if(baseType >= 0)
-		return std::make_shared<CComponent>(CComponent::Etype(baseType), type, bonusValue);
+	if(component.type != ComponentType::NONE)
+		return std::make_shared<CComponent>(component);
 	else
 		return std::shared_ptr<CComponent>();
 }
@@ -121,9 +122,10 @@ void LRClickableAreaWTextComp::showPopupWindow(const Point & cursorPosition)
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * hero)
-	: CIntObject(LCLICK | HOVER),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
 	hero(hero),
-	clickFunctor(nullptr)
+	clickFunctor(nullptr),
+	clickRFunctor(nullptr)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -147,10 +149,21 @@ void CHeroArea::addClickCallback(ClickFunctor callback)
 	clickFunctor = callback;
 }
 
+void CHeroArea::addRClickCallback(ClickFunctor callback)
+{
+	clickRFunctor = callback;
+}
+
 void CHeroArea::clickPressed(const Point & cursorPosition)
 {
 	if(clickFunctor)
 		clickFunctor();
+}
+
+void CHeroArea::showPopupWindow(const Point & cursorPosition)
+{
+	if(clickRFunctor)
+		clickRFunctor();
 }
 
 void CHeroArea::hover(bool on)
@@ -164,17 +177,11 @@ void CHeroArea::hover(bool on)
 void LRClickableAreaOpenTown::clickPressed(const Point & cursorPosition)
 {
 	if(town)
-	{
 		LOCPLINT->openTownWindow(town);
-		if ( type == 2 )
-			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::VILLAGE_HALL);
-		else if ( type == 3 && town->fortLevel() )
-			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::FORT);
-	}
 }
 
 LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town)
-	: LRClickableAreaWTextComp(Pos, -1), town(Town)
+	: LRClickableAreaWTextComp(Pos), town(Town)
 {
 }
 
@@ -521,14 +528,16 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	auto creatureData = (*CGI->creh)[creature->stacks.begin()->second->getCreatureID()].get();
-	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(AnimationPath::builtin("TWCRPORT")), creatureData->getIconIndex());
+	auto creatureID = creature->getCreature();
+	int32_t creatureIconIndex = CGI->creatures()->getById(creatureID)->getIconIndex();
+
+	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(AnimationPath::builtin("TWCRPORT")), creatureIconIndex);
 	creatureImage->center(Point(parent->pos.x + parent->pos.w / 2, parent->pos.y + creatureImage->pos.h / 2 + 11));
 
 	bool isHeroSelected = LOCPLINT->localState->getCurrentHero() != nullptr;
 	std::string textContent = isHeroSelected
-			? creature->getHoverText(LOCPLINT->localState->getCurrentHero())
-			: creature->getHoverText(LOCPLINT->playerID);
+			? creature->getPopupText(LOCPLINT->localState->getCurrentHero())
+			: creature->getPopupText(LOCPLINT->playerID);
 
 	//TODO: window is bigger than OH3
 	//TODO: vertical alignment does not match H3. Commented below example that matches H3 for creatures count but supports only 1 line:
@@ -542,20 +551,21 @@ void MoraleLuckBox::set(const AFactionMember * node)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
+	const std::array textId = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
 	const int noneTxtId = 108; //Russian version uses same text for neutral morale\luck
-	const int neutralDescr[] = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
-	const int componentType[] = {CComponent::luck, CComponent::morale};
-	const int hoverTextBase[] = {7, 4};
+	const std::array neutralDescr = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
+	const std::array componentType = {ComponentType::LUCK, ComponentType::MORALE};
+	const std::array hoverTextBase = {7, 4};
 	TConstBonusListPtr modifierList = std::make_shared<const BonusList>();
-	bonusValue = 0;
+
+	component.value = 0;
 
 	if(node)
-		bonusValue = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
+		component.value = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
-	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
+	int mrlt = (component.value>0)-(component.value<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
-	baseType = componentType[morale];
+	component.type = componentType[morale];
 	text = CGI->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
@@ -563,27 +573,32 @@ void MoraleLuckBox::set(const AFactionMember * node)
 			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
-		bonusValue = 0;
+		component.value = 0;
 	}
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
 		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
 		text += "\n" + noMorale->Description();
-		bonusValue = 0;
+		component.value = 0;
 	}
 	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
 		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
 		text += "\n" + noLuck->Description();
-		bonusValue = 0;
+		component.value = 0;
 	}
 	else
 	{
 		std::string addInfo = "";
 		for(auto & bonus : * modifierList)
 		{
-			if(bonus->val)
-				addInfo += "\n" + bonus->Description();
+			if(bonus->val) {
+				const std::string& description = bonus->Description();
+				//arraytxt already contains \n
+				if (description.size() && description[0] != '\n')
+					addInfo += '\n';
+				addInfo += description;
+			}
 		}
 		text = addInfo.empty() 
 			? text + CGI->generaltexth->arraytxt[noneTxtId] 
@@ -595,15 +610,16 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	else
 		imageName = morale ? "IMRL42" : "ILCK42";
 
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin(imageName), bonusValue + 3);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin(imageName), *component.value + 3);
 	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2));//center icon
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		label = std::make_shared<CLabel>(small ? 30 : 42, small ? 20 : 38, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(modifierList->totalValue()));
 }
 
 MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
 	: morale(Morale),
 	small(Small)
 {
-	bonusValue = 0;
 	pos = r + pos.topLeft();
 	defActions = 255-DISPOSE;
 }
@@ -648,30 +664,40 @@ void CCreaturePic::setAmount(int newAmount)
 		amount->setText("");
 }
 
-TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color) :
-	color(color), colorLine(ColorRGBA()), drawLine(false)
+SelectableSlot::SelectableSlot(Rect area, Point oversize, const int width)
+	: LRClickableAreaWTextComp(area)
+	, selected(false)
 {
-	pos = position + pos.topLeft();
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	selection = std::make_shared<TransparentFilledRectangle>( Rect(-oversize, area.dimensions() + oversize * 2), Colors::TRANSPARENCY, Colors::YELLOW, width);
+	selectSlot(false);
 }
 
-TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine) :
-	color(color), colorLine(colorLine), drawLine(true)
+SelectableSlot::SelectableSlot(Rect area, Point oversize)
+	: SelectableSlot(area, oversize, 1)
 {
-	pos = position + pos.topLeft();
 }
 
-void TransparentFilledRectangle::showAll(Canvas & to) 
+SelectableSlot::SelectableSlot(Rect area, const int width)
+	: SelectableSlot(area, Point(), width)
 {
-	to.drawColorBlended(pos, color);
-	if(drawLine)
-		to.drawBorder(pos, colorLine);
 }
 
-SimpleLine::SimpleLine(Point pos1, Point pos2, ColorRGBA color) :
-	pos1(pos1), pos2(pos2), color(color)
-{}
-
-void SimpleLine::showAll(Canvas & to) 
+void SelectableSlot::selectSlot(bool on)
 {
-	to.drawLine(pos1 + pos.topLeft(), pos2 + pos.topLeft(), color, color);
+	selection->setEnabled(on);
+	selected = on;
+}
+
+bool SelectableSlot::isSelected() const
+{
+	return selected;
+}
+
+void SelectableSlot::setSelectionWidth(int width)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	selection = std::make_shared<TransparentFilledRectangle>( selection->pos - pos.topLeft(), Colors::TRANSPARENCY, Colors::YELLOW, width);
+	selectSlot(selected);
 }

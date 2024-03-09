@@ -40,7 +40,8 @@ public:
 	
 	bool isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
 	bool isForegroundObstacle;
-	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
+	si32 width; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
+	si32 height;
 	std::vector<si16> blockedTiles; //offsets relative to obstacle position (that is its left bottom corner)
 	
 	int32_t getIndex() const override;
@@ -54,23 +55,6 @@ public:
 	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 	
 	bool isAppropriate(const TerrainId terrainType, const BattleField & specialBattlefield) const;
-	
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & obstacle;
-		h & iconIndex;
-		h & identifier;
-		h & animation;
-		h & appearAnimation;
-		h & appearSound;
-		h & allowedTerrains;
-		h & allowedSpecialBfields;
-		h & isAbsoluteObstacle;
-		h & isForegroundObstacle;
-		h & width;
-		h & height;
-		h & blockedTiles;
-	}
 };
 
 class DLL_LINKAGE ObstacleService : public EntityServiceT<Obstacle, ObstacleInfo>
@@ -88,12 +72,6 @@ public:
 	
 	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData() override;
-	std::vector<bool> getDefaultAllowed() const override;
-	
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

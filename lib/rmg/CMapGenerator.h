@@ -26,6 +26,7 @@ class RmgMap;
 class CMap;
 class Zone;
 class CZonePlacer;
+class IGameCallback;
 
 using JsonVector = std::vector<JsonNode>;
 
@@ -42,15 +43,21 @@ public:
 		std::string defaultRoadType;
 		std::string secondaryRoadType;
 		int treasureValueLimit;
-		std::vector<int> prisonExperience, prisonValues;
+		std::vector<int> prisonExperience;
+		std::vector<int> prisonValues;
 		std::vector<int> scrollValues;
-		int pandoraMultiplierGold, pandoraMultiplierExperience, pandoraMultiplierSpells, pandoraSpellSchool, pandoraSpell60;
+		int pandoraMultiplierGold;
+		int pandoraMultiplierExperience;
+		int pandoraMultiplierSpells;
+		int pandoraSpellSchool;
+		int pandoraSpell60;
 		std::vector<int> pandoraCreatureValues;
-		std::vector<int> questValues, questRewardValues;
+		std::vector<int> questValues;
+		std::vector<int> questRewardValues;
 		bool singleThread;
 	};
 	
-	explicit CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed = std::time(nullptr));
+	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed);
 	~CMapGenerator(); // required due to std::unique_ptr
 	
 	const Config & getConfig() const;
@@ -65,8 +72,7 @@ public:
 	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
 	const std::vector<HeroTypeID> getAllPossibleHeroes() const;
 	void banQuestArt(const ArtifactID & id);
-	void banHero(const HeroTypeID& id);
-
+	void unbanQuestArt(const ArtifactID & id);
 	Zone * getZoneWater() const;
 	void addWaterTreasuresInfo();
 
@@ -82,7 +88,6 @@ private:
 	
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
-	int allowedPrisons;
 	int monolithIndex;
 	std::vector<ArtifactID> questArtifacts;
 

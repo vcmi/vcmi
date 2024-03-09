@@ -59,10 +59,11 @@ public:
 
 	/// Amount modifier
 	void setAmount(int to);
+	virtual void setValue(int to);
 
 	/// Accessors
 	int getAmount() const;
-	int getValue() const;
+	virtual int getValue() const;
 	int getCapacity() const;
 
 	void addCallback(std::function<void(int)> callback);
@@ -80,7 +81,20 @@ public:
 	 /// @param Capacity maximal number of visible at once elements
 	 /// @param Amount total amount of elements, including not visible
 	 /// @param Value starting position
-	CSlider(Point position, int length, std::function<void(int)> Moved, int Capacity, int Amount,
+	CSlider(Point position, int length, const std::function<void(int)> & Moved, int Capacity, int Amount,
 		int Value, Orientation orientation, EStyle style = BROWN);
 	~CSlider();
+};
+
+class SliderNonlinear : public CSlider
+{
+	/// If non-empty then slider has non-linear values, e.g. if slider is at position 5 out of 10 then actual "value" is not 5, but 5th value in this vector
+	std::vector<int> scaledValues;
+
+	using CSlider::setAmount; // make private
+public:
+	void setValue(int to) override;
+	int getValue() const override;
+
+	SliderNonlinear(Point position, int length, const std::function<void(int)> & Moved, const std::vector<int> & values, int Value, Orientation orientation, EStyle style);
 };

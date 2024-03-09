@@ -19,6 +19,7 @@
 #include "modificators/ObjectManager.h"
 #include "modificators/RoadPlacer.h"
 #include "modificators/TreasurePlacer.h"
+#include "modificators/PrisonHeroPlacer.h"
 #include "modificators/QuestArtifactPlacer.h"
 #include "modificators/ConnectionsPlacer.h"
 #include "modificators/TownPlacer.h"
@@ -37,12 +38,17 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
+RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
-	mapInstance = std::make_unique<CMap>();
+	mapInstance = std::make_unique<CMap>(cb);
 	mapProxy = std::make_shared<MapProxy>(*this);
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
+}
+
+int RmgMap::getDecorationsPercentage() const
+{
+	return 15; // arbitrary value to generate more readable map
 }
 
 void RmgMap::foreach_neighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
@@ -90,7 +96,7 @@ void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
 	
 	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(ETerrainId::GRASS, &rand);
+	getEditManager()->drawTerrain(ETerrainId::GRASS, getDecorationsPercentage(), &rand);
 
 	const auto * tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -122,6 +128,7 @@ void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
 void RmgMap::addModificators()
 {
 	bool hasObjectDistributor = false;
+	bool hasHeroPlacer = false;
 	bool hasRockFiller = false;
 
 	for(auto & z : getZones())
@@ -133,6 +140,11 @@ void RmgMap::addModificators()
 		{
 			zone->addModificator<ObjectDistributor>();
 			hasObjectDistributor = true;
+		}
+		if (!hasHeroPlacer)
+		{
+			zone->addModificator<PrisonHeroPlacer>();
+			hasHeroPlacer = true;
 		}
 		zone->addModificator<TreasurePlacer>();
 		zone->addModificator<ObstaclePlacer>();
@@ -309,7 +321,7 @@ void RmgMap::setZoneID(const int3& tile, TRmgTemplateZoneId zid)
 	zoneColouring[tile.x][tile.y][tile.z] = zid;
 }
 
-void RmgMap::setNearestObjectDistance(int3 &tile, float value)
+void RmgMap::setNearestObjectDistance(const int3 &tile, float value)
 {
 	assertOnMap(tile);
 	
@@ -345,7 +357,7 @@ bool RmgMap::isAllowedSpell(const SpellID & sid) const
 	assert(sid.getNum() >= 0);
 	if (sid.getNum() < mapInstance->allowedSpells.size())
 	{
-		return mapInstance->allowedSpells[sid];
+		return mapInstance->allowedSpells.count(sid);
 	}
 	else
 		return false;

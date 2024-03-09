@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "ObstacleHandler.h"
 #include "BattleFieldHandler.h"
+#include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
-#include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -106,17 +106,10 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 	info->isAbsoluteObstacle = json["absolute"].Bool();
 	info->isForegroundObstacle = json["foreground"].Bool();
 
-	objects.emplace_back(info);
-
 	return info;
 }
 
 std::vector<JsonNode> ObstacleHandler::loadLegacyData()
-{
-	return {};
-}
-
-std::vector<bool> ObstacleHandler::getDefaultAllowed() const
 {
 	return {};
 }

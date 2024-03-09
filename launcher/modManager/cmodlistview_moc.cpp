@@ -48,6 +48,43 @@ void CModListView::changeEvent(QEvent *event)
 	QWidget::changeEvent(event);
 }
 
+void CModListView::dragEnterEvent(QDragEnterEvent* event)
+{
+	if(event->mimeData()->hasUrls())
+		for(const auto & url : event->mimeData()->urls())
+			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp"}))
+				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
+				{
+					event->acceptProposedAction();
+					return;
+				}
+}
+
+void CModListView::dropEvent(QDropEvent* event)
+{
+	const QMimeData* mimeData = event->mimeData();
+
+	if(mimeData->hasUrls())
+	{
+		const QList<QUrl> urlList = mimeData->urls();
+
+		for (const auto & url : urlList)
+		{
+			QString urlStr = url.toString();
+			QString fileName = url.fileName();
+			if(urlStr.endsWith(".zip", Qt::CaseInsensitive))
+				downloadFile(fileName.toLower()
+					// mod name currently comes from zip file -> remove suffixes from github zip download
+					.replace(QRegularExpression("-[0-9a-f]{40}"), "")
+					.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
+					.replace("-main.zip", ".zip")
+					, urlStr, "mods", 0);
+			else
+				downloadFile(fileName, urlStr, "mods", 0);
+		}
+	}
+}
+
 void CModListView::setupFilterModel()
 {
 	filterModel = new CModFilterModel(modModel, this);
@@ -99,6 +136,8 @@ CModListView::CModListView(QWidget * parent)
 	, ui(new Ui::CModListView)
 {
 	ui->setupUi(this);
+
+	setAcceptDrops(true);
 
 	setupModModel();
 	setupFilterModel();
@@ -218,12 +257,12 @@ QStringList CModListView::getModNames(QStringList input)
 
 	for(const auto & modID : input)
 	{
-		auto mod = modModel->getMod(modID);
+		auto mod = modModel->getMod(modID.toLower());
 
 		QString modName = mod.getValue("name").toString();
 
 		if (modName.isEmpty())
-			result += modID;
+			result += modID.toLower();
 		else
 			result += modName;
 	}
@@ -311,9 +350,9 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	if(needToShowSupportedLanguages)
 		result += replaceIfNotEmpty(supportedLanguages, lineTemplate.arg(tr("Languages")));
 
-	result += replaceIfNotEmpty(getModNames(mod.getValue("depends").toStringList()), lineTemplate.arg(tr("Required mods")));
-	result += replaceIfNotEmpty(getModNames(mod.getValue("conflicts").toStringList()), lineTemplate.arg(tr("Conflicting mods")));
-	result += replaceIfNotEmpty(getModNames(mod.getValue("description").toStringList()), textTemplate.arg(tr("Description")));
+	result += replaceIfNotEmpty(getModNames(mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getConflicts()), lineTemplate.arg(tr("Conflicting mods")));
+	result += replaceIfNotEmpty(mod.getValue("description"), textTemplate.arg(tr("Description")));
 
 	result += "<p></p>"; // to get some empty space
 
@@ -464,7 +503,7 @@ QStringList CModListView::findBlockingMods(QString modUnderTest)
 		if(mod.isEnabled())
 		{
 			// one of enabled mods have requirement (or this mod) marked as conflict
-			for(auto conflict : mod.getValue("conflicts").toStringList())
+			for(auto conflict : mod.getConflicts())
 			{
 				if(required.contains(conflict))
 					ret.push_back(name);
@@ -482,10 +521,10 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 	{
 		auto current = modModel->getMod(modName);
 
-		if(!current.isInstalled())
+		if(!current.isInstalled() || !current.isVisible())
 			continue;
 
-		if(current.getValue("depends").toStringList().contains(mod))
+		if(current.getDependencies().contains(mod, Qt::CaseInsensitive))
 		{
 			if(!(current.isDisabled() && excludeDisabled))
 				ret += modName;
@@ -591,7 +630,7 @@ void CModListView::downloadFile(QString file, QString url, QString description, 
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
 		
 		connect(manager.get(), SIGNAL(extractionProgress(qint64,qint64)),
-			this, SLOT(downloadProgress(qint64,qint64)));
+			this, SLOT(extractionProgress(qint64,qint64)));
 		
 		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
@@ -611,6 +650,14 @@ void CModListView::downloadProgress(qint64 current, qint64 max)
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max / (1024 * 1024));
 	ui->progressBar->setValue(current / (1024 * 1024));
+}
+
+void CModListView::extractionProgress(qint64 current, qint64 max)
+{
+	// display progress, in extracted files
+	ui->progressBar->setVisible(true);
+	ui->progressBar->setMaximum(max);
+	ui->progressBar->setValue(current);
 }
 
 void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors)
@@ -669,15 +716,18 @@ void CModListView::hideProgressBar()
 void CModListView::installFiles(QStringList files)
 {
 	QStringList mods;
+	QStringList maps;
 	QStringList images;
 	QVector<QVariantMap> repositories;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
 	{
-		if(filename.endsWith(".zip"))
+		if(filename.endsWith(".zip", Qt::CaseInsensitive))
 			mods.push_back(filename);
-		if(filename.endsWith(".json"))
+		else if(filename.endsWith(".h3m", Qt::CaseInsensitive) || filename.endsWith(".h3c", Qt::CaseInsensitive) || filename.endsWith(".vmap", Qt::CaseInsensitive) || filename.endsWith(".vcmp", Qt::CaseInsensitive))
+			maps.push_back(filename);
+		else if(filename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
 			auto repoData = JsonUtils::JsonFromFile(filename).toMap();
@@ -701,7 +751,7 @@ void CModListView::installFiles(QStringList files)
 			}
 			repositories.push_back(repoData);
 		}
-		if(filename.endsWith(".png"))
+		else if(filename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 
@@ -709,6 +759,9 @@ void CModListView::installFiles(QStringList files)
 
 	if(!mods.empty())
 		installMods(mods);
+
+	if(!maps.empty())
+		installMaps(maps);
 
 	if(!images.empty())
 		loadScreenshots();
@@ -786,6 +839,16 @@ void CModListView::installMods(QStringList archives)
 		QFile::remove(archive);
 }
 
+void CModListView::installMaps(QStringList maps)
+{
+	QString destDir = CLauncherDirs::get().mapsPath() + "/";
+
+	for(QString map : maps)
+	{
+		QFile(map).rename(destDir + map.section('/', -1, -1));
+	}
+}
+
 void CModListView::on_refreshButton_clicked()
 {
 	loadRepositories();
@@ -844,7 +907,7 @@ void CModListView::loadScreenshots()
 			{
 				// managed to load cached image
 				QIcon icon(pixmap);
-				QListWidgetItem * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
+				auto * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
 				ui->screenshotsList->addItem(item);
 			}
 		}
@@ -955,4 +1018,3 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 }
-

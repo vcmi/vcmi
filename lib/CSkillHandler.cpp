@@ -16,12 +16,11 @@
 
 #include "CGeneralTextHandler.h"
 #include "filesystem/Filesystem.h"
+#include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModUtility.h"
 #include "modding/ModScope.h"
-
-#include "JsonNode.h"
-
 #include "constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -59,7 +58,7 @@ std::string CSkill::getNameTranslated() const
 
 std::string CSkill::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 std::string CSkill::getDescriptionTextID(int level) const
@@ -77,7 +76,7 @@ void CSkill::registerIcons(const IconRegistar & cb) const
 {
 	for(int level = 1; level <= 3; level++)
 	{
-		int frame = 2 + level + 3 * id;
+		int frame = 2 + level + 3 * id.getNum();
 		const LevelInfo & skillAtLevel = at(level);
 		cb(frame, 0, "SECSK32", skillAtLevel.iconSmall);
 		cb(frame, 0, "SECSKILL", skillAtLevel.iconMedium);
@@ -120,7 +119,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInf
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill)
 {
-	out << "Skill(" << (int)skill.id << "," << skill.identifier << "): [";
+	out << "Skill(" << skill.id.getNum() << "," << skill.identifier << "): [";
 	for(int i=0; i < skill.levels.size(); i++)
 		out << (i ? "," : "") << skill.levels[i];
 	return out << "]";
@@ -169,7 +168,7 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData()
 	std::vector<JsonNode> legacyData;
 	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
 	{
-		JsonNode skillNode(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode skillNode;
 		skillNode["name"].String() = skillNames[id];
 		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 		{
@@ -194,7 +193,8 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
-	bool major, minor;
+	bool major;
+	bool minor;
 
 	major = json["obligatoryMajor"].Bool();
 	minor = json["obligatoryMinor"].Bool();
@@ -233,7 +233,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
 	}
-	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
+	logMod->debug("loaded secondary skill %s(%d)", identifier, skill->id.getNum());
 
 	return skill;
 }
@@ -256,29 +256,14 @@ void CSkillHandler::beforeValidate(JsonNode & object)
 	inheritNode("expert");
 }
 
-std::vector<bool> CSkillHandler::getDefaultAllowed() const
+std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const
 {
-	std::vector<bool> allowedSkills(objects.size(), true);
-	return allowedSkills;
-}
+	std::set<SecondarySkill> result;
 
-si32 CSkillHandler::decodeSkill(const std::string & identifier)
-{
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "skill", identifier);
-	if(rawId)
-		return rawId.value();
-	else
-		return -1;
-}
+	for (auto const & skill : objects)
+		result.insert(skill->getId());
 
-std::string CSkillHandler::encodeSkill(const si32 index)
-{
-	return (*VLC->skillh)[SecondarySkill(index)]->identifier;
-}
-
-std::string CSkillHandler::encodeSkillWithType(const si32 index)
-{
-	return ModUtility::makeFullIdentifier("", "skill", encodeSkill(index));
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

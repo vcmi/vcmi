@@ -160,7 +160,7 @@ void CQuestLog::recreateLabelList()
 		}
 
 		MetaString text;
-		quests[i].quest->getRolloverText (text, false);
+		quests[i].quest->getRolloverText (quests[i].obj->cb, text, false);
 		if (quests[i].obj)
 		{
 			if (auto seersHut = dynamic_cast<const CGSeerHut *>(quests[i].obj))
@@ -236,7 +236,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 	MetaString text;
 	std::vector<Component> components;
-	currentQuest->quest->getVisitText(text, components, true);
+	currentQuest->quest->getVisitText(currentQuest->obj->cb, text, components, true);
 	if(description->slider)
 		description->slider->scrollToMin(); // scroll text to start position
 	description->setText(text.toString()); //TODO: use special log entry text
