@@ -47,8 +47,8 @@ enum class EEventType
 	EVENT_NOT_AVAILABLE
 };
 
-const std::array<std::string, 4> SelectModeString{"selectFirst", "selectPlayer", "selectRandom", "selectAll"};
-const std::array<std::string, 6> VisitModeString{"unlimited", "once", "hero", "bonus", "limiter", "player"};
+constexpr std::array<std::string_view, 4> SelectModeString{"selectFirst", "selectPlayer", "selectRandom", "selectAll"};
+constexpr std::array<std::string_view, 6> VisitModeString{"unlimited", "once", "hero", "bonus", "limiter", "player"};
 
 struct DLL_LINKAGE ResetInfo
 {
