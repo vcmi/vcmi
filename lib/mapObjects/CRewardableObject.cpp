@@ -142,11 +142,8 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 						break;
 					}
 					case Rewardable::SELECT_ALL: // grant all possible
-					{
-						auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
 						grantAllRewardsWthMessage(h, rewards, true);
 						break;
-					}
 				}
 				break;
 			}
