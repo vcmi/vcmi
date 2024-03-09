@@ -34,10 +34,10 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	
 	//fill core elements
 	for(const auto & s : Rewardable::VisitModeString)
-		ui->visitMode->addItem(QString::fromStdString(s));
+		ui->selectMode->addItem(QString::fromUtf8(s.data(), s.size()));
 	
 	for(const auto & s : Rewardable::SelectModeString)
-		ui->selectMode->addItem(QString::fromStdString(s));
+		ui->selectMode->addItem(QString::fromUtf8(s.data(), s.size()));
 	
 	for(auto s : {"AUTO", "MODAL", "INFO"})
 		ui->windowMode->addItem(QString::fromStdString(s));
