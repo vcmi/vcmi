@@ -31,6 +31,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/logging/VisualLogger.h"
 
 BasicMapView::~BasicMapView() = default;
 
@@ -57,11 +58,46 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	pos.h = dimensions.y;
 }
 
+class VisualLoggerRenderer : public ILogVisualizer
+{
+private:
+	Canvas & target;
+	std::shared_ptr<MapViewModel> model;
+
+public:
+	VisualLoggerRenderer(Canvas & target, std::shared_ptr<MapViewModel> model) : target(target), model(model)
+	{
+	}
+
+	virtual void drawLine(int3 start, int3 end) override
+	{
+		auto level = model->getLevel();
+
+		if(start.z != level || end.z != level)
+			return;
+
+		auto pStart = model->getTargetTileArea(start).topLeft();
+		auto pEnd = model->getTargetTileArea(end).topLeft();
+		auto viewPort = target.getRenderArea();
+
+		pStart.x += 3;
+		pEnd.x -= 3;
+
+		if(viewPort.isInside(pStart) && viewPort.isInside(pEnd))
+		{
+			target.drawLine(pStart, pEnd, ColorRGBA(255, 255, 0), ColorRGBA(255, 0, 0));
+		}
+	}
+};
+
 void BasicMapView::render(Canvas & target, bool fullUpdate)
 {
 	Canvas targetClipped(target, pos);
 	tilesCache->update(controller->getContext());
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
+
+	VisualLoggerRenderer r(target, model);
+	logVisual->visualize(r);
 }
 
 void BasicMapView::tick(uint32_t msPassed)

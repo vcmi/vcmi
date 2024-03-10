@@ -59,6 +59,8 @@ private:
 	bool useHeroChain;
 
 public:
+	static std::unique_ptr<ObjectGraph> baseGraph;
+
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
 	std::unique_ptr<BuildAnalyzer> buildAnalyzer;
 	std::unique_ptr<ObjectClusterizer> objectClusterizer;

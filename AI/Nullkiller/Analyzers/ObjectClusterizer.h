@@ -49,9 +49,13 @@ public:
 
 using ClusterMap = tbb::concurrent_hash_map<const CGObjectInstance *, std::shared_ptr<ObjectCluster>>;
 
+class PriorityEvaluator;
+
 class ObjectClusterizer
 {
 private:
+	static Obj IgnoredObjectTypes[];
+
 	ObjectCluster nearObjects;
 	ObjectCluster farObjects;
 	ClusterMap blockedObjects;
@@ -68,6 +72,7 @@ public:
 
 private:
 	bool shouldVisitObject(const CGObjectInstance * obj) const;
+	void clusterizeObject(const CGObjectInstance * obj, PriorityEvaluator * priorityEvaluator);
 };
 
 }

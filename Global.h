@@ -512,6 +512,20 @@ namespace vstd
 		}
 	}
 
+	//works for std::unordered_map, maybe something else
+	template<typename Key, typename Val, typename Predicate>
+	void erase_if(std::unordered_map<Key, Val> & container, Predicate pred)
+	{
+		auto itr = container.begin();
+		auto endItr = container.end();
+		while(itr != endItr)
+		{
+			auto tmpItr = itr++;
+			if(pred(*tmpItr))
+				container.erase(tmpItr);
+		}
+	}
+
 	template<typename InputRange, typename OutputIterator, typename Predicate>
 	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
 	{

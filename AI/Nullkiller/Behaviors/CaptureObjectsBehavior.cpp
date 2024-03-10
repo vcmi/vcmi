@@ -178,8 +178,11 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 #endif
 
 			const int3 pos = objToVisit->visitablePos();
+			bool useObjectGraph = ai->nullkiller->settings->isObjectGraphAllowed()
+				&& ai->nullkiller->getScanDepth() != ScanDepth::SMALL;
 
-			auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
+			auto paths = ai->nullkiller->pathfinder->getPathInfo(pos, useObjectGraph);
+
 			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 			std::shared_ptr<ExecuteHeroChain> closestWay;
 					

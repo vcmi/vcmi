@@ -374,6 +374,11 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 
 	nullkiller->memory->removeFromMemory(obj);
 
+	if(nullkiller->baseGraph && nullkiller->settings->isObjectGraphAllowed())
+	{
+		nullkiller->baseGraph->removeObject(obj);
+	}
+
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
 		lostHero(cb->getHero(obj->id)); //we can promote, since objectRemoved is called just before actual deletion

@@ -13,6 +13,7 @@
 #include "../Actions/QuestAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
+#include "../../../../lib/pathfinder/PathfinderOptions.h"
 
 namespace NKAI
 {
@@ -20,8 +21,9 @@ namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
 		CPlayerSpecificInfoCallback * cb, 
-		std::shared_ptr<AINodeStorage> nodeStorage)
-		:cb(cb), nodeStorage(nodeStorage)
+		std::shared_ptr<AINodeStorage> nodeStorage,
+		bool allowBypassObjects)
+		:cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 
@@ -46,6 +48,9 @@ namespace AIPathfinding
 
 			return;
 		}
+		
+		if(!allowBypassObjects)
+			return;
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(

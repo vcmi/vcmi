@@ -14,6 +14,7 @@ set(Nullkiller_SRCS
 		Pathfinding/Rules/AIMovementAfterDestinationRule.cpp
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
 		Pathfinding/Rules/AIPreviousNodeRule.cpp
+		Pathfinding/ObjectGraph.cpp
 		AIUtility.cpp
 		Analyzers/ArmyManager.cpp
 		Analyzers/HeroManager.cpp
@@ -78,6 +79,7 @@ set(Nullkiller_HEADERS
 		Pathfinding/Rules/AIMovementAfterDestinationRule.h
 		Pathfinding/Rules/AIMovementToDestinationRule.h
 		Pathfinding/Rules/AIPreviousNodeRule.h
+		Pathfinding/ObjectGraph.h
 		AIUtility.h
 		Analyzers/ArmyManager.h
 		Analyzers/HeroManager.h

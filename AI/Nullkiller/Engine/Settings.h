@@ -26,6 +26,7 @@ namespace NKAI
 		int scoutHeroTurnDistanceLimit;
 		int maxpass;
 		float maxGoldPreasure;
+		bool allowObjectGraph;
 
 	public:
 		Settings();
@@ -35,6 +36,7 @@ namespace NKAI
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }
+		bool isObjectGraphAllowed() const { return allowObjectGraph; }
 
 	private:
 		void loadFromMod(const std::string & modName, const ResourcePath & resource);
