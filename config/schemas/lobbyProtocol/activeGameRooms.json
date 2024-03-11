@@ -20,7 +20,7 @@
 			{
 				"type" : "object",
 				"additionalProperties" : false,
-				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "playersCount", "playersLimit" ],
+				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "playersCount", "playerLimit" ],
 				"properties" : {
 					"gameRoomID" :
 					{
@@ -47,9 +47,11 @@
 						"type" : "number",
 						"description" : "Current number of players in this room, including host"
 					},
-					"playersLimit" :
+					"playerLimit" :
 					{
 						"type" : "number",
+						"minimum" : 1,
+						"maximum" : 8,
 						"description" : "Maximum number of players that can join this room, including host"
 					}
 				}

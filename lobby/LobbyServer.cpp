@@ -164,7 +164,7 @@ JsonNode LobbyServer::prepareActiveGameRooms()
 		jsonEntry["hostAccountDisplayName"].String() = gameRoom.hostAccountDisplayName;
 		jsonEntry["description"].String() = gameRoom.description;
 		jsonEntry["playersCount"].Integer() = gameRoom.playersCount;
-		jsonEntry["playersLimit"].Integer() = gameRoom.playersLimit;
+		jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
 		reply["gameRooms"].Vector().push_back(jsonEntry);
 	}
 
@@ -520,6 +520,7 @@ void LobbyServer::receiveActivateGameRoom(const NetworkConnectionPtr & connectio
 {
 	std::string hostAccountID = json["hostAccountID"].String();
 	std::string accountID = activeAccounts[connection];
+	int playerLimit = json["playerLimit"].Integer();
 
 	if(database->isPlayerInGameRoom(accountID))
 		return sendOperationFailed(connection, "Player already in the room!");
@@ -537,6 +538,7 @@ void LobbyServer::receiveActivateGameRoom(const NetworkConnectionPtr & connectio
 	if(roomType == "private")
 		database->setGameRoomStatus(gameRoomID, LobbyRoomState::PRIVATE);
 
+	database->updateRoomPlayerLimit(gameRoomID, playerLimit);
 	database->insertPlayerIntoGameRoom(accountID, gameRoomID);
 	broadcastActiveGameRooms();
 	sendJoinRoomSuccess(connection, gameRoomID, false);

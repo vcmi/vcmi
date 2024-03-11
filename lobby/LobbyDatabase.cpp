@@ -162,6 +162,12 @@ void LobbyDatabase::prepareStatements()
 		WHERE roomID  = ?
 	)";
 
+	static const std::string updateRoomPlayerLimitText = R"(
+		UPDATE gameRooms
+		SET playerLimit = ?
+		WHERE roomID  = ?
+	)";
+
 	// SELECT FROM
 
 	static const std::string getRecentMessageHistoryText = R"(
@@ -278,6 +284,7 @@ void LobbyDatabase::prepareStatements()
 	setGameRoomStatusStatement = database->prepare(setGameRoomStatusText);
 	updateAccountLoginTimeStatement = database->prepare(updateAccountLoginTimeText);
 	updateRoomDescriptionStatement = database->prepare(updateRoomDescriptionText);
+	updateRoomPlayerLimitStatement = database->prepare(updateRoomPlayerLimitText);
 
 	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
 	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
@@ -400,6 +407,11 @@ void LobbyDatabase::updateAccountLoginTime(const std::string & accountID)
 	updateAccountLoginTimeStatement->executeOnce(accountID);
 }
 
+void LobbyDatabase::updateRoomPlayerLimit(const std::string & gameRoomID, int playerLimit)
+{
+	updateRoomPlayerLimitStatement->executeOnce(playerLimit, gameRoomID);
+}
+
 void LobbyDatabase::updateRoomDescription(const std::string & gameRoomID, const std::string & description)
 {
 	updateRoomDescriptionStatement->executeOnce(description, gameRoomID);
@@ -499,7 +511,7 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 	while(getActiveGameRoomsStatement->execute())
 	{
 		LobbyGameRoom entry;
-		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomStatus, entry.playersLimit);
+		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomStatus, entry.playerLimit);
 		result.push_back(entry);
 	}
 	getActiveGameRoomsStatement->reset();

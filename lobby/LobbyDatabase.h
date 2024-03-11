@@ -35,6 +35,7 @@ class LobbyDatabase
 	SQLiteStatementPtr setGameRoomStatusStatement;
 	SQLiteStatementPtr updateAccountLoginTimeStatement;
 	SQLiteStatementPtr updateRoomDescriptionStatement;
+	SQLiteStatementPtr updateRoomPlayerLimitStatement;
 
 	SQLiteStatementPtr getRecentMessageHistoryStatement;
 	SQLiteStatementPtr getIdleGameRoomStatement;
@@ -76,6 +77,7 @@ public:
 	void insertChatMessage(const std::string & sender, const std::string & roomType, const std::string & roomID, const std::string & messageText);
 
 	void updateAccountLoginTime(const std::string & accountID);
+	void updateRoomPlayerLimit(const std::string & gameRoomID, int playerLimit);
 	void updateRoomDescription(const std::string & gameRoomID, const std::string & description);
 
 	std::vector<LobbyGameRoom> getActiveGameRooms();

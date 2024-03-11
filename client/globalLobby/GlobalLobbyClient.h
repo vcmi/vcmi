@@ -60,8 +60,7 @@ public:
 	void sendMessage(const JsonNode & data);
 	void sendClientRegister(const std::string & accountName);
 	void sendClientLogin();
-	void sendOpenPublicRoom();
-	void sendOpenPrivateRoom();
+	void sendOpenRoom(const std::string & mode, int playerLimit);
 
 	void sendProxyConnectionLogin(const NetworkConnectionPtr & netConnection);
 

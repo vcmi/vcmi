@@ -142,7 +142,7 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 
 	auto roomSizeText = MetaString::createFromRawString("%d/%d");
 	roomSizeText.replaceNumber(roomDescription.playersCount);
-	roomSizeText.replaceNumber(roomDescription.playersLimit);
+	roomSizeText.replaceNumber(roomDescription.playerLimit);
 
 	pos.w = 230;
 	pos.h = 40;

@@ -184,7 +184,7 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
 		room.playersCount = jsonEntry["playersCount"].Integer();
-		room.playersLimit = jsonEntry["playersLimit"].Integer();
+		room.playerLimit = jsonEntry["playerLimit"].Integer();
 
 		activeRooms.push_back(room);
 	}
@@ -284,21 +284,13 @@ void GlobalLobbyClient::sendMessage(const JsonNode & data)
 	networkConnection->sendPacket(data.toBytes());
 }
 
-void GlobalLobbyClient::sendOpenPublicRoom()
+void GlobalLobbyClient::sendOpenRoom(const std::string & mode, int playerLimit)
 {
 	JsonNode toSend;
 	toSend["type"].String() = "activateGameRoom";
 	toSend["hostAccountID"] = settings["lobby"]["accountID"];
-	toSend["roomType"].String() = "public";
-	sendMessage(toSend);
-}
-
-void GlobalLobbyClient::sendOpenPrivateRoom()
-{
-	JsonNode toSend;
-	toSend["type"].String() = "activateGameRoom";
-	toSend["hostAccountID"] = settings["lobby"]["accountID"];
-	toSend["roomType"].String() = "private";
+	toSend["roomType"].String() = mode;
+	toSend["playerLimit"].Integer() = playerLimit;
 	sendMessage(toSend);
 }
 

@@ -58,11 +58,12 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 				// announce opened game room
 				// TODO: find better approach?
 				int roomType = settings["lobby"]["roomType"].Integer();
+				int roomPlayerLimit = settings["lobby"]["roomPlayerLimit"].Integer();
 
 				if (roomType != 0)
-					handler.getGlobalLobby().sendOpenPrivateRoom();
+					handler.getGlobalLobby().sendOpenRoom("private", roomPlayerLimit);
 				else
-					handler.getGlobalLobby().sendOpenPublicRoom();
+					handler.getGlobalLobby().sendOpenRoom("public", roomPlayerLimit);
 			}
 
 			while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())

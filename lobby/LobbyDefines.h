@@ -23,7 +23,7 @@ struct LobbyGameRoom
 	std::string description;
 	std::string roomStatus;
 	uint32_t playersCount;
-	uint32_t playersLimit;
+	uint32_t playerLimit;
 };
 
 struct LobbyChatMessage
