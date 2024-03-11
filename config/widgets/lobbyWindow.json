@@ -89,7 +89,8 @@
 			"font": "small",
 			"alignment": "left",
 			"color": "white",
-			"rect": {"x": 440, "y": 70, "w": 430, "h": 495}
+			"blueTheme" : true,
+			"rect": {"x": 440, "y": 68, "w": 418, "h": 495}
 		},
 		
 		{
