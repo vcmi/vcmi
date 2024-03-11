@@ -19,6 +19,7 @@
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
@@ -114,27 +115,27 @@ GlobalLobbyAccountCard::GlobalLobbyAccountCard(GlobalLobbyWindow * window, const
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const auto & onInviteClicked = [window, accountID=accountDescription.accountID]()
-	{
-		window->doInviteAccount(accountID);
-	};
+	//const auto & onInviteClicked = [window, accountID=accountDescription.accountID]()
+	//{
+	//	window->doInviteAccount(accountID);
+	//};
 
 	pos.w = 130;
 	pos.h = 40;
 
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
-	labelName = std::make_shared<CLabel>( 5, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, accountDescription.displayName);
-	labelStatus = std::make_shared<CLabel>( 5, 20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, accountDescription.status);
+	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
+	labelName = std::make_shared<CLabel>(5, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, accountDescription.displayName);
+	labelStatus = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, accountDescription.status);
 
-	if (CSH->inLobbyRoom())
-		buttonInvite = std::make_shared<CButton>(Point(95, 8), AnimationPath::builtin("settingsWindow/button32"), CButton::tooltip(), onInviteClicked);
+	//if (CSH->inLobbyRoom())
+	//	buttonInvite = std::make_shared<CButton>(Point(95, 8), AnimationPath::builtin("settingsWindow/button32"), CButton::tooltip(), onInviteClicked);
 }
 
 GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & roomDescription)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const auto & onJoinClicked = [window, roomID=roomDescription.gameRoomID]()
+	const auto & onJoinClicked = [window, roomID = roomDescription.gameRoomID]()
 	{
 		window->doJoinRoom(roomID);
 	};
@@ -146,11 +147,15 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 	pos.w = 230;
 	pos.h = 40;
 
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
-	labelName = std::make_shared<CLabel>( 5, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, roomDescription.hostAccountDisplayName);
-	labelStatus = std::make_shared<CLabel>( 5, 20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomDescription.description);
-	labelRoomSize = std::make_shared<CLabel>( 160, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomSizeText.toString());
+	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
+	labelName = std::make_shared<CLabel>(5, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, roomDescription.hostAccountDisplayName);
+	labelStatus = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomDescription.description);
+	labelRoomSize = std::make_shared<CLabel>(160, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomSizeText.toString());
+	iconRoomSize = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconPlayer"), Point(145, 5));
 
-	if (!CSH->inGame())
-		buttonJoin = std::make_shared<CButton>(Point(195, 8), AnimationPath::builtin("settingsWindow/button32"), CButton::tooltip(), onJoinClicked);
+	if(!CSH->inGame())
+	{
+		buttonJoin = std::make_shared<CButton>(Point(194, 4), AnimationPath::builtin("lobbyJoinRoom"), CButton::tooltip(), onJoinClicked);
+		buttonJoin->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/iconEnter")));
+	}
 }

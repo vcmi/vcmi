@@ -54,4 +54,5 @@ public:
 	std::shared_ptr<CLabel> labelRoomSize;
 	std::shared_ptr<CLabel> labelStatus;
 	std::shared_ptr<CButton> buttonJoin;
+	std::shared_ptr<CPicture> iconRoomSize;
 };
