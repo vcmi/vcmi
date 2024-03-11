@@ -342,6 +342,12 @@ const std::vector<GlobalLobbyRoom> & GlobalLobbyClient::getActiveRooms() const
 
 void GlobalLobbyClient::activateInterface()
 {
+	if (GH.windows().topWindow<GlobalLobbyWindow>() != nullptr)
+	{
+		GH.windows().popWindows(1);
+		return;
+	}
+
 	if (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
 		return;
 
