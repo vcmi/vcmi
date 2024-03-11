@@ -20,6 +20,7 @@ struct LobbyGameRoom
 	std::string roomID;
 	std::string hostAccountID;
 	std::string hostAccountDisplayName;
+	std::string description;
 	std::string roomStatus;
 	uint32_t playersCount;
 	uint32_t playersLimit;

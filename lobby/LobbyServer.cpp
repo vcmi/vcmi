@@ -162,7 +162,7 @@ JsonNode LobbyServer::prepareActiveGameRooms()
 		jsonEntry["gameRoomID"].String() = gameRoom.roomID;
 		jsonEntry["hostAccountID"].String() = gameRoom.hostAccountID;
 		jsonEntry["hostAccountDisplayName"].String() = gameRoom.hostAccountDisplayName;
-		jsonEntry["description"].String() = "TODO: ROOM DESCRIPTION";
+		jsonEntry["description"].String() = gameRoom.description;
 		jsonEntry["playersCount"].Integer() = gameRoom.playersCount;
 		jsonEntry["playersLimit"].Integer() = gameRoom.playersLimit;
 		reply["gameRooms"].Vector().push_back(jsonEntry);
@@ -328,6 +328,9 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	{
 		std::string roomName = activeGameRooms.at(connection);
 		logGlobal->info("%s: Received message of type %s", roomName, messageType);
+
+		if(messageType == "changeRoomDescription")
+			return receiveChangeRoomDescription(connection, json);
 
 		if(messageType == "leaveGameRoom")
 			return receiveLeaveGameRoom(connection, json);
@@ -570,6 +573,15 @@ void LobbyServer::receiveJoinGameRoom(const NetworkConnectionPtr & connection, c
 	sendAccountJoinsRoom(targetRoom, accountID);
 	//No reply to client - will be sent once match server establishes proxy connection with lobby
 
+	broadcastActiveGameRooms();
+}
+
+void LobbyServer::receiveChangeRoomDescription(const NetworkConnectionPtr & connection, const JsonNode & json)
+{
+	std::string gameRoomID = activeGameRooms[connection];
+	std::string description = json["description"].String();
+
+	database->updateRoomDescription(gameRoomID, description);
 	broadcastActiveGameRooms();
 }
 

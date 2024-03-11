@@ -149,7 +149,7 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 
 	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
 	labelName = std::make_shared<CLabel>(5, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, roomDescription.hostAccountDisplayName);
-	labelStatus = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomDescription.description);
+	labelDescription = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomDescription.description);
 	labelRoomSize = std::make_shared<CLabel>(160, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomSizeText.toString());
 	iconRoomSize = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconPlayer"), Point(145, 5));
 

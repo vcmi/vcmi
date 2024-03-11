@@ -34,6 +34,9 @@ class GlobalLobbyProcessor : public INetworkClientListener
 	void receiveAccountJoinsRoom(const JsonNode & json);
 
 	void establishNewConnection();
+	void sendMessage(const NetworkConnectionPtr & targetConnection, const JsonNode & payload);
 public:
+	void sendChangeRoomDescription(const std::string & description);
+
 	explicit GlobalLobbyProcessor(CVCMIServer & owner);
 };

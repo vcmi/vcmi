@@ -595,6 +595,24 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 		else
 			si->mapGenOptions.reset();
 	}
+
+	if (lobbyProcessor)
+	{
+		std::string roomDescription;
+
+		if (si->mapGenOptions)
+		{
+			if (si->mapGenOptions->getMapTemplate())
+				roomDescription = si->mapGenOptions->getMapTemplate()->getName();
+			// else - no template selected.
+			// TODO: handle this somehow?
+		}
+		else
+			roomDescription = mi->getNameTranslated();
+
+		lobbyProcessor->sendChangeRoomDescription(roomDescription);
+	}
+
 	si->mapname = mi->fileURI;
 }
 

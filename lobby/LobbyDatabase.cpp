@@ -29,6 +29,7 @@ void LobbyDatabase::createTables()
 			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			roomID TEXT,
 			hostAccountID TEXT,
+			description TEXT NOT NULL DEFAULT '',
 			status INTEGER NOT NULL DEFAULT 0,
 			playerLimit INTEGER NOT NULL,
 			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -155,6 +156,12 @@ void LobbyDatabase::prepareStatements()
 		WHERE accountID = ?
 	)";
 
+	static const std::string updateRoomDescriptionText = R"(
+		UPDATE gameRooms
+		SET description = ?
+		WHERE roomID  = ?
+	)";
+
 	// SELECT FROM
 
 	static const std::string getRecentMessageHistoryText = R"(
@@ -194,7 +201,7 @@ void LobbyDatabase::prepareStatements()
 	)";
 
 	static const std::string getActiveGameRoomsText = R"(
-		SELECT roomID, hostAccountID, displayName, status, playerLimit
+		SELECT roomID, hostAccountID, displayName, description, status, playerLimit
 		FROM gameRooms
 		LEFT JOIN accounts ON hostAccountID = accountID
 		WHERE status = 1
@@ -270,6 +277,7 @@ void LobbyDatabase::prepareStatements()
 	setAccountOnlineStatement = database->prepare(setAccountOnlineText);
 	setGameRoomStatusStatement = database->prepare(setGameRoomStatusText);
 	updateAccountLoginTimeStatement = database->prepare(updateAccountLoginTimeText);
+	updateRoomDescriptionStatement = database->prepare(updateRoomDescriptionText);
 
 	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
 	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
@@ -392,6 +400,11 @@ void LobbyDatabase::updateAccountLoginTime(const std::string & accountID)
 	updateAccountLoginTimeStatement->executeOnce(accountID);
 }
 
+void LobbyDatabase::updateRoomDescription(const std::string & gameRoomID, const std::string & description)
+{
+	updateRoomDescriptionStatement->executeOnce(description, gameRoomID);
+}
+
 std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 {
 	std::string result;
@@ -486,7 +499,7 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 	while(getActiveGameRoomsStatement->execute())
 	{
 		LobbyGameRoom entry;
-		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.roomStatus, entry.playersLimit);
+		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomStatus, entry.playersLimit);
 		result.push_back(entry);
 	}
 	getActiveGameRoomsStatement->reset();
