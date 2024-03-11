@@ -19,10 +19,13 @@
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
 #include "../mainmenu/CMainMenu.h"
+#include "../CGameInfo.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/MetaString.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/TextOperations.h"
+#include "../../lib/CGeneralTextHandler.h"
 
 GlobalLobbyClient::GlobalLobbyClient() = default;
 GlobalLobbyClient::~GlobalLobbyClient() = default;
@@ -118,7 +121,7 @@ void GlobalLobbyClient::receiveLoginSuccess(const JsonNode & json)
 	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection finished without active login window!");
 
-	loginWindowPtr->onConnectionSuccess();
+	loginWindowPtr->onLoginSuccess();
 }
 
 void GlobalLobbyClient::receiveChatHistory(const JsonNode & json)
@@ -230,6 +233,8 @@ void GlobalLobbyClient::sendClientRegister(const std::string & accountName)
 	JsonNode toSend;
 	toSend["type"].String() = "clientRegister";
 	toSend["displayName"].String() = accountName;
+	toSend["language"].String() = CGI->generaltexth->getPreferredLanguage();
+	toSend["version"].String() = VCMI_VERSION_STRING;
 	sendMessage(toSend);
 }
 
@@ -239,6 +244,8 @@ void GlobalLobbyClient::sendClientLogin()
 	toSend["type"].String() = "clientLogin";
 	toSend["accountID"] = settings["lobby"]["accountID"];
 	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
+	toSend["language"].String() = CGI->generaltexth->getPreferredLanguage();
+	toSend["version"].String() = VCMI_VERSION_STRING;
 	sendMessage(toSend);
 }
 
@@ -273,13 +280,14 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
+	assert(JsonUtils::validate(data, "vcmi:lobbyProtocol/" + data["type"].String(), data["type"].String() + " pack"));
 	networkConnection->sendPacket(data.toBytes());
 }
 
 void GlobalLobbyClient::sendOpenPublicRoom()
 {
 	JsonNode toSend;
-	toSend["type"].String() = "openGameRoom";
+	toSend["type"].String() = "activateGameRoom";
 	toSend["hostAccountID"] = settings["lobby"]["accountID"];
 	toSend["roomType"].String() = "public";
 	sendMessage(toSend);
@@ -288,7 +296,7 @@ void GlobalLobbyClient::sendOpenPublicRoom()
 void GlobalLobbyClient::sendOpenPrivateRoom()
 {
 	JsonNode toSend;
-	toSend["type"].String() = "openGameRoom";
+	toSend["type"].String() = "activateGameRoom";
 	toSend["hostAccountID"] = settings["lobby"]["accountID"];
 	toSend["roomType"].String() = "private";
 	sendMessage(toSend);
@@ -362,5 +370,6 @@ void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & ne
 	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 	toSend["gameRoomID"] = settings["lobby"]["roomID"];
 
+	assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
 	netConnection->sendPacket(toSend.toBytes());
 }

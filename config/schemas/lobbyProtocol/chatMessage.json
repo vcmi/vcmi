@@ -1,0 +1,43 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: chatMessage",
+	"description" : "Sent by server to all players in lobby whenever new message is sent to game chat",
+	"required" : [ "type", "messageText", "accountID", "displayName", "roomMode", "roomName" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "chatMessage"
+		},
+		"messageText" :
+		{
+			"type" : "string",
+			"description" : "Text of sent message"
+		},
+		"accountID" :
+		{
+			"type" : "string",
+			"description" : "ID of account that have sent this message"
+		},
+		"displayName" :
+		{
+			"type" : "string",
+			"description" : "Display name of account that have sent this message"
+		},
+		"roomMode" :
+		{
+			"type" : "string",
+			"const" : "global",
+			"description" : "Type of room to which this message has been set. Right now can only be 'general'"
+		},
+		"roomName" :
+		{
+			"type" : "string",
+			"const" : "english",
+			"description" : "Name of room to which this message has been set. Right now only 'english' is used"
+		}
+	}
+}

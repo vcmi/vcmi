@@ -61,6 +61,10 @@ class LobbyServer final : public INetworkServerListener
 
 	JsonNode prepareActiveGameRooms();
 
+	/// Attempts to load json from incoming byte stream and validate it
+	/// Returns parsed json on success or empty json node on failure
+	JsonNode parseAndValidateMessage(const std::vector<std::byte> & message) const;
+
 	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, const std::string & displayName, const std::string & messageText);
 	void sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie);
 	void sendOperationFailed(const NetworkConnectionPtr & target, const std::string & reason);
@@ -77,7 +81,7 @@ class LobbyServer final : public INetworkServerListener
 	void receiveServerProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 
 	void receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json);
-	void receiveOpenGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
+	void receiveActivateGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveJoinGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveLeaveGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveSendInvite(const NetworkConnectionPtr & connection, const JsonNode & json);

@@ -12,12 +12,17 @@
 #include "LobbyServer.h"
 
 #include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/filesystem/CFilesystemLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/VCMIDirs.h"
 
 static const int LISTENING_PORT = 30303;
 
 int main(int argc, const char * argv[])
 {
+	CResourceHandler::initialize();
+	CResourceHandler::load("config/filesystem.json"); // FIXME: we actually need only config directory for schemas, can be reduced
+
 #ifndef VCMI_IOS
 	console = new CConsoleHandler();
 #endif
