@@ -37,7 +37,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 
 	void receiveAccountCreated(const JsonNode & json);
 	void receiveOperationFailed(const JsonNode & json);
-	void receiveLoginSuccess(const JsonNode & json);
+	void receiveClientLoginSuccess(const JsonNode & json);
 	void receiveChatHistory(const JsonNode & json);
 	void receiveChatMessage(const JsonNode & json);
 	void receiveActiveAccounts(const JsonNode & json);

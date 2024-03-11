@@ -30,7 +30,7 @@ class GlobalLobbyProcessor : public INetworkClientListener
 	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
 
 	void receiveOperationFailed(const JsonNode & json);
-	void receiveLoginSuccess(const JsonNode & json);
+	void receiveServerLoginSuccess(const JsonNode & json);
 	void receiveAccountJoinsRoom(const JsonNode & json);
 
 	void establishNewConnection();

@@ -90,13 +90,20 @@ void LobbyServer::sendOperationFailed(const NetworkConnectionPtr & target, const
 	sendMessage(target, reply);
 }
 
-void LobbyServer::sendLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName)
+void LobbyServer::sendClientLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName)
 {
 	JsonNode reply;
-	reply["type"].String() = "loginSuccess";
+	reply["type"].String() = "clientLoginSuccess";
 	reply["accountCookie"].String() = accountCookie;
-	if(!displayName.empty())
-		reply["displayName"].String() = displayName;
+	reply["displayName"].String() = displayName;
+	sendMessage(target, reply);
+}
+
+void LobbyServer::sendServerLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie)
+{
+	JsonNode reply;
+	reply["type"].String() = "serverLoginSuccess";
+	reply["accountCookie"].String() = accountCookie;
 	sendMessage(target, reply);
 }
 
@@ -409,7 +416,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 
 	activeAccounts[connection] = accountID;
 
-	sendLoginSuccess(connection, accountCookie, displayName);
+	sendClientLoginSuccess(connection, accountCookie, displayName);
 	sendChatHistory(connection, database->getRecentMessageHistory());
 
 	// send active game rooms list to new account
@@ -435,7 +442,7 @@ void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, co
 	{
 		database->insertGameRoom(gameRoomID, accountID);
 		activeGameRooms[connection] = gameRoomID;
-		sendLoginSuccess(connection, accountCookie, {});
+		sendServerLoginSuccess(connection, accountCookie);
 		broadcastActiveGameRooms();
 	}
 }

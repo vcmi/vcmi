@@ -51,8 +51,8 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 	if(json["type"].String() == "operationFailed")
 		return receiveOperationFailed(json);
 
-	if(json["type"].String() == "loginSuccess")
-		return receiveLoginSuccess(json);
+	if(json["type"].String() == "clientLoginSuccess")
+		return receiveClientLoginSuccess(json);
 
 	if(json["type"].String() == "chatHistory")
 		return receiveChatHistory(json);
@@ -106,7 +106,7 @@ void GlobalLobbyClient::receiveOperationFailed(const JsonNode & json)
 	// TODO: handle errors in lobby menu
 }
 
-void GlobalLobbyClient::receiveLoginSuccess(const JsonNode & json)
+void GlobalLobbyClient::receiveClientLoginSuccess(const JsonNode & json)
 {
 	{
 		Settings configCookie = settings.write["lobby"]["accountCookie"];

@@ -68,8 +68,8 @@ void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnec
 		if(json["type"].String() == "operationFailed")
 			return receiveOperationFailed(json);
 
-		if(json["type"].String() == "loginSuccess")
-			return receiveLoginSuccess(json);
+		if(json["type"].String() == "serverLoginSuccess")
+			return receiveServerLoginSuccess(json);
 
 		if(json["type"].String() == "accountJoinsRoom")
 			return receiveAccountJoinsRoom(json);
@@ -90,7 +90,7 @@ void GlobalLobbyProcessor::receiveOperationFailed(const JsonNode & json)
 	owner.setState(EServerState::SHUTDOWN);
 }
 
-void GlobalLobbyProcessor::receiveLoginSuccess(const JsonNode & json)
+void GlobalLobbyProcessor::receiveServerLoginSuccess(const JsonNode & json)
 {
 	// no-op, wait just for any new commands from lobby
 	logGlobal->info("Lobby: Succesfully connected to lobby server");
