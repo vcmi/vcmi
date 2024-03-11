@@ -31,7 +31,7 @@ GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 {
 	addCallback("closeWindow", [](int) { GH.windows().popWindows(1); });
 	addCallback("sendMessage", [this](int) { this->window->doSendChatMessage(); });
-	addCallback("createGameRoom", [this](int) { this->window->doCreateGameRoom(); });
+	addCallback("createGameRoom", [this](int) { if (!CSH->inGame()) this->window->doCreateGameRoom(); else GH.windows().popWindows(1); });
 
 	REGISTER_BUILDER("accountList", &GlobalLobbyWidget::buildAccountList);
 	REGISTER_BUILDER("roomList", &GlobalLobbyWidget::buildRoomList);
