@@ -24,6 +24,7 @@
 #include "../widgets/TextControls.h"
 
 #include "../../lib/MetaString.h"
+
 GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 	: window(window)
 {
@@ -53,12 +54,12 @@ std::shared_ptr<CIntObject> GlobalLobbyWidget::buildAccountList(const JsonNode &
 	auto itemOffset = readPosition(config["itemOffset"]);
 	auto sliderPosition = readPosition(config["sliderPosition"]);
 	auto sliderSize = readPosition(config["sliderSize"]);
-	size_t visibleSize = 4; // FIXME: how many items can fit into UI?
-	size_t totalSize = 4; //FIXME: how many items are there in total
+	size_t visibleAmount = config["visibleAmount"].Integer();
+	size_t totalAmount = 0; // Will be set later, on server netpack
 	int sliderMode = 1 | 4; //  present, vertical, blue
 	int initialPos = 0;
 
-	return std::make_shared<CListBox>(createCallback, position, itemOffset, visibleSize, totalSize, initialPos, sliderMode, Rect(sliderPosition, sliderSize) );
+	return std::make_shared<CListBox>(createCallback, position, itemOffset, visibleAmount, totalAmount, initialPos, sliderMode, Rect(sliderPosition, sliderSize));
 }
 
 std::shared_ptr<CIntObject> GlobalLobbyWidget::buildRoomList(const JsonNode & config) const
@@ -76,12 +77,12 @@ std::shared_ptr<CIntObject> GlobalLobbyWidget::buildRoomList(const JsonNode & co
 	auto itemOffset = readPosition(config["itemOffset"]);
 	auto sliderPosition = readPosition(config["sliderPosition"]);
 	auto sliderSize = readPosition(config["sliderSize"]);
-	size_t visibleSize = 4; // FIXME: how many items can fit into UI?
-	size_t totalSize = 4; //FIXME: how many items are there in total
+	size_t visibleAmount = config["visibleAmount"].Integer();
+	size_t totalAmount = 0; // Will be set later, on server netpack
 	int sliderMode = 1 | 4; //  present, vertical, blue
 	int initialPos = 0;
 
-	return std::make_shared<CListBox>(createCallback, position, itemOffset, visibleSize, totalSize, initialPos, sliderMode, Rect(sliderPosition, sliderSize) );
+	return std::make_shared<CListBox>(createCallback, position, itemOffset, visibleAmount, totalAmount, initialPos, sliderMode, Rect(sliderPosition, sliderSize));
 }
 
 std::shared_ptr<CLabel> GlobalLobbyWidget::getAccountNameLabel()

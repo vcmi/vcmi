@@ -86,12 +86,18 @@ void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std:
 
 void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts)
 {
-	widget->getAccountList()->reset();
+	if (accounts.size() == widget->getAccountList()->size())
+		widget->getAccountList()->reset();
+	else
+		widget->getAccountList()->resize(accounts.size());
 }
 
 void GlobalLobbyWindow::onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms)
 {
-	widget->getRoomList()->reset();
+	if (rooms.size() == widget->getAccountList()->size())
+		widget->getRoomList()->reset();
+	else
+		widget->getRoomList()->resize(rooms.size());
 }
 
 void GlobalLobbyWindow::onJoinedRoom()
