@@ -196,7 +196,7 @@ void LobbyDatabase::prepareStatements()
 		SELECT grp.roomID
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
-		WHERE accountID = ? AND status IN (1, 2)
+		WHERE accountID = ? AND status IN (1, 2, 3)
 		LIMIT 1
 	)";
 
@@ -210,7 +210,7 @@ void LobbyDatabase::prepareStatements()
 		SELECT roomID, hostAccountID, displayName, description, status, playerLimit
 		FROM gameRooms
 		LEFT JOIN accounts ON hostAccountID = accountID
-		WHERE status IN (1, 2)
+		WHERE status IN (1, 2, 3)
 	)";
 
 	static const std::string countRoomUsedSlotsText = R"(
@@ -248,14 +248,14 @@ void LobbyDatabase::prepareStatements()
 		SELECT COUNT(accountID)
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
-		WHERE accountID = ? AND grp.roomID = ? AND status IN (1, 2)
+		WHERE accountID = ? AND grp.roomID = ? AND status IN (1, 2, 3)
 	)";
 
 	static const std::string isPlayerInAnyGameRoomText = R"(
 		SELECT COUNT(accountID)
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
-		WHERE accountID = ? AND status IN (1, 2)
+		WHERE accountID = ? AND status IN (1, 2, 3)
 	)";
 
 	static const std::string isAccountIDExistsText = R"(

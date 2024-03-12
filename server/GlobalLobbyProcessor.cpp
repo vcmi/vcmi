@@ -149,6 +149,13 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 	}
 }
 
+void GlobalLobbyProcessor::sendGameStarted()
+{
+	JsonNode toSend;
+	toSend["type"].String() = "gameStarted";
+	sendMessage(controlConnection, toSend);
+}
+
 void GlobalLobbyProcessor::sendChangeRoomDescription(const std::string & description)
 {
 	JsonNode toSend;

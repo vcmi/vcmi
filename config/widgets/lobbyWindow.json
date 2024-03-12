@@ -166,7 +166,7 @@
 					"font": "medium",
 					"alignment": "center",
 					"color": "yellow",
-					"text": "Back"
+					"text": "core.help.561.hover" // Back
 				}
 			]
 		},
@@ -200,7 +200,7 @@
 					"font": "medium",
 					"alignment": "center",
 					"color": "yellow",
-					"text": "Create New Room"
+					"text": "vcmi.lobby.room.create"
 				}
 			]
 		},

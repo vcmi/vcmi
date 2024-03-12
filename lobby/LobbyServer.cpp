@@ -60,6 +60,8 @@ NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID) c
 
 void LobbyServer::sendMessage(const NetworkConnectionPtr & target, const JsonNode & json)
 {
+	logGlobal->info("Sending message of type %s", json["type"].String());
+
 	assert(JsonUtils::validate(json, "vcmi:lobbyProtocol/" + json["type"].String(), json["type"].String() + " pack"));
 	target->sendPacket(json.toBytes());
 }
@@ -342,6 +344,9 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 		if(messageType == "changeRoomDescription")
 			return receiveChangeRoomDescription(connection, json);
 
+		if(messageType == "gameStarted")
+			return receiveGameStarted(connection, json);
+
 		if(messageType == "leaveGameRoom")
 			return receiveLeaveGameRoom(connection, json);
 
@@ -594,6 +599,14 @@ void LobbyServer::receiveChangeRoomDescription(const NetworkConnectionPtr & conn
 	std::string description = json["description"].String();
 
 	database->updateRoomDescription(gameRoomID, description);
+	broadcastActiveGameRooms();
+}
+
+void LobbyServer::receiveGameStarted(const NetworkConnectionPtr & connection, const JsonNode & json)
+{
+	std::string gameRoomID = activeGameRooms[connection];
+
+	database->setGameRoomStatus(gameRoomID, LobbyRoomState::BUSY);
 	broadcastActiveGameRooms();
 }
 

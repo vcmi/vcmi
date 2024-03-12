@@ -115,20 +115,12 @@ GlobalLobbyAccountCard::GlobalLobbyAccountCard(GlobalLobbyWindow * window, const
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	//const auto & onInviteClicked = [window, accountID=accountDescription.accountID]()
-	//{
-	//	window->doInviteAccount(accountID);
-	//};
-
 	pos.w = 130;
 	pos.h = 40;
 
 	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
 	labelName = std::make_shared<CLabel>(5, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, accountDescription.displayName);
 	labelStatus = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, accountDescription.status);
-
-	//if (CSH->inLobbyRoom())
-	//	buttonInvite = std::make_shared<CButton>(Point(95, 8), AnimationPath::builtin("settingsWindow/button32"), CButton::tooltip(), onInviteClicked);
 }
 
 GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & roomDescription)

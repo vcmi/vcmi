@@ -37,6 +37,7 @@ class GlobalLobbyProcessor : public INetworkClientListener
 	void sendMessage(const NetworkConnectionPtr & targetConnection, const JsonNode & payload);
 public:
 	void sendChangeRoomDescription(const std::string & description);
+	void sendGameStarted();
 
 	explicit GlobalLobbyProcessor(CVCMIServer & owner);
 };
