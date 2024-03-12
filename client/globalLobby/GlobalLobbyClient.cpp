@@ -183,6 +183,7 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		room.hostAccountID = jsonEntry["hostAccountID"].String();
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
+		room.statusID = jsonEntry["status"].String();
 		room.playersCount = jsonEntry["playersCount"].Integer();
 		room.playerLimit = jsonEntry["playerLimit"].Integer();
 

@@ -195,6 +195,12 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 		where.y += getBorderSize().y;
 	}
 
+	if(alignment == ETextAlignment::TOPRIGHT)
+	{
+		where.x += getBorderSize().x + destRect.w - ((int)f->getStringWidth(what) - delimitersCount);
+		where.y += getBorderSize().y;
+	}
+
 	if(alignment == ETextAlignment::CENTER)
 	{
 		where.x += (int(destRect.w) - int(f->getStringWidth(what) - delimitersCount)) / 2;

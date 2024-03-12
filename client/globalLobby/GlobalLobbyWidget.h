@@ -52,6 +52,7 @@ public:
 	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
 	std::shared_ptr<CLabel> labelName;
 	std::shared_ptr<CLabel> labelRoomSize;
+	std::shared_ptr<CLabel> labelRoomStatus;
 	std::shared_ptr<CLabel> labelDescription;
 	std::shared_ptr<CButton> buttonJoin;
 	std::shared_ptr<CPicture> iconRoomSize;

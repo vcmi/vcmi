@@ -149,6 +149,15 @@ void LobbyServer::broadcastActiveAccounts()
 		sendMessage(connection.first, reply);
 }
 
+static constexpr std::array LOBBY_ROOM_STATE_NAMES = {
+	"idle",
+	"public",
+	"private",
+	"busy",
+	"cancelled",
+	"closed"
+};
+
 JsonNode LobbyServer::prepareActiveGameRooms()
 {
 	auto activeGameRoomStats = database->getActiveGameRooms();
@@ -163,6 +172,7 @@ JsonNode LobbyServer::prepareActiveGameRooms()
 		jsonEntry["hostAccountID"].String() = gameRoom.hostAccountID;
 		jsonEntry["hostAccountDisplayName"].String() = gameRoom.hostAccountDisplayName;
 		jsonEntry["description"].String() = gameRoom.description;
+		jsonEntry["status"].String() = LOBBY_ROOM_STATE_NAMES[vstd::to_underlying(gameRoom.roomState)];
 		jsonEntry["playersCount"].Integer() = gameRoom.playersCount;
 		jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
 		reply["gameRooms"].Vector().push_back(jsonEntry);

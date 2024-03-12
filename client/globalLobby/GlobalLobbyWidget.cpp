@@ -144,16 +144,19 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 	roomSizeText.replaceNumber(roomDescription.playersCount);
 	roomSizeText.replaceNumber(roomDescription.playerLimit);
 
+	auto roomStatusText = MetaString::createFromTextID("vcmi.lobby.room.state." + roomDescription.statusID);
+
 	pos.w = 230;
 	pos.h = 40;
 
 	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
 	labelName = std::make_shared<CLabel>(5, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, roomDescription.hostAccountDisplayName);
 	labelDescription = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomDescription.description);
-	labelRoomSize = std::make_shared<CLabel>(160, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, roomSizeText.toString());
-	iconRoomSize = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconPlayer"), Point(145, 5));
+	labelRoomSize = std::make_shared<CLabel>(178, 2, FONT_SMALL, ETextAlignment::TOPRIGHT, Colors::YELLOW, roomSizeText.toString());
+	labelRoomStatus = std::make_shared<CLabel>(190, 20, FONT_SMALL, ETextAlignment::TOPRIGHT, Colors::YELLOW, roomStatusText.toString());
+	iconRoomSize = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconPlayer"), Point(180, 5));
 
-	if(!CSH->inGame())
+	if(!CSH->inGame() && roomDescription.statusID == "public")
 	{
 		buttonJoin = std::make_shared<CButton>(Point(194, 4), AnimationPath::builtin("lobbyJoinRoom"), CButton::tooltip(), onJoinClicked);
 		buttonJoin->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/iconEnter")));

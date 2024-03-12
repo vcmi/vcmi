@@ -22,6 +22,7 @@ struct GlobalLobbyRoom
 	std::string hostAccountID;
 	std::string hostAccountDisplayName;
 	std::string description;
+	std::string statusID;
 	int playersCount;
 	int playerLimit;
 };

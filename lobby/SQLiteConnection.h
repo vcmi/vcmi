@@ -69,6 +69,16 @@ private:
 	void getColumnSingle(size_t index, int64_t & value);
 	void getColumnSingle(size_t index, std::string & value);
 
+	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
+	void getColumnSingle(size_t index, T & value)
+	{
+		using Integer = std::underlying_type_t<T>;
+		Integer result;
+		getColumnSingle(index, result);
+
+		value = static_cast<T>(result);
+	}
+
 	template<typename Rep, typename Period>
 	void getColumnSingle(size_t index, std::chrono::duration<Rep, Period> & value)
 	{

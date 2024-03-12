@@ -9,4 +9,11 @@
  */
 #pragma once
 
-enum class ETextAlignment {TOPLEFT, TOPCENTER, CENTER, BOTTOMRIGHT};
+enum class ETextAlignment
+{
+	TOPLEFT,
+	TOPCENTER,
+	TOPRIGHT,
+	CENTER,
+	BOTTOMRIGHT
+};

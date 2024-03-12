@@ -210,7 +210,7 @@ void LobbyDatabase::prepareStatements()
 		SELECT roomID, hostAccountID, displayName, description, status, playerLimit
 		FROM gameRooms
 		LEFT JOIN accounts ON hostAccountID = accountID
-		WHERE status = 1
+		WHERE status IN (1, 2)
 	)";
 
 	static const std::string countRoomUsedSlotsText = R"(
@@ -449,16 +449,16 @@ LobbyInviteStatus LobbyDatabase::getAccountInviteStatus(const std::string & acco
 
 LobbyRoomState LobbyDatabase::getGameRoomStatus(const std::string & roomID)
 {
-	int result = -1;
+	LobbyRoomState result;
 
 	getGameRoomStatusStatement->setBinds(roomID);
 	if(getGameRoomStatusStatement->execute())
 		getGameRoomStatusStatement->getColumns(result);
-	getGameRoomStatusStatement->reset();
+	else
+		result = LobbyRoomState::CLOSED;
 
-	if (result != -1)
-		return static_cast<LobbyRoomState>(result);
-	return LobbyRoomState::CLOSED;
+	getGameRoomStatusStatement->reset();
+	return result;
 }
 
 uint32_t LobbyDatabase::getGameRoomFreeSlots(const std::string & roomID)
@@ -511,7 +511,7 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 	while(getActiveGameRoomsStatement->execute())
 	{
 		LobbyGameRoom entry;
-		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomStatus, entry.playerLimit);
+		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit);
 		result.push_back(entry);
 	}
 	getActiveGameRoomsStatement->reset();

@@ -20,7 +20,7 @@
 			{
 				"type" : "object",
 				"additionalProperties" : false,
-				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "playersCount", "playerLimit" ],
+				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "playersCount", "playerLimit", "status" ],
 				"properties" : {
 					"gameRoomID" :
 					{
@@ -46,6 +46,12 @@
 					{
 						"type" : "number",
 						"description" : "Current number of players in this room, including host"
+					},
+					"status" :
+					{
+						"type" : "string",
+						"enum" : [ "idle", "public", "private", "busy", "cancelled", "closed" ],
+						"description" : "Current status of game room"
 					},
 					"playerLimit" :
 					{
