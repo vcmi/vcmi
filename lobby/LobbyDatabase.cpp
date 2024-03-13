@@ -18,7 +18,8 @@ void LobbyDatabase::createTables()
 		CREATE TABLE IF NOT EXISTS chatMessages (
 			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			senderName TEXT,
-			roomType TEXT,
+			channelType TEXT,
+			channelName TEXT,
 			messageText TEXT,
 			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 		);
@@ -103,7 +104,7 @@ void LobbyDatabase::prepareStatements()
 	// INSERT INTO
 
 	static const std::string insertChatMessageText = R"(
-		INSERT INTO chatMessages(senderName, messageText) VALUES( ?, ?);
+		INSERT INTO chatMessages(senderName, messageText, channelType, channelName) VALUES( ?, ?, ?, ?);
 	)";
 
 	static const std::string insertAccountText = R"(
@@ -174,9 +175,17 @@ void LobbyDatabase::prepareStatements()
 		SELECT senderName, displayName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',cm.creationTime)  AS secondsElapsed
 		FROM chatMessages cm
 		LEFT JOIN accounts on accountID = senderName
-		WHERE secondsElapsed < 60*60*18
+		WHERE secondsElapsed < 60*60*18 AND channelType = ? AND channelName = ?
 		ORDER BY cm.creationTime DESC
 		LIMIT 100
+	)";
+
+	static const std::string getFullMessageHistoryText = R"(
+		SELECT senderName, displayName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',cm.creationTime) AS secondsElapsed
+		FROM chatMessages cm
+		LEFT JOIN accounts on accountID = senderName
+		WHERE channelType = ? AND channelName = ?
+		ORDER BY cm.creationTime DESC
 	)";
 
 	static const std::string getIdleGameRoomText = R"(
@@ -248,7 +257,7 @@ void LobbyDatabase::prepareStatements()
 		SELECT COUNT(accountID)
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
-		WHERE accountID = ? AND grp.roomID = ? AND status IN (1, 2, 3)
+		WHERE accountID = ? AND grp.roomID = ?
 	)";
 
 	static const std::string isPlayerInAnyGameRoomText = R"(
@@ -278,7 +287,6 @@ void LobbyDatabase::prepareStatements()
 	insertGameRoomInvitesStatement = database->prepare(insertGameRoomInvitesText);
 
 	deleteGameRoomPlayersStatement = database->prepare(deleteGameRoomPlayersText);
-	deleteGameRoomInvitesStatement = database->prepare(deleteGameRoomInvitesText);
 
 	setAccountOnlineStatement = database->prepare(setAccountOnlineText);
 	setGameRoomStatusStatement = database->prepare(setGameRoomStatusText);
@@ -287,6 +295,7 @@ void LobbyDatabase::prepareStatements()
 	updateRoomPlayerLimitStatement = database->prepare(updateRoomPlayerLimitText);
 
 	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
+	getFullMessageHistoryStatement = database->prepare(getFullMessageHistoryText);
 	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
 	getGameRoomStatusStatement = database->prepare(getGameRoomStatusText);
 	getAccountGameRoomStatement = database->prepare(getAccountGameRoomText);
@@ -313,9 +322,9 @@ LobbyDatabase::LobbyDatabase(const boost::filesystem::path & databasePath)
 	prepareStatements();
 }
 
-void LobbyDatabase::insertChatMessage(const std::string & sender, const std::string & roomType, const std::string & roomName, const std::string & messageText)
+void LobbyDatabase::insertChatMessage(const std::string & sender, const std::string & channelType, const std::string & channelName, const std::string & messageText)
 {
-	insertChatMessageStatement->executeOnce(sender, messageText);
+	insertChatMessageStatement->executeOnce(sender, messageText, channelType, channelName);
 }
 
 bool LobbyDatabase::isPlayerInGameRoom(const std::string & accountID)
@@ -342,10 +351,11 @@ bool LobbyDatabase::isPlayerInGameRoom(const std::string & accountID, const std:
 	return result;
 }
 
-std::vector<LobbyChatMessage> LobbyDatabase::getRecentMessageHistory()
+std::vector<LobbyChatMessage> LobbyDatabase::getRecentMessageHistory(const std::string & channelType, const std::string & channelName)
 {
 	std::vector<LobbyChatMessage> result;
 
+	getRecentMessageHistoryStatement->setBinds(channelType, channelName);
 	while(getRecentMessageHistoryStatement->execute())
 	{
 		LobbyChatMessage message;
@@ -353,6 +363,22 @@ std::vector<LobbyChatMessage> LobbyDatabase::getRecentMessageHistory()
 		result.push_back(message);
 	}
 	getRecentMessageHistoryStatement->reset();
+
+	return result;
+}
+
+std::vector<LobbyChatMessage> LobbyDatabase::getFullMessageHistory(const std::string & channelType, const std::string & channelName)
+{
+	std::vector<LobbyChatMessage> result;
+
+	getFullMessageHistoryStatement->setBinds(channelType, channelName);
+	while(getFullMessageHistoryStatement->execute())
+	{
+		LobbyChatMessage message;
+		getFullMessageHistoryStatement->getColumns(message.accountID, message.displayName, message.messageText, message.age);
+		result.push_back(message);
+	}
+	getFullMessageHistoryStatement->reset();
 
 	return result;
 }

@@ -65,12 +65,14 @@ class LobbyServer final : public INetworkServerListener
 	/// Returns parsed json on success or empty json node on failure
 	JsonNode parseAndValidateMessage(const std::vector<std::byte> & message) const;
 
-	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, const std::string & displayName, const std::string & messageText);
+	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::string & accountID, const std::string & displayName, const std::string & messageText);
 	void sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie);
 	void sendOperationFailed(const NetworkConnectionPtr & target, const std::string & reason);
 	void sendServerLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie);
 	void sendClientLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName);
-	void sendChatHistory(const NetworkConnectionPtr & target, const std::vector<LobbyChatMessage> &);
+	void sendFullChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::string & channelNameForClient);
+	void sendRecentChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName);
+	void sendChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::vector<LobbyChatMessage> & history);
 	void sendAccountJoinsRoom(const NetworkConnectionPtr & target, const std::string & accountID);
 	void sendJoinRoomSuccess(const NetworkConnectionPtr & target, const std::string & gameRoomID, bool proxyMode);
 	void sendInviteReceived(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & gameRoomID);
@@ -82,13 +84,13 @@ class LobbyServer final : public INetworkServerListener
 	void receiveServerProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 
 	void receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json);
+	void receiveRequestChatHistory(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveActivateGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveJoinGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveLeaveGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveChangeRoomDescription(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveGameStarted(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveSendInvite(const NetworkConnectionPtr & connection, const JsonNode & json);
-	void receiveDeclineInvite(const NetworkConnectionPtr & connection, const JsonNode & json);
 
 public:
 	explicit LobbyServer(const boost::filesystem::path & databasePath);

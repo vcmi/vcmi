@@ -27,7 +27,13 @@
 #include "../../lib/TextOperations.h"
 #include "../../lib/CGeneralTextHandler.h"
 
-GlobalLobbyClient::GlobalLobbyClient() = default;
+GlobalLobbyClient::GlobalLobbyClient()
+{
+	activeChannels.emplace_back("english");
+	if (CGI->generaltexth->getPreferredLanguage() != "english")
+		activeChannels.emplace_back(CGI->generaltexth->getPreferredLanguage());
+}
+
 GlobalLobbyClient::~GlobalLobbyClient() = default;
 
 static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
@@ -126,29 +132,50 @@ void GlobalLobbyClient::receiveClientLoginSuccess(const JsonNode & json)
 
 void GlobalLobbyClient::receiveChatHistory(const JsonNode & json)
 {
+	std::string channelType = json["channelType"].String();
+	std::string channelName = json["channelName"].String();
+	std::string channelKey = channelType + '_' + channelName;
+
+	// create empty entry, potentially replacing any pre-existing data
+	chatHistory[channelKey] = {};
+
+	auto lobbyWindowPtr = lobbyWindow.lock();
+
 	for(const auto & entry : json["messages"].Vector())
 	{
-		std::string accountID = entry["accountID"].String();
-		std::string displayName = entry["displayName"].String();
-		std::string messageText = entry["messageText"].String();
-		int ageSeconds = entry["ageSeconds"].Integer();
-		std::string timeFormatted = getCurrentTimeFormatted(-ageSeconds);
+		GlobalLobbyChannelMessage message;
 
-		auto lobbyWindowPtr = lobbyWindow.lock();
+		message.accountID = entry["accountID"].String();
+		message.displayName = entry["displayName"].String();
+		message.messageText = entry["messageText"].String();
+		int ageSeconds = entry["ageSeconds"].Integer();
+		message.timeFormatted = getCurrentTimeFormatted(-ageSeconds);
+
+		chatHistory[channelKey].push_back(message);
+
 		if(lobbyWindowPtr)
-			lobbyWindowPtr->onGameChatMessage(displayName, messageText, timeFormatted);
+			lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
 	}
 }
 
 void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 {
-	std::string accountID = json["accountID"].String();
-	std::string displayName = json["displayName"].String();
-	std::string messageText = json["messageText"].String();
-	std::string timeFormatted = getCurrentTimeFormatted();
+	GlobalLobbyChannelMessage message;
+
+	message.accountID = json["accountID"].String();
+	message.displayName = json["displayName"].String();
+	message.messageText = json["messageText"].String();
+	message.timeFormatted = getCurrentTimeFormatted();
+
+	std::string channelType = json["channelType"].String();
+	std::string channelName = json["channelName"].String();
+	std::string channelKey = channelType + '_' + channelName;
+
+	chatHistory[channelKey].push_back(message);
+
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
-		lobbyWindowPtr->onGameChatMessage(displayName, messageText, timeFormatted);
+		lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
 }
 
 void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
@@ -339,6 +366,38 @@ const std::vector<GlobalLobbyAccount> & GlobalLobbyClient::getActiveAccounts() c
 const std::vector<GlobalLobbyRoom> & GlobalLobbyClient::getActiveRooms() const
 {
 	return activeRooms;
+}
+
+const std::vector<std::string> & GlobalLobbyClient::getActiveChannels() const
+{
+	return activeChannels;
+}
+
+const std::vector<GlobalLobbyHistoryMatch> & GlobalLobbyClient::getMatchesHistory() const
+{
+	return matchesHistory;
+}
+
+const std::vector<GlobalLobbyChannelMessage> & GlobalLobbyClient::getChannelHistory(const std::string & channelType, const std::string & channelName) const
+{
+	static const std::vector<GlobalLobbyChannelMessage> emptyVector;
+
+	std::string keyToTest = channelType + '_' + channelName;
+
+	if (chatHistory.count(keyToTest) == 0)
+	{
+		if (channelType != "global")
+		{
+			JsonNode toSend;
+			toSend["type"].String() = "requestChatHistory";
+			toSend["channelType"].String() = channelType;
+			toSend["channelName"].String() = channelName;
+			CSH->getGlobalLobby().sendMessage(toSend);
+		}
+		return emptyVector;
+	}
+	else
+		return chatHistory.at(keyToTest);
 }
 
 void GlobalLobbyClient::activateInterface()

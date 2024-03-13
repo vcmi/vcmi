@@ -56,8 +56,9 @@
 			"text" : "Room List"
 		},
 		{
-			"type" : "roomList",
+			"type" : "lobbyItemList",
 			"name" : "roomList",
+			"itemType" : "room",
 			"position" : { "x" : 7, "y" : 68 },
 			"itemOffset" : { "x" : 0, "y" : 40 },
 			"sliderPosition" : { "x" : 230, "y" : 0 },
@@ -74,17 +75,35 @@
 			"position": {"x": 280, "y": 53},
 			"text" : "Channel List"
 		},
+		{
+			"type" : "lobbyItemList",
+			"name" : "channelList",
+			"itemType" : "channel",
+			"position" : { "x" : 272, "y" : 68 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"visibleAmount" : 3
+		},
 		
 		{
 			"type": "areaFilled",
-			"rect": {"x": 270, "y": 200, "w": 150, "h": 390}
+			"rect": {"x": 270, "y": 210, "w": 150, "h": 380}
 		},
 		{
 			"type": "labelTitle",
-			"position": {"x": 280, "y": 203},
+			"position": {"x": 280, "y": 213},
 			"text" : "Games History"
 		},
-		
+		{
+			"type" : "lobbyItemList",
+			"name" : "matchList",
+			"itemType" : "match",
+			"position" : { "x" : 272, "y" : 228 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"sliderPosition" : { "x" : 130, "y" : 0 },
+			"sliderSize" : { "x" : 360, "y" : 360 },
+			"visibleAmount" : 9
+		},
+
 		{
 			"type": "areaFilled",
 			"rect": {"x": 430, "y": 50, "w": 430, "h": 515}
@@ -125,33 +144,16 @@
 			"text" : "Account List"
 		},
 		{
-			"type" : "accountList",
+			"type" : "lobbyItemList",
 			"name" : "accountList",
+			"itemType" : "account",
 			"position" : { "x" : 872, "y" : 68 },
 			"itemOffset" : { "x" : 0, "y" : 40 },
 			"sliderPosition" : { "x" : 130, "y" : 0 },
 			"sliderSize" : { "x" : 520, "y" : 520 },
-			"visibleAmount" : 12
+			"visibleAmount" : 13
 		},
 
-//		{
-//			"type": "button",
-//			"position": {"x": 840, "y": 10},
-//			"image": "settingsWindow/button80",
-//			"help": "core.help.288",
-//			"callback": "closeWindow",
-//			"items":
-//			[
-//				{
-//					"type": "label",
-//					"font": "medium",
-//					"alignment": "center",
-//					"color": "yellow",
-//					"text": "Leave"
-//				}
-//			]
-//		},
-		
 		{
 			"type": "button",
 			"position": {"x": 870, "y": 10},

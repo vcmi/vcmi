@@ -33,6 +33,20 @@ GlobalLobbyWindow::GlobalLobbyWindow()
 	center();
 
 	widget->getAccountNameLabel()->setText(settings["lobby"]["displayName"].String());
+	doOpenChannel("global", "english");
+}
+
+void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std::string & channelName)
+{
+	currentChannelType = channelType;
+	currentChannelName = channelName;
+	chatHistory.clear();
+	widget->getGameChat()->setText("");
+
+	auto history = CSH->getGlobalLobby().getChannelHistory(channelType, channelName);
+
+	for (auto const & entry : history)
+		onGameChatMessage(entry.displayName, entry.messageText, entry.timeFormatted, channelType, channelName);
 }
 
 void GlobalLobbyWindow::doSendChatMessage()
@@ -41,6 +55,8 @@ void GlobalLobbyWindow::doSendChatMessage()
 
 	JsonNode toSend;
 	toSend["type"].String() = "sendChatMessage";
+	toSend["channelType"].String() = currentChannelType;
+	toSend["channelName"].String() = currentChannelName;
 	toSend["messageText"].String() = messageText;
 
 	CSH->getGlobalLobby().sendMessage(toSend);
@@ -71,8 +87,11 @@ void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
 	CSH->getGlobalLobby().sendMessage(toSend);
 }
 
-void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when)
+void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when, const std::string & channelType, const std::string & channelName)
 {
+	if (channelType != currentChannelType || channelName != currentChannelName)
+		return; // TODO: send ping to player that another channel got a new message
+
 	MetaString chatMessageFormatted;
 	chatMessageFormatted.appendRawString("[%s] {%s}: %s\n");
 	chatMessageFormatted.replaceRawString(when);

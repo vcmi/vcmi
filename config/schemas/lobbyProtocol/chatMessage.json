@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-06/schema",
 	"title" : "Lobby protocol: chatMessage",
 	"description" : "Sent by server to all players in lobby whenever new message is sent to game chat",
-	"required" : [ "type", "messageText", "accountID", "displayName", "roomMode", "roomName" ],
+	"required" : [ "type", "messageText", "accountID", "displayName", "channelType", "channelName" ],
 	"additionalProperties" : false,
 
 	"properties" : {
@@ -27,17 +27,16 @@
 			"type" : "string",
 			"description" : "Display name of account that have sent this message"
 		},
-		"roomMode" :
+		"channelType" :
 		{
 			"type" : "string",
-			"const" : "global",
-			"description" : "Type of room to which this message has been set. Right now can only be 'general'"
+			"enum" : [ "global", "match", "player" ],
+			"description" : "Type of room to which this message has been set."
 		},
-		"roomName" :
+		"channelName" :
 		{
 			"type" : "string",
-			"const" : "english",
-			"description" : "Name of room to which this message has been set. Right now only 'english' is used"
+			"description" : "Name of room to which this message has been set. For 'global' this is language, for 'match' and 'player' this is receiver UUID"
 		}
 	}
 }

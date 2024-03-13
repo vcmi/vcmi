@@ -1,5 +1,5 @@
 /*
- * GlobalLobbyClient.h, part of VCMI engine
+ * GlobalLobbyDefines.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -25,4 +25,19 @@ struct GlobalLobbyRoom
 	std::string statusID;
 	int playersCount;
 	int playerLimit;
+};
+
+struct GlobalLobbyChannelMessage
+{
+	std::string timeFormatted;
+	std::string accountID;
+	std::string displayName;
+	std::string messageText;
+};
+
+struct GlobalLobbyHistoryMatch
+{
+	std::string gameRoomID;
+	std::string startDateFormatted;
+	std::vector<std::string> opponentDisplayNames;
 };

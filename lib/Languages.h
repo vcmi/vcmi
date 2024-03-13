@@ -111,8 +111,7 @@ inline const auto & getLanguageList()
 
 inline const Options & getLanguageOptions(ELanguages language)
 {
-	assert(language < ELanguages::COUNT);
-	return getLanguageList()[static_cast<size_t>(language)];
+	return getLanguageList().at(static_cast<size_t>(language));
 }
 
 inline const Options & getLanguageOptions(const std::string & language)
@@ -121,9 +120,7 @@ inline const Options & getLanguageOptions(const std::string & language)
 		if(entry.identifier == language)
 			return entry;
 
-	static const Options emptyValue;
-	assert(0);
-	return emptyValue;
+	throw std::runtime_error("Language " + language + " does not exists!");
 }
 
 template<typename Numeric>

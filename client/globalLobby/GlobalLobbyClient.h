@@ -23,6 +23,13 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 {
 	std::vector<GlobalLobbyAccount> activeAccounts;
 	std::vector<GlobalLobbyRoom> activeRooms;
+	std::vector<std::string> activeChannels;
+	std::vector<GlobalLobbyHistoryMatch> matchesHistory;
+
+	/// Contains known history of each channel
+	/// Key: concatenated channel type and channel name
+	/// Value: list of known chat messages
+	std::map<std::string, std::vector<GlobalLobbyChannelMessage>> chatHistory;
 
 	std::shared_ptr<INetworkConnection> networkConnection;
 
@@ -54,6 +61,9 @@ public:
 
 	const std::vector<GlobalLobbyAccount> & getActiveAccounts() const;
 	const std::vector<GlobalLobbyRoom> & getActiveRooms() const;
+	const std::vector<std::string> & getActiveChannels() const;
+	const std::vector<GlobalLobbyHistoryMatch> & getMatchesHistory() const;
+	const std::vector<GlobalLobbyChannelMessage> & getChannelHistory(const std::string & channelType, const std::string & channelName) const;
 
 	/// Activate interface and pushes lobby UI as top window
 	void activateInterface();

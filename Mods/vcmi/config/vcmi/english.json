@@ -78,11 +78,8 @@
 	"vcmi.lobby.login.error" : "Connection error: %s",
 	"vcmi.lobby.login.create" : "New Account",
 	"vcmi.lobby.login.login" : "Login",
-
 	"vcmi.lobby.room.create" : "Create New Room",
 	"vcmi.lobby.room.players.limit" : "Players Limit",
-	"vcmi.lobby.room.public" : "Public",
-	"vcmi.lobby.room.private" : "Private",
 	"vcmi.lobby.room.description.public" : "Any player can join public room.",
 	"vcmi.lobby.room.description.private" : "Only invited players can join private room.",
 	"vcmi.lobby.room.description.new" : "To start the game, select a scenario or set up a random map.",

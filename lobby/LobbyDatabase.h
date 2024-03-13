@@ -38,6 +38,7 @@ class LobbyDatabase
 	SQLiteStatementPtr updateRoomPlayerLimitStatement;
 
 	SQLiteStatementPtr getRecentMessageHistoryStatement;
+	SQLiteStatementPtr getFullMessageHistoryStatement;
 	SQLiteStatementPtr getIdleGameRoomStatement;
 	SQLiteStatementPtr getGameRoomStatusStatement;
 	SQLiteStatementPtr getActiveGameRoomsStatement;
@@ -74,7 +75,7 @@ public:
 	void insertGameRoom(const std::string & roomID, const std::string & hostAccountID);
 	void insertAccount(const std::string & accountID, const std::string & displayName);
 	void insertAccessCookie(const std::string & accountID, const std::string & accessCookieUUID);
-	void insertChatMessage(const std::string & sender, const std::string & roomType, const std::string & roomID, const std::string & messageText);
+	void insertChatMessage(const std::string & sender, const std::string & channelType, const std::string & roomID, const std::string & messageText);
 
 	void updateAccountLoginTime(const std::string & accountID);
 	void updateRoomPlayerLimit(const std::string & gameRoomID, int playerLimit);
@@ -82,7 +83,8 @@ public:
 
 	std::vector<LobbyGameRoom> getActiveGameRooms();
 	std::vector<LobbyAccount> getActiveAccounts();
-	std::vector<LobbyChatMessage> getRecentMessageHistory();
+	std::vector<LobbyChatMessage> getRecentMessageHistory(const std::string & channelType, const std::string & channelName);
+	std::vector<LobbyChatMessage> getFullMessageHistory(const std::string & channelType, const std::string & channelName);
 
 	std::string getIdleGameRoom(const std::string & hostAccountID);
 	std::string getAccountGameRoom(const std::string & accountID);

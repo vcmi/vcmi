@@ -15,6 +15,7 @@
 #include "../lib/json/JsonFormatException.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/json/JsonUtils.h"
+#include "../lib/Languages.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -109,10 +110,22 @@ void LobbyServer::sendServerLoginSuccess(const NetworkConnectionPtr & target, co
 	sendMessage(target, reply);
 }
 
-void LobbyServer::sendChatHistory(const NetworkConnectionPtr & target, const std::vector<LobbyChatMessage> & history)
+void LobbyServer::sendFullChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::string & channelNameForClient)
+{
+	sendChatHistory(target, channelType, channelNameForClient, database->getFullMessageHistory(channelType, channelName));
+}
+
+void LobbyServer::sendRecentChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName)
+{
+	sendChatHistory(target, channelType, channelName, database->getRecentMessageHistory(channelType, channelName));
+}
+
+void LobbyServer::sendChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::vector<LobbyChatMessage> & history)
 {
 	JsonNode reply;
 	reply["type"].String() = "chatHistory";
+	reply["channelType"].String() = channelType;
+	reply["channelName"].String() = channelName;
 	reply["messages"].Vector(); // force creation of empty vector
 
 	for(const auto & message : boost::adaptors::reverse(history))
@@ -208,15 +221,15 @@ void LobbyServer::sendJoinRoomSuccess(const NetworkConnectionPtr & target, const
 	sendMessage(target, reply);
 }
 
-void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, const std::string & displayName, const std::string & messageText)
+void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::string & accountID, const std::string & displayName, const std::string & messageText)
 {
 	JsonNode reply;
 	reply["type"].String() = "chatMessage";
 	reply["messageText"].String() = messageText;
 	reply["accountID"].String() = accountID;
 	reply["displayName"].String() = displayName;
-	reply["roomMode"].String() = roomMode;
-	reply["roomName"].String() = roomName;
+	reply["channelType"].String() = channelType;
+	reply["channelName"].String() = channelName;
 
 	sendMessage(target, reply);
 }
@@ -319,6 +332,9 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 		if(messageType == "sendChatMessage")
 			return receiveSendChatMessage(connection, json);
 
+		if(messageType == "requestChatHistory")
+			return receiveRequestChatHistory(connection, json);
+
 		if(messageType == "activateGameRoom")
 			return receiveActivateGameRoom(connection, json);
 
@@ -327,9 +343,6 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 
 		if(messageType == "sendInvite")
 			return receiveSendInvite(connection, json);
-
-		if(messageType == "declineInvite")
-			return receiveDeclineInvite(connection, json);
 
 		logGlobal->warn("%s: Unknown message type: %s", accountName, messageType);
 		return;
@@ -376,20 +389,95 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	logGlobal->info("(unauthorised): Unknown message type %s", messageType);
 }
 
-void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json)
+void LobbyServer::receiveRequestChatHistory(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
 	std::string accountID = activeAccounts[connection];
+	std::string channelType = json["channelType"].String();
+	std::string channelName = json["channelName"].String();
+
+	if (channelType == "global")
+	{
+		// can only be sent on connection, initiated by server
+		sendOperationFailed(connection, "Operation not supported!");
+	}
+
+	if (channelType == "match")
+	{
+		if (!database->isPlayerInGameRoom(accountID, channelName))
+			return sendOperationFailed(connection, "Can not access room you are not part of!");
+
+		sendFullChatHistory(connection, channelType, channelName, channelName);
+	}
+
+	if (channelType == "player")
+	{
+		if (!database->isAccountIDExists(channelName))
+			return sendOperationFailed(connection, "Such player does not exists!");
+
+		// room ID for private messages is actually <player 1 ID>_<player 2 ID>, with player ID's sorted alphabetically (to generate unique room ID)
+		std::string roomID = std::min(accountID, channelName) + "_" + std::max(accountID, channelName);
+		sendFullChatHistory(connection, channelType, roomID, channelName);
+	}
+}
+
+void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json)
+{
+	std::string senderAccountID = activeAccounts[connection];
 	std::string messageText = json["messageText"].String();
+	std::string channelType = json["channelType"].String();
+	std::string channelName = json["channelName"].String();
 	std::string messageTextClean = sanitizeChatMessage(messageText);
-	std::string displayName = database->getAccountDisplayName(accountID);
+	std::string displayName = database->getAccountDisplayName(senderAccountID);
 
 	if(messageTextClean.empty())
 		return sendOperationFailed(connection, "No printable characters in sent message!");
 
-	database->insertChatMessage(accountID, "global", "english", messageText);
+	if (channelType == "global")
+	{
+		try
+		{
+			Languages::getLanguageOptions(channelName);
+		}
+		catch (const std::runtime_error &)
+		{
+			return sendOperationFailed(connection, "Unknown language!");
+		}
+		database->insertChatMessage(senderAccountID, channelType, channelName, messageText);
 
-	for(const auto & otherConnection : activeAccounts)
-		sendChatMessage(otherConnection.first, "global", "english", accountID, displayName, messageText);
+		for(const auto & otherConnection : activeAccounts)
+			sendChatMessage(otherConnection.first, channelType, channelName, senderAccountID, displayName, messageText);
+	}
+
+	if (channelType == "match")
+	{
+		if (!database->isPlayerInGameRoom(senderAccountID, channelName))
+			return sendOperationFailed(connection, "Can not access room you are not part of!");
+
+		database->insertChatMessage(senderAccountID, channelType, channelName, messageText);
+
+		for(const auto & otherConnection : activeAccounts)
+		{
+			if (database->isPlayerInGameRoom(senderAccountID, otherConnection.second))
+				sendChatMessage(otherConnection.first, channelType, channelName, senderAccountID, displayName, messageText);
+		}
+	}
+
+	if (channelType == "player")
+	{
+		const std::string & receiverAccountID = channelName;
+		std::string roomID = std::min(senderAccountID, receiverAccountID) + "_" + std::max(senderAccountID, receiverAccountID);
+
+		if (!database->isAccountIDExists(receiverAccountID))
+			return sendOperationFailed(connection, "Such player does not exists!");
+
+		database->insertChatMessage(senderAccountID, channelType, roomID, messageText);
+
+		for(const auto & otherConnection : activeAccounts)
+		{
+			if (otherConnection.second == receiverAccountID)
+				sendChatMessage(otherConnection.first, channelType, senderAccountID, senderAccountID, displayName, messageText);
+		}
+	}
 }
 
 void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -435,7 +523,9 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	activeAccounts[connection] = accountID;
 
 	sendClientLoginSuccess(connection, accountCookie, displayName);
-	sendChatHistory(connection, database->getRecentMessageHistory());
+	sendRecentChatHistory(connection, "global", "english");
+	if (language != "english")
+		sendRecentChatHistory(connection, "global", language);
 
 	// send active game rooms list to new account
 	// and update acount list to everybody else including new account
@@ -645,17 +735,6 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 	database->insertGameRoomInvite(accountID, gameRoomID);
 	sendInviteReceived(targetAccount, senderName, gameRoomID);
-}
-
-void LobbyServer::receiveDeclineInvite(const NetworkConnectionPtr & connection, const JsonNode & json)
-{
-	std::string accountID = activeAccounts[connection];
-	std::string gameRoomID = json["gameRoomID"].String();
-
-	if(database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::INVITED)
-		return sendOperationFailed(connection, "No active invite found!");
-
-	database->deleteGameRoomInvite(accountID, gameRoomID);
 }
 
 LobbyServer::~LobbyServer() = default;
