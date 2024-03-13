@@ -183,35 +183,24 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
-	if(alignment == ETextAlignment::TOPLEFT)
-	{
+
+	if(alignment == ETextAlignment::TOPLEFT || alignment == ETextAlignment::CENTERLEFT  || alignment == ETextAlignment::BOTTOMLEFT)
 		where.x += getBorderSize().x;
+
+	if(alignment == ETextAlignment::CENTER || alignment == ETextAlignment::TOPCENTER || alignment == ETextAlignment::BOTTOMCENTER)
+		where.x += (destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersCount)) / 2;
+
+	if(alignment == ETextAlignment::TOPRIGHT || alignment == ETextAlignment::BOTTOMRIGHT || alignment == ETextAlignment::CENTERRIGHT)
+		where.x += getBorderSize().x + destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersCount);
+
+	if(alignment == ETextAlignment::TOPLEFT || alignment == ETextAlignment::TOPCENTER || alignment == ETextAlignment::TOPRIGHT)
 		where.y += getBorderSize().y;
-	}
 
-	if(alignment == ETextAlignment::TOPCENTER)
-	{
-		where.x += (int(destRect.w) - int(f->getStringWidth(what) - delimitersCount)) / 2;
-		where.y += getBorderSize().y;
-	}
+	if(alignment == ETextAlignment::CENTERLEFT || alignment == ETextAlignment::CENTER || alignment == ETextAlignment::CENTERRIGHT)
+		where.y += (destRect.h - static_cast<int>(f->getLineHeight())) / 2;
 
-	if(alignment == ETextAlignment::TOPRIGHT)
-	{
-		where.x += getBorderSize().x + destRect.w - ((int)f->getStringWidth(what) - delimitersCount);
-		where.y += getBorderSize().y;
-	}
-
-	if(alignment == ETextAlignment::CENTER)
-	{
-		where.x += (int(destRect.w) - int(f->getStringWidth(what) - delimitersCount)) / 2;
-		where.y += (int(destRect.h) - int(f->getLineHeight())) / 2;
-	}
-
-	if(alignment == ETextAlignment::BOTTOMRIGHT)
-	{
-		where.x += getBorderSize().x + destRect.w - ((int)f->getStringWidth(what) - delimitersCount);
-		where.y += getBorderSize().y + destRect.h - (int)f->getLineHeight();
-	}
+	if(alignment == ETextAlignment::BOTTOMLEFT || alignment == ETextAlignment::BOTTOMCENTER || alignment == ETextAlignment::BOTTOMRIGHT)
+		where.y += getBorderSize().y + destRect.h - static_cast<int>(f->getLineHeight());
 
 	size_t begin = 0;
 	size_t currDelimeter = 0;
