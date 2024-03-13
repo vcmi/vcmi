@@ -1,0 +1,28 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: requestChatHistory",
+	"description" : "Sent by client when player opens chat channel for which he has no history",
+	"required" : [ "type", "channelType", "channelName" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "requestChatHistory"
+		},
+
+		"channelType" :
+		{
+			"type" : "string",
+			"enum" : [ "global", "match", "player" ],
+			"description" : "Type of room to which these messages have been set."
+		},
+		"channelName" :
+		{
+			"type" : "string",
+			"description" : "Name of room to which these messages have been set. For 'global' this is language, for 'match' and 'player' this is receiver UUID"
+		}
+	}
+}
