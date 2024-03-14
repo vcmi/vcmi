@@ -240,7 +240,7 @@ void Zone::fractalize()
 	//Squared
 	float minDistance = 9 * 9;
 	float freeDistance = pos.z ? (10 * 10) : 6 * 6;
-	float spanFactor = (pos.z ? 0.25 : 0.5f); //Narrower passages in the Underground
+	float spanFactor = (pos.z ? 0.3f : 0.45f); //Narrower passages in the Underground
 	float marginFactor = 1.0f;
 
 	int treasureValue = 0;
@@ -263,10 +263,10 @@ void Zone::fractalize()
 			// A quater at max density
 			marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
 		}
-		else if (treasureValue < 125)
+		else if (treasureValue < 100)
 		{
 			//Dense obstacles
-			spanFactor *= (treasureValue / 125.f);
+			spanFactor *= (treasureValue / 100.f);
 			vstd::amax(spanFactor, 0.15f);
 		}
 		if (treasureDensity <= 10)
@@ -278,7 +278,7 @@ void Zone::fractalize()
 	float blockDistance = minDistance * spanFactor; //More obstacles in the Underground
 	freeDistance = freeDistance * marginFactor;
 	vstd::amax(freeDistance, 4 * 4);
-	logGlobal->info("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
+	logGlobal->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -381,7 +381,6 @@ void Zone::initModificators()
 	{
 		modificator->init();
 	}
-	logGlobal->info("Zone %d modificators initialized", getId());
 }
 
 CRandomGenerator& Zone::getRand()

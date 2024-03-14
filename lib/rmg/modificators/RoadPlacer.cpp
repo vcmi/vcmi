@@ -52,6 +52,11 @@ rmg::Area & RoadPlacer::areaIsolated()
 	return isolated;
 }
 
+rmg::Area & RoadPlacer::areaVisitable()
+{
+	return visitableTiles;
+}
+
 const rmg::Area & RoadPlacer::getRoads() const
 {
 	return roads;
@@ -64,7 +69,9 @@ bool RoadPlacer::createRoad(const int3 & dst)
 	rmg::Path path(searchArea);
 	path.connect(roads);
 
-	auto simpleRoutig = [this](const int3& src, const int3& dst)
+	const float VISITABLE_PENALTY = 1.33f;
+
+	auto simpleRoutig = [this, VISITABLE_PENALTY](const int3& src, const int3& dst)
 	{
 		if(areaIsolated().contains(dst))
 		{
@@ -72,14 +79,19 @@ bool RoadPlacer::createRoad(const int3 & dst)
 		}
 		else
 		{
-			return 1.0f;
+			auto ret = 1.0f;
+			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+			{
+				ret *= VISITABLE_PENALTY;
+			}
+			return ret;
 		}
 	};
 	
 	auto res = path.search(dst, true, simpleRoutig);
 	if(!res.valid())
 	{
-		auto desperateRoutig = [this](const int3& src, const int3& dst) -> float
+		auto desperateRoutig = [this, VISITABLE_PENALTY](const int3& src, const int3& dst) -> float
 		{
 			//Do not allow connections straight up through object not visitable from top
 			if(std::abs((src - dst).y) == 1)
@@ -98,7 +110,13 @@ bool RoadPlacer::createRoad(const int3 & dst)
 			}
 
 			float weight = dst.dist2dSQ(src);
-			return weight * weight;
+
+			auto ret =  weight * weight;
+			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+			{
+				ret *= VISITABLE_PENALTY;
+			}
+			return ret;
 		};
 		res = path.search(dst, false, desperateRoutig);
 

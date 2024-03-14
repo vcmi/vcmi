@@ -80,7 +80,7 @@ void Modificator::run()
 
 	if(!finished)
 	{
-		logGlobal->info("Modificator zone %d - %s - started", zone.getId(), getName());
+		logGlobal->trace("Modificator zone %d - %s - started", zone.getId(), getName());
 		CStopWatch processTime;
 		try
 		{
@@ -94,7 +94,7 @@ void Modificator::run()
 		dump();
 #endif
 		finished = true;
-		logGlobal->info("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
+		logGlobal->trace("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
 	}
 }
 

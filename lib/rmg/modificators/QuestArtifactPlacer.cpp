@@ -40,14 +40,14 @@ void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 
 void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id)
 {
-	logGlobal->info("Need to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
+	logGlobal->trace("Need to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
 	RecursiveLock lock(externalAccessMutex);
 	questArtifactsToPlace.emplace_back(id);
 }
 
 void QuestArtifactPlacer::removeQuestArtifact(const ArtifactID& id)
 {
-	logGlobal->info("Will not try to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
+	logGlobal->trace("Will not try to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
 	RecursiveLock lock(externalAccessMutex);
 	vstd::erase_if_present(questArtifactsToPlace, id);
 }
@@ -76,7 +76,7 @@ void QuestArtifactPlacer::findZonesForQuestArts()
 		}
 	}
 
-	logGlobal->info("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
+	logGlobal->trace("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
 }
 
 void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
@@ -92,7 +92,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 				continue;
 
 			auto artifactToReplace = *RandomGeneratorUtil::nextItem(artifactsToReplace, rand);
-			logGlobal->info("Replacing %s at %s with the quest artifact %s",
+			logGlobal->trace("Replacing %s at %s with the quest artifact %s",
 				artifactToReplace->getObjectName(),
 				artifactToReplace->getPosition().toString(),
 				VLC->artifacts()->getById(artifactToPlace)->getNameTranslated());
