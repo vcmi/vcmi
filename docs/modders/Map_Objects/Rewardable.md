@@ -515,7 +515,7 @@ canLearnSpells
 ```jsonc
 "creatures" : [
     {
-        "creature" : "archer",
+        "type" : "archer",
         "upgradeChance" : 30,
         "amount" : 20,
     }

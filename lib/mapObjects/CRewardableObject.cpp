@@ -60,7 +60,7 @@ void CRewardableObject::grantAllRewardsWthMessage(const CGHeroInstance * context
 		
 	for (auto index : rewardIndices)
 	{
-		// TODO: Allow a single message for multiple / all rewards?
+		// TODO: Merge all rewards of same type, with single message?
 		grantRewardWithMessage(contextHero, index, false);
 	}
 	// Mark visited only after all rewards were processed
