@@ -156,6 +156,16 @@ void CLobbyScreen::startCampaign()
 
 void CLobbyScreen::startScenario(bool allowOnlyAI)
 {
+	if (tabRand && CSH->si->mapGenOptions)
+	{
+		// Save RMG settings at game start
+		tabRand->saveOptions(*CSH->si->mapGenOptions);
+	}
+
+	// Save chosen difficulty
+	Settings lastDifficulty = settings.write["general"]["lastDifficulty"];
+	lastDifficulty->Integer() = getCurrentDifficulty();
+
 	if (CSH->validateGameStart(allowOnlyAI))
 	{
 		CSH->sendStartGame(allowOnlyAI);
