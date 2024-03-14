@@ -37,6 +37,8 @@ protected:
 	virtual void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
 	virtual void selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const;
 
+	virtual void grantAllRewardsWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32>& rewardIndices, bool markAsVisit) const;
+
 	std::vector<Component> loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const;
 
 	std::string getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const;
