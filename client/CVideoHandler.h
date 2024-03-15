@@ -17,7 +17,8 @@ struct SDL_Texture;
 
 enum class EVideoType : ui8
 {
-	INTRO = 0, // use entire window: stopOnKey = true, scale = true, overlay = false
+	INTRO_WITHOUT_FRAME = 0, // use entire window: stopOnKey = true, scale = true, overlay = false, showFrame = false
+	INTRO_WITH_FRAME,
 	SPELLBOOK  // overlay video: stopOnKey = false, scale = false, overlay = true
 };
 
@@ -87,7 +88,8 @@ class CVideoPlayer final : public IMainVideoPlayer
 
 	// Destination. Either overlay or dest.
 
-	SDL_Texture *texture;
+	SDL_Texture *backgroundTexture;
+	SDL_Texture *videoTexture;
 	SDL_Surface *dest;
 	Rect destRect;			// valid when dest is used
 	Rect pos;				// destination on screen
@@ -96,7 +98,7 @@ class CVideoPlayer final : public IMainVideoPlayer
 	double frameTime;
 	bool doLoop;				// loop through video
 
-	bool playVideo(int x, int y, bool stopOnKey, bool overlay);
+	bool playVideo(int x, int y, bool stopOnKey, bool overlay, bool showFrame = false);
 	bool open(const VideoPath & fname, bool loop, bool useOverlay = false, bool scale = false);
 public:
 	CVideoPlayer();
