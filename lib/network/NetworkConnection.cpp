@@ -17,8 +17,27 @@ NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, cons
 	, listener(listener)
 {
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
-	socket->set_option(boost::asio::socket_base::send_buffer_size(4194304));
-	socket->set_option(boost::asio::socket_base::receive_buffer_size(4194304));
+
+	// iOS throws exception on attempt to set buffer size
+	constexpr auto bufferSize = 4 * 1024 * 1024;
+
+	try
+	{
+		socket->set_option(boost::asio::socket_base::send_buffer_size{bufferSize});
+	}
+	catch(const boost::system::system_error & e)
+	{
+		logNetwork->error("error setting 'send buffer size' socket option: %s", e.what());
+	}
+
+	try
+	{
+		socket->set_option(boost::asio::socket_base::receive_buffer_size{bufferSize});
+	}
+	catch(const boost::system::system_error & e)
+	{
+		logNetwork->error("error setting 'receive buffer size' socket option: %s", e.what());
+	}
 }
 
 void NetworkConnection::start()
