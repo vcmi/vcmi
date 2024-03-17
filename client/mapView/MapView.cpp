@@ -71,6 +71,8 @@ public:
 
 	virtual void drawLine(int3 start, int3 end) override
 	{
+		const Point offset = Point(30, 30);
+
 		auto level = model->getLevel();
 
 		if(start.z != level || end.z != level)
@@ -82,6 +84,9 @@ public:
 
 		pStart.x += 3;
 		pEnd.x -= 3;
+
+		pStart += offset;
+		pEnd += offset;
 
 		if(viewPort.isInside(pStart) && viewPort.isInside(pEnd))
 		{

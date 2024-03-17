@@ -20,13 +20,18 @@ namespace AIPathfinding
 {
 	bool QuestAction::canAct(const AIPathNode * node) const
 	{
+		return canAct(node->actor->hero);
+	}
+
+	bool QuestAction::canAct(const CGHeroInstance * hero) const
+	{
 		if(questInfo.obj->ID == Obj::BORDER_GATE || questInfo.obj->ID == Obj::BORDERGUARD)
 		{
-			return dynamic_cast<const IQuestObject *>(questInfo.obj)->checkQuest(node->actor->hero);
+			return dynamic_cast<const IQuestObject *>(questInfo.obj)->checkQuest(hero);
 		}
 
-		return questInfo.quest->activeForPlayers.count(node->actor->hero->getOwner())
-			|| questInfo.quest->checkQuest(node->actor->hero);
+		return questInfo.quest->activeForPlayers.count(hero->getOwner())
+			|| questInfo.quest->checkQuest(hero);
 	}
 
 	Goals::TSubgoal QuestAction::decompose(const CGHeroInstance * hero) const

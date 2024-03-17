@@ -42,15 +42,34 @@ namespace AIPathfinding
 		}
 
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
+
 		if(blocker == BlockingReason::NONE)
 		{
 			destination.blocked = nodeStorage->isDistanceLimitReached(source, destination);
+
+			if(destination.nodeObject
+				&& !destination.blocked
+				&& !allowBypassObjects
+				&& !dynamic_cast<const CGTeleport *>(destination.nodeObject)
+				&& destination.nodeObject->ID != Obj::EVENT)
+			{
+				destination.blocked = true;
+				destination.node->locked = true;
+			}
 
 			return;
 		}
 		
 		if(!allowBypassObjects)
+		{
+			if(destination.nodeObject)
+			{
+				destination.blocked = true;
+				destination.node->locked = true;
+			}
+
 			return;
+		}
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
