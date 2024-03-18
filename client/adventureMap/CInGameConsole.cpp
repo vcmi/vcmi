@@ -14,7 +14,8 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../PlayerLocalState.h"
+#include "../CServerHandler.h"
+#include "../GameChatHandler.h"
 #include "../ClientCommandManager.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
@@ -31,6 +32,7 @@
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
+#include "../../lib/MetaString.h"
 
 CInGameConsole::CInGameConsole()
 	: CIntObject(KEYBOARD | TIME | TEXTINPUT)
@@ -51,7 +53,6 @@ void CInGameConsole::show(Canvas & to)
 
 	int number = 0;
 
-	boost::unique_lock<boost::mutex> lock(texts_mx);
 	for(auto & text : texts)
 	{
 		Point leftBottomCorner(0, pos.h);
@@ -64,46 +65,53 @@ void CInGameConsole::show(Canvas & to)
 
 void CInGameConsole::tick(uint32_t msPassed)
 {
+	// Check whether text input is active - we want to keep recent messages visible during this period
+	// FIXME: better check?
+	if(enteredText != "")
+		return;
+
 	size_t sizeBefore = texts.size();
+
+	for(auto & text : texts)
+		text.timeOnScreen += msPassed;
+
+	vstd::erase_if(
+				texts,
+				[&](const auto & value)
 	{
-		boost::unique_lock<boost::mutex> lock(texts_mx);
-
-		for(auto & text : texts)
-			text.timeOnScreen += msPassed;
-
-		vstd::erase_if(
-			texts,
-			[&](const auto & value)
-			{
-				return value.timeOnScreen > defaultTimeout;
-			}
-		);
+		return value.timeOnScreen > defaultTimeout;
 	}
+	);
 
 	if(sizeBefore != texts.size())
 		GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
-void CInGameConsole::print(const std::string & txt)
+void CInGameConsole::addMessageSilent(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText)
 {
-	// boost::unique_lock scope
-	{
-		boost::unique_lock<boost::mutex> lock(texts_mx);
+	MetaString formatted = MetaString::createFromRawString("[%s] %s: %s");
+	formatted.replaceRawString(timeFormatted);
+	formatted.replaceRawString(senderName);
+	formatted.replaceRawString(messageText);
 
-		// Maximum width for a text line is limited by:
-		// 1) width of adventure map terrain area, for when in-game console is on top of advmap
-		// 2) width of castle/battle window (fixed to 800) when this window is open
-		// 3) arbitrary selected left and right margins
-		int maxWidth = std::min( 800, adventureInt->terrainAreaPixels().w) - 100;
+	// Maximum width for a text line is limited by:
+	// 1) width of adventure map terrain area, for when in-game console is on top of advmap
+	// 2) width of castle/battle window (fixed to 800) when this window is open
+	// 3) arbitrary selected left and right margins
+	int maxWidth = std::min( 800, adventureInt->terrainAreaPixels().w) - 100;
 
-		auto splitText = CMessage::breakText(txt, maxWidth, FONT_MEDIUM);
+	auto splitText = CMessage::breakText(formatted.toString(), maxWidth, FONT_MEDIUM);
 
-		for(const auto & entry : splitText)
-			texts.push_back({entry, 0});
+	for(const auto & entry : splitText)
+		texts.push_back({entry, 0});
 
-		while(texts.size() > maxDisplayedTexts)
-			texts.erase(texts.begin());
-	}
+	while(texts.size() > maxDisplayedTexts)
+		texts.erase(texts.begin());
+}
+
+void CInGameConsole::addMessage(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText)
+{
+	addMessageSilent(timeFormatted, senderName, messageText);
 
 	GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 
@@ -238,6 +246,21 @@ void CInGameConsole::textEdited(const std::string & inputtedText)
  //do nothing here
 }
 
+void CInGameConsole::showRecentChatHistory()
+{
+	auto const & history = CSH->getGameChat().getChatHistory();
+
+	texts.clear();
+
+	int entriesToShow = std::min<int>(maxDisplayedTexts, history.size());
+	int firstEntryToShow = history.size() - entriesToShow;
+
+	for (int i = firstEntryToShow; i < history.size(); ++i)
+		addMessageSilent(history[i].dateFormatted, history[i].senderName, history[i].messageText);
+
+	GH.windows().totalRedraw();
+}
+
 void CInGameConsole::startEnteringText()
 {
 	if (!isActive())
@@ -254,6 +277,8 @@ void CInGameConsole::startEnteringText()
 
 	GH.statusbar()->setEnteringMode(true);
 	GH.statusbar()->setEnteredText(enteredText);
+
+	showRecentChatHistory();
 }
 
 void CInGameConsole::endEnteringText(bool processEnteredText)
@@ -278,7 +303,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			clientCommandThread.detach();
 		}
 		else
-			LOCPLINT->cb->sendMessage(txt, LOCPLINT->localState->getCurrentArmy());
+			CSH->getGameChat().sendMessageGameplay(txt);
 	}
 	enteredText.clear();
 

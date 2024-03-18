@@ -229,8 +229,7 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 
 void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 {
-	Settings configRoom = settings.write["lobby"]["roomID"];
-	configRoom->String() = json["gameRoomID"].String();
+	currentGameRoomUUID = json["gameRoomID"].String();
 
 	if (json["proxyMode"].Bool())
 	{
@@ -426,8 +425,13 @@ void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & ne
 	toSend["type"].String() = "clientProxyLogin";
 	toSend["accountID"] = settings["lobby"]["accountID"];
 	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
-	toSend["gameRoomID"] = settings["lobby"]["roomID"];
+	toSend["gameRoomID"] = settings["session"]["lobby"]["roomID"];
 
 	assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
 	netConnection->sendPacket(toSend.toBytes());
+}
+
+void GlobalLobbyClient::resetMatchState()
+{
+	currentGameRoomUUID.clear();
 }

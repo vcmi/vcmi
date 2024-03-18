@@ -23,9 +23,6 @@ private:
 	/// Currently visible texts in the overlay
 	std::vector<TextState> texts;
 
-	/// protects texts
-	boost::mutex texts_mx;
-
 	/// previously entered texts, for up/down arrows to work
 	std::vector<std::string> previouslyEntered;
 
@@ -41,8 +38,10 @@ private:
 	std::weak_ptr<IStatusBar> currentStatusBar;
 	std::string enteredText;
 
+	void showRecentChatHistory();
+	void addMessageSilent(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText);
 public:
-	void print(const std::string & txt);
+	void addMessage(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText);
 
 	void tick(uint32_t msPassed) override;
 	void show(Canvas & to) override;

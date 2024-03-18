@@ -32,6 +32,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	std::map<std::string, std::vector<GlobalLobbyChannelMessage>> chatHistory;
 
 	std::shared_ptr<INetworkConnection> networkConnection;
+	std::string currentGameRoomUUID;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
@@ -67,12 +68,14 @@ public:
 
 	/// Activate interface and pushes lobby UI as top window
 	void activateInterface();
+
 	void sendMessage(const JsonNode & data);
 	void sendClientRegister(const std::string & accountName);
 	void sendClientLogin();
 	void sendOpenRoom(const std::string & mode, int playerLimit);
 
 	void sendProxyConnectionLogin(const NetworkConnectionPtr & netConnection);
+	void resetMatchState();
 
 	void connect();
 	bool isConnected() const;

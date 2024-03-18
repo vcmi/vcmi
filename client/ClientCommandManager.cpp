@@ -468,7 +468,7 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		if(LOCPLINT && LOCPLINT->cingconsole)
 		{
-			LOCPLINT->cingconsole->print(commandMessage);
+			LOCPLINT->cingconsole->addMessage("", "System", commandMessage);
 		}
 	}
 }

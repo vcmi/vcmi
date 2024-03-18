@@ -37,7 +37,10 @@ bool LobbyServer::isAccountNameValid(const std::string & accountName) const
 
 std::string LobbyServer::sanitizeChatMessage(const std::string & inputString) const
 {
-	// TODO: sanitize message and remove any "weird" symbols from it
+	// TODO: sanitize message and remove any "weird" symbols from it:
+	// - control characters ('\0' ... ' ')
+	// - '{' and '}' symbols to avoid formatting
+	// - other non-printable characters?
 	return inputString;
 }
 
@@ -472,10 +475,12 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 
 		database->insertChatMessage(senderAccountID, channelType, roomID, messageText);
 
-		for(const auto & otherConnection : activeAccounts)
+		sendChatMessage(connection, channelType, receiverAccountID, senderAccountID, displayName, messageText);
+		if (senderAccountID != receiverAccountID)
 		{
-			if (otherConnection.second == receiverAccountID)
-				sendChatMessage(otherConnection.first, channelType, senderAccountID, senderAccountID, displayName, messageText);
+			for(const auto & otherConnection : activeAccounts)
+				if (otherConnection.second == receiverAccountID)
+					sendChatMessage(otherConnection.first, channelType, senderAccountID, senderAccountID, displayName, messageText);
 		}
 	}
 }

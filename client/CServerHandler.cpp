@@ -13,6 +13,7 @@
 #include "Client.h"
 #include "CGameInfo.h"
 #include "ServerRunner.h"
+#include "GameChatHandler.h"
 #include "CPlayerInterface.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
@@ -128,6 +129,7 @@ CServerHandler::~CServerHandler()
 CServerHandler::CServerHandler()
 	: networkHandler(INetworkHandler::createHandler())
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
+	, gameChat(std::make_unique<GameChatHandler>())
 	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, threadNetwork(&CServerHandler::threadRunNetwork, this)
 	, state(EClientState::NONE)
@@ -168,6 +170,15 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 		localPlayerNames = playerNames;
 	else
 		localPlayerNames.push_back(settings["general"]["playerName"].String());
+
+	gameChat->resetMatchState();
+	if (lobbyClient)
+		lobbyClient->resetMatchState();
+}
+
+GameChatHandler & CServerHandler::getGameChat()
+{
+	return *gameChat;
 }
 
 GlobalLobbyClient & CServerHandler::getGlobalLobby()
@@ -532,10 +543,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 	}
 	else
 	{
-		LobbyChatMessage lcm;
-		lcm.message = txt;
-		lcm.playerName = playerNames.find(myFirstId())->second.name;
-		sendLobbyPack(lcm);
+		gameChat->sendMessageLobby(playerNames.find(myFirstId())->second.name, txt);
 	}
 }
 

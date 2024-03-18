@@ -162,6 +162,7 @@ set(client_SRCS
 	CVideoHandler.cpp
 	Client.cpp
 	ClientCommandManager.cpp
+	GameChatHandler.cpp
 	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
@@ -348,6 +349,7 @@ set(client_HEADERS
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
 	HeroMovementController.h
+	GameChatHandler.h
 	LobbyClientNetPackVisitors.h
 	ServerRunner.h
 	resource.h

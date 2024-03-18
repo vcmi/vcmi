@@ -24,6 +24,7 @@
 #include "globalLobby/GlobalLobbyClient.h"
 
 #include "CServerHandler.h"
+#include "GameChatHandler.h"
 #include "CGameInfo.h"
 #include "Client.h"
 #include "gui/CGuiHandler.h"
@@ -98,13 +99,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientD
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
 {
-	if(lobby && lobby->card)
-	{
-		lobby->card->chat->addNewMessage(pack.playerName + ": " + pack.message);
-		lobby->card->setChat(true);
-		if(lobby->buttonChat)
-			lobby->buttonChat->setTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
-	}
+	handler.getGameChat().onNewLobbyMessageReceived(pack.playerName, pack.message);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack)
