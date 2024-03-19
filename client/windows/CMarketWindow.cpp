@@ -115,7 +115,7 @@ void CMarketWindow::artifactMoved(const ArtifactLocation & srcLoc, const Artifac
 
 void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero)
 {
-	auto isButton = [this, currentMode, market, hero](EMarketMode modeButton) -> bool
+	auto isButton = [currentMode, market, hero](EMarketMode modeButton) -> bool
 	{
 		if(currentMode == modeButton)
 			return false;

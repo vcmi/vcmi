@@ -18,7 +18,7 @@ public:
 	CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero);
 	void deselect() override;
 	void makeDeal() override;
-	void updateSelected() override;
+	void updateShowcases() override;
 	void update() override;
 	std::shared_ptr<CArtifactsOfHeroMarket> getAOHset() const;
 
@@ -29,6 +29,5 @@ private:
 	ArtifactPosition selectedHeroSlot;
 
 	CMarketBase::SelectionParams getSelectionParams() const override;
-	void highlightingChanged();
-	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
+	void highlightingChanged() override;
 };

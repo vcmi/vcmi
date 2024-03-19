@@ -35,6 +35,7 @@ public:
 
 	void setType(EType newType);
 	void setID(int newID);
+	void clear();
 
 	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
@@ -52,16 +53,16 @@ public:
 	UpdateSlotsFunctor updateSlotsCallback;
 	DeleteSlotsCheck deleteSlotsCheck;
 	const int selectionWidth = 2;
-	std::shared_ptr<CTradeableItem> selectedSlot;		// Separate slot that displays the contents of the highlighted slot
+	std::shared_ptr<CTradeableItem> showcaseSlot;		// Separate slot that displays the contents for trading
 	std::shared_ptr<CTradeableItem> highlightedSlot;	// One of the slots highlighted by a frame
 
 	virtual void update();
 	virtual void deselect();
 	virtual void clearSubtitles();
 	void updateOffer(CTradeableItem & slot, int, int);
-	void setSelectedFrameIndex(const std::optional<size_t> & index);
-	void setSelectedSubtitleText(const std::string & text);
-	void clearSelectedSubtitleText();
+	void setShowcaseSubtitle(const std::string & text);
+	int getSelectedItemId() const;
+	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot);
 };
 
 class ResourcesPanel : public TradePanelBase
@@ -153,5 +154,5 @@ class ArtifactsAltarPanel : public TradePanelBase
 	const Point selectedPos = Point(-48, 389);
 
 public:
-	ArtifactsAltarPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback);
+	explicit ArtifactsAltarPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback);
 };

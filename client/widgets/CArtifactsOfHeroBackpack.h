@@ -24,7 +24,7 @@ class CArtifactsOfHeroBackpack : public CArtifactsOfHeroBase
 public:
 	CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax);
 	CArtifactsOfHeroBackpack();
-	void onSliderMoved(int newVal);;
+	void onSliderMoved(int newVal);
 	void updateBackpackSlots(const std::optional<const ArtifactPosition> & removedSlot = std::nullopt) override;
 	size_t getActiveSlotRowsNum();
 	size_t getSlotsNum();

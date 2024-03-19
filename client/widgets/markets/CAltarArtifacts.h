@@ -34,6 +34,6 @@ private:
 
 	void updateAltarSlots();
 	CMarketBase::SelectionParams getSelectionParams() const override;
-	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
-	TExpType calcExpCost(ArtifactID id);
+	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<TradePanelBase> & curPanel) override;
+	TExpType calcExpCost(ArtifactID id) const;
 };

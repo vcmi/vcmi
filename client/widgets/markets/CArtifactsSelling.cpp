@@ -29,8 +29,8 @@
 CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero, [this](){return CArtifactsSelling::getSelectionParams();})
 	, CResourcesBuying(
-		[this](const std::shared_ptr<CTradeableItem> & resSlot){CArtifactsSelling::onSlotClickPressed(resSlot, hRight);},
-		[this](){CMarketBase::updateSubtitles(EMarketMode::ARTIFACT_RESOURCE);})
+		[this](const std::shared_ptr<CTradeableItem> & resSlot){CArtifactsSelling::onSlotClickPressed(resSlot, offerTradePanel);},
+		[this](){CMarketBase::updateSubtitlesForBid(EMarketMode::ARTIFACT_RESOURCE, this->hero->getArt(selectedHeroSlot)->getTypeId().num);})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
@@ -44,26 +44,21 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	// Market resources panel
 	assert(offerTradePanel);
 	offerTradePanel->moveTo(pos.topLeft() + Point(326, 184));
-	offerTradePanel->selectedSlot->moveTo(pos.topLeft() + Point(409, 473));
-	offerTradePanel->selectedSlot->subtitle->moveBy(Point(0, 1));
+	offerTradePanel->showcaseSlot->moveTo(pos.topLeft() + Point(409, 473));
+	offerTradePanel->showcaseSlot->subtitle->moveBy(Point(0, 1));
 	
 	// Hero's artifacts
 	heroArts = std::make_shared<CArtifactsOfHeroMarket>(Point(-361, 46), offerTradePanel->selectionWidth);
 	heroArts->setHero(hero);
-	heroArts->selectArtCallback = [this](CArtPlace * artPlace)
+	heroArts->selectArtCallback = [this](const CArtPlace * artPlace)
 	{
 		assert(artPlace);
-		const auto artForTrade = artPlace->getArt();
-		assert(artForTrade);
-		bidSelectedSlot->setID(artForTrade->getTypeId().num);
-		hLeft = bidSelectedSlot;
 		selectedHeroSlot = artPlace->slot;
 		CArtifactsSelling::highlightingChanged();
-		offerTradePanel->update();
-		redraw();
+		CIntObject::redraw();
 	};
 
-	CArtifactsSelling::updateSelected();
+	CArtifactsSelling::updateShowcases();
 	CArtifactsSelling::deselect();
 }
 
@@ -72,31 +67,31 @@ void CArtifactsSelling::deselect()
 	CMarketBase::deselect();
 	selectedHeroSlot = ArtifactPosition::PRE_FIRST;
 	heroArts->unmarkSlots();
+	bidSelectedSlot->clear();
 }
 
 void CArtifactsSelling::makeDeal()
 {
 	const auto art = hero->getArt(selectedHeroSlot);
 	assert(art);
-	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_RESOURCE, art->getId(), GameResID(hRight->id), offerQty, hero);
+	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_RESOURCE, art->getId(), GameResID(offerTradePanel->getSelectedItemId()), offerQty, hero);
 }
 
-void CArtifactsSelling::updateSelected()
+void CArtifactsSelling::updateShowcases()
 {
-	CMarketBase::updateSelected();
-
-	if(hLeft && hRight)
+	const auto art = hero->getArt(selectedHeroSlot);
+	if(art && offerTradePanel->highlightedSlot)
 	{
 		bidSelectedSlot->image->enable();
-		bidSelectedSlot->image->setFrame(CGI->artifacts()->getByIndex(hLeft->id)->getIconIndex());
+		bidSelectedSlot->setID(art->getTypeId().num);
+		bidSelectedSlot->image->setFrame(CGI->artifacts()->getByIndex(art->getTypeId())->getIconIndex());
 		bidSelectedSlot->subtitle->setText(std::to_string(bidQty));
 	}
 	else
 	{
-		bidSelectedSlot->image->disable();
-		bidSelectedSlot->image->setFrame(0);
-		bidSelectedSlot->subtitle->clear();
+		bidSelectedSlot->clear();
 	}
+	CMarketBase::updateShowcases();
 }
 
 void CArtifactsSelling::update()
@@ -121,10 +116,10 @@ std::shared_ptr<CArtifactsOfHeroMarket> CArtifactsSelling::getAOHset() const
 
 CMarketBase::SelectionParams CArtifactsSelling::getSelectionParams() const
 {
-	if(hLeft && hRight)
+	if(hero->getArt(selectedHeroSlot) && offerTradePanel->highlightedSlot)
 		return std::make_tuple(
 			std::nullopt,
-			SelectionParamOneSide {std::to_string(offerQty), hRight->id}
+			SelectionParamOneSide {std::to_string(offerQty), offerTradePanel->getSelectedItemId()}
 		);
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);
@@ -132,21 +127,11 @@ CMarketBase::SelectionParams CArtifactsSelling::getSelectionParams() const
 
 void CArtifactsSelling::highlightingChanged()
 {
-	if(hLeft && hRight)
+	const auto art = hero->getArt(selectedHeroSlot);
+	if(art && offerTradePanel->highlightedSlot)
 	{
-		market->getOffer(hLeft->id, hRight->id, bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
+		market->getOffer(art->getTypeId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
 		deal->block(false);
 	}
-	updateSelected();
-}
-
-void CArtifactsSelling::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
-{
-	assert(newSlot);
-	if(newSlot == hCurSlot)
-		return;
-
-	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
-	highlightingChanged();
-	redraw();
+	CMarketBase::highlightingChanged();
 }

@@ -55,12 +55,12 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	// Altar
 	offerTradePanel = std::make_shared<ArtifactsAltarPanel>([this](const std::shared_ptr<CTradeableItem> & altarSlot)
 		{
-			CAltarArtifacts::onSlotClickPressed(altarSlot, hRight);
+			CAltarArtifacts::onSlotClickPressed(altarSlot, offerTradePanel);
 		});
 	offerTradePanel->updateSlotsCallback = std::bind(&CAltarArtifacts::updateAltarSlots, this);
 	offerTradePanel->moveTo(pos.topLeft() + Point(315, 52));
 
-	CMarketBase::updateSelected();
+	CMarketBase::updateShowcases();
 	CAltarArtifacts::deselect();
 };
 
@@ -79,11 +79,9 @@ void CAltarArtifacts::deselect()
 	CExperienceAltar::deselect();
 	tradeSlotsMap.clear();
 	// The event for removing artifacts from the altar will not be triggered. Therefore, we clean the altar immediately.
-	for(auto & slot : offerTradePanel->slots)
-	{
-		slot->setID(-1);
-		slot->subtitle->clear();
-	}
+	for(const auto & slot : offerTradePanel->slots)
+		slot->clear();
+	offerTradePanel->showcaseSlot->clear();
 }
 
 void CAltarArtifacts::update()
@@ -92,16 +90,17 @@ void CAltarArtifacts::update()
 	CExperienceAltar::update();
 	if(const auto art = hero->getArt(ArtifactPosition::TRANSITION_POS))
 	{
-		hRight = offerTradePanel->selectedSlot;
-		hRight->setID(art->getTypeId().num);
+		offerTradePanel->showcaseSlot->setID(art->getTypeId().num);
+		offerTradePanel->highlightedSlot = offerTradePanel->showcaseSlot;
 		offerQty = calcExpCost(art->getTypeId());
 	}
 	else
 	{
-		hRight.reset();
+		offerTradePanel->showcaseSlot->clear();
+		offerTradePanel->highlightedSlot.reset();
 		offerQty = 0;
 	}
-	updateSelected();
+	updateShowcases();
 }
 
 void CAltarArtifacts::makeDeal()
@@ -136,7 +135,7 @@ void CAltarArtifacts::updateAltarSlots()
 	assert(tradeSlotsMap.size() <= GameConstants::ALTAR_ARTIFACTS_SLOTS);
 	
 	auto tradeSlotsMapNewArts = tradeSlotsMap;
-	for(auto & altarSlot : offerTradePanel->slots)
+	for(const auto & altarSlot : offerTradePanel->slots)
 		if(altarSlot->id != -1)
 		{
 			if(tradeSlotsMap.find(altarSlot) == tradeSlotsMap.end())
@@ -161,14 +160,14 @@ void CAltarArtifacts::updateAltarSlots()
 	auto newArtsFromBulkMove = altarArtifacts->artifactsInBackpack;
 	for(const auto & [altarSlot, art] : tradeSlotsMap)
 	{
-		newArtsFromBulkMove.erase(std::remove_if(newArtsFromBulkMove.begin(), newArtsFromBulkMove.end(), [art = art](auto & slotInfo)
+		newArtsFromBulkMove.erase(std::remove_if(newArtsFromBulkMove.begin(), newArtsFromBulkMove.end(), [artForRemove = art](auto & slotInfo)
 			{
-				return slotInfo.artifact == art;
+				return slotInfo.artifact == artForRemove;
 			}));
 	}
 	for(const auto & slotInfo : newArtsFromBulkMove)
 	{
-		for(auto & altarSlot : offerTradePanel->slots)
+		for(const auto & altarSlot : offerTradePanel->slots)
 			if(altarSlot->id == -1)
 			{
 				altarSlot->setID(slotInfo.artifact->getTypeId().num);
@@ -192,15 +191,15 @@ void CAltarArtifacts::putBackArtifacts()
 
 CMarketBase::SelectionParams CAltarArtifacts::getSelectionParams() const
 {
-	if(hRight)
+	if(offerTradePanel->highlightedSlot)
 		return std::make_tuple(
 			std::nullopt,
-			SelectionParamOneSide {std::to_string(offerQty), CGI->artifacts()->getByIndex(hRight->id)->getIconIndex()}
+			SelectionParamOneSide {std::to_string(offerQty), CGI->artifacts()->getByIndex(offerTradePanel->highlightedSlot->id)->getIconIndex()}
 	);
 	return std::make_tuple(std::nullopt, std::nullopt);
 }
 
-void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<TradePanelBase> & curPanel)
 {
 	assert(altarSlot);
 
@@ -234,7 +233,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	}
 }
 
-TExpType CAltarArtifacts::calcExpCost(ArtifactID id)
+TExpType CAltarArtifacts::calcExpCost(ArtifactID id) const
 {
 	int bidQty = 0;
 	int expOfArt = 0;

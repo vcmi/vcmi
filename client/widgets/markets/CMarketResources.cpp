@@ -25,10 +25,10 @@
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero, [this](){return CMarketResources::getSelectionParams();})
+	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CMarketResources::onSlotClickPressed(heroSlot, bidTradePanel);})
 	, CResourcesBuying(
-		[this](const std::shared_ptr<CTradeableItem> & resSlot){CMarketResources::onSlotClickPressed(resSlot, hRight);},
+		[this](const std::shared_ptr<CTradeableItem> & resSlot){CMarketResources::onSlotClickPressed(resSlot, offerTradePanel);},
 		[this](){CMarketResources::updateSubtitles();})
-	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CMarketResources::onSlotClickPressed(heroSlot, hLeft);})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -43,13 +43,6 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 
 	// Market resources panel
 	assert(offerTradePanel);
-	std::for_each(offerTradePanel->slots.cbegin(), offerTradePanel->slots.cend(), [this](auto & slot)
-		{
-			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & resSlot)
-			{
-				CMarketResources::onSlotClickPressed(resSlot, hRight);
-			};
-		});
 
 	CMarketBase::update();
 	CMarketResources::deselect();
@@ -65,54 +58,40 @@ void CMarketResources::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_RESOURCE, GameResID(hLeft->id), GameResID(hRight->id), bidQty * toTrade, hero);
+		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getSelectedItemId()),
+			GameResID(offerTradePanel->highlightedSlot->id), bidQty * toTrade, hero);
 		deselect();
 	}
 }
 
 CMarketBase::SelectionParams CMarketResources::getSelectionParams() const
 {
-	if(hLeft && hRight && hLeft->id != hRight->id)
+	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot && bidTradePanel->getSelectedItemId() != offerTradePanel->getSelectedItemId())
 		return std::make_tuple(
-			SelectionParamOneSide {std::to_string(bidQty * offerSlider->getValue()), hLeft->id},
-			SelectionParamOneSide {std::to_string(offerQty * offerSlider->getValue()), hRight->id});
+			SelectionParamOneSide {std::to_string(bidQty * offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
+			SelectionParamOneSide {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getSelectedItemId()});
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CMarketResources::highlightingChanged()
 {
-	if(hLeft)
+	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
 	{
-		if(hRight)
-		{
-			market->getOffer(hLeft->id, hRight->id, bidQty, offerQty, EMarketMode::RESOURCE_RESOURCE);
-			offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(hLeft->id)) / bidQty);
-			offerSlider->scrollTo(0);
-			const bool isControlsBlocked = hLeft->id != hRight->id ? false : true;
-			offerSlider->block(isControlsBlocked);
-			maxAmount->block(isControlsBlocked);
-			deal->block(isControlsBlocked);
-		}
-		offerTradePanel->update();
+		market->getOffer(bidTradePanel->getSelectedItemId(), offerTradePanel->highlightedSlot->id, bidQty, offerQty, EMarketMode::RESOURCE_RESOURCE);
+		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())) / bidQty);
+		offerSlider->scrollTo(0);
+		const bool isControlsBlocked = bidTradePanel->getSelectedItemId() != offerTradePanel->getSelectedItemId() ? false : true;
+		offerSlider->block(isControlsBlocked);
+		maxAmount->block(isControlsBlocked);
+		deal->block(isControlsBlocked);
 	}
-	updateSelected();
-}
-
-void CMarketResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
-{
-	assert(newSlot);
-	if(newSlot == hCurSlot)
-		return;
-
-	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
-	highlightingChanged();
-	redraw();
+	CMarketBase::highlightingChanged();
 }
 
 void CMarketResources::updateSubtitles()
 {
-	CMarketBase::updateSubtitles(EMarketMode::RESOURCE_RESOURCE);
-	if(hLeft)
-		offerTradePanel->slots[hLeft->serial]->subtitle->setText(CGI->generaltexth->allTexts[164]); // n/a
+	CMarketBase::updateSubtitlesForBid(EMarketMode::RESOURCE_RESOURCE, bidTradePanel->getSelectedItemId());
+	if(bidTradePanel->highlightedSlot)
+		offerTradePanel->slots[bidTradePanel->highlightedSlot->serial]->subtitle->setText(CGI->generaltexth->allTexts[164]); // n/a
 }

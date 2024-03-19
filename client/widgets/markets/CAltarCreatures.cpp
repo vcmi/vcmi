@@ -47,19 +47,19 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	// Hero creatures panel
 	assert(bidTradePanel);
 	bidTradePanel->moveTo(pos.topLeft() + Point(45, 110));
-	bidTradePanel->selectedSlot->moveTo(pos.topLeft() + Point(149, 422));
-	bidTradePanel->selectedSlot->subtitle->moveBy(Point(0, 3));
+	bidTradePanel->showcaseSlot->moveTo(pos.topLeft() + Point(149, 422));
+	bidTradePanel->showcaseSlot->subtitle->moveBy(Point(0, 3));
 	for(const auto & slot : bidTradePanel->slots)
-		slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot) {CAltarCreatures::onSlotClickPressed(heroSlot, hLeft);};
+		slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot) {CAltarCreatures::onSlotClickPressed(heroSlot, bidTradePanel);};
 
 	// Altar creatures panel
 	offerTradePanel = std::make_shared<CreaturesPanel>([this](const std::shared_ptr<CTradeableItem> & altarSlot)
 		{
-			CAltarCreatures::onSlotClickPressed(altarSlot, hRight);
+			CAltarCreatures::onSlotClickPressed(altarSlot, offerTradePanel);
 		}, bidTradePanel->slots);
 	offerTradePanel->moveTo(pos.topLeft() + Point(334, 110));
-	offerTradePanel->selectedSlot->moveTo(pos.topLeft() + Point(395, 422));
-	offerTradePanel->selectedSlot->subtitle->moveBy(Point(0, 3));
+	offerTradePanel->showcaseSlot->moveTo(pos.topLeft() + Point(395, 422));
+	offerTradePanel->showcaseSlot->subtitle->moveBy(Point(0, 3));
 	offerTradePanel->updateSlotsCallback = [this]()
 	{
 		for(const auto & altarSlot : offerTradePanel->slots)
@@ -84,7 +84,7 @@ void CAltarCreatures::readExpValues()
 void CAltarCreatures::highlightingChanged()
 {
 	int sliderAmount = 0;
-	if(hLeft)
+	if(bidTradePanel->highlightedSlot)
 	{
 		std::optional<SlotID> lastSlot;
 		for(auto slot = SlotID(0); slot.num < GameConstants::ARMY_SIZE; slot++)
@@ -102,16 +102,16 @@ void CAltarCreatures::highlightingChanged()
 				}
 			}
 		}
-		sliderAmount = hero->getStackCount(SlotID(hLeft->serial));
-		if(lastSlot.has_value() && lastSlot.value() == SlotID(hLeft->serial))
+		sliderAmount = hero->getStackCount(SlotID(bidTradePanel->highlightedSlot->serial));
+		if(lastSlot.has_value() && lastSlot.value() == SlotID(bidTradePanel->highlightedSlot->serial))
 			sliderAmount--;
 	}
 	offerSlider->setAmount(sliderAmount);
 	offerSlider->block(!offerSlider->getAmount());
-	if(hLeft)
-		offerSlider->scrollTo(unitsOnAltar[hLeft->serial]);
+	if(bidTradePanel->highlightedSlot)
+		offerSlider->scrollTo(unitsOnAltar[bidTradePanel->highlightedSlot->serial]);
 	maxAmount->block(offerSlider->getAmount() == 0);
-	updateSelected();
+	updateShowcases();
 }
 
 void CAltarCreatures::update()
@@ -170,10 +170,10 @@ CMarketBase::SelectionParams CAltarCreatures::getSelectionParams() const
 {
 	std::optional<SelectionParamOneSide> bidSelected = std::nullopt;
 	std::optional<SelectionParamOneSide> offerSelected = std::nullopt;
-	if(hLeft)
-		bidSelected = SelectionParamOneSide {std::to_string(offerSlider->getValue()), CGI->creatures()->getByIndex(hLeft->id)->getIconIndex()};
-	if(hRight && offerSlider->getValue() > 0)
-		offerSelected = SelectionParamOneSide {hRight->subtitle->getText(), CGI->creatures()->getByIndex(hRight->id)->getIconIndex()};
+	if(bidTradePanel->highlightedSlot)
+		bidSelected = SelectionParamOneSide {std::to_string(offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->highlightedSlot->id)->getIconIndex()};
+	if(offerTradePanel->highlightedSlot && offerSlider->getValue() > 0)
+		offerSelected = SelectionParamOneSide { offerTradePanel->highlightedSlot->subtitle->getText(), CGI->creatures()->getByIndex(offerTradePanel->highlightedSlot->id)->getIconIndex()};
 	return std::make_tuple(bidSelected, offerSelected);
 }
 
@@ -196,10 +196,10 @@ void CAltarCreatures::sacrificeAll()
 		unitsOnAltar[lastSlot.value().num]--;
 	}
 
-	if(hRight)
-		offerSlider->scrollTo(unitsOnAltar[hRight->serial]);
+	if(offerTradePanel->highlightedSlot)
+		offerSlider->scrollTo(unitsOnAltar[offerTradePanel->highlightedSlot->serial]);
 	offerTradePanel->update();
-	updateSelected();
+	updateShowcases();
 
 	deal->block(calcExpAltarForHero() == 0);
 }
@@ -214,26 +214,26 @@ void CAltarCreatures::updateAltarSlot(const std::shared_ptr<CTradeableItem> & sl
 
 void CAltarCreatures::onOfferSliderMoved(int newVal)
 {
-	if(hLeft)
-		unitsOnAltar[hLeft->serial] = newVal;
-	if(hRight)
-		updateAltarSlot(hRight);
+	if(bidTradePanel->highlightedSlot)
+		unitsOnAltar[bidTradePanel->highlightedSlot->serial] = newVal;
+	if(offerTradePanel->highlightedSlot)
+		updateAltarSlot(offerTradePanel->highlightedSlot);
 	deal->block(calcExpAltarForHero() == 0);
 	highlightingChanged();
 	redraw();
 }
 
-void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel)
 {
-	if(hCurSlot == newSlot)
+	assert(newSlot);
+	assert(curPanel);
+	if(newSlot == curPanel->highlightedSlot)
 		return;
 
-	auto * oppositeSlot = &hLeft;
 	auto oppositePanel = bidTradePanel;
-	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
-	if(hCurSlot == hLeft)
+	curPanel->onSlotClickPressed(newSlot);
+	if(curPanel->highlightedSlot == bidTradePanel->highlightedSlot)
 	{
-		oppositeSlot = &hRight;
 		oppositePanel = offerTradePanel;
 	}
 	std::shared_ptr<CTradeableItem> oppositeNewSlot;
@@ -244,7 +244,7 @@ void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 			break;
 		}
 	assert(oppositeNewSlot);
-	CMarketBase::onSlotClickPressed(oppositeNewSlot, *oppositeSlot);
+	oppositePanel->onSlotClickPressed(oppositeNewSlot);
 	highlightingChanged();
 	redraw();
 }

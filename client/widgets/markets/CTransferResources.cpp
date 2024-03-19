@@ -24,7 +24,7 @@
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero, [this](){return CTransferResources::getSelectionParams();})
-	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CTransferResources::onSlotClickPressed(heroSlot, hLeft);})
+	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CTransferResources::onSlotClickPressed(heroSlot, bidTradePanel);})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -32,7 +32,7 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
 	labels.emplace_back(std::make_shared<CLabel>(445, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[169]));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this]() {CTransferResources::makeDeal();});
+		CGI->generaltexth->zelp[595], [this](){CTransferResources::makeDeal();});
 
 	// Player's resources
 	assert(bidTradePanel);
@@ -41,7 +41,7 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 	// Players panel
 	offerTradePanel = std::make_shared<PlayersPanel>([this](const std::shared_ptr<CTradeableItem> & heroSlot)
 		{
-			CTransferResources::onSlotClickPressed(heroSlot, hRight);
+			CTransferResources::onSlotClickPressed(heroSlot, offerTradePanel);
 		});
 	offerTradePanel->moveTo(pos.topLeft() + Point(333, 84));
 
@@ -59,45 +59,31 @@ void CTransferResources::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_PLAYER, GameResID(hLeft->id), PlayerColor(hRight->id), toTrade, hero);
+		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_PLAYER, GameResID(bidTradePanel->getSelectedItemId()),
+			PlayerColor(offerTradePanel->highlightedSlot->id), toTrade, hero);
 		deselect();
 	}
 }
 
 CMarketBase::SelectionParams CTransferResources::getSelectionParams() const
 {
-	if(hLeft && hRight)
+	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
 		return std::make_tuple(
-			SelectionParamOneSide {std::to_string(offerSlider->getValue()), hLeft->id},
-			SelectionParamOneSide {CGI->generaltexth->capColors[hRight->id], hRight->id});
+			SelectionParamOneSide {std::to_string(offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
+			SelectionParamOneSide {CGI->generaltexth->capColors[offerTradePanel->highlightedSlot->id], offerTradePanel->getSelectedItemId()});
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CTransferResources::highlightingChanged()
 {
-	if(hLeft)
+	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
 	{
-		if(hRight)
-		{
-			offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(hLeft->id)));
-			offerSlider->scrollTo(0);
-			offerSlider->block(false);
-			maxAmount->block(false);
-			deal->block(false);
-		}
-		offerTradePanel->update();
+		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())));
+		offerSlider->scrollTo(0);
+		offerSlider->block(false);
+		maxAmount->block(false);
+		deal->block(false);
 	}
-	updateSelected();
-}
-
-void CTransferResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
-{
-	assert(newSlot);
-	if(newSlot == hCurSlot)
-		return;
-
-	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
-	highlightingChanged();
-	redraw();
+	CMarketBase::highlightingChanged();
 }

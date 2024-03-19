@@ -39,9 +39,6 @@ public:
 	std::shared_ptr<TradePanelBase> bidTradePanel;
 	std::shared_ptr<TradePanelBase> offerTradePanel;
 
-	// Highlighted trade slots (nullptr if no highlight)
-	std::shared_ptr<CTradeableItem> hLeft;
-	std::shared_ptr<CTradeableItem> hRight;
 	std::shared_ptr<CButton> deal;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CTextBox>> texts;
@@ -57,10 +54,11 @@ public:
 	virtual void update();
 
 protected:
-	virtual void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
-	virtual void updateSubtitles(EMarketMode marketMode);
-	virtual void updateSelected();
-	virtual CMarketBase::SelectionParams getSelectionParams() const = 0;
+	virtual void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel);
+	virtual void updateSubtitlesForBid(EMarketMode marketMode, int bidId);
+	virtual void updateShowcases();
+	virtual SelectionParams getSelectionParams() const = 0;
+	virtual void highlightingChanged();
 };
 
 // Market subclasses
@@ -82,8 +80,8 @@ class CCreaturesSelling : virtual public CMarketBase
 {
 public:
 	CCreaturesSelling();
-	bool slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot);
-	void updateSubtitles();
+	bool slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot) const;
+	void updateSubtitles() const;
 };
 
 class CResourcesBuying : virtual public CMarketBase
@@ -96,8 +94,8 @@ public:
 class CResourcesSelling : virtual public CMarketBase
 {
 public:
-	CResourcesSelling(const CTradeableItem::ClickPressedFunctor & clickPressedCallback);
-	void updateSubtitles();
+	explicit CResourcesSelling(const CTradeableItem::ClickPressedFunctor & clickPressedCallback);
+	void updateSubtitles() const;
 };
 
 class CMarketSlider : virtual public CMarketBase
@@ -107,7 +105,7 @@ public:
 	std::shared_ptr<CButton> maxAmount;
 	const Point dealButtonPosWithSlider = Point(306, 520);
 
-	CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback);
+	explicit CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback);
 	void deselect() override;
 	virtual void onOfferSliderMoved(int newVal);
 };

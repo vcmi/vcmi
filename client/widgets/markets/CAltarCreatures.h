@@ -28,7 +28,7 @@ private:
 	CMarketBase::SelectionParams getSelectionParams() const override;
 	void updateAltarSlot(const std::shared_ptr<CTradeableItem> & slot);
 	void readExpValues();
-	void highlightingChanged();
+	void highlightingChanged() override;
 	void onOfferSliderMoved(int newVal) override;
-	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
+	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel) override;
 };

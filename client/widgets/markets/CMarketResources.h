@@ -20,7 +20,6 @@ public:
 
 private:
 	CMarketBase::SelectionParams getSelectionParams() const override;
-	void highlightingChanged();
-	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
+	void highlightingChanged() override;
 	void updateSubtitles();
 };

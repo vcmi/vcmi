@@ -28,8 +28,8 @@
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero, [this](){return CFreelancerGuild::getSelectionParams();})
 	, CResourcesBuying(
-		[this](const std::shared_ptr<CTradeableItem> & heroSlot){CFreelancerGuild::onSlotClickPressed(heroSlot, hLeft);},
-		[this](){CMarketBase::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
+		[this](const std::shared_ptr<CTradeableItem> & heroSlot){CFreelancerGuild::onSlotClickPressed(heroSlot, offerTradePanel);},
+		[this](){CMarketBase::updateSubtitlesForBid(EMarketMode::CREATURE_RESOURCE, bidTradePanel->getSelectedItemId());})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -45,23 +45,13 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 	// Hero creatures panel
 	assert(bidTradePanel);
 	bidTradePanel->moveTo(pos.topLeft() + Point(45, 123));
-	bidTradePanel->selectedSlot->subtitle->moveBy(Point(0, -1));
+	bidTradePanel->showcaseSlot->subtitle->moveBy(Point(0, -1));
 	bidTradePanel->deleteSlotsCheck = std::bind(&CCreaturesSelling::slotDeletingCheck, this, _1);
 	std::for_each(bidTradePanel->slots.cbegin(), bidTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
 			{
-				CFreelancerGuild::onSlotClickPressed(heroSlot, hLeft);
-			};
-		});
-
-	// Guild resources panel
-	assert(offerTradePanel);
-	std::for_each(offerTradePanel->slots.cbegin(), offerTradePanel->slots.cend(), [this](auto & slot)
-		{
-			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
-			{
-				CFreelancerGuild::onSlotClickPressed(heroSlot, hRight);
+				CFreelancerGuild::onSlotClickPressed(heroSlot, bidTradePanel);
 			};
 		});
 
@@ -78,46 +68,31 @@ void CFreelancerGuild::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::CREATURE_RESOURCE, SlotID(hLeft->serial), GameResID(hRight->id), bidQty * toTrade, hero);
+		LOCPLINT->cb->trade(market, EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->highlightedSlot->id), bidQty * toTrade, hero);
 		deselect();
 	}
 }
 
 CMarketBase::SelectionParams CFreelancerGuild::getSelectionParams() const
 {
-	if(hLeft && hRight)
+	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
 		return std::make_tuple(
-			SelectionParamOneSide {std::to_string(bidQty * offerSlider->getValue()), CGI->creatures()->getByIndex(hLeft->id)->getIconIndex()},
-			SelectionParamOneSide {std::to_string(offerQty * offerSlider->getValue()), hRight->id});
+			SelectionParamOneSide {std::to_string(bidQty * offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->highlightedSlot->id)->getIconIndex()},
+			SelectionParamOneSide {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->highlightedSlot->id});
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CFreelancerGuild::highlightingChanged()
 {
-	if(hLeft)
+	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
 	{
-		if(hRight)
-		{
-			market->getOffer(hLeft->id, hRight->id, bidQty, offerQty, EMarketMode::CREATURE_RESOURCE);
-			offerSlider->setAmount((hero->getStackCount(SlotID(hLeft->serial)) - (hero->stacksCount() == 1 && hero->needsLastStack() ? 1 : 0)) / bidQty);
-			offerSlider->scrollTo(0);
-			offerSlider->block(false);
-			maxAmount->block(false);
-			deal->block(false);
-		}
-		offerTradePanel->update();
+		market->getOffer(bidTradePanel->highlightedSlot->id, offerTradePanel->highlightedSlot->id, bidQty, offerQty, EMarketMode::CREATURE_RESOURCE);
+		offerSlider->setAmount((hero->getStackCount(SlotID(bidTradePanel->highlightedSlot->serial)) - (hero->stacksCount() == 1 && hero->needsLastStack() ? 1 : 0)) / bidQty);
+		offerSlider->scrollTo(0);
+		offerSlider->block(false);
+		maxAmount->block(false);
+		deal->block(false);
 	}
-	updateSelected();
-}
-
-void CFreelancerGuild::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
-{
-	assert(newSlot);
-	if(newSlot == hCurSlot)
-		return;
-
-	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
-	highlightingChanged();
-	redraw();
+	CMarketBase::highlightingChanged();
 }

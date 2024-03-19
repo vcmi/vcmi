@@ -36,26 +36,32 @@ CMarketBase::CMarketBase(const IMarket * market, const CGHeroInstance * hero, co
 
 void CMarketBase::deselect()
 {
-	if(hLeft)
-		hLeft->selectSlot(false);
-	if(hRight)
-		hRight->selectSlot(false);
-	hLeft = hRight = nullptr;
+	if(bidTradePanel && bidTradePanel->highlightedSlot)
+	{
+		bidTradePanel->highlightedSlot->selectSlot(false);
+		bidTradePanel->highlightedSlot.reset();
+	}
+	if(offerTradePanel && offerTradePanel->highlightedSlot)
+	{
+		offerTradePanel->highlightedSlot->selectSlot(false);
+		offerTradePanel->highlightedSlot.reset();
+	}
 	deal->block(true);
 	bidQty = 0;
 	offerQty = 0;
-	updateSelected();
+	updateShowcases();
 }
 
-void CMarketBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+void CMarketBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel)
 {
-	if(newSlot == hCurSlot)
+	assert(newSlot);
+	assert(curPanel);
+	if(newSlot == curPanel->highlightedSlot)
 		return;
 
-	if(hCurSlot)
-		hCurSlot->selectSlot(false);
-	hCurSlot = newSlot;
-	newSlot->selectSlot(true);
+	curPanel->onSlotClickPressed(newSlot);
+	highlightingChanged();
+	redraw();
 }
 
 void CMarketBase::update()
@@ -66,35 +72,39 @@ void CMarketBase::update()
 		offerTradePanel->update();
 }
 
-void CMarketBase::updateSubtitles(EMarketMode marketMode)
+void CMarketBase::updateSubtitlesForBid(EMarketMode marketMode, int bidId)
 {
-	if(hLeft)
+	if(bidId == -1)
+	{
+		if(offerTradePanel)
+			offerTradePanel->clearSubtitles();
+	}
+	else
+	{
 		for(const auto & slot : offerTradePanel->slots)
 		{
-			int bidQty = 0;
-			int offerQty = 0;
-			market->getOffer(hLeft->id, slot->id, bidQty, offerQty, marketMode);
-			offerTradePanel->updateOffer(*slot, bidQty, offerQty);
+			int slotBidQty = 0;
+			int slotOfferQty = 0;
+			market->getOffer(bidId, slot->id, slotBidQty, slotOfferQty, marketMode);
+			offerTradePanel->updateOffer(*slot, slotBidQty, slotOfferQty);
 		}
-	else
-		offerTradePanel->clearSubtitles();
+	}
 };
 
-void CMarketBase::updateSelected()
+void CMarketBase::updateShowcases()
 {
-	const auto updateSelectedBody = [](std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const SelectionParamOneSide> & params)
+	const auto updateSelectedBody = [](const std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const SelectionParamOneSide> & params)
 	{
-		std::optional<size_t> lImageIndex = std::nullopt;
 		if(params.has_value())
 		{
-			tradePanel->setSelectedSubtitleText(params.value().text);
-			lImageIndex = params.value().imageIndex;
+			tradePanel->setShowcaseSubtitle(params.value().text);
+			tradePanel->showcaseSlot->image->enable();
+			tradePanel->showcaseSlot->image->setFrame(params.value().imageIndex);
 		}
 		else
 		{
-			tradePanel->clearSelectedSubtitleText();
+			tradePanel->showcaseSlot->clear();
 		}
-		tradePanel->setSelectedFrameIndex(lImageIndex);
 	};
 
 	assert(selectionParamsCallback);
@@ -103,6 +113,12 @@ void CMarketBase::updateSelected()
 		updateSelectedBody(bidTradePanel, std::get<0>(params));
 	if(offerTradePanel)
 		updateSelectedBody(offerTradePanel, std::get<1>(params));
+}
+
+void CMarketBase::highlightingChanged()
+{
+	offerTradePanel->update();
+	updateShowcases();
 }
 
 CExperienceAltar::CExperienceAltar()
@@ -142,14 +158,14 @@ CCreaturesSelling::CCreaturesSelling()
 	bidTradePanel->updateSlotsCallback = std::bind(&CCreaturesSelling::updateSubtitles, this);
 }
 
-bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot)
+bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot) const
 {
 	return hero->getStackCount(SlotID(slot->serial)) == 0 ? true : false;
 }
 
-void CCreaturesSelling::updateSubtitles()
+void CCreaturesSelling::updateSubtitles() const
 {
-	for(auto & heroSlot : bidTradePanel->slots)
+	for(const auto & heroSlot : bidTradePanel->slots)
 		heroSlot->subtitle->setText(std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial))));
 }
 
@@ -171,7 +187,7 @@ CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor &
 	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
 }
 
-void CResourcesSelling::updateSubtitles()
+void CResourcesSelling::updateSubtitles() const
 {
 	for(const auto & slot : bidTradePanel->slots)
 		slot->subtitle->setText(std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
@@ -198,10 +214,10 @@ void CMarketSlider::deselect()
 
 void CMarketSlider::onOfferSliderMoved(int newVal)
 {
-	if(hLeft && hRight)
+	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
 	{
 		offerSlider->scrollTo(newVal);
-		updateSelected();
+		updateShowcases();
 		redraw();
 	}
 }

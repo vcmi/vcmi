@@ -322,7 +322,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			if(withRedraw)
 			{
 				artSetPtr->updateWornSlots();
-				artSetPtr->updateBackpackSlots();
+				artSetPtr->updateBackpackSlots(std::nullopt);
 
 				// Update arts bonuses on window.
 				// TODO rework this part when CHeroWindow and CExchangeWindow are reworked
