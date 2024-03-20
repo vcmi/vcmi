@@ -24,6 +24,7 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"
 
@@ -222,14 +223,23 @@ GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const Glo
 	MetaString opponentDescription;
 
 	if (matchDescription.participants.size() == 1)
-		opponentDescription.appendRawString("Solo game"); // or "Singleplayer game" is better?
+		opponentDescription.appendTextID("vcmi.lobby.match.solo");
 
 	if (matchDescription.participants.size() == 2)
-		opponentDescription.appendRawString(matchDescription.participants[0].displayName);//FIXME: find opponent - not our player
+	{
+		std::string ourAccountID = settings["lobby"]["accountID"].String();
+
+		opponentDescription.appendTextID("vcmi.lobby.match.duel");
+		// Find display name of our one and only opponent in this game
+		if (matchDescription.participants[0].accountID == ourAccountID)
+			opponentDescription.replaceRawString(matchDescription.participants[1].displayName);
+		else
+			opponentDescription.replaceRawString(matchDescription.participants[0].displayName);
+	}
 
 	if (matchDescription.participants.size() > 2)
 	{
-		opponentDescription.appendRawString("%d players");
+		opponentDescription.appendTextID("vcmi.lobby.match.multi");
 		opponentDescription.replaceNumber(matchDescription.participants.size());
 	}
 

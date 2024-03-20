@@ -35,7 +35,7 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
 }
 
-const std::vector<GameChatMessage> & GameChatHandler::getChatHistory()
+const std::vector<GameChatMessage> & GameChatHandler::getChatHistory() const
 {
 	return chatHistory;
 }
