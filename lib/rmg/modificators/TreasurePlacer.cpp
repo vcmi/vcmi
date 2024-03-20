@@ -885,9 +885,6 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 				vstd::amin(count, size * (10.f / DENSITY_CONSTANT) / (std::sqrt((float)averageValue / 10000)));
 			}
 		}
-		
-		//this is squared distance for optimization purposes
-		//const float minDistance = std::max<float>((125.f / totalDensity), 1.0f);
 
 		//Integer dvision - round down
 		const float minDistance = std::max<float>((125 / totalDensity), 1.0f);
@@ -928,9 +925,6 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 				break;
 			}
 		}
-
-		const size_t numberToPlace = treasures.size();
-		size_t placedTreasures = 0;
 
 		for (auto& rmgObject : treasures)
 		{
@@ -977,7 +971,6 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			if (path.valid())
 			{
-				placedTreasures++;
 				/*
 				//debug purposes
 				treasureArea.unite(rmgObject.getArea());
@@ -993,7 +986,6 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 				manager.placeObject(rmgObject, guarded, true);
 			}
 		}
-		logGlobal->trace("Zone %d: Placed %d out of %d treasures with average value %f", zone.getId(), placedTreasures, numberToPlace,averageValue);
 	}
 }
 
