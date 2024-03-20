@@ -339,7 +339,7 @@ void Zone::fractalize()
 
 	Lock lock(areaMutex);
 	//Connect with free areas
-	auto areas = connectedAreas(clearedTiles, false);
+	auto areas = connectedAreas(clearedTiles, true);
 	for(auto & area : areas)
 	{
 		if(dAreaFree.overlap(area))
@@ -348,7 +348,7 @@ void Zone::fractalize()
 		auto availableArea = dAreaPossible + dAreaFree;
 		rmg::Path path(availableArea);
 		path.connect(dAreaFree);
-		auto res = path.search(area, false);
+		auto res = path.search(area, true);
 		if(res.getPathArea().empty())
 		{
 			dAreaPossible.subtract(area);
