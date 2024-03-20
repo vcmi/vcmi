@@ -20,7 +20,7 @@
 			{
 				"type" : "object",
 				"additionalProperties" : false,
-				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "participants", "playerLimit", "status" ],
+				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "participants", "playerLimit", "status", "ageSeconds" ],
 				"properties" : {
 					"gameRoomID" :
 					{
@@ -77,6 +77,11 @@
 						"minimum" : 1,
 						"maximum" : 8,
 						"description" : "Maximum number of players that can join this room, including host"
+					},
+					"ageSeconds" :
+					{
+						"type" : "number",
+						"description" : "Age of this room in seconds. For example, 10 means that this room was created 10 seconds ago"
 					}
 				}
 			}

@@ -45,6 +45,15 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
 }
 
+static std::string getCurrentDateTimeFormatted(int timeOffsetSeconds = 0)
+{
+	// FIXME: better/unified way to format date
+	auto timeNowChrono = std::chrono::system_clock::now();
+	timeNowChrono += std::chrono::seconds(timeOffsetSeconds);
+
+	return TextOperations::getFormattedDateTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
+}
+
 void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
@@ -214,6 +223,9 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
 		room.statusID = jsonEntry["status"].String();
+		int ageSeconds = jsonEntry["ageSeconds"].Integer();
+		room.startDateFormatted = getCurrentDateTimeFormatted(-ageSeconds);
+
 		for (auto const & jsonParticipant : jsonEntry["participants"].Vector())
 		{
 			GlobalLobbyAccount account;
@@ -244,6 +256,9 @@ void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
 		room.statusID = jsonEntry["status"].String();
+		int ageSeconds = jsonEntry["ageSeconds"].Integer();
+		room.startDateFormatted = getCurrentDateTimeFormatted(-ageSeconds);
+
 		for (auto const & jsonParticipant : jsonEntry["participants"].Vector())
 		{
 			GlobalLobbyAccount account;

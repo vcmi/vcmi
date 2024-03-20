@@ -203,11 +203,12 @@ void LobbyDatabase::prepareStatements()
 	)";
 
 	static const std::string getAccountGameHistoryText = R"(
-		SELECT gr.roomID, hostAccountID, displayName, description, status, playerLimit
+		SELECT gr.roomID, hostAccountID, displayName, description, status, playerLimit, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
 		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
 		WHERE grp.accountID = ? AND status IN (4,5)
+		ORDER BY secondsElapsed ASC
 	)";
 
 	static const std::string getAccountGameRoomText = R"(
@@ -225,10 +226,11 @@ void LobbyDatabase::prepareStatements()
 	)";
 
 	static const std::string getActiveGameRoomsText = R"(
-		SELECT roomID, hostAccountID, displayName, description, status, playerLimit
-		FROM gameRooms
-		LEFT JOIN accounts ON hostAccountID = accountID
+		SELECT roomID, hostAccountID, displayName, description, status, playerLimit, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
+		FROM gameRooms gr
+		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
 		WHERE status IN (1, 2, 3)
+		ORDER BY secondsElapsed ASC
 	)";
 
 	static const std::string countRoomUsedSlotsText = R"(
@@ -548,7 +550,7 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 	while(getActiveGameRoomsStatement->execute())
 	{
 		LobbyGameRoom entry;
-		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit);
+		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit, entry.age);
 		result.push_back(entry);
 	}
 	getActiveGameRoomsStatement->reset();
@@ -575,7 +577,7 @@ std::vector<LobbyGameRoom> LobbyDatabase::getAccountGameHistory(const std::strin
 	while(getAccountGameHistoryStatement->execute())
 	{
 		LobbyGameRoom entry;
-		getAccountGameHistoryStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit);
+		getAccountGameHistoryStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit, entry.age);
 		result.push_back(entry);
 	}
 	getAccountGameHistoryStatement->reset();

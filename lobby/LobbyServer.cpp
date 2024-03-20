@@ -193,6 +193,7 @@ static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
 	jsonEntry["description"].String() = gameRoom.description;
 	jsonEntry["status"].String() = LOBBY_ROOM_STATE_NAMES[vstd::to_underlying(gameRoom.roomState)];
 	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
+	jsonEntry["ageSeconds"].Integer() = gameRoom.age.count();
 
 	for (auto const & account : gameRoom.participants)
 		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));

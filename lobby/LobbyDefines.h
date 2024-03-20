@@ -47,6 +47,7 @@ struct LobbyGameRoom
 	std::vector<LobbyAccount> participants;
 	LobbyRoomState roomState;
 	uint32_t playerLimit;
+	std::chrono::seconds age;
 };
 
 struct LobbyChatMessage
