@@ -259,22 +259,13 @@ void Zone::fractalize()
 	}
 	else //Scale with treasure density
 	{
-		/*
-		if (treasureValue > 400)
-		{
-			// A quater at max density - means more free space
-			marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
-
-		}
-		*/
-	
 		if (treasureValue > 250)
 		{
 			// A quater at max density - means more free space
-			marginFactor = (0.5f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.5f);
+			marginFactor = (0.6f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.4f);
 
-			// Add more empty space to treasure zones
-			spanFactor *= (0.5f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.5f);
+			// Low value - dense obstacles
+			spanFactor *= (0.6f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.4f);
 		}
 		else if (treasureValue < 100)
 		{
