@@ -172,8 +172,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 		localPlayerNames.push_back(settings["general"]["playerName"].String());
 
 	gameChat->resetMatchState();
-	if (lobbyClient)
-		lobbyClient->resetMatchState();
+	lobbyClient->resetMatchState();
 }
 
 GameChatHandler & CServerHandler::getGameChat()

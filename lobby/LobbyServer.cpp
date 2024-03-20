@@ -167,14 +167,53 @@ void LobbyServer::broadcastActiveAccounts()
 		sendMessage(connection.first, reply);
 }
 
-static constexpr std::array LOBBY_ROOM_STATE_NAMES = {
-	"idle",
-	"public",
-	"private",
-	"busy",
-	"cancelled",
-	"closed"
-};
+static JsonNode loadLobbyAccountToJson(const LobbyAccount & account)
+{
+	JsonNode jsonEntry;
+	jsonEntry["accountID"].String() = account.accountID;
+	jsonEntry["displayName"].String() = account.displayName;
+	return jsonEntry;
+}
+
+static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
+{
+	static constexpr std::array LOBBY_ROOM_STATE_NAMES = {
+		"idle",
+		"public",
+		"private",
+		"busy",
+		"cancelled",
+		"closed"
+	};
+
+	JsonNode jsonEntry;
+	jsonEntry["gameRoomID"].String() = gameRoom.roomID;
+	jsonEntry["hostAccountID"].String() = gameRoom.hostAccountID;
+	jsonEntry["hostAccountDisplayName"].String() = gameRoom.hostAccountDisplayName;
+	jsonEntry["description"].String() = gameRoom.description;
+	jsonEntry["status"].String() = LOBBY_ROOM_STATE_NAMES[vstd::to_underlying(gameRoom.roomState)];
+	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
+
+	for (auto const & account : gameRoom.participants)
+		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
+
+	return jsonEntry;
+}
+
+void LobbyServer::sendMatchesHistory(const NetworkConnectionPtr & target)
+{
+	std::string accountID = activeAccounts.at(target);
+
+	auto matchesHistory = database->getAccountGameHistory(accountID);
+	JsonNode reply;
+	reply["type"].String() = "matchesHistory";
+	reply["matchesHistory"].Vector(); // force creation of empty vector
+
+	for(const auto & gameRoom : matchesHistory)
+		reply["matchesHistory"].Vector().push_back(loadLobbyGameRoomToJson(gameRoom));
+
+	sendMessage(target, reply);
+}
 
 JsonNode LobbyServer::prepareActiveGameRooms()
 {
@@ -184,17 +223,7 @@ JsonNode LobbyServer::prepareActiveGameRooms()
 	reply["gameRooms"].Vector(); // force creation of empty vector
 
 	for(const auto & gameRoom : activeGameRoomStats)
-	{
-		JsonNode jsonEntry;
-		jsonEntry["gameRoomID"].String() = gameRoom.roomID;
-		jsonEntry["hostAccountID"].String() = gameRoom.hostAccountID;
-		jsonEntry["hostAccountDisplayName"].String() = gameRoom.hostAccountDisplayName;
-		jsonEntry["description"].String() = gameRoom.description;
-		jsonEntry["status"].String() = LOBBY_ROOM_STATE_NAMES[vstd::to_underlying(gameRoom.roomState)];
-		jsonEntry["playersCount"].Integer() = gameRoom.playersCount;
-		jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
-		reply["gameRooms"].Vector().push_back(jsonEntry);
-	}
+		reply["gameRooms"].Vector().push_back(loadLobbyGameRoomToJson(gameRoom));
 
 	return reply;
 }
@@ -252,7 +281,12 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 
 	if(activeGameRooms.count(connection))
 	{
-		database->setGameRoomStatus(activeGameRooms.at(connection), LobbyRoomState::CLOSED);
+		std::string gameRoomID = activeGameRooms.at(connection);
+		database->setGameRoomStatus(gameRoomID, LobbyRoomState::CLOSED);
+
+		for(const auto & connection : activeAccounts)
+			if (database->isPlayerInGameRoom(connection.second, gameRoomID))
+				sendMatchesHistory(connection.first);
 		activeGameRooms.erase(connection);
 	}
 
@@ -458,9 +492,10 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 
 		database->insertChatMessage(senderAccountID, channelType, channelName, messageText);
 
+		// TODO: Don't report match messages if room is still active - players in room will receive these messages via match server
 		for(const auto & otherConnection : activeAccounts)
 		{
-			if (database->isPlayerInGameRoom(senderAccountID, otherConnection.second))
+			if (database->isPlayerInGameRoom(otherConnection.second, channelName))
 				sendChatMessage(otherConnection.first, channelType, channelName, senderAccountID, displayName, messageText);
 		}
 	}
@@ -536,6 +571,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	// and update acount list to everybody else including new account
 	broadcastActiveAccounts();
 	sendMessage(connection, prepareActiveGameRooms());
+	sendMatchesHistory(connection);
 }
 
 void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, const JsonNode & json)

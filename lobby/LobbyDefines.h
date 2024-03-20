@@ -44,8 +44,8 @@ struct LobbyGameRoom
 	std::string hostAccountID;
 	std::string hostAccountDisplayName;
 	std::string description;
+	std::vector<LobbyAccount> participants;
 	LobbyRoomState roomState;
-	uint32_t playersCount;
 	uint32_t playerLimit;
 };
 

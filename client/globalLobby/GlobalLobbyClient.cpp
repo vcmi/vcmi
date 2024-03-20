@@ -78,6 +78,9 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 	if(json["type"].String() == "inviteReceived")
 		return receiveInviteReceived(json);
 
+	if(json["type"].String() == "matchesHistory")
+		return receiveMatchesHistory(json);
+
 	logGlobal->error("Received unexpected message from lobby server: %s", json["type"].String());
 }
 
@@ -211,7 +214,13 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
 		room.statusID = jsonEntry["status"].String();
-		room.playersCount = jsonEntry["playersCount"].Integer();
+		for (auto const & jsonParticipant : jsonEntry["participants"].Vector())
+		{
+			GlobalLobbyAccount account;
+			account.accountID =  jsonParticipant["accountID"].String();
+			account.displayName =  jsonParticipant["displayName"].String();
+			room.participants.push_back(account);
+		}
 		room.playerLimit = jsonEntry["playerLimit"].Integer();
 
 		activeRooms.push_back(room);
@@ -220,6 +229,36 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
 		lobbyWindowPtr->onActiveRooms(activeRooms);
+}
+
+void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
+{
+	matchesHistory.clear();
+
+	for (auto const & jsonEntry : json["matchesHistory"].Vector())
+	{
+		GlobalLobbyRoom room;
+
+		room.gameRoomID = jsonEntry["gameRoomID"].String();
+		room.hostAccountID = jsonEntry["hostAccountID"].String();
+		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
+		room.description = jsonEntry["description"].String();
+		room.statusID = jsonEntry["status"].String();
+		for (auto const & jsonParticipant : jsonEntry["participants"].Vector())
+		{
+			GlobalLobbyAccount account;
+			account.accountID =  jsonParticipant["accountID"].String();
+			account.displayName =  jsonParticipant["displayName"].String();
+			room.participants.push_back(account);
+		}
+		room.playerLimit = jsonEntry["playerLimit"].Integer();
+
+		matchesHistory.push_back(room);
+	}
+
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if(lobbyWindowPtr)
+		lobbyWindowPtr->onMatchesHistory(activeRooms);
 }
 
 void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
@@ -372,7 +411,7 @@ const std::vector<std::string> & GlobalLobbyClient::getActiveChannels() const
 	return activeChannels;
 }
 
-const std::vector<GlobalLobbyHistoryMatch> & GlobalLobbyClient::getMatchesHistory() const
+const std::vector<GlobalLobbyRoom> & GlobalLobbyClient::getMatchesHistory() const
 {
 	return matchesHistory;
 }
@@ -434,4 +473,21 @@ void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & ne
 void GlobalLobbyClient::resetMatchState()
 {
 	currentGameRoomUUID.clear();
+}
+
+void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
+{
+	if (!isConnected())
+		return; // we are not playing with lobby
+
+	if (currentGameRoomUUID.empty())
+		return; // we are not playing through lobby
+
+	JsonNode toSend;
+	toSend["type"].String() = "sendChatMessage";
+	toSend["channelType"].String() = "match";
+	toSend["channelName"].String() = currentGameRoomUUID;
+	toSend["messageText"].String() = messageText;
+
+	CSH->getGlobalLobby().sendMessage(toSend);
 }

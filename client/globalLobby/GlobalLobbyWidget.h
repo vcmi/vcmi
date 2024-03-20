@@ -14,7 +14,6 @@
 class GlobalLobbyWindow;
 struct GlobalLobbyAccount;
 struct GlobalLobbyRoom;
-struct GlobalLobbyHistoryMatch;
 class CListBox;
 
 class GlobalLobbyWidget : public InterfaceObjectConfigurable
@@ -90,5 +89,5 @@ class GlobalLobbyMatchCard : public GlobalLobbyChannelCardBase
 	std::shared_ptr<CLabel> labelMatchOpponent;
 
 public:
-	GlobalLobbyMatchCard(GlobalLobbyWindow * window, const GlobalLobbyHistoryMatch & matchDescription);
+	GlobalLobbyMatchCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & matchDescription);
 };

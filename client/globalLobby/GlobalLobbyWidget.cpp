@@ -133,6 +133,11 @@ std::shared_ptr<CListBox> GlobalLobbyWidget::getRoomList()
 	return widget<CListBox>("roomList");
 }
 
+std::shared_ptr<CListBox> GlobalLobbyWidget::getMatchList()
+{
+	return widget<CListBox>("matchList");
+}
+
 GlobalLobbyChannelCardBase::GlobalLobbyChannelCardBase(GlobalLobbyWindow * window, const std::string & channelType, const std::string & channelName)
 	: window(window)
 	, channelType(channelType)
@@ -169,7 +174,7 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 	};
 
 	auto roomSizeText = MetaString::createFromRawString("%d/%d");
-	roomSizeText.replaceNumber(roomDescription.playersCount);
+	roomSizeText.replaceNumber(roomDescription.participants.size());
 	roomSizeText.replaceNumber(roomDescription.playerLimit);
 
 	auto roomStatusText = MetaString::createFromTextID("vcmi.lobby.room.state." + roomDescription.statusID);
@@ -203,7 +208,7 @@ GlobalLobbyChannelCard::GlobalLobbyChannelCard(GlobalLobbyWindow * window, const
 	labelName = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, Languages::getLanguageOptions(channelName).nameNative);
 }
 
-GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const GlobalLobbyHistoryMatch & matchDescription)
+GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & matchDescription)
 	: GlobalLobbyChannelCardBase(window, "match", matchDescription.gameRoomID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -216,16 +221,16 @@ GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const Glo
 
 	MetaString opponentDescription;
 
-	if (matchDescription.opponentDisplayNames.empty())
+	if (matchDescription.participants.size() == 1)
 		opponentDescription.appendRawString("Solo game"); // or "Singleplayer game" is better?
 
-	if (matchDescription.opponentDisplayNames.size() == 1)
-		opponentDescription.appendRawString(matchDescription.opponentDisplayNames[0]);
+	if (matchDescription.participants.size() == 2)
+		opponentDescription.appendRawString(matchDescription.participants[0].displayName);//FIXME: find opponent - not our player
 
-	if (matchDescription.opponentDisplayNames.size() > 1)
+	if (matchDescription.participants.size() > 2)
 	{
 		opponentDescription.appendRawString("%d players");
-		opponentDescription.replaceNumber(matchDescription.opponentDisplayNames.size());
+		opponentDescription.replaceNumber(matchDescription.participants.size());
 	}
 
 	labelMatchOpponent = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, opponentDescription.toString());

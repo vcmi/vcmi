@@ -20,7 +20,7 @@
 			{
 				"type" : "object",
 				"additionalProperties" : false,
-				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "playersCount", "playerLimit", "status" ],
+				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "participants", "playerLimit", "status" ],
 				"properties" : {
 					"gameRoomID" :
 					{
@@ -42,10 +42,28 @@
 						"type" : "string",
 						"description" : "Auto-generated description of this room"
 					},
-					"playersCount" :
+					"participants" :
 					{
-						"type" : "number",
-						"description" : "Current number of players in this room, including host"
+						"type" : "array",
+						"description" : "List of accounts in the room, including host",
+						"items" :
+						{
+							"type" : "object",
+							"additionalProperties" : false,
+							"required" : [ "accountID", "displayName" ],
+							"properties" : {
+								"accountID" :
+								{
+									"type" : "string",
+									"description" : "Unique ID of an account"
+								},
+								"displayName" :
+								{
+									"type" : "string",
+									"description" : "Display name of an account"
+								}
+							}
+						}
 					},
 					"status" :
 					{

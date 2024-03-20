@@ -23,7 +23,8 @@ struct GlobalLobbyRoom
 	std::string hostAccountDisplayName;
 	std::string description;
 	std::string statusID;
-	int playersCount;
+	std::string startDateFormatted;
+	std::vector<GlobalLobbyAccount> participants;
 	int playerLimit;
 };
 
@@ -33,11 +34,4 @@ struct GlobalLobbyChannelMessage
 	std::string accountID;
 	std::string displayName;
 	std::string messageText;
-};
-
-struct GlobalLobbyHistoryMatch
-{
-	std::string gameRoomID;
-	std::string startDateFormatted;
-	std::vector<std::string> opponentDisplayNames;
 };

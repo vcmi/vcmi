@@ -113,10 +113,18 @@ void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> &
 
 void GlobalLobbyWindow::onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms)
 {
-	if (rooms.size() == widget->getAccountList()->size())
+	if (rooms.size() == widget->getRoomList()->size())
 		widget->getRoomList()->reset();
 	else
 		widget->getRoomList()->resize(rooms.size());
+}
+
+void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & history)
+{
+	if (history.size() == widget->getMatchList()->size())
+		widget->getMatchList()->reset();
+	else
+		widget->getMatchList()->resize(history.size());
 }
 
 void GlobalLobbyWindow::onJoinedRoom()

@@ -13,6 +13,7 @@
 #include "CServerHandler.h"
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
+#include "globalLobby/GlobalLobbyClient.h"
 #include "lobby/CLobbyScreen.h"
 
 #include "adventureMap/CInGameConsole.h"
@@ -34,7 +35,7 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
 }
 
-const std::vector<GameChatMessage> GameChatHandler::getChatHistory()
+const std::vector<GameChatMessage> & GameChatHandler::getChatHistory()
 {
 	return chatHistory;
 }
@@ -47,6 +48,7 @@ void GameChatHandler::resetMatchState()
 void GameChatHandler::sendMessageGameplay(const std::string & messageText)
 {
 	LOCPLINT->cb->sendMessage(messageText, LOCPLINT->localState->getCurrentArmy());
+	CSH->getGlobalLobby().sendMatchChatMessage(messageText);
 }
 
 void GameChatHandler::sendMessageLobby(const std::string & senderName, const std::string & messageText)
@@ -55,11 +57,22 @@ void GameChatHandler::sendMessageLobby(const std::string & senderName, const std
 	lcm.message = messageText;
 	lcm.playerName = senderName;
 	CSH->sendLobbyPack(lcm);
+	CSH->getGlobalLobby().sendMatchChatMessage(messageText);
 }
 
 void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, const std::string & messageText)
 {
-	auto lobby = dynamic_cast<CLobbyScreen*>(SEL);
+	if (!SEL)
+	{
+		logGlobal->debug("Received chat message for lobby but lobby not yet exists!");
+		return;
+	}
+
+	auto * lobby = dynamic_cast<CLobbyScreen*>(SEL);
+
+	// FIXME: when can this happen?
+	assert(lobby);
+	assert(lobby->card);
 
 	if(lobby && lobby->card)
 	{

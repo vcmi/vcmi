@@ -25,7 +25,7 @@ class GameChatHandler : boost::noncopyable
 	std::vector<GameChatMessage> chatHistory;
 public:
 	/// Returns all message history for current match
-	const std::vector<GameChatMessage> getChatHistory();
+	const std::vector<GameChatMessage> & getChatHistory();
 
 	/// Erases any local state, must be called when client disconnects from match server
 	void resetMatchState();

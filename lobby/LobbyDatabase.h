@@ -41,6 +41,7 @@ class LobbyDatabase
 	SQLiteStatementPtr getFullMessageHistoryStatement;
 	SQLiteStatementPtr getIdleGameRoomStatement;
 	SQLiteStatementPtr getGameRoomStatusStatement;
+	SQLiteStatementPtr getAccountGameHistoryStatement;
 	SQLiteStatementPtr getActiveGameRoomsStatement;
 	SQLiteStatementPtr getActiveAccountsStatement;
 	SQLiteStatementPtr getAccountGameRoomStatement;
@@ -81,6 +82,7 @@ public:
 	void updateRoomPlayerLimit(const std::string & gameRoomID, int playerLimit);
 	void updateRoomDescription(const std::string & gameRoomID, const std::string & description);
 
+	std::vector<LobbyGameRoom> getAccountGameHistory(const std::string & accountID);
 	std::vector<LobbyGameRoom> getActiveGameRooms();
 	std::vector<LobbyAccount> getActiveAccounts();
 	std::vector<LobbyChatMessage> getRecentMessageHistory(const std::string & channelType, const std::string & channelName);

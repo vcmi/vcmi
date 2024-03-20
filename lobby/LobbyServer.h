@@ -76,6 +76,7 @@ class LobbyServer final : public INetworkServerListener
 	void sendAccountJoinsRoom(const NetworkConnectionPtr & target, const std::string & accountID);
 	void sendJoinRoomSuccess(const NetworkConnectionPtr & target, const std::string & gameRoomID, bool proxyMode);
 	void sendInviteReceived(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & gameRoomID);
+	void sendMatchesHistory(const NetworkConnectionPtr & target);
 
 	void receiveClientRegister(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveClientLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
