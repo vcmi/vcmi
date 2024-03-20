@@ -269,7 +269,7 @@ void Zone::fractalize()
 		else if (treasureValue < 100)
 		{
 			//Dense obstacles
-			spanFactor *= (treasureValue / 100.f);
+			spanFactor *= (0.5 + 0.5 * (treasureValue / 100.f));
 			vstd::amax(spanFactor, 0.15f);
 		}
 		if (treasureDensity <= 10)
