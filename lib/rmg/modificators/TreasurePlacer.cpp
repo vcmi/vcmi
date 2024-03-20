@@ -875,7 +875,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 		const int DENSITY_CONSTANT = 400;
 		size_t count = (size * t->density) / DENSITY_CONSTANT;
 
-		const float minDistance = std::max<float>(std::sqrt(t->min / 10.0f / totalDensity), 1.0f);
+		const float minDistance = std::max<float>(std::sqrt(std::min<ui32>(t->min, 30000) / 10.0f / totalDensity), 1.0f);
 
 		size_t emergencyLoopFinish = 0;
 		while(treasures.size() < count && emergencyLoopFinish < count)
