@@ -239,7 +239,7 @@ void Zone::fractalize()
 
 	//Squared
 	float minDistance = 9 * 9;
-	float freeDistance = pos.z ? (10 * 10) : 6 * 6;
+	float freeDistance = pos.z ? (10 * 10) : (9 * 9);
 	float spanFactor = (pos.z ? 0.3f : 0.45f); //Narrower passages in the Underground
 	float marginFactor = 1.0f;
 
@@ -258,15 +258,18 @@ void Zone::fractalize()
 	}
 	else //Scale with treasure density
 	{
-		if (treasureValue > 400)
+		if (treasureValue > 250)
 		{
-			// A quater at max density
-			marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
+			// A quater at max density - means more free space
+			marginFactor = (0.6f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.4f);
+
+			// Low value - dense obstacles
+			spanFactor *= (0.6f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.4f);
 		}
 		else if (treasureValue < 100)
 		{
 			//Dense obstacles
-			spanFactor *= (treasureValue / 100.f);
+			spanFactor *= (0.5 + 0.5 * (treasureValue / 100.f));
 			vstd::amax(spanFactor, 0.15f);
 		}
 		if (treasureDensity <= 10)
@@ -334,8 +337,8 @@ void Zone::fractalize()
 	}
 
 	Lock lock(areaMutex);
-	//cut straight paths towards the center. A* is too slow for that.
-	auto areas = connectedAreas(clearedTiles, false);
+	//Connect with free areas
+	auto areas = connectedAreas(clearedTiles, true);
 	for(auto & area : areas)
 	{
 		if(dAreaFree.overlap(area))
@@ -344,7 +347,7 @@ void Zone::fractalize()
 		auto availableArea = dAreaPossible + dAreaFree;
 		rmg::Path path(availableArea);
 		path.connect(dAreaFree);
-		auto res = path.search(area, false);
+		auto res = path.search(area, true);
 		if(res.getPathArea().empty())
 		{
 			dAreaPossible.subtract(area);
