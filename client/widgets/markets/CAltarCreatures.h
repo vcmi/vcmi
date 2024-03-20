@@ -11,7 +11,8 @@
 
 #include "CMarketBase.h"
 
-class CAltarCreatures : public CExperienceAltar, public CCreaturesSelling, public CMarketSlider
+class CAltarCreatures :
+	public CExperienceAltar, public CCreaturesSelling, public CMarketSlider, public CMarketTraderText
 {
 public:
 	CAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
@@ -25,10 +26,11 @@ private:
 	std::vector<int> unitsOnAltar;
 	std::vector<int> expPerUnit;
 
-	CMarketBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::MarketShowcasesParams getShowcasesParams() const override;
 	void updateAltarSlot(const std::shared_ptr<CTradeableItem> & slot);
 	void readExpValues();
 	void highlightingChanged() override;
 	void onOfferSliderMoved(int newVal) override;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel) override;
+	std::string getTraderText() override;
 };

@@ -33,7 +33,7 @@ private:
 	std::map<std::shared_ptr<CTradeableItem>, const CArtifactInstance*> tradeSlotsMap;
 
 	void updateAltarSlots();
-	CMarketBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::MarketShowcasesParams getShowcasesParams() const override;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<TradePanelBase> & curPanel) override;
 	TExpType calcExpCost(ArtifactID id) const;
 };

@@ -24,7 +24,7 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
-	: CMarketBase(market, hero, [this](){return CMarketResources::getSelectionParams();})
+	: CMarketBase(market, hero)
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CMarketResources::onSlotClickPressed(heroSlot, bidTradePanel);})
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & resSlot){CMarketResources::onSlotClickPressed(resSlot, offerTradePanel);},
@@ -52,6 +52,7 @@ void CMarketResources::deselect()
 {
 	CMarketBase::deselect();
 	CMarketSlider::deselect();
+	CMarketTraderText::deselect();
 }
 
 void CMarketResources::makeDeal()
@@ -60,25 +61,26 @@ void CMarketResources::makeDeal()
 	{
 		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getSelectedItemId()),
 			GameResID(offerTradePanel->highlightedSlot->id), bidQty * toTrade, hero);
+		CMarketTraderText::makeDeal();
 		deselect();
 	}
 }
 
-CMarketBase::SelectionParams CMarketResources::getSelectionParams() const
+CMarketBase::MarketShowcasesParams CMarketResources::getShowcasesParams() const
 {
 	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot && bidTradePanel->getSelectedItemId() != offerTradePanel->getSelectedItemId())
 		return std::make_tuple(
-			SelectionParamOneSide {std::to_string(bidQty * offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
-			SelectionParamOneSide {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getSelectedItemId()});
+			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
+			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getSelectedItemId()});
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CMarketResources::highlightingChanged()
 {
-	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		market->getOffer(bidTradePanel->getSelectedItemId(), offerTradePanel->highlightedSlot->id, bidQty, offerQty, EMarketMode::RESOURCE_RESOURCE);
+		market->getOffer(bidTradePanel->getSelectedItemId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_RESOURCE);
 		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())) / bidQty);
 		offerSlider->scrollTo(0);
 		const bool isControlsBlocked = bidTradePanel->getSelectedItemId() != offerTradePanel->getSelectedItemId() ? false : true;
@@ -87,6 +89,7 @@ void CMarketResources::highlightingChanged()
 		deal->block(isControlsBlocked);
 	}
 	CMarketBase::highlightingChanged();
+	CMarketTraderText::highlightingChanged();
 }
 
 void CMarketResources::updateSubtitles()
@@ -94,4 +97,24 @@ void CMarketResources::updateSubtitles()
 	CMarketBase::updateSubtitlesForBid(EMarketMode::RESOURCE_RESOURCE, bidTradePanel->getSelectedItemId());
 	if(bidTradePanel->highlightedSlot)
 		offerTradePanel->slots[bidTradePanel->highlightedSlot->serial]->subtitle->setText(CGI->generaltexth->allTexts[164]); // n/a
+}
+
+std::string CMarketResources::getTraderText()
+{
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted() &&
+		bidTradePanel->getSelectedItemId() != offerTradePanel->getSelectedItemId())
+	{
+		return boost::str(boost::format(
+			CGI->generaltexth->allTexts[157]) %
+			offerQty %
+			(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]) %
+			CGI->generaltexth->restypes[bidTradePanel->getSelectedItemId()] %
+			bidQty %
+			(bidQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]) %
+			CGI->generaltexth->restypes[offerTradePanel->getSelectedItemId()]);
+	}
+	else
+	{
+		return madeTransaction ? CGI->generaltexth->allTexts[162] : CGI->generaltexth->allTexts[163];
+	}
 }

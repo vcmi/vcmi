@@ -41,7 +41,7 @@ public:
 	virtual void unmarkSlots();
 	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);
 	virtual void updateWornSlots();
-	virtual void updateBackpackSlots(const std::optional<const ArtifactPosition> & removedSlot);
+	virtual void updateBackpackSlots();
 	virtual void updateSlot(const ArtifactPosition & slot);
 	virtual const CArtifactInstance * getPickedArtifact();
 	void addGestureCallback(CArtPlace::ClickFunctor callback);

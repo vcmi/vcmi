@@ -25,8 +25,9 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
-	: CMarketBase(market, hero, [this](){return CAltarCreatures::getSelectionParams();})
+	: CMarketBase(market, hero)
 	, CMarketSlider(std::bind(&CAltarCreatures::onOfferSliderMoved, this, _1))
+	, CMarketTraderText(Point(28, 31), FONT_MEDIUM, Colors::YELLOW)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
@@ -84,7 +85,7 @@ void CAltarCreatures::readExpValues()
 void CAltarCreatures::highlightingChanged()
 {
 	int sliderAmount = 0;
-	if(bidTradePanel->highlightedSlot)
+	if(bidTradePanel->isHighlighted())
 	{
 		std::optional<SlotID> lastSlot;
 		for(auto slot = SlotID(0); slot.num < GameConstants::ARMY_SIZE; slot++)
@@ -108,10 +109,11 @@ void CAltarCreatures::highlightingChanged()
 	}
 	offerSlider->setAmount(sliderAmount);
 	offerSlider->block(!offerSlider->getAmount());
-	if(bidTradePanel->highlightedSlot)
+	if(bidTradePanel->isHighlighted())
 		offerSlider->scrollTo(unitsOnAltar[bidTradePanel->highlightedSlot->serial]);
 	maxAmount->block(offerSlider->getAmount() == 0);
 	updateShowcases();
+	CMarketTraderText::highlightingChanged();
 }
 
 void CAltarCreatures::update()
@@ -126,6 +128,7 @@ void CAltarCreatures::deselect()
 	CMarketBase::deselect();
 	CExperienceAltar::deselect();
 	CMarketSlider::deselect();
+	CMarketTraderText::deselect();
 }
 
 TExpType CAltarCreatures::calcExpAltarForHero()
@@ -166,14 +169,14 @@ void CAltarCreatures::makeDeal()
 	deselect();
 }
 
-CMarketBase::SelectionParams CAltarCreatures::getSelectionParams() const
+CMarketBase::MarketShowcasesParams CAltarCreatures::getShowcasesParams() const
 {
-	std::optional<SelectionParamOneSide> bidSelected = std::nullopt;
-	std::optional<SelectionParamOneSide> offerSelected = std::nullopt;
-	if(bidTradePanel->highlightedSlot)
-		bidSelected = SelectionParamOneSide {std::to_string(offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->highlightedSlot->id)->getIconIndex()};
-	if(offerTradePanel->highlightedSlot && offerSlider->getValue() > 0)
-		offerSelected = SelectionParamOneSide { offerTradePanel->highlightedSlot->subtitle->getText(), CGI->creatures()->getByIndex(offerTradePanel->highlightedSlot->id)->getIconIndex()};
+	std::optional<ShowcaseParams> bidSelected = std::nullopt;
+	std::optional<ShowcaseParams> offerSelected = std::nullopt;
+	if(bidTradePanel->isHighlighted())
+		bidSelected = ShowcaseParams {std::to_string(offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->getSelectedItemId())->getIconIndex()};
+	if(offerTradePanel->isHighlighted() && offerSlider->getValue() > 0)
+		offerSelected = ShowcaseParams { offerTradePanel->highlightedSlot->subtitle->getText(), CGI->creatures()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()};
 	return std::make_tuple(bidSelected, offerSelected);
 }
 
@@ -196,7 +199,7 @@ void CAltarCreatures::sacrificeAll()
 		unitsOnAltar[lastSlot.value().num]--;
 	}
 
-	if(offerTradePanel->highlightedSlot)
+	if(offerTradePanel->isHighlighted())
 		offerSlider->scrollTo(unitsOnAltar[offerTradePanel->highlightedSlot->serial]);
 	offerTradePanel->update();
 	updateShowcases();
@@ -214,9 +217,9 @@ void CAltarCreatures::updateAltarSlot(const std::shared_ptr<CTradeableItem> & sl
 
 void CAltarCreatures::onOfferSliderMoved(int newVal)
 {
-	if(bidTradePanel->highlightedSlot)
+	if(bidTradePanel->isHighlighted())
 		unitsOnAltar[bidTradePanel->highlightedSlot->serial] = newVal;
-	if(offerTradePanel->highlightedSlot)
+	if(offerTradePanel->isHighlighted())
 		updateAltarSlot(offerTradePanel->highlightedSlot);
 	deal->block(calcExpAltarForHero() == 0);
 	highlightingChanged();
@@ -247,4 +250,18 @@ void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	oppositePanel->onSlotClickPressed(oppositeNewSlot);
 	highlightingChanged();
 	redraw();
+}
+
+std::string CAltarCreatures::getTraderText()
+{
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
+	{
+		return boost::str(boost::format(
+			CGI->generaltexth->allTexts[484]) %
+			CGI->creh->objects[bidTradePanel->getSelectedItemId()]->getNamePluralTranslated());
+	}
+	else
+	{
+		return "";
+	}
 }

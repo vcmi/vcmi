@@ -63,6 +63,7 @@ public:
 	void setShowcaseSubtitle(const std::string & text);
 	int getSelectedItemId() const;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot);
+	bool isHighlighted() const;
 };
 
 class ResourcesPanel : public TradePanelBase

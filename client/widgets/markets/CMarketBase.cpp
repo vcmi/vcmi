@@ -27,10 +27,9 @@
 #include "../../../lib/CHeroHandler.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
-CMarketBase::CMarketBase(const IMarket * market, const CGHeroInstance * hero, const SelectionParamsFunctor & getParamsCallback)
+CMarketBase::CMarketBase(const IMarket * market, const CGHeroInstance * hero)
 	: market(market)
 	, hero(hero)
-	, selectionParamsCallback(getParamsCallback)
 {
 }
 
@@ -93,7 +92,7 @@ void CMarketBase::updateSubtitlesForBid(EMarketMode marketMode, int bidId)
 
 void CMarketBase::updateShowcases()
 {
-	const auto updateSelectedBody = [](const std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const SelectionParamOneSide> & params)
+	const auto updateSelectedBody = [](const std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const ShowcaseParams> & params)
 	{
 		if(params.has_value())
 		{
@@ -107,8 +106,7 @@ void CMarketBase::updateShowcases()
 		}
 	};
 
-	assert(selectionParamsCallback);
-	const auto params = selectionParamsCallback();
+	const auto params = getShowcasesParams();
 	if(bidTradePanel)
 		updateSelectedBody(bidTradePanel, std::get<0>(params));
 	if(offerTradePanel)
@@ -220,4 +218,27 @@ void CMarketSlider::onOfferSliderMoved(int newVal)
 		updateShowcases();
 		redraw();
 	}
+}
+
+CMarketTraderText::CMarketTraderText(const Point & pos, const EFonts & font, const ColorRGBA & color)
+	: madeTransaction(false)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	traderText = std::make_shared<CTextBox>("", Rect(pos, traderTextDimensions), 0, font, ETextAlignment::CENTER, color);
+}
+
+void CMarketTraderText::deselect()
+{
+	highlightingChanged();
+}
+
+void CMarketTraderText::makeDeal()
+{
+	madeTransaction = true;
+}
+
+void CMarketTraderText::highlightingChanged()
+{
+	traderText->setText(getTraderText());
 }

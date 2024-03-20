@@ -108,9 +108,9 @@ void CMarketWindow::artifactMoved(const ArtifactLocation & srcLoc, const Artifac
 {
 	if(!getState().has_value())
 		return;
+	CWindowWithArtifacts::artifactMoved(srcLoc, destLoc, withRedraw);
 	assert(marketWidget);
 	marketWidget->update();
-	CWindowWithArtifacts::artifactMoved(srcLoc, destLoc, withRedraw);
 }
 
 void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero)

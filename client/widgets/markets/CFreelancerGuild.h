@@ -11,7 +11,8 @@
 
 #include "CMarketBase.h"
 
-class CFreelancerGuild : public CCreaturesSelling , public CResourcesBuying, public CMarketSlider
+class CFreelancerGuild :
+	public CCreaturesSelling , public CResourcesBuying, public CMarketSlider, public CMarketTraderText
 {
 public:
 	CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero);
@@ -19,6 +20,7 @@ public:
 	void makeDeal() override;
 
 private:
-	CMarketBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::MarketShowcasesParams getShowcasesParams() const override;
 	void highlightingChanged() override;
+	std::string getTraderText() override;
 };

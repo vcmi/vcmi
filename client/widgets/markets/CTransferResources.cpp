@@ -23,9 +23,10 @@
 #include "../../../lib/CGeneralTextHandler.h"
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
-	: CMarketBase(market, hero, [this](){return CTransferResources::getSelectionParams();})
+	: CMarketBase(market, hero)
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CTransferResources::onSlotClickPressed(heroSlot, bidTradePanel);})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
+	, CMarketTraderText(Point(28, 48))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -53,6 +54,7 @@ void CTransferResources::deselect()
 {
 	CMarketBase::deselect();
 	CMarketSlider::deselect();
+	CMarketTraderText::deselect();
 }
 
 void CTransferResources::makeDeal()
@@ -60,24 +62,25 @@ void CTransferResources::makeDeal()
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
 		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_PLAYER, GameResID(bidTradePanel->getSelectedItemId()),
-			PlayerColor(offerTradePanel->highlightedSlot->id), toTrade, hero);
+			PlayerColor(offerTradePanel->getSelectedItemId()), toTrade, hero);
+		CMarketTraderText::makeDeal();
 		deselect();
 	}
 }
 
-CMarketBase::SelectionParams CTransferResources::getSelectionParams() const
+CMarketBase::MarketShowcasesParams CTransferResources::getShowcasesParams() const
 {
-	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 		return std::make_tuple(
-			SelectionParamOneSide {std::to_string(offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
-			SelectionParamOneSide {CGI->generaltexth->capColors[offerTradePanel->highlightedSlot->id], offerTradePanel->getSelectedItemId()});
+			ShowcaseParams {std::to_string(offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
+			ShowcaseParams {CGI->generaltexth->capColors[offerTradePanel->getSelectedItemId()], offerTradePanel->getSelectedItemId()});
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CTransferResources::highlightingChanged()
 {
-	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
 		offerSlider->setAmount(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())));
 		offerSlider->scrollTo(0);
@@ -86,4 +89,20 @@ void CTransferResources::highlightingChanged()
 		deal->block(false);
 	}
 	CMarketBase::highlightingChanged();
+	CMarketTraderText::highlightingChanged();
+}
+
+std::string CTransferResources::getTraderText()
+{
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
+	{
+		return boost::str(boost::format(
+			CGI->generaltexth->allTexts[165]) %
+			CGI->generaltexth->restypes[bidTradePanel->getSelectedItemId()] %
+			CGI->generaltexth->capColors[offerTradePanel->getSelectedItemId()]);
+	}
+	else
+	{
+		return madeTransaction ? CGI->generaltexth->allTexts[166] : CGI->generaltexth->allTexts[167];
+	}
 }

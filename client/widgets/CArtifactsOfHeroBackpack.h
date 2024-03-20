@@ -25,7 +25,7 @@ public:
 	CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax);
 	CArtifactsOfHeroBackpack();
 	void onSliderMoved(int newVal);
-	void updateBackpackSlots(const std::optional<const ArtifactPosition> & removedSlot = std::nullopt) override;
+	void updateBackpackSlots() override;
 	size_t getActiveSlotRowsNum();
 	size_t getSlotsNum();
 

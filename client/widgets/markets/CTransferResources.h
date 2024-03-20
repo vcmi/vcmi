@@ -11,7 +11,7 @@
 
 #include "CMarketBase.h"
 
-class CTransferResources : public CResourcesSelling, public CMarketSlider
+class CTransferResources : public CResourcesSelling, public CMarketSlider, public CMarketTraderText
 {
 public:
 	CTransferResources(const IMarket * market, const CGHeroInstance * hero);
@@ -19,6 +19,7 @@ public:
 	void makeDeal() override;
 
 private:
-	CMarketBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::MarketShowcasesParams getShowcasesParams() const override;
 	void highlightingChanged() override;
+	std::string getTraderText() override;
 };

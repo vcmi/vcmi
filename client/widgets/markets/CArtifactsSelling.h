@@ -12,7 +12,7 @@
 #include "../CArtifactsOfHeroMarket.h"
 #include "CMarketBase.h"
 
-class CArtifactsSelling : public CResourcesBuying
+class CArtifactsSelling : public CResourcesBuying, public CMarketTraderText
 {
 public:
 	CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero);
@@ -28,6 +28,8 @@ private:
 	std::shared_ptr<CTradeableItem> bidSelectedSlot;
 	ArtifactPosition selectedHeroSlot;
 
-	CMarketBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::MarketShowcasesParams getShowcasesParams() const override;
+	void updateSubtitles();
 	void highlightingChanged() override;
+	std::string getTraderText() override;
 };

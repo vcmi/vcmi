@@ -11,13 +11,15 @@
 
 #include "CMarketBase.h"
 
-class CArtifactsBuying : public CResourcesSelling
+class CArtifactsBuying : public CResourcesSelling, public CMarketTraderText
 {
 public:
 	CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero);
+	void deselect() override;
 	void makeDeal() override;
 
 private:
-	CMarketBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::MarketShowcasesParams getShowcasesParams() const override;
 	void highlightingChanged() override;
+	std::string getTraderText() override;
 };

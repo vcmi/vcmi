@@ -26,7 +26,7 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)
-	: CMarketBase(market, hero, [this](){return CAltarArtifacts::getSelectionParams();})
+	: CMarketBase(market, hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -189,12 +189,12 @@ void CAltarArtifacts::putBackArtifacts()
 		LOCPLINT->cb->bulkMoveArtifacts(altarId, heroArts->getHero()->id, false, true, true);
 }
 
-CMarketBase::SelectionParams CAltarArtifacts::getSelectionParams() const
+CMarketBase::MarketShowcasesParams CAltarArtifacts::getShowcasesParams() const
 {
-	if(offerTradePanel->highlightedSlot)
+	if(offerTradePanel->isHighlighted())
 		return std::make_tuple(
 			std::nullopt,
-			SelectionParamOneSide {std::to_string(offerQty), CGI->artifacts()->getByIndex(offerTradePanel->highlightedSlot->id)->getIconIndex()}
+			ShowcaseParams {std::to_string(offerQty), CGI->artifacts()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()}
 	);
 	return std::make_tuple(std::nullopt, std::nullopt);
 }

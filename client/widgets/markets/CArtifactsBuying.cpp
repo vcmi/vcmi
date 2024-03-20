@@ -25,7 +25,7 @@
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
 CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
-	: CMarketBase(market, hero, [this](){return CArtifactsBuying::getSelectionParams();})
+	: CMarketBase(market, hero)
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, bidTradePanel);})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
@@ -34,7 +34,7 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 	if(auto townMarket = dynamic_cast<const CGTownInstance*>(market))
 		title = (*CGI->townh)[townMarket->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 	else
-		title = "Black market";	// find string allTexts!!
+		title = CGI->generaltexth->allTexts[349];
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this](){CArtifactsBuying::makeDeal();});
@@ -60,32 +60,57 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 	offerTradePanel->moveTo(pos.topLeft() + Point(328, 181));
 
 	CMarketBase::update();
+	CArtifactsBuying::deselect();
+}
+
+void CArtifactsBuying::deselect()
+{
 	CMarketBase::deselect();
+	CMarketTraderText::deselect();
 }
 
 void CArtifactsBuying::makeDeal()
 {
-	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->highlightedSlot->id),
+	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getSelectedItemId()),
 		ArtifactID(offerTradePanel->highlightedSlot->id), offerQty, hero);
+	CMarketTraderText::makeDeal();
 	deselect();
 }
 
-CMarketBase::SelectionParams CArtifactsBuying::getSelectionParams() const
+CMarketBase::MarketShowcasesParams CArtifactsBuying::getShowcasesParams() const
 {
-	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 		return std::make_tuple(
-			SelectionParamOneSide {std::to_string(deal->isBlocked() ? 0 : bidQty), bidTradePanel->highlightedSlot->id},
-			SelectionParamOneSide {std::to_string(deal->isBlocked() ? 0 : offerQty), CGI->artifacts()->getByIndex(offerTradePanel->highlightedSlot->id)->getIconIndex()});
+			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : bidQty), bidTradePanel->getSelectedItemId()},
+			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : offerQty), CGI->artifacts()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()});
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CArtifactsBuying::highlightingChanged()
 {
-	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot)
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		market->getOffer(bidTradePanel->highlightedSlot->id, offerTradePanel->highlightedSlot->id, bidQty, offerQty, EMarketMode::RESOURCE_ARTIFACT);
-		deal->block(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->highlightedSlot->id)) >= bidQty ? false : true);
+		market->getOffer(bidTradePanel->getSelectedItemId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_ARTIFACT);
+		deal->block(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())) >= bidQty ? false : true);
 	}
 	CMarketBase::highlightingChanged();
+	CMarketTraderText::highlightingChanged();
+}
+
+std::string CArtifactsBuying::getTraderText()
+{
+	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
+	{
+		return boost::str(boost::format(
+			CGI->generaltexth->allTexts[267]) %
+			CGI->artifacts()->getByIndex(offerTradePanel->getSelectedItemId())->getNameTranslated() %
+			bidQty %
+			(bidQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]) %
+			CGI->generaltexth->restypes[bidTradePanel->getSelectedItemId()]);
+	}
+	else
+	{
+		return madeTransaction ? CGI->generaltexth->allTexts[162] : CGI->generaltexth->allTexts[163];
+	}
 }

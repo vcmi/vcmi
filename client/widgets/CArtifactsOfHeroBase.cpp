@@ -180,7 +180,7 @@ void CArtifactsOfHeroBase::updateWornSlots()
 		updateSlot(place.first);
 }
 
-void CArtifactsOfHeroBase::updateBackpackSlots(const std::optional<const ArtifactPosition> & removedSlot)
+void CArtifactsOfHeroBase::updateBackpackSlots()
 {
 	ArtifactPosition slot = ArtifactPosition::BACKPACK_START;
 	for(const auto & artPlace : backpack)

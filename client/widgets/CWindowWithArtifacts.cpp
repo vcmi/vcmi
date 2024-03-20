@@ -277,7 +277,7 @@ void CWindowWithArtifacts::gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, 
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)
 {
-	updateSlots(artLoc.slot);
+	updateSlots();
 }
 
 void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw)
@@ -322,7 +322,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			if(withRedraw)
 			{
 				artSetPtr->updateWornSlots();
-				artSetPtr->updateBackpackSlots(std::nullopt);
+				artSetPtr->updateBackpackSlots();
 
 				// Update arts bonuses on window.
 				// TODO rework this part when CHeroWindow and CExchangeWindow are reworked
@@ -361,14 +361,14 @@ void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation & artLoc)
 	updateSlots();
 }
 
-void CWindowWithArtifacts::updateSlots(const ArtifactPosition & removedSlot)
+void CWindowWithArtifacts::updateSlots()
 {
-	auto updateSlotBody = [removedSlot](auto artSetWeak) -> void
+	auto updateSlotBody = [](auto artSetWeak) -> void
 	{
 		if(const auto artSetPtr = artSetWeak.lock())
 		{
 			artSetPtr->updateWornSlots();
-			artSetPtr->updateBackpackSlots(removedSlot);
+			artSetPtr->updateBackpackSlots();
 			artSetPtr->redraw();
 		}
 	};

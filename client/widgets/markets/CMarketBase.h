@@ -11,27 +11,25 @@
 
 #include "TradePanels.h"
 #include "../../widgets/Slider.h"
+#include "../../render/EFont.h"
+#include "../../render/Colors.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class IMarket;
-class CGHeroInstance;
 
 VCMI_LIB_NAMESPACE_END
-
-class CButton;
-class CSlider;
 
 class CMarketBase : public CIntObject
 {
 public:
-	struct SelectionParamOneSide
+	struct ShowcaseParams
 	{
 		std::string text;
 		int imageIndex;
 	};
-	using SelectionParams = std::tuple<std::optional<const SelectionParamOneSide>, std::optional<const SelectionParamOneSide>>;
-	using SelectionParamsFunctor = std::function<const SelectionParams()>;
+	using MarketShowcasesParams = std::tuple<std::optional<const ShowcaseParams>, std::optional<const ShowcaseParams>>;
+	using ShowcasesParamsFunctor = std::function<const MarketShowcasesParams()>;
 
 	const IMarket * market;
 	const CGHeroInstance * hero;
@@ -42,13 +40,12 @@ public:
 	std::shared_ptr<CButton> deal;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CTextBox>> texts;
-	SelectionParamsFunctor selectionParamsCallback;
 	int bidQty;
 	int offerQty;
 	const Point dealButtonPos = Point(270, 520);
 	const Point titlePos = Point(299, 27);
 
-	CMarketBase(const IMarket * market, const CGHeroInstance * hero, const SelectionParamsFunctor & getParamsCallback);
+	CMarketBase(const IMarket * market, const CGHeroInstance * hero);
 	virtual void makeDeal() = 0;
 	virtual void deselect();
 	virtual void update();
@@ -57,7 +54,7 @@ protected:
 	virtual void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel);
 	virtual void updateSubtitlesForBid(EMarketMode marketMode, int bidId);
 	virtual void updateShowcases();
-	virtual SelectionParams getSelectionParams() const = 0;
+	virtual MarketShowcasesParams getShowcasesParams() const = 0;
 	virtual void highlightingChanged();
 };
 
@@ -108,4 +105,20 @@ public:
 	explicit CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback);
 	void deselect() override;
 	virtual void onOfferSliderMoved(int newVal);
+};
+
+class CMarketTraderText : virtual public CMarketBase
+{
+public:
+	CMarketTraderText(const Point & pos = Point(316, 48), const EFonts & font = EFonts::FONT_SMALL, const ColorRGBA & Color = Colors::WHITE);
+	void deselect() override;
+	void makeDeal() override;
+
+	const Point traderTextDimensions = Point(260, 75);
+	std::shared_ptr<CTextBox> traderText;
+	bool madeTransaction;
+
+protected:
+	void highlightingChanged() override;
+	virtual std::string getTraderText() = 0;
 };

@@ -160,7 +160,7 @@ void CTradeableItem::clickPressed(const Point & cursorPosition)
 
 void CTradeableItem::hover(bool on)
 {
-	if(!on)
+	if(!on || id == -1)
 	{
 		GH.statusbar()->clear();
 		return;
@@ -259,6 +259,11 @@ void TradePanelBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & 
 		highlightedSlot->selectSlot(false);
 	highlightedSlot = newSlot;
 	newSlot->selectSlot(true);
+}
+
+bool TradePanelBase::isHighlighted() const
+{
+	return getSelectedItemId() != -1;
 }
 
 ResourcesPanel::ResourcesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
