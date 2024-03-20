@@ -104,225 +104,181 @@ void LobbyDatabase::prepareStatements()
 {
 	// INSERT INTO
 
-	static const std::string insertChatMessageText = R"(
+	insertChatMessageStatement = database->prepare(R"(
 		INSERT INTO chatMessages(senderName, messageText, channelType, channelName) VALUES( ?, ?, ?, ?);
-	)";
+	)");
 
-	static const std::string insertAccountText = R"(
+	insertAccountStatement = database->prepare(R"(
 		INSERT INTO accounts(accountID, displayName, online) VALUES(?,?,0);
-	)";
+	)");
 
-	static const std::string insertAccessCookieText = R"(
+	insertAccessCookieStatement = database->prepare(R"(
 		INSERT INTO accountCookies(accountID, cookieUUID) VALUES(?,?);
-	)";
+	)");
 
-	static const std::string insertGameRoomText = R"(
+	insertGameRoomStatement = database->prepare(R"(
 		INSERT INTO gameRooms(roomID, hostAccountID, status, playerLimit) VALUES(?, ?, 0, 8);
-	)";
+	)");
 
-	static const std::string insertGameRoomPlayersText = R"(
+	insertGameRoomPlayersStatement = database->prepare(R"(
 		INSERT INTO gameRoomPlayers(roomID, accountID) VALUES(?,?);
-	)";
+	)");
 
-	static const std::string insertGameRoomInvitesText = R"(
+	insertGameRoomInvitesStatement = database->prepare(R"(
 		INSERT INTO gameRoomInvites(roomID, accountID) VALUES(?,?);
-	)";
+	)");
 
 	// DELETE FROM
 
-	static const std::string deleteGameRoomPlayersText = R"(
+	deleteGameRoomPlayersStatement = database->prepare(R"(
 		 DELETE FROM gameRoomPlayers WHERE roomID = ? AND accountID = ?
-	)";
-
-	static const std::string deleteGameRoomInvitesText = R"(
-		DELETE FROM gameRoomInvites WHERE roomID = ? AND accountID = ?
-	)";
+	)");
 
 	// UPDATE
 
-	static const std::string setAccountOnlineText = R"(
+	setAccountOnlineStatement = database->prepare(R"(
 		UPDATE accounts
 		SET online = ?
 		WHERE accountID = ?
-	)";
+	)");
 
-	static const std::string setGameRoomStatusText = R"(
+	setGameRoomStatusStatement = database->prepare(R"(
 		UPDATE gameRooms
 		SET status = ?
 		WHERE roomID = ?
-	)";
+	)");
 
-	static const std::string updateAccountLoginTimeText = R"(
+	updateAccountLoginTimeStatement = database->prepare(R"(
 		UPDATE accounts
 		SET lastLoginTime = CURRENT_TIMESTAMP
 		WHERE accountID = ?
-	)";
+	)");
 
-	static const std::string updateRoomDescriptionText = R"(
+	updateRoomDescriptionStatement = database->prepare(R"(
 		UPDATE gameRooms
 		SET description = ?
 		WHERE roomID  = ?
-	)";
+	)");
 
-	static const std::string updateRoomPlayerLimitText = R"(
+	updateRoomPlayerLimitStatement = database->prepare(R"(
 		UPDATE gameRooms
 		SET playerLimit = ?
 		WHERE roomID  = ?
-	)";
+	)");
 
 	// SELECT FROM
 
-	static const std::string getRecentMessageHistoryText = R"(
+	getRecentMessageHistoryStatement = database->prepare(R"(
 		SELECT senderName, displayName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',cm.creationTime)  AS secondsElapsed
 		FROM chatMessages cm
 		LEFT JOIN accounts on accountID = senderName
 		WHERE secondsElapsed < 60*60*18 AND channelType = ? AND channelName = ?
 		ORDER BY cm.creationTime DESC
 		LIMIT 100
-	)";
+	)");
 
-	static const std::string getFullMessageHistoryText = R"(
+	getFullMessageHistoryStatement = database->prepare(R"(
 		SELECT senderName, displayName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',cm.creationTime) AS secondsElapsed
 		FROM chatMessages cm
 		LEFT JOIN accounts on accountID = senderName
 		WHERE channelType = ? AND channelName = ?
 		ORDER BY cm.creationTime DESC
-	)";
+	)");
 
-	static const std::string getIdleGameRoomText = R"(
+	getIdleGameRoomStatement = database->prepare(R"(
 		SELECT roomID
 		FROM gameRooms
 		WHERE hostAccountID = ? AND status = 0
 		LIMIT 1
-	)";
+	)");
 
-	static const std::string getGameRoomStatusText = R"(
+	getGameRoomStatusStatement = database->prepare(R"(
 		SELECT status
 		FROM gameRooms
 		WHERE roomID = ?
-	)";
+	)");
 
-	static const std::string getAccountGameHistoryText = R"(
+	getAccountGameHistoryStatement = database->prepare(R"(
 		SELECT gr.roomID, hostAccountID, displayName, description, status, playerLimit, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
 		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
 		WHERE grp.accountID = ? AND status IN (4,5)
 		ORDER BY secondsElapsed ASC
-	)";
+	)");
 
-	static const std::string getAccountGameRoomText = R"(
+	getAccountGameRoomStatement = database->prepare(R"(
 		SELECT grp.roomID
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
 		WHERE accountID = ? AND status IN (1, 2, 3)
 		LIMIT 1
-	)";
+	)");
 
-	static const std::string getActiveAccountsText = R"(
+	getActiveAccountsStatement = database->prepare(R"(
 		SELECT accountID, displayName
 		FROM accounts
 		WHERE online = 1
-	)";
+	)");
 
-	static const std::string getActiveGameRoomsText = R"(
+	getActiveGameRoomsStatement = database->prepare(R"(
 		SELECT roomID, hostAccountID, displayName, description, status, playerLimit, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
 		FROM gameRooms gr
 		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
 		WHERE status IN (1, 2, 3)
 		ORDER BY secondsElapsed ASC
-	)";
+	)");
 
-	static const std::string countRoomUsedSlotsText = R"(
+	countRoomUsedSlotsStatement = database->prepare(R"(
 		SELECT a.accountID, a.displayName
 		FROM gameRoomPlayers grp
 		LEFT JOIN accounts a ON a.accountID = grp.accountID
 		WHERE roomID = ?
-	)";
+	)");
 
-	static const std::string countRoomTotalSlotsText = R"(
+	countRoomTotalSlotsStatement = database->prepare(R"(
 		SELECT playerLimit
 		FROM gameRooms
 		WHERE roomID = ?
-	)";
+	)");
 
-	static const std::string getAccountDisplayNameText = R"(
+	getAccountDisplayNameStatement = database->prepare(R"(
 		SELECT displayName
 		FROM accounts
 		WHERE accountID = ?
-	)";
+	)");
 
-	static const std::string isAccountCookieValidText = R"(
+	isAccountCookieValidStatement = database->prepare(R"(
 		SELECT COUNT(accountID)
 		FROM accountCookies
 		WHERE accountID = ? AND cookieUUID = ?
-	)";
+	)");
 
-	static const std::string isGameRoomCookieValidText = R"(
-		SELECT COUNT(roomID)
-		FROM gameRooms
-		LEFT JOIN accountCookies ON accountCookies.accountID = gameRooms.hostAccountID
-		WHERE roomID = ? AND cookieUUID = ? AND strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',creationTime) < ?
-	)";
-
-	static const std::string isPlayerInGameRoomText = R"(
+	isPlayerInGameRoomStatement = database->prepare(R"(
 		SELECT COUNT(accountID)
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
 		WHERE accountID = ? AND grp.roomID = ?
-	)";
+	)");
 
-	static const std::string isPlayerInAnyGameRoomText = R"(
+	isPlayerInAnyGameRoomStatement = database->prepare(R"(
 		SELECT COUNT(accountID)
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
 		WHERE accountID = ? AND status IN (1, 2, 3)
-	)";
+	)");
 
-	static const std::string isAccountIDExistsText = R"(
+	isAccountIDExistsStatement = database->prepare(R"(
 		SELECT COUNT(accountID)
 		FROM accounts
 		WHERE accountID = ?
-	)";
+	)");
 
-	static const std::string isAccountNameExistsText = R"(
+	isAccountNameExistsStatement = database->prepare(R"(
 		SELECT COUNT(displayName)
 		FROM accounts
 		WHERE displayName = ?
-	)";
-
-	insertChatMessageStatement = database->prepare(insertChatMessageText);
-	insertAccountStatement = database->prepare(insertAccountText);
-	insertAccessCookieStatement = database->prepare(insertAccessCookieText);
-	insertGameRoomStatement = database->prepare(insertGameRoomText);
-	insertGameRoomPlayersStatement = database->prepare(insertGameRoomPlayersText);
-	insertGameRoomInvitesStatement = database->prepare(insertGameRoomInvitesText);
-
-	deleteGameRoomPlayersStatement = database->prepare(deleteGameRoomPlayersText);
-
-	setAccountOnlineStatement = database->prepare(setAccountOnlineText);
-	setGameRoomStatusStatement = database->prepare(setGameRoomStatusText);
-	updateAccountLoginTimeStatement = database->prepare(updateAccountLoginTimeText);
-	updateRoomDescriptionStatement = database->prepare(updateRoomDescriptionText);
-	updateRoomPlayerLimitStatement = database->prepare(updateRoomPlayerLimitText);
-
-	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
-	getFullMessageHistoryStatement = database->prepare(getFullMessageHistoryText);
-	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
-	getGameRoomStatusStatement = database->prepare(getGameRoomStatusText);
-	getAccountGameHistoryStatement = database->prepare(getAccountGameHistoryText);
-	getAccountGameRoomStatement = database->prepare(getAccountGameRoomText);
-	getActiveAccountsStatement = database->prepare(getActiveAccountsText);
-	getActiveGameRoomsStatement = database->prepare(getActiveGameRoomsText);
-	getAccountDisplayNameStatement = database->prepare(getAccountDisplayNameText);
-	countRoomUsedSlotsStatement = database->prepare(countRoomUsedSlotsText);
-	countRoomTotalSlotsStatement = database->prepare(countRoomTotalSlotsText);
-
-	isAccountCookieValidStatement = database->prepare(isAccountCookieValidText);
-	isPlayerInGameRoomStatement = database->prepare(isPlayerInGameRoomText);
-	isPlayerInAnyGameRoomStatement = database->prepare(isPlayerInAnyGameRoomText);
-	isAccountIDExistsStatement = database->prepare(isAccountIDExistsText);
-	isAccountNameExistsStatement = database->prepare(isAccountNameExistsText);
+	)");
 }
 
 LobbyDatabase::~LobbyDatabase() = default;
