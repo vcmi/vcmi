@@ -239,7 +239,8 @@ void Zone::fractalize()
 
 	//Squared
 	float minDistance = 9 * 9;
-	float freeDistance = pos.z ? (10 * 10) : 6 * 6;
+	//float freeDistance = pos.z ? (10 * 10) : 6 * 6;
+	float freeDistance = pos.z ? (10 * 10) : (9 * 9);
 	float spanFactor = (pos.z ? 0.3f : 0.45f); //Narrower passages in the Underground
 	float marginFactor = 1.0f;
 
@@ -258,10 +259,22 @@ void Zone::fractalize()
 	}
 	else //Scale with treasure density
 	{
+		/*
 		if (treasureValue > 400)
 		{
-			// A quater at max density
+			// A quater at max density - means more free space
 			marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
+
+		}
+		*/
+	
+		if (treasureValue > 250)
+		{
+			// A quater at max density - means more free space
+			marginFactor = (0.5f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.5f);
+
+			// Add more empty space to treasure zones
+			spanFactor *= (0.5f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.5f);
 		}
 		else if (treasureValue < 100)
 		{
@@ -334,7 +347,7 @@ void Zone::fractalize()
 	}
 
 	Lock lock(areaMutex);
-	//cut straight paths towards the center. A* is too slow for that.
+	//Connect with free areas
 	auto areas = connectedAreas(clearedTiles, false);
 	for(auto & area : areas)
 	{
