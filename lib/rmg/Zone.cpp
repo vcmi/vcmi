@@ -239,7 +239,6 @@ void Zone::fractalize()
 
 	//Squared
 	float minDistance = 9 * 9;
-	//float freeDistance = pos.z ? (10 * 10) : 6 * 6;
 	float freeDistance = pos.z ? (10 * 10) : (9 * 9);
 	float spanFactor = (pos.z ? 0.3f : 0.45f); //Narrower passages in the Underground
 	float marginFactor = 1.0f;
