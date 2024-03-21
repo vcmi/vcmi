@@ -22,6 +22,7 @@
 #include "../widgets/ObjectLists.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"
 
 GlobalLobbyWindow::GlobalLobbyWindow()
@@ -33,10 +34,17 @@ GlobalLobbyWindow::GlobalLobbyWindow()
 	center();
 
 	widget->getAccountNameLabel()->setText(settings["lobby"]["displayName"].String());
-	doOpenChannel("global", "english");
+	doOpenChannel("global", "english", Languages::getLanguageOptions("english").nameNative);
+
+	widget->getChannelListHeader()->setText(MetaString::createFromTextID("vcmi.lobby.header.channels").toString());
 }
 
-void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std::string & channelName)
+bool GlobalLobbyWindow::isChannelOpen(const std::string & testChannelType, const std::string & testChannelName)
+{
+	return testChannelType == currentChannelType && testChannelName == currentChannelName;
+}
+
+void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std::string & channelName, const std::string & roomDescription)
 {
 	currentChannelType = channelType;
 	currentChannelName = channelName;
@@ -47,6 +55,18 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 
 	for (auto const & entry : history)
 		onGameChatMessage(entry.displayName, entry.messageText, entry.timeFormatted, channelType, channelName);
+
+	MetaString text;
+	text.appendTextID("vcmi.lobby.header.chat." + channelType);
+	text.replaceRawString(roomDescription);
+	widget->getGameChatHeader()->setText(text.toString());
+
+	// Update currently selected item in UI
+	widget->getAccountList()->reset();
+	widget->getChannelList()->reset();
+	widget->getMatchList()->reset();
+
+	redraw();
 }
 
 void GlobalLobbyWindow::doSendChatMessage()
@@ -109,6 +129,10 @@ void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> &
 		widget->getAccountList()->reset();
 	else
 		widget->getAccountList()->resize(accounts.size());
+
+	MetaString text = MetaString::createFromTextID("vcmi.lobby.header.players");
+	text.replaceNumber(accounts.size());
+	widget->getAccountListHeader()->setText(text.toString());
 }
 
 void GlobalLobbyWindow::onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms)
@@ -117,6 +141,10 @@ void GlobalLobbyWindow::onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms
 		widget->getRoomList()->reset();
 	else
 		widget->getRoomList()->resize(rooms.size());
+
+	MetaString text = MetaString::createFromTextID("vcmi.lobby.header.rooms");
+	text.replaceNumber(rooms.size());
+	widget->getRoomListHeader()->setText(text.toString());
 }
 
 void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & history)
@@ -125,6 +153,10 @@ void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & hi
 		widget->getMatchList()->reset();
 	else
 		widget->getMatchList()->resize(history.size());
+
+	MetaString text = MetaString::createFromTextID("vcmi.lobby.header.history");
+	text.replaceNumber(history.size());
+	widget->getMatchListHeader()->setText(text.toString());
 }
 
 void GlobalLobbyWindow::onJoinedRoom()

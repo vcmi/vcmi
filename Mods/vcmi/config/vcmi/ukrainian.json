@@ -72,17 +72,19 @@
 	"vcmi.lobby.noUnderground" : "немає підземелля",
 	"vcmi.lobby.sortDate" : "Сортувати мапи за датою зміни",
 
-	"vcmi.lobby.login.title" : "VCMI Лобі",
+	"vcmi.lobby.login.title" : "Онлайн лобі VCMI",
 	"vcmi.lobby.login.username" : "Логін:",
 	"vcmi.lobby.login.connecting" : "Підключення...",
 	"vcmi.lobby.login.error" : "Помилка з'єднання: %s",
 	"vcmi.lobby.login.create" : "Створити акаунт",
 	"vcmi.lobby.login.login" : "Увійти",
-	"vcmi.lobby.header.rooms" : "Кімнати",
+	"vcmi.lobby.header.rooms" : "Активні кімнати - %d",
 	"vcmi.lobby.header.channels" : "Канали чату",
-	"vcmi.lobby.header.chat" : "Чат гри",
+	"vcmi.lobby.header.chat.global" : "Глобальний ігровий чат - %s", // %s -> language name
+	"vcmi.lobby.header.chat.match" : "Чат минулої гри від %s", // %s -> game start date & time
+	"vcmi.lobby.header.chat.private" : "Приватний чат з %s", // %s -> nickname of another player
 	"vcmi.lobby.header.history" : "Ваші попередні ігри",
-	"vcmi.lobby.header.players" : "Гравці в мережі",
+	"vcmi.lobby.header.players" : "Гравці в мережі - %d",
 	"vcmi.lobby.match.solo" : "Одиночна гра",
 	"vcmi.lobby.match.duel" : "Гра з %s",
 	"vcmi.lobby.match.multi" : "%d гравців",

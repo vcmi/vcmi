@@ -35,6 +35,12 @@ public:
 	std::shared_ptr<CListBox> getRoomList();
 	std::shared_ptr<CListBox> getChannelList();
 	std::shared_ptr<CListBox> getMatchList();
+
+	std::shared_ptr<CLabel> getGameChatHeader();
+	std::shared_ptr<CLabel> getAccountListHeader();
+	std::shared_ptr<CLabel> getRoomListHeader();
+	std::shared_ptr<CLabel> getChannelListHeader();
+	std::shared_ptr<CLabel> getMatchListHeader();
 };
 
 class GlobalLobbyChannelCardBase : public CIntObject
@@ -42,10 +48,13 @@ class GlobalLobbyChannelCardBase : public CIntObject
 	GlobalLobbyWindow * window;
 	std::string channelType;
 	std::string channelName;
+	std::string channelDescription;
 
 	void clickPressed(const Point & cursorPosition) override;
+
+	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
 public:
-	GlobalLobbyChannelCardBase(GlobalLobbyWindow * window, const std::string & channelType, const std::string & channelName);
+	GlobalLobbyChannelCardBase(GlobalLobbyWindow * window, const Point & dimensions, const std::string & channelType, const std::string & channelName, const std::string & channelDescription);
 };
 
 class GlobalLobbyAccountCard : public GlobalLobbyChannelCardBase
@@ -75,7 +84,6 @@ public:
 
 class GlobalLobbyChannelCard : public GlobalLobbyChannelCardBase
 {
-	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
 	std::shared_ptr<CLabel> labelName;
 
 public:
@@ -84,7 +92,6 @@ public:
 
 class GlobalLobbyMatchCard : public GlobalLobbyChannelCardBase
 {
-	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
 	std::shared_ptr<CLabel> labelMatchDate;
 	std::shared_ptr<CLabel> labelMatchOpponent;
 

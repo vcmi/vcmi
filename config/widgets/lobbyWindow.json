@@ -51,9 +51,9 @@
 			"rect": {"x": 5, "y": 50, "w": 250, "h": 500}
 		},
 		{
+			"name" : "headerRoomList",
 			"type": "labelTitle",
-			"position": {"x": 15, "y": 53},
-			"text" : "vcmi.lobby.header.rooms"
+			"position": {"x": 15, "y": 53}
 		},
 		{
 			"type" : "lobbyItemList",
@@ -71,9 +71,9 @@
 			"rect": {"x": 270, "y": 50, "w": 150, "h": 140}
 		},
 		{
+			"name" : "headerChannelList",
 			"type": "labelTitle",
-			"position": {"x": 280, "y": 53},
-			"text" : "vcmi.lobby.header.channels"
+			"position": {"x": 280, "y": 53}
 		},
 		{
 			"type" : "lobbyItemList",
@@ -89,9 +89,9 @@
 			"rect": {"x": 270, "y": 210, "w": 150, "h": 380}
 		},
 		{
+			"name" : "headerMatchList",
 			"type": "labelTitle",
-			"position": {"x": 280, "y": 213},
-			"text" : "vcmi.lobby.header.history"
+			"position": {"x": 280, "y": 213}
 		},
 		{
 			"type" : "lobbyItemList",
@@ -109,9 +109,9 @@
 			"rect": {"x": 430, "y": 50, "w": 430, "h": 515}
 		},
 		{
+			"name" : "headerGameChat",
 			"type": "labelTitle",
-			"position": {"x": 440, "y": 53},
-			"text" : "vcmi.lobby.header.chat"
+			"position": {"x": 440, "y": 53}
 		},
 		{
 			"type": "textBox",
@@ -139,9 +139,9 @@
 			"rect": {"x": 870, "y": 50, "w": 150, "h": 540}
 		},
 		{
+			"name": "headerAccountList",
 			"type": "labelTitle",
-			"position": {"x": 880, "y": 53},
-			"text" : "vcmi.lobby.header.players"
+			"position": {"x": 880, "y": 53}
 		},
 		{
 			"type" : "lobbyItemList",

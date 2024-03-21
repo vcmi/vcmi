@@ -1,0 +1,90 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: matchesHistory",
+	"description" : "Sent by server to initialized or update list of previous matches by player",
+	"required" : [ "type", "matchesHistory" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "matchesHistory"
+		},
+		"matchesHistory" :
+		{
+			"type" : "array",
+			"description" : "List of previously played matches",
+			"items" :
+			{
+				"type" : "object",
+				"additionalProperties" : false,
+				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "participants", "status", "playerLimit", "ageSeconds" ],
+				"properties" : {
+					"gameRoomID" :
+					{
+						"type" : "string",
+						"description" : "Unique ID of game room"
+					},
+					"hostAccountID" :
+					{
+						"type" : "string",
+						"description" : "ID of account that created and hosts this game room"
+					},
+					"hostAccountDisplayName" :
+					{
+						"type" : "string",
+						"description" : "Display name of account that created and hosts this game room"
+					},
+					"description" :
+					{
+						"type" : "string",
+						"description" : "Auto-generated description of this room"
+					},
+					"participants" :
+					{
+						"type" : "array",
+						"description" : "List of accounts in the room, including host",
+						"items" :
+						{
+							"type" : "object",
+							"additionalProperties" : false,
+							"required" : [ "accountID", "displayName" ],
+							"properties" : {
+								"accountID" :
+								{
+									"type" : "string",
+									"description" : "Unique ID of an account"
+								},
+								"displayName" :
+								{
+									"type" : "string",
+									"description" : "Display name of an account"
+								}
+							}
+						}
+					},
+					"status" :
+					{
+						"type" : "string",
+						"enum" : [ "idle", "public", "private", "busy", "cancelled", "closed" ],
+						"description" : "Current status of game room"
+					},
+					"playerLimit" :
+					{
+						"type" : "number",
+						"minimum" : 1,
+						"maximum" : 8,
+						"description" : "Maximum number of players that can join this room, including host"
+					},
+					"ageSeconds" :
+					{
+						"type" : "number",
+						"description" : "Age of this room in seconds. For example, 10 means that this room was created 10 seconds ago"
+					}
+				}
+			}
+		}
+	}
+}

@@ -30,9 +30,12 @@ public:
 
 	void doSendChatMessage();
 	void doCreateGameRoom();
-	void doOpenChannel(const std::string & channelType, const std::string & channelName);
+	void doOpenChannel(const std::string & channelType, const std::string & channelName, const std::string & roomDescription);
 	void doInviteAccount(const std::string & accountID);
 	void doJoinRoom(const std::string & roomID);
+
+	/// Returns true if provided chat channel is the one that is currently open in UI
+	bool isChannelOpen(const std::string & channelType, const std::string & channelName);
 
 	// Callbacks for network packs
 

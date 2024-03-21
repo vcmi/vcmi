@@ -72,17 +72,19 @@
 	"vcmi.lobby.noUnderground" : "no underground",
 	"vcmi.lobby.sortDate" : "Sorts maps by change date",
 	
-	"vcmi.lobby.login.title" : "VCMI Lobby",
+	"vcmi.lobby.login.title" : "VCMI Online Lobby",
 	"vcmi.lobby.login.username" : "Username:",
 	"vcmi.lobby.login.connecting" : "Connecting...",
 	"vcmi.lobby.login.error" : "Connection error: %s",
 	"vcmi.lobby.login.create" : "New Account",
 	"vcmi.lobby.login.login" : "Login",
-	"vcmi.lobby.header.rooms" : "Game Rooms",
+	"vcmi.lobby.header.rooms" : "Game Rooms - %d",
 	"vcmi.lobby.header.channels" : "Chat Channels",
-	"vcmi.lobby.header.chat" : "Game Chat",
+	"vcmi.lobby.header.chat.global" : "Global Game Chat - %s", // %s -> language name
+	"vcmi.lobby.header.chat.match" : "Previous game chat from %s", // %s -> game start date & time
+	"vcmi.lobby.header.chat.private" : "Private chat with %s", // %s -> nickname of another player
 	"vcmi.lobby.header.history" : "Your Previous Games",
-	"vcmi.lobby.header.players" : "Players Online",
+	"vcmi.lobby.header.players" : "Players Online - %d",
 	"vcmi.lobby.match.solo" : "Solo Game",
 	"vcmi.lobby.match.duel" : "Game with %s",
 	"vcmi.lobby.match.multi" : "%d players",

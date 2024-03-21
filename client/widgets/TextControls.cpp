@@ -82,6 +82,8 @@ void CLabel::setAutoRedraw(bool value)
 
 void CLabel::setText(const std::string & Txt)
 {
+	assert(TextOperations::isValidUnicodeString(Txt));
+
 	text = Txt;
 	
 	trimText();

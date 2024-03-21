@@ -41,7 +41,7 @@ std::string LobbyServer::sanitizeChatMessage(const std::string & inputString) co
 	// - control characters ('\0' ... ' ')
 	// - '{' and '}' symbols to avoid formatting
 	// - other non-printable characters?
-	return inputString;
+	return boost::trim_copy(inputString);
 }
 
 NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID) const
@@ -285,9 +285,9 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 		std::string gameRoomID = activeGameRooms.at(connection);
 		database->setGameRoomStatus(gameRoomID, LobbyRoomState::CLOSED);
 
-		for(const auto & connection : activeAccounts)
-			if (database->isPlayerInGameRoom(connection.second, gameRoomID))
-				sendMatchesHistory(connection.first);
+		for(const auto & accountConnection : activeAccounts)
+			if (database->isPlayerInGameRoom(accountConnection.second, gameRoomID))
+				sendMatchesHistory(accountConnection.first);
 		activeGameRooms.erase(connection);
 	}
 

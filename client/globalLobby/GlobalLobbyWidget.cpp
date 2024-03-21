@@ -134,33 +134,67 @@ std::shared_ptr<CListBox> GlobalLobbyWidget::getRoomList()
 	return widget<CListBox>("roomList");
 }
 
+std::shared_ptr<CListBox> GlobalLobbyWidget::getChannelList()
+{
+	return widget<CListBox>("channelList");
+}
+
 std::shared_ptr<CListBox> GlobalLobbyWidget::getMatchList()
 {
 	return widget<CListBox>("matchList");
 }
 
-GlobalLobbyChannelCardBase::GlobalLobbyChannelCardBase(GlobalLobbyWindow * window, const std::string & channelType, const std::string & channelName)
+std::shared_ptr<CLabel> GlobalLobbyWidget::getGameChatHeader()
+{
+	return widget<CLabel>("headerGameChat");
+}
+
+std::shared_ptr<CLabel> GlobalLobbyWidget::getAccountListHeader()
+{
+	return widget<CLabel>("headerAccountList");
+}
+
+std::shared_ptr<CLabel> GlobalLobbyWidget::getRoomListHeader()
+{
+	return widget<CLabel>("headerRoomList");
+}
+
+std::shared_ptr<CLabel> GlobalLobbyWidget::getChannelListHeader()
+{
+	return widget<CLabel>("headerChannelList");
+}
+
+std::shared_ptr<CLabel> GlobalLobbyWidget::getMatchListHeader()
+{
+	return widget<CLabel>("headerMatchList");
+}
+
+GlobalLobbyChannelCardBase::GlobalLobbyChannelCardBase(GlobalLobbyWindow * window, const Point & dimensions, const std::string & channelType, const std::string & channelName, const std::string & channelDescription)
 	: window(window)
 	, channelType(channelType)
 	, channelName(channelName)
+	, channelDescription(channelDescription)
 {
+	pos.w = dimensions.x;
+	pos.h = dimensions.y;
 	addUsedEvents(LCLICK);
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	if (window->isChannelOpen(channelType, channelName))
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::YELLOW, 2);
+	else
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
 }
 
 void GlobalLobbyChannelCardBase::clickPressed(const Point & cursorPosition)
 {
-	window->doOpenChannel(channelType, channelName);
+	window->doOpenChannel(channelType, channelName, channelDescription);
 }
 
 GlobalLobbyAccountCard::GlobalLobbyAccountCard(GlobalLobbyWindow * window, const GlobalLobbyAccount & accountDescription)
-	: GlobalLobbyChannelCardBase(window, "player", accountDescription.accountID)
+	: GlobalLobbyChannelCardBase(window, Point(130, 40), "player", accountDescription.accountID, accountDescription.displayName)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-
-	pos.w = 130;
-	pos.h = 40;
-
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName);
 	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
 }
@@ -198,26 +232,16 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 }
 
 GlobalLobbyChannelCard::GlobalLobbyChannelCard(GlobalLobbyWindow * window, const std::string & channelName)
-	: GlobalLobbyChannelCardBase(window, "global", channelName)
+	: GlobalLobbyChannelCardBase(window, Point(146, 40), "global", channelName, Languages::getLanguageOptions(channelName).nameNative)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-
-	pos.w = 146;
-	pos.h = 40;
-
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
 	labelName = std::make_shared<CLabel>(5, 20, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, Languages::getLanguageOptions(channelName).nameNative);
 }
 
 GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & matchDescription)
-	: GlobalLobbyChannelCardBase(window, "match", matchDescription.gameRoomID)
+	: GlobalLobbyChannelCardBase(window, Point(130, 40), "match", matchDescription.gameRoomID, matchDescription.startDateFormatted)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-
-	pos.w = 130;
-	pos.h = 40;
-
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
 	labelMatchDate = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, matchDescription.startDateFormatted);
 
 	MetaString opponentDescription;
