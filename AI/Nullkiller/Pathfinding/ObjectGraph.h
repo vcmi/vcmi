@@ -50,6 +50,13 @@ struct ObjectNode
 		objID = obj->id;
 		objTypeID = obj->ID;
 	}
+
+	void initJunction()
+	{
+		objectExists = false;
+		objID = ObjectInstanceID();
+		objTypeID = Obj();
+	}
 };
 
 class ObjectGraph
@@ -59,8 +66,11 @@ class ObjectGraph
 public:
 	void updateGraph(const Nullkiller * ai);
 	void addObject(const CGObjectInstance * obj);
+	void registerJunction(const int3 & pos);
 	void connectHeroes(const Nullkiller * ai);
 	void removeObject(const CGObjectInstance * obj);
+	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
+	void removeConnection(const int3 & from, const int3 & to);
 	void dumpToLog(std::string visualKey) const;
 
 	template<typename Func>
@@ -77,7 +87,10 @@ public:
 		return nodes.at(tile);
 	}
 
-	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
+	bool hasNodeAt(const int3 & tile) const
+	{
+		return vstd::contains(nodes, tile);
+	}
 };
 
 struct GraphPathNode;
@@ -131,6 +144,8 @@ struct GraphPathNode
 	GraphPathNodePointer previous;
 	float cost = BAD_COST;
 	uint64_t danger = 0;
+	const CGObjectInstance * obj = nullptr;
+	std::shared_ptr<SpecialAction> specialAction;
 
 	using TFibHeap = boost::heap::fibonacci_heap<GraphPathNodePointer, boost::heap::compare<GraphNodeComparer>>;
 
@@ -157,11 +172,18 @@ public:
 	void dumpToLog() const;
 
 private:
-	GraphPathNode & getNode(const GraphPathNodePointer & pos)
+	GraphPathNode & getOrCreateNode(const GraphPathNodePointer & pos)
 	{
 		auto & node = pathNodes[pos.coord][pos.nodeType];
 
 		node.nodeType = pos.nodeType;
+
+		return node;
+	}
+
+	const GraphPathNode & getNode(const GraphPathNodePointer & pos) const
+	{
+		auto & node = pathNodes.at(pos.coord)[pos.nodeType];
 
 		return node;
 	}

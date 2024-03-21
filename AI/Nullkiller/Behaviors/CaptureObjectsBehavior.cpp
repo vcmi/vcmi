@@ -73,13 +73,25 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		}
 
 		if(objToVisit && !shouldVisit(ai->nullkiller.get(), path.targetHero, objToVisit))
+		{
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path. Hero %s should not visit obj %s", path.targetHero->getNameTranslated(), objToVisit->getObjectName());
+#endif
 			continue;
+		}
 
 		auto hero = path.targetHero;
 		auto danger = path.getTotalDanger();
 
-		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT && path.exchangeCount > 1)
+		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT
+			&& (path.getTotalDanger() == 0 || path.turn() > 0)
+			&& path.exchangeCount > 1)
+		{
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path. Hero %s is SCOUT, chain used and no danger", path.targetHero->getNameTranslated());
+#endif
 			continue;
+		}
 
 		auto firstBlockedAction = path.getFirstBlockedAction();
 		if(firstBlockedAction)
