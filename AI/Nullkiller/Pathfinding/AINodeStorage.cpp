@@ -24,7 +24,8 @@
 namespace NKAI
 {
 
-std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
+std::shared_ptr<boost::multi_array<AIPathNode, 4>> AISharedStorage::shared;
+uint64_t AISharedStorage::version = 0;
 boost::mutex AISharedStorage::locker;
 std::set<int3> commitedTiles;
 std::set<int3> commitedTilesInitial;
@@ -40,11 +41,24 @@ const bool DO_NOT_SAVE_TO_COMMITED_TILES = false;
 AISharedStorage::AISharedStorage(int3 sizes)
 {
 	if(!shared){
-		shared.reset(new boost::multi_array<AIPathNode, 5>(
-			boost::extents[EPathfindingLayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y][AIPathfinding::NUM_CHAINS]));
-	}
+		shared.reset(new boost::multi_array<AIPathNode, 4>(
+			boost::extents[sizes.z][sizes.x][sizes.y][AIPathfinding::NUM_CHAINS]));
 
-	nodes = shared;
+		nodes = shared;
+
+		foreach_tile_pos([&](const int3 & pos)
+			{
+				for(auto i = 0; i < AIPathfinding::NUM_CHAINS; i++)
+				{
+					auto & node = get(pos)[i];
+						
+					node.version = -1;
+					node.coord = pos;
+				}
+			});
+	}
+	else
+		nodes = shared;
 }
 
 AISharedStorage::~AISharedStorage()
@@ -80,6 +94,9 @@ void AIPathNode::addSpecialAction(std::shared_ptr<const SpecialAction> action)
 AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
 	: sizes(Sizes), ai(ai), cb(ai->cb.get()), nodes(Sizes)
 {
+	accesibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
+		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
+
 	dangerEvaluator.reset(new FuzzyHelper(ai));
 }
 
@@ -89,6 +106,8 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 {
 	if(heroChainPass)
 		return;
+
+	AISharedStorage::version++;
 
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 	const PlayerColor fowPlayer = ai->playerID;
@@ -152,9 +171,9 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 {
 	int bucketIndex = ((uintptr_t)actor) % AIPathfinding::BUCKET_COUNT;
 	int bucketOffset = bucketIndex * AIPathfinding::BUCKET_SIZE;
-	auto chains = nodes.get(pos, layer);
+	auto chains = nodes.get(pos);
 
-	if(chains[0].blocked())
+	if(blocked(pos, layer))
 	{
 		return std::nullopt;
 	}
@@ -163,15 +182,17 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	{
 		AIPathNode & node = chains[i + bucketOffset];
 
-		if(node.actor == actor)
+		if(node.version != AISharedStorage::version)
 		{
+			node.reset(layer, getAccessibility(pos, layer));
+			node.version = AISharedStorage::version;
+			node.actor = actor;
+
 			return &node;
 		}
 
-		if(!node.actor)
+		if(node.actor == actor && node.layer == layer)
 		{
-			node.actor = actor;
-
 			return &node;
 		}
 	}
@@ -224,21 +245,6 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 		calculateTownPortalTeleportations(initialNodes);
 
 	return initialNodes;
-}
-
-void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPathAccessibility accessibility)
-{
-	for(AIPathNode & heroNode : nodes.get(coord, layer))
-{
-		heroNode.actor = nullptr;
-		heroNode.danger = 0;
-		heroNode.manaCost = 0;
-		heroNode.specialAction.reset();
-		heroNode.armyLoss = 0;
-		heroNode.chainOther = nullptr;
-		heroNode.dayFlags = DayFlags::NONE;
-		heroNode.update(coord, layer, accessibility);
-	}
 }
 
 void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInfo & source)
@@ -306,30 +312,31 @@ void AINodeStorage::commit(
 	}
 }
 
-std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
+void AINodeStorage::calculateNeighbours(
+	std::vector<CGPathNode *> & result,
 	const PathNodeInfo & source,
+	EPathfindingLayer layer,
 	const PathfinderConfig * pathfinderConfig,
 	const CPathfinderHelper * pathfinderHelper)
 {
-	std::vector<CGPathNode *> neighbours;
-	neighbours.reserve(16);
+	std::vector<int3> accessibleNeighbourTiles;
+
+	result.clear();
+	accessibleNeighbourTiles.reserve(8);
+
+	pathfinderHelper->calculateNeighbourTiles(accessibleNeighbourTiles, source);
+
 	const AIPathNode * srcNode = getAINode(source.node);
-	auto accessibleNeighbourTiles = pathfinderHelper->getNeighbourTiles(source);
 
 	for(auto & neighbour : accessibleNeighbourTiles)
 	{
-		for(EPathfindingLayer i = EPathfindingLayer::LAND; i < EPathfindingLayer::NUM_LAYERS; i.advance(1))
-		{
-			auto nextNode = getOrCreateNode(neighbour, i, srcNode->actor);
+		auto nextNode = getOrCreateNode(neighbour, layer, srcNode->actor);
 
-			if(!nextNode || nextNode.value()->accessible == EPathAccessibility::NOT_SET)
-				continue;
+		if(!nextNode || nextNode.value()->accessible == EPathAccessibility::NOT_SET)
+			continue;
 
-			neighbours.push_back(nextNode.value());
-		}
+		result.push_back(nextNode.value());
 	}
-	
-	return neighbours;
 }
 
 constexpr std::array phisycalLayers = {EPathfindingLayer::LAND, EPathfindingLayer::SAIL};
@@ -346,19 +353,16 @@ bool AINodeStorage::increaseHeroChainTurnLimit()
 	{
 		foreach_tile_pos([&](const int3 & pos)
 		{
-			auto chains = nodes.get(pos, layer);
-
-			if(!chains[0].blocked())
-			{
-				for(AIPathNode & node : chains)
+			iterateValidNodesUntil(pos, layer, [&](AIPathNode & node)
 				{
 					if(node.turns <= heroChainTurn && node.action != EPathNodeAction::UNKNOWN)
 					{
 						commitedTiles.insert(pos);
-						break;
+						return true;
 					}
-				}
-			}
+
+					return false;
+				});
 		});
 	}
 
@@ -374,22 +378,17 @@ bool AINodeStorage::calculateHeroChainFinal()
 	{
 		foreach_tile_pos([&](const int3 & pos)
 		{
-			auto chains = nodes.get(pos, layer);
-
-			if(!chains[0].blocked())
-			{
-				for(AIPathNode & node : chains)
+			iterateValidNodes(pos, layer, [&](AIPathNode & node)
 				{
 					if(node.turns > heroChainTurn
 						&& !node.locked
 						&& node.action != EPathNodeAction::UNKNOWN
 						&& node.actor->actorExchangeCount > 1
-						&& !hasBetterChain(&node, &node, chains))
+						&& !hasBetterChain(&node, node))
 					{
 						heroChain.push_back(&node);
 					}
-				}
-			}
+				});
 		});
 	}
 
@@ -443,20 +442,18 @@ public:
 
 			for(auto layer : phisycalLayers)
 			{
-				auto chains = nodes.get(pos, layer);
+				existingChains.clear();
 
-				// fast cut inactive nodes
-				if(chains[0].blocked())
+				storage.iterateValidNodes(pos, layer, [this](AIPathNode & node)
+					{
+						if(node.turns <= heroChainTurn && node.action != EPathNodeAction::UNKNOWN)
+							existingChains.push_back(&node);
+					});
+
+				if(existingChains.empty())
 					continue;
 
-				existingChains.clear();
 				newChains.clear();
-
-				for(AIPathNode & node : chains)
-				{
-					if(node.turns <= heroChainTurn && node.action != EPathNodeAction::UNKNOWN)
-						existingChains.push_back(&node);
-				}
 
 				std::shuffle(existingChains.begin(), existingChains.end(), randomEngine);
 
@@ -617,9 +614,8 @@ void HeroChainCalculationTask::cleanupInefectiveChains(std::vector<ExchangeCandi
 	vstd::erase_if(result, [&](const ExchangeCandidate & chainInfo) -> bool
 	{
 		auto pos = chainInfo.coord;
-		auto chains = nodes.get(pos, EPathfindingLayer::LAND);
-		auto isNotEffective = storage.hasBetterChain(chainInfo.carrierParent, &chainInfo, chains)
-			|| storage.hasBetterChain(chainInfo.carrierParent, &chainInfo, result);
+		auto isNotEffective = storage.hasBetterChain(chainInfo.carrierParent, chainInfo)
+			|| storage.hasBetterChain(chainInfo.carrierParent, chainInfo, result);
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		if(isNotEffective)
@@ -645,7 +641,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 {
 	for(AIPathNode * node : variants)
 	{
-		if(node == srcNode || !node->actor)
+		if(node == srcNode || !node->actor || node->version != AISharedStorage::version)
 			continue;
 
 		if((node->actor->chainMask & chainMask) == 0 && (srcNode->actor->chainMask & chainMask) == 0)
@@ -1195,95 +1191,116 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 
 bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 {
-	auto pos = destination.coord;
-	auto chains = nodes.get(pos, EPathfindingLayer::LAND);
+	auto candidateNode = getAINode(destination.node);
 
-	return hasBetterChain(source.node, getAINode(destination.node), chains);
+	return hasBetterChain(source.node, *candidateNode);
+}
+
+bool AINodeStorage::hasBetterChain(
+	const CGPathNode * source,
+	const AIPathNode & candidateNode) const
+{
+	return iterateValidNodesUntil(
+		candidateNode.coord,
+		candidateNode.layer,
+		[this, &source, candidateNode](const AIPathNode & node) -> bool
+		{
+			return isOtherChainBetter(source, candidateNode, node);
+		});
 }
 
 template<class NodeRange>
 bool AINodeStorage::hasBetterChain(
-	const CGPathNode * source, 
-	const AIPathNode * candidateNode,
-	const NodeRange & chains) const
+	const CGPathNode * source,
+	const AIPathNode & candidateNode,
+	const NodeRange & nodes) const
 {
-	auto candidateActor = candidateNode->actor;
-
-	for(const AIPathNode & node : chains)
+	for(const AIPathNode & node : nodes)
 	{
-		auto sameNode = node.actor == candidateNode->actor;
+		if(isOtherChainBetter(source, candidateNode, node))
+			return true;
+	}
 
-		if(sameNode	|| node.action == EPathNodeAction::UNKNOWN || !node.actor || !node.actor->hero)
-		{
-			continue;
-		}
+	return false;
+}
 
-		if(node.danger <= candidateNode->danger && candidateNode->actor == node.actor->battleActor)
-		{
-			if(node.getCost() < candidateNode->getCost())
-			{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
-				logAi->trace(
-					"Block ineficient battle move %s->%s, hero: %s[%X], army %lld, mp diff: %i",
-					source->coord.toString(),
-					candidateNode->coord.toString(),
-					candidateNode->actor->hero->getNameTranslated(),
-					candidateNode->actor->chainMask,
-					candidateNode->actor->armyValue,
-					node.moveRemains - candidateNode->moveRemains);
-#endif
-				return true;
-			}
-		}
+bool AINodeStorage::isOtherChainBetter(
+	const CGPathNode * source,
+	const AIPathNode & candidateNode,
+	const AIPathNode & other) const
+{
+	auto sameNode = other.actor == candidateNode.actor;
 
-		if(candidateActor->chainMask != node.actor->chainMask && heroChainPass != EHeroChainPass::FINAL)
-			continue;
+	if(sameNode || other.action == EPathNodeAction::UNKNOWN || !other.actor || !other.actor->hero)
+	{
+		return false;
+	}
 
-		auto nodeActor = node.actor;
-		auto nodeArmyValue = nodeActor->armyValue - node.armyLoss;
-		auto candidateArmyValue = candidateActor->armyValue - candidateNode->armyLoss;
-
-		if(nodeArmyValue > candidateArmyValue
-			&& node.getCost() <= candidateNode->getCost())
+	if(other.danger <= candidateNode.danger && candidateNode.actor == other.actor->battleActor)
+	{
+		if(other.getCost() < candidateNode.getCost())
 		{
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
-				"Block ineficient move because of stronger army %s->%s, hero: %s[%X], army %lld, mp diff: %i",
+				"Block ineficient battle move %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 				source->coord.toString(),
-				candidateNode->coord.toString(),
-				candidateNode->actor->hero->getNameTranslated(),
-				candidateNode->actor->chainMask,
-				candidateNode->actor->armyValue,
-				node.moveRemains - candidateNode->moveRemains);
+				candidateNode.coord.toString(),
+				candidateNode.actor->hero->getNameTranslated(),
+				candidateNode.actor->chainMask,
+				candidateNode.actor->armyValue,
+				other.moveRemains - candidateNode.moveRemains);
 #endif
 			return true;
 		}
+	}
 
-		if(heroChainPass == EHeroChainPass::FINAL)
+	if(candidateNode.actor->chainMask != other.actor->chainMask && heroChainPass != EHeroChainPass::FINAL)
+		return false;
+
+	auto nodeActor = other.actor;
+	auto nodeArmyValue = nodeActor->armyValue - other.armyLoss;
+	auto candidateArmyValue = candidateNode.actor->armyValue - candidateNode.armyLoss;
+
+	if(nodeArmyValue > candidateArmyValue
+		&& other.getCost() <= candidateNode.getCost())
+	{
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+		logAi->trace(
+			"Block ineficient move because of stronger army %s->%s, hero: %s[%X], army %lld, mp diff: %i",
+			source->coord.toString(),
+			candidateNode.coord.toString(),
+			candidateNode.actor->hero->getNameTranslated(),
+			candidateNode.actor->chainMask,
+			candidateNode.actor->armyValue,
+			other.moveRemains - candidateNode.moveRemains);
+#endif
+		return true;
+	}
+
+	if(heroChainPass == EHeroChainPass::FINAL)
+	{
+		if(nodeArmyValue == candidateArmyValue
+			&& nodeActor->heroFightingStrength >= candidateNode.actor->heroFightingStrength
+			&& other.getCost() <= candidateNode.getCost())
 		{
-			if(nodeArmyValue == candidateArmyValue
-				&& nodeActor->heroFightingStrength >= candidateActor->heroFightingStrength
-				&& node.getCost() <= candidateNode->getCost())
+			if(vstd::isAlmostEqual(nodeActor->heroFightingStrength, candidateNode.actor->heroFightingStrength)
+				&& vstd::isAlmostEqual(other.getCost(), candidateNode.getCost())
+				&& &other < &candidateNode)
 			{
-				if(vstd::isAlmostEqual(nodeActor->heroFightingStrength, candidateActor->heroFightingStrength)
-					&& vstd::isAlmostEqual(node.getCost(), candidateNode->getCost())
-					&& &node < candidateNode)
-				{
-					continue;
-				}
+				return false;
+			}
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
-				logAi->trace(
-					"Block ineficient move because of stronger hero %s->%s, hero: %s[%X], army %lld, mp diff: %i",
-					source->coord.toString(),
-					candidateNode->coord.toString(),
-					candidateNode->actor->hero->getNameTranslated(),
-					candidateNode->actor->chainMask,
-					candidateNode->actor->armyValue,
-					node.moveRemains - candidateNode->moveRemains);
+			logAi->trace(
+				"Block ineficient move because of stronger hero %s->%s, hero: %s[%X], army %lld, mp diff: %i",
+				source->coord.toString(),
+				candidateNode.coord.toString(),
+				candidateNode.actor->hero->getNameTranslated(),
+				candidateNode.actor->chainMask,
+				candidateNode.actor->armyValue,
+				other.moveRemains - candidateNode.moveRemains);
 #endif
-				return true;
-			}
+			return true;
 		}
 	}
 
@@ -1292,12 +1309,15 @@ bool AINodeStorage::hasBetterChain(
 
 bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const
 {
-	auto chains = nodes.get(pos, layer);
+	auto chains = nodes.get(pos);
 
 	for(const AIPathNode & node : chains)
 	{
-		if(node.action != EPathNodeAction::UNKNOWN 
-			&& node.actor && node.actor->hero == hero.h)
+		if(node.version == AISharedStorage::version
+			&& node.layer == layer
+			&& node.action != EPathNodeAction::UNKNOWN 
+			&& node.actor
+			&& node.actor->hero == hero.h)
 		{
 			return true;
 		}
@@ -1312,11 +1332,16 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 
 	paths.reserve(AIPathfinding::NUM_CHAINS / 4);
 
-	auto chains = nodes.get(pos, isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
+	auto layer = isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL;
+	auto chains = nodes.get(pos);
 
 	for(const AIPathNode & node : chains)
 	{
-		if(node.action == EPathNodeAction::UNKNOWN || !node.actor || !node.actor->hero)
+		if(node.version != AISharedStorage::version
+			|| node.layer != layer
+			|| node.action == EPathNodeAction::UNKNOWN
+			|| !node.actor
+			|| !node.actor->hero)
 		{
 			continue;
 		}
@@ -1349,33 +1374,29 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 		if(node->chainOther)
 			fillChainInfo(node->chainOther, path, parentIndex);
 
-		//if(node->actor->hero->visitablePos() != node->coord)
+		AIPathNodeInfo pathNode;
+
+		pathNode.cost = node->getCost();
+		pathNode.targetHero = node->actor->hero;
+		pathNode.chainMask = node->actor->chainMask;
+		pathNode.specialAction = node->specialAction;
+		pathNode.turns = node->turns;
+		pathNode.danger = node->danger;
+		pathNode.coord = node->coord;
+		pathNode.parentIndex = parentIndex;
+		pathNode.actionIsBlocked = false;
+		pathNode.layer = node->layer;
+
+		if(pathNode.specialAction)
 		{
-			AIPathNodeInfo pathNode;
+			auto targetNode =node->theNodeBefore ?  getAINode(node->theNodeBefore) : node;
 
-			pathNode.cost = node->getCost();
-			pathNode.targetHero = node->actor->hero;
-			pathNode.chainMask = node->actor->chainMask;
-			pathNode.specialAction = node->specialAction;
-			pathNode.turns = node->turns;
-			pathNode.danger = node->danger;
-			pathNode.coord = node->coord;
-			pathNode.parentIndex = parentIndex;
-			pathNode.actionIsBlocked = false;
-			pathNode.layer = node->layer;
-
-			if(pathNode.specialAction)
-			{
-				auto targetNode =node->theNodeBefore ?  getAINode(node->theNodeBefore) : node;
-
-				pathNode.actionIsBlocked = !pathNode.specialAction->canAct(targetNode);
-			}
-
-			parentIndex = path.nodes.size();
-
-			path.nodes.push_back(pathNode);
+			pathNode.actionIsBlocked = !pathNode.specialAction->canAct(targetNode);
 		}
-		
+
+		parentIndex = path.nodes.size();
+
+		path.nodes.push_back(pathNode);
 		node = getAINode(node->theNodeBefore);
 	}
 }

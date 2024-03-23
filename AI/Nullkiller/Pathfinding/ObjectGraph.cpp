@@ -73,6 +73,36 @@ public:
 		removeExtraConnections();
 	}
 
+	float getNeighborConnectionsCost(const int3 & pos)
+	{
+		float neighborCost = std::numeric_limits<float>::max();
+
+		if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+		{
+			logAi->trace("Checking junction %s", pos.toString());
+		}
+
+		foreach_neighbour(
+			ai->cb.get(),
+			pos,
+			[this, &neighborCost](const CPlayerSpecificInfoCallback * cb, const int3 & neighbor)
+			{
+				auto costTotal = this->getConnectionsCost(neighbor);
+
+				if(costTotal.connectionsCount > 2 && costTotal.avg < neighborCost)
+				{
+					neighborCost = costTotal.avg;
+
+					if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+					{
+						logAi->trace("Better node found at %s", neighbor.toString());
+					}
+				}
+			});
+
+		return neighborCost;
+	}
+
 	void addMinimalDistanceJunctions()
 	{
 		foreach_tile_pos(ai->cb.get(), [this](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
@@ -88,30 +118,7 @@ public:
 				if(currentCost.connectionsCount <= 2)
 					return;
 
-				float neighborCost = currentCost.avg + 0.001f;
-
-				if(NKAI_GRAPH_TRACE_LEVEL >= 2)
-				{
-					logAi->trace("Checking junction %s", pos.toString());
-				}
-
-				foreach_neighbour(
-					ai->cb.get(),
-					pos,
-					[this, &neighborCost](const CPlayerSpecificInfoCallback * cb, const int3 & neighbor)
-					{
-						auto costTotal = this->getConnectionsCost(neighbor);
-
-						if(costTotal.avg < neighborCost)
-						{
-							neighborCost = costTotal.avg;
-
-							if(NKAI_GRAPH_TRACE_LEVEL >= 2)
-							{
-								logAi->trace("Better node found at %s", neighbor.toString());
-							}
-						}
-					});
+				float neighborCost = getNeighborConnectionsCost(pos);
 
 				if(currentCost.avg < neighborCost)
 				{
