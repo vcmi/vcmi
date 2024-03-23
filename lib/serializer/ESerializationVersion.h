@@ -37,6 +37,7 @@ enum class ESerializationVersion : int32_t
 	DESTROYED_OBJECTS, // 834 +list of objects destroyed by player
 	CAMPAIGN_MAP_TRANSLATIONS, // 835 +campaigns include translations for its maps
 	JSON_FLAGS, // 836 json uses new format for flags
+	MANA_LIMIT,	// 837 change MANA_PER_KNOWLEGDE to percentage
 
-	CURRENT = JSON_FLAGS
+	CURRENT = MANA_LIMIT
 };
