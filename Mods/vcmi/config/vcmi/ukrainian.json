@@ -82,7 +82,7 @@
 	"vcmi.lobby.header.channels" : "Канали чату",
 	"vcmi.lobby.header.chat.global" : "Глобальний ігровий чат - %s", // %s -> language name
 	"vcmi.lobby.header.chat.match" : "Чат минулої гри від %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.private" : "Приватний чат з %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.player" : "Приватний чат з %s", // %s -> nickname of another player
 	"vcmi.lobby.header.history" : "Ваші попередні ігри",
 	"vcmi.lobby.header.players" : "Гравці в мережі - %d",
 	"vcmi.lobby.match.solo" : "Одиночна гра",

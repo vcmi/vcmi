@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "GlobalLobbyClient.h"
 
+#include "GlobalLobbyInviteWindow.h"
 #include "GlobalLobbyLoginWindow.h"
 #include "GlobalLobbyWindow.h"
 
@@ -194,7 +195,7 @@ void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
 {
 	activeAccounts.clear();
 
-	for (auto const & jsonEntry : json["accounts"].Vector())
+	for(const auto & jsonEntry : json["accounts"].Vector())
 	{
 		GlobalLobbyAccount account;
 
@@ -214,7 +215,7 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 {
 	activeRooms.clear();
 
-	for (auto const & jsonEntry : json["gameRooms"].Vector())
+	for(const auto & jsonEntry : json["gameRooms"].Vector())
 	{
 		GlobalLobbyRoom room;
 
@@ -226,7 +227,7 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		int ageSeconds = jsonEntry["ageSeconds"].Integer();
 		room.startDateFormatted = getCurrentDateTimeFormatted(-ageSeconds);
 
-		for (auto const & jsonParticipant : jsonEntry["participants"].Vector())
+		for(const auto & jsonParticipant : jsonEntry["participants"].Vector())
 		{
 			GlobalLobbyAccount account;
 			account.accountID =  jsonParticipant["accountID"].String();
@@ -247,7 +248,7 @@ void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
 {
 	matchesHistory.clear();
 
-	for (auto const & jsonEntry : json["matchesHistory"].Vector())
+	for(const auto & jsonEntry : json["matchesHistory"].Vector())
 	{
 		GlobalLobbyRoom room;
 
@@ -259,7 +260,7 @@ void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
 		int ageSeconds = jsonEntry["ageSeconds"].Integer();
 		room.startDateFormatted = getCurrentDateTimeFormatted(-ageSeconds);
 
-		for (auto const & jsonParticipant : jsonEntry["participants"].Vector())
+		for(const auto & jsonParticipant : jsonEntry["participants"].Vector())
 		{
 			GlobalLobbyAccount account;
 			account.accountID =  jsonParticipant["accountID"].String();
@@ -273,11 +274,15 @@ void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
 
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
-		lobbyWindowPtr->onMatchesHistory(activeRooms);
+		lobbyWindowPtr->onMatchesHistory(matchesHistory);
 }
 
 void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 {
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if(lobbyWindowPtr)
+		lobbyWindowPtr->onMatchesHistory(activeRooms);
+
 	assert(0); //TODO
 }
 
@@ -471,6 +476,11 @@ void GlobalLobbyClient::activateInterface()
 		GH.windows().pushWindow(createLobbyWindow());
 	else
 		GH.windows().pushWindow(createLoginWindow());
+}
+
+void GlobalLobbyClient::activateRoomInviteInterface()
+{
+	GH.windows().createAndPushWindow<GlobalLobbyInviteWindow>();
 }
 
 void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & netConnection)

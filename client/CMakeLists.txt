@@ -96,6 +96,7 @@ set(client_SRCS
 	renderSDL/SDL_Extensions.cpp
 
 	globalLobby/GlobalLobbyClient.cpp
+	globalLobby/GlobalLobbyInviteWindow.cpp
 	globalLobby/GlobalLobbyLoginWindow.cpp
 	globalLobby/GlobalLobbyServerSetup.cpp
 	globalLobby/GlobalLobbyWidget.cpp
@@ -281,6 +282,7 @@ set(client_HEADERS
 
 	globalLobby/GlobalLobbyClient.h
 	globalLobby/GlobalLobbyDefines.h
+	globalLobby/GlobalLobbyInviteWindow.h
 	globalLobby/GlobalLobbyLoginWindow.h
 	globalLobby/GlobalLobbyServerSetup.h
 	globalLobby/GlobalLobbyWidget.h

@@ -62,7 +62,6 @@ class GlobalLobbyAccountCard : public GlobalLobbyChannelCardBase
 	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
 	std::shared_ptr<CLabel> labelName;
 	std::shared_ptr<CLabel> labelStatus;
-	std::shared_ptr<CButton> buttonInvite;
 
 public:
 	GlobalLobbyAccountCard(GlobalLobbyWindow * window, const GlobalLobbyAccount & accountDescription);

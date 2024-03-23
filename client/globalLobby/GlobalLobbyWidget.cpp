@@ -106,7 +106,10 @@ std::shared_ptr<CIntObject> GlobalLobbyWidget::buildItemList(const JsonNode & co
 	int sliderMode = config["sliderSize"].isNull() ? 0 : (1 | 4); //  present, vertical, blue
 	int initialPos = 0;
 
-	return std::make_shared<CListBox>(callback, position, itemOffset, visibleAmount, totalAmount, initialPos, sliderMode, Rect(sliderPosition, sliderSize));
+	auto result = std::make_shared<CListBox>(callback, position, itemOffset, visibleAmount, totalAmount, initialPos, sliderMode, Rect(sliderPosition, sliderSize));
+
+	result->setRedrawParent(true);
+	return result;
 }
 
 std::shared_ptr<CLabel> GlobalLobbyWidget::getAccountNameLabel()

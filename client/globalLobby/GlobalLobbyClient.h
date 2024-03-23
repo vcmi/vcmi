@@ -69,6 +69,7 @@ public:
 
 	/// Activate interface and pushes lobby UI as top window
 	void activateInterface();
+	void activateRoomInviteInterface();
 
 	void sendMatchChatMessage(const std::string & messageText);
 	void sendMessage(const JsonNode & data);

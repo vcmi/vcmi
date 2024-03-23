@@ -82,10 +82,10 @@
 	"vcmi.lobby.header.channels" : "Chat Channels",
 	"vcmi.lobby.header.chat.global" : "Global Game Chat - %s", // %s -> language name
 	"vcmi.lobby.header.chat.match" : "Previous game chat from %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.private" : "Private chat with %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.player" : "Private chat with %s", // %s -> nickname of another player
 	"vcmi.lobby.header.history" : "Your Previous Games",
 	"vcmi.lobby.header.players" : "Players Online - %d",
-	"vcmi.lobby.match.solo" : "Solo Game",
+	"vcmi.lobby.match.solo" : "Singleplayer Game",
 	"vcmi.lobby.match.duel" : "Game with %s",
 	"vcmi.lobby.match.multi" : "%d players",
 	"vcmi.lobby.room.create" : "Create New Room",
@@ -95,6 +95,7 @@
 	"vcmi.lobby.room.description.new" : "To start the game, select a scenario or set up a random map.",
 	"vcmi.lobby.room.description.load" : "To start the game, use one of your saved games.",
 	"vcmi.lobby.room.description.limit" : "Up to %d players can enter your room, including you.",
+	"vcmi.lobby.room.invite" : "Invite Players",
 	"vcmi.lobby.room.new" : "New Game",
 	"vcmi.lobby.room.load" : "Load Game",
 	"vcmi.lobby.room.type" : "Room Type",
