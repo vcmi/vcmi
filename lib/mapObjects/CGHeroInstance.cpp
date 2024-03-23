@@ -89,7 +89,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 
 	int ret = (i++)->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
 	for(; i != chi->Slots().end(); i++)
-		ret = std::min(ret, i->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
+		ret = std::min(ret, (int)i->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
 	return ret;
 }
 
@@ -1198,7 +1198,7 @@ const std::set<SpellID> & CGHeroInstance::getSpellsInSpellbook() const
 
 int CGHeroInstance::maxSpellLevel() const
 {
-	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(Selector::type()(BonusType::MAX_LEARNABLE_SPELL_LEVEL)));
+	return std::min(GameConstants::SPELL_LEVELS, (int)valOfBonuses(Selector::type()(BonusType::MAX_LEARNABLE_SPELL_LEVEL)));
 }
 
 void CGHeroInstance::attachToBoat(CGBoat* newBoat)

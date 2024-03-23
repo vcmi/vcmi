@@ -59,7 +59,7 @@ public:
 
 	// BonusList functions
 	void stackBonuses();
-	int totalValue() const;
+	float totalValue() const;
 	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit = nullptr) const;
 	void getAllBonuses(BonusList &out) const;
 

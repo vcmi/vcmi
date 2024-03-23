@@ -279,7 +279,7 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 
 		const int32_t lostHealth = stack->getMaxHealth() - stack->getFirstHPleft();
 		if(stack->hasBonusOfType(BonusType::HP_REGENERATION))
-			bte.val = std::min(lostHealth, stack->valOfBonuses(BonusType::HP_REGENERATION));
+			bte.val = std::min(lostHealth, (int)stack->valOfBonuses(BonusType::HP_REGENERATION));
 
 		if(bte.val) // anything to heal
 			gameHandler->sendAndApply(&bte);
@@ -384,7 +384,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	const CreatureID stackCreatureId = next->unitType()->getId();
 
 	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
-		&& (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId))))
+		&& (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= (int)curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId))))
 	{
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
@@ -429,7 +429,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 
-		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT))))
+		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= (int)curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT))))
 		{
 			BattleAction attack;
 			attack.actionType = EActionType::CATAPULT;
@@ -454,7 +454,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 
-		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT))))
+		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= (int)curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT))))
 		{
 			RandomGeneratorUtil::randomShuffle(possibleStacks, gameHandler->getRandomGenerator());
 			const CStack * toBeHealed = possibleStacks.front();
@@ -588,7 +588,7 @@ void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & batt
 			continue;
 
 		const CSpell * sp = b->subtype.as<SpellID>().toSpell();
-		const int32_t val = bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
+		const int32_t val = (int)bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
 		const int32_t level = ((val > 3) ? (val - 3) : val);
 
 		spells::BattleCast battleCast(&battle, st, spells::Mode::PASSIVE, sp);
@@ -667,7 +667,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			std::shared_ptr<const Bonus> b = st->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::POISON))).And(Selector::type()(BonusType::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
 			{
-				bte.val = std::max (b->val - 10, -(st->valOfBonuses(BonusType::POISON)));
+				bte.val = std::max (b->val - 10, -((int)st->valOfBonuses(BonusType::POISON)));
 				if (bte.val < b->val) //(negative) poison effect increases - update it
 				{
 					bte.effect = vstd::to_underlying(BonusType::POISON);
@@ -680,7 +680,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(st->unitSide()));
 			if(opponentHero)
 			{
-				ui32 manaDrained = st->valOfBonuses(BonusType::MANA_DRAIN);
+				ui32 manaDrained = (int)st->valOfBonuses(BonusType::MANA_DRAIN);
 				vstd::amin(manaDrained, opponentHero->mana);
 				if(manaDrained)
 				{

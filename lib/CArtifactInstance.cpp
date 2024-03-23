@@ -84,7 +84,7 @@ void CGrowingArtifactInstance::growingUp()
 		for(const auto & bonus : artInst->artType->getBonusesPerLevel())
 		{
 			// Every n levels
-			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0)
+			if((int)artInst->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0)
 			{
 				artInst->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 			}

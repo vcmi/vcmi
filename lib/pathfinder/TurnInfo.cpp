@@ -112,7 +112,7 @@ int TurnInfo::valOfBonuses(BonusType type, BonusSubtypeID subtype) const
 		return bonusCache->pathfindingVal;
 	}
 
-	return bonuses->valOfBonuses(Selector::type()(type).And(Selector::subtype()(subtype)));
+	return (int)bonuses->valOfBonuses(Selector::type()(type).And(Selector::subtype()(subtype)));
 }
 
 int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const

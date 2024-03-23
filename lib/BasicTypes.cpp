@@ -118,7 +118,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 	static const std::string cachingStrMor = "type_MORALE";
 	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
 
-	return std::clamp(bonusList->totalValue(), maxBadMorale, maxGoodMorale);
+	return std::clamp((int)bonusList->totalValue(), maxBadMorale, maxGoodMorale);
 }
 
 int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
@@ -144,7 +144,7 @@ int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 	static const std::string cachingStrLuck = "type_LUCK";
 	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
 
-	return std::clamp(bonusList->totalValue(), maxBadLuck, maxGoodLuck);
+	return std::clamp((int)bonusList->totalValue(), maxBadLuck, maxGoodLuck);
 }
 
 int AFactionMember::moraleVal() const
@@ -163,7 +163,7 @@ ui32 ACreature::getMaxHealth() const
 {
 	const std::string cachingStr = "type_STACK_HEALTH";
 	static const auto selector = Selector::type()(BonusType::STACK_HEALTH);
-	auto value = getBonusBearer()->valOfBonuses(selector, cachingStr);
+	auto value = (int)getBonusBearer()->valOfBonuses(selector, cachingStr);
 	return std::max(1, value); //never 0
 }
 

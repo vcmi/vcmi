@@ -83,21 +83,21 @@ void BonusList::stackBonuses()
 	}
 }
 
-int BonusList::totalValue() const
+float BonusList::totalValue() const
 {
 	struct BonusCollection
 	{
-		int base = 0;
-		int percentToBase = 0;
-		int percentToAll = 0;
-		int additive = 0;
-		int percentToSource = 0;
-		int indepMin = std::numeric_limits<int>::max();
-		int indepMax = std::numeric_limits<int>::min();
+		float base = 0;
+		float percentToBase = 0;
+		float percentToAll = 0;
+		float additive = 0;
+		float percentToSource = 0;
+		float indepMin = std::numeric_limits<float>::max();
+		float indepMax = std::numeric_limits<float>::min();
 	};
 
-	auto percent = [](int64_t base, int64_t percent) -> int {
-		return static_cast<int>(std::clamp<int64_t>((base * (100 + percent)) / 100, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()));
+	auto percent = [](float base, float percent) -> float {
+		return static_cast<float>(std::clamp<float>((base * (100 + percent)) / 100, std::numeric_limits<float>::min(), std::numeric_limits<float>::max()));
 	};
 	std::array <BonusCollection, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> sources = {};
 	BonusCollection any;
