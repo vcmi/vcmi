@@ -429,8 +429,8 @@
 				},
 				"manaPerKnowledge" :
 				{
-					"type" : "MANA_PER_KNOWLEDGE", //10 mana per knowledge
-					"val" : 10,
+					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE", //1000% mana per knowledge
+					"val" : 1000,
 					"valueType" : "BASE_NUMBER"
 				},
 				"landMovement" :

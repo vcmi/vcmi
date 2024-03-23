@@ -172,11 +172,11 @@ Defines percentage of enemy troops that will be raised after battle into own arm
 
 - val: percentage of raised troops
 
-### MANA_PER_KNOWLEDGE
+### MANA_PER_KNOWLEDGE_PERCENTAGE
 
-Defines amount of mana points that hero gains per each point of knowledge (Intelligence)
+Defines percentage of mana points that hero gains per each point of knowledge (Intelligence)
 
-- val: Amount of mana points per knowledge
+- val: percentage of mana points per knowledge
 
 ### HERO_GRANTS_ATTACKS
 

@@ -708,7 +708,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"type" : "MANA_PER_KNOWLEDGE",
+					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE",
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
