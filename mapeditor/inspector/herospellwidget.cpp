@@ -45,7 +45,7 @@ void HeroSpellWidget::initSpellLists()
 {
 	QListWidget * spellLists[] = { ui->spellList1, ui->spellList2, ui->spellList3, ui->spellList4, ui->spellList5 };
 	auto spells = VLC->spellh->objects;
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < GameConstants::SPELL_LEVELS; i++)
 	{
 		std::vector<ConstTransitivePtr<CSpell>> spellsByLevel;
 		auto getSpellsByLevel = [i](auto spell) {
