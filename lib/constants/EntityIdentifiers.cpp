@@ -362,6 +362,10 @@ const HeroType * HeroTypeID::toEntity(const Services * services) const
 
 si32 SpellID::decode(const std::string & identifier)
 {
+	if (identifier == "preset")
+		return SpellID::PRESET;
+	if (identifier == "spellbook_preset")
+		return SpellID::SPELLBOOK_PRESET;
 	return resolveIdentifier("spell", identifier);
 }
 
@@ -369,6 +373,10 @@ std::string SpellID::encode(const si32 index)
 {
 	if (index == -1)
 		return "";
+	if (index == SpellID::PRESET)
+		return "preset";
+	if (index == SpellID::SPELLBOOK_PRESET)
+		return "spellbook_preset";
 	return VLC->spells()->getByIndex(index)->getJsonKey();
 }
 
