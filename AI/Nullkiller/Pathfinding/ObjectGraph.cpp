@@ -16,6 +16,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/logging/VisualLogger.h"
 #include "Actions/QuestAction.h"
+#include "../pforeach.h"
 
 namespace NKAI
 {

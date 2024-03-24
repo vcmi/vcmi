@@ -56,6 +56,7 @@ namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
 static std::atomic<bool> quitRequestedDuringOpeningPlayback = false;
+static std::atomic<bool> headlessQuit = false;
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
@@ -371,8 +372,10 @@ int main(int argc, char * argv[])
 	}
 	else
 	{
-		while(true)
+		while(!headlessQuit)
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+
+		quitApplication();
 	}
 
 	return 0;
@@ -481,7 +484,15 @@ void handleQuit(bool ask)
 	// proper solution would be to abort init thread (or wait for it to finish)
 	if(!ask)
 	{
-		quitApplication();
+		if(settings["session"]["headless"].Bool())
+		{
+			headlessQuit = true;
+		}
+		else
+		{
+			quitApplication();
+		}
+
 		return;
 	}
 

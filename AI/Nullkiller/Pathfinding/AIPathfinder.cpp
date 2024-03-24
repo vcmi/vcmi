@@ -154,7 +154,7 @@ void AIPathfinder::updateGraphs(const std::map<const CGHeroInstance *, HeroRole>
 		}
 	}
 
-	parallel_for(blocked_range<size_t>(0, heroesVector.size()), [this, &heroesVector](const blocked_range<size_t> & r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, heroesVector.size()), [this, &heroesVector](const tbb::blocked_range<size_t> & r)
 		{
 			for(auto i = r.begin(); i != r.end(); i++)
 				heroGraphs.at(heroesVector[i]->id)->calculatePaths(heroesVector[i], ai);

@@ -27,8 +27,8 @@ namespace NKAI
 {
 namespace AIPathfinding
 {
-	const int BUCKET_COUNT = 5;
-	const int BUCKET_SIZE = 6;
+	const int BUCKET_COUNT = 3;
+	const int BUCKET_SIZE = 7;
 	const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
 	const int CHAIN_MAX_DEPTH = 4;
 }
