@@ -285,15 +285,12 @@ uLong* bytesRecovered;
       }
     }
   } else {
-    if (fpZip) {
+    if (fpZip)
       fclose(fpZip);
-    }
-    if (fpOut) {
+    if (fpOut)
       fclose(fpOut);
-    }
-    if (fpOutCD) {
+    if (fpOutCD)
       fclose(fpOutCD);
-    }
 
     err = Z_STREAM_ERROR;
   }
