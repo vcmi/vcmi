@@ -873,6 +873,11 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	int levels = map.levels();
 
 	// Find current center of mass for each zone. Move zone to that center to balance zones sizes
+	std::vector<RmgMap::Zones> zonesOnLevel;
+	for(int level = 0; level < levels; level++)
+	{
+		zonesOnLevel.push_back(map.getZonesOnLevel(level));
+	}
 
 	int3 pos;
 
@@ -883,12 +888,9 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			for(pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				for(const auto & zone : zones)
+				for(const auto & zone : zonesOnLevel[pos.z])
 				{
-					if (zone.second->getPos().z == pos.z)
-						distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
-					else
-						distances.emplace_back(zone.second, std::numeric_limits<float>::max());
+					distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
 				}
 				boost::min_element(distances, compareByDistance)->first->area().add(pos); //closest tile belongs to zone
 			}
@@ -920,14 +922,9 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 		for (const auto & vertex : vertices)
 		{
 			distances.clear();
-			for(const auto & zone : zones)
+			for(const auto & zone : zonesOnLevel[level])
 			{
-				if (zone.second->isUnderground() == level)
-				{
-				// FIXME: Only take into account zones on the same level as vertex
-				// TODO: Create separate mapping for zones on different levels
-					distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
-				}
+				distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
 			}
 			auto closestZone = boost::min_element(distances, compareByDistance)->first;
 
@@ -946,10 +943,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 					auto zone = zoneVertex.first;
 					for (const auto & vertex : zoneVertex.second)
 					{
-						if (zone->isUnderground() == level)
-							distances.emplace_back(zone, metric(pos, vertex));
-						else
-							distances.emplace_back(zone, std::numeric_limits<float>::max());
+						distances.emplace_back(zone, metric(pos, vertex));
 					}
 				}
 
@@ -960,9 +954,9 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			}
 		}
 
-		for(const auto & zone : zones)
+		for(const auto & zone : zonesOnLevel[level])
 		{
-			if(zone.second->isUnderground() == level && zone.second->area().empty())
+			if(zone.second->area().empty())
 			{
 				// FIXME: Some vertices are duplicated, but it's not a source of problem
 				logGlobal->error("Zone %d at %s is empty, dumping Penrose tiling", zone.second->getId(), zone.second->getCenter().toString());

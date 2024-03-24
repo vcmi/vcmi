@@ -74,6 +74,7 @@ public:
 	using ZoneVector = std::vector<ZonePair>;
 	
 	Zones & getZones();
+	Zones getZonesOnLevel(int level) const;
 	
 	void registerZone(FactionID faction);
 	ui32 getZoneCount(FactionID faction);
