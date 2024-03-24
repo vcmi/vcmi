@@ -608,6 +608,11 @@ void BulkExchangeArtifacts::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBulkExchangeArtifacts(*this);
 }
 
+void ManageBackpackArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitManageBackpackArtifacts(*this);
+}
+
 void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitAssembleArtifacts(*this);

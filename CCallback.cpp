@@ -180,6 +180,14 @@ void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dst
 	sendRequest(&bma);
 }
 
+void CCallback::scrollBackpackArtifacts(ObjectInstanceID hero, bool left)
+{
+	ManageBackpackArtifacts mba(hero, ManageBackpackArtifacts::ManageCmd::SCROLL_RIGHT);
+	if(left)
+		mba.cmd = ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT;
+	sendRequest(&mba);
+}
+
 void CCallback::eraseArtifactByClient(const ArtifactLocation & al)
 {
 	EraseArtifactByClient ea(al);

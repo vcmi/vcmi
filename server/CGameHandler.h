@@ -128,8 +128,9 @@ public:
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos = ArtifactPosition::FIRST_AVAILABLE) override;
 	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override;
 	void removeArtifact(const ArtifactLocation &al) override;
-	bool moveArtifact(const ArtifactLocation & src, const ArtifactLocation & dst) override;
-	bool bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
+	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst) override;
+	bool bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
+	bool scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left);
 	bool eraseArtifactByClient(const ArtifactLocation & al);
 	void synchronizeArtifactHandlerLists();
 

@@ -24,7 +24,7 @@ class CArtifactsOfHeroBackpack : public CArtifactsOfHeroBase
 public:
 	CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax);
 	CArtifactsOfHeroBackpack();
-	void scrollBackpack(int offset) override;
+	void onSliderMoved(int newVal);
 	void updateBackpackSlots() override;
 	size_t getActiveSlotRowsNum();
 	size_t getSlotsNum();
@@ -36,6 +36,7 @@ protected:
 	size_t slotsRowsMax;
 	const int slotSizeWithMargin = 46;
 	const int sliderPosOffsetX = 5;
+	int backpackPos; // Position to display artifacts in heroes backpack
 
 	void initAOHbackpack(size_t slots, bool slider);
 	size_t calcRows(size_t slots);

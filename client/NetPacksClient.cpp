@@ -290,8 +290,8 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::askToAssembleArtifact, pack.dst);
 	};
 
-	moveArtifact(cl.getOwner(pack.src.artHolder));
-	if(cl.getOwner(pack.src.artHolder) != cl.getOwner(pack.dst.artHolder))
+	moveArtifact(pack.interfaceOwner);
+	if(pack.interfaceOwner != cl.getOwner(pack.dst.artHolder))
 		moveArtifact(cl.getOwner(pack.dst.artHolder));
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
@@ -305,7 +305,7 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		{
 			auto srcLoc = ArtifactLocation(pack.srcArtHolder, slotToMove.srcPos);
 			auto dstLoc = ArtifactLocation(pack.dstArtHolder, slotToMove.dstPos);
-			MoveArtifact ma(&srcLoc, &dstLoc, pack.askAssemble);
+			MoveArtifact ma(pack.interfaceOwner, srcLoc, dstLoc, pack.askAssemble);
 			visitMoveArtifact(ma);
 		}
 	};

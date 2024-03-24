@@ -25,7 +25,7 @@ CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
 		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
 		position,
-		std::bind(&CArtifactsOfHeroAltar::scrollBackpack, this, _1));
+		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
 
 	// The backpack is in the altar window above and to the right
 	for(auto & slot : backpack)

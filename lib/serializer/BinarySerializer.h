@@ -276,6 +276,14 @@ public:
 		for(ui32 i=0;i<length;i++)
 			save(data[i]);
 	}
+	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
+	void save(const std::deque<T> & data)
+	{
+		ui32 length = (ui32)data.size();
+		*this & length;
+		for(ui32 i = 0; i < length; i++)
+			save(data[i]);
+	}
 	template <typename T, size_t N>
 	void save(const std::array<T, N> &data)
 	{
