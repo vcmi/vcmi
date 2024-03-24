@@ -38,6 +38,16 @@ bool Point2D::operator < (const Point2D& other) const
 	}
 }
 
+std::string Point2D::toString() const
+{
+	//Performance is important here
+	std::string result = "(" +
+			std::to_string(this->x()) + " " +
+			std::to_string(this->y()) + ")";
+
+	return result;
+}
+
 Triangle::Triangle(bool t_123, const TIndices & inds):
 	tiling(t_123),
 	indices(inds)
@@ -57,14 +67,14 @@ Triangle::~Triangle()
 
 Point2D Point2D::rotated(float radians) const
 {
-    float cosAngle = cos(radians);
-    float sinAngle = sin(radians);
+	float cosAngle = cos(radians);
+	float sinAngle = sin(radians);
 
-    // Apply rotation matrix transformation
-    float newX = x() * cosAngle - y() * sinAngle;
-    float newY = x() * sinAngle + y() * cosAngle;
+	// Apply rotation matrix transformation
+	float newX = x() * cosAngle - y() * sinAngle;
+	float newY = x() * sinAngle + y() * cosAngle;
 
-    return Point2D(newX, newY);
+	return Point2D(newX, newY);
 }
 
 void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
