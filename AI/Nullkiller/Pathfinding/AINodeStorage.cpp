@@ -609,6 +609,14 @@ bool AINodeStorage::selectNextActor()
 	return false;
 }
 
+uint64_t AINodeStorage::evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
+{
+	float fightingStrength = ai->heroManager->getFightingStrengthCached(hero);
+	double ratio = (double)danger / (armyValue * fightingStrength);
+
+	return (uint64_t)(armyValue * ratio * ratio);
+}
+
 void HeroChainCalculationTask::cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const
 {
 	vstd::erase_if(result, [&](const ExchangeCandidate & chainInfo) -> bool
@@ -1326,12 +1334,8 @@ bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, con
 	return false;
 }
 
-std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const
+void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, bool isOnLand) const
 {
-	std::vector<AIPath> paths;
-
-	paths.reserve(AIPathfinding::NUM_CHAINS / 4);
-
 	auto layer = isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL;
 	auto chains = nodes.get(pos);
 
@@ -1346,7 +1350,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 			continue;
 		}
 
-		AIPath path;
+		AIPath & path = paths.emplace_back();
 
 		path.targetHero = node.actor->hero;
 		path.heroArmy = node.actor->creatureSet;
@@ -1357,11 +1361,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 		path.exchangeCount = node.actor->actorExchangeCount;
 		
 		fillChainInfo(&node, path, -1);
-
-		paths.push_back(path);
 	}
-
-	return paths;
 }
 
 void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const

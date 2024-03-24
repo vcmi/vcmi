@@ -90,64 +90,74 @@ std::vector<std::shared_ptr<ObjectCluster>> ObjectClusterizer::getLockedClusters
 	return result;
 }
 
+std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPathNodeInfo & node) const
+{
+	std::vector<const CGObjectInstance *> blockers = {};
+
+	if(node.layer == EPathfindingLayer::LAND || node.layer == EPathfindingLayer::SAIL)
+	{
+		auto guardPos = ai->cb->getGuardingCreaturePosition(node.coord);
+
+		blockers = ai->cb->getVisitableObjs(node.coord);
+
+		if(guardPos.valid())
+		{
+			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node.coord));
+
+			if(guard)
+			{
+				blockers.insert(blockers.begin(), guard);
+			}
+		}
+	}
+
+	if(node.specialAction && node.actionIsBlocked)
+	{
+		auto blockerObject = node.specialAction->targetObject();
+
+		if(blockerObject)
+		{
+			blockers.insert(blockers.begin(), blockerObject);
+		}
+	}
+
+	if(blockers.empty())
+		return std::optional< const CGObjectInstance *>();
+
+	auto blocker = blockers.front();
+
+	if(isObjectPassable(ai, blocker))
+		return std::optional< const CGObjectInstance *>();
+
+	if(blocker->ID == Obj::GARRISON
+		|| blocker->ID == Obj::GARRISON2)
+	{
+		if(dynamic_cast<const CArmedInstance *>(blocker)->getArmyStrength() == 0)
+			return std::optional< const CGObjectInstance *>();
+		else
+			return blocker;
+	}
+
+	if(blocker->ID == Obj::MONSTER
+		|| blocker->ID == Obj::BORDERGUARD
+		|| blocker->ID == Obj::BORDER_GATE
+		|| blocker->ID == Obj::SHIPYARD
+		|| (blocker->ID == Obj::QUEST_GUARD && node.actionIsBlocked))
+	{
+		return blocker;
+	}
+
+	return std::optional< const CGObjectInstance *>();
+}
+
 const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) const
 {
 	for(auto node = path.nodes.rbegin(); node != path.nodes.rend(); node++)
 	{
-		std::vector<const CGObjectInstance *> blockers = {};
+		auto blocker = getBlocker(*node);
 
-		if(node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
-		{
-			auto guardPos = ai->cb->getGuardingCreaturePosition(node->coord);
-			
-			blockers = ai->cb->getVisitableObjs(node->coord);
-
-			if(guardPos.valid())
-			{
-				auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node->coord));
-
-				if(guard)
-				{
-					blockers.insert(blockers.begin(), guard);
-				}
-			}
-		}
-
-		if(node->specialAction && node->actionIsBlocked)
-		{
-			auto blockerObject = node->specialAction->targetObject();
-
-			if(blockerObject)
-			{
-				blockers.insert(blockers.begin(), blockerObject);
-			}
-		}
-
-		if(blockers.empty())
-			continue;
-
-		auto blocker = blockers.front();
-
-		if(isObjectPassable(ai, blocker))
-			continue;
-
-		if(blocker->ID == Obj::GARRISON
-			|| blocker->ID == Obj::GARRISON2)
-		{
-			if(dynamic_cast<const CArmedInstance *>(blocker)->getArmyStrength() == 0)
-				continue;
-			else
-				return blocker;
-		}
-
-		if(blocker->ID == Obj::MONSTER
-			|| blocker->ID == Obj::BORDERGUARD
-			|| blocker->ID == Obj::BORDER_GATE
-			|| blocker->ID == Obj::SHIPYARD
-			|| (blocker->ID == Obj::QUEST_GUARD && node->actionIsBlocked))
-		{
-			return blocker;
-		}
+		if(blocker)
+			return *blocker;
 	}
 
 	return nullptr;
@@ -230,10 +240,12 @@ void ObjectClusterizer::clusterize()
 	blocked_range<size_t> r(0, objs.size());
 #endif
 		auto priorityEvaluator = ai->priorityEvaluators->acquire();
+		auto heroes = ai->cb->getHeroesInfo();
+		std::vector<AIPath> pathCache;
 
 		for(int i = r.begin(); i != r.end(); i++)
 		{
-			clusterizeObject(objs[i], priorityEvaluator.get());
+			clusterizeObject(objs[i], priorityEvaluator.get(), pathCache, heroes);
 		}
 #if NKAI_TRACE_LEVEL == 0
 	});
@@ -257,7 +269,11 @@ void ObjectClusterizer::clusterize()
 	logAi->trace("Clusterization complete in %ld", timeElapsed(start));
 }
 
-void ObjectClusterizer::clusterizeObject(const CGObjectInstance * obj, PriorityEvaluator * priorityEvaluator)
+void ObjectClusterizer::clusterizeObject(
+	const CGObjectInstance * obj,
+	PriorityEvaluator * priorityEvaluator,
+	std::vector<AIPath> & pathCache,
+	std::vector<const CGHeroInstance *> & heroes)
 {
 	if(!shouldVisitObject(obj))
 	{
@@ -271,9 +287,14 @@ void ObjectClusterizer::clusterizeObject(const CGObjectInstance * obj, PriorityE
 	logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
 #endif
 
-	auto paths = ai->pathfinder->getPathInfo(obj->visitablePos(), true);
+	if(ai->settings->isObjectGraphAllowed())
+	{
+		ai->pathfinder->calculateQuickPathsWithBlocker(pathCache, heroes, obj->visitablePos());
+	}
+	else
+		ai->pathfinder->calculatePathInfo(pathCache, obj->visitablePos(), false);
 
-	if(paths.empty())
+	if(pathCache.empty())
 	{
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("No paths found.");
@@ -281,17 +302,17 @@ void ObjectClusterizer::clusterizeObject(const CGObjectInstance * obj, PriorityE
 		return;
 	}
 
-	std::sort(paths.begin(), paths.end(), [](const AIPath & p1, const AIPath & p2) -> bool
+	std::sort(pathCache.begin(), pathCache.end(), [](const AIPath & p1, const AIPath & p2) -> bool
 		{
 			return p1.movementCost() < p2.movementCost();
 		});
 
 	if(vstd::contains(IgnoredObjectTypes, obj->ID))
 	{
-		farObjects.addObject(obj, paths.front(), 0);
+		farObjects.addObject(obj, pathCache.front(), 0);
 
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Object ignored. Moved to far objects with path %s", paths.front().toString());
+		logAi->trace("Object ignored. Moved to far objects with path %s", pathCache.front().toString());
 #endif
 
 		return;
@@ -299,11 +320,24 @@ void ObjectClusterizer::clusterizeObject(const CGObjectInstance * obj, PriorityE
 
 	std::set<const CGHeroInstance *> heroesProcessed;
 
-	for(auto & path : paths)
+	for(auto & path : pathCache)
 	{
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Checking path %s", path.toString());
 #endif
+
+		if(ai->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)
+		{
+			if(path.movementCost() > 2.0f)
+				continue;
+		}
+		else if(path.movementCost() > 4.0f)
+		{
+			auto strategicalValue = valueEvaluator.getStrategicalValue(obj);
+
+			if(strategicalValue < 0.5f)
+				continue;
+		}
 
 		if(!shouldVisit(ai, path.targetHero, obj))
 		{

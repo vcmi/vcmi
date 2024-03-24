@@ -265,7 +265,7 @@ public:
 	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
-	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
+	void calculateChainInfo(std::vector<AIPath> & result, const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
 	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }
@@ -283,12 +283,7 @@ public:
 		return dangerEvaluator->evaluateDanger(tile, hero, checkGuards);
 	}
 
-	inline uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
-	{
-		double ratio = (double)danger / (armyValue * hero->getFightingStrength());
-
-		return (uint64_t)(armyValue * ratio * ratio);
-	}
+	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const;
 
 	inline EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const
 	{

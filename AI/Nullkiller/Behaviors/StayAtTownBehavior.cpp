@@ -35,12 +35,14 @@ Goals::TGoalVec StayAtTownBehavior::decompose() const
 	if(!towns.size())
 		return tasks;
 
+	std::vector<AIPath> paths;
+
 	for(auto town : towns)
 	{
 		if(!town->hasBuilt(BuildingID::MAGES_GUILD_1))
 			continue;
 
-		auto paths = ai->nullkiller->pathfinder->getPathInfo(town->visitablePos());
+		ai->nullkiller->pathfinder->calculatePathInfo(paths, town->visitablePos());
 
 		for(auto & path : paths)
 		{

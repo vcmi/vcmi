@@ -82,9 +82,9 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		boost::this_thread::interruption_point();
 
-		pforeachTilePos(mapSize, [&](const int3 & pos)
+		pforeachTilePaths(mapSize, ai, [&](const int3 & pos, const std::vector<AIPath> & paths)
 		{
-			for(AIPath & path : ai->pathfinder->getPathInfo(pos))
+			for(const AIPath & path : paths)
 			{
 				if(path.getFirstBlockedAction())
 					continue;
@@ -194,14 +194,14 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	ai->pathfinder->updatePaths(townHeroes, ps);
 
-	pforeachTilePos(mapSize, [&](const int3 & pos)
+	pforeachTilePaths(mapSize, ai, [&](const int3 & pos, const std::vector<AIPath> & paths)
 		{
 			float ourDistance = std::numeric_limits<float>::max();
 			float enemyDistance = std::numeric_limits<float>::max();
 			const CGTownInstance * enemyTown = nullptr;
 			const CGTownInstance * ourTown = nullptr;
 
-			for(AIPath & path : ai->pathfinder->getPathInfo(pos))
+			for(const AIPath & path : paths)
 			{
 				if(!path.targetHero || path.getFirstBlockedAction())
 					continue;

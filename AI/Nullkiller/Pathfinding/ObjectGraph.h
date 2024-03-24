@@ -73,6 +73,11 @@ public:
 	void removeConnection(const int3 & from, const int3 & to);
 	void dumpToLog(std::string visualKey) const;
 
+	void copyFrom(const ObjectGraph & other)
+	{
+		nodes = other.nodes;
+	}
+
 	template<typename Func>
 	void iterateConnections(const int3 & pos, Func fn)
 	{
@@ -167,8 +172,10 @@ class GraphPaths
 	std::string visualKey;
 
 public:
+	GraphPaths();
 	void calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai);
 	void addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
+	void quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
 	void dumpToLog() const;
 
 private:
