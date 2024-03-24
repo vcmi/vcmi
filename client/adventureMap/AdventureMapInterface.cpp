@@ -506,13 +506,13 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	//FIXME: this line breaks H3 behavior for Dimension Door
 	if(!LOCPLINT->cb->isVisible(mapPos))
-		return;
+    {
+        if(!spellBeingCasted || spellBeingCasted->id != SpellID::DIMENSION_DOOR)
+		    return;
+    }
 	if(!LOCPLINT->makingTurn)
 		return;
-
-	const TerrainTile *tile = LOCPLINT->cb->getTile(mapPos);
 
 	const CGObjectInstance *topBlocking = getActiveObject(mapPos);
 
@@ -533,7 +533,8 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 				performSpellcasting(mapPos);
 			break;
 		case SpellID::DIMENSION_DOOR:
-			if(!tile || tile->isClear(heroTile))
+            const TerrainTile *targetTile = LOCPLINT->cb->getTileForDimensionDoor(mapPos, LOCPLINT->localState->getCurrentHero());
+			if(targetTile && targetTile->isClear(heroTile))
 				performSpellcasting(mapPos);
 			break;
 		}
@@ -614,12 +615,18 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
-		CCS->curh->set(Cursor::Map::POINTER);
-		GH.statusbar()->clear();
-		return;
+        GH.statusbar()->clear();
+
+        if(!spellBeingCasted || spellBeingCasted->id != SpellID::DIMENSION_DOOR)
+        {
+            CCS->curh->set(Cursor::Map::POINTER);
+            return;
+        }
 	}
+
 	auto objRelations = PlayerRelations::ALLIES;
-	const CGObjectInstance *objAtTile = getActiveObject(mapPos);
+
+	const CGObjectInstance *objAtTile = LOCPLINT->cb->isVisible(mapPos) ? getActiveObject(mapPos) : nullptr;
 	if(objAtTile)
 	{
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
@@ -649,9 +656,9 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 			}
 		case SpellID::DIMENSION_DOOR:
 			{
-				const TerrainTile * t = LOCPLINT->cb->getTile(mapPos, false);
-				int3 hpos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
-				if((!t || t->isClear(LOCPLINT->cb->getTile(hpos))) && isInScreenRange(hpos, mapPos))
+				const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(mapPos, LOCPLINT->localState->getCurrentHero());
+				int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
+				if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition))/* && isInScreenRange(hpos, mapPos)*/)
 					CCS->curh->set(Cursor::Map::TELEPORT);
 				else
 					CCS->curh->set(Cursor::Map::POINTER);

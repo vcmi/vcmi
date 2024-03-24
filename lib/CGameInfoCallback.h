@@ -196,6 +196,7 @@ public:
 	virtual const CMapHeader * getMapHeader()const;
 	virtual int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual const TerrainTile * getTile(int3 tile, bool verbose = true) const;
+    virtual const TerrainTile * getTileForDimensionDoor(int3 tile, const CGHeroInstance * castingHero) const;
 	virtual std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
 	virtual void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
