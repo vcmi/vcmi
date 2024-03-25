@@ -101,6 +101,8 @@ void GlobalLobbyWindow::doInviteAccount(const std::string & accountID)
 
 void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
 {
+	unreadInvites.erase(roomID);
+
 	JsonNode toSend;
 	toSend["type"].String() = "joinGameRoom";
 	toSend["gameRoomID"].String() = roomID;
@@ -172,9 +174,15 @@ void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & hi
 	widget->getMatchListHeader()->setText(text.toString());
 }
 
-void GlobalLobbyWindow::onInviteReceived(const std::string & invitedRoomID, const std::string & invitedByAccountID)
+void GlobalLobbyWindow::onInviteReceived(const std::string & invitedRoomID)
 {
+	unreadInvites.insert(invitedRoomID);
 	widget->getRoomList()->reset();
+}
+
+bool GlobalLobbyWindow::isInviteUnread(const std::string & gameRoomID)
+{
+	return unreadInvites.count(gameRoomID) > 0;
 }
 
 void GlobalLobbyWindow::onJoinedRoom()

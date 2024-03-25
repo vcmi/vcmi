@@ -24,6 +24,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	std::vector<GlobalLobbyAccount> activeAccounts;
 	std::vector<GlobalLobbyRoom> activeRooms;
 	std::vector<std::string> activeChannels;
+	std::set<std::string> activeInvites;
 	std::vector<GlobalLobbyRoom> matchesHistory;
 
 	/// Contains known history of each channel
@@ -82,4 +83,5 @@ public:
 
 	void connect();
 	bool isConnected() const;
+	bool isInvitedToRoom(const std::string & gameRoomID);
 };

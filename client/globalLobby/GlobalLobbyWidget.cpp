@@ -217,23 +217,35 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 		window->doJoinRoom(roomID);
 	};
 
+	bool publicRoom = roomDescription.statusID == "public";
+	bool hasInvite = CSH->getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
+	bool canJoin = publicRoom || hasInvite;
+
 	auto roomSizeText = MetaString::createFromRawString("%d/%d");
 	roomSizeText.replaceNumber(roomDescription.participants.size());
 	roomSizeText.replaceNumber(roomDescription.playerLimit);
 
-	auto roomStatusText = MetaString::createFromTextID("vcmi.lobby.room.state." + roomDescription.statusID);
+	MetaString roomStatusText;
+	if (roomDescription.statusID == "private" && hasInvite)
+		roomStatusText.appendTextID("vcmi.lobby.room.state.invited");
+	else
+		roomStatusText.appendTextID("vcmi.lobby.room.state." + roomDescription.statusID);
 
 	pos.w = 230;
 	pos.h = 40;
 
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64));
+	if (window->isInviteUnread(roomDescription.gameRoomID))
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::WHITE, 1);
+	else
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
+
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, roomDescription.hostAccountDisplayName);
 	labelDescription = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, roomDescription.description);
 	labelRoomSize = std::make_shared<CLabel>(178, 10, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, roomSizeText.toString());
 	labelRoomStatus = std::make_shared<CLabel>(190, 30, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, roomStatusText.toString());
 	iconRoomSize = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconPlayer"), Point(180, 5));
 
-	if(!CSH->inGame() && roomDescription.statusID == "public")
+	if(!CSH->inGame() && canJoin)
 	{
 		buttonJoin = std::make_shared<CButton>(Point(194, 4), AnimationPath::builtin("lobbyJoinRoom"), CButton::tooltip(), onJoinClicked);
 		buttonJoin->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/iconEnter")));

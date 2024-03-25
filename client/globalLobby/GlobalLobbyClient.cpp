@@ -285,13 +285,15 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	std::string gameRoomID = json["gameRoomID"].String();
 	std::string accountID = json["accountID"].String();
+
+	activeInvites.insert(gameRoomID);
 	if(lobbyWindowPtr)
 	{
 		std::string message = MetaString::createFromTextID("vcmi.lobby.invite.notification").toString();
 		std::string time = getCurrentTimeFormatted();
 
 		lobbyWindowPtr->onGameChatMessage("System", message, time, "player", accountID);
-		lobbyWindowPtr->onInviteReceived(gameRoomID, accountID);
+		lobbyWindowPtr->onInviteReceived(gameRoomID);
 	}
 
 	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
@@ -299,8 +301,6 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 
 void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 {
-	currentGameRoomUUID = json["gameRoomID"].String();
-
 	if (json["proxyMode"].Bool())
 	{
 		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, {});
@@ -310,6 +310,9 @@ void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 		int16_t port = settings["lobby"]["port"].Integer();
 		CSH->connectToServer(hostname, port);
 	}
+
+	// NOTE: must be set after CSH->resetStateForLobby call
+	currentGameRoomUUID = json["gameRoomID"].String();
 }
 
 void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
@@ -500,7 +503,7 @@ void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & ne
 	toSend["type"].String() = "clientProxyLogin";
 	toSend["accountID"] = settings["lobby"]["accountID"];
 	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
-	toSend["gameRoomID"] = settings["session"]["lobby"]["roomID"];
+	toSend["gameRoomID"].String() = currentGameRoomUUID;
 
 	assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
 	netConnection->sendPacket(toSend.toBytes());
@@ -526,4 +529,9 @@ void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
 	toSend["messageText"].String() = messageText;
 
 	CSH->getGlobalLobby().sendMessage(toSend);
+}
+
+bool GlobalLobbyClient::isInvitedToRoom(const std::string & gameRoomID)
+{
+	return activeInvites.count(gameRoomID) > 0;
 }
