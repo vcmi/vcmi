@@ -215,10 +215,10 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 /* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
 #ifdef VCMI_WINDOWS
-#ifdef VCMI_DLL_STATIC
+#  ifdef VCMI_DLL_STATIC
 #    define DLL_IMPORT
 #    define DLL_EXPORT
-#elif defined(__GNUC__)
+#  elif defined(__GNUC__)
 #    define DLL_IMPORT __attribute__((dllimport))
 #    define DLL_EXPORT __attribute__((dllexport))
 #  else
