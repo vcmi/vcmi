@@ -71,6 +71,7 @@
 	"vcmi.lobby.noPreview" : "no preview",
 	"vcmi.lobby.noUnderground" : "no underground",
 	"vcmi.lobby.sortDate" : "Sorts maps by change date",
+	"vcmi.lobby.backToLobby" : "Return to lobby",
 	
 	"vcmi.lobby.login.title" : "VCMI Online Lobby",
 	"vcmi.lobby.login.username" : "Username:",

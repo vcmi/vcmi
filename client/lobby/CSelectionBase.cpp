@@ -45,10 +45,10 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/MetaString.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../../lib/CRandomGenerator.h"
+#include "../../lib/mapping/CMapInfo.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -138,8 +138,11 @@ InfoCard::InfoCard()
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 
-	buttonInvitePlayers = std::make_shared<CButton>(Point(30, 360), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[105], [=](){ CSH->getGlobalLobby().activateRoomInviteInterface(); } );
-	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(200, 360), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[105], [=](){ CSH->getGlobalLobby().activateInterface(); });
+	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), CGI->generaltexth->zelp[105], [=](){ CSH->getGlobalLobby().activateRoomInviteInterface(); } );
+	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), CGI->generaltexth->zelp[105], [=](){ CSH->getGlobalLobby().activateInterface(); });
+
+	buttonInvitePlayers->setTextOverlay  (MetaString::createFromTextID("vcmi.lobby.invite.header").toString(), EFonts::FONT_SMALL, Colors::WHITE);
+	buttonOpenGlobalLobby->setTextOverlay(MetaString::createFromTextID("vcmi.lobby.backToLobby").toString(), EFonts::FONT_SMALL, Colors::WHITE);
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 	{
@@ -191,6 +194,8 @@ InfoCard::InfoCard()
 		disableLabelRedraws();
 	}
 	setChat(false);
+	if (CSH->inLobbyRoom())
+		setChat(true); // FIXME: less ugly version?
 }
 
 void InfoCard::disableLabelRedraws()
