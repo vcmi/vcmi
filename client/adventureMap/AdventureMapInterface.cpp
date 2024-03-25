@@ -636,7 +636,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 	}
 	else
 	{
-		std::string hlp = CGI->mh->getTerrainDescr(mapPos, false);
+		std::string hlp = CGI->mh->getTerrainDescr(mapPos, false); //TODO: possible to get info about invisible tiles
 		GH.statusbar()->write(hlp);
 	}
 
@@ -659,7 +659,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 				const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(mapPos, LOCPLINT->localState->getCurrentHero());
 				int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
 				if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition))/* && isInScreenRange(hpos, mapPos)*/)
-					CCS->curh->set(Cursor::Map::TELEPORT);
+					CCS->curh->set(Cursor::Map::TELEPORT); //TODO: something wrong with beyond east spell range border cursor on arrogance after TP-ing near underground portal on previous day
 				else
 					CCS->curh->set(Cursor::Map::POINTER);
 				return;
