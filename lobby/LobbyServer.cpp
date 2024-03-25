@@ -283,11 +283,17 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 	if(activeGameRooms.count(connection))
 	{
 		std::string gameRoomID = activeGameRooms.at(connection);
-		database->setGameRoomStatus(gameRoomID, LobbyRoomState::CLOSED);
 
-		for(const auto & accountConnection : activeAccounts)
-			if (database->isPlayerInGameRoom(accountConnection.second, gameRoomID))
-				sendMatchesHistory(accountConnection.first);
+		if (database->getGameRoomStatus(gameRoomID) == LobbyRoomState::BUSY)
+		{
+			database->setGameRoomStatus(gameRoomID, LobbyRoomState::CLOSED);
+			for(const auto & accountConnection : activeAccounts)
+				if (database->isPlayerInGameRoom(accountConnection.second, gameRoomID))
+					sendMatchesHistory(accountConnection.first);
+		}
+		else
+			database->setGameRoomStatus(gameRoomID, LobbyRoomState::CANCELLED);
+
 		activeGameRooms.erase(connection);
 	}
 

@@ -90,14 +90,20 @@ void LobbyDatabase::clearOldData()
 	)";
 
 	//FIXME: set different status for rooms that never reached in game state
-	static const std::string removeActiveRooms = R"(
+	static const std::string removeActiveLobbyRooms = R"(
+		UPDATE gameRooms
+		SET status = 4
+		WHERE status IN (0,1,2)
+	)";
+	static const std::string removeActiveGameRooms = R"(
 		UPDATE gameRooms
 		SET status = 5
-		WHERE status <> 5
+		WHERE status = 3
 	)";
 
 	database->prepare(removeActiveAccounts)->execute();
-	database->prepare(removeActiveRooms)->execute();
+	database->prepare(removeActiveLobbyRooms)->execute();
+	database->prepare(removeActiveGameRooms)->execute();
 }
 
 void LobbyDatabase::prepareStatements()
@@ -209,7 +215,7 @@ void LobbyDatabase::prepareStatements()
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
 		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
-		WHERE grp.accountID = ? AND status IN (4,5)
+		WHERE grp.accountID = ? AND status = 5
 		ORDER BY secondsElapsed ASC
 	)");
 

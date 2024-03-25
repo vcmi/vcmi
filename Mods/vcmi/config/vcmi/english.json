@@ -82,7 +82,7 @@
 	"vcmi.lobby.header.rooms" : "Game Rooms - %d",
 	"vcmi.lobby.header.channels" : "Chat Channels",
 	"vcmi.lobby.header.chat.global" : "Global Game Chat - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Previous game chat from %s", // %s -> game start date & time
+	"vcmi.lobby.header.chat.match" : "Chat from previous game on %s", // %s -> game start date & time
 	"vcmi.lobby.header.chat.player" : "Private chat with %s", // %s -> nickname of another player
 	"vcmi.lobby.header.history" : "Your Previous Games",
 	"vcmi.lobby.header.players" : "Players Online - %d",
