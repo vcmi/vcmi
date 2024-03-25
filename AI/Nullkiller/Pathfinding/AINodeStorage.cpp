@@ -412,7 +412,6 @@ struct DelayedWork
 class HeroChainCalculationTask
 {
 private:
-	AISharedStorage & nodes;
 	AINodeStorage & storage;
 	std::vector<AIPathNode *> existingChains;
 	std::vector<ExchangeCandidate> newChains;
@@ -424,8 +423,8 @@ private:
 
 public:
 	HeroChainCalculationTask(
-		AINodeStorage & storage, AISharedStorage & nodes, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
-		:existingChains(), newChains(), delayedWork(), nodes(nodes), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
+		AINodeStorage & storage, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
+		:existingChains(), newChains(), delayedWork(), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
 	{
 		existingChains.reserve(AIPathfinding::NUM_CHAINS);
 		newChains.reserve(AIPathfinding::NUM_CHAINS);
@@ -621,7 +620,6 @@ void HeroChainCalculationTask::cleanupInefectiveChains(std::vector<ExchangeCandi
 {
 	vstd::erase_if(result, [&](const ExchangeCandidate & chainInfo) -> bool
 	{
-		auto pos = chainInfo.coord;
 		auto isNotEffective = storage.hasBetterChain(chainInfo.carrierParent, chainInfo)
 			|| storage.hasBetterChain(chainInfo.carrierParent, chainInfo, result);
 

@@ -81,6 +81,7 @@ set(Nullkiller_HEADERS
 		Pathfinding/Rules/AIPreviousNodeRule.h
 		Pathfinding/ObjectGraph.h
 		AIUtility.h
+		pforeach.h
 		Analyzers/ArmyManager.h
 		Analyzers/HeroManager.h
 		Engine/Settings.h

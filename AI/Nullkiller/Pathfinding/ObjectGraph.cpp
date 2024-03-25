@@ -168,6 +168,37 @@ private:
 					}
 				});
 
+			auto obj = ai->cb->getTopObj(pos);
+
+			if(obj && obj->ID == Obj::BOAT)
+			{
+				ai->pathfinder->calculatePathInfo(pathCache, pos);
+
+				for(AIPath & path : pathCache)
+				{
+					auto from = path.targetHero->visitablePos();
+					auto fromObj = actorObjectMap[path.targetHero];
+					auto fromTile = cb->getTile(from);
+
+					auto danger = ai->pathfinder->getStorage()->evaluateDanger(pos, path.targetHero, true);
+					auto updated = target->tryAddConnection(
+						from,
+						pos,
+						path.movementCost(),
+						danger);
+
+					if(NKAI_GRAPH_TRACE_LEVEL >= 2 && updated)
+					{
+						logAi->trace(
+							"Connected %s[%s] -> %s[%s] through [%s], cost %2f",
+							fromObj ? fromObj->getObjectName() : "J", from.toString(),
+							"Boat", pos.toString(),
+							pos.toString(),
+							path.movementCost());
+					}
+				}
+			}
+
 			return;
 		}
 
@@ -199,7 +230,9 @@ private:
 					if(!cb->getTile(pos)->isWater())
 						continue;
 
-					if(obj1 && (obj1->ID != Obj::BOAT || obj1->ID != Obj::SHIPYARD))
+					auto startingObjIsBoatOrShipyard = obj1 && (obj1->ID == Obj::BOAT || obj1->ID == Obj::SHIPYARD);
+
+					if(!startingObjIsBoatOrShipyard)
 						continue;
 				}
 
@@ -287,7 +320,7 @@ private:
 		assert(objectActor->visitablePos() == visitablePos);
 
 		actorObjectMap[objectActor] = obj;
-		actors[objectActor] = obj->ID == Obj::TOWN || obj->ID == Obj::SHIPYARD ? HeroRole::MAIN : HeroRole::SCOUT;
+		actors[objectActor] = obj->ID == Obj::TOWN || obj->ID == Obj::SHIPYARD || obj->ID == Obj::BOAT ? HeroRole::MAIN : HeroRole::SCOUT;
 
 		target->addObject(obj);
 	}
@@ -717,9 +750,6 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 			auto currentNode = currentTile->second[current.nodeType];
 
-			if(!currentNode.previous.valid())
-				break;
-
 			allowBattle = allowBattle || currentNode.nodeType == GrapthPathNodeType::BATTLE;
 			vstd::amax(danger, currentNode.danger);
 			vstd::amax(cost, currentNode.cost);
@@ -777,7 +807,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 			}
 			
 			if(!path.nodes.empty())
-				break;
+				continue;
 
 			for(auto graphTile = tilesToPass.rbegin(); graphTile != tilesToPass.rend(); graphTile++)
 			{

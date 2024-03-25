@@ -11,6 +11,7 @@
 #include "DangerHitMapAnalyzer.h"
 
 #include "../Engine/Nullkiller.h"
+#include "../pforeach.h"
 #include "../../../lib/CRandomGenerator.h"
 
 namespace NKAI
