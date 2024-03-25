@@ -14,6 +14,8 @@
 #include "GlobalLobbyClient.h"
 #include "GlobalLobbyWindow.h"
 
+#include "../CGameInfo.h"
+#include "../CMusicHandler.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
@@ -186,18 +188,22 @@ GlobalLobbyChannelCardBase::GlobalLobbyChannelCardBase(GlobalLobbyWindow * windo
 
 	if (window->isChannelOpen(channelType, channelName))
 		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::YELLOW, 2);
+	else if (window->isChannelUnread(channelType, channelName))
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::WHITE, 1);
 	else
 		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
 }
 
 void GlobalLobbyChannelCardBase::clickPressed(const Point & cursorPosition)
 {
+	CCS->soundh->playSound(soundBase::button);
 	window->doOpenChannel(channelType, channelName, channelDescription);
 }
 
 GlobalLobbyAccountCard::GlobalLobbyAccountCard(GlobalLobbyWindow * window, const GlobalLobbyAccount & accountDescription)
 	: GlobalLobbyChannelCardBase(window, Point(130, 40), "player", accountDescription.accountID, accountDescription.displayName)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName);
 	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
 }

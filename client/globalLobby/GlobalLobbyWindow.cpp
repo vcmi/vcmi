@@ -49,6 +49,7 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 	currentChannelType = channelType;
 	currentChannelName = channelName;
 	chatHistory.clear();
+	unreadChannels.erase(channelType + "_" + channelName);
 	widget->getGameChat()->setText("");
 
 	auto history = CSH->getGlobalLobby().getChannelHistory(channelType, channelName);
@@ -110,7 +111,14 @@ void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
 void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when, const std::string & channelType, const std::string & channelName)
 {
 	if (channelType != currentChannelType || channelName != currentChannelName)
-		return; // TODO: send ping to player that another channel got a new message
+	{
+		// mark channel as unread
+		unreadChannels.insert(channelType + "_" + channelName);
+		widget->getAccountList()->reset();
+		widget->getChannelList()->reset();
+		widget->getMatchList()->reset();
+		return;
+	}
 
 	MetaString chatMessageFormatted;
 	chatMessageFormatted.appendRawString("[%s] {%s}: %s\n");
@@ -121,6 +129,11 @@ void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std:
 	chatHistory += chatMessageFormatted.toString();
 
 	widget->getGameChat()->setText(chatHistory);
+}
+
+bool GlobalLobbyWindow::isChannelUnread(const std::string & channelType, const std::string & channelName)
+{
+	return unreadChannels.count(channelType + "_" + channelName) > 0;
 }
 
 void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts)
@@ -157,6 +170,11 @@ void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & hi
 	MetaString text = MetaString::createFromTextID("vcmi.lobby.header.history");
 	text.replaceNumber(history.size());
 	widget->getMatchListHeader()->setText(text.toString());
+}
+
+void GlobalLobbyWindow::onInviteReceived(const std::string & invitedRoomID, const std::string & invitedByAccountID)
+{
+	widget->getRoomList()->reset();
 }
 
 void GlobalLobbyWindow::onJoinedRoom()

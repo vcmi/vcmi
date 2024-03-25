@@ -761,10 +761,10 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 	std::string accountID = json["accountID"].String();
 	std::string gameRoomID = database->getAccountGameRoom(senderName);
 
-	auto targetAccount = findAccount(accountID);
+	auto targetAccountConnection = findAccount(accountID);
 
-	if(!targetAccount)
-		return sendOperationFailed(connection, "Invalid account to invite!");
+	if(!targetAccountConnection)
+		return sendOperationFailed(connection, "Player is offline or does not exists!");
 
 	if(!database->isPlayerInGameRoom(senderName))
 		return sendOperationFailed(connection, "You are not in the room!");
@@ -776,7 +776,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 		return sendOperationFailed(connection, "This player is already invited!");
 
 	database->insertGameRoomInvite(accountID, gameRoomID);
-	sendInviteReceived(targetAccount, senderName, gameRoomID);
+	sendInviteReceived(targetAccountConnection, senderName, gameRoomID);
 }
 
 LobbyServer::~LobbyServer() = default;

@@ -198,6 +198,12 @@ void LobbyDatabase::prepareStatements()
 		WHERE roomID = ?
 	)");
 
+	getAccountInviteStatusStatement = database->prepare(R"(
+		SELECT COUNT(accountID)
+		FROM gameRoomInvites
+		WHERE accountID = ? AND roomID = ?
+	)");
+
 	getAccountGameHistoryStatement = database->prepare(R"(
 		SELECT gr.roomID, hostAccountID, displayName, description, status, playerLimit, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
 		FROM gameRoomPlayers grp
@@ -438,8 +444,17 @@ LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & acco
 
 LobbyInviteStatus LobbyDatabase::getAccountInviteStatus(const std::string & accountID, const std::string & roomID)
 {
-	assert(0);
-	return {};
+	int result = 0;
+
+	getAccountInviteStatusStatement->setBinds(accountID, roomID);
+	if(getAccountInviteStatusStatement->execute())
+		getAccountInviteStatusStatement->getColumns(result);
+	getAccountInviteStatusStatement->reset();
+
+	if (result > 0)
+		return LobbyInviteStatus::INVITED;
+	else
+		return LobbyInviteStatus::NOT_INVITED;
 }
 
 LobbyRoomState LobbyDatabase::getGameRoomStatus(const std::string & roomID)

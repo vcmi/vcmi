@@ -15,12 +15,13 @@
 #include "GlobalLobbyLoginWindow.h"
 #include "GlobalLobbyWindow.h"
 
+#include "../CGameInfo.h"
+#include "../CMusicHandler.h"
+#include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../windows/InfoWindows.h"
-#include "../CServerHandler.h"
 #include "../mainmenu/CMainMenu.h"
-#include "../CGameInfo.h"
+#include "../windows/InfoWindows.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/MetaString.h"
@@ -189,6 +190,8 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
 		lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
+
+	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
 }
 
 void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
@@ -280,10 +283,18 @@ void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
 void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 {
 	auto lobbyWindowPtr = lobbyWindow.lock();
+	std::string gameRoomID = json["gameRoomID"].String();
+	std::string accountID = json["accountID"].String();
 	if(lobbyWindowPtr)
-		lobbyWindowPtr->onMatchesHistory(activeRooms);
+	{
+		std::string message = MetaString::createFromTextID("vcmi.lobby.invite.notification").toString();
+		std::string time = getCurrentTimeFormatted();
 
-	assert(0); //TODO
+		lobbyWindowPtr->onGameChatMessage("System", message, time, "player", accountID);
+		lobbyWindowPtr->onInviteReceived(gameRoomID, accountID);
+	}
+
+	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
 }
 
 void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
