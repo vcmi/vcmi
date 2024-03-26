@@ -912,11 +912,10 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	for (int level = 0; level < levels; level++)
 	{
 		//Create different tiling for each level
+
+		auto vertices = penrose.generatePenroseTiling(zonesOnLevel[level].size(), rand);
+
 		// Assign zones to closest Penrose vertex
-		// TODO: Count zones on a level exactly?
-
-		auto vertices = penrose.generatePenroseTiling(zones.size() / map.levels(), rand);
-
 		std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
 
 		for (const auto & vertex : vertices)
