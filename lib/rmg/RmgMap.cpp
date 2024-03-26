@@ -244,7 +244,7 @@ RmgMap::Zones RmgMap::getZonesOnLevel(int level) const
 	Zones zonesOnLevel;
 	for(const auto& zonePair : zones)
 	{
-		if(zonePair.second->isUnderground() == level)
+		if(zonePair.second->isUnderground() == (bool)level)
 		{
 			zonesOnLevel.insert(zonePair);
 		}
