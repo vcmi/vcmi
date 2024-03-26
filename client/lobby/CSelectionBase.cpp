@@ -138,8 +138,8 @@ InfoCard::InfoCard()
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 
-	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), CGI->generaltexth->zelp[105], [=](){ CSH->getGlobalLobby().activateRoomInviteInterface(); } );
-	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), CGI->generaltexth->zelp[105], [=](){ CSH->getGlobalLobby().activateInterface(); });
+	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateRoomInviteInterface(); } );
+	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateInterface(); });
 
 	buttonInvitePlayers->setTextOverlay  (MetaString::createFromTextID("vcmi.lobby.invite.header").toString(), EFonts::FONT_SMALL, Colors::WHITE);
 	buttonOpenGlobalLobby->setTextOverlay(MetaString::createFromTextID("vcmi.lobby.backToLobby").toString(), EFonts::FONT_SMALL, Colors::WHITE);
@@ -252,12 +252,12 @@ void InfoCard::changeSelection()
 	if(!showChat)
 		labelGroupPlayers->disable();
 
-	for(auto & p : CSH->playerNames)
+	for(const auto & p : CSH->playerNames)
 	{
 		int slotsUsed = labelGroupPlayers->currentSize();
 		Point labelPosition;
 
-		if (slotsUsed < 4)
+		if(slotsUsed < 4)
 			labelPosition = Point(24, 285 + slotsUsed * graphics->fonts[FONT_SMALL]->getLineHeight()); // left column
 		else
 			labelPosition = Point(193, 285 + (slotsUsed - 4) * graphics->fonts[FONT_SMALL]->getLineHeight()); // right column

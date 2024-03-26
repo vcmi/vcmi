@@ -24,7 +24,7 @@
 #include "../../lib/MetaString.h"
 #include "../../lib/json/JsonNode.h"
 
-GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(GlobalLobbyInviteWindow * window, const GlobalLobbyAccount & accountDescription)
+GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(const GlobalLobbyAccount & accountDescription)
 	: accountID(accountDescription.accountID)
 {
 	pos.w = 200;
@@ -60,12 +60,12 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 		pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.invite.header").toString()
 	);
 
-	const auto & createAccountCardCallback = [this](size_t index) -> std::shared_ptr<CIntObject>
+	const auto & createAccountCardCallback = [](size_t index) -> std::shared_ptr<CIntObject>
 	{
 		const auto & accounts = CSH->getGlobalLobby().getActiveAccounts();
 
 		if(index < accounts.size())
-			return std::make_shared<GlobalLobbyInviteAccountCard>(this, accounts[index]);
+			return std::make_shared<GlobalLobbyInviteAccountCard>(accounts[index]);
 		return std::make_shared<CIntObject>();
 	};
 

@@ -86,7 +86,7 @@
 	"vcmi.lobby.header.history" : "Ваші попередні ігри",
 	"vcmi.lobby.header.players" : "Гравці в мережі - %d",
 	"vcmi.lobby.match.solo" : "Одиночна гра",
-	"vcmi.lobby.match.duel" : "Гра з %s",
+	"vcmi.lobby.match.duel" : "Гра з %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d гравців",
 	"vcmi.lobby.room.create" : "Створити нову кімнату",
 	"vcmi.lobby.room.players.limit" : "Максимум гравців",

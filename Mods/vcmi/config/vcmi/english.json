@@ -87,7 +87,7 @@
 	"vcmi.lobby.header.history" : "Your Previous Games",
 	"vcmi.lobby.header.players" : "Players Online - %d",
 	"vcmi.lobby.match.solo" : "Singleplayer Game",
-	"vcmi.lobby.match.duel" : "Game with %s",
+	"vcmi.lobby.match.duel" : "Game with %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d players",
 	"vcmi.lobby.room.create" : "Create New Room",
 	"vcmi.lobby.room.players.limit" : "Players Limit",

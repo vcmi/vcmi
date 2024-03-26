@@ -42,5 +42,5 @@ class GlobalLobbyInviteAccountCard : public CIntObject
 
 	void clickPressed(const Point & cursorPosition) override;
 public:
-	GlobalLobbyInviteAccountCard(GlobalLobbyInviteWindow * window, const GlobalLobbyAccount & accountDescription);
+	GlobalLobbyInviteAccountCard(const GlobalLobbyAccount & accountDescription);
 };
