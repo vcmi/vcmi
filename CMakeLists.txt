@@ -38,6 +38,7 @@ endif()
 
 # Platform-independent options
 
+option(ENABLE_CLIENT "Enable compilation of game client" ON)
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
@@ -493,7 +494,7 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	endif()
 endif()
 
-if(ENABLE_NULLKILLER_AI)
+if(ENABLE_NULLKILLER_AI AND ENABLE_CLIENT)
 	find_package(TBB REQUIRED)
 endif()
 
@@ -603,10 +604,15 @@ if(APPLE_IOS)
 	add_subdirectory(ios)
 endif()
 
-add_subdirectory_with_folder("AI" AI)
+if (ENABLE_CLIENT)
+	add_subdirectory_with_folder("AI" AI)
+endif()
 
 add_subdirectory(lib)
-add_subdirectory(server)
+
+if (ENABLE_CLIENT OR ENABLE_SERVER)
+	add_subdirectory(server)
+endif()
 
 if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
@@ -633,7 +639,9 @@ if(ENABLE_LOBBY)
 	add_subdirectory(lobby)
 endif()
 
-add_subdirectory(client)
+if (ENABLE_CLIENT)
+	add_subdirectory(client)
+endif()
 
 if(ENABLE_SERVER)
 	add_subdirectory(serverapp)
@@ -677,7 +685,9 @@ if(ANDROID)
 	")
 else()
 	install(DIRECTORY config DESTINATION ${DATA_DIR})
-	install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+	if (ENABLE_CLIENT OR ENABLE_SERVER)
+		install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+	endif()
 endif()
 if(ENABLE_LUA)
 	install(DIRECTORY scripts DESTINATION ${DATA_DIR})
