@@ -440,7 +440,7 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 // 		return armi;
 // }
 
-std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int3 pos ) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 pos ) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
@@ -451,7 +451,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int
 	return ret;
 }
 
-std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos, verbose);
@@ -470,7 +470,7 @@ const CGObjectInstance * CGameInfoCallback::getTopObj (int3 pos) const
 	return vstd::backOrNull(getVisitableObjs(pos));
 }
 
-std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(int3 pos) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getFlaggableObjects(int3 pos) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);

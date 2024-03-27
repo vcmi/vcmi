@@ -501,12 +501,12 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 	return *boost::range::max_element(bobjs, &CMapHandler::compareObjectBlitOrder);
 }
 
-void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
+void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	if(!LOCPLINT->cb->isVisible(mapPos))
+	if(!LOCPLINT->cb->isVisible(targetPosition))
     {
         if(!spellBeingCasted || spellBeingCasted->id != SpellID::DIMENSION_DOOR)
 		    return;
@@ -514,14 +514,14 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	if(!LOCPLINT->makingTurn)
 		return;
 
-	const CGObjectInstance *topBlocking = getActiveObject(mapPos);
+	const CGObjectInstance *topBlocking = LOCPLINT->cb->isVisible(targetPosition) ? getActiveObject(targetPosition) : nullptr;
 
 	int3 selPos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
 	if(spellBeingCasted)
 	{
 		assert(shortcuts->optionSpellcasting());
 
-		if (!isInScreenRange(selPos, mapPos))
+		if (!isInScreenRange(selPos, targetPosition))
 			return;
 
 		const TerrainTile *heroTile = LOCPLINT->cb->getTile(selPos);
@@ -530,12 +530,12 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		{
 		case SpellID::SCUTTLE_BOAT: //Scuttle Boat
 			if(topBlocking && topBlocking->ID == Obj::BOAT)
-				performSpellcasting(mapPos);
+				performSpellcasting(targetPosition);
 			break;
 		case SpellID::DIMENSION_DOOR:
-            const TerrainTile *targetTile = LOCPLINT->cb->getTileForDimensionDoor(mapPos, LOCPLINT->localState->getCurrentHero());
+            const TerrainTile *targetTile = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
 			if(targetTile && targetTile->isClear(heroTile))
-				performSpellcasting(mapPos);
+				performSpellcasting(targetPosition);
 			break;
 		}
 		return;
@@ -556,7 +556,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	{
 		isHero = true;
 
-		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(mapPos);
+		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(targetPosition);
 		if(currentHero == topBlocking) //clicked selected hero
 		{
 			LOCPLINT->openHeroWindow(currentHero);
@@ -570,7 +570,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
 			if(LOCPLINT->localState->hasPath(currentHero) &&
-			   LOCPLINT->localState->getPath(currentHero).endPos() == mapPos)//we'll be moving
+			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition)//we'll be moving
 			{
 				assert(!CGI->mh->hasOngoingAnimations());
 				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
@@ -586,7 +586,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 				}
 				else //remove old path and find a new one if we clicked on accessible tile
 				{
-					LOCPLINT->localState->setPath(currentHero, mapPos);
+					LOCPLINT->localState->setPath(currentHero, targetPosition);
 					onHeroChanged(currentHero);
 				}
 			}
@@ -604,7 +604,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	}
 }
 
-void AdventureMapInterface::onTileHovered(const int3 &mapPos)
+void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
@@ -613,7 +613,9 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 	if(!LOCPLINT->localState->getCurrentArmy())
 		return;
 
-	if(!LOCPLINT->cb->isVisible(mapPos))
+	bool isTargetPositionVisible = LOCPLINT->cb->isVisible(targetPosition);
+
+	if(!isTargetPositionVisible)
 	{
         GH.statusbar()->clear();
 
@@ -626,7 +628,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 
 	auto objRelations = PlayerRelations::ALLIES;
 
-	const CGObjectInstance *objAtTile = LOCPLINT->cb->isVisible(mapPos) ? getActiveObject(mapPos) : nullptr;
+	const CGObjectInstance *objAtTile = isTargetPositionVisible ? getActiveObject(targetPosition) : nullptr;
 	if(objAtTile)
 	{
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
@@ -634,10 +636,10 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		boost::replace_all(text,"\n"," ");
 		GH.statusbar()->write(text);
 	}
-	else
+	else if(isTargetPositionVisible)
 	{
-		std::string hlp = CGI->mh->getTerrainDescr(mapPos, false); //TODO: possible to get info about invisible tiles
-		GH.statusbar()->write(hlp);
+		std::string tileTooltipText = CGI->mh->getTerrainDescr(targetPosition, false);
+		GH.statusbar()->write(tileTooltipText);
 	}
 
 	if(spellBeingCasted)
@@ -646,9 +648,9 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		{
 		case SpellID::SCUTTLE_BOAT:
 			{
-			int3 hpos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
+			int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
 
-			if(objAtTile && objAtTile->ID == Obj::BOAT && isInScreenRange(hpos, mapPos))
+			if(objAtTile && objAtTile->ID == Obj::BOAT && isInScreenRange(heroPosition, targetPosition))
 				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
 			else
 				CCS->curh->set(Cursor::Map::POINTER);
@@ -656,7 +658,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 			}
 		case SpellID::DIMENSION_DOOR:
 			{
-				const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(mapPos, LOCPLINT->localState->getCurrentHero());
+				const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
 				int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
 				if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition))/* && isInScreenRange(hpos, mapPos)*/)
 					CCS->curh->set(Cursor::Map::TELEPORT); //TODO: something wrong with beyond east spell range border cursor on arrogance after TP-ing near underground portal on previous day
@@ -691,7 +693,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		std::array<Cursor::Map, 4> cursorVisit     = { Cursor::Map::T1_VISIT,      Cursor::Map::T2_VISIT,      Cursor::Map::T3_VISIT,      Cursor::Map::T4_VISIT,      };
 		std::array<Cursor::Map, 4> cursorSailVisit = { Cursor::Map::T1_SAIL_VISIT, Cursor::Map::T2_SAIL_VISIT, Cursor::Map::T3_SAIL_VISIT, Cursor::Map::T4_SAIL_VISIT, };
 
-		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(mapPos);
+		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(targetPosition);
 		assert(pathNode);
 
 		if((GH.isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info
