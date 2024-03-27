@@ -644,28 +644,34 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 
 	if(spellBeingCasted)
 	{
+		int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
+		if (!isInScreenRange(heroPosition, targetPosition))
+		{
+			CCS->curh->set(Cursor::Map::POINTER);
+			return;
+		}
+
 		switch(spellBeingCasted->id)
 		{
 		case SpellID::SCUTTLE_BOAT:
 			{
-			int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
-
-			if(objAtTile && objAtTile->ID == Obj::BOAT && isInScreenRange(heroPosition, targetPosition))
-				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
-			else
-				CCS->curh->set(Cursor::Map::POINTER);
-			return;
+				if(objAtTile && objAtTile->ID == Obj::BOAT)
+					CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
+				else
+					CCS->curh->set(Cursor::Map::POINTER);
+				return;
 			}
 		case SpellID::DIMENSION_DOOR:
 			{
 				const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
-				int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
 				if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition))/* && isInScreenRange(hpos, mapPos)*/)
 					CCS->curh->set(Cursor::Map::TELEPORT); //TODO: something wrong with beyond east spell range border cursor on arrogance after TP-ing near underground portal on previous day
 				else
 					CCS->curh->set(Cursor::Map::POINTER);
 				return;
 			}
+		default:
+			break;
 		}
 	}
 
