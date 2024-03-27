@@ -16,7 +16,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/VCMIDirs.h"
 
-static const int LISTENING_PORT = 30303;
+static const int LISTENING_PORT = 3031;
 
 int main(int argc, const char * argv[])
 {
