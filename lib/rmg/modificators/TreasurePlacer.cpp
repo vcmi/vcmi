@@ -852,11 +852,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 		return oi1.value < oi2.value;
 	});
 
-	size_t size = 0;
-	{
-		Zone::Lock lock(zone.areaMutex);
-		size = zone.getArea().getTilesVector().size();
-	}
+	const size_t size = zone.area()->getTilesVector().size();
 
 	int totalDensity = 0;
 
@@ -920,42 +916,45 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			auto path = rmg::Path::invalid();
 
-			Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
-			auto possibleArea = zone.areaPossible();
-			possibleArea.erase_if([this, &minDistance](const int3& tile) -> bool
 			{
-				auto ti = map.getTileInfo(tile);
-				return (ti.getNearestObjectDistance() < minDistance);
-			});
+				Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
+				// FIXME: Possible area will be regenerated for every object
+				auto searchArea = zone.areaPossible().get();
+				searchArea.erase_if([this, &minDistance](const int3& tile) -> bool
+				{
+					auto ti = map.getTileInfo(tile);
+					return (ti.getNearestObjectDistance() < minDistance);
+				});
 
-			if (guarded)
-			{
-				path = manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3& tile)
-					{
-						float bestDistance = 10e9;
-						for (const auto& t : rmgObject.getArea().getTilesVector())
+				if (guarded)
+				{
+					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3& tile)
 						{
-							float distance = map.getTileInfo(t).getNearestObjectDistance();
-							if (distance < minDistance)
+							float bestDistance = 10e9;
+							for (const auto& t : rmgObject.getArea().getTilesVector())
+							{
+								float distance = map.getTileInfo(t).getNearestObjectDistance();
+								if (distance < minDistance)
+									return -1.f;
+								else
+									vstd::amin(bestDistance, distance);
+							}
+
+							const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();
+							const auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
+
+							if (zone.freePaths()->overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
 								return -1.f;
-							else
-								vstd::amin(bestDistance, distance);
-						}
 
-						const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();
-						const auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
-
-						if (zone.freePaths().overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
-							return -1.f;
-
-						return bestDistance;
-					}, guarded, false, ObjectManager::OptimizeType::BOTH);
+							return bestDistance;
+						}, guarded, false, ObjectManager::OptimizeType::BOTH);
+				}
+				else
+				{
+					path = manager.placeAndConnectObject(searchArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
+				}
 			}
-			else
-			{
-				path = manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
-			}
-			lock.unlock();
+			//lock.unlock();
 
 			if (path.valid())
 			{

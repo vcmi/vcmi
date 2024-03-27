@@ -26,7 +26,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
 	uint32_t distanceSq = distance * distance;
-	auto subarea = zone.getArea().getSubarea([&zone, distanceSq](const int3 & t)
+
+	auto subarea = zone.area()->getSubarea([&zone, distanceSq](const int3 & t)
 	{
 		return t.dist2dSQ(zone.getPos()) > distanceSq;
 	});

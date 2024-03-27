@@ -37,22 +37,26 @@ void ObstaclePlacer::process()
 	collectPossibleObstacles(zone.getTerrainType());
 	
 	{
-		Zone::Lock lock(zone.areaMutex);
-		blockedArea = zone.area().getSubarea([this](const int3& t)
-			{
-				return map.shouldBeBlocked(t);
-			});
-		blockedArea.subtract(zone.areaUsed());
-		zone.areaPossible().subtract(blockedArea);
+		//Zone::Lock lock(zone.areaMutex);
+		auto area = zone.area();
+		auto areaPossible = zone.areaPossible();
+		auto areaUsed = zone.areaUsed();
 
-		prohibitedArea = zone.freePaths() + zone.areaUsed() + manager->getVisitableArea();
+		blockedArea = area->getSubarea([this](const int3& t)
+		{
+			return map.shouldBeBlocked(t);
+		});
+		blockedArea.subtract(*areaUsed);
+		areaPossible->subtract(blockedArea);
+
+		prohibitedArea = zone.freePaths() + areaUsed + manager->getVisitableArea();
 
 		//Progressively block tiles, but make sure they don't seal any gap between blocks
 		rmg::Area toBlock;
 		do
 		{
 			toBlock.clear();
-			for (const auto& tile : zone.areaPossible().getTilesVector())
+			for (const auto& tile : areaPossible->getTilesVector())
 			{
 				rmg::Area neighbors;
 				rmg::Area t;
@@ -76,7 +80,7 @@ void ObstaclePlacer::process()
 					toBlock.add(tile);
 				}
 			}
-			zone.areaPossible().subtract(toBlock);
+			areaPossible->subtract(toBlock);
 			for (const auto& tile : toBlock.getTilesVector())
 			{
 				map.setOccupied(tile, ETileType::BLOCKED);
@@ -84,7 +88,7 @@ void ObstaclePlacer::process()
 
 		} while (!toBlock.empty());
 
-		prohibitedArea.unite(zone.areaPossible());
+		prohibitedArea.unite(areaPossible.get());
 	}
 
 	auto objs = createObstacles(zone.getRand(), map.mapInstance->cb);
@@ -119,7 +123,7 @@ void ObstaclePlacer::placeObject(rmg::Object & object, std::set<CGObjectInstance
 
 std::pair<bool, bool> ObstaclePlacer::verifyCoverage(const int3 & t) const
 {
-	return {map.shouldBeBlocked(t), zone.areaPossible().contains(t)};
+	return {map.shouldBeBlocked(t), zone.areaPossible()->contains(t)};
 }
 
 void ObstaclePlacer::postProcess(const rmg::Object & object)
@@ -141,7 +145,7 @@ bool ObstaclePlacer::isProhibited(const rmg::Area & objArea) const
 	if(prohibitedArea.overlap(objArea))
 		return true;
 	 
-	if(!zone.area().contains(objArea))
+	if(!zone.area()->contains(objArea))
 		return true;
 	
 	return false;

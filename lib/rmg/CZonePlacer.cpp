@@ -858,7 +858,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	auto moveZoneToCenterOfMass = [width, height](const std::shared_ptr<Zone> & zone) -> void
 	{
 		int3 total(0, 0, 0);
-		auto tiles = zone->area().getTiles();
+		auto tiles = zone->area()->getTiles();
 		for(const auto & tile : tiles)
 		{
 			total += tile;
@@ -892,14 +892,14 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 				{
 					distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
 				}
-				boost::min_element(distances, compareByDistance)->first->area().add(pos); //closest tile belongs to zone
+				boost::min_element(distances, compareByDistance)->first->area()->add(pos); //closest tile belongs to zone
 			}
 		}
 	}
 
 	for(const auto & zone : zones)
 	{
-		if(zone.second->area().empty())
+		if(zone.second->area()->empty())
 			throw rmgException("Empty zone is generated, probably RMG template is inappropriate for map size");
 		
 		moveZoneToCenterOfMass(zone.second);
@@ -948,14 +948,14 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 
 				//Tile closest to vertex belongs to zone
 				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first;
-				closestZone->area().add(pos);
+				closestZone->area()->add(pos);
 				map.setZoneID(pos, closestZone->getId());
 			}
 		}
 
 		for(const auto & zone : zonesOnLevel[level])
 		{
-			if(zone.second->area().empty())
+			if(zone.second->area()->empty())
 			{
 				// FIXME: Some vertices are duplicated, but it's not a source of problem
 				logGlobal->error("Zone %d at %s is empty, dumping Penrose tiling", zone.second->getId(), zone.second->getCenter().toString());
@@ -981,12 +981,12 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			{
 				auto discardTiles = collectDistantTiles(*zone.second, zone.second->getSize() + 1.f);
 				for(const auto & t : discardTiles)
-					zone.second->area().erase(t);
+					zone.second->area()->erase(t);
 			}
 
 			//make sure that terrain inside zone is not a rock
 
-			auto v = zone.second->getArea().getTilesVector();
+			auto v = zone.second->area()->getTilesVector();
 			map.getMapProxy()->drawTerrain(*rand, v, ETerrainId::SUBTERRANEAN);
 		}
 	}

@@ -28,7 +28,7 @@ void TerrainPainter::process()
 {
 	initTerrainType();
 
-	auto v = zone.getArea().getTilesVector();
+	auto v = zone.area()->getTilesVector();
 	mapProxy->drawTerrain(zone.getRand(), v, zone.getTerrainType());
 }
 

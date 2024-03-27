@@ -43,22 +43,27 @@ void WaterRoutes::process()
 			result.push_back(wproxy->waterRoute(*z.second));
 	}
 
-	Zone::Lock lock(zone.areaMutex);
+	//Zone::Lock lock(zone.areaMutex);
+
+	auto area = zone.area();
+	auto freePaths = zone.freePaths();
+	auto areaPossible = zone.areaPossible();
+	auto areaUsed = zone.areaUsed();
 
 	//prohibit to place objects on sealed off lakes
 	for(const auto & lake : wproxy->getLakes())
 	{
-		if((lake.area * zone.freePaths()).getTilesVector().size() == 1)
+		if((lake.area * freePaths.get()).getTilesVector().size() == 1)
 		{
-			zone.freePaths().subtract(lake.area);
-			zone.areaPossible().subtract(lake.area);
+			freePaths->subtract(lake.area);
+			areaPossible->subtract(lake.area);
 		}
 	}
 	
 	//prohibit to place objects on the borders
-	for(const auto & t : zone.area().getBorder())
+	for(const auto & t : area->getBorder())
 	{
-		if(zone.areaPossible().contains(t))
+		if(areaPossible->contains(t))
 		{
 			std::vector<int3> landTiles;
 			map.foreachDirectNeighbour(t, [this, &landTiles, &t](const int3 & c)
@@ -74,8 +79,8 @@ void WaterRoutes::process()
 				int3 o = landTiles[0] + landTiles[1];
 				if(o.x * o.x * o.y * o.y == 1) 
 				{
-					zone.areaPossible().erase(t);
-					zone.areaUsed().add(t);
+					areaPossible->erase(t);
+					areaUsed->add(t);
 				}
 			}
 		}
@@ -96,6 +101,9 @@ void WaterRoutes::init()
 
 char WaterRoutes::dump(const int3 & t)
 {
+	auto area = zone.area();
+	auto freePaths = zone.freePaths();
+
 	for(auto & i : result)
 	{
 		if(t == i.boarding)
@@ -106,15 +114,15 @@ char WaterRoutes::dump(const int3 & t)
 			return '#';
 		if(i.water.contains(t))
 		{
-			if(zone.freePaths().contains(t))
+			if(freePaths->contains(t))
 				return '+';
 			else
 				return '-';
 		}
 	}
-	if(zone.freePaths().contains(t))
+	if(freePaths->contains(t))
 		return '.';
-	if(zone.area().contains(t))
+	if(area->contains(t))
 		return '~';
 	return ' ';
 }

@@ -34,6 +34,36 @@ extern const std::function<bool(const int3 &)> AREA_NO_FILTER;
 
 typedef std::list<std::shared_ptr<Modificator>> TModificators;
 
+template<typename T>
+class ThreadSafeProxy
+{
+public:
+	ThreadSafeProxy(T& resource, boost::recursive_mutex& mutex)
+		: resourceRef(resource), lock(mutex) {}
+
+	T* operator->() { return &resourceRef; }
+	const T* operator->() const { return &resourceRef; }
+	T& operator*() { return resourceRef; }
+	const T& operator*() const { return resourceRef; }
+	T& get() {return resourceRef;}
+	const T& get() const {return resourceRef;}
+
+
+	T operator+(const T & other)
+	{
+		return resourceRef + other;
+	}
+
+	T operator+(ThreadSafeProxy<T> & other)
+	{
+		return get() + other.get();
+	}
+
+private:
+	T& resourceRef;
+	std::lock_guard<boost::recursive_mutex> lock;
+};
+
 class Zone : public rmg::ZoneOptions
 {
 public:
@@ -48,11 +78,14 @@ public:
 	int3 getPos() const;
 	void setPos(const int3 &pos);
 	
-	const rmg::Area & getArea() const;
-	rmg::Area & area();
-	rmg::Area & areaPossible();
-	rmg::Area & freePaths();
-	rmg::Area & areaUsed();
+	ThreadSafeProxy<rmg::Area> area(); 
+	ThreadSafeProxy<const rmg::Area> area() const;
+	ThreadSafeProxy<rmg::Area> areaPossible();
+	ThreadSafeProxy<const rmg::Area> areaPossible() const;
+	ThreadSafeProxy<rmg::Area> freePaths();
+	ThreadSafeProxy<const rmg::Area> freePaths() const;
+	ThreadSafeProxy<rmg::Area> areaUsed();
+	ThreadSafeProxy<const rmg::Area> areaUsed() const;
 
 	void initFreeTiles();
 	void clearTiles();
@@ -89,7 +122,7 @@ public:
 	
 	CRandomGenerator & getRand();
 public:
-	boost::recursive_mutex areaMutex;
+	mutable boost::recursive_mutex areaMutex;
 	using Lock = boost::unique_lock<boost::recursive_mutex>;
 	
 protected:
