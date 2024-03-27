@@ -117,7 +117,7 @@ ThreadSafeProxy<const rmg::Area> Zone::areaUsed() const
 
 void Zone::clearTiles()
 {
-	//Lock lock(mx);
+	Lock lock(areaMutex);
 	dArea.clear();
 	dAreaPossible.clear();
 	dAreaFree.clear();
@@ -126,7 +126,6 @@ void Zone::clearTiles()
 void Zone::initFreeTiles()
 {
 	rmg::Tileset possibleTiles;
-	//Lock lock(mx);
 	vstd::copy_if(dArea.getTiles(), vstd::set_inserter(possibleTiles), [this](const int3 &tile) -> bool
 	{
 		return map.isPossible(tile);
@@ -239,8 +238,6 @@ TModificators Zone::getModificators()
 void Zone::connectPath(const rmg::Path & path)
 ///connect current tile to any other free tile within zone
 {
-	//Lock lock(areaMutex);
-
 	areaPossible()->subtract(path.getPathArea());
 	freePaths()->unite(path.getPathArea());
 	for(const auto & t : path.getPathArea().getTilesVector())

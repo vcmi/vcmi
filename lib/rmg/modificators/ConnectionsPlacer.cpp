@@ -477,7 +477,6 @@ void ConnectionsPlacer::createBorder()
 		}
 	};
 
-	//Zone::Lock lock(zone.areaMutex); //Protect from erasing same tiles again
 	auto areaPossible = zone.areaPossible();
 	for(const auto & tile : blockBorder.getTilesVector())
 	{

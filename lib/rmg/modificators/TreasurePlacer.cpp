@@ -918,7 +918,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			{
 				Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
-				// FIXME: Possible area will be regenerated for every object
+				
 				auto searchArea = zone.areaPossible().get();
 				searchArea.erase_if([this, &minDistance](const int3& tile) -> bool
 				{

@@ -118,18 +118,13 @@ void ObjectManager::updateDistances(const int3 & pos)
 
 void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
 {
-	// Workaround to avoid dealock when accessed from other zone
+	// Workaround to avoid deadlock when accessed from other zone
 	RecursiveLock lock(zone.areaMutex, boost::try_to_lock);
 	if (!lock.owns_lock())
 	{
-		// Sorry, unsolvable problem of mutual impact¯\_(ツ)_/¯
+		// Unsolvable problem of mutual access
 		return;
 	}
-
-	/*
-	1. Update map distances - Requires lock on zone area only
-	2. Update tilesByDistance priority queue - Requires lock area AND externalAccessMutex
-	*/
 
 	const auto tiles = zone.areaPossible()->getTilesVector();
 	//RecursiveLock lock(externalAccessMutex);
@@ -619,15 +614,8 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			}
 		}
 
-		// FIXME: Possible deadlock by two managers updating each other
-		// At this point areaMutex is locked
-		// TODO: Generic function for multiple spinlocks
-		//std::vector sorted(adjacentZones.begin(), adjacentZones.end());
-		//std::sort(sorted.begin(), sorted.end());
-		//for (auto id : adjacentZones)
-		..for (auto id : sorted)
+		for (auto id : sorted)
 		{
-			//TODO: Test again with sorted order?
 			auto otherZone = map.getZones().at(id);
 			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType()	== ETemplateZoneType::WATER))
 			{

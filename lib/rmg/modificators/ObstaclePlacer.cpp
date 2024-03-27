@@ -37,7 +37,6 @@ void ObstaclePlacer::process()
 	collectPossibleObstacles(zone.getTerrainType());
 	
 	{
-		//Zone::Lock lock(zone.areaMutex);
 		auto area = zone.area();
 		auto areaPossible = zone.areaPossible();
 		auto areaUsed = zone.areaUsed();
