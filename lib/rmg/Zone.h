@@ -60,6 +60,12 @@ public:
 		return get() + other.get();
 	}
 
+	template <typename U>
+	T operator+(ThreadSafeProxy<U> && other)
+	{
+		return get() + other.get();
+	}
+
 private:
 	T& resourceRef;
 	std::lock_guard<boost::recursive_mutex> lock;
