@@ -26,15 +26,6 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/MetaString.h"
 
-static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
-{
-	// FIXME: better/unified way to format date
-	auto timeNowChrono = std::chrono::system_clock::now();
-	timeNowChrono += std::chrono::seconds(timeOffsetSeconds);
-
-	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
-}
-
 const std::vector<GameChatMessage> & GameChatHandler::getChatHistory() const
 {
 	return chatHistory;
@@ -77,7 +68,7 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 	if(lobby && lobby->card)
 	{
 		MetaString formatted = MetaString::createFromRawString("[%s] %s: %s");
-		formatted.replaceRawString(getCurrentTimeFormatted());
+		formatted.replaceRawString(TextOperations::getCurrentFormattedTimeLocal());
 		formatted.replaceRawString(senderName);
 		formatted.replaceRawString(messageText);
 
@@ -86,13 +77,20 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 				lobby->toggleChat();
 	}
 
-	chatHistory.push_back({senderName, messageText, getCurrentTimeFormatted()});
+	chatHistory.push_back({senderName, messageText, TextOperations::getCurrentFormattedTimeLocal()});
 }
 
 void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::string & messageText)
 {
-	std::string timeFormatted = getCurrentTimeFormatted();
-	std::string playerName = sender.isSpectator() ? "Spectator" : sender.toString(); //FIXME: should actually be player nickname, at least in MP
+
+	std::string timeFormatted = TextOperations::getCurrentFormattedTimeLocal();
+	std::string playerName = "<UNKNOWN>";
+
+	if (sender.isValidPlayer())
+		playerName = LOCPLINT->cb->getStartInfo()->playerInfos.at(sender).name;
+
+	if (sender.isSpectator())
+		playerName = "Spectator"; // FIXME: translate? Provide nickname somewhere?
 
 	chatHistory.push_back({playerName, messageText, timeFormatted});
 
@@ -101,9 +99,9 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 
 void GameChatHandler::onNewSystemMessageReceived(const std::string & messageText)
 {
-	chatHistory.push_back({"System", messageText, getCurrentTimeFormatted()});
+	chatHistory.push_back({"System", messageText, TextOperations::getCurrentFormattedTimeLocal()});
 
 	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
-		LOCPLINT->cingconsole->addMessage(getCurrentTimeFormatted(), "System", messageText);
+		LOCPLINT->cingconsole->addMessage(TextOperations::getCurrentFormattedTimeLocal(), "System", messageText);
 }
 

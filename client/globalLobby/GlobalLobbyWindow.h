@@ -37,9 +37,9 @@ public:
 	void doJoinRoom(const std::string & roomID);
 
 	/// Returns true if provided chat channel is the one that is currently open in UI
-	bool isChannelOpen(const std::string & channelType, const std::string & channelName);
-	bool isChannelUnread(const std::string & channelType, const std::string & channelName);
-	bool isInviteUnread(const std::string & gameRoomID);
+	bool isChannelOpen(const std::string & channelType, const std::string & channelName) const;
+	bool isChannelUnread(const std::string & channelType, const std::string & channelName) const;
+	bool isInviteUnread(const std::string & gameRoomID) const;
 
 	// Callbacks for network packs
 

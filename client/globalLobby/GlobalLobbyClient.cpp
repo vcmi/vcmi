@@ -38,24 +38,6 @@ GlobalLobbyClient::GlobalLobbyClient()
 
 GlobalLobbyClient::~GlobalLobbyClient() = default;
 
-static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
-{
-	// FIXME: better/unified way to format date
-	auto timeNowChrono = std::chrono::system_clock::now();
-	timeNowChrono += std::chrono::seconds(timeOffsetSeconds);
-
-	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
-}
-
-static std::string getCurrentDateTimeFormatted(int timeOffsetSeconds = 0)
-{
-	// FIXME: better/unified way to format date
-	auto timeNowChrono = std::chrono::system_clock::now();
-	timeNowChrono += std::chrono::seconds(timeOffsetSeconds);
-
-	return TextOperations::getFormattedDateTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
-}
-
 void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
@@ -162,8 +144,8 @@ void GlobalLobbyClient::receiveChatHistory(const JsonNode & json)
 		message.accountID = entry["accountID"].String();
 		message.displayName = entry["displayName"].String();
 		message.messageText = entry["messageText"].String();
-		int ageSeconds = entry["ageSeconds"].Integer();
-		message.timeFormatted = getCurrentTimeFormatted(-ageSeconds);
+		std::chrono::seconds ageSeconds (entry["ageSeconds"].Integer());
+		message.timeFormatted = TextOperations::getCurrentFormattedTimeLocal(-ageSeconds);
 
 		chatHistory[channelKey].push_back(message);
 
@@ -179,7 +161,7 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 	message.accountID = json["accountID"].String();
 	message.displayName = json["displayName"].String();
 	message.messageText = json["messageText"].String();
-	message.timeFormatted = getCurrentTimeFormatted();
+	message.timeFormatted = TextOperations::getCurrentFormattedTimeLocal();
 
 	std::string channelType = json["channelType"].String();
 	std::string channelName = json["channelName"].String();
@@ -227,8 +209,8 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
 		room.statusID = jsonEntry["status"].String();
-		int ageSeconds = jsonEntry["ageSeconds"].Integer();
-		room.startDateFormatted = getCurrentDateTimeFormatted(-ageSeconds);
+		std::chrono::seconds ageSeconds (jsonEntry["ageSeconds"].Integer());
+		room.startDateFormatted = TextOperations::getCurrentFormattedDateTimeLocal(-ageSeconds);
 
 		for(const auto & jsonParticipant : jsonEntry["participants"].Vector())
 		{
@@ -260,8 +242,8 @@ void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
 		room.statusID = jsonEntry["status"].String();
-		int ageSeconds = jsonEntry["ageSeconds"].Integer();
-		room.startDateFormatted = getCurrentDateTimeFormatted(-ageSeconds);
+		std::chrono::seconds ageSeconds (jsonEntry["ageSeconds"].Integer());
+		room.startDateFormatted = TextOperations::getCurrentFormattedDateTimeLocal(-ageSeconds);
 
 		for(const auto & jsonParticipant : jsonEntry["participants"].Vector())
 		{
@@ -290,7 +272,7 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 	if(lobbyWindowPtr)
 	{
 		std::string message = MetaString::createFromTextID("vcmi.lobby.invite.notification").toString();
-		std::string time = getCurrentTimeFormatted();
+		std::string time = TextOperations::getCurrentFormattedTimeLocal();
 
 		lobbyWindowPtr->onGameChatMessage("System", message, time, "player", accountID);
 		lobbyWindowPtr->onInviteReceived(gameRoomID);

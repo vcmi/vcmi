@@ -38,6 +38,9 @@ private:
 	std::weak_ptr<IStatusBar> currentStatusBar;
 	std::string enteredText;
 
+	/// Returns true if console is active and player is currently entering text
+	bool isEnteringText() const;
+
 	void showRecentChatHistory();
 	void addMessageSilent(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText);
 public:

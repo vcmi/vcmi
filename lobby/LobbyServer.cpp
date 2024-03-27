@@ -12,22 +12,27 @@
 
 #include "LobbyDatabase.h"
 
+#include "../lib/Languages.h"
+#include "../lib/TextOperations.h"
 #include "../lib/json/JsonFormatException.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/json/JsonUtils.h"
-#include "../lib/Languages.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 bool LobbyServer::isAccountNameValid(const std::string & accountName) const
 {
+	// Arbitrary limit on account name length.
+	// Can be extended if there are no issues with UI space
 	if(accountName.size() < 4)
 		return false;
 
 	if(accountName.size() > 20)
 		return false;
 
+	// For now permit only latin alphabet and numbers
+	// Can be extended, but makes sure that such symbols will be present in all H3 fonts
 	for(const auto & c : accountName)
 		if(!std::isalnum(c))
 			return false;
@@ -37,11 +42,23 @@ bool LobbyServer::isAccountNameValid(const std::string & accountName) const
 
 std::string LobbyServer::sanitizeChatMessage(const std::string & inputString) const
 {
-	// TODO: sanitize message and remove any "weird" symbols from it:
-	// - control characters ('\0' ... ' ')
-	// - '{' and '}' symbols to avoid formatting
-	// - other non-printable characters?
-	return boost::trim_copy(inputString);
+	static const std::string blacklist = "{}";
+	std::string sanitized;
+
+	for(const auto & ch : inputString)
+	{
+		// Remove all control characters
+		if (ch >= '\0' && ch < ' ')
+			continue;
+
+		// Remove blacklisted characters such as brackets that are used for text formatting
+		if (blacklist.find(ch) != std::string::npos)
+			continue;
+
+		sanitized += ch;
+	}
+
+	return boost::trim_copy(sanitized);
 }
 
 NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID) const
@@ -195,7 +212,7 @@ static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
 	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
 	jsonEntry["ageSeconds"].Integer() = gameRoom.age.count();
 
-	for (auto const & account : gameRoom.participants)
+	for(const auto & account : gameRoom.participants)
 		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
 
 	return jsonEntry;
@@ -470,9 +487,12 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 	std::string messageText = json["messageText"].String();
 	std::string channelType = json["channelType"].String();
 	std::string channelName = json["channelName"].String();
-	std::string messageTextClean = sanitizeChatMessage(messageText);
 	std::string displayName = database->getAccountDisplayName(senderAccountID);
 
+	if(TextOperations::isValidUnicodeString(messageText))
+		return sendOperationFailed(connection, "String contains invalid characters!");
+
+	std::string messageTextClean = sanitizeChatMessage(messageText);
 	if(messageTextClean.empty())
 		return sendOperationFailed(connection, "No printable characters in sent message!");
 
@@ -482,7 +502,7 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 		{
 			Languages::getLanguageOptions(channelName);
 		}
-		catch (const std::runtime_error &)
+		catch (const std::out_of_range &)
 		{
 			return sendOperationFailed(connection, "Unknown language!");
 		}
@@ -499,11 +519,17 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 
 		database->insertChatMessage(senderAccountID, channelType, channelName, messageText);
 
-		// TODO: Don't report match messages if room is still active - players in room will receive these messages via match server
-		for(const auto & otherConnection : activeAccounts)
+		LobbyRoomState roomStatus = database->getGameRoomStatus(channelName);
+
+		// Broadcast chat message only if it being sent to already closed match
+		// Othervice it will be handled by match server
+		if (roomStatus == LobbyRoomState::CLOSED)
 		{
-			if (database->isPlayerInGameRoom(otherConnection.second, channelName))
-				sendChatMessage(otherConnection.first, channelType, channelName, senderAccountID, displayName, messageText);
+			for(const auto & otherConnection : activeAccounts)
+			{
+				if (database->isPlayerInGameRoom(otherConnection.second, channelName))
+					sendChatMessage(otherConnection.first, channelType, channelName, senderAccountID, displayName, messageText);
+			}
 		}
 	}
 

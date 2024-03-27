@@ -120,7 +120,7 @@ inline const Options & getLanguageOptions(const std::string & language)
 		if(entry.identifier == language)
 			return entry;
 
-	throw std::runtime_error("Language " + language + " does not exists!");
+	throw std::out_of_range("Language " + language + " does not exists!");
 }
 
 template<typename Numeric>

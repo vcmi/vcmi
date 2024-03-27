@@ -89,7 +89,6 @@ void LobbyDatabase::clearOldData()
 		WHERE online <> 0
 	)";
 
-	//FIXME: set different status for rooms that never reached in game state
 	static const std::string removeActiveLobbyRooms = R"(
 		UPDATE gameRooms
 		SET status = 4

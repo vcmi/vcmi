@@ -39,7 +39,7 @@ GlobalLobbyWindow::GlobalLobbyWindow()
 	widget->getChannelListHeader()->setText(MetaString::createFromTextID("vcmi.lobby.header.channels").toString());
 }
 
-bool GlobalLobbyWindow::isChannelOpen(const std::string & testChannelType, const std::string & testChannelName)
+bool GlobalLobbyWindow::isChannelOpen(const std::string & testChannelType, const std::string & testChannelName) const
 {
 	return testChannelType == currentChannelType && testChannelName == currentChannelName;
 }
@@ -133,7 +133,7 @@ void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std:
 	widget->getGameChat()->setText(chatHistory);
 }
 
-bool GlobalLobbyWindow::isChannelUnread(const std::string & channelType, const std::string & channelName)
+bool GlobalLobbyWindow::isChannelUnread(const std::string & channelType, const std::string & channelName) const
 {
 	return unreadChannels.count(channelType + "_" + channelName) > 0;
 }
@@ -180,7 +180,7 @@ void GlobalLobbyWindow::onInviteReceived(const std::string & invitedRoomID)
 	widget->getRoomList()->reset();
 }
 
-bool GlobalLobbyWindow::isInviteUnread(const std::string & gameRoomID)
+bool GlobalLobbyWindow::isInviteUnread(const std::string & gameRoomID) const
 {
 	return unreadInvites.count(gameRoomID) > 0;
 }

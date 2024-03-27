@@ -66,8 +66,7 @@ void CInGameConsole::show(Canvas & to)
 void CInGameConsole::tick(uint32_t msPassed)
 {
 	// Check whether text input is active - we want to keep recent messages visible during this period
-	// FIXME: better check?
-	if(enteredText != "")
+	if(isEnteringText())
 		return;
 
 	size_t sizeBefore = texts.size();
@@ -125,7 +124,7 @@ void CInGameConsole::addMessage(const std::string & timeFormatted, const std::st
 
 bool CInGameConsole::captureThisKey(EShortcut key)
 {
-	if (enteredText.empty())
+	if (!isEnteringText())
 		return false;
 
 	switch (key)
@@ -148,7 +147,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 	if (LOCPLINT->cingconsole != this)
 		return;
 
-	if(enteredText.empty() && key != EShortcut::GAME_ACTIVATE_CONSOLE)
+	if(!isEnteringText() && key != EShortcut::GAME_ACTIVATE_CONSOLE)
 		return; //because user is not entering any text
 
 	switch(key)
@@ -230,7 +229,7 @@ void CInGameConsole::textInputed(const std::string & inputtedText)
 	if (LOCPLINT->cingconsole != this)
 		return;
 
-	if(enteredText.empty())
+	if(!isEnteringText())
 		return;
 
 	enteredText.resize(enteredText.size()-1);
@@ -266,7 +265,7 @@ void CInGameConsole::startEnteringText()
 	if (!isActive())
 		return;
 
-	if(enteredText != "")
+	if(isEnteringText())
 		return;
 		
 	assert(currentStatusBar.expired());//effectively, nullptr check
@@ -325,3 +324,7 @@ void CInGameConsole::refreshEnteredText()
 		statusbar->setEnteredText(enteredText);
 }
 
+bool CInGameConsole::isEnteringText() const
+{
+	return !enteredText.empty();
+}

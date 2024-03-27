@@ -44,7 +44,9 @@ class LobbyServer final : public INetworkServerListener
 	std::unique_ptr<INetworkHandler> networkHandler;
 	std::unique_ptr<INetworkServer> networkServer;
 
+	/// removes any "weird" symbols from chat message that might break UI
 	std::string sanitizeChatMessage(const std::string & inputString) const;
+
 	bool isAccountNameValid(const std::string & accountName) const;
 
 	NetworkConnectionPtr findAccount(const std::string & accountID) const;
