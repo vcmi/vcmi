@@ -614,7 +614,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			}
 		}
 
-		for (auto id : sorted)
+		for (auto id : adjacentZones)
 		{
 			auto otherZone = map.getZones().at(id);
 			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType()	== ETemplateZoneType::WATER))

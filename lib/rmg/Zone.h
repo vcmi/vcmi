@@ -54,7 +54,8 @@ public:
 		return resourceRef + other;
 	}
 
-	T operator+(ThreadSafeProxy<T> & other)
+	template <typename U>
+	T operator+(ThreadSafeProxy<U> & other)
 	{
 		return get() + other.get();
 	}
