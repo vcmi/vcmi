@@ -44,6 +44,7 @@ option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
+option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are required for game lobby" OFF)
 
 # Compilation options
 
@@ -246,6 +247,10 @@ endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
 	add_definitions(-DENABLE_SINGLE_APP_BUILD)
+endif()
+
+if(ENABLE_MINIMAL_LIB)
+	add_definitions(-DENABLE_MINIMAL_LIB)
 endif()
 
 if(APPLE_IOS)
