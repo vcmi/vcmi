@@ -688,7 +688,7 @@ target_link_libraries(vcmi PUBLIC
 	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
 
-if(ENABLE_STATIC_LIBS)
+if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)
 	target_link_libraries(vcmi PRIVATE
 		BattleAI
