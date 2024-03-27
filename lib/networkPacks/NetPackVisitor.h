@@ -131,6 +131,7 @@ public:
 	virtual void visitGarrisonHeroSwap(GarrisonHeroSwap & pack) {}
 	virtual void visitExchangeArtifacts(ExchangeArtifacts & pack) {}
 	virtual void visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack) {}
+	virtual void visitManageBackpackArtifacts(ManageBackpackArtifacts & pack) {}
 	virtual void visitAssembleArtifacts(AssembleArtifacts & pack) {}
 	virtual void visitEraseArtifactByClient(EraseArtifactByClient & pack) {}
 	virtual void visitBuyArtifact(BuyArtifact & pack) {}
@@ -151,7 +152,8 @@ public:
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) {}
 	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) {}
 	virtual void visitLobbyLoadProgress(LobbyLoadProgress & pack) {}
-	virtual void visitLobbyEndGame(LobbyEndGame & pack) {}
+	virtual void visitLobbyRestartGame(LobbyRestartGame & pack) {}
+	virtual void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) {}
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) {}

@@ -35,7 +35,6 @@ class BattleInterface;
 class CPicture;
 class CFilledTexture;
 class CButton;
-class CToggleButton;
 class CLabel;
 class CMultiLineLabel;
 class CTextBox;

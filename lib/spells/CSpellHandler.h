@@ -13,7 +13,6 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Magic.h>
-#include "../JsonNode.h"
 #include "../IHandlerBase.h"
 #include "../ConstTransitivePtr.h"
 #include "../int3.h"
@@ -21,6 +20,7 @@
 #include "../battle/BattleHex.h"
 #include "../bonuses/Bonus.h"
 #include "../filesystem/ResourcePath.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

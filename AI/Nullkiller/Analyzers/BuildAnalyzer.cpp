@@ -120,6 +120,11 @@ TResources BuildAnalyzer::getTotalResourcesRequired() const
 	return result;
 }
 
+bool BuildAnalyzer::isGoldPreasureHigh() const
+{
+	return goldPreasure > ai->settings->getMaxGoldPreasure();
+}
+
 void BuildAnalyzer::update()
 {
 	logAi->trace("Start analysing build");

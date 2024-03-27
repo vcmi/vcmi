@@ -36,8 +36,8 @@ namespace Goals
 			sethero(pathToCenter.targetHero);
 		}
 
-		virtual bool operator==(const UnlockCluster & other) const override;
-		virtual std::string toString() const override;
+		bool operator==(const UnlockCluster & other) const override;
+		std::string toString() const override;
 		std::shared_ptr<ObjectCluster> getCluster() const { return cluster; }
 		const AIPath & getPathToCenter() { return pathToCenter; }
 	};

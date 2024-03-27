@@ -18,7 +18,7 @@
 
 using namespace NKAI;
 
-CCreatureSet emptyArmy;
+const CCreatureSet emptyArmy;
 
 bool HeroExchangeArmy::needsLastStack() const
 {

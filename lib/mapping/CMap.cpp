@@ -171,6 +171,7 @@ CMap::CMap(IGameCallback * cb)
 	, checksum(0)
 	, grailPos(-1, -1, -1)
 	, grailRadius(0)
+	, waterMap(false)
 	, uidCounter(0)
 {
 	allHeroes.resize(VLC->heroh->size());
@@ -604,6 +605,10 @@ bool CMap::calculateWaterContent()
 	if (waterTiles >= totalTiles / 100) //At least 1% of area is water
 	{
 		waterMap = true;
+	}
+	else
+	{
+		waterMap = false;
 	}
 
 	return waterMap;

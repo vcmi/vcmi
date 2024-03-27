@@ -35,7 +35,7 @@
 		{
 			"type" : "string",
 			"description" : "Name of file with graphicks",
-			"format" : "defFile"
+			"format" : "animationFile"
 		},
 		"rockTerrain" :
 		{

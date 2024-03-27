@@ -67,7 +67,7 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 		}
 		
 		auto byteArray = response->readAll();
-		JsonNode node(byteArray.constData(), byteArray.size());
+		JsonNode node(reinterpret_cast<const std::byte*>(byteArray.constData()), byteArray.size());
 		loadFromJson(node);
 	});
 }
@@ -96,7 +96,7 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	   node["updateType"].getType() != JsonNode::JsonType::DATA_STRING ||
 	   node["version"].getType() != JsonNode::JsonType::DATA_STRING ||
 	   node["changeLog"].getType() != JsonNode::JsonType::DATA_STRING ||
-	   node.getType() != JsonNode::JsonType::DATA_STRUCT) //we need at least one link - other are optional
+	   node["downloadLinks"].getType() != JsonNode::JsonType::DATA_STRUCT) //we need at least one link - other are optional
 	{
 		ui->plainTextEdit->setPlainText("Cannot read JSON from url or incorrect JSON data");
 		return;

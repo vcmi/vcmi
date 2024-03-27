@@ -9,12 +9,12 @@
 		"animation" : {
 			"type" : "string",
 			"description" : "Path to def file with animation of this object",
-			"format" : "defFile"
+			"format" : "animationFile"
 		},
 		"editorAnimation" : {
 			"type" : "string",
 			"description" : "Optional path to def file with animation of this object to use in map editor",
-			"format" : "defFile"
+			"format" : "animationFile"
 		},
 		"visitableFrom" : {
 			"type" : "array",

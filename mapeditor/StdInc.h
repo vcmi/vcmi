@@ -15,8 +15,8 @@
 
 VCMI_LIB_USING_NAMESPACE
 
-using NumericPointer = typename std::conditional<sizeof(void *) == sizeof(unsigned long long),
-												 unsigned long long, unsigned int>::type;
+using NumericPointer = typename std::conditional_t<sizeof(void *) == sizeof(unsigned long long),
+												 unsigned long long, unsigned int>;
 
 template<class Type>
 NumericPointer data_cast(Type * _pointer)

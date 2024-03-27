@@ -14,7 +14,6 @@
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
-#include "JsonNode.h"
 #include "IHandlerBase.h"
 #include "Color.h"
 #include "filesystem/ResourcePath.h"
@@ -126,7 +125,7 @@ public:
 	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
-	virtual const IBonusBearer * getBonusBearer() const override;
+	const IBonusBearer * getBonusBearer() const override;
 
 	int32_t getAdvMapAmountMin() const override;
 	int32_t getAdvMapAmountMax() const override;

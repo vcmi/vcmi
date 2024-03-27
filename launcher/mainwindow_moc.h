@@ -38,9 +38,8 @@ private:
 	{
 		MODS = 0,
 		SETTINGS = 1,
-		LOBBY = 2,
-		SETUP = 3,
-		ABOUT = 4,
+		SETUP = 2,
+		ABOUT = 3,
 	};
 
 	void changeEvent(QEvent *event) override;
@@ -65,7 +64,6 @@ public slots:
 private slots:
 	void on_modslistButton_clicked();
 	void on_settingsButton_clicked();
-	void on_lobbyButton_clicked();
 	void on_startEditorButton_clicked();
 	void on_aboutButton_clicked();
 };

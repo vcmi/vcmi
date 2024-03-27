@@ -44,7 +44,7 @@ namespace Goals
 			//h & value & resID & objid & aid & tile & hero & town & bid;
 		}
 
-		virtual bool operator==(const AbstractGoal & g) const override
+		bool operator==(const AbstractGoal & g) const override
 		{
 			if(goalType != g.goalType)
 				return false;
@@ -54,7 +54,7 @@ namespace Goals
 
 		virtual bool operator==(const T & other) const = 0;
 
-		virtual TGoalVec decompose() const override
+		TGoalVec decompose() const override
 		{
 			TSubgoal single = decomposeSingle();
 
@@ -90,11 +90,11 @@ namespace Goals
 			return *((T *)this);
 		}
 
-		virtual bool isElementar() const override { return true; }
+		bool isElementar() const override { return true; }
 
-		virtual HeroPtr getHero() const override { return AbstractGoal::hero; }
+		HeroPtr getHero() const override { return AbstractGoal::hero; }
 
-		virtual int getHeroExchangeCount() const override { return 0; }
+		int getHeroExchangeCount() const override { return 0; }
 	};
 }
 

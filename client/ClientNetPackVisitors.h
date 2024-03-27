@@ -118,16 +118,16 @@ public:
 	{
 	}
 
-	virtual void visitChangeObjPos(ChangeObjPos & pack) override;
-	virtual void visitRemoveObject(RemoveObject & pack) override;
-	virtual void visitTryMoveHero(TryMoveHero & pack) override;
-	virtual void visitGiveHero(GiveHero & pack) override;
-	virtual void visitBattleStart(BattleStart & pack) override;
-	virtual void visitBattleNextRound(BattleNextRound & pack) override;
-	virtual void visitBattleUpdateGateState(BattleUpdateGateState & pack) override;
-	virtual void visitBattleResult(BattleResult & pack) override;
-	virtual void visitBattleStackMoved(BattleStackMoved & pack) override;
-	virtual void visitBattleAttack(BattleAttack & pack) override;
-	virtual void visitStartAction(StartAction & pack) override;
-	virtual void visitSetObjectProperty(SetObjectProperty & pack) override;
+	void visitChangeObjPos(ChangeObjPos & pack) override;
+	void visitRemoveObject(RemoveObject & pack) override;
+	void visitTryMoveHero(TryMoveHero & pack) override;
+	void visitGiveHero(GiveHero & pack) override;
+	void visitBattleStart(BattleStart & pack) override;
+	void visitBattleNextRound(BattleNextRound & pack) override;
+	void visitBattleUpdateGateState(BattleUpdateGateState & pack) override;
+	void visitBattleResult(BattleResult & pack) override;
+	void visitBattleStackMoved(BattleStackMoved & pack) override;
+	void visitBattleAttack(BattleAttack & pack) override;
+	void visitStartAction(StartAction & pack) override;
+	void visitSetObjectProperty(SetObjectProperty & pack) override;
 };

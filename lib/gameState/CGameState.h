@@ -212,6 +212,7 @@ private:
 	void initFogOfWar();
 	void initStartingBonus();
 	void initTowns();
+	void initTownNames();
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();

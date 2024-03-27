@@ -401,6 +401,33 @@ struct DLL_LINKAGE BulkExchangeArtifacts : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE ManageBackpackArtifacts : public CPackForServer
+{
+	enum class ManageCmd
+	{
+		SCROLL_LEFT, SCROLL_RIGHT, SORT_BY_SLOT, SORT_BY_CLASS, SORT_BY_COST
+	};
+	
+	ManageBackpackArtifacts() = default;
+	ManageBackpackArtifacts(const ObjectInstanceID & artHolder, const ManageCmd & cmd)
+		: artHolder(artHolder)
+		, cmd(cmd)
+	{
+	}
+
+	ObjectInstanceID artHolder;
+	ManageCmd cmd;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & artHolder;
+		h & cmd;
+	}
+};
+
 struct DLL_LINKAGE AssembleArtifacts : public CPackForServer
 {
 	AssembleArtifacts() = default;

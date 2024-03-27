@@ -29,7 +29,7 @@ struct DLL_LINKAGE CLobbyPackToPropagate : public CPackForLobby
 
 struct DLL_LINKAGE CLobbyPackToServer : public CPackForLobby
 {
-	virtual bool isForServer() const override;
+	bool isForServer() const override;
 };
 
 struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
@@ -37,7 +37,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 	// Set by client before sending pack to server
 	std::string uuid;
 	std::vector<std::string> names;
-	StartInfo::EMode mode = StartInfo::INVALID;
+	EStartMode mode = EStartMode::INVALID;
 	// Changed by server before announcing pack
 	int clientId = -1;
 	int hostClientId = -1;
@@ -111,17 +111,21 @@ struct DLL_LINKAGE LobbyLoadProgress : public CLobbyPackToPropagate
 	}
 };
 
-struct DLL_LINKAGE LobbyEndGame : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyRestartGame : public CLobbyPackToPropagate
 {
-	bool closeConnection = false;
-	bool restart = false;
-	
 	void visitTyped(ICPackVisitor & visitor) override;
 	
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & closeConnection;
-		h & restart;
+	}
+};
+
+struct DLL_LINKAGE LobbyPrepareStartGame : public CLobbyPackToPropagate
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
 	}
 };
 

@@ -11,6 +11,7 @@
 #pragma once
 
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
+constexpr int NKAI_GRAPH_TRACE_LEVEL = 0;
 #define NKAI_TRACE_LEVEL 0
 
 #include "../../../lib/pathfinder/CGPathNode.h"
@@ -24,20 +25,11 @@
 
 namespace NKAI
 {
-	const int SCOUT_TURN_DISTANCE_LIMIT = 5;
-	const int MAIN_TURN_DISTANCE_LIMIT = 10;
-
 namespace AIPathfinding
 {
-#ifdef ENVIRONMENT64
-	const int BUCKET_COUNT = 7;
-#else
-	const int BUCKET_COUNT = 5;
-#endif // ENVIRONMENT64
-
+	const int BUCKET_COUNT = 3;
 	const int BUCKET_SIZE = 5;
 	const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
-	const int THREAD_COUNT = 8;
 	const int CHAIN_MAX_DEPTH = 4;
 }
 
@@ -188,7 +180,7 @@ public:
 	bool selectFirstActor();
 	bool selectNextActor();
 
-	virtual std::vector<CGPathNode *> getInitialNodes() override;
+	std::vector<CGPathNode *> getInitialNodes() override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,
@@ -200,7 +192,7 @@ public:
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) override;
 
-	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
+	void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
 
 	void commit(
 		AIPathNode * destination,

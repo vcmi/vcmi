@@ -579,11 +579,15 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 
 		for (auto id : adjacentZones)
 		{
-			auto manager = map.getZones().at(id)->getModificator<ObjectManager>();
-			if (manager)
+			auto otherZone = map.getZones().at(id);
+			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType()	== ETemplateZoneType::WATER))
 			{
-				// TODO: Update distances for perimeter of guarded object, not just treasures
-				manager->updateDistances(object);
+				// Do not update other zone if only one is water
+				auto manager = otherZone->getModificator<ObjectManager>();
+				if (manager)
+				{
+					manager->updateDistances(object);
+				}
 			}
 		}
 	}
@@ -593,7 +597,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	{
 		objectsVisitableArea.add(instance->getVisitablePosition());
 		objects.push_back(&instance->object());
-		if(auto * m = zone.getModificator<RoadPlacer>())
+		if(auto * rp = zone.getModificator<RoadPlacer>())
 		{
 			if (instance->object().blockVisit && !instance->object().removable)
 			{
@@ -603,7 +607,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			else if(instance->object().appearance->isVisitableFromTop())
 			{
 				//Passable objects
-				m->areaForRoads().add(instance->getVisitablePosition());
+				rp->areaForRoads().add(instance->getVisitablePosition());
 			}
 			else if(!instance->object().appearance->isVisitableFromTop())
 			{
@@ -617,7 +621,12 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 					(!instance->object().blockingAt(tile + int3(0, 1, 0)) && 
 					instance->object().blockingAt(tile));
 				});				
-				m->areaIsolated().unite(borderAbove);
+				rp->areaIsolated().unite(borderAbove);
+			}
+
+			if (object.isGuarded())
+			{
+				rp->areaVisitable().add(instance->getVisitablePosition());
 			}
 		}
 

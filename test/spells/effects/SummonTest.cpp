@@ -14,6 +14,7 @@
 #include <vstd/RNG.h>
 
 #include "../../../lib/CCreatureHandler.h"
+#include "../../../lib/json/JsonNode.h"
 
 namespace test
 {
@@ -72,7 +73,7 @@ protected:
 
 		toSummon = creature1;
 
-		JsonNode options(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode options;
 		options["id"].String() = "airElemental";
 		options["exclusive"].Bool() = exclusive;
 		options["summonSameUnit"].Bool() = summonSameUnit;
@@ -201,7 +202,7 @@ protected:
 		permanent = ::testing::get<0>(GetParam());
 		summonByHealth = ::testing::get<1>(GetParam());
 
-		JsonNode options(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode options;
 		options["id"].String() = "airElemental";
 		options["permanent"].Bool() = permanent;
 		options["summonByHealth"].Bool() = summonByHealth;

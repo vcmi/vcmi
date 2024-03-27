@@ -32,6 +32,7 @@
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
 #include "../campaign/CampaignState.h"
+#include "../json/JsonBonus.h"
 #include "../pathfinder/TurnInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -389,7 +390,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
 	// must be done separately from global bonuses since recruitable heroes in taverns 
 	// are not attached to global bonus node but need access to some global bonuses
-	// e.g. MANA_PER_KNOWLEDGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
+	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
 	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_PER_HERO);
 	for(const auto & b : baseBonuses.Struct())
@@ -1081,7 +1082,7 @@ std::string CGHeroInstance::nodeName() const
 si32 CGHeroInstance::manaLimit() const
 {
 	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE)
-		* (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE)));
+		* (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE))) / 100;
 }
 
 HeroTypeID CGHeroInstance::getPortraitSource() const

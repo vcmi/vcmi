@@ -18,7 +18,7 @@
 #include "../render/CDefFile.h"
 #include "../render/Graphics.h"
 
-#include "../../lib/JsonNode.h"
+#include "../../lib/json/JsonNode.h"
 
 #include <SDL_surface.h>
 

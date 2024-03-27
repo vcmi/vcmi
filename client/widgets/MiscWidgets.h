@@ -33,6 +33,7 @@ class CCreatureAnim;
 class CComponent;
 class CAnimImage;
 class LRClickableArea;
+class TransparentFilledRectangle;
 
 /// Shows a text by moving the mouse cursor over the object
 class CHoverableArea: public virtual CIntObject
@@ -40,7 +41,7 @@ class CHoverableArea: public virtual CIntObject
 public:
 	std::string hoverText;
 
-	virtual void hover (bool on) override;
+	void hover (bool on) override;
 
 	CHoverableArea();
 	virtual ~CHoverableArea();
@@ -248,35 +249,10 @@ public:
 	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
 };
 
-class TransparentFilledRectangle : public CIntObject
-{
-	ColorRGBA color;
-	ColorRGBA colorLine;
-	bool drawLine;
-	int lineWidth;
-
-public:
-    TransparentFilledRectangle(Rect position, ColorRGBA color);
-    TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine, int width = 1);
-	void setDrawBorder(bool on);
-	bool getDrawBorder();
-	void setBorderWidth(int width);
-    void showAll(Canvas & to) override;
-};
-
-class SimpleLine : public CIntObject
-{
-	Point pos1;
-	Point pos2;
-	ColorRGBA color;
-public:
-    SimpleLine(Point pos1, Point pos2, ColorRGBA color);
-    void showAll(Canvas & to) override;
-};
-
 class SelectableSlot : public LRClickableAreaWTextComp
 {
-	std::unique_ptr<TransparentFilledRectangle> selection;
+	std::shared_ptr<TransparentFilledRectangle> selection;
+	bool selected;
 
 public:
 	SelectableSlot(Rect area, Point oversize, const int width);

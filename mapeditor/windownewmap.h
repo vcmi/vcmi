@@ -22,6 +22,7 @@ class WindowNewMap : public QDialog
 {
 	Q_OBJECT
 
+	const QString newMapWindow = "NewMapWindow/Settings";
 	const QString newMapWidth = "NewMapWindow/Width";
 	const QString newMapHeight = "NewMapWindow/Height";
 	const QString newMapTwoLevel = "NewMapWindow/TwoLevel";
@@ -64,10 +65,13 @@ class WindowNewMap : public QDialog
 	
 	const std::map<int, std::pair<int, int>> mapSizes
 	{
-		{0, {36, 36}},
-		{1, {72, 72}},
-		{2, {108, 108}},
-		{3, {144, 144}},
+		{0, {CMapHeader::MAP_SIZE_SMALL, 	CMapHeader::MAP_SIZE_SMALL}},
+		{1, {CMapHeader::MAP_SIZE_MIDDLE,	CMapHeader::MAP_SIZE_MIDDLE}},
+		{2, {CMapHeader::MAP_SIZE_LARGE,	CMapHeader::MAP_SIZE_LARGE}},
+		{3, {CMapHeader::MAP_SIZE_XLARGE,	CMapHeader::MAP_SIZE_XLARGE}},
+		{4, {CMapHeader::MAP_SIZE_HUGE,		CMapHeader::MAP_SIZE_HUGE}},
+		{5, {CMapHeader::MAP_SIZE_XHUGE,	CMapHeader::MAP_SIZE_XHUGE}},
+		{6, {CMapHeader::MAP_SIZE_GIANT,	CMapHeader::MAP_SIZE_GIANT}},
 	};
 
 public:
@@ -105,7 +109,7 @@ private:
 
 	void updateTemplateList();
 
-	void loadUserSettings();
+	bool loadUserSettings();
 	void saveUserSettings();
 
 private:

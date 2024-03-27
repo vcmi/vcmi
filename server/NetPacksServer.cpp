@@ -20,11 +20,11 @@
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/battle/IBattleState.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/Unit.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/serializer/Cast.h"
@@ -136,7 +136,7 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
 	if(gh.getHero(pack.src.artHolder))
 		gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
-	result = gh.moveArtifact(pack.src, pack.dst);
+	result = gh.moveArtifact(pack.player, pack.src, pack.dst);
 }
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
@@ -145,7 +145,28 @@ void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & p
 		gh.throwIfWrongOwner(&pack, pack.srcHero);
 	if(pack.swap)
 		gh.throwIfWrongOwner(&pack, pack.dstHero);
-	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
+	result = gh.bulkMoveArtifacts(pack.player, pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
+}
+
+void ApplyGhNetPackVisitor::visitManageBackpackArtifacts(ManageBackpackArtifacts & pack)
+{
+	if(gh.getPlayerRelations(pack.player, gh.getOwner(pack.artHolder)) != PlayerRelations::ENEMIES)
+	{
+		if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT)
+			result = gh.scrollBackpackArtifacts(pack.player, pack.artHolder, true);
+		else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_RIGHT)
+			result = gh.scrollBackpackArtifacts(pack.player, pack.artHolder, false);
+		else
+		{
+			gh.throwIfWrongOwner(&pack, pack.artHolder);
+			if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
+				result = true;
+			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
+				result = true;
+			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
+				result = true;
+		}
+	}
 }
 
 void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
@@ -170,7 +191,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
 	const CGObjectInstance * object = gh.getObj(pack.marketId);
 	const CGHeroInstance * hero = gh.getHero(pack.heroId);
-	const IMarket * market = IMarket::castFrom(object);
+	const auto * market = dynamic_cast<const IMarket*>(object);
 
 	gh.throwIfWrongPlayer(&pack);
 

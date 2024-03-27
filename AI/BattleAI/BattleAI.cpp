@@ -49,7 +49,6 @@ CBattleAI::~CBattleAI()
 
 void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
-	setCbc(CB);
 	env = ENV;
 	cb = CB;
 	playerID = *CB->getPlayerID();
@@ -121,7 +120,6 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 	};
 
 	BattleAction result = BattleAction::makeDefend(stack);
-	setCbc(cb); //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
 
 	auto start = std::chrono::high_resolution_clock::now();
 

@@ -1,9 +1,9 @@
 {
 	"Roadrunner" :
-	//(ban fly/DD, 2 player, 31-May-03, midnight design)
 	{
 		"minSize" : "xl", "maxSize" : "xl",
 		"players" : "2",
+		"description" : "Ban fly/DD, 2 players, 31-May-03, Midnight design",
 		"zones" :
 		{
 			"1" :

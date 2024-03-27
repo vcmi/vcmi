@@ -443,6 +443,10 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 						heroToDismiss = town->garrisonHero.get();
 					}
 				}
+
+				// avoid dismissing one weak hero in order to recruit another.
+				if(heroToDismiss && heroToDismiss->getArmyStrength() + 500 > hero->getArmyStrength())
+					continue;
 			}
 			else if(ai->nullkiller->heroManager->heroCapReached())
 			{

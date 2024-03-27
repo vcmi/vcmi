@@ -51,8 +51,6 @@ class ComboBox : public CButton
 	};
 	
 	friend class DropDown;
-	
-	void setItem(const void *);
 
 public:
 	ComboBox(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, Point dropDownPosition, EShortcut key = {}, bool playerColoredButton = false);
@@ -67,6 +65,7 @@ public:
 	std::function<std::string(int, const void *)> getItemText;
 	
 	void setItem(int id);
+	void setItem(const void *);
 
 	void updateListItems();
 };

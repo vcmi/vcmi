@@ -427,7 +427,11 @@ void CHeroGSlot::clickPressed(const Point & cursorPosition)
 	if(hero && isSelected())
 	{
 		setHighlight(false);
-		LOCPLINT->openHeroWindow(hero);
+
+		if(other->hero)
+			LOCPLINT->showHeroExchange(hero->id, other->hero->id);
+		else
+			LOCPLINT->openHeroWindow(hero);
 	}
 	else if(other->hero && other->isSelected())
 	{
@@ -515,14 +519,6 @@ void HeroSlots::update()
 	visitingHero->set(town->visitingHero);
 }
 
-void HeroSlots::splitClicked()
-{
-	if(!!town->visitingHero && town->garrisonHero && (visitingHero->isSelected() || garrisonedHero->isSelected()))
-	{
-		LOCPLINT->showHeroExchange(town->visitingHero->id, town->garrisonHero->id);
-	}
-}
-
 void HeroSlots::swapArmies()
 {
 	bool allow = true;
@@ -561,27 +557,6 @@ void HeroSlots::swapArmies()
 	if (allow)
 		LOCPLINT->cb->swapGarrisonHero(town);
 }
-
-class SORTHELP
-{
-public:
-	bool operator() (const CIntObject * a, const CIntObject * b)
-	{
-		auto b1 = dynamic_cast<const CBuildingRect *>(a);
-		auto b2 = dynamic_cast<const CBuildingRect *>(b);
-
-		if(!b1 && !b2)
-			return intptr_t(a) < intptr_t(b);
-		if(b1 && !b2)
-			return false;
-		if(!b1 && b2)
-			return true;
-
-		return (*b1)<(*b2);
-	}
-};
-
-SORTHELP buildSorter;
 
 CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 	town(Town),
@@ -649,6 +624,21 @@ void CCastleBuildings::recreate()
 
 		buildings.push_back(std::make_shared<CBuildingRect>(this, town, toAdd));
 	}
+
+	auto const & buildSorter = [] (const CIntObject * a, const CIntObject * b)
+	{
+		auto b1 = dynamic_cast<const CBuildingRect *>(a);
+		auto b2 = dynamic_cast<const CBuildingRect *>(b);
+
+		if(!b1 && !b2)
+			return intptr_t(a) < intptr_t(b);
+		if(b1 && !b2)
+			return false;
+		if(!b1 && b2)
+			return true;
+
+		return (*b1)<(*b2);
+	};
 
 	boost::sort(children, buildSorter); //TODO: create building in blit order
 }
@@ -1223,11 +1213,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	exit = std::make_shared<CButton>(Point(744, 544), AnimationPath::builtin("TSBTNS"), CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, EShortcut::GLOBAL_RETURN);
 	exit->setImageOrder(4, 5, 6, 7);
 
-	auto split = std::make_shared<CButton>(Point(744, 382), AnimationPath::builtin("TSBTNS"), CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
-	{
-		garr->splitClick();
-		heroes->splitClicked();
-	});
+	auto split = std::make_shared<CButton>(Point(744, 382), AnimationPath::builtin("TSBTNS"), CButton::tooltip(CGI->generaltexth->tcommands[3]), [this]() { garr->splitClick(); });
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
@@ -1338,14 +1324,12 @@ void CCastleInterface::recreateIcons()
 	hall = std::make_shared<CTownInfo>(80, 413, town, true);
 	fort = std::make_shared<CTownInfo>(122, 413, town, false);
 
-	fastTownHall = std::make_shared<CButton>(Point(80, 413), AnimationPath::builtin("ITMTL.def"), CButton::tooltip(), [&](){ builds->enterTownHall(); });
-	fastTownHall->setImageOrder(town->hallLevel(), town->hallLevel(), town->hallLevel(), town->hallLevel());
-	fastTownHall->setAnimateLonelyFrame(true);
+	fastTownHall = std::make_shared<CButton>(Point(80, 413), AnimationPath::builtin("castleInterfaceQuickAccess"), CButton::tooltip(), [this](){ builds->enterTownHall(); });
+	fastTownHall->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("ITMTL"), town->hallLevel()));
 
 	int imageIndex = town->fortLevel() == CGTownInstance::EFortLevel::NONE ? 3 : town->fortLevel() - 1;
-	fastArmyPurchase = std::make_shared<CButton>(Point(122, 413), AnimationPath::builtin("itmcl.def"), CButton::tooltip(), [&](){ builds->enterToTheQuickRecruitmentWindow(); });
-	fastArmyPurchase->setImageOrder(imageIndex, imageIndex, imageIndex, imageIndex);
-	fastArmyPurchase->setAnimateLonelyFrame(true);
+	fastArmyPurchase = std::make_shared<CButton>(Point(122, 413), AnimationPath::builtin("castleInterfaceQuickAccess"), CButton::tooltip(), [this](){ builds->enterToTheQuickRecruitmentWindow(); });
+	fastArmyPurchase->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("itmcl"), imageIndex));
 
 	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [&]()
 	{
@@ -1427,11 +1411,11 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 
 	state = LOCPLINT->cb->canBuildStructure(town, building->bid);
 
-	static int panelIndex[12] =
+	constexpr std::array panelIndex =
 	{
 		3, 3, 3, 0, 0, 2, 2, 1, 2, 2,  3,  3
 	};
-	static int iconIndex[12] =
+	constexpr std::array iconIndex =
 	{
 		-1, -1, -1, 0, 0, 1, 2, -1, 1, 1, -1, -1
 	};

@@ -1,0 +1,26 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: joinRoomSuccess",
+	"description" : "Sent by server when player successfully joins the game room",
+	"required" : [ "type", "gameRoomID", "proxyMode" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "joinRoomSuccess"
+		},
+		"gameRoomID" :
+		{
+			"type" : "string",
+			"description" : "ID of game room that this player now participates in"
+		},
+		"proxyMode" :
+		{
+			"type" : "boolean",
+			"description" : "If true, account should use proxy mode and connect to server via game lobby"
+		}
+	}
+}

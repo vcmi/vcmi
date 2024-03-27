@@ -46,8 +46,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose() const
 
 		for(const CGHeroInstance * targetHero : heroes)
 		{
-			if(ai->nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE
-				&& !town->hasBuilt(BuildingID::CITY_HALL))
+			if(ai->nullkiller->buildAnalyzer->isGoldPreasureHigh()	&& !town->hasBuilt(BuildingID::CITY_HALL))
 			{
 				continue;
 			}

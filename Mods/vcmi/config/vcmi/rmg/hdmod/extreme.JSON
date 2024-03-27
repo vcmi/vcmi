@@ -1,9 +1,9 @@
 {
 	"Extreme L" :
-	//(ban fly/DD/orb inhibition/Castle-Necro-Conflux towns, 2 player, 3-Aug-03, midnight design)
 	{
 		"minSize" : "l", "maxSize" : "l",
 		"players" : "2",
+		"description" : "Ban fly/DD/Orb of Inhibition/Castle-Necro-Conflux towns, 2 player, 3-Aug-03, Midnight design",
 		"zones" :
 		{
 			"1" :
@@ -180,10 +180,10 @@
 		]
 	},
 	"Extreme XL" :
-	//(ban fly/DD/orb inhibition/Castle-Necro-Conflux towns, 2 player, 3-Aug-03, midnight design)
 	{
 		"minSize" : "xl", "maxSize" : "xh",
 		"players" : "2",
+		"description" : "Ban fly/DD/Orb of Inhibition/Castle-Necro-Conflux towns, 2 player, 3-Aug-03, Midnight design",
 		"zones" :
 		{
 			"1" :

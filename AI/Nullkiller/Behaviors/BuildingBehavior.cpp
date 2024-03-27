@@ -47,13 +47,13 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 		totalDevelopmentCost.toString());
 
 	auto & developmentInfos = ai->nullkiller->buildAnalyzer->getDevelopmentInfo();
-	auto goldPreasure = ai->nullkiller->buildAnalyzer->getGoldPreasure();
+	auto isGoldPreasureLow = !ai->nullkiller->buildAnalyzer->isGoldPreasureHigh();
 
 	for(auto & developmentInfo : developmentInfos)
 	{
 		for(auto & buildingInfo : developmentInfo.toBuild)
 		{
-			if(goldPreasure < MAX_GOLD_PEASURE || buildingInfo.dailyIncome[EGameResID::GOLD] > 0)
+			if(isGoldPreasureLow || buildingInfo.dailyIncome[EGameResID::GOLD] > 0)
 			{
 				if(buildingInfo.notEnoughRes)
 				{

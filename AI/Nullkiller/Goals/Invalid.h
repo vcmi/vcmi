@@ -32,17 +32,17 @@ namespace Goals
 			return TGoalVec();
 		}
 
-		virtual bool operator==(const Invalid & other) const override
+		bool operator==(const Invalid & other) const override
 		{
 			return true;
 		}
 
-		virtual std::string toString() const override
+		std::string toString() const override
 		{
 			return "Invalid";
 		}
 
-		virtual void accept(AIGateway * ai) override
+		void accept(AIGateway * ai) override
 		{
 			throw cannotFulfillGoalException("Can not fulfill Invalid goal!");
 		}

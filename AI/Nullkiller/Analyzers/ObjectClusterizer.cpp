@@ -189,15 +189,7 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 		return true; //all of the following is met
 }
 
-void ObjectClusterizer::clusterize()
-{
-	auto start = std::chrono::high_resolution_clock::now();
-
-	nearObjects.reset();
-	farObjects.reset();
-	blockedObjects.clear();
-
-	Obj ignoreObjects[] = {
+Obj ObjectClusterizer::IgnoredObjectTypes[] = {
 		Obj::BOAT,
 		Obj::EYE_OF_MAGI,
 		Obj::MONOLITH_ONE_WAY_ENTRANCE,
@@ -216,7 +208,15 @@ void ObjectClusterizer::clusterize()
 		Obj::REDWOOD_OBSERVATORY,
 		Obj::CARTOGRAPHER,
 		Obj::PILLAR_OF_FIRE
-	};
+};
+
+void ObjectClusterizer::clusterize()
+{
+	auto start = std::chrono::high_resolution_clock::now();
+
+	nearObjects.reset();
+	farObjects.reset();
+	blockedObjects.clear();
 
 	logAi->debug("Begin object clusterization");
 
@@ -224,131 +224,20 @@ void ObjectClusterizer::clusterize()
 		ai->memory->visitableObjs.begin(),
 		ai->memory->visitableObjs.end());
 
-	parallel_for(blocked_range<size_t>(0, objs.size()), [&](const blocked_range<size_t> & r)
-	{
+#if NKAI_TRACE_LEVEL == 0
+	parallel_for(blocked_range<size_t>(0, objs.size()), [&](const blocked_range<size_t> & r) {
+#else
+	blocked_range<size_t> r(0, objs.size());
+#endif
 		auto priorityEvaluator = ai->priorityEvaluators->acquire();
 
 		for(int i = r.begin(); i != r.end(); i++)
 		{
-			auto obj = objs[i];
-
-			if(!shouldVisitObject(obj))
-			{
-#if NKAI_TRACE_LEVEL >= 2
-				logAi->trace("Skip object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
-#endif
-				continue;
-			}
-
-#if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
-#endif
-
-			auto paths = ai->pathfinder->getPathInfo(obj->visitablePos());
-
-			if(paths.empty())
-			{
-#if NKAI_TRACE_LEVEL >= 2
-				logAi->trace("No paths found.");
-#endif
-				continue;
-			}
-
-			std::sort(paths.begin(), paths.end(), [](const AIPath & p1, const AIPath & p2) -> bool
-			{
-				return p1.movementCost() < p2.movementCost();
-			});
-
-			if(vstd::contains(ignoreObjects, obj->ID))
-			{
-				farObjects.addObject(obj, paths.front(), 0);
-
-#if NKAI_TRACE_LEVEL >= 2
-				logAi->trace("Object ignored. Moved to far objects with path %s", paths.front().toString());
-#endif
-
-				continue;
-			}
-
-			std::set<const CGHeroInstance *> heroesProcessed;
-
-			for(auto & path : paths)
-			{
-#if NKAI_TRACE_LEVEL >= 2
-				logAi->trace("Checking path %s", path.toString());
-#endif
-
-				if(!shouldVisit(ai, path.targetHero, obj))
-				{
-#if NKAI_TRACE_LEVEL >= 2
-					logAi->trace("Hero %s does not need to visit %s", path.targetHero->getObjectName(), obj->getObjectName());
-#endif
-					continue;
-				}
-
-				if(path.nodes.size() > 1)
-				{
-					auto blocker = getBlocker(path);
-
-					if(blocker)
-					{
-						if(vstd::contains(heroesProcessed, path.targetHero))
-						{
-#if NKAI_TRACE_LEVEL >= 2
-							logAi->trace("Hero %s is already processed.", path.targetHero->getObjectName());
-#endif
-							continue;
-						}
-
-						heroesProcessed.insert(path.targetHero);
-
-						float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
-
-						if(priority < MIN_PRIORITY)
-							continue;
-
-						ClusterMap::accessor cluster;
-						blockedObjects.insert(
-							cluster,
-							ClusterMap::value_type(blocker, std::make_shared<ObjectCluster>(blocker)));
-
-						cluster->second->addObject(obj, path, priority);
-
-#if NKAI_TRACE_LEVEL >= 2
-						logAi->trace("Path added to cluster %s%s", blocker->getObjectName(), blocker->visitablePos().toString());
-#endif
-						continue;
-					}
-				}
-
-				heroesProcessed.insert(path.targetHero);
-
-				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
-
-				if(priority < MIN_PRIORITY)
-					continue;
-
-				bool interestingObject = path.turn() <= 2 || priority > 0.5f;
-
-				if(interestingObject)
-				{
-					nearObjects.addObject(obj, path, priority);
-				}
-				else
-				{
-					farObjects.addObject(obj, path, priority);
-				}
-
-#if NKAI_TRACE_LEVEL >= 2
-				logAi->trace("Path %s added to %s objects. Turn: %d, priority: %f",
-					path.toString(),
-					interestingObject ? "near" : "far",
-					path.turn(),
-					priority);
-#endif
-			}
+			clusterizeObject(objs[i], priorityEvaluator.get());
 		}
+#if NKAI_TRACE_LEVEL == 0
 	});
+#endif
 
 	logAi->trace("Near objects count: %i", nearObjects.objects.size());
 	logAi->trace("Far objects count: %i", farObjects.objects.size());
@@ -366,6 +255,125 @@ void ObjectClusterizer::clusterize()
 	}
 
 	logAi->trace("Clusterization complete in %ld", timeElapsed(start));
+}
+
+void ObjectClusterizer::clusterizeObject(const CGObjectInstance * obj, PriorityEvaluator * priorityEvaluator)
+{
+	if(!shouldVisitObject(obj))
+	{
+#if NKAI_TRACE_LEVEL >= 2
+		logAi->trace("Skip object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
+#endif
+		return;
+	}
+
+#if NKAI_TRACE_LEVEL >= 2
+	logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
+#endif
+
+	auto paths = ai->pathfinder->getPathInfo(obj->visitablePos(), true);
+
+	if(paths.empty())
+	{
+#if NKAI_TRACE_LEVEL >= 2
+		logAi->trace("No paths found.");
+#endif
+		return;
+	}
+
+	std::sort(paths.begin(), paths.end(), [](const AIPath & p1, const AIPath & p2) -> bool
+		{
+			return p1.movementCost() < p2.movementCost();
+		});
+
+	if(vstd::contains(IgnoredObjectTypes, obj->ID))
+	{
+		farObjects.addObject(obj, paths.front(), 0);
+
+#if NKAI_TRACE_LEVEL >= 2
+		logAi->trace("Object ignored. Moved to far objects with path %s", paths.front().toString());
+#endif
+
+		return;
+	}
+
+	std::set<const CGHeroInstance *> heroesProcessed;
+
+	for(auto & path : paths)
+	{
+#if NKAI_TRACE_LEVEL >= 2
+		logAi->trace("Checking path %s", path.toString());
+#endif
+
+		if(!shouldVisit(ai, path.targetHero, obj))
+		{
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Hero %s does not need to visit %s", path.targetHero->getObjectName(), obj->getObjectName());
+#endif
+			continue;
+		}
+
+		if(path.nodes.size() > 1)
+		{
+			auto blocker = getBlocker(path);
+
+			if(blocker)
+			{
+				if(vstd::contains(heroesProcessed, path.targetHero))
+				{
+#if NKAI_TRACE_LEVEL >= 2
+					logAi->trace("Hero %s is already processed.", path.targetHero->getObjectName());
+#endif
+					continue;
+				}
+
+				heroesProcessed.insert(path.targetHero);
+
+				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
+
+				if(priority < MIN_PRIORITY)
+					continue;
+
+				ClusterMap::accessor cluster;
+				blockedObjects.insert(
+					cluster,
+					ClusterMap::value_type(blocker, std::make_shared<ObjectCluster>(blocker)));
+
+				cluster->second->addObject(obj, path, priority);
+
+#if NKAI_TRACE_LEVEL >= 2
+				logAi->trace("Path added to cluster %s%s", blocker->getObjectName(), blocker->visitablePos().toString());
+#endif
+				continue;
+			}
+		}
+
+		heroesProcessed.insert(path.targetHero);
+
+		float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
+
+		if(priority < MIN_PRIORITY)
+			continue;
+
+		bool interestingObject = path.turn() <= 2 || priority > 0.5f;
+
+		if(interestingObject)
+		{
+			nearObjects.addObject(obj, path, priority);
+		}
+		else
+		{
+			farObjects.addObject(obj, path, priority);
+		}
+
+#if NKAI_TRACE_LEVEL >= 2
+		logAi->trace("Path %s added to %s objects. Turn: %d, priority: %f",
+			path.toString(),
+			interestingObject ? "near" : "far",
+			path.turn(),
+			priority);
+#endif
+	}
 }
 
 }

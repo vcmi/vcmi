@@ -1,0 +1,45 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: activeAccounts",
+	"description" : "Sent by server to initialized or update list of active accounts",
+	"required" : [ "type", "accounts" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "activeAccounts"
+		},
+		"accounts" :
+		{
+			"type" : "array",
+			"description" : "List of accounts that are currently online",
+			"items" :
+			{
+				"type" : "object",
+				"additionalProperties" : false,
+				"required" : [ "accountID", "displayName", "status" ],
+
+				"properties" : {
+					"accountID" :
+					{
+						"type" : "string",
+						"description" : "Unique ID of an account"
+					},
+					"displayName" :
+					{
+						"type" : "string",
+						"description" : "Display name of an account"
+					},
+					"status" :
+					{
+						"type" : "string",
+						"description" : "Current status of an account, such as in lobby or in match"
+					}
+				}
+			}
+		}
+	}
+}

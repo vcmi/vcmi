@@ -1030,10 +1030,11 @@ struct DLL_LINKAGE EraseArtifact : CArtifactOperationPack
 struct DLL_LINKAGE MoveArtifact : CArtifactOperationPack
 {
 	MoveArtifact() = default;
-	MoveArtifact(ArtifactLocation * src, ArtifactLocation * dst, bool askAssemble = true)
-		: src(*src), dst(*dst), askAssemble(askAssemble)
+	MoveArtifact(const PlayerColor & interfaceOwner, const ArtifactLocation & src, const ArtifactLocation & dst, bool askAssemble = true)
+		: interfaceOwner(interfaceOwner), src(src), dst(dst), askAssemble(askAssemble)
 	{
 	}
+	PlayerColor interfaceOwner;
 	ArtifactLocation src;
 	ArtifactLocation dst;
 	bool askAssemble = true;
@@ -1043,6 +1044,7 @@ struct DLL_LINKAGE MoveArtifact : CArtifactOperationPack
 
 	template <typename Handler> void serialize(Handler & h)
 	{
+		h & interfaceOwner;
 		h & src;
 		h & dst;
 		h & askAssemble;
@@ -1069,13 +1071,15 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		}
 	};
 
+	PlayerColor interfaceOwner;
 	ObjectInstanceID srcArtHolder;
 	ObjectInstanceID dstArtHolder;
 	std::optional<SlotID> srcCreature;
 	std::optional<SlotID> dstCreature;
 
 	BulkMoveArtifacts()
-		: srcArtHolder(ObjectInstanceID::NONE)
+		: interfaceOwner(PlayerColor::NEUTRAL)
+		, srcArtHolder(ObjectInstanceID::NONE)
 		, dstArtHolder(ObjectInstanceID::NONE)
 		, swap(false)
 		, askAssemble(false)
@@ -1083,9 +1087,10 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		, dstCreature(std::nullopt)
 	{
 	}
-	BulkMoveArtifacts(const ObjectInstanceID srcArtHolder, const ObjectInstanceID dstArtHolder, bool swap)
-		: srcArtHolder(std::move(srcArtHolder))
-		, dstArtHolder(std::move(dstArtHolder))
+	BulkMoveArtifacts(const PlayerColor & interfaceOwner, const ObjectInstanceID srcArtHolder, const ObjectInstanceID dstArtHolder, bool swap)
+		: interfaceOwner(interfaceOwner)
+		, srcArtHolder(srcArtHolder)
+		, dstArtHolder(dstArtHolder)
 		, swap(swap)
 		, askAssemble(false)
 		, srcCreature(std::nullopt)
@@ -1104,6 +1109,7 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 
 	template <typename Handler> void serialize(Handler & h)
 	{
+		h & interfaceOwner;
 		h & artsPack0;
 		h & artsPack1;
 		h & srcArtHolder;

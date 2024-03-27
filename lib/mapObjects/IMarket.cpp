@@ -154,20 +154,6 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(EMarketMode mode) const
 	return ret;
 }
 
-const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose)
-{
-	auto * imarket = dynamic_cast<const IMarket *>(obj);
-	if(verbose && !imarket)
-	{
-		logGlobal->error("Cannot cast to IMarket");
-		if(obj)
-		{
-			logGlobal->error("Object type %s", obj->typeName);
-		}
-	}
-	return imarket;
-}
-
 IMarket::IMarket()
 {
 }

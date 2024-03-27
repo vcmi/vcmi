@@ -109,51 +109,52 @@ bool AbstractGoal::operator==(const AbstractGoal & g) const
 	return false;
 }
 
-bool AbstractGoal::operator<(AbstractGoal & g) //for std::unique
-{
-	//TODO: make sure it gets goals consistent with == operator
-	if (goalType < g.goalType)
-		return true;
-	if (goalType > g.goalType)
-		return false;
-	if (hero < g.hero)
-		return true;
-	if (hero > g.hero)
-		return false;
-	if (tile < g.tile)
-		return true;
-	if (g.tile < tile)
-		return false;
-	if (objid < g.objid)
-		return true;
-	if (objid > g.objid)
-		return false;
-	if (town < g.town)
-		return true;
-	if (town > g.town)
-		return false;
-	if (value < g.value)
-		return true;
-	if (value > g.value)
-		return false;
-	if (priority < g.priority)
-		return true;
-	if (priority > g.priority)
-		return false;
-	if (resID < g.resID)
-		return true;
-	if (resID > g.resID)
-		return false;
-	if (bid < g.bid)
-		return true;
-	if (bid > g.bid)
-		return false;
-	if (aid < g.aid)
-		return true;
-	if (aid > g.aid)
-		return false;
-	return false;
-}
+// FIXME: unused code?
+//bool AbstractGoal::operator<(AbstractGoal & g) //for std::unique
+//{
+//	//TODO: make sure it gets goals consistent with == operator
+//	if (goalType < g.goalType)
+//		return true;
+//	if (goalType > g.goalType)
+//		return false;
+//	if (hero < g.hero)
+//		return true;
+//	if (hero > g.hero)
+//		return false;
+//	if (tile < g.tile)
+//		return true;
+//	if (g.tile < tile)
+//		return false;
+//	if (objid < g.objid)
+//		return true;
+//	if (objid > g.objid)
+//		return false;
+//	if (town < g.town)
+//		return true;
+//	if (town > g.town)
+//		return false;
+//	if (value < g.value)
+//		return true;
+//	if (value > g.value)
+//		return false;
+//	if (priority < g.priority)
+//		return true;
+//	if (priority > g.priority)
+//		return false;
+//	if (resID < g.resID)
+//		return true;
+//	if (resID > g.resID)
+//		return false;
+//	if (bid < g.bid)
+//		return true;
+//	if (bid > g.bid)
+//		return false;
+//	if (aid < g.aid)
+//		return true;
+//	if (aid > g.aid)
+//		return false;
+//	return false;
+//}
 
 //TODO: find out why the following are not generated automatically on MVS?
 bool TSubgoal::operator==(const TSubgoal & rhs) const

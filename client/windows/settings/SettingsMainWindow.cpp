@@ -143,12 +143,9 @@ void SettingsMainWindow::mainMenuButtonCallback()
 		[this]()
 		{
 			close();
-			GH.dispatchMainThread( []()
-			{
-				CSH->endGameplay();
-				GH.defActionsDef = 63;
-				CMM->menu->switchToTab("main");
-			});
+			CSH->endGameplay();
+			GH.defActionsDef = 63;
+			CMM->menu->switchToTab("main");
 		},
 		0
 	);
@@ -188,7 +185,7 @@ void SettingsMainWindow::showAll(Canvas & to)
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
 	CIntObject::showAll(to);
-	CMessage::drawBorder(color, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 void SettingsMainWindow::onScreenResize()

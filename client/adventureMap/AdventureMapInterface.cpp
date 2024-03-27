@@ -867,7 +867,7 @@ Rect AdventureMapInterface::terrainAreaPixels() const
 
 const IShipyard * AdventureMapInterface::ourInaccessibleShipyard(const CGObjectInstance *obj) const
 {
-	const IShipyard *ret = IShipyard::castFrom(obj);
+	const auto *ret = dynamic_cast<const IShipyard *>(obj);
 
 	if(!ret ||
 		obj->tempOwner != currentPlayerID ||

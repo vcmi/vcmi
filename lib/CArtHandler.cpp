@@ -15,7 +15,7 @@
 #include "GameSettings.h"
 #include "mapObjects/MapObjects.h"
 #include "constants/StringConstants.h"
-
+#include "json/JsonBonus.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "serializer/JsonSerializeFormat.h"
@@ -350,8 +350,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 		{
 			if(parser.readString() == "x")
 			{
-				artData["slot"].Vector().push_back(JsonNode());
-				artData["slot"].Vector().back().String() = artSlot;
+				artData["slot"].Vector().emplace_back(artSlot);
 			}
 		}
 		artData["class"].String() = classes.at(parser.readString()[0]);
@@ -461,7 +460,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	VLC->identifiers()->requestIdentifier(scope, "object", "artifact", [=](si32 index)
 	{
 		JsonNode conf;
-		conf.setMeta(scope);
+		conf.setModScope(scope);
 
 		VLC->objtypeh->loadSubObject(art->identifier, conf, Obj::ARTIFACT, art->getIndex());
 
@@ -469,7 +468,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 		{
 			JsonNode templ;
 			templ["animation"].String() = art->advMapDef;
-			templ.setMeta(scope);
+			templ.setModScope(scope);
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3

@@ -113,27 +113,6 @@ public:
 		return *this;
 	}
 
-	bool operator==(const float3 & i) const { return (x == i.x) && (y == i.y) && (z == i.z); }
-	bool operator!=(const float3 & i) const { return (x != i.x) || (y != i.y) || (z != i.z); }
-
-	bool operator<(const float3 & i) const
-	{
-		if (z<i.z)
-			return true;
-		if (z>i.z)
-			return false;
-		if (y<i.y)
-			return true;
-		if (y>i.y)
-			return false;
-		if (x<i.x)
-			return true;
-		if (x>i.x)
-			return false;
-
-		return false;
-	}
-
 	std::string toString() const
 	{
 		return	"(" + std::to_string(x) +

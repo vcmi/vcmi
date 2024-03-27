@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../constants/EntityIdentifiers.h"
+#include "../constants/Enumerations.h"
 #include "../constants/VariantIdentifier.h"
 #include "../modding/CModInfo.h"
 #include "../LogicalExpression.h"
@@ -264,7 +266,12 @@ public:
 		h & width;
 		h & height;
 		h & twoLevel;
-		h & difficulty;
+		// FIXME: we should serialize enum's according to their underlying type
+		// should be fixed when we are making breaking change to save compatiblity
+		static_assert(Handler::Version::MINIMAL < Handler::Version::RELEASE_143);
+		uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
+		h & difficultyInteger;
+		difficulty = static_cast<EMapDifficulty>(difficultyInteger);
 		h & levelLimit;
 		h & areAnyPlayers;
 		h & players;

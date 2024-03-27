@@ -872,22 +872,10 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 		totalDensity += t->density;
 
-		const int DENSITY_CONSTANT = 300;
+		const int DENSITY_CONSTANT = 400;
 		size_t count = (size * t->density) / DENSITY_CONSTANT;
 
-		//Assure space for lesser treasures, if there are any left
-		const int averageValue = (t->min + t->max) / 2;
-		if (t != (treasureInfo.end() - 1))
-		{
-			if (averageValue > 10000)
-			{
-				//Will surely be guarded => larger piles => less space inbetween
-				vstd::amin(count, size * (10.f / DENSITY_CONSTANT) / (std::sqrt((float)averageValue / 10000)));
-			}
-		}
-		
-		//this is squared distance for optimization purposes
-		const float minDistance = std::max<float>((125.f / totalDensity), 1.0f);
+		const float minDistance = std::max<float>(std::sqrt(std::min<ui32>(t->min, 30000) / 10.0f / totalDensity), 1.0f);
 
 		size_t emergencyLoopFinish = 0;
 		while(treasures.size() < count && emergencyLoopFinish < count)
@@ -971,7 +959,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			if (path.valid())
 			{
-				//debug purposes
+#ifdef TREASURE_PLACER_LOG
 				treasureArea.unite(rmgObject.getArea());
 				if (guarded)
 				{
@@ -980,6 +968,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 					auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
 					treasureBlockArea.unite(areaToBlock);
 				}
+#endif
 				zone.connectPath(path);
 				manager.placeObject(rmgObject, guarded, true);
 			}

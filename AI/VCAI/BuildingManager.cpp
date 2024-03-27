@@ -148,7 +148,7 @@ BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_
 static const std::vector<BuildingID> unitGrowth = { BuildingID::HORDE_1, BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR };
 static const std::vector<BuildingID> _spells = { BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
 BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5 };
-static const std::vector<BuildingID> extra = { BuildingID::MARKETPLACE, BuildingID::BLACKSMITH, BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, 
+static const std::vector<BuildingID> extra = { BuildingID::MARKETPLACE, BuildingID::BLACKSMITH, BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2,
 BuildingID::SPECIAL_3, BuildingID::SPECIAL_4, BuildingID::SHIPYARD }; // all remaining buildings
 
 bool BuildingManager::getBuildingOptions(const CGTownInstance * t)

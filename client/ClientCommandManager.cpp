@@ -37,6 +37,7 @@
 #include "../lib/modding/ModUtility.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/logging/VisualLogger.h"
 #include "CMT.h"
 
 #ifdef SCRIPTING_ENABLED
@@ -248,13 +249,13 @@ void ClientCommandManager::handleGetConfigCommand()
 			{
 				const JsonNode& object = nameAndObject.second;
 
-				std::string name = ModUtility::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
+				std::string name = ModUtility::makeFullIdentifier(object.getModScope(), contentName, nameAndObject.first);
 
 				boost::algorithm::replace_all(name, ":", "_");
 
 				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
 				std::ofstream file(filePath.c_str());
-				file << object.toJson();
+				file << object.toString();
 			}
 		}
 	}
@@ -358,7 +359,7 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 	auto format = [outputFormat](const BonusList & b) -> std::string
 	{
 		if(outputFormat == "json")
-			return b.toJsonNode().toJson(true);
+			return b.toJsonNode().toCompactString();
 
 		std::ostringstream ss;
 		ss << b;
@@ -425,6 +426,14 @@ void ClientCommandManager::handleCrashCommand()
 	int* ptr = nullptr;
 	*ptr = 666;
 	//disaster!
+}
+
+void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
+{
+	std::string key;
+	singleWordBuffer >> key;
+
+	logVisual->setKey(key);
 }
 
 void ClientCommandManager::printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType)
@@ -545,6 +554,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "crash")
 		handleCrashCommand();
+
+	else if(commandName == "vslog")
+		handleVsLog(singleWordBuffer);
 
 	else
 	{

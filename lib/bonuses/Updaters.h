@@ -48,8 +48,8 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 };
 
 class DLL_LINKAGE TimesHeroLevelUpdater : public IUpdater
@@ -61,8 +61,8 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 };
 
 class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
@@ -74,8 +74,8 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 };
 
 class DLL_LINKAGE ArmyMovementUpdater : public IUpdater
@@ -97,8 +97,8 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 };
 
 class DLL_LINKAGE OwnerUpdater : public IUpdater
@@ -110,8 +110,8 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) const override;
-	virtual std::string toString() const override;
-	virtual JsonNode toJsonNode() const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
 };
 
 VCMI_LIB_NAMESPACE_END

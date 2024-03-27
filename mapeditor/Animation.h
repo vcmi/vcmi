@@ -10,10 +10,13 @@
 #pragma once
 //code is copied from vcmiclient/CAnimation.h with minimal changes
 
-#include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include <QRgb>
 #include <QImage>
+
+VCMI_LIB_NAMESPACE_BEGIN
+class JsonNode;
+VCMI_LIB_NAMESPACE_END
 
 /*
  * Base class for images, can be used for non-animation pictures as well

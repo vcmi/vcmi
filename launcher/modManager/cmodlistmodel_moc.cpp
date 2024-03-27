@@ -38,7 +38,7 @@ QString CModListModel::modIndexToName(const QModelIndex & index) const
 
 QString CModListModel::modTypeName(QString modTypeID) const
 {
-	static QMap<QString, QString> modTypes = {
+	static const QMap<QString, QString> modTypes = {
 		{"Translation", tr("Translation")},
 		{"Town",        tr("Town")       },
 		{"Test",        tr("Test")       },

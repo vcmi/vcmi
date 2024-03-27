@@ -215,10 +215,10 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 /* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
 #ifdef VCMI_WINDOWS
-#ifdef VCMI_DLL_STATIC
+#  ifdef VCMI_DLL_STATIC
 #    define DLL_IMPORT
 #    define DLL_EXPORT
-#elif defined(__GNUC__)
+#  elif defined(__GNUC__)
 #    define DLL_IMPORT __attribute__((dllimport))
 #    define DLL_EXPORT __attribute__((dllexport))
 #  else
@@ -512,6 +512,20 @@ namespace vstd
 		}
 	}
 
+	//works for std::unordered_map, maybe something else
+	template<typename Key, typename Val, typename Predicate>
+	void erase_if(std::unordered_map<Key, Val> & container, Predicate pred)
+	{
+		auto itr = container.begin();
+		auto endItr = container.end();
+		while(itr != endItr)
+		{
+			auto tmpItr = itr++;
+			if(pred(*tmpItr))
+				container.erase(tmpItr);
+		}
+	}
+
 	template<typename InputRange, typename OutputIterator, typename Predicate>
 	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
 	{
@@ -683,6 +697,23 @@ namespace vstd
 	Arithmetic lerp(const Arithmetic & a, const Arithmetic & b, const Floating & f)
 	{
 		return a + (b - a) * f;
+	}
+
+	template<typename Floating>
+	bool isAlmostZero(const Floating & value)
+	{
+		constexpr Floating epsilon(0.00001);
+		return std::abs(value) <= epsilon;
+	}
+
+	template<typename Floating1, typename Floating2>
+	bool isAlmostEqual(const Floating1 & left, const Floating2 & right)
+	{
+		using Floating = decltype(left + right);
+		constexpr Floating epsilon(0.00001);
+		const Floating relativeEpsilon = std::max(std::abs(left), std::abs(right)) * epsilon;
+		const Floating value = std::abs(left - right);
+		return value <= relativeEpsilon;
 	}
 
 	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr

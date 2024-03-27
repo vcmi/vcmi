@@ -1,0 +1,22 @@
+{
+	"normal" : {
+		"width": 58,
+		"height": 64,
+		"items" : []
+	},
+	"pressed" : {
+		"width": 58,
+		"height": 64,
+		"items" : []
+	},
+	"blocked" : {
+		"width": 58,
+		"height": 64,
+		"items" : []
+	},
+	"highlighted" : {
+		"width": 58,
+		"height": 64,
+		"items" : []
+	},
+}

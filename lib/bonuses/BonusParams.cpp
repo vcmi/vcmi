@@ -78,7 +78,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 			type = BonusType::SIGHT_RADIUS;
 		else if(deprecatedSubtype == SecondarySkill::INTELLIGENCE || deprecatedSubtypeStr == "skill.intelligence")
 		{
-			type = BonusType::MANA_PER_KNOWLEDGE;
+			type = BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE;
 			valueType = BonusValueType::PERCENT_TO_BASE;
 		}
 		else if(deprecatedSubtype == SecondarySkill::SORCERY || deprecatedSubtypeStr == "skill.sorcery")
@@ -353,7 +353,7 @@ const JsonNode & BonusParams::toJson()
 			ret["targetSourceType"].String() = vstd::findKey(bonusSourceMap, *targetType);
 		jsonCreated = true;
 	}
-	ret.setMeta(ModScope::scopeGame());
+	ret.setModScope(ModScope::scopeGame());
 	return ret;
 };
 

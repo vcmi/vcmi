@@ -32,6 +32,8 @@ public:
 	Point2D rotated(float radians) const;
 
 	bool operator < (const Point2D& other) const;
+
+	std::string toString() const;
 };
 
 Point2D rotatePoint(const Point2D& point, double radians, const Point2D& origin);

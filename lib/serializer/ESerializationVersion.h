@@ -35,7 +35,9 @@ enum class ESerializationVersion : int32_t
 	RELEASE_143, // 832 +text container in campaigns, +starting hero in RMG options
 	HAS_EXTRA_OPTIONS, // 833 +extra options struct as part of startinfo
 	DESTROYED_OBJECTS, // 834 +list of objects destroyed by player
-	CAMPAIGN_MAP_TRANSLATIONS,
+	CAMPAIGN_MAP_TRANSLATIONS, // 835 +campaigns include translations for its maps
+	JSON_FLAGS, // 836 json uses new format for flags
+	MANA_LIMIT,	// 837 change MANA_PER_KNOWLEGDE to percentage
 
-	CURRENT = CAMPAIGN_MAP_TRANSLATIONS
+	CURRENT = MANA_LIMIT
 };

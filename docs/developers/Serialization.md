@@ -140,12 +140,7 @@ CLoadFile/CSaveFile classes allow to read data to file and store data to file. T
 
 ### Networking
 
-CConnection class provides support for sending data structures over TCP/IP protocol. It provides 3 constructors: 
-1. connect to given hostname at given port (host must be accepting connection) 
-2. accept connection (takes boost.asio acceptor and io_service) 
-3. adapt boost.asio socket with already established connection
-
-All three constructors take as the last parameter the name that will be used to identify the peer.
+See [Networking](Networking.md) 
 
 ## Additional features
 

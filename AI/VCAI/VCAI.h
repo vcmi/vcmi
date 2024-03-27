@@ -371,11 +371,7 @@ public:
 	{
 	}
 
-	virtual ~cannotFulfillGoalException() throw ()
-	{
-	};
-
-	const char * what() const throw () override
+	const char * what() const noexcept override
 	{
 		return msg.c_str();
 	}
@@ -394,11 +390,7 @@ public:
 		msg = goal->name();
 	}
 
-	virtual ~goalFulfilledException() throw ()
-	{
-	};
-
-	const char * what() const throw () override
+	const char * what() const noexcept override
 	{
 		return msg.c_str();
 	}

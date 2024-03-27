@@ -11,7 +11,6 @@
 #include "cmodlist.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/modding/CModVersion.h"

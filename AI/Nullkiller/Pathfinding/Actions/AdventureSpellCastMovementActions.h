@@ -29,7 +29,7 @@ namespace AIPathfinding
 	public:
 		AdventureCastAction(SpellID spellToCast, const CGHeroInstance * hero, DayFlags flagsToAdd = DayFlags::NONE);
 
-		virtual void execute(const CGHeroInstance * hero) const override;
+		void execute(const CGHeroInstance * hero) const override;
 
 		virtual void applyOnDestination(
 			const CGHeroInstance * hero,
@@ -38,9 +38,9 @@ namespace AIPathfinding
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		virtual bool canAct(const AIPathNode * source) const override;
+		bool canAct(const AIPathNode * source) const override;
 
-		virtual std::string toString() const override;
+		std::string toString() const override;
 	};
 
 	class WaterWalkingAction : public AdventureCastAction

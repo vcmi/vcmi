@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "jsonutils.h"
 
+#include "../lib/json/JsonNode.h"
+
 static QVariantMap JsonToMap(const JsonMap & json)
 {
 	QVariantMap map;
@@ -67,6 +69,7 @@ QVariant toVariant(const JsonNode & node)
 		return QVariant(node.Bool());
 		break;
 	case JsonNode::JsonType::DATA_FLOAT:
+	case JsonNode::JsonType::DATA_INTEGER:
 		return QVariant(node.Float());
 		break;
 	case JsonNode::JsonType::DATA_STRING:
@@ -94,7 +97,7 @@ QVariant JsonFromFile(QString filename)
 	}
 	else
 	{
-		JsonNode node(data.data(), data.size());
+		JsonNode node(reinterpret_cast<const std::byte*>(data.data()), data.size());
 		return toVariant(node);
 	}
 }
@@ -120,7 +123,7 @@ JsonNode toJson(QVariant object)
 void JsonToFile(QString filename, QVariant object)
 {
 	std::fstream file(qstringToPath(filename).c_str(), std::ios::out | std::ios_base::binary);
-	file << toJson(object).toJson();
+	file << toJson(object).toString();
 }
 
 }

@@ -49,7 +49,7 @@ struct VectorizedObjectInfo
 };
 
 /// Base class for serializers capable of reading or writing data
-class DLL_LINKAGE CSerializer
+class DLL_LINKAGE CSerializer : boost::noncopyable
 {
 	template<typename Numeric, std::enable_if_t<std::is_arithmetic_v<Numeric>, bool> = true>
 	static int32_t idToNumber(const Numeric &t)
@@ -138,7 +138,7 @@ struct is_serializeable
 	template<class U>
 	static Yes test(U * data, S* arg1 = nullptr, typename std::enable_if_t<std::is_void_v<decltype(data->serialize(*arg1))>> * = nullptr);
 	static No test(...);
-	static const bool value = sizeof(Yes) == sizeof(is_serializeable::test((typename std::remove_reference<typename std::remove_cv<T>::type>::type*)nullptr));
+	static const bool value = sizeof(Yes) == sizeof(is_serializeable::test((typename std::remove_reference_t<typename std::remove_cv_t<T>>*)nullptr));
 };
 
 template <typename T> //metafunction returning CGObjectInstance if T is its derivate or T elsewise
@@ -175,14 +175,14 @@ struct VectorizedIDType<CGHeroInstance>
 class DLL_LINKAGE IBinaryReader : public virtual CSerializer
 {
 public:
-	virtual int read(void * data, unsigned size) = 0;
+	virtual int read(std::byte * data, unsigned size) = 0;
 };
 
 /// Base class for serializers
 class DLL_LINKAGE IBinaryWriter : public virtual CSerializer
 {
 public:
-	virtual int write(const void * data, unsigned size) = 0;
+	virtual int write(const std::byte * data, unsigned size) = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "EffectFixture.h"
+#include "../../../lib/json/JsonNode.h"
 
 namespace test
 {
@@ -67,7 +68,7 @@ class DispelTest : public DispelFixture
 TEST_F(DispelTest, DISABLED_ApplicableToAliveUnitWithTimedEffect)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["dispelNegative"].Bool() = true;
 		EffectFixture::setupEffect(config);
 	}
@@ -93,7 +94,7 @@ TEST_F(DispelTest, DISABLED_ApplicableToAliveUnitWithTimedEffect)
 TEST_F(DispelTest, DISABLED_IgnoresOwnEffects)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["dispelPositive"].Bool() = true;
 		config["dispelNegative"].Bool() = true;
 		config["dispelNeutral"].Bool() = true;
@@ -164,7 +165,7 @@ public:
 TEST_F(DispelApplyTest, DISABLED_RemovesEffects)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["dispelPositive"].Bool() = true;
 		config["dispelNegative"].Bool() = true;
 		config["dispelNeutral"].Bool() = true;

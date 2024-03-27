@@ -248,6 +248,7 @@ public:
 	void setName(const std::string & value);
 	const std::string & getId() const;
 	const std::string & getName() const;
+	const std::string & getDescription() const;
 
 	const CPlayerCountRange & getPlayers() const;
 	const CPlayerCountRange & getHumanPlayers() const;
@@ -263,6 +264,7 @@ public:
 private:
 	std::string id;
 	std::string name;
+	std::string description;
 	int3 minSize;
 	int3 maxSize;
 	CPlayerCountRange players;

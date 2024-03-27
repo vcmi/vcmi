@@ -19,6 +19,7 @@
 #include "../../lib/battle/SideInBattle.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/Cast.h"
 
@@ -26,7 +27,7 @@ void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisi
 {
 	assert(result);
 
-	if(result)
+	if(result && !isAiVsHuman)
 		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
 }
 
@@ -36,6 +37,8 @@ CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 {
 	belligerents[0] = bi->getSideArmy(0);
 	belligerents[1] = bi->getSideArmy(1);
+
+	isAiVsHuman = bi->getSidePlayer(1).isValidPlayer() && gh->getPlayerState(bi->getSidePlayer(0))->isHuman() != gh->getPlayerState(bi->getSidePlayer(1))->isHuman();
 
 	addPlayer(bi->getSidePlayer(0));
 	addPlayer(bi->getSidePlayer(1));
@@ -75,9 +78,10 @@ void CBattleQuery::onExposure(QueryPtr topQuery)
 		owner->popQuery(*this);
 }
 
-CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi):
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi, std::optional<BattleResult> Br):
 	CDialogQuery(owner),
-	bi(bi)
+	bi(bi),
+	result(Br)
 {
 	addPlayer(bi->getSidePlayer(0));
 	addPlayer(bi->getSidePlayer(1));
@@ -104,6 +108,13 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	}
 	else
 	{
+		auto hero = bi->getSideHero(BattleSide::ATTACKER);
+		auto visitingObj = bi->getDefendedTown() ? bi->getDefendedTown() : gh->getVisitingObject(hero);
+		bool isAiVsHuman = bi->getSidePlayer(1).isValidPlayer() && gh->getPlayerState(bi->getSidePlayer(0))->isHuman() != gh->getPlayerState(bi->getSidePlayer(1))->isHuman();
+		
 		gh->battles->endBattleConfirm(bi->getBattleID());
+
+		if(visitingObj && result && isAiVsHuman)
+			visitingObj->battleFinished(hero, *result);
 	}
 }

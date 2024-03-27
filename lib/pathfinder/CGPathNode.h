@@ -102,7 +102,7 @@ struct DLL_LINKAGE CGPathNode
 	STRONG_INLINE
 	void setCost(float value)
 	{
-		if(value == cost)
+		if(vstd::isAlmostEqual(value, cost))
 			return;
 
 		bool getUpNode = value < cost;
@@ -233,7 +233,7 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 
 	CDestinationNodeInfo();
 
-	virtual void setNode(CGameState * gs, CGPathNode * n) override;
+	void setNode(CGameState * gs, CGPathNode * n) override;
 
 	virtual bool isBetterWay() const;
 };

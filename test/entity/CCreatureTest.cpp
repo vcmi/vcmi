@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/json/JsonNode.h"
 
 namespace test
 {
@@ -48,7 +49,7 @@ TEST_F(CCreatureTest, RegistersIcons)
 
 TEST_F(CCreatureTest, DISABLED_JsonUpdate)
 {
-	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode data;
 
 	JsonNode & config = data["config"];
 	config["cost"]["gold"].Integer() = 750;
@@ -105,7 +106,7 @@ TEST_F(CCreatureTest, DISABLED_JsonUpdate)
 
 TEST_F(CCreatureTest, DISABLED_JsonAddBonus)
 {
-	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode data;
 
 	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
 
@@ -131,7 +132,7 @@ TEST_F(CCreatureTest, DISABLED_JsonAddBonus)
 
 TEST_F(CCreatureTest, DISABLED_JsonRemoveBonus)
 {
-	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode data;
 
 	auto b1 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b1);

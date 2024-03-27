@@ -19,7 +19,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
+const std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 {
 	return true;
 };
@@ -116,6 +116,7 @@ void Zone::initFreeTiles()
 	
 	if(dAreaFree.empty())
 	{
+		// Fixme: This might fail fot water zone, which doesn't need to have a tile in its center of the mass
 		dAreaPossible.erase(pos);
 		dAreaFree.add(pos); //zone must have at least one free tile where other paths go - for instance in the center
 	}
@@ -238,8 +239,8 @@ void Zone::fractalize()
 
 	//Squared
 	float minDistance = 9 * 9;
-	float freeDistance = pos.z ? (10 * 10) : 6 * 6;
-	float spanFactor = (pos.z ? 0.25 : 0.5f); //Narrower passages in the Underground
+	float freeDistance = pos.z ? (10 * 10) : (9 * 9);
+	float spanFactor = (pos.z ? 0.3f : 0.45f); //Narrower passages in the Underground
 	float marginFactor = 1.0f;
 
 	int treasureValue = 0;
@@ -250,25 +251,37 @@ void Zone::fractalize()
 		treasureDensity += t.density;
 	}
 
-	if (treasureValue > 400)
+	if (getType() == ETemplateZoneType::WATER)
 	{
-		// A quater at max density
-		marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
+		// Set very little obstacles on water
+		spanFactor = 0.2;
 	}
-	else if (treasureValue < 125)
+	else //Scale with treasure density
 	{
-		//Dense obstacles
-		spanFactor *= (treasureValue / 125.f);
-		vstd::amax(spanFactor, 0.15f);
+		if (treasureValue > 250)
+		{
+			// A quater at max density - means more free space
+			marginFactor = (0.6f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.4f);
+
+			// Low value - dense obstacles
+			spanFactor *= (0.6f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.4f);
+		}
+		else if (treasureValue < 100)
+		{
+			//Dense obstacles
+			spanFactor *= (0.5 + 0.5 * (treasureValue / 100.f));
+			vstd::amax(spanFactor, 0.15f);
+		}
+		if (treasureDensity <= 10)
+		{
+			vstd::amin(spanFactor, 0.1f + 0.01f * treasureDensity); //Add extra obstacles to fill up space
 	}
-	if (treasureDensity <= 10)
-	{
-		vstd::amin(spanFactor, 0.1f + 0.01f * treasureDensity); //Add extra obstacles to fill up space
 	}
+
 	float blockDistance = minDistance * spanFactor; //More obstacles in the Underground
 	freeDistance = freeDistance * marginFactor;
 	vstd::amax(freeDistance, 4 * 4);
-	logGlobal->info("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
+	logGlobal->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -324,8 +337,8 @@ void Zone::fractalize()
 	}
 
 	Lock lock(areaMutex);
-	//cut straight paths towards the center. A* is too slow for that.
-	auto areas = connectedAreas(clearedTiles, false);
+	//Connect with free areas
+	auto areas = connectedAreas(clearedTiles, true);
 	for(auto & area : areas)
 	{
 		if(dAreaFree.overlap(area))
@@ -334,7 +347,7 @@ void Zone::fractalize()
 		auto availableArea = dAreaPossible + dAreaFree;
 		rmg::Path path(availableArea);
 		path.connect(dAreaFree);
-		auto res = path.search(area, false);
+		auto res = path.search(area, true);
 		if(res.getPathArea().empty())
 		{
 			dAreaPossible.subtract(area);
@@ -371,7 +384,6 @@ void Zone::initModificators()
 	{
 		modificator->init();
 	}
-	logGlobal->info("Zone %d modificators initialized", getId());
 }
 
 CRandomGenerator& Zone::getRand()

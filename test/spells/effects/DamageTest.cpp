@@ -14,6 +14,7 @@
 #include <vstd/RNG.h>
 
 #include "../../../lib/battle/CUnitState.h"
+#include "../../../lib/json/JsonNode.h"
 
 #include "mock/mock_UnitEnvironment.h"
 
@@ -146,7 +147,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
 	using namespace ::battle;
 
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["killByPercentage"].Bool() = true;
 		EffectFixture::setupEffect(config);
 	}
@@ -191,7 +192,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByCount)
 	using namespace ::battle;
 
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["killByCount"].Bool() = true;
 		EffectFixture::setupEffect(config);
 	}

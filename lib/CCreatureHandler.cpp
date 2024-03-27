@@ -20,6 +20,7 @@
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
+#include "json/JsonBonus.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
@@ -417,7 +418,7 @@ void CCreatureHandler::loadCommanders()
 
 	std::string modSource = VLC->modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
-	data.setMeta(modSource);
+	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
 
@@ -639,7 +640,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [=](si32 index)
 	{
 		JsonNode conf;
-		conf.setMeta(scope);
+		conf.setModScope(scope);
 
 		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!advMapFile.isNull())
@@ -648,7 +649,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 			templ["animation"] = advMapFile;
 			if (!advMapMask.isNull())
 				templ["mask"] = advMapMask;
-			templ.setMeta(scope);
+			templ.setModScope(scope);
 
 			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
 			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
@@ -844,8 +845,8 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 	missile["attackClimaxFrame"].Float() = parser.readNumber();
 
 	// assume that creature is not a shooter and should not have whole missile field
-	if (missile["frameAngles"].Vector()[0].Float() == 0 &&
-	    missile["attackClimaxFrame"].Float() == 0)
+	if (missile["frameAngles"].Vector()[0].Integer() == 0 &&
+		missile["attackClimaxFrame"].Integer() == 0)
 		graphics.Struct().erase("missile");
 }
 
@@ -987,10 +988,10 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			int lastVal = 0;
 			for (const JsonNode &val : values)
 			{
-				if (val.Float() != lastVal)
+				if (val.Integer() != lastVal)
 				{
 					JsonNode bonusInput = exp["bonus"];
-					bonusInput["val"].Float() = static_cast<int>(val.Float()) - lastVal;
+					bonusInput["val"].Float() = val.Integer() - lastVal;
 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;

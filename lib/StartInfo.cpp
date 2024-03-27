@@ -111,7 +111,7 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 	if(i == si->playerInfos.cend() && !ignoreNoHuman)
 		throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.530"));
 
-	if(si->mapGenOptions && si->mode == StartInfo::NEW_GAME)
+	if(si->mapGenOptions && si->mode == EStartMode::NEW_GAME)
 	{
 		if(!si->mapGenOptions->checkOptions())
 			throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.751"));
@@ -123,7 +123,12 @@ bool LobbyInfo::isClientHost(int clientId) const
 	return clientId == hostClientId;
 }
 
-std::set<PlayerColor> LobbyInfo::getAllClientPlayers(int clientId)
+bool LobbyInfo::isPlayerHost(const PlayerColor & color) const
+{
+	return vstd::contains(getAllClientPlayers(hostClientId), color);
+}
+
+std::set<PlayerColor> LobbyInfo::getAllClientPlayers(int clientId) const
 {
 	std::set<PlayerColor> players;
 	for(auto & elem : si->playerInfos)

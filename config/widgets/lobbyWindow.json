@@ -1,0 +1,199 @@
+{
+	"customTypes" : {
+		"labelTitleMain" : {
+			"type": "label",
+			"font": "big",
+			"alignment": "left",
+			"color": "yellow"
+		},
+		"labelTitle" : {
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "yellow"
+		},
+		"backgroundTexture" : {
+			"type": "texture",
+			"font": "tiny",
+			"color" : "blue",
+			"image": "DIBOXBCK"
+		},
+		"areaFilled":{
+			"type": "transparentFilledRectangle",
+			"color": [0, 0, 0, 75],
+			"colorLine": [64, 80, 128, 255]
+		}
+	},
+	
+	
+	"width": 1024,
+	"height": 600,
+	
+	"items":
+	[
+		{
+			"type": "backgroundTexture",
+			"rect": {"w": 1024, "h": 600}
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 5, "y": 5, "w": 250, "h": 40}
+		},
+		{
+			"name" : "accountNameLabel",
+			"type": "labelTitleMain",
+			"position": {"x": 15, "y": 10}
+		},
+
+		{
+			"type": "areaFilled",
+			"rect": {"x": 5, "y": 50, "w": 250, "h": 500}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 15, "y": 53},
+			"text" : "Room List"
+		},
+		{
+			"type" : "roomList",
+			"name" : "roomList",
+			"position" : { "x" : 7, "y" : 69 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"sliderPosition" : { "x" : 230, "y" : 0 },
+			"sliderSize" : { "x" : 450, "y" : 450 }
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 270, "y": 50, "w": 150, "h": 540}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 280, "y": 53},
+			"text" : "Channel List"
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 430, "y": 50, "w": 430, "h": 515}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 440, "y": 53},
+			"text" : "Game Chat"
+		},
+		{
+			"type": "textBox",
+			"name": "gameChat",
+			"font": "small",
+			"alignment": "left",
+			"color": "white",
+			"rect": {"x": 440, "y": 70, "w": 430, "h": 495}
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 430, "y": 565, "w": 395, "h": 25}
+		},
+		{
+			"name" : "messageInput",
+			"type": "textInput",
+			"alignment" : "left",
+			"rect": {"x": 440, "y": 568, "w": 375, "h": 20}
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 870, "y": 50, "w": 150, "h": 540}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 880, "y": 53},
+			"text" : "Account List"
+		},
+		{
+			"type" : "accountList",
+			"name" : "accountList",
+			"position" : { "x" : 872, "y" : 69 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"sliderPosition" : { "x" : 130, "y" : 0 },
+			"sliderSize" : { "x" : 520, "y" : 520 }
+		},
+
+		{
+			"type": "button",
+			"position": {"x": 840, "y": 10},
+			"image": "settingsWindow/button80",
+			"help": "core.help.288",
+			"callback": "closeWindow",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "Leave"
+				}
+			]
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 940, "y": 10},
+			"image": "settingsWindow/button80",
+			"help": "core.help.288",
+			"callback": "closeWindow",
+			"hotkey": "globalCancel",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "Close"
+				}
+			]
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 828, "y": 565},
+			"image": "settingsWindow/button32",
+			"help": "core.help.288",
+			"callback": "sendMessage",
+			"hotkey": "globalAccept",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": ">"
+				}
+			]
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 10, "y": 555},
+			"image": "settingsWindow/button190",
+			"help": "core.help.288",
+			"callback": "createGameRoom",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "Create Room"
+				}
+			]
+		},
+
+	]
+}

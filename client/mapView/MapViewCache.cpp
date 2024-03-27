@@ -141,7 +141,7 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
 	bool mapMoved = (cachedPosition != model->getMapViewCenter());
-	bool lazyUpdate = !mapMoved && !fullRedraw && context->viewTransitionProgress() == 0;
+	bool lazyUpdate = !mapMoved && !fullRedraw && vstd::isAlmostZero(context->viewTransitionProgress());
 
 	Rect dimensions = model->getTilesTotalRect();
 
@@ -184,7 +184,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
-	if(context->viewTransitionProgress() != 0)
+	if(!vstd::isAlmostZero(context->viewTransitionProgress()))
 		target.drawTransparent(*terrainTransition, Point(0, 0), 1.0 - context->viewTransitionProgress());
 
 	cachedPosition = model->getMapViewCenter();

@@ -58,8 +58,8 @@ public:
 class DLL_EXPORT HeroManager : public IHeroManager
 {
 private:
-	static SecondarySkillEvaluator wariorSkillsScores;
-	static SecondarySkillEvaluator scountSkillsScores;
+	static const SecondarySkillEvaluator wariorSkillsScores;
+	static const SecondarySkillEvaluator scountSkillsScores;
 
 	CCallback * cb; //this is enough, but we downcast from CCallback
 	const Nullkiller * ai;
@@ -114,7 +114,7 @@ public:
 class AtLeastOneMagicRule : public ISecondarySkillRule
 {
 private:
-	static std::vector<SecondarySkill> magicSchools;
+	static const std::vector<SecondarySkill> magicSchools;
 
 public:
 	void evaluateScore(const CGHeroInstance * hero, SecondarySkill skill, float & score) const override;

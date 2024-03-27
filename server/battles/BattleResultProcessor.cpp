@@ -47,26 +47,31 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 
 	PlayerColor color = battle.sideToPlayer(sideInBattle);
 
-	for(const CStack * stConst : battle.battleGetAllStacks(true))
+	auto allStacks = battle.battleGetStacksIf([color](const CStack * stack){
+
+		if (stack->summoned)//don't take into account temporary summoned stacks
+			return false;
+
+		if(stack->unitOwner() != color) //remove only our stacks
+			return false;
+
+		if (stack->isTurret())
+			return false;
+
+		return true;
+	});
+
+	for(const CStack * stConst : allStacks)
 	{
 		// Use const cast - in order to call non-const "takeResurrected" for proper calculation of casualties
 		// TODO: better solution
 		CStack * st = const_cast<CStack*>(stConst);
 
-		if(st->summoned) //don't take into account temporary summoned stacks
-			continue;
-		if(st->unitOwner() != color) //remove only our stacks
-			continue;
-
 		logGlobal->debug("Calculating casualties for %s", st->nodeName());
 
 		st->health.takeResurrected();
 
-		if(st->unitSlot() == SlotID::ARROW_TOWERS_SLOT)
-		{
-			logGlobal->debug("Ignored arrow towers stack.");
-		}
-		else if(st->unitSlot() == SlotID::WAR_MACHINES_SLOT)
+		if(st->unitSlot() == SlotID::WAR_MACHINES_SLOT)
 		{
 			auto warMachine = st->unitType()->warMachine;
 
@@ -125,15 +130,9 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 				StackLocation sl(army, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
 			}
-			else if(st->getCount() < army->getStackCount(st->unitSlot()))
+			else if(st->getCount() != army->getStackCount(st->unitSlot()))
 			{
-				logGlobal->debug("Stack lost %d units.", army->getStackCount(st->unitSlot()) - st->getCount());
-				StackLocation sl(army, st->unitSlot());
-				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
-			}
-			else if(st->getCount() > army->getStackCount(st->unitSlot()))
-			{
-				logGlobal->debug("Stack gained %d units.", st->getCount() - army->getStackCount(st->unitSlot()));
+				logGlobal->debug("Stack size changed: %d -> %d units.", army->getStackCount(st->unitSlot()), st->getCount());
 				StackLocation sl(army, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
 			}
@@ -283,7 +282,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	// in battles against neutrals attacker can ask to replay battle manually, additionally in battles against AI player human side can also ask for replay
 	if(onlyOnePlayerHuman)
 	{
-		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, battle.getBattle());
+		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, battle.getBattle(), battleQuery->result);
 		battleResult->queryID = battleDialogQuery->queryID;
 		gameHandler->queries->addQuery(battleDialogQuery);
 	}
@@ -596,7 +595,18 @@ void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, 
 	battleResult->result = resultType;
 	battleResult->winner = victoriusSide; //surrendering side loses
 
-	for(const auto & st : battle.battleGetAllStacks(true)) //setting casualties
+	auto allStacks = battle.battleGetStacksIf([](const CStack * stack){
+
+		if (stack->summoned)//don't take into account temporary summoned stacks
+			return false;
+
+		if (stack->isTurret())
+			return false;
+
+		return true;
+	});
+
+	for(const auto & st : allStacks) //setting casualties
 	{
 		si32 killed = st->getKilled();
 		if(killed > 0)

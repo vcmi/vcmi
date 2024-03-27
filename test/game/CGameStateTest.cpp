@@ -15,6 +15,7 @@
 #include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -142,7 +143,7 @@ public:
 		si.mapname = "anything";//does not matter, map service mocked
 		si.difficulty = 0;
 		si.mapfileChecksum = 0;
-		si.mode = StartInfo::NEW_GAME;
+		si.mode = EStartMode::NEW_GAME;
 		si.seedToBeUsed = 42;
 
 		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourcePath(si.mapname));
@@ -419,6 +420,6 @@ TEST_F(CGameStateTest, updateEntity)
 
 	JsonNode actual;
 	EXPECT_CALL(services, updateEntity(Eq(Metatype::CREATURE), Eq(424242), _)).WillOnce(SaveArg<2>(&actual));
-	gameState->updateEntity(Metatype::CREATURE, 424242, JsonUtils::stringNode("TEST"));
+	gameState->updateEntity(Metatype::CREATURE, 424242, JsonNode("TEST"));
 	EXPECT_EQ(actual.String(), "TEST");
 }

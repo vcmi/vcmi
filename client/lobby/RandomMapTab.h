@@ -36,6 +36,9 @@ public:
 	void updateMapInfoByHost();
 	void setMapGenOptions(std::shared_ptr<CMapGenOptions> opts);
 	void setTemplate(const CRmgTemplate *);
+
+	void saveOptions(const CMapGenOptions & options);
+	void loadOptions();
 	CMapGenOptions & obtainMapGenOptions() {return *mapGenOptions;}
 
 	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
@@ -44,8 +47,8 @@ private:
 	void deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed);
 	std::vector<int> getPossibleMapSizes();
 
-	std::shared_ptr<CMapGenOptions> mapGenOptions;
 	std::shared_ptr<CMapInfo> mapInfo;
+	std::shared_ptr<CMapGenOptions> mapGenOptions;
 	
 	//options allowed - need to store as impact each other
 	std::set<int> playerCountAllowed;

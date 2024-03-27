@@ -271,7 +271,7 @@ bool CModManager::doEnableMod(QString mod, bool on)
 
 bool CModManager::doInstallMod(QString modname, QString archivePath)
 {
-	QString destDir = CLauncherDirs::get().modsPath() + "/";
+	const auto destDir = CLauncherDirs::modsPath() + QChar{'/'};
 
 	if(!QFile(archivePath).exists())
 		return addError(modname, "Mod archive is missing");
@@ -288,10 +288,11 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 
 	auto futureExtract = std::async(std::launch::async, [&archivePath, &destDir, &filesCounter, &filesToExtract]()
 	{
+		const auto destDirFsPath = qstringToPath(destDir);
 		ZipArchive archive(qstringToPath(archivePath));
 		for (auto const & file : filesToExtract)
 		{
-			if (!archive.extract(qstringToPath(destDir), file))
+			if (!archive.extract(destDirFsPath, file))
 				return false;
 			++filesCounter;
 		}

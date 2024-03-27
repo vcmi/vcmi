@@ -11,6 +11,7 @@
 
 #include "PriorityEvaluator.h"
 #include "FuzzyHelper.h"
+#include "Settings.h"
 #include "AIMemory.h"
 #include "DeepDecomposer.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
@@ -23,7 +24,6 @@
 namespace NKAI
 {
 
-const float MAX_GOLD_PEASURE = 0.3f;
 const float MIN_PRIORITY = 0.01f;
 const float SMALL_SCAN_MIN_PRIORITY = 0.4f;
 
@@ -59,6 +59,8 @@ private:
 	bool useHeroChain;
 
 public:
+	static std::unique_ptr<ObjectGraph> baseGraph;
+
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
 	std::unique_ptr<BuildAnalyzer> buildAnalyzer;
 	std::unique_ptr<ObjectClusterizer> objectClusterizer;
@@ -71,6 +73,7 @@ public:
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::unique_ptr<DeepDecomposer> decomposer;
 	std::unique_ptr<ArmyFormation> armyFormation;
+	std::unique_ptr<Settings> settings;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
 	std::mutex aiStateMutex;

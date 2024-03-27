@@ -33,7 +33,7 @@ namespace Goals
 		{
 			tile = Tile;
 		}
-		virtual bool operator==(const DigAtTile & other) const override;
+		bool operator==(const DigAtTile & other) const override;
 
 	private:
 		//TSubgoal decomposeSingle() const override;

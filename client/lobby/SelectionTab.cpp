@@ -43,7 +43,6 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/serializer/Connection.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -168,7 +167,12 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		inputName->filters += CTextInput::filenameFilter;
 		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
 
-		int sizes[] = {36, 72, 108, 144, 0};
+		// TODO: Global constants?
+		int sizes[] = {CMapHeader::MAP_SIZE_SMALL,
+						CMapHeader::MAP_SIZE_MIDDLE,
+						CMapHeader::MAP_SIZE_LARGE,
+						CMapHeader::MAP_SIZE_XLARGE,
+						0};
 		const char * filterIconNmes[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 		for(int i = 0; i < 5; i++)
 			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), AnimationPath::builtin(filterIconNmes[i]), CGI->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true)));
@@ -217,8 +221,9 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	if(enableUiEnhancements)
 	{
-		buttonsSortBy.push_back(std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("lobby/selectionTabSortDate"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate)));
-		buttonsSortBy.back()->setAnimateLonelyFrame(true);
+		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate));
+		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
+		buttonsSortBy.push_back(sortByDate);
 	}
 
 	iconsMapFormats = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCSELC.DEF"));
@@ -769,7 +774,7 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 			mapInfo->saveInit(file);
 
 			// Filter out other game modes
-			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == StartInfo::CAMPAIGN;
+			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
 			bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
 			bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
 			switch(CSH->getLoadMode())

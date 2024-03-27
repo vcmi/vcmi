@@ -25,7 +25,8 @@
 #include "../battle/BattleInfo.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
-
+#include "../json/JsonBonus.h"
+#include "../json/JsonUtils.h"
 #include "../mapObjects/CGHeroInstance.h" //todo: remove
 #include "../serializer/CSerializer.h"
 #include "../modding/IdentifierStorage.h"
@@ -581,7 +582,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData()
 	{
 		do
 		{
-			JsonNode lineNode(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode lineNode;
 
 			const auto id = legacyData.size();
 
@@ -718,7 +719,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		VLC->identifiers()->requestIdentifier(node.second.meta, "faction", node.first, [=](si32 factionID)
+		VLC->identifiers()->requestIdentifier(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -741,7 +742,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->identifiers()->requestIdentifier(counteredSpell.second.meta, "spell", counteredSpell.first, [=](si32 id)
+			VLC->identifiers()->requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.emplace_back(id);
 			});
@@ -832,7 +833,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		{
 			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->getNameTranslated());
 			spell->targetCondition = spell->convertTargetCondition(immunities, absoluteImmunities, limiters, absoluteLimiters);
-			logMod->warn("\n\"targetCondition\" : %s", spell->targetCondition.toJson());
+			logMod->warn("\n\"targetCondition\" : %s", spell->targetCondition.toString());
 		}
 	}
 	else

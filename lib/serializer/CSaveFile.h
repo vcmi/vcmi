@@ -23,7 +23,7 @@ public:
 
 	CSaveFile(const boost::filesystem::path &fname); //throws!
 	~CSaveFile();
-	int write(const void * data, unsigned size) override;
+	int write(const std::byte * data, unsigned size) override;
 
 	void openNextFile(const boost::filesystem::path &fname); //throws!
 	void clear();

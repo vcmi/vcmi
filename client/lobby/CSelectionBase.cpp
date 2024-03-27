@@ -29,7 +29,7 @@
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
@@ -47,7 +47,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../../lib/serializer/Connection.h"
+#include "../../lib/CRandomGenerator.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -154,7 +154,7 @@ InfoCard::InfoCard()
 
 		iconDifficulty = std::make_shared<CToggleGroup>(0);
 		{
-			static const char * difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
+			constexpr std::array difButns = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
 
 			for(int i = 0; i < 5; i++)
 			{
@@ -335,7 +335,7 @@ CChatBox::CChatBox(const Rect & rect)
 	Rect textInputArea(1, rect.h - height, rect.w - 1, height);
 	Rect chatHistoryArea(3, 1, rect.w - 3, rect.h - height - 1);
 	inputBackground = std::make_shared<TransparentFilledRectangle>(textInputArea, ColorRGBA(0,0,0,192));
-	inputBox = std::make_shared<CTextInput>(textInputArea, EFonts::FONT_SMALL, 0);
+	inputBox = std::make_shared<CTextInput>(textInputArea, EFonts::FONT_SMALL, nullptr, ETextAlignment::TOPLEFT, true);
 	inputBox->removeUsedEvents(KEYBOARD);
 	chatHistory = std::make_shared<CTextBox>("", chatHistoryArea, 1);
 

@@ -23,9 +23,9 @@ protected:
 public:
 	CSaverBase(IBinaryWriter * w): writer(w){};
 
-	inline int write(const void * data, unsigned size)
+	inline void write(const void * data, unsigned size)
 	{
-		return writer->write(data, size);
+		writer->write(reinterpret_cast<const std::byte*>(data), size);
 	};
 };
 
@@ -134,28 +134,28 @@ public:
 		return * this;
 	}
 
-	template < typename T, typename std::enable_if < std::is_same<T, bool>::value, int >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_same_v<T, bool>, int > = 0 >
 	void save(const T &data)
 	{
 		ui8 writ = static_cast<ui8>(data);
 		save(writ);
 	}
 
-	template < class T, typename std::enable_if < std::is_fundamental<T>::value && !std::is_same<T, bool>::value, int  >::type = 0 >
+	template < class T, typename std::enable_if_t < std::is_fundamental_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
 	void save(const T &data)
 	{
 		// save primitive - simply dump binary data to output
-		this->write(&data,sizeof(data));
+		this->write(static_cast<const void *>(&data), sizeof(data));
 	}
 
-	template < typename T, typename std::enable_if < std::is_enum<T>::value, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
 	void save(const T &data)
 	{
 		si32 writ = static_cast<si32>(data);
 		*this & writ;
 	}
 
-	template < typename T, typename std::enable_if < std::is_array<T>::value, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_array_v<T>, int  > = 0 >
 	void save(const T &data)
 	{
 		ui32 size = std::size(data);
@@ -163,7 +163,7 @@ public:
 			*this & data[i];
 	}
 
-	template < typename T, typename std::enable_if < std::is_pointer<T>::value, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_pointer_v<T>, int  > = 0 >
 	void save(const T &data)
 	{
 		//write if pointer is not nullptr
@@ -177,17 +177,17 @@ public:
 		savePointerImpl(data);
 	}
 
-	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
 	void savePointerImpl(const T &data)
 	{
 		auto index = data->getId();
 		save(index);
 	}
 
-	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
 	void savePointerImpl(const T &data)
 	{
-		typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType;
+		typedef typename std::remove_const_t<typename std::remove_pointer_t<T>> TObjectType;
 
 		if(writer->smartVectorMembersSerialization)
 		{
@@ -239,7 +239,7 @@ public:
 			applier.getApplier(tid)->savePtr(*this, static_cast<const void*>(data));  //call serializer specific for our real type
 	}
 
-	template < typename T, typename std::enable_if < is_serializeable<BinarySerializer, T>::value, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < is_serializeable<BinarySerializer, T>::value, int  > = 0 >
 	void save(const T &data)
 	{
 		const_cast<T&>(data).serialize(*this);
@@ -268,12 +268,20 @@ public:
 		T *internalPtr = data.get();
 		save(internalPtr);
 	}
-	template <typename T, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0>
+	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void save(const std::vector<T> &data)
 	{
 		ui32 length = (ui32)data.size();
 		*this & length;
 		for(ui32 i=0;i<length;i++)
+			save(data[i]);
+	}
+	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
+	void save(const std::deque<T> & data)
+	{
+		ui32 length = (ui32)data.size();
+		*this & length;
+		for(ui32 i = 0; i < length; i++)
 			save(data[i]);
 	}
 	template <typename T, size_t N>
@@ -312,7 +320,7 @@ public:
 	void save(const std::string &data)
 	{
 		save(ui32(data.length()));
-		this->write(data.c_str(),(unsigned int)data.size());
+		this->write(static_cast<const void *>(data.data()), data.size());
 	}
 	template <typename T1, typename T2>
 	void save(const std::pair<T1,T2> &data)

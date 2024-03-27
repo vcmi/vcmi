@@ -1,0 +1,21 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: leaveGameRoom",
+	"description" : "Sent by server when player disconnects from the game room",
+	"required" : [ "type", "accountID" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "leaveGameRoom"
+		},
+		"accountID" :
+		{
+			"type" : "string",
+			"description" : "ID of account that have left the room"
+		}
+	}
+}

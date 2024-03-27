@@ -14,7 +14,7 @@
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../IGameCallback.h"
-#include "../JsonRandom.h"
+#include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
@@ -67,7 +67,7 @@ void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 
 	// change scope of "filters" to scope of object that is being loaded
 	// since this filters require to resolve building ID's
-	filtersJson.setMeta(input["faction"].meta);
+	filtersJson.setModScope(input["faction"].getModScope());
 }
 
 void CTownInstanceConstructor::afterLoadFinalization()

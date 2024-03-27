@@ -16,12 +16,11 @@
 
 #include "CGeneralTextHandler.h"
 #include "filesystem/Filesystem.h"
+#include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModUtility.h"
 #include "modding/ModScope.h"
-
-#include "JsonNode.h"
-
 #include "constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -169,7 +168,7 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData()
 	std::vector<JsonNode> legacyData;
 	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
 	{
-		JsonNode skillNode(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode skillNode;
 		skillNode["name"].String() = skillNames[id];
 		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 		{

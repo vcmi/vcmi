@@ -45,7 +45,6 @@ private slots:
 	void on_comboBoxAutoSave_currentIndexChanged(int index);
 	void on_comboBoxLanguage_currentIndexChanged(int index);
 	void on_comboBoxCursorType_currentIndexChanged(int index);
-	void on_listWidgetSettings_currentRowChanged(int currentRow);
 	void on_pushButtonTranslation_clicked();
 
 	void on_comboBoxLanguageBase_currentIndexChanged(int index);

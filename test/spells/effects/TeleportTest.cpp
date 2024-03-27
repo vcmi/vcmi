@@ -11,6 +11,7 @@
 
 #include "EffectFixture.h"
 
+#include "../../../lib/json/JsonNode.h"
 #include <vstd/RNG.h>
 
 namespace test

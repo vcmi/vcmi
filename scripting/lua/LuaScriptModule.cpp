@@ -17,7 +17,7 @@
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
-static const char *g_cszAiName = "Lua interpreter";
+static const char * const g_cszAiName = "Lua interpreter";
 
 VCMI_LIB_NAMESPACE_BEGIN
 

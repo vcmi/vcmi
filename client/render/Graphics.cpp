@@ -29,13 +29,13 @@
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
+#include "../../lib/json/JsonNode.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModScope.h"
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/CHeroHandler.h"
@@ -107,7 +107,7 @@ void Graphics::initializeBattleGraphics()
 		if(!CResourceHandler::get(mod)->existsResource(ResourcePath("config/battles_graphics.json")))
 			continue;
 			
-		const JsonNode config(mod, JsonPath::builtin("config/battles_graphics.json"));
+		const JsonNode config(JsonPath::builtin("config/battles_graphics.json"), mod);
 
 		//initialization of AC->def name mapping
 		if(!config["ac_mapping"].isNull())

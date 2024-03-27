@@ -16,10 +16,10 @@
 #include "CZipLoader.h"
 
 //For filesystem initialization
-#include "../JsonNode.h"
 #include "../GameConstants.h"
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
+#include "../json/JsonNode.h"
 #include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -117,7 +117,7 @@ void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const Json
 	if (filename)
 	{
 		auto configData = CResourceHandler::get("initial")->load(JsonPath::builtin(URI))->readAll();
-		const JsonNode configInitial(reinterpret_cast<char *>(configData.first.get()), configData.second);
+		const JsonNode configInitial(reinterpret_cast<std::byte *>(configData.first.get()), configData.second);
 		filesystem->addLoader(new CMappedFileLoader(mountPoint, configInitial), false);
 	}
 }
@@ -212,7 +212,7 @@ void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives
 {
 	auto fsConfigData = get("initial")->load(JsonPath::builtin(fsConfigURI))->readAll();
 
-	const JsonNode fsConfig(reinterpret_cast<char *>(fsConfigData.first.get()), fsConfigData.second);
+	const JsonNode fsConfig(reinterpret_cast<std::byte *>(fsConfigData.first.get()), fsConfigData.second);
 
 	addFilesystem("data", ModScope::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
 }

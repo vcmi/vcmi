@@ -25,7 +25,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
@@ -94,7 +94,7 @@ public:
 
 		return A->getNameTranslated() < B->getNameTranslated();
 	}
-} spellsorter;
+};
 
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
 	CWindowObject(PLAYER_COLORED | (settings["gameTweaks"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
@@ -136,7 +136,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
 		searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, CGI->generaltexth->translate("vcmi.spellBook.search"));
 
-		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, std::bind(&CSpellWindow::searchInput, this));
+		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, std::bind(&CSpellWindow::searchInput, this), ETextAlignment::CENTER, true);
 	}
 
 	processSpells();
@@ -293,6 +293,8 @@ void CSpellWindow::processSpells()
 		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell) && searchTextFound)
 			mySpells.push_back(spell);
 	}
+
+	SpellbookSpellSorter spellsorter;
 	std::sort(mySpells.begin(), mySpells.end(), spellsorter);
 
 	//initializing sizes of spellbook's parts

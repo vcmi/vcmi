@@ -124,7 +124,7 @@ template<class T, class Proxy = T>
 class OpaqueWrapper : public RegistarBase
 {
 public:
-	using ObjectType = typename std::remove_cv<T>::type;
+	using ObjectType = typename std::remove_cv_t<T>;
 	using UDataType = ObjectType *;
 	using CUDataType = const ObjectType *;
 
@@ -163,7 +163,7 @@ template<class T, class Proxy = T>
 class SharedWrapper : public RegistarBase
 {
 public:
-	using ObjectType = typename std::remove_cv<T>::type;
+	using ObjectType = typename std::remove_cv_t<T>;
 	using UDataType = std::shared_ptr<T>;
 	using CustomRegType = detail::CustomRegType;
 
@@ -208,7 +208,7 @@ template<class T, class Proxy = T>
 class UniqueOpaqueWrapper : public api::Registar
 {
 public:
-	using ObjectType = typename std::remove_cv<T>::type;
+	using ObjectType = typename std::remove_cv_t<T>;
 	using UDataType = std::unique_ptr<T>;
 	using CustomRegType = detail::CustomRegType;
 

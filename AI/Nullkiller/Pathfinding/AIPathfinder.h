@@ -11,6 +11,7 @@
 #pragma once
 
 #include "AINodeStorage.h"
+#include "ObjectGraph.h"
 #include "../AIUtility.h"
 
 namespace NKAI
@@ -23,11 +24,13 @@ struct PathfinderSettings
 	bool useHeroChain;
 	uint8_t scoutTurnDistanceLimit;
 	uint8_t mainTurnDistanceLimit;
+	bool allowBypassObjects;
 
 	PathfinderSettings()
 		:useHeroChain(false),
 		scoutTurnDistanceLimit(255),
-		mainTurnDistanceLimit(255)
+		mainTurnDistanceLimit(255),
+		allowBypassObjects(true)
 	{ }
 };
 
@@ -37,13 +40,20 @@ private:
 	std::shared_ptr<AINodeStorage> storage;
 	CPlayerSpecificInfoCallback * cb;
 	Nullkiller * ai;
+	std::map<ObjectInstanceID, GraphPaths>  heroGraphs;
 
 public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai);
-	std::vector<AIPath> getPathInfo(const int3 & tile) const;
+	std::vector<AIPath> getPathInfo(const int3 & tile, bool includeGraph = false) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
-	void updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings);
+	void updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings);
+	void updateGraphs(const std::map<const CGHeroInstance *, HeroRole> & heroes);
 	void init();
+
+	std::shared_ptr<AINodeStorage>getStorage()
+	{
+		return storage;
+	}
 };
 
 }

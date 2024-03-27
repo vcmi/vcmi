@@ -49,6 +49,7 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, BulkSmartSplitStack>();
 	s.template registerType<CPackForServer, BulkMoveArmy>();
 	s.template registerType<CPackForServer, BulkExchangeArtifacts>();
+	s.template registerType < CPackForServer, ManageBackpackArtifacts>();
 	s.template registerType<CPackForServer, EraseArtifactByClient>();
 	s.template registerType<CPackForServer, GamePause>();
 }

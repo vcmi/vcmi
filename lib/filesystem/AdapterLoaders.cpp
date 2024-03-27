@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "AdapterLoaders.h"
 
-#include "../JsonNode.h"
 #include "Filesystem.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

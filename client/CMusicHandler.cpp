@@ -17,7 +17,6 @@
 #include "eventsSDL/InputHandler.h"
 #include "gui/CGuiHandler.h"
 
-#include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/constants/StringConstants.h"
@@ -30,7 +29,7 @@
 #define VCMI_SOUND_FILE(y) #y,
 
 // sounds mapped to soundBase enum
-static std::string sounds[] = {
+static const std::string sounds[] = {
 	"", // invalid
 	"", // todo
 	VCMI_SOUND_LIST

@@ -12,8 +12,6 @@
 
 #include "CQuery.h"
 
-boost::mutex QueriesProcessor::mx;
-
 void QueriesProcessor::popQuery(PlayerColor player, QueryPtr query)
 {
 	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);

@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "JsonSerializeFormat.h"
 
-#include "../JsonNode.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 //JsonSerializeHelper

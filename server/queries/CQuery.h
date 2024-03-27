@@ -68,8 +68,8 @@ class CDialogQuery : public CQuery
 {
 public:
 	CDialogQuery(CGameHandler * owner);
-	virtual bool endsByPlayerAnswer() const override;
-	virtual bool blocksPack(const CPack *pack) const override;
+	bool endsByPlayerAnswer() const override;
+	bool blocksPack(const CPack *pack) const override;
 	void setReply(std::optional<int32_t> reply) override;
 protected:
 	std::optional<ui32> answer;

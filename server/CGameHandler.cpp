@@ -63,6 +63,7 @@
 
 #include "../lib/serializer/CSaveFile.h"
 #include "../lib/serializer/CLoadFile.h"
+#include "../lib/serializer/Connection.h"
 
 #include "../lib/spells/CSpellHandler.h"
 
@@ -81,7 +82,7 @@ template <typename T> class CApplyOnGH;
 class CBaseForGHApply
 {
 public:
-	virtual bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const =0;
+	virtual bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const =0;
 	virtual ~CBaseForGHApply(){}
 	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
 	{
@@ -92,7 +93,7 @@ public:
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const override
+	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		try
@@ -115,7 +116,7 @@ template <>
 class CApplyOnGH<CPack> : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const override
+	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply on GH plain CPack!");
 		assert(0);
@@ -444,7 +445,10 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
 	if(lobby->getState() == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
+	{
+		assert(0); // game should have shut down before reaching this point!
 		return;
+	}
 	
 	for(auto & playerConnections : connections)
 	{
@@ -970,11 +974,11 @@ void CGameHandler::onNewTurn()
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
 
-void CGameHandler::run(bool resume)
+void CGameHandler::start(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
-	for (auto cc : lobby->connections)
+	for (auto cc : lobby->activeConnections)
 	{
 		auto players = lobby->getAllClientPlayers(cc->connectionID);
 		std::stringstream sbuffer;
@@ -982,10 +986,7 @@ void CGameHandler::run(bool resume)
 		for (PlayerColor color : players)
 		{
 			sbuffer << color << " ";
-			{
-				boost::unique_lock<boost::recursive_mutex> lock(gsm);
-				connections[color].insert(cc);
-			}
+			connections[color].insert(cc);
 		}
 		logGlobal->info(sbuffer.str());
 	}
@@ -1005,18 +1006,11 @@ void CGameHandler::run(bool resume)
 		events::GameResumed::defaultExecute(serverEventBus.get());
 
 	turnOrder->onGameStarted();
+}
 
-	//wait till game is done
-	auto clockLast = std::chrono::steady_clock::now();
-	while(lobby->getState() == EServerState::GAMEPLAY)
-	{
-		const auto clockDuration = std::chrono::steady_clock::now() - clockLast;
-		const int timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(clockDuration).count();
-		clockLast += clockDuration;
-		turnTimerHandler.update(timePassed);
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-
-	}
+void CGameHandler::tick(int millisecondsPassed)
+{
+	turnTimerHandler.update(millisecondsPassed);
 }
 
 void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
@@ -1195,7 +1189,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if (leavingTile == LEAVING_TILE)
 			leaveTile();
 
-		if (isInTheMap(guardPos))
+		if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
 			tmh.attackedFrom = std::make_optional(guardPos);
 
 		tmh.result = result;
@@ -1678,13 +1672,8 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 void CGameHandler::sendToAllClients(CPackForClient * pack)
 {
 	logNetwork->trace("\tSending to all clients: %s", typeid(*pack).name());
-	for (auto c : lobby->connections)
-	{
-		if(!c->isOpen())
-			continue;
-
+	for (auto c : lobby->activeConnections)
 		c->sendPack(pack);
-	}
 }
 
 void CGameHandler::sendAndApply(CPackForClient * pack)
@@ -2701,7 +2690,7 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 
 // With the amount of changes done to the function, it's more like transferArtifacts.
 // Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
-bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLocation & dst)
+bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst)
 {
 	const auto srcArtSet = getArtSet(src);
 	const auto dstArtSet = getArtSet(dst);
@@ -2744,7 +2733,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 	if(src.slot == dstSlot && src.artHolder == dst.artHolder)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
 	
-	BulkMoveArtifacts ma(src.artHolder, dst.artHolder, false);
+	BulkMoveArtifacts ma(player, src.artHolder, dst.artHolder, false);
 	ma.srcCreature = src.creature;
 	ma.dstCreature = dst.creature;
 	
@@ -2767,7 +2756,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 	return true;
 }
 
-bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
+bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
 {
 	// Make sure exchange is even possible between the two heroes.
 	if(!isAllowedExchange(srcId, dstId))
@@ -2778,7 +2767,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID ds
 	if((!psrcSet) || (!pdstSet))
 		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
 
-	BulkMoveArtifacts ma(srcId, dstId, swap);
+	BulkMoveArtifacts ma(player, srcId, dstId, swap);
 	auto & slotsSrcDst = ma.artsPack0;
 	auto & slotsDstSrc = ma.artsPack1;
 
@@ -2865,6 +2854,25 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID ds
 		}
 	}
 	sendAndApply(&ma);
+	return true;
+}
+
+bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left)
+{
+	auto artSet = getArtSet(heroID);
+	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "scrollBackpackArtifacts: wrong hero's ID");
+
+	BulkMoveArtifacts bma(player, heroID, heroID, false);
+
+	const auto backpackEnd = ArtifactPosition(ArtifactPosition::BACKPACK_START + artSet->artifactsInBackpack.size() - 1);
+	if(backpackEnd > ArtifactPosition::BACKPACK_START)
+	{
+		if(left)
+			bma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(backpackEnd, ArtifactPosition::BACKPACK_START));
+		else
+			bma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(ArtifactPosition::BACKPACK_START, backpackEnd));
+		sendAndApply(&bma);
+	}
 	return true;
 }
 
@@ -3196,8 +3204,6 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 
 bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
 {
-	boost::unique_lock<boost::recursive_mutex> lock(gsm);
-
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
 	if (answer)
 		logGlobal->trace("%d", *answer);
@@ -3541,7 +3547,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
 
 bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 {
-	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
+	const auto *obj = dynamic_cast<const IShipyard *>(getObj(objid));
 
 	if (obj->shipyardStatus() != IBoatGenerator::GOOD)
 	{
@@ -3633,7 +3639,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			if(p->human)
 			{
-				lobby->setState(EServerState::GAMEPLAY_ENDED);
+				lobby->setState(EServerState::SHUTDOWN);
 			}
 		}
 		else
@@ -4203,6 +4209,19 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
 		if (visit && visit->visitedObject == obj)
 			return visit->visitingHero;
+	}
+	return nullptr;
+}
+
+const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *hero)
+{
+	assert(hero);
+
+	for(const auto & query : queries->allQueries())
+	{
+		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		if (visit && visit->visitingHero == hero)
+			return visit->visitedObject;
 	}
 	return nullptr;
 }

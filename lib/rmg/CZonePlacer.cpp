@@ -24,6 +24,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+//#define ZONE_PLACEMENT_LOG true
+
 class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
@@ -248,7 +250,8 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	}
 
 	//TODO: toggle with a flag
-	logGlobal->info("Initial zone grid:");
+#ifdef ZONE_PLACEMENT_LOG
+	logGlobal->trace("Initial zone grid:");
 	for (size_t x = 0; x < gridSize; ++x)
 	{
 		std::string s;
@@ -263,8 +266,9 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 				s += " -- ";
 			}
 		}
-		logGlobal->info(s);
+		logGlobal->trace(s);
 	}
+#endif
 
 	//Set initial position for zones - random position in square centered around (x, y)
 	for (size_t x = 0; x < gridSize; ++x)
@@ -372,7 +376,9 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 				bestSolution[zone.second] = zone.second->getCenter();
 		}
 
+#ifdef ZONE_PLACEMENT_LOG
 		logGlobal->trace("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s", totalDistance, totalOverlap , improvement);
+#endif
 
 		return improvement;
 	};
@@ -419,7 +425,9 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	for(const auto & zone : zones) //finalize zone positions
 	{
 		zone.second->setPos (cords (bestSolution[zone.second]));
+#ifdef ZONE_PLACEMENT_LOG
 		logGlobal->trace("Placed zone %d at relative position %s and coordinates %s", zone.first, zone.second->getCenter().toString(), zone.second->getPos().toString());
+#endif
 	}
 }
 
@@ -688,7 +696,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		return lhs.first > rhs.first; //Largest dispalcement first
 	});
 
+#ifdef ZONE_PLACEMENT_LOG
 	logGlobal->trace("Worst misplacement/movement ratio: %3.2f", misplacedZones.front().first);
+#endif
 
 	if (misplacedZones.size() >= 2)
 	{
@@ -721,7 +731,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		}
 		if (secondZone)
 		{
+#ifdef ZONE_PLACEMENT_LOG
 			logGlobal->trace("Swapping two misplaced zones %d and %d", firstZone->getId(), secondZone->getId());
+#endif
 
 			auto firstCenter = firstZone->getCenter();
 			auto secondCenter = secondZone->getCenter();
@@ -764,7 +776,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		{
 			float3 vec = targetZone->getCenter() - ourCenter;
 			float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
+#ifdef ZONE_PLACEMENT_LOG
 			logGlobal->trace("Trying to move zone %d %s towards %d %s. Direction is %s", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), vec.toString());
+#endif
 
 			misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
 		}
@@ -792,7 +806,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		{
 			float3 vec = ourCenter - targetZone->getCenter();
 			float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
+#ifdef ZONE_PLACEMENT_LOG
 			logGlobal->trace("Trying to move zone %d %s away from %d %s. Direction is %s", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), vec.toString());
+#endif
 
 			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
 		}
@@ -857,6 +873,11 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	int levels = map.levels();
 
 	// Find current center of mass for each zone. Move zone to that center to balance zones sizes
+	std::vector<RmgMap::Zones> zonesOnLevel;
+	for(int level = 0; level < levels; level++)
+	{
+		zonesOnLevel.push_back(map.getZonesOnLevel(level));
+	}
 
 	int3 pos;
 
@@ -867,12 +888,9 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			for(pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				for(const auto & zone : zones)
+				for(const auto & zone : zonesOnLevel[pos.z])
 				{
-					if (zone.second->getPos().z == pos.z)
-						distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
-					else
-						distances.emplace_back(zone.second, std::numeric_limits<float>::max());
+					distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
 				}
 				boost::min_element(distances, compareByDistance)->first->area().add(pos); //closest tile belongs to zone
 			}
@@ -890,27 +908,30 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	for(const auto & zone : zones)
 		zone.second->clearTiles(); //now populate them again
 
-	// Assign zones to closest Penrose vertex
 	PenroseTiling penrose;
-	auto vertices = penrose.generatePenroseTiling(zones.size() / map.levels(), rand);
-
-	std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
-
-	for (const auto & vertex : vertices)
+	for (int level = 0; level < levels; level++)
 	{
-		distances.clear();
-		for(const auto & zone : zones)
+		//Create different tiling for each level
+
+		auto vertices = penrose.generatePenroseTiling(zonesOnLevel[level].size(), rand);
+
+		// Assign zones to closest Penrose vertex
+		std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
+
+		for (const auto & vertex : vertices)
 		{
-			distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), 0)));
+			distances.clear();
+			for(const auto & zone : zonesOnLevel[level])
+			{
+				distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
+			}
+			auto closestZone = boost::min_element(distances, compareByDistance)->first;
+
+			vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, level)); //Closest vertex belongs to zone
 		}
-		auto closestZone = boost::min_element(distances, compareByDistance)->first;
 
-		vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, closestZone->getPos().z)); //Closest vertex belongs to zone
-	}
-
-	//Assign actual tiles to each zone using nonlinear norm for fine edges
-	for (pos.z = 0; pos.z < levels; pos.z++)
-	{
+		//Assign actual tiles to each zone
+		pos.z = level;
 		for (pos.x = 0; pos.x < width; pos.x++)
 		{
 			for (pos.y = 0; pos.y < height; pos.y++)
@@ -918,20 +939,31 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 				distances.clear();
 				for(const auto & zoneVertex : vertexMapping)
 				{
-					// FIXME: Find closest vertex, not closest zone
 					auto zone = zoneVertex.first;
 					for (const auto & vertex : zoneVertex.second)
 					{
-						if (zone->getCenter().z == pos.z)
-							distances.emplace_back(zone, metric(pos, vertex));
-						else
-							distances.emplace_back(zone, std::numeric_limits<float>::max());
+						distances.emplace_back(zone, metric(pos, vertex));
 					}
 				}
 
-				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first; //closest tile belongs to zone
+				//Tile closest to vertex belongs to zone
+				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first;
 				closestZone->area().add(pos);
 				map.setZoneID(pos, closestZone->getId());
+			}
+		}
+
+		for(const auto & zone : zonesOnLevel[level])
+		{
+			if(zone.second->area().empty())
+			{
+				// FIXME: Some vertices are duplicated, but it's not a source of problem
+				logGlobal->error("Zone %d at %s is empty, dumping Penrose tiling", zone.second->getId(), zone.second->getCenter().toString());
+				for (const auto & vertex : vertices)
+				{
+					logGlobal->warn("Penrose Vertex: %s", vertex.toString());
+				}
+				throw rmgException("Empty zone after Penrose tiling");
 			}
 		}
 	}
@@ -939,9 +971,6 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	//set position (town position) to center of mass of irregular zone
 	for(const auto & zone : zones)
 	{
-		if(zone.second->area().empty())
-			throw rmgException("Empty zone after Penrose tiling");
-
 		moveZoneToCenterOfMass(zone.second);
 
 		//TODO: similiar for islands

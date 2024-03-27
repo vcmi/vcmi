@@ -16,7 +16,7 @@
 namespace NKAI
 {
 
-HitMapInfo HitMapInfo::NoThreat;
+const HitMapInfo HitMapInfo::NoThreat;
 
 double HitMapInfo::value() const
 {
@@ -75,8 +75,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		PathfinderSettings ps;
 
-		ps.mainTurnDistanceLimit = 10;
-		ps.scoutTurnDistanceLimit = 10;
+		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = ai->settings->getMainHeroTurnDistanceLimit();
 		ps.useHeroChain = false;
 
 		ai->pathfinder->updatePaths(pair.second, ps);
@@ -158,15 +157,13 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
 		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
 
-	std::map<const CGHeroInstance *, HeroRole> townHeroes;
+	std::vector<std::unique_ptr<CGHeroInstance>> temporaryHeroes;
 	std::map<const CGHeroInstance *, const CGTownInstance *> heroTownMap;
-	PathfinderSettings pathfinderSettings;
-
-	pathfinderSettings.mainTurnDistanceLimit = 5;
+	std::map<const CGHeroInstance *, HeroRole> townHeroes;
 
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
-			auto townHero = new CGHeroInstance(town->cb);
+			auto townHero = temporaryHeroes.emplace_back(std::make_unique<CGHeroInstance>(town->cb)).get();
 			CRandomGenerator rng;
 			auto visitablePos = town->visitablePos();
 			
@@ -192,7 +189,10 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 		addTownHero(town);
 	}
 
-	ai->pathfinder->updatePaths(townHeroes, PathfinderSettings());
+	PathfinderSettings ps;
+	ps.mainTurnDistanceLimit = ps.scoutTurnDistanceLimit = ai->settings->getMainHeroTurnDistanceLimit();
+
+	ai->pathfinder->updatePaths(townHeroes, ps);
 
 	pforeachTilePos(mapSize, [&](const int3 & pos)
 		{
@@ -226,7 +226,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 				}
 			}
 
-			if(ourDistance == enemyDistance)
+			if(vstd::isAlmostEqual(ourDistance, enemyDistance))
 			{
 				hitMap[pos.x][pos.y][pos.z].closestTown = nullptr;
 			}
@@ -284,8 +284,6 @@ const HitMapNode & DangerHitMapAnalyzer::getTileThreat(const int3 & tile) const
 {
 	return hitMap[tile.x][tile.y][tile.z];
 }
-
-const std::set<const CGObjectInstance *> empty = {};
 
 std::set<const CGObjectInstance *> DangerHitMapAnalyzer::getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const
 {

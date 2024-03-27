@@ -29,8 +29,6 @@ public:
 
 	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
 	std::vector<EMarketMode> availableModes() const;
-
-	static const IMarket *castFrom(const CGObjectInstance *obj, bool verbose = true);
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -84,19 +84,13 @@ public:
 
 	constexpr bool operator<(const int3 & i) const
 	{
-		if (z < i.z)
-			return true;
-		if (z > i.z)
-			return false;
-		if (y < i.y)
-			return true;
-		if (y > i.y)
-			return false;
-		if (x < i.x)
-			return true;
-		if (x > i.x)
-			return false;
-		return false;
+		if (z != i.z)
+			return z < i.z;
+
+		if (y != i.y)
+			return y < i.y;
+
+		return x < i.x;
 	}
 
 	enum EDistanceFormula
@@ -200,7 +194,7 @@ public:
 template<typename Container>
 int3 findClosestTile (Container & container, int3 dest)
 {
-	static_assert(std::is_same<typename Container::value_type, int3>::value,
+	static_assert(std::is_same_v<typename Container::value_type, int3>,
 		"findClosestTile requires <int3> container.");
 
 	int3 result(-1, -1, -1);

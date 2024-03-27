@@ -30,11 +30,12 @@ namespace AIPathfinding
 		AIPathfinderConfig(
 			CPlayerSpecificInfoCallback * cb,
 			Nullkiller * ai,
-			std::shared_ptr<AINodeStorage> nodeStorage);
+			std::shared_ptr<AINodeStorage> nodeStorage,
+			bool allowBypassObjects);
 
 		~AIPathfinderConfig();
 
-		virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
+		CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
 	};
 }
 

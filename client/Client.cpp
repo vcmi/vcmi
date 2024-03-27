@@ -30,11 +30,12 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/serializer/BinaryDeserializer.h"
+#include "../lib/serializer/BinarySerializer.h"
+#include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/registerTypes/RegisterTypesClientPacks.h"
-#include "../lib/serializer/Connection.h"
 
 #include <memory>
 #include <vcmi/events/EventBus.h>
@@ -45,10 +46,6 @@
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
-
-#ifndef SINGLE_PROCESS_APP
-std::atomic_bool androidTestServerReadyFlag;
-#endif
 #endif
 
 ThreadSafeVector<int> CClient::waitingRequest;
@@ -58,8 +55,8 @@ template<typename T> class CApplyOnCL;
 class CBaseForCLApply
 {
 public:
-	virtual void applyOnClAfter(CClient * cl, void * pack) const =0;
-	virtual void applyOnClBefore(CClient * cl, void * pack) const =0;
+	virtual void applyOnClAfter(CClient * cl, CPack * pack) const =0;
+	virtual void applyOnClBefore(CClient * cl, CPack * pack) const =0;
 	virtual ~CBaseForCLApply(){}
 
 	template<typename U> static CBaseForCLApply * getApplier(const U * t = nullptr)
@@ -71,13 +68,13 @@ public:
 template<typename T> class CApplyOnCL : public CBaseForCLApply
 {
 public:
-	void applyOnClAfter(CClient * cl, void * pack) const override
+	void applyOnClAfter(CClient * cl, CPack * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
 		ApplyClientNetPackVisitor visitor(*cl, *cl->gameState());
 		ptr->visit(visitor);
 	}
-	void applyOnClBefore(CClient * cl, void * pack) const override
+	void applyOnClBefore(CClient * cl, CPack * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
 		ApplyFirstClientNetPackVisitor visitor(*cl, *cl->gameState());
@@ -88,12 +85,12 @@ public:
 template<> class CApplyOnCL<CPack>: public CBaseForCLApply
 {
 public:
-	void applyOnClAfter(CClient * cl, void * pack) const override
+	void applyOnClAfter(CClient * cl, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply on CL plain CPack!");
 		assert(0);
 	}
-	void applyOnClBefore(CClient * cl, void * pack) const override
+	void applyOnClBefore(CClient * cl, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply on CL plain CPack!");
 		assert(0);
@@ -297,7 +294,7 @@ void CClient::serialize(BinaryDeserializer & h)
 
 		bool shouldResetInterface = true;
 		// Client no longer handle this player at all
-		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), pid))
+		if(!vstd::contains(CSH->getAllClientPlayers(CSH->logicConnection->connectionID), pid))
 		{
 			logGlobal->trace("Player %s is not belong to this client. Destroying interface", pid);
 		}
@@ -397,7 +394,7 @@ void CClient::initPlayerEnvironments()
 {
 	playerEnvironments.clear();
 
-	auto allPlayers = CSH->getAllClientPlayers(CSH->c->connectionID);
+	auto allPlayers = CSH->getAllClientPlayers(CSH->logicConnection->connectionID);
 	bool hasHumanPlayer = false;
 	for(auto & color : allPlayers)
 	{
@@ -427,7 +424,7 @@ void CClient::initPlayerInterfaces()
 	for(auto & playerInfo : gs->scenarioOps->playerInfos)
 	{
 		PlayerColor color = playerInfo.first;
-		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), color))
+		if(!vstd::contains(CSH->getAllClientPlayers(CSH->logicConnection->connectionID), color))
 			continue;
 
 		if(!vstd::contains(playerint, color))
@@ -457,7 +454,7 @@ void CClient::initPlayerInterfaces()
 		installNewPlayerInterface(std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR), PlayerColor::SPECTATOR, true);
 	}
 
-	if(CSH->getAllClientPlayers(CSH->c->connectionID).count(PlayerColor::NEUTRAL))
+	if(CSH->getAllClientPlayers(CSH->logicConnection->connectionID).count(PlayerColor::NEUTRAL))
 		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String()), PlayerColor::NEUTRAL);
 
 	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
@@ -520,7 +517,6 @@ void CClient::handlePack(CPack * pack)
 	CBaseForCLApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //find the applier
 	if(apply)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		apply->applyOnClBefore(this, pack);
 		logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 		gs->apply(pack);
@@ -537,7 +533,7 @@ void CClient::handlePack(CPack * pack)
 
 int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 {
-	static ui32 requestCounter = 0;
+	static ui32 requestCounter = 1;
 
 	ui32 requestID = requestCounter++;
 	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(*request).name(), requestID);
@@ -545,7 +541,7 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 	waitingRequest.pushBack(requestID);
 	request->requestID = requestID;
 	request->player = player;
-	CSH->c->sendPack(request);
+	CSH->logicConnection->sendPack(request);
 	if(vstd::contains(playerint, player))
 		playerint[player]->requestSent(request, requestID);
 
@@ -718,22 +714,6 @@ void CClient::removeGUI() const
 }
 
 #ifdef VCMI_ANDROID
-#ifndef SINGLE_PROCESS_APP
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jclass cls)
-{
-	logNetwork->info("Received server closed signal");
-	if (CSH) {
-		CSH->campaignServerRestartLock.setn(false);
-	}
-}
-
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv * env, jclass cls)
-{
-	logNetwork->info("Received server ready signal");
-	androidTestServerReadyFlag.store(true);
-}
-#endif
-
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {
 	logGlobal->info("Received emergency save game request");

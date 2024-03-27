@@ -608,6 +608,11 @@ void BulkExchangeArtifacts::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBulkExchangeArtifacts(*this);
 }
 
+void ManageBackpackArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitManageBackpackArtifacts(*this);
+}
+
 void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitAssembleArtifacts(*this);
@@ -708,14 +713,19 @@ void LobbyLoadProgress::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyLoadProgress(*this);
 }
 
-void LobbyEndGame::visitTyped(ICPackVisitor & visitor)
+void LobbyRestartGame::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitLobbyEndGame(*this);
+	visitor.visitLobbyRestartGame(*this);
 }
 
 void LobbyStartGame::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyStartGame(*this);
+}
+
+void LobbyPrepareStartGame::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyPrepareStartGame(*this);
 }
 
 void LobbyChangeHost::visitTyped(ICPackVisitor & visitor)

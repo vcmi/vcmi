@@ -22,7 +22,7 @@ void CDownloadManager::downloadFile(const QUrl & url, const QString & file, qint
 {
 	QNetworkRequest request(url);
 	FileEntry entry;
-	entry.file.reset(new QFile(CLauncherDirs::get().downloadsPath() + '/' + file));
+	entry.file.reset(new QFile(QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), file)));
 	entry.bytesReceived = 0;
 	entry.totalSize = bytesTotal;
 	entry.filename = file;
@@ -54,9 +54,7 @@ CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
 		if(entry.reply == reply)
 			return entry;
 	}
-	assert(0);
-	static FileEntry errorValue;
-	return errorValue;
+	throw std::runtime_error("Failed to find download entry");
 }
 
 void CDownloadManager::downloadFinished(QNetworkReply * reply)

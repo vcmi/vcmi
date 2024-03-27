@@ -27,8 +27,8 @@
 #include "../CCallback.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileInfo.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/serializer/BinarySerializer.h"
+#include "../lib/serializer/Connection.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/VCMI_Lib.h"
@@ -290,8 +290,8 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::askToAssembleArtifact, pack.dst);
 	};
 
-	moveArtifact(cl.getOwner(pack.src.artHolder));
-	if(cl.getOwner(pack.src.artHolder) != cl.getOwner(pack.dst.artHolder))
+	moveArtifact(pack.interfaceOwner);
+	if(pack.interfaceOwner != cl.getOwner(pack.dst.artHolder))
 		moveArtifact(cl.getOwner(pack.dst.artHolder));
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
@@ -305,7 +305,7 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		{
 			auto srcLoc = ArtifactLocation(pack.srcArtHolder, slotToMove.srcPos);
 			auto dstLoc = ArtifactLocation(pack.dstArtHolder, slotToMove.dstPos);
-			MoveArtifact ma(&srcLoc, &dstLoc, pack.askAssemble);
+			MoveArtifact ma(pack.interfaceOwner, srcLoc, dstLoc, pack.askAssemble);
 			visitMoveArtifact(ma);
 		}
 	};
@@ -424,7 +424,7 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 			cl.initPlayerEnvironments();
 			initInterfaces();
 		}
-		else if(pack.playerConnectionId == CSH->c->connectionID)
+		else if(pack.playerConnectionId == CSH->logicConnection->connectionID)
 		{
 			plSettings.connectedPlayerIDs.insert(pack.playerConnectionId);
 			cl.playerint.clear();
@@ -958,7 +958,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::SHIPYARD_WINDOW:
 		{
 			assert(pack.queryID == QueryID::NONE);
-			const IShipyard *sy = IShipyard::castFrom(cl.getObj(ObjectInstanceID(pack.object)));
+			const auto * sy = dynamic_cast<const IShipyard *>(cl.getObj(ObjectInstanceID(pack.object)));
 			callInterfaceIfPresent(cl, sy->getObject()->getOwner(), &IGameEventsReceiver::showShipyardDialog, sy);
 		}
 		break;
@@ -974,7 +974,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::UNIVERSITY_WINDOW:
 		{
 			//displays University window (when hero enters University on adventure map)
-			const IMarket *market = IMarket::castFrom(cl.getObj(ObjectInstanceID(pack.object)));
+			const auto * market = dynamic_cast<const IMarket*>(cl.getObj(ObjectInstanceID(pack.object)));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
 			callInterfaceIfPresent(cl, hero->tempOwner, &IGameEventsReceiver::showUniversityWindow, market, hero, pack.queryID);
 		}
@@ -984,7 +984,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
-			const IMarket *market = IMarket::castFrom(obj);
+			const auto *market = dynamic_cast<const IMarket*>(obj);
 			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, hero, pack.queryID);
 		}
 		break;

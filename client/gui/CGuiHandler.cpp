@@ -191,7 +191,7 @@ void CGuiHandler::drawFPSCounter()
 	int y = screen->h-20;
 	int width3digitFPSIncludingPadding = 48;
 	int heightFPSTextIncludingPadding = 11;
-	static SDL_Rect overlay = { x, y, width3digitFPSIncludingPadding, heightFPSTextIncludingPadding};
+	SDL_Rect overlay = { x, y, width3digitFPSIncludingPadding, heightFPSTextIncludingPadding};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
 

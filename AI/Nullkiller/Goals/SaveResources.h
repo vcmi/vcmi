@@ -28,7 +28,7 @@ namespace Goals
 
 		void accept(AIGateway * ai) override;
 		std::string toString() const override;
-		virtual bool operator==(const SaveResources & other) const override;
+		bool operator==(const SaveResources & other) const override;
 	};
 }
 

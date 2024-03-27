@@ -3,6 +3,7 @@
 	{
 		"minSize" : "m+u", "maxSize" : "l+u",
 		"players" : "2",
+		"description" : "Ban Fly/DD, 2 player, 3-Aug-03, Midnight design",
 		"zones" :
 		{
 			"1" :

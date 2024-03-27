@@ -483,7 +483,7 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 		return false;
 	if(source.node->layer == EPathfindingLayer::AIR)
 	{
-		return options.originalMovementRules && source.node->accessible == EPathAccessibility::ACCESSIBLE;
+		return options.originalFlyRules && source.node->accessible == EPathAccessibility::ACCESSIBLE;
 	}
 
 	return true;

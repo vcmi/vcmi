@@ -75,7 +75,6 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/GameConstants.h"
-#include "../lib/JsonNode.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"
@@ -1870,14 +1869,9 @@ void CPlayerInterface::proposeLoadingGame()
 		CGI->generaltexth->allTexts[68],
 		[]()
 		{
-			GH.dispatchMainThread(
-				[]()
-				{
-					CSH->endGameplay();
-					GH.defActionsDef = 63;
-					CMM->menu->switchToTab("load");
-				}
-			);
+			CSH->endGameplay();
+			GH.defActionsDef = 63;
+			CMM->menu->switchToTab("load");
 		},
 		nullptr
 	);

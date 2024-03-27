@@ -14,6 +14,7 @@
 #include <vstd/RNG.h>
 
 #include "../../../lib/battle/CUnitState.h"
+#include "../../../lib/json/JsonNode.h"
 
 #include "mock/mock_UnitEnvironment.h"
 
@@ -76,7 +77,7 @@ TEST_F(HealTest, ApplicableToWoundedUnit)
 TEST_F(HealTest, ApplicableIfActuallyResurrects)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["healLevel"].String() = "resurrect";
 		config["minFullUnits"].Integer() = 5;
 		EffectFixture::setupEffect(config);
@@ -103,7 +104,7 @@ TEST_F(HealTest, ApplicableIfActuallyResurrects)
 TEST_F(HealTest, NotApplicableIfNotEnoughCasualties)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["healLevel"].String() = "resurrect";
 		config["minFullUnits"].Integer() = 1;
 		EffectFixture::setupEffect(config);
@@ -129,7 +130,7 @@ TEST_F(HealTest, NotApplicableIfNotEnoughCasualties)
 TEST_F(HealTest, NotApplicableIfResurrectsLessThanRequired)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["healLevel"].String() = "resurrect";
 		config["minFullUnits"].Integer() = 5;
 		EffectFixture::setupEffect(config);
@@ -155,7 +156,7 @@ TEST_F(HealTest, NotApplicableIfResurrectsLessThanRequired)
 TEST_F(HealTest, ApplicableToDeadUnit)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["healLevel"].String() = "resurrect";
 		EffectFixture::setupEffect(config);
 	}
@@ -186,7 +187,7 @@ TEST_F(HealTest, ApplicableToDeadUnit)
 TEST_F(HealTest, DISABLED_NotApplicableIfDeadUnitIsBlocked)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["healLevel"].String() = "resurrect";
 		EffectFixture::setupEffect(config);
 	}
@@ -223,7 +224,7 @@ TEST_F(HealTest, DISABLED_NotApplicableIfDeadUnitIsBlocked)
 TEST_F(HealTest, DISABLED_ApplicableWithAnotherDeadUnitInSamePosition)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["healLevel"].String() = "resurrect";
 		EffectFixture::setupEffect(config);
 	}
@@ -260,7 +261,7 @@ TEST_F(HealTest, DISABLED_ApplicableWithAnotherDeadUnitInSamePosition)
 TEST_F(HealTest, NotApplicableIfEffectValueTooLow)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["minFullUnits"].Integer() = 1;
 		EffectFixture::setupEffect(config);
 	}
@@ -327,7 +328,7 @@ protected:
 TEST_P(HealApplyTest, DISABLED_Heals)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["healLevel"].String() = HEAL_LEVEL_MAP.at(static_cast<size_t>(healLevel));
 		config["healPower"].String() = HEAL_POWER_MAP.at(static_cast<size_t>(healPower));
 		EffectFixture::setupEffect(config);

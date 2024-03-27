@@ -10,11 +10,13 @@
 #include "StdInc.h"
 #include "main.h"
 #include "mainwindow_moc.h"
+#include "launcherdirs.h"
+
+#include "../lib/VCMIDirs.h"
 
 #include <QApplication>
 #include <QProcess>
 #include <QMessageBox>
-#include "../lib/VCMIDirs.h"
 
 // Conan workaround https://github.com/conan-io/conan-center-index/issues/13332
 #ifdef VCMI_IOS
@@ -33,8 +35,11 @@ int main(int argc, char * argv[])
 #endif
 	QApplication vcmilauncher(argc, argv);
 
+	CLauncherDirs::prepare();
+
 	MainWindow mainWindow;
 	mainWindow.show();
+
 	result = vcmilauncher.exec();
 #ifdef VCMI_IOS
 	}

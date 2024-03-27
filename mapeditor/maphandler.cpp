@@ -22,7 +22,6 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"
-#include "../lib/JsonDetail.h"
 
 const int tileSize = 32;
 

@@ -12,7 +12,7 @@
 #include "TerrainHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -185,8 +185,8 @@ void foreach_tile_pos(const Func & foo)
 	}
 }
 
-template<class Func>
-void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
+template<class Func, class TCallback>
+void foreach_tile_pos(TCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
 {
 	int3 mapSize = cbp->getMapSize();
 	for(int z = 0; z < mapSize.z; z++)

@@ -13,6 +13,7 @@
 #include "../Actions/QuestAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
+#include "../../../../lib/pathfinder/PathfinderOptions.h"
 
 namespace NKAI
 {
@@ -20,8 +21,9 @@ namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
 		CPlayerSpecificInfoCallback * cb, 
-		std::shared_ptr<AINodeStorage> nodeStorage)
-		:cb(cb), nodeStorage(nodeStorage)
+		std::shared_ptr<AINodeStorage> nodeStorage,
+		bool allowBypassObjects)
+		:cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 
@@ -40,9 +42,31 @@ namespace AIPathfinding
 		}
 
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
+
 		if(blocker == BlockingReason::NONE)
 		{
 			destination.blocked = nodeStorage->isDistanceLimitReached(source, destination);
+
+			if(destination.nodeObject
+				&& !destination.blocked
+				&& !allowBypassObjects
+				&& !dynamic_cast<const CGTeleport *>(destination.nodeObject)
+				&& destination.nodeObject->ID != Obj::EVENT)
+			{
+				destination.blocked = true;
+				destination.node->locked = true;
+			}
+
+			return;
+		}
+		
+		if(!allowBypassObjects)
+		{
+			if(destination.nodeObject)
+			{
+				destination.blocked = true;
+				destination.node->locked = true;
+			}
 
 			return;
 		}

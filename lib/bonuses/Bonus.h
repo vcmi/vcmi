@@ -105,6 +105,11 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & updater;
 		h & propagationUpdater;
 		h & targetSourceType;
+		if (h.version < Handler::Version::MANA_LIMIT && type == BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE)
+		{
+			if (valType == BonusValueType::ADDITIVE_VALUE || valType == BonusValueType::BASE_NUMBER)
+				val *= 100;
+		}
 	}
 
 	template <typename Ptr>

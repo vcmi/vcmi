@@ -12,6 +12,7 @@
 #include "ScreenHandler.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/constants/StringConstants.h"
 #include "../gui/CGuiHandler.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../gui/WindowHandler.h"

@@ -22,7 +22,7 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 	blockVisit = config["blockedVisitable"].Bool();
 
 	if (!config["name"].isNull())
-		VLC->generaltexth->registerString( config.meta, getNameTextID(), config["name"].String());
+		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"].String());
 	
 }
 

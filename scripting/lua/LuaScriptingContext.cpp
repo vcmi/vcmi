@@ -19,7 +19,7 @@
 
 #include "api/Registry.h"
 
-#include "../../lib/JsonNode.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/CGameInfoCallback.h"
@@ -347,8 +347,8 @@ void LuaContext::pop(JsonNode & value)
 		break;
 	case LUA_TTABLE:
 		{
-			JsonNode asVector(JsonNode::JsonType::DATA_VECTOR);
-			JsonNode asStruct(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode asVector;
+			JsonNode asStruct;
 
 			lua_pushnil(L);  /* first key */
 

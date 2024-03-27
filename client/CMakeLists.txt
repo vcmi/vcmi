@@ -95,6 +95,12 @@ set(client_SRCS
 	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
+	globalLobby/GlobalLobbyClient.cpp
+	globalLobby/GlobalLobbyLoginWindow.cpp
+	globalLobby/GlobalLobbyServerSetup.cpp
+	globalLobby/GlobalLobbyWidget.cpp
+	globalLobby/GlobalLobbyWindow.cpp
+
 	widgets/Buttons.cpp
 	widgets/CArtifactHolder.cpp
 	widgets/CComponent.cpp
@@ -102,6 +108,7 @@ set(client_SRCS
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
 	widgets/ComboBox.cpp
+	widgets/GraphicalPrimitiveCanvas.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
@@ -158,6 +165,7 @@ set(client_SRCS
 	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
+	ServerRunner.cpp
 )
 
 set(client_HEADERS
@@ -270,6 +278,13 @@ set(client_HEADERS
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 
+	globalLobby/GlobalLobbyClient.h
+	globalLobby/GlobalLobbyDefines.h
+	globalLobby/GlobalLobbyLoginWindow.h
+	globalLobby/GlobalLobbyServerSetup.h
+	globalLobby/GlobalLobbyWidget.h
+	globalLobby/GlobalLobbyWindow.h
+
 	widgets/Buttons.h
 	widgets/CArtifactHolder.h
 	widgets/CComponent.h
@@ -277,6 +292,7 @@ set(client_HEADERS
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
 	widgets/ComboBox.h
+	widgets/GraphicalPrimitiveCanvas.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
@@ -333,6 +349,7 @@ set(client_HEADERS
 	ClientNetPackVisitors.h
 	HeroMovementController.h
 	LobbyClientNetPackVisitors.h
+	ServerRunner.h
 	resource.h
 )
 
@@ -360,8 +377,7 @@ else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
-add_dependencies(vcmiclient vcmiserver)
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	add_dependencies(vcmiclient
 		BattleAI
 		EmptyAI
@@ -438,14 +454,13 @@ elseif(APPLE_IOS)
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
-if(ENABLE_SINGLE_APP_BUILD)
-	target_link_libraries(vcmiclient PRIVATE vcmiserver)
-	if(ENABLE_LAUNCHER)
-		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
-	endif()
+target_link_libraries(vcmiclient PRIVATE vcmiservercommon)
+if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
+	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()
+
 target_link_libraries(vcmiclient PRIVATE
-		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
 if(ffmpeg_LIBRARIES)
@@ -492,16 +507,18 @@ endif()
 #install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE AND NOT ANDROID)
 	#FIXME: move to client makefile?
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.16x16.png"     DESTINATION share/icons/hicolor/16x16/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.22x22.png"     DESTINATION share/icons/hicolor/22x22/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"     DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"     DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"     DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.128x128.png"   DESTINATION share/icons/hicolor/128x128/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png"   DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.512x512.png"   DESTINATION share/icons/hicolor/512x512/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.1024x1024.png" DESTINATION share/icons/hicolor/1024x1024/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.2048x2048.png" DESTINATION share/icons/hicolor/2048x2048/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.svg"           DESTINATION share/icons/hicolor/scalable/apps RENAME vcmiclient.svg)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"       DESTINATION share/applications)
+	foreach(iconSize 16 22 32 48 64 128 256 512 1024 2048)
+		install(FILES "icons/vcmiclient.${iconSize}x${iconSize}.png"
+			DESTINATION "share/icons/hicolor/${iconSize}x${iconSize}/apps"
+			RENAME vcmiclient.png
+		)
+	endforeach()
+
+	install(FILES icons/vcmiclient.svg
+		DESTINATION share/icons/hicolor/scalable/apps
+		RENAME vcmiclient.svg
+	)
+	install(FILES icons/vcmiclient.desktop
+		DESTINATION share/applications
+	)
 endif()

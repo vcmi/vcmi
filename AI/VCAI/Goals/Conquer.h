@@ -27,6 +27,6 @@ namespace Goals
 		}
 		TGoalVec getAllPossibleSubgoals() override;
 		TSubgoal whatToDoToAchieve() override;
-		virtual bool operator==(const Conquer & other) const override;
+		bool operator==(const Conquer & other) const override;
 	};
 }

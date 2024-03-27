@@ -27,21 +27,22 @@ namespace NKAI
 
 using namespace Goals;
 
-#if NKAI_TRACE_LEVEL >= 1
-#define MAXPASS 1000000
-#else
-#define MAXPASS 30
-#endif
+// while we play vcmieagles graph can be shared
+std::unique_ptr<ObjectGraph> Nullkiller::baseGraph;
 
 Nullkiller::Nullkiller()
+	:activeHero(nullptr), scanDepth(ScanDepth::MAIN_FULL), useHeroChain(true)
 {
-	memory.reset(new AIMemory());
+	memory = std::make_unique<AIMemory>();
+	settings = std::make_unique<Settings>();
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 {
 	this->cb = cb;
 	this->playerID = playerID;
+
+	baseGraph.reset();
 
 	priorityEvaluator.reset(new PriorityEvaluator(this));
 	priorityEvaluators.reset(
@@ -123,6 +124,12 @@ void Nullkiller::resetAiState()
 	lockedHeroes.clear();
 	dangerHitMap->reset();
 	useHeroChain = true;
+
+	if(!baseGraph && ai->nullkiller->settings->isObjectGraphAllowed())
+	{
+		baseGraph = std::make_unique<ObjectGraph>();
+		baseGraph->updateGraph(this);
+	}
 }
 
 void Nullkiller::updateAiState(int pass, bool fast)
@@ -163,20 +170,26 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		PathfinderSettings cfg;
 		cfg.useHeroChain = useHeroChain;
+		cfg.allowBypassObjects = true;
 
-		if(scanDepth == ScanDepth::SMALL)
+		if(scanDepth == ScanDepth::SMALL || settings->isObjectGraphAllowed())
 		{
-			cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT;
+			cfg.mainTurnDistanceLimit = settings->getMainHeroTurnDistanceLimit();
 		}
 
-		if(scanDepth != ScanDepth::ALL_FULL)
+		if(scanDepth != ScanDepth::ALL_FULL || settings->isObjectGraphAllowed())
 		{
-			cfg.scoutTurnDistanceLimit = SCOUT_TURN_DISTANCE_LIMIT;
+			cfg.scoutTurnDistanceLimit =settings->getScoutHeroTurnDistanceLimit();
 		}
 
 		boost::this_thread::interruption_point();
 
 		pathfinder->updatePaths(activeHeroes, cfg);
+
+		if(settings->isObjectGraphAllowed())
+		{
+			pathfinder->updateGraphs(activeHeroes);
+		}
 
 		boost::this_thread::interruption_point();
 
@@ -235,13 +248,13 @@ void Nullkiller::makeTurn()
 
 	resetAiState();
 
-	for(int i = 1; i <= MAXPASS; i++)
+	for(int i = 1; i <= settings->getMaxPass(); i++)
 	{
 		updateAiState(i);
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
-		for(;i <= MAXPASS; i++)
+		for(;i <= settings->getMaxPass(); i++)
 		{
 			Goals::TTaskVec fastTasks = {
 				choseBestTask(sptr(BuyArmyBehavior()), 1),
@@ -290,7 +303,8 @@ void Nullkiller::makeTurn()
 
 		// TODO: better to check turn distance here instead of priority
 		if((heroRole != HeroRole::MAIN || bestTask->priority < SMALL_SCAN_MIN_PRIORITY)
-			&& scanDepth == ScanDepth::MAIN_FULL)
+			&& scanDepth == ScanDepth::MAIN_FULL
+			&& !settings->isObjectGraphAllowed())
 		{
 			useHeroChain = false;
 			scanDepth = ScanDepth::SMALL;
@@ -303,22 +317,25 @@ void Nullkiller::makeTurn()
 
 		if(bestTask->priority < MIN_PRIORITY)
 		{
-			auto heroes = cb->getHeroesInfo();
-			auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
-				{
-					return h->movementPointsRemaining() > 100;
-				});
-
-			if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+			if(!settings->isObjectGraphAllowed())
 			{
-				logAi->trace(
-					"Goal %s has too low priority %f so increasing scan depth to full.",
-					taskDescription,
-					bestTask->priority);
+				auto heroes = cb->getHeroesInfo();
+				auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
+					{
+						return h->movementPointsRemaining() > 100;
+					});
 
-				scanDepth = ScanDepth::ALL_FULL;
-				useHeroChain = false;
-				continue;
+				if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+				{
+					logAi->trace(
+						"Goal %s has too low priority %f so increasing scan depth to full.",
+						taskDescription,
+						bestTask->priority);
+
+					scanDepth = ScanDepth::ALL_FULL;
+					useHeroChain = false;
+					continue;
+				}
 			}
 
 			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", taskDescription);
@@ -328,9 +345,9 @@ void Nullkiller::makeTurn()
 
 		executeTask(bestTask);
 
-		if(i == MAXPASS)
+		if(i == settings->getMaxPass())
 		{
-			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", taskDescription);
+			logAi->warn("Goal %s exceeded maxpass. Terminating AI turn.", taskDescription);
 		}
 	}
 }

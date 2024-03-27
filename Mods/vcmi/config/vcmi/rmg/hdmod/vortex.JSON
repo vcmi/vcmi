@@ -1,9 +1,9 @@
 {
 	"Vortex" :
-	//(ban fly/DD, 3-4 player, 31-May-03, midnight design)
 	{
 		"minSize" : "xl", "maxSize" : "xl",
 		"players" : "2-4",
+		"description" : "Ban fly/DD, 3-4 players, 31-May-03, Midnight design",
 		"zones" :
 		{
 			"1" :

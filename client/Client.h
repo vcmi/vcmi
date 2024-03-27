@@ -173,7 +173,7 @@ public:
 	void showTeleportDialog(TeleportDialog * iw) override {};
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};
 	void giveResource(PlayerColor player, GameResID which, int val) override {};
-	virtual void giveResources(PlayerColor player, TResources resources) override {};
+	void giveResources(PlayerColor player, TResources resources) override {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet & creatures, bool remove) override {};
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> & creatures) override {};
@@ -191,7 +191,7 @@ public:
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
 	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;};
 	void removeArtifact(const ArtifactLocation & al) override {};
-	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};
+	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};
 
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override {};

@@ -458,6 +458,11 @@ std::string FactionID::entityType()
 	return "faction";
 }
 
+const CFaction * FactionID::toFaction() const
+{
+	return dynamic_cast<const CFaction*>(toEntity(VLC));
+}
+
 const Faction * FactionID::toEntity(const Services * service) const
 {
 	return service->factions()->getByIndex(num);

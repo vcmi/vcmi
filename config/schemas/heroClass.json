@@ -42,12 +42,12 @@
 						"female" : {
 							"type" : "string",
 							"description" : "Female version",
-							"format" : "defFile"
+							"format" : "animationFile"
 						},
 						"male" : {
 							"type" : "string",
 							"description" : "Male version",
-							"format" : "defFile"
+							"format" : "animationFile"
 						}
 					}
 				}
