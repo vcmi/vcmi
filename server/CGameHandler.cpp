@@ -2891,7 +2891,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 
 bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left)
 {
-	auto artSet = getArtSet(heroID);
+	const auto artSet = getArtSet(heroID);
 	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "scrollBackpackArtifacts: wrong hero's ID");
 
 	BulkMoveArtifacts bma(player, heroID, heroID, false);

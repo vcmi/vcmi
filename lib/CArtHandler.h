@@ -255,7 +255,7 @@ public:
 	ArtBearer::ArtBearer bearerType() const override;
 
 protected:
-	ArtBearer::ArtBearer Bearer;
+	ArtBearer::ArtBearer bearer;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -1079,8 +1079,8 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 	}
 }
 
-CArtifactFittingSet::CArtifactFittingSet(ArtBearer::ArtBearer Bearer):
-	Bearer(Bearer)
+CArtifactFittingSet::CArtifactFittingSet(ArtBearer::ArtBearer bearer)
+	: bearer(bearer)
 {
 }
 
@@ -1094,7 +1094,7 @@ CArtifactFittingSet::CArtifactFittingSet(const CArtifactSet & artSet)
 
 ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
 {
-	return this->Bearer;
+	return this->bearer;
 }
 
 VCMI_LIB_NAMESPACE_END
