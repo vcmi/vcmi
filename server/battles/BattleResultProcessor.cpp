@@ -342,80 +342,61 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	if(result == EBattleResult::NORMAL && !finishingBattle->isDraw() && finishingBattle->winnerHero)
 	{
-		auto sendMoveArtifact = [&](const CArtifactInstance *art, MoveArtifact *ma)
+		BulkMoveArtifacts bma(finishingBattle->winnerHero->getOwner(), finishingBattle->loserHero->id, finishingBattle->winnerHero->id, false);
+		bma.askAssemble = true;
+		CArtifactFittingSet artFittingSet(*finishingBattle->winnerHero);
+
+		const auto addArtifactToTransfer = [&](const ArtifactPosition & srcSlot, const CArtifactInstance * art)
 		{
-			const auto slot = ArtifactUtils::getArtAnyPosition(finishingBattle->winnerHero, art->getTypeId());
-			if(slot != ArtifactPosition::PRE_FIRST)
+			const auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, art->getTypeId());
+			if(dstSlot != ArtifactPosition::PRE_FIRST)
 			{
-				arts.push_back(art);
-				ma->dst = ArtifactLocation(finishingBattle->winnerHero->id, slot);
-				if(ArtifactUtils::isSlotBackpack(slot))
-					ma->askAssemble = false;
-				gameHandler->sendAndApply(ma);
+				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+				arts.emplace_back(art);
+				artFittingSet.putArtifact(dstSlot, const_cast<CArtifactInstance*>(art));
 			}
 		};
-
-		if (finishingBattle->loserHero)
+		const auto sendArtifacts = [&bma, this]()
 		{
-			//TODO: wrap it into a function, somehow (std::variant -_-)
-			auto artifactsWorn = finishingBattle->loserHero->artifactsWorn;
-			for (auto artSlot : artifactsWorn)
+			if(!bma.artsPack0.empty())
+				gameHandler->sendAndApply(&bma);
+		};
+
+		if(finishingBattle->loserHero)
+		{
+			for(const auto & artSlot : finishingBattle->loserHero->artifactsWorn)
 			{
-				MoveArtifact ma;
-				ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);
-				const CArtifactInstance * art = finishingBattle->loserHero->getArt(artSlot.first);
-				if (art && !art->artType->isBig() &&
-					art->artType->getId() != ArtifactID::SPELLBOOK)
-						// don't move war machines or locked arts (spellbook)
-				{
-					sendMoveArtifact(art, &ma);
-				}
+				if(ArtifactUtils::isArtRemovable(artSlot))
+					addArtifactToTransfer(artSlot.first, artSlot.second.getArt());
 			}
-			for(int slotNumber = finishingBattle->loserHero->artifactsInBackpack.size() - 1; slotNumber >= 0; slotNumber--)
+			for(const auto & artSlot : finishingBattle->loserHero->artifactsInBackpack)
 			{
-				//we assume that no big artifacts can be found
-				MoveArtifact ma;
-				ma.src = ArtifactLocation(finishingBattle->loserHero->id,
-					ArtifactPosition(ArtifactPosition::BACKPACK_START + slotNumber)); //backpack automatically shifts arts to beginning
-				const CArtifactInstance * art = finishingBattle->loserHero->getArt(ArtifactPosition::BACKPACK_START + slotNumber);
-				if (art->artType->getId() != ArtifactID::GRAIL) //grail may not be won
-				{
-					sendMoveArtifact(art, &ma);
-				}
+				const auto art = artSlot.getArt();
+				if(art->getTypeId() != ArtifactID::GRAIL)
+					addArtifactToTransfer(finishingBattle->loserHero->getArtPos(art), art);
 			}
-			if (finishingBattle->loserHero->commander) //TODO: what if commanders belong to no hero?
+			sendArtifacts();
+
+			bma.askAssemble = false;
+			bma.artsPack0.clear();
+			if(finishingBattle->loserHero->commander)
 			{
-				artifactsWorn = finishingBattle->loserHero->commander->artifactsWorn;
-				for (auto artSlot : artifactsWorn)
-				{
-					MoveArtifact ma;
-					ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);
-					ma.src.creature = finishingBattle->loserHero->findStack(finishingBattle->loserHero->commander);
-					const auto art = finishingBattle->loserHero->commander->getArt(artSlot.first);
-					if (art && !art->artType->isBig())
-					{
-						sendMoveArtifact(art, &ma);
-					}
-				}
+				bma.srcCreature = finishingBattle->loserHero->findStack(finishingBattle->loserHero->commander);
+				for(const auto & artSlot : finishingBattle->loserHero->commander->artifactsWorn)
+					addArtifactToTransfer(artSlot.first, artSlot.second.getArt());
+				sendArtifacts();
 			}
 		}
-
-		auto loser = battle.otherSide(battleResult->winner);
-
-		for (auto armySlot : battle.battleGetArmyObject(loser)->stacks)
+		auto armyObj = battle.battleGetArmyObject(battle.otherSide(battleResult->winner));
+		bma.srcArtHolder = armyObj->id;
+		for(const auto & armySlot : armyObj->stacks)
 		{
-			auto artifactsWorn = armySlot.second->artifactsWorn;
-			for(const auto & artSlot : artifactsWorn)
-			{
-				MoveArtifact ma;
-				ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);
-				ma.src.creature = finishingBattle->loserHero->findStack(finishingBattle->loserHero->commander);
-				const auto art = finishingBattle->loserHero->commander->getArt(artSlot.first);
-				if (art && !art->artType->isBig())
-				{
-					sendMoveArtifact(art, &ma);
-				}
-			}
+			bma.artsPack0.clear();
+			bma.interfaceOwner = finishingBattle->winnerHero->getOwner();
+			bma.srcCreature = armySlot.first;
+			for(const auto & artSlot : armySlot.second->artifactsWorn)
+				addArtifactToTransfer(artSlot.first, armySlot.second->getArt(artSlot.first));
+			sendArtifacts();
 		}
 	}
 

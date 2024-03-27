@@ -306,8 +306,8 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 	};
 
 	moveArtifact(pack.interfaceOwner);
-	if(pack.interfaceOwner != cl.getOwner(pack.dst.artHolder))
-		moveArtifact(cl.getOwner(pack.dst.artHolder));
+	//if(pack.interfaceOwner != cl.getOwner(pack.dst.artHolder))
+	//	moveArtifact(cl.getOwner(pack.dst.artHolder));
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
 }
