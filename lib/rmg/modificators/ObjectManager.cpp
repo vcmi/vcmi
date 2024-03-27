@@ -273,7 +273,6 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 
 rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
 {
-	//RecursiveLock lock(externalAccessMutex);
 	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
 		float bestDistance = 10e9;

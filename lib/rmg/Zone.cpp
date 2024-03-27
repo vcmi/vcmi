@@ -352,7 +352,6 @@ void Zone::fractalize()
 		}
 	}
 
-	//Lock lock(areaMutex);
 	//Connect with free areas
 	auto areas = connectedAreas(clearedTiles, true);
 	for(auto & area : areas)

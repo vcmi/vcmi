@@ -43,8 +43,6 @@ void WaterRoutes::process()
 			result.push_back(wproxy->waterRoute(*z.second));
 	}
 
-	//Zone::Lock lock(zone.areaMutex);
-
 	auto area = zone.area();
 	auto freePaths = zone.freePaths();
 	auto areaPossible = zone.areaPossible();

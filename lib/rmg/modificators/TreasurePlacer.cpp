@@ -918,7 +918,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			{
 				Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
-				
+
 				auto searchArea = zone.areaPossible().get();
 				searchArea.erase_if([this, &minDistance](const int3& tile) -> bool
 				{
@@ -954,7 +954,6 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 					path = manager.placeAndConnectObject(searchArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
 				}
 			}
-			//lock.unlock();
 
 			if (path.valid())
 			{

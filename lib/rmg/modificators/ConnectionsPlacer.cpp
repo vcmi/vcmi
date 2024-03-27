@@ -35,7 +35,6 @@ std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Z
 
 	while (true)
 	{
-		// FIXME: What if every zone owns its own lock?
 		auto lock1 = Zone::Lock(zone.areaMutex, boost::try_to_lock);
 		auto lock2 = Zone::Lock(otherZone->areaMutex, boost::try_to_lock);
 
@@ -59,7 +58,6 @@ void ConnectionsPlacer::process()
 
 			while (cp)
 			{
-				// FIXME: It does lock ConnectionPlacer, but not areaMutex
 				RecursiveLock lock1(externalAccessMutex, boost::try_to_lock);
 				RecursiveLock lock2(cp->externalAccessMutex, boost::try_to_lock);
 				if (lock1.owns_lock() && lock2.owns_lock())
@@ -292,7 +290,6 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 					zone.freePaths()->add(guardPos);
 					map.setOccupied(guardPos, ETileType::FREE);
 					manager.updateDistances(guardPos);
-					// FIXME: Accessing other manager might lead to deadlock
 					otherZone->getModificator<ObjectManager>()->updateDistances(guardPos);
 				}
 				
