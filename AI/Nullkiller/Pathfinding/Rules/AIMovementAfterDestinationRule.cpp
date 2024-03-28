@@ -40,6 +40,16 @@ namespace AIPathfinding
 
 			return;
 		}
+		
+		if(!allowBypassObjects
+			&& destination.action == EPathNodeAction::EMBARK
+			&& source.node->layer == EPathfindingLayer::LAND
+			&& destination.node->layer == EPathfindingLayer::SAIL)
+		{
+			destination.blocked = true;
+
+			return;
+		}
 
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
 

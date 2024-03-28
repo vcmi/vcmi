@@ -60,29 +60,29 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 	}
 }
 
-std::vector<CGPathNode *> NodeStorage::calculateNeighbours(
+void NodeStorage::calculateNeighbours(
+	std::vector<CGPathNode *> & result,
 	const PathNodeInfo & source,
+	EPathfindingLayer layer,
 	const PathfinderConfig * pathfinderConfig,
 	const CPathfinderHelper * pathfinderHelper)
 {
-	std::vector<CGPathNode *> neighbours;
-	neighbours.reserve(16);
-	auto accessibleNeighbourTiles = pathfinderHelper->getNeighbourTiles(source);
+	std::vector<int3> accessibleNeighbourTiles;
+	
+	result.clear();
+	accessibleNeighbourTiles.reserve(8);
+	
+	pathfinderHelper->calculateNeighbourTiles(accessibleNeighbourTiles, source);
 
 	for(auto & neighbour : accessibleNeighbourTiles)
 	{
-		for(EPathfindingLayer i = EPathfindingLayer::LAND; i < EPathfindingLayer::NUM_LAYERS; i.advance(1))
-		{
-			auto * node = getNode(neighbour, i);
+		auto * node = getNode(neighbour, layer);
 
-			if(node->accessible == EPathAccessibility::NOT_SET)
-				continue;
+		if(node->accessible == EPathAccessibility::NOT_SET)
+			continue;
 
-			neighbours.push_back(node);
-		}
+		result.push_back(node);
 	}
-
-	return neighbours;
 }
 
 std::vector<CGPathNode *> NodeStorage::calculateTeleportations(

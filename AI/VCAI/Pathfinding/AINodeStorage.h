@@ -89,8 +89,10 @@ public:
 
 	std::vector<CGPathNode *> getInitialNodes() override;
 
-	virtual std::vector<CGPathNode *> calculateNeighbours(
+	virtual void calculateNeighbours(
+		std::vector<CGPathNode *> & result,
 		const PathNodeInfo & source,
+		EPathfindingLayer layer,
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) override;
 

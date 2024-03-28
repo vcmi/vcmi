@@ -35,16 +35,21 @@ Goals::TGoalVec StayAtTownBehavior::decompose() const
 	if(!towns.size())
 		return tasks;
 
+	std::vector<AIPath> paths;
+
 	for(auto town : towns)
 	{
 		if(!town->hasBuilt(BuildingID::MAGES_GUILD_1))
 			continue;
 
-		auto paths = ai->nullkiller->pathfinder->getPathInfo(town->visitablePos());
+		ai->nullkiller->pathfinder->calculatePathInfo(paths, town->visitablePos());
 
 		for(auto & path : paths)
 		{
 			if(town->visitingHero && town->visitingHero.get() != path.targetHero)
+				continue;
+
+			if(!path.targetHero->hasSpellbook() || path.targetHero->mana >= 0.75f * path.targetHero->manaLimit())
 				continue;
 
 			if(path.turn() == 0 && !path.getFirstBlockedAction() && path.exchangeCount <= 1)

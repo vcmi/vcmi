@@ -34,7 +34,10 @@ namespace AIPathfinding
 		std::map<const CGHeroInstance *, std::shared_ptr<const AirWalkingAction>> airWalkingActions;
 
 	public:
-		AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, Nullkiller * ai, std::shared_ptr<AINodeStorage> nodeStorage);
+		AILayerTransitionRule(
+			CPlayerSpecificInfoCallback * cb,
+			Nullkiller * ai,
+			std::shared_ptr<AINodeStorage> nodeStorage);
 
 		virtual void process(
 			const PathNodeInfo & source,

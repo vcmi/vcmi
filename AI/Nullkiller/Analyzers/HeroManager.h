@@ -20,23 +20,6 @@
 namespace NKAI
 {
 
-class DLL_EXPORT IHeroManager //: public: IAbstractManager
-{
-public:
-	virtual ~IHeroManager() = default;
-	virtual const std::map<HeroPtr, HeroRole> & getHeroRoles() const = 0;
-	virtual int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const = 0;
-	virtual HeroRole getHeroRole(const HeroPtr & hero) const = 0;
-	virtual void update() = 0;
-	virtual float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const = 0;
-	virtual float evaluateHero(const CGHeroInstance * hero) const = 0;
-	virtual bool canRecruitHero(const CGTownInstance * t = nullptr) const = 0;
-	virtual bool heroCapReached() const = 0;
-	virtual const CGHeroInstance * findHeroWithGrail() const = 0;
-	virtual const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const = 0;
-	virtual float getMagicStrength(const CGHeroInstance * hero) const = 0;
-};
-
 class DLL_EXPORT ISecondarySkillRule
 {
 public:
@@ -55,7 +38,7 @@ public:
 	float evaluateSecSkill(const CGHeroInstance * hero, SecondarySkill skill) const;
 };
 
-class DLL_EXPORT HeroManager : public IHeroManager
+class DLL_EXPORT HeroManager
 {
 private:
 	static const SecondarySkillEvaluator wariorSkillsScores;
@@ -64,20 +47,22 @@ private:
 	CCallback * cb; //this is enough, but we downcast from CCallback
 	const Nullkiller * ai;
 	std::map<HeroPtr, HeroRole> heroRoles;
+	std::map<ObjectInstanceID, float> knownFightingStrength;
 
 public:
 	HeroManager(CCallback * CB, const Nullkiller * ai) : cb(CB), ai(ai) {}
-	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
-	HeroRole getHeroRole(const HeroPtr & hero) const override;
-	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;
-	void update() override;
-	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const override;
-	float evaluateHero(const CGHeroInstance * hero) const override;
-	bool canRecruitHero(const CGTownInstance * t = nullptr) const override;
-	bool heroCapReached() const override;
-	const CGHeroInstance * findHeroWithGrail() const override;
-	const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const override;
-	float getMagicStrength(const CGHeroInstance * hero) const override;
+	const std::map<HeroPtr, HeroRole> & getHeroRoles() const;
+	HeroRole getHeroRole(const HeroPtr & hero) const;
+	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const;
+	void update();
+	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const;
+	float evaluateHero(const CGHeroInstance * hero) const;
+	bool canRecruitHero(const CGTownInstance * t = nullptr) const;
+	bool heroCapReached() const;
+	const CGHeroInstance * findHeroWithGrail() const;
+	const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const;
+	float getMagicStrength(const CGHeroInstance * hero) const;
+	float getFightingStrengthCached(const CGHeroInstance * hero) const;
 
 private:
 	float evaluateFightingStrength(const CGHeroInstance * hero) const;

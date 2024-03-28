@@ -57,6 +57,8 @@ namespace AIPathfinding
 		}
 
 		bool canAct(const AIPathNode * source) const override;
+		bool canAct(const AIPathNodeInfo & source) const override;
+		bool canAct(const CGHeroInstance * hero, const TResources & reservedResources) const;
 
 		void execute(const CGHeroInstance * hero) const override;
 
@@ -67,6 +69,19 @@ namespace AIPathfinding
 		std::string toString() const override;
 
 		const CGObjectInstance * targetObject() const override;
+	};
+
+	class BuildBoatActionFactory : public ISpecialActionFactory
+	{
+		ObjectInstanceID shipyard;
+
+	public:
+		BuildBoatActionFactory(ObjectInstanceID shipyard)
+			:shipyard(shipyard)
+		{
+		}
+
+		std::shared_ptr<SpecialAction> create(const Nullkiller * ai) override;
 	};
 }
 

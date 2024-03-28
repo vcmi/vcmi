@@ -410,7 +410,11 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 
 	// In auto testing pack.mode we always close client if red pack.player won or lose
 	if(!settings["session"]["testmap"].isNull() && pack.player == PlayerColor(0))
+	{
+		logAi->info("Red player %s. Ending game.", pack.victoryLossCheckResult.victory() ? "won" : "lost");
+
 		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
+	}
 }
 
 void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface & pack)

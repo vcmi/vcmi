@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../Pathfinding/AINodeStorage.h"
+#include "../Engine/PriorityEvaluator.h"
 
 namespace NKAI
 {
@@ -49,8 +50,6 @@ public:
 
 using ClusterMap = tbb::concurrent_hash_map<const CGObjectInstance *, std::shared_ptr<ObjectCluster>>;
 
-class PriorityEvaluator;
-
 class ObjectClusterizer
 {
 private:
@@ -60,6 +59,7 @@ private:
 	ObjectCluster farObjects;
 	ClusterMap blockedObjects;
 	const Nullkiller * ai;
+	RewardEvaluator valueEvaluator;
 
 public:
 	void clusterize();
@@ -67,12 +67,17 @@ public:
 	std::vector<const CGObjectInstance *> getFarObjects() const;
 	std::vector<std::shared_ptr<ObjectCluster>> getLockedClusters() const;
 	const CGObjectInstance * getBlocker(const AIPath & path) const;
+	std::optional<const CGObjectInstance *> getBlocker(const AIPathNodeInfo & node) const;
 
-	ObjectClusterizer(const Nullkiller * ai): ai(ai) {}
+	ObjectClusterizer(const Nullkiller * ai): ai(ai), valueEvaluator(ai) {}
 
 private:
 	bool shouldVisitObject(const CGObjectInstance * obj) const;
-	void clusterizeObject(const CGObjectInstance * obj, PriorityEvaluator * priorityEvaluator);
+	void clusterizeObject(
+		const CGObjectInstance * obj,
+		PriorityEvaluator * priorityEvaluator,
+		std::vector<AIPath> & pathCache,
+		std::vector<const CGHeroInstance *> & heroes);
 };
 
 }

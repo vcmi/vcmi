@@ -28,7 +28,7 @@ namespace NKAI
 namespace AIPathfinding
 {
 	const int BUCKET_COUNT = 3;
-	const int BUCKET_SIZE = 5;
+	const int BUCKET_SIZE = 7;
 	const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
 	const int CHAIN_MAX_DEPTH = 4;
 }
@@ -49,15 +49,24 @@ struct AIPathNode : public CGPathNode
 	const AIPathNode * chainOther;
 	std::shared_ptr<const SpecialAction> specialAction;
 	const ChainActor * actor;
-
-	STRONG_INLINE
-	bool blocked() const
-	{
-		return accessible == EPathAccessibility::NOT_SET
-			|| accessible == EPathAccessibility::BLOCKED;
-	}
+	uint64_t version;
 
 	void addSpecialAction(std::shared_ptr<const SpecialAction> action);
+
+	inline void reset(EPathfindingLayer layer, EPathAccessibility accessibility)
+	{
+		CGPathNode::reset();
+
+		actor = nullptr;
+		danger = 0;
+		manaCost = 0;
+		specialAction.reset();
+		armyLoss = 0;
+		chainOther = nullptr;
+		dayFlags = DayFlags::NONE;
+		this->layer = layer;
+		accessible = accessibility;
+	}
 };
 
 struct AIPathNodeInfo
@@ -133,21 +142,21 @@ enum EHeroChainPass
 
 class AISharedStorage
 {
-	// 1 - layer (air, water, land)
-	// 2-4 - position on map[z][x][y]
-	// 5 - chain (normal, battle, spellcast and combinations)
-	static std::shared_ptr<boost::multi_array<AIPathNode, 5>> shared;
-	std::shared_ptr<boost::multi_array<AIPathNode, 5>> nodes;
+	// 1-3 - position on map[z][x][y]
+	// 4 - chain + layer (normal, battle, spellcast and combinations, water, air)
+	static std::shared_ptr<boost::multi_array<AIPathNode, 4>> shared;
+	std::shared_ptr<boost::multi_array<AIPathNode, 4>> nodes;
 public:
 	static boost::mutex locker;
+	static uint64_t version;
 
 	AISharedStorage(int3 mapSize);
 	~AISharedStorage();
 
 	STRONG_INLINE
-	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile, EPathfindingLayer layer) const
+	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile) const
 	{
-		return (*nodes)[layer][tile.z][tile.x][tile.y];
+		return (*nodes)[tile.z][tile.x][tile.y];
 	}
 };
 
@@ -155,6 +164,8 @@ class AINodeStorage : public INodeStorage
 {
 private:
 	int3 sizes;
+
+	std::unique_ptr<boost::multi_array<EPathAccessibility, 4>> accesibility;
 
 	const CPlayerSpecificInfoCallback * cb;
 	const Nullkiller * ai;
@@ -182,8 +193,10 @@ public:
 
 	std::vector<CGPathNode *> getInitialNodes() override;
 
-	virtual std::vector<CGPathNode *> calculateNeighbours(
+	virtual void calculateNeighbours(
+		std::vector<CGPathNode *> & result,
 		const PathNodeInfo & source,
+		EPathfindingLayer layer,
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) override;
 
@@ -222,7 +235,27 @@ public:
 		return aiNode->actor->hero;
 	}
 
+	inline bool blocked(const int3 & tile, EPathfindingLayer layer) const
+	{
+		EPathAccessibility accessible = getAccessibility(tile, layer);
+
+		return accessible == EPathAccessibility::NOT_SET
+			|| accessible == EPathAccessibility::BLOCKED;
+	}
+
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
+	bool hasBetterChain(const CGPathNode * source, const AIPathNode & candidateNode) const;
+
+	template<class NodeRange>
+	bool hasBetterChain(
+		const CGPathNode * source, 
+		const AIPathNode & destinationNode,
+		const NodeRange & chains) const;
+
+	bool isOtherChainBetter(
+		const CGPathNode * source,
+		const AIPathNode & candidateNode,
+		const AIPathNode & other) const;
 
 	bool isMovementIneficient(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 	{
@@ -231,14 +264,8 @@ public:
 
 	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
-	template<class NodeRange>
-	bool hasBetterChain(
-		const CGPathNode * source, 
-		const AIPathNode * destinationNode,
-		const NodeRange & chains) const;
-
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
-	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
+	void calculateChainInfo(std::vector<AIPath> & result, const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
 	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }
@@ -256,23 +283,63 @@ public:
 		return dangerEvaluator->evaluateDanger(tile, hero, checkGuards);
 	}
 
-	inline uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
-	{
-		double ratio = (double)danger / (armyValue * hero->getFightingStrength());
+	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const;
 
-		return (uint64_t)(armyValue * ratio * ratio);
+	inline EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const
+	{
+		return (*this->accesibility)[tile.z][tile.x][tile.y][layer];
 	}
 
-	STRONG_INLINE
-	void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility accessibility);
+	inline void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility tileAccessibility)
+	{
+		(*this->accesibility)[tile.z][tile.x][tile.y][layer] = tileAccessibility;
+	}
 
-	STRONG_INLINE int getBucket(const ChainActor * actor) const
+	inline int getBucket(const ChainActor * actor) const
 	{
 		return ((uintptr_t)actor * 395) % AIPathfinding::BUCKET_COUNT;
 	}
 
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
+
+	template<typename Fn>
+	void iterateValidNodes(const int3 & pos, EPathfindingLayer layer, Fn fn)
+	{
+		if(blocked(pos, layer))
+			return;
+
+		auto chains = nodes.get(pos);
+
+		for(AIPathNode & node : chains)
+		{
+			if(node.version != AISharedStorage::version || node.layer != layer)
+				continue;
+
+			fn(node);
+		}
+	}
+
+	template<typename Fn>
+	bool iterateValidNodesUntil(const int3 & pos, EPathfindingLayer layer, Fn predicate) const
+	{
+		if(blocked(pos, layer))
+			return false;
+
+		auto chains = nodes.get(pos);
+
+		for(AIPathNode & node : chains)
+		{
+			if(node.version != AISharedStorage::version || node.layer != layer)
+				continue;
+
+			if(predicate(node))
+				return true;
+		}
+
+		return false;
+	}
+
 
 private:
 	template<class TVector>
