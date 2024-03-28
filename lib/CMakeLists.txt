@@ -1,6 +1,48 @@
 set(lib_SRCS
 	StdInc.cpp
 
+	filesystem/AdapterLoaders.cpp
+	filesystem/CArchiveLoader.cpp
+	filesystem/CBinaryReader.cpp
+	filesystem/CCompressedStream.cpp
+	filesystem/CFileInputStream.cpp
+	filesystem/CFilesystemLoader.cpp
+	filesystem/CMemoryBuffer.cpp
+	filesystem/CMemoryStream.cpp
+	filesystem/CZipLoader.cpp
+	filesystem/CZipSaver.cpp
+	filesystem/FileInfo.cpp
+	filesystem/Filesystem.cpp
+	filesystem/MinizipExtensions.cpp
+	filesystem/ResourcePath.cpp
+
+	json/JsonNode.cpp
+	json/JsonParser.cpp
+	json/JsonRandom.cpp
+	json/JsonUtils.cpp
+	json/JsonValidator.cpp
+	json/JsonWriter.cpp
+
+	logging/CBasicLogConfigurator.cpp
+	logging/CLogger.cpp
+	logging/VisualLogger.cpp
+
+	network/NetworkConnection.cpp
+	network/NetworkHandler.cpp
+	network/NetworkServer.cpp
+
+	vstd/DateUtils.cpp
+	vstd/StringUtils.cpp
+
+	CConfigHandler.cpp
+	CConsoleHandler.cpp
+	CThreadHelper.cpp
+	TextOperations.cpp
+	VCMIDirs.cpp
+)
+
+set(lib_MAIN_SRCS
+
 	battle/AccessibilityInfo.cpp
 	battle/BattleAction.cpp
 	battle/BattleAttackInfo.cpp
@@ -46,37 +88,12 @@ set(lib_SRCS
 	events/PlayerGotTurn.cpp
 	events/TurnStarted.cpp
 
-	filesystem/AdapterLoaders.cpp
-	filesystem/CArchiveLoader.cpp
-	filesystem/CBinaryReader.cpp
-	filesystem/CCompressedStream.cpp
-	filesystem/CFileInputStream.cpp
-	filesystem/CFilesystemLoader.cpp
-	filesystem/CMemoryBuffer.cpp
-	filesystem/CMemoryStream.cpp
-	filesystem/CZipLoader.cpp
-	filesystem/CZipSaver.cpp
-	filesystem/FileInfo.cpp
-	filesystem/Filesystem.cpp
-	filesystem/MinizipExtensions.cpp
-	filesystem/ResourcePath.cpp
-
 	json/JsonBonus.cpp
-	json/JsonNode.cpp
-	json/JsonParser.cpp
-	json/JsonRandom.cpp
-	json/JsonUtils.cpp
-	json/JsonValidator.cpp
-	json/JsonWriter.cpp
 
 	gameState/CGameState.cpp
 	gameState/CGameStateCampaign.cpp
 	gameState/InfoAboutArmy.cpp
 	gameState/TavernHeroesPool.cpp
-
-	logging/CBasicLogConfigurator.cpp
-	logging/CLogger.cpp
-	logging/VisualLogger.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
 	mapObjectConstructors/CBankInstanceConstructor.cpp
@@ -127,10 +144,6 @@ set(lib_SRCS
 	modding/ContentTypeHandler.cpp
 	modding/IdentifierStorage.cpp
 	modding/ModUtility.cpp
-
-	network/NetworkConnection.cpp
-	network/NetworkHandler.cpp
-	network/NetworkServer.cpp
 
 	networkPacks/NetPacksLib.cpp
 
@@ -225,9 +238,6 @@ set(lib_SRCS
 	spells/effects/RemoveObstacle.cpp
 	spells/effects/Sacrifice.cpp
 
-	vstd/DateUtils.cpp
-	vstd/StringUtils.cpp
-
 	ArtifactUtils.cpp
 	BasicTypes.cpp
 	BattleFieldHandler.cpp
@@ -236,8 +246,6 @@ set(lib_SRCS
 	CArtifactInstance.cpp
 	CBonusTypeHandler.cpp
 	CBuildingHandler.cpp
-	CConfigHandler.cpp
-	CConsoleHandler.cpp
 	CCreatureHandler.cpp
 	CCreatureSet.cpp
 	CGameInfoCallback.cpp
@@ -249,7 +257,6 @@ set(lib_SRCS
 	CScriptingModule.cpp
 	CSkillHandler.cpp
 	CStack.cpp
-	CThreadHelper.cpp
 	CTownHandler.cpp
 	GameSettings.cpp
 	IGameCallback.cpp
@@ -264,11 +271,13 @@ set(lib_SRCS
 	RoadHandler.cpp
 	ScriptHandler.cpp
 	TerrainHandler.cpp
-	TextOperations.cpp
 	TurnTimerInfo.cpp
-	VCMIDirs.cpp
 	VCMI_Lib.cpp
 )
+
+if (NOT ENABLE_MINIMAL_LIB)
+	list(APPEND lib_SRCS ${lib_MAIN_SRCS})
+endif()
 
 # Version.cpp is a generated file
 if(ENABLE_GITVERSION)
@@ -280,14 +289,61 @@ endif()
 
 set(lib_HEADERS
 	../include/vstd/CLoggerBase.h
+	../include/vstd/DateUtils.h
+	../include/vstd/StringUtils.h
 	../Global.h
 	../AUTHORS.h
 	StdInc.h
 
+	filesystem/AdapterLoaders.h
+	filesystem/CArchiveLoader.h
+	filesystem/CBinaryReader.h
+	filesystem/CCompressedStream.h
+	filesystem/CFileInputStream.h
+	filesystem/CFilesystemLoader.h
+	filesystem/CInputOutputStream.h
+	filesystem/CInputStream.h
+	filesystem/CMemoryBuffer.h
+	filesystem/CMemoryStream.h
+	filesystem/COutputStream.h
+	filesystem/CStream.h
+	filesystem/CZipLoader.h
+	filesystem/CZipSaver.h
+	filesystem/FileInfo.h
+	filesystem/Filesystem.h
+	filesystem/ISimpleResourceLoader.h
+	filesystem/MinizipExtensions.h
+	filesystem/ResourcePath.h
+
+	json/JsonBonus.h
+	json/JsonFormatException.h
+	json/JsonNode.h
+	json/JsonParser.h
+	json/JsonRandom.h
+	json/JsonUtils.h
+	json/JsonValidator.h
+	json/JsonWriter.h
+
+	logging/CBasicLogConfigurator.h
+	logging/CLogger.h
+	logging/VisualLogger.h
+
+	network/NetworkConnection.h
+	network/NetworkDefines.h
+	network/NetworkHandler.h
+	network/NetworkInterface.h
+	network/NetworkServer.h
+
+	CConfigHandler.h
+	CConsoleHandler.h
+	CThreadHelper.h
+	TextOperations.h
+	VCMIDirs.h
+)
+
+set(lib_MAIN_HEADERS
 	../include/vstd/ContainerUtils.h
 	../include/vstd/RNG.h
-	../include/vstd/DateUtils.h
-	../include/vstd/StringUtils.h
 
 	../include/vcmi/events/AdventureEvents.h
 	../include/vcmi/events/ApplyDamage.h
@@ -385,35 +441,6 @@ set(lib_HEADERS
 	events/PlayerGotTurn.h
 	events/TurnStarted.h
 
-	filesystem/AdapterLoaders.h
-	filesystem/CArchiveLoader.h
-	filesystem/CBinaryReader.h
-	filesystem/CCompressedStream.h
-	filesystem/CFileInputStream.h
-	filesystem/CFilesystemLoader.h
-	filesystem/CInputOutputStream.h
-	filesystem/CInputStream.h
-	filesystem/CMemoryBuffer.h
-	filesystem/CMemoryStream.h
-	filesystem/COutputStream.h
-	filesystem/CStream.h
-	filesystem/CZipLoader.h
-	filesystem/CZipSaver.h
-	filesystem/FileInfo.h
-	filesystem/Filesystem.h
-	filesystem/ISimpleResourceLoader.h
-	filesystem/MinizipExtensions.h
-	filesystem/ResourcePath.h
-
-	json/JsonBonus.h
-	json/JsonFormatException.h
-	json/JsonNode.h
-	json/JsonParser.h
-	json/JsonRandom.h
-	json/JsonUtils.h
-	json/JsonValidator.h
-	json/JsonWriter.h
-
 	gameState/CGameState.h
 	gameState/CGameStateCampaign.h
 	gameState/EVictoryLossCheckResult.h
@@ -422,10 +449,6 @@ set(lib_HEADERS
 	gameState/TavernHeroesPool.h
 	gameState/TavernSlot.h
 	gameState/QuestInfo.h
-
-	logging/CBasicLogConfigurator.h
-	logging/CLogger.h
-	logging/VisualLogger.h
 
 	mapObjectConstructors/AObjectTypeHandler.h
 	mapObjectConstructors/CBankInstanceConstructor.h
@@ -486,12 +509,6 @@ set(lib_HEADERS
 	modding/ModScope.h
 	modding/ModUtility.h
 	modding/ModVerificationInfo.h
-
-	network/NetworkConnection.h
-	network/NetworkDefines.h
-	network/NetworkHandler.h
-	network/NetworkInterface.h
-	network/NetworkServer.h
 
 	networkPacks/ArtifactLocation.h
 	networkPacks/BattleChanges.h
@@ -622,8 +639,6 @@ set(lib_HEADERS
 	CArtifactInstance.h
 	CBonusTypeHandler.h
 	CBuildingHandler.h
-	CConfigHandler.h
-	CConsoleHandler.h
 	CCreatureHandler.h
 	CCreatureSet.h
 	CGameInfoCallback.h
@@ -640,7 +655,6 @@ set(lib_HEADERS
 	CSoundBase.h
 	CStack.h
 	CStopWatch.h
-	CThreadHelper.h
 	CTownHandler.h
 	ExtraOptionsInfo.h
 	FunctionList.h
@@ -667,13 +681,15 @@ set(lib_HEADERS
 	ScopeGuard.h
 	StartInfo.h
 	TerrainHandler.h
-	TextOperations.h
 	TurnTimerInfo.h
 	UnlockGuard.h
-	VCMIDirs.h
 	vcmi_endian.h
 	VCMI_Lib.h
 )
+
+if (NOT ENABLE_MINIMAL_LIB)
+	list(APPEND lib_HEADERS ${lib_MAIN_HEADERS})
+endif()
 
 assign_source_group(${lib_SRCS} ${lib_HEADERS})
 
@@ -682,13 +698,14 @@ if(ENABLE_STATIC_LIBS)
 else()
 	add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
 endif()
+
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi PUBLIC
 	minizip::minizip ZLIB::ZLIB
 	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
 
-if(ENABLE_STATIC_LIBS)
+if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)
 	target_link_libraries(vcmi PRIVATE
 		BattleAI

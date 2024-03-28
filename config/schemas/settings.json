@@ -501,11 +501,7 @@
 				"enableInstalledMods", 
 				"autoCheckRepositories", 
 				"updateOnStartup", 
-				"updateConfigUrl", 
-				"lobbyUrl", 
-				"lobbyPort", 
-				"lobbyUsername", 
-				"connectionTimeout"
+				"updateConfigUrl"
 			],
 			"properties" : {
 				"defaultRepositoryEnabled" : {
@@ -543,26 +539,6 @@
 				"updateConfigUrl" : {
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
-				},
-				"lobbyUrl" : {
-					"type" : "string",
-					"description" : "ip address or web link to remote proxy server",
-					"default" : "beholder.vcmi.eu"
-				},
-				"lobbyPort" : {
-					"type" : "number",
-					"description" : "connection port for remote proxy server",
-					"default" : 5002
-				},
-				"lobbyUsername" : {
-					"type" : "string",
-					"description" : "username for the client on the remote proxy server",
-					"default" : ""
-				},
-				"connectionTimeout" : {
-					"type" : "number",
-					"description" : "maximum time in ms, should be enough to establish socket connection to remote proxy server.",
-					"default" : 2000
 				}
 			}
 		},
@@ -590,11 +566,11 @@
 				},
 				"hostname" : {
 					"type" : "string",
-					"default" : "127.0.0.1"
+					"default" : "beholder.vcmi.eu"
 				},
 				"port" : {
 					"type" : "number",
-					"default" : 30303
+					"default" : 3031
 				},
 				"roomPlayerLimit" : {
 					"type" : "number",

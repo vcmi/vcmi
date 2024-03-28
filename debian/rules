@@ -8,14 +8,12 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
 		-DCMAKE_INSTALL_RPATH=/usr/lib/$(DEB_HOST_MULTIARCH)/vcmi \
-		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_BUILD_TYPE=Release \
 		-DENABLE_GITVERSION=OFF \
 		-DBIN_DIR=games \
 		-DFORCE_BUNDLED_FL=OFF \
 		-DENABLE_TEST=0
 
-override_dh_strip:
-	dh_strip --dbg-package=vcmi-dbg
 override_dh_auto_install:
 	dh_auto_install --destdir=debian/vcmi
 override_dh_installdocs:
