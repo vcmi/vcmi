@@ -83,6 +83,8 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel5", 5);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel6", 6);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel7", 7);
+	registerObject(ModScope::scopeBuiltin(), "spell", "preset", SpellID::PRESET);
+	registerObject(ModScope::scopeBuiltin(), "spell", "spellbook_preset", SpellID::SPELLBOOK_PRESET);
 }
 
 void CIdentifierStorage::checkIdentifier(std::string & ID)
