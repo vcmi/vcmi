@@ -99,6 +99,7 @@ class ISpecialActionFactory
 {
 public:
 	virtual std::shared_ptr<SpecialAction> create(const Nullkiller * ai) = 0;
+	virtual ~ISpecialActionFactory() = default;
 };
 
 }

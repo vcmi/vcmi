@@ -122,7 +122,7 @@ public:
 
 				ConnectionCostInfo currentCost = getConnectionsCost(paths);
 
-				if(currentCost.connectionsCount <= 1 || currentCost.connectionsCount == 2 && currentCost.totalCost < 3.0f)
+				if(currentCost.connectionsCount <= 2)
 					return;
 
 				float neighborCost = getNeighborConnectionsCost(pos, paths);
@@ -179,7 +179,6 @@ private:
 				{
 					auto from = path.targetHero->visitablePos();
 					auto fromObj = actorObjectMap[path.targetHero];
-					auto fromTile = cb->getTile(from);
 
 					auto danger = ai->pathfinder->getStorage()->evaluateDanger(pos, path.targetHero, true);
 					auto updated = target->tryAddConnection(

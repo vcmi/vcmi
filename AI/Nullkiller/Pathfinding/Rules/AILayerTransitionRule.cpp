@@ -20,9 +20,8 @@ namespace AIPathfinding
 	AILayerTransitionRule::AILayerTransitionRule(
 		CPlayerSpecificInfoCallback * cb,
 		Nullkiller * ai,
-		std::shared_ptr<AINodeStorage> nodeStorage,
-		bool allowEmbark)
-		:cb(cb), ai(ai), nodeStorage(nodeStorage), allowEmbark(allowEmbark)
+		std::shared_ptr<AINodeStorage> nodeStorage)
+		:cb(cb), ai(ai), nodeStorage(nodeStorage)
 	{
 		setup();
 	}
