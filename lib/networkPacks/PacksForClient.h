@@ -1025,30 +1025,6 @@ struct DLL_LINKAGE EraseArtifact : CArtifactOperationPack
 	}
 };
 
-struct DLL_LINKAGE MoveArtifact : CArtifactOperationPack
-{
-	MoveArtifact() = default;
-	MoveArtifact(const PlayerColor & interfaceOwner, const ArtifactLocation & src, const ArtifactLocation & dst, bool askAssemble = true)
-		: interfaceOwner(interfaceOwner), src(src), dst(dst), askAssemble(askAssemble)
-	{
-	}
-	PlayerColor interfaceOwner;
-	ArtifactLocation src;
-	ArtifactLocation dst;
-	bool askAssemble = true;
-
-	void applyGs(CGameState * gs);
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & interfaceOwner;
-		h & src;
-		h & dst;
-		h & askAssemble;
-	}
-};
-
 struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 {
 	struct LinkedSlots

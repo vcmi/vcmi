@@ -2956,7 +2956,7 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 			{
 				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots
 					{
-						artSet->getSlotByInstance(artFittingSet.getArt(availableArts.front())),
+						artSet->getArtPos(artFittingSet.getArt(availableArts.front())),
 						artPos.first
 					});
 				artFittingSet.removeArtifact(availableArts.front());
@@ -3921,7 +3921,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 				int expToGive;
 				m->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getSlotByInstance(art)));
+				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getArtPos(art)));
 			}
 			else
 			{
