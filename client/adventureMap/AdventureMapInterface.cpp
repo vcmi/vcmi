@@ -37,7 +37,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/CConfigHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -501,27 +501,27 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 	return *boost::range::max_element(bobjs, &CMapHandler::compareObjectBlitOrder);
 }
 
-void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
+void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	//FIXME: this line breaks H3 behavior for Dimension Door
-	if(!LOCPLINT->cb->isVisible(mapPos))
-		return;
+	if(!LOCPLINT->cb->isVisible(targetPosition))
+    {
+        if(!spellBeingCasted || spellBeingCasted->id != SpellID::DIMENSION_DOOR)
+		    return;
+    }
 	if(!LOCPLINT->makingTurn)
 		return;
 
-	const TerrainTile *tile = LOCPLINT->cb->getTile(mapPos);
-
-	const CGObjectInstance *topBlocking = getActiveObject(mapPos);
+	const CGObjectInstance *topBlocking = LOCPLINT->cb->isVisible(targetPosition) ? getActiveObject(targetPosition) : nullptr;
 
 	int3 selPos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
 	if(spellBeingCasted)
 	{
 		assert(shortcuts->optionSpellcasting());
 
-		if (!isInScreenRange(selPos, mapPos))
+		if (!isInScreenRange(selPos, targetPosition))
 			return;
 
 		const TerrainTile *heroTile = LOCPLINT->cb->getTile(selPos);
@@ -530,11 +530,17 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		{
 		case SpellID::SCUTTLE_BOAT: //Scuttle Boat
 			if(topBlocking && topBlocking->ID == Obj::BOAT)
-				performSpellcasting(mapPos);
+				performSpellcasting(targetPosition);
 			break;
 		case SpellID::DIMENSION_DOOR:
-			if(!tile || tile->isClear(heroTile))
-				performSpellcasting(mapPos);
+			bool allowOnlyToUncoveredTiles = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES);
+
+			const TerrainTile * targetTile = allowOnlyToUncoveredTiles
+				? LOCPLINT->cb->getTile(targetPosition, false)
+				: LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
+
+			if(targetTile && targetTile->isClear(heroTile))
+				performSpellcasting(targetPosition);
 			break;
 		}
 		return;
@@ -555,7 +561,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	{
 		isHero = true;
 
-		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(mapPos);
+		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(targetPosition);
 		if(currentHero == topBlocking) //clicked selected hero
 		{
 			LOCPLINT->openHeroWindow(currentHero);
@@ -569,7 +575,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
 			if(LOCPLINT->localState->hasPath(currentHero) &&
-			   LOCPLINT->localState->getPath(currentHero).endPos() == mapPos)//we'll be moving
+			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition)//we'll be moving
 			{
 				assert(!CGI->mh->hasOngoingAnimations());
 				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
@@ -585,7 +591,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 				}
 				else //remove old path and find a new one if we clicked on accessible tile
 				{
-					LOCPLINT->localState->setPath(currentHero, mapPos);
+					LOCPLINT->localState->setPath(currentHero, targetPosition);
 					onHeroChanged(currentHero);
 				}
 			}
@@ -603,7 +609,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	}
 }
 
-void AdventureMapInterface::onTileHovered(const int3 &mapPos)
+void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
@@ -612,14 +618,22 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 	if(!LOCPLINT->localState->getCurrentArmy())
 		return;
 
-	if(!LOCPLINT->cb->isVisible(mapPos))
+	bool isTargetPositionVisible = LOCPLINT->cb->isVisible(targetPosition);
+
+	if(!isTargetPositionVisible)
 	{
-		CCS->curh->set(Cursor::Map::POINTER);
-		GH.statusbar()->clear();
-		return;
+        GH.statusbar()->clear();
+
+        if(!spellBeingCasted || spellBeingCasted->id != SpellID::DIMENSION_DOOR)
+        {
+            CCS->curh->set(Cursor::Map::POINTER);
+            return;
+        }
 	}
+
 	auto objRelations = PlayerRelations::ALLIES;
-	const CGObjectInstance *objAtTile = getActiveObject(mapPos);
+
+	const CGObjectInstance *objAtTile = isTargetPositionVisible ? getActiveObject(targetPosition) : nullptr;
 	if(objAtTile)
 	{
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
@@ -627,36 +641,47 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		boost::replace_all(text,"\n"," ");
 		GH.statusbar()->write(text);
 	}
-	else
+	else if(isTargetPositionVisible)
 	{
-		std::string hlp = CGI->mh->getTerrainDescr(mapPos, false);
-		GH.statusbar()->write(hlp);
+		std::string tileTooltipText = CGI->mh->getTerrainDescr(targetPosition, false);
+		GH.statusbar()->write(tileTooltipText);
 	}
 
 	if(spellBeingCasted)
 	{
+		int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
+		if (!isInScreenRange(heroPosition, targetPosition))
+		{
+			CCS->curh->set(Cursor::Map::POINTER);
+			return;
+		}
+
 		switch(spellBeingCasted->id)
 		{
 		case SpellID::SCUTTLE_BOAT:
 			{
-			int3 hpos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
-
-			if(objAtTile && objAtTile->ID == Obj::BOAT && isInScreenRange(hpos, mapPos))
-				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
-			else
-				CCS->curh->set(Cursor::Map::POINTER);
-			return;
-			}
-		case SpellID::DIMENSION_DOOR:
-			{
-				const TerrainTile * t = LOCPLINT->cb->getTile(mapPos, false);
-				int3 hpos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
-				if((!t || t->isClear(LOCPLINT->cb->getTile(hpos))) && isInScreenRange(hpos, mapPos))
-					CCS->curh->set(Cursor::Map::TELEPORT);
+				if(objAtTile && objAtTile->ID == Obj::BOAT)
+					CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
 				else
 					CCS->curh->set(Cursor::Map::POINTER);
 				return;
 			}
+		case SpellID::DIMENSION_DOOR:
+			{
+				bool allowOnlyToUncoveredTiles = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES);
+
+				const TerrainTile * t = allowOnlyToUncoveredTiles
+					? LOCPLINT->cb->getTile(targetPosition, false)
+					: LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
+
+				if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition))/* && isInScreenRange(hpos, mapPos)*/)
+					CCS->curh->set(Cursor::Map::TELEPORT); //TODO: something wrong with beyond east spell range border cursor on arrogance after TP-ing near underground portal on previous day
+				else
+					CCS->curh->set(Cursor::Map::POINTER);
+				return;
+			}
+		default:
+			break;
 		}
 	}
 
@@ -684,7 +709,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		std::array<Cursor::Map, 4> cursorVisit     = { Cursor::Map::T1_VISIT,      Cursor::Map::T2_VISIT,      Cursor::Map::T3_VISIT,      Cursor::Map::T4_VISIT,      };
 		std::array<Cursor::Map, 4> cursorSailVisit = { Cursor::Map::T1_SAIL_VISIT, Cursor::Map::T2_SAIL_VISIT, Cursor::Map::T3_SAIL_VISIT, Cursor::Map::T4_SAIL_VISIT, };
 
-		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(mapPos);
+		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(targetPosition);
 		assert(pathNode);
 
 		if((GH.isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info

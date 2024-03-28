@@ -64,7 +64,7 @@ public:
 	void removeMapObserver(IMapObjectObserver * observer);
 
 	/// returns string description for terrain interaction
-	std::string getTerrainDescr(const int3 & pos, bool rightClick) const;
+	std::string getTerrainDescr(const int3 & pos, bool rightClick) const; //TODO: possible to get info about invisible tiles from client without serverside validation
 
 	/// determines if the map is ready to handle new hero movement (not available during fading animations)
 	bool hasOngoingAnimations();

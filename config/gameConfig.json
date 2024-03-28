@@ -388,6 +388,11 @@
 			// if enabled flying will work like in original game, otherwise nerf similar to HotA flying is applied
 			"originalFlyRules" : false
 		},
+
+		"spells":
+		{
+			"dimensionDoorOnlyToUncoveredTiles" : false
+		},
 		
 		"bonuses" : 
 		{
