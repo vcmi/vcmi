@@ -22,7 +22,7 @@
 #include "../mapView/mapHandler.h"
 #include "../windows/CKingdomInterface.h"
 #include "../windows/CSpellWindow.h"
-#include "../windows/CTradeWindow.h"
+#include "../windows/CMarketWindow.h"
 #include "../windows/settings/SettingsMainWindow.h"
 #include "AdventureMapInterface.h"
 #include "AdventureOptions.h"
@@ -342,7 +342,7 @@ void AdventureMapShortcuts::showMarketplace()
 	}
 
 	if(townWithMarket) //if any town has marketplace, open window
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+		GH.windows().createAndPushWindow<CMarketWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }

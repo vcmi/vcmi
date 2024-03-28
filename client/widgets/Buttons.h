@@ -98,6 +98,7 @@ public:
 	void setHoverable(bool on);
 	void setSoundDisabled(bool on);
 	void setActOnDown(bool on);
+	void setHelp(const std::pair<std::string, std::string> & help);
 
 	/// State modifiers
 	bool isBlocked();

@@ -57,6 +57,7 @@ public:
 	virtual void setText(const std::string & Txt);
 	virtual void setMaxWidth(int width);
 	virtual void setColor(const ColorRGBA & Color);
+	void clear();
 	size_t getWidth();
 
 	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT,
