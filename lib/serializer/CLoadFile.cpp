@@ -29,7 +29,7 @@ int CLoadFile::read(std::byte * data, unsigned size)
 
 void CLoadFile::openNextFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion)
 {
-	assert(!serializer.reverseEndianess);
+	assert(!serializer.reverseEndianness);
 	assert(minimalVersion <= ESerializationVersion::CURRENT);
 
 	try
@@ -62,7 +62,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, ESerializati
 			if(serializer.version == ESerializationVersion::CURRENT)
 			{
 				logGlobal->warn("%s seems to have different endianness! Entering reversing mode.", fname.string());
-				serializer.reverseEndianess = true;
+				serializer.reverseEndianness = true;
 			}
 			else
 				THROW_FORMAT("Error: too new file format (%s)!", fName);
