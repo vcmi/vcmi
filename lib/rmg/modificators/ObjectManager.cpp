@@ -40,7 +40,30 @@ void ObjectManager::process()
 void ObjectManager::init()
 {
 	DEPENDENCY(WaterAdopter);
-	DEPENDENCY_ALL(ConnectionsPlacer); //Monoliths can be placed by other zone, too
+
+	//Monoliths can be placed by other zone, too
+	// Consider only connected zones
+	auto id = zone.getId();
+	std::set<TRmgTemplateZoneId> connectedZones;
+	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
+	{
+		// Only consider connected zones
+		if (c.getZoneA() == id || c.getZoneB() == id)
+		{
+			connectedZones.insert(c.getZoneA());
+			connectedZones.insert(c.getZoneB());
+		}
+	}
+	auto zones = map.getZones();
+	for (auto zoneId : connectedZones)
+	{		
+		auto * cp = zones.at(zoneId)->getModificator<ConnectionsPlacer>();
+		if (cp)
+		{
+			dependency(cp);
+		}
+	}
+
 	DEPENDENCY(TownPlacer); //Only secondary towns
 	DEPENDENCY(MinePlacer);
 	POSTFUNCTION(RoadPlacer);
@@ -49,9 +72,11 @@ void ObjectManager::init()
 
 void ObjectManager::createDistancesPriorityQueue()
 {
+	const auto tiles = zone.areaPossible()->getTilesVector();
+
 	RecursiveLock lock(externalAccessMutex);
 	tilesByDistance.clear();
-	for(const auto & tile : zone.areaPossible().getTilesVector())
+	for(const auto & tile : tiles)
 	{
 		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
 	}
@@ -93,9 +118,19 @@ void ObjectManager::updateDistances(const int3 & pos)
 
 void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
 {
-	RecursiveLock lock(externalAccessMutex);
+	// Workaround to avoid deadlock when accessed from other zone
+	RecursiveLock lock(zone.areaMutex, boost::try_to_lock);
+	if (!lock.owns_lock())
+	{
+		// Unsolvable problem of mutual access
+		return;
+	}
+
+	const auto tiles = zone.areaPossible()->getTilesVector();
+	//RecursiveLock lock(externalAccessMutex);
 	tilesByDistance.clear();
-	for (const auto & tile : zone.areaPossible().getTilesVector()) //don't need to mark distance for not possible tiles
+
+	for (const auto & tile : tiles) //don't need to mark distance for not possible tiles
 	{
 		ui32 d = distanceFunction(tile);
 		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
@@ -145,7 +180,10 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	
 	if(optimizer & OptimizeType::DISTANCE)
 	{
+		// Do not add or remove tiles while we iterate on them
+		//RecursiveLock lock(externalAccessMutex);
 		auto open = tilesByDistance;
+
 		while(!open.empty())
 		{
 			auto node = open.top();
@@ -235,7 +273,6 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 
 rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
 {
-	RecursiveLock lock(externalAccessMutex);
 	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
 		float bestDistance = 10e9;
@@ -372,7 +409,7 @@ bool ObjectManager::createMonoliths()
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, true);
 
 		Zone::Lock lock(zone.areaMutex);
-		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
+		auto path = placeAndConnectObject(zone.areaPossible().get(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
 		
 		if(!path.valid())
 		{
@@ -395,7 +432,7 @@ bool ObjectManager::createRequiredObjects()
 {
 	logGlobal->trace("Creating required objects");
 	
-	//RecursiveLock lock(externalAccessMutex); //Why could requiredObjects be modified during the loop?
+	RecursiveLock lock(externalAccessMutex); //In case someone adds more objects
 	for(const auto & objInfo : requiredObjects)
 	{
 		rmg::Object rmgObject(*objInfo.obj);
@@ -403,7 +440,7 @@ bool ObjectManager::createRequiredObjects()
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 
 		Zone::Lock lock(zone.areaMutex);
-		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
+		auto path = placeAndConnectObject(zone.areaPossible().get(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
 		
 		if(!path.valid())
 		{
@@ -421,7 +458,7 @@ bool ObjectManager::createRequiredObjects()
 			
 			rmg::Object rmgNearObject(*nearby.obj);
 			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
-			possibleArea.intersect(zone.areaPossible());
+			possibleArea.intersect(zone.areaPossible().get());
 			if(possibleArea.empty())
 			{
 				rmgNearObject.clear();
@@ -436,12 +473,11 @@ bool ObjectManager::createRequiredObjects()
 	for(const auto & objInfo : closeObjects)
 	{
 		Zone::Lock lock(zone.areaMutex);
-		auto possibleArea = zone.areaPossible();
 
 		rmg::Object rmgObject(*objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
-		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject,
+		auto path = placeAndConnectObject(zone.areaPossible().get(), rmgObject,
 										  [this, &rmgObject](const int3 & tile)
 		{
 			float dist = rmgObject.getArea().distanceSqr(zone.getPos());
@@ -470,15 +506,15 @@ bool ObjectManager::createRequiredObjects()
 
 		rmg::Object rmgNearObject(*nearby.obj);
 		std::set<int3> blockedArea = targetObject->getBlockedPos();
-		rmg::Area possibleArea(rmg::Area(rmg::Tileset(blockedArea.begin(), blockedArea.end())).getBorderOutside());
-		possibleArea.intersect(zone.areaPossible());
-		if(possibleArea.empty())
+		rmg::Area areaForObject(rmg::Area(rmg::Tileset(blockedArea.begin(), blockedArea.end())).getBorderOutside());
+		areaForObject.intersect(zone.areaPossible().get());
+		if(areaForObject.empty())
 		{
 			rmgNearObject.clear();
 			continue;
 		}
 
-		rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
+		rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(areaForObject.getTiles(), zone.getRand()));
 		placeObject(rmgNearObject, false, false);
 		auto path = zone.searchPath(rmgNearObject.getVisitablePosition(), false);
 		if (path.valid())
@@ -515,8 +551,6 @@ bool ObjectManager::createRequiredObjects()
 
 void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool createRoad/* = false*/)
 {	
-	//object.finalize(map);
-
 	if (object.instances().size() == 1 && object.instances().front()->object().ID == Obj::MONSTER)
 	{
 		//Fix for HoTA offset - lonely guards
@@ -539,31 +573,33 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	}
 	object.finalize(map, zone.getRand());
 
-	Zone::Lock lock(zone.areaMutex);
-	zone.areaPossible().subtract(object.getArea());
-	bool keepVisitable = zone.freePaths().contains(object.getVisitablePosition());
-	zone.freePaths().subtract(object.getArea()); //just to avoid areas overlapping
-	if(keepVisitable)
-		zone.freePaths().add(object.getVisitablePosition());
-	zone.areaUsed().unite(object.getArea());
-	zone.areaUsed().erase(object.getVisitablePosition());
-
-	if(guarded) //We assume the monster won't be guarded
 	{
-		auto guardedArea = object.instances().back()->getAccessibleArea();
-		guardedArea.add(object.instances().back()->getVisitablePosition());
-		auto areaToBlock = object.getAccessibleArea(true);
-		areaToBlock.subtract(guardedArea);
-		zone.areaPossible().subtract(areaToBlock);
-		for(const auto & i : areaToBlock.getTilesVector())
-			if(map.isOnMap(i) && map.isPossible(i))
-				map.setOccupied(i, ETileType::BLOCKED);
+		Zone::Lock lock(zone.areaMutex);
+
+		zone.areaPossible()->subtract(object.getArea());
+		bool keepVisitable = zone.freePaths()->contains(object.getVisitablePosition());
+		zone.freePaths()->subtract(object.getArea()); //just to avoid areas overlapping
+		if(keepVisitable)
+			zone.freePaths()->add(object.getVisitablePosition());
+		zone.areaUsed()->unite(object.getArea());
+		zone.areaUsed()->erase(object.getVisitablePosition());
+
+		if(guarded) //We assume the monster won't be guarded
+		{
+			auto guardedArea = object.instances().back()->getAccessibleArea();
+			guardedArea.add(object.instances().back()->getVisitablePosition());
+			auto areaToBlock = object.getAccessibleArea(true);
+			areaToBlock.subtract(guardedArea);
+			zone.areaPossible()->subtract(areaToBlock);
+			for(const auto & i : areaToBlock.getTilesVector())
+				if(map.isOnMap(i) && map.isPossible(i))
+					map.setOccupied(i, ETileType::BLOCKED);
+		}
 	}
-	lock.unlock();
-	
+
 	if (updateDistance)
 	{
-		//Update distances in every adjacent zone in case of wide connection
+		//Update distances in every adjacent zone (including this one) in case of wide connection
 
 		std::set<TRmgTemplateZoneId> adjacentZones;
 		auto objectArea = object.getArea();

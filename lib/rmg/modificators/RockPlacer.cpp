@@ -40,7 +40,7 @@ void RockPlacer::blockRock()
 		accessibleArea.unite(m->getVisitableArea());
 
 	//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
-	rockArea = zone.area().getSubarea([this](const int3 & t)
+	rockArea = zone.area()->getSubarea([this](const int3 & t)
 	{
 		return map.shouldBeBlocked(t);
 	});
@@ -48,17 +48,20 @@ void RockPlacer::blockRock()
 
 void RockPlacer::postProcess()
 {
-	Zone::Lock lock(zone.areaMutex);
-	//Finally mark rock tiles as occupied, spawn no obstacles there
-	rockArea = zone.area().getSubarea([this](const int3 & t)
 	{
-		return !map.getTile(t).terType->isPassable();
-	});
-	
-	zone.areaUsed().unite(rockArea);
-	zone.areaPossible().subtract(rockArea);
+		Zone::Lock lock(zone.areaMutex);
+		//Finally mark rock tiles as occupied, spawn no obstacles there
+		rockArea = zone.area()->getSubarea([this](const int3 & t)
+		{
+			return !map.getTile(t).terType->isPassable();
+		});
+		
+		zone.areaUsed()->unite(rockArea);
+		zone.areaPossible()->subtract(rockArea);
+	}
 
-	//TODO: Might need mutex here as well
+	//RecursiveLock lock(externalAccessMutex);
+
 	if(auto * m = zone.getModificator<RiverPlacer>())
 		m->riverProhibit().unite(rockArea);
 	if(auto * m = zone.getModificator<RoadPlacer>())
@@ -84,7 +87,7 @@ char RockPlacer::dump(const int3 & t)
 {
 	if(!map.getTile(t).terType->isPassable())
 	{
-		return zone.area().contains(t) ? 'R' : 'E';
+		return zone.area()->contains(t) ? 'R' : 'E';
 	}
 	return Modificator::dump(t);
 }

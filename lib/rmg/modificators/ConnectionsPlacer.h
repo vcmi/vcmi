@@ -33,6 +33,7 @@ public:
 	
 protected:
 	void collectNeighbourZones();
+	std::pair<Zone::Lock, Zone::Lock> lockZones(std::shared_ptr<Zone> otherZone);
 
 protected:
 	std::vector<rmg::ZoneConnection> dConnections;
