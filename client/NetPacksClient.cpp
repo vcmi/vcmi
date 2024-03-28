@@ -229,21 +229,31 @@ void ApplyClientNetPackVisitor::visitSetStackType(SetStackType & pack)
 void ApplyClientNetPackVisitor::visitEraseStack(EraseStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
+	cl.invalidatePaths(); //it is possible to remove last non-native unit for current terrain and lose movement penalty
 }
 
 void ApplyClientNetPackVisitor::visitSwapStacks(SwapStacks & pack)
 {
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
+
+	if(pack.srcArmy != pack.dstArmy)
+		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitInsertNewStack(InsertNewStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
+
+	if(gs.getHero(pack.army))
+		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitRebalanceStacks(RebalanceStacks & pack)
 {
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
+
+	if(pack.srcArmy != pack.dstArmy)
+		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & pack)
@@ -254,6 +264,9 @@ void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & p
 			? ObjectInstanceID()
 			: pack.moves[0].dstArmy;
 		dispatchGarrisonChange(cl, pack.moves[0].srcArmy, destArmy);
+
+		if(pack.moves[0].srcArmy != destArmy)
+			cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
 	}
 }
 
