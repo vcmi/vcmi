@@ -348,6 +348,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 		const auto addArtifactToTransfer = [&](const ArtifactPosition & srcSlot, const CArtifactInstance * art)
 		{
+			assert(art);
 			const auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, art->getTypeId());
 			if(dstSlot != ArtifactPosition::PRE_FIRST)
 			{
@@ -371,8 +372,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			}
 			for(const auto & artSlot : finishingBattle->loserHero->artifactsInBackpack)
 			{
-				const auto art = artSlot.getArt();
-				if(art->getTypeId() != ArtifactID::GRAIL)
+				if(const auto art = artSlot.getArt(); art->getTypeId() != ArtifactID::GRAIL)
 					addArtifactToTransfer(finishingBattle->loserHero->getArtPos(art), art);
 			}
 			sendArtifacts();
@@ -399,31 +399,27 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			sendArtifacts();
 		}
 	}
-
-	if (arts.size()) //display loot
+	// Display loot
+	if(!arts.empty())
 	{
 		InfoWindow iw;
 		iw.player = finishingBattle->winnerHero->tempOwner;
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 30); //You have captured enemy artifact
 
-		iw.text.appendLocalString (EMetaText::GENERAL_TXT, 30); //You have captured enemy artifact
-
-		for (auto art : arts) //TODO; separate function to display loot for various objects?
+		for(auto art : arts) //TODO; separate function to display loot for various objects?
 		{
-			if (art->artType->getId() == ArtifactID::SPELL_SCROLL)
+			if(art->isScroll())
 				iw.components.emplace_back(ComponentType::SPELL_SCROLL, art->getScrollSpellID());
 			else
-				iw.components.emplace_back(ComponentType::ARTIFACT, art->artType->getId());
+				iw.components.emplace_back(ComponentType::ARTIFACT, art->getTypeId());
 
-			if (iw.components.size() >= 14)
+			if(iw.components.size() >= GameConstants::INFO_WINDOW_ARTIFACTS_MAX_ITEMS)
 			{
 				gameHandler->sendAndApply(&iw);
 				iw.components.clear();
 			}
 		}
-		if (iw.components.size())
-		{
-			gameHandler->sendAndApply(&iw);
-		}
+		gameHandler->sendAndApply(&iw);
 	}
 	//Eagle Eye secondary skill handling
 	if (!cs.spells.empty())

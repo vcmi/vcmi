@@ -741,19 +741,6 @@ std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(const Artifa
 	return result;
 }
 
-ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance *art) const
-{
-	for(auto i : artifactsWorn)
-		if(i.second.artifact == art)
-			return i.first;
-
-	for(int i = 0; i < artifactsInBackpack.size(); i++)
-		if(artifactsInBackpack[i].artifact == art)
-			return ArtifactPosition::BACKPACK_START + i;
-
-	return ArtifactPosition::PRE_FIRST;
-}
-
 const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanceID & artInstId) const
 {
 	for(auto i : artifactsWorn)
@@ -767,7 +754,7 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanc
 	return nullptr;
 }
 
-const ArtifactPosition CArtifactSet::getSlotByInstance(const CArtifactInstance * artInst) const
+const ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance * artInst) const
 {
 	if(artInst)
 	{
