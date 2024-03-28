@@ -329,14 +329,24 @@ void ObjectClusterizer::clusterizeObject(
 		if(ai->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)
 		{
 			if(path.movementCost() > 2.0f)
+			{
+#if NKAI_TRACE_LEVEL >= 2
+				logAi->trace("Path is too far %f", path.movementCost());
+#endif
 				continue;
+			}
 		}
-		else if(path.movementCost() > 4.0f)
+		else if(path.movementCost() > 4.0f && obj->ID != Obj::TOWN)
 		{
 			auto strategicalValue = valueEvaluator.getStrategicalValue(obj);
 
-			if(strategicalValue < 0.5f)
+			if(strategicalValue < 0.3f)
+			{
+#if NKAI_TRACE_LEVEL >= 2
+				logAi->trace("Object value is too low %f", strategicalValue);
+#endif
 				continue;
+			}
 		}
 
 		if(!shouldVisit(ai, path.targetHero, obj))

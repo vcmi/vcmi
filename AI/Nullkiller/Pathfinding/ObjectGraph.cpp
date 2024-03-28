@@ -17,6 +17,7 @@
 #include "../../../lib/logging/VisualLogger.h"
 #include "Actions/QuestAction.h"
 #include "../pforeach.h"
+#include "Actions/BoatActions.h"
 
 namespace NKAI
 {
@@ -121,7 +122,7 @@ public:
 
 				ConnectionCostInfo currentCost = getConnectionsCost(paths);
 
-				if(currentCost.connectionsCount <= 2)
+				if(currentCost.connectionsCount <= 1 || currentCost.connectionsCount == 2 && currentCost.totalCost < 3.0f)
 					return;
 
 				float neighborCost = getNeighborConnectionsCost(pos, paths);
@@ -170,7 +171,7 @@ private:
 
 			auto obj = ai->cb->getTopObj(pos);
 
-			if(obj && obj->ID == Obj::BOAT)
+			if((obj && obj->ID == Obj::BOAT) || target->isVirtualBoat(pos))
 			{
 				ai->pathfinder->calculatePathInfo(pathCache, pos);
 
@@ -230,9 +231,9 @@ private:
 					if(!cb->getTile(pos)->isWater())
 						continue;
 
-					auto startingObjIsBoatOrShipyard = obj1 && (obj1->ID == Obj::BOAT || obj1->ID == Obj::SHIPYARD);
+					auto startingObjIsBoat = (obj1 && obj1->ID == Obj::BOAT) || target->isVirtualBoat(pos1);
 
-					if(!startingObjIsBoatOrShipyard)
+					if(!startingObjIsBoat)
 						continue;
 				}
 
@@ -320,12 +321,22 @@ private:
 		assert(objectActor->visitablePos() == visitablePos);
 
 		actorObjectMap[objectActor] = obj;
-		actors[objectActor] = obj->ID == Obj::TOWN || obj->ID == Obj::SHIPYARD || obj->ID == Obj::BOAT ? HeroRole::MAIN : HeroRole::SCOUT;
+		actors[objectActor] = obj->ID == Obj::TOWN || obj->ID == Obj::BOAT ? HeroRole::MAIN : HeroRole::SCOUT;
 
 		target->addObject(obj);
+
+		auto shipyard = dynamic_cast<const IShipyard *>(obj);
+		
+		if(shipyard && shipyard->bestLocation().valid())
+		{
+			int3 virtualBoat = shipyard->bestLocation();
+			
+			addJunctionActor(virtualBoat, true);
+			target->addVirtualBoat(virtualBoat, obj);
+		}
 	}
 
-	void addJunctionActor(const int3 & visitablePos)
+	void addJunctionActor(const int3 & visitablePos, bool isVirtualBoat = false)
 	{
 		std::lock_guard<std::mutex> lock(syncLock);
 
@@ -339,7 +350,7 @@ private:
 		objectActor->pos = objectActor->convertFromVisitablePos(visitablePos);
 		objectActor->initObj(rng);
 
-		if(ai->cb->getTile(visitablePos)->isWater())
+		if(isVirtualBoat || ai->cb->getTile(visitablePos)->isWater())
 		{
 			objectActor->boat = temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get();
 		}
@@ -347,7 +358,7 @@ private:
 		assert(objectActor->visitablePos() == visitablePos);
 
 		actorObjectMap[objectActor] = nullptr;
-		actors[objectActor] = HeroRole::SCOUT;
+		actors[objectActor] = isVirtualBoat ? HeroRole::MAIN : HeroRole::SCOUT;
 
 		target->registerJunction(visitablePos);
 	}
@@ -397,7 +408,15 @@ bool ObjectGraph::tryAddConnection(
 	float cost,
 	uint64_t danger)
 {
-	return nodes[from].connections[to].update(cost, danger);
+	auto result =  nodes[from].connections[to].update(cost, danger);
+	auto & connection = nodes[from].connections[to];
+
+	if(result && isVirtualBoat(to) && !connection.specialAction)
+	{
+		connection.specialAction = std::make_shared<AIPathfinding::BuildBoatActionFactory>(virtualBoats[to]);
+	}
+
+	return result;
 }
 
 void ObjectGraph::removeConnection(const int3 & from, const int3 & to)
@@ -422,19 +441,30 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 
 void ObjectGraph::addObject(const CGObjectInstance * obj)
 {
-	nodes[obj->visitablePos()].init(obj);
+	if(!hasNodeAt(obj->visitablePos()))
+		nodes[obj->visitablePos()].init(obj);
+}
+
+void ObjectGraph::addVirtualBoat(const int3 & pos, const CGObjectInstance * shipyard)
+{
+	if(!isVirtualBoat(pos))
+	{
+		virtualBoats[pos] = shipyard->id;
+	}
 }
 
 void ObjectGraph::registerJunction(const int3 & pos)
 {
-	nodes[pos].initJunction();
+	if(!hasNodeAt(pos))
+		nodes[pos].initJunction();
+
 }
 
 void ObjectGraph::removeObject(const CGObjectInstance * obj)
 {
 	nodes[obj->visitablePos()].objectExists = false;
 
-	if(obj->ID == Obj::BOAT)
+	if(obj->ID == Obj::BOAT && !isVirtualBoat(obj->visitablePos()))
 	{
 		vstd::erase_if(nodes[obj->visitablePos()].connections, [&](const std::pair<int3, ObjectLink> & link) -> bool
 			{
@@ -512,6 +542,27 @@ GraphPaths::GraphPaths()
 {
 }
 
+std::shared_ptr<SpecialAction> getCompositeAction(
+	const Nullkiller * ai,
+	std::shared_ptr<ISpecialActionFactory> linkActionFactory,
+	std::shared_ptr<SpecialAction> transitionAction)
+{
+	if(!linkActionFactory)
+		return transitionAction;
+
+	auto linkAction = linkActionFactory->create(ai);
+
+	if(!transitionAction)
+		return linkAction;
+
+	std::vector<std::shared_ptr<const SpecialAction>> actionsArray = {
+		transitionAction,
+		linkAction
+	};
+
+	return std::make_shared<CompositeAction>(actionsArray);
+}
+
 void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai)
 {
 	graph.copyFrom(*ai->baseGraph);
@@ -561,15 +612,16 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 		node.isInQueue = false;
 
-		graph.iterateConnections(pos.coord, [this, ai, &pos, &node, &transitionAction, &pq](int3 target, ObjectLink o)
+		graph.iterateConnections(pos.coord, [this, ai, &pos, &node, &transitionAction, &pq](int3 target, const ObjectLink & o)
 			{
-				auto targetNodeType = o.danger || transitionAction ? GrapthPathNodeType::BATTLE : pos.nodeType;
+				auto compositeAction = getCompositeAction(ai, o.specialAction, transitionAction);
+				auto targetNodeType = o.danger || compositeAction ? GrapthPathNodeType::BATTLE : pos.nodeType;
 				auto targetPointer = GraphPathNodePointer(target, targetNodeType);
 				auto & targetNode = getOrCreateNode(targetPointer);
 
 				if(targetNode.tryUpdate(pos, node, o))
 				{
-					targetNode.specialAction = transitionAction;
+					targetNode.specialAction = compositeAction;
 
 					auto targetGraphNode = graph.getNode(target);
 
@@ -704,6 +756,11 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 				n.parentIndex = -1;
 				n.specialAction = getNode(*graphTile).specialAction;
 
+				if(n.specialAction)
+				{
+					n.actionIsBlocked = !n.specialAction->canAct(n);
+				}
+
 				for(auto & node : path.nodes)
 				{
 					node.parentIndex++;
@@ -806,7 +863,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 				}
 			}
 			
-			if(!path.nodes.empty())
+			if(path.nodes.size() > 1)
 				continue;
 
 			for(auto graphTile = tilesToPass.rbegin(); graphTile != tilesToPass.rend(); graphTile++)
@@ -819,6 +876,11 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 				n.danger = node.danger;
 				n.specialAction = node.specialAction;
 				n.parentIndex = path.nodes.size();
+
+				if(n.specialAction)
+				{
+					n.actionIsBlocked = !n.specialAction->canAct(n);
+				}
 
 				auto blocker = ai->objectClusterizer->getBlocker(n);
 

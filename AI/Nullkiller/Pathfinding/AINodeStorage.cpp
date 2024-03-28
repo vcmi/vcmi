@@ -529,7 +529,7 @@ bool AINodeStorage::calculateHeroChain()
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, data.size()), [&](const tbb::blocked_range<size_t>& r)
 		{
 			//auto r = blocked_range<size_t>(0, data.size());
-			HeroChainCalculationTask task(*this, nodes, data, chainMask, heroChainTurn);
+			HeroChainCalculationTask task(*this, data, chainMask, heroChainTurn);
 
 			task.execute(r);
 
@@ -543,7 +543,7 @@ bool AINodeStorage::calculateHeroChain()
 	else
 	{
 		auto r = tbb::blocked_range<size_t>(0, data.size());
-		HeroChainCalculationTask task(*this, nodes, data, chainMask, heroChainTurn);
+		HeroChainCalculationTask task(*this, data, chainMask, heroChainTurn);
 
 		task.execute(r);
 		task.flushResult(heroChain);

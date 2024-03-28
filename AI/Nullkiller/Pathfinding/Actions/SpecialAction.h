@@ -22,6 +22,7 @@ namespace NKAI
 {
 
 struct AIPathNode;
+struct AIPathNodeInfo;
 class ChainActor;
 
 class SpecialAction
@@ -30,6 +31,11 @@ public:
 	virtual ~SpecialAction() = default;
 
 	virtual bool canAct(const AIPathNode * source) const
+	{
+		return true;
+	}
+
+	virtual bool canAct(const AIPathNodeInfo & source) const
 	{
 		return true;
 	}
@@ -87,6 +93,12 @@ public:
 		const PathNodeInfo & source,
 		AIPathNode * dstNode,
 		const AIPathNode * srcNode) const override;
+};
+
+class ISpecialActionFactory
+{
+public:
+	virtual std::shared_ptr<SpecialAction> create(const Nullkiller * ai) = 0;
 };
 
 }

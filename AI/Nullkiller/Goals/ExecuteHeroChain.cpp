@@ -67,40 +67,40 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 	for(int i = chainPath.nodes.size() - 1; i >= 0; i--)
 	{
-		auto & node = chainPath.nodes[i];
+		auto  * node = &chainPath.nodes[i];
 
-		const CGHeroInstance * hero = node.targetHero;
+		const CGHeroInstance * hero = node->targetHero;
 		HeroPtr heroPtr = hero;
 
-		if(node.parentIndex >= i)
+		if(node->parentIndex >= i)
 		{
-			logAi->error("Invalid parentIndex while executing node " + node.coord.toString());
+			logAi->error("Invalid parentIndex while executing node " + node->coord.toString());
 		}
 
 		if(vstd::contains(blockedIndexes, i))
 		{
-			blockedIndexes.insert(node.parentIndex);
+			blockedIndexes.insert(node->parentIndex);
 			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 
 			continue;
 		}
 
-		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->getNameTranslated(), node.coord.toString());
+		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->getNameTranslated(), node->coord.toString());
 
 		try
 		{
 			if(hero->movementPointsRemaining() > 0)
 			{
-				ai->nullkiller->setActive(hero, node.coord);
+				ai->nullkiller->setActive(hero, node->coord);
 
-				if(node.specialAction)
+				if(node->specialAction)
 				{
-					if(node.actionIsBlocked)
+					if(node->actionIsBlocked)
 					{
 						throw cannotFulfillGoalException("Path is nondeterministic.");
 					}
 					
-					node.specialAction->execute(hero);
+					node->specialAction->execute(hero);
 					
 					if(!heroPtr.validAndSet())
 					{
@@ -109,10 +109,34 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						return;
 					}
 				}
-
-				if(node.turns == 0 && node.coord != hero->visitablePos())
+				else if(i > 0 && ai->nullkiller->settings->isObjectGraphAllowed())
 				{
-					auto targetNode = cb->getPathsInfo(hero)->getPathInfo(node.coord);
+					auto chainMask = i < chainPath.nodes.size() - 1 ? chainPath.nodes[i + 1].chainMask : node->chainMask;
+
+					for(auto j = i - 1; j >= 0; j--)
+					{
+						auto & nextNode = chainPath.nodes[j];
+
+						if(nextNode.specialAction || nextNode.chainMask != chainMask)
+							break;
+
+						auto targetNode = cb->getPathsInfo(hero)->getPathInfo(nextNode.coord);
+
+						if(!targetNode->reachable()
+							|| targetNode->getCost() > nextNode.cost)
+							break;
+
+						i = j;
+						node = &nextNode;
+
+						if(targetNode->action == EPathNodeAction::BATTLE || targetNode->action == EPathNodeAction::TELEPORT_BATTLE)
+							break;
+					}
+				}
+
+				if(node->turns == 0 && node->coord != hero->visitablePos())
+				{
+					auto targetNode = cb->getPathsInfo(hero)->getPathInfo(node->coord);
 
 					if(targetNode->accessible == EPathAccessibility::NOT_SET
 						|| targetNode->accessible == EPathAccessibility::BLOCKED
@@ -122,7 +146,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						logAi->error(
 							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
 							hero->getNameTranslated(),
-							node.coord.toString());
+							node->coord.toString());
 
 						return;
 					}
@@ -132,7 +156,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 				{
 					try
 					{
-						if(moveHeroToTile(hero, node.coord))
+						if(moveHeroToTile(hero, node->coord))
 						{
 							continue;
 						}
@@ -149,11 +173,11 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						if(hero->movementPointsRemaining() > 0)
 						{
 							CGPath path;
-							bool isOk = cb->getPathsInfo(hero)->getPath(path, node.coord);
+							bool isOk = cb->getPathsInfo(hero)->getPath(path, node->coord);
 
 							if(isOk && path.nodes.back().turns > 0)
 							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movementPointsRemaining(), node.coord.toString());
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movementPointsRemaining(), node->coord.toString());
 
 								ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;
@@ -165,15 +189,15 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 				}
 			}
 
-			if(node.coord == hero->visitablePos())
+			if(node->coord == hero->visitablePos())
 				continue;
 
-			if(node.turns == 0)
+			if(node->turns == 0)
 			{
 				logAi->error(
 					"Unable to complete chain. Expected hero %s to arive to %s but he is at %s",
 					hero->getNameTranslated(),
-					node.coord.toString(),
+					node->coord.toString(),
 					hero->visitablePos().toString());
 
 				return;
@@ -181,13 +205,13 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			
 			// no exception means we were not able to reach the tile
 			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
-			blockedIndexes.insert(node.parentIndex);
+			blockedIndexes.insert(node->parentIndex);
 		}
 		catch(const goalFulfilledException &)
 		{
 			if(!heroPtr.validAndSet())
 			{
-				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.name, node.coord.toString());
+				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.name, node->coord.toString());
 
 				return;
 			}

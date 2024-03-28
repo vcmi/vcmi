@@ -49,6 +49,9 @@ Goals::TGoalVec StayAtTownBehavior::decompose() const
 			if(town->visitingHero && town->visitingHero.get() != path.targetHero)
 				continue;
 
+			if(!path.targetHero->hasSpellbook() || path.targetHero->mana >= 0.75f * path.targetHero->manaLimit())
+				continue;
+
 			if(path.turn() == 0 && !path.getFirstBlockedAction() && path.exchangeCount <= 1)
 			{
 				if(path.targetHero->mana == path.targetHero->manaLimit())

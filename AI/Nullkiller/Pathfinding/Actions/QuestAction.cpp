@@ -23,6 +23,11 @@ namespace AIPathfinding
 		return canAct(node->actor->hero);
 	}
 
+	bool QuestAction::canAct(const AIPathNodeInfo & node) const
+	{
+		return canAct(node.targetHero);
+	}
+
 	bool QuestAction::canAct(const CGHeroInstance * hero) const
 	{
 		if(questInfo.obj->ID == Obj::BORDER_GATE || questInfo.obj->ID == Obj::BORDERGUARD)

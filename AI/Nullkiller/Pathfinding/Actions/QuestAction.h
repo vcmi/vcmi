@@ -29,7 +29,7 @@ namespace AIPathfinding
 		}
 
 		bool canAct(const AIPathNode * node) const override;
-
+		bool canAct(const AIPathNodeInfo & node) const override;
 		bool canAct(const CGHeroInstance * hero) const;
 
 		Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
