@@ -768,8 +768,9 @@ std::shared_ptr<CTextBox> InterfaceObjectConfigurable::buildTextBox(const JsonNo
 	auto alignment = readTextAlignment(config["alignment"]);
 	auto color = readColor(config["color"]);
 	auto text = readText(config["text"]);
+	auto blueTheme = config["blueTheme"].Bool();
 
-	return std::make_shared<CTextBox>(text, rect, 0, font, alignment, color);
+	return std::make_shared<CTextBox>(text, rect, blueTheme ? 1 : 0, font, alignment, color);
 }
 
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode config) const

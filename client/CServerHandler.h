@@ -36,6 +36,7 @@ VCMI_LIB_NAMESPACE_END
 class CClient;
 class CBaseForLobbyApply;
 class GlobalLobbyClient;
+class GameChatHandler;
 class IServerRunner;
 
 class HighScoreCalculation;
@@ -100,6 +101,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<INetworkHandler> networkHandler;
 	std::shared_ptr<INetworkConnection> networkConnection;
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
+	std::unique_ptr<GameChatHandler> gameChat;
 	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::unique_ptr<IServerRunner> serverRunner;
 	std::shared_ptr<CMapInfo> mapToStart;
@@ -112,8 +114,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 	void threadRunNetwork();
 	void waitForServerShutdown();
-
-	void sendLobbyPack(const CPackForLobby & pack) const override;
 
 	void onPacketReceived(const NetworkConnectionPtr &, const std::vector<std::byte> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
@@ -153,6 +153,7 @@ public:
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);
 
+	GameChatHandler & getGameChat();
 	GlobalLobbyClient & getGlobalLobby();
 	INetworkHandler & getNetworkHandler();
 
@@ -179,6 +180,8 @@ public:
 	ui16 getRemotePort() const;
 
 	// Lobby server API for UI
+	void sendLobbyPack(const CPackForLobby & pack) const override;
+
 	void sendClientConnecting() const override;
 	void sendClientDisconnecting() override;
 	void setCampaignState(std::shared_ptr<CampaignState> newCampaign) override;

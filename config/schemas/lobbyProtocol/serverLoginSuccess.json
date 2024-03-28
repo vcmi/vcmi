@@ -1,0 +1,21 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: serverLoginSuccess",
+	"description" : "Sent by server once server sucesfully logs into the lobby",
+	"required" : [ "type", "accountCookie" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "serverLoginSuccess"
+		},
+		"accountCookie" :
+		{
+			"type" : "string",
+			"description" : "Security cookie that should be stored by server and used for future operations"
+		}
+	}
+}

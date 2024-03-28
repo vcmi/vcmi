@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-06/schema",
 	"title" : "Lobby protocol: chatHistory",
 	"description" : "Sent by server immediately after login to fill initial chat history",
-	"required" : [ "type", "messages" ],
+	"required" : [ "type", "messages", "channelType", "channelName" ],
 	"additionalProperties" : false,
 
 	"properties" : {
@@ -12,6 +12,19 @@
 			"type" : "string",
 			"const" : "chatHistory"
 		},
+
+		"channelType" :
+		{
+			"type" : "string",
+			"enum" : [ "global", "match", "player" ],
+			"description" : "Type of room to which these messages have been set."
+		},
+		"channelName" :
+		{
+			"type" : "string",
+			"description" : "Name of room to which these messages have been set. For 'global' this is language, for 'match' and 'player' this is receiver UUID"
+		},
+
 		"messages" :
 		{
 			"type" : "array",

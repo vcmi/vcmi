@@ -1,26 +1,26 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-06/schema",
-	"title" : "Lobby protocol: activeGameRooms",
-	"description" : "Sent by server to initialized or update list of game rooms",
-	"required" : [ "type", "gameRooms" ],
+	"title" : "Lobby protocol: matchesHistory",
+	"description" : "Sent by server to initialized or update list of previous matches by player",
+	"required" : [ "type", "matchesHistory" ],
 	"additionalProperties" : false,
 
 	"properties" : {
 		"type" :
 		{
 			"type" : "string",
-			"const" : "activeGameRooms"
+			"const" : "matchesHistory"
 		},
-		"gameRooms" :
+		"matchesHistory" :
 		{
 			"type" : "array",
-			"description" : "List of currently available game rooms",
+			"description" : "List of previously played matches",
 			"items" :
 			{
 				"type" : "object",
 				"additionalProperties" : false,
-				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "participants", "playerLimit", "status", "ageSeconds" ],
+				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "participants", "status", "playerLimit", "ageSeconds" ],
 				"properties" : {
 					"gameRoomID" :
 					{

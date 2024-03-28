@@ -60,8 +60,16 @@ namespace TextOperations
 	/// get formatted DateTime depending on the language selected
 	DLL_LINKAGE std::string getFormattedDateTimeLocal(std::time_t dt);
 
+	/// get formatted current DateTime depending on the language selected
+	/// timeOffset - optional parameter to modify current time by specified time in seconds
+	DLL_LINKAGE std::string getCurrentFormattedDateTimeLocal(std::chrono::seconds timeOffset = {});
+
 	/// get formatted time (without date)
 	DLL_LINKAGE std::string getFormattedTimeLocal(std::time_t dt);
+
+	/// get formatted time (without date)
+	/// timeOffset - optional parameter to modify current time by specified time in seconds
+	DLL_LINKAGE std::string getCurrentFormattedTimeLocal(std::chrono::seconds timeOffset = {});
 };
 
 

@@ -66,6 +66,7 @@ size_t CTabbedInt::getActive() const
 
 void CTabbedInt::reset()
 {
+
 	deleteItem(activeTab);
 	activeTab = createItem(activeID);
 	activeTab->moveTo(pos.topLeft());
@@ -127,6 +128,11 @@ void CListBox::updatePositions()
 
 void CListBox::reset()
 {
+	// hack to ensure that all items will be recreated with new address
+	// save current item list so all shared_ptr's will be destroyed only on scope exit and not inside loop below
+	// see comment in EventDispatcher::handleLeftButtonClick for details on why this hack is needed
+	auto itemsCopy = items;
+
 	size_t current = first;
 	for (auto & elem : items)
 	{

@@ -22,6 +22,7 @@
 #include "gui/WindowHandler.h"
 #include "widgets/MiscWidgets.h"
 #include "CMT.h"
+#include "GameChatHandler.h"
 #include "CServerHandler.h"
 
 #include "../CCallback.h"
@@ -881,12 +882,10 @@ void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)
 
 void ApplyClientNetPackVisitor::visitSystemMessage(SystemMessage & pack)
 {
-	std::ostringstream str;
-	str << "System message: " << pack.text;
+	// usually used to receive error messages from server
+	logNetwork->error("System message: %s", pack.text);
 
-	logNetwork->error(str.str()); // usually used to receive error messages from server
-	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
-		LOCPLINT->cingconsole->print(str.str());
+	CSH->getGameChat().onNewSystemMessageReceived(pack.text);
 }
 
 void ApplyClientNetPackVisitor::visitPlayerBlocked(PlayerBlocked & pack)
@@ -918,13 +917,7 @@ void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & p
 {
 	logNetwork->debug("pack.player %s sends a message: %s", pack.player.toString(), pack.text);
 
-	std::ostringstream str;
-	if(pack.player.isSpectator())
-		str << "Spectator: " << pack.text;
-	else
-		str << cl.getPlayerState(pack.player)->nodeName() <<": " << pack.text;
-	if(LOCPLINT)
-		LOCPLINT->cingconsole->print(str.str());
+	CSH->getGameChat().onNewGameMessageReceived(pack.player, pack.text);
 }
 
 void ApplyClientNetPackVisitor::visitAdvmapSpellCast(AdvmapSpellCast & pack)

@@ -22,6 +22,13 @@
 			"type" : "string",
 			"enum" : [ "public", "private" ],
 			"description" : "Room type to use for activation"
-		}
+		},
+		"playerLimit" :
+		{
+			"type" : "number",
+			"minimum" : 1,
+			"maximum" : 8,
+			"description" : "Maximum number of players that can enter this room"
+		},
 	}
 }

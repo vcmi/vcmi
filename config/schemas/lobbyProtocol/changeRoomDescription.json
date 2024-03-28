@@ -1,0 +1,21 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: changeRoomDescription",
+	"description" : "Sent by server when currently selected map changes",
+	"required" : [ "type", "description" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "changeRoomDescription"
+		},
+		"description" :
+		{
+			"type" : "string",
+			"description" : "Human-readable description of the room"
+		}
+	}
+}

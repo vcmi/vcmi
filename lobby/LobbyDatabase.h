@@ -34,12 +34,17 @@ class LobbyDatabase
 	SQLiteStatementPtr setAccountOnlineStatement;
 	SQLiteStatementPtr setGameRoomStatusStatement;
 	SQLiteStatementPtr updateAccountLoginTimeStatement;
+	SQLiteStatementPtr updateRoomDescriptionStatement;
+	SQLiteStatementPtr updateRoomPlayerLimitStatement;
 
 	SQLiteStatementPtr getRecentMessageHistoryStatement;
+	SQLiteStatementPtr getFullMessageHistoryStatement;
 	SQLiteStatementPtr getIdleGameRoomStatement;
 	SQLiteStatementPtr getGameRoomStatusStatement;
+	SQLiteStatementPtr getAccountGameHistoryStatement;
 	SQLiteStatementPtr getActiveGameRoomsStatement;
 	SQLiteStatementPtr getActiveAccountsStatement;
+	SQLiteStatementPtr getAccountInviteStatusStatement;
 	SQLiteStatementPtr getAccountGameRoomStatement;
 	SQLiteStatementPtr getAccountDisplayNameStatement;
 	SQLiteStatementPtr countRoomUsedSlotsStatement;
@@ -72,13 +77,17 @@ public:
 	void insertGameRoom(const std::string & roomID, const std::string & hostAccountID);
 	void insertAccount(const std::string & accountID, const std::string & displayName);
 	void insertAccessCookie(const std::string & accountID, const std::string & accessCookieUUID);
-	void insertChatMessage(const std::string & sender, const std::string & roomType, const std::string & roomID, const std::string & messageText);
+	void insertChatMessage(const std::string & sender, const std::string & channelType, const std::string & roomID, const std::string & messageText);
 
 	void updateAccountLoginTime(const std::string & accountID);
+	void updateRoomPlayerLimit(const std::string & gameRoomID, int playerLimit);
+	void updateRoomDescription(const std::string & gameRoomID, const std::string & description);
 
+	std::vector<LobbyGameRoom> getAccountGameHistory(const std::string & accountID);
 	std::vector<LobbyGameRoom> getActiveGameRooms();
 	std::vector<LobbyAccount> getActiveAccounts();
-	std::vector<LobbyChatMessage> getRecentMessageHistory();
+	std::vector<LobbyChatMessage> getRecentMessageHistory(const std::string & channelType, const std::string & channelName);
+	std::vector<LobbyChatMessage> getFullMessageHistory(const std::string & channelType, const std::string & channelName);
 
 	std::string getIdleGameRoom(const std::string & hostAccountID);
 	std::string getAccountGameRoom(const std::string & accountID);

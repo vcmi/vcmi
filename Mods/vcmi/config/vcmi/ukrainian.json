@@ -66,11 +66,42 @@
 	
 	"vcmi.lobby.filepath" : "Назва файлу",
 	"vcmi.lobby.creationDate" : "Дата створення",
-	"vcmi.lobby.scenarioName" : "Scenario name",
+	"vcmi.lobby.scenarioName" : "Назва сценарію",
 	"vcmi.lobby.mapPreview" : "Огляд мапи",
 	"vcmi.lobby.noPreview" : "огляд недоступний",
 	"vcmi.lobby.noUnderground" : "немає підземелля",
 	"vcmi.lobby.sortDate" : "Сортувати мапи за датою зміни",
+
+	"vcmi.lobby.login.title" : "Онлайн лобі VCMI",
+	"vcmi.lobby.login.username" : "Логін:",
+	"vcmi.lobby.login.connecting" : "Підключення...",
+	"vcmi.lobby.login.error" : "Помилка з'єднання: %s",
+	"vcmi.lobby.login.create" : "Створити акаунт",
+	"vcmi.lobby.login.login" : "Увійти",
+	"vcmi.lobby.header.rooms" : "Активні кімнати - %d",
+	"vcmi.lobby.header.channels" : "Канали чату",
+	"vcmi.lobby.header.chat.global" : "Глобальний ігровий чат - %s", // %s -> language name
+	"vcmi.lobby.header.chat.match" : "Чат минулої гри від %s", // %s -> game start date & time
+	"vcmi.lobby.header.chat.player" : "Приватний чат з %s", // %s -> nickname of another player
+	"vcmi.lobby.header.history" : "Ваші попередні ігри",
+	"vcmi.lobby.header.players" : "Гравці в мережі - %d",
+	"vcmi.lobby.match.solo" : "Одиночна гра",
+	"vcmi.lobby.match.duel" : "Гра з %s", // %s -> nickname of another player
+	"vcmi.lobby.match.multi" : "%d гравців",
+	"vcmi.lobby.room.create" : "Створити нову кімнату",
+	"vcmi.lobby.room.players.limit" : "Максимум гравців",
+	"vcmi.lobby.room.description.public" : "Будь-хто з гравців може приєднатися до публічної кімнати.",
+	"vcmi.lobby.room.description.private" : "Тільки запрошені гравці можуть приєднатися до приватної кімнати.",
+	"vcmi.lobby.room.description.new" : "Щоб почати гру, виберіть сценарій або налаштуйте випадкову карту.",
+	"vcmi.lobby.room.description.load" : "Щоб почати гру, виберіть одну з ваших збережених ігор.",
+	"vcmi.lobby.room.description.limit" : "До %d гравців можуть зайти у вашу кімнату, включаючи вас.",
+	"vcmi.lobby.room.new" : "Нова гра",
+	"vcmi.lobby.room.load" : "Завантажити гру",
+	"vcmi.lobby.room.type" : "Тип кімнати",
+	"vcmi.lobby.room.mode" : "Режим гри",
+	"vcmi.lobby.room.state.public" : "Публічна",
+	"vcmi.lobby.room.state.private" : "Приватна",
+	"vcmi.lobby.room.state.busy" : "У грі",
 
 	"vcmi.client.errors.missingCampaigns" : "{Не вистачає файлів даних}\n\nФайли даних кампаній не знайдено! Можливо, ви використовуєте неповні або пошкоджені файли даних Heroes 3. Будь ласка, перевстановіть дані гри.",
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",

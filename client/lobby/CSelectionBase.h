@@ -104,8 +104,9 @@ class InfoCard : public CIntObject
 	std::shared_ptr<CLabel> labelVictoryConditionText;
 	std::shared_ptr<CLabel> labelLossConditionText;
 
-	std::shared_ptr<CLabelGroup> labelGroupPlayersAssigned;
-	std::shared_ptr<CLabelGroup> labelGroupPlayersUnassigned;
+	std::shared_ptr<CLabelGroup> labelGroupPlayers;
+	std::shared_ptr<CButton> buttonInvitePlayers;
+	std::shared_ptr<CButton> buttonOpenGlobalLobby;
 public:
 
 	bool showChat;
