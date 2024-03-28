@@ -28,7 +28,7 @@ namespace AIPathfinding
 		bool allowBypassObjects)
 	{
 			std::vector<std::shared_ptr<IPathfindingRule>> rules = {
-				std::make_shared<AILayerTransitionRule>(cb, ai, nodeStorage, allowBypassObjects),
+				std::make_shared<AILayerTransitionRule>(cb, ai, nodeStorage),
 				std::make_shared<DestinationActionRule>(),
 				std::make_shared<AIMovementToDestinationRule>(nodeStorage, allowBypassObjects),
 				std::make_shared<MovementCostRule>(),

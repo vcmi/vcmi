@@ -32,14 +32,12 @@ namespace AIPathfinding
 		std::map<const CGHeroInstance *, std::shared_ptr<const SummonBoatAction>> summonableVirtualBoats;
 		std::map<const CGHeroInstance *, std::shared_ptr<const WaterWalkingAction>> waterWalkingActions;
 		std::map<const CGHeroInstance *, std::shared_ptr<const AirWalkingAction>> airWalkingActions;
-		bool allowEmbark;
 
 	public:
 		AILayerTransitionRule(
 			CPlayerSpecificInfoCallback * cb,
 			Nullkiller * ai,
-			std::shared_ptr<AINodeStorage> nodeStorage,
-			bool allowEmbark);
+			std::shared_ptr<AINodeStorage> nodeStorage);
 
 		virtual void process(
 			const PathNodeInfo & source,
