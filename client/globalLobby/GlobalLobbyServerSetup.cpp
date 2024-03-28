@@ -50,8 +50,8 @@ GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 
 	auto buttonPublic  = std::make_shared<CToggleButton>(Point(10, 120),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
 	auto buttonPrivate = std::make_shared<CToggleButton>(Point(146, 120), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	buttonPublic->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.public"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonPrivate->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.private"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonPublic->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.state.public"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonPrivate->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.state.private"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	toggleRoomType = std::make_shared<CToggleGroup>(nullptr);
 	toggleRoomType->addToggle(0, buttonPublic);

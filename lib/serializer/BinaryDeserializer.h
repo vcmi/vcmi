@@ -23,12 +23,12 @@ protected:
 public:
 	CLoaderBase(IBinaryReader * r): reader(r){};
 
-	inline void read(void * data, unsigned size, bool reverseEndianess)
+	inline void read(void * data, unsigned size, bool reverseEndianness)
 	{
 		auto bytePtr = reinterpret_cast<std::byte*>(data);
 
 		reader->read(bytePtr, size);
-		if(reverseEndianess)
+		if(reverseEndianness)
 			std::reverse(bytePtr, bytePtr + size);
 	};
 };
@@ -153,7 +153,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 public:
 	using Version = ESerializationVersion;
 
-	bool reverseEndianess; //if source has different endianness than us, we reverse bytes
+	bool reverseEndianness; //if source has different endianness than us, we reverse bytes
 	Version version;
 
 	std::map<ui32, void*> loadedPointers;
@@ -174,7 +174,7 @@ public:
 	template < class T, typename std::enable_if_t < std::is_fundamental_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
 	void load(T &data)
 	{
-		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianess);
+		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
 	}
 
 	template < typename T, typename std::enable_if_t < is_serializeable<BinaryDeserializer, T>::value, int  > = 0 >

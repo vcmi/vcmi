@@ -157,13 +157,7 @@ void MapController::repairMap(CMap * map) const
 			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
-			//fix spells
-			if(nih->spellbookContainsSpell(SpellID::PRESET))
-			{
-				nih->removeSpellFromSpellbook(SpellID::PRESET);
-				for(auto spellID : type->spells)
-					nih->addSpellToSpellbook(spellID);
-			}
+			//fix spellbook
 			if(nih->spellbookContainsSpell(SpellID::SPELLBOOK_PRESET))
 			{
 				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);

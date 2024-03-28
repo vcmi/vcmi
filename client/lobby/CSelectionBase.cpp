@@ -26,6 +26,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../globalLobby/GlobalLobbyClient.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
@@ -44,10 +45,10 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/MetaString.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../../lib/CRandomGenerator.h"
+#include "../../lib/mapping/CMapInfo.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -137,6 +138,12 @@ InfoCard::InfoCard()
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 
+	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateRoomInviteInterface(); } );
+	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateInterface(); });
+
+	buttonInvitePlayers->setTextOverlay  (MetaString::createFromTextID("vcmi.lobby.invite.header").toString(), EFonts::FONT_SMALL, Colors::WHITE);
+	buttonOpenGlobalLobby->setTextOverlay(MetaString::createFromTextID("vcmi.lobby.backToLobby").toString(), EFonts::FONT_SMALL, Colors::WHITE);
+
 	if(SEL->screenType == ESelectionScreen::campaignList)
 	{
 		labelCampaignDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
@@ -183,11 +190,12 @@ InfoCard::InfoCard()
 		labelDifficulty = std::make_shared<CLabel>(62, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 		labelDifficultyPercent = std::make_shared<CLabel>(311, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-		labelGroupPlayersAssigned = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		labelGroupPlayersUnassigned = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		labelGroupPlayers = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 		disableLabelRedraws();
 	}
 	setChat(false);
+	if (CSH->inLobbyRoom())
+		setChat(true); // FIXME: less ugly version?
 }
 
 void InfoCard::disableLabelRedraws()
@@ -240,27 +248,21 @@ void InfoCard::changeSelection()
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	// FIXME: We recreate them each time because CLabelGroup don't use smart pointers
-	labelGroupPlayersAssigned = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	labelGroupPlayersUnassigned = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	labelGroupPlayers = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	if(!showChat)
+		labelGroupPlayers->disable();
+
+	for(const auto & p : CSH->playerNames)
 	{
-		labelGroupPlayersAssigned->disable();
-		labelGroupPlayersUnassigned->disable();
-	}
-	for(auto & p : CSH->playerNames)
-	{
-		const auto pset = CSH->si->getPlayersSettings(p.first);
-		int pid = p.first;
-		if(pset)
-		{
-			auto name = boost::str(boost::format("%s (%d-%d %s)") % p.second.name % p.second.connection % pid % pset->color.toString());
-			labelGroupPlayersAssigned->add(24, 285 + (int)labelGroupPlayersAssigned->currentSize()*(int)graphics->fonts[FONT_SMALL]->getLineHeight(), name);
-		}
+		int slotsUsed = labelGroupPlayers->currentSize();
+		Point labelPosition;
+
+		if(slotsUsed < 4)
+			labelPosition = Point(24, 285 + slotsUsed * graphics->fonts[FONT_SMALL]->getLineHeight()); // left column
 		else
-		{
-			auto name = boost::str(boost::format("%s (%d-%d)") % p.second.name % p.second.connection % pid);
-			labelGroupPlayersUnassigned->add(193, 285 + (int)labelGroupPlayersUnassigned->currentSize()*(int)graphics->fonts[FONT_SMALL]->getLineHeight(), name);
-		}
+			labelPosition = Point(193, 285 + (slotsUsed - 4) * graphics->fonts[FONT_SMALL]->getLineHeight()); // right column
+
+		labelGroupPlayers->add(labelPosition.x, labelPosition.y, p.second.name);
 	}
 }
 
@@ -289,8 +291,12 @@ void InfoCard::setChat(bool activateChat)
 			labelVictoryConditionText->disable();
 			iconsLossCondition->disable();
 			labelLossConditionText->disable();
-			labelGroupPlayersAssigned->enable();
-			labelGroupPlayersUnassigned->enable();
+			labelGroupPlayers->enable();
+		}
+		if (CSH->inLobbyRoom())
+		{
+			buttonInvitePlayers->enable();
+			buttonOpenGlobalLobby->enable();
 		}
 		mapDescription->disable();
 		chat->enable();
@@ -298,6 +304,8 @@ void InfoCard::setChat(bool activateChat)
 	}
 	else
 	{
+		buttonInvitePlayers->disable();
+		buttonOpenGlobalLobby->disable();
 		mapDescription->enable();
 		chat->disable();
 		playerListBg->disable();
@@ -315,8 +323,7 @@ void InfoCard::setChat(bool activateChat)
 			iconsLossCondition->enable();
 			labelVictoryConditionText->enable();
 			labelLossConditionText->enable();
-			labelGroupPlayersAssigned->disable();
-			labelGroupPlayersUnassigned->disable();
+			labelGroupPlayers->disable();
 		}
 	}
 

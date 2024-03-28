@@ -20,7 +20,7 @@
 			{
 				"type" : "object",
 				"additionalProperties" : false,
-				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "playersCount", "playersLimit" ],
+				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "participants", "playerLimit", "status", "ageSeconds" ],
 				"properties" : {
 					"gameRoomID" :
 					{
@@ -42,15 +42,46 @@
 						"type" : "string",
 						"description" : "Auto-generated description of this room"
 					},
-					"playersCount" :
+					"participants" :
 					{
-						"type" : "number",
-						"description" : "Current number of players in this room, including host"
+						"type" : "array",
+						"description" : "List of accounts in the room, including host",
+						"items" :
+						{
+							"type" : "object",
+							"additionalProperties" : false,
+							"required" : [ "accountID", "displayName" ],
+							"properties" : {
+								"accountID" :
+								{
+									"type" : "string",
+									"description" : "Unique ID of an account"
+								},
+								"displayName" :
+								{
+									"type" : "string",
+									"description" : "Display name of an account"
+								}
+							}
+						}
 					},
-					"playersLimit" :
+					"status" :
+					{
+						"type" : "string",
+						"enum" : [ "idle", "public", "private", "busy", "cancelled", "closed" ],
+						"description" : "Current status of game room"
+					},
+					"playerLimit" :
 					{
 						"type" : "number",
+						"minimum" : 1,
+						"maximum" : 8,
 						"description" : "Maximum number of players that can join this room, including host"
+					},
+					"ageSeconds" :
+					{
+						"type" : "number",
+						"description" : "Age of this room in seconds. For example, 10 means that this room was created 10 seconds ago"
 					}
 				}
 			}

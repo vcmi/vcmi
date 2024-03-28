@@ -10,7 +10,7 @@
 		"type" :
 		{
 			"type" : "string",
-			"const" : "clientLogin"
+			"const" : "clientProxyLogin"
 		},
 		"accountID" :
 		{

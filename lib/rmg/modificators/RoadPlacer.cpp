@@ -144,8 +144,8 @@ void RoadPlacer::drawRoads(bool secondary)
 			return !terrain->isPassable() || !terrain->isLand();
 		});
 
-		zone.areaPossible().subtract(roads);
-		zone.freePaths().unite(roads);
+		zone.areaPossible()->subtract(roads);
+		zone.freePaths()->unite(roads);
 	}
 
 	if(!generator.getMapGenOptions().isRoadEnabled())

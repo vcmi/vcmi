@@ -23,8 +23,17 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 {
 	std::vector<GlobalLobbyAccount> activeAccounts;
 	std::vector<GlobalLobbyRoom> activeRooms;
+	std::vector<std::string> activeChannels;
+	std::set<std::string> activeInvites;
+	std::vector<GlobalLobbyRoom> matchesHistory;
+
+	/// Contains known history of each channel
+	/// Key: concatenated channel type and channel name
+	/// Value: list of known chat messages
+	std::map<std::string, std::vector<GlobalLobbyChannelMessage>> chatHistory;
 
 	std::shared_ptr<INetworkConnection> networkConnection;
+	std::string currentGameRoomUUID;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
@@ -37,11 +46,12 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 
 	void receiveAccountCreated(const JsonNode & json);
 	void receiveOperationFailed(const JsonNode & json);
-	void receiveLoginSuccess(const JsonNode & json);
+	void receiveClientLoginSuccess(const JsonNode & json);
 	void receiveChatHistory(const JsonNode & json);
 	void receiveChatMessage(const JsonNode & json);
 	void receiveActiveAccounts(const JsonNode & json);
 	void receiveActiveGameRooms(const JsonNode & json);
+	void receiveMatchesHistory(const JsonNode & json);
 	void receiveJoinRoomSuccess(const JsonNode & json);
 	void receiveInviteReceived(const JsonNode & json);
 
@@ -54,17 +64,24 @@ public:
 
 	const std::vector<GlobalLobbyAccount> & getActiveAccounts() const;
 	const std::vector<GlobalLobbyRoom> & getActiveRooms() const;
+	const std::vector<std::string> & getActiveChannels() const;
+	const std::vector<GlobalLobbyRoom> & getMatchesHistory() const;
+	const std::vector<GlobalLobbyChannelMessage> & getChannelHistory(const std::string & channelType, const std::string & channelName) const;
 
 	/// Activate interface and pushes lobby UI as top window
 	void activateInterface();
+	void activateRoomInviteInterface();
+
+	void sendMatchChatMessage(const std::string & messageText);
 	void sendMessage(const JsonNode & data);
 	void sendClientRegister(const std::string & accountName);
 	void sendClientLogin();
-	void sendOpenPublicRoom();
-	void sendOpenPrivateRoom();
+	void sendOpenRoom(const std::string & mode, int playerLimit);
 
 	void sendProxyConnectionLogin(const NetworkConnectionPtr & netConnection);
+	void resetMatchState();
 
 	void connect();
 	bool isConnected() const;
+	bool isInvitedToRoom(const std::string & gameRoomID);
 };

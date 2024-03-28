@@ -23,6 +23,7 @@
 #include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Colors.h"
+#include "../globalLobby/GlobalLobbyClient.h"
 
 #include "../../CCallback.h"
 
@@ -104,8 +105,12 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 
 	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), CGI->generaltexth->zelp[105], [&]()
 	{
+		bool wasInLobbyRoom = CSH->inLobbyRoom();
 		CSH->sendClientDisconnecting();
 		close();
+
+		if (wasInLobbyRoom)
+			CSH->getGlobalLobby().activateInterface();
 	}, EShortcut::GLOBAL_CANCEL);
 }
 

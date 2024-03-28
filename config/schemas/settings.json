@@ -570,7 +570,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode", "roomID" ],
+			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
@@ -607,10 +607,6 @@
 				"roomMode" : {
 					"type" : "number",
 					"default" : 0
-				},
-				"roomID" : {
-					"type" : "string",
-					"default" : ""
 				}
 			}
 		},

@@ -75,30 +75,49 @@ void Zone::setPos(const int3 &Pos)
 	pos = Pos;
 }
 
-const rmg::Area & Zone::getArea() const
+ThreadSafeProxy<rmg::Area> Zone::area()
 {
-	return dArea;
+	return ThreadSafeProxy<rmg::Area>(dArea, areaMutex);
 }
 
-rmg::Area & Zone::area()
+ThreadSafeProxy<const rmg::Area> Zone::area() const
 {
-	return dArea;
+	return ThreadSafeProxy<const rmg::Area>(dArea, areaMutex);
 }
 
-rmg::Area & Zone::areaPossible()
+ThreadSafeProxy<rmg::Area> Zone::areaPossible()
 {
-	//FIXME: make const, only modify via mutex-protected interface
-	return dAreaPossible;
+	return ThreadSafeProxy<rmg::Area>(dAreaPossible, areaMutex);
 }
 
-rmg::Area & Zone::areaUsed()
+ThreadSafeProxy<const rmg::Area> Zone::areaPossible() const
 {
-	return dAreaUsed;
+	return ThreadSafeProxy<const rmg::Area>(dAreaPossible, areaMutex);
+}
+
+ThreadSafeProxy<rmg::Area> Zone::freePaths()
+{
+	return ThreadSafeProxy<rmg::Area>(dAreaFree, areaMutex);
+}
+
+ThreadSafeProxy<const rmg::Area> Zone::freePaths() const
+{
+	return ThreadSafeProxy<const rmg::Area>(dAreaFree, areaMutex);
+}
+
+ThreadSafeProxy<rmg::Area> Zone::areaUsed()
+{
+	return ThreadSafeProxy<rmg::Area>(dAreaUsed, areaMutex);
+}
+
+ThreadSafeProxy<const rmg::Area> Zone::areaUsed() const
+{
+	return ThreadSafeProxy<const rmg::Area>(dAreaUsed, areaMutex);
 }
 
 void Zone::clearTiles()
 {
-	//Lock lock(mx);
+	Lock lock(areaMutex);
 	dArea.clear();
 	dAreaPossible.clear();
 	dAreaFree.clear();
@@ -107,7 +126,6 @@ void Zone::clearTiles()
 void Zone::initFreeTiles()
 {
 	rmg::Tileset possibleTiles;
-	//Lock lock(mx);
 	vstd::copy_if(dArea.getTiles(), vstd::set_inserter(possibleTiles), [this](const int3 &tile) -> bool
 	{
 		return map.isPossible(tile);
@@ -120,11 +138,6 @@ void Zone::initFreeTiles()
 		dAreaPossible.erase(pos);
 		dAreaFree.add(pos); //zone must have at least one free tile where other paths go - for instance in the center
 	}
-}
-
-rmg::Area & Zone::freePaths()
-{
-	return dAreaFree;
 }
 
 FactionID Zone::getTownType() const
@@ -225,18 +238,14 @@ TModificators Zone::getModificators()
 void Zone::connectPath(const rmg::Path & path)
 ///connect current tile to any other free tile within zone
 {
-	dAreaPossible.subtract(path.getPathArea());
-	dAreaFree.unite(path.getPathArea());
+	areaPossible()->subtract(path.getPathArea());
+	freePaths()->unite(path.getPathArea());
 	for(const auto & t : path.getPathArea().getTilesVector())
 		map.setOccupied(t, ETileType::FREE);
 }
 
 void Zone::fractalize()
 {
-	rmg::Area clearedTiles(dAreaFree);
-	rmg::Area possibleTiles(dAreaPossible);
-	rmg::Area tilesToIgnore; //will be erased in this iteration
-
 	//Squared
 	float minDistance = 9 * 9;
 	float freeDistance = pos.z ? (10 * 10) : (9 * 9);
@@ -282,6 +291,13 @@ void Zone::fractalize()
 	freeDistance = freeDistance * marginFactor;
 	vstd::amax(freeDistance, 4 * 4);
 	logGlobal->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
+
+	Lock lock(areaMutex);
+	// FIXME: Do not access Area directly
+
+	rmg::Area clearedTiles(dAreaFree);
+	rmg::Area possibleTiles(dAreaPossible);
+	rmg::Area tilesToIgnore; //will be erased in this iteration
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -336,7 +352,6 @@ void Zone::fractalize()
 		}
 	}
 
-	Lock lock(areaMutex);
 	//Connect with free areas
 	auto areas = connectedAreas(clearedTiles, true);
 	for(auto & area : areas)

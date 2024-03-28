@@ -96,6 +96,7 @@ set(client_SRCS
 	renderSDL/SDL_Extensions.cpp
 
 	globalLobby/GlobalLobbyClient.cpp
+	globalLobby/GlobalLobbyInviteWindow.cpp
 	globalLobby/GlobalLobbyLoginWindow.cpp
 	globalLobby/GlobalLobbyServerSetup.cpp
 	globalLobby/GlobalLobbyWidget.cpp
@@ -162,6 +163,7 @@ set(client_SRCS
 	CVideoHandler.cpp
 	Client.cpp
 	ClientCommandManager.cpp
+	GameChatHandler.cpp
 	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
@@ -280,6 +282,7 @@ set(client_HEADERS
 
 	globalLobby/GlobalLobbyClient.h
 	globalLobby/GlobalLobbyDefines.h
+	globalLobby/GlobalLobbyInviteWindow.h
 	globalLobby/GlobalLobbyLoginWindow.h
 	globalLobby/GlobalLobbyServerSetup.h
 	globalLobby/GlobalLobbyWidget.h
@@ -348,6 +351,7 @@ set(client_HEADERS
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
 	HeroMovementController.h
+	GameChatHandler.h
 	LobbyClientNetPackVisitors.h
 	ServerRunner.h
 	resource.h

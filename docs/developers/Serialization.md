@@ -25,7 +25,7 @@ Additionally, if your class is part of one of registered object hierarchies (bas
 They are simply stored in a binary form, as in memory. Compatibility is ensued through the following means:
 
 - VCMI uses internally types that have constant, defined size (like int32_t - has 32 bits on all platforms)
-- serializer stores information about its endianess
+- serializer stores information about its endianness
 
 It's not "really" portable, yet it works properly across all platforms we currently support.
 
@@ -132,7 +132,7 @@ struct DLL_LINKAGE Rumor
 
 ### Common information
 
-Serializer classes provide iostream-like interface with operator `<<` for serialization and operator `>>` for deserialization. Serializer upon creation will retrieve/store some metadata (version number, endianess), so even if no object is actually serialized, some data will be passed.
+Serializer classes provide iostream-like interface with operator `<<` for serialization and operator `>>` for deserialization. Serializer upon creation will retrieve/store some metadata (version number, endianness), so even if no object is actually serialized, some data will be passed.
 
 ### Serialization to file
 

@@ -47,8 +47,7 @@ void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnecti
 					message["type"].String() = "leaveGameRoom";
 					message["accountID"].String() = proxy.first;
 
-					assert(JsonUtils::validate(message, "vcmi:lobbyProtocol/" + message["type"].String(), message["type"].String() + " pack"));
-					controlConnection->sendPacket(message.toBytes());
+					sendMessage(controlConnection, message);
 					break;
 				}
 			}
@@ -68,8 +67,8 @@ void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnec
 		if(json["type"].String() == "operationFailed")
 			return receiveOperationFailed(json);
 
-		if(json["type"].String() == "loginSuccess")
-			return receiveLoginSuccess(json);
+		if(json["type"].String() == "serverLoginSuccess")
+			return receiveServerLoginSuccess(json);
 
 		if(json["type"].String() == "accountJoinsRoom")
 			return receiveAccountJoinsRoom(json);
@@ -90,7 +89,7 @@ void GlobalLobbyProcessor::receiveOperationFailed(const JsonNode & json)
 	owner.setState(EServerState::SHUTDOWN);
 }
 
-void GlobalLobbyProcessor::receiveLoginSuccess(const JsonNode & json)
+void GlobalLobbyProcessor::receiveServerLoginSuccess(const JsonNode & json)
 {
 	// no-op, wait just for any new commands from lobby
 	logGlobal->info("Lobby: Succesfully connected to lobby server");
@@ -127,8 +126,7 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 		toSend["version"].String() = VCMI_VERSION_STRING;
 
-		assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
-		connection->sendPacket(toSend.toBytes());
+		sendMessage(connection, toSend);
 	}
 	else
 	{
@@ -144,10 +142,31 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["guestAccountID"].String() = guestAccountID;
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 
-		assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
-		connection->sendPacket(toSend.toBytes());
+		sendMessage(connection, toSend);
 
 		proxyConnections[guestAccountID] = connection;
 		owner.onNewConnection(connection);
 	}
+}
+
+void GlobalLobbyProcessor::sendGameStarted()
+{
+	JsonNode toSend;
+	toSend["type"].String() = "gameStarted";
+	sendMessage(controlConnection, toSend);
+}
+
+void GlobalLobbyProcessor::sendChangeRoomDescription(const std::string & description)
+{
+	JsonNode toSend;
+	toSend["type"].String() = "changeRoomDescription";
+	toSend["description"].String() = description;
+
+	sendMessage(controlConnection, toSend);
+}
+
+void GlobalLobbyProcessor::sendMessage(const NetworkConnectionPtr & targetConnection, const JsonNode & toSend)
+{
+	assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
+	targetConnection->sendPacket(toSend.toBytes());
 }

@@ -24,6 +24,7 @@
 #include "globalLobby/GlobalLobbyClient.h"
 
 #include "CServerHandler.h"
+#include "GameChatHandler.h"
 #include "CGameInfo.h"
 #include "Client.h"
 #include "gui/CGuiHandler.h"
@@ -58,11 +59,12 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 				// announce opened game room
 				// TODO: find better approach?
 				int roomType = settings["lobby"]["roomType"].Integer();
+				int roomPlayerLimit = settings["lobby"]["roomPlayerLimit"].Integer();
 
 				if (roomType != 0)
-					handler.getGlobalLobby().sendOpenPrivateRoom();
+					handler.getGlobalLobby().sendOpenRoom("private", roomPlayerLimit);
 				else
-					handler.getGlobalLobby().sendOpenPublicRoom();
+					handler.getGlobalLobby().sendOpenRoom("public", roomPlayerLimit);
 			}
 
 			while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
@@ -97,13 +99,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientD
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
 {
-	if(lobby && lobby->card)
-	{
-		lobby->card->chat->addNewMessage(pack.playerName + ": " + pack.message);
-		lobby->card->setChat(true);
-		if(lobby->buttonChat)
-			lobby->buttonChat->setTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
-	}
+	handler.getGameChat().onNewLobbyMessageReceived(pack.playerName, pack.message);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack)
