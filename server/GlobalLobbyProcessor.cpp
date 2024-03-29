@@ -24,7 +24,7 @@ GlobalLobbyProcessor::GlobalLobbyProcessor(CVCMIServer & owner)
 void GlobalLobbyProcessor::establishNewConnection()
 {
 	std::string hostname = settings["lobby"]["hostname"].String();
-	int16_t port = settings["lobby"]["port"].Integer();
+	uint16_t port = settings["lobby"]["port"].Integer();
 	owner.getNetworkHandler().connectToRemote(*this, hostname, port);
 }
 
