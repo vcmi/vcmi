@@ -18,7 +18,6 @@ set(lib_SRCS
 
 	json/JsonNode.cpp
 	json/JsonParser.cpp
-	json/JsonRandom.cpp
 	json/JsonUtils.cpp
 	json/JsonValidator.cpp
 	json/JsonWriter.cpp
@@ -89,6 +88,7 @@ set(lib_MAIN_SRCS
 	events/TurnStarted.cpp
 
 	json/JsonBonus.cpp
+	json/JsonRandom.cpp
 
 	gameState/CGameState.cpp
 	gameState/CGameStateCampaign.cpp
@@ -315,11 +315,9 @@ set(lib_HEADERS
 	filesystem/MinizipExtensions.h
 	filesystem/ResourcePath.h
 
-	json/JsonBonus.h
 	json/JsonFormatException.h
 	json/JsonNode.h
 	json/JsonParser.h
-	json/JsonRandom.h
 	json/JsonUtils.h
 	json/JsonValidator.h
 	json/JsonWriter.h
@@ -440,6 +438,9 @@ set(lib_MAIN_HEADERS
 	events/ObjectVisitStarted.h
 	events/PlayerGotTurn.h
 	events/TurnStarted.h
+
+	json/JsonBonus.h
+	json/JsonRandom.h
 
 	gameState/CGameState.h
 	gameState/CGameStateCampaign.h

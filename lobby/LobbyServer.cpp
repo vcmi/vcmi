@@ -489,7 +489,7 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 	std::string channelName = json["channelName"].String();
 	std::string displayName = database->getAccountDisplayName(senderAccountID);
 
-	if(TextOperations::isValidUnicodeString(messageText))
+	if(!TextOperations::isValidUnicodeString(messageText))
 		return sendOperationFailed(connection, "String contains invalid characters!");
 
 	std::string messageTextClean = sanitizeChatMessage(messageText);
@@ -595,6 +595,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 
 	activeAccounts[connection] = accountID;
 
+	logGlobal->info("%s: Logged in as %s", accountID, displayName);
 	sendClientLoginSuccess(connection, accountCookie, displayName);
 	sendRecentChatHistory(connection, "global", "english");
 	if (language != "english")

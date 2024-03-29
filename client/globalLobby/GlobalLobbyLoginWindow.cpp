@@ -36,9 +36,14 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	pos.w = 284;
 	pos.h = 220;
 
+	MetaString loginAs;
+	loginAs.appendTextID("vcmi.lobby.login.as");
+	loginAs.replaceTextID(CSH->getGlobalLobby().getAccountDisplayName());
+
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.login.title"));
-	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.lobby.login.username"));
+	labelUsernameTitle = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.lobby.login.username"));
+	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, loginAs.toString());
 	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 90, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
 	inputUsername = std::make_shared<CTextInput>(Rect(15, 93, 260, 16), FONT_SMALL, nullptr, ETextAlignment::TOPLEFT, true);
 	buttonLogin = std::make_shared<CButton>(Point(10, 180), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); });
@@ -56,7 +61,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	toggleMode->setSelected(settings["lobby"]["roomType"].Integer());
 	toggleMode->addCallback([this](int index){onLoginModeChanged(index);});
 
-	if (settings["lobby"]["accountID"].String().empty())
+	if (CSH->getGlobalLobby().getAccountID().empty())
 	{
 		buttonLogin->block(true);
 		toggleMode->setSelected(0);
@@ -77,12 +82,19 @@ void GlobalLobbyLoginWindow::onLoginModeChanged(int value)
 {
 	if (value == 0)
 	{
-		inputUsername->setText("");
+		inputUsername->enable();
+		backgroundUsername->enable();
+		labelUsernameTitle->enable();
+		labelUsername->disable();
 	}
 	else
 	{
-		inputUsername->setText(settings["lobby"]["displayName"].String());
+		inputUsername->disable();
+		backgroundUsername->disable();
+		labelUsernameTitle->disable();
+		labelUsername->enable();
 	}
+	redraw();
 }
 
 void GlobalLobbyLoginWindow::onClose()
@@ -104,7 +116,7 @@ void GlobalLobbyLoginWindow::onLogin()
 
 void GlobalLobbyLoginWindow::onConnectionSuccess()
 {
-	std::string accountID = settings["lobby"]["accountID"].String();
+	std::string accountID = CSH->getGlobalLobby().getAccountID();
 
 	if(toggleMode->getSelected() == 0)
 		CSH->getGlobalLobby().sendClientRegister(inputUsername->getText());
