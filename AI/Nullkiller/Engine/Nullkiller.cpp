@@ -188,7 +188,10 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		if(settings->isObjectGraphAllowed())
 		{
-			pathfinder->updateGraphs(activeHeroes);
+			pathfinder->updateGraphs(
+				activeHeroes,
+				scanDepth == ScanDepth::SMALL ? 255 : 10,
+				scanDepth == ScanDepth::ALL_FULL ? 255 : 3);
 		}
 
 		boost::this_thread::interruption_point();
@@ -303,8 +306,7 @@ void Nullkiller::makeTurn()
 
 		// TODO: better to check turn distance here instead of priority
 		if((heroRole != HeroRole::MAIN || bestTask->priority < SMALL_SCAN_MIN_PRIORITY)
-			&& scanDepth == ScanDepth::MAIN_FULL
-			&& !settings->isObjectGraphAllowed())
+			&& scanDepth == ScanDepth::MAIN_FULL)
 		{
 			useHeroChain = false;
 			scanDepth = ScanDepth::SMALL;
@@ -317,25 +319,22 @@ void Nullkiller::makeTurn()
 
 		if(bestTask->priority < MIN_PRIORITY)
 		{
-			if(!settings->isObjectGraphAllowed())
-			{
-				auto heroes = cb->getHeroesInfo();
-				auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
-					{
-						return h->movementPointsRemaining() > 100;
-					});
-
-				if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+			auto heroes = cb->getHeroesInfo();
+			auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
 				{
-					logAi->trace(
-						"Goal %s has too low priority %f so increasing scan depth to full.",
-						taskDescription,
-						bestTask->priority);
+					return h->movementPointsRemaining() > 100;
+				});
 
-					scanDepth = ScanDepth::ALL_FULL;
-					useHeroChain = false;
-					continue;
-				}
+			if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+			{
+				logAi->trace(
+					"Goal %s has too low priority %f so increasing scan depth to full.",
+					taskDescription,
+					bestTask->priority);
+
+				scanDepth = ScanDepth::ALL_FULL;
+				useHeroChain = false;
+				continue;
 			}
 
 			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", taskDescription);

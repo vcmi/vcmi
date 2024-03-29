@@ -171,7 +171,7 @@ bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectIns
 	return ln->getCost() < rn->getCost();
 }
 
-bool isSafeToVisit(HeroPtr h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
+bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
 {
 	const ui64 heroStrength = h->getFightingStrength() * heroArmy->getArmyStrength();
 
@@ -183,9 +183,9 @@ bool isSafeToVisit(HeroPtr h, const CCreatureSet * heroArmy, uint64_t dangerStre
 	return true; //there's no danger
 }
 
-bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength)
+bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength)
 {
-	return isSafeToVisit(h, h.get(), dangerStrength);
+	return isSafeToVisit(h, h, dangerStrength);
 }
 
 bool isObjectRemovable(const CGObjectInstance * obj)
@@ -285,7 +285,7 @@ creInfo infoFromDC(const dwellingContent & dc)
 	return ci;
 }
 
-bool compareHeroStrength(HeroPtr h1, HeroPtr h2)
+bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2)
 {
 	return h1->getTotalStrength() < h2->getTotalStrength();
 }

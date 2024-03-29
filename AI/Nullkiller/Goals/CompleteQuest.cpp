@@ -112,7 +112,7 @@ TGoalVec CompleteQuest::tryCompleteQuest() const
 		return !q.quest->checkQuest(path.targetHero);
 	});
 	
-	return CaptureObjectsBehavior::getVisitGoals(paths, q.obj);
+	return CaptureObjectsBehavior::getVisitGoals(paths, ai->nullkiller.get(), q.obj);
 }
 
 TGoalVec CompleteQuest::missionArt() const
@@ -154,7 +154,7 @@ TGoalVec CompleteQuest::missionArmy() const
 		return !CQuest::checkMissionArmy(q.quest, path.heroArmy);
 	});
 
-	return CaptureObjectsBehavior::getVisitGoals(paths, q.obj);
+	return CaptureObjectsBehavior::getVisitGoals(paths, ai->nullkiller.get(), q.obj);
 }
 
 TGoalVec CompleteQuest::missionIncreasePrimaryStat() const

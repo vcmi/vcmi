@@ -232,7 +232,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 #endif
 	
 	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos, ai->nullkiller->settings->isObjectGraphAllowed());
-	auto goals = CaptureObjectsBehavior::getVisitGoals(paths);
+	auto goals = CaptureObjectsBehavior::getVisitGoals(paths, ai->nullkiller.get());
 
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 

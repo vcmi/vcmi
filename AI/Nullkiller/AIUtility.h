@@ -232,10 +232,10 @@ bool isBlockVisitObj(const int3 & pos);
 bool isWeeklyRevisitable(const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
-bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength);
-bool isSafeToVisit(HeroPtr h, const CCreatureSet *, uint64_t dangerStrength);
+bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength);
+bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dangerStrength);
 
-bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
+bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
 bool townHasFreeTavern(const CGTownInstance * town);

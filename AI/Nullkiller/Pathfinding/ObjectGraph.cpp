@@ -562,7 +562,7 @@ std::shared_ptr<SpecialAction> getCompositeAction(
 	return std::make_shared<CompositeAction>(actionsArray);
 }
 
-void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai)
+void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai, uint8_t scanDepth)
 {
 	graph.copyFrom(*ai->baseGraph);
 	graph.connectHeroes(ai);
@@ -611,7 +611,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 		node.isInQueue = false;
 
-		graph.iterateConnections(pos.coord, [this, ai, &pos, &node, &transitionAction, &pq](int3 target, const ObjectLink & o)
+		graph.iterateConnections(pos.coord, [this, ai, &pos, &node, &transitionAction, &pq, scanDepth](int3 target, const ObjectLink & o)
 			{
 				auto compositeAction = getCompositeAction(ai, o.specialAction, transitionAction);
 				auto targetNodeType = o.danger || compositeAction ? GrapthPathNodeType::BATTLE : pos.nodeType;
@@ -620,6 +620,11 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 				if(targetNode.tryUpdate(pos, node, o))
 				{
+					if(targetNode.cost > scanDepth)
+					{
+						return;
+					}
+
 					targetNode.specialAction = compositeAction;
 
 					auto targetGraphNode = graph.getNode(target);

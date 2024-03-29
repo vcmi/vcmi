@@ -88,7 +88,7 @@ void handleCounterAttack(
 		&& (threat.danger == maximumDanger.danger || threat.turn < maximumDanger.turn))
 	{
 		auto heroCapturingPaths = ai->nullkiller->pathfinder->getPathInfo(threat.hero->visitablePos());
-		auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, threat.hero.get());
+		auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, ai->nullkiller.get(), threat.hero.get());
 
 		for(int i = 0; i < heroCapturingPaths.size(); i++)
 		{
