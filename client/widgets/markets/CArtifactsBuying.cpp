@@ -21,6 +21,7 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
@@ -71,10 +72,17 @@ void CArtifactsBuying::deselect()
 
 void CArtifactsBuying::makeDeal()
 {
-	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getSelectedItemId()),
-		ArtifactID(offerTradePanel->highlightedSlot->id), offerQty, hero);
-	CMarketTraderText::makeDeal();
-	deselect();
+	if(ArtifactID(offerTradePanel->getSelectedItemId()).toArtifact()->canBePutAt(hero))
+	{
+		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getSelectedItemId()),
+			ArtifactID(offerTradePanel->getSelectedItemId()), offerQty, hero);
+		CMarketTraderText::makeDeal();
+		deselect();
+	}
+	else
+	{
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.326"));
+	}
 }
 
 CMarketBase::MarketShowcasesParams CArtifactsBuying::getShowcasesParams() const

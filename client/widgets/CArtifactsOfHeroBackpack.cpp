@@ -44,23 +44,21 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 
 void CArtifactsOfHeroBackpack::onSliderMoved(int newVal)
 {
-	if(backpackListBox)
-		backpackListBox->resize(getActiveSlotRowsNum());
 	backpackPos += newVal;
-	auto slot = ArtifactPosition::BACKPACK_START + backpackPos;
-	for(auto artPlace : backpack)
-	{
-		setSlotData(artPlace, slot);
-		slot = slot + 1;
-	}
-	redraw();
+	updateBackpackSlots();
 }
 
 void CArtifactsOfHeroBackpack::updateBackpackSlots()
 {
 	if(backpackListBox)
 		backpackListBox->resize(getActiveSlotRowsNum());
-	CArtifactsOfHeroBase::updateBackpackSlots();
+	auto slot = ArtifactPosition::BACKPACK_START + backpackPos;
+	for(const auto & artPlace : backpack)
+	{
+		setSlotData(artPlace, slot);
+		slot = slot + 1;
+	}
+	redraw();
 }
 
 size_t CArtifactsOfHeroBackpack::getActiveSlotRowsNum()

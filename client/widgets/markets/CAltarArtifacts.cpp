@@ -89,18 +89,11 @@ void CAltarArtifacts::update()
 	CMarketBase::update();
 	CExperienceAltar::update();
 	if(const auto art = hero->getArt(ArtifactPosition::TRANSITION_POS))
-	{
-		offerTradePanel->showcaseSlot->setID(art->getTypeId().num);
-		offerTradePanel->highlightedSlot = offerTradePanel->showcaseSlot;
 		offerQty = calcExpCost(art->getTypeId());
-	}
 	else
-	{
-		offerTradePanel->showcaseSlot->clear();
-		offerTradePanel->highlightedSlot.reset();
 		offerQty = 0;
-	}
 	updateShowcases();
+	redraw();
 }
 
 void CAltarArtifacts::makeDeal()
@@ -191,10 +184,10 @@ void CAltarArtifacts::putBackArtifacts()
 
 CMarketBase::MarketShowcasesParams CAltarArtifacts::getShowcasesParams() const
 {
-	if(offerTradePanel->isHighlighted())
+	if(const auto art = hero->getArt(ArtifactPosition::TRANSITION_POS))
 		return std::make_tuple(
 			std::nullopt,
-			ShowcaseParams {std::to_string(offerQty), CGI->artifacts()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()}
+			ShowcaseParams {std::to_string(offerQty), CGI->artifacts()->getByIndex(art->getTypeId())->getIconIndex()}
 	);
 	return std::make_tuple(std::nullopt, std::nullopt);
 }
