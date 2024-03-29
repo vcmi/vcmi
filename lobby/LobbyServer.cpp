@@ -595,6 +595,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 
 	activeAccounts[connection] = accountID;
 
+	logGlobal->info("%s: Logged in as %s", accountID, displayName);
 	sendClientLoginSuccess(connection, accountCookie, displayName);
 	sendRecentChatHistory(connection, "global", "english");
 	if (language != "english")
