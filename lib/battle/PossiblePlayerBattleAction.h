@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- #pragma once
+#pragma once
 
 #include "../GameConstants.h"
 
