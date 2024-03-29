@@ -1,5 +1,5 @@
 /*
- * CBattleInfoCallback.h, part of VCMI engine
+ * PossiblePlayerBattleAction.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+ #pragma once
 
 #include "../GameConstants.h"
 

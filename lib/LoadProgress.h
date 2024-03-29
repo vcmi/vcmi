@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "StdInc.h"
 #include <atomic>
 
 namespace Load

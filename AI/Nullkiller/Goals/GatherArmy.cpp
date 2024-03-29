@@ -1,6 +1,3 @@
-namespace Nullkiller
-{
-
 /*
 * GatherArmy.cpp, part of VCMI engine
 *
@@ -22,6 +19,8 @@ namespace Nullkiller
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
+namespace Nullkiller
+{
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;

@@ -7,8 +7,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include <QApplication>
 #include "StdInc.h"
+#include <QApplication>
 #include "mainwindow.h"
 
 int main(int argc, char * argv[])
