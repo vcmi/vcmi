@@ -31,8 +31,10 @@ public:
 
 	virtual std::vector<CGPathNode *> getInitialNodes() = 0;
 
-	virtual std::vector<CGPathNode *> calculateNeighbours(
+	virtual void calculateNeighbours(
+		std::vector<CGPathNode *> & result,
 		const PathNodeInfo & source,
+		EPathfindingLayer layer,
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) = 0;
 

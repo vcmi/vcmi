@@ -155,15 +155,21 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 	});
 }
 
-std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
+void AINodeStorage::calculateNeighbours(
+	std::vector<CGPathNode *> & result,
 	const PathNodeInfo & source,
+	EPathfindingLayer layer,
 	const PathfinderConfig * pathfinderConfig,
 	const CPathfinderHelper * pathfinderHelper)
 {
-	std::vector<CGPathNode *> neighbours;
-	neighbours.reserve(16);
+	std::vector<int3> accessibleNeighbourTiles;
+
+	result.clear();
+	accessibleNeighbourTiles.reserve(8);
+
+	pathfinderHelper->calculateNeighbourTiles(accessibleNeighbourTiles, source);
+
 	const AIPathNode * srcNode = getAINode(source.node);
-	auto accessibleNeighbourTiles = pathfinderHelper->getNeighbourTiles(source);
 
 	for(auto & neighbour : accessibleNeighbourTiles)
 	{
@@ -174,11 +180,9 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 			if(!nextNode || nextNode.value()->accessible == EPathAccessibility::NOT_SET)
 				continue;
 
-			neighbours.push_back(nextNode.value());
+			result.push_back(nextNode.value());
 		}
 	}
-
-	return neighbours;
 }
 
 void AINodeStorage::setHero(HeroPtr heroPtr, const VCAI * _ai)

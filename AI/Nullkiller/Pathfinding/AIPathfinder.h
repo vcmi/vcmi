@@ -40,19 +40,29 @@ private:
 	std::shared_ptr<AINodeStorage> storage;
 	CPlayerSpecificInfoCallback * cb;
 	Nullkiller * ai;
-	std::map<ObjectInstanceID, GraphPaths>  heroGraphs;
+	std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  heroGraphs;
 
 public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai);
-	std::vector<AIPath> getPathInfo(const int3 & tile, bool includeGraph = false) const;
+	void calculatePathInfo(std::vector<AIPath> & paths, const int3 & tile, bool includeGraph = false) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
 	void updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings);
 	void updateGraphs(const std::map<const CGHeroInstance *, HeroRole> & heroes);
+	void calculateQuickPathsWithBlocker(std::vector<AIPath> & result, const std::vector<const CGHeroInstance *> & heroes, const int3 & tile);
 	void init();
 
 	std::shared_ptr<AINodeStorage>getStorage()
 	{
 		return storage;
+	}
+
+	std::vector<AIPath> getPathInfo(const int3 & tile, bool includeGraph = false)
+	{
+		std::vector<AIPath> result;
+
+		calculatePathInfo(result, tile, includeGraph);
+
+		return result;
 	}
 };
 

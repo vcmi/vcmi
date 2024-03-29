@@ -37,10 +37,8 @@ namespace AIPathfinding
 		return Goals::sptr(Goals::Invalid());
 	}
 
-	bool BuildBoatAction::canAct(const AIPathNode * source) const
+	bool BuildBoatAction::canAct(const CGHeroInstance * hero, const TResources & reservedResources) const
 	{
-		auto hero = source->actor->hero;
-
 		if(cb->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
 #if NKAI_TRACE_LEVEL > 1
@@ -53,7 +51,7 @@ namespace AIPathfinding
 
 		shipyard->getBoatCost(boatCost);
 
-		if(!cb->getResourceAmount().canAfford(source->actor->armyCost + boatCost))
+		if(!cb->getResourceAmount().canAfford(reservedResources + boatCost))
 		{
 #if NKAI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Not enough resources.");
@@ -65,6 +63,18 @@ namespace AIPathfinding
 		return true;
 	}
 
+	bool BuildBoatAction::canAct(const AIPathNode * source) const
+	{
+		return canAct(source->actor->hero, source->actor->armyCost);
+	}
+
+	bool BuildBoatAction::canAct(const AIPathNodeInfo & source) const
+	{
+		TResources res;
+
+		return canAct(source.targetHero, res);
+	}
+
 	const CGObjectInstance * BuildBoatAction::targetObject() const
 	{
 		return dynamic_cast<const CGObjectInstance*>(shipyard);
@@ -73,6 +83,11 @@ namespace AIPathfinding
 	const ChainActor * BuildBoatAction::getActor(const ChainActor * sourceActor) const
 	{
 		return sourceActor->resourceActor;
+	}
+
+	std::shared_ptr<SpecialAction> BuildBoatActionFactory::create(const Nullkiller * ai)
+	{
+		return std::make_shared<BuildBoatAction>(ai->cb.get(), dynamic_cast<const IShipyard * >(ai->cb->getObj(shipyard)));
 	}
 
 	void SummonBoatAction::execute(const CGHeroInstance * hero) const
