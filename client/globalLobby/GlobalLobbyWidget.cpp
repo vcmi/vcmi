@@ -272,7 +272,7 @@ GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const Glo
 
 	if (matchDescription.participants.size() == 2)
 	{
-		std::string ourAccountID = settings["lobby"]["accountID"].String();
+		std::string ourAccountID = CSH->getGlobalLobby().getAccountID();
 
 		opponentDescription.appendTextID("vcmi.lobby.match.duel");
 		// Find display name of our one and only opponent in this game

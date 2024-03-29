@@ -35,6 +35,10 @@ class GlobalLobbyProcessor : public INetworkClientListener
 
 	void establishNewConnection();
 	void sendMessage(const NetworkConnectionPtr & targetConnection, const JsonNode & payload);
+
+	const std::string & getHostAccountID() const;
+	const std::string & getHostAccountCookie() const;
+	const std::string & getHostAccountDisplayName() const;
 public:
 	void sendChangeRoomDescription(const std::string & description);
 	void sendGameStarted();

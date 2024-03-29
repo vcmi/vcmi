@@ -24,6 +24,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"
+#include "../../lib/TextOperations.h"
 
 GlobalLobbyWindow::GlobalLobbyWindow()
 	: CWindowObject(BORDERED)
@@ -33,7 +34,7 @@ GlobalLobbyWindow::GlobalLobbyWindow()
 	pos = widget->pos;
 	center();
 
-	widget->getAccountNameLabel()->setText(settings["lobby"]["displayName"].String());
+	widget->getAccountNameLabel()->setText(CSH->getGlobalLobby().getAccountDisplayName());
 	doOpenChannel("global", "english", Languages::getLanguageOptions("english").nameNative);
 
 	widget->getChannelListHeader()->setText(MetaString::createFromTextID("vcmi.lobby.header.channels").toString());
@@ -54,7 +55,7 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 
 	auto history = CSH->getGlobalLobby().getChannelHistory(channelType, channelName);
 
-	for (auto const & entry : history)
+	for(const auto & entry : history)
 		onGameChatMessage(entry.displayName, entry.messageText, entry.timeFormatted, channelType, channelName);
 
 	MetaString text;
@@ -79,6 +80,8 @@ void GlobalLobbyWindow::doSendChatMessage()
 	toSend["channelType"].String() = currentChannelType;
 	toSend["channelName"].String() = currentChannelName;
 	toSend["messageText"].String() = messageText;
+
+	assert(TextOperations::isValidUnicodeString(messageText));
 
 	CSH->getGlobalLobby().sendMessage(toSend);
 
