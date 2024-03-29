@@ -289,7 +289,7 @@ void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 		CSH->loadMode = ELoadMode::MULTI;
 
 		std::string hostname = settings["lobby"]["hostname"].String();
-		int16_t port = settings["lobby"]["port"].Integer();
+		uint16_t port = settings["lobby"]["port"].Integer();
 		CSH->connectToServer(hostname, port);
 	}
 
@@ -379,7 +379,7 @@ void GlobalLobbyClient::sendOpenRoom(const std::string & mode, int playerLimit)
 void GlobalLobbyClient::connect()
 {
 	std::string hostname = settings["lobby"]["hostname"].String();
-	int16_t port = settings["lobby"]["port"].Integer();
+	uint16_t port = settings["lobby"]["port"].Integer();
 	CSH->getNetworkHandler().connectToRemote(*this, hostname, port);
 }
 
