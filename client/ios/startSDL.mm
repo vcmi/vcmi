@@ -7,8 +7,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#import "startSDL.h"
 #include "StdInc.h"
+#import "startSDL.h"
 #import "GameChatKeyboardHandler.h"
 
 #include "../Global.h"

@@ -7,8 +7,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "Global.h"
 #include "StdInc.h"
+#include "Global.h"
 #include "Client.h"
 
 #include "CGameInfo.h"

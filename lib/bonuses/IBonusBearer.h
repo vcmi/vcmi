@@ -1,4 +1,3 @@
-
 /*
  * IBonusBearer.h, part of VCMI engine
  *
