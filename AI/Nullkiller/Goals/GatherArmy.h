@@ -1,6 +1,3 @@
-namespace Nullkiller
-{
-
 /*
 * GatherArmy.h, part of VCMI engine
 *
@@ -13,6 +10,9 @@ namespace Nullkiller
 #pragma once
 
 #include "CGoal.h"
+
+namespace Nullkiller
+{
 
 struct HeroPtr;
 class AIGateway;

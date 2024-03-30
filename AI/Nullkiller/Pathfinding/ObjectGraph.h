@@ -22,6 +22,7 @@ struct ObjectLink
 {
 	float cost = 100000; // some big number
 	uint64_t danger = 0;
+	std::shared_ptr<ISpecialActionFactory> specialAction;
 
 	bool update(float newCost, uint64_t newDanger)
 	{
@@ -62,16 +63,34 @@ struct ObjectNode
 class ObjectGraph
 {
 	std::unordered_map<int3, ObjectNode> nodes;
+	std::unordered_map<int3, ObjectInstanceID> virtualBoats;
 
 public:
+	ObjectGraph()
+		:nodes(), virtualBoats()
+	{
+	}
+
 	void updateGraph(const Nullkiller * ai);
 	void addObject(const CGObjectInstance * obj);
 	void registerJunction(const int3 & pos);
+	void addVirtualBoat(const int3 & pos, const CGObjectInstance * shipyard);
 	void connectHeroes(const Nullkiller * ai);
 	void removeObject(const CGObjectInstance * obj);
 	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
 	void removeConnection(const int3 & from, const int3 & to);
 	void dumpToLog(std::string visualKey) const;
+
+	bool isVirtualBoat(const int3 & tile) const
+	{
+		return vstd::contains(virtualBoats, tile);
+	}
+
+	void copyFrom(const ObjectGraph & other)
+	{
+		nodes = other.nodes;
+		virtualBoats = other.virtualBoats;
+	}
 
 	template<typename Func>
 	void iterateConnections(const int3 & pos, Func fn)
@@ -167,8 +186,10 @@ class GraphPaths
 	std::string visualKey;
 
 public:
+	GraphPaths();
 	void calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai);
 	void addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
+	void quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
 	void dumpToLog() const;
 
 private:

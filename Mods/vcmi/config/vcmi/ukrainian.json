@@ -78,6 +78,7 @@
 	"vcmi.lobby.login.error" : "Помилка з'єднання: %s",
 	"vcmi.lobby.login.create" : "Створити акаунт",
 	"vcmi.lobby.login.login" : "Увійти",
+	"vcmi.lobby.login.as" : "Увійти як %s",
 	"vcmi.lobby.header.rooms" : "Активні кімнати - %d",
 	"vcmi.lobby.header.channels" : "Канали чату",
 	"vcmi.lobby.header.chat.global" : "Глобальний ігровий чат - %s", // %s -> language name

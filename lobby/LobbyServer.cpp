@@ -293,6 +293,7 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 {
 	if(activeAccounts.count(connection))
 	{
+		logGlobal->info("Account %s disconnecting. Accounts online: %d", activeAccounts.at(connection), activeAccounts.size() - 1);
 		database->setAccountOnline(activeAccounts.at(connection), false);
 		activeAccounts.erase(connection);
 	}
@@ -300,6 +301,7 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 	if(activeGameRooms.count(connection))
 	{
 		std::string gameRoomID = activeGameRooms.at(connection);
+		logGlobal->info("Game room %s disconnecting. Rooms online: %d", gameRoomID, activeGameRooms.size() - 1);
 
 		if (database->getGameRoomStatus(gameRoomID) == LobbyRoomState::BUSY)
 		{
@@ -489,7 +491,7 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 	std::string channelName = json["channelName"].String();
 	std::string displayName = database->getAccountDisplayName(senderAccountID);
 
-	if(TextOperations::isValidUnicodeString(messageText))
+	if(!TextOperations::isValidUnicodeString(messageText))
 		return sendOperationFailed(connection, "String contains invalid characters!");
 
 	std::string messageTextClean = sanitizeChatMessage(messageText);
@@ -595,6 +597,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 
 	activeAccounts[connection] = accountID;
 
+	logGlobal->info("%s: Logged in as %s", accountID, displayName);
 	sendClientLoginSuccess(connection, accountCookie, displayName);
 	sendRecentChatHistory(connection, "global", "english");
 	if (language != "english")

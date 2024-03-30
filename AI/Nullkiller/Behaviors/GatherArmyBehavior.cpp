@@ -69,7 +69,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
 
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos, ai->nullkiller->settings->isObjectGraphAllowed());
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Gather army found %d paths", paths.size());
@@ -231,7 +231,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());
 #endif
 	
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos, ai->nullkiller->settings->isObjectGraphAllowed());
 	auto goals = CaptureObjectsBehavior::getVisitGoals(paths);
 
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;

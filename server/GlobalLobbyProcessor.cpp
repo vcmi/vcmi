@@ -24,7 +24,7 @@ GlobalLobbyProcessor::GlobalLobbyProcessor(CVCMIServer & owner)
 void GlobalLobbyProcessor::establishNewConnection()
 {
 	std::string hostname = settings["lobby"]["hostname"].String();
-	int16_t port = settings["lobby"]["port"].Integer();
+	uint16_t port = settings["lobby"]["port"].Integer();
 	owner.getNetworkHandler().connectToRemote(*this, hostname, port);
 }
 
@@ -122,8 +122,8 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		JsonNode toSend;
 		toSend["type"].String() = "serverLogin";
 		toSend["gameRoomID"].String() = owner.uuid;
-		toSend["accountID"] = settings["lobby"]["accountID"];
-		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
+		toSend["accountID"].String() = getHostAccountID();
+		toSend["accountCookie"].String() = getHostAccountCookie();
 		toSend["version"].String() = VCMI_VERSION_STRING;
 
 		sendMessage(connection, toSend);
@@ -140,7 +140,7 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["type"].String() = "serverProxyLogin";
 		toSend["gameRoomID"].String() = owner.uuid;
 		toSend["guestAccountID"].String() = guestAccountID;
-		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
+		toSend["accountCookie"].String() = getHostAccountCookie();
 
 		sendMessage(connection, toSend);
 
@@ -169,4 +169,25 @@ void GlobalLobbyProcessor::sendMessage(const NetworkConnectionPtr & targetConnec
 {
 	assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
 	targetConnection->sendPacket(toSend.toBytes());
+}
+
+//FIXME: consider whether these methods should be replaced with some other way to define our account ID / account cookie
+static const std::string & getServerHost()
+{
+	return settings["lobby"]["hostname"].String();
+}
+
+const std::string & GlobalLobbyProcessor::getHostAccountID() const
+{
+	return persistentStorage["lobby"][getServerHost()]["accountID"].String();
+}
+
+const std::string & GlobalLobbyProcessor::getHostAccountCookie() const
+{
+	return persistentStorage["lobby"][getServerHost()]["accountCookie"].String();
+}
+
+const std::string & GlobalLobbyProcessor::getHostAccountDisplayName() const
+{
+	return persistentStorage["lobby"][getServerHost()]["displayName"].String();
 }

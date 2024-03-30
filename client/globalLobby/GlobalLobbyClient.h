@@ -34,6 +34,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 
 	std::shared_ptr<INetworkConnection> networkConnection;
 	std::string currentGameRoomUUID;
+	bool accountLoggedIn = false;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
@@ -58,6 +59,10 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	std::shared_ptr<GlobalLobbyLoginWindow> createLoginWindow();
 	std::shared_ptr<GlobalLobbyWindow> createLobbyWindow();
 
+	void setAccountID(const std::string & accountID);
+	void setAccountCookie(const std::string & accountCookie);
+	void setAccountDisplayName(const std::string & accountDisplayName);
+
 public:
 	explicit GlobalLobbyClient();
 	~GlobalLobbyClient();
@@ -67,6 +72,12 @@ public:
 	const std::vector<std::string> & getActiveChannels() const;
 	const std::vector<GlobalLobbyRoom> & getMatchesHistory() const;
 	const std::vector<GlobalLobbyChannelMessage> & getChannelHistory(const std::string & channelType, const std::string & channelName) const;
+
+	const std::string & getAccountID() const;
+	const std::string & getAccountCookie() const;
+	const std::string & getAccountDisplayName() const;
+	const std::string & getServerHost() const;
+	uint16_t getServerPort() const;
 
 	/// Activate interface and pushes lobby UI as top window
 	void activateInterface();
@@ -83,5 +94,6 @@ public:
 
 	void connect();
 	bool isConnected() const;
+	bool isLoggedIn() const;
 	bool isInvitedToRoom(const std::string & gameRoomID);
 };

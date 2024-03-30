@@ -79,6 +79,7 @@
 	"vcmi.lobby.login.error" : "Connection error: %s",
 	"vcmi.lobby.login.create" : "New Account",
 	"vcmi.lobby.login.login" : "Login",
+	"vcmi.lobby.login.as" : "Login as %s",
 	"vcmi.lobby.header.rooms" : "Game Rooms - %d",
 	"vcmi.lobby.header.channels" : "Chat Channels",
 	"vcmi.lobby.header.chat.global" : "Global Game Chat - %s", // %s -> language name

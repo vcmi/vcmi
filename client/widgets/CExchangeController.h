@@ -7,10 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- #pragma once
+#pragma once
  
- #include "../windows/CWindowObject.h"
- #include "CWindowWithArtifacts.h"
+#include "../windows/CWindowObject.h"
+#include "CWindowWithArtifacts.h"
  
 class CCallback;
 

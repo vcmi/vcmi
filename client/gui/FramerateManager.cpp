@@ -1,5 +1,5 @@
 /*
- * FramerateManager.h, part of VCMI engine
+ * FramerateManager.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

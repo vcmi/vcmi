@@ -17,7 +17,10 @@ namespace NKAI
 {
 namespace AIPathfinding
 {
-	AILayerTransitionRule::AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, Nullkiller * ai, std::shared_ptr<AINodeStorage> nodeStorage)
+	AILayerTransitionRule::AILayerTransitionRule(
+		CPlayerSpecificInfoCallback * cb,
+		Nullkiller * ai,
+		std::shared_ptr<AINodeStorage> nodeStorage)
 		:cb(cb), ai(ai), nodeStorage(nodeStorage)
 	{
 		setup();
