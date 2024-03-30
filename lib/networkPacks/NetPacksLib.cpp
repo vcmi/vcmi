@@ -383,6 +383,11 @@ void ChangeObjectVisitors::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeObjectVisitors(*this);
 }
 
+void ChangeArtifactsCostume::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeArtifactsCostume(*this);
+}
+
 void HeroLevelUp::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitHeroLevelUp(*this);
@@ -611,6 +616,11 @@ void BulkExchangeArtifacts::visitTyped(ICPackVisitor & visitor)
 void ManageBackpackArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitManageBackpackArtifacts(*this);
+}
+
+void ManageEquippedArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitManageEquippedArtifacts(*this);
 }
 
 void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
@@ -1060,6 +1070,15 @@ void ChangeObjectVisitors::applyGs(CGameState * gs) const
 			gs->getHero(hero)->visitedObjects.erase(object);
 			break;
 	}
+}
+
+void ChangeArtifactsCostume::applyGs(CGameState * gs) const
+{
+	auto & allCostumes = gs->getPlayerState(player)->costumesArtifacts;
+	if(auto & costume = allCostumes.find(costumeIdx); costume != allCostumes.end())
+		costume->second = costumeSet;
+	else
+		allCostumes.emplace(costumeIdx, costumeSet);
 }
 
 void PlayerEndsGame::applyGs(CGameState * gs) const

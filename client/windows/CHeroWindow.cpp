@@ -218,7 +218,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 		}
 		if(!arts)
 		{
-			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
+			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8), true);
 			arts->setHero(curHero);
 			addSetAndCallbacks(arts);
 		}

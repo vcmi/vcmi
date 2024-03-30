@@ -2892,6 +2892,24 @@ bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const Obj
 	return true;
 }
 
+bool CGameHandler::saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, size_t costumeIdx)
+{
+	auto artSet = getArtSet(heroID);
+	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "saveArtifactsCostume: wrong hero's ID");
+	COMPLAIN_RET_FALSE_IF(costumeIdx >= GameConstants::HERO_COSTUMES_ARTIFACTS, "saveArtifactsCostume: wrong costume index");
+
+	ChangeArtifactsCostume costume(player, costumeIdx);
+	for(const auto & slot : ArtifactUtils::constituentWornSlots())
+	{
+		if(const auto & slotInfo = artSet->getSlot(slot))
+			if(!slotInfo->locked)
+				costume.costumeSet.emplace(slot, slotInfo->getArt()->getTypeId());
+	}
+
+	sendAndApply(&costume);
+	return true;
+}
+
 /**
  * Assembles or disassembles a combination artifact.
  * @param heroID ID of hero holding the artifact(s).

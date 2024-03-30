@@ -1288,6 +1288,30 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE ChangeArtifactsCostume : public CPackForClient
+{
+	std::map<ArtifactPosition, ArtifactID> costumeSet;
+	size_t costumeIdx;
+	const PlayerColor player;
+
+	void applyGs(CGameState * gs) const;
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	ChangeArtifactsCostume() = default;
+	ChangeArtifactsCostume(const PlayerColor & player, const size_t costumeIdx)
+		: costumeIdx(costumeIdx)
+		, player(player)
+	{
+	}
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & costumeSet;
+		h & costumeIdx;
+		h & player;
+	}
+};
+
 struct DLL_LINKAGE HeroLevelUp : public Query
 {
 	PlayerColor player;
