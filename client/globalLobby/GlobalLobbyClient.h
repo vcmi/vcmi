@@ -34,6 +34,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 
 	std::shared_ptr<INetworkConnection> networkConnection;
 	std::string currentGameRoomUUID;
+	bool accountLoggedIn = false;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
@@ -93,5 +94,6 @@ public:
 
 	void connect();
 	bool isConnected() const;
+	bool isLoggedIn() const;
 	bool isInvitedToRoom(const std::string & gameRoomID);
 };
