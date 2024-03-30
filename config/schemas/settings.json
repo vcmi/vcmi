@@ -546,23 +546,11 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode" ],
+			"required" : [ "mapPreview", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
 					"default" : true
-				},
-				"accountID" : {
-					"type" : "string",
-					"default" : ""
-				},
-				"accountCookie" : {
-					"type" : "string",
-					"default" : ""
-				},
-				"displayName" : {
-					"type" : "string",
-					"default" : ""
 				},
 				"hostname" : {
 					"type" : "string",

@@ -293,6 +293,7 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 {
 	if(activeAccounts.count(connection))
 	{
+		logGlobal->info("Account %s disconnecting. Accounts online: %d", activeAccounts.at(connection), activeAccounts.size() - 1);
 		database->setAccountOnline(activeAccounts.at(connection), false);
 		activeAccounts.erase(connection);
 	}
@@ -300,6 +301,7 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 	if(activeGameRooms.count(connection))
 	{
 		std::string gameRoomID = activeGameRooms.at(connection);
+		logGlobal->info("Game room %s disconnecting. Rooms online: %d", gameRoomID, activeGameRooms.size() - 1);
 
 		if (database->getGameRoomStatus(gameRoomID) == LobbyRoomState::BUSY)
 		{

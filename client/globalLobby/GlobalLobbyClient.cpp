@@ -106,10 +106,9 @@ void GlobalLobbyClient::receiveOperationFailed(const JsonNode & json)
 
 void GlobalLobbyClient::receiveClientLoginSuccess(const JsonNode & json)
 {
-	{
-		setAccountDisplayName(json["displayName"].String());
-		setAccountCookie(json["accountCookie"].String());
-	}
+	accountLoggedIn = true;
+	setAccountDisplayName(json["displayName"].String());
+	setAccountCookie(json["accountCookie"].String());
 
 	auto loginWindowPtr = loginWindow.lock();
 
@@ -343,6 +342,7 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 
 	assert(connection == networkConnection);
 	networkConnection.reset();
+	accountLoggedIn = false;
 
 	while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
 	{
@@ -374,6 +374,11 @@ void GlobalLobbyClient::connect()
 	std::string hostname = getServerHost();
 	uint16_t port = getServerPort();
 	CSH->getNetworkHandler().connectToRemote(*this, hostname, port);
+}
+
+bool GlobalLobbyClient::isLoggedIn() const
+{
+	return networkConnection != nullptr && accountLoggedIn;
 }
 
 bool GlobalLobbyClient::isConnected() const
@@ -461,7 +466,7 @@ void GlobalLobbyClient::activateInterface()
 	if (!GH.windows().findWindows<GlobalLobbyLoginWindow>().empty())
 		return;
 
-	if (isConnected())
+	if (isLoggedIn())
 		GH.windows().pushWindow(createLobbyWindow());
 	else
 		GH.windows().pushWindow(createLoginWindow());
@@ -534,7 +539,7 @@ void GlobalLobbyClient::resetMatchState()
 
 void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
 {
-	if (!isConnected())
+	if (!isLoggedIn())
 		return; // we are not playing with lobby
 
 	if (currentGameRoomUUID.empty())
