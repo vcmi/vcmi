@@ -38,7 +38,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 
 	MetaString loginAs;
 	loginAs.appendTextID("vcmi.lobby.login.as");
-	loginAs.replaceTextID(CSH->getGlobalLobby().getAccountDisplayName());
+	loginAs.replaceRawString(CSH->getGlobalLobby().getAccountDisplayName());
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.login.title"));
