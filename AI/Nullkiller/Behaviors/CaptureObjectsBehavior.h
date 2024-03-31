@@ -25,6 +25,7 @@ namespace Goals
 		std::vector<int> objectSubTypes;
 		std::vector<const CGObjectInstance *> objectsToCapture;
 		bool specificObjects;
+
 	public:
 		CaptureObjectsBehavior()
 			:CGoal(CAPTURE_OBJECTS)
@@ -48,7 +49,7 @@ namespace Goals
 			specificObjects = true;
 		}
 
-		Goals::TGoalVec decompose() const override;
+		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
 		std::string toString() const override;
 
 		CaptureObjectsBehavior & ofType(int type)
@@ -67,10 +68,14 @@ namespace Goals
 
 		bool operator==(const CaptureObjectsBehavior & other) const override;
 
-		static Goals::TGoalVec getVisitGoals(const std::vector<AIPath> & paths, Nullkiller * nullkiller, const CGObjectInstance * objToVisit = nullptr);
+		static Goals::TGoalVec getVisitGoals(const std::vector<AIPath> & paths, const Nullkiller * nullkiller, const CGObjectInstance * objToVisit = nullptr);
 
 	private:
 		bool objectMatchesFilter(const CGObjectInstance * obj) const;
+		void decomposeObjects(
+			Goals::TGoalVec & result,
+			const std::vector<const CGObjectInstance *> & objs,
+			const Nullkiller * nullkiller) const;
 	};
 }
 

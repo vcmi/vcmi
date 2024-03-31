@@ -18,17 +18,17 @@ namespace NKAI
 
 namespace AIPathfinding
 {
-	bool QuestAction::canAct(const AIPathNode * node) const
+	bool QuestAction::canAct(const Nullkiller * ai, const AIPathNode * node) const
 	{
-		return canAct(node->actor->hero);
+		return canAct(ai, node->actor->hero);
 	}
 
-	bool QuestAction::canAct(const AIPathNodeInfo & node) const
+	bool QuestAction::canAct(const Nullkiller * ai, const AIPathNodeInfo & node) const
 	{
-		return canAct(node.targetHero);
+		return canAct(ai, node.targetHero);
 	}
 
-	bool QuestAction::canAct(const CGHeroInstance * hero) const
+	bool QuestAction::canAct(const Nullkiller * ai, const CGHeroInstance * hero) const
 	{
 		if(questInfo.obj->ID == Obj::BORDER_GATE || questInfo.obj->ID == Obj::BORDERGUARD)
 		{
@@ -39,12 +39,12 @@ namespace AIPathfinding
 			|| questInfo.quest->checkQuest(hero);
 	}
 
-	Goals::TSubgoal QuestAction::decompose(const CGHeroInstance * hero) const
+	Goals::TSubgoal QuestAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
 	{
 		return Goals::sptr(Goals::CompleteQuest(questInfo));
 	}
 
-	void QuestAction::execute(const CGHeroInstance * hero) const
+	void QuestAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 	{
 		ai->moveHeroToTile(questInfo.obj->visitablePos(), hero);
 	}

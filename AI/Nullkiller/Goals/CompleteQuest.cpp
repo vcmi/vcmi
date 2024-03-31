@@ -29,36 +29,36 @@ std::string CompleteQuest::toString() const
 	return "Complete quest " + questToString();
 }
 
-TGoalVec CompleteQuest::decompose() const
+TGoalVec CompleteQuest::decompose(const Nullkiller * ai) const
 {
 	if(isKeyMaster(q))
 	{
-		return missionKeymaster();
+		return missionKeymaster(ai);
 	}
 
 	logAi->debug("Trying to realize quest: %s", questToString());
 	
 	if(!q.quest->mission.artifacts.empty())
-		return missionArt();
+		return missionArt(ai);
 
 	if(!q.quest->mission.heroes.empty())
-		return missionHero();
+		return missionHero(ai);
 
 	if(!q.quest->mission.creatures.empty())
-		return missionArmy();
+		return missionArmy(ai);
 
 	if(q.quest->mission.resources.nonZero())
-		return missionResources();
+		return missionResources(ai);
 
 	if(q.quest->killTarget != ObjectInstanceID::NONE)
-		return missionDestroyObj();
+		return missionDestroyObj(ai);
 
 	for(auto & s : q.quest->mission.primary)
 		if(s)
-			return missionIncreasePrimaryStat();
+			return missionIncreasePrimaryStat(ai);
 
 	if(q.quest->mission.heroLevel > 0)
-		return missionLevel();
+		return missionLevel(ai);
 
 	return TGoalVec();
 }
@@ -103,21 +103,21 @@ std::string CompleteQuest::questToString() const
 	return ms.toString();
 }
 
-TGoalVec CompleteQuest::tryCompleteQuest() const
+TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * ai) const
 {
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(q.obj->visitablePos());
+	auto paths = ai->pathfinder->getPathInfo(q.obj->visitablePos());
 
 	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
 		return !q.quest->checkQuest(path.targetHero);
 	});
 	
-	return CaptureObjectsBehavior::getVisitGoals(paths, ai->nullkiller.get(), q.obj);
+	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.obj);
 }
 
-TGoalVec CompleteQuest::missionArt() const
+TGoalVec CompleteQuest::missionArt(const Nullkiller * ai) const
 {
-	TGoalVec solutions = tryCompleteQuest();
+	TGoalVec solutions = tryCompleteQuest(ai);
 
 	if(!solutions.empty())
 		return solutions;
@@ -132,9 +132,9 @@ TGoalVec CompleteQuest::missionArt() const
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionHero() const
+TGoalVec CompleteQuest::missionHero(const Nullkiller * ai) const
 {
-	TGoalVec solutions = tryCompleteQuest();
+	TGoalVec solutions = tryCompleteQuest(ai);
 
 	if(solutions.empty())
 	{
@@ -145,43 +145,43 @@ TGoalVec CompleteQuest::missionHero() const
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionArmy() const
+TGoalVec CompleteQuest::missionArmy(const Nullkiller * ai) const
 {
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(q.obj->visitablePos());
+	auto paths = ai->pathfinder->getPathInfo(q.obj->visitablePos());
 
 	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
 		return !CQuest::checkMissionArmy(q.quest, path.heroArmy);
 	});
 
-	return CaptureObjectsBehavior::getVisitGoals(paths, ai->nullkiller.get(), q.obj);
+	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.obj);
 }
 
-TGoalVec CompleteQuest::missionIncreasePrimaryStat() const
+TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller * ai) const
 {
-	return tryCompleteQuest();
+	return tryCompleteQuest(ai);
 }
 
-TGoalVec CompleteQuest::missionLevel() const
+TGoalVec CompleteQuest::missionLevel(const Nullkiller * ai) const
 {
-	return tryCompleteQuest();
+	return tryCompleteQuest(ai);
 }
 
-TGoalVec CompleteQuest::missionKeymaster() const
+TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * ai) const
 {
-	if(isObjectPassable(q.obj))
+	if(isObjectPassable(ai, q.obj))
 	{
-		return CaptureObjectsBehavior(q.obj).decompose();
+		return CaptureObjectsBehavior(q.obj).decompose(ai);
 	}
 	else
 	{
-		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.obj->subID).decompose();
+		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.obj->subID).decompose(ai);
 	}
 }
 
-TGoalVec CompleteQuest::missionResources() const
+TGoalVec CompleteQuest::missionResources(const Nullkiller * ai) const
 {
-	TGoalVec solutions = tryCompleteQuest();
+	TGoalVec solutions = tryCompleteQuest(ai);
 
 	/*auto heroes = cb->getHeroesInfo(); //TODO: choose best / free hero from among many possibilities?
 
@@ -208,14 +208,14 @@ TGoalVec CompleteQuest::missionResources() const
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionDestroyObj() const
+TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * ai) const
 {
-	auto obj = cb->getObj(q.quest->killTarget);
+	auto obj = ai->cb->getObj(q.quest->killTarget);
 
 	if(!obj)
-		return CaptureObjectsBehavior(q.obj).decompose();
+		return CaptureObjectsBehavior(q.obj).decompose(ai);
 
-	auto relations = cb->getPlayerRelations(ai->playerID, obj->tempOwner);
+	auto relations = ai->cb->getPlayerRelations(ai->playerID, obj->tempOwner);
 
 	//if(relations == PlayerRelations::SAME_PLAYER)
 	//{
@@ -226,7 +226,7 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 	//else 
 	if(relations == PlayerRelations::ENEMIES)
 	{
-		return CaptureObjectsBehavior(obj).decompose();
+		return CaptureObjectsBehavior(obj).decompose(ai);
 	}
 
 	return TGoalVec();

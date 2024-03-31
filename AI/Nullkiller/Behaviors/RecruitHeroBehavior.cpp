@@ -24,12 +24,12 @@ std::string RecruitHeroBehavior::toString() const
 	return "Recruit hero";
 }
 
-Goals::TGoalVec RecruitHeroBehavior::decompose() const
+Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
-	auto towns = cb->getTownsInfo();
+	auto towns = ai->cb->getTownsInfo();
 
-	auto ourHeroes = ai->nullkiller->heroManager->getHeroRoles();
+	auto ourHeroes = ai->heroManager->getHeroRoles();
 	auto minScoreToHireMain = std::numeric_limits<float>::max();
 
 	for(auto hero : ourHeroes)
@@ -37,7 +37,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 		if(hero.second != HeroRole::MAIN)
 			continue;
 
-		auto newScore = ai->nullkiller->heroManager->evaluateHero(hero.first.get());
+		auto newScore = ai->heroManager->evaluateHero(hero.first.get());
 
 		if(minScoreToHireMain > newScore)
 		{
@@ -48,13 +48,13 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 
 	for(auto town : towns)
 	{
-		if(ai->nullkiller->heroManager->canRecruitHero(town))
+		if(ai->heroManager->canRecruitHero(town))
 		{
-			auto availableHeroes = cb->getAvailableHeroes(town);
+			auto availableHeroes = ai->cb->getAvailableHeroes(town);
 
 			for(auto hero : availableHeroes)
 			{
-				auto score = ai->nullkiller->heroManager->evaluateHero(hero);
+				auto score = ai->heroManager->evaluateHero(hero);
 
 				if(score > minScoreToHireMain)
 				{
@@ -65,16 +65,16 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 
 			int treasureSourcesCount = 0;
 
-			for(auto obj : ai->nullkiller->objectClusterizer->getNearbyObjects())
+			for(auto obj : ai->objectClusterizer->getNearbyObjects())
 			{
 				if((obj->ID == Obj::RESOURCE)
 					|| obj->ID == Obj::TREASURE_CHEST
 					|| obj->ID == Obj::CAMPFIRE
-					|| isWeeklyRevisitable(obj)
+					|| isWeeklyRevisitable(ai, obj)
 					|| obj->ID ==Obj::ARTIFACT)
 				{
 					auto tile = obj->visitablePos();
-					auto closestTown = ai->nullkiller->dangerHitMap->getClosestTown(tile);
+					auto closestTown = ai->dangerHitMap->getClosestTown(tile);
 
 					if(town == closestTown)
 						treasureSourcesCount++;
@@ -84,8 +84,8 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 			if(treasureSourcesCount < 5 && (town->garrisonHero || town->getUpperArmy()->getArmyStrength() < 10000))
 				continue;
 
-			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
-				|| (ai->nullkiller->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->nullkiller->buildAnalyzer->isGoldPreasureHigh()))
+			if(ai->cb->getHeroesInfo().size() < ai->cb->getTownsInfo().size() + 1
+				|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPreasureHigh()))
 			{
 				tasks.push_back(Goals::sptr(Goals::RecruitHero(town).setpriority(3)));
 			}

@@ -31,7 +31,7 @@ namespace Goals
 		bool operator==(const HeroExchange & other) const override;
 		std::string toString() const override;
 
-		uint64_t getReinforcementArmyStrength() const;
+		uint64_t getReinforcementArmyStrength(const Nullkiller * ai) const;
 	};
 }
 

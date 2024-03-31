@@ -1389,7 +1389,7 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 		{
 			auto targetNode =node->theNodeBefore ?  getAINode(node->theNodeBefore) : node;
 
-			pathNode.actionIsBlocked = !pathNode.specialAction->canAct(targetNode);
+			pathNode.actionIsBlocked = !pathNode.specialAction->canAct(ai, targetNode);
 		}
 
 		parentIndex = path.nodes.size();

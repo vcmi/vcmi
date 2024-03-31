@@ -709,7 +709,7 @@ public:
 
 		Goals::HeroExchange & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
 
-		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength();
+		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.ai);
 
 		evaluationContext.addNonCriticalStrategicalValue(2.0f * armyStrength / (float)heroExchange.hero.get()->getArmyStrength());
 		evaluationContext.heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroExchange.hero.get());
@@ -1064,7 +1064,7 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal
 
 	if(goal->goalType == Goals::COMPOSITION)
 	{
-		parts = goal->decompose();
+		parts = goal->decompose(ai);
 	}
 	else
 	{

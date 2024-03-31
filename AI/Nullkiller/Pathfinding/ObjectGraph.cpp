@@ -602,7 +602,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 				auto questAction = std::make_shared<AIPathfinding::QuestAction>(questInfo);
 
-				if(!questAction->canAct(targetHero))
+				if(!questAction->canAct(ai, targetHero))
 				{
 					transitionAction = questAction;
 				}
@@ -762,7 +762,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 
 				if(n.specialAction)
 				{
-					n.actionIsBlocked = !n.specialAction->canAct(n);
+					n.actionIsBlocked = !n.specialAction->canAct(ai, n);
 				}
 
 				for(auto & node : path.nodes)
@@ -883,7 +883,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 				if(n.specialAction)
 				{
-					n.actionIsBlocked = !n.specialAction->canAct(n);
+					n.actionIsBlocked = !n.specialAction->canAct(ai, n);
 				}
 
 				auto blocker = ai->objectClusterizer->getBlocker(n);

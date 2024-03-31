@@ -35,7 +35,7 @@ namespace Goals
 		}
 
 		bool operator==(const CaptureObject & other) const override;
-		Goals::TGoalVec decompose() const override;
+		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
 		std::string toString() const override;
 		bool hasHash() const override { return true; }
 		uint64_t getHash() const override;

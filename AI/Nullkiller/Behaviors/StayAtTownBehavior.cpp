@@ -27,10 +27,10 @@ std::string StayAtTownBehavior::toString() const
 	return "StayAtTownBehavior";
 }
 
-Goals::TGoalVec StayAtTownBehavior::decompose() const
+Goals::TGoalVec StayAtTownBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
-	auto towns = cb->getTownsInfo();
+	auto towns = ai->cb->getTownsInfo();
 
 	if(!towns.size())
 		return tasks;
@@ -42,7 +42,7 @@ Goals::TGoalVec StayAtTownBehavior::decompose() const
 		if(!town->hasBuilt(BuildingID::MAGES_GUILD_1))
 			continue;
 
-		ai->nullkiller->pathfinder->calculatePathInfo(paths, town->visitablePos());
+		ai->pathfinder->calculatePathInfo(paths, town->visitablePos());
 
 		for(auto & path : paths)
 		{

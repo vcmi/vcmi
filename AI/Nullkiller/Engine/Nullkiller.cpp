@@ -37,10 +37,11 @@ Nullkiller::Nullkiller()
 	settings = std::make_unique<Settings>();
 }
 
-void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
+void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 {
 	this->cb = cb;
-	this->playerID = playerID;
+	this->gateway = gateway;
+	this->playerID = gateway->playerID;
 
 	baseGraph.reset();
 
@@ -59,7 +60,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	pathfinder.reset(new AIPathfinder(cb.get(), this));
 	armyManager.reset(new ArmyManager(cb.get(), this));
 	heroManager.reset(new HeroManager(cb.get(), this));
-	decomposer.reset(new DeepDecomposer());
+	decomposer.reset(new DeepDecomposer(this));
 	armyFormation.reset(new ArmyFormation(cb, this));
 }
 
@@ -120,12 +121,11 @@ void Nullkiller::resetAiState()
 
 	lockedResources = TResources();
 	scanDepth = ScanDepth::MAIN_FULL;
-	playerID = ai->playerID;
 	lockedHeroes.clear();
 	dangerHitMap->reset();
 	useHeroChain = true;
 
-	if(!baseGraph && ai->nullkiller->settings->isObjectGraphAllowed())
+	if(!baseGraph && settings->isObjectGraphAllowed())
 	{
 		baseGraph = std::make_unique<ObjectGraph>();
 		baseGraph->updateGraph(this);
@@ -253,6 +253,7 @@ void Nullkiller::makeTurn()
 
 	for(int i = 1; i <= settings->getMaxPass(); i++)
 	{
+		auto start = std::chrono::high_resolution_clock::now();
 		updateAiState(i);
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
@@ -342,6 +343,8 @@ void Nullkiller::makeTurn()
 			return;
 		}
 
+		logAi->debug("Decission madel in %ld", timeElapsed(start));
+
 		executeTask(bestTask);
 
 		if(i == settings->getMaxPass())
@@ -361,7 +364,7 @@ void Nullkiller::executeTask(Goals::TTask task)
 
 	try
 	{
-		task->accept(ai);
+		task->accept(gateway);
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(goalFulfilledException &)

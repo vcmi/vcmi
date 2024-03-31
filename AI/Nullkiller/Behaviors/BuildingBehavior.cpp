@@ -27,14 +27,14 @@ std::string BuildingBehavior::toString() const
 	return "Build";
 }
 
-Goals::TGoalVec BuildingBehavior::decompose() const
+Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 
-	TResources resourcesRequired = ai->nullkiller->buildAnalyzer->getResourcesRequiredNow();
-	TResources totalDevelopmentCost = ai->nullkiller->buildAnalyzer->getTotalResourcesRequired();
-	TResources availableResources = ai->nullkiller->getFreeResources();
-	TResources dailyIncome = ai->nullkiller->buildAnalyzer->getDailyIncome();
+	TResources resourcesRequired = ai->buildAnalyzer->getResourcesRequiredNow();
+	TResources totalDevelopmentCost = ai->buildAnalyzer->getTotalResourcesRequired();
+	TResources availableResources = ai->getFreeResources();
+	TResources dailyIncome = ai->buildAnalyzer->getDailyIncome();
 
 	logAi->trace("Free resources amount: %s", availableResources.toString());
 
@@ -46,8 +46,8 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 		resourcesRequired.toString(),
 		totalDevelopmentCost.toString());
 
-	auto & developmentInfos = ai->nullkiller->buildAnalyzer->getDevelopmentInfo();
-	auto isGoldPreasureLow = !ai->nullkiller->buildAnalyzer->isGoldPreasureHigh();
+	auto & developmentInfos = ai->buildAnalyzer->getDevelopmentInfo();
+	auto isGoldPreasureLow = !ai->buildAnalyzer->isGoldPreasureHigh();
 
 	for(auto & developmentInfo : developmentInfos)
 	{
@@ -57,7 +57,7 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 			{
 				if(buildingInfo.notEnoughRes)
 				{
-					if(ai->nullkiller->getLockedResources().canAfford(buildingInfo.buildCost))
+					if(ai->getLockedResources().canAfford(buildingInfo.buildCost))
 						continue;
 
 					Composition composition;

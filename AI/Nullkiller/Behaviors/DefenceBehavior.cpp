@@ -34,21 +34,21 @@ std::string DefenceBehavior::toString() const
 	return "Defend towns";
 }
 
-Goals::TGoalVec DefenceBehavior::decompose() const
+Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 		
-	for(auto town : cb->getTownsInfo())
+	for(auto town : ai->cb->getTownsInfo())
 	{
-		evaluateDefence(tasks, town);
+		evaluateDefence(tasks, town, ai);
 	}
 
 	return tasks;
 }
 
-bool isThreatUnderControl(const CGTownInstance * town, const HitMapInfo & threat, const std::vector<AIPath> & paths)
+bool isThreatUnderControl(const CGTownInstance * town, const HitMapInfo & threat, const Nullkiller * ai, const std::vector<AIPath> & paths)
 {
-	int dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
+	int dayOfWeek = ai->cb->getDate(Date::DAY_OF_WEEK);
 
 	for(const AIPath & path : paths)
 	{
@@ -81,14 +81,15 @@ void handleCounterAttack(
 	const CGTownInstance * town,
 	const HitMapInfo & threat,
 	const HitMapInfo & maximumDanger,
+	const Nullkiller * ai,
 	Goals::TGoalVec & tasks)
 {
 	if(threat.hero.validAndSet()
 		&& threat.turn <= 1
 		&& (threat.danger == maximumDanger.danger || threat.turn < maximumDanger.turn))
 	{
-		auto heroCapturingPaths = ai->nullkiller->pathfinder->getPathInfo(threat.hero->visitablePos());
-		auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, ai->nullkiller.get(), threat.hero.get());
+		auto heroCapturingPaths = ai->pathfinder->getPathInfo(threat.hero->visitablePos());
+		auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, ai, threat.hero.get());
 
 		for(int i = 0; i < heroCapturingPaths.size(); i++)
 		{
@@ -106,9 +107,9 @@ void handleCounterAttack(
 	}
 }
 
-bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoalVec & tasks)
+bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoalVec & tasks, const Nullkiller * ai)
 {
-	if(ai->nullkiller->isHeroLocked(town->garrisonHero.get()))
+	if(ai->isHeroLocked(town->garrisonHero.get()))
 	{
 		logAi->trace(
 			"Hero %s in garrison of town %s is supposed to defend the town",
@@ -120,7 +121,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 	if(!town->visitingHero)
 	{
-		if(cb->getHeroCount(ai->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
+		if(ai->cb->getHeroCount(ai->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
 		{
 			logAi->trace(
 				"Extracting hero %s from garrison of town %s",
@@ -131,10 +132,10 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 			return true;
 		}
-		else if(ai->nullkiller->heroManager->getHeroRole(town->garrisonHero.get()) == HeroRole::MAIN)
+		else if(ai->heroManager->getHeroRole(town->garrisonHero.get()) == HeroRole::MAIN)
 		{
 			auto armyDismissLimit = 1000;
-			auto heroToDismiss = ai->nullkiller->heroManager->findWeakHeroToDismiss(armyDismissLimit);
+			auto heroToDismiss = ai->heroManager->findWeakHeroToDismiss(armyDismissLimit);
 
 			if(heroToDismiss)
 			{
@@ -148,16 +149,16 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 	return false;
 }
 
-void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const
+void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town, const Nullkiller * ai) const
 {
 	logAi->trace("Evaluating defence for %s", town->getNameTranslated());
 
-	auto threatNode = ai->nullkiller->dangerHitMap->getObjectThreat(town);
-	std::vector<HitMapInfo> threats = ai->nullkiller->dangerHitMap->getTownThreats(town);
+	auto threatNode = ai->dangerHitMap->getObjectThreat(town);
+	std::vector<HitMapInfo> threats = ai->dangerHitMap->getTownThreats(town);
 	
 	threats.push_back(threatNode.fastestDanger); // no guarantee that fastest danger will be there
 
-	if(town->garrisonHero && handleGarrisonHeroFromPreviousTurn(town, tasks))
+	if(town->garrisonHero && handleGarrisonHeroFromPreviousTurn(town, tasks, ai))
 	{
 		return;
 	}
@@ -169,7 +170,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		return;
 	}
 	
-	uint64_t reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
+	uint64_t reinforcement = ai->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
 
 	if(reinforcement)
 	{
@@ -177,7 +178,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(0.5f)));
 	}
 
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(town->visitablePos());
+	auto paths = ai->pathfinder->getPathInfo(town->visitablePos());
 
 	for(auto & threat : threats)
 	{
@@ -188,14 +189,14 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			std::to_string(threat.turn),
 			threat.hero ? threat.hero->getNameTranslated() : std::string("<no hero>"));
 
-		handleCounterAttack(town, threat, threatNode.maximumDanger, tasks);
+		handleCounterAttack(town, threat, threatNode.maximumDanger, ai, tasks);
 
-		if(isThreatUnderControl(town, threat, paths))
+		if(isThreatUnderControl(town, threat, ai, paths))
 		{
 			continue;
 		}
 
-		evaluateRecruitingHero(tasks, threat, town);
+		evaluateRecruitingHero(tasks, threat, town, ai);
 
 		if(paths.empty())
 		{
@@ -274,7 +275,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			// main without army and visiting scout with army, very specific case
 			if(town->visitingHero && town->getUpperArmy()->stacksCount() == 0
 				&& path.targetHero != town->visitingHero.get() && path.exchangeCount == 1 && path.turn() == 0
-				&& ai->nullkiller->heroManager->evaluateHero(path.targetHero) > ai->nullkiller->heroManager->evaluateHero(town->visitingHero.get())
+				&& ai->heroManager->evaluateHero(path.targetHero) > ai->heroManager->evaluateHero(town->visitingHero.get())
 				&& 10 * path.targetHero->getTotalStrength() < town->visitingHero->getTotalStrength())
 			{
 				path.heroArmy = town->visitingHero.get();
@@ -293,7 +294,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				
 			if(threat.turn == 0 || (path.turn() <= threat.turn && path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= threat.danger))
 			{
-				if(ai->nullkiller->arePathHeroesLocked(path))
+				if(ai->arePathHeroesLocked(path))
 				{
 #if NKAI_TRACE_LEVEL >= 1
 					logAi->trace("Can not move %s to defend town %s. Path is locked.",
@@ -344,7 +345,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			{
 				if(town->garrisonHero)
 				{
-					if(ai->nullkiller->heroManager->getHeroRole(town->visitingHero.get()) == HeroRole::SCOUT
+					if(ai->heroManager->getHeroRole(town->visitingHero.get()) == HeroRole::SCOUT
 						&& town->visitingHero->getArmyStrength() < path.heroArmy->getArmyStrength() / 20)
 					{
 						if(path.turn() == 0)
@@ -378,7 +379,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			auto firstBlockedAction = path.getFirstBlockedAction();
 			if(firstBlockedAction)
 			{
-				auto subGoal = firstBlockedAction->decompose(path.targetHero);
+				auto subGoal = firstBlockedAction->decompose(ai, path.targetHero);
 
 #if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
@@ -402,19 +403,19 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	logAi->debug("Found %d tasks", tasks.size());
 }
 
-void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town) const
+void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * ai) const
 {
 	if(town->hasBuilt(BuildingID::TAVERN)
-		&& cb->getResourceAmount(EGameResID::GOLD) > GameConstants::HERO_GOLD_COST)
+		&& ai->cb->getResourceAmount(EGameResID::GOLD) > GameConstants::HERO_GOLD_COST)
 	{
-		auto heroesInTavern = cb->getAvailableHeroes(town);
+		auto heroesInTavern = ai->cb->getAvailableHeroes(town);
 
 		for(auto hero : heroesInTavern)
 		{
 			if(hero->getTotalStrength() < threat.danger)
 				continue;
 
-			auto myHeroes = cb->getHeroesInfo();
+			auto myHeroes = ai->cb->getHeroesInfo();
 
 #if NKAI_TRACE_LEVEL >= 1
 			logAi->trace("Hero %s can be recruited to defend %s", hero->getObjectName(), town->getObjectName());
@@ -448,9 +449,9 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 				if(heroToDismiss && heroToDismiss->getArmyStrength() + 500 > hero->getArmyStrength())
 					continue;
 			}
-			else if(ai->nullkiller->heroManager->heroCapReached())
+			else if(ai->heroManager->heroCapReached())
 			{
-				heroToDismiss = ai->nullkiller->heroManager->findWeakHeroToDismiss(hero->getArmyStrength());
+				heroToDismiss = ai->heroManager->findWeakHeroToDismiss(hero->getArmyStrength());
 
 				if(!heroToDismiss)
 					continue;

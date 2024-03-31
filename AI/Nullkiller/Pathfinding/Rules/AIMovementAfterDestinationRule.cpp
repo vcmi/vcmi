@@ -20,10 +20,11 @@ namespace NKAI
 namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
+		const Nullkiller * ai,
 		CPlayerSpecificInfoCallback * cb, 
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
+		:ai(ai), cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 
@@ -171,7 +172,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		if(!questAction.canAct(destinationNode))
+		if(!questAction.canAct(ai, destinationNode))
 		{
 			if(!destinationNode->actor->allowUseResources)
 			{

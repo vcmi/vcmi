@@ -40,7 +40,7 @@ private:
 	std::shared_ptr<AINodeStorage> storage;
 	CPlayerSpecificInfoCallback * cb;
 	Nullkiller * ai;
-	std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  heroGraphs;
+	static std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  heroGraphs;
 
 public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai);

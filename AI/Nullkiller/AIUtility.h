@@ -70,7 +70,6 @@ extern const float SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
 
 extern thread_local CCallback * cb;
-extern thread_local AIGateway * ai;
 
 enum HeroRole
 {
@@ -114,11 +113,11 @@ public:
 	bool validAndSet() const;
 
 
-	template<typename Handler> void serialize(Handler & h)
+	template<typename Handler> void serialize(Handler & handler)
 	{
-		h & this->h;
-		h & hid;
-		h & name;
+		handler & h;
+		handler & hid;
+		handler & name;
 	}
 };
 
@@ -224,12 +223,11 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // a
 }
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
-bool isObjectPassable(const CGObjectInstance * obj);
 bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj);
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
-bool isWeeklyRevisitable(const CGObjectInstance * obj);
+bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
 bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength);
@@ -244,18 +242,6 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
-
-class CDistanceSorter
-{
-	const CGHeroInstance * hero;
-
-public:
-	CDistanceSorter(const CGHeroInstance * hero)
-		: hero(hero)
-	{
-	}
-	bool operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const;
-};
 
 template <class T>
 class SharedPool

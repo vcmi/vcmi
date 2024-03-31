@@ -163,14 +163,6 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 	return h == rhs.get(true);
 }
 
-bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const
-{
-	const CGPathNode * ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
-	const CGPathNode * rn = ai->myCb->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
-
-	return ln->getCost() < rn->getCost();
-}
-
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
 {
 	const ui64 heroStrength = h->getFightingStrength() * heroArmy->getArmyStrength();
@@ -233,11 +225,6 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj)
 {
 	return isObjectPassable(obj, ai->playerID, ai->cb->getPlayerRelations(obj->tempOwner, ai->playerID));
-}
-
-bool isObjectPassable(const CGObjectInstance * obj)
-{
-	return isObjectPassable(obj, ai->playerID, ai->myCb->getPlayerRelations(obj->tempOwner, ai->playerID));
 }
 
 // Pathfinder internal helper
@@ -306,7 +293,7 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 		return art1->getPrice() > art2->getPrice();
 }
 
-bool isWeeklyRevisitable(const CGObjectInstance * obj)
+bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj)
 {
 	if(!obj)
 		return false;

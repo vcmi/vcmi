@@ -17,6 +17,8 @@
 namespace NKAI
 {
 
+std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  AIPathfinder::heroGraphs;
+
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {

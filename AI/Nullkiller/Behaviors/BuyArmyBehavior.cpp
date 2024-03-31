@@ -24,11 +24,11 @@ std::string BuyArmyBehavior::toString() const
 	return "Buy army";
 }
 
-Goals::TGoalVec BuyArmyBehavior::decompose() const
+Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 
-	if(cb->getDate(Date::DAY) == 1)
+	if(ai->cb->getDate(Date::DAY) == 1)
 		return tasks;
 		
 	auto heroes = cb->getHeroesInfo();
@@ -40,26 +40,26 @@ Goals::TGoalVec BuyArmyBehavior::decompose() const
 
 	for(auto town : cb->getTownsInfo())
 	{
-		auto townArmyAvailableToBuy = ai->nullkiller->armyManager->getArmyAvailableToBuyAsCCreatureSet(
+		auto townArmyAvailableToBuy = ai->armyManager->getArmyAvailableToBuyAsCCreatureSet(
 			town,
-			ai->nullkiller->getFreeResources());
+			ai->getFreeResources());
 
 		for(const CGHeroInstance * targetHero : heroes)
 		{
-			if(ai->nullkiller->buildAnalyzer->isGoldPreasureHigh()	&& !town->hasBuilt(BuildingID::CITY_HALL))
+			if(ai->buildAnalyzer->isGoldPreasureHigh()	&& !town->hasBuilt(BuildingID::CITY_HALL))
 			{
 				continue;
 			}
 
-			if(ai->nullkiller->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
+			if(ai->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
 			{
-				auto reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanGet(
+				auto reinforcement = ai->armyManager->howManyReinforcementsCanGet(
 					targetHero,
 					targetHero,
 					&*townArmyAvailableToBuy);
 
 				if(reinforcement)
-					vstd::amin(reinforcement, ai->nullkiller->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town));
+					vstd::amin(reinforcement, ai->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town));
 
 				if(reinforcement)
 				{

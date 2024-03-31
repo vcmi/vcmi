@@ -27,7 +27,6 @@ namespace Goals
 
 		ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj = nullptr);
 
-		
 		void accept(AIGateway * ai) override;
 		std::string toString() const override;
 		bool operator==(const ExecuteHeroChain & other) const override;
@@ -36,7 +35,7 @@ namespace Goals
 		int getHeroExchangeCount() const override { return chainPath.exchangeCount; }
 
 	private:
-		bool moveHeroToTile(const CGHeroInstance * hero, const int3 & tile);
+		bool moveHeroToTile(AIGateway * ai, const CGHeroInstance * hero, const int3 & tile);
 	};
 }
 
