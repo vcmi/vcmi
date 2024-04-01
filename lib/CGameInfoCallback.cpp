@@ -294,10 +294,10 @@ bool CGameInfoCallback::isTileGuardedAfterDimensionDoorUse(int3 tile, const CGHe
 
 	if(isVisible(tile))
 		canAccessInfo = true;
-	else if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) //TODO: check if available casts > 0
+	else if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS)
 		&& isInScreenRange(castingHero->getSightCenter(), tile)
 		&& castingHero->canCastThisSpell(static_cast<SpellID>(SpellID::DIMENSION_DOOR).toSpell()))
-		canAccessInfo = true;
+		canAccessInfo = true; //TODO: check if available casts > 0, before adding that check make dimension door daily limit popup trigger on spell pick
 
 	if(canAccessInfo)
 		return !gs->guardingCreatures(tile).empty();
@@ -540,8 +540,8 @@ const TerrainTile * CGameInfoCallback::getTileForDimensionDoor(int3 tile, const 
     if(!allowOnlyToUncoveredTiles)
     {
         if(castingHero->canCastThisSpell(static_cast<SpellID>(SpellID::DIMENSION_DOOR).toSpell())
-            && isInScreenRange(castingHero->getSightCenter(), tile)) //TODO: check if > 0 casts left
-        {
+            && isInScreenRange(castingHero->getSightCenter(), tile))
+        { //TODO: check if available casts > 0, before adding that check make dimension door daily limit popup trigger on spell pick
             //we are allowed to get basic blocked/water invisible nearby tile date when casting DD spell
             TerrainTile targetTile = gs->map->getTile(tile);
             auto obfuscatedTile = std::make_shared<TerrainTile>();
