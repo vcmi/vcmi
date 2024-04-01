@@ -92,6 +92,9 @@ private:
 	/// casts current spell at specified location
 	void performSpellcasting(const int3 & castTarget);
 
+	/// performs clientside validation of valid targets for adventure spells
+	bool isValidAdventureSpellTarget(int3 targetPosition, const CGObjectInstance * topObjectAtTarget, SpellID spellId);
+
 	/// dim interface if some windows opened
 	void dim(Canvas & to);
 

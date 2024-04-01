@@ -516,29 +516,24 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 
 	const CGObjectInstance *topBlocking = LOCPLINT->cb->isVisible(targetPosition) ? getActiveObject(targetPosition) : nullptr;
 
-	int3 selPos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
 	if(spellBeingCasted)
 	{
 		assert(shortcuts->optionSpellcasting());
 
-		if (!isInScreenRange(selPos, targetPosition))
-			return;
-
-		const TerrainTile *heroTile = LOCPLINT->cb->getTile(selPos);
-
 		switch(spellBeingCasted->id)
 		{
-		case SpellID::SCUTTLE_BOAT: //Scuttle Boat
-			if(topBlocking && topBlocking->ID == Obj::BOAT)
+		case SpellID::SCUTTLE_BOAT:
+			if(isValidAdventureSpellTarget(targetPosition, topBlocking, SpellID::SCUTTLE_BOAT))
 				performSpellcasting(targetPosition);
 			break;
 		case SpellID::DIMENSION_DOOR:
-			const TerrainTile * targetTile = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
-
-			if(targetTile && targetTile->isClear(heroTile))
+			if(isValidAdventureSpellTarget(targetPosition, topBlocking, SpellID::DIMENSION_DOOR))
 				performSpellcasting(targetPosition);
 			break;
+		default:
+			break;
 		}
+
 		return;
 	}
 	//check if we can select this object
@@ -610,7 +605,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	//may occur just at the start of game (fake move before full intiialization)
+	//may occur just at the start of game (fake move before full initialization)
 	if(!LOCPLINT->localState->getCurrentArmy())
 		return;
 
@@ -645,35 +640,23 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 
 	if(spellBeingCasted)
 	{
-		int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
-		if (!isInScreenRange(heroPosition, targetPosition))
-		{
-			CCS->curh->set(Cursor::Map::POINTER);
-			return;
-		}
-
 		switch(spellBeingCasted->id)
 		{
 		case SpellID::SCUTTLE_BOAT:
-			{
-				if(objAtTile && objAtTile->ID == Obj::BOAT)
-					CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
-				else
-					CCS->curh->set(Cursor::Map::POINTER);
-				return;
-			}
+			if(isValidAdventureSpellTarget(targetPosition, objAtTile, SpellID::SCUTTLE_BOAT))
+				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
+			else
+				CCS->curh->set(Cursor::Map::POINTER);
+			return;
 		case SpellID::DIMENSION_DOOR:
-			{
-				const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
-
-				if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition))/* && isInScreenRange(hpos, mapPos)*/)
-					CCS->curh->set(Cursor::Map::TELEPORT); //TODO: something wrong with beyond east spell range border cursor on arrogance after TP-ing near underground portal on previous day
-				else
-					CCS->curh->set(Cursor::Map::POINTER);
-				return;
-			}
+			if(isValidAdventureSpellTarget(targetPosition, objAtTile, SpellID::DIMENSION_DOOR))
+				CCS->curh->set(Cursor::Map::TELEPORT);
+			else
+				CCS->curh->set(Cursor::Map::POINTER);
+			return;
 		default:
-			break;
+			CCS->curh->set(Cursor::Map::POINTER);
+			return;
 		}
 	}
 
@@ -948,4 +931,36 @@ void AdventureMapInterface::onScreenResize()
 
 	if (widgetActive)
 		activate();
+}
+
+bool AdventureMapInterface::isValidAdventureSpellTarget(int3 targetPosition, const CGObjectInstance * topObjectAtTarget, SpellID spellId)
+{
+	int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
+	if (!isInScreenRange(heroPosition, targetPosition))
+	{
+		return false;
+	}
+
+	switch(spellId)
+	{
+		case SpellID::SCUTTLE_BOAT:
+		{
+			if(topObjectAtTarget && topObjectAtTarget->ID == Obj::BOAT)
+				return true;
+			else
+				return false;
+		}
+		case SpellID::DIMENSION_DOOR:
+		{
+			const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
+
+			if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition)))
+				return true;
+			else
+				return false;
+		}
+		default:
+			logGlobal->warn("Called AdventureMapInterface::isValidAdventureSpellTarget with unknown Spell ID!");
+			return false;
+	}
 }

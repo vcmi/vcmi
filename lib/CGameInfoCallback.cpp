@@ -522,18 +522,22 @@ const TerrainTile * CGameInfoCallback::getTileForDimensionDoor(int3 tile, const 
     if(!allowOnlyToUncoveredTiles)
     {
         if(castingHero->canCastThisSpell(static_cast<SpellID>(SpellID::DIMENSION_DOOR).toSpell())
-            && isInScreenRange(castingHero->pos, tile)) //TODO: check if > 0 casts left
+            && isInScreenRange(castingHero->getSightCenter(), tile)) //TODO: check if > 0 casts left
         {
             //we are allowed to get basic blocked/water invisible nearby tile date when casting DD spell
             TerrainTile targetTile = gs->map->getTile(tile);
             auto obfuscatedTile = std::make_shared<TerrainTile>();
             obfuscatedTile->visitable = false;
             obfuscatedTile->blocked = targetTile.blocked || targetTile.visitable;
-            obfuscatedTile->terType = (targetTile.blocked || targetTile.visitable)
-                ? VLC->terrainTypeHandler->getById(TerrainId::ROCK)
-                : targetTile.isWater()
-                    ? VLC->terrainTypeHandler->getById(TerrainId::WATER)
-                    : VLC->terrainTypeHandler->getById(TerrainId::GRASS);
+
+			if(targetTile.blocked || targetTile.visitable)
+				obfuscatedTile->terType = VLC->terrainTypeHandler->getById(TerrainId::ROCK);
+			else if(!VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE))
+				obfuscatedTile->terType = gs->map->getTile(castingHero->getSightCenter()).terType;
+			else
+            	obfuscatedTile->terType = targetTile.isWater()
+            		? VLC->terrainTypeHandler->getById(TerrainId::WATER)
+            		: VLC->terrainTypeHandler->getById(TerrainId::GRASS);
 
             outputTile = obfuscatedTile.get();
         }

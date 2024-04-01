@@ -313,7 +313,7 @@
 			"goodLuckDice" : [ 24, 12, 8 ],
 			"badLuckDice" : [],
 			
-			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
+			// every 1 attack point damage influence in battle whe	//TODO: test range, visibilityn attack points > defense points during creature attack
 			"attackPointDamageFactor": 0.05, 
 			// limit of damage increase that can be achieved by overpowering attack points
 			"attackPointDamageFactorCap": 4.0, 
@@ -391,7 +391,10 @@
 
 		"spells":
 		{
-			"dimensionDoorOnlyToUncoveredTiles" : false
+			// if enabled, dimension work doesn't work into tiles under Fog of War
+			"dimensionDoorOnlyToUncoveredTiles" : false,
+			// if enabled, dimension door will hint regarding tile being incompatible terrain type, unlike H3 (water/land)
+			"dimensionDoorExposesTerrainType" : false
 		},
 		
 		"bonuses" : 

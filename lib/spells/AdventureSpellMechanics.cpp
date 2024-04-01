@@ -17,6 +17,7 @@
 #include "../CGameInfoCallback.h"
 #include "../CPlayerState.h"
 #include "../CRandomGenerator.h"
+#include "../GameSettings.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -252,7 +253,20 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 		return ESpellCastResult::ERROR;
 	}
 
-	//TODO: test range, visibility
+	int3 casterPosition = parameters.caster->getHeroCaster()->getSightCenter();
+
+	if(!isInScreenRange(casterPosition, parameters.pos))
+	{
+		env->complain("Attempting to cast Scuttle Boat outside screen range!");
+		return ESpellCastResult::ERROR;
+	}
+
+	if(!env->getCb()->isVisible(parameters.pos, parameters.caster->getCasterOwner()))
+	{
+		env->complain("Attempting to cast Scuttle Boat at invisible tile!");
+		return ESpellCastResult::ERROR;
+	}
+
 	const TerrainTile *t = &env->getMap()->getTile(parameters.pos);
 	if(t->visitableObjects.empty() || t->visitableObjects.back()->ID != Obj::BOAT)
 	{
@@ -287,8 +301,10 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		return ESpellCastResult::ERROR;
 	}
 
+	int3 casterPosition = parameters.caster->getHeroCaster()->getSightCenter();
+
 	const TerrainTile * dest = env->getCb()->getTile(parameters.pos);
-	const TerrainTile * curr = env->getCb()->getTile(parameters.caster->getHeroCaster()->getSightCenter());
+	const TerrainTile * curr = env->getCb()->getTile(casterPosition);
 
 	if(nullptr == dest)
 	{
@@ -308,6 +324,21 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		return ESpellCastResult::ERROR;
 	}
 
+	if(!isInScreenRange(casterPosition, parameters.pos))
+	{
+		env->complain("Attempting to cast Dimension Door outside screen range!");
+		return ESpellCastResult::ERROR;
+	}
+
+	if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES))
+	{
+		if(!env->getCb()->isVisible(parameters.pos, parameters.caster->getCasterOwner()))
+		{
+			env->complain("Attempting to cast Dimension Door inside Fog of War with limitation toggled on!");
+			return ESpellCastResult::ERROR;
+		}
+	}
+
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((schoolLevel >= 3) ? 2 : 3);
 
@@ -324,19 +355,22 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		return ESpellCastResult::CANCEL;
 	}
 
-	GiveBonus gb;
-	gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
-	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, BonusSourceID(owner->id));
-	env->apply(&gb);
-
 	if(!dest->isClear(curr)) //wrong dest tile
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 70); //Dimension Door failed!
 		env->apply(&iw);
+		return ESpellCastResult::CANCEL;
 	}
-	else if(env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), true))
+
+	GiveBonus gb;
+	gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
+	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, BonusSourceID(owner->id));
+	env->apply(&gb);
+
+
+	if(env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), true))
 	{
 		SetMovePoints smp;
 		smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());

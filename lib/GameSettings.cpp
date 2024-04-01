@@ -104,6 +104,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::PATHFINDER_USE_WHIRLPOOL,               "pathfinder", "useWhirlpool"                    },
 		{EGameSettings::PATHFINDER_ORIGINAL_FLY_RULES,          "pathfinder", "originalFlyRules"                },
 		{EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES, "spells",    "dimensionDoorOnlyToUncoveredTiles"},
+		{EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE,    "spells",    "dimensionDoorExposesTerrainType"  },
 		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"              },
 		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"          },
 	};
