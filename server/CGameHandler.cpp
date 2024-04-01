@@ -1196,7 +1196,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		sendAndApply(&tmh);
 
 		if (visitDest == VISIT_DEST && objectToVisit && objectToVisit->id == h->id)
-		{ // Hero should be always able to visit any object he staying on even if there guards around
+		{ // Hero should be always able to visit any object he is staying on even if there are guards around
 			visitObjectOnTile(t, h);
 		}
 		else if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
@@ -1351,7 +1351,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 
 		if (oldOwner.isValidPlayer()) //old owner is real player
 		{
-			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last last town
+			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last town
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;

@@ -193,6 +193,7 @@ public:
 	//map
 	virtual int3 guardingCreaturePosition (int3 pos) const;
 	virtual std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const;
+	virtual bool isTileGuardedAfterDimensionDoorUse(int3 tile, const CGHeroInstance * castingHero) const;
 	virtual const CMapHeader * getMapHeader()const;
 	virtual int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual const TerrainTile * getTile(int3 tile, bool verbose = true) const;

@@ -287,6 +287,24 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 	return ret;
 }
 
+bool CGameInfoCallback::isTileGuardedAfterDimensionDoorUse(int3 tile, const CGHeroInstance * castingHero) const
+{
+	//for known tiles this is just potential convenience info, for tiles behind fog of war this info matches HotA but not H3 so make it accessible only with proper setting on
+	bool canAccessInfo = false;
+
+	if(isVisible(tile))
+		canAccessInfo = true;
+	else if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) //TODO: check if available casts > 0
+		&& isInScreenRange(castingHero->getSightCenter(), tile)
+		&& castingHero->canCastThisSpell(static_cast<SpellID>(SpellID::DIMENSION_DOOR).toSpell()))
+		canAccessInfo = true;
+
+	if(canAccessInfo)
+		return !gs->guardingCreatures(tile).empty();
+
+	return false;
+}
+
 bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject) const
 {
 	const auto * h = dynamic_cast<const CGHeroInstance *>(hero);

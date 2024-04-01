@@ -650,7 +650,19 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 			return;
 		case SpellID::DIMENSION_DOOR:
 			if(isValidAdventureSpellTarget(targetPosition, objAtTile, SpellID::DIMENSION_DOOR))
+			{
+				if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS))
+				{
+					auto isGuarded = LOCPLINT->cb->isTileGuardedAfterDimensionDoorUse(targetPosition, LOCPLINT->localState->getCurrentHero());
+					if(isGuarded)
+					{
+						CCS->curh->set(Cursor::Map::T1_ATTACK);
+						return;
+					}
+				}
+
 				CCS->curh->set(Cursor::Map::TELEPORT);
+			}
 			else
 				CCS->curh->set(Cursor::Map::POINTER);
 			return;
