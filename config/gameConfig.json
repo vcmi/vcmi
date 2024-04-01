@@ -394,7 +394,9 @@
 			// if enabled, dimension work doesn't work into tiles under Fog of War
 			"dimensionDoorOnlyToUncoveredTiles" : false,
 			// if enabled, dimension door will hint regarding tile being incompatible terrain type, unlike H3 (water/land)
-			"dimensionDoorExposesTerrainType" : false
+			"dimensionDoorExposesTerrainType" : false,
+			// if enabled, dimension door will initiate a fight upon landing on tile adjacent to neutral creature
+			"dimensionDoorTriggersGuards" : false
 		},
 		
 		"bonuses" : 
