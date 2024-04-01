@@ -514,7 +514,12 @@ const TerrainTile * CGameInfoCallback::getTileForDimensionDoor(int3 tile, const 
 {
     auto outputTile = getTile(tile, false);
 
-    if(outputTile == nullptr)
+	if(outputTile != nullptr)
+		return outputTile;
+
+	bool allowOnlyToUncoveredTiles = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES);
+
+    if(!allowOnlyToUncoveredTiles)
     {
         if(castingHero->canCastThisSpell(static_cast<SpellID>(SpellID::DIMENSION_DOOR).toSpell())
             && isInScreenRange(castingHero->pos, tile)) //TODO: check if > 0 casts left

@@ -533,11 +533,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 				performSpellcasting(targetPosition);
 			break;
 		case SpellID::DIMENSION_DOOR:
-			bool allowOnlyToUncoveredTiles = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES);
-
-			const TerrainTile * targetTile = allowOnlyToUncoveredTiles
-				? LOCPLINT->cb->getTile(targetPosition, false)
-				: LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
+			const TerrainTile * targetTile = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
 
 			if(targetTile && targetTile->isClear(heroTile))
 				performSpellcasting(targetPosition);
@@ -668,11 +664,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 			}
 		case SpellID::DIMENSION_DOOR:
 			{
-				bool allowOnlyToUncoveredTiles = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES);
-
-				const TerrainTile * t = allowOnlyToUncoveredTiles
-					? LOCPLINT->cb->getTile(targetPosition, false)
-					: LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
+				const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
 
 				if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition))/* && isInScreenRange(hpos, mapPos)*/)
 					CCS->curh->set(Cursor::Map::TELEPORT); //TODO: something wrong with beyond east spell range border cursor on arrogance after TP-ing near underground portal on previous day
