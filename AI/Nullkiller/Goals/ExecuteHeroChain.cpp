@@ -100,7 +100,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						throw cannotFulfillGoalException("Path is nondeterministic.");
 					}
 					
-					node->specialAction->execute(hero);
+					node->specialAction->execute(ai, hero);
 					
 					if(!heroPtr.validAndSet())
 					{
@@ -156,7 +156,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 				{
 					try
 					{
-						if(moveHeroToTile(hero, node->coord))
+						if(moveHeroToTile(ai, hero, node->coord))
 						{
 							continue;
 						}
@@ -224,9 +224,9 @@ std::string ExecuteHeroChain::toString() const
 	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTranslated();
 }
 
-bool ExecuteHeroChain::moveHeroToTile(const CGHeroInstance * hero, const int3 & tile)
+bool ExecuteHeroChain::moveHeroToTile(AIGateway * ai, const CGHeroInstance * hero, const int3 & tile)
 {
-	if(tile == hero->visitablePos() && cb->getVisitableObjs(hero->visitablePos()).size() < 2)
+	if(tile == hero->visitablePos() && ai->myCb->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTranslated(), tile.toString());
 

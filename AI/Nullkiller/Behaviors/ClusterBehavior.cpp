@@ -26,23 +26,23 @@ std::string ClusterBehavior::toString() const
 	return "Unlock Clusters";
 }
 
-Goals::TGoalVec ClusterBehavior::decompose() const
+Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
-	auto clusters = ai->nullkiller->objectClusterizer->getLockedClusters();
+	auto clusters = ai->objectClusterizer->getLockedClusters();
 
 	for(auto cluster : clusters)
 	{
-		vstd::concatenate(tasks, decomposeCluster(cluster));
+		vstd::concatenate(tasks, decomposeCluster(ai, cluster));
 	}
 
 	return tasks;
 }
 
-Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster> cluster) const
+Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * ai, std::shared_ptr<ObjectCluster> cluster) const
 {
 	auto center = cluster->calculateCenter();
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(center->visitablePos(), ai->nullkiller->settings->isObjectGraphAllowed());
+	auto paths = ai->pathfinder->getPathInfo(center->visitablePos(), ai->settings->isObjectGraphAllowed());
 
 	auto blockerPos = cluster->blocker->visitablePos();
 	std::vector<AIPath> blockerPaths;
@@ -65,7 +65,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 		logAi->trace("Checking path %s", path->toString());
 #endif
 
-		auto blocker = ai->nullkiller->objectClusterizer->getBlocker(*path);
+		auto blocker = ai->objectClusterizer->getBlocker(*path);
 
 		if(blocker != cluster->blocker)
 		{
@@ -83,7 +83,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 		{
 			clonedPath.nodes.insert(clonedPath.nodes.begin(), *node);
 
-			if(node->coord == blockerPos || cb->getGuardingCreaturePosition(node->coord) == blockerPos)
+			if(node->coord == blockerPos || ai->cb->getGuardingCreaturePosition(node->coord) == blockerPos)
 				break;
 		}
 
@@ -100,7 +100,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 	logAi->trace("Decompose unlock paths");
 #endif
 
-	auto unlockTasks = CaptureObjectsBehavior::getVisitGoals(blockerPaths);
+	auto unlockTasks = CaptureObjectsBehavior::getVisitGoals(blockerPaths, ai);
 
 	for(int i = 0; i < paths.size(); i++)
 	{

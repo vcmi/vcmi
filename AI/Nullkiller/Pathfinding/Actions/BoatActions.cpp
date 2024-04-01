@@ -22,12 +22,12 @@ namespace NKAI
 
 namespace AIPathfinding
 {
-	void BuildBoatAction::execute(const CGHeroInstance * hero) const
+	void BuildBoatAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 	{
 		return Goals::BuildBoat(shipyard).accept(ai);
 	}
 
-	Goals::TSubgoal BuildBoatAction::decompose(const CGHeroInstance * hero) const
+	Goals::TSubgoal BuildBoatAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
 	{
 		if(cb->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
@@ -37,7 +37,7 @@ namespace AIPathfinding
 		return Goals::sptr(Goals::Invalid());
 	}
 
-	bool BuildBoatAction::canAct(const CGHeroInstance * hero, const TResources & reservedResources) const
+	bool BuildBoatAction::canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const
 	{
 		if(cb->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
@@ -63,16 +63,16 @@ namespace AIPathfinding
 		return true;
 	}
 
-	bool BuildBoatAction::canAct(const AIPathNode * source) const
+	bool BuildBoatAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
 	{
-		return canAct(source->actor->hero, source->actor->armyCost);
+		return canAct(ai, source->actor->hero, source->actor->armyCost);
 	}
 
-	bool BuildBoatAction::canAct(const AIPathNodeInfo & source) const
+	bool BuildBoatAction::canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const
 	{
 		TResources res;
 
-		return canAct(source.targetHero, res);
+		return canAct(ai, source.targetHero, res);
 	}
 
 	const CGObjectInstance * BuildBoatAction::targetObject() const
@@ -90,7 +90,7 @@ namespace AIPathfinding
 		return std::make_shared<BuildBoatAction>(ai->cb.get(), dynamic_cast<const IShipyard * >(ai->cb->getObj(shipyard)));
 	}
 
-	void SummonBoatAction::execute(const CGHeroInstance * hero) const
+	void SummonBoatAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 	{
 		Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT).accept(ai);
 	}
@@ -116,7 +116,7 @@ namespace AIPathfinding
 		return "Build Boat at " + shipyard->getObject()->visitablePos().toString();
 	}
 
-	bool SummonBoatAction::canAct(const AIPathNode * source) const
+	bool SummonBoatAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
 	{
 		auto hero = source->actor->hero;
 

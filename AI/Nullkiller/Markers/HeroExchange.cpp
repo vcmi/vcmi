@@ -29,9 +29,9 @@ std::string HeroExchange::toString() const
 	return "Hero exchange for " +hero.get()->getObjectName() + " by " + exchangePath.toString();
 }
 
-uint64_t HeroExchange::getReinforcementArmyStrength() const
+uint64_t HeroExchange::getReinforcementArmyStrength(const Nullkiller * ai) const
 {
-	uint64_t armyValue = ai->nullkiller->armyManager->howManyReinforcementsCanGet(hero.get(), exchangePath.heroArmy);
+	uint64_t armyValue = ai->armyManager->howManyReinforcementsCanGet(hero.get(), exchangePath.heroArmy);
 
 	return armyValue;
 }

@@ -18,7 +18,7 @@ namespace NKAI
 
 using namespace AIPathfinding;
 
-void TownPortalAction::execute(const CGHeroInstance * hero) const
+void TownPortalAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 {
 	auto goal = Goals::AdventureSpellCast(hero, SpellID::TOWN_PORTAL);
 	

@@ -18,7 +18,7 @@ namespace NKAI
 
 namespace AIPathfinding
 {
-	void BuyArmyAction::execute(const CGHeroInstance * hero) const
+	void BuyArmyAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 	{
 		if(!hero->visitedTown)
 		{

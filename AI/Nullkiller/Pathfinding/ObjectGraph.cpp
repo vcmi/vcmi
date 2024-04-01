@@ -562,7 +562,7 @@ std::shared_ptr<SpecialAction> getCompositeAction(
 	return std::make_shared<CompositeAction>(actionsArray);
 }
 
-void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai)
+void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai, uint8_t scanDepth)
 {
 	graph.copyFrom(*ai->baseGraph);
 	graph.connectHeroes(ai);
@@ -602,7 +602,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 				auto questAction = std::make_shared<AIPathfinding::QuestAction>(questInfo);
 
-				if(!questAction->canAct(targetHero))
+				if(!questAction->canAct(ai, targetHero))
 				{
 					transitionAction = questAction;
 				}
@@ -611,7 +611,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 		node.isInQueue = false;
 
-		graph.iterateConnections(pos.coord, [this, ai, &pos, &node, &transitionAction, &pq](int3 target, const ObjectLink & o)
+		graph.iterateConnections(pos.coord, [this, ai, &pos, &node, &transitionAction, &pq, scanDepth](int3 target, const ObjectLink & o)
 			{
 				auto compositeAction = getCompositeAction(ai, o.specialAction, transitionAction);
 				auto targetNodeType = o.danger || compositeAction ? GrapthPathNodeType::BATTLE : pos.nodeType;
@@ -620,6 +620,11 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 				if(targetNode.tryUpdate(pos, node, o))
 				{
+					if(targetNode.cost > scanDepth)
+					{
+						return;
+					}
+
 					targetNode.specialAction = compositeAction;
 
 					auto targetGraphNode = graph.getNode(target);
@@ -757,7 +762,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 
 				if(n.specialAction)
 				{
-					n.actionIsBlocked = !n.specialAction->canAct(n);
+					n.actionIsBlocked = !n.specialAction->canAct(ai, n);
 				}
 
 				for(auto & node : path.nodes)
@@ -878,7 +883,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 				if(n.specialAction)
 				{
-					n.actionIsBlocked = !n.specialAction->canAct(n);
+					n.actionIsBlocked = !n.specialAction->canAct(ai, n);
 				}
 
 				auto blocker = ai->objectClusterizer->getBlocker(n);

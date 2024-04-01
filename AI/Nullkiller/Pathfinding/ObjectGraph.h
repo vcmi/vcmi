@@ -187,7 +187,7 @@ class GraphPaths
 
 public:
 	GraphPaths();
-	void calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai);
+	void calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai, uint8_t scanDepth);
 	void addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
 	void quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
 	void dumpToLog() const;

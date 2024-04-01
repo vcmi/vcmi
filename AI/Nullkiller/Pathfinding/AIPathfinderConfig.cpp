@@ -33,7 +33,7 @@ namespace AIPathfinding
 				std::make_shared<AIMovementToDestinationRule>(nodeStorage, allowBypassObjects),
 				std::make_shared<MovementCostRule>(),
 				std::make_shared<AIPreviousNodeRule>(nodeStorage),
-				std::make_shared<AIMovementAfterDestinationRule>(cb, nodeStorage, allowBypassObjects)
+				std::make_shared<AIMovementAfterDestinationRule>(ai, cb, nodeStorage, allowBypassObjects)
 			};
 
 		return rules;

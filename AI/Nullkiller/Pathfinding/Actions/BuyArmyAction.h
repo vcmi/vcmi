@@ -21,12 +21,12 @@ namespace AIPathfinding
 	private:
 
 	public:
-		bool canAct(const AIPathNode * source) const override
+		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override
 		{
 			return true;
 		}
 
-		void execute(const CGHeroInstance * hero) const override;
+		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 		std::string toString() const override;
 	};
 }

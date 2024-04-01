@@ -180,7 +180,7 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 
 	auto playerRelations = ai->cb->getPlayerRelations(ai->playerID, obj->tempOwner);
 
-	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
+	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(ai, obj))
 	{
 		return false;
 	}

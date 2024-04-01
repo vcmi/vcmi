@@ -17,6 +17,8 @@
 namespace NKAI
 {
 
+std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  AIPathfinder::heroGraphs;
+
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {
@@ -138,7 +140,10 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
 }
 
-void AIPathfinder::updateGraphs(const std::map<const CGHeroInstance *, HeroRole> & heroes)
+void AIPathfinder::updateGraphs(
+	const std::map<const CGHeroInstance *, HeroRole> & heroes,
+	uint8_t mainScanDepth,
+	uint8_t scoutScanDepth)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::vector<const CGHeroInstance *> heroesVector;
@@ -154,10 +159,15 @@ void AIPathfinder::updateGraphs(const std::map<const CGHeroInstance *, HeroRole>
 		}
 	}
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, heroesVector.size()), [this, &heroesVector](const tbb::blocked_range<size_t> & r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, heroesVector.size()), [this, &heroesVector, &heroes, mainScanDepth, scoutScanDepth](const tbb::blocked_range<size_t> & r)
 		{
 			for(auto i = r.begin(); i != r.end(); i++)
-				heroGraphs.at(heroesVector[i]->id)->calculatePaths(heroesVector[i], ai);
+			{
+				auto role = heroes.at(heroesVector[i]);
+				auto scanLimit = role == HeroRole::MAIN ? mainScanDepth : scoutScanDepth;
+
+				heroGraphs.at(heroesVector[i]->id)->calculatePaths(heroesVector[i], ai, scanLimit);
+			}
 		});
 
 	if(NKAI_GRAPH_TRACE_LEVEL >= 1)

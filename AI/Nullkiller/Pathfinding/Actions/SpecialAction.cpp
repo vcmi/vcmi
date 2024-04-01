@@ -17,43 +17,43 @@
 namespace NKAI
 {
 
-Goals::TSubgoal SpecialAction::decompose(const CGHeroInstance * hero) const
+Goals::TSubgoal SpecialAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
 {
 	return Goals::sptr(Goals::Invalid());
 }
 
-void SpecialAction::execute(const CGHeroInstance * hero) const
+void SpecialAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 {
 	throw cannotFulfillGoalException("Can not execute " + toString());
 }
 
-bool CompositeAction::canAct(const AIPathNode * source) const
+bool CompositeAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
 {
 	for(auto part : parts)
 	{
-		if(!part->canAct(source)) return false;
+		if(!part->canAct(ai, source)) return false;
 	}
 
 	return true;
 }
 
-Goals::TSubgoal CompositeAction::decompose(const CGHeroInstance * hero) const
+Goals::TSubgoal CompositeAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
 {
 	for(auto part : parts)
 	{
-		auto goal = part->decompose(hero);
+		auto goal = part->decompose(ai, hero);
 
 		if(!goal->invalid()) return goal;
 	}
 
-	return SpecialAction::decompose(hero);
+	return SpecialAction::decompose(ai, hero);
 }
 
-void CompositeAction::execute(const CGHeroInstance * hero) const
+void CompositeAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 {
 	for(auto part : parts)
 	{
-		part->execute(hero);
+		part->execute(ai, hero);
 	}
 }
 

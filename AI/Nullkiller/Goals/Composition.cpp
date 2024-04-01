@@ -59,7 +59,7 @@ void Composition::accept(AIGateway * ai)
 	}
 }
 
-TGoalVec Composition::decompose() const
+TGoalVec Composition::decompose(const Nullkiller * ai) const
 {
 	TGoalVec result;
 

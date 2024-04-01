@@ -47,7 +47,7 @@ bool CaptureObjectsBehavior::operator==(const CaptureObjectsBehavior & other) co
 		&& vectorEquals(objectSubTypes, other.objectSubTypes);
 }
 
-Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> & paths, const CGObjectInstance * objToVisit)
+Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> & paths, const Nullkiller * nullkiller, const CGObjectInstance * objToVisit)
 {
 	Goals::TGoalVec tasks;
 
@@ -64,7 +64,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		logAi->trace("Path found %s", path.toString());
 #endif
 
-		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
+		if(nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.getHeroStrength());
@@ -72,7 +72,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 			continue;
 		}
 
-		if(objToVisit && !shouldVisit(ai->nullkiller.get(), path.targetHero, objToVisit))
+		if(objToVisit && !shouldVisit(nullkiller, path.targetHero, objToVisit))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Hero %s should not visit obj %s", path.targetHero->getNameTranslated(), objToVisit->getObjectName());
@@ -83,7 +83,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		auto hero = path.targetHero;
 		auto danger = path.getTotalDanger();
 
-		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT
+		if(nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT
 			&& (path.getTotalDanger() == 0 || path.turn() > 0)
 			&& path.exchangeCount > 1)
 		{
@@ -96,7 +96,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		auto firstBlockedAction = path.getFirstBlockedAction();
 		if(firstBlockedAction)
 		{
-			auto subGoal = firstBlockedAction->decompose(path.targetHero);
+			auto subGoal = firstBlockedAction->decompose(nullkiller, path.targetHero);
 
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
@@ -135,7 +135,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 			sharedPtr.reset(newWay);
 
-			auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+			auto heroRole = nullkiller->heroManager->getHeroRole(path.targetHero);
 
 			auto & closestWay = closestWaysByRole[heroRole];
 
@@ -144,7 +144,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 				closestWay = &path;
 			}
 
-			if(!ai->nullkiller->arePathHeroesLocked(path))
+			if(!nullkiller->arePathHeroesLocked(path))
 			{
 				waysToVisitObj.push_back(newWay);
 				tasks[tasks.size() - 1] = sharedPtr;
@@ -154,7 +154,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 	for(auto way : waysToVisitObj)
 	{
-		auto heroRole = ai->nullkiller->heroManager->getHeroRole(way->getPath().targetHero);
+		auto heroRole = nullkiller->heroManager->getHeroRole(way->getPath().targetHero);
 		auto closestWay = closestWaysByRole[heroRole];
 
 		if(closestWay)
@@ -167,68 +167,80 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 	return tasks;
 }
 
-Goals::TGoalVec CaptureObjectsBehavior::decompose() const
+void CaptureObjectsBehavior::decomposeObjects(
+	Goals::TGoalVec & result,
+	const std::vector<const CGObjectInstance *> & objs,
+	const Nullkiller * nullkiller) const
+{
+	if(objs.empty())
+	{
+		return;
+	}
+
+	std::mutex sync;
+
+	logAi->debug("Scanning objects, count %d", objs.size());
+
+	// tbb::blocked_range<size_t> r(0, objs.size());
+	tbb::parallel_for(
+		tbb::blocked_range<size_t>(0, objs.size()),
+		[this, &objs, &sync, &result, nullkiller](const tbb::blocked_range<size_t> & r)
+		{
+			std::vector<AIPath> paths;
+			Goals::TGoalVec tasksLocal;
+
+			for(auto i = r.begin(); i != r.end(); i++)
+			{
+				auto objToVisit = objs[i];
+
+				if(!objectMatchesFilter(objToVisit))
+					continue;
+
+#if NKAI_TRACE_LEVEL >= 1
+				logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
+#endif
+
+				nullkiller->pathfinder->calculatePathInfo(paths, objToVisit->visitablePos(), nullkiller->settings->isObjectGraphAllowed());
+
+#if NKAI_TRACE_LEVEL >= 1
+				logAi->trace("Found %d paths", paths.size());
+#endif
+				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit));
+			}
+
+			std::lock_guard<std::mutex> lock(sync);
+			vstd::concatenate(result, tasksLocal);
+		});
+}
+
+Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 
-	auto captureObjects = [&](const std::vector<const CGObjectInstance*> & objs) -> void
+	vstd::erase_if(tasks, [](TSubgoal task) -> bool
 	{
-		if(objs.empty())
-		{
-			return;
-		}
-
-		logAi->debug("Scanning objects, count %d", objs.size());
-
-		std::vector<AIPath> paths;
-
-		for(auto objToVisit : objs)
-		{
-			if(!objectMatchesFilter(objToVisit))
-				continue;
-	
-#if NKAI_TRACE_LEVEL >= 1
-			logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
-#endif
-
-			const int3 pos = objToVisit->visitablePos();
-			bool useObjectGraph = ai->nullkiller->settings->isObjectGraphAllowed()
-				&& ai->nullkiller->getScanDepth() != ScanDepth::SMALL;
-
-			ai->nullkiller->pathfinder->calculatePathInfo(paths, pos, useObjectGraph);
-
-			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
-			std::shared_ptr<ExecuteHeroChain> closestWay;
-					
-#if NKAI_TRACE_LEVEL >= 1
-			logAi->trace("Found %d paths", paths.size());
-#endif
-			vstd::concatenate(tasks, getVisitGoals(paths, objToVisit));
-		}
-
-		vstd::erase_if(tasks, [](TSubgoal task) -> bool
-		{
-			return task->invalid();
-		});
-	};
+		return task->invalid();
+	});
 
 	if(specificObjects)
 	{
-		captureObjects(objectsToCapture);
+		decomposeObjects(tasks, objectsToCapture, ai);
 	}
 	else if(objectTypes.size())
 	{
-		captureObjects(
+		decomposeObjects(
+			tasks,
 			std::vector<const CGObjectInstance *>(
-				ai->nullkiller->memory->visitableObjs.begin(),
-				ai->nullkiller->memory->visitableObjs.end()));
+				ai->memory->visitableObjs.begin(),
+				ai->memory->visitableObjs.end()),
+			ai);
 	}
 	else
 	{
-		captureObjects(ai->nullkiller->objectClusterizer->getNearbyObjects());
+		decomposeObjects(tasks, ai->objectClusterizer->getNearbyObjects(), ai);
 
-		if(tasks.empty() || ai->nullkiller->getScanDepth() != ScanDepth::SMALL)
-			captureObjects(ai->nullkiller->objectClusterizer->getFarObjects());
+		if(tasks.empty() || ai->getScanDepth() != ScanDepth::SMALL)
+			decomposeObjects(tasks, ai->objectClusterizer->getFarObjects(), ai);
 	}
 
 	return tasks;

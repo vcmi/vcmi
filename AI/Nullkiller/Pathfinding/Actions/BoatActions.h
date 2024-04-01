@@ -25,7 +25,7 @@ namespace AIPathfinding
 	class SummonBoatAction : public VirtualBoatAction
 	{
 	public:
-		void execute(const CGHeroInstance * hero) const override;
+		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 
 		virtual void applyOnDestination(
 			const CGHeroInstance * hero,
@@ -34,7 +34,7 @@ namespace AIPathfinding
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		bool canAct(const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
@@ -56,13 +56,13 @@ namespace AIPathfinding
 		{
 		}
 
-		bool canAct(const AIPathNode * source) const override;
-		bool canAct(const AIPathNodeInfo & source) const override;
-		bool canAct(const CGHeroInstance * hero, const TResources & reservedResources) const;
+		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const override;
+		bool canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const;
 
-		void execute(const CGHeroInstance * hero) const override;
+		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 
-		Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
+		Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
