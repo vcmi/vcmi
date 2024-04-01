@@ -345,7 +345,19 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	std::stringstream cachingStr;
 	cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << owner->id.num;
 
-	if(parameters.caster->getHeroCaster()->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)), Selector::all, cachingStr.str())->size() >= owner->getLevelPower(schoolLevel)) //limit casts per turn
+	int castsAlreadyPerformedThisTurn = parameters.caster->getHeroCaster()->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)), Selector::all, cachingStr.str())->size();
+	int castsLimit = owner->getLevelPower(schoolLevel);
+
+	bool isTournamentRulesLimitEnabled = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT);
+	if(isTournamentRulesLimitEnabled)
+	{
+		bool meetsTournamentRulesTwoCastsRequirements = env->getMap()->width * env->getMap()->height * env->getMap()->levels() >= GameConstants::TOURNAMENT_RULES_DD_MAP_TILES_THRESHOLD
+			&& schoolLevel == MasteryLevel::EXPERT;
+
+		castsLimit = meetsTournamentRulesTwoCastsRequirements ? 2 : 1;
+	}
+
+	if(castsAlreadyPerformedThisTurn >= castsLimit) //limit casts per turn
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();

@@ -396,7 +396,9 @@
 			// if enabled, dimension door will hint regarding tile being incompatible terrain type, unlike H3 (water/land)
 			"dimensionDoorExposesTerrainType" : false,
 			// if enabled, dimension door will initiate a fight upon landing on tile adjacent to neutral creature
-			"dimensionDoorTriggersGuards" : false
+			"dimensionDoorTriggersGuards" : false,
+			// if enabled, dimension door can be used 1x per day, exception being 2x per day for XL+U or bigger maps (41472 tiles) + hero having expert air magic
+			"dimensionDoorTournamentRulesLimit" : false
 		},
 		
 		"bonuses" : 
