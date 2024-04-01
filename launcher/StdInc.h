@@ -18,6 +18,7 @@
 #include <QList>
 #include <QString>
 #include <QFile>
+#include <QTemporaryDir> 
 
 VCMI_LIB_USING_NAMESPACE
 

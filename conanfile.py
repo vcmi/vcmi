@@ -63,7 +63,7 @@ class VCMI(ConanFile):
             return
 
         # we need only the following Boost parts:
-        # date_time filesystem locale program_options system thread
+        # date_time filesystem locale program_options system thread iostreams
         # some other parts are also enabled because they're dependents
         # see e.g. conan-center-index/recipes/boost/all/dependencies
         self.options["boost"].without_context = True
@@ -72,15 +72,15 @@ class VCMI(ConanFile):
         self.options["boost"].without_fiber = True
         self.options["boost"].without_graph = True
         self.options["boost"].without_graph_parallel = True
-        self.options["boost"].without_iostreams = True
+        self.options["boost"].without_iostreams = self.settings.os == "Android" # TODO: Line have to be removed after porting the launcher to android
         self.options["boost"].without_json = True
         self.options["boost"].without_log = True
         self.options["boost"].without_math = True
         self.options["boost"].without_mpi = True
         self.options["boost"].without_nowide = True
         self.options["boost"].without_python = True
-        self.options["boost"].without_random = True
-        self.options["boost"].without_regex = True
+        self.options["boost"].without_random = self.settings.os == "Android" # TODO: Line have to be removed after porting the launcher to android
+        self.options["boost"].without_regex = self.settings.os == "Android" # TODO: Line have to be removed after porting the launcher to android
         self.options["boost"].without_serialization = True
         self.options["boost"].without_stacktrace = True
         self.options["boost"].without_test = True

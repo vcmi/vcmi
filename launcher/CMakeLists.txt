@@ -1,3 +1,7 @@
+if(ENABLE_INNOEXTRACT)
+	add_subdirectory("lib/innoextract")
+endif()
+
 set(launcher_SRCS
 		StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
@@ -141,6 +145,10 @@ target_include_directories(vcmilauncher
 )
 vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
+
+if(ENABLE_INNOEXTRACT)
+	target_link_libraries(vcmilauncher innoextract)
+endif()
 
 if(APPLE_IOS)
 	set(RESOURCES_DESTINATION ${DATA_DIR})

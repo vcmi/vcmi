@@ -15,5 +15,11 @@ Please report about gameplay problem on forums: [Help & Bugs](https://forum.vcmi
 
 # Step 2: Installing Heroes III data files
 
+### Step 2.a: Installing data files with GOG offline installer
+
+If you buyed HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition) you can download the files directly with the browser and install it in launcher. You need to select the exe file first and afterwards the bin file. This process takes a few seconds. Be patient.
+
+### Step 2.b: Installing by the classic way
+
 1.  Find a way to unpack Windows Heroes III or GOG installer. For example, use `vcmibuilder` script inside app bundle or install the game with [CrossOver](https://www.codeweavers.com/crossover) or [Wineskin](https://github.com/Gcenx/WineskinServer).
 2.  Place or symlink **Data**, **Maps** and **Mp3** directories from Heroes III to:`~/Library/Application\ Support/vcmi/`
