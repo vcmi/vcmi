@@ -79,6 +79,9 @@ void CGuiHandler::init()
 	renderHandlerInstance = std::make_unique<RenderHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
+
+    // This must be called after SDL_init(), so put after screenHandlerInstance init.
+    inputHandlerInstance->tryOpenGameController();
 }
 
 void CGuiHandler::handleEvents()

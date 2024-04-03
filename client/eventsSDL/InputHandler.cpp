@@ -16,6 +16,7 @@
 #include "InputSourceKeyboard.h"
 #include "InputSourceTouch.h"
 #include "InputSourceText.h"
+#include "InputSourceGameController.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
@@ -36,6 +37,7 @@ InputHandler::InputHandler()
 	, keyboardHandler(std::make_unique<InputSourceKeyboard>())
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
+    , gameControllerHandler(std::make_unique<InputSourceGameController>())
 {
 }
 
@@ -69,6 +71,18 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return fingerHandler->handleEventFingerDown(current.tfinger);
 		case SDL_FINGERUP:
 			return fingerHandler->handleEventFingerUp(current.tfinger);
+        case SDL_CONTROLLERDEVICEADDED:
+            return gameControllerHandler->handleEventDeviceAdded(current.cdevice);
+        case SDL_CONTROLLERDEVICEREMOVED:
+            return gameControllerHandler->handleEventDeviceRemoved(current.cdevice);
+        case SDL_CONTROLLERDEVICEREMAPPED:
+            return gameControllerHandler->handleEventDeviceRemapped(current.cdevice);
+        case SDL_CONTROLLERAXISMOTION:
+            return gameControllerHandler->handleEventAxisMotion(current.caxis);
+        case SDL_CONTROLLERBUTTONDOWN:
+            return gameControllerHandler->handleEventButtonDown(current.cbutton);
+        case SDL_CONTROLLERBUTTONUP:
+            return gameControllerHandler->handleEventButtonUp(current.cbutton);
 	}
 }
 
@@ -88,6 +102,7 @@ void InputHandler::processEvents()
 	for(const auto & currentEvent : eventsToProcess)
 		handleCurrentEvent(currentEvent);
 
+    gameControllerHandler->handleUpdate();
 	fingerHandler->handleUpdate();
 }
 
@@ -103,6 +118,7 @@ bool InputHandler::ignoreEventsUntilInput()
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_FINGERDOWN:
 			case SDL_KEYDOWN:
+            case SDL_CONTROLLERBUTTONDOWN:
 				inputFound = true;
 		}
 	}
@@ -323,4 +339,9 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 const Point & InputHandler::getCursorPosition() const
 {
 	return cursorPosition;
+}
+
+void InputHandler::tryOpenGameController()
+{
+    gameControllerHandler->tryOpenAllGameControllers();
 }

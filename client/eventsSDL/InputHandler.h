@@ -21,6 +21,7 @@ class InputSourceMouse;
 class InputSourceKeyboard;
 class InputSourceTouch;
 class InputSourceText;
+class InputSourceGameController;
 
 class InputHandler
 {
@@ -39,6 +40,7 @@ class InputHandler
 	std::unique_ptr<InputSourceKeyboard> keyboardHandler;
 	std::unique_ptr<InputSourceTouch> fingerHandler;
 	std::unique_ptr<InputSourceText> textHandler;
+    std::unique_ptr<InputSourceGameController> gameControllerHandler;
 
 public:
 	InputHandler();
@@ -84,4 +86,7 @@ public:
 	bool isKeyboardAltDown() const;
 	bool isKeyboardCtrlDown() const;
 	bool isKeyboardShiftDown() const;
+
+    /// If any game controller available, use it.
+    void tryOpenGameController();
 };
