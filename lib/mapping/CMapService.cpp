@@ -89,6 +89,7 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 		tmp.flush();
 		tmp.close();
 	}
+	map->reindexObjects();
 }
 
 ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
