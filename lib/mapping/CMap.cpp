@@ -571,25 +571,21 @@ void CMap::removeObject(CGObjectInstance * obj)
 	removeBlockVisTiles(obj);
 	instanceNames.erase(obj->instanceName);
 
-	// FIXME: This is inefficient when bacth-deleting objects, as objects are updated one by one.
+	// FIXME: This is inefficient when batch-deleting objects, as objects are updated one by one.
 
 	//update indeces
 
-	/*
 	auto iter = std::next(objects.begin(), obj->id.getNum());
 	iter = objects.erase(iter);
 	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
 	{
 		(*iter)->id = ObjectInstanceID(i);
 	}
-	*/
 
-	// TODO: Check if it doesn't break here
-	reindexObjects();
-	
 	obj->afterRemoveFromMap(this);
 
 	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
+	//This causes crash with undo/redo in editor
 }
 
 bool CMap::isWaterMap() const
