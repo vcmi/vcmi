@@ -16,6 +16,7 @@
 #include "InputSourceKeyboard.h"
 #include "InputSourceTouch.h"
 #include "InputSourceText.h"
+#include "InputSourceGameController.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
@@ -36,6 +37,7 @@ InputHandler::InputHandler()
 	, keyboardHandler(std::make_unique<InputSourceKeyboard>())
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
+    , gameControllerHandler(std::make_unique<InputSourceGameController>())
 {
 }
 
@@ -69,6 +71,12 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return fingerHandler->handleEventFingerDown(current.tfinger);
 		case SDL_FINGERUP:
 			return fingerHandler->handleEventFingerUp(current.tfinger);
+        case SDL_CONTROLLERAXISMOTION:
+            return gameControllerHandler->handleEventAxisMotion(current.caxis);
+        case SDL_CONTROLLERBUTTONDOWN:
+            return gameControllerHandler->handleEventButtonDown(current.cbutton);
+        case SDL_CONTROLLERBUTTONUP:
+            return gameControllerHandler->handleEventButtonUp(current.cbutton);
 	}
 }
 
@@ -88,6 +96,7 @@ void InputHandler::processEvents()
 	for(const auto & currentEvent : eventsToProcess)
 		handleCurrentEvent(currentEvent);
 
+    gameControllerHandler->handleUpdate();
 	fingerHandler->handleUpdate();
 }
 
@@ -103,6 +112,7 @@ bool InputHandler::ignoreEventsUntilInput()
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_FINGERDOWN:
 			case SDL_KEYDOWN:
+            case SDL_CONTROLLERBUTTONDOWN:
 				inputFound = true;
 		}
 	}
@@ -196,6 +206,21 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			NotificationHandler::handleSdlEvent(ev);
 		}
 	}
+    else if(ev.type == SDL_CONTROLLERDEVICEADDED)
+    {
+        gameControllerHandler->handleEventDeviceAdded(ev.cdevice);
+        return;
+    }
+    else if(ev.type == SDL_CONTROLLERDEVICEREMOVED)
+    {
+        gameControllerHandler->handleEventDeviceRemoved(ev.cdevice);
+        return;
+    }
+    else if(ev.type == SDL_CONTROLLERDEVICEREMAPPED)
+    {
+        gameControllerHandler->handleEventDeviceRemapped(ev.cdevice);
+        return;
+    }
 
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
@@ -323,4 +348,9 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 const Point & InputHandler::getCursorPosition() const
 {
 	return cursorPosition;
+}
+
+void InputHandler::tryOpenGameController()
+{
+    gameControllerHandler->tryOpenAllGameControllers();
 }
