@@ -571,8 +571,6 @@ void CMap::removeObject(CGObjectInstance * obj)
 	removeBlockVisTiles(obj);
 	instanceNames.erase(obj->instanceName);
 
-	// FIXME: This is inefficient when batch-deleting objects, as objects are updated one by one.
-
 	//update indeces
 
 	auto iter = std::next(objects.begin(), obj->id.getNum());
@@ -710,8 +708,6 @@ void CMap::resolveQuestIdentifiers()
 
 void CMap::reindexObjects()
 {
-	// TODO: Call at map save?
-
 	// Only reindex at editor / RMG operations
 
 	std::sort(objects.begin(), objects.end(), [](const CGObjectInstance * lhs, const CGObjectInstance * rhs)
