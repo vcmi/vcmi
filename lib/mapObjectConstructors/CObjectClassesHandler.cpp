@@ -34,6 +34,7 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/ObstacleSetHandler.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
@@ -107,6 +108,8 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
+	std::map<TerrainId, std::map<MapObjectID, std::map<MapObjectSubID, ObstacleSet>>> obstacleSets;
+
 	for (size_t i = 0; i < totalNumber; i++)
 	{
 		auto tmpl = std::make_shared<ObjectTemplate>();
@@ -116,7 +119,44 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 
 		std::pair key(tmpl->id, tmpl->subid);
 		legacyTemplates.insert(std::make_pair(key, tmpl));
+
+		// Populate ObstacleSetHandler on our way
+		if (!tmpl->isVisitable())
+		{
+			// Create obstacle sets. Group by terrain for now
+
+			for (auto terrain : tmpl->getAllowedTerrains())
+			{
+				auto &obstacleMap = obstacleSets[terrain][tmpl->id];
+				auto it = obstacleMap.find(tmpl->subid);
+				if (it == obstacleMap.end())
+				{
+					// FIXME: This means this set will be available only on one terrain
+					auto type = VLC->biomeHandler->convertObstacleClass(tmpl->id);
+					auto newIt = obstacleMap.insert(std::make_pair(tmpl->subid, ObstacleSet(type, terrain)));
+					newIt.first->second.addObstacle(tmpl);
+				}
+				else
+				{
+					it->second.addObstacle(tmpl);
+				}
+			}
+		}
 	}
+
+	size_t count = 0;
+	for (auto terrain : obstacleSets)
+	{
+		for (auto obstacleType : terrain.second)
+		{
+			for (auto obstacleSet : obstacleType.second)
+			{
+				VLC->biomeHandler->addObstacleSet(obstacleSet.second);
+				count++;
+			}
+		}
+	}
+	logGlobal->info("Obstacle sets loaded: %d", count);
 
 	objects.resize(256);
 

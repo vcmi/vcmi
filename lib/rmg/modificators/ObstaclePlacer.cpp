@@ -34,7 +34,16 @@ void ObstaclePlacer::process()
 	if(!manager)
 		return;
 
-	collectPossibleObstacles(zone.getTerrainType());
+	if (!prepareBiome(zone.getTerrainType(), zone.getRand()))
+	{
+		logGlobal->warn("Failed to prepare biome, using all possible obstacles");
+		// Use all if we fail to create proper biome
+		collectPossibleObstacles(zone.getTerrainType());
+	}
+	else
+	{
+		logGlobal->info("Biome prepared successfully for zone %d", zone.getId());
+	}
 	
 	{
 		auto area = zone.area();

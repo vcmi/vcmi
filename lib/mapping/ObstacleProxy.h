@@ -29,6 +29,7 @@ public:
 	virtual ~ObstacleProxy() = default;
 
 	void collectPossibleObstacles(TerrainId terrain);
+	bool prepareBiome(TerrainId terrain, CRandomGenerator & rand);
 
 	void addBlockedTile(const int3 & tile);
 
