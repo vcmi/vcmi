@@ -288,7 +288,7 @@ void LobbyDatabase::prepareStatements()
 	isAccountNameExistsStatement = database->prepare(R"(
 		SELECT COUNT(displayName)
 		FROM accounts
-		WHERE displayName = ?
+		WHERE displayName = ? COLLATE NOCASE
 	)");
 }
 
