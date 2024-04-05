@@ -177,7 +177,10 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 
 	// Copy this set to our possible obstacles
 	
-	if (selectedSets >= MINIMUM_SETS)
+	//	if (selectedSets >= MINIMUM_SETS)
+
+	if (selectedSets >= MINIMUM_SETS ||
+		(terrain == TerrainId::WATER && selectedSets > 0))
 	{
 		obstaclesBySize.clear();
 		for (const auto & os : obstacleSets)
@@ -200,7 +203,7 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 		{
 			return p1.first > p2.first; //bigger obstacles first
 		});
-		
+
 		return true;
 	}
 	else

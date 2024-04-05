@@ -36,6 +36,45 @@ bool CObstacleConstructor::isStaticObject()
 	return true;
 }
 
+void CObstacleConstructor::initTypeData(const JsonNode & input)
+{
+	if (!input["biome"].isNull())
+	{
+		obstacleType = ObstacleSet::typeFromString(input["biome"]["objectType"].String());
+	}
+	else
+	{
+		obstacleType = ObstacleSet::EObstacleType::INVALID;
+	}
+}
+
+void CObstacleConstructor::afterLoadFinalization()
+{
+	if (obstacleType == ObstacleSet::EObstacleType::INVALID)
+		return;
+
+	auto templates = getTemplates();
+	logGlobal->info("Loaded %d templates for %s", templates.size(), getJsonKey());
+	if (!templates.empty())
+	{
+		auto terrains = templates.front()->getAllowedTerrains();
+
+		// FIXME: 0 terrains
+		logGlobal->info("Found %d terrains for %s", terrains.size(), getJsonKey());
+		// For now assume that all templates are from the same biome
+		for (auto terrain : terrains)
+		{
+			ObstacleSet os(obstacleType, terrain);
+			for (auto tmpl : templates)
+			{
+				os.addObstacle(tmpl);
+			}
+			VLC->biomeHandler->addObstacleSet(os);
+			logGlobal->info("Loaded obstacle set from mod %s, terrain: %s", getJsonKey(), terrain.encode(terrain.getNum()));
+		}
+	}
+}
+
 bool CreatureInstanceConstructor::hasNameTextID() const
 {
 	return true;

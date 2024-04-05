@@ -14,6 +14,7 @@
 
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
+#include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,11 +29,17 @@ class CBank;
 class CGBoat;
 class CFaction;
 class CStackBasicDescriptor;
+class ObstacleSet;
 
 class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
 public:
 	bool isStaticObject() override;
+	void initTypeData(const JsonNode & input) override;
+	void afterLoadFinalization() override;
+
+protected:
+	ObstacleSet::EObstacleType obstacleType;
 };
 
 class CreatureInstanceConstructor : public CDefaultObjectTypeHandler<CGCreature>

@@ -66,7 +66,6 @@ ObstacleSet::EObstacleType ObstacleSetHandler::convertObstacleClass(MapObjectID 
 	switch (id)
 	{
 		case Obj::MOUNTAIN:
-		case Obj::SAND_DUNE:
 		case Obj::VOLCANIC_VENT:
 		case Obj::VOLCANO:
 		case Obj::REEF:
@@ -94,6 +93,7 @@ ObstacleSet::EObstacleType ObstacleSetHandler::convertObstacleClass(MapObjectID 
 		case Obj::MOUND:
 		case Obj::OUTCROPPING:
 		case Obj::ROCK:
+		case Obj::SAND_DUNE:
 		case Obj::STALAGMITE:
 			return ObstacleSet::ROCKS;
 		case Obj::BUSH:
@@ -113,6 +113,30 @@ ObstacleSet::EObstacleType ObstacleSetHandler::convertObstacleClass(MapObjectID 
 		default:
 			return ObstacleSet::OTHER;
 	}
+}
+
+ObstacleSet::EObstacleType ObstacleSet::typeFromString(const std::string &str)
+{
+	static const std::map<std::string, EObstacleType> OBSTACLE_TYPE_NAMES =
+	{
+		{"mountain", MOUNTAINS},
+		{"tree", TREES},
+		{"lake", LAKES},
+		{"crater", CRATERS},
+		{"rock", ROCKS},
+		{"plant", PLANTS},
+		{"structure", STRUCTURES},
+		{"animal", ANIMALS},
+		{"other", OTHER}
+	};
+
+	if (OBSTACLE_TYPE_NAMES.find(str) != OBSTACLE_TYPE_NAMES.end())
+	{
+		return OBSTACLE_TYPE_NAMES.at(str);
+	}
+
+	// TODO: How to handle that?
+	throw std::runtime_error("Invalid obstacle type: " + str);
 }
 
 std::vector<ObstacleSet::EObstacleType> ObstacleSetFilter::getAllowedTypes() const
@@ -148,6 +172,25 @@ TObstacleTypes ObstacleSetHandler::getObstacles( const ObstacleSetFilter &filter
 	}
 	return result;
 }
+
+/*
+ObstacleSet ObstacleSetHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+{
+	// TODO: Merge by name with existing obstacle sets?
+
+
+	const JsonNode & biome = json["biome"];
+	auto objectType = ObstacleSet::typeFromString(biome["objectType"].String());
+
+	for (const JsonNode & type : data["types"])
+	{
+		for (const JsonNode & obstacle : type["templates"])
+		{
+			// TODO: Reuse templates (pointers) parsed by CObjectClassesHandler
+		}
+	}
+}
+*/
 
 VCMI_LIB_NAMESPACE_END
 

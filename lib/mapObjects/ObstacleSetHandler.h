@@ -26,7 +26,8 @@ public:
 
 	enum EObstacleType
 	{
-		MOUNTAINS,
+		INVALID = -1,
+		MOUNTAINS = 0,
 		TREES,
 		LAKES, // Inluding dry or lava lakes
 		CRATERS, // Chasms, Canyons, etc.
@@ -36,7 +37,6 @@ public:
 		ANIMALS, // Living, or bones
 		OTHER // Crystals, shipwrecks, barrels, etc.
 	};
-
 	explicit ObstacleSet(EObstacleType type, TerrainId terrain);
 
 	void addObstacle(std::shared_ptr<const ObjectTemplate> obstacle);
@@ -44,6 +44,8 @@ public:
 
 	EObstacleType getType() const;
 	TerrainId getTerrain() const;
+
+	static EObstacleType typeFromString(const std::string &str);
 
 private:
 	EObstacleType type;
