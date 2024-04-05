@@ -47,6 +47,8 @@ CComposedOperation::CComposedOperation(CMap* map) : CMapOperation(map)
 
 void CComposedOperation::execute()
 {
+	// FIXME: Only reindex objects at the end of composite operation
+
 	for(auto & operation : operations)
 	{
 		operation->execute();

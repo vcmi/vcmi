@@ -572,16 +572,18 @@ void CMap::removeObject(CGObjectInstance * obj)
 	instanceNames.erase(obj->instanceName);
 
 	//update indeces
+
 	auto iter = std::next(objects.begin(), obj->id.getNum());
 	iter = objects.erase(iter);
 	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
 	{
 		(*iter)->id = ObjectInstanceID(i);
 	}
-	
+
 	obj->afterRemoveFromMap(this);
 
 	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
+	//This causes crash with undo/redo in editor
 }
 
 bool CMap::isWaterMap() const
@@ -702,6 +704,40 @@ void CMap::resolveQuestIdentifiers()
 			quest->killTarget = questIdentifierToId[quest->killTarget.getNum()];
 	}
 	questIdentifierToId.clear();
+}
+
+void CMap::reindexObjects()
+{
+	// Only reindex at editor / RMG operations
+
+	std::sort(objects.begin(), objects.end(), [](const CGObjectInstance * lhs, const CGObjectInstance * rhs)
+	{
+		// Obstacles first, then visitable, at the end - removable
+
+		if (!lhs->isVisitable() && rhs->isVisitable())
+			return true;
+		if (lhs->isVisitable() && !rhs->isVisitable())
+			return false;
+
+		// Special case for Windomill - draw on top of other objects
+		if (lhs->ID != Obj::WINDMILL && rhs->ID == Obj::WINDMILL)
+			return true;
+		if (lhs->ID == Obj::WINDMILL && rhs->ID != Obj::WINDMILL)
+			return false;
+
+		if (!lhs->isRemovable() && rhs->isRemovable())
+			return true;
+		if (lhs->isRemovable() && !rhs->isRemovable())
+			return false;
+
+		return lhs->pos.y < rhs->pos.y;
+	});
+
+	// instanceNames don't change
+	for (size_t i = 0; i < objects.size(); ++i)
+	{
+		objects[i]->id = ObjectInstanceID(i);
+	}
 }
 
 VCMI_LIB_NAMESPACE_END
