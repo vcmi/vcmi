@@ -53,7 +53,7 @@ public:
 
 protected:
 	int getWeightedObjects(const int3& tile, CRandomGenerator& rand, IGameCallback * cb, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
-	void ObstacleProxy::sortObstacles();
+	void sortObstacles();
 
 	rmg::Area blockedArea;
 
