@@ -18,7 +18,7 @@ namespace NKAI
 
 namespace AIPathfinding
 {
-	void BattleAction::execute(const CGHeroInstance * hero) const
+	void BattleAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 	{
 		ai->moveHeroToTile(targetTile, hero);
 	}

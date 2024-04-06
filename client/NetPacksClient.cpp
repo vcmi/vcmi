@@ -22,6 +22,7 @@
 #include "gui/WindowHandler.h"
 #include "widgets/MiscWidgets.h"
 #include "CMT.h"
+#include "GameChatHandler.h"
 #include "CServerHandler.h"
 
 #include "../CCallback.h"
@@ -228,21 +229,31 @@ void ApplyClientNetPackVisitor::visitSetStackType(SetStackType & pack)
 void ApplyClientNetPackVisitor::visitEraseStack(EraseStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
+	cl.invalidatePaths(); //it is possible to remove last non-native unit for current terrain and lose movement penalty
 }
 
 void ApplyClientNetPackVisitor::visitSwapStacks(SwapStacks & pack)
 {
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
+
+	if(pack.srcArmy != pack.dstArmy)
+		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitInsertNewStack(InsertNewStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
+
+	if(gs.getHero(pack.army))
+		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitRebalanceStacks(RebalanceStacks & pack)
 {
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
+
+	if(pack.srcArmy != pack.dstArmy)
+		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & pack)
@@ -253,6 +264,9 @@ void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & p
 			? ObjectInstanceID()
 			: pack.moves[0].dstArmy;
 		dispatchGarrisonChange(cl, pack.moves[0].srcArmy, destArmy);
+
+		if(pack.moves[0].srcArmy != destArmy)
+			cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
 	}
 }
 
@@ -290,8 +304,8 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::askToAssembleArtifact, pack.dst);
 	};
 
-	moveArtifact(cl.getOwner(pack.src.artHolder));
-	if(cl.getOwner(pack.src.artHolder) != cl.getOwner(pack.dst.artHolder))
+	moveArtifact(pack.interfaceOwner);
+	if(pack.interfaceOwner != cl.getOwner(pack.dst.artHolder))
 		moveArtifact(cl.getOwner(pack.dst.artHolder));
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
@@ -305,7 +319,7 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		{
 			auto srcLoc = ArtifactLocation(pack.srcArtHolder, slotToMove.srcPos);
 			auto dstLoc = ArtifactLocation(pack.dstArtHolder, slotToMove.dstPos);
-			MoveArtifact ma(&srcLoc, &dstLoc, pack.askAssemble);
+			MoveArtifact ma(pack.interfaceOwner, srcLoc, dstLoc, pack.askAssemble);
 			visitMoveArtifact(ma);
 		}
 	};
@@ -396,7 +410,11 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 
 	// In auto testing pack.mode we always close client if red pack.player won or lose
 	if(!settings["session"]["testmap"].isNull() && pack.player == PlayerColor(0))
+	{
+		logAi->info("Red player %s. Ending game.", pack.victoryLossCheckResult.victory() ? "won" : "lost");
+
 		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
+	}
 }
 
 void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface & pack)
@@ -881,12 +899,10 @@ void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)
 
 void ApplyClientNetPackVisitor::visitSystemMessage(SystemMessage & pack)
 {
-	std::ostringstream str;
-	str << "System message: " << pack.text;
+	// usually used to receive error messages from server
+	logNetwork->error("System message: %s", pack.text);
 
-	logNetwork->error(str.str()); // usually used to receive error messages from server
-	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
-		LOCPLINT->cingconsole->print(str.str());
+	CSH->getGameChat().onNewSystemMessageReceived(pack.text);
 }
 
 void ApplyClientNetPackVisitor::visitPlayerBlocked(PlayerBlocked & pack)
@@ -918,13 +934,7 @@ void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & p
 {
 	logNetwork->debug("pack.player %s sends a message: %s", pack.player.toString(), pack.text);
 
-	std::ostringstream str;
-	if(pack.player.isSpectator())
-		str << "Spectator: " << pack.text;
-	else
-		str << cl.getPlayerState(pack.player)->nodeName() <<": " << pack.text;
-	if(LOCPLINT)
-		LOCPLINT->cingconsole->print(str.str());
+	CSH->getGameChat().onNewGameMessageReceived(pack.player, pack.text);
 }
 
 void ApplyClientNetPackVisitor::visitAdvmapSpellCast(AdvmapSpellCast & pack)

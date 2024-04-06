@@ -32,7 +32,7 @@ namespace Goals
 		Composition & addNext(const AbstractGoal & goal);
 		Composition & addNext(TSubgoal goal);
 		Composition & addNextSequence(const TGoalVec & taskSequence);
-		TGoalVec decompose() const override;
+		TGoalVec decompose(const Nullkiller * ai) const override;
 		bool isElementar() const override;
 		int getHeroExchangeCount() const override;
 	};

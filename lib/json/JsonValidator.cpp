@@ -422,6 +422,7 @@ static std::string additionalPropertiesCheck(JsonValidator & validator, const Js
 
 static bool testFilePresence(const std::string & scope, const ResourcePath & resource)
 {
+#ifndef ENABLE_MINIMAL_LIB
 	std::set<std::string> allowedScopes;
 	if(scope != ModScope::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
 	{
@@ -441,6 +442,7 @@ static bool testFilePresence(const std::string & scope, const ResourcePath & res
 		if (CResourceHandler::get(entry)->existsResource(resource))
 			return true;
 	}
+#endif
 	return false;
 }
 

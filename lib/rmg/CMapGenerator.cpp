@@ -418,7 +418,8 @@ void CMapGenerator::fillZones()
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 
-	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
+	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths()->getTiles(), rand);
+	map->getMap(this).reindexObjects();
 
 	logGlobal->info("Zones filled successfully");
 

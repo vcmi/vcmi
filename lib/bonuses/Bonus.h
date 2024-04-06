@@ -70,7 +70,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
 	CAddInfo additionalInfo;
-	BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT; //if not NO_LIMIT, bonus will be omitted by default
+	BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT;
 
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
@@ -105,6 +105,11 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & updater;
 		h & propagationUpdater;
 		h & targetSourceType;
+		if (h.version < Handler::Version::MANA_LIMIT && type == BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE)
+		{
+			if (valType == BonusValueType::ADDITIVE_VALUE || valType == BonusValueType::BASE_NUMBER)
+				val *= 100;
+		}
 	}
 
 	template <typename Ptr>

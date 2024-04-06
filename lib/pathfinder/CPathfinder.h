@@ -96,7 +96,7 @@ public:
 	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
 	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
-	std::vector<int3> getNeighbourTiles(const PathNodeInfo & source) const;
+	void calculateNeighbourTiles(std::vector<int3> & result, const PathNodeInfo & source) const;
 	std::vector<int3> getTeleportExits(const PathNodeInfo & source) const;
 
 	void getNeighbours(

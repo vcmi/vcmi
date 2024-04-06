@@ -1,5 +1,5 @@
 /*
- * victoryconditions.h, part of VCMI engine
+ * victoryconditions.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

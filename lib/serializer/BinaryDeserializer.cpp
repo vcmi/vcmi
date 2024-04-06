@@ -18,7 +18,7 @@ BinaryDeserializer::BinaryDeserializer(IBinaryReader * r): CLoaderBase(r)
 	saving = false;
 	version = Version::NONE;
 	smartPointerSerialization = true;
-	reverseEndianess = false;
+	reverseEndianness = false;
 
 	registerTypes(*this);
 }

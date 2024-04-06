@@ -17,7 +17,10 @@ namespace NKAI
 {
 namespace AIPathfinding
 {
-	AILayerTransitionRule::AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, Nullkiller * ai, std::shared_ptr<AINodeStorage> nodeStorage)
+	AILayerTransitionRule::AILayerTransitionRule(
+		CPlayerSpecificInfoCallback * cb,
+		Nullkiller * ai,
+		std::shared_ptr<AINodeStorage> nodeStorage)
 		:cb(cb), ai(ai), nodeStorage(nodeStorage)
 	{
 		setup();
@@ -174,7 +177,7 @@ namespace AIPathfinding
 			const CGHeroInstance * hero = nodeStorage->getHero(source.node);
 
 			if(vstd::contains(summonableVirtualBoats, hero)
-				&& summonableVirtualBoats.at(hero)->canAct(nodeStorage->getAINode(source.node)))
+				&& summonableVirtualBoats.at(hero)->canAct(ai, nodeStorage->getAINode(source.node)))
 			{
 				virtualBoat = summonableVirtualBoats.at(hero);
 			}

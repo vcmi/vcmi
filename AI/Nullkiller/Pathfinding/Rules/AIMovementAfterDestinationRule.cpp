@@ -20,10 +20,11 @@ namespace NKAI
 namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
+		const Nullkiller * ai,
 		CPlayerSpecificInfoCallback * cb, 
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
+		:ai(ai), cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 
@@ -40,17 +41,46 @@ namespace AIPathfinding
 
 			return;
 		}
+		
+		if(!allowBypassObjects
+			&& destination.action == EPathNodeAction::EMBARK
+			&& source.node->layer == EPathfindingLayer::LAND
+			&& destination.node->layer == EPathfindingLayer::SAIL)
+		{
+			destination.blocked = true;
+
+			return;
+		}
 
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
+
 		if(blocker == BlockingReason::NONE)
 		{
 			destination.blocked = nodeStorage->isDistanceLimitReached(source, destination);
+
+			if(destination.nodeObject
+				&& !destination.blocked
+				&& !allowBypassObjects
+				&& !dynamic_cast<const CGTeleport *>(destination.nodeObject)
+				&& destination.nodeObject->ID != Obj::EVENT)
+			{
+				destination.blocked = true;
+				destination.node->locked = true;
+			}
 
 			return;
 		}
 		
 		if(!allowBypassObjects)
+		{
+			if(destination.nodeObject)
+			{
+				destination.blocked = true;
+				destination.node->locked = true;
+			}
+
 			return;
+		}
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
@@ -142,7 +172,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		if(!questAction.canAct(destinationNode))
+		if(!questAction.canAct(ai, destinationNode))
 		{
 			if(!destinationNode->actor->allowUseResources)
 			{

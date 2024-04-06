@@ -96,6 +96,7 @@ set(client_SRCS
 	renderSDL/SDL_Extensions.cpp
 
 	globalLobby/GlobalLobbyClient.cpp
+	globalLobby/GlobalLobbyInviteWindow.cpp
 	globalLobby/GlobalLobbyLoginWindow.cpp
 	globalLobby/GlobalLobbyServerSetup.cpp
 	globalLobby/GlobalLobbyWidget.cpp
@@ -162,6 +163,7 @@ set(client_SRCS
 	CVideoHandler.cpp
 	Client.cpp
 	ClientCommandManager.cpp
+	GameChatHandler.cpp
 	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
@@ -280,6 +282,7 @@ set(client_HEADERS
 
 	globalLobby/GlobalLobbyClient.h
 	globalLobby/GlobalLobbyDefines.h
+	globalLobby/GlobalLobbyInviteWindow.h
 	globalLobby/GlobalLobbyLoginWindow.h
 	globalLobby/GlobalLobbyServerSetup.h
 	globalLobby/GlobalLobbyWidget.h
@@ -348,6 +351,7 @@ set(client_HEADERS
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
 	HeroMovementController.h
+	GameChatHandler.h
 	LobbyClientNetPackVisitors.h
 	ServerRunner.h
 	resource.h
@@ -507,16 +511,18 @@ endif()
 #install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE AND NOT ANDROID)
 	#FIXME: move to client makefile?
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.16x16.png"     DESTINATION share/icons/hicolor/16x16/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.22x22.png"     DESTINATION share/icons/hicolor/22x22/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"     DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"     DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"     DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.128x128.png"   DESTINATION share/icons/hicolor/128x128/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png"   DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.512x512.png"   DESTINATION share/icons/hicolor/512x512/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.1024x1024.png" DESTINATION share/icons/hicolor/1024x1024/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.2048x2048.png" DESTINATION share/icons/hicolor/2048x2048/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.svg"           DESTINATION share/icons/hicolor/scalable/apps RENAME vcmiclient.svg)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"       DESTINATION share/applications)
+	foreach(iconSize 16 22 32 48 64 128 256 512 1024 2048)
+		install(FILES "icons/vcmiclient.${iconSize}x${iconSize}.png"
+			DESTINATION "share/icons/hicolor/${iconSize}x${iconSize}/apps"
+			RENAME vcmiclient.png
+		)
+	endforeach()
+
+	install(FILES icons/vcmiclient.svg
+		DESTINATION share/icons/hicolor/scalable/apps
+		RENAME vcmiclient.svg
+	)
+	install(FILES icons/vcmiclient.desktop
+		DESTINATION share/applications
+	)
 endif()

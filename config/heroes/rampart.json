@@ -199,7 +199,7 @@
 			"bonuses" : {
 				"intelligence" : {
 					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "MANA_PER_KNOWLEDGE",
+					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
 					"valueType" : "PERCENT_TO_TARGET_TYPE"

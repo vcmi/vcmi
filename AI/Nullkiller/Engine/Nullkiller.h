@@ -57,6 +57,7 @@ private:
 	ScanDepth scanDepth;
 	TResources lockedResources;
 	bool useHeroChain;
+	AIGateway * gateway;
 
 public:
 	static std::unique_ptr<ObjectGraph> baseGraph;
@@ -79,7 +80,7 @@ public:
 	std::mutex aiStateMutex;
 
 	Nullkiller();
-	void init(std::shared_ptr<CCallback> cb, PlayerColor playerID);
+	void init(std::shared_ptr<CCallback> cb, AIGateway * gateway);
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;

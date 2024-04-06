@@ -22,6 +22,7 @@ namespace NKAI
 {
 
 struct AIPathNode;
+struct AIPathNodeInfo;
 class ChainActor;
 
 class SpecialAction
@@ -29,14 +30,19 @@ class SpecialAction
 public:
 	virtual ~SpecialAction() = default;
 
-	virtual bool canAct(const AIPathNode * source) const
+	virtual bool canAct(const Nullkiller * ai, const AIPathNode * source) const
 	{
 		return true;
 	}
 
-	virtual Goals::TSubgoal decompose(const CGHeroInstance * hero) const;
+	virtual bool canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const
+	{
+		return true;
+	}
 
-	virtual void execute(const CGHeroInstance * hero) const;
+	virtual Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const;
+
+	virtual void execute(AIGateway * ai, const CGHeroInstance * hero) const;
 
 	virtual void applyOnDestination(
 		const CGHeroInstance * hero,
@@ -70,11 +76,11 @@ private:
 public:
 	CompositeAction(std::vector<std::shared_ptr<const SpecialAction>> parts) : parts(parts) {}
 
-	bool canAct(const AIPathNode * source) const override;
-	void execute(const CGHeroInstance * hero) const override;
+	bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
+	void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 	std::string toString() const override;
 	const CGObjectInstance * targetObject() const override;
-	Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
+	Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;
 
 	std::vector<std::shared_ptr<const SpecialAction>> getParts() const override
 	{
@@ -87,6 +93,13 @@ public:
 		const PathNodeInfo & source,
 		AIPathNode * dstNode,
 		const AIPathNode * srcNode) const override;
+};
+
+class ISpecialActionFactory
+{
+public:
+	virtual std::shared_ptr<SpecialAction> create(const Nullkiller * ai) = 0;
+	virtual ~ISpecialActionFactory() = default;
 };
 
 }

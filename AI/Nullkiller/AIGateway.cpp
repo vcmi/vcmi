@@ -566,7 +566,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
 
-	nullkiller->init(CB, playerID);
+	nullkiller->init(CB, this);
 	
 	retrieveVisitableObjs();
 }
@@ -828,7 +828,7 @@ void AIGateway::makeTurn()
 	{
 		for(const CGObjectInstance * obj : nullkiller->memory->visitableObjs)
 		{
-			if(isWeeklyRevisitable(obj))
+			if(isWeeklyRevisitable(nullkiller.get(), obj))
 			{
 				nullkiller->memory->markObjectUnvisited(obj);
 			}
@@ -1152,6 +1152,11 @@ void AIGateway::retrieveVisitableObjs()
 	{
 		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
 		{
+			if(!obj->appearance)
+			{
+				logAi->error("Bad!");
+			}
+
 			addVisitableObj(obj);
 		}
 	});

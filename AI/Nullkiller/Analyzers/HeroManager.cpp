@@ -109,6 +109,7 @@ void HeroManager::update()
 	for(auto & hero : myHeroes)
 	{
 		scores[hero] = evaluateFightingStrength(hero);
+		knownFightingStrength[hero->id] = hero->getFightingStrength();
 	}
 
 	auto scoreSort = [&](const CGHeroInstance * h1, const CGHeroInstance * h2) -> bool
@@ -190,6 +191,13 @@ bool HeroManager::heroCapReached() const
 		|| heroCount >= ai->settings->getMaxRoamingHeroes()
 		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
 		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
+}
+
+float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const
+{
+	auto cached = knownFightingStrength.find(hero->id);
+
+	return cached != knownFightingStrength.end() ? cached->second : hero->getFightingStrength();
 }
 
 float HeroManager::getMagicStrength(const CGHeroInstance * hero) const

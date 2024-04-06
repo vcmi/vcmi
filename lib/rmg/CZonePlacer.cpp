@@ -858,7 +858,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	auto moveZoneToCenterOfMass = [width, height](const std::shared_ptr<Zone> & zone) -> void
 	{
 		int3 total(0, 0, 0);
-		auto tiles = zone->area().getTiles();
+		auto tiles = zone->area()->getTiles();
 		for(const auto & tile : tiles)
 		{
 			total += tile;
@@ -873,6 +873,11 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	int levels = map.levels();
 
 	// Find current center of mass for each zone. Move zone to that center to balance zones sizes
+	std::vector<RmgMap::Zones> zonesOnLevel;
+	for(int level = 0; level < levels; level++)
+	{
+		zonesOnLevel.push_back(map.getZonesOnLevel(level));
+	}
 
 	int3 pos;
 
@@ -883,21 +888,18 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			for(pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				for(const auto & zone : zones)
+				for(const auto & zone : zonesOnLevel[pos.z])
 				{
-					if (zone.second->getPos().z == pos.z)
-						distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
-					else
-						distances.emplace_back(zone.second, std::numeric_limits<float>::max());
+					distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
 				}
-				boost::min_element(distances, compareByDistance)->first->area().add(pos); //closest tile belongs to zone
+				boost::min_element(distances, compareByDistance)->first->area()->add(pos); //closest tile belongs to zone
 			}
 		}
 	}
 
 	for(const auto & zone : zones)
 	{
-		if(zone.second->area().empty())
+		if(zone.second->area()->empty())
 			throw rmgException("Empty zone is generated, probably RMG template is inappropriate for map size");
 		
 		moveZoneToCenterOfMass(zone.second);
@@ -906,27 +908,30 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	for(const auto & zone : zones)
 		zone.second->clearTiles(); //now populate them again
 
-	// Assign zones to closest Penrose vertex
 	PenroseTiling penrose;
-	auto vertices = penrose.generatePenroseTiling(zones.size() / map.levels(), rand);
-
-	std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
-
-	for (const auto & vertex : vertices)
+	for (int level = 0; level < levels; level++)
 	{
-		distances.clear();
-		for(const auto & zone : zones)
+		//Create different tiling for each level
+
+		auto vertices = penrose.generatePenroseTiling(zonesOnLevel[level].size(), rand);
+
+		// Assign zones to closest Penrose vertex
+		std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
+
+		for (const auto & vertex : vertices)
 		{
-			distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), 0)));
+			distances.clear();
+			for(const auto & zone : zonesOnLevel[level])
+			{
+				distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
+			}
+			auto closestZone = boost::min_element(distances, compareByDistance)->first;
+
+			vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, level)); //Closest vertex belongs to zone
 		}
-		auto closestZone = boost::min_element(distances, compareByDistance)->first;
 
-		vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, closestZone->getPos().z)); //Closest vertex belongs to zone
-	}
-
-	//Assign actual tiles to each zone
-	for (pos.z = 0; pos.z < levels; pos.z++)
-	{
+		//Assign actual tiles to each zone
+		pos.z = level;
 		for (pos.x = 0; pos.x < width; pos.x++)
 		{
 			for (pos.y = 0; pos.y < height; pos.y++)
@@ -937,17 +942,28 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 					auto zone = zoneVertex.first;
 					for (const auto & vertex : zoneVertex.second)
 					{
-						if (zone->getCenter().z == pos.z)
-							distances.emplace_back(zone, metric(pos, vertex));
-						else
-							distances.emplace_back(zone, std::numeric_limits<float>::max());
+						distances.emplace_back(zone, metric(pos, vertex));
 					}
 				}
 
-				//Tile closes to vertex belongs to zone
+				//Tile closest to vertex belongs to zone
 				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first;
-				closestZone->area().add(pos);
+				closestZone->area()->add(pos);
 				map.setZoneID(pos, closestZone->getId());
+			}
+		}
+
+		for(const auto & zone : zonesOnLevel[level])
+		{
+			if(zone.second->area()->empty())
+			{
+				// FIXME: Some vertices are duplicated, but it's not a source of problem
+				logGlobal->error("Zone %d at %s is empty, dumping Penrose tiling", zone.second->getId(), zone.second->getCenter().toString());
+				for (const auto & vertex : vertices)
+				{
+					logGlobal->warn("Penrose Vertex: %s", vertex.toString());
+				}
+				throw rmgException("Empty zone after Penrose tiling");
 			}
 		}
 	}
@@ -955,9 +971,6 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	//set position (town position) to center of mass of irregular zone
 	for(const auto & zone : zones)
 	{
-		if(zone.second->area().empty())
-			throw rmgException("Empty zone after Penrose tiling");
-
 		moveZoneToCenterOfMass(zone.second);
 
 		//TODO: similiar for islands
@@ -968,12 +981,12 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			{
 				auto discardTiles = collectDistantTiles(*zone.second, zone.second->getSize() + 1.f);
 				for(const auto & t : discardTiles)
-					zone.second->area().erase(t);
+					zone.second->area()->erase(t);
 			}
 
 			//make sure that terrain inside zone is not a rock
 
-			auto v = zone.second->getArea().getTilesVector();
+			auto v = zone.second->area()->getTilesVector();
 			map.getMapProxy()->drawTerrain(*rand, v, ETerrainId::SUBTERRANEAN);
 		}
 	}

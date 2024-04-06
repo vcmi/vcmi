@@ -239,6 +239,19 @@ RmgMap::Zones & RmgMap::getZones()
 	return zones;
 }
 
+RmgMap::Zones RmgMap::getZonesOnLevel(int level) const
+{
+	Zones zonesOnLevel;
+	for(const auto& zonePair : zones)
+	{
+		if(zonePair.second->isUnderground() == (bool)level)
+		{
+			zonesOnLevel.insert(zonePair);
+		}
+	}
+	return zonesOnLevel;
+}
+
 bool RmgMap::isBlocked(const int3 &tile) const
 {
 	assertOnMap(tile);

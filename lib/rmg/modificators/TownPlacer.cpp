@@ -146,7 +146,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 	int3 position(-1, -1, -1);
 	{
 		Zone::Lock lock(zone.areaMutex);
-		position = manager.findPlaceForObject(zone.areaPossible(), rmgObject, [this](const int3& t)
+		position = manager.findPlaceForObject(zone.areaPossible().get(), rmgObject, [this](const int3& t)
 			{
 				float distance = zone.getPos().dist2dSQ(t);
 				return 100000.f - distance; //some big number
@@ -169,8 +169,8 @@ void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 			if (map.isOnMap(t))
 			{
 				map.setOccupied(t, ETileType::FREE);
-				zone.areaPossible().erase(t);
-				zone.freePaths().add(t);
+				zone.areaPossible()->erase(t);
+				zone.freePaths()->add(t);
 			}
 		}
 	}

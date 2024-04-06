@@ -30,10 +30,18 @@ class GlobalLobbyProcessor : public INetworkClientListener
 	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
 
 	void receiveOperationFailed(const JsonNode & json);
-	void receiveLoginSuccess(const JsonNode & json);
+	void receiveServerLoginSuccess(const JsonNode & json);
 	void receiveAccountJoinsRoom(const JsonNode & json);
 
 	void establishNewConnection();
+	void sendMessage(const NetworkConnectionPtr & targetConnection, const JsonNode & payload);
+
+	const std::string & getHostAccountID() const;
+	const std::string & getHostAccountCookie() const;
+	const std::string & getHostAccountDisplayName() const;
 public:
+	void sendChangeRoomDescription(const std::string & description);
+	void sendGameStarted();
+
 	explicit GlobalLobbyProcessor(CVCMIServer & owner);
 };

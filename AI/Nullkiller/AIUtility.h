@@ -50,7 +50,6 @@
 
 #include <chrono>
 
-using namespace tbb;
 
 using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 
@@ -71,7 +70,6 @@ extern const float SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
 
 extern thread_local CCallback * cb;
-extern thread_local AIGateway * ai;
 
 enum HeroRole
 {
@@ -115,11 +113,11 @@ public:
 	bool validAndSet() const;
 
 
-	template<typename Handler> void serialize(Handler & h)
+	template<typename Handler> void serialize(Handler & handler)
 	{
-		h & this->h;
-		h & hid;
-		h & name;
+		handler & h;
+		handler & hid;
+		handler & name;
 	}
 };
 
@@ -225,18 +223,17 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // a
 }
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
-bool isObjectPassable(const CGObjectInstance * obj);
 bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj);
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
-bool isWeeklyRevisitable(const CGObjectInstance * obj);
+bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
-bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength);
-bool isSafeToVisit(HeroPtr h, const CCreatureSet *, uint64_t dangerStrength);
+bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength);
+bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dangerStrength);
 
-bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
+bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
 bool townHasFreeTavern(const CGTownInstance * town);
@@ -245,38 +242,6 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
-
-template<typename TFunc>
-void pforeachTilePos(const int3 & mapSize, TFunc fn)
-{
-	for(int z = 0; z < mapSize.z; ++z)
-	{
-		parallel_for(blocked_range<size_t>(0, mapSize.x), [&](const blocked_range<size_t>& r)
-		{
-			int3 pos(0, 0, z);
-
-			for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
-			{
-				for(pos.y = 0; pos.y < mapSize.y; ++pos.y)
-				{
-					fn(pos);
-				}
-			}
-		});
-	}
-}
-
-class CDistanceSorter
-{
-	const CGHeroInstance * hero;
-
-public:
-	CDistanceSorter(const CGHeroInstance * hero)
-		: hero(hero)
-	{
-	}
-	bool operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const;
-};
 
 template <class T>
 class SharedPool

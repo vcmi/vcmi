@@ -5,11 +5,6 @@ cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)
 # TODO
-# macOS:
-# - There is problem with running fixup_bundle in main project after subdirectories.
-# Cmake put them after all install code of main CMakelists in cmake_install.cmake
-# Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
-#
 # Vckpg:
 # - Improve install code once there is better way to deploy DLLs and Qt plugins
 #
@@ -23,7 +18,7 @@ project(VCMI)
 # - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
 
 if(APPLE)
-	if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 		set(APPLE_MACOS 1)
 	else()
 		set(APPLE_IOS 1)
@@ -43,11 +38,13 @@ endif()
 
 # Platform-independent options
 
+option(ENABLE_CLIENT "Enable compilation of game client" ON)
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
+option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are required for game lobby" OFF)
 
 # Compilation options
 
@@ -250,6 +247,10 @@ endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
 	add_definitions(-DENABLE_SINGLE_APP_BUILD)
+endif()
+
+if(ENABLE_MINIMAL_LIB)
+	add_definitions(-DENABLE_MINIMAL_LIB)
 endif()
 
 if(APPLE_IOS)
@@ -455,12 +456,6 @@ if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
 
-set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
-if(APPLE_IOS AND NOT USING_CONAN)
-	list(APPEND FFMPEG_COMPONENTS swresample)
-endif()
-find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
-
 option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
 if(NOT FORCE_BUNDLED_MINIZIP)
 	find_package(minizip)
@@ -469,18 +464,26 @@ if(NOT FORCE_BUNDLED_MINIZIP)
 	endif()
 endif()
 
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-if(TARGET SDL2_image::SDL2_image)
-	add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
-endif()
-find_package(SDL2_mixer REQUIRED)
-if(TARGET SDL2_mixer::SDL2_mixer)
-	add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
-endif()
-find_package(SDL2_ttf REQUIRED)
-if(TARGET SDL2_ttf::SDL2_ttf)
-	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+if (ENABLE_CLIENT)
+	set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
+	if(APPLE_IOS AND NOT USING_CONAN)
+		list(APPEND FFMPEG_COMPONENTS swresample)
+	endif()
+	find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
+
+	find_package(SDL2 REQUIRED)
+	find_package(SDL2_image REQUIRED)
+	if(TARGET SDL2_image::SDL2_image)
+		add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
+	endif()
+	find_package(SDL2_mixer REQUIRED)
+	if(TARGET SDL2_mixer::SDL2_mixer)
+		add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
+	endif()
+	find_package(SDL2_ttf REQUIRED)
+	if(TARGET SDL2_ttf::SDL2_ttf)
+		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+	endif()
 endif()
 
 if(ENABLE_LOBBY)
@@ -498,7 +501,7 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	endif()
 endif()
 
-if(ENABLE_NULLKILLER_AI)
+if(ENABLE_NULLKILLER_AI AND ENABLE_CLIENT)
 	find_package(TBB REQUIRED)
 endif()
 
@@ -608,10 +611,15 @@ if(APPLE_IOS)
 	add_subdirectory(ios)
 endif()
 
-add_subdirectory_with_folder("AI" AI)
+if (ENABLE_CLIENT)
+	add_subdirectory_with_folder("AI" AI)
+endif()
 
 add_subdirectory(lib)
-add_subdirectory(server)
+
+if (ENABLE_CLIENT OR ENABLE_SERVER)
+	add_subdirectory(server)
+endif()
 
 if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
@@ -638,7 +646,9 @@ if(ENABLE_LOBBY)
 	add_subdirectory(lobby)
 endif()
 
-add_subdirectory(client)
+if (ENABLE_CLIENT)
+	add_subdirectory(client)
+endif()
 
 if(ENABLE_SERVER)
 	add_subdirectory(serverapp)
@@ -682,7 +692,9 @@ if(ANDROID)
 	")
 else()
 	install(DIRECTORY config DESTINATION ${DATA_DIR})
-	install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+	if (ENABLE_CLIENT OR ENABLE_SERVER)
+		install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+	endif()
 endif()
 if(ENABLE_LUA)
 	install(DIRECTORY scripts DESTINATION ${DATA_DIR})

@@ -17,5 +17,5 @@ public:
 	std::function<void(CArtPlace*)> selectArtCallback;
 
 	CArtifactsOfHeroMarket(const Point & position);
-	void scrollBackpack(int offset) override;
+	void scrollBackpack(bool left) override;
 };

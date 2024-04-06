@@ -25,7 +25,7 @@ namespace AIPathfinding
 	class SummonBoatAction : public VirtualBoatAction
 	{
 	public:
-		void execute(const CGHeroInstance * hero) const override;
+		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 
 		virtual void applyOnDestination(
 			const CGHeroInstance * hero,
@@ -34,7 +34,7 @@ namespace AIPathfinding
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		bool canAct(const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
@@ -56,17 +56,32 @@ namespace AIPathfinding
 		{
 		}
 
-		bool canAct(const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const override;
+		bool canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const;
 
-		void execute(const CGHeroInstance * hero) const override;
+		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 
-		Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
+		Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
 		std::string toString() const override;
 
 		const CGObjectInstance * targetObject() const override;
+	};
+
+	class BuildBoatActionFactory : public ISpecialActionFactory
+	{
+		ObjectInstanceID shipyard;
+
+	public:
+		BuildBoatActionFactory(ObjectInstanceID shipyard)
+			:shipyard(shipyard)
+		{
+		}
+
+		std::shared_ptr<SpecialAction> create(const Nullkiller * ai) override;
 	};
 }
 

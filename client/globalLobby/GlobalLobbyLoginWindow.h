@@ -23,6 +23,7 @@ class GlobalLobbyLoginWindow : public CWindowObject
 {
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::shared_ptr<CLabel> labelTitle;
+	std::shared_ptr<CLabel> labelUsernameTitle;
 	std::shared_ptr<CLabel> labelUsername;
 	std::shared_ptr<CTextBox> labelStatus;
 	std::shared_ptr<TransparentFilledRectangle> backgroundUsername;

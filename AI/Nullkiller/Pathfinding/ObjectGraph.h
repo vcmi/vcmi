@@ -22,6 +22,7 @@ struct ObjectLink
 {
 	float cost = 100000; // some big number
 	uint64_t danger = 0;
+	std::shared_ptr<ISpecialActionFactory> specialAction;
 
 	bool update(float newCost, uint64_t newDanger)
 	{
@@ -50,18 +51,46 @@ struct ObjectNode
 		objID = obj->id;
 		objTypeID = obj->ID;
 	}
+
+	void initJunction()
+	{
+		objectExists = false;
+		objID = ObjectInstanceID();
+		objTypeID = Obj();
+	}
 };
 
 class ObjectGraph
 {
 	std::unordered_map<int3, ObjectNode> nodes;
+	std::unordered_map<int3, ObjectInstanceID> virtualBoats;
 
 public:
+	ObjectGraph()
+		:nodes(), virtualBoats()
+	{
+	}
+
 	void updateGraph(const Nullkiller * ai);
 	void addObject(const CGObjectInstance * obj);
+	void registerJunction(const int3 & pos);
+	void addVirtualBoat(const int3 & pos, const CGObjectInstance * shipyard);
 	void connectHeroes(const Nullkiller * ai);
 	void removeObject(const CGObjectInstance * obj);
+	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
+	void removeConnection(const int3 & from, const int3 & to);
 	void dumpToLog(std::string visualKey) const;
+
+	bool isVirtualBoat(const int3 & tile) const
+	{
+		return vstd::contains(virtualBoats, tile);
+	}
+
+	void copyFrom(const ObjectGraph & other)
+	{
+		nodes = other.nodes;
+		virtualBoats = other.virtualBoats;
+	}
 
 	template<typename Func>
 	void iterateConnections(const int3 & pos, Func fn)
@@ -77,7 +106,10 @@ public:
 		return nodes.at(tile);
 	}
 
-	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
+	bool hasNodeAt(const int3 & tile) const
+	{
+		return vstd::contains(nodes, tile);
+	}
 };
 
 struct GraphPathNode;
@@ -131,6 +163,8 @@ struct GraphPathNode
 	GraphPathNodePointer previous;
 	float cost = BAD_COST;
 	uint64_t danger = 0;
+	const CGObjectInstance * obj = nullptr;
+	std::shared_ptr<SpecialAction> specialAction;
 
 	using TFibHeap = boost::heap::fibonacci_heap<GraphPathNodePointer, boost::heap::compare<GraphNodeComparer>>;
 
@@ -152,16 +186,25 @@ class GraphPaths
 	std::string visualKey;
 
 public:
-	void calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai);
+	GraphPaths();
+	void calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai, uint8_t scanDepth);
 	void addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
+	void quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
 	void dumpToLog() const;
 
 private:
-	GraphPathNode & getNode(const GraphPathNodePointer & pos)
+	GraphPathNode & getOrCreateNode(const GraphPathNodePointer & pos)
 	{
 		auto & node = pathNodes[pos.coord][pos.nodeType];
 
 		node.nodeType = pos.nodeType;
+
+		return node;
+	}
+
+	const GraphPathNode & getNode(const GraphPathNodePointer & pos) const
+	{
+		auto & node = pathNodes.at(pos.coord)[pos.nodeType];
 
 		return node;
 	}

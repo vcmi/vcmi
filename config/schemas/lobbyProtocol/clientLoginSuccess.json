@@ -1,7 +1,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-06/schema",
-	"title" : "Lobby protocol: loginSuccess",
+	"title" : "Lobby protocol: clientLoginSuccess",
 	"description" : "Sent by server once player sucesfully logs into the lobby",
 	"required" : [ "type", "accountCookie", "displayName" ],
 	"additionalProperties" : false,
@@ -10,7 +10,7 @@
 		"type" :
 		{
 			"type" : "string",
-			"const" : "loginSuccess"
+			"const" : "clientLoginSuccess"
 		},
 		"accountCookie" :
 		{

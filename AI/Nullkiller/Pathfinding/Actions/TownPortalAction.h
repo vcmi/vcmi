@@ -29,7 +29,7 @@ namespace AIPathfinding
 		{
 		}
 
-		void execute(const CGHeroInstance * hero) const override;
+		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 
 		std::string toString() const override;
 	};

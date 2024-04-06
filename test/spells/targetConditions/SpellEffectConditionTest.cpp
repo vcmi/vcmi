@@ -9,8 +9,6 @@
  */
 #include "StdInc.h"
 
-#include "StdInc.h"
-
 #include "TargetConditionItemFixture.h"
 
 namespace test

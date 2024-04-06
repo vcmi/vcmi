@@ -26,6 +26,11 @@ namespace NKAI
 
 using namespace Goals;
 
+DeepDecomposer::DeepDecomposer(const Nullkiller * ai)
+	:ai(ai), depth(0)
+{
+}
+
 void DeepDecomposer::reset()
 {
 	decompositionCache.clear();
@@ -136,7 +141,7 @@ Goals::TSubgoal DeepDecomposer::aggregateGoals(int startDepth, TSubgoal last)
 
 Goals::TSubgoal DeepDecomposer::unwrapComposition(Goals::TSubgoal goal)
 {
-	return goal->goalType == Goals::COMPOSITION ? goal->decompose().back() : goal;
+	return goal->goalType == Goals::COMPOSITION ? goal->decompose(ai).back() : goal;
 }
 
 bool isEquivalentGoals(TSubgoal goal1, TSubgoal goal2)
@@ -156,7 +161,7 @@ bool isEquivalentGoals(TSubgoal goal1, TSubgoal goal2)
 
 bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 {
-	auto goalsToTest = goal->goalType == Goals::COMPOSITION ? goal->decompose() : TGoalVec{goal};
+	auto goalsToTest = goal->goalType == Goals::COMPOSITION ? goal->decompose(ai) : TGoalVec{goal};
 
 	for(auto goalToTest : goalsToTest)
 	{
@@ -206,7 +211,7 @@ TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 
 	fromCache = false;
 
-	return goal->decompose();
+	return goal->decompose(ai);
 }
 
 void DeepDecomposer::addToCache(TSubgoal goal)
