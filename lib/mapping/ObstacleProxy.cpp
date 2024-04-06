@@ -61,7 +61,6 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 	std::vector<ObstacleSet> obstacleSets;
 
 	size_t selectedSets = 0;
-	size_t smallSets = 0;
 	const size_t MINIMUM_SETS = 6;
 	const size_t MAXIMUM_SETS = 9;
 	const size_t MIN_SMALL_SETS = 3;
@@ -135,7 +134,7 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 
 	size_t maxSmallSets = std::min<size_t>(MAX_SMALL_SETS, std::max(MIN_SMALL_SETS, MAXIMUM_SETS - selectedSets));
 
-	size_t smallSetsCount = rand.nextInt(MIN_SMALL_SETS, maxSmallSets);
+	size_t smallSets = rand.nextInt(MIN_SMALL_SETS, maxSmallSets);
 
 	TObstacleTypes smallObstacleSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter({ObstacleSet::EObstacleType::STRUCTURES, ObstacleSet::EObstacleType::ANIMALS},
 	terrain));
@@ -145,14 +144,14 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 	terrain));
 	RandomGeneratorUtil::randomShuffle(otherSets, rand);
 
-	while (smallSetsCount > 0)
+	while (smallSets > 0)
 	{
 		if (!smallObstacleSets.empty())
 		{
 			obstacleSets.push_back(smallObstacleSets.back());
 			smallObstacleSets.pop_back();
 			selectedSets++;
-			smallSetsCount--;
+			smallSets--;
 			logGlobal->info("Added small set of type %s", obstacleSets.back().getType());
 		}
 		else if(otherSets.empty())
@@ -161,7 +160,7 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 			break;
 		}
 
-		if (smallSetsCount > 0)
+		if (smallSets > 0)
 		{
 			// Fill with whatever's left
 			if (!otherSets.empty())
@@ -169,7 +168,7 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 				obstacleSets.push_back(otherSets.back());
 				otherSets.pop_back();
 				selectedSets++;
-				smallSetsCount--;
+				smallSets--;
 
 				logGlobal->info("Added set of other obstacles");
 			}
