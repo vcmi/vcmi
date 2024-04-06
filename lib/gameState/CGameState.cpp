@@ -642,7 +642,6 @@ void CGameState::initHeroes()
 			boat->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 
 			map->objects.emplace_back(boat);
-			map->addBlockVisTiles(boat);
 
 			hero->attachToBoat(boat);
 		}
