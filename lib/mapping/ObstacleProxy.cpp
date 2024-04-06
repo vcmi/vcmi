@@ -37,6 +37,11 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 			}
 		}
 	}
+	sortObstacles();
+}
+
+void ObstacleProxy::sortObstacles()
+{
 	for(const auto & o : obstaclesBySize)
 	{
 		possibleObstacles.emplace_back(o);
@@ -51,11 +56,7 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 {
 	// FIXME: All the mountains have same ID and mostly same subID, how to differentiate them?
 
-	bool isPrepared = false;
-
 	possibleObstacles.clear();
-
-	// TODO: Where to parse these sets?
 
 	std::vector<ObstacleSet> obstacleSets;
 
@@ -176,8 +177,6 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 	}
 
 	// Copy this set to our possible obstacles
-	
-	//	if (selectedSets >= MINIMUM_SETS)
 
 	if (selectedSets >= MINIMUM_SETS ||
 		(terrain == TerrainId::WATER && selectedSets > 0))
@@ -194,24 +193,14 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 			}
 		}
 
-		for(const auto & o : obstaclesBySize)
-		{
-			possibleObstacles.emplace_back(o);
-		}
-
-		boost::sort(possibleObstacles, [](const ObstaclePair &p1, const ObstaclePair &p2) -> bool
-		{
-			return p1.first > p2.first; //bigger obstacles first
-		});
+		sortObstacles();
 
 		return true;
 	}
 	else
 	{
-		return false; 			// Proceed with old method
+		return false; // Proceed with old method
 	}
-
-	return isPrepared;
 }
 
 void ObstacleProxy::addBlockedTile(const int3& tile)
