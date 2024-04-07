@@ -742,7 +742,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * 
 {
 	RETURN_IF_NOT_BATTLE({});
 	auto reachability = battleGetDistances(attacker, attacker->getPosition());
-	int getMovementRange = reachability[attackerPosition];
+	int getMovementRange = attackerPosition.isValid() ? reachability[attackerPosition] : 0;
 	return battleEstimateDamage(attacker, defender, getMovementRange, retaliationDmg);
 }
 

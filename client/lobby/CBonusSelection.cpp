@@ -119,7 +119,7 @@ CBonusSelection::CBonusSelection()
 	if (!getCampaign()->getMusic().empty())
 		CCS->musich->playMusic( getCampaign()->getMusic(), true, false);
 
-	if(settings["general"]["enableUiEnhancements"].Bool())
+	if(CSH->getState() != EClientState::GAMEPLAY && settings["general"]["enableUiEnhancements"].Bool())
 	{
 		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
 		tabExtraOptions->recActions = UPDATE | SHOWALL | LCLICK | RCLICK_POPUP;
