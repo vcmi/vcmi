@@ -415,7 +415,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="665"/>
         <source>Download failed</source>
-        <translation>Descarga fallida</translation>
+        <translation>Falha no download</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="666"/>
@@ -489,12 +489,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="230"/>
         <source>Interface Scaling</source>
-        <translation>Escala de la interfaz</translation>
+        <translation>Escala da Interface</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="394"/>
         <source>Neutral AI in battles</source>
-        <translation>IA neutral en batallas</translation>
+        <translation>IA neutra nas batalhas</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="169"/>
@@ -721,7 +721,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation>Preset de Mods</translation>
+        <translation>Predefinição de Mod</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
@@ -731,7 +731,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="177"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>Tem uma pergunta? Encontrou um bug? Quer ajudar? Junte-se a nós!</translation>
+        <translation>Tem uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="186"/>
@@ -793,7 +793,7 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="756"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation>Opcionalmente, você pode instalar mods adicionais agora, ou a qualquer momento depois, usando o VCMI Launcher</translation>
+        <translation>Opcionalmente, você pode instalar mods adicionais agora, ou a qualquer momento depois, usando o Inicializador do VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
