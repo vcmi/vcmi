@@ -650,8 +650,8 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 
 HighScoreParameter CServerHandler::prepareHighScores(PlayerColor player, bool victory)
 {
-	auto * gs = client->gameState();
-	auto * playerState = gs->getPlayerState(player);
+	const auto * gs = client->gameState();
+	const auto * playerState = gs->getPlayerState(player);
 
 	HighScoreParameter param;
 	param.difficulty = gs->getStartInfo()->difficulty;
@@ -669,9 +669,8 @@ HighScoreParameter CServerHandler::prepareHighScores(PlayerColor player, bool vi
 	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)
 	{
 		auto ps = gs->getPlayerState(otherPlayer, false);
-		if(ps && otherPlayer != player)
-			if(!ps->checkVanquished())
-				param.allDefeated = false;
+		if(ps && otherPlayer != player && !ps->checkVanquished())
+			param.allDefeated = false;
 	}
 	param.scenarioName = gs->getMapHeader()->name.toString();
 	param.playerName = gs->getStartInfo()->playerInfos.find(player)->second.name;
@@ -689,14 +688,14 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 	}
 	else
 	{
-		HighScoreCalculation highScoreCalc;
-		highScoreCalc.parameters.push_back(param);
-		highScoreCalc.isCampaign = false;
+		HighScoreCalculation scenarioHighScores;
+		scenarioHighScores.parameters.push_back(param);
+		scenarioHighScores.isCampaign = false;
 
 		endGameplay();
 		GH.defActionsDef = 63;
 		CMM->menu->switchToTab("main");
-		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, highScoreCalc);
+		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores);
 	}
 }
 
@@ -748,7 +747,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	endGameplay();
 
 	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
-	auto finisher = [=]()
+	auto finisher = [this, ourCampaign]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{
