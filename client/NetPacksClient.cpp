@@ -15,6 +15,7 @@
 #include "CGameInfo.h"
 #include "windows/GUIClasses.h"
 #include "mapView/mapHandler.h"
+#include "adventureMap/AdventureMapInterface.h"
 #include "adventureMap/CInGameConsole.h"
 #include "battle/BattleInterface.h"
 #include "battle/BattleWindow.h"
@@ -407,6 +408,20 @@ void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 {
 	callAllInterfaces(cl, &IGameEventsReceiver::gameOver, pack.player, pack.victoryLossCheckResult);
+
+	bool lastHumanEndsGame = CSH->howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
+
+	if (lastHumanEndsGame)
+	{
+		assert(adventureInt);
+		if(adventureInt)
+		{
+			GH.windows().popWindows(GH.windows().count());
+			adventureInt.reset();
+		}
+
+		CSH->showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory());
+	}
 
 	// In auto testing pack.mode we always close client if red pack.player won or lose
 	if(!settings["session"]["testmap"].isNull() && pack.player == PlayerColor(0))

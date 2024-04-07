@@ -34,7 +34,9 @@
 #include "../lib/TurnTimerInfo.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
@@ -646,11 +648,63 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	setState(EClientState::GAMEPLAY);
 }
 
+HighScoreParameter CServerHandler::prepareHighScores(PlayerColor player, bool victory)
+{
+	auto * gs = client->gameState();
+	auto * playerState = gs->getPlayerState(player);
+
+	HighScoreParameter param;
+	param.difficulty = gs->getStartInfo()->difficulty;
+	param.day = gs->getDate();
+	param.townAmount = gs->howManyTowns(player);
+	param.usedCheat = gs->getPlayerState(player)->cheated;
+	param.hasGrail = false;
+	for(const CGHeroInstance * h : playerState->heroes)
+		if(h->hasArt(ArtifactID::GRAIL))
+			param.hasGrail = true;
+	for(const CGTownInstance * t : playerState->towns)
+		if(t->builtBuildings.count(BuildingID::GRAIL))
+			param.hasGrail = true;
+	param.allDefeated = true;
+	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)
+	{
+		auto ps = gs->getPlayerState(otherPlayer, false);
+		if(ps && otherPlayer != player)
+			if(!ps->checkVanquished())
+				param.allDefeated = false;
+	}
+	param.scenarioName = gs->getMapHeader()->name.toString();
+	param.playerName = gs->getStartInfo()->playerInfos.find(player)->second.name;
+
+	return param;
+}
+
+void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory)
+{
+	HighScoreParameter param = prepareHighScores(player, victory);
+
+	if(victory && client->gameState()->getStartInfo()->campState)
+	{
+		startCampaignScenario(param, client->gameState()->getStartInfo()->campState);
+	}
+	else
+	{
+		HighScoreCalculation highScoreCalc;
+		highScoreCalc.parameters.push_back(param);
+		highScoreCalc.isCampaign = false;
+
+		endGameplay();
+		GH.defActionsDef = 63;
+		CMM->menu->switchToTab("main");
+		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, highScoreCalc);
+	}
+}
+
 void CServerHandler::endGameplay()
 {
 	// Game is ending
 	// Tell the network thread to reach a stable state
-	CSH->sendClientDisconnecting();
+	sendClientDisconnecting();
 	logNetwork->info("Closed connection.");
 
 	client->endGame();
@@ -691,40 +745,37 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	param.campaignName = cs->getNameTranslated();
 	highScoreCalc->parameters.push_back(param);
 
-	GH.dispatchMainThread([ourCampaign, this]()
+	endGameplay();
+
+	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
+	auto finisher = [=]()
 	{
-		CSH->endGameplay();
-
-		auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
-		auto finisher = [=]()
+		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{
-			if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
-			{
-				Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
-				entry->Bool() = true;
-			}
-
-			GH.windows().pushWindow(CMM);
-			GH.windows().pushWindow(CMM->menu);
-
-			if(!ourCampaign->isCampaignFinished())
-				CMM->openCampaignLobby(ourCampaign);
-			else
-			{
-				CMM->openCampaignScreen(ourCampaign->campaignSet);
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *highScoreCalc);
-			}
-		};
-
-		if(epilogue.hasPrologEpilog)
-		{
-			GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
+			Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
+			entry->Bool() = true;
 		}
+
+		GH.windows().pushWindow(CMM);
+		GH.windows().pushWindow(CMM->menu);
+
+		if(!ourCampaign->isCampaignFinished())
+			CMM->openCampaignLobby(ourCampaign);
 		else
 		{
-			finisher();
+			CMM->openCampaignScreen(ourCampaign->campaignSet);
+			GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *highScoreCalc);
 		}
-	});
+	};
+
+	if(epilogue.hasPrologEpilog)
+	{
+		GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
+	}
+	else
+	{
+		finisher();
+	}
 }
 
 void CServerHandler::showServerError(const std::string & txt) const
@@ -853,6 +904,14 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
+	if (connection != networkConnection)
+	{
+		// ServerHandler already closed this connection on its own
+		// This is the final call from network thread that informs serverHandler that connection has died
+		// ignore it since serverHandler have already shut down this connection (and possibly started a new one)
+		return;
+	}
+
 	waitForServerShutdown();
 
 	if(getState() == EClientState::DISCONNECTING)

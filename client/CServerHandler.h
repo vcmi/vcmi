@@ -128,6 +128,8 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 	bool isServerLocal() const;
 
+	HighScoreParameter prepareHighScores(PlayerColor player, bool victory);
+
 public:
 	/// High-level connection overlay that is capable of (de)serializing network data
 	std::shared_ptr<CConnection> logicConnection;
@@ -205,6 +207,7 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
+	void showHighScoresAndEndGameplay(PlayerColor player, bool victory);
 	void endGameplay();
 	void restartGameplay();
 	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});
