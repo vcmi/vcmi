@@ -23,7 +23,6 @@ namespace JsonUtils
 {
 	std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);
 	std::shared_ptr<Bonus> parseBonus(const JsonNode & ability);
-	std::shared_ptr<Bonus> parseBuildingBonus(const JsonNode & ability, const FactionID & faction, const BuildingID & building, const std::string & description);
 	bool parseBonus(const JsonNode & ability, Bonus * placement);
 	std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
 	CSelector parseSelector(const JsonNode &ability);

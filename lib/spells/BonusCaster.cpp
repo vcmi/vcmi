@@ -32,9 +32,9 @@ BonusCaster::~BonusCaster() = default;
 
 void BonusCaster::getCasterName(MetaString & text) const
 {
-	if(!bonus->description.empty())
-		text.replaceRawString(bonus->description);
-	else
+//	if(!bonus->descriptionTextID.empty())
+//		text.replaceTextID(bonus->descriptionTextID);
+//	else
 		actualCaster->getCasterName(text);
 }
 

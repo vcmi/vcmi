@@ -90,7 +90,7 @@ JsonNode CAddInfo::toJsonNode() const
 }
 std::string Bonus::Description(std::optional<si32> customValue) const
 {
-	std::string str;
+	MetaString descriptionHelper;
 
 	if(description.empty())
 	{
@@ -99,42 +99,43 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			switch(source)
 			{
 			case BonusSource::ARTIFACT:
-				str = sid.as<ArtifactID>().toEntity(VLC)->getNameTranslated();
+				descriptionHelper.appendName(sid.as<ArtifactID>());
 				break;
 			case BonusSource::SPELL_EFFECT:
-				str = sid.as<SpellID>().toEntity(VLC)->getNameTranslated();
+				descriptionHelper.appendName(sid.as<SpellID>());
 				break;
 			case BonusSource::CREATURE_ABILITY:
-				str = sid.as<CreatureID>().toEntity(VLC)->getNamePluralTranslated();
+				descriptionHelper.appendNamePlural(sid.as<CreatureID>());
 				break;
 			case BonusSource::SECONDARY_SKILL:
-				str = VLC->skills()->getById(sid.as<SecondarySkill>())->getNameTranslated();
+				descriptionHelper.appendTextID(sid.as<SecondarySkill>().toEntity(VLC)->getNameTextID());
 				break;
 			case BonusSource::HERO_SPECIAL:
-				str = VLC->heroTypes()->getById(sid.as<HeroTypeID>())->getNameTranslated();
+				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
 				break;
 			default:
 				//todo: handle all possible sources
-				str = "Unknown";
+				descriptionHelper.appendRawString("Unknown");
 				break;
 			}
 		}
 		else
-			str = stacking;
+			descriptionHelper = MetaString::createFromRawString(stacking);
 	}
 	else
 	{
-		str = description;
+		descriptionHelper = description;
 	}
 
-	if(auto value = customValue.value_or(val)) {
-		//arraytxt already contains +-value
-		std::string valueString = boost::str(boost::format(" %+d") % value);
-		if(!boost::algorithm::ends_with(str, valueString))
-			str += valueString;
+	auto valueToShow = customValue.value_or(val);
+
+	if(valueToShow != 0)
+	{
+		descriptionHelper.replaceNumber(valueToShow);
+		descriptionHelper.replacePositiveNumber(valueToShow);
 	}
 
-	return str;
+	return descriptionHelper.toString();
 }
 
 static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
@@ -170,7 +171,7 @@ JsonNode Bonus::toJsonNode() const
 	if(!stacking.empty())
 		root["stacking"].String() = stacking;
 	if(!description.empty())
-		root["description"].String() = description;
+		root["description"].String() = description.toString();
 	if(effectRange != BonusLimitEffect::NO_LIMIT)
 		root["effectRange"].String() = vstd::findKey(bonusLimitEffect, effectRange);
 	if(duration != BonusDuration::PERMANENT)
@@ -187,27 +188,17 @@ JsonNode Bonus::toJsonNode() const
 }
 
 Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID)
-	: Bonus(Duration, Type, Src, Val, ID, BonusSubtypeID(), std::string())
+	: Bonus(Duration, Type, Src, Val, ID, BonusSubtypeID())
 {}
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, std::string Desc)
-	: Bonus(Duration, Type, Src, Val, ID, BonusSubtypeID(), Desc)
-{}
-
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype)
-	: Bonus(Duration, Type, Src, Val, ID, Subtype, std::string())
-{}
-
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype, std::string Desc):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
 	source(Src),
 	val(Val),
-	sid(ID),
-	description(std::move(Desc))
+	sid(ID)
 {
-	boost::algorithm::trim(description);
 	targetSourceType = BonusSource::OTHER;
 }
 

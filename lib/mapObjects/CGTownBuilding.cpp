@@ -98,27 +98,33 @@ std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) const
 {
 	if(bonus.type == BonusType::TOWN_MAGIC_WELL)
 	{
-		auto bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingInTownMagicWell"));
-		auto buildingName = town->getTown()->getSpecialBuilding(bType)->getNameTranslated();
-		boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
-		return bonusGreeting;
+		MetaString wellGreeting = MetaString::createFromTextID("vcmi.townHall.greetingInTownMagicWell");
+
+		wellGreeting.replaceTextID(town->getTown()->getSpecialBuilding(bType)->getNameTextID());
+		return wellGreeting.toString();
 	}
-	auto bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingCustomBonus")); //"%s gives you +%d %s%s"
-	std::string param;
+
+	MetaString greeting = MetaString::createFromTextID("vcmi.townHall.greetingCustomBonus");
+
+	std::string paramTextID;
 	std::string until;
 
 	if(bonus.type == BonusType::MORALE)
-		param = VLC->generaltexth->allTexts[384];
-	else if(bonus.type == BonusType::LUCK)
-		param = VLC->generaltexth->allTexts[385];
+		paramTextID = "core.genrltxt.384"; // Morale
 
-	until = bonus.duration == BonusDuration::ONE_BATTLE
-			? VLC->generaltexth->translate("vcmi.townHall.greetingCustomUntil")
-			: ".";
+	if(bonus.type == BonusType::LUCK)
+		paramTextID = "core.genrltxt.385"; // Luck
 
-	boost::format fmt = boost::format(bonusGreeting) % bonus.description % bonus.val % param % until;
-	std::string greeting = fmt.str();
-	return greeting;
+//	greeting.replaceTextID(bonus.descriptionTextID);
+	greeting.replaceNumber(bonus.val);
+	greeting.replaceTextID(paramTextID);
+
+	if (bonus.duration == BonusDuration::ONE_BATTLE)
+		greeting.replaceTextID("vcmi.townHall.greetingCustomUntil");
+	else
+		greeting.replaceRawString(".");
+
+	return greeting.toString();
 }
 
 COPWBonus::COPWBonus(IGameCallback *cb)
@@ -160,7 +166,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 			if(!h->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(Obj(Obj::STABLES)))) //does not stack with advMap Stables
 			{
 				GiveBonus gb;
-				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT_TYPE, 600, BonusSourceID(Obj(Obj::STABLES)), BonusCustomSubtype::heroMovementLand, VLC->generaltexth->arraytxt[100]);
+				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT_TYPE, 600, BonusSourceID(Obj(Obj::STABLES)), BonusCustomSubtype::heroMovementLand);
 				gb.id = heroID;
 				cb->giveHeroBonus(&gb);
 
