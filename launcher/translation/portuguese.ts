@@ -604,6 +604,7 @@ Modo de janela - o jogo será executado dentro de uma janela que cobre parte da 
 Modo de janela sem bordas - o jogo será executado em uma janela que cobre toda a sua tela, usando a mesma resolução que a sua tela.
 
 Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolução selecionada.</translation>
+    </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="349"/>
         <source>Reserved screen area</source>
@@ -622,7 +623,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="162"/>
         <source>Heroes III Translation</source>
-        <translation>Tradução de Heroes III</translation>
+        <translation>Tradução do Heroes III</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="586"/>
@@ -884,7 +885,7 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="638"/>
         <source>Heroes III Translation</source>
-        <translation>Tradução de Heroes III</translation>
+        <translation>Tradução do Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
@@ -1056,7 +1057,7 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation>Você possui a versão mais recente</translation>
+        <translation>Já possui a versão mais recente</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
