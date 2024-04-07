@@ -64,6 +64,7 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 	widget->getGameChatHeader()->setText(text.toString());
 
 	// Update currently selected item in UI
+	// WARNING: this invalidates function parameters since some of them are members of objects that will be destroyed by reset
 	widget->getAccountList()->reset();
 	widget->getChannelList()->reset();
 	widget->getMatchList()->reset();
