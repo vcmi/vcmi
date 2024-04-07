@@ -146,6 +146,11 @@ CServerHandler::CServerHandler()
 	registerTypesLobbyPacks(*applier);
 }
 
+void CServerHandler::setHighScoreCalc(const std::shared_ptr<HighScoreCalculation> &newHighScoreCalc)
+{
+	campaignScoreCalculator = newHighScoreCalc;
+}
+
 void CServerHandler::threadRunNetwork()
 {
 	logGlobal->info("Starting network thread");
@@ -627,7 +632,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	if(CMM)
 		CMM->disable();
 
-	highScoreCalc = nullptr;
+	campaignScoreCalculator = nullptr;
 
 	switch(si->mode)
 	{
@@ -735,14 +740,14 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	if (!cs)
 		ourCampaign = si->campState;
 
-	if(highScoreCalc == nullptr)
+	if(campaignScoreCalculator == nullptr)
 	{
-		highScoreCalc = std::make_shared<HighScoreCalculation>();
-		highScoreCalc->isCampaign = true;
-		highScoreCalc->parameters.clear();
+		campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
+		campaignScoreCalculator->isCampaign = true;
+		campaignScoreCalculator->parameters.clear();
 	}
 	param.campaignName = cs->getNameTranslated();
-	highScoreCalc->parameters.push_back(param);
+	campaignScoreCalculator->parameters.push_back(param);
 
 	endGameplay();
 
@@ -763,7 +768,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		else
 		{
 			CMM->openCampaignScreen(ourCampaign->campaignSet);
-			GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *highScoreCalc);
+			GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator);
 		}
 	};
 
