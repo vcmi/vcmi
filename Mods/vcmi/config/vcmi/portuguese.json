@@ -71,9 +71,9 @@
 	"vcmi.lobby.noPreview" : "sem visualização",
 	"vcmi.lobby.noUnderground" : "sem subterrâneo",
 	"vcmi.lobby.sortDate" : "Classifica mapas por data de alteração",
-	"vcmi.lobby.backToLobby" : "Voltar para o lobby",
+	"vcmi.lobby.backToLobby" : "Voltar para a sala de espera",
 	
-	"vcmi.lobby.login.title" : "Lobby Online do VCMI",
+	"vcmi.lobby.login.title" : "Sala de Espera Online do VCMI",
 	"vcmi.lobby.login.username" : "Nome de usuário:",
 	"vcmi.lobby.login.connecting" : "Conectando...",
 	"vcmi.lobby.login.error" : "Erro de conexão: %s",
