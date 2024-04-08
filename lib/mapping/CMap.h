@@ -128,6 +128,8 @@ public:
 	void resetStaticData();
 	void resolveQuestIdentifiers();
 
+	void reindexObjects();
+
 	ui32 checksum;
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;

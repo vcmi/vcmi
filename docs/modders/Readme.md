@@ -31,7 +31,10 @@ Minimalistic version of this file:
 ``` javascript
 {
     "name" : "My test mod",
-    "description" : "My test mod that add a lot of useless stuff into the game"
+    "description" : "My test mod that add a lot of useless stuff into the game",
+    "version" : "1.00",
+	"modType" : "Graphical",	
+	"contact" : "http://www.contact.example.com"
 }
 ```
 

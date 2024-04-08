@@ -194,6 +194,11 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 				GH.windows().popWindows(1);
 		}
 
+		if(castleInt)
+			castleInt->close();
+
+		castleInt = nullptr;
+
 		// remove all pending dialogs that do not expect query answer
 		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
 			return window->ID == QueryID::NONE;
