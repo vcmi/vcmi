@@ -183,44 +183,108 @@ void ClientCommandManager::handleNotDialogCommand()
 	LOCPLINT->showingDialog->setn(false);
 }
 
-void ClientCommandManager::handleConvertTextCommand()
+void ClientCommandManager::handleTranslateGameCommand()
 {
-	logGlobal->info("Searching for available maps");
+	std::map<std::string, std::map<std::string, std::string>> textsByMod;
+	VLC->generaltexth->exportAllTexts(textsByMod);
+
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
+	boost::filesystem::create_directories(outPath);
+
+	for(const auto & modEntry : textsByMod)
+	{
+		JsonNode output;
+
+		for(const auto & stringEntry : modEntry.second)
+		{
+			if(boost::algorithm::starts_with(stringEntry.first, "map."))
+				continue;
+			if(boost::algorithm::starts_with(stringEntry.first, "campaign."))
+				continue;
+
+			output[stringEntry.first].String() = stringEntry.second;
+		}
+
+		if (!output.isNull())
+		{
+			const boost::filesystem::path filePath = outPath / (modEntry.first + ".json");
+			std::ofstream file(filePath.c_str());
+			file << output.toString();
+		}
+	}
+
+	printCommandMessage("Translation export complete");
+}
+
+void ClientCommandManager::handleTranslateMapsCommand()
+{
+	CMapService mapService;
+
+	printCommandMessage("Searching for available maps");
 	std::unordered_set<ResourcePath> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
 	{
 		return ident.getType() == EResType::MAP;
 	});
 
-	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
-	{
-		return ident.getType() == EResType::CAMPAIGN;
-	});
+	std::vector<std::unique_ptr<CMap>> loadedMaps;
+	std::vector<std::shared_ptr<CampaignState>> loadedCampaigns;
 
-	CMapService mapService;
-
-	logGlobal->info("Loading maps for export");
+	printCommandMessage("Loading maps for export");
 	for (auto const & mapName : mapList)
 	{
 		try
 		{
 			// load and drop loaded map - we only need loader to run over all maps
-			mapService.loadMap(mapName, nullptr);
+			loadedMaps.push_back(mapService.loadMap(mapName, nullptr));
 		}
 		catch(std::exception & e)
 		{
-			logGlobal->error("Map %s is invalid. Message: %s", mapName.getName(), e.what());
+			logGlobal->warn("Map %s is invalid. Message: %s", mapName.getName(), e.what());
 		}
 	}
+
+	printCommandMessage("Searching for available campaigns");
+	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
+	{
+		return ident.getType() == EResType::CAMPAIGN;
+	});
 
 	logGlobal->info("Loading campaigns for export");
 	for (auto const & campaignName : campaignList)
 	{
-		auto state = CampaignHandler::getCampaign(campaignName.getName());
-		for (auto const & part : state->allScenarios())
-			state->getMap(part, nullptr);
+		loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
+		for (auto const & part : loadedCampaigns.back()->allScenarios())
+			loadedCampaigns.back()->getMap(part, nullptr);
 	}
 
-	VLC->generaltexth->dumpAllTexts();
+	std::map<std::string, std::map<std::string, std::string>> textsByMod;
+	VLC->generaltexth->exportAllTexts(textsByMod);
+
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
+	boost::filesystem::create_directories(outPath);
+
+	for(const auto & modEntry : textsByMod)
+	{
+		JsonNode output;
+
+		for(const auto & stringEntry : modEntry.second)
+		{
+			if(boost::algorithm::starts_with(stringEntry.first, "map."))
+				output[stringEntry.first].String() = stringEntry.second;
+
+			if(boost::algorithm::starts_with(stringEntry.first, "campaign."))
+				output[stringEntry.first].String() = stringEntry.second;
+		}
+
+		if (!output.isNull())
+		{
+			const boost::filesystem::path filePath = outPath / (modEntry.first + ".json");
+			std::ofstream file(filePath.c_str());
+			file << output.toString();
+		}
+	}
+
+	printCommandMessage("Translation export complete");
 }
 
 void ClientCommandManager::handleGetConfigCommand()
@@ -522,8 +586,11 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(commandName == "not dialog")
 		handleNotDialogCommand();
 
-	else if(message=="convert txt")
-		handleConvertTextCommand();
+	else if(message=="translate" || message=="translate game")
+		handleTranslateGameCommand();
+
+	else if(message=="translate maps")
+		handleTranslateMapsCommand();
 
 	else if(message=="get config")
 		handleGetConfigCommand();
