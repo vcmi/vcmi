@@ -1,0 +1,31 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI map obstacle set format",
+	"description" : "Description of map object set, used only as sub-schema of object",
+	"required" : ["biome", "templates"],
+	"additionalProperties" : true, // may have type-dependant properties
+	"properties" : {
+		"biome" : {
+			"type" : "object",
+			"properties": {
+				"objectType" : {
+					"type" : "string",
+					"enmum": ["mountain", "tree", "lake", "crater", "rock", "plant", "structure", "animal", "other"],
+					"description" : "Type of the obstacle set"
+				},
+				"terrain" : {
+					// TODO: Allow multiple terrains
+					"type" : "string",
+					"description" : "Terrain of the obstacle set"
+				}
+			}
+		},
+		"templates" : {
+			"type" : "array",
+			"items" : { "type" : "string" },
+			"description" : "Object templates of the obstacle set"
+		}
+	}
+}
+

@@ -58,7 +58,9 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 
 	possibleObstacles.clear();
 
-	std::vector<ObstacleSet> obstacleSets;
+	// TODO: Move this logic to ObstacleSetHandler
+
+	std::vector<std::shared_ptr<ObstacleSet>> obstacleSets;
 
 	size_t selectedSets = 0;
 	const size_t MINIMUM_SETS = 6;
@@ -103,7 +105,7 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 		selectedSets++;
 
 		// TODO: Convert to string
-		logGlobal->info("Added large set of type %s", obstacleSets.back().getType());
+		logGlobal->info("Added large set of type %s", obstacleSets.back()->getType());
 	}
 
 	TObstacleTypes rockSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter(ObstacleSet::EObstacleType::ROCKS, terrain));
@@ -152,7 +154,7 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 			smallObstacleSets.pop_back();
 			selectedSets++;
 			smallSets--;
-			logGlobal->info("Added small set of type %s", obstacleSets.back().getType());
+			logGlobal->info("Added small set of type %s", obstacleSets.back()->getType());
 		}
 		else if(otherSets.empty())
 		{
@@ -183,7 +185,7 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 		obstaclesBySize.clear();
 		for (const auto & os : obstacleSets)
 		{
-			for (const auto & temp : os.getObstacles())
+			for (const auto & temp : os->getObstacles())
 			{
 				if(temp->getBlockMapOffset().valid())
 				{

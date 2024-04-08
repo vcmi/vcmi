@@ -64,10 +64,10 @@ void CObstacleConstructor::afterLoadFinalization()
 		// For now assume that all templates are from the same biome
 		for (auto terrain : terrains)
 		{
-			ObstacleSet os(obstacleType, terrain);
+			std::shared_ptr<ObstacleSet> os = std::make_shared<ObstacleSet>(obstacleType, terrain);
 			for (auto tmpl : templates)
 			{
-				os.addObstacle(tmpl);
+				os->addObstacle(tmpl);
 			}
 			VLC->biomeHandler->addObstacleSet(os);
 			logGlobal->info("Loaded obstacle set from mod %s, terrain: %s", getJsonKey(), terrain.encode(terrain.getNum()));

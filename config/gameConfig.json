@@ -67,6 +67,11 @@
 		"config/objects/witchHut.json"
 	],
 
+	"biomes" :
+	[
+		"config/biomes.json"
+	],
+
 	"artifacts" :
 	[
 		"config/artifacts.json"

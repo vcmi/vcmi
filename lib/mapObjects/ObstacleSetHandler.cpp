@@ -11,7 +11,15 @@
 #include "StdInc.h"
 #include "ObstacleSetHandler.h"
 
+#include "../modding/IdentifierStorage.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
+
+ObstacleSet::ObstacleSet():
+	type(INVALID),
+	terrain(TerrainId::NONE)
+{
+}
 
 ObstacleSet::ObstacleSet(EObstacleType type, TerrainId terrain):
 	type(type),
@@ -51,9 +59,19 @@ TerrainId ObstacleSet::getTerrain() const
 	return terrain;
 }
 
+void ObstacleSet::setTerrain(TerrainId terrain)
+{
+	this->terrain = terrain;
+}
+
 ObstacleSet::EObstacleType ObstacleSet::getType() const
 {
 	return type;
+}
+
+void ObstacleSet::setType(EObstacleType type)
+{
+	this->type = type;
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>> ObstacleSet::getObstacles() const
@@ -139,14 +157,128 @@ ObstacleSet::EObstacleType ObstacleSet::typeFromString(const std::string &str)
 	throw std::runtime_error("Invalid obstacle type: " + str);
 }
 
+std::string ObstacleSet::toString() const
+{
+	static const std::map<EObstacleType, std::string> OBSTACLE_TYPE_STRINGS =
+	{
+		{MOUNTAINS, "mountain"},
+		{TREES, "tree"},
+		{LAKES, "lake"},
+		{CRATERS, "crater"},
+		{ROCKS, "rock"},
+		{PLANTS, "plant"},
+		{STRUCTURES, "structure"},
+		{ANIMALS, "animal"},
+		{OTHER, "other"}
+	};
+
+	return OBSTACLE_TYPE_STRINGS.at(type);
+}
+
 std::vector<ObstacleSet::EObstacleType> ObstacleSetFilter::getAllowedTypes() const
 {
 	return allowedTypes;
 }
 
-void ObstacleSetHandler::addObstacleSet(const ObstacleSet &os)
+std::vector<JsonNode> ObstacleSetHandler::loadLegacyData()
 {
-	obstacleSets[os.getType()].push_back(os);
+	// TODO: Where to load objects.json?
+	return {};
+}
+
+void ObstacleSetHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+{
+	auto os = loadFromJson(scope, data, name, biomes.size());
+	if(os)
+	{
+		addObstacleSet(os);
+	}
+	else
+	{
+		logMod->error("Failed to load obstacle set: %s", name);
+	}
+	// TODO: Define some const array of object types ("biome" etc.)
+	VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.back()->id);
+}
+
+void ObstacleSetHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+{
+	assert(objects.at(index) == nullptr); // ensure that this id was not loaded before
+
+	auto os = loadFromJson(scope, data, name, index);
+	if(os)
+	{
+		addObstacleSet(os);
+	}
+	else
+	{
+		logMod->error("Failed to load obstacle set: %s", name);
+	}
+	// TODO: 
+	VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.at(index)->id);
+}
+
+std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
+{
+	auto os = std::make_shared<ObstacleSet>();
+
+	// TODO: Register ObstacleSet by its name
+
+	auto biome = json["biome"].Struct();
+	os->setType(ObstacleSet::typeFromString(biome["objectType"].String()));
+
+	auto terrainName = biome["terrain"].String();
+
+	VLC->identifiers()->requestIdentifier(scope, "terrain", terrainName, [this, os](si32 id)
+	{
+		os->setTerrain(TerrainId(id));
+	});
+
+	auto templates = json["templates"].Vector();
+	for (const auto & node : templates)
+	{
+		// TODO: We need to store all the templates by their name
+		// TODO: We need to store all the templates by their id
+
+		logGlobal->info("Registering obstacle template: %s", node.String());
+		/*
+		FIXME:
+		Warning: identifier AVXplns0 is not in camelCase!
+		registered biome.templateSet1 as core:1701602145
+		*/
+
+		VLC->identifiers()->requestIdentifier(scope, "obstacleTemplate", node.String(), [this, os](si32 id)
+		{
+			logGlobal->info("Resolved obstacle id: %d", id);
+			os->addObstacle(obstacleTemplates[id]);
+		});
+	}
+
+	return os;
+}
+
+void ObstacleSetHandler::addTemplate(const std::string & scope, const std::string &name, std::shared_ptr<const ObjectTemplate> tmpl)
+{
+	auto id = obstacleTemplates.size();
+
+	auto strippedName = name;
+	auto pos = strippedName.find(".def");
+	if(pos != std::string::npos)
+		strippedName.erase(pos, 4);
+
+	// TODO: Consider converting to lowercase?
+	// Save by name
+	VLC->identifiersHandler->registerObject(scope, "obstacleTemplate", strippedName, id);
+
+	// Index by id
+	obstacleTemplates[id] = tmpl;
+}
+
+void ObstacleSetHandler::addObstacleSet(std::shared_ptr<ObstacleSet> os)
+{
+	// TODO: Allow to refer to existing obstacle set by its id (name)
+	obstacleSets[os->getType()].push_back(os);
+	biomes.push_back(os);
 }
 
 TObstacleTypes ObstacleSetHandler::getObstacles( const ObstacleSetFilter &filter) const
@@ -160,7 +292,7 @@ TObstacleTypes ObstacleSetHandler::getObstacles( const ObstacleSetFilter &filter
 		{
 			for (const auto &os : it->second)
 			{
-				if (filter.filter(os))
+				if (filter.filter(*os))
 				{
 					result.push_back(os);
 				}

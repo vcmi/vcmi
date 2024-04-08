@@ -37,15 +37,22 @@ public:
 		ANIMALS, // Living, or bones
 		OTHER // Crystals, shipwrecks, barrels, etc.
 	};
+	ObstacleSet();
 	explicit ObstacleSet(EObstacleType type, TerrainId terrain);
 
 	void addObstacle(std::shared_ptr<const ObjectTemplate> obstacle);
 	std::vector<std::shared_ptr<const ObjectTemplate>> getObstacles() const;
 
 	EObstacleType getType() const;
+	void setType(EObstacleType type);
+
 	TerrainId getTerrain() const;
+	void setTerrain(TerrainId terrain);
 
 	static EObstacleType typeFromString(const std::string &str);
+	std::string toString() const;
+
+	si32 id;
 
 private:
 	EObstacleType type;
@@ -53,7 +60,7 @@ private:
 	std::vector<std::shared_ptr<const ObjectTemplate>> obstacles;
 };
 
-typedef std::vector<ObstacleSet> TObstacleTypes;
+typedef std::vector<std::shared_ptr<ObstacleSet>> TObstacleTypes;
 
 class DLL_LINKAGE ObstacleSetFilter
 {
@@ -80,22 +87,29 @@ public:
 	ObstacleSetHandler() = default;
 	~ObstacleSetHandler() = default;
 
-	// FIXME: Not needed at all
-	std::vector<JsonNode> loadLegacyData() override {return {};};
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) override {};
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override {};
+	std::vector<JsonNode> loadLegacyData() override;
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	std::shared_ptr<ObstacleSet> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
 	ObstacleSet::EObstacleType convertObstacleClass(MapObjectID id);
 
 	// TODO: Populate obstacleSets with all the obstacle sets from the game data
+	void addTemplate(const std::string & scope, const std::string &name, std::shared_ptr<const ObjectTemplate> tmpl);
 
-	void addObstacleSet(const ObstacleSet &set);
+	void addObstacleSet(std::shared_ptr<ObstacleSet> set);
 	
 	TObstacleTypes getObstacles(const ObstacleSetFilter &filter) const;
 
 private:
 
-	std::map<ObstacleSet::EObstacleType, std::vector<ObstacleSet>> obstacleSets;
+	std::vector< std::shared_ptr<ObstacleSet> > biomes;
+
+	// TODO: Serialize?
+	std::map<si32, std::shared_ptr<const ObjectTemplate>> obstacleTemplates;
+
+		// FIXME: Store pointers?
+		std::map<ObstacleSet::EObstacleType, std::vector<std::shared_ptr<ObstacleSet>>> obstacleSets;
 };
 
 VCMI_LIB_NAMESPACE_END
