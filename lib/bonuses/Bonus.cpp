@@ -130,10 +130,7 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 	auto valueToShow = customValue.value_or(val);
 
 	if(valueToShow != 0)
-	{
-		descriptionHelper.replaceNumber(valueToShow);
 		descriptionHelper.replacePositiveNumber(valueToShow);
-	}
 
 	return descriptionHelper.toString();
 }

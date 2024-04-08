@@ -1523,26 +1523,27 @@ void BattleActionProcessor::addGenericKilledLog(BattleLogMessage & blm, const CS
 {
 	if(killed > 0)
 	{
-		const int32_t txtIndex = (killed > 1) ? 379 : 378;
-		std::string formatString = VLC->generaltexth->allTexts[txtIndex];
-
-		// these default h3 texts have unnecessary new lines, so get rid of them before displaying (and trim just in case, trimming newlines does not works for some reason)
-		formatString.erase(std::remove(formatString.begin(), formatString.end(), '\n'), formatString.end());
-		formatString.erase(std::remove(formatString.begin(), formatString.end(), '\r'), formatString.end());
-		boost::algorithm::trim(formatString);
-
-		boost::format txt(formatString);
-		if(killed > 1)
-		{
-			txt % killed % (multiple ? VLC->generaltexth->allTexts[43] : defender->unitType()->getNamePluralTranslated()); // creatures perish
-		}
-		else //killed == 1
-		{
-			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->unitType()->getNameSingularTranslated()); // creature perishes
-		}
 		MetaString line;
-		line.appendRawString(txt.str());
-		blm.lines.push_back(std::move(line));
+
+		if (killed > 1)
+		{
+			line.appendTextID("core.genrltxt.379"); // %d %s perished
+			line.replaceNumber(killed);
+		}
+		else
+			line.appendTextID("core.genrltxt.378"); // One %s perishes
+
+		if (multiple)
+		{
+			if (killed > 1)
+				line.replaceTextID("core.genrltxt.43"); // creatures
+			else
+				line.replaceTextID("core.genrltxt.42"); // creature
+		}
+		else
+			line.replaceName(CreatureID(defender->unitId()), killed);
+
+		blm.lines.push_back(line);
 	}
 }
 

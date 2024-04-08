@@ -217,7 +217,6 @@ public:
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {};
 
 	void showInfoDialog(InfoWindow * iw) override {};
-	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
 	void removeGUI() const;
 
 #if SCRIPTING_ENABLED

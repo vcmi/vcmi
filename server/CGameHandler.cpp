@@ -388,7 +388,7 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 		InfoWindow iw;
 		iw.player = hero->tempOwner;
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
-		iw.text.replaceRawString(hero->getNameTranslated());
+		iw.text.replaceTextID(hero->getNameTextID());
 		sendAndApply(&iw);
 	}
 
@@ -1593,7 +1593,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		iw.components.emplace_back(ComponentType::SEC_SKILL, scholarSkill, scholarSkillLevel);
 
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
-		iw.text.replaceRawString(h1->getNameTranslated());
+		iw.text.replaceTextID(h1->getNameTextID());
 
 		if (!cs2.spells.empty())//if found new spell - apply
 		{
@@ -1614,7 +1614,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				}
 			}
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 142);//from %s
-			iw.text.replaceRawString(h2->getNameTranslated());
+			iw.text.replaceTextID(h2->getNameTextID());
 			sendAndApply(&cs2);
 		}
 
@@ -1642,7 +1642,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				}
 			}
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 148);//from %s
-			iw.text.replaceRawString(h2->getNameTranslated());
+			iw.text.replaceTextID(h2->getNameTextID());
 			sendAndApply(&cs1);
 		}
 		sendAndApply(&iw);
@@ -4263,14 +4263,6 @@ void CGameHandler::setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, Ob
 void CGameHandler::showInfoDialog(InfoWindow * iw)
 {
 	sendAndApply(iw);
-}
-
-void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
-{
-	InfoWindow iw;
-	iw.player = player;
-	iw.text.appendRawString(msg);
-	showInfoDialog(&iw);
 }
 
 CRandomGenerator & CGameHandler::getRandomGenerator()
