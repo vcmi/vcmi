@@ -108,10 +108,6 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
-	//std::map<TerrainId, std::map<MapObjectID, std::map<MapObjectSubID, ObstacleSet>>> obstacleSets;
-
-	// TODO: Create map defName -> tmpl
-
 	for (size_t i = 0; i < totalNumber; i++)
 	{
 		auto tmpl = std::make_shared<ObjectTemplate>();
@@ -223,6 +219,12 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	createdObject->type = obj->id;
 	createdObject->subtype = index;
 	createdObject->init(entry);
+
+	for (auto & templ : createdObject->getTemplates())
+	{
+		// Register templates for new objects
+		VLC->biomeHandler->addTemplate(scope, templ->stringID, templ);
+	}
 
 	auto range = legacyTemplates.equal_range(std::make_pair(obj->id, index));
 	for (auto & templ : boost::make_iterator_range(range.first, range.second))
