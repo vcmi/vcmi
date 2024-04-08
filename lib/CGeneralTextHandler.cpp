@@ -500,6 +500,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
 	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
 	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
+	readToVector("core.plcolors", "DATA/PLCOLORS.TXT" );
 	readToVector("core.jktext",   "DATA/JKTEXT.TXT"   );
 	readToVector("core.tvrninfo", "DATA/TVRNINFO.TXT" );
 	readToVector("core.turndur",  "DATA/TURNDUR.TXT"  );
@@ -550,20 +551,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 			std::string second = parser.readString();
 			registerString("core", "core.help." + std::to_string(index) + ".hover", first);
 			registerString("core", "core.help." + std::to_string(index) + ".help",  second);
-			index += 1;
-		}
-		while (parser.endLine());
-	}
-	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/PLCOLORS.TXT"));
-		size_t index = 0;
-		do
-		{
-			std::string color = parser.readString();
-
-			registerString("core", {"core.plcolors", index}, color);
-			color[0] = toupper(color[0]);
-			registerString("core", {"vcmi.capitalColors", index}, color);
 			index += 1;
 		}
 		while (parser.endLine());
