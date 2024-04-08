@@ -38,10 +38,12 @@ VCMI allows translating game data into languages other than English. In order to
 If you have already existing Heroes III translation you can:
 
 - Install VCMI and select your localized Heroes III data files for VCMI data files
-- Launch VCMI_Client.exe directly from game install directory
-- In console window, type `convert txt`
+- Launch VCMI and start any map to get in game
+- Press Tab to activate chat and enter '/translate'
 
-This will export all strings from game into `Documents/My Games/VCMI/VCMI_Client_log.txt` which you can then use to update json files in your translation
+This will export all strings from game into `Documents/My Games/VCMI/extracted/translation/` directory which you can then use to update json files in your translation.
+
+To export maps and campaigns, use '/translate maps' command instead.
 
 ## Translating VCMI data
 
@@ -111,7 +113,15 @@ If everything is OK, your changes will be accepted and will be part of next rele
 
 ### Exporting translation
 
-TODO
+If you want to start new translation for a mod or to update existing one you may need to export it first. To do that:
+
+- Enable mod(s) that you want to export and set game language in Launcher to one that you want to target
+- Launch VCMI and start any map to get in game
+- Press Tab to activate chat and enter '/translate'
+
+After that, start Launcher, switch to Help tab and open "log files directory". You can find exported json's in 'extracted/translation' directory.
+
+If your mod also contains maps or campaigns that you want to translate, then use '/translate maps' command instead.
 
 ### Translating mod information
 In order to display information in Launcher in language selected by user add following block into your mod.json:
@@ -126,6 +136,12 @@ In order to display information in Launcher in language selected by user add fol
 	},
 ```
 However, normally you don't need to use block for English. Instead, English text should remain in root section of your mod.json file, to be used when game can not find translated version.
+
+### Tranlating in-game strings
+
+After you have exported translation and added mod information for your language, copy exported file to `<mod directory>/Content/config/<mod name>/<language>.json`.
+
+Use any text editor (Notepad++ is recommended for Windows) and translate all strings from this file to your language
 
 # Developers documentation
 
