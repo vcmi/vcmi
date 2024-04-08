@@ -229,7 +229,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 
 	auto terrainName = biome["terrain"].String();
 
-	VLC->identifiers()->requestIdentifier(scope, "terrain", terrainName, [this, os](si32 id)
+	VLC->identifiers()->requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
 	{
 		os->setTerrain(TerrainId(id));
 	});
