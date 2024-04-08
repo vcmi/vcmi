@@ -203,8 +203,6 @@ void ObstacleSetHandler::loadObject(std::string scope, std::string name, const J
 
 void ObstacleSetHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	assert(objects.at(index) == nullptr); // ensure that this id was not loaded before
-
 	auto os = loadFromJson(scope, data, name, index);
 	if(os)
 	{
