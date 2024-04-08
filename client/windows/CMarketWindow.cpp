@@ -115,7 +115,7 @@ void CMarketWindow::artifactMoved(const ArtifactLocation & srcLoc, const Artifac
 
 void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero)
 {
-	auto isButton = [currentMode, market, hero](EMarketMode modeButton) -> bool
+	auto isButtonVisible = [currentMode, market, hero](EMarketMode modeButton) -> bool
 	{
 		if(currentMode == modeButton)
 			return false;
@@ -146,27 +146,27 @@ void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMark
 		buttonPos -= Point(0, buttonHeightWithMargin);
 	};
 
-	if(isButton(EMarketMode::RESOURCE_PLAYER))
+	if(isButtonVisible(EMarketMode::RESOURCE_PLAYER))
 		addButton(AnimationPath::builtin("TPMRKBU1.DEF"), CGI->generaltexth->zelp[612], std::bind(&CMarketWindow::createTransferResources, this, market, hero));
-	if(isButton(EMarketMode::ARTIFACT_RESOURCE))
+	if(isButtonVisible(EMarketMode::ARTIFACT_RESOURCE))
 		addButton(AnimationPath::builtin("TPMRKBU3.DEF"), CGI->generaltexth->zelp[613], std::bind(&CMarketWindow::createArtifactsSelling, this, market, hero));
-	if(isButton(EMarketMode::RESOURCE_ARTIFACT))
+	if(isButtonVisible(EMarketMode::RESOURCE_ARTIFACT))
 		addButton(AnimationPath::builtin("TPMRKBU2.DEF"), CGI->generaltexth->zelp[598], std::bind(&CMarketWindow::createArtifactsBuying, this, market, hero));
 
 	buttonPos = Point(516, 520 - buttonHeightWithMargin);
-	if(isButton(EMarketMode::CREATURE_RESOURCE))
+	if(isButtonVisible(EMarketMode::CREATURE_RESOURCE))
 		addButton(AnimationPath::builtin("TPMRKBU4.DEF"), CGI->generaltexth->zelp[599], std::bind(&CMarketWindow::createFreelancersGuild, this, market, hero));
-	if(isButton(EMarketMode::RESOURCE_RESOURCE))
+	if(isButtonVisible(EMarketMode::RESOURCE_RESOURCE))
 		addButton(AnimationPath::builtin("TPMRKBU5.DEF"), CGI->generaltexth->zelp[605], std::bind(&CMarketWindow::createMarketResources, this, market, hero));
 	
 	buttonPos = Point(516, 421);
-	if(isButton(EMarketMode::CREATURE_EXP))
+	if(isButtonVisible(EMarketMode::CREATURE_EXP))
 	{
 		addButton(AnimationPath::builtin("ALTSACC.DEF"), CGI->generaltexth->zelp[572], std::bind(&CMarketWindow::createAltarCreatures, this, market, hero));
 		if(marketWidget->hero->getAlignment() == EAlignment::GOOD)
 			changeModeButtons.back()->block(true);
 	}
-	if(isButton(EMarketMode::ARTIFACT_EXP))
+	if(isButtonVisible(EMarketMode::ARTIFACT_EXP))
 	{
 		addButton(AnimationPath::builtin("ALTART.DEF"), CGI->generaltexth->zelp[580], std::bind(&CMarketWindow::createAltarArtifacts, this, market, hero));
 		if(marketWidget->hero->getAlignment() == EAlignment::EVIL)

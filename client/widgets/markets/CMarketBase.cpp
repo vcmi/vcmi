@@ -108,9 +108,9 @@ void CMarketBase::updateShowcases()
 
 	const auto params = getShowcasesParams();
 	if(bidTradePanel)
-		updateSelectedBody(bidTradePanel, std::get<0>(params));
+		updateSelectedBody(bidTradePanel, params.bidParams);
 	if(offerTradePanel)
-		updateSelectedBody(offerTradePanel, std::get<1>(params));
+		updateSelectedBody(offerTradePanel, params.offerParams);
 }
 
 void CMarketBase::highlightingChanged()

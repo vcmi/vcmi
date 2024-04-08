@@ -88,11 +88,13 @@ void CArtifactsBuying::makeDeal()
 CMarketBase::MarketShowcasesParams CArtifactsBuying::getShowcasesParams() const
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
-		return std::make_tuple(
+		return MarketShowcasesParams
+		{
 			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : bidQty), bidTradePanel->getSelectedItemId()},
-			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : offerQty), CGI->artifacts()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()});
+			ShowcaseParams {std::to_string(deal->isBlocked() ? 0 : offerQty), CGI->artifacts()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()}
+		};
 	else
-		return std::make_tuple(std::nullopt, std::nullopt);
+		return MarketShowcasesParams {std::nullopt, std::nullopt};
 }
 
 void CArtifactsBuying::highlightingChanged()
@@ -110,12 +112,12 @@ std::string CArtifactsBuying::getTraderText()
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		return boost::str(boost::format(
-			CGI->generaltexth->allTexts[267]) %
-			CGI->artifacts()->getByIndex(offerTradePanel->getSelectedItemId())->getNameTranslated() %
-			bidQty %
-			(bidQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]) %
-			CGI->generaltexth->restypes[bidTradePanel->getSelectedItemId()]);
+		MetaString message = MetaString::createFromTextID("core.genrltxt.267");
+		message.replaceName(ArtifactID(offerTradePanel->getSelectedItemId()));
+		message.replaceNumber(bidQty);
+		message.replaceTextID(bidQty == 1 ? "core.genrltxt.161" : "core.genrltxt.160");
+		message.replaceName(GameResID(bidTradePanel->getSelectedItemId()));
+		return message.toString();
 	}
 	else
 	{

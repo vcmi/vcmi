@@ -28,7 +28,11 @@ public:
 		std::string text;
 		int imageIndex;
 	};
-	using MarketShowcasesParams = std::tuple<std::optional<const ShowcaseParams>, std::optional<const ShowcaseParams>>;
+	struct MarketShowcasesParams
+	{
+		std::optional<const ShowcaseParams> bidParams;
+		std::optional<const ShowcaseParams> offerParams;
+	};
 	using ShowcasesParamsFunctor = std::function<const MarketShowcasesParams()>;
 
 	const IMarket * market;

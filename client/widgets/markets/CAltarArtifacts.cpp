@@ -185,11 +185,12 @@ void CAltarArtifacts::putBackArtifacts()
 CMarketBase::MarketShowcasesParams CAltarArtifacts::getShowcasesParams() const
 {
 	if(const auto art = hero->getArt(ArtifactPosition::TRANSITION_POS))
-		return std::make_tuple(
+		return MarketShowcasesParams
+		{
 			std::nullopt,
 			ShowcaseParams {std::to_string(offerQty), CGI->artifacts()->getByIndex(art->getTypeId())->getIconIndex()}
-	);
-	return std::make_tuple(std::nullopt, std::nullopt);
+		};
+	return MarketShowcasesParams {std::nullopt, std::nullopt};
 }
 
 void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<TradePanelBase> & curPanel)

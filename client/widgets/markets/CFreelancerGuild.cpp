@@ -21,6 +21,7 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/MetaString.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
@@ -77,11 +78,13 @@ void CFreelancerGuild::makeDeal()
 CMarketBase::MarketShowcasesParams CFreelancerGuild::getShowcasesParams() const
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
-		return std::make_tuple(
+		return MarketShowcasesParams
+		{
 			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->getSelectedItemId())->getIconIndex()},
-			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getSelectedItemId()});
+			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getSelectedItemId()}
+		};
 	else
-		return std::make_tuple(std::nullopt, std::nullopt);
+		return MarketShowcasesParams {std::nullopt, std::nullopt};
 }
 
 void CFreelancerGuild::highlightingChanged()
@@ -103,14 +106,16 @@ std::string CFreelancerGuild::getTraderText()
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		return boost::str(boost::format(
-			CGI->generaltexth->allTexts[269]) %
-			offerQty %
-			(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]) %
-			CGI->generaltexth->restypes[offerTradePanel->getSelectedItemId()] %
-			bidQty %
-			(bidQty == 1 ? CGI->creh->objects[bidTradePanel->getSelectedItemId()]->getNameSingularTranslated() :
-				CGI->creh->objects[bidTradePanel->getSelectedItemId()]->getNamePluralTranslated()));
+		MetaString message = MetaString::createFromTextID("core.genrltxt.269");
+		message.replaceNumber(offerQty);
+		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceName(GameResID(offerTradePanel->getSelectedItemId()));
+		message.replaceNumber(bidQty);
+		if(bidQty == 1)
+			message.replaceNameSingular(bidTradePanel->getSelectedItemId());
+		else
+			message.replaceNamePlural(bidTradePanel->getSelectedItemId());
+		return message.toString();
 	}
 	else
 	{

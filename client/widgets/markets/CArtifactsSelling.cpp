@@ -122,12 +122,13 @@ std::shared_ptr<CArtifactsOfHeroMarket> CArtifactsSelling::getAOHset() const
 CMarketBase::MarketShowcasesParams CArtifactsSelling::getShowcasesParams() const
 {
 	if(hero->getArt(selectedHeroSlot) && offerTradePanel->isHighlighted())
-		return std::make_tuple(
+		return MarketShowcasesParams
+		{
 			std::nullopt,
 			ShowcaseParams {std::to_string(offerQty), offerTradePanel->getSelectedItemId()}
-		);
+		};
 	else
-		return std::make_tuple(std::nullopt, std::nullopt);
+		return MarketShowcasesParams {std::nullopt, std::nullopt};
 }
 
 void CArtifactsSelling::updateSubtitles()
@@ -154,12 +155,12 @@ std::string CArtifactsSelling::getTraderText()
 	const auto art = hero->getArt(selectedHeroSlot);
 	if(art && offerTradePanel->isHighlighted())
 	{
-		return boost::str(boost::format(
-			CGI->generaltexth->allTexts[268]) %
-			offerQty %
-			(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]) %
-			CGI->generaltexth->restypes[offerTradePanel->getSelectedItemId()] %
-			CGI->artifacts()->getByIndex(art->getTypeId())->getNameTranslated());
+		MetaString message = MetaString::createFromTextID("core.genrltxt.268");
+		message.replaceNumber(offerQty);
+		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceName(GameResID(offerTradePanel->getSelectedItemId()));
+		message.replaceName(art->getTypeId());
+		return message.toString();
 	}
 	else
 	{

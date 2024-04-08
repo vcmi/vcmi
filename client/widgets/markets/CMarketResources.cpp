@@ -21,6 +21,7 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/MetaString.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
@@ -69,11 +70,13 @@ void CMarketResources::makeDeal()
 CMarketBase::MarketShowcasesParams CMarketResources::getShowcasesParams() const
 {
 	if(bidTradePanel->highlightedSlot && offerTradePanel->highlightedSlot && bidTradePanel->getSelectedItemId() != offerTradePanel->getSelectedItemId())
-		return std::make_tuple(
+		return MarketShowcasesParams
+		{
 			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
-			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getSelectedItemId()});
+			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getSelectedItemId()}
+		};
 	else
-		return std::make_tuple(std::nullopt, std::nullopt);
+		return MarketShowcasesParams {std::nullopt, std::nullopt};
 }
 
 void CMarketResources::highlightingChanged()
@@ -104,14 +107,14 @@ std::string CMarketResources::getTraderText()
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted() &&
 		bidTradePanel->getSelectedItemId() != offerTradePanel->getSelectedItemId())
 	{
-		return boost::str(boost::format(
-			CGI->generaltexth->allTexts[157]) %
-			offerQty %
-			(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]) %
-			CGI->generaltexth->restypes[bidTradePanel->getSelectedItemId()] %
-			bidQty %
-			(bidQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]) %
-			CGI->generaltexth->restypes[offerTradePanel->getSelectedItemId()]);
+		MetaString message = MetaString::createFromTextID("core.genrltxt.157");
+		message.replaceNumber(offerQty);
+		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceName(GameResID(bidTradePanel->getSelectedItemId()));
+		message.replaceNumber(bidQty);
+		message.replaceRawString(bidQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceName(GameResID(offerTradePanel->getSelectedItemId()));
+		return message.toString();
 	}
 	else
 	{

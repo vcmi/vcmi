@@ -21,6 +21,7 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/MetaString.h"
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -71,11 +72,13 @@ void CTransferResources::makeDeal()
 CMarketBase::MarketShowcasesParams CTransferResources::getShowcasesParams() const
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
-		return std::make_tuple(
+		return MarketShowcasesParams
+		{
 			ShowcaseParams {std::to_string(offerSlider->getValue()), bidTradePanel->getSelectedItemId()},
-			ShowcaseParams {CGI->generaltexth->capColors[offerTradePanel->getSelectedItemId()], offerTradePanel->getSelectedItemId()});
+			ShowcaseParams {CGI->generaltexth->capColors[offerTradePanel->getSelectedItemId()], offerTradePanel->getSelectedItemId()}
+		};
 	else
-		return std::make_tuple(std::nullopt, std::nullopt);
+		return MarketShowcasesParams {std::nullopt, std::nullopt};
 }
 
 void CTransferResources::highlightingChanged()
@@ -96,10 +99,10 @@ std::string CTransferResources::getTraderText()
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		return boost::str(boost::format(
-			CGI->generaltexth->allTexts[165]) %
-			CGI->generaltexth->restypes[bidTradePanel->getSelectedItemId()] %
-			CGI->generaltexth->capColors[offerTradePanel->getSelectedItemId()]);
+		MetaString message = MetaString::createFromTextID("core.genrltxt.165");
+		message.replaceName(GameResID(bidTradePanel->getSelectedItemId()));
+		message.replaceName(PlayerColor(offerTradePanel->getSelectedItemId()));
+		return message.toString();
 	}
 	else
 	{

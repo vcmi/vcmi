@@ -23,6 +23,7 @@
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/MetaString.h"
 
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -176,8 +177,8 @@ CMarketBase::MarketShowcasesParams CAltarCreatures::getShowcasesParams() const
 	if(bidTradePanel->isHighlighted())
 		bidSelected = ShowcaseParams {std::to_string(offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->getSelectedItemId())->getIconIndex()};
 	if(offerTradePanel->isHighlighted() && offerSlider->getValue() > 0)
-		offerSelected = ShowcaseParams { offerTradePanel->highlightedSlot->subtitle->getText(), CGI->creatures()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()};
-	return std::make_tuple(bidSelected, offerSelected);
+		offerSelected = ShowcaseParams {offerTradePanel->highlightedSlot->subtitle->getText(), CGI->creatures()->getByIndex(offerTradePanel->getSelectedItemId())->getIconIndex()};
+	return MarketShowcasesParams {bidSelected, offerSelected};
 }
 
 void CAltarCreatures::sacrificeAll()
@@ -256,9 +257,9 @@ std::string CAltarCreatures::getTraderText()
 {
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
-		return boost::str(boost::format(
-			CGI->generaltexth->allTexts[484]) %
-			CGI->creh->objects[bidTradePanel->getSelectedItemId()]->getNamePluralTranslated());
+		MetaString message = MetaString::createFromTextID("core.genrltxt.484");
+		message.replaceNamePlural(CreatureID(bidTradePanel->getSelectedItemId()));
+		return message.toString();
 	}
 	else
 	{
