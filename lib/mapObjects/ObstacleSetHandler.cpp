@@ -218,8 +218,6 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 {
 	auto os = std::make_shared<ObstacleSet>();
 
-	// TODO: Register ObstacleSet by its name
-
 	auto biome = json["biome"].Struct();
 	os->setType(ObstacleSet::typeFromString(biome["objectType"].String()));
 
@@ -236,9 +234,9 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 		logGlobal->info("Registering obstacle template: %s in scope %s", node.String(), scope);
 
 		auto identifier = boost::algorithm::to_lower_copy(node.String());
-		
-		// FIXME: Identifier 'avlswn02' exists in mod 'hota.mapdecorations' but identifier was explicitly requested from mod 'hota.mapdecorations'!
-		VLC->identifiers()->requestIdentifier(scope, "obstacleTemplate", identifier, [this, os](si32 id)
+		auto jsonName = JsonNode(identifier);
+
+		VLC->identifiers()->requestIdentifier(node.getModScope(), "obstacleTemplate", identifier, [this, os](si32 id)
 		{
 			logGlobal->info("Resolved obstacle id: %d", id);
 			os->addObstacle(obstacleTemplates[id]);
