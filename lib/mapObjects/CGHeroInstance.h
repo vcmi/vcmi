@@ -155,8 +155,6 @@ public:
 	std::string getClassNameTranslated() const;
 	std::string getClassNameTextID() const;
 
-public:
-
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
 	void addSpellToSpellbook(const SpellID & spell);
