@@ -55,6 +55,17 @@
 		]
 	},
 
+	"portuguese" : {
+		"name" : "VCMI - arquivos essenciais",
+		"description" : "Arquivos essenciais para executar o VCMI corretamente",
+		"author" : "Altieres Lima",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/vcmi/portuguese.json"
+		]
+	},
+
 	"russian" : {
 		"name" : "Ключевые файлы VCMI",
 		"description" : "Файлы, необходимые для полноценной работы VCMI",
