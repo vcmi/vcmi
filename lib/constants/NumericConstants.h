@@ -52,7 +52,7 @@ namespace GameConstants
 	constexpr ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 	constexpr int64_t PLAYER_RESOURCES_CAP = 1000 * 1000 * 1000;
 	constexpr int ALTAR_ARTIFACTS_SLOTS = 22;
-	constexpr int TOURNAMENT_RULES_DD_MAP_TILES_THRESHOLD = 41472; //map tiles count threshold for 2 dimension door casts with tournament rules
+	constexpr int TOURNAMENT_RULES_DD_MAP_TILES_THRESHOLD = 144*144*2; //map tiles count threshold for 2 dimension door casts with tournament rules
 }
 
 VCMI_LIB_NAMESPACE_END
