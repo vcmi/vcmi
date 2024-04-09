@@ -684,6 +684,9 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		//backward compatibility for VCMI maps that use old SeerHut format
 		auto s = handler.enterStruct("reward");
 		const JsonNode & rewardsJson = handler.getCurrent();
+
+		if (rewardsJson.Struct().empty())
+			return;
 		
 		std::string fullIdentifier;
 		std::string metaTypeName;
