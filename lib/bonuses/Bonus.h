@@ -93,7 +93,15 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & source;
 		h & val;
 		h & sid;
-		h & description;
+		if (h.version < Handler::Version::BONUS_META_STRING)
+		{
+			std::string oldDescription;
+			h & oldDescription;
+			description = MetaString::createFromRawString(oldDescription);
+		}
+		else
+			h & description;
+
 		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;
