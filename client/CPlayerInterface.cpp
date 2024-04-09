@@ -1560,31 +1560,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 
 		GH.curInt = previousInterface;
 		LOCPLINT = previousInterface;
-
-		if(CSH->howManyPlayerInterfaces() == 1 && !settings["session"]["spectate"].Bool()) //all human players eliminated
-		{
-			if(adventureInt)
-			{
-				GH.windows().popWindows(GH.windows().count());
-				adventureInt.reset();
-			}
-		}
-
-		if (victoryLossCheckResult.victory() && LOCPLINT == this)
-		{
-			// end game if current human player has won
-			CSH->sendClientDisconnecting();
-			requestReturningToMainMenu(true);
-		}
-		else if(CSH->howManyPlayerInterfaces() == 1 && !settings["session"]["spectate"].Bool())
-		{
-			//all human players eliminated
-			CSH->sendClientDisconnecting();
-			requestReturningToMainMenu(false);
-		}
-
-		if (GH.curInt == this)
-			GH.curInt = nullptr;
 	}
 }
 
@@ -1736,50 +1711,6 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 	}
 	else
 		showShipyardDialog(obj);
-}
-
-void CPlayerInterface::requestReturningToMainMenu(bool won)
-{
-	HighScoreParameter param;
-	param.difficulty = cb->getStartInfo()->difficulty;
-	param.day = cb->getDate();
-	param.townAmount = cb->howManyTowns();
-	param.usedCheat = cb->getPlayerState(*cb->getPlayerID())->cheated;
-	param.hasGrail = false;
-	for(const CGHeroInstance * h : cb->getHeroesInfo())
-		if(h->hasArt(ArtifactID::GRAIL))
-			param.hasGrail = true;
-	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(t->builtBuildings.count(BuildingID::GRAIL))
-			param.hasGrail = true;
-	param.allDefeated = true;
-	for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
-	{
-		auto ps = cb->getPlayerState(player, false);
-		if(ps && player != *cb->getPlayerID())
-			if(!ps->checkVanquished())
-				param.allDefeated = false;
-	}
-	param.scenarioName = cb->getMapHeader()->name.toString();
-	param.playerName = cb->getStartInfo()->playerInfos.find(*cb->getPlayerID())->second.name;
-	HighScoreCalculation highScoreCalc;
-	highScoreCalc.parameters.push_back(param);
-	highScoreCalc.isCampaign = false;
-
-	if(won && cb->getStartInfo()->campState)
-		CSH->startCampaignScenario(param, cb->getStartInfo()->campState);
-	else
-	{
-		GH.dispatchMainThread(
-			[won, highScoreCalc]()
-			{
-				CSH->endGameplay();
-				GH.defActionsDef = 63;
-				CMM->menu->switchToTab("main");
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(won, highScoreCalc);
-			}
-		);
-	}
 }
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)

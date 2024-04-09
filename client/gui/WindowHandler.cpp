@@ -22,7 +22,9 @@
 
 void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 {
-	assert(windowsStack.back() == top);
+	if (windowsStack.back() != top)
+		throw std::runtime_error("Attempt to pop non-top window from stack!");
+
 	top->deactivate();
 	disposed.push_back(top);
 	windowsStack.pop_back();
@@ -34,8 +36,11 @@ void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 
 void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 {
-	assert(newInt);
-	assert(!vstd::contains(windowsStack, newInt)); // do not add same object twice
+	if (newInt == nullptr)
+		throw std::runtime_error("Attempt to push null window onto windows stack!");
+
+	if (vstd::contains(windowsStack, newInt))
+		throw std::runtime_error("Attempt to add already existing window to stack!");
 
 	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
 	screenBuf = screen2;

@@ -106,7 +106,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<IServerRunner> serverRunner;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
-	std::shared_ptr<HighScoreCalculation> highScoreCalc;
+	std::shared_ptr<HighScoreCalculation> campaignScoreCalculator;
 
 	boost::thread threadNetwork;
 
@@ -127,6 +127,8 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	ui16 serverPort;
 
 	bool isServerLocal() const;
+
+	HighScoreParameter prepareHighScores(PlayerColor player, bool victory);
 
 public:
 	/// High-level connection overlay that is capable of (de)serializing network data
@@ -205,6 +207,7 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
+	void showHighScoresAndEndGameplay(PlayerColor player, bool victory);
 	void endGameplay();
 	void restartGameplay();
 	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});
@@ -216,6 +219,7 @@ public:
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);
+	void setHighScoreCalc(const std::shared_ptr<HighScoreCalculation> &newHighScoreCalc);
 };
 
 extern CServerHandler * CSH;

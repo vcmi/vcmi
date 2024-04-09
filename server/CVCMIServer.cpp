@@ -171,7 +171,11 @@ void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & c
 
 void CVCMIServer::setState(EServerState value)
 {
-	assert(state != EServerState::SHUTDOWN); // do not attempt to restart dying server
+	if (value == EServerState::SHUTDOWN && state == EServerState::SHUTDOWN)
+		logGlobal->warn("Attempt to shutdown already shutdown server!");
+
+	// do not attempt to restart dying server
+	assert(state != EServerState::SHUTDOWN || state == value);
 	state = value;
 
 	if (state == EServerState::SHUTDOWN)
