@@ -113,7 +113,6 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		b->val = 2 - static_cast<si32>(factionsInArmy);
 		bonusDescription.appendTextID("core.arraytxt.114"); //Troops of %d alignments %d
 		bonusDescription.replaceNumber(factionsInArmy);
-		bonusDescription.replaceNumber(b->val);
 	}
 	
 	b->description = bonusDescription;

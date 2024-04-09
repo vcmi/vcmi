@@ -115,7 +115,7 @@ std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) const
 	if(bonus.type == BonusType::LUCK)
 		paramTextID = "core.genrltxt.385"; // Luck
 
-//	greeting.replaceTextID(bonus.descriptionTextID);
+	greeting.replaceTextID(town->getTown()->getSpecialBuilding(bType)->getNameTextID());
 	greeting.replaceNumber(bonus.val);
 	greeting.replaceTextID(paramTextID);
 

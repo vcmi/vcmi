@@ -90,14 +90,14 @@ JsonNode CAddInfo::toJsonNode() const
 }
 std::string Bonus::Description(std::optional<si32> customValue) const
 {
-	MetaString descriptionHelper;
+	MetaString descriptionHelper = description;
+	auto valueToShow = customValue.value_or(val);
 
-	if(description.empty())
+	if(descriptionHelper.empty())
 	{
-		if(stacking.empty() || stacking == "ALWAYS")
+		// no custom description - try to generate one based on bonus source
+		switch(source)
 		{
-			switch(source)
-			{
 			case BonusSource::ARTIFACT:
 				descriptionHelper.appendName(sid.as<ArtifactID>());
 				break;
@@ -113,24 +113,41 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			case BonusSource::HERO_SPECIAL:
 				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
 				break;
-			default:
-				//todo: handle all possible sources
-				descriptionHelper.appendRawString("Unknown");
-				break;
-			}
 		}
-		else
-			descriptionHelper = MetaString::createFromRawString(stacking);
-	}
-	else
-	{
-		descriptionHelper = description;
 	}
 
-	auto valueToShow = customValue.value_or(val);
+	if(descriptionHelper.empty())
+	{
+		// still no description - try to generate one based on duration
+		if ((duration & BonusDuration::ONE_BATTLE).any())
+		{
+			if (val > 0)
+				descriptionHelper.appendTextID("core.arraytxt.110"); //+%d Temporary until next battle"
+			else
+				descriptionHelper.appendTextID("core.arraytxt.109"); //-%d Temporary until next battle"
+
+			// erase sign - already present in description string
+			valueToShow = std::abs(valueToShow);
+		}
+	}
+
+	if(descriptionHelper.empty())
+	{
+		// still no description - generate placeholder one
+		descriptionHelper.appendRawString("Unknown");
+	}
 
 	if(valueToShow != 0)
+	{
 		descriptionHelper.replacePositiveNumber(valueToShow);
+		// there is one known string that uses '%s' placeholder for bonus value:
+		// "core.arraytxt.69" : "\nFountain of Fortune Visited %s",
+		// So also add string replacement to handle this case
+		if (valueToShow > 0)
+			descriptionHelper.replaceRawString(std::to_string(valueToShow));
+		else
+			descriptionHelper.replaceRawString("-" + std::to_string(valueToShow));
+	}
 
 	return descriptionHelper.toString();
 }

@@ -225,15 +225,15 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			{
 			case Obj::SHIPWRECK:
 				textID = 123;
-				gbonus.bonus.description.appendRawString(VLC->generaltexth->arraytxt[99]);
+				gbonus.bonus.description = MetaString::createFromTextID("core.arraytxt.99");
 				break;
 			case Obj::DERELICT_SHIP:
 				textID = 42;
-				gbonus.bonus.description.appendRawString(VLC->generaltexth->arraytxt[101]);
+				gbonus.bonus.description = MetaString::createFromTextID("core.arraytxt.101");
 				break;
 			case Obj::CRYPT:
 				textID = 120;
-				gbonus.bonus.description.appendRawString(VLC->generaltexth->arraytxt[98]);
+				gbonus.bonus.description = MetaString::createFromTextID("core.arraytxt.98");
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
@@ -245,7 +245,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		{
 			GiveBonus gb;
 			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, -2, BonusSourceID(id));
-			gb.bonus.description.appendTextID("core.arraytxt.70");
+			gb.bonus.description = MetaString::createFromTextID("core.arraytxt.70");
 			gb.id = hero->id;
 			cb->giveHeroBonus(&gb);
 			textID = 107;

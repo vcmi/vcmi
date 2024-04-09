@@ -16,6 +16,9 @@
 #include "../MetaString.h"
 #include "../battle/Unit.h"
 #include "../bonuses/Bonus.h"
+#include "../VCMI_Lib.h"
+#include "../CSkillHandler.h"
+#include "../CHeroHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,10 +35,27 @@ BonusCaster::~BonusCaster() = default;
 
 void BonusCaster::getCasterName(MetaString & text) const
 {
-//	if(!bonus->descriptionTextID.empty())
-//		text.replaceTextID(bonus->descriptionTextID);
-//	else
-		actualCaster->getCasterName(text);
+	switch(bonus->source)
+	{
+		case BonusSource::ARTIFACT:
+			text.replaceName(bonus->sid.as<ArtifactID>());
+			break;
+		case BonusSource::SPELL_EFFECT:
+			text.replaceName(bonus->sid.as<SpellID>());
+			break;
+		case BonusSource::CREATURE_ABILITY:
+			text.replaceNamePlural(bonus->sid.as<CreatureID>());
+			break;
+		case BonusSource::SECONDARY_SKILL:
+			text.replaceTextID(bonus->sid.as<SecondarySkill>().toEntity(VLC)->getNameTextID());
+			break;
+		case BonusSource::HERO_SPECIAL:
+			text.replaceTextID(bonus->sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
+			break;
+		default:
+			actualCaster->getCasterName(text);
+			break;
+	}
 }
 
 void BonusCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit*> & attacked, MetaString & text) const

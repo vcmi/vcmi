@@ -1541,7 +1541,7 @@ void BattleActionProcessor::addGenericKilledLog(BattleLogMessage & blm, const CS
 				line.replaceTextID("core.genrltxt.42"); // creature
 		}
 		else
-			line.replaceName(CreatureID(defender->unitId()), killed);
+			line.replaceName(defender->unitType()->getId(), killed);
 
 		blm.lines.push_back(line);
 	}
