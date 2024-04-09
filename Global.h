@@ -149,6 +149,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #if BOOST_VERSION > 105000
 #  define BOOST_THREAD_VERSION 3
 #endif
+#if BOOST_VERSION == 107400
+#  define BOOST_ALLOW_DEPRECATED_HEADERS
+#endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
 //need to link boost thread dynamically to avoid https://stackoverflow.com/questions/35978572/boost-thread-interupt-does-not-work-when-crossing-a-dll-boundary
 #define BOOST_THREAD_USE_DLL //for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
