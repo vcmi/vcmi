@@ -117,14 +117,6 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 
 		std::pair key(tmpl->id, tmpl->subid);
 		legacyTemplates.insert(std::make_pair(key, tmpl));
-
-		if (!tmpl->isVisitable())
-		{
-			if (tmpl->id != Obj::RIVER_DELTA)
-			{
-				VLC->biomeHandler->addTemplate("core", tmpl->stringID, tmpl);
-			}
-		}
 	}
 
 	objects.resize(256);
@@ -222,14 +214,18 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 
 	for (auto & templ : createdObject->getTemplates())
 	{
-		// Register templates for new objects
+		// Register templates for new objects from mods
 		VLC->biomeHandler->addTemplate(scope, templ->stringID, templ);
 	}
 
 	auto range = legacyTemplates.equal_range(std::make_pair(obj->id, index));
 	for (auto & templ : boost::make_iterator_range(range.first, range.second))
 	{
+		// Register legacy templates as "core"
+		VLC->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
+		// FIXME: Why does it clear stringID?
 		createdObject->addTemplate(templ.second);
+
 	}
 	legacyTemplates.erase(range.first, range.second);
 

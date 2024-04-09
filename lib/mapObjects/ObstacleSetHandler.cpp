@@ -182,7 +182,6 @@ std::vector<ObstacleSet::EObstacleType> ObstacleSetFilter::getAllowedTypes() con
 
 std::vector<JsonNode> ObstacleSetHandler::loadLegacyData()
 {
-	// TODO: Where to load objects.json?
 	return {};
 }
 
@@ -212,7 +211,6 @@ void ObstacleSetHandler::loadObject(std::string scope, std::string name, const J
 	{
 		logMod->error("Failed to load obstacle set: %s", name);
 	}
-	// TODO: 
 	VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.at(index)->id);
 }
 
@@ -235,17 +233,12 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	auto templates = json["templates"].Vector();
 	for (const auto & node : templates)
 	{
-		// TODO: We need to store all the templates by their name
-		// TODO: We need to store all the templates by their id
+		logGlobal->info("Registering obstacle template: %s in scope %s", node.String(), scope);
 
-		logGlobal->info("Registering obstacle template: %s", node.String());
-		/*
-		FIXME:
-		Warning: identifier AVXplns0 is not in camelCase!
-		registered biome.templateSet1 as core:1701602145
-		*/
-
-		VLC->identifiers()->requestIdentifier(scope, "obstacleTemplate", node.String(), [this, os](si32 id)
+		auto identifier = boost::algorithm::to_lower_copy(node.String());
+		
+		// FIXME: Identifier 'avlswn02' exists in mod 'hota.mapdecorations' but identifier was explicitly requested from mod 'hota.mapdecorations'!
+		VLC->identifiers()->requestIdentifier(scope, "obstacleTemplate", identifier, [this, os](si32 id)
 		{
 			logGlobal->info("Resolved obstacle id: %d", id);
 			os->addObstacle(obstacleTemplates[id]);
@@ -259,17 +252,24 @@ void ObstacleSetHandler::addTemplate(const std::string & scope, const std::strin
 {
 	auto id = obstacleTemplates.size();
 
-	auto strippedName = name;
+	auto strippedName = boost::algorithm::to_lower_copy(name);
 	auto pos = strippedName.find(".def");
 	if(pos != std::string::npos)
 		strippedName.erase(pos, 4);
 
-	// TODO: Consider converting to lowercase?
-	// Save by name
-	VLC->identifiersHandler->registerObject(scope, "obstacleTemplate", strippedName, id);
+	if (VLC->identifiersHandler->getIdentifier(scope, "obstacleTemplate", strippedName, true))
+	{
+		logMod->warn("Duplicate obstacle template: %s", strippedName);
+		return;
+	}
+	else
+	{
+		// Save by name
+		VLC->identifiersHandler->registerObject(scope, "obstacleTemplate", strippedName, id);
 
-	// Index by id
-	obstacleTemplates[id] = tmpl;
+		// Index by id
+		obstacleTemplates[id] = tmpl;
+	}
 }
 
 void ObstacleSetHandler::addObstacleSet(std::shared_ptr<ObstacleSet> os)
