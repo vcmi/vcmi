@@ -216,6 +216,12 @@ void CButton::setActOnDown(bool on)
 	actOnDown = on;
 }
 
+void CButton::setHelp(const std::pair<std::string, std::string> & help)
+{
+	hoverTexts[0] = help.first;
+	helpBox = help.second;
+}
+
 void CButton::block(bool on)
 {
 	if(on || getState() == EButtonState::BLOCKED) //dont change button state if unblock requested, but it's not blocked

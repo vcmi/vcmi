@@ -26,7 +26,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/ObjectLists.h"
-#include "../windows/CTradeWindow.h"
+#include "../windows/CMarketWindow.h"
 
 #include "../../CCallback.h"
 
@@ -840,7 +840,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		{
 			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
 			{
-				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
 			}
 		}
