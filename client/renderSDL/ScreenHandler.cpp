@@ -294,7 +294,7 @@ void ScreenHandler::initializeWindow()
 
 	SDL_RendererInfo info;
 	SDL_GetRendererInfo(mainRenderer, &info);
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, settings["video"]["scalingMode"].String().c_str());
 	logGlobal->info("Created renderer %s", info.name);
 }
 
