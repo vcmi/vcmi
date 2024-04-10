@@ -925,7 +925,7 @@ void AdventureMapInterface::onScreenResize()
 		activate();
 }
 
-bool AdventureMapInterface::isValidAdventureSpellTarget(int3 targetPosition)
+bool AdventureMapInterface::isValidAdventureSpellTarget(int3 targetPosition) const
 {
 	spells::detail::ProblemImpl problem;
 

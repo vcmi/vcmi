@@ -29,8 +29,8 @@ class AdventureSpellMechanics : public IAdventureSpellMechanics
 public:
 	AdventureSpellMechanics(const CSpell * s);
 
-	bool canBeCast(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const override final;
-	bool canBeCastAt(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override final;
+	bool canBeCast(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const final;
+	bool canBeCastAt(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 
 	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override final;
 protected:
