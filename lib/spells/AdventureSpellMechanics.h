@@ -18,10 +18,10 @@ class CGTownInstance;
 
 enum class ESpellCastResult
 {
-	OK,
-	CANCEL,//cast failed but it is not an error
+	OK, // cast successful
+	CANCEL, // cast failed but it is not an error, no mana has been spent
 	PENDING,
-	ERROR//internal error occurred
+	ERROR// error occured, for example invalid request from player
 };
 
 class AdventureSpellMechanics : public IAdventureSpellMechanics
@@ -37,11 +37,11 @@ protected:
 	///actual adventure cast implementation
 	virtual ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 	virtual ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	virtual void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 	virtual bool canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const;
 	virtual bool canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
 
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
-	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const ESpellCastResult result) const;
 };
 
 class SummonBoatMechanics final : public AdventureSpellMechanics
@@ -73,6 +73,7 @@ protected:
 	bool canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
 
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
+	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
 
 class TownPortalMechanics final : public AdventureSpellMechanics
@@ -82,6 +83,7 @@ public:
 protected:
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 	ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
+	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 private:
 	const CGTownInstance * findNearestTown(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector <const CGTownInstance*> & pool) const;
 	int32_t movementCost(const AdventureSpellCastParameters & parameters) const;

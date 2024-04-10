@@ -119,29 +119,31 @@ ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(SpellCastEnviron
 
 ESpellCastResult AdventureSpellMechanics::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
-    return ESpellCastResult::OK;
+	return ESpellCastResult::OK;
+}
+
+void AdventureSpellMechanics::endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	// no-op, only for implementation in derived classes
 }
 
 void AdventureSpellMechanics::performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
+	const auto level = parameters.caster->getSpellSchoolLevel(owner);
+	const auto cost = owner->getCost(level);
+
 	AdvmapSpellCast asc;
 	asc.casterID = ObjectInstanceID(parameters.caster->getCasterUnitId());
 	asc.spellID = owner->id;
 	env->apply(&asc);
 
 	ESpellCastResult result = applyAdventureEffects(env, parameters);
-	endCast(env, parameters, result);
-}
-
-void AdventureSpellMechanics::endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const ESpellCastResult result) const
-{
-	const auto level = parameters.caster->getSpellSchoolLevel(owner);
-	const auto cost = owner->getCost(level);
 
 	switch(result)
 	{
 	case ESpellCastResult::OK:
 		parameters.caster->spendMana(env, cost);
+		endCast(env, parameters);
 		break;
 	default:
 		break;
@@ -427,10 +429,17 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		smp.val = 0;
 	env->apply(&smp);
 
+	return ESpellCastResult::OK;
+}
+
+void DimensionDoorMechanics::endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	int3 casterPosition = parameters.caster->getHeroCaster()->getSightCenter();
+	const TerrainTile * dest = env->getCb()->getTile(parameters.pos);
+	const TerrainTile * curr = env->getCb()->getTile(casterPosition);
+
 	if(dest->isClear(curr))
 		env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), true);
-
-	return ESpellCastResult::OK;
 }
 
 ///TownPortalMechanics
@@ -526,6 +535,26 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		return ESpellCastResult::ERROR;
 	}
 
+	return ESpellCastResult::OK;
+}
+
+void TownPortalMechanics::endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	const int moveCost = movementCost(parameters);
+	const CGTownInstance * destination = nullptr;
+
+	if(parameters.caster->getSpellSchoolLevel(owner) < 2)
+	{
+		std::vector <const CGTownInstance*> pool = getPossibleTowns(env, parameters);
+		destination = findNearestTown(env, parameters, pool);
+	}
+	else
+	{
+		const TerrainTile & tile = env->getMap()->getTile(parameters.pos);
+		auto * const topObj = tile.topVisitableObj(false);
+		destination = dynamic_cast<const CGTownInstance*>(topObj);
+	}
+
 	if(env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(destination->visitablePos()), true))
 	{
 		SetMovePoints smp;
@@ -533,7 +562,6 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		smp.val = std::max<ui32>(0, parameters.caster->getHeroCaster()->movementPointsRemaining() - moveCost);
 		env->apply(&smp);
 	}
-	return ESpellCastResult::OK;
 }
 
 ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
