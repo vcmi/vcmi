@@ -535,6 +535,18 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		return ESpellCastResult::ERROR;
 	}
 
+	const TerrainTile & from = env->getMap()->getTile(parameters.caster->getHeroCaster()->visitablePos());
+	const TerrainTile & dest = env->getMap()->getTile(destination->visitablePos());
+
+	if(!dest.isClear(&from))
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->getCasterOwner();
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 135);
+		env->apply(&iw);
+		return ESpellCastResult::ERROR;
+	}
+
 	return ESpellCastResult::OK;
 }
 
