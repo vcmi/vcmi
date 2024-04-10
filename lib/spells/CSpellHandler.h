@@ -290,6 +290,7 @@ public://internal, for use only by Mechanics classes
 	///returns raw damage or healed HP
 	int64_t calculateRawEffectValue(int32_t effectLevel, int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const;
 
+	const IAdventureSpellMechanics & getAdventureMechanics() const;
 	std::unique_ptr<spells::Mechanics> battleMechanics(const spells::IBattleCast * event) const;
 private:
 	void setIsOffensive(const bool val);

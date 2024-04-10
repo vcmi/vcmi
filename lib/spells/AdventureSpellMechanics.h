@@ -24,45 +24,58 @@ enum class ESpellCastResult
 	ERROR//internal error occurred
 };
 
-class DLL_LINKAGE AdventureSpellMechanics : public IAdventureSpellMechanics
+class AdventureSpellMechanics : public IAdventureSpellMechanics
 {
 public:
 	AdventureSpellMechanics(const CSpell * s);
+
+	bool canBeCast(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const override final;
+	bool canBeCastAt(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override final;
 
 	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override final;
 protected:
 	///actual adventure cast implementation
 	virtual ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 	virtual ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	virtual bool canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const;
+	virtual bool canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
+
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const ESpellCastResult result) const;
 };
 
-class DLL_LINKAGE SummonBoatMechanics : public AdventureSpellMechanics
+class SummonBoatMechanics final : public AdventureSpellMechanics
 {
 public:
 	SummonBoatMechanics(const CSpell * s);
 protected:
+	bool canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const override;
+
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
 
-class DLL_LINKAGE ScuttleBoatMechanics : public AdventureSpellMechanics
+class ScuttleBoatMechanics final : public AdventureSpellMechanics
 {
 public:
 	ScuttleBoatMechanics(const CSpell * s);
 protected:
+	bool canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
+
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
 
-class DLL_LINKAGE DimensionDoorMechanics : public AdventureSpellMechanics
+class DimensionDoorMechanics final : public AdventureSpellMechanics
 {
 public:
 	DimensionDoorMechanics(const CSpell * s);
 protected:
+	bool canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const override;
+	bool canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
+
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
 
-class DLL_LINKAGE TownPortalMechanics : public AdventureSpellMechanics
+class TownPortalMechanics final : public AdventureSpellMechanics
 {
 public:
 	TownPortalMechanics(const CSpell * s);
@@ -75,7 +88,7 @@ private:
 	std::vector <const CGTownInstance*> getPossibleTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 };
 
-class DLL_LINKAGE ViewMechanics : public AdventureSpellMechanics
+class ViewMechanics : public AdventureSpellMechanics
 {
 public:
 	ViewMechanics(const CSpell * s);
@@ -85,7 +98,7 @@ protected:
 	virtual bool showTerrain(const int32_t spellLevel) const = 0;
 };
 
-class DLL_LINKAGE ViewAirMechanics : public ViewMechanics
+class ViewAirMechanics final : public ViewMechanics
 {
 public:
 	ViewAirMechanics(const CSpell * s);
@@ -94,7 +107,7 @@ protected:
 	bool showTerrain(const int32_t spellLevel) const override;
 };
 
-class DLL_LINKAGE ViewEarthMechanics : public ViewMechanics
+class ViewEarthMechanics final : public ViewMechanics
 {
 public:
 	ViewEarthMechanics(const CSpell * s);
