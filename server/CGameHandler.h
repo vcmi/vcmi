@@ -160,7 +160,6 @@ public:
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override;
 	void showInfoDialog(InfoWindow * iw) override;
-	void showInfoDialog(const std::string & msg, PlayerColor player) override;
 
 	//////////////////////////////////////////////////////////////////////////
 	void useScholarSkill(ObjectInstanceID hero1, ObjectInstanceID hero2);

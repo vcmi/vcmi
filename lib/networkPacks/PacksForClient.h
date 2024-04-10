@@ -382,7 +382,6 @@ struct DLL_LINKAGE GiveBonus : public CPackForClient
 	ETarget who = ETarget::OBJECT;
 	VariantIdentifier<ObjectInstanceID, PlayerColor, BattleID> id;
 	Bonus bonus;
-	MetaString bdescr;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -390,7 +389,6 @@ struct DLL_LINKAGE GiveBonus : public CPackForClient
 	{
 		h & bonus;
 		h & id;
-		h & bdescr;
 		h & who;
 		assert(id.getNum() != -1);
 	}

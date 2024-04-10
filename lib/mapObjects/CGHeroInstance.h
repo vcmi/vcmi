@@ -144,6 +144,9 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	std::string getBiographyTranslated() const;
+	std::string getBiographyTextID() const;
+
+	std::string getNameTextID() const;
 	std::string getNameTranslated() const;
 
 	HeroTypeID getPortraitSource() const;
@@ -151,11 +154,6 @@ public:
 
 	std::string getClassNameTranslated() const;
 	std::string getClassNameTextID() const;
-
-private:
-	std::string getNameTextID() const;
-	std::string getBiographyTextID() const;
-public:
 
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;

@@ -13,6 +13,7 @@
 #include "BonusCustomTypes.h"
 #include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -77,12 +78,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	TUpdaterPtr updater;
 	TUpdaterPtr propagationUpdater;
 
-	std::string description;
+	MetaString description;
 
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, std::string Desc);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, std::string Desc);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, BonusValueType ValType);
 	Bonus() = default;
 
@@ -94,7 +93,15 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & source;
 		h & val;
 		h & sid;
-		h & description;
+		if (h.version < Handler::Version::BONUS_META_STRING)
+		{
+			std::string oldDescription;
+			h & oldDescription;
+			description = MetaString::createFromRawString(oldDescription);
+		}
+		else
+			h & description;
+
 		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;

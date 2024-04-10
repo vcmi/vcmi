@@ -207,8 +207,7 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 				&& mask->sid == b->sid
 				&& mask->valType == b->valType
 				&& mask->additionalInfo == b->additionalInfo
-				&& mask->effectRange == b->effectRange
-				&& mask->description == b->description;
+				&& mask->effectRange == b->effectRange;
 			};
 
 			value->removeBonuses(selector);

@@ -208,8 +208,7 @@ void StackWithBonuses::removeUnitBonus(const std::vector<Bonus> & bonus)
 				&& one.sid == b->sid
 				&& one.valType == b->valType
 				&& one.additionalInfo == b->additionalInfo
-				&& one.effectRange == b->effectRange
-				&& one.description == b->description;
+				&& one.effectRange == b->effectRange;
 		});
 
 		removeUnitBonus(selector);

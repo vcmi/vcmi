@@ -625,19 +625,6 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	return b;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const FactionID & faction, const BuildingID & building, const std::string & description)
-{
-	/*	duration = BonusDuration::PERMANENT
-		source = BonusSource::TOWN_STRUCTURE
-		bonusType, val, subtype - get from json
-	*/
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BuildingTypeUniqueID(faction, building), description);
-
-	if(!parseBonus(ability, b.get()))
-		return nullptr;
-	return b;
-}
-
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 {
 	const JsonNode * value = nullptr;
@@ -682,9 +669,9 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	if(!ability["description"].isNull())
 	{
 		if (ability["description"].isString())
-			b->description = ability["description"].String();
+			b->description.appendTextID(ability["description"].String());
 		if (ability["description"].isNumber())
-			b->description = VLC->generaltexth->translate("core.arraytxt", ability["description"].Integer());
+			b->description.appendTextID("core.arraytxt." + std::to_string(ability["description"].Integer()));
 	}
 
 	value = &ability["effectRange"];

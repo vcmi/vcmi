@@ -294,7 +294,8 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
 	b->source = BonusSource::ARTIFACT;
 	b->duration = BonusDuration::PERMANENT;
-	b->description = getNameTranslated();
+	b->description.appendTextID(getNameTextID());
+	b->description.appendRawString(" %+d");
 	CBonusSystemNode::addNewBonus(b);
 }
 

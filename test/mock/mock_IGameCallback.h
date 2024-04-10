@@ -38,7 +38,6 @@ public:
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) override {}
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {}
 	void showInfoDialog(InfoWindow * iw) override {}
-	void showInfoDialog(const std::string & msg, PlayerColor player) override {}
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {}
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;}
