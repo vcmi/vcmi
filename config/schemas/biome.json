@@ -15,9 +15,18 @@
 					"description" : "Type of the obstacle set"
 				},
 				"terrain" : {
-					// TODO: Allow multiple terrains
-					"type" : "string",
-					"description" : "Terrain of the obstacle set"
+					"anyOf": [
+						{
+							"type" : "string",
+							"description" : "Terrain of the obstacle set"
+						},
+						{
+							"type" : "array",
+							"items" : { "type" : "string" },
+							"description" : "Terrains of the obstacle set"
+						}
+					]
+					
 				}
 			}
 		},

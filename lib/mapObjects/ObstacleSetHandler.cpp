@@ -17,13 +17,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 ObstacleSet::ObstacleSet():
 	type(INVALID),
-	terrain(TerrainId::NONE)
+	allowedTerrains({TerrainId::NONE})
 {
 }
 
 ObstacleSet::ObstacleSet(EObstacleType type, TerrainId terrain):
 	type(type),
-	terrain(terrain)
+	allowedTerrains({terrain})
 {
 }
 
@@ -46,22 +46,27 @@ ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, Ter
 
 bool ObstacleSetFilter::filter(const ObstacleSet &set) const
 {
-	return (set.getTerrain() == terrain) || (terrain == TerrainId::ANY_TERRAIN);
+	return (vstd::contains(set.getTerrains(), terrain) || terrain == TerrainId::ANY_TERRAIN);
 }
 
-TerrainId ObstacleSetFilter::getTerrain() const
+std::set<TerrainId> ObstacleSet::getTerrains() const
 {
-	return terrain;
-}
-
-TerrainId ObstacleSet::getTerrain() const
-{
-	return terrain;
+	return allowedTerrains;
 }
 
 void ObstacleSet::setTerrain(TerrainId terrain)
 {
-	this->terrain = terrain;
+	this->allowedTerrains = {terrain};
+}
+
+void ObstacleSet::setTerrains(const std::set<TerrainId> & terrains)
+{
+	this->allowedTerrains = terrains;
+}
+
+void ObstacleSet::addTerrain(TerrainId terrain)
+{
+	this->allowedTerrains.insert(terrain);
 }
 
 ObstacleSet::EObstacleType ObstacleSet::getType() const
@@ -221,12 +226,27 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	auto biome = json["biome"].Struct();
 	os->setType(ObstacleSet::typeFromString(biome["objectType"].String()));
 
-	auto terrainName = biome["terrain"].String();
-
-	VLC->identifiers()->requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
+	if (biome["terrain"].isString())
 	{
-		os->setTerrain(TerrainId(id));
-	});
+		auto terrainName = biome["terrain"].String();
+
+		VLC->identifiers()->requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
+		{
+			os->setTerrain(TerrainId(id));
+		});
+	}
+	else // Other cases won't pass validation
+	{
+		auto terrains = biome["terrain"].Vector();
+
+		for (const auto & terrain : terrains)
+		{
+			VLC->identifiers()->requestIdentifier(scope, "terrain", terrain.String(), [os](si32 id)
+			{
+				os->addTerrain(TerrainId(id));
+			});
+		}
+	}
 
 	auto templates = json["templates"].Vector();
 	for (const auto & node : templates)

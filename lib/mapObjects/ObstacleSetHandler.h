@@ -46,8 +46,10 @@ public:
 	EObstacleType getType() const;
 	void setType(EObstacleType type);
 
-	TerrainId getTerrain() const;
+	std::set<TerrainId> getTerrains() const;
 	void setTerrain(TerrainId terrain);
+	void setTerrains(const std::set<TerrainId> & terrains);
+	void addTerrain(TerrainId terrain);
 
 	static EObstacleType typeFromString(const std::string &str);
 	std::string toString() const;
@@ -56,7 +58,7 @@ public:
 
 private:
 	EObstacleType type;
-	TerrainId terrain;
+	std::set<TerrainId> allowedTerrains;
 	std::vector<std::shared_ptr<const ObjectTemplate>> obstacles;
 };
 
