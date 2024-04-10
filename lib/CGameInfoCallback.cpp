@@ -287,6 +287,24 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 	return ret;
 }
 
+bool CGameInfoCallback::isTileGuardedAfterDimensionDoorUse(int3 tile, const CGHeroInstance * castingHero) const
+{
+	//for known tiles this is just potential convenience info, for tiles behind fog of war this info matches HotA but not H3 so make it accessible only with proper setting on
+	bool canAccessInfo = false;
+
+	if(isVisible(tile))
+		canAccessInfo = true;
+	else if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS)
+		&& isInScreenRange(castingHero->getSightCenter(), tile)
+		&& castingHero->canCastThisSpell(static_cast<SpellID>(SpellID::DIMENSION_DOOR).toSpell()))
+		canAccessInfo = true; //TODO: check if available casts > 0, before adding that check make dimension door daily limit popup trigger on spell pick
+
+	if(canAccessInfo)
+		return !gs->guardingCreatures(tile).empty();
+
+	return false;
+}
+
 bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject) const
 {
 	const auto * h = dynamic_cast<const CGHeroInstance *>(hero);
@@ -440,7 +458,7 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 // 		return armi;
 // }
 
-std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int3 pos ) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 pos ) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
@@ -451,7 +469,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int
 	return ret;
 }
 
-std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos, verbose);
@@ -470,7 +488,7 @@ const CGObjectInstance * CGameInfoCallback::getTopObj (int3 pos) const
 	return vstd::backOrNull(getVisitableObjs(pos));
 }
 
-std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(int3 pos) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getFlaggableObjects(int3 pos) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
@@ -500,7 +518,7 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	return ret;
 }
 
-const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
+const TerrainTile * CGameInfoCallback::getTile(int3 tile, bool verbose) const
 {
 	if(isVisible(tile))
 		return &gs->map->getTile(tile);
@@ -508,6 +526,42 @@ const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 	if(verbose)
 		logGlobal->error("\r\n%s: %s\r\n", BOOST_CURRENT_FUNCTION, tile.toString() + " is not visible!");
 	return nullptr;
+}
+
+const TerrainTile * CGameInfoCallback::getTileForDimensionDoor(int3 tile, const CGHeroInstance * castingHero) const
+{
+    auto outputTile = getTile(tile, false);
+
+	if(outputTile != nullptr)
+		return outputTile;
+
+	bool allowOnlyToUncoveredTiles = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES);
+
+    if(!allowOnlyToUncoveredTiles)
+    {
+        if(castingHero->canCastThisSpell(static_cast<SpellID>(SpellID::DIMENSION_DOOR).toSpell())
+            && isInScreenRange(castingHero->getSightCenter(), tile))
+        { //TODO: check if available casts > 0, before adding that check make dimension door daily limit popup trigger on spell pick
+            //we are allowed to get basic blocked/water invisible nearby tile date when casting DD spell
+            TerrainTile targetTile = gs->map->getTile(tile);
+            auto obfuscatedTile = std::make_shared<TerrainTile>();
+            obfuscatedTile->visitable = false;
+            obfuscatedTile->blocked = targetTile.blocked || targetTile.visitable;
+
+			if(targetTile.blocked || targetTile.visitable)
+				obfuscatedTile->terType = VLC->terrainTypeHandler->getById(TerrainId::ROCK);
+			else if(!VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE))
+				obfuscatedTile->terType = gs->map->getTile(castingHero->getSightCenter()).terType;
+			else
+            	obfuscatedTile->terType = targetTile.isWater()
+            		? VLC->terrainTypeHandler->getById(TerrainId::WATER)
+            		: VLC->terrainTypeHandler->getById(TerrainId::GRASS);
+
+            outputTile = obfuscatedTile.get();
+        }
+    }
+
+    return outputTile;
 }
 
 EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) const

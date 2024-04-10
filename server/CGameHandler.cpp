@@ -1196,7 +1196,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		sendAndApply(&tmh);
 
 		if (visitDest == VISIT_DEST && objectToVisit && objectToVisit->id == h->id)
-		{ // Hero should be always able to visit any object he staying on even if there guards around
+		{ // Hero should be always able to visit any object he is staying on even if there are guards around
 			visitObjectOnTile(t, h);
 		}
 		else if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
@@ -1254,7 +1254,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if (blockingVisit()) // e.g. hero on the other side of teleporter
 			return true;
 
-		doMove(TryMoveHero::TELEPORTATION, IGNORE_GUARDS, DONT_VISIT_DEST, LEAVING_TILE);
+		EGuardLook guardsCheck = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS)
+			? CHECK_FOR_GUARDS
+			: IGNORE_GUARDS;
+
+		doMove(TryMoveHero::TELEPORTATION, guardsCheck, DONT_VISIT_DEST, LEAVING_TILE);
 
 		// visit town for town portal \ castle gates
 		// do not use generic visitObjectOnTile to avoid double-teleporting
@@ -1347,7 +1351,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 
 		if (oldOwner.isValidPlayer()) //old owner is real player
 		{
-			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last last town
+			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last town
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;
