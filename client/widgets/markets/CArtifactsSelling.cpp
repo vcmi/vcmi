@@ -34,8 +34,13 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
-	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
-		(*CGI->townh)[dynamic_cast<const CGTownInstance*>(market)->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated()));
+	std::string title;
+	if(const auto townMarket = dynamic_cast<const CGTownInstance*>(market))
+		title = (*CGI->townh)[townMarket->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
+	else if(const auto mapMarket = dynamic_cast<const CGMarket*>(market))
+		title = mapMarket->title;
+
+	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
 	labels.push_back(std::make_shared<CLabel>(155, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->getNameTranslated())));
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this](){CArtifactsSelling::makeDeal();});

@@ -202,12 +202,13 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 
 	background = createBg(ImagePath::builtin("TPMRKASS.bmp"), PLAYER_COLORED);
 	// Create image that copies part of background containing slot MISC_1 into position of slot MISC_5
-	artSlotBack = std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 18, 339);
+	artSlotBack = std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 0, 0);
+	artSlotBack->moveTo(Point(358, 443));
 	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero);
 	artSets.clear();
 	addSetAndCallbacks(artsSellingMarket->getAOHset());
 	marketWidget = artsSellingMarket;
-	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, CGI->generaltexth->zelp[600]);
+	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, CGI->generaltexth->zelp[600]);	
 }
 
 void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroInstance * hero)
