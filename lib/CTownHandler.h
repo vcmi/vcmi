@@ -168,6 +168,7 @@ public:
 	TerrainId nativeTerrain;
 	EAlignment alignment = EAlignment::NEUTRAL;
 	bool preferUndergroundPlacement = false;
+	bool special = false;
 
 	/// Boat that will be used by town shipyard (if any)
 	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
