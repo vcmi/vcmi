@@ -393,6 +393,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
 	endif()
 
+	# For gcc 14+ we can use -fhardened instead
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
+
 	# Fix string inspection with lldb
 	# https://stackoverflow.com/questions/58578615/cannot-inspect-a-stdstring-variable-in-lldb
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
