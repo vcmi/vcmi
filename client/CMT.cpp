@@ -502,8 +502,6 @@ void handleQuit(bool ask)
 		return;
 	}
 
-	CCS->curh->set(Cursor::Map::POINTER);
-
 	if (LOCPLINT)
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
 	else
