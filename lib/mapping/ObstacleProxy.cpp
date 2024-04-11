@@ -52,7 +52,7 @@ void ObstacleProxy::sortObstacles()
 	});
 }
 
-bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
+bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, CRandomGenerator & rand)
 {
 	// FIXME: All the mountains have same ID and mostly same subID, how to differentiate them?
 
@@ -68,7 +68,11 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 	const size_t MIN_SMALL_SETS = 3;
 	const size_t MAX_SMALL_SETS = 5;
 
-	TObstacleTypes mountainSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter(ObstacleSet::EObstacleType::MOUNTAINS, terrain));
+	auto terrain = filter.getTerrain();
+	auto localFilter = filter;
+	localFilter.setType(ObstacleSet::EObstacleType::MOUNTAINS);
+
+	TObstacleTypes mountainSets = VLC->biomeHandler->getObstacles(localFilter);
 
 	if (!mountainSets.empty())
 	{
@@ -78,11 +82,12 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 	}
 	else
 	{
-		logGlobal->warn("No mountain sets found for terrain %s", terrain.encode(terrain.getNum()));
+		logGlobal->warn("No mountain sets found for terrain %s", TerrainId::encode(terrain.getNum()));
 		// FIXME: Do we ever want to generate obstacles without any mountains?
 	}
 
-	TObstacleTypes treeSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter(ObstacleSet::EObstacleType::TREES, terrain));
+	localFilter.setType(ObstacleSet::EObstacleType::TREES);
+	TObstacleTypes treeSets = VLC->biomeHandler->getObstacles(localFilter);
 
 	// 1 or 2 tree sets
 	size_t treeSetsCount = std::min<size_t>(treeSets.size(), rand.nextInt(1, 2));
@@ -94,8 +99,8 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 	logGlobal->info("Added %d tree sets", treeSetsCount);
 
 	// Some obstacle types may be completely missing from water, but it's not a problem
-	TObstacleTypes largeSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter({ObstacleSet::EObstacleType::LAKES, ObstacleSet::EObstacleType::CRATERS},
-	terrain));
+	localFilter.setTypes({ObstacleSet::EObstacleType::LAKES, ObstacleSet::EObstacleType::CRATERS});
+	TObstacleTypes largeSets = VLC->biomeHandler->getObstacles(localFilter);
 
 	// We probably don't want to have lakes and craters at the same time, choose one of them
 
@@ -108,7 +113,8 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 		logGlobal->info("Added large set of type %s", obstacleSets.back()->getType());
 	}
 
-	TObstacleTypes rockSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter(ObstacleSet::EObstacleType::ROCKS, terrain));
+	localFilter.setType(ObstacleSet::EObstacleType::ROCKS);
+	TObstacleTypes rockSets = VLC->biomeHandler->getObstacles(localFilter);
 
 	size_t rockSetsCount = std::min<size_t>(rockSets.size(), rand.nextInt(1, 2));
 	for (size_t i = 0; i < rockSetsCount; i++)
@@ -118,7 +124,8 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 	}
 	logGlobal->info("Added %d rock sets", rockSetsCount);
 
-	TObstacleTypes plantSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter(ObstacleSet::EObstacleType::PLANTS, terrain));
+	localFilter.setType(ObstacleSet::EObstacleType::PLANTS);
+	TObstacleTypes plantSets = VLC->biomeHandler->getObstacles(localFilter);
 
 	// 1 or 2 sets (3 - rock sets)
 	size_t plantSetsCount = std::min<size_t>(plantSets.size(), rand.nextInt(1, std::max<size_t>(3 - rockSetsCount, 2)));
@@ -138,12 +145,12 @@ bool ObstacleProxy::prepareBiome(TerrainId terrain, CRandomGenerator & rand)
 
 	size_t smallSets = rand.nextInt(MIN_SMALL_SETS, maxSmallSets);
 
-	TObstacleTypes smallObstacleSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter({ObstacleSet::EObstacleType::STRUCTURES, ObstacleSet::EObstacleType::ANIMALS},
-	terrain));
+	localFilter.setTypes({ObstacleSet::EObstacleType::STRUCTURES, ObstacleSet::EObstacleType::ANIMALS});
+	TObstacleTypes smallObstacleSets = VLC->biomeHandler->getObstacles(localFilter);
 	RandomGeneratorUtil::randomShuffle(smallObstacleSets, rand);
 
-	TObstacleTypes otherSets = VLC->biomeHandler->getObstacles(ObstacleSetFilter(ObstacleSet::EObstacleType::OTHER,
-	terrain));
+	localFilter.setType(ObstacleSet::EObstacleType::OTHER);
+	TObstacleTypes otherSets = VLC->biomeHandler->getObstacles(localFilter);
 	RandomGeneratorUtil::randomShuffle(otherSets, rand);
 
 	while (smallSets > 0)

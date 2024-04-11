@@ -20,6 +20,7 @@ class CGObjectInstance;
 class ObjectTemplate;
 class CRandomGenerator;
 class IGameCallback;
+class ObstacleSetFilter;
 
 class DLL_LINKAGE ObstacleProxy
 {
@@ -29,7 +30,7 @@ public:
 	virtual ~ObstacleProxy() = default;
 
 	void collectPossibleObstacles(TerrainId terrain);
-	bool prepareBiome(TerrainId terrain, CRandomGenerator & rand);
+	bool prepareBiome(const ObstacleSetFilter & filter, CRandomGenerator & rand);
 
 	void addBlockedTile(const int3 & tile);
 

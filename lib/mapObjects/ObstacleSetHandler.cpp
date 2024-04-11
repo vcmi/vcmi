@@ -12,6 +12,7 @@
 #include "ObstacleSetHandler.h"
 
 #include "../modding/IdentifierStorage.h"
+#include "../constants/stringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,21 +33,41 @@ void ObstacleSet::addObstacle(std::shared_ptr<const ObjectTemplate> obstacle)
 	obstacles.push_back(obstacle);
 }
 
-ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain = TerrainId::ANY_TERRAIN):
+ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain = TerrainId::ANY_TERRAIN, EAlignment alignment = EAlignment::ANY):
 	allowedTypes(allowedTypes),
-	terrain(terrain)
+	terrain(terrain),
+	alignment(alignment)
 {
 }
 
-ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain = TerrainId::ANY_TERRAIN):
+ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain = TerrainId::ANY_TERRAIN, EAlignment alignment = EAlignment::ANY):
 	allowedTypes({allowedType}),
-	terrain(terrain)
+	terrain(terrain),
+	alignment(alignment)
 {
 }
 
 bool ObstacleSetFilter::filter(const ObstacleSet &set) const
 {
-	return (vstd::contains(set.getTerrains(), terrain) || terrain == TerrainId::ANY_TERRAIN);
+	if (terrain != TerrainId::ANY_TERRAIN && !vstd::contains(set.getTerrains(), terrain))
+	{
+		return false;
+	}
+
+	// TODO: Also check specific factions
+	auto alignments = set.getAlignments();
+
+	if (alignment != EAlignment::ANY && !alignments.empty() && !vstd::contains(alignments, alignment))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+TerrainId ObstacleSetFilter::getTerrain() const
+{
+	return terrain;
 }
 
 std::set<TerrainId> ObstacleSet::getTerrains() const
@@ -67,6 +88,16 @@ void ObstacleSet::setTerrains(const std::set<TerrainId> & terrains)
 void ObstacleSet::addTerrain(TerrainId terrain)
 {
 	this->allowedTerrains.insert(terrain);
+}
+
+void ObstacleSet::addAlignment(EAlignment alignment)
+{
+	this->allowedAlignments.insert(alignment);
+}
+
+std::set<EAlignment> ObstacleSet::getAlignments() const
+{
+	return allowedAlignments;
 }
 
 ObstacleSet::EObstacleType ObstacleSet::getType() const
@@ -185,6 +216,16 @@ std::vector<ObstacleSet::EObstacleType> ObstacleSetFilter::getAllowedTypes() con
 	return allowedTypes;
 }
 
+void ObstacleSetFilter::setType(ObstacleSet::EObstacleType type)
+{
+	allowedTypes = {type};
+}
+
+void ObstacleSetFilter::setTypes(std::vector<ObstacleSet::EObstacleType> types)
+{
+	this->allowedTypes = types;
+}
+
 std::vector<JsonNode> ObstacleSetHandler::loadLegacyData()
 {
 	return {};
@@ -245,6 +286,29 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 			{
 				os->addTerrain(TerrainId(id));
 			});
+		}
+	}
+
+	// TODO: Move this parser to some utils
+	auto parseAlignment = [](const std::string & str) ->EAlignment
+	{
+		int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, str);
+		if (alignment == -1)
+			logGlobal->error("Incorrect alignment: ", str);
+		else
+			return static_cast<EAlignment>(alignment);
+	};
+
+	if (json["alignment"].isString())
+	{
+		os->addAlignment(parseAlignment(json["alignment"].String()));
+	}
+	else if (json["alignment"].isVector())
+	{
+		auto alignments = json["alignment"].Vector();
+		for (const auto & node : alignments)
+		{
+			os->addAlignment(parseAlignment(node.String()));
 		}
 	}
 

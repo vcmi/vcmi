@@ -27,6 +27,20 @@
 						}
 					]
 					
+				},
+				"alignment" : {
+					"anyOf": [
+						{
+							"type" : "string",
+							"enum" : ["good", "evil", "neutral"],
+							"description" : "Alignment of faction of the zone"
+						},
+						{
+							"type" : "array",
+							"items" : { "type" : "string" },
+							"description" : "Alignment of faction of the zone"
+						}
+					]
 				}
 			}
 		},
