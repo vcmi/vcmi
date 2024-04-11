@@ -11,12 +11,12 @@
     <message>
         <location filename="../inspector/armywidget.ui" line="121"/>
         <source>Wide formation</source>
-        <translation>Formação Larga</translation>
+        <translation>Formação Aberta</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="108"/>
         <source>Tight formation</source>
-        <translation>Formação Estreita</translation>
+        <translation>Formação Compacta</translation>
     </message>
 </context>
 <context>
@@ -917,7 +917,7 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation>Pontos de magia</translation>
+        <translation>Mana</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="156"/>

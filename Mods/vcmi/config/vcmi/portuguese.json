@@ -55,7 +55,7 @@
 	"vcmi.radialWheel.moveDown" : "Mover para baixo",
 	"vcmi.radialWheel.moveBottom" : "Mover para o fundo",
 
-	"vcmi.spellBook.search" : "buscar...",
+	"vcmi.spellBook.search" : "procurar...",
 
 	"vcmi.mainMenu.serverConnecting" : "Conectando...",
 	"vcmi.mainMenu.serverAddressEnter" : "Insira o endereço:",
