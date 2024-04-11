@@ -155,12 +155,12 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	OBJ_CONSTRUCTION;
 		
 	generalSortingBy = getSortBySelectionScreen(tabType);
+	sortingBy = _format;
 
 	bool enableUiEnhancements = settings["general"]["enableUiEnhancements"].Bool();
 
 	if(tabType != ESelectionScreen::campaignList)
 	{
-		sortingBy = _format;
 		background = std::make_shared<CPicture>(ImagePath::builtin("SCSELBCK.bmp"), 0, 6);
 		pos = background->pos;
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"), 0);
