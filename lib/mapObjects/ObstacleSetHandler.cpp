@@ -12,7 +12,7 @@
 #include "ObstacleSetHandler.h"
 
 #include "../modding/IdentifierStorage.h"
-#include "../constants/stringConstants.h"
+#include "../constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -294,9 +294,14 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	{
 		int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, str);
 		if (alignment == -1)
+		{
 			logGlobal->error("Incorrect alignment: ", str);
+			return EAlignment::ANY;
+		}
 		else
+		{
 			return static_cast<EAlignment>(alignment);
+		}
 	};
 
 	if (json["alignment"].isString())
