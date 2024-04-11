@@ -11,13 +11,15 @@
 #pragma once
 
 enum class EShortcut;
-using SDL_Keycode = int32_t;
 
 class ShortcutHandler
 {
+	std::multimap<std::string, EShortcut> mappedShortcuts;
 public:
+	ShortcutHandler();
+
 	/// returns list of shortcuts assigned to provided SDL keycode
-	std::vector<EShortcut> translateKeycode(SDL_Keycode key) const;
+	std::vector<EShortcut> translateKeycode(const std::string & key) const;
 
 	/// attempts to find shortcut by its unique identifier. Returns EShortcut::NONE on failure
 	EShortcut findShortcut(const std::string & identifier ) const;

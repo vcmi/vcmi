@@ -33,6 +33,8 @@ InputSourceKeyboard::InputSourceKeyboard()
 
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
+	std::string keyName = SDL_GetKeyName(key.keysym.sym);
+	logGlobal->trace("keyboard: key '%s' pressed", keyName);
 	assert(key.state == SDL_PRESSED);
 
 	if (SDL_IsTextInputActive() == SDL_TRUE)
@@ -85,8 +87,7 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 		return;
 	}
 
-	auto shortcutsVector = GH.shortcuts().translateKeycode(key.keysym.sym);
-
+	auto shortcutsVector = GH.shortcuts().translateKeycode(keyName);
 	GH.events().dispatchShortcutPressed(shortcutsVector);
 }
 
@@ -94,6 +95,9 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 {
 	if(key.repeat != 0)
 		return; // ignore periodic event resends
+
+	std::string keyName = SDL_GetKeyName(key.keysym.sym);
+	logGlobal->trace("keyboard: key '%s' released", keyName);
 
 	if (SDL_IsTextInputActive() == SDL_TRUE)
 	{
@@ -103,7 +107,7 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 
 	assert(key.state == SDL_RELEASED);
 
-	auto shortcutsVector = GH.shortcuts().translateKeycode(key.keysym.sym);
+	auto shortcutsVector = GH.shortcuts().translateKeycode(keyName);
 
 	GH.events().dispatchShortcutReleased(shortcutsVector);
 }
