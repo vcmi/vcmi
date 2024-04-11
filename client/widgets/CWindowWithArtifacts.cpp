@@ -287,13 +287,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 		// Transition state. Nothing to do here. Just skip. Need to wait for final state.
 		return;
 
-	// When moving one artifact onto another it leads to two art movements: dst->TRANSITION_POS; src->dst
-	// However after first movement we pick the art from TRANSITION_POS and the second movement coming when
-	// we have a different artifact may look surprising... but it's valid.
-
 	auto pickedArtInst = std::get<const CArtifactInstance*>(curState.value());
-	assert(!pickedArtInst || destLoc.artHolder == std::get<const CGHeroInstance*>(curState.value())->id);
-
 	auto artifactMovedBody = [this, withRedraw, &destLoc, &pickedArtInst](auto artSetWeak) -> void
 	{
 		auto artSetPtr = artSetWeak.lock();

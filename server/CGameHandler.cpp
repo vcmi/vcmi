@@ -2706,7 +2706,8 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	const auto srcArtifact = srcArtSet->getArt(src.slot);
-	const bool isDstSlotOccupied = dstArtSet->bearerType() == ArtBearer::ALTAR ? false : dstArtSet->getArt(dst.slot) != nullptr;
+	const auto dstArtifact = dstArtSet->getArt(dst.slot);
+	const bool isDstSlotOccupied = dstArtSet->bearerType() == ArtBearer::ALTAR ? false : dstArtifact != nullptr;
 	const bool isDstSlotBackpack = dstArtSet->bearerType() == ArtBearer::HERO ? ArtifactUtils::isSlotBackpack(dst.slot) : false;
 
 	if(srcArtifact == nullptr)
@@ -2744,7 +2745,8 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	// Check if dst slot is occupied
 	if(!isDstSlotBackpack && isDstSlotOccupied)
 	{
-		// Previous artifact must be removed
+		// Previous artifact must be swapped
+		COMPLAIN_RET_FALSE_IF(!dstArtifact->canBePutAt(srcArtSet, src.slot, true), "Cannot swap artifacts!");
 		ma.artsPack1.push_back(BulkMoveArtifacts::LinkedSlots(dstSlot, src.slot));
 		ma.swap = true;
 	}
