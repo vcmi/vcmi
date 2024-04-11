@@ -72,11 +72,11 @@ void CGuiHandler::init()
 {
 	inGuiThread = true;
 
-	inputHandlerInstance = std::make_unique<InputHandler>();
 	eventDispatcherInstance = std::make_unique<EventDispatcher>();
 	windowHandlerInstance = std::make_unique<WindowHandler>();
 	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	renderHandlerInstance = std::make_unique<RenderHandler>();
+	inputHandlerInstance = std::make_unique<InputHandler>(); // Must be after windowHandlerInstance
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
 }
