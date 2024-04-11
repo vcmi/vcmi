@@ -26,7 +26,8 @@ CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)
 	addGestureCallback(std::bind(&CArtifactsOfHeroBase::gestureArtPlace, this, _1, _2));
 }
 
-CArtifactsOfHeroMain::~CArtifactsOfHeroMain()
+void CArtifactsOfHeroMain::deactivate()
 {
 	putBackPickedArtifact();
+	CArtifactsOfHeroBase::deactivate();
 }

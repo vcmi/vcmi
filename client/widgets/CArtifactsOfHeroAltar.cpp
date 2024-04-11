@@ -34,7 +34,8 @@ CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 	rightBackpackRoll->moveBy(Point(2, -1));
 };
 
-CArtifactsOfHeroAltar::~CArtifactsOfHeroAltar()
+void CArtifactsOfHeroAltar::deactivate()
 {
 	putBackPickedArtifact();
+	CArtifactsOfHeroBase::deactivate();
 }

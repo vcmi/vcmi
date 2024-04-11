@@ -46,7 +46,8 @@ CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vecto
 	setRedrawParent(true);
 }
 
-CArtifactsOfHeroKingdom::~CArtifactsOfHeroKingdom()
+void CArtifactsOfHeroKingdom::deactivate()
 {
 	putBackPickedArtifact();
+	CArtifactsOfHeroBase::deactivate();
 }
