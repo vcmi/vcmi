@@ -322,6 +322,13 @@ void CSoundHandler::setCallback(int channel, std::function<void()> function)
 		iter->second.push_back(function);
 }
 
+void CSoundHandler::resetCallback(int channel)
+{
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+
+	callbacks.erase(channel);
+}
+
 void CSoundHandler::soundFinishedCallback(int channel)
 {
 	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
