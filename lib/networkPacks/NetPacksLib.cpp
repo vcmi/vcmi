@@ -1199,13 +1199,9 @@ void RemoveObject::applyGs(CGameState *gs)
 		gs->map->quests[quest->quest->qid] = nullptr;
 		for (auto &player : gs->players)
 		{
-			for (auto &q : player.second.quests)
-			{
-				if (q.obj == obj)
-				{
-					q.obj = nullptr;
-				}
-			}
+			vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
+				return q.obj == obj;
+			});
 		}
 	}
 
