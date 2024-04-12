@@ -28,6 +28,19 @@
 					]
 					
 				},
+				"faction" : {
+					"anyOf": [
+						{
+							"type" : "string",
+							"description" : "Faction of the zone"
+						},
+						{
+							"type" : "array",
+							"items" : { "type" : "string" },
+							"description" : "Factions of the zone"
+						}
+					]
+				},
 				"alignment" : {
 					"anyOf": [
 						{

@@ -52,6 +52,8 @@ public:
 	void addTerrain(TerrainId terrain);
 	std::set<EAlignment> getAlignments() const;
 	void addAlignment(EAlignment alignment);
+	std::set<FactionID> getFactions() const;
+	void addFaction(FactionID faction);
 
 	static EObstacleType typeFromString(const std::string &str);
 	std::string toString() const;
@@ -61,6 +63,7 @@ public:
 private:
 	EObstacleType type;
 	std::set<TerrainId> allowedTerrains;
+	std::set<FactionID> allowedFactions;
 	std::set<EAlignment> allowedAlignments; // Empty means all
 	std::vector<std::shared_ptr<const ObjectTemplate>> obstacles;
 };
@@ -70,8 +73,8 @@ typedef std::vector<std::shared_ptr<ObstacleSet>> TObstacleTypes;
 class DLL_LINKAGE ObstacleSetFilter
 {
 public:
-	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain , EAlignment alignment);
-	ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain, EAlignment alignment);
+	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain, FactionID faction, EAlignment alignment);
+	ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain, FactionID faction, EAlignment alignment);
 
 	bool filter(const ObstacleSet &set) const;
 
@@ -84,6 +87,7 @@ public:
 
 private:
 	std::vector<ObstacleSet::EObstacleType> allowedTypes;
+	FactionID faction;
 	EAlignment alignment;
 // TODO: Filter by faction,  surface/underground, etc.
 	const TerrainId terrain;

@@ -33,16 +33,18 @@ void ObstacleSet::addObstacle(std::shared_ptr<const ObjectTemplate> obstacle)
 	obstacles.push_back(obstacle);
 }
 
-ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain = TerrainId::ANY_TERRAIN, EAlignment alignment = EAlignment::ANY):
+ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain = TerrainId::ANY_TERRAIN, FactionID faction = FactionID::ANY, EAlignment alignment = EAlignment::ANY):
 	allowedTypes(allowedTypes),
 	terrain(terrain),
+	faction(faction),
 	alignment(alignment)
 {
 }
 
-ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain = TerrainId::ANY_TERRAIN, EAlignment alignment = EAlignment::ANY):
+ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain = TerrainId::ANY_TERRAIN, FactionID faction = FactionID::ANY, EAlignment alignment = EAlignment::ANY):
 	allowedTypes({allowedType}),
 	terrain(terrain),
+	faction(faction),
 	alignment(alignment)
 {
 }
@@ -52,6 +54,15 @@ bool ObstacleSetFilter::filter(const ObstacleSet &set) const
 	if (terrain != TerrainId::ANY_TERRAIN && !vstd::contains(set.getTerrains(), terrain))
 	{
 		return false;
+	}
+
+	if (faction != FactionID::ANY)
+	{
+		auto factions = set.getFactions();
+		if (!factions.empty() && !vstd::contains(factions, faction))
+		{
+			return false;
+		}
 	}
 
 	// TODO: Also check specific factions
@@ -90,6 +101,16 @@ void ObstacleSet::setTerrains(const std::set<TerrainId> & terrains)
 void ObstacleSet::addTerrain(TerrainId terrain)
 {
 	this->allowedTerrains.insert(terrain);
+}
+
+std::set<FactionID> ObstacleSet::getFactions() const
+{
+	return allowedFactions;
+}
+
+void ObstacleSet::addFaction(FactionID faction)
+{
+	this->allowedFactions.insert(faction);
 }
 
 void ObstacleSet::addAlignment(EAlignment alignment)
@@ -292,6 +313,28 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 			{
 				os->addTerrain(TerrainId(id));
 			});
+		}
+	}
+
+	auto parseFaction = [os, scope](const std::string & str) -> FactionID
+	{
+		VLC->identifiers()->requestIdentifier(scope, "faction", str, [os](si32 id)
+		{
+			os->addFaction(FactionID(id));
+		});
+	};
+
+	if (biome["faction"].isString())
+	{
+		auto factionName = biome["faction"].String();
+		parseFaction(factionName);
+	}
+	else if (biome["faction"].isVector())
+	{
+		auto factions = biome["faction"].Vector();
+		for (const auto & node : factions)
+		{
+			parseFaction(node.String());
 		}
 	}
 

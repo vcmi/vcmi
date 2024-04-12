@@ -36,7 +36,9 @@ void ObstaclePlacer::process()
 	if(!manager)
 		return;
 
-	ObstacleSetFilter filter(ObstacleSet::EObstacleType::INVALID, zone.getTerrainType(), zone.getTownType().toFaction()->alignment);
+	auto faction = zone.getTownType().toFaction();
+
+	ObstacleSetFilter filter(ObstacleSet::EObstacleType::INVALID, zone.getTerrainType(), faction->getId(), faction->alignment);
 
 	if (!prepareBiome(filter, zone.getRand()))
 	{

@@ -54,11 +54,7 @@ void ObstacleProxy::sortObstacles()
 
 bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, CRandomGenerator & rand)
 {
-	// FIXME: All the mountains have same ID and mostly same subID, how to differentiate them?
-
 	possibleObstacles.clear();
-
-	// TODO: Move this logic to ObstacleSetHandler
 
 	std::vector<std::shared_ptr<ObstacleSet>> obstacleSets;
 
