@@ -1058,6 +1058,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	
 	auto preferUndergound = source["preferUndergroundPlacement"];
 	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();
+	faction->special = source["special"].Bool();
 
 	// NOTE: semi-workaround - normally, towns are supposed to have native terrains.
 	// Towns without one are exceptions. So, vcmi requires nativeTerrain to be defined
@@ -1249,7 +1250,7 @@ std::set<FactionID> CTownHandler::getDefaultAllowed() const
 	std::set<FactionID> allowedFactions;
 
 	for(auto town : objects)
-		if (town->town != nullptr)
+		if (town->town != nullptr && !town->special)
 			allowedFactions.insert(town->getId());
 
 	return allowedFactions;
