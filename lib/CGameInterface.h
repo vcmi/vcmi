@@ -71,7 +71,7 @@ using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
 {
 public:
-	bool human;
+	bool human = false;
 	PlayerColor playerID;
 	std::string dllName;
 
