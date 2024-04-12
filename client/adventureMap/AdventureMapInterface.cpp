@@ -45,6 +45,8 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/Problem.h"
 
 std::shared_ptr<AdventureMapInterface> adventureInt;
 
@@ -506,11 +508,6 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	if(!LOCPLINT->cb->isVisible(targetPosition))
-    {
-        if(!spellBeingCasted || spellBeingCasted->id != SpellID::DIMENSION_DOOR)
-		    return;
-    }
 	if(!LOCPLINT->makingTurn)
 		return;
 
@@ -519,23 +516,16 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	if(spellBeingCasted)
 	{
 		assert(shortcuts->optionSpellcasting());
+		assert(spellBeingCasted->id == SpellID::SCUTTLE_BOAT || spellBeingCasted->id == SpellID::DIMENSION_DOOR);
 
-		switch(spellBeingCasted->id)
-		{
-		case SpellID::SCUTTLE_BOAT:
-			if(isValidAdventureSpellTarget(targetPosition, topBlocking, SpellID::SCUTTLE_BOAT))
-				performSpellcasting(targetPosition);
-			break;
-		case SpellID::DIMENSION_DOOR:
-			if(isValidAdventureSpellTarget(targetPosition, topBlocking, SpellID::DIMENSION_DOOR))
-				performSpellcasting(targetPosition);
-			break;
-		default:
-			break;
-		}
-
+		if(isValidAdventureSpellTarget(targetPosition))
+			performSpellcasting(targetPosition);
 		return;
 	}
+
+	if(!LOCPLINT->cb->isVisible(targetPosition))
+		return;
+
 	//check if we can select this object
 	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == LOCPLINT->playerID;
 	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES;
@@ -610,21 +600,45 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		return;
 
 	bool isTargetPositionVisible = LOCPLINT->cb->isVisible(targetPosition);
+	const CGObjectInstance *objAtTile = isTargetPositionVisible ? getActiveObject(targetPosition) : nullptr;
+
+	if(spellBeingCasted)
+	{
+		switch(spellBeingCasted->id)
+		{
+		case SpellID::SCUTTLE_BOAT:
+			if(isValidAdventureSpellTarget(targetPosition))
+				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
+			else
+				CCS->curh->set(Cursor::Map::POINTER);
+			return;
+
+		case SpellID::DIMENSION_DOOR:
+			if(isValidAdventureSpellTarget(targetPosition))
+			{
+				if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
+					CCS->curh->set(Cursor::Map::T1_ATTACK);
+				else
+					CCS->curh->set(Cursor::Map::TELEPORT);
+				return;
+			}
+			else
+				CCS->curh->set(Cursor::Map::POINTER);
+			return;
+		default:
+			CCS->curh->set(Cursor::Map::POINTER);
+			return;
+		}
+	}
 
 	if(!isTargetPositionVisible)
 	{
-        GH.statusbar()->clear();
-
-        if(!spellBeingCasted || spellBeingCasted->id != SpellID::DIMENSION_DOOR)
-        {
-            CCS->curh->set(Cursor::Map::POINTER);
-            return;
-        }
+		CCS->curh->set(Cursor::Map::POINTER);
+		return;
 	}
 
 	auto objRelations = PlayerRelations::ALLIES;
 
-	const CGObjectInstance *objAtTile = isTargetPositionVisible ? getActiveObject(targetPosition) : nullptr;
 	if(objAtTile)
 	{
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
@@ -636,40 +650,6 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 	{
 		std::string tileTooltipText = CGI->mh->getTerrainDescr(targetPosition, false);
 		GH.statusbar()->write(tileTooltipText);
-	}
-
-	if(spellBeingCasted)
-	{
-		switch(spellBeingCasted->id)
-		{
-		case SpellID::SCUTTLE_BOAT:
-			if(isValidAdventureSpellTarget(targetPosition, objAtTile, SpellID::SCUTTLE_BOAT))
-				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
-			else
-				CCS->curh->set(Cursor::Map::POINTER);
-			return;
-		case SpellID::DIMENSION_DOOR:
-			if(isValidAdventureSpellTarget(targetPosition, objAtTile, SpellID::DIMENSION_DOOR))
-			{
-				if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS))
-				{
-					auto isGuarded = LOCPLINT->cb->isTileGuardedAfterDimensionDoorUse(targetPosition, LOCPLINT->localState->getCurrentHero());
-					if(isGuarded)
-					{
-						CCS->curh->set(Cursor::Map::T1_ATTACK);
-						return;
-					}
-				}
-
-				CCS->curh->set(Cursor::Map::TELEPORT);
-			}
-			else
-				CCS->curh->set(Cursor::Map::POINTER);
-			return;
-		default:
-			CCS->curh->set(Cursor::Map::POINTER);
-			return;
-		}
 	}
 
 	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || GH.isKeyboardCtrlDown())
@@ -945,34 +925,9 @@ void AdventureMapInterface::onScreenResize()
 		activate();
 }
 
-bool AdventureMapInterface::isValidAdventureSpellTarget(int3 targetPosition, const CGObjectInstance * topObjectAtTarget, SpellID spellId)
+bool AdventureMapInterface::isValidAdventureSpellTarget(int3 targetPosition) const
 {
-	int3 heroPosition = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
-	if (!isInScreenRange(heroPosition, targetPosition))
-	{
-		return false;
-	}
+	spells::detail::ProblemImpl problem;
 
-	switch(spellId)
-	{
-		case SpellID::SCUTTLE_BOAT:
-		{
-			if(topObjectAtTarget && topObjectAtTarget->ID == Obj::BOAT)
-				return true;
-			else
-				return false;
-		}
-		case SpellID::DIMENSION_DOOR:
-		{
-			const TerrainTile * t = LOCPLINT->cb->getTileForDimensionDoor(targetPosition, LOCPLINT->localState->getCurrentHero());
-
-			if(t && t->isClear(LOCPLINT->cb->getTile(heroPosition)))
-				return true;
-			else
-				return false;
-		}
-		default:
-			logGlobal->warn("Called AdventureMapInterface::isValidAdventureSpellTarget with unknown Spell ID!");
-			return false;
-	}
+	return spellBeingCasted->getAdventureMechanics().canBeCastAt(problem, LOCPLINT->cb.get(), LOCPLINT->localState->getCurrentHero(), targetPosition);
 }

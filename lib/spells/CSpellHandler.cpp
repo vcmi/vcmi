@@ -491,6 +491,11 @@ void CSpell::setupMechanics()
 	adventureMechanics = IAdventureSpellMechanics::createMechanics(this);
 }
 
+const IAdventureSpellMechanics & CSpell::getAdventureMechanics() const
+{
+	return *adventureMechanics;
+}
+
 std::unique_ptr<spells::Mechanics> CSpell::battleMechanics(const spells::IBattleCast * event) const
 {
 	return mechanics->create(event);

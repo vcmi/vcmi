@@ -105,6 +105,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::PATHFINDER_ORIGINAL_FLY_RULES,          "pathfinder", "originalFlyRules"                },
 		{EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES, "spells",    "dimensionDoorOnlyToUncoveredTiles"},
 		{EGameSettings::DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE,    "spells",    "dimensionDoorExposesTerrainType"  },
+		{EGameSettings::DIMENSION_DOOR_FAILURE_SPENDS_POINTS,   "spells",    "dimensionDoorFailureSpendsPoints" },
 		{EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS,         "spells",    "dimensionDoorTriggersGuards"      },
 		{EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT,  "spells",    "dimensionDoorTournamentRulesLimit"},
 		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"              },

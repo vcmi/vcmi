@@ -40,6 +40,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 #include "../../lib/GameConstants.h"
 
@@ -653,12 +654,25 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 				owner->myInt->localState->spellbookSettings.spellbookLastPageAdvmap = owner->currentPage;
 			});
 
-			if(mySpell->getTargetType() == spells::AimType::LOCATION)
-				adventureInt->enterCastingMode(mySpell);
-			else if(mySpell->getTargetType() == spells::AimType::NO_TARGET)
-				owner->myInt->cb->castSpell(h, mySpell->id);
+			spells::detail::ProblemImpl problem;
+			if (mySpell->getAdventureMechanics().canBeCast(problem, LOCPLINT->cb.get(), owner->myHero))
+			{
+				if(mySpell->getTargetType() == spells::AimType::LOCATION)
+					adventureInt->enterCastingMode(mySpell);
+				else if(mySpell->getTargetType() == spells::AimType::NO_TARGET)
+					owner->myInt->cb->castSpell(h, mySpell->id);
+				else
+					logGlobal->error("Invalid spell target type");
+			}
 			else
-				logGlobal->error("Invalid spell target type");
+			{
+				std::vector<std::string> texts;
+				problem.getAll(texts);
+				if(!texts.empty())
+					LOCPLINT->showInfoDialog(texts.front());
+				else
+					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
+			}
 		}
 	}
 }
