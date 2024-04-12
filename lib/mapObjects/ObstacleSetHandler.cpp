@@ -55,11 +55,13 @@ bool ObstacleSetFilter::filter(const ObstacleSet &set) const
 	}
 
 	// TODO: Also check specific factions
-	auto alignments = set.getAlignments();
-
-	if (alignment != EAlignment::ANY && !alignments.empty() && !vstd::contains(alignments, alignment))
+	if (alignment != EAlignment::ANY)
 	{
-		return false;
+		auto alignments = set.getAlignments();
+		if (!alignments.empty() && !vstd::contains(alignments, alignment))
+		{
+			return false;
+		}
 	}
 
 	return true;
@@ -269,6 +271,8 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	auto biome = json["biome"].Struct();
 	os->setType(ObstacleSet::typeFromString(biome["objectType"].String()));
 
+	// TODO: Handle any (every) terrain option
+
 	if (biome["terrain"].isString())
 	{
 		auto terrainName = biome["terrain"].String();
@@ -306,13 +310,13 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 		}
 	};
 
-	if (json["alignment"].isString())
+	if (biome["alignment"].isString())
 	{
-		os->addAlignment(parseAlignment(json["alignment"].String()));
+		os->addAlignment(parseAlignment(biome["alignment"].String()));
 	}
-	else if (json["alignment"].isVector())
+	else if (biome["alignment"].isVector())
 	{
-		auto alignments = json["alignment"].Vector();
+		auto alignments = biome["alignment"].Vector();
 		for (const auto & node : alignments)
 		{
 			os->addAlignment(parseAlignment(node.String()));
