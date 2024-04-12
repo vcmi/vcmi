@@ -237,13 +237,13 @@ void ObstacleSetHandler::loadObject(std::string scope, std::string name, const J
 	if(os)
 	{
 		addObstacleSet(os);
+		// TODO: Define some const array of object types ("biome" etc.)
+		VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.back()->id);
 	}
 	else
 	{
 		logMod->error("Failed to load obstacle set: %s", name);
 	}
-	// TODO: Define some const array of object types ("biome" etc.)
-	VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.back()->id);
 }
 
 void ObstacleSetHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -252,17 +252,19 @@ void ObstacleSetHandler::loadObject(std::string scope, std::string name, const J
 	if(os)
 	{
 		addObstacleSet(os);
+		VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.at(index)->id);
 	}
 	else
 	{
 		logMod->error("Failed to load obstacle set: %s", name);
 	}
-	VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.at(index)->id);
+
 }
 
 std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
 {
 	auto os = std::make_shared<ObstacleSet>();
+	os->id = index;
 
 	auto biome = json["biome"].Struct();
 	os->setType(ObstacleSet::typeFromString(biome["objectType"].String()));
@@ -361,7 +363,6 @@ void ObstacleSetHandler::addTemplate(const std::string & scope, const std::strin
 
 void ObstacleSetHandler::addObstacleSet(std::shared_ptr<ObstacleSet> os)
 {
-	// TODO: Allow to refer to existing obstacle set by its id (name)
 	obstacleSets[os->getType()].push_back(os);
 	biomes.push_back(os);
 }
