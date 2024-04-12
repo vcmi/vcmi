@@ -16,9 +16,6 @@
 			"additionalProperties" : true, // Not validated on its own - instead data copied to main object and validated as part of it
 			"type" : "object"
 		},
-		"biome" : {
-			"type" : "object"
-		},
 		"rmg" : {
 			"additionalProperties" : false,
 			"type" : "object",

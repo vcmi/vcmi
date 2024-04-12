@@ -61,10 +61,11 @@ public:
 	si32 id;
 
 private:
+
 	EObstacleType type;
-	std::set<TerrainId> allowedTerrains;
-	std::set<FactionID> allowedFactions;
-	std::set<EAlignment> allowedAlignments; // Empty means all
+	std::set<TerrainId> allowedTerrains; // Empty means all terrains
+	std::set<FactionID> allowedFactions; // Empty means all factions
+	std::set<EAlignment> allowedAlignments; // Empty means all alignments
 	std::vector<std::shared_ptr<const ObjectTemplate>> obstacles;
 };
 

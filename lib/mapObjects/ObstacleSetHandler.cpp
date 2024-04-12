@@ -13,6 +13,7 @@
 
 #include "../modding/IdentifierStorage.h"
 #include "../constants/StringConstants.h"
+#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -303,7 +304,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 			os->setTerrain(TerrainId(id));
 		});
 	}
-	else // Other cases won't pass validation
+	else if (biome["terrain"].isVector())
 	{
 		auto terrains = biome["terrain"].Vector();
 
@@ -315,8 +316,12 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 			});
 		}
 	}
+	else
+	{
+		logMod->error("No terrain specified for obstacle set %s", name);
+	}
 
-	auto parseFaction = [os, scope](const std::string & str) -> FactionID
+	auto handleFaction = [os, scope](const std::string & str)
 	{
 		VLC->identifiers()->requestIdentifier(scope, "faction", str, [os](si32 id)
 		{
@@ -327,14 +332,14 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	if (biome["faction"].isString())
 	{
 		auto factionName = biome["faction"].String();
-		parseFaction(factionName);
+		handleFaction(factionName);
 	}
 	else if (biome["faction"].isVector())
 	{
 		auto factions = biome["faction"].Vector();
 		for (const auto & node : factions)
 		{
-			parseFaction(node.String());
+			handleFaction(node.String());
 		}
 	}
 

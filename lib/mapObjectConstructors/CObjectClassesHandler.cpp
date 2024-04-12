@@ -212,18 +212,26 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	createdObject->subtype = index;
 	createdObject->init(entry);
 
-	for (auto & templ : createdObject->getTemplates())
+	bool staticObject = createdObject->isStaticObject();
+	if (staticObject)
 	{
-		// Register templates for new objects from mods
-		VLC->biomeHandler->addTemplate(scope, templ->stringID, templ);
+		for (auto & templ : createdObject->getTemplates())
+		{
+			// Register templates for new objects from mods
+			VLC->biomeHandler->addTemplate(scope, templ->stringID, templ);
+		}
 	}
 
 	auto range = legacyTemplates.equal_range(std::make_pair(obj->id, index));
 	for (auto & templ : boost::make_iterator_range(range.first, range.second))
 	{
-		// Register legacy templates as "core"
-		VLC->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
-		// FIXME: Why does it clear stringID?
+		if (staticObject)
+		{
+			// Register legacy templates as "core"
+			// FIXME: Why does it clear stringID?
+			VLC->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
+		}
+
 		createdObject->addTemplate(templ.second);
 
 	}
