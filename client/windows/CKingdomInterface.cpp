@@ -832,6 +832,9 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	{
 		if(town->builtBuildings.count(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+	}, [&]{
+		if(!town->town->faction->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
 	{

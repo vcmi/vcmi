@@ -41,6 +41,10 @@
 				}
 			}
 		},
+		"biography" : {
+			"type" : "string",
+			"description" : "Creature biography"
+		},
 		"faction" : {
 			"type" : "string",
 			"description" : "Faction this creature belongs to. Examples: castle, rampart"
