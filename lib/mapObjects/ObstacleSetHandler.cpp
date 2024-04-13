@@ -353,7 +353,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 		int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, str);
 		if (alignment == -1)
 		{
-			logGlobal->error("Incorrect alignment: ", str);
+			logMod->error("Incorrect alignment: ", str);
 			return EAlignment::ANY;
 		}
 		else
@@ -378,14 +378,14 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	auto templates = json["templates"].Vector();
 	for (const auto & node : templates)
 	{
-		logGlobal->info("Registering obstacle template: %s in scope %s", node.String(), scope);
+		logMod->trace("Registering obstacle template: %s in scope %s", node.String(), scope);
 
 		auto identifier = boost::algorithm::to_lower_copy(node.String());
 		auto jsonName = JsonNode(identifier);
 
 		VLC->identifiers()->requestIdentifier(node.getModScope(), "obstacleTemplate", identifier, [this, os](si32 id)
 		{
-			logGlobal->info("Resolved obstacle id: %d", id);
+			logMod->trace("Resolved obstacle id: %d", id);
 			os->addObstacle(obstacleTemplates[id]);
 		});
 	}

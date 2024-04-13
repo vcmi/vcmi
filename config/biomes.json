@@ -630,7 +630,7 @@
 		},
 		"templates" : ["avlxsu01", "avlxsu02", "avlxsu03", "avlxsu04", "avlxsu05", "avlxsu06", "avlxsu07", "avlxsu08", "avlxsu09", "avlxsu10", "avlxsu11", "avlxsu12"]
 	},
-	"templateSet175":{
+	"lavaChasm":{
 		"biome":{
 			"terrain" : "lava",
 			"objectType" : "crater"

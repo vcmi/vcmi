@@ -182,7 +182,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, CRandomGenera
 
 	// Copy this set to our possible obstacles
 
-	if (selectedSets >= MINIMUM_SETS ||
+	if (selectedSets >= 4 || // Original Lava has only 4 types of sets
 		(terrain == TerrainId::WATER && selectedSets > 0))
 	{
 		obstaclesBySize.clear();
