@@ -17,5 +17,5 @@ class CArtifactsOfHeroAltar : public CArtifactsOfHeroBase
 {
 public:
 	CArtifactsOfHeroAltar(const Point & position);
-	~CArtifactsOfHeroAltar();
+	void deactivate() override;
 };
