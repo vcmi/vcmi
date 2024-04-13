@@ -37,6 +37,7 @@ void CGameInfo::setFromLib()
 	terrainTypeHandler = VLC->terrainTypeHandler;
 	battleFieldHandler = VLC->battlefieldsHandler;
 	obstacleHandler = VLC->obstacleHandler;
+	//TODO: biomeHandler?
 }
 
 const ArtifactService * CGameInfo::artifacts() const

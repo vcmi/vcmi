@@ -73,6 +73,7 @@ Other:
 - [Terrain](Entities_Format/Terrain_Format.md)
 - [River](Entities_Format/River_Format.md)
 - [Road](Entities_Format/Road_Format.md)
+- [Biome](Entities_Format/Biome_Format.md)
 - [Battlefield](Entities_Format/Battlefield_Format.md)
 - [Battle Obstacle](Entities_Format/Battle_Obstacle_Format.md)
 

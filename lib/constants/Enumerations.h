@@ -13,7 +13,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 enum class EAlignment : int8_t
 {
-	GOOD,
+	ANY = -1,
+	GOOD = 0,
 	EVIL,
 	NEUTRAL
 };

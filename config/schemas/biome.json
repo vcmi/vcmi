@@ -1,0 +1,67 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI map obstacle set format",
+	"description" : "Description of map object set, used only as sub-schema of object",
+	"required" : ["biome", "templates"],
+	"additionalProperties" : true, // may have type-dependant properties
+	"properties" : {
+		"biome" : {
+			"type" : "object",
+			"properties": {
+				"objectType" : {
+					"type" : "string",
+					"enmum": ["mountain", "tree", "lake", "crater", "rock", "plant", "structure", "animal", "other"],
+					"description" : "Type of the obstacle set"
+				},
+				"terrain" : {
+					"anyOf": [
+						{
+							"type" : "string",
+							"description" : "Terrain of the obstacle set"
+						},
+						{
+							"type" : "array",
+							"items" : { "type" : "string" },
+							"description" : "Terrains of the obstacle set"
+						}
+					]
+					
+				},
+				"faction" : {
+					"anyOf": [
+						{
+							"type" : "string",
+							"description" : "Faction of the zone"
+						},
+						{
+							"type" : "array",
+							"items" : { "type" : "string" },
+							"description" : "Factions of the zone"
+						}
+					]
+				},
+				"alignment" : {
+					"anyOf": [
+						{
+							"type" : "string",
+							"enum" : ["good", "evil", "neutral"],
+							"description" : "Alignment of faction of the zone"
+						},
+						{
+							"type" : "array",
+							"items" : { "type" : "string" },
+							"description" : "Alignment of faction of the zone"
+						}
+					]
+				}
+			}
+		},
+		"templates" : {
+			"type" : "array",
+			"items" : { "type" : "string" },
+			"description" : "Object templates of the obstacle set"
+		}
+	}
+}
+

@@ -25,6 +25,8 @@
 #include "../../mapping/CMap.h"
 #include "../../mapping/ObstacleProxy.h"
 #include "../../mapObjects/CGObjectInstance.h"
+#include "../../mapObjects/ObstacleSetHandler.h"
+#include "../../CTownHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,7 +36,20 @@ void ObstaclePlacer::process()
 	if(!manager)
 		return;
 
-	collectPossibleObstacles(zone.getTerrainType());
+	auto faction = zone.getTownType().toFaction();
+
+	ObstacleSetFilter filter(ObstacleSet::EObstacleType::INVALID, zone.getTerrainType(), faction->getId(), faction->alignment);
+
+	if (!prepareBiome(filter, zone.getRand()))
+	{
+		logGlobal->warn("Failed to prepare biome, using all possible obstacles");
+		// Use all if we fail to create proper biome
+		collectPossibleObstacles(zone.getTerrainType());
+	}
+	else
+	{
+		logGlobal->info("Biome prepared successfully for zone %d", zone.getId());
+	}
 	
 	{
 		auto area = zone.area();

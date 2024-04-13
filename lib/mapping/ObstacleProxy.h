@@ -20,6 +20,7 @@ class CGObjectInstance;
 class ObjectTemplate;
 class CRandomGenerator;
 class IGameCallback;
+class ObstacleSetFilter;
 
 class DLL_LINKAGE ObstacleProxy
 {
@@ -29,6 +30,7 @@ public:
 	virtual ~ObstacleProxy() = default;
 
 	void collectPossibleObstacles(TerrainId terrain);
+	bool prepareBiome(const ObstacleSetFilter & filter, CRandomGenerator & rand);
 
 	void addBlockedTile(const int3 & tile);
 
@@ -52,6 +54,7 @@ public:
 
 protected:
 	int getWeightedObjects(const int3& tile, CRandomGenerator& rand, IGameCallback * cb, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
+	void sortObstacles();
 
 	rmg::Area blockedArea;
 

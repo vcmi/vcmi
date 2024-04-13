@@ -37,6 +37,7 @@
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
+#include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
@@ -223,6 +224,7 @@ void LibClasses::init(bool onlyEssential)
 	createHandler(arth, "Artifact", pomtime);
 	createHandler(creh, "Creature", pomtime);
 	createHandler(townh, "Town", pomtime);
+	createHandler(biomeHandler, "Obstacle set", pomtime);
 	createHandler(objh, "Object", pomtime);
 	createHandler(objtypeh, "Object types information", pomtime);
 	createHandler(spellh, "Spell", pomtime);
