@@ -34,6 +34,19 @@ void ObstacleSet::addObstacle(std::shared_ptr<const ObjectTemplate> obstacle)
 	obstacles.push_back(obstacle);
 }
 
+void ObstacleSet::removeEmptyTemplates()
+{
+	vstd::erase_if(obstacles, [](const std::shared_ptr<const ObjectTemplate> &tmpl)
+	{
+		if (tmpl->getBlockedOffsets().empty())
+		{
+			logMod->warn("Obstacle template %s blocks no tiles, removing it", tmpl->stringID);
+			return true;
+		}
+		return false;
+	});
+}
+
 ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain = TerrainId::ANY_TERRAIN, FactionID faction = FactionID::ANY, EAlignment alignment = EAlignment::ANY):
 	allowedTypes(allowedTypes),
 	terrain(terrain),
@@ -272,17 +285,8 @@ void ObstacleSetHandler::loadObject(std::string scope, std::string name, const J
 
 void ObstacleSetHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto os = loadFromJson(scope, data, name, index);
-	if(os)
-	{
-		addObstacleSet(os);
-		VLC->identifiersHandler->registerObject(scope, "biome", name, biomes.at(index)->id);
-	}
-	else
-	{
-		logMod->error("Failed to load obstacle set: %s", name);
-	}
-
+	//Unused
+	loadObject(scope, name, data);
 }
 
 std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
@@ -415,8 +419,30 @@ void ObstacleSetHandler::addTemplate(const std::string & scope, const std::strin
 
 void ObstacleSetHandler::addObstacleSet(std::shared_ptr<ObstacleSet> os)
 {
-	obstacleSets[os->getType()].push_back(os);
 	biomes.push_back(os);
+}
+
+void ObstacleSetHandler::afterLoadFinalization()
+{
+	for (auto &os :biomes)
+	{
+		os->removeEmptyTemplates();
+	}
+	vstd::erase_if(biomes, [](const std::shared_ptr<ObstacleSet> &os)
+	{
+		if (os->getObstacles().empty())
+		{
+			logMod->warn("Obstacle set %d is empty, removing it", os->id);
+			return true;
+		}
+		return false;
+	});
+
+	// Populate map
+	for (auto &os : biomes)
+	{
+		obstacleSets[os->getType()].push_back(os);
+	}
 }
 
 TObstacleTypes ObstacleSetHandler::getObstacles( const ObstacleSetFilter &filter) const

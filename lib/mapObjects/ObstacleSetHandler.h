@@ -41,6 +41,7 @@ public:
 	explicit ObstacleSet(EObstacleType type, TerrainId terrain);
 
 	void addObstacle(std::shared_ptr<const ObjectTemplate> obstacle);
+	void removeEmptyTemplates();
 	std::vector<std::shared_ptr<const ObjectTemplate>> getObstacles() const;
 
 	EObstacleType getType() const;
@@ -113,6 +114,8 @@ public:
 	void addTemplate(const std::string & scope, const std::string &name, std::shared_ptr<const ObjectTemplate> tmpl);
 
 	void addObstacleSet(std::shared_ptr<ObstacleSet> set);
+
+	void afterLoadFinalization() override;
 	
 	TObstacleTypes getObstacles(const ObstacleSetFilter &filter) const;
 
