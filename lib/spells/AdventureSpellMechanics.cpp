@@ -538,7 +538,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 	const TerrainTile & from = env->getMap()->getTile(parameters.caster->getHeroCaster()->visitablePos());
 	const TerrainTile & dest = env->getMap()->getTile(destination->visitablePos());
 
-	if(!dest.isClear(&from))
+	if(!dest.entrableTerrain(&from))
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
