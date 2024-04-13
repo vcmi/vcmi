@@ -10,34 +10,18 @@
 
 #include "StdInc.h"
 #include "GameControllerShortcuts.h"
-#include "../gui/CGuiHandler.h"
 #include "../gui/ShortcutHandler.h"
-
-
-std::vector<EShortcut> getButtonBShortcuts()
-{
-    auto shortcuts =  GH.shortcuts().translateKeycode(SDLK_ESCAPE);
-    // avoid someday ADVENTURE_EXIT_WORLD_VIEW be add in SDLK_ESCAPE shortcuts
-    if(std::find(shortcuts.begin(), shortcuts.end(), EShortcut::ADVENTURE_EXIT_WORLD_VIEW) == shortcuts.end())
-        shortcuts.push_back(EShortcut::ADVENTURE_EXIT_WORLD_VIEW);
-    return shortcuts;
-}
-
-std::vector<EShortcut> getButtonXShortcuts()
-{
-    auto shortcuts =  GH.shortcuts().translateKeycode(SDLK_RETURN);
-    // avoid someday ADVENTURE_EXIT_WORLD_VIEW be add in SDLK_RETURN shortcuts
-    if(std::find(shortcuts.begin(), shortcuts.end(), EShortcut::ADVENTURE_EXIT_WORLD_VIEW) == shortcuts.end())
-        shortcuts.push_back(EShortcut::ADVENTURE_EXIT_WORLD_VIEW);
-    return shortcuts;
-}
 
 const ButtonShortcutsMap & getButtonShortcutsMap() {
     static const ButtonShortcutsMap buttonShortcutsMap =
     {
         // SDL_CONTROLLER_BUTTON_A for mouse left click
-        {SDL_CONTROLLER_BUTTON_B, getButtonBShortcuts()},
-        {SDL_CONTROLLER_BUTTON_X, getButtonXShortcuts()},
+        {SDL_CONTROLLER_BUTTON_B, {EShortcut::GLOBAL_CANCEL, EShortcut::GLOBAL_RETURN,
+                                   EShortcut::ADVENTURE_EXIT_WORLD_VIEW}},
+        {SDL_CONTROLLER_BUTTON_X, {EShortcut::GLOBAL_ACCEPT, EShortcut::GLOBAL_RETURN, EShortcut::LOBBY_BEGIN_GAME,
+                                   EShortcut::LOBBY_LOAD_GAME, EShortcut::LOBBY_SAVE_GAME,
+                                   EShortcut::ADVENTURE_VIEW_SELECTED, EShortcut::ADVENTURE_EXIT_WORLD_VIEW,
+                                   EShortcut::BATTLE_TACTICS_END}},
         // SDL_CONTROLLER_BUTTON_Y for mouse right click
         {SDL_CONTROLLER_BUTTON_LEFTSHOULDER, {EShortcut::ADVENTURE_NEXT_HERO, EShortcut::BATTLE_DEFEND}},
         {SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, {EShortcut::ADVENTURE_NEXT_TOWN, EShortcut::BATTLE_WAIT}},
