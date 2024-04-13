@@ -59,7 +59,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, CRandomGenera
 	std::vector<std::shared_ptr<ObstacleSet>> obstacleSets;
 
 	size_t selectedSets = 0;
-	const size_t MINIMUM_SETS = 4; // Original Lava has only 4 types of sets
+	const size_t MINIMUM_SETS = 3; // Original Lava has only 4 types of sets
 	const size_t MAXIMUM_SETS = 9;
 	const size_t MIN_SMALL_SETS = 3;
 	const size_t MAX_SMALL_SETS = 5;

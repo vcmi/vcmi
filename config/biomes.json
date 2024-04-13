@@ -637,7 +637,7 @@
 		},
 		"templates" : ["AVLc10l0", "AVLc11l0", "AVLc12l0", "AVLc13l0", "AVLc14l0", "AVLct1l0", "AVLct2l0", "AVLct3l0", "AVLct4l0", "AVLct5l0", "AVLct6l0", "AVLct7l0", "AVLct8l0", "AVLct9l0", "AVLctrl0"]
 	},
-	"templateSet176":{
+	"lavaDeadTree":{
 		"biome":{
 			"terrain" : "lava",
 			"objectType" : "tree"
