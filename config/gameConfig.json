@@ -403,7 +403,7 @@
 			// if enabled, attempt to use dimension door on incompatible terrain (water/land) will result in spending of mana, movement and casts per day (H3 behavior)
 			"dimensionDoorFailureSpendsPoints" : true,
 			// if enabled, dimension door will initiate a fight upon landing on tile adjacent to neutral creature
-			"dimensionDoorTriggersGuards" : true,
+			"dimensionDoorTriggersGuards" : false,
 			// if enabled, dimension door can be used 1x per day, exception being 2x per day for XL+U or bigger maps (41472 tiles) + hero having expert air magic
 			"dimensionDoorTournamentRulesLimit" : false
 		},
