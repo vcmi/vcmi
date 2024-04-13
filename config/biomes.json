@@ -111,69 +111,6 @@
 		},
 		"templates" : ["avlxdt00", "avlxdt01", "avlxdt02", "avlxdt03", "avlxdt04", "avlxdt05", "avlxdt06", "avlxdt07", "avlxdt08", "avlxdt09", "avlxdt10", "avlxdt11"]
 	},
-	"templateSet18":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcf0", "AVXcf1", "AVXcf2", "AVXcf3", "AVXcf4", "AVXcf5", "AVXcf6", "AVXcf7"]
-	},
-	"templateSet19":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcg1", "AVXcg2", "AVXcg3", "AVXcg4", "AVXcg5", "AVXcg6", "AVXcg7"]
-	},
-	"templateSet20":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXef0", "AVXef1", "AVXef2", "AVXef3", "AVXef4", "AVXef5", "AVXef6", "AVXef7"]
-	},
-	"templateSet21":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXff0", "AVXff1", "AVXff2", "AVXff3", "AVXff4", "AVXff5", "AVXff6", "AVXff7"]
-	},
-	"templateSet22":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXhg0", "AVXhg1", "AVXhg2", "AVXhg3", "AVXhg4", "AVXhg5", "AVXhg6", "AVXhg7"]
-	},
-	"templateSet23":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXlp0", "AVXlp1", "AVXlp2", "AVXlp3", "AVXlp4", "AVXlp5", "AVXlp6", "AVXlp7"]
-	},
-	"templateSet24":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmc0", "AVXmc1", "AVXmc2", "AVXmc3", "AVXmc4", "AVXmc5", "AVXmc6", "AVXmc7"]
-	},
-	"templateSet25":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmp1", "AVXmp2", "AVXmp3", "AVXmp4", "AVXmp5", "AVXmp6", "AVXmp7"]
-	},
-	"templateSet26":{
-		"biome":{
-			"terrain" : "dirt",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXrk0", "AVXrk1", "AVXrk2", "AVXrk3", "AVXrk4", "AVXrk5", "AVXrk6", "AVXrk7"]
-	},
 	"cactus":{
 		"biome":{
 			"terrain" : "sand",
@@ -229,69 +166,6 @@
 			"objectType" : "other"
 		},
 		"templates" : ["avlxds01", "avlxds02", "avlxds03", "avlxds04", "avlxds05", "avlxds06", "avlxds07", "avlxds08", "avlxds09", "avlxds10", "avlxds11", "avlxds12"]
-	},
-	"templateSet39":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcf0", "AVXcf1", "AVXcf2", "AVXcf3", "AVXcf4", "AVXcf5", "AVXcf6", "AVXcf7"]
-	},
-	"templateSet40":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcg1", "AVXcg2", "AVXcg3", "AVXcg4", "AVXcg5", "AVXcg6", "AVXcg7"]
-	},
-	"templateSet41":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXef0", "AVXef1", "AVXef2", "AVXef3", "AVXef4", "AVXef5", "AVXef6", "AVXef7"]
-	},
-	"templateSet42":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXff0", "AVXff1", "AVXff2", "AVXff3", "AVXff4", "AVXff5", "AVXff6", "AVXff7"]
-	},
-	"templateSet43":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXhg0", "AVXhg1", "AVXhg2", "AVXhg3", "AVXhg4", "AVXhg5", "AVXhg6", "AVXhg7"]
-	},
-	"templateSet44":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXlp0", "AVXlp1", "AVXlp2", "AVXlp3", "AVXlp4", "AVXlp5", "AVXlp6", "AVXlp7"]
-	},
-	"templateSet45":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmc0", "AVXmc1", "AVXmc2", "AVXmc3", "AVXmc4", "AVXmc5", "AVXmc6", "AVXmc7"]
-	},
-	"templateSet46":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmp1", "AVXmp2", "AVXmp3", "AVXmp4", "AVXmp5", "AVXmp6", "AVXmp7"]
-	},
-	"templateSet47":{
-		"biome":{
-			"terrain" : "sand",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXrk0", "AVXrk1", "AVXrk2", "AVXrk3", "AVXrk4", "AVXrk5", "AVXrk6", "AVXrk7"]
 	},
 	"templateSet50":{
 		"biome":{
@@ -427,69 +301,6 @@
 		},
 		"templates" : ["avlxgr01", "avlxgr02", "avlxgr03", "avlxgr04", "avlxgr05", "avlxgr06", "avlxgr07", "avlxgr08", "avlxgr09", "avlxgr10", "avlxgr11", "avlxgr12"]
 	},
-	"templateSet66":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcf0", "AVXcf1", "AVXcf2", "AVXcf3", "AVXcf4", "AVXcf5", "AVXcf6", "AVXcf7"]
-	},
-	"templateSet67":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcg1", "AVXcg2", "AVXcg3", "AVXcg4", "AVXcg5", "AVXcg6", "AVXcg7"]
-	},
-	"templateSet68":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXef0", "AVXef1", "AVXef2", "AVXef3", "AVXef4", "AVXef5", "AVXef6", "AVXef7"]
-	},
-	"templateSet69":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXff0", "AVXff1", "AVXff2", "AVXff3", "AVXff4", "AVXff5", "AVXff6", "AVXff7"]
-	},
-	"templateSet70":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXhg0", "AVXhg1", "AVXhg2", "AVXhg3", "AVXhg4", "AVXhg5", "AVXhg6", "AVXhg7"]
-	},
-	"templateSet71":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXlp0", "AVXlp1", "AVXlp2", "AVXlp3", "AVXlp4", "AVXlp5", "AVXlp6", "AVXlp7"]
-	},
-	"templateSet72":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmc0", "AVXmc1", "AVXmc2", "AVXmc3", "AVXmc4", "AVXmc5", "AVXmc6", "AVXmc7"]
-	},
-	"templateSet73":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmp1", "AVXmp2", "AVXmp3", "AVXmp4", "AVXmp5", "AVXmp6", "AVXmp7"]
-	},
-	"templateSet74":{
-		"biome":{
-			"terrain" : "grass",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXrk0", "AVXrk1", "AVXrk2", "AVXrk3", "AVXrk4", "AVXrk5", "AVXrk6", "AVXrk7"]
-	},
 	"templateSet77":{
 		"biome":{
 			"terrain" : "snow",
@@ -552,69 +363,6 @@
 			"objectType" : "plant"
 		},
 		"templates" : ["AVLp1sn0", "AVLp2sn0"]
-	},
-	"templateSet88":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcf0", "AVXcf1", "AVXcf2", "AVXcf3", "AVXcf4", "AVXcf5", "AVXcf6", "AVXcf7"]
-	},
-	"templateSet89":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcg1", "AVXcg2", "AVXcg3", "AVXcg4", "AVXcg5", "AVXcg6", "AVXcg7"]
-	},
-	"templateSet90":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXef0", "AVXef1", "AVXef2", "AVXef3", "AVXef4", "AVXef5", "AVXef6", "AVXef7"]
-	},
-	"templateSet91":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXff0", "AVXff1", "AVXff2", "AVXff3", "AVXff4", "AVXff5", "AVXff6", "AVXff7"]
-	},
-	"templateSet92":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXhg0", "AVXhg1", "AVXhg2", "AVXhg3", "AVXhg4", "AVXhg5", "AVXhg6", "AVXhg7"]
-	},
-	"templateSet93":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXlp0", "AVXlp1", "AVXlp2", "AVXlp3", "AVXlp4", "AVXlp5", "AVXlp6", "AVXlp7"]
-	},
-	"templateSet94":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmc0", "AVXmc1", "AVXmc2", "AVXmc3", "AVXmc4", "AVXmc5", "AVXmc6", "AVXmc7"]
-	},
-	"templateSet95":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmp1", "AVXmp2", "AVXmp3", "AVXmp4", "AVXmp5", "AVXmp6", "AVXmp7"]
-	},
-	"templateSet96":{
-		"biome":{
-			"terrain" : "snow",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXrk0", "AVXrk1", "AVXrk2", "AVXrk3", "AVXrk4", "AVXrk5", "AVXrk6", "AVXrk7"]
 	},
 	"templateSet99":{
 		"biome":{
@@ -714,69 +462,6 @@
 		},
 		"templates" : ["avlxsw01", "avlxsw02", "avlxsw03", "avlxsw04", "avlxsw05", "avlxsw06", "avlxsw07", "avlxsw08", "avlxsw09", "avlxsw10", "avlxsw11"]
 	},
-	"templateSet113":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcf0", "AVXcf1", "AVXcf2", "AVXcf3", "AVXcf4", "AVXcf5", "AVXcf6", "AVXcf7"]
-	},
-	"templateSet114":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcg1", "AVXcg2", "AVXcg3", "AVXcg4", "AVXcg5", "AVXcg6", "AVXcg7"]
-	},
-	"templateSet115":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXef0", "AVXef1", "AVXef2", "AVXef3", "AVXef4", "AVXef5", "AVXef6", "AVXef7"]
-	},
-	"templateSet116":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXff0", "AVXff1", "AVXff2", "AVXff3", "AVXff4", "AVXff5", "AVXff6", "AVXff7"]
-	},
-	"templateSet117":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXhg0", "AVXhg1", "AVXhg2", "AVXhg3", "AVXhg4", "AVXhg5", "AVXhg6", "AVXhg7"]
-	},
-	"templateSet118":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXlp0", "AVXlp1", "AVXlp2", "AVXlp3", "AVXlp4", "AVXlp5", "AVXlp6", "AVXlp7"]
-	},
-	"templateSet119":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmc0", "AVXmc1", "AVXmc2", "AVXmc3", "AVXmc4", "AVXmc5", "AVXmc6", "AVXmc7"]
-	},
-	"templateSet120":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmp1", "AVXmp2", "AVXmp3", "AVXmp4", "AVXmp5", "AVXmp6", "AVXmp7"]
-	},
-	"templateSet121":{
-		"biome":{
-			"terrain" : "swamp",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXrk0", "AVXrk1", "AVXrk2", "AVXrk3", "AVXrk4", "AVXrk5", "AVXrk6", "AVXrk7"]
-	},
 	"templateSet124":{
 		"biome":{
 			"terrain" : "rough",
@@ -875,69 +560,6 @@
 		},
 		"templates" : ["avlxro01", "avlxro02", "avlxro03", "avlxro04", "avlxro05", "avlxro06", "avlxro07", "avlxro08", "avlxro09", "avlxro10", "avlxro11", "avlxro12"]
 	},
-	"templateSet141":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcf0", "AVXcf1", "AVXcf2", "AVXcf3", "AVXcf4", "AVXcf5", "AVXcf6", "AVXcf7"]
-	},
-	"templateSet142":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcg1", "AVXcg2", "AVXcg3", "AVXcg4", "AVXcg5", "AVXcg6", "AVXcg7"]
-	},
-	"templateSet143":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXef0", "AVXef1", "AVXef2", "AVXef3", "AVXef4", "AVXef5", "AVXef6", "AVXef7"]
-	},
-	"templateSet144":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXff0", "AVXff1", "AVXff2", "AVXff3", "AVXff4", "AVXff5", "AVXff6", "AVXff7"]
-	},
-	"templateSet145":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXhg0", "AVXhg1", "AVXhg2", "AVXhg3", "AVXhg4", "AVXhg5", "AVXhg6", "AVXhg7"]
-	},
-	"templateSet146":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXlp0", "AVXlp1", "AVXlp2", "AVXlp3", "AVXlp4", "AVXlp5", "AVXlp6", "AVXlp7"]
-	},
-	"templateSet147":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmc0", "AVXmc1", "AVXmc2", "AVXmc3", "AVXmc4", "AVXmc5", "AVXmc6", "AVXmc7"]
-	},
-	"templateSet148":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmp1", "AVXmp2", "AVXmp3", "AVXmp4", "AVXmp5", "AVXmp6", "AVXmp7"]
-	},
-	"templateSet149":{
-		"biome":{
-			"terrain" : "rough",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXrk0", "AVXrk1", "AVXrk2", "AVXrk3", "AVXrk4", "AVXrk5", "AVXrk6", "AVXrk7"]
-	},
 	"templateSet152":{
 		"biome":{
 			"terrain" : "subterra",
@@ -1008,69 +630,6 @@
 		},
 		"templates" : ["avlxsu01", "avlxsu02", "avlxsu03", "avlxsu04", "avlxsu05", "avlxsu06", "avlxsu07", "avlxsu08", "avlxsu09", "avlxsu10", "avlxsu11", "avlxsu12"]
 	},
-	"templateSet164":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcf0", "AVXcf1", "AVXcf2", "AVXcf3", "AVXcf4", "AVXcf5", "AVXcf6", "AVXcf7"]
-	},
-	"templateSet165":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcg1", "AVXcg2", "AVXcg3", "AVXcg4", "AVXcg5", "AVXcg6", "AVXcg7"]
-	},
-	"templateSet166":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXef0", "AVXef1", "AVXef2", "AVXef3", "AVXef4", "AVXef5", "AVXef6", "AVXef7"]
-	},
-	"templateSet167":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXff0", "AVXff1", "AVXff2", "AVXff3", "AVXff4", "AVXff5", "AVXff6", "AVXff7"]
-	},
-	"templateSet168":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXhg0", "AVXhg1", "AVXhg2", "AVXhg3", "AVXhg4", "AVXhg5", "AVXhg6", "AVXhg7"]
-	},
-	"templateSet169":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXlp0", "AVXlp1", "AVXlp2", "AVXlp3", "AVXlp4", "AVXlp5", "AVXlp6", "AVXlp7"]
-	},
-	"templateSet170":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmc0", "AVXmc1", "AVXmc2", "AVXmc3", "AVXmc4", "AVXmc5", "AVXmc6", "AVXmc7"]
-	},
-	"templateSet171":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmp1", "AVXmp2", "AVXmp3", "AVXmp4", "AVXmp5", "AVXmp6", "AVXmp7"]
-	},
-	"templateSet172":{
-		"biome":{
-			"terrain" : "subterra",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXrk0", "AVXrk1", "AVXrk2", "AVXrk3", "AVXrk4", "AVXrk5", "AVXrk6", "AVXrk7"]
-	},
 	"templateSet175":{
 		"biome":{
 			"terrain" : "lava",
@@ -1106,69 +665,6 @@
 		},
 		"templates" : ["AVLvol10", "AVLvol20", "AVLvol30", "AVLvol40", "AVLvol50"]
 	},
-	"templateSet183":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcf0", "AVXcf1", "AVXcf2", "AVXcf3", "AVXcf4", "AVXcf5", "AVXcf6", "AVXcf7"]
-	},
-	"templateSet184":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXcg1", "AVXcg2", "AVXcg3", "AVXcg4", "AVXcg5", "AVXcg6", "AVXcg7"]
-	},
-	"templateSet185":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXef0", "AVXef1", "AVXef2", "AVXef3", "AVXef4", "AVXef5", "AVXef6", "AVXef7"]
-	},
-	"templateSet186":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXff0", "AVXff1", "AVXff2", "AVXff3", "AVXff4", "AVXff5", "AVXff6", "AVXff7"]
-	},
-	"templateSet187":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXhg0", "AVXhg1", "AVXhg2", "AVXhg3", "AVXhg4", "AVXhg5", "AVXhg6", "AVXhg7"]
-	},
-	"templateSet188":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXlp0", "AVXlp1", "AVXlp2", "AVXlp3", "AVXlp4", "AVXlp5", "AVXlp6", "AVXlp7"]
-	},
-	"templateSet189":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmc0", "AVXmc1", "AVXmc2", "AVXmc3", "AVXmc4", "AVXmc5", "AVXmc6", "AVXmc7"]
-	},
-	"templateSet190":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXmp1", "AVXmp2", "AVXmp3", "AVXmp4", "AVXmp5", "AVXmp6", "AVXmp7"]
-	},
-	"templateSet191":{
-		"biome":{
-			"terrain" : "lava",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXrk0", "AVXrk1", "AVXrk2", "AVXrk3", "AVXrk4", "AVXrk5", "AVXrk6", "AVXrk7"]
-	},
 	"templateSet192":{
 		"biome":{
 			"terrain" : "water",
@@ -1189,12 +685,5 @@
 			"objectType" : "mountain"
 		},
 		"templates" : ["AVLref10", "AVLref20", "AVLref30", "AVLref40", "AVLref50", "AVLref60"]
-	},
-	"templateSet195":{
-		"biome":{
-			"terrain" : "water",
-			"objectType" : "other"
-		},
-		"templates" : ["AVXfw0", "AVXfw1", "AVXfw2", "AVXfw3", "AVXfw4", "AVXfw5", "AVXfw6", "AVXfw7"]
 	}
 }
