@@ -306,12 +306,6 @@ void FirstLaunchView::extractGogData()
 	if(fileBin.isEmpty())
 		return;
 
-	if(QFileInfo(fileExe).completeBaseName() + QString("-1") != QFileInfo(fileBin).completeBaseName())
-	{
-		QMessageBox::critical(this, tr("File name error!"), tr("The filename of exe and bin has to be compatible!"), QMessageBox::Ok, QMessageBox::Ok);
-		return;
-	}
-
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QTemporaryDir dir;
 		if(dir.isValid() && QFile::exists(fileExe) && QFile::exists(fileBin)) {
@@ -323,9 +317,9 @@ void FirstLaunchView::extractGogData()
 			ui->pushButtonGogInstall->update();
 			ui->pushButtonGogInstall->repaint();
 
-			QString tmpFileExe = dir.filePath(QFileInfo(fileExe).fileName());
+			QString tmpFileExe = dir.filePath("h3_gog.exe");
 			QFile(fileExe).copy(tmpFileExe);
-			QFile(fileBin).copy(dir.filePath(QFileInfo(fileBin).fileName()));
+			QFile(fileBin).copy(dir.filePath("h3_gog-1.bin"));
 
 			::extract_options o;
 			o.extract = true;
