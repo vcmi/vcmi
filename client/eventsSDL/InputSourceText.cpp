@@ -21,6 +21,13 @@
 
 #include <SDL_events.h>
 
+InputSourceText::InputSourceText()
+{
+	// For whatever reason, in SDL text input is considered to be active by default at least on desktop platforms
+	// Apparently fixed in SDL3, but until then we need a workaround
+	SDL_StopTextInput();
+}
+
 void InputSourceText::handleEventTextInput(const SDL_TextInputEvent & text)
 {
 	GH.events().dispatchTextInput(text.text);

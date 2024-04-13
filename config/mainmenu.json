@@ -21,9 +21,9 @@
 				"name" : "main",
 				"buttons":
 				[
-					{"x": 644, "y":  70, "center" : true, "name":"MMENUNG", "shortcut" : "mainMenuNew", "help": 3, "command": "to new"},
-					{"x": 645, "y": 192, "center" : true, "name":"MMENULG", "shortcut" : "mainMenuLoad", "help": 4, "command": "to load"},
-					{"x": 643, "y": 296, "center" : true, "name":"MMENUHS", "shortcut" : "mainMenuScores", "help": 5, "command": "highscores"},
+					{"x": 644, "y":  70, "center" : true, "name":"MMENUNG", "shortcut" : "mainMenuNewGame", "help": 3, "command": "to new"},
+					{"x": 645, "y": 192, "center" : true, "name":"MMENULG", "shortcut" : "mainMenuLoadGame", "help": 4, "command": "to load"},
+					{"x": 643, "y": 296, "center" : true, "name":"MMENUHS", "shortcut" : "mainMenuHighScores", "help": 5, "command": "highscores"},
 					{"x": 643, "y": 414, "center" : true, "name":"MMENUCR", "shortcut" : "mainMenuCredits", "help": 6, "command": "to credits"},
 					{"x": 643, "y": 520, "center" : true, "name":"MMENUQT", "shortcut" : "mainMenuQuit", "help": 7, "command": "exit"}
 				]
