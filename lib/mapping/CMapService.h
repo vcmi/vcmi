@@ -24,8 +24,6 @@ class IMapLoader;
 class IMapPatcher;
 class IGameCallback;
 
-using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
-
 /**
  * The map service provides loading of VCMI/H3 map files. It can
  * be extended to save maps later as well.

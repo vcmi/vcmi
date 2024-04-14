@@ -13,6 +13,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class JsonNode;
+struct ModVerificationInfo;
+using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
+
 struct ModVerificationInfo
 {
 	/// human-readable mod name
@@ -29,6 +33,9 @@ struct ModVerificationInfo
 
 	/// for serialization purposes
 	bool impactsGameplay = true;
+
+	static JsonNode jsonSerializeList(const ModCompatibilityInfo & input);
+	static ModCompatibilityInfo jsonDeserializeList(const JsonNode & input);
 
 	template <typename Handler>
 	void serialize(Handler & h)

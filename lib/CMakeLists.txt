@@ -145,6 +145,7 @@ set(lib_MAIN_SRCS
 	modding/ContentTypeHandler.cpp
 	modding/IdentifierStorage.cpp
 	modding/ModUtility.cpp
+	modding/ModVerificationInfo.cpp
 
 	networkPacks/NetPacksLib.cpp
 
