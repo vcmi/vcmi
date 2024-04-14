@@ -59,7 +59,7 @@ public:
 	const uint32_t POLY = 10; // Number of symmetries?
 
 	const float BASE_SIZE = 1.25f;
-	const uint32_t DEPTH = 7; //Recursion depth
+	const uint32_t DEPTH = 8; //Recursion depth
 	
 	const bool P2 = false; // Tiling type
 
