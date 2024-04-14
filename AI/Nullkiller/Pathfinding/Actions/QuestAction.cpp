@@ -35,7 +35,10 @@ namespace AIPathfinding
 			return dynamic_cast<const IQuestObject *>(questInfo.obj)->checkQuest(hero);
 		}
 
-		return questInfo.quest->activeForPlayers.count(hero->getOwner())
+		auto notActivated = !questInfo.obj->wasVisited(ai->playerID)
+			&& !questInfo.quest->activeForPlayers.count(hero->getOwner());
+		
+		return notActivated
 			|| questInfo.quest->checkQuest(hero);
 	}
 

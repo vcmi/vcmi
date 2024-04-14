@@ -14,7 +14,6 @@
 namespace NKAI
 {
 
-struct HeroPtr;
 class AIGateway;
 
 namespace Goals
@@ -92,9 +91,37 @@ namespace Goals
 
 		bool isElementar() const override { return true; }
 
-		HeroPtr getHero() const override { return AbstractGoal::hero; }
+		const CGHeroInstance * getHero() const override { return AbstractGoal::hero; }
 
 		int getHeroExchangeCount() const override { return 0; }
+
+		bool isObjectAffected(ObjectInstanceID id) const override
+		{
+			return (AbstractGoal::hero && AbstractGoal::hero->id == id)
+				|| AbstractGoal::objid == id
+				|| (AbstractGoal::town && AbstractGoal::town->id == id);
+		}
+
+		std::vector<ObjectInstanceID> getAffectedObjects() const override
+		{
+			auto result = std::vector<ObjectInstanceID>();
+
+			if(AbstractGoal::hero)
+				result.push_back(AbstractGoal::hero->id);
+
+			if(AbstractGoal::objid != -1)
+				result.push_back(ObjectInstanceID(AbstractGoal::objid));
+
+			if(AbstractGoal::town)
+				result.push_back(AbstractGoal::town->id);
+
+			return result;
+		}
+
+		ITask * asTask() override
+		{
+			return this;
+		}
 	};
 }
 

@@ -35,6 +35,9 @@ namespace Goals
 
 		const CGHeroInstance * getGarrisonHero() const { return garrisonHero; }
 		HeroLockedReason getLockingReason() const { return lockingReason; }
+
+		std::vector<ObjectInstanceID> getAffectedObjects() const override;
+		bool isObjectAffected(ObjectInstanceID id) const override;
 	};
 }
 

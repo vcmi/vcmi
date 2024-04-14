@@ -20,7 +20,7 @@ using namespace Goals;
 
 bool DigAtTile::operator==(const DigAtTile & other) const
 {
-	return other.hero.h == hero.h && other.tile == tile;
+	return other.hero == hero && other.tile == tile;
 }
 //
 //TSubgoal DigAtTile::decomposeSingle() const

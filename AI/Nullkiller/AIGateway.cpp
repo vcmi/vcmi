@@ -251,6 +251,7 @@ void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
 		nullkiller->memory->markObjectVisited(visitedObj);
+		nullkiller->objectClusterizer->invalidate(visitedObj->id);
 	}
 
 	status.heroVisit(visitedObj, start);
@@ -373,6 +374,7 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 		return;
 
 	nullkiller->memory->removeFromMemory(obj);
+	nullkiller->objectClusterizer->onObjectRemoved(obj->id);
 
 	if(nullkiller->baseGraph && nullkiller->settings->isObjectGraphAllowed())
 	{
@@ -1152,11 +1154,6 @@ void AIGateway::retrieveVisitableObjs()
 	{
 		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
 		{
-			if(!obj->appearance)
-			{
-				logAi->error("Bad!");
-			}
-
 			addVisitableObj(obj);
 		}
 	});
@@ -1401,7 +1398,7 @@ void AIGateway::tryRealize(Goals::DigAtTile & g)
 	assert(g.hero->visitablePos() == g.tile); //surely we want to crash here?
 	if(g.hero->diggingStatus() == EDiggingStatus::CAN_DIG)
 	{
-		cb->dig(g.hero.get());
+		cb->dig(g.hero);
 	}
 	else
 	{

@@ -105,7 +105,11 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 	cb->calculatePaths(config);
 
 	if(!pathfinderSettings.useHeroChain)
+	{
+		logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+
 		return;
+	}
 
 	do
 	{

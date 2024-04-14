@@ -33,7 +33,7 @@ namespace Goals
 			: CGoal(Goals::UNLOCK_CLUSTER), cluster(cluster), pathToCenter(pathToCenter)
 		{
 			tile = cluster->blocker->visitablePos();
-			sethero(pathToCenter.targetHero);
+			hero = pathToCenter.targetHero;
 		}
 
 		bool operator==(const UnlockCluster & other) const override;

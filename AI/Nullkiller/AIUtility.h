@@ -109,7 +109,7 @@ public:
 	}
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
-	const CGHeroInstance * get(CCallback * cb, bool doWeExpectNull = false) const;
+	const CGHeroInstance * get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull = false) const;
 	bool validAndSet() const;
 
 

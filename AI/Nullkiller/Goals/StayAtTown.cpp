@@ -46,7 +46,7 @@ void StayAtTown::accept(AIGateway * ai)
 		logAi->error("Hero %s expected visiting town %s", hero->getNameTranslated(), town->getNameTranslated());
 	}
 
-	ai->nullkiller->lockHero(hero.get(), HeroLockedReason::DEFENCE);
+	ai->nullkiller->lockHero(hero, HeroLockedReason::DEFENCE);
 }
 
 }

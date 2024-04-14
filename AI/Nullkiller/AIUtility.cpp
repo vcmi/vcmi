@@ -91,33 +91,10 @@ bool HeroPtr::operator<(const HeroPtr & rhs) const
 
 const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 {
-	//TODO? check if these all assertions every time we get info about hero affect efficiency
-	//
-	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
-	assert(doWeExpectNull || h);
-
-	if(h)
-	{
-		auto obj = cb->getObj(hid);
-		//const bool owned = obj && obj->tempOwner == ai->playerID;
-
-		if(doWeExpectNull && !obj)
-		{
-			return nullptr;
-		}
-		else
-		{
-			if (!obj)
-				logAi->error("Accessing no longer accessible hero %s!", h->getNameTranslated());
-			//assert(obj);
-			//assert(owned);
-		}
-	}
-
-	return h;
+	return get(cb);
 }
 
-const CGHeroInstance * HeroPtr::get(CCallback * cb, bool doWeExpectNull) const
+const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull) const
 {
 	//TODO? check if these all assertions every time we get info about hero affect efficiency
 	//

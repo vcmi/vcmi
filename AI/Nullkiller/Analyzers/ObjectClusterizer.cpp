@@ -20,7 +20,7 @@ void ObjectCluster::addObject(const CGObjectInstance * obj, const AIPath & path,
 {
 	ClusterObjects::accessor info;
 
-	objects.insert(info, ClusterObjects::value_type(obj, ClusterObjectInfo()));
+	objects.insert(info, ClusterObjects::value_type(obj->id, ClusterObjectInfo()));
 
 	if(info->second.priority < priority)
 	{
@@ -31,15 +31,14 @@ void ObjectCluster::addObject(const CGObjectInstance * obj, const AIPath & path,
 	}
 }
 
-const CGObjectInstance * ObjectCluster::calculateCenter() const
+const CGObjectInstance * ObjectCluster::calculateCenter(const CPlayerSpecificInfoCallback * cb) const
 {
-	auto v = getObjects();
 	auto tile = int3(0);
 	float priority = 0;
 
-	for(auto pair : objects)
+	for(auto & pair : objects)
 	{
-		auto newPoint = pair.first->visitablePos();
+		auto newPoint = cb->getObj(pair.first)->visitablePos();
 		float newPriority = std::pow(pair.second.priority, 4); // lets make high priority targets more weghtful
 		int3 direction = newPoint - tile;
 		float priorityRatio = newPriority / (priority + newPriority);
@@ -48,21 +47,21 @@ const CGObjectInstance * ObjectCluster::calculateCenter() const
 		priority += newPriority;
 	}
 
-	auto closestPair = *vstd::minElementByFun(objects, [&](const std::pair<const CGObjectInstance *, ClusterObjectInfo> & pair) -> int
+	auto closestPair = *vstd::minElementByFun(objects, [&](const std::pair<ObjectInstanceID, ClusterObjectInfo> & pair) -> int
 	{
-		return pair.first->visitablePos().dist2dSQ(tile);
+		return cb->getObj(pair.first)->visitablePos().dist2dSQ(tile);
 	});
 
-	return closestPair.first;
+	return cb->getObj(closestPair.first);
 }
 
-std::vector<const CGObjectInstance *> ObjectCluster::getObjects() const
+std::vector<const CGObjectInstance *> ObjectCluster::getObjects(const CPlayerSpecificInfoCallback * cb) const
 {
 	std::vector<const CGObjectInstance *> result;
 
-	for(auto pair : objects)
+	for(auto & pair : objects)
 	{
-		result.push_back(pair.first);
+		result.push_back(cb->getObj(pair.first));
 	}
 
 	return result;
@@ -70,19 +69,19 @@ std::vector<const CGObjectInstance *> ObjectCluster::getObjects() const
 
 std::vector<const CGObjectInstance *> ObjectClusterizer::getNearbyObjects() const
 {
-	return nearObjects.getObjects();
+	return nearObjects.getObjects(ai->cb.get());
 }
 
 std::vector<const CGObjectInstance *> ObjectClusterizer::getFarObjects() const
 {
-	return farObjects.getObjects();
+	return farObjects.getObjects(ai->cb.get());
 }
 
 std::vector<std::shared_ptr<ObjectCluster>> ObjectClusterizer::getLockedClusters() const
 {
 	std::vector<std::shared_ptr<ObjectCluster>> result;
 
-	for(auto pair : blockedObjects)
+	for(auto & pair : blockedObjects)
 	{
 		result.push_back(pair.second);
 	}
@@ -163,6 +162,69 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 	return nullptr;
 }
 
+void ObjectClusterizer::invalidate(ObjectInstanceID id)
+{
+	nearObjects.objects.erase(id);
+	farObjects.objects.erase(id);
+	invalidated.push_back(id);
+
+	for(auto & c : blockedObjects)
+	{
+		c.second->objects.erase(id);
+	}
+}
+
+void ObjectClusterizer::validateObjects()
+{
+	std::vector<ObjectInstanceID> toRemove;
+
+	auto scanRemovedObjects = [this, &toRemove](const ObjectCluster & cluster)
+	{
+		for(auto & pair : cluster.objects)
+		{
+			if(!ai->cb->getObj(pair.first, false))
+				toRemove.push_back(pair.first);
+		}
+	};
+
+	scanRemovedObjects(nearObjects);
+	scanRemovedObjects(farObjects);
+
+	for(auto & pair : blockedObjects)
+	{
+		if(!ai->cb->getObj(pair.first, false) || pair.second->objects.empty())
+			toRemove.push_back(pair.first);
+		else
+			scanRemovedObjects(*pair.second);
+	}
+
+	vstd::removeDuplicates(toRemove);
+
+	for(auto id : toRemove)
+	{
+		onObjectRemoved(id);
+	}
+}
+
+void ObjectClusterizer::onObjectRemoved(ObjectInstanceID id)
+{
+	invalidate(id);
+
+	vstd::erase_if_present(invalidated, id);
+
+	NKAI::ClusterMap::accessor cluster;
+	
+	if(blockedObjects.find(cluster, id))
+	{
+		for(auto & unlocked : cluster->second->objects)
+		{
+			invalidated.push_back(unlocked.first);
+		}
+
+		blockedObjects.erase(cluster);
+	}
+}
+
 bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 {
 	if(isObjectRemovable(obj))
@@ -222,17 +284,45 @@ Obj ObjectClusterizer::IgnoredObjectTypes[] = {
 
 void ObjectClusterizer::clusterize()
 {
-	auto start = std::chrono::high_resolution_clock::now();
+	if(isUpToDate)
+	{
+		validateObjects();
+	}
 
-	nearObjects.reset();
-	farObjects.reset();
-	blockedObjects.clear();
+	if(isUpToDate && invalidated.empty())
+		return;
+		
+	auto start = std::chrono::high_resolution_clock::now();
 
 	logAi->debug("Begin object clusterization");
 
-	std::vector<const CGObjectInstance *> objs(
-		ai->memory->visitableObjs.begin(),
-		ai->memory->visitableObjs.end());
+	std::vector<const CGObjectInstance *> objs;
+	
+	if(isUpToDate)
+	{
+		for(auto id : invalidated)
+		{
+			auto obj = cb->getObj(id, false);
+
+			if(obj)
+			{
+				objs.push_back(obj);
+			}
+		}
+
+		invalidated.clear();
+	}
+	else
+	{
+		nearObjects.reset();
+		farObjects.reset();
+		blockedObjects.clear();
+		invalidated.clear();
+
+		objs = std::vector<const CGObjectInstance *>(
+			ai->memory->visitableObjs.begin(),
+			ai->memory->visitableObjs.end());
+	}
 
 #if NKAI_TRACE_LEVEL == 0
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, objs.size()), [&](const tbb::blocked_range<size_t> & r) {
@@ -256,15 +346,19 @@ void ObjectClusterizer::clusterize()
 
 	for(auto pair : blockedObjects)
 	{
-		logAi->trace("Cluster %s %s count: %i", pair.first->getObjectName(), pair.first->visitablePos().toString(), pair.second->objects.size());
+		auto blocker = cb->getObj(pair.first);
+
+		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName(), blocker->visitablePos().toString(), pair.second->objects.size());
 
 #if NKAI_TRACE_LEVEL >= 1
-		for(auto obj : pair.second->getObjects())
+		for(auto obj : pair.second->getObjects(ai->cb.get()))
 		{
 			logAi->trace("Object %s %s", obj->getObjectName(), obj->visitablePos().toString());
 		}
 #endif
 	}
+
+	isUpToDate = true;
 
 	logAi->trace("Clusterization complete in %ld", timeElapsed(start));
 }
@@ -381,7 +475,7 @@ void ObjectClusterizer::clusterizeObject(
 				ClusterMap::accessor cluster;
 				blockedObjects.insert(
 					cluster,
-					ClusterMap::value_type(blocker, std::make_shared<ObjectCluster>(blocker)));
+					ClusterMap::value_type(blocker->id, std::make_shared<ObjectCluster>(blocker)));
 
 				cluster->second->addObject(obj, path, priority);
 
