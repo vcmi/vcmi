@@ -134,10 +134,10 @@ void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
 
 std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomGenerator * rand)
 {
-	float scale = 100.f / (numZones * 1.5f + 20);
+	float scale = 173.2f / (numZones * 1.5f + 20);
 	float polyAngle = (2 * PI_CONSTANT) / POLY;
 
-	float randomAngle = rand->nextDouble(0, 2 * PI_CONSTANT);
+	float randomAngle = rand->nextDouble(0.25 * PI_CONSTANT, 0.75 * PI_CONSTANT);
 
 	std::vector<Point2D> points = { Point2D(0.0f, 0.0f), Point2D(0.0f, 1.0f).rotated(randomAngle) };
 	std::array<std::vector<uint32_t>, 5> indices;
