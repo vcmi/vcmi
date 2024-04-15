@@ -34,7 +34,7 @@ InputSourceGameController::InputSourceGameController():
     planDisX(0.0),
     planDisY(0.0)
 {
-    // SDL_init has not been called. so it is unnecessary to open joystick.
+    tryOpenAllGameControllers();
 }
 
 void InputSourceGameController::tryOpenAllGameControllers()

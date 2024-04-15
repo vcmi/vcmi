@@ -349,8 +349,3 @@ const Point & InputHandler::getCursorPosition() const
 {
 	return cursorPosition;
 }
-
-void InputHandler::tryOpenGameController()
-{
-    gameControllerHandler->tryOpenAllGameControllers();
-}

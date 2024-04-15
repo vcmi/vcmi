@@ -10,10 +10,8 @@
 
 #pragma once
 
-#include <memory>
 #include <SDL.h>
 
-#include "../../lib/Point.h"
 #include "../gui/Shortcut.h"
 
 

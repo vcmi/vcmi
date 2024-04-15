@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include <map>
-#include <SDL.h>
 #include "../gui/Shortcut.h"
 
 using ButtonShortcutsMap = std::map<int, std::vector<EShortcut> >;

@@ -87,6 +87,4 @@ public:
 	bool isKeyboardCtrlDown() const;
 	bool isKeyboardShiftDown() const;
 
-    /// If any game controller available, use it.
-    void tryOpenGameController();
 };
