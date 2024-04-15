@@ -33,7 +33,8 @@ void LobbyDatabase::createTables()
 			description TEXT NOT NULL DEFAULT '',
 			status INTEGER NOT NULL DEFAULT 0,
 			playerLimit INTEGER NOT NULL,
-			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+			mods TEXT NOT NULL DEFAULT '[]'
 		);
 	)";
 
@@ -81,6 +82,32 @@ void LobbyDatabase::createTables()
 	database->prepare(createTableGameRoomInvites)->execute();
 }
 
+void LobbyDatabase::upgradeDatabase()
+{
+	auto getDatabaseVersionStatement = database->prepare(R"(
+		PRAGMA schema.user_version
+	)");
+
+	auto setDatabaseVersionStatement = database->prepare(R"(
+		PRAGMA schema.user_version = ?
+	)");
+
+	int databaseVersion;
+	getDatabaseVersionStatement->execute();
+	getDatabaseVersionStatement->getColumns(databaseVersion);
+
+	if (databaseVersion < 10501)
+	{
+		database->prepare(R"(
+			ALTER TABLE gameRooms
+			ADD COLUMN version TEXT NOT NULL DEFAULT ''
+			ADD COLUMN mods TEXT NOT NULL DEFAULT '{}'
+		)")->execute();
+
+		setDatabaseVersionStatement->executeOnce(10501);
+	}
+}
+
 void LobbyDatabase::clearOldData()
 {
 	static const std::string removeActiveAccounts = R"(
@@ -122,7 +149,7 @@ void LobbyDatabase::prepareStatements()
 	)");
 
 	insertGameRoomStatement = database->prepare(R"(
-		INSERT INTO gameRooms(roomID, hostAccountID, status, playerLimit) VALUES(?, ?, 0, 8);
+		INSERT INTO gameRooms(roomID, hostAccountID, status, playerLimit, version, mods) VALUES(?, ?, 0, 8, ?, ?);
 	)");
 
 	insertGameRoomPlayersStatement = database->prepare(R"(
@@ -233,7 +260,7 @@ void LobbyDatabase::prepareStatements()
 	)");
 
 	getActiveGameRoomsStatement = database->prepare(R"(
-		SELECT roomID, hostAccountID, displayName, description, status, playerLimit, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
+		SELECT roomID, hostAccountID, displayName, description, status, playerLimit, mods, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
 		FROM gameRooms gr
 		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
 		WHERE status IN (1, 2, 3)
@@ -298,6 +325,7 @@ LobbyDatabase::LobbyDatabase(const boost::filesystem::path & databasePath)
 {
 	database = SQLiteInstance::open(databasePath, true);
 	createTables();
+	upgradeDatabase();
 	clearOldData();
 	prepareStatements();
 }
@@ -393,9 +421,9 @@ void LobbyDatabase::insertGameRoomInvite(const std::string & targetAccountID, co
 	insertGameRoomInvitesStatement->executeOnce(roomID, targetAccountID);
 }
 
-void LobbyDatabase::insertGameRoom(const std::string & roomID, const std::string & hostAccountID)
+void LobbyDatabase::insertGameRoom(const std::string & roomID, const std::string & hostAccountID, const std::string & serverVersion, const std::string & modListJson)
 {
-	insertGameRoomStatement->executeOnce(roomID, hostAccountID);
+	insertGameRoomStatement->executeOnce(roomID, hostAccountID, serverVersion, modListJson);
 }
 
 void LobbyDatabase::insertAccount(const std::string & accountID, const std::string & displayName)
@@ -526,7 +554,7 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 	while(getActiveGameRoomsStatement->execute())
 	{
 		LobbyGameRoom entry;
-		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit, entry.age);
+		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit, entry.version, entry.modsJson, entry.age);
 		result.push_back(entry);
 	}
 	getActiveGameRoomsStatement->reset();

@@ -201,6 +201,8 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
 		room.statusID = jsonEntry["status"].String();
+		room.gameVersion = jsonEntry["version"].String();
+		room.modList = ModVerificationInfo::jsonDeserializeList(jsonEntry["mods"]);
 		std::chrono::seconds ageSeconds (jsonEntry["ageSeconds"].Integer());
 		room.startDateFormatted = TextOperations::getCurrentFormattedDateTimeLocal(-ageSeconds);
 

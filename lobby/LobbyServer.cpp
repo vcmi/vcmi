@@ -208,9 +208,11 @@ static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
 	jsonEntry["hostAccountID"].String() = gameRoom.hostAccountID;
 	jsonEntry["hostAccountDisplayName"].String() = gameRoom.hostAccountDisplayName;
 	jsonEntry["description"].String() = gameRoom.description;
+	jsonEntry["version"].String() = gameRoom.version;
 	jsonEntry["status"].String() = LOBBY_ROOM_STATE_NAMES[vstd::to_underlying(gameRoom.roomState)];
 	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
 	jsonEntry["ageSeconds"].Integer() = gameRoom.age.count();
+	jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size());
 
 	for(const auto & account : gameRoom.participants)
 		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
@@ -625,7 +627,8 @@ void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, co
 	}
 	else
 	{
-		database->insertGameRoom(gameRoomID, accountID);
+		std::string modListString = json["mods"].isNull() ? "[]" : json["mods"].toCompactString();
+		database->insertGameRoom(gameRoomID, accountID, version, modListString);
 		activeGameRooms[connection] = gameRoomID;
 		sendServerLoginSuccess(connection, accountCookie);
 		broadcastActiveGameRooms();

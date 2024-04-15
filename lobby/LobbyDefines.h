@@ -44,6 +44,8 @@ struct LobbyGameRoom
 	std::string hostAccountID;
 	std::string hostAccountDisplayName;
 	std::string description;
+	std::string version;
+	std::string modsJson;
 	std::vector<LobbyAccount> participants;
 	LobbyRoomState roomState;
 	uint32_t playerLimit;

@@ -17,7 +17,7 @@ class JsonNode;
 struct ModVerificationInfo;
 using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 
-struct ModVerificationInfo
+struct DLL_LINKAGE ModVerificationInfo
 {
 	/// human-readable mod name
 	std::string name;

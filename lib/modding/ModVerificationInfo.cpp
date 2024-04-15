@@ -21,7 +21,8 @@ JsonNode ModVerificationInfo::jsonSerializeList(const ModCompatibilityInfo & inp
 		JsonNode modWriter;
 		modWriter["modId"].String() = mod.first;
 		modWriter["name"].String() = mod.second.name;
-		modWriter["parent"].String() = mod.second.parent;
+		if (!mod.second.parent.empty())
+			modWriter["parent"].String() = mod.second.parent;
 		modWriter["version"].String() = mod.second.version.toString();
 		output.Vector().push_back(modWriter);
 	}
