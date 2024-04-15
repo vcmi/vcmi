@@ -173,7 +173,6 @@ void CGMine::flagMine(const PlayerColor & player) const
 
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
-	iw.soundID = soundBase::FLAGMINE;
 	iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get()); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
 	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, producedQuantity);
