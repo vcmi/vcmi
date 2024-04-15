@@ -25,6 +25,30 @@ namespace spells
 namespace effects
 {
 
+int DemonSummon::raisedCreatureAmount(const Mechanics * m, const battle::Unit * unit) const
+{
+	if(!unit || unit->alive() || unit->isGhost())
+		return 0;
+
+	const auto *creatureType = creature.toEntity(m->creatures());
+
+	int32_t deadCount         = unit->unitBaseAmount();
+	int32_t deadTotalHealth   = unit->getTotalHealth();
+	int32_t raisedMaxHealth   = creatureType->getMaxHealth();
+	int32_t raisedTotalHealth = m->applySpellBonus(m->getEffectValue(), unit);
+
+	// Can't raise stack with more HP than original stack
+	int32_t maxAmountFromHealth     = deadTotalHealth / raisedMaxHealth;
+	// Can't raise stack with more creatures than original stack
+	int32_t maxAmountFromAmount     = deadCount;
+	// Can't raise stack with more HP than our spellpower
+	int32_t maxAmountFromSpellpower = raisedTotalHealth / raisedMaxHealth;
+
+	int32_t finalAmount = std::min( { maxAmountFromHealth, maxAmountFromAmount, maxAmountFromSpellpower } );
+
+	return finalAmount;
+}
+
 void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleUnitsChanged pack;
@@ -49,21 +73,7 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 			break;
 		}
 
-		const auto *creatureType = creature.toEntity(m->creatures());
-
-		int32_t deadCount         = targetStack->unitBaseAmount();
-		int32_t deadTotalHealth   = targetStack->getTotalHealth();
-		int32_t raisedMaxHealth   = creatureType->getMaxHealth();
-		int32_t raisedTotalHealth = m->applySpellBonus(m->getEffectValue(), targetStack);
-
-		// Can't raise stack with more HP than original stack
-		int32_t maxAmountFromHealth     = deadTotalHealth / raisedMaxHealth;
-		// Can't raise stack with more creatures than original stack
-		int32_t maxAmountFromAmount     = deadCount;
-		// Can't raise stack with more HP than our spellpower
-		int32_t maxAmountFromSpellpower = raisedTotalHealth / raisedMaxHealth;
-
-		int32_t finalAmount = std::min( { maxAmountFromHealth, maxAmountFromAmount, maxAmountFromSpellpower } );
+		int32_t finalAmount = raisedCreatureAmount(m, targetStack);
 
 		if(finalAmount < 1)
 		{
@@ -111,9 +121,7 @@ bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * unit) 
 	if (unit->isGhost())
 		return false;
 
-	const auto *creatureType = creature.toEntity(m->creatures());
-
-	if (unit->getTotalHealth() < creatureType->getMaxHealth())
+	if (raisedCreatureAmount(m, unit) == 0)
 		return false;
 
 	return m->isReceptive(unit);

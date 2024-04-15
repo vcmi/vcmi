@@ -10,15 +10,16 @@
 #include "StdInc.h"
 #include "CGeneralTextHandler.h"
 
-#include "filesystem/Filesystem.h"
-#include "serializer/JsonSerializeFormat.h"
 #include "CConfigHandler.h"
 #include "GameSettings.h"
-#include "mapObjects/CQuest.h"
-#include "modding/CModHandler.h"
-#include "VCMI_Lib.h"
 #include "Languages.h"
 #include "TextOperations.h"
+#include "VCMIDirs.h"
+#include "VCMI_Lib.h"
+#include "filesystem/Filesystem.h"
+#include "mapObjects/CQuest.h"
+#include "modding/CModHandler.h"
+#include "serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -386,18 +387,26 @@ bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) con
 	return stringsLocalizations.count(UID.get());
 }
 
-void TextLocalizationContainer::dumpAllTexts()
+void TextLocalizationContainer::exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage) const
 {
-	logGlobal->info("BEGIN TEXT EXPORT");
-	for(const auto & entry : stringsLocalizations)
-	{
-		if (!entry.second.overrideValue.empty())
-			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.overrideValue));
-		else
-			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.baseValue));
-	}
+	for (auto const & subContainer : subContainers)
+		subContainer->exportAllTexts(storage);
 
-	logGlobal->info("END TEXT EXPORT");
+	for (auto const & entry : stringsLocalizations)
+	{
+		std::string textToWrite;
+		std::string modName = entry.second.modContext;
+
+		if (modName.find('.') != std::string::npos)
+			modName = modName.substr(0, modName.find('.'));
+
+		if (!entry.second.overrideValue.empty())
+			textToWrite = entry.second.overrideValue;
+		else
+			textToWrite = entry.second.baseValue;
+
+		storage[modName][entry.first] = textToWrite;
+	}
 }
 
 std::string TextLocalizationContainer::getModLanguage(const std::string & modContext)
@@ -491,6 +500,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
 	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
 	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
+	readToVector("core.plcolors", "DATA/PLCOLORS.TXT" );
 	readToVector("core.jktext",   "DATA/JKTEXT.TXT"   );
 	readToVector("core.tvrninfo", "DATA/TVRNINFO.TXT" );
 	readToVector("core.turndur",  "DATA/TURNDUR.TXT"  );
@@ -541,20 +551,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 			std::string second = parser.readString();
 			registerString("core", "core.help." + std::to_string(index) + ".hover", first);
 			registerString("core", "core.help." + std::to_string(index) + ".help",  second);
-			index += 1;
-		}
-		while (parser.endLine());
-	}
-	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/PLCOLORS.TXT"));
-		size_t index = 0;
-		do
-		{
-			std::string color = parser.readString();
-
-			registerString("core", {"core.plcolors", index}, color);
-			color[0] = toupper(color[0]);
-			registerString("core", {"vcmi.capitalColors", index}, color);
 			index += 1;
 		}
 		while (parser.endLine());

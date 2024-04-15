@@ -34,6 +34,7 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/ObstacleSetHandler.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
@@ -211,10 +212,28 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	createdObject->subtype = index;
 	createdObject->init(entry);
 
+	bool staticObject = createdObject->isStaticObject();
+	if (staticObject)
+	{
+		for (auto & templ : createdObject->getTemplates())
+		{
+			// Register templates for new objects from mods
+			VLC->biomeHandler->addTemplate(scope, templ->stringID, templ);
+		}
+	}
+
 	auto range = legacyTemplates.equal_range(std::make_pair(obj->id, index));
 	for (auto & templ : boost::make_iterator_range(range.first, range.second))
 	{
+		if (staticObject)
+		{
+			// Register legacy templates as "core"
+			// FIXME: Why does it clear stringID?
+			VLC->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
+		}
+
 		createdObject->addTemplate(templ.second);
+
 	}
 	legacyTemplates.erase(range.first, range.second);
 

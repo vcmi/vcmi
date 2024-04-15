@@ -128,21 +128,25 @@ set(client_SRCS
 	widgets/RadialMenu.cpp
 	widgets/markets/CAltarArtifacts.cpp
 	widgets/markets/CAltarCreatures.cpp
-	widgets/markets/CTradeBase.cpp
+	widgets/markets/CArtifactsBuying.cpp
+	widgets/markets/CArtifactsSelling.cpp
+	widgets/markets/CFreelancerGuild.cpp
+	widgets/markets/CMarketResources.cpp
+	widgets/markets/CTransferResources.cpp
+	widgets/markets/CMarketBase.cpp
 	widgets/markets/TradePanels.cpp
 
-	windows/CAltarWindow.cpp
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
 	windows/CHeroOverview.cpp
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
 	windows/CMapOverview.cpp
+	windows/CMarketWindow.cpp
 	windows/CMessage.cpp
 	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
-	windows/CTradeWindow.cpp
 	windows/CTutorialWindow.cpp
 	windows/CWindowObject.cpp
 	windows/CreaturePurchaseCard.cpp
@@ -316,10 +320,14 @@ set(client_HEADERS
 	widgets/RadialMenu.h
 	widgets/markets/CAltarArtifacts.h
 	widgets/markets/CAltarCreatures.h
-	widgets/markets/CTradeBase.h
+	widgets/markets/CArtifactsBuying.h
+	widgets/markets/CArtifactsSelling.h
+	widgets/markets/CFreelancerGuild.h
+	widgets/markets/CMarketResources.h
+	widgets/markets/CTransferResources.h
+	widgets/markets/CMarketBase.h
 	widgets/markets/TradePanels.h
 
-	windows/CAltarWindow.h
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
 	windows/CHeroOverview.h
@@ -327,10 +335,10 @@ set(client_HEADERS
 	windows/CKingdomInterface.h
 	windows/CMessage.h
 	windows/CMapOverview.h
+	windows/CMarketWindow.h
 	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
-	windows/CTradeWindow.h
 	windows/CTutorialWindow.h
 	windows/CWindowObject.h
 	windows/CreaturePurchaseCard.h

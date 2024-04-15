@@ -353,7 +353,10 @@ void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, 
 		size_t pseudorandomNumber = ((coordinates.x * 997) ^ (coordinates.y * 1009)) / 101;
 		size_t imageIndex = pseudorandomNumber % fogOfWarFullHide->size();
 
-		target.draw(fogOfWarFullHide->getImage(imageIndex), Point(0, 0));
+		if (context.showSpellRange(coordinates))
+			target.drawColor(Rect(0,0,32,32), Colors::BLACK);
+		else
+			target.draw(fogOfWarFullHide->getImage(imageIndex), Point(0, 0));
 	}
 	else
 	{
@@ -363,6 +366,9 @@ void MapRendererFow::renderTile(IMapRendererContext & context, Canvas & target, 
 
 uint8_t MapRendererFow::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
+	if (context.showSpellRange(coordinates))
+		return 0xff - 2;
+
 	const NeighborTilesInfo neighborInfo(context, coordinates);
 	int retBitmapID = neighborInfo.getBitmapID();
 	if(retBitmapID < 0)

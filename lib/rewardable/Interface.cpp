@@ -161,8 +161,14 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 
 	if(!info.reward.spells.empty())
 	{
-		std::set<SpellID> spellsToGive(info.reward.spells.begin(), info.reward.spells.end());
-		cb->changeSpells(hero, true, spellsToGive);
+		std::set<SpellID> spellsToGive;
+
+		for (auto const & spell : info.reward.spells)
+			if (hero->canLearnSpell(spell.toEntity(VLC), true))
+				spellsToGive.insert(spell);
+
+		if (!spellsToGive.empty())
+			cb->changeSpells(hero, true, spellsToGive);
 	}
 
 	if(!info.reward.creaturesChange.empty())

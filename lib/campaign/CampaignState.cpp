@@ -369,7 +369,7 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero) const
 CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map) const
 {
 	JsonDeserializer handler(nullptr, const_cast<JsonNode&>(node));
-	auto * hero = new CGHeroInstance(map->cb);
+	auto * hero = new CGHeroInstance(map ? map->cb : nullptr);
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	if (map)

@@ -141,7 +141,7 @@ void GlobalLobbyClient::receiveChatHistory(const JsonNode & json)
 
 		chatHistory[channelKey].push_back(message);
 
-		if(lobbyWindowPtr)
+		if(lobbyWindowPtr && lobbyWindowPtr->isChannelOpen(channelType, channelName))
 			lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
 	}
 }

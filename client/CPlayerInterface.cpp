@@ -49,15 +49,14 @@
 #include "widgets/CComponent.h"
 #include "widgets/CGarrisonInt.h"
 
-#include "windows/CAltarWindow.h"
 #include "windows/CCastleInterface.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CKingdomInterface.h"
+#include "windows/CMarketWindow.h"
 #include "windows/CPuzzleWindow.h"
 #include "windows/CQuestLog.h"
 #include "windows/CSpellWindow.h"
-#include "windows/CTradeWindow.h"
 #include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
 #include "windows/InfoWindows.h"
@@ -193,6 +192,11 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 			else
 				GH.windows().popWindows(1);
 		}
+
+		if(castleInt)
+			castleInt->close();
+
+		castleInt = nullptr;
 
 		// remove all pending dialogs that do not expect query answer
 		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
@@ -420,8 +424,8 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, Prim
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (which == PrimarySkill::EXPERIENCE)
 	{
-		for (auto ctw : GH.windows().findWindows<CAltarWindow>())
-			ctw->updateExpToLevel();
+		for(auto ctw : GH.windows().findWindows<CMarketWindow>())
+			ctw->updateHero();
 	}
 	else
 		adventureInt->onHeroChanged(hero);
@@ -450,8 +454,8 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for (auto mw : GH.windows().findWindows<CMarketplaceWindow>())
-		mw->resourceChanged();
+	for (auto mw : GH.windows().findWindows<CMarketWindow>())
+		mw->updateResource();
 
 	GH.windows().totalRedraw();
 }
@@ -1556,31 +1560,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 
 		GH.curInt = previousInterface;
 		LOCPLINT = previousInterface;
-
-		if(CSH->howManyPlayerInterfaces() == 1 && !settings["session"]["spectate"].Bool()) //all human players eliminated
-		{
-			if(adventureInt)
-			{
-				GH.windows().popWindows(GH.windows().count());
-				adventureInt.reset();
-			}
-		}
-
-		if (victoryLossCheckResult.victory() && LOCPLINT == this)
-		{
-			// end game if current human player has won
-			CSH->sendClientDisconnecting();
-			requestReturningToMainMenu(true);
-		}
-		else if(CSH->howManyPlayerInterfaces() == 1 && !settings["session"]["spectate"].Bool())
-		{
-			//all human players eliminated
-			CSH->sendClientDisconnecting();
-			requestReturningToMainMenu(false);
-		}
-
-		if (GH.curInt == this)
-			GH.curInt = nullptr;
 	}
 }
 
@@ -1669,13 +1648,13 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	};
 
 	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
-		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
-		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
 		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor, onWindowClosed);
 	else if(!market->availableModes().empty())
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(market, visitor, onWindowClosed, market->availableModes().front());
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, market->availableModes().front());
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
@@ -1696,8 +1675,8 @@ void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for (auto cmw : GH.windows().findWindows<CMarketplaceWindow>())
-		cmw->artifactsChanged(false);
+	for (auto cmw : GH.windows().findWindows<CMarketWindow>())
+		cmw->updateArtifacts();
 }
 
 void CPlayerInterface::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
@@ -1732,50 +1711,6 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 	}
 	else
 		showShipyardDialog(obj);
-}
-
-void CPlayerInterface::requestReturningToMainMenu(bool won)
-{
-	HighScoreParameter param;
-	param.difficulty = cb->getStartInfo()->difficulty;
-	param.day = cb->getDate();
-	param.townAmount = cb->howManyTowns();
-	param.usedCheat = cb->getPlayerState(*cb->getPlayerID())->cheated;
-	param.hasGrail = false;
-	for(const CGHeroInstance * h : cb->getHeroesInfo())
-		if(h->hasArt(ArtifactID::GRAIL))
-			param.hasGrail = true;
-	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(t->builtBuildings.count(BuildingID::GRAIL))
-			param.hasGrail = true;
-	param.allDefeated = true;
-	for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
-	{
-		auto ps = cb->getPlayerState(player, false);
-		if(ps && player != *cb->getPlayerID())
-			if(!ps->checkVanquished())
-				param.allDefeated = false;
-	}
-	param.scenarioName = cb->getMapHeader()->name.toString();
-	param.playerName = cb->getStartInfo()->playerInfos.find(*cb->getPlayerID())->second.name;
-	HighScoreCalculation highScoreCalc;
-	highScoreCalc.parameters.push_back(param);
-	highScoreCalc.isCampaign = false;
-
-	if(won && cb->getStartInfo()->campState)
-		CSH->startCampaignScenario(param, cb->getStartInfo()->campState);
-	else
-	{
-		GH.dispatchMainThread(
-			[won, highScoreCalc]()
-			{
-				CSH->endGameplay();
-				GH.defActionsDef = 63;
-				CMM->menu->switchToTab("main");
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(won, highScoreCalc);
-			}
-		);
-	}
 }
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)

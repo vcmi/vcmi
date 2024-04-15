@@ -114,6 +114,7 @@ set(editor_TS
 	translation/french.ts
 	translation/german.ts
 	translation/polish.ts
+	translation/portuguese.ts
 	translation/russian.ts
 	translation/spanish.ts
 	translation/ukrainian.ts

@@ -575,20 +575,9 @@ std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType ty
 
 std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, const TPropagatorPtr & prop) const
 {
-	std::ostringstream descr;
-	descr << build->getNameTranslated();
-	return createBonusImpl(build->bid, build->town->faction->getId(), type, val, prop, descr.str(), subtype);
-}
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, build->getUniqueTypeID(), subtype);
 
-std::shared_ptr<Bonus> CTownHandler::createBonusImpl(const BuildingID & building,
-													 const FactionID & faction,
-													 BonusType type,
-													 int val,
-													 const TPropagatorPtr & prop,
-													 const std::string & description,
-													 BonusSubtypeID subtype) const
-{
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, BuildingTypeUniqueID(faction, building), subtype, description);
+	b->description.appendTextID(build->getNameTextID());
 
 	if(prop)
 		b->addPropagator(prop);
@@ -600,12 +589,13 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 {
 	for(const auto & b : source.Vector())
 	{
-		auto bonus = JsonUtils::parseBuildingBonus(b, building->town->faction->getId(), building->bid, building->getNameTranslated());
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BonusSourceID(building->getUniqueTypeID()));
 
-		if(bonus == nullptr)
+		if(!JsonUtils::parseBonus(b, bonus.get()))
 			continue;
 
-		bonus->sid = BonusSourceID(building->getUniqueTypeID());
+		bonus->description.appendTextID(building->getNameTextID());
+
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
 		if(bonus->propagator != nullptr
 			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
@@ -1068,6 +1058,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	
 	auto preferUndergound = source["preferUndergroundPlacement"];
 	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();
+	faction->special = source["special"].Bool();
 
 	// NOTE: semi-workaround - normally, towns are supposed to have native terrains.
 	// Towns without one are exceptions. So, vcmi requires nativeTerrain to be defined
@@ -1259,7 +1250,7 @@ std::set<FactionID> CTownHandler::getDefaultAllowed() const
 	std::set<FactionID> allowedFactions;
 
 	for(auto town : objects)
-		if (town->town != nullptr)
+		if (town->town != nullptr && !town->special)
 			allowedFactions.insert(town->getId());
 
 	return allowedFactions;

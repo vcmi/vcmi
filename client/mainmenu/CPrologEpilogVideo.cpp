@@ -74,6 +74,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
 	close();
+	CCS->soundh->resetCallback(voiceSoundHandle); // reset callback to avoid memory corruption since 'this' will be destroyed
 	CCS->soundh->stopSound(voiceSoundHandle);
 	CCS->soundh->stopSound(videoSoundHandle);
 	if(exitCb)

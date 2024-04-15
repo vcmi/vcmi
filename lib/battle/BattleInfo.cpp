@@ -917,8 +917,7 @@ void BattleInfo::removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 			&& one.sid == b->sid
 			&& one.valType == b->valType
 			&& one.additionalInfo == b->additionalInfo
-			&& one.effectRange == b->effectRange
-			&& one.description == b->description;
+			&& one.effectRange == b->effectRange;
 		};
 		sta->removeBonusesRecursive(selector);
 	}

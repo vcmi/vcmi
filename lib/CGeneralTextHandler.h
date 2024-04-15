@@ -181,8 +181,9 @@ public:
 	/// converts identifier into user-readable string
 	const std::string & deserialize(const TextIdentifier & identifier) const;
 	
-	/// Debug method, dumps all currently known texts into console using Json-like format
-	void dumpAllTexts();
+	/// Debug method, returns all currently stored texts
+	/// Format: [mod ID][string ID] -> human-readable text
+	void exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage) const;
 	
 	/// Add or override subcontainer which can store identifiers
 	void addSubContainer(const TextLocalizationContainer & container);

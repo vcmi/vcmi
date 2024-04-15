@@ -78,7 +78,6 @@ public:
 	virtual void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) = 0;
 
 	virtual void showInfoDialog(InfoWindow * iw) = 0;
-	virtual void showInfoDialog(const std::string & msg, PlayerColor player) = 0;
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;

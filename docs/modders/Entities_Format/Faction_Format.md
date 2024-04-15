@@ -75,6 +75,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	
 	// Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground.
 	"preferUndergroundPlacement" : false
+	
+	// Optional, if set to true then faction cannot be selected on game start and will not be used for "random town" object
+	"special" : false
 
 	// Town puzzle map
 	"puzzleMap" :

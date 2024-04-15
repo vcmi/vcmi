@@ -21,5 +21,5 @@ class CArtifactsOfHeroMain : public CArtifactsOfHeroBase
 {
 public:
 	CArtifactsOfHeroMain(const Point & position);
-	~CArtifactsOfHeroMain();
+	void deactivate() override;
 };

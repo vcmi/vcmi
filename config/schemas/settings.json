@@ -160,7 +160,8 @@
 				"displayIndex",
 				"showfps",
 				"targetfps",
-				"vsync"
+				"vsync",
+				"scalingMode"
 			],
 			"properties" : {
 				"resolution" : {
@@ -223,6 +224,11 @@
 				"vsync" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"scalingMode" : {
+					"type" : "string",
+					"enum" : [ "nearest", "linear", "best" ],
+					"default" : "best"
 				}
 			}
 		},

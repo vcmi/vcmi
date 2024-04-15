@@ -26,6 +26,7 @@
 #include "../IHandlerBase.h"
 #include "../Languages.h"
 #include "../ObstacleHandler.h"
+#include "../mapObjects/ObstacleSetHandler.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../ScriptHandler.h"
@@ -207,7 +208,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler.get(), "river")));
 	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler.get(), "road")));
 	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler.get(), "obstacle")));
-	//TODO: any other types of moddables?
+	handlers.insert(std::make_pair("biomes", ContentTypeHandler(VLC->biomeHandler.get(), "biome")));
 }
 
 bool CContentHandler::preloadModData(const std::string & modName, JsonNode modConfig, bool validate)

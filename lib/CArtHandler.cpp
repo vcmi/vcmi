@@ -294,7 +294,8 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
 	b->source = BonusSource::ARTIFACT;
 	b->duration = BonusDuration::PERMANENT;
-	b->description = getNameTranslated();
+	b->description.appendTextID(getNameTextID());
+	b->description.appendRawString(" %+d");
 	CBonusSystemNode::addNewBonus(b);
 }
 
@@ -839,15 +840,18 @@ CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(ArtifactPosition slot, C
 
 void CArtifactSet::removeArtifact(ArtifactPosition slot)
 {
-	auto art = getArt(slot, false);
-	if(art)
+	if(const auto art = getArt(slot, false))
 	{
 		if(art->isCombined())
 		{
-			for(auto & part : art->getPartsInfo())
+			for(const auto & part : art->getPartsInfo())
 			{
-				if(getArt(part.slot, false))
-					eraseArtSlot(part.slot);
+				if(part.slot != ArtifactPosition::PRE_FIRST)
+				{
+					assert(getArt(part.slot, false));
+					assert(getArt(part.slot, false) == part.art);
+				}
+				eraseArtSlot(part.slot);
 			}
 		}
 		eraseArtSlot(slot);

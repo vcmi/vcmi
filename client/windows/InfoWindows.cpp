@@ -54,10 +54,7 @@ CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charpe
 	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	if(buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
-	{
 		buttons.back()->addCallback([askID](){LOCPLINT->cb->selectionMade(0, askID);});
-		//buttons.back()->addCallback(std::bind(&CCallback::selectionMade, LOCPLINT->cb.get(), 0, askID));
-	}
 
 	if(buttons.size() == 1)
 		buttons.front()->assignedKey = EShortcut::GLOBAL_RETURN;
@@ -69,7 +66,11 @@ CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charpe
 	}
 
 	if(!comps.empty())
+	{
 		components = std::make_shared<CComponentBox>(comps, Rect(0,0,0,0));
+		for (auto & comp : comps)
+			comp->onChoose = [this](){ madeChoiceAndClose(); };
+	}
 
 	CMessage::drawIWindow(this, Text, player);
 }

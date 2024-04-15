@@ -48,6 +48,12 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 		return m->adaptGenericProblem(problem);
 	}
 
+	if (summonedCreatureAmount(m) == 0)
+	{
+		logMod->debug("Attempt to summon zero creatures!");
+		return m->adaptGenericProblem(problem);
+	}
+
 	if(exclusive)
 	{
 		//check if there are summoned creatures of other type
@@ -88,11 +94,34 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 	return true;
 }
 
+int32_t Summon::summonedCreatureHealth(const Mechanics * m, const battle::Unit * unit) const
+{
+	auto valueWithBonus = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));
+
+	if(summonByHealth)
+		return valueWithBonus;
+	else
+		return valueWithBonus * unit->getMaxHealth();
+}
+
+int32_t Summon::summonedCreatureAmount(const Mechanics * m) const
+{
+	auto valueWithBonus = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));
+
+	if(summonByHealth)
+	{
+		const auto *creatureType = creature.toEntity(m->creatures());
+		auto creatureMaxHealth = creatureType->getMaxHealth();
+		return valueWithBonus / creatureMaxHealth;
+	}
+	else
+	{
+		return valueWithBonus;
+	}
+}
+
 void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
-	//new feature - percentage bonus
-	auto valueWithBonus = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));//TODO: consider use base power too
-
 	BattleUnitsChanged pack;
 	pack.battleID = m->battle()->getBattle()->getBattleID();
 
@@ -102,25 +131,14 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 		{
 			const battle::Unit * summoned = dest.unitValue;
 			std::shared_ptr<battle::Unit> state = summoned->acquire();
-			int64_t healthValue = (summonByHealth ? valueWithBonus : (valueWithBonus * summoned->getMaxHealth()));
+			int64_t healthValue = summonedCreatureHealth(m, summoned);
 			state->heal(healthValue, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
 			pack.changedStacks.emplace_back(summoned->unitId(), UnitChanges::EOperation::RESET_STATE);
 			state->save(pack.changedStacks.back().data);
 		}
 		else
 		{
-			int32_t amount = 0;
-
-			if(summonByHealth)
-			{
-				const auto *creatureType = creature.toEntity(m->creatures());
-				auto creatureMaxHealth = creatureType->getMaxHealth();
-				amount = static_cast<int32_t>(valueWithBonus / creatureMaxHealth);
-			}
-			else
-			{
-				amount = static_cast<int32_t>(valueWithBonus);
-			}
+			int32_t amount = summonedCreatureAmount(m);
 
 			if(amount < 1)
 			{

@@ -14,6 +14,7 @@
 
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
+#include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -33,6 +34,7 @@ class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
 public:
 	bool isStaticObject() override;
+
 };
 
 class CreatureInstanceConstructor : public CDefaultObjectTypeHandler<CGCreature>

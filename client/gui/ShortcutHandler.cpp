@@ -12,149 +12,40 @@
 
 #include "ShortcutHandler.h"
 #include "Shortcut.h"
-#include <SDL_keycode.h>
 
-std::vector<EShortcut> ShortcutHandler::translateKeycode(SDL_Keycode key) const
+#include "../../lib/json/JsonUtils.h"
+
+ShortcutHandler::ShortcutHandler()
 {
-	static const std::multimap<SDL_Keycode, EShortcut> keyToShortcut = {
-		{SDLK_RETURN,    EShortcut::GLOBAL_ACCEPT             },
-		{SDLK_KP_ENTER,  EShortcut::GLOBAL_ACCEPT             },
-		{SDLK_ESCAPE,    EShortcut::GLOBAL_CANCEL             },
-		{SDLK_RETURN,    EShortcut::GLOBAL_RETURN             },
-		{SDLK_KP_ENTER,  EShortcut::GLOBAL_RETURN             },
-		{SDLK_ESCAPE,    EShortcut::GLOBAL_RETURN             },
-		{SDLK_F4,        EShortcut::GLOBAL_FULLSCREEN         },
-		{SDLK_BACKSPACE, EShortcut::GLOBAL_BACKSPACE          },
-		{SDLK_TAB,       EShortcut::GLOBAL_MOVE_FOCUS         },
-		{SDLK_o,         EShortcut::GLOBAL_OPTIONS            },
-		{SDLK_LEFT,      EShortcut::MOVE_LEFT                 },
-		{SDLK_RIGHT,     EShortcut::MOVE_RIGHT                },
-		{SDLK_UP,        EShortcut::MOVE_UP                   },
-		{SDLK_DOWN,      EShortcut::MOVE_DOWN                 },
-		{SDLK_HOME,      EShortcut::MOVE_FIRST                },
-		{SDLK_END,       EShortcut::MOVE_LAST                 },
-		{SDLK_PAGEUP,    EShortcut::MOVE_PAGE_UP              },
-		{SDLK_PAGEDOWN,  EShortcut::MOVE_PAGE_DOWN            },
-		{SDLK_1,         EShortcut::SELECT_INDEX_1            },
-		{SDLK_2,         EShortcut::SELECT_INDEX_2            },
-		{SDLK_3,         EShortcut::SELECT_INDEX_3            },
-		{SDLK_4,         EShortcut::SELECT_INDEX_4            },
-		{SDLK_5,         EShortcut::SELECT_INDEX_5            },
-		{SDLK_6,         EShortcut::SELECT_INDEX_6            },
-		{SDLK_7,         EShortcut::SELECT_INDEX_7            },
-		{SDLK_8,         EShortcut::SELECT_INDEX_8            },
-		{SDLK_n,         EShortcut::MAIN_MENU_NEW_GAME        },
-		{SDLK_l,         EShortcut::MAIN_MENU_LOAD_GAME       },
-		{SDLK_h,         EShortcut::MAIN_MENU_HIGH_SCORES     },
-		{SDLK_c,         EShortcut::MAIN_MENU_CREDITS         },
-		{SDLK_q,         EShortcut::MAIN_MENU_QUIT            },
-		{SDLK_b,         EShortcut::MAIN_MENU_BACK            },
-		{SDLK_s,         EShortcut::MAIN_MENU_SINGLEPLAYER    },
-		{SDLK_m,         EShortcut::MAIN_MENU_MULTIPLAYER     },
-		{SDLK_c,         EShortcut::MAIN_MENU_CAMPAIGN        },
-		{SDLK_t,         EShortcut::MAIN_MENU_TUTORIAL        },
-		{SDLK_s,         EShortcut::MAIN_MENU_CAMPAIGN_SOD    },
-		{SDLK_r,         EShortcut::MAIN_MENU_CAMPAIGN_ROE    },
-		{SDLK_a,         EShortcut::MAIN_MENU_CAMPAIGN_AB     },
-		{SDLK_c,         EShortcut::MAIN_MENU_CAMPAIGN_CUSTOM },
-		{SDLK_b,         EShortcut::LOBBY_BEGIN_GAME          },
-		{SDLK_RETURN,    EShortcut::LOBBY_BEGIN_GAME          },
-		{SDLK_KP_ENTER,  EShortcut::LOBBY_BEGIN_GAME          },
-		{SDLK_l,         EShortcut::LOBBY_LOAD_GAME           },
-		{SDLK_RETURN,    EShortcut::LOBBY_LOAD_GAME           },
-		{SDLK_KP_ENTER,  EShortcut::LOBBY_LOAD_GAME           },
-		{SDLK_s,         EShortcut::LOBBY_SAVE_GAME           },
-		{SDLK_RETURN,    EShortcut::LOBBY_SAVE_GAME           },
-		{SDLK_KP_ENTER,  EShortcut::LOBBY_SAVE_GAME           },
-		{SDLK_r,         EShortcut::LOBBY_RANDOM_MAP          },
-		{SDLK_h,         EShortcut::LOBBY_HIDE_CHAT           },
-		{SDLK_a,         EShortcut::LOBBY_ADDITIONAL_OPTIONS  },
-		{SDLK_s,         EShortcut::LOBBY_SELECT_SCENARIO     },
-		{SDLK_e,         EShortcut::GAME_END_TURN             },
-		{SDLK_l,         EShortcut::GAME_LOAD_GAME            },
-		{SDLK_s,         EShortcut::GAME_SAVE_GAME            },
-		{SDLK_r,         EShortcut::GAME_RESTART_GAME         },
-		{SDLK_m,         EShortcut::GAME_TO_MAIN_MENU         },
-		{SDLK_q,         EShortcut::GAME_QUIT_GAME            },
-		{SDLK_b,         EShortcut::GAME_OPEN_MARKETPLACE     },
-		{SDLK_g,         EShortcut::GAME_OPEN_THIEVES_GUILD   },
-		{SDLK_TAB,       EShortcut::GAME_ACTIVATE_CONSOLE     },
-		{SDLK_o,         EShortcut::ADVENTURE_GAME_OPTIONS    },
-		{SDLK_F6,        EShortcut::ADVENTURE_TOGGLE_GRID     },
-		{SDLK_z,         EShortcut::ADVENTURE_SET_HERO_ASLEEP },
-		{SDLK_w,         EShortcut::ADVENTURE_SET_HERO_AWAKE  },
-		{SDLK_m,         EShortcut::ADVENTURE_MOVE_HERO       },
-		{SDLK_SPACE,     EShortcut::ADVENTURE_VISIT_OBJECT    },
-		{SDLK_KP_1,      EShortcut::ADVENTURE_MOVE_HERO_SW    },
-		{SDLK_KP_2,      EShortcut::ADVENTURE_MOVE_HERO_SS    },
-		{SDLK_KP_3,      EShortcut::ADVENTURE_MOVE_HERO_SE    },
-		{SDLK_KP_4,      EShortcut::ADVENTURE_MOVE_HERO_WW    },
-		{SDLK_KP_6,      EShortcut::ADVENTURE_MOVE_HERO_EE    },
-		{SDLK_KP_7,      EShortcut::ADVENTURE_MOVE_HERO_NW    },
-		{SDLK_KP_8,      EShortcut::ADVENTURE_MOVE_HERO_NN    },
-		{SDLK_KP_9,      EShortcut::ADVENTURE_MOVE_HERO_NE    },
-		{SDLK_DOWN,      EShortcut::ADVENTURE_MOVE_HERO_SS    },
-		{SDLK_LEFT,      EShortcut::ADVENTURE_MOVE_HERO_WW    },
-		{SDLK_RIGHT,     EShortcut::ADVENTURE_MOVE_HERO_EE    },
-		{SDLK_UP,        EShortcut::ADVENTURE_MOVE_HERO_NN    },
-		{SDLK_RETURN,    EShortcut::ADVENTURE_VIEW_SELECTED   },
-		{SDLK_KP_ENTER,  EShortcut::ADVENTURE_VIEW_SELECTED   },
- //		{SDLK_,          EShortcut::ADVENTURE_NEXT_OBJECT     },
-		{SDLK_t,         EShortcut::ADVENTURE_NEXT_TOWN       },
-		{SDLK_h,         EShortcut::ADVENTURE_NEXT_HERO       },
- //		{SDLK_,          EShortcut::ADVENTURE_FIRST_TOWN      },
-  //		{SDLK_,          EShortcut::ADVENTURE_FIRST_HERO      },
-		{SDLK_i,         EShortcut::ADVENTURE_VIEW_SCENARIO   },
-		{SDLK_d,         EShortcut::ADVENTURE_DIG_GRAIL       },
-		{SDLK_p,         EShortcut::ADVENTURE_VIEW_PUZZLE     },
-		{SDLK_v,         EShortcut::ADVENTURE_VIEW_WORLD      },
-		{SDLK_1,         EShortcut::ADVENTURE_VIEW_WORLD_X1   },
-		{SDLK_2,         EShortcut::ADVENTURE_VIEW_WORLD_X2   },
-		{SDLK_4,         EShortcut::ADVENTURE_VIEW_WORLD_X4   },
-		{SDLK_u,         EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL},
-		{SDLK_k,         EShortcut::ADVENTURE_KINGDOM_OVERVIEW},
-		{SDLK_q,         EShortcut::ADVENTURE_QUEST_LOG       },
-		{SDLK_c,         EShortcut::ADVENTURE_CAST_SPELL      },
-		{SDLK_g,         EShortcut::ADVENTURE_THIEVES_GUILD   },
-		{SDLK_KP_PLUS,   EShortcut::ADVENTURE_ZOOM_IN         },
-		{SDLK_KP_MINUS,  EShortcut::ADVENTURE_ZOOM_OUT        },
-		{SDLK_BACKSPACE, EShortcut::ADVENTURE_ZOOM_RESET      },
-		{SDLK_q,         EShortcut::BATTLE_TOGGLE_QUEUE       },
-		{SDLK_f,         EShortcut::BATTLE_USE_CREATURE_SPELL },
-		{SDLK_s,         EShortcut::BATTLE_SURRENDER          },
-		{SDLK_r,         EShortcut::BATTLE_RETREAT            },
-		{SDLK_a,         EShortcut::BATTLE_AUTOCOMBAT         },
-		{SDLK_e,         EShortcut::BATTLE_END_WITH_AUTOCOMBAT},
-		{SDLK_c,         EShortcut::BATTLE_CAST_SPELL         },
-		{SDLK_w,         EShortcut::BATTLE_WAIT               },
-		{SDLK_d,         EShortcut::BATTLE_DEFEND             },
-		{SDLK_SPACE,     EShortcut::BATTLE_DEFEND             },
-		{SDLK_UP,        EShortcut::BATTLE_CONSOLE_UP         },
-		{SDLK_DOWN,      EShortcut::BATTLE_CONSOLE_DOWN       },
-		{SDLK_SPACE,     EShortcut::BATTLE_TACTICS_NEXT       },
-		{SDLK_RETURN,    EShortcut::BATTLE_TACTICS_END        },
-		{SDLK_KP_ENTER,  EShortcut::BATTLE_TACTICS_END        },
-		{SDLK_s,         EShortcut::BATTLE_SELECT_ACTION      },
-		{SDLK_i,         EShortcut::BATTLE_TOGGLE_HEROES_STATS},
-		{SDLK_t,         EShortcut::TOWN_OPEN_TAVERN          },
-		{SDLK_SPACE,     EShortcut::TOWN_SWAP_ARMIES          },
-		{SDLK_END,       EShortcut::RECRUITMENT_MAX           },
-		{SDLK_HOME,      EShortcut::RECRUITMENT_MIN           },
-		{SDLK_u,         EShortcut::RECRUITMENT_UPGRADE       },
-		{SDLK_a,         EShortcut::RECRUITMENT_UPGRADE_ALL   },
-		{SDLK_u,         EShortcut::RECRUITMENT_UPGRADE_ALL   },
-		{SDLK_h,         EShortcut::KINGDOM_HEROES_TAB        },
-		{SDLK_t,         EShortcut::KINGDOM_TOWNS_TAB         },
-		{SDLK_d,         EShortcut::HERO_DISMISS              },
-		{SDLK_c,         EShortcut::HERO_COMMANDER            },
-		{SDLK_l,         EShortcut::HERO_LOOSE_FORMATION      },
-		{SDLK_t,         EShortcut::HERO_TIGHT_FORMATION      },
-		{SDLK_b,         EShortcut::HERO_TOGGLE_TACTICS       },
-		{SDLK_a,         EShortcut::SPELLBOOK_TAB_ADVENTURE   },
-		{SDLK_c,         EShortcut::SPELLBOOK_TAB_COMBAT      }
-	};
+	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
 
-	auto range = keyToShortcut.equal_range(key);
+	for (auto const & entry : config["keyboard"].Struct())
+	{
+		std::string shortcutName = entry.first;
+		EShortcut shortcutID = findShortcut(shortcutName);
+
+		if (shortcutID == EShortcut::NONE)
+		{
+			logGlobal->warn("Unknown shortcut '%s' found when loading shortcuts config!", shortcutName);
+			continue;
+		}
+
+		if (entry.second.isString())
+		{
+			mappedShortcuts.emplace(entry.second.String(), shortcutID);
+		}
+
+		if (entry.second.isVector())
+		{
+			for (auto const & entryVector : entry.second.Vector())
+				mappedShortcuts.emplace(entryVector.String(), shortcutID);
+		}
+	}
+}
+
+std::vector<EShortcut> ShortcutHandler::translateKeycode(const std::string & key) const
+{
+	auto range = mappedShortcuts.equal_range(key);
 
 	// FIXME: some code expects calls to keyPressed / captureThisKey even without defined hotkeys
 	if (range.first == range.second)

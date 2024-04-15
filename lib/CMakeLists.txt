@@ -121,6 +121,7 @@ set(lib_MAIN_SRCS
 	mapObjects/IObjectInterface.cpp
 	mapObjects/MiscObjects.cpp
 	mapObjects/ObjectTemplate.cpp
+	mapObjects/ObstacleSetHandler.cpp
 
 	mapping/CDrawRoadsOperation.cpp
 	mapping/CMap.cpp
@@ -482,6 +483,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/MapObjects.h
 	mapObjects/MiscObjects.h
 	mapObjects/ObjectTemplate.h
+	mapObjects/ObstacleSetHandler.h
 
 	mapping/CDrawRoadsOperation.h
 	mapping/CMapDefines.h

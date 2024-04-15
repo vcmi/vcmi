@@ -58,6 +58,10 @@
 			"type" : "boolean",
 			"description" : "Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground."
 		},
+		"special" : {
+			"type" : "boolean",
+			"description" : "If true, faction is disabled from starting pick and in random map generation"
+		},
 		"creatureBackground" : {
 			"type" : "object",
 			"additionalProperties" : false,

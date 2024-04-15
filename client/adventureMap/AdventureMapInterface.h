@@ -92,6 +92,9 @@ private:
 	/// casts current spell at specified location
 	void performSpellcasting(const int3 & castTarget);
 
+	/// performs clientside validation of valid targets for adventure spells
+	bool isValidAdventureSpellTarget(int3 targetPosition) const;
+
 	/// dim interface if some windows opened
 	void dim(Canvas & to);
 
@@ -170,10 +173,10 @@ public:
 	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 
 	/// called by MapView whenever tile is clicked
-	void onTileLeftClicked(const int3 & mapPos);
+	void onTileLeftClicked(const int3 & targetPosition);
 
 	/// called by MapView whenever tile is hovered
-	void onTileHovered(const int3 & mapPos);
+	void onTileHovered(const int3 & targetPosition);
 
 	/// called by MapView whenever tile is clicked
 	void onTileRightClicked(const int3 & mapPos);

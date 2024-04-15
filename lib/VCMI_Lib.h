@@ -23,6 +23,7 @@ class CSkillHandler;
 class CBuildingHandler;
 class CObjectHandler;
 class CObjectClassesHandler;
+class ObstacleSetHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CModHandler;
@@ -85,6 +86,7 @@ public:
 	std::shared_ptr<CCreatureHandler> creh;
 	std::shared_ptr<CSpellHandler> spellh;
 	std::shared_ptr<CSkillHandler> skillh;
+	// TODO: Remove ObjectHandler altogether?
 	std::shared_ptr<CObjectHandler> objh;
 	std::shared_ptr<CObjectClassesHandler> objtypeh;
 	std::shared_ptr<CTownHandler> townh;
@@ -99,6 +101,7 @@ public:
 	std::shared_ptr<BattleFieldHandler> battlefieldsHandler;
 	std::shared_ptr<ObstacleHandler> obstacleHandler;
 	std::shared_ptr<GameSettings> settingsHandler;
+	std::shared_ptr<ObstacleSetHandler> biomeHandler;
 
 #if SCRIPTING_ENABLED
 	std::shared_ptr<scripting::ScriptHandler> scriptHandler;

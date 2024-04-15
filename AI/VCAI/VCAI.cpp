@@ -2031,6 +2031,9 @@ void VCAI::tryRealize(Goals::Explore & g)
 
 void VCAI::tryRealize(Goals::RecruitHero & g)
 {
+	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
+		throw cannotFulfillGoalException("Not enough gold to recruit hero!");
+
 	if(const CGTownInstance * t = findTownWithTavern())
 	{
 		recruitHero(t, true);

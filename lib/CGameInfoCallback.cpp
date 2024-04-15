@@ -287,6 +287,11 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 	return ret;
 }
 
+bool CGameInfoCallback::isTileGuardedUnchecked(int3 tile) const
+{
+	return !gs->guardingCreatures(tile).empty();
+}
+
 bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject) const
 {
 	const auto * h = dynamic_cast<const CGHeroInstance *>(hero);
@@ -440,7 +445,7 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 // 		return armi;
 // }
 
-std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int3 pos ) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 pos ) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
@@ -451,7 +456,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int
 	return ret;
 }
 
-std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos, verbose);
@@ -470,7 +475,7 @@ const CGObjectInstance * CGameInfoCallback::getTopObj (int3 pos) const
 	return vstd::backOrNull(getVisitableObjs(pos));
 }
 
-std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(int3 pos) const
+std::vector <const CGObjectInstance *> CGameInfoCallback::getFlaggableObjects(int3 pos) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
@@ -500,13 +505,21 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	return ret;
 }
 
-const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
+const TerrainTile * CGameInfoCallback::getTile(int3 tile, bool verbose) const
 {
 	if(isVisible(tile))
 		return &gs->map->getTile(tile);
 
 	if(verbose)
 		logGlobal->error("\r\n%s: %s\r\n", BOOST_CURRENT_FUNCTION, tile.toString() + " is not visible!");
+	return nullptr;
+}
+
+const TerrainTile * CGameInfoCallback::getTileUnchecked(int3 tile) const
+{
+	if (isInTheMap(tile))
+		return &gs->map->getTile(tile);
+
 	return nullptr;
 }
 

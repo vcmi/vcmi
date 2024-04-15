@@ -85,6 +85,7 @@ public:
 	void stopSound(int handler);
 
 	void setCallback(int channel, std::function<void()> function);
+	void resetCallback(int channel);
 	void soundFinishedCallback(int channel);
 
 	int ambientGetRange() const;

@@ -33,8 +33,7 @@ bool operator==(const Bonus & b1, const Bonus & b2)
 		&& b1.sid == b2.sid
 		&& b1.valType == b2.valType
 		&& b1.additionalInfo == b2.additionalInfo
-		&& b1.effectRange == b2.effectRange
-		&& b1.description == b2.description;
+		&& b1.effectRange == b2.effectRange;
 }
 
 namespace test

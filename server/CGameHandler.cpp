@@ -388,7 +388,7 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 		InfoWindow iw;
 		iw.player = hero->tempOwner;
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
-		iw.text.replaceRawString(hero->getNameTranslated());
+		iw.text.replaceTextID(hero->getNameTextID());
 		sendAndApply(&iw);
 	}
 
@@ -1196,7 +1196,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		sendAndApply(&tmh);
 
 		if (visitDest == VISIT_DEST && objectToVisit && objectToVisit->id == h->id)
-		{ // Hero should be always able to visit any object he staying on even if there guards around
+		{ // Hero should be always able to visit any object he is staying on even if there are guards around
 			visitObjectOnTile(t, h);
 		}
 		else if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
@@ -1254,7 +1254,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if (blockingVisit()) // e.g. hero on the other side of teleporter
 			return true;
 
-		doMove(TryMoveHero::TELEPORTATION, IGNORE_GUARDS, DONT_VISIT_DEST, LEAVING_TILE);
+		EGuardLook guardsCheck = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS)
+			? CHECK_FOR_GUARDS
+			: IGNORE_GUARDS;
+
+		doMove(TryMoveHero::TELEPORTATION, guardsCheck, DONT_VISIT_DEST, LEAVING_TILE);
 
 		// visit town for town portal \ castle gates
 		// do not use generic visitObjectOnTile to avoid double-teleporting
@@ -1347,7 +1351,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 
 		if (oldOwner.isValidPlayer()) //old owner is real player
 		{
-			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last last town
+			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last town
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;
@@ -1593,7 +1597,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		iw.components.emplace_back(ComponentType::SEC_SKILL, scholarSkill, scholarSkillLevel);
 
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
-		iw.text.replaceRawString(h1->getNameTranslated());
+		iw.text.replaceTextID(h1->getNameTextID());
 
 		if (!cs2.spells.empty())//if found new spell - apply
 		{
@@ -1614,7 +1618,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				}
 			}
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 142);//from %s
-			iw.text.replaceRawString(h2->getNameTranslated());
+			iw.text.replaceTextID(h2->getNameTextID());
 			sendAndApply(&cs2);
 		}
 
@@ -1642,7 +1646,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				}
 			}
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 148);//from %s
-			iw.text.replaceRawString(h2->getNameTranslated());
+			iw.text.replaceTextID(h2->getNameTextID());
 			sendAndApply(&cs1);
 		}
 		sendAndApply(&iw);
@@ -2702,7 +2706,8 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	const auto srcArtifact = srcArtSet->getArt(src.slot);
-	const bool isDstSlotOccupied = dstArtSet->bearerType() == ArtBearer::ALTAR ? false : dstArtSet->getArt(dst.slot) != nullptr;
+	const auto dstArtifact = dstArtSet->getArt(dst.slot);
+	const bool isDstSlotOccupied = dstArtSet->bearerType() == ArtBearer::ALTAR ? false : dstArtifact != nullptr;
 	const bool isDstSlotBackpack = dstArtSet->bearerType() == ArtBearer::HERO ? ArtifactUtils::isSlotBackpack(dst.slot) : false;
 
 	if(srcArtifact == nullptr)
@@ -2740,7 +2745,8 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	// Check if dst slot is occupied
 	if(!isDstSlotBackpack && isDstSlotOccupied)
 	{
-		// Previous artifact must be removed
+		// Previous artifact must be swapped
+		COMPLAIN_RET_FALSE_IF(!dstArtifact->canBePutAt(srcArtSet, src.slot, true), "Cannot swap artifacts!");
 		ma.artsPack1.push_back(BulkMoveArtifacts::LinkedSlots(dstSlot, src.slot));
 		ma.swap = true;
 	}
@@ -4263,14 +4269,6 @@ void CGameHandler::setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, Ob
 void CGameHandler::showInfoDialog(InfoWindow * iw)
 {
 	sendAndApply(iw);
-}
-
-void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
-{
-	InfoWindow iw;
-	iw.player = player;
-	iw.text.appendRawString(msg);
-	showInfoDialog(&iw);
 }
 
 CRandomGenerator & CGameHandler::getRandomGenerator()

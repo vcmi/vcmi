@@ -23,5 +23,6 @@ public:
 	CArtifactsOfHeroKingdom() = delete;
 	CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,
 		std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll);
-	~CArtifactsOfHeroKingdom();
+
+	void deactivate() override;
 };

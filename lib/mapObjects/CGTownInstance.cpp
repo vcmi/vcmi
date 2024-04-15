@@ -757,6 +757,9 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 
 	case EMarketMode::RESOURCE_SKILL:
 		return hasBuilt(BuildingSubID::MAGIC_UNIVERSITY);
+	case EMarketMode::CREATURE_EXP:
+	case EMarketMode::ARTIFACT_EXP:
+		return false;
 	default:
 		assert(0);
 		return false;

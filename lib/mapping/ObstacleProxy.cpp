@@ -15,6 +15,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,6 +37,11 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 			}
 		}
 	}
+	sortObstacles();
+}
+
+void ObstacleProxy::sortObstacles()
+{
 	for(const auto & o : obstaclesBySize)
 	{
 		possibleObstacles.emplace_back(o);
@@ -44,6 +50,161 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 	{
 		return p1.first > p2.first; //bigger obstacles first
 	});
+}
+
+bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, CRandomGenerator & rand)
+{
+	possibleObstacles.clear();
+
+	std::vector<std::shared_ptr<ObstacleSet>> obstacleSets;
+
+	size_t selectedSets = 0;
+	const size_t MINIMUM_SETS = 3; // Original Lava has only 4 types of sets
+	const size_t MAXIMUM_SETS = 9;
+	const size_t MIN_SMALL_SETS = 3;
+	const size_t MAX_SMALL_SETS = 5;
+
+	auto terrain = filter.getTerrain();
+	auto localFilter = filter;
+	localFilter.setType(ObstacleSet::EObstacleType::MOUNTAINS);
+
+	TObstacleTypes mountainSets = VLC->biomeHandler->getObstacles(localFilter);
+
+	if (!mountainSets.empty())
+	{
+		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(mountainSets, rand));
+		selectedSets++;
+		logGlobal->info("Mountain set added");
+	}
+	else
+	{
+		logGlobal->warn("No mountain sets found for terrain %s", TerrainId::encode(terrain.getNum()));
+		// FIXME: Do we ever want to generate obstacles without any mountains?
+	}
+
+	localFilter.setType(ObstacleSet::EObstacleType::TREES);
+	TObstacleTypes treeSets = VLC->biomeHandler->getObstacles(localFilter);
+
+	// 1 or 2 tree sets
+	size_t treeSetsCount = std::min<size_t>(treeSets.size(), rand.nextInt(1, 2));
+	for (size_t i = 0; i < treeSetsCount; i++)
+	{
+		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(treeSets, rand));
+		selectedSets++;
+	}
+	logGlobal->info("Added %d tree sets", treeSetsCount);
+
+	// Some obstacle types may be completely missing from water, but it's not a problem
+	localFilter.setTypes({ObstacleSet::EObstacleType::LAKES, ObstacleSet::EObstacleType::CRATERS});
+	TObstacleTypes largeSets = VLC->biomeHandler->getObstacles(localFilter);
+
+	// We probably don't want to have lakes and craters at the same time, choose one of them
+
+	if (!largeSets.empty())
+	{
+		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(largeSets, rand));
+		selectedSets++;
+
+		// TODO: Convert to string
+		logGlobal->info("Added large set of type %s", obstacleSets.back()->getType());
+	}
+
+	localFilter.setType(ObstacleSet::EObstacleType::ROCKS);
+	TObstacleTypes rockSets = VLC->biomeHandler->getObstacles(localFilter);
+
+	size_t rockSetsCount = std::min<size_t>(rockSets.size(), rand.nextInt(1, 2));
+	for (size_t i = 0; i < rockSetsCount; i++)
+	{
+		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(rockSets, rand));
+		selectedSets++;
+	}
+	logGlobal->info("Added %d rock sets", rockSetsCount);
+
+	localFilter.setType(ObstacleSet::EObstacleType::PLANTS);
+	TObstacleTypes plantSets = VLC->biomeHandler->getObstacles(localFilter);
+
+	// 1 or 2 sets (3 - rock sets)
+	size_t plantSetsCount = std::min<size_t>(plantSets.size(), rand.nextInt(1, std::max<size_t>(3 - rockSetsCount, 2)));
+	for (size_t i = 0; i < plantSetsCount; i++)
+	{
+		{
+			obstacleSets.push_back(*RandomGeneratorUtil::nextItem(plantSets, rand));
+			selectedSets++;
+		}
+	}
+	logGlobal->info("Added %d plant sets", plantSetsCount);
+
+	//3 to 5 of total small sets (rocks, plants, structures, animals and others)
+	//This gives total of 6 to 9 different sets
+
+	size_t maxSmallSets = std::min<size_t>(MAX_SMALL_SETS, std::max(MIN_SMALL_SETS, MAXIMUM_SETS - selectedSets));
+
+	size_t smallSets = rand.nextInt(MIN_SMALL_SETS, maxSmallSets);
+
+	localFilter.setTypes({ObstacleSet::EObstacleType::STRUCTURES, ObstacleSet::EObstacleType::ANIMALS});
+	TObstacleTypes smallObstacleSets = VLC->biomeHandler->getObstacles(localFilter);
+	RandomGeneratorUtil::randomShuffle(smallObstacleSets, rand);
+
+	localFilter.setType(ObstacleSet::EObstacleType::OTHER);
+	TObstacleTypes otherSets = VLC->biomeHandler->getObstacles(localFilter);
+	RandomGeneratorUtil::randomShuffle(otherSets, rand);
+
+	while (smallSets > 0)
+	{
+		if (!smallObstacleSets.empty())
+		{
+			obstacleSets.push_back(smallObstacleSets.back());
+			smallObstacleSets.pop_back();
+			selectedSets++;
+			smallSets--;
+			logGlobal->info("Added small set of type %s", obstacleSets.back()->getType());
+		}
+		else if(otherSets.empty())
+		{
+			logGlobal->warn("No other sets found for terrain %s", terrain.encode(terrain.getNum()));
+			break;
+		}
+
+		if (smallSets > 0)
+		{
+			// Fill with whatever's left
+			if (!otherSets.empty())
+			{
+				obstacleSets.push_back(otherSets.back());
+				otherSets.pop_back();
+				selectedSets++;
+				smallSets--;
+
+				logGlobal->info("Added set of other obstacles");
+			}
+		}
+	}
+
+	// Copy this set to our possible obstacles
+
+	if (selectedSets >= MINIMUM_SETS ||
+		(terrain == TerrainId::WATER && selectedSets > 0))
+	{
+		obstaclesBySize.clear();
+		for (const auto & os : obstacleSets)
+		{
+			for (const auto & temp : os->getObstacles())
+			{
+				if(temp->getBlockMapOffset().valid())
+				{
+					obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
+				}
+			}
+		}
+
+		sortObstacles();
+
+		return true;
+	}
+	else
+	{
+		return false; // Proceed with old method
+	}
 }
 
 void ObstacleProxy::addBlockedTile(const int3& tile)

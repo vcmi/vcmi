@@ -241,6 +241,11 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 
 	EShortcut shortcut = GH.shortcuts().findShortcut(button["shortcut"].String());
 
+	if (shortcut == EShortcut::NONE && !button["shortcut"].String().empty())
+	{
+		logGlobal->warn("Unknown shortcut '%s' found when loading main menu config!", button["shortcut"].String());
+	}
+
 	auto result = std::make_shared<CButton>(Point(posx, posy), AnimationPath::fromJson(button["name"]), help, command, shortcut);
 
 	if (button["center"].Bool())
