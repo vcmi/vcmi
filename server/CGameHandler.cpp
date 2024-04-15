@@ -751,25 +751,20 @@ void CGameHandler::onNewTurn()
 
 		n.res[elem.first] = elem.second.resources;
 
-		if(!firstTurn && newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
+		if(!firstTurn)
 		{
-			bool hasCrystalGenCreature = false;
-			for(CGHeroInstance * hero : elem.second.heroes)
+			for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
 			{
-				for(auto stack : hero->stacks)
-				{
-					if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
-					{
-						hasCrystalGenCreature = true;
-						break;
-					}
-				}
+				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
+				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * elem.second.towns.size();
 			}
-			if(!hasCrystalGenCreature) //not found in armies, check towns
+
+			if(newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
 			{
-				for(CGTownInstance * town : elem.second.towns)
+				bool hasCrystalGenCreature = false;
+				for(CGHeroInstance * hero : elem.second.heroes)
 				{
-					for(auto stack : town->stacks)
+					for(auto stack : hero->stacks)
 					{
 						if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
 						{
@@ -778,9 +773,23 @@ void CGameHandler::onNewTurn()
 						}
 					}
 				}
+				if(!hasCrystalGenCreature) //not found in armies, check towns
+				{
+					for(CGTownInstance * town : elem.second.towns)
+					{
+						for(auto stack : town->stacks)
+						{
+							if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
+							{
+								hasCrystalGenCreature = true;
+								break;
+							}
+						}
+					}
+				}
+				if(hasCrystalGenCreature)
+					n.res[elem.first][EGameResID::CRYSTAL] += 3;
 			}
-			if(hasCrystalGenCreature)
-				n.res[elem.first][EGameResID::CRYSTAL] += 3;
 		}
 
 		for (CGHeroInstance *h : (elem).second.heroes)

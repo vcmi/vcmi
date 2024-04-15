@@ -176,6 +176,8 @@ class JsonNode;
 	BONUS_NAME(FEROCITY) /*extra attacks, only if at least some creatures killed while attacking target unit, val = amount of additional attacks, additional info = amount of creatures killed to trigger (default 1)*/ \
 	BONUS_NAME(ENEMY_ATTACK_REDUCTION) /*in % (value) eg. Nix (HotA)*/ \
 	BONUS_NAME(REVENGE) /*additional damage based on how many units in stack died - formula: sqrt((number of creatures at battle start + 1) * creature health) / (total health now + 1 creature health) - 1) * 100% */ \
+	BONUS_NAME(RESOURCES_CONSTANT_BOOST) /*Bonus that does not account for propagation and gives extra resources per day. val - resource amount, subtype - resource type*/ \
+	BONUS_NAME(RESOURCES_TOWN_MULTIPLYING_BOOST) /*Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns. val - base resource amount to be multipled times number of owned towns, subtype - resource type*/ \
 	/* end of list */
 
 
