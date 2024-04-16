@@ -1,5 +1,6 @@
 if(ENABLE_INNOEXTRACT)
 	add_subdirectory("lib/innoextract")
+	add_definitions(-DENABLE_INNOEXTRACT)
 endif()
 
 set(launcher_SRCS

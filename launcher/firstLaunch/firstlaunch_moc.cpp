@@ -21,7 +21,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../languages.h"
 
-#ifndef VCMI_NO_INNOEXTRACT
+#ifdef ENABLE_INNOEXTRACT
 #include "cli/extract.hpp"
 #endif
 
@@ -37,7 +37,7 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 	ui->lineEditDataSystem->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front())));
 	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
 
-#ifdef VCMI_NO_INNOEXTRACT
+#ifndef ENABLE_INNOEXTRACT
 	ui->pushButtonGogInstall->hide();
 #endif
 }
@@ -295,7 +295,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 
 void FirstLaunchView::extractGogData()
 {
-#ifndef VCMI_NO_INNOEXTRACT
+#ifdef ENABLE_INNOEXTRACT
 	QString filterExe = tr("GOG executable") + " (*.exe)";
 	QString fileExe = QFileDialog::getOpenFileName(this, tr("Select a GOG installer (exe) file..."), QDir::homePath(), filterExe);
 	if(fileExe.isEmpty())
@@ -309,7 +309,7 @@ void FirstLaunchView::extractGogData()
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QTemporaryDir dir;
 		if(dir.isValid()) {
-			QDir tempDir = QDir(dir.path());
+			QDir tempDir{dir.path()};
 
 			ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
 			QPalette pal = ui->pushButtonGogInstall->palette();

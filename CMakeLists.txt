@@ -193,10 +193,6 @@ else()
 	endmacro(enable_pch)
 endif()
 
-if(NOT ENABLE_INNOEXTRACT)
-	add_definitions(-DVCMI_NO_INNOEXTRACT)
-endif()
-
 ############################################
 #        Documentation section             #
 ############################################
