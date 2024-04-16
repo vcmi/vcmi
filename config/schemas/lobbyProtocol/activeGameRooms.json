@@ -96,7 +96,7 @@
 								}
 							}
 						}
-					}
+					},
 					"status" :
 					{
 						"type" : "string",

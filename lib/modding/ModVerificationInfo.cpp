@@ -10,7 +10,12 @@
 #include "StdInc.h"
 #include "ModVerificationInfo.h"
 
+#include "CModInfo.h"
+#include "CModHandler.h"
+#include "ModIncompatibility.h"
+
 #include "../json/JsonNode.h"
+#include "../VCMI_Lib.h"
 
 JsonNode ModVerificationInfo::jsonSerializeList(const ModCompatibilityInfo & input)
 {
@@ -50,4 +55,56 @@ ModCompatibilityInfo ModVerificationInfo::jsonDeserializeList(const JsonNode & i
 	}
 
 	return output;
+}
+
+ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const ModCompatibilityInfo & modList)
+{
+	ModListVerificationStatus result;
+
+	for(const auto & m : VLC->modh->getActiveMods())
+	{
+		if(modList.count(m))
+			continue;
+
+		if(VLC->modh->getModInfo(m).checkModGameplayAffecting())
+			result[m] = ModVerificationStatus::EXCESSIVE;
+	}
+
+	for(const auto & infoPair : modList)
+	{
+		auto & remoteModId = infoPair.first;
+		auto & remoteModInfo = infoPair.second;
+
+		bool modAffectsGameplay = remoteModInfo.impactsGameplay;
+		//parent mod affects gameplay if child affects too
+		for(const auto & subInfoPair : modList)
+			modAffectsGameplay |= (subInfoPair.second.impactsGameplay && subInfoPair.second.parent == remoteModId);
+
+		if(!vstd::contains(VLC->modh->getAllMods(), remoteModId))
+		{
+			result[remoteModId] = ModVerificationStatus::NOT_INSTALLED;
+			continue;
+		}
+
+		auto & localModInfo = VLC->modh->getModInfo(remoteModId).getVerificationInfo();
+		modAffectsGameplay |= VLC->modh->getModInfo(remoteModId).checkModGameplayAffecting();
+
+		assert(modAffectsGameplay); // such mods should not be in the list to begin with
+
+		if (!vstd::contains(VLC->modh->getActiveMods(), remoteModId))
+		{
+			result[remoteModId] = ModVerificationStatus::DISABLED;
+			continue;
+		}
+
+		if(remoteModInfo.version != localModInfo.version)
+		{
+			result[remoteModId] = ModVerificationStatus::VERSION_MISMATCH;
+			continue;
+		}
+
+		result[remoteModId] = ModVerificationStatus::FULL_MATCH;
+	}
+
+	return result;
 }

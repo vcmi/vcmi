@@ -17,6 +17,17 @@ class JsonNode;
 struct ModVerificationInfo;
 using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 
+enum class ModVerificationStatus
+{
+	NOT_INSTALLED, /// Mod is not installed locally
+	DISABLED, /// Mod is installed locally but not enabled
+	EXCESSIVE, /// Mod is enabled locally but must be disabled
+	VERSION_MISMATCH, /// Mod is present on both sides, but has different version
+	FULL_MATCH, /// No issues detected, everything matches
+};
+
+using ModListVerificationStatus = std::map<std::string, ModVerificationStatus>;
+
 struct DLL_LINKAGE ModVerificationInfo
 {
 	/// human-readable mod name
@@ -36,6 +47,7 @@ struct DLL_LINKAGE ModVerificationInfo
 
 	static JsonNode jsonSerializeList(const ModCompatibilityInfo & input);
 	static ModCompatibilityInfo jsonDeserializeList(const JsonNode & input);
+	static ModListVerificationStatus verifyListAgainstLocalMods(const ModCompatibilityInfo & input);
 
 	template <typename Handler>
 	void serialize(Handler & h)

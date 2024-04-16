@@ -432,6 +432,17 @@ const std::vector<GlobalLobbyRoom> & GlobalLobbyClient::getMatchesHistory() cons
 	return matchesHistory;
 }
 
+const GlobalLobbyRoom & GlobalLobbyClient::getActiveRoomByName(const std::string & roomUUID) const
+{
+	for (auto const & room : activeRooms)
+	{
+		if (room.gameRoomID == roomUUID)
+			return room;
+	}
+
+	throw std::out_of_range("Failed to find room with UUID of " + roomUUID);
+}
+
 const std::vector<GlobalLobbyChannelMessage> & GlobalLobbyClient::getChannelHistory(const std::string & channelType, const std::string & channelName) const
 {
 	static const std::vector<GlobalLobbyChannelMessage> emptyVector;

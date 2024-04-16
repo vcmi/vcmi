@@ -69,6 +69,9 @@ public:
 
 class GlobalLobbyRoomCard : public CIntObject
 {
+	GlobalLobbyWindow * window;
+	std::string roomUUID;
+
 	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
 	std::shared_ptr<CLabel> labelName;
 	std::shared_ptr<CLabel> labelRoomSize;
@@ -77,6 +80,7 @@ class GlobalLobbyRoomCard : public CIntObject
 	std::shared_ptr<CButton> buttonJoin;
 	std::shared_ptr<CPicture> iconRoomSize;
 
+	void clickPressed(const Point & cursorPosition) override;
 public:
 	GlobalLobbyRoomCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & roomDescription);
 };

@@ -20,7 +20,7 @@ class ActiveModsInSaveList
 	const ModVerificationInfo & getVerificationInfo(TModID mod);
 
 	/// Checks whether provided mod list is compatible with current VLC and throws on failure
-	void verifyActiveMods(const std::vector<std::pair<TModID, ModVerificationInfo>> & modList);
+	void verifyActiveMods(const std::map<TModID, ModVerificationInfo> & modList);
 public:
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -36,11 +36,11 @@ public:
 			std::vector<TModID> saveActiveMods;
 			h & saveActiveMods;
 
-			std::vector<std::pair<TModID, ModVerificationInfo>> saveModInfos(saveActiveMods.size());
+			std::map<TModID, ModVerificationInfo> saveModInfos;
 			for(int i = 0; i < saveActiveMods.size(); ++i)
 			{
-				saveModInfos[i].first = saveActiveMods[i];
-				h & saveModInfos[i].second;
+				ModVerificationInfo data;
+				h & saveModInfos[saveActiveMods[i]];
 			}
 
 			verifyActiveMods(saveModInfos);
