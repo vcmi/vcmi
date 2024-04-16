@@ -308,7 +308,9 @@ void FirstLaunchView::extractGogData()
 
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QTemporaryDir dir;
-		if(dir.isValid() && QFile::exists(fileExe) && QFile::exists(fileBin)) {
+		if(dir.isValid()) {
+			QDir tempDir = QDir(dir.path());
+
 			ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
 			QPalette pal = ui->pushButtonGogInstall->palette();
 			pal.setColor(QPalette::Button, QColor(Qt::yellow));
@@ -326,7 +328,7 @@ void FirstLaunchView::extractGogData()
 
 			// standard settings
 			o.gog_galaxy = true;
-			o.codepage = (uint32_t)0;
+			o.codepage = 0U;
 			o.output_dir = dir.path().toStdString();
 			o.extract_temp = true;
 			o.extract_unknown = true;
@@ -336,10 +338,10 @@ void FirstLaunchView::extractGogData()
 
 			process_file(tmpFileExe.toStdString(), o);
 
-			QStringList dirData = QDir(dir.path()).entryList({"data"}, QDir::Filter::Dirs);
-			if(dirData.empty() || QDir(QDir(dir.path()).filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
+			QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
+			if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 			{
-				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files does not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
+				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
 				ui->pushButtonGogInstall->setText(tr("Install GOG files"));
 				return;
 			}
