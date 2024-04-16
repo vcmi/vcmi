@@ -18,7 +18,7 @@ class CBankInstanceConstructor;
 
 class DLL_LINKAGE CBank : public CArmedInstance
 {
-	std::unique_ptr<BankConfig> bc;
+	std::unique_ptr<BankConfig> bankConfig;
 	ui32 daycounter;
 	ui32 resetDuration;
 	bool coastVisitable;
@@ -47,7 +47,7 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & daycounter;
-		h & bc;
+		h & bankConfig;
 		h & resetDuration;
 		h & coastVisitable;
 	}
