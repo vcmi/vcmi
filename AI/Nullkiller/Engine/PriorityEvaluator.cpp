@@ -85,7 +85,7 @@ void PriorityEvaluator::initVisitTile()
 	rewardTypeVariable = engine->getInputVariable("rewardType");
 	closestHeroRatioVariable = engine->getInputVariable("closestHeroRatio");
 	strategicalValueVariable = engine->getInputVariable("strategicalValue");
-	goldPreasureVariable = engine->getInputVariable("goldPreasure");
+	goldPressureVariable = engine->getInputVariable("goldPressure");
 	goldCostVariable = engine->getInputVariable("goldCost");
 	fearVariable = engine->getInputVariable("fear");
 	value = engine->getOutputVariable("Value");
@@ -1017,9 +1017,9 @@ public:
 		
 		if(evaluationContext.goldReward)
 		{
-			auto goldPreasure = evaluationContext.evaluator.ai->buildAnalyzer->getGoldPreasure();
+			auto goldPressure = evaluationContext.evaluator.ai->buildAnalyzer->getGoldPressure();
 
-			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.goldReward * goldPreasure / 3500.0f / bi.prerequisitesCount);
+			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.goldReward * goldPressure / 3500.0f / bi.prerequisitesCount);
 		}
 
 		if(bi.notEnoughRes && bi.prerequisitesCount == 1)
@@ -1111,7 +1111,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		rewardTypeVariable->setValue(rewardType);
 		closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
 		strategicalValueVariable->setValue(evaluationContext.strategicalValue);
-		goldPreasureVariable->setValue(ai->buildAnalyzer->getGoldPreasure());
+		goldPressureVariable->setValue(ai->buildAnalyzer->getGoldPressure());
 		goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->getFreeResources()[EGameResID::GOLD] + (float)ai->buildAnalyzer->getDailyIncome()[EGameResID::GOLD] + 1.0f));
 		turnVariable->setValue(evaluationContext.turn);
 		fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
