@@ -25,6 +25,7 @@ public:
 	bool holdsGarrison(const CArmedInstance * army) override;
 	void artifactRemoved(const ArtifactLocation & artLoc) override;
 	void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw) override;
+	void deactivate() override;
 
 private:
 	void createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero);

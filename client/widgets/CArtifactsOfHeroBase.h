@@ -22,7 +22,6 @@ protected:
 public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
 	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CArtPlace&, const Point&)>;
-	using PutBackPickedArtCallback = std::function<void()>;
 
 	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;
@@ -30,7 +29,6 @@ public:
 	
 	CArtifactsOfHeroBase();
 	virtual void putBackPickedArtifact();
-	virtual void setPutBackPickedArtifactCallback(PutBackPickedArtCallback callback);
 	virtual void clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
 	virtual void showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
 	virtual void gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
@@ -52,7 +50,6 @@ protected:
 	std::vector<ArtPlacePtr> backpack;
 	std::shared_ptr<CButton> leftBackpackRoll;
 	std::shared_ptr<CButton> rightBackpackRoll;
-	PutBackPickedArtCallback putBackPickedArtCallback;
 
 	const std::vector<Point> slotPos =
 	{

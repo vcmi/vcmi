@@ -861,9 +861,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 		auto openBackpack = [this](const CGHeroInstance * hero) -> void
 		{
-			GH.windows().createAndPushWindow<CHeroBackpackWindow>(hero);
-			for(auto artSet : artSets)
-				GH.windows().topWindow<CHeroBackpackWindow>()->addSet(artSet);
+			GH.windows().createAndPushWindow<CHeroBackpackWindow>(hero, artSets);
 		};
 
 		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
@@ -934,6 +932,12 @@ void CExchangeWindow::updateGarrisons()
 bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
 {
 	return garr->upperArmy() == army || garr->lowerArmy() == army;
+}
+
+void CExchangeWindow::deactivate()
+{
+	CCS->curh->dragAndDropCursor(nullptr);
+	CIntObject::deactivate();
 }
 
 void CExchangeWindow::questlog(int whichHero)
