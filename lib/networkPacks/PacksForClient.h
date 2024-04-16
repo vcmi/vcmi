@@ -1335,7 +1335,7 @@ struct DLL_LINKAGE CommanderLevelUp : public Query
 //Until sending reply player won't be allowed to take any actions
 struct DLL_LINKAGE BlockingDialog : public Query
 {
-	enum { ALLOW_CANCEL = 1, SELECTION = 2 };
+	enum { ALLOW_CANCEL = 1, SELECTION = 2, SAFE_TO_AUTOACCEPT = 4 };
 	MetaString text;
 	std::vector<Component> components;
 	PlayerColor player;
@@ -1349,6 +1349,11 @@ struct DLL_LINKAGE BlockingDialog : public Query
 	bool selection() const
 	{
 		return flags & SELECTION;
+	}
+
+	bool safeToAutoaccept() const
+	{
+		return flags & SAFE_TO_AUTOACCEPT;
 	}
 
 	BlockingDialog(bool yesno, bool Selection)

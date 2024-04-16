@@ -614,9 +614,9 @@ void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vec
 	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
-void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel)
+void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
-	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
+	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel % safeToAutoaccept);
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
 									  % components.size() % text));

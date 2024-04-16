@@ -738,7 +738,7 @@ void ApplyClientNetPackVisitor::visitBlockingDialog(BlockingDialog & pack)
 {
 	std::string str = pack.text.toString();
 
-	if(!callOnlyThatInterface(cl, pack.player, &CGameInterface::showBlockingDialog, str, pack.components, pack.queryID, (soundBase::soundID)pack.soundID, pack.selection(), pack.cancel()))
+	if(!callOnlyThatInterface(cl, pack.player, &CGameInterface::showBlockingDialog, str, pack.components, pack.queryID, (soundBase::soundID)pack.soundID, pack.selection(), pack.cancel(), pack.safeToAutoaccept()))
 		logNetwork->warn("We received YesNoDialog for not our player...");
 }
 

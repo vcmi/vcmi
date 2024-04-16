@@ -1024,7 +1024,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<vo
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
 
-void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel )
+void CPlayerInterface::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
@@ -1034,6 +1034,12 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 	if (!selection && cancel) //simple yes/no dialog
 	{
+		if(settings["general"]["enableUiEnhancements"].Bool() && safeToAutoaccept)
+		{
+			cb->selectionMade(1, askID); //as in HD mod, we try to skip dialogs that server considers visual fluff which does not affect gamestate
+			return;
+		}
+
 		std::vector<std::shared_ptr<CComponent>> intComps;
 		for (auto & component : components)
 			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
