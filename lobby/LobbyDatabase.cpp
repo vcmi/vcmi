@@ -33,8 +33,7 @@ void LobbyDatabase::createTables()
 			description TEXT NOT NULL DEFAULT '',
 			status INTEGER NOT NULL DEFAULT 0,
 			playerLimit INTEGER NOT NULL,
-			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-			mods TEXT NOT NULL DEFAULT '[]'
+			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 		);
 	)";
 
@@ -85,26 +84,32 @@ void LobbyDatabase::createTables()
 void LobbyDatabase::upgradeDatabase()
 {
 	auto getDatabaseVersionStatement = database->prepare(R"(
-		PRAGMA schema.user_version
+		PRAGMA user_version
 	)");
 
-	auto setDatabaseVersionStatement = database->prepare(R"(
-		PRAGMA schema.user_version = ?
+	auto upgradeDatabaseVersionStatement = database->prepare(R"(
+		PRAGMA user_version = 10501
 	)");
 
 	int databaseVersion;
 	getDatabaseVersionStatement->execute();
 	getDatabaseVersionStatement->getColumns(databaseVersion);
+	getDatabaseVersionStatement->reset();
 
 	if (databaseVersion < 10501)
 	{
 		database->prepare(R"(
 			ALTER TABLE gameRooms
-			ADD COLUMN version TEXT NOT NULL DEFAULT ''
 			ADD COLUMN mods TEXT NOT NULL DEFAULT '{}'
 		)")->execute();
 
-		setDatabaseVersionStatement->executeOnce(10501);
+		database->prepare(R"(
+			ALTER TABLE gameRooms
+			ADD COLUMN version TEXT NOT NULL DEFAULT ''
+		)")->execute();
+
+		upgradeDatabaseVersionStatement->execute();
+		upgradeDatabaseVersionStatement->reset();
 	}
 }
 
@@ -260,7 +265,7 @@ void LobbyDatabase::prepareStatements()
 	)");
 
 	getActiveGameRoomsStatement = database->prepare(R"(
-		SELECT roomID, hostAccountID, displayName, description, status, playerLimit, mods, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
+		SELECT roomID, hostAccountID, displayName, description, status, playerLimit, version, mods, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime)  AS secondsElapsed
 		FROM gameRooms gr
 		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
 		WHERE status IN (1, 2, 3)
