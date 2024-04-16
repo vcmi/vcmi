@@ -175,7 +175,7 @@ void BuildAnalyzer::update()
 			+ (float)armyCost[EGameResID::GOLD] / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 	}
 
-	logAi->trace("Gold preasure: %f", goldPressure);
+	logAi->trace("Gold pressure: %f", goldPressure);
 }
 
 void BuildAnalyzer::reset()
