@@ -141,7 +141,7 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
 	cb->sendAndApply(&cov);
 
-	if(!bankConfig)
+	if(!bankConfig && (ID.toEnum() == Obj::CREATURE_BANK || ID.toEnum() == Obj::DRAGON_UTOPIA))
 	{
 		blockingDialogAnswered(h, 1);
 		return;
