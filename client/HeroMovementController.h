@@ -45,6 +45,8 @@ class HeroMovementController
 	/// Moves hero 1 tile / path node
 	void moveOnce(const CGHeroInstance * h, const CGPath & path);
 
+	void moveInstant(const CGHeroInstance * h, const CGPath & path);
+
 	void endMove(const CGHeroInstance * h);
 
 	AudioPath getMovementSoundFor(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType);

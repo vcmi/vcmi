@@ -335,11 +335,43 @@ bool HeroMovementController::canHeroStopAtNode(const CGPathNode & node) const
 void HeroMovementController::requestMovementStart(const CGHeroInstance * h, const CGPath & path)
 {
 	assert(duringMovement == false);
-	duringMovement = true;
-	currentlyMovingHero = h;
 
-	CCS->curh->hide();
-	moveOnce(h, path);
+	int heroMovementSpeed = settings["adventure"]["heroMoveTime"].Integer();
+	bool heroMovementInterruptible = heroMovementSpeed != 0;
+
+	if (heroMovementInterruptible)
+	{
+		duringMovement = true;
+		currentlyMovingHero = h;
+
+		CCS->curh->hide();
+		moveOnce(h, path);
+	}
+	else
+	{
+		moveInstant(h, path);
+	}
+}
+
+void HeroMovementController::moveInstant(const CGHeroInstance * h, const CGPath & path)
+{
+	stopMovementSound();
+	for (auto const & node : boost::adaptors::reverse(path.nodes))
+	{
+		if (node.coord == h->visitablePos())
+			continue; // first node, ignore - this is hero current position
+
+		if(node.isTeleportAction())
+			return; // pause after monolith / subterra gates
+
+		if (node.turns != 0)
+			return; // ran out of MP
+
+		int3 coord = h->convertFromVisitablePos(node.coord);
+
+		bool useTransit = node.layer == EPathfindingLayer::AIR || node.layer == EPathfindingLayer::WATER;
+		LOCPLINT->cb->moveHero(h, coord, useTransit);
+	}
 }
 
 void HeroMovementController::moveOnce(const CGHeroInstance * h, const CGPath & path)
