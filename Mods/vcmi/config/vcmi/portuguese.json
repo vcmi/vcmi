@@ -460,7 +460,7 @@
 	"core.bonus.JOUSTING.description" : "+${val}% de dano para cada hexágono percorrido",
 	"core.bonus.KING.name" : "Rei",
 	"core.bonus.KING.description" : "Vulnerável ao nível MATADOR ${val} ou superior",
-	"core.bonus.LEVEL_SPELL_IMMUNITY.name" : "Imunie a Feitiços 1-${val}",
+	"core.bonus.LEVEL_SPELL_IMMUNITY.name" : "Imune a Feitiços 1-${val}",
 	"core.bonus.LEVEL_SPELL_IMMUNITY.description" : "Imunidade a feitiços dos níveis 1-${val}",
 	"core.bonus.LIMITED_SHOOTING_RANGE.name" : "Alcance de Tiro Limitado",
 	"core.bonus.LIMITED_SHOOTING_RANGE.description" : "Incapaz de mirar unidades a uma distância maior que ${val} hexágonos",
