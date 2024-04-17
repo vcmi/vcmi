@@ -636,6 +636,11 @@
 	"shipwreck" : {
 		"index" :85,
 		"handler": "bank",
+		"base" : {
+			"sounds" : {
+				"visit" : ["ROGUE"]
+			}
+		},
 		"types" : {
 			"shipwreck" : {
 				"index" : 0,
@@ -730,6 +735,11 @@
 	"derelictShip" : {
 		"index" :24,
 		"handler": "bank",
+		"base" : {
+			"sounds" : {
+				"visit" : ["ROGUE"]
+			}
+		},
 		"types" : {
 			"derelictShip" : {
 				"index" : 0,
