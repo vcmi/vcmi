@@ -257,7 +257,7 @@
 	"vcmi.townHall.greetingKnowledge"	: "Estudando os glifos de %s, você adquire uma visão dos segredos sobre o funcionamento de várias magias (+1 de Conhecimento).",
 	"vcmi.townHall.greetingSpellPower"	: "%s ensina novas maneiras de concentrar seus poderes mágicos (+1 de Força).",
 	"vcmi.townHall.greetingExperience"	: "Uma visita em %s ensina muitas habilidades novas (+1000 de Experiência).",
-	"vcmi.townHall.greetingAttack"		: "Algum tempo passado em %s permite que você aprenda habilidades de combate mais eficazes (+1 de Habilidade de Ataque).",
+	"vcmi.townHall.greetingAttack"		: "Algum tempo passado em %s permite que você aprenda habilidades de combate mais eficazes (+1 de Ataque).",
 	"vcmi.townHall.greetingDefence"		: "Ao passar um tempo em %s, os guerreiros experientes lá dentro te ensinam habilidades defensivas adicionais (+1 de Defesa).",
 	"vcmi.townHall.hasNotProduced"		: "%s ainda não produziu nada.",
 	"vcmi.townHall.hasProduced"		: "%s produziu %d %s nesta semana.",
@@ -375,7 +375,7 @@
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Infelizmente, você perdeu parte da Aliança Angelical. Tudo está perdido.",
 
 	// few strings from WoG used by vcmi
-	"vcmi.stackExperience.description" : "» D e t a l h e s   d e   E x p e r i ê n c i a   d o   G r u p o «\n\nTipo de Criatura ................... : %s\nRank de Experiência ................. : %s (%i)\nPontos de Experiência ............... : %i\nPontos de Experiência até o Próximo Ranque .. : %i\nMáximo de Experiência por Batalha ... : %i%% (%i)\nNúmero de Criaturas no grupo .... : %i\nNovos Recrutas Máximos\n sem perder o Ranque atual .... : %i\nMultiplicador de Experiência ........... : %.2f\nMultiplicador de Upgrade .............. : %.2f\nExperiência após o Ranque 10 ........ : %i\nNovos Recrutas Máximos para permanecer\n no Ranque 10 se na Experiência Máxima : %i",
+	"vcmi.stackExperience.description" : "» D e t a l h e s   d e   E x p e r i ê n c i a   d o   G r u p o «\n\nTipo de Criatura ................ : %s\nRanque de Experiência ........... : %s (%i)\nPontos de Experiência ........... : %i\nPontos de Experiência até o\nPróximo Ranque .................. : %i\nExperiência Máxima por Batalha .. : %i%% (%i)\nNúmero de Criaturas no grupo .... : %i\nMáximo de Novos Recrutas sem\nperder o Ranque atual .......... : %i\nMultiplicador de Experiência .... : %.2f\nMultiplicador de Atualização .... : %.2f\nExperiência após o Ranque 10 .... : %i\nMáximos de Novos Recrutas para\npermanecer no Ranque 10 se\nestiver na Experiência Máxima .. : %i",
 	"vcmi.stackExperience.rank.0" : "Básico",
 	"vcmi.stackExperience.rank.1" : "Novato",
 	"vcmi.stackExperience.rank.2" : "Treinado",
