@@ -482,7 +482,7 @@
 	"core.bonus.NO_MELEE_PENALTY.description" : "Sem penalidade no corpo a corpo",
 	"core.bonus.NO_MORALE.name" : "Moral Neutra",
 	"core.bonus.NO_MORALE.description" : "A criatura é imune aos efeitos de moral",
-	"core.bonus.NO_WALL_PENALTY.name" : "Sem Penal. na Muralha",
+	"core.bonus.NO_WALL_PENALTY.name" : "Sem Penal. por Muralha",
 	"core.bonus.NO_WALL_PENALTY.description" : "Causa dano total\ndurante cerco",
 	"core.bonus.NON_LIVING.name" : "Não Vivo",
 	"core.bonus.NON_LIVING.description" : "Imune a muitos efeitos",
