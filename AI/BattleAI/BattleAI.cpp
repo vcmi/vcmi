@@ -166,10 +166,6 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 	{
 		throw;
 	}
-	catch(std::exception &e)
-	{
-		logAi->error("Exception occurred in %s %s",__FUNCTION__, e.what());
-	}
 
 	if(result.actionType == EActionType::DEFEND)
 	{
