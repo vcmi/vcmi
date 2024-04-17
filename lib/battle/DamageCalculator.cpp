@@ -18,6 +18,8 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../GameSettings.h"
+#include "../VCMI_Lib.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,6 +30,16 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 
 	minDmg = info.attacker->getMinDamage(info.shooting);
 	maxDmg = info.attacker->getMaxDamage(info.shooting);
+
+    if(minDmg > maxDmg)
+    {
+        auto creature = VLC->creatures()->getById(info.attacker->creatureId());
+        const auto & creatureName = creature->getNamePluralTranslated();
+        logGlobal->error("Creature %s min damage %lld exceed max damage %lld.", creatureName.c_str(), minDmg, maxDmg);
+        logGlobal->error("This problem may lead to unexpected result, please report it to modder.");
+        // to avoid RNG crash. and make bless and curse spell correct
+        std::swap(minDmg, maxDmg);
+    }
 
 	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
 	{
