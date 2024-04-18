@@ -4,11 +4,11 @@
 	"vcmi.adventureMap.monsterThreat.levels.1"  : "Дуже слабкий",
 	"vcmi.adventureMap.monsterThreat.levels.2"  : "Слабкий",
 	"vcmi.adventureMap.monsterThreat.levels.3"  : "Трохи слабша",
-	"vcmi.adventureMap.monsterThreat.levels.4"  : "Відповідна",
+	"vcmi.adventureMap.monsterThreat.levels.4"  : "Рівна",
 	"vcmi.adventureMap.monsterThreat.levels.5"  : "Трохи сильніша",
 	"vcmi.adventureMap.monsterThreat.levels.6"  : "Сильніша",
 	"vcmi.adventureMap.monsterThreat.levels.7"  : "Дуже сильна",
-	"vcmi.adventureMap.monsterThreat.levels.8"  : "Кидає виклик",
+	"vcmi.adventureMap.monsterThreat.levels.8"  : "Надзвичайно сильна",
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Нездоланна",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Смертельна",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Неможлива",
@@ -20,6 +20,7 @@
 	"vcmi.adventureMap.playerAttacked"      : "Гравця атаковано: %s",
 	"vcmi.adventureMap.moveCostDetails" : "Очки руху - Вартість: %TURNS ходів + %POINTS очок. Залишок очок: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Очки руху - Вартість: %POINTS очок, Залишок очок: %REMAINING",
+	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Вибачте, функція повтору ходу суперника ще не реалізована!",
 
 	"vcmi.capitalColors.0" : "Червоний",
 	"vcmi.capitalColors.1" : "Синій",
@@ -62,7 +63,6 @@
 	"vcmi.mainMenu.serverClosing" : "Завершення...",
 	"vcmi.mainMenu.hostTCP" : "Створити TCP/IP гру",
 	"vcmi.mainMenu.joinTCP" : "Приєднатися до TCP/IP гри",
-	"vcmi.mainMenu.playerName" : "Гравець",
 	
 	"vcmi.lobby.filepath" : "Назва файлу",
 	"vcmi.lobby.creationDate" : "Дата створення",
@@ -71,6 +71,7 @@
 	"vcmi.lobby.noPreview" : "огляд недоступний",
 	"vcmi.lobby.noUnderground" : "немає підземелля",
 	"vcmi.lobby.sortDate" : "Сортувати мапи за датою зміни",
+	"vcmi.lobby.backToLobby" : "Назад до лобі",
 
 	"vcmi.lobby.login.title" : "Онлайн лобі VCMI",
 	"vcmi.lobby.login.username" : "Логін:",
@@ -96,6 +97,8 @@
 	"vcmi.lobby.room.description.new" : "Щоб почати гру, виберіть сценарій або налаштуйте випадкову карту.",
 	"vcmi.lobby.room.description.load" : "Щоб почати гру, виберіть одну з ваших збережених ігор.",
 	"vcmi.lobby.room.description.limit" : "До %d гравців можуть зайти у вашу кімнату, включаючи вас.",
+	"vcmi.lobby.invite.header" : "Запросити гравців",
+	"vcmi.lobby.invite.notification" : "Гравець запросив вас до своєї ігрової кімнати. Тепер ви можете приєднатися до його приватної кімнати.",
 	"vcmi.lobby.room.new" : "Нова гра",
 	"vcmi.lobby.room.load" : "Завантажити гру",
 	"vcmi.lobby.room.type" : "Тип кімнати",
@@ -103,7 +106,9 @@
 	"vcmi.lobby.room.state.public" : "Публічна",
 	"vcmi.lobby.room.state.private" : "Приватна",
 	"vcmi.lobby.room.state.busy" : "У грі",
+	"vcmi.lobby.room.state.invited" : "Запрошено",
 
+	"vcmi.client.errors.invalidMap" : "{Пошкоджена карта або кампанія}\n\nНе вдалося запустити гру! Вибрана карта або кампанія може бути невірною або пошкодженою. Причина:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Не вистачає файлів даних}\n\nФайли даних кампаній не знайдено! Можливо, ви використовуєте неповні або пошкоджені файли даних Heroes 3. Будь ласка, перевстановіть дані гри.",
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
 	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
@@ -205,6 +210,8 @@
 	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{Показувати вікно інформації героя}\n\nЗавжди показувати вікно статистики героїв, що відображає первинні параметри та очки заклинань.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Пропускати вступну музику",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Пропускати вступну музику}\n\n Пропускати коротку музику, яка грає на початку кожної битви перед початком дії. Також можна пропустити, натиснувши клавішу ESC.",
+	"vcmi.battleOptions.endWithAutocombat.hover": "Завершує бій",
+	"vcmi.battleOptions.endWithAutocombat.help": "{Завершує бій}\n\nАвто-бій миттєво завершує бій",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Відвідати Об'єкт",
 	"vcmi.adventureMap.revisitObject.help" : "{Відвідати Об'єкт}\n\nЯкщо герой в даний момент стоїть на об'єкті мапи, він може знову відвідати цю локацію.",
@@ -224,8 +231,9 @@
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s було вбито влучними пострілами!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s було вбито влучним пострілом!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s було вбито влучними пострілами!",
+	"vcmi.battleWindow.endWithAutocombat" : "Ви впевнені, що хочете завершити бій автобоєм?",
 
-	"vcmi.battleResultsWindow.applyResultsLabel" : "Прийняти результат бою",
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Прийняти результат бою?",
 
 	"vcmi.tutorialWindow.title" : "Використання Сенсорного Екрану",
 	"vcmi.tutorialWindow.decription.RightClick" : "Торкніться і утримуйте елемент, на якому ви хочете натиснути правою кнопкою миші. Торкніться вільної області, щоб закрити.",
@@ -265,6 +273,8 @@
 	"vcmi.heroWindow.openCommander.help"  : "Показує інформацію про командира героя",
 	"vcmi.heroWindow.openBackpack.hover" : "Відкрити вікно рюкзака з артефактами",
 	"vcmi.heroWindow.openBackpack.help"  : "Відкриває вікно, що дозволяє легше керувати рюкзаком артефактів",
+
+	"vcmi.tavernWindow.inviteHero"  : "Запросити героя",
 
 	"vcmi.commanderWindow.artifactMessage" : "Бажаєте передати цей артефакт герою?",
 
@@ -508,5 +518,5 @@
 	"vcmi.stackExperience.rank.7" :  "Експерт",
 	"vcmi.stackExperience.rank.8" :  "Еліта",
 	"vcmi.stackExperience.rank.9" : "Майстер",
-	"vcmi.stackExperience.rank.10" : "Профі",
+	"vcmi.stackExperience.rank.10" : "Профі"
 }
