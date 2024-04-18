@@ -25,8 +25,7 @@
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroBase::CArtifactsOfHeroBase()
-	: curHero(nullptr),
-	putBackPickedArtCallback(nullptr)
+	: curHero(nullptr)
 {
 }
 
@@ -45,13 +44,6 @@ void CArtifactsOfHeroBase::putBackPickedArtifact()
 			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero->id, slot));
 		}
 	}
-	if(putBackPickedArtCallback)
-		putBackPickedArtCallback();
-}
-
-void CArtifactsOfHeroBase::setPutBackPickedArtifactCallback(PutBackPickedArtCallback callback)
-{
-	putBackPickedArtCallback = callback;
 }
 
 void CArtifactsOfHeroBase::init(

@@ -19,6 +19,7 @@
 #include "../PlayerLocalState.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -727,6 +728,12 @@ bool CKingdHeroList::holdsGarrison(const CArmedInstance * army)
 			if (garrison->holdsGarrison(army))
 				return true;
 	return false;
+}
+
+void CKingdHeroList::deactivate()
+{
+	CCS->curh->dragAndDropCursor(nullptr);
+	CIntObject::deactivate();
 }
 
 std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
