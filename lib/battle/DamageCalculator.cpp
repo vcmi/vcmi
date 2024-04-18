@@ -33,10 +33,10 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 
     if(minDmg > maxDmg)
     {
-		const auto & creatureName = info.attacker->creatureId().toEntity(VLC)->getNamePluralTranslated();
-		logGlobal->error("Creature %s min damage %lld exceed max damage %lld.", creatureName, minDmg, maxDmg);
-        logGlobal->error("This problem may lead to unexpected result, please report it to modder.");
-        // to avoid RNG crash. and make bless and curse spell correct
+	const auto & creatureName = info.attacker->creatureId().toEntity(VLC)->getNamePluralTranslated();
+	logGlobal->error("Creature %s: min damage %lld exceeds max damage %lld.", creatureName, minDmg, maxDmg);
+        logGlobal->error("This may lead to unexpected results, please report it to the mod's creator.");
+        // to avoid an RNG crash and make bless and curse spells work as expected
         std::swap(minDmg, maxDmg);
     }
 
