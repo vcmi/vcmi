@@ -296,7 +296,6 @@
 
 	"vcmi.optionsTab.turnOptions.hover" : "Turn Options",
 	"vcmi.optionsTab.turnOptions.help" : "Select turn timer and simultaneous turns options",
-	"vcmi.optionsTab.selectPreset" : "Preset",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "Base timer",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "Turn timer",

@@ -250,7 +250,6 @@
 
 	"vcmi.optionsTab.turnOptions.hover" : "Ustawienia tur",
 	"vcmi.optionsTab.turnOptions.help" : "Ustaw limity czasu oraz tury symultaniczne",
-	"vcmi.optionsTab.selectPreset" : "Szablonowe ustawienie",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "Zegar startowy",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "Zegar tury",
