@@ -67,7 +67,8 @@ class IGameActionCallback
 {
 public:
 	//hero
-	virtual bool moveHero(const CGHeroInstance *h, int3 dst, bool transit) =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	virtual void moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit) =0; //moves hero alongside provided path
+	virtual void moveHero(const CGHeroInstance *h, const int3 & destination, bool transit) =0; //moves hero alongside provided path
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
 	virtual void dig(const CGObjectInstance *hero)=0;
 	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1))=0; //cast adventure map spell
@@ -159,7 +160,8 @@ public:
 	void unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
 
 //commands
-	bool moveHero(const CGHeroInstance *h, int3 dst, bool transit = false) override; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	void moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit) override;
+	void moveHero(const CGHeroInstance *h, const int3 & destination, bool transit) override;
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
 	int selectionMade(int selection, QueryID queryID) override;
 	int sendQueryReply(std::optional<int32_t> reply, QueryID queryID) override;

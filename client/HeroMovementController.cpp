@@ -355,22 +355,38 @@ void HeroMovementController::requestMovementStart(const CGHeroInstance * h, cons
 
 void HeroMovementController::moveInstant(const CGHeroInstance * h, const CGPath & path)
 {
-	stopMovementSound();
+	bool useTransit = path.nextNode().layer == EPathfindingLayer::AIR || path.nextNode().layer == EPathfindingLayer::WATER;
+	std::vector<int3> pathToMove;
+
 	for (auto const & node : boost::adaptors::reverse(path.nodes))
 	{
 		if (node.coord == h->visitablePos())
 			continue; // first node, ignore - this is hero current position
 
 		if(node.isTeleportAction())
-			return; // pause after monolith / subterra gates
+			break; // pause after monolith / subterra gates
 
 		if (node.turns != 0)
-			return; // ran out of MP
+			break; // ran out of move points
+
+		bool useTransitHere = node.layer == EPathfindingLayer::AIR || node.layer == EPathfindingLayer::WATER;
+		if (useTransitHere != useTransit)
+			break;
 
 		int3 coord = h->convertFromVisitablePos(node.coord);
+		pathToMove.push_back(coord);
 
-		bool useTransit = node.layer == EPathfindingLayer::AIR || node.layer == EPathfindingLayer::WATER;
-		LOCPLINT->cb->moveHero(h, coord, useTransit);
+		if (LOCPLINT->cb->guardingCreaturePosition(node.coord) != int3(-1, -1, -1))
+			break; // we reached zone-of-control of wandering monster
+
+		if (!LOCPLINT->cb->getVisitableObjs(node.coord).empty())
+			break; // we reached event, garrison or some other visitable object - end this movement batch
+	}
+
+	if (!pathToMove.empty())
+	{
+		//updateMovementSound(h, path.currNode().coord, path.nextNode().coord, path.nextNode().action);
+		LOCPLINT->cb->moveHero(h, pathToMove, useTransit);
 	}
 }
 

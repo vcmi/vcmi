@@ -1216,7 +1216,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		//assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cb->moveHero(*h, h->convertFromVisitablePos(dst));
+		cb->moveHero(*h, h->convertFromVisitablePos(dst), false);
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
@@ -1278,7 +1278,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			destinationTeleport = exitId;
 			if(exitPos.valid())
 				destinationTeleportPos = h->convertFromVisitablePos(exitPos);
-			cb->moveHero(*h, h->pos);
+			cb->moveHero(*h, h->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
