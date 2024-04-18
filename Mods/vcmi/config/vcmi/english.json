@@ -233,7 +233,7 @@
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s were killed by accurate shots!",
 	"vcmi.battleWindow.endWithAutocombat" : "Are you sure you wish to end the battle with auto combat?",
 
-	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Accept battle result?",
 
 	"vcmi.tutorialWindow.title" : "Touchscreen Introduction",
 	"vcmi.tutorialWindow.decription.RightClick" : "Touch and hold the element on which you want to right-click. Touch the free area to close.",
