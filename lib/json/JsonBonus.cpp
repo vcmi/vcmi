@@ -151,6 +151,8 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 			break;
 		}
 		case BonusType::GENERATE_RESOURCE:
+		case BonusType::RESOURCES_CONSTANT_BOOST:
+		case BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST:
 		{
 			VLC->identifiers()->requestIdentifier( "resource", node, [&subtype](int32_t identifier)
 			{
