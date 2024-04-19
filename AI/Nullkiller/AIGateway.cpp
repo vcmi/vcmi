@@ -682,7 +682,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					&& components.size() == 2
 					&& components.front().type == ComponentType::RESOURCE
 					&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
-						|| nullkiller->buildAnalyzer->isGoldPreasureHigh()))
+						|| nullkiller->buildAnalyzer->isGoldPressureHigh()))
 				{
 					sel = 1;
 				}

@@ -20,8 +20,9 @@
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
-CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
+CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets)
 	: CStatusbarWindow(0)
+	, CWindowWithArtifacts(&artsSets)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -46,6 +47,13 @@ void CHeroBackpackWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+}
+
+void CHeroBackpackWindow::activate()
+{
+	if(const auto art = getPickedArtifact())
+		setCursorAnimation(*art);
+	CIntObject::activate();
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)

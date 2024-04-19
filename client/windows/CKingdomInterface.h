@@ -344,6 +344,7 @@ public:
 
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
+	void deactivate() override;
 };
 
 /// Tab with all town-specific data

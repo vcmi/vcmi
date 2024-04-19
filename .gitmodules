@@ -6,3 +6,7 @@
 	path = AI/FuzzyLite
 	url = https://github.com/fuzzylite/fuzzylite.git
 	branch = release
+[submodule "innoextract"]
+	path = launcher/lib/innoextract
+	url = https://github.com/vcmi/innoextract.git
+	branch = vcmi

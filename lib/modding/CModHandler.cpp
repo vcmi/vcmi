@@ -486,9 +486,11 @@ void CModHandler::load()
 	for(const TModID & modName : activeMods)
 		loadTranslation(modName);
 
+#if 0
 	for(const TModID & modName : activeMods)
 		if (!validateTranslations(modName))
 			allMods[modName].validation = CModInfo::FAILED;
+#endif
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 	VLC->creh->loadCrExpMod();

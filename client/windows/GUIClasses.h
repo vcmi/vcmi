@@ -325,6 +325,7 @@ public:
 
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
+	void deactivate() override;
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 

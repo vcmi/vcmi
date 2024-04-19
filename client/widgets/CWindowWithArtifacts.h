@@ -28,6 +28,7 @@ public:
 		std::weak_ptr<CArtifactsOfHeroQuickBackpack>>;
 	using CloseCallback = std::function<void()>;
 
+	explicit CWindowWithArtifacts(const std::vector<CArtifactsOfHeroPtr> * artSets = nullptr);
 	void addSet(CArtifactsOfHeroPtr artSet);
 	void addSetAndCallbacks(CArtifactsOfHeroPtr artSet);
 	void addCloseCallback(CloseCallback callback);
@@ -51,4 +52,5 @@ protected:
 	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(CArtifactsOfHeroBase & artsInst);
 	void markPossibleSlots();
 	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade);
+	void setCursorAnimation(const CArtifactInstance & artInst);
 };

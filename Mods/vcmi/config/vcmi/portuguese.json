@@ -296,7 +296,6 @@
 
 	"vcmi.optionsTab.turnOptions.hover" : "Opções de Turno",
 	"vcmi.optionsTab.turnOptions.help" : "Selecione as opções de cronômetro do turno e turnos simultâneos",
-	"vcmi.optionsTab.selectPreset" : "Predefinição",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "Cronômetro Base",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "Cronômetro do Turno",

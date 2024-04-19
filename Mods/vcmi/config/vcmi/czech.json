@@ -243,7 +243,6 @@
 
 	"vcmi.optionsTab.turnOptions.hover" : "Možnosti tahu",
 	"vcmi.optionsTab.turnOptions.help" : "Vyberte odpočítávadlo tahů a nastavení souběžných tahů",
-	"vcmi.optionsTab.selectPreset" : "Preset",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "Base timer",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "Turn timer",

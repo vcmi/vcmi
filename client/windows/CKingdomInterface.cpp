@@ -11,6 +11,7 @@
 #include "CKingdomInterface.h"
 
 #include "CCastleInterface.h"
+#include "CPlayerState.h"
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
@@ -18,6 +19,7 @@
 #include "../PlayerLocalState.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -577,9 +579,9 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 
 	//Heroes can produce gold as well - skill, specialty or arts
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
-	for(auto & heroe : heroes)
+	for(auto & hero : heroes)
 	{
-		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD))));
+		totalIncome += hero->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD))));
 	}
 
 	//Add town income of all towns
@@ -588,6 +590,11 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	{
 		totalIncome += town->dailyIncome()[EGameResID::GOLD];
 	}
+
+	//if player has some modded boosts we want to show that as well
+	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD)));
+	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size();
+
 	for(int i=0; i<7; i++)
 	{
 		std::string value = std::to_string(minesCount[i]);
@@ -721,6 +728,12 @@ bool CKingdHeroList::holdsGarrison(const CArmedInstance * army)
 			if (garrison->holdsGarrison(army))
 				return true;
 	return false;
+}
+
+void CKingdHeroList::deactivate()
+{
+	CCS->curh->dragAndDropCursor(nullptr);
+	CIntObject::deactivate();
 }
 
 std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)

@@ -344,7 +344,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 
 					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
 						&& ai->getFreeGold() >20000
-						&& !ai->buildAnalyzer->isGoldPreasureHigh())
+						&& !ai->buildAnalyzer->isGoldPressureHigh())
 					{
 						Composition recruitHero;
 

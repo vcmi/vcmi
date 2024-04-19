@@ -17,9 +17,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::vector<TModID> ActiveModsInSaveList::getActiveMods()
+std::vector<TModID> ActiveModsInSaveList::getActiveGameplayAffectingMods()
 {
-	return VLC->modh->getActiveMods();
+	std::vector<TModID> result;
+	for (auto const & entry : VLC->modh->getActiveMods())
+		if (VLC->modh->getModInfo(entry).checkModGameplayAffecting())
+			result.push_back(entry);
+
+	return result;
 }
 
 const ModVerificationInfo & ActiveModsInSaveList::getVerificationInfo(TModID mod)

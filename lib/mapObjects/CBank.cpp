@@ -238,7 +238,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 			cb->giveHeroBonus(&gbonus);
 			iw.components.emplace_back(ComponentType::MORALE, -1);
-			iw.soundID = soundBase::GRAVEYARD;
+			iw.soundID = soundBase::invalid;
 			break;
 		}
 		case Obj::PYRAMID:

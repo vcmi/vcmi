@@ -26,7 +26,7 @@ namespace NKAI
 		: maxRoamingHeroes(8),
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
-		maxGoldPreasure(0.3f), 
+		maxGoldPressure(0.3f), 
 		maxpass(30),
 		allowObjectGraph(false)
 	{
@@ -71,9 +71,9 @@ namespace NKAI
 			maxpass = node.Struct()["maxpass"].Integer();
 		}
 
-		if(node.Struct()["maxGoldPreasure"].isNumber())
+		if(node.Struct()["maxGoldPressure"].isNumber())
 		{
-			maxGoldPreasure = node.Struct()["maxGoldPreasure"].Float();
+			maxGoldPressure = node.Struct()["maxGoldPressure"].Float();
 		}
 
 		if(!node.Struct()["allowObjectGraph"].isNull())
