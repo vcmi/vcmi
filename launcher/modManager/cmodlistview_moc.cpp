@@ -617,6 +617,29 @@ void CModListView::on_installButton_clicked()
 	}
 }
 
+void CModListView::on_installFromFileButton_clicked()
+{
+	QString filter = tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Mods") + " (*.zip)";
+	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (mods, maps, campaigns) to install..."), QDir::homePath(), filter);
+
+	for (const auto & file : files)
+	{
+		QUrl url = QUrl::fromLocalFile(file);
+		QString fileUrl = url.toString();
+		QString fileName = url.fileName();
+
+		if(fileUrl.endsWith(".zip", Qt::CaseInsensitive))
+			downloadFile(fileName.toLower()
+				// mod name currently comes from zip file -> remove suffixes from github zip download
+				.replace(QRegularExpression("-[0-9a-f]{40}"), "")
+				.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
+				.replace("-main.zip", ".zip")
+				, fileUrl, "mods", 0);
+		else
+			downloadFile(fileName, fileUrl, "mods", 0);
+	}
+}
+
 void CModListView::downloadFile(QString file, QString url, QString description, qint64 size)
 {
 	if(!dlManager)

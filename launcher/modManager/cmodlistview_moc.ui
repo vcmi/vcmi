@@ -350,6 +350,41 @@ hr { height: 1px; border-width: 0; }
       <number>6</number>
      </property>
      <item>
+      <widget class="QPushButton" name="installFromFileButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>51</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Install from file</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons:mod-download.png</normaloff>icons:mod-download.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="modButtonSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -521,7 +556,7 @@ hr { height: 1px; border-width: 0; }
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>120</width>
          <height>16777215</height>
         </size>
        </property>

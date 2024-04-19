@@ -120,6 +120,8 @@ private slots:
 
 	void on_installButton_clicked();
 
+	void on_installFromFileButton_clicked();
+
 	void on_pushButton_clicked();
 
 	void on_refreshButton_clicked();
