@@ -279,7 +279,6 @@
 
 	"vcmi.optionsTab.turnOptions.hover" : "回合选项",
 	"vcmi.optionsTab.turnOptions.help" : "选择回合计时器并同步回合选项",
-	"vcmi.optionsTab.selectPreset" : "预设",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "基本计时器",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "回合计时器",
