@@ -28,7 +28,8 @@ namespace NKAI
 		scoutHeroTurnDistanceLimit(5),
 		maxGoldPressure(0.3f), 
 		maxpass(10),
-		allowObjectGraph(false)
+		allowObjectGraph(false),
+		useTroopsFromGarrisons(false)
 	{
 		ResourcePath resource("config/ai/nkai/nkai-settings", EResType::JSON);
 
@@ -79,6 +80,11 @@ namespace NKAI
 		if(!node.Struct()["allowObjectGraph"].isNull())
 		{
 			allowObjectGraph = node.Struct()["allowObjectGraph"].Bool();
+		}
+
+		if(!node.Struct()["useTroopsFromGarrisons"].isNull())
+		{
+			useTroopsFromGarrisons = node.Struct()["useTroopsFromGarrisons"].Bool();
 		}
 	}
 }

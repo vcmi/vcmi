@@ -750,7 +750,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits && up->tempOwner == down->tempOwner)
+		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed())
 		{
 			pickBestCreatures(down, up);
 		}
