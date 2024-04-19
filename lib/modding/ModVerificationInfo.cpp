@@ -17,6 +17,8 @@
 #include "../json/JsonNode.h"
 #include "../VCMI_Lib.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 JsonNode ModVerificationInfo::jsonSerializeList(const ModCompatibilityInfo & input)
 {
 	JsonNode output;
@@ -90,6 +92,8 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 		modAffectsGameplay |= VLC->modh->getModInfo(remoteModId).checkModGameplayAffecting();
 
 		assert(modAffectsGameplay); // such mods should not be in the list to begin with
+		if (!modAffectsGameplay)
+			continue; // skip it
 
 		if (!vstd::contains(VLC->modh->getActiveMods(), remoteModId))
 		{
@@ -108,3 +112,5 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 
 	return result;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -340,9 +340,9 @@ std::unique_ptr<CMap> MainWindow::openMapInternal(const QString & filenameSelect
 	if(auto header = mapService.loadMapHeader(resId))
 	{
 		auto missingMods = CMapService::verifyMapHeaderMods(*header);
-		ModIncompatibility::ModListWithVersion modList;
+		ModIncompatibility::ModList modList;
 		for(const auto & m : missingMods)
-			modList.push_back({m.second.name, m.second.version.toString()});
+			modList.push_back(m.second.name);
 		
 		if(!modList.empty())
 			throw ModIncompatibility(modList);
