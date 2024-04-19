@@ -65,9 +65,9 @@ class GlobalLobbyRoomWindow : public CWindowObject
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::shared_ptr<CLabel> labelTitle;
 	std::shared_ptr<CLabel> labelSubtitle;
-	std::shared_ptr<CLabel> labelDescription;
-	std::shared_ptr<CLabel> labelVersion;
-	std::shared_ptr<CLabel> labelJoinStatus;
+	std::shared_ptr<CLabel> labelVersionTitle;
+	std::shared_ptr<CLabel> labelVersionValue;
+	std::shared_ptr<CTextBox> labelJoinStatus;
 
 	std::shared_ptr<CLabel> accountListTitle;
 	std::shared_ptr<CLabel> modListTitle;
