@@ -12,6 +12,7 @@
 #include "CMarketWindow.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 
 #include "../widgets/Buttons.h"
@@ -260,4 +261,10 @@ void CMarketWindow::createAltarCreatures(const IMarket * market, const CGHeroIns
 	marketWidget = std::make_shared<CAltarCreatures>(market, hero);
 	initWidgetInternals(EMarketMode::CREATURE_EXP, CGI->generaltexth->zelp[568]);
 	updateHero();
+}
+
+void CMarketWindow::deactivate()
+{
+	CCS->curh->dragAndDropCursor(nullptr);
+	CIntObject::deactivate();
 }

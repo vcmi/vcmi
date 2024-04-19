@@ -3,5 +3,5 @@
 	"maxpass" : 30,
 	"mainHeroTurnDistanceLimit" : 10,
 	"scoutHeroTurnDistanceLimit" : 5,
-	"maxGoldPreasure" : 0.3
+	"maxGoldPressure" : 0.3
 }

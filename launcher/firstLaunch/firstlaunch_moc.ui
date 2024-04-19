@@ -277,6 +277,19 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
           <number>6</number>
          </property>
          <item row="4" column="3">
+          <widget class="QPushButton" name="pushButtonGogInstall">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>25</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Install GOG files</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="3">
           <widget class="QPushButton" name="pushButtonDataHelp">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">

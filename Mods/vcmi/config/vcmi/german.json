@@ -258,7 +258,6 @@
 
 	"vcmi.optionsTab.turnOptions.hover" : "Spielzug-Optionen",
 	"vcmi.optionsTab.turnOptions.help" : "Optionen zu Spielzug-Timer und simultanen Zügen",
-	"vcmi.optionsTab.selectPreset" : "Voreinstellung",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "Basis-Timer",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "Spielzug-Timer",

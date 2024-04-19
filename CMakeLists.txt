@@ -88,6 +88,9 @@ if(ENABLE_ERM AND NOT ENABLE_LUA)
 	set(ENABLE_LUA ON)
 endif()
 
+include(CMakeDependentOption)
+cmake_dependent_option(ENABLE_INNOEXTRACT "Enable innoextract for GOG file extraction in launcher" ON "ENABLE_LAUNCHER" OFF)
+
 ############################################
 #        Miscellaneous options             #
 ############################################
@@ -453,7 +456,11 @@ endif()
 #        Finding packages                  #
 ############################################
 
-find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time filesystem locale program_options system thread)
+set(BOOST_COMPONENTS date_time filesystem locale program_options system thread)
+if(ENABLE_INNOEXTRACT)
+	list(APPEND BOOST_COMPONENTS iostreams)
+endif()
+find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 
 find_package(ZLIB REQUIRED)
 # Conan compatibility

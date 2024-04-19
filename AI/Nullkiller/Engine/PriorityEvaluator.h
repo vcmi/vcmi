@@ -109,7 +109,7 @@ private:
 	fl::InputVariable * strategicalValueVariable;
 	fl::InputVariable * rewardTypeVariable;
 	fl::InputVariable * closestHeroRatioVariable;
-	fl::InputVariable * goldPreasureVariable;
+	fl::InputVariable * goldPressureVariable;
 	fl::InputVariable * goldCostVariable;
 	fl::InputVariable * fearVariable;
 	fl::OutputVariable * value;

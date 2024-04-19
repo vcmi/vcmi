@@ -25,14 +25,14 @@ namespace NKAI
 		int mainHeroTurnDistanceLimit;
 		int scoutHeroTurnDistanceLimit;
 		int maxpass;
-		float maxGoldPreasure;
+		float maxGoldPressure;
 		bool allowObjectGraph;
 
 	public:
 		Settings();
 
 		int getMaxPass() const { return maxpass; }
-		float getMaxGoldPreasure() const { return maxGoldPreasure; }
+		float getMaxGoldPressure() const { return maxGoldPressure; }
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }

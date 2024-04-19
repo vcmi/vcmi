@@ -19,6 +19,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -325,7 +326,7 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::createBackpackWindow()
 {
-	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero);
+	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero, artSets);
 }
 
 void CHeroWindow::commanderWindow()
@@ -358,4 +359,10 @@ void CHeroWindow::updateGarrisons()
 bool CHeroWindow::holdsGarrison(const CArmedInstance * army)
 {
 	return army == curHero;
+}
+
+void CHeroWindow::deactivate()
+{
+	CCS->curh->dragAndDropCursor(nullptr);
+	CIntObject::deactivate();
 }
