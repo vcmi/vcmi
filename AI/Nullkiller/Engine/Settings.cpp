@@ -18,7 +18,7 @@
 #include "../../../lib/modding/CModHandler.h"
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../lib/filesystem/Filesystem.h"
-#include "../../../lib/json/JsonNode.h"
+#include "../../../lib/json/JsonUtils.h"
 
 namespace NKAI
 {
@@ -31,27 +31,8 @@ namespace NKAI
 		allowObjectGraph(false),
 		useTroopsFromGarrisons(false)
 	{
-		ResourcePath resource("config/ai/nkai/nkai-settings", EResType::JSON);
+		JsonNode node = JsonUtils::assembleFromFiles("config/ai/nkai/nkai-settings");
 
-		loadFromMod("core", resource);
-
-		for(const auto & modName : VLC->modh->getActiveMods())
-		{
-			if(CResourceHandler::get(modName)->existsResource(resource))
-				loadFromMod(modName, resource);
-		}
-	}
-
-	void Settings::loadFromMod(const std::string & modName, const ResourcePath & resource)
-	{
-		if(!CResourceHandler::get(modName)->existsResource(resource))
-		{
-			logGlobal->error("Failed to load font %s from mod %s", resource.getName(), modName);
-			return;
-		}
-
-	    JsonNode node(JsonPath::fromResource(resource), modName);
-		
 		if(node.Struct()["maxRoamingHeroes"].isNumber())
 		{
 			maxRoamingHeroes = node.Struct()["maxRoamingHeroes"].Integer();
