@@ -171,10 +171,10 @@ void AdventureMapInterface::show(Canvas & to)
 
 void AdventureMapInterface::dim(Canvas & to)
 {
-	auto const isBigWindow = [&](std::shared_ptr<IShowActivatable> window) { return std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 800 && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 600; }; // OH3 fullscreen
+	auto const isBigWindow = [&](std::shared_ptr<CIntObject> window) { return std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 800 && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 600; }; // OH3 fullscreen
 
 	if(settings["adventure"]["hideBackground"].Bool())
-		for (auto window : GH.windows().findWindows<IShowActivatable>())
+		for (auto window : GH.windows().findWindows<CIntObject>())
 		{
 			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && isBigWindow(window))
 			{
@@ -182,7 +182,7 @@ void AdventureMapInterface::dim(Canvas & to)
 				return;
 			}
 		}
-	for (auto window : GH.windows().findWindows<IShowActivatable>())
+	for (auto window : GH.windows().findWindows<CIntObject>())
 	{
 		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow() && (settings["adventure"]["backgroundDimSmallWindows"].Bool() || isBigWindow(window)))
 		{
