@@ -133,14 +133,19 @@ public:
 /// Classes wanting use it should have it as one of their base classes
 class CKeyShortcut : public virtual CIntObject
 {
-	bool shortcutPressed;
 public:
+	using KeyPressedFunctor = std::function<void()>;
+
 	EShortcut assignedKey;
 	CKeyShortcut();
 	CKeyShortcut(EShortcut key);
+	CKeyShortcut(const EShortcut & key, const KeyPressedFunctor & keyPressedCallback);
 	void keyPressed(EShortcut key) override;
 	void keyReleased(EShortcut key) override;
 
+private:
+	bool shortcutPressed;
+	KeyPressedFunctor keyPressedCallback;
 };
 
 class WindowBase : public CIntObject

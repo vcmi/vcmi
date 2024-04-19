@@ -1075,7 +1075,7 @@ void ChangeObjectVisitors::applyGs(CGameState * gs) const
 void ChangeArtifactsCostume::applyGs(CGameState * gs) const
 {
 	auto & allCostumes = gs->getPlayerState(player)->costumesArtifacts;
-	if(auto & costume = allCostumes.find(costumeIdx); costume != allCostumes.end())
+	if(const auto & costume = allCostumes.find(costumeIdx); costume != allCostumes.end())
 		costume->second = costumeSet;
 	else
 		allCostumes.emplace(costumeIdx, costumeSet);
@@ -1802,69 +1802,47 @@ void MoveArtifact::applyGs(CGameState * gs)
 
 void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
-	enum class EBulkArtsOp
+	const auto bulkArtsRemove = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
 	{
-		BULK_MOVE,
-		BULK_REMOVE,
-		BULK_PUT
+		std::vector<ArtifactPosition> packToRemove;
+		for(const auto & slotsPair : artsPack)
+			packToRemove.push_back(slotsPair.srcPos);
+		std::sort(packToRemove.begin(), packToRemove.end(), [](const ArtifactPosition & slot0, const ArtifactPosition & slot1) -> bool
+			{
+				return slot0.num > slot1.num;
+			});
+
+		for(const auto & slot : packToRemove)
+		{
+			auto * art = artSet.getArt(slot);
+			assert(art);
+			art->removeFrom(artSet, slot);
+		}
 	};
 
-	auto bulkArtsOperation = [this, gs](std::vector<LinkedSlots> & artsPack, 
-		CArtifactSet & artSet, EBulkArtsOp operation) -> void
+	const auto bulkArtsPut = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
 	{
-		int numBackpackArtifactsMoved = 0;
-		for(auto & slot : artsPack)
+		for(const auto & slotsPair : artsPack)
 		{
-			// When an object gets removed from the backpack, the backpack shrinks
-			// so all the following indices will be affected. Thus, we need to update
-			// the subsequent artifact slots to account for that
-			auto srcPos = slot.srcPos;
-			if(ArtifactUtils::isSlotBackpack(srcPos) && (operation != EBulkArtsOp::BULK_PUT))
-			{
-				srcPos = ArtifactPosition(srcPos.num - numBackpackArtifactsMoved);
-			}
-			auto * art = artSet.getArt(srcPos);
+			auto * art = initArtSet.getArt(slotsPair.srcPos);
 			assert(art);
-			switch(operation)
-			{
-			case EBulkArtsOp::BULK_MOVE:
-				art->move(artSet, srcPos, *gs->getArtSet(ArtifactLocation(dstArtHolder, dstCreature)), slot.dstPos);
-				break;
-			case EBulkArtsOp::BULK_REMOVE:
-				art->removeFrom(artSet, srcPos);
-				break;
-			case EBulkArtsOp::BULK_PUT:
-				art->putAt(*gs->getArtSet(ArtifactLocation(srcArtHolder, srcCreature)), slot.dstPos);
-				break;
-			default:
-				break;
-			}
-
-			if(srcPos >= ArtifactPosition::BACKPACK_START)
-			{
-				numBackpackArtifactsMoved++;
-			}
+			art->putAt(dstArtSet, slotsPair.dstPos);
 		}
 	};
 	
 	auto * leftSet = gs->getArtSet(ArtifactLocation(srcArtHolder, srcCreature));
-	if(swap)
+	assert(leftSet);
+	auto * rightSet = gs->getArtSet(ArtifactLocation(dstArtHolder, dstCreature));
+	assert(rightSet);
+	CArtifactFittingSet artInitialSetLeft(*leftSet);
+	bulkArtsRemove(artsPack0, *leftSet);
+	if(!artsPack1.empty())
 	{
-		// Swap
-		auto * rightSet = gs->getArtSet(ArtifactLocation(dstArtHolder, dstCreature));
-		CArtifactFittingSet artFittingSet(leftSet->bearerType());
-
-		artFittingSet.artifactsWorn = rightSet->artifactsWorn;
-		artFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
-
-		bulkArtsOperation(artsPack1, *rightSet, EBulkArtsOp::BULK_REMOVE);
-		bulkArtsOperation(artsPack0, *leftSet, EBulkArtsOp::BULK_MOVE);
-		bulkArtsOperation(artsPack1, artFittingSet, EBulkArtsOp::BULK_PUT);
+		CArtifactFittingSet artInitialSetRight(*rightSet);
+		bulkArtsRemove(artsPack1, *rightSet);
+		bulkArtsPut(artsPack1, artInitialSetRight, *leftSet);
 	}
-	else
-	{
-		bulkArtsOperation(artsPack0, *leftSet, EBulkArtsOp::BULK_MOVE);
-	}
+	bulkArtsPut(artsPack0, artInitialSetLeft, *rightSet);
 }
 
 void AssembledArtifact::applyGs(CGameState *gs)

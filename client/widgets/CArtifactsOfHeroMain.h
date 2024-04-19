@@ -16,24 +16,12 @@
 class CArtifactsOfHeroMain : public CArtifactsOfHeroBase
 {
 public:
-	CArtifactsOfHeroMain(const Point & position, bool costumesEnabled = false);
+	CArtifactsOfHeroMain(const Point & position);
 	~CArtifactsOfHeroMain() override;
+	void enableArtifactsCostumeSwitcher();
 
 private:
-	// TODO may be removed if CKeyShortcut supports callbacks
-	class CKeyShortcutWrapper : public CKeyShortcut
-	{
-	public:
-		using KeyPressedFunctor = std::function<void()>;
-
-		CKeyShortcutWrapper(const EShortcut & key, const KeyPressedFunctor & onCostumeSelect);
-		void clickPressed(const Point & cursorPosition) override;
-
-	private:
-		KeyPressedFunctor onCostumeSelect;
-	};
-
-	const std::array<EShortcut, GameConstants::HERO_COSTUMES_ARTIFACTS> hotkeys =
+	const std::vector<EShortcut> costumesSwitcherHotkeys =
 	{
 		EShortcut::HERO_COSTUME_0,
 		EShortcut::HERO_COSTUME_1,
@@ -46,7 +34,5 @@ private:
 		EShortcut::HERO_COSTUME_8,
 		EShortcut::HERO_COSTUME_9
 	};
-	std::vector<std::shared_ptr<CKeyShortcutWrapper>> costumesSwitchers;
-
-	void onCostumeSelect(const size_t costumeIndex);
+	std::vector<std::shared_ptr<CKeyShortcut>> costumesSwitcherProcessors;
 };

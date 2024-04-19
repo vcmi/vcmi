@@ -195,8 +195,6 @@ void CCallback::scrollBackpackArtifacts(ObjectInstanceID hero, bool left)
 
 void CCallback::manageHeroCostume(ObjectInstanceID hero, size_t costumeIndex, bool saveCostume)
 {
-	assert(costumeIndex < GameConstants::HERO_COSTUMES_ARTIFACTS);
-
 	ManageEquippedArtifacts mea(hero, costumeIndex, saveCostume);
 	sendRequest(&mea);
 }
