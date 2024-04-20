@@ -77,6 +77,8 @@ private slots:
 
 	void on_comboBoxRendererType_currentTextChanged(const QString &arg1);
 
+	void on_checkBoxIgnoreSslErrors_clicked(bool checked);
+
 private:
 	Ui::CSettingsView * ui;
 

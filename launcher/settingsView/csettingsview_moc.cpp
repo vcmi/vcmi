@@ -107,6 +107,8 @@ void CSettingsView::loadSettings()
 	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
+	ui->checkBoxIgnoreSslErrors->setChecked(settings["launcher"]["ignoreSslErrors"].Bool());
+
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
     ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
@@ -571,3 +573,8 @@ void CSettingsView::on_comboBoxRendererType_currentTextChanged(const QString &ar
 	node->String() = arg1.toStdString();
 }
 
+void CSettingsView::on_checkBoxIgnoreSslErrors_clicked(bool checked)
+{
+	Settings node = settings.write["launcher"]["ignoreSslErrors"];
+	node->Bool() = checked;
+}

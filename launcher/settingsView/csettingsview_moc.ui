@@ -139,7 +139,7 @@
        <item row="1" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxLanguage"/>
        </item>
-       <item row="31" column="2" colspan="3">
+       <item row="32" column="2" colspan="3">
         <widget class="QLineEdit" name="lineEditRepositoryDefault">
          <property name="text">
           <string notr="true"/>
@@ -170,14 +170,14 @@
          </property>
         </widget>
        </item>
-       <item row="32" column="0">
+       <item row="33" column="0">
         <widget class="QLabel" name="labelRepositoryExtra">
          <property name="text">
           <string>Additional repository</string>
          </property>
         </widget>
        </item>
-       <item row="32" column="2" colspan="3">
+       <item row="33" column="2" colspan="3">
         <widget class="QLineEdit" name="lineEditRepositoryExtra">
          <property name="text">
           <string notr="true"/>
@@ -211,7 +211,7 @@
          </property>
         </widget>
        </item>
-       <item row="31" column="1">
+       <item row="32" column="1">
         <widget class="QCheckBox" name="checkBoxRepositoryDefault">
          <property name="enabled">
           <bool>true</bool>
@@ -333,7 +333,7 @@
          </property>
         </widget>
        </item>
-       <item row="32" column="1">
+       <item row="33" column="1">
         <widget class="QCheckBox" name="checkBoxRepositoryExtra">
          <property name="text">
           <string/>
@@ -608,7 +608,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </property>
         </widget>
        </item>
-       <item row="31" column="0">
+       <item row="32" column="0">
         <widget class="QLabel" name="labelRepositoryDefault">
          <property name="text">
           <string>Default repository</string>
@@ -622,6 +622,20 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <widget class="QLabel" name="labelRendererType">
          <property name="text">
           <string>Renderer</string>
+         </property>
+        </widget>
+       </item>
+       <item row="31" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Ignore SSL errors</string>
+         </property>
+        </widget>
+       </item>
+       <item row="31" column="1">
+        <widget class="QCheckBox" name="checkBoxIgnoreSslErrors">
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
