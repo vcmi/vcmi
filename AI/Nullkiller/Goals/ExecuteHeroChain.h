@@ -34,6 +34,9 @@ namespace Goals
 
 		int getHeroExchangeCount() const override { return chainPath.exchangeCount; }
 
+		std::vector<ObjectInstanceID> getAffectedObjects() const override;
+		bool isObjectAffected(ObjectInstanceID id) const override;
+
 	private:
 		bool moveHeroToTile(AIGateway * ai, const CGHeroInstance * hero, const int3 & tile);
 	};

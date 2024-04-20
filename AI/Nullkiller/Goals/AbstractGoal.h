@@ -10,9 +10,8 @@
 #pragma once
 
 #include "../../../lib/VCMI_Lib.h"
-#include "../../../lib/CBuildingHandler.h"
-#include "../../../lib/CCreatureHandler.h"
-#include "../../../lib/CTownHandler.h"
+#include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 
 namespace NKAI
@@ -106,7 +105,7 @@ namespace Goals
 		int objid; SETTER(int, objid)
 		int aid; SETTER(int, aid)
 		int3 tile; SETTER(int3, tile)
-		HeroPtr hero; SETTER(HeroPtr, hero)
+		const CGHeroInstance * hero; SETTER(CGHeroInstance *, hero)
 		const CGTownInstance *town; SETTER(CGTownInstance *, town)
 		int bid; SETTER(int, bid)
 
@@ -119,6 +118,7 @@ namespace Goals
 			objid = -1;
 			tile = int3(-1, -1, -1);
 			town = nullptr;
+			hero = nullptr;
 			bid = -1;
 			goldCost = 0;
 		}
@@ -147,6 +147,11 @@ namespace Goals
 		virtual bool hasHash() const { return false; }
 
 		virtual uint64_t getHash() const { return 0; }
+
+		virtual ITask * asTask()
+		{
+			throw std::runtime_error("Abstract goal is not a task");
+		}
 		
 		bool operator!=(const AbstractGoal & g) const
 		{
@@ -165,9 +170,11 @@ namespace Goals
 		//TODO: make accept work for std::shared_ptr... somehow
 		virtual void accept(AIGateway * ai) = 0; //unhandled goal will report standard error
 		virtual std::string toString() const = 0;
-		virtual HeroPtr getHero() const = 0;
+		virtual const CGHeroInstance * getHero() const = 0;
 		virtual ~ITask() {}
 		virtual int getHeroExchangeCount() const = 0;
+		virtual bool isObjectAffected(ObjectInstanceID h) const = 0;
+		virtual std::vector<ObjectInstanceID> getAffectedObjects() const = 0;
 	};
 }
 

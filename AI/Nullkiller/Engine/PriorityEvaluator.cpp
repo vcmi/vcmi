@@ -158,6 +158,8 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 
 	const auto& slots = hero->Slots();
 	ui64 weakestStackPower = 0;
+	int duplicatingSlots = getDuplicatingSlots(hero);
+
 	if (slots.size() >= GameConstants::ARMY_SIZE)
 	{
 		//No free slot, we might discard our weakest stack
@@ -172,7 +174,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	{
 		//Only if hero has slot for this creature in the army
 		auto ccre = dynamic_cast<const CCreature*>(c.data.type);
-		if (hero->getSlotFor(ccre).validSlot())
+		if (hero->getSlotFor(ccre).validSlot() || duplicatingSlots > 0)
 		{
 			result += (c.data.type->getAIValue() * c.data.count) * c.chance;
 		}
@@ -655,7 +657,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	case Obj::RESOURCE:
 	{
 		auto * res = dynamic_cast<const CGResource*>(target);
-		return res->resourceID() == GameResID::GOLD ? 600 : 100;
+		return res && res->resourceID() == GameResID::GOLD ? 600 : 100;
 	}
 	case Obj::TREASURE_CHEST:
 		return 1500;
@@ -711,8 +713,8 @@ public:
 
 		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.ai);
 
-		evaluationContext.addNonCriticalStrategicalValue(2.0f * armyStrength / (float)heroExchange.hero.get()->getArmyStrength());
-		evaluationContext.heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroExchange.hero.get());
+		evaluationContext.addNonCriticalStrategicalValue(2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength());
+		evaluationContext.heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroExchange.hero);
 	}
 };
 
@@ -743,7 +745,7 @@ public:
 
 		Goals::StayAtTown & stayAtTown = dynamic_cast<Goals::StayAtTown &>(*task);
 
-		evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero().get());
+		evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero());
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += stayAtTown.getMovementWasted();
 		evaluationContext.movementCost += stayAtTown.getMovementWasted();
 	}
@@ -792,7 +794,7 @@ public:
 		if(defendTown.getTurn() > 0 && defendTown.isCounterAttack())
 		{
 			auto ourSpeed = defendTown.hero->movementPointsLimit(true);
-			auto enemySpeed = treat.hero->movementPointsLimit(true);
+			auto enemySpeed = treat.hero.get(evaluationContext.evaluator.ai->cb.get())->movementPointsLimit(true);
 
 			if(enemySpeed > ourSpeed) multiplier *= 0.7f;
 		}
@@ -847,13 +849,12 @@ public:
 			evaluationContext.movementCostByRole[role] += pair.second;
 		}
 
-		auto heroPtr = task->hero;
-		auto hero = heroPtr.get(ai->cb.get());
+		auto hero = task->hero;
 		bool checkGold = evaluationContext.danger == 0;
 		auto army = path.heroArmy;
 
 		const CGObjectInstance * target = ai->cb->getObj((ObjectInstanceID)task->objid, false);
-		auto heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroPtr);
+		auto heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(hero);
 
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
@@ -887,21 +888,21 @@ public:
 		Goals::UnlockCluster & clusterGoal = dynamic_cast<Goals::UnlockCluster &>(*task);
 		std::shared_ptr<ObjectCluster> cluster = clusterGoal.getCluster();
 
-		auto hero = clusterGoal.hero.get();
-		auto role = evaluationContext.evaluator.ai->heroManager->getHeroRole(clusterGoal.hero);
+		auto hero = clusterGoal.hero;
+		auto role = evaluationContext.evaluator.ai->heroManager->getHeroRole(hero);
 
-		std::vector<std::pair<const CGObjectInstance *, ClusterObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
+		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
 
-		std::sort(objects.begin(), objects.end(), [](std::pair<const CGObjectInstance *, ClusterObjectInfo> o1, std::pair<const CGObjectInstance *, ClusterObjectInfo> o2) -> bool
+		std::sort(objects.begin(), objects.end(), [](std::pair<ObjectInstanceID, ClusterObjectInfo> o1, std::pair<ObjectInstanceID, ClusterObjectInfo> o2) -> bool
 		{
 			return o1.second.priority > o2.second.priority;
 		});
 
 		int boost = 1;
 
-		for(auto objInfo : objects)
+		for(auto & objInfo : objects)
 		{
-			auto target = objInfo.first;
+			auto target = evaluationContext.evaluator.ai->cb->getObj(objInfo.first);
 			bool checkGold = objInfo.second.danger == 0;
 			auto army = hero;
 
@@ -960,7 +961,7 @@ public:
 			return;
 
 		Goals::DismissHero & dismissCommand = dynamic_cast<Goals::DismissHero &>(*task);
-		const CGHeroInstance * dismissedHero = dismissCommand.getHero().get();
+		const CGHeroInstance * dismissedHero = dismissCommand.getHero();
 
 		auto role = ai->heroManager->getHeroRole(dismissedHero);
 		auto mpLeft = dismissedHero->movementPointsRemaining();
@@ -1126,7 +1127,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
-	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
+	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
 		(int)evaluationContext.turn,

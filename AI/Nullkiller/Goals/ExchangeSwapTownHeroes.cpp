@@ -26,6 +26,26 @@ ExchangeSwapTownHeroes::ExchangeSwapTownHeroes(
 {
 }
 
+std::vector<ObjectInstanceID> ExchangeSwapTownHeroes::getAffectedObjects() const
+{
+	std::vector<ObjectInstanceID> affectedObjects = { town->id };
+
+	if(town->garrisonHero)
+		affectedObjects.push_back(town->garrisonHero->id);
+
+	if(town->visitingHero)
+		affectedObjects.push_back(town->visitingHero->id);
+
+	return affectedObjects;
+}
+
+bool ExchangeSwapTownHeroes::isObjectAffected(ObjectInstanceID id) const
+{
+	return town->id == id
+		|| (town->visitingHero && town->visitingHero->id == id)
+		|| (town->garrisonHero && town->garrisonHero->id == id);
+}
+
 std::string ExchangeSwapTownHeroes::toString() const
 {
 	return "Exchange and swap heroes of " + town->getNameTranslated();

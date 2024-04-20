@@ -22,7 +22,7 @@ DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & treat, co
 	: CGoal(Goals::DEFEND_TOWN), treat(treat), defenceArmyStrength(defencePath.getHeroStrength()), turn(defencePath.turn()), counterattack(isCounterAttack)
 {
 	settown(town);
-	sethero(defencePath.targetHero);
+	hero = defencePath.targetHero;
 }
 
 DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const CGHeroInstance * defender)

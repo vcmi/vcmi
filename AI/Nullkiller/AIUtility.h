@@ -109,7 +109,7 @@ public:
 	}
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
-	const CGHeroInstance * get(CCallback * cb, bool doWeExpectNull = false) const;
+	const CGHeroInstance * get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull = false) const;
 	bool validAndSet() const;
 
 
@@ -242,6 +242,7 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
+int getDuplicatingSlots(const CArmedInstance * army);
 
 template <class T>
 class SharedPool
