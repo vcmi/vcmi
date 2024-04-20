@@ -11,6 +11,7 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -750,7 +751,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed())
+		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cb->getStartInfo()->isSteadwickFallCampaignMission())
 		{
 			pickBestCreatures(down, up);
 		}
