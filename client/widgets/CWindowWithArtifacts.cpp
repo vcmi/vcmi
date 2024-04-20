@@ -148,7 +148,34 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 						{
 							assert(artSetPtr->getHero()->getSlotByInstance(art) != ArtifactPosition::PRE_FIRST);
 
-							if(GH.isKeyboardAltDown())
+							if(GH.isKeyboardCtrlDown())
+							{
+								std::shared_ptr<CArtifactsOfHeroMain> anotherHeroEquipmentPointer = nullptr;
+
+								for(auto set : artSets)
+								{
+									if(std::holds_alternative<std::weak_ptr<CArtifactsOfHeroMain>>(set))
+									{
+										std::shared_ptr<CArtifactsOfHeroMain> heroEquipmentPointer = std::get<std::weak_ptr<CArtifactsOfHeroMain>>(set).lock();
+										if(heroEquipmentPointer->getHero()->id != artSetPtr->getHero()->id)
+										{
+											anotherHeroEquipmentPointer = heroEquipmentPointer;
+											break;
+										}
+									}
+								}
+
+								if(anotherHeroEquipmentPointer != nullptr)
+								{
+									ArtifactPosition availablePosition = ArtifactUtils::getArtAnyPosition(anotherHeroEquipmentPointer->getHero(), art->getTypeId());
+									if(availablePosition != ArtifactPosition::PRE_FIRST)
+									{
+										LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artSetPtr->getHero()->getSlotByInstance(art)),
+										ArtifactLocation(anotherHeroEquipmentPointer->getHero()->id, availablePosition));
+									}
+								}
+							}
+							else if(GH.isKeyboardAltDown())
 							{
 								ArtifactPosition destinationPosition = ArtifactPosition::PRE_FIRST;
 
