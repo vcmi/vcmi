@@ -678,7 +678,7 @@ void SelectionTab::selectFileName(std::string fname)
 	filter(-1);
 	selectAbs(-1);
 
-	if(inputName->getText().empty())
+	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
 		inputName->setText("NEWGAME");
 }
 
