@@ -104,6 +104,13 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 		const CGHeroInstance * hero = node->targetHero;
 		HeroPtr heroPtr = hero;
 
+		if(!heroPtr.validAndSet())
+		{
+			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name);
+
+			return;
+		}
+
 		if(node->parentIndex >= i)
 		{
 			logAi->error("Invalid parentIndex while executing node " + node->coord.toString());

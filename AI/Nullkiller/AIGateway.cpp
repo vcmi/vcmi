@@ -1111,7 +1111,24 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 
 		if(!recruiter->getSlotFor(creID).validSlot())
 		{
-			continue;
+			for(auto stack : recruiter->Slots())
+			{
+				if(!stack.second->type)
+					continue;
+				
+				auto duplicatingSlot = recruiter->getSlotFor(stack.second->type);
+
+				if(duplicatingSlot != stack.first)
+				{
+					cb->mergeStacks(recruiter, recruiter, stack.first, duplicatingSlot);
+					break;
+				}
+			}
+
+			if(!recruiter->getSlotFor(creID).validSlot())
+			{
+				continue;
+			}
 		}
 
 		vstd::amin(count, cb->getResourceAmount() / creID.toCreature()->getFullRecruitCost());

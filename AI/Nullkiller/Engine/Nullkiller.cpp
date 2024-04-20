@@ -318,7 +318,7 @@ void Nullkiller::makeTurn()
 
 	Goals::TGoalVec bestTasks;
 
-	for(int i = 1; i <= settings->getMaxPass(); i++)
+	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		updateAiState(i);
@@ -372,6 +372,9 @@ void Nullkiller::makeTurn()
 
 		for(auto bestTask : selectedTasks)
 		{
+			if(cb->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
+				return;
+
 			std::string taskDescription = bestTask->toString();
 			HeroPtr hero = bestTask->getHero();
 			HeroRole heroRole = HeroRole::MAIN;

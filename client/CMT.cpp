@@ -375,6 +375,8 @@ int main(int argc, char * argv[])
 		while(!headlessQuit)
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
 
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
+
 		quitApplication();
 	}
 

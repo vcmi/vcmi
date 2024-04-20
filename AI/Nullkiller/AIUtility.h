@@ -242,6 +242,7 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
+int getDuplicatingSlots(const CArmedInstance * army);
 
 template <class T>
 class SharedPool

@@ -158,6 +158,8 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 
 	const auto& slots = hero->Slots();
 	ui64 weakestStackPower = 0;
+	int duplicatingSlots = getDuplicatingSlots(hero);
+
 	if (slots.size() >= GameConstants::ARMY_SIZE)
 	{
 		//No free slot, we might discard our weakest stack
@@ -172,7 +174,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	{
 		//Only if hero has slot for this creature in the army
 		auto ccre = dynamic_cast<const CCreature*>(c.data.type);
-		if (hero->getSlotFor(ccre).validSlot())
+		if (hero->getSlotFor(ccre).validSlot() || duplicatingSlots > 0)
 		{
 			result += (c.data.type->getAIValue() * c.data.count) * c.chance;
 		}
@@ -1125,7 +1127,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
-	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
+	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
 		(int)evaluationContext.turn,
