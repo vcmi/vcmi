@@ -42,10 +42,9 @@ class HeroMovementController
 
 	void updatePath(const CGHeroInstance * hero, const TryMoveHero & details);
 
-	/// Moves hero 1 tile / path node
-	void moveOnce(const CGHeroInstance * h, const CGPath & path);
-
-	void moveInstant(const CGHeroInstance * h, const CGPath & path);
+	/// Sends one request to server to move selected hero alongside path.
+	/// Automatically selects between single-tile and multi-tile movement modes
+	void sendMovementRequest(const CGHeroInstance * h, const CGPath & path);
 
 	void endMove(const CGHeroInstance * h);
 

@@ -244,7 +244,7 @@ void HeroMovementController::onMoveHeroApplied()
 	}
 	else
 	{
-		moveOnce(hero, LOCPLINT->localState->getPath(hero));
+		sendMovementRequest(hero, LOCPLINT->localState->getPath(hero));
 	}
 }
 
@@ -336,26 +336,50 @@ void HeroMovementController::requestMovementStart(const CGHeroInstance * h, cons
 {
 	assert(duringMovement == false);
 
-	int heroMovementSpeed = settings["adventure"]["heroMoveTime"].Integer();
-	bool heroMovementInterruptible = heroMovementSpeed != 0;
+	duringMovement = true;
+	currentlyMovingHero = h;
 
-	if (heroMovementInterruptible)
-	{
-		duringMovement = true;
-		currentlyMovingHero = h;
-
-		CCS->curh->hide();
-		moveOnce(h, path);
-	}
-	else
-	{
-		moveInstant(h, path);
-	}
+	CCS->curh->hide();
+	sendMovementRequest(h, path);
 }
 
-void HeroMovementController::moveInstant(const CGHeroInstance * h, const CGPath & path)
+void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const CGPath & path)
 {
-	bool useTransit = path.nextNode().layer == EPathfindingLayer::AIR || path.nextNode().layer == EPathfindingLayer::WATER;
+	assert(duringMovement == true);
+
+	int heroMovementSpeed = settings["adventure"]["heroMoveTime"].Integer();
+	bool useMovementBatching = heroMovementSpeed == 0;
+
+	const auto & currNode = path.currNode();
+	const auto & nextNode = path.nextNode();
+
+	assert(nextNode.turns == 0);
+	assert(currNode.coord == h->visitablePos());
+
+	if(nextNode.isTeleportAction())
+	{
+		stopMovementSound();
+		logGlobal->trace("Requesting hero teleportation to %s", nextNode.coord.toString());
+		LOCPLINT->cb->moveHero(h, h->pos, false);
+		return;
+	}
+
+	if (!useMovementBatching)
+	{
+		updateMovementSound(h, currNode.coord, nextNode.coord, nextNode.action);
+
+		assert(h->pos.z == nextNode.coord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
+
+		logGlobal->trace("Requesting hero movement to %s", nextNode.coord.toString());
+
+		bool useTransit = nextNode.layer == EPathfindingLayer::AIR || nextNode.layer == EPathfindingLayer::WATER;
+		int3 nextCoord = h->convertFromVisitablePos(nextNode.coord);
+
+		LOCPLINT->cb->moveHero(h, nextCoord, useTransit);
+		return;
+	}
+
+	bool useTransitAtStart = path.nextNode().layer == EPathfindingLayer::AIR || path.nextNode().layer == EPathfindingLayer::WATER;
 	std::vector<int3> pathToMove;
 
 	for (auto const & node : boost::adaptors::reverse(path.nodes))
@@ -370,7 +394,7 @@ void HeroMovementController::moveInstant(const CGHeroInstance * h, const CGPath 
 			break; // ran out of move points
 
 		bool useTransitHere = node.layer == EPathfindingLayer::AIR || node.layer == EPathfindingLayer::WATER;
-		if (useTransitHere != useTransit)
+		if (useTransitHere != useTransitAtStart)
 			break;
 
 		int3 coord = h->convertFromVisitablePos(node.coord);
@@ -383,45 +407,10 @@ void HeroMovementController::moveInstant(const CGHeroInstance * h, const CGPath 
 			break; // we reached event, garrison or some other visitable object - end this movement batch
 	}
 
+	assert(!pathToMove.empty());
 	if (!pathToMove.empty())
 	{
-		//updateMovementSound(h, path.currNode().coord, path.nextNode().coord, path.nextNode().action);
-		LOCPLINT->cb->moveHero(h, pathToMove, useTransit);
-	}
-}
-
-void HeroMovementController::moveOnce(const CGHeroInstance * h, const CGPath & path)
-{
-	// Moves hero once, sends request to server and immediately returns
-	// movement alongside paths will be done on receiving response from server
-
-	assert(duringMovement == true);
-
-	const auto & currNode = path.currNode();
-	const auto & nextNode = path.nextNode();
-
-	assert(nextNode.turns == 0);
-	assert(currNode.coord == h->visitablePos());
-
-	int3 nextCoord = h->convertFromVisitablePos(nextNode.coord);
-
-	if(nextNode.isTeleportAction())
-	{
-		stopMovementSound();
-		logGlobal->trace("Requesting hero teleportation to %s", nextNode.coord.toString());
-		LOCPLINT->cb->moveHero(h, h->pos, false);
-		return;
-	}
-	else
-	{
 		updateMovementSound(h, currNode.coord, nextNode.coord, nextNode.action);
-
-		assert(h->pos.z == nextNode.coord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
-
-		logGlobal->trace("Requesting hero movement to %s", nextNode.coord.toString());
-
-		bool useTransit = nextNode.layer == EPathfindingLayer::AIR || nextNode.layer == EPathfindingLayer::WATER;
-		LOCPLINT->cb->moveHero(h, nextCoord, useTransit);
-		return;
+		LOCPLINT->cb->moveHero(h, pathToMove, useTransitAtStart);
 	}
 }
