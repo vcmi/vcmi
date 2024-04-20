@@ -179,7 +179,7 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 							{
 								ArtifactPosition destinationPosition = ArtifactPosition::PRE_FIRST;
 
-								if(ArtifactUtils::isSlotEquipment(artSetPtr->getHero()->getSlotByInstance(art)))
+								if(ArtifactUtils::isSlotEquipment(artPlace.slot))
 								{
 									ArtifactPosition availablePosition = ArtifactUtils::getArtBackpackPosition(artSetPtr->getHero(), art->getTypeId());
 									if(availablePosition != ArtifactPosition::PRE_FIRST)
@@ -187,7 +187,7 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 										destinationPosition = availablePosition;
 									}
 								}
-								else if(ArtifactUtils::isSlotBackpack(artSetPtr->getHero()->getSlotByInstance(art)))
+								else if(ArtifactUtils::isSlotBackpack(artPlace.slot))
 								{
 									ArtifactPosition availablePosition = ArtifactUtils::getArtAnyPosition(artSetPtr->getHero(), art->getTypeId());
 									if(availablePosition != ArtifactPosition::PRE_FIRST && availablePosition != ArtifactPosition::BACKPACK_START)
@@ -198,13 +198,13 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 
 								if(destinationPosition != ArtifactPosition::PRE_FIRST)
 								{
-									LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artSetPtr->getHero()->getSlotByInstance(art)),
+									LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artPlace.slot),
 										ArtifactLocation(artSetPtr->getHero()->id, destinationPosition));
 								}
 							}
 							else
 							{
-								LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artSetPtr->getHero()->getSlotByInstance(art)),
+								LOCPLINT->cb->swapArtifacts(ArtifactLocation(artPlace.slot),
 									ArtifactLocation(artSetPtr->getHero()->id, ArtifactPosition::TRANSITION_POS));
 							}
 						}
