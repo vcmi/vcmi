@@ -485,7 +485,7 @@ QStringList CModListView::findInvalidDependencies(QString mod)
 	QStringList ret;
 	for(QString requirement : modModel->getRequirements(mod))
 	{
-		if(!modModel->hasMod(requirement) && !modModel->hasMod(requirement.split(QChar('.'), Qt::SkipEmptyParts)[0]))
+		if(!modModel->hasMod(requirement) && !modModel->hasMod(requirement.split(QChar('.'))[0]))
 			ret += requirement;
 	}
 	return ret;
