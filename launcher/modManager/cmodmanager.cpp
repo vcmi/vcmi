@@ -195,7 +195,10 @@ bool CModManager::canEnableMod(QString modname)
 	{
 		if(!modList->hasMod(modEntry)) // required mod is not available
 			return addError(modname, QString("Required mod %1 is missing").arg(modEntry));
-		if(!modList->getMod(modEntry).isEnabled())
+
+		CModEntry modData = modList->getMod(modEntry);
+
+		if(!modData.isCompatibilityPatch() && !modData.isEnabled())
 			return addError(modname, QString("Required mod %1 is not enabled").arg(modEntry));
 	}
 
