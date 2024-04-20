@@ -147,8 +147,39 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 						if(checkSpecialArts(*art, hero, std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroAltar>> ? true : false))
 						{
 							assert(artSetPtr->getHero()->getSlotByInstance(art) != ArtifactPosition::PRE_FIRST);
-							LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artSetPtr->getHero()->getSlotByInstance(art)),
-								ArtifactLocation(artSetPtr->getHero()->id, ArtifactPosition::TRANSITION_POS));
+
+							if(GH.isKeyboardAltDown())
+							{
+								ArtifactPosition destinationPosition = ArtifactPosition::PRE_FIRST;
+
+								if(ArtifactUtils::isSlotEquipment(artSetPtr->getHero()->getSlotByInstance(art)))
+								{
+									ArtifactPosition availablePosition = ArtifactUtils::getArtBackpackPosition(artSetPtr->getHero(), art->getTypeId());
+									if(availablePosition != ArtifactPosition::PRE_FIRST)
+									{
+										destinationPosition = availablePosition;
+									}
+								}
+								else if(ArtifactUtils::isSlotBackpack(artSetPtr->getHero()->getSlotByInstance(art)))
+								{
+									ArtifactPosition availablePosition = ArtifactUtils::getArtAnyPosition(artSetPtr->getHero(), art->getTypeId());
+									if(availablePosition != ArtifactPosition::PRE_FIRST && availablePosition != ArtifactPosition::BACKPACK_START)
+									{
+										destinationPosition = availablePosition;
+									}
+								}
+
+								if(destinationPosition != ArtifactPosition::PRE_FIRST)
+								{
+									LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artSetPtr->getHero()->getSlotByInstance(art)),
+										ArtifactLocation(artSetPtr->getHero()->id, destinationPosition));
+								}
+							}
+							else
+							{
+								LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artSetPtr->getHero()->getSlotByInstance(art)),
+									ArtifactLocation(artSetPtr->getHero()->id, ArtifactPosition::TRANSITION_POS));
+							}
 						}
 					}
 					else
