@@ -64,6 +64,18 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
 		result.push_back(moatHex);
+
+		moatHex = moatHex.cloneInDirection(BattleHex::LEFT);
+		auto obstaclesSecondRow = cb->getBattle(battleID)->battleGetAllObstaclesOnPos(moatHex, false);
+
+		for(auto obstacle : obstaclesSecondRow)
+		{
+			if(obstacle->obstacleType == CObstacleInstance::EObstacleType::MOAT)
+			{
+				result.push_back(moatHex);
+				break;
+			}
+		}
 	}
 
 	return result;
