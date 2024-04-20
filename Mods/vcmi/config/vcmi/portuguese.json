@@ -298,9 +298,9 @@
 	"vcmi.optionsTab.turnOptions.help" : "Selecione as opções de cronômetro do turno e turnos simultâneos",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "Cronômetro Base",
-	"vcmi.optionsTab.chessFieldTurn.hover" : "Cronômetro do Turno",
+	"vcmi.optionsTab.chessFieldTurn.hover" : "Cronôm. Turno",
 	"vcmi.optionsTab.chessFieldBattle.hover" : "Cronômetro da Batalha",
-	"vcmi.optionsTab.chessFieldUnit.hover" : "Cronômetro da Unidade",
+	"vcmi.optionsTab.chessFieldUnit.hover" : "Cronôm. Unid.",
 	"vcmi.optionsTab.chessFieldBase.help" : "Usado quando o {Cronômetro do Turno} chega a 0. Definido uma vez no início do jogo. Ao atingir zero, encerra o turno atual. Qualquer combate em curso terminará com uma derrota.",
 	"vcmi.optionsTab.chessFieldTurnAccumulate.help" : "Usado fora de combate ou quando o {Cronômetro da Batalha} se esgota. Restaurado a cada turno. O tempo restante é adicionado ao {Tempo Base} no final do turno.",
 	"vcmi.optionsTab.chessFieldTurnDiscard.help" : "Usado fora de combate ou quando o {Cronômetro da Batalha} se esgota. Restaurado a cada turno. Qualquer tempo não utilizado é perdido.",
