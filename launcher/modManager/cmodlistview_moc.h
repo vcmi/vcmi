@@ -51,6 +51,7 @@ class CModListView : public QWidget
 	// find mods that depend on this one
 	QStringList findDependentMods(QString mod, bool excludeDisabled);
 
+	void manualInstallFile(QUrl url);
 	void downloadFile(QString file, QString url, QString description, qint64 size = 0);
 
 	void installMods(QStringList archives);

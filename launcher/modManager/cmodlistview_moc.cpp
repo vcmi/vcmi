@@ -20,9 +20,11 @@
 #include "cmodlistmodel_moc.h"
 #include "cmodmanager.h"
 #include "cdownloadmanager_moc.h"
+#include "../settingsView/csettingsview_moc.h"
 #include "../launcherdirs.h"
 #include "../jsonutils.h"
 
+#include "../../lib/VCMIDirs.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 #include "../../lib/modding/CModVersion.h"
@@ -52,7 +54,7 @@ void CModListView::dragEnterEvent(QDragEnterEvent* event)
 {
 	if(event->mimeData()->hasUrls())
 		for(const auto & url : event->mimeData()->urls())
-			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp"}))
+			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp", ".json"}))
 				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
 				{
 					event->acceptProposedAction();
@@ -69,19 +71,7 @@ void CModListView::dropEvent(QDropEvent* event)
 		const QList<QUrl> urlList = mimeData->urls();
 
 		for (const auto & url : urlList)
-		{
-			QString urlStr = url.toString();
-			QString fileName = url.fileName();
-			if(urlStr.endsWith(".zip", Qt::CaseInsensitive))
-				downloadFile(fileName.toLower()
-					// mod name currently comes from zip file -> remove suffixes from github zip download
-					.replace(QRegularExpression("-[0-9a-f]{40}"), "")
-					.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
-					.replace("-main.zip", ".zip")
-					, urlStr, "mods", 0);
-			else
-				downloadFile(fileName, urlStr, "mods", 0);
-		}
+			manualInstallFile(url);
 	}
 }
 
@@ -619,25 +609,54 @@ void CModListView::on_installButton_clicked()
 
 void CModListView::on_installFromFileButton_clicked()
 {
-	QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip);;" + tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Mods") + " (*.zip)";
-	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (mods, maps, campaigns) to install..."), QDir::homePath(), filter);
+	QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json);;" + tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Configs") + " (*.json);;" + tr("Mods") + " (*.zip)";
+	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns) to install..."), QDir::homePath(), filter);
 
 	for (const auto & file : files)
 	{
 		QUrl url = QUrl::fromLocalFile(file);
-		QString fileUrl = url.toString();
-		QString fileName = url.fileName();
-
-		if(fileUrl.endsWith(".zip", Qt::CaseInsensitive))
-			downloadFile(fileName.toLower()
-				// mod name currently comes from zip file -> remove suffixes from github zip download
-				.replace(QRegularExpression("-[0-9a-f]{40}"), "")
-				.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
-				.replace("-main.zip", ".zip")
-				, fileUrl, "mods", 0);
-		else
-			downloadFile(fileName, fileUrl, "mods", 0);
+		manualInstallFile(url);
 	}
+}
+
+void CModListView::manualInstallFile(QUrl url)
+{
+	QString urlStr = url.toString();
+	QString fileName = url.fileName();
+	if(urlStr.endsWith(".zip", Qt::CaseInsensitive))
+		downloadFile(fileName.toLower()
+			// mod name currently comes from zip file -> remove suffixes from github zip download
+			.replace(QRegularExpression("-[0-9a-f]{40}"), "")
+			.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
+			.replace("-main.zip", ".zip")
+			, urlStr, "mods", 0);
+	if(urlStr.endsWith(".json", Qt::CaseInsensitive))
+	{
+		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
+		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files);
+		if(!configFile.empty())
+		{
+			if(QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace ") + configFile[0] + "?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+			{
+				if(QFile::exists(configDir.filePath(configFile[0])))
+					QFile::remove(configDir.filePath(configFile[0]));
+				QFile(url.toLocalFile()).copy(configDir.filePath(configFile[0]));
+
+				// reload settings
+				settings.init("config/settings.json", "vcmi:settings");
+				for(auto &widget : qApp->allWidgets())
+				{
+					CSettingsView * settingsView = dynamic_cast<CSettingsView *>(widget);
+					if(settingsView)
+						settingsView->loadSettings();
+				}
+				manager->loadMods();
+				manager->loadModSettings();
+			}
+		}
+	}
+	else
+		downloadFile(fileName, urlStr, "mods", 0);
 }
 
 void CModListView::downloadFile(QString file, QString url, QString description, qint64 size)
