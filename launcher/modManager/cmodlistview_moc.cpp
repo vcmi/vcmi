@@ -619,7 +619,7 @@ void CModListView::on_installButton_clicked()
 
 void CModListView::on_installFromFileButton_clicked()
 {
-	QString filter = tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Mods") + " (*.zip)";
+	QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip);;" + tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Mods") + " (*.zip)";
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (mods, maps, campaigns) to install..."), QDir::homePath(), filter);
 
 	for (const auto & file : files)
