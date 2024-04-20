@@ -204,7 +204,7 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 							}
 							else
 							{
-								LOCPLINT->cb->swapArtifacts(ArtifactLocation(artPlace.slot),
+								LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artPlace.slot),
 									ArtifactLocation(artSetPtr->getHero()->id, ArtifactPosition::TRANSITION_POS));
 							}
 						}
