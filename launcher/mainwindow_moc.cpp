@@ -173,7 +173,7 @@ void MainWindow::switchToModsTab()
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }
 
-void MainWindow::changeEvent(QEvent *event)
+void MainWindow::changeEvent(QEvent * event)
 {
 	if(event->type() == QEvent::LanguageChange)
 	{
