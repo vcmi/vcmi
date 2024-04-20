@@ -137,16 +137,19 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 	return sum > 1 ? result / sum : result;
 }
 
-uint64_t getResourcesGoldReward(const TResources & res)
+int32_t getResourcesGoldReward(const TResources & res)
 {
-	int nonGoldResources = res[EGameResID::GEMS]
-		+ res[EGameResID::SULFUR]
-		+ res[EGameResID::WOOD]
-		+ res[EGameResID::ORE]
-		+ res[EGameResID::CRYSTAL]
-		+ res[EGameResID::MERCURY];
+	int32_t result = 0;
 
-	return res[EGameResID::GOLD] + 100 * nonGoldResources;
+	for(EGameResID r = EGameResID(0); r < EGameResID::COUNT; r.advance(1))
+	{
+		if(res[r] > 0)
+		{
+			result += r == EGameResID::GOLD ? res[r] : res[r] * 100;
+		}
+	}
+
+	return result;
 }
 
 uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero)
@@ -250,9 +253,9 @@ int getDwellingArmyCost(const CGObjectInstance * target)
 	return cost;
 }
 
-static uint64_t evaluateArtifactArmyValue(const CArtifactInstance * art)
+static uint64_t evaluateArtifactArmyValue(const CArtifact * art)
 {
-	if(art->artType->getId() == ArtifactID::SPELL_SCROLL)
+	if(art->getId() == ArtifactID::SPELL_SCROLL)
 		return 1500;
 
 	auto statsValue =
@@ -267,7 +270,7 @@ static uint64_t evaluateArtifactArmyValue(const CArtifactInstance * art)
 
 	auto classValue = 0;
 
-	switch(art->artType->aClass)
+	switch(art->aClass)
 	{
 	case CArtifact::EartClass::ART_MINOR:
 		classValue = 1000;
@@ -315,7 +318,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::WARRIORS_TOMB:
 		return 1000;
 	case Obj::ARTIFACT:
-		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact);
+		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact->artType);
 	case Obj::DRAGON_UTOPIA:
 		return 10000;
 	case Obj::HERO:
@@ -328,8 +331,46 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::MAGIC_SPRING:
 		return getManaRecoveryArmyReward(hero);
 	default:
-		return 0;
+		break;
 	}
+
+	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
+
+	if(rewardable)
+	{
+		auto totalValue = 0;
+		
+		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+		{
+			auto & info = rewardable->configuration.info[index];
+
+			auto rewardValue = 0;
+
+			if(!info.reward.artifacts.empty())
+			{
+				for(auto artID : info.reward.artifacts)
+				{
+					const CArtifact * art = dynamic_cast<const CArtifact *>(VLC->artifacts()->getById(artID));
+
+					rewardValue += evaluateArtifactArmyValue(art);
+				}
+			}
+
+			if(!info.reward.creatures.empty())
+			{
+				for(auto stackInfo : info.reward.creatures)
+				{
+					rewardValue += stackInfo.getType()->getAIValue() * stackInfo.getCount();
+				}
+			}
+
+			totalValue += rewardValue > 0 ? rewardValue / (info.reward.artifacts.size() + info.reward.creatures.size()) : 0;
+		}
+
+		return totalValue;
+	}
+
+	return 0;
 }
 
 uint64_t RewardEvaluator::getArmyGrowth(
@@ -473,7 +514,24 @@ uint64_t RewardEvaluator::getManaRecoveryArmyReward(const CGHeroInstance * hero)
 	return ai->heroManager->getMagicStrength(hero) * 10000 * (1.0f - std::sqrt(static_cast<float>(hero->mana) / hero->manaLimit()));
 }
 
-float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) const
+float RewardEvaluator::getResourceRequirementStrength(const TResources & res) const
+{
+	float sum = 0.0f;
+
+	for(TResources::nziterator it(res); it.valid(); it++)
+	{
+		//Evaluate resources used for construction. Gold is evaluated separately.
+		if(it->resType != EGameResID::GOLD)
+		{
+			sum += 0.1f * it->resVal * getResourceRequirementStrength(it->resType)
+				+ 0.05f * it->resVal * getTotalResourceRequirementStrength(it->resType);
+		}
+	}
+
+	return sum;
+}
+
+float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, const CGHeroInstance * hero) const
 {
 	if(!target)
 		return 0;
@@ -491,24 +549,17 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	case Obj::RESOURCE:
 	{
 		auto resource = dynamic_cast<const CGResource *>(target);
-		return resource->resourceID() == EGameResID::GOLD
-			? 0
-			: 0.2f * getTotalResourceRequirementStrength(resource->resourceID()) + 0.4f * getResourceRequirementStrength(resource->resourceID());
+		TResources res;
+		res[resource->resourceID()] = resource->amount;
+		
+		return getResourceRequirementStrength(res);
 	}
 
 	case Obj::CREATURE_BANK:
 	{
 		auto resourceReward = getCreatureBankResources(target, nullptr);
-		float sum = 0.0f;
-		for (TResources::nziterator it (resourceReward); it.valid(); it++)
-		{
-			//Evaluate resources used for construction. Gold is evaluated separately.
-			if (it->resType != EGameResID::GOLD)
-			{
-				sum += 0.1f * it->resVal * getResourceRequirementStrength(it->resType);
-			}
-		}
-		return sum;
+		
+		return getResourceRequirementStrength(resourceReward);
 	}
 
 	case Obj::TOWN:
@@ -547,8 +598,24 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 		return 0.6f;
 
 	default:
-		return 0;
+		break;
 	}
+
+	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
+
+	if(rewardable && hero)
+	{
+		auto resourceReward = 0.0f;
+
+		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+		{
+			resourceReward += getResourceRequirementStrength(rewardable->configuration.info[index].reward.resources);
+		}
+
+		return resourceReward;
+	}
+
+	return 0;
 }
 
 float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const
@@ -593,11 +660,11 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::ARENA:
 		return 2;
 	case Obj::SHRINE_OF_MAGIC_INCANTATION:
-		return 0.2f;
+		return 0.25f;
 	case Obj::SHRINE_OF_MAGIC_GESTURE:
-		return 0.3f;
+		return 1.0f;
 	case Obj::SHRINE_OF_MAGIC_THOUGHT:
-		return 0.5f;
+		return 2.0f;
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		return 8;
 	case Obj::WITCH_HUT:
@@ -606,14 +673,56 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 		//Can contains experience, spells, or skills (only on custom maps)
 		return 2.5f;
 	case Obj::PYRAMID:
-		return 3.0f;
+		return 6.0f;
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
 			: 0;
+
 	default:
-		return 0;
+		break;
 	}
+
+	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
+
+	if(rewardable)
+	{
+		auto totalValue = 0.0f;
+
+		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+		{
+			auto & info = rewardable->configuration.info[index];
+
+			auto rewardValue = 0.0f;
+
+			if(!info.reward.spells.empty())
+			{
+				for(auto spellID : info.reward.spells)
+				{
+					const spells::Spell * spell = VLC->spells()->getById(spellID);
+						
+					if(hero->canLearnSpell(spell) && !hero->spellbookContainsSpell(spellID))
+					{
+						rewardValue += std::sqrt(spell->getLevel()) / 4.0f;
+					}
+				}
+
+				totalValue += rewardValue / info.reward.spells.size();
+			}
+
+			if(!info.reward.primary.empty())
+			{
+				for(auto value : info.reward.primary)
+				{
+					totalValue += value;
+				}
+			}
+		}
+
+		return totalValue;
+	}
+
+	return 0;
 }
 
 const HitMapInfo & RewardEvaluator::getEnemyHeroDanger(const int3 & tile, uint8_t turn) const
@@ -697,8 +806,26 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 			? heroEliminationBonus + enemyArmyEliminationGoldRewardRatio * getArmyCost(dynamic_cast<const CGHeroInstance *>(target))
 			: 0;
 	default:
-		return 0;
+		break;
 	}
+
+	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
+
+	if(rewardable)
+	{
+		auto goldReward = 0;
+
+		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+		{
+			auto & info = rewardable->configuration.info[index];
+
+			goldReward += getResourcesGoldReward(info.reward.resources);
+		}
+
+		return goldReward;
+	}
+
+	return 0;
 }
 
 class HeroExchangeEvaluator : public IEvaluationContextBuilder
