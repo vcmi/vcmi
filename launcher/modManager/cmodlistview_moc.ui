@@ -365,7 +365,7 @@ hr { height: 1px; border-width: 0; }
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
+         <width>170</width>
          <height>16777215</height>
         </size>
        </property>
