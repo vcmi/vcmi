@@ -200,13 +200,19 @@ void InputSourceGameController::doCursorMove(int deltaX, int deltaY)
     if(deltaX == 0 && deltaY == 0)
         return;
     const Point & screenSize = GH.screenDimensions();
-    const Point &cursorPosition = GH.getCursorPosition();
+
+    // if joystick is connected when intro video plays, using hardware position will move cursor to the right position.
+    bool isHardwareCursor = CCS && CCS->curh && CCS->curh->getShowType() == Cursor::ShowType::HARDWARE;
+    const Point & cursorPosition = isHardwareCursor ? CCS->curh->getCursorPosition() : GH.getCursorPosition();
     int newX = std::min(std::max(cursorPosition.x + deltaX, 0), screenSize.x);
     int newY = std::min(std::max(cursorPosition.y + deltaY, 0), screenSize.y);
     Point targetPosition{newX, newY};
     GH.input().setCursorPosition(targetPosition);
-    if(CCS && CCS->curh)
+    if(CCS && CCS->curh) {
+        if(CCS->curh->getShowType() == Cursor::ShowType::HARDWARE)
+            CCS->curh->ChangeCursor(Cursor::ShowType::SOFTWARE);
         CCS->curh->cursorMove(GH.getCursorPosition().x, GH.getCursorPosition().y);
+    }
 }
 
 int InputSourceGameController::getMoveDis(float planDis)

@@ -583,3 +583,8 @@ bool ScreenHandler::hasFocus()
 	ui32 flags = SDL_GetWindowFlags(mainWindow);
 	return flags & SDL_WINDOW_INPUT_FOCUS;
 }
+
+void ScreenHandler::getRenderScale(float & scaleX, float & scaleY)
+{
+    SDL_RenderGetScale(mainRenderer, &scaleX, &scaleY);
+}
