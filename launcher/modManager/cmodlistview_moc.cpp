@@ -23,6 +23,7 @@
 #include "../settingsView/csettingsview_moc.h"
 #include "../launcherdirs.h"
 #include "../jsonutils.h"
+#include "../helper.h"
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CConfigHandler.h"
@@ -636,15 +637,15 @@ void CModListView::manualInstallFile(QUrl url)
 		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
 		if(!configFile.empty())
 		{
-			if(QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+			auto dialogResult = QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+			if(dialogResult == QMessageBox::Yes)
 			{
-				QFile::remove(configDir.filePath(configFile[0]));
-				QFile::copy(url.toLocalFile(), configDir.filePath(configFile[0]));
+				const auto configFilePath = configDir.filePath(configFile[0]);
+				QFile::remove(configFilePath);
+				QFile::copy(url.toLocalFile(), configFilePath);
 
 				// reload settings
-				for(auto widget : qApp->topLevelWidgets())
-					if(auto mainWindow = qobject_cast<MainWindow *>(widget))
-						mainWindow->loadSettings();
+				Helper::loadSettings();
 				for(auto widget : qApp->allWidgets())
 					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
 						settingsView->loadSettings();

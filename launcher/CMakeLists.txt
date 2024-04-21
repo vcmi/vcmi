@@ -15,6 +15,7 @@ set(launcher_SRCS
 		settingsView/csettingsview_moc.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
+		helper.cpp
 		mainwindow_moc.cpp
 		languages.cpp
 		launcherdirs.cpp
@@ -39,6 +40,7 @@ set(launcher_HEADERS
 		jsonutils.h
 		updatedialog_moc.h
 		main.h
+		helper.cpp
 )
 
 set(launcher_FORMS
