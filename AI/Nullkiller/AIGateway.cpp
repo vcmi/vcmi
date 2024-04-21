@@ -544,6 +544,11 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
+	if(battleState.ourHero && battleState.ourHero->patrol.patrolling)
+	{
+		return std::nullopt;
+	}
+
 	double ourStrength = battleState.getOurStrength();
 	double fightRatio = ourStrength / (double)battleState.getEnemyStrength();
 
