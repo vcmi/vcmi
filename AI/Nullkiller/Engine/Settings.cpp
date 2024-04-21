@@ -27,7 +27,7 @@ namespace NKAI
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
 		maxGoldPressure(0.3f), 
-		maxpass(30),
+		maxpass(10),
 		allowObjectGraph(false)
 	{
 		ResourcePath resource("config/ai/nkai/nkai-settings", EResType::JSON);
