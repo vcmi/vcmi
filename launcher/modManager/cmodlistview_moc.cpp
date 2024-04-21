@@ -630,26 +630,24 @@ void CModListView::manualInstallFile(QUrl url)
 			.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
 			.replace("-main.zip", ".zip")
 			, urlStr, "mods", 0);
-	if(urlStr.endsWith(".json", Qt::CaseInsensitive))
+	else if(urlStr.endsWith(".json", Qt::CaseInsensitive))
 	{
 		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
-		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files);
+		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
 		if(!configFile.empty())
 		{
-			if(QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace ") + configFile[0] + "?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+			if(QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 			{
-				if(QFile::exists(configDir.filePath(configFile[0])))
-					QFile::remove(configDir.filePath(configFile[0]));
-				QFile(url.toLocalFile()).copy(configDir.filePath(configFile[0]));
+				QFile::remove(configDir.filePath(configFile[0]));
+				QFile::copy(url.toLocalFile(), configDir.filePath(configFile[0]));
 
 				// reload settings
-				settings.init("config/settings.json", "vcmi:settings");
-				for(auto &widget : qApp->allWidgets())
-				{
-					CSettingsView * settingsView = dynamic_cast<CSettingsView *>(widget);
-					if(settingsView)
+				for(auto widget : qApp->topLevelWidgets())
+					if(auto mainWindow = qobject_cast<MainWindow *>(widget))
+						mainWindow->loadSettings();
+				for(auto widget : qApp->allWidgets())
+					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
 						settingsView->loadSettings();
-				}
 				manager->loadMods();
 				manager->loadModSettings();
 			}

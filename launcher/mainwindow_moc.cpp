@@ -45,6 +45,11 @@ void MainWindow::load()
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
 #endif
 
+	loadSettings();
+}
+
+void MainWindow::loadSettings()
+{
 	settings.init("config/settings.json", "vcmi:settings");
 }
 
