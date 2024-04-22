@@ -59,7 +59,8 @@ enum class EShortcut
 	MAIN_MENU_CAMPAIGN_CUSTOM,
 
 	// Game lobby / scenario selection
-	LOBBY_BEGIN_GAME, // b, Return
+	LOBBY_BEGIN_STANDARD_GAME, // b
+	LOBBY_BEGIN_CAMPAIGN, // Return
 	LOBBY_LOAD_GAME,  // l, Return
 	LOBBY_SAVE_GAME,  // s, Return
 	LOBBY_RANDOM_MAP, // Open random map tab
