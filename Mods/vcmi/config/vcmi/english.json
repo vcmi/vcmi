@@ -415,16 +415,16 @@
 	"core.seerhut.quest.heroClass.visit.0" : "You are not %s.  I've got nothing for you. Begone!",
 	"core.seerhut.quest.heroClass.visit.1" : "You are not %s.  I've got nothing for you. Begone!",
 	"core.seerhut.quest.heroClass.visit.2" : "You are not %s.  I've got nothing for you. Begone!",
-	"core.seerhut.quest.heroClass.visit.3" : "The guards here will only let %s pass."
-	"core.seerhut.quest.heroClass.visit.4" : "The guards here will only let %s pass."
-	"core.seerhut.quest.heroClass.visit.5" : "The guards here will only let %s pass."
+	"core.seerhut.quest.heroClass.visit.3" : "The guards here will only let %s pass.",
+	"core.seerhut.quest.heroClass.visit.4" : "The guards here will only let %s pass.",
+	"core.seerhut.quest.heroClass.visit.5" : "The guards here will only let %s pass.",
 	
-	"core.seerhut.quest.reachDate.complete.0" : I'm free now.  Here's what I've got for you.  Do you accept?",
-	"core.seerhut.quest.reachDate.complete.1" : I'm free now.  Here's what I've got for you.  Do you accept?",
-	"core.seerhut.quest.reachDate.complete.2" : I'm free now.  Here's what I've got for you.  Do you accept?",
-	"core.seerhut.quest.reachDate.complete.3" : You are free to go through now.  Do you wish to pass?",
-	"core.seerhut.quest.reachDate.complete.4" : You are free to go through now.  Do you wish to pass?",
-	"core.seerhut.quest.reachDate.complete.5" : You are free to go through now.  Do you wish to pass?",
+	"core.seerhut.quest.reachDate.complete.0" : "I'm free now.  Here's what I've got for you.  Do you accept?",
+	"core.seerhut.quest.reachDate.complete.1" : "I'm free now.  Here's what I've got for you.  Do you accept?",
+	"core.seerhut.quest.reachDate.complete.2" : "I'm free now.  Here's what I've got for you.  Do you accept?",
+	"core.seerhut.quest.reachDate.complete.3" : "You are free to go through now.  Do you wish to pass?",
+	"core.seerhut.quest.reachDate.complete.4" : "You are free to go through now.  Do you wish to pass?",
+	"core.seerhut.quest.reachDate.complete.5" : "You are free to go through now.  Do you wish to pass?",
 	"core.seerhut.quest.reachDate.description.0" : "Wait till %s for %s",
 	"core.seerhut.quest.reachDate.description.1" : "Wait till %s for %s",
 	"core.seerhut.quest.reachDate.description.2" : "Wait till %s for %s",
