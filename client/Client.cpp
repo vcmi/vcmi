@@ -518,15 +518,15 @@ void CClient::handlePack(CPack * pack)
 	if(apply)
 	{
 		apply->applyOnClBefore(this, pack);
-		logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
+		logNetwork->trace("\tMade first apply on cl: %s", typeid(*pack).name());
 		gs->apply(pack);
-		logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
+		logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
 		apply->applyOnClAfter(this, pack);
-		logNetwork->trace("\tMade second apply on cl: %s", typeid(pack).name());
+		logNetwork->trace("\tMade second apply on cl: %s", typeid(*pack).name());
 	}
 	else
 	{
-		logNetwork->error("Message %s cannot be applied, cannot find applier!", typeid(pack).name());
+		logNetwork->error("Message %s cannot be applied, cannot find applier!", typeid(*pack).name());
 	}
 	delete pack;
 }

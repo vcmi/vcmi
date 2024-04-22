@@ -59,7 +59,17 @@ void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.hid);
-	result = gh.moveHero(pack.hid, pack.dest, 0, pack.transit, pack.player);
+
+	for (auto const & dest : pack.path)
+	{
+		if (!gh.moveHero(pack.hid, dest, 0, pack.transit, pack.player))
+		{
+			result = false;
+			return;
+		}
+	}
+
+	result = true;
 }
 
 void ApplyGhNetPackVisitor::visitCastleTeleportHero(CastleTeleportHero & pack)

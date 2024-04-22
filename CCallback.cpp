@@ -34,11 +34,16 @@ bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *wh
 	return true;
 }
 
-bool CCallback::moveHero(const CGHeroInstance *h, int3 dst, bool transit)
+void CCallback::moveHero(const CGHeroInstance *h, const int3 & destination, bool transit)
 {
-	MoveHero pack(dst,h->id,transit);
+	MoveHero pack({destination}, h->id, transit);
 	sendRequest(&pack);
-	return true;
+}
+
+void CCallback::moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit)
+{
+	MoveHero pack(path, h->id, transit);
+	sendRequest(&pack);
 }
 
 int CCallback::selectionMade(int selection, QueryID queryID)
