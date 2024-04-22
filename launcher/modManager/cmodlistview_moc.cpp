@@ -755,7 +755,8 @@ void CModListView::installFiles(QStringList files)
 			images.push_back(filename);
 	}
 
-	manager->loadRepositories(repositories);
+	if (!repositories.empty())
+		manager->loadRepositories(repositories);
 
 	if(!mods.empty())
 		installMods(mods);
