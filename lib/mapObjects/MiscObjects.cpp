@@ -1257,7 +1257,7 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 				if(progress > cb->gameState()->map->obeliskCount)
 				{
 					logGlobal->error("Visited %d of %d", static_cast<int>(progress), cb->gameState()->map->obeliskCount);
-					throw std::runtime_error("Player visited more obelisks than present on map!");
+					throw std::runtime_error("Player visited " + std::to_string(progress) + " obelisks out of " + std::to_string(cb->gameState()->map->obeliskCount) + " present on map!");
 				}
 
 				break;
