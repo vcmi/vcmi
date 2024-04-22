@@ -32,7 +32,7 @@ public:
 
 	MOCK_METHOD4(heroGotLevel, void(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID));
 	MOCK_METHOD3(commanderGotLevel, void(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID));
-	MOCK_METHOD6(showBlockingDialog, void(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel));
+	MOCK_METHOD6(showBlockingDialog, void(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept));
 	MOCK_METHOD4(showGarrisonDialog, void(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID));
 	MOCK_METHOD4(showTeleportDialog, void(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID));
 	MOCK_METHOD5(showMapObjectSelectDialog, void(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects));

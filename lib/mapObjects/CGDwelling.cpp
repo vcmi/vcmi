@@ -290,6 +290,11 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	else
 		throw std::runtime_error("Illegal dwelling!");
 
+	if(ID == Obj::REFUGEE_CAMP || (ID == Obj::CREATURE_GENERATOR1 && VLC->creatures()->getById(creatures[0].second[0])->getLevel() != 1))
+	{
+		bd.flags |= BlockingDialog::SAFE_TO_AUTOACCEPT;
+	}
+
 	cb->showBlockingDialog(&bd);
 }
 
