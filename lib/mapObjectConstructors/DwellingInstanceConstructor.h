@@ -23,6 +23,7 @@ class DwellingInstanceConstructor : public CDefaultObjectTypeHandler<CGDwelling>
 	std::vector<std::vector<const CCreature *>> availableCreatures;
 
 	JsonNode guards;
+	bool bannedForRandomDwelling = false;
 
 protected:
 	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
@@ -34,6 +35,7 @@ public:
 	void initializeObject(CGDwelling * object) const override;
 	void randomizeObject(CGDwelling * object, CRandomGenerator & rng) const override;
 
+	bool isBannedForRandomDwelling() const;
 	bool producesCreature(const CCreature * crea) const;
 	std::vector<const CCreature *> getProducedCreatures() const;
 };

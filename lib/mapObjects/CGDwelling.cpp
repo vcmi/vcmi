@@ -146,7 +146,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 			{
 				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
 
-				if (handler->producesCreature(cid.toCreature()))
+				if (!handler->isBannedForRandomDwelling() && handler->producesCreature(cid.toCreature()))
 					return MapObjectSubID(entry);
 			}
 			return MapObjectSubID();
