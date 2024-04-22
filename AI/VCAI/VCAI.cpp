@@ -16,6 +16,7 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/CConfigHandler.h"
@@ -732,7 +733,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * 
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits)
+		if(removableUnits && !cb->getStartInfo()->isSteadwickFallCampaignMission())
 			pickBestCreatures(down, up);
 
 		answerQuery(queryID, 0);

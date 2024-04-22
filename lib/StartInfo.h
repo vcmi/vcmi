@@ -136,6 +136,9 @@ struct DLL_LINKAGE StartInfo
 	// TODO: Must be client-side
 	std::string getCampaignName() const;
 
+	/// Controls hardcoded check for "Steadwick's Fall" scenario from "Dungeon and Devils" campaign
+	bool isSteadwickFallCampaignMission() const;
+
 	template <typename Handler>
 	void serialize(Handler &h)
 	{
