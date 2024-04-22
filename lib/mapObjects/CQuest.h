@@ -17,11 +17,30 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
 
+enum class EQuestMission {
+	NONE = 0,
+	LEVEL = 1,
+	PRIMARY_SKILL = 2,
+	KILL_HERO = 3,
+	KILL_CREATURE = 4,
+	ARTIFACT = 5,
+	ARMY = 6,
+	RESOURCES = 7,
+	HERO = 8,
+	PLAYER = 9,
+	HOTA_MULTI = 10,
+	// end of H3 missions
+
+	KEYMASTER = 11,
+	HOTA_HERO_CLASS = 12,
+	HOTA_REACH_DATE = 13,
+};
+
 class DLL_LINKAGE CQuest final
 {
 public:
 
-	static const std::string & missionName(int index);
+	static const std::string & missionName(EQuestMission index);
 	static const std::string & missionState(int index);
 	
 	std::string questName;

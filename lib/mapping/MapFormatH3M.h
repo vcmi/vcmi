@@ -35,23 +35,7 @@ class SpellID;
 class PlayerColor;
 class int3;
 
-enum class EQuestMission {
-	NONE = 0,
-	LEVEL = 1,
-	PRIMARY_SKILL = 2,
-	KILL_HERO = 3,
-	KILL_CREATURE = 4,
-	ARTIFACT = 5,
-	ARMY = 6,
-	RESOURCES = 7,
-	HERO = 8,
-	PLAYER = 9,
-	HOTA_MULTI = 10,
-	// end of H3 missions
-	KEYMASTER = 100,
-	HOTA_HERO_CLASS = 101,
-	HOTA_REACH_DATE = 102
-};
+enum class EQuestMission;
 
 enum class EVictoryConditionType : int8_t
 {
