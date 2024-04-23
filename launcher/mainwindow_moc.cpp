@@ -21,6 +21,7 @@
 
 #include "updatedialog_moc.h"
 #include "main.h"
+#include "helper.h"
 
 void MainWindow::load()
 {
@@ -45,7 +46,7 @@ void MainWindow::load()
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
 #endif
 
-	settings.init("config/settings.json", "vcmi:settings");
+	Helper::loadSettings();
 }
 
 void MainWindow::computeSidePanelSizes()
