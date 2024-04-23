@@ -1,5 +1,5 @@
 /*
- * CArtifactHolder.cpp, part of VCMI engine
+ * CArtPlace.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CArtifactHolder.h"
+#include "CArtPlace.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"

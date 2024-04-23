@@ -200,7 +200,7 @@ public:
 };
 
 /// Class which holds all parts of kingdom overview window
-class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder, public ITownHolder
+class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CWindowWithArtifacts, public ITownHolder
 {
 private:
 	struct OwnedObjectInfo
@@ -330,7 +330,7 @@ public:
 };
 
 /// Tab with all hero-specific data
-class CKingdHeroList : public CIntObject, public IGarrisonHolder, public CWindowWithArtifacts
+class CKingdHeroList : public CIntObject, public IGarrisonHolder
 {
 private:
 	std::shared_ptr<CListBox> heroes;

@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CComponent.h"
 
-#include "CArtifactHolder.h"
 #include "Images.h"
 
 #include <vcmi/spells/Service.h>

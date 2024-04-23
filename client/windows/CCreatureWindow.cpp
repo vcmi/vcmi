@@ -17,7 +17,7 @@
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../widgets/Buttons.h"
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CArtPlace.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"

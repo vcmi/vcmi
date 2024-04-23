@@ -1,5 +1,5 @@
 /*
- * CArtifactHolder.h, part of VCMI engine
+ * CArtPlace.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,23 +11,7 @@
 
 #include "MiscWidgets.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-struct ArtifactLocation;
-class CArtifactSet;
-
-VCMI_LIB_NAMESPACE_END
-
 class CAnimImage;
-
-class CArtifactHolder
-{
-public:
-	virtual void artifactRemoved(const ArtifactLocation & artLoc)=0;
-	virtual void artifactMoved(const ArtifactLocation & artLoc, const ArtifactLocation & destLoc, bool withRedraw)=0;
-	virtual void artifactDisassembled(const ArtifactLocation & artLoc)=0;
-	virtual void artifactAssembled(const ArtifactLocation & artLoc)=0;
-};
 
 class CArtPlace : public SelectableSlot
 {

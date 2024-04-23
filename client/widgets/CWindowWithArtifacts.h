@@ -9,14 +9,13 @@
  */
 #pragma once
 
-#include "CArtifactHolder.h"
 #include "CArtifactsOfHeroMain.h"
 #include "CArtifactsOfHeroKingdom.h"
 #include "CArtifactsOfHeroAltar.h"
 #include "CArtifactsOfHeroMarket.h"
 #include "CArtifactsOfHeroBackpack.h"
 
-class CWindowWithArtifacts : public CArtifactHolder
+class CWindowWithArtifacts
 {
 public:
 	using CArtifactsOfHeroPtr = std::variant<
@@ -38,10 +37,10 @@ public:
 	void showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 	void gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 
-	void artifactRemoved(const ArtifactLocation & artLoc) override;
-	void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw) override;
-	void artifactDisassembled(const ArtifactLocation & artLoc) override;
-	void artifactAssembled(const ArtifactLocation & artLoc) override;
+	virtual void artifactRemoved(const ArtifactLocation & artLoc);
+	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw);
+	virtual void artifactDisassembled(const ArtifactLocation & artLoc);
+	virtual void artifactAssembled(const ArtifactLocation & artLoc);
 
 protected:
 	std::vector<CArtifactsOfHeroPtr> artSets;

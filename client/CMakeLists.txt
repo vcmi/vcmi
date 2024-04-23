@@ -103,7 +103,7 @@ set(client_SRCS
 	globalLobby/GlobalLobbyWindow.cpp
 
 	widgets/Buttons.cpp
-	widgets/CArtifactHolder.cpp
+	widgets/CArtPlace.cpp
 	widgets/CComponent.cpp
 	widgets/CExchangeController.cpp
 	widgets/CGarrisonInt.cpp
@@ -293,7 +293,7 @@ set(client_HEADERS
 	globalLobby/GlobalLobbyWindow.h
 
 	widgets/Buttons.h
-	widgets/CArtifactHolder.h
+	widgets/CArtPlace.h
 	widgets/CComponent.h
 	widgets/CExchangeController.h
 	widgets/CGarrisonInt.h

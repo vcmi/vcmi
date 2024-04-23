@@ -1745,7 +1745,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
-	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->artifactRemoved(al);
 
 	waitWhileDialog();
@@ -1765,7 +1765,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 			redraw = false;
 	}
 
-	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->artifactMoved(src, dst, redraw);
 
 	waitWhileDialog();
@@ -1781,7 +1781,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
-	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->artifactAssembled(al);
 }
 
@@ -1790,7 +1790,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
-	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->artifactDisassembled(al);
 }
 

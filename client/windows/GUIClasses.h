@@ -13,6 +13,7 @@
 #include "../widgets/CExchangeController.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/Images.h"
+#include "../windows/CWindowObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -676,25 +676,25 @@ bool CKingdomInterface::holdsGarrison(const CArmedInstance * army)
 
 void CKingdomInterface::artifactAssembled(const ArtifactLocation& artLoc)
 {
-	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
+	if(auto arts = std::dynamic_pointer_cast<CWindowWithArtifacts>(tabArea->getItem()))
 		arts->artifactAssembled(artLoc);
 }
 
 void CKingdomInterface::artifactDisassembled(const ArtifactLocation& artLoc)
 {
-	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
+	if(auto arts = std::dynamic_pointer_cast<CWindowWithArtifacts>(tabArea->getItem()))
 		arts->artifactDisassembled(artLoc);
 }
 
 void CKingdomInterface::artifactMoved(const ArtifactLocation& artLoc, const ArtifactLocation& destLoc, bool withRedraw)
 {
-	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
+	if(auto arts = std::dynamic_pointer_cast<CWindowWithArtifacts>(tabArea->getItem()))
 		arts->artifactMoved(artLoc, destLoc, withRedraw);
 }
 
 void CKingdomInterface::artifactRemoved(const ArtifactLocation& artLoc)
 {
-	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
+	if(auto arts = std::dynamic_pointer_cast<CWindowWithArtifacts>(tabArea->getItem()))
 		arts->artifactRemoved(artLoc);
 }
 
@@ -745,7 +745,7 @@ std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 	if(index < heroesList.size())
 	{
 		auto hero = std::make_shared<CHeroItem>(heroesList[index]);
-		addSetAndCallbacks(hero->heroArts);
+		//addSetAndCallbacks(hero->heroArts);
 		return hero;
 	}
 	else
