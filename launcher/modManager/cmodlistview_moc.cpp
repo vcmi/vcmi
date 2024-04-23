@@ -483,10 +483,10 @@ void CModListView::on_comboBox_currentIndexChanged(int index)
 QStringList CModListView::findInvalidDependencies(QString mod)
 {
 	QStringList ret;
-	for(QString requrement : modModel->getRequirements(mod))
+	for(QString requirement : modModel->getRequirements(mod))
 	{
-		if(!modModel->hasMod(requrement))
-			ret += requrement;
+		if(!modModel->hasMod(requirement) && !modModel->hasMod(requirement.split(QChar('.'))[0]))
+			ret += requirement;
 	}
 	return ret;
 }
@@ -614,6 +614,20 @@ void CModListView::on_installButton_clicked()
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
 			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
+		else if(!mod.isEnabled())
+			enableModByName(name);
+	}
+
+	for(auto & name : modModel->getMod(modName).getConflicts())
+	{
+		auto mod = modModel->getMod(name);
+		if(mod.isEnabled())
+		{
+			//TODO: consider reverse dependencies disabling
+			//TODO: consider if it may be possible for subdependencies to block disabling conflicting mod?
+			//TODO: consider if it may be possible to get subconflicts that will block disabling conflicting mod?
+			disableModByName(name);
+		}
 	}
 }
 
