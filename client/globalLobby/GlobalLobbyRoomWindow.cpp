@@ -92,7 +92,7 @@ static const std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDes
 			case ModVerificationStatus::NOT_INSTALLED:
 			case ModVerificationStatus::DISABLED:
 			case ModVerificationStatus::EXCESSIVE:
-				return "vcmi.preview.join.error.mods";
+				return "vcmi.lobby.preview.error.mods";
 				break;
 			case ModVerificationStatus::VERSION_MISMATCH:
 			case ModVerificationStatus::FULL_MATCH:
@@ -119,7 +119,11 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 	{
 		GlobalLobbyRoomModInfo modInfo;
 		modInfo.status = modEntry.second;
-		modInfo.version = roomDescription.modList.at(modEntry.first).version.toString();
+		if (modEntry.second == ModVerificationStatus::EXCESSIVE)
+			modInfo.version = CGI->modh->getModInfo(modEntry.first).getVerificationInfo().version.toString();
+		else
+			modInfo.version = roomDescription.modList.at(modEntry.first).version.toString();
+
 		if (modEntry.second == ModVerificationStatus::NOT_INSTALLED)
 			modInfo.modName = roomDescription.modList.at(modEntry.first).name;
 		else
