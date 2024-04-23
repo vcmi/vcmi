@@ -279,7 +279,7 @@ void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 {
 	if (json["proxyMode"].Bool())
 	{
-		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, {});
+		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, { CSH->getGlobalLobby().getAccountDisplayName() });
 		CSH->loadMode = ELoadMode::MULTI;
 
 		std::string hostname = getServerHost();
