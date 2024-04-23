@@ -18,7 +18,7 @@
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 
-#include "CComponent.h"
+#include "../widgets/CComponent.h"
 
 #include "../windows/CHeroWindow.h"
 #include "../windows/CSpellWindow.h"
@@ -331,6 +331,19 @@ void CWindowWithArtifacts::gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, 
 				backpackWindow->fitToScreen(15);
 			}
 		}, artSetWeak.value());
+}
+
+void CWindowWithArtifacts::activate()
+{
+	if(const auto art = getPickedArtifact())
+		setCursorAnimation(*art);
+	CWindowObject::activate();
+}
+
+void CWindowWithArtifacts::deactivate()
+{
+	CCS->curh->dragAndDropCursor(nullptr);
+	CWindowObject::deactivate();
 }
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)

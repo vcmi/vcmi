@@ -9,13 +9,14 @@
  */
 #pragma once
 
-#include "CArtifactsOfHeroMain.h"
-#include "CArtifactsOfHeroKingdom.h"
-#include "CArtifactsOfHeroAltar.h"
-#include "CArtifactsOfHeroMarket.h"
-#include "CArtifactsOfHeroBackpack.h"
+#include "../widgets/CArtifactsOfHeroMain.h"
+#include "../widgets/CArtifactsOfHeroKingdom.h"
+#include "../widgets/CArtifactsOfHeroAltar.h"
+#include "../widgets/CArtifactsOfHeroMarket.h"
+#include "../widgets/CArtifactsOfHeroBackpack.h"
+#include "CWindowObject.h"
 
-class CWindowWithArtifacts
+class CWindowWithArtifacts : virtual public CWindowObject
 {
 public:
 	using CArtifactsOfHeroPtr = std::variant<
@@ -36,6 +37,8 @@ public:
 	void clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 	void showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 	void gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void activate() override;
+	void deactivate() override;
 
 	virtual void artifactRemoved(const ArtifactLocation & artLoc);
 	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw);

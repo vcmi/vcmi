@@ -9,8 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CWindowWithArtifacts.h"
-#include "CWindowObject.h"
+#include "CWindowWithArtifacts.h"
 
 class CFilledTexture;
 
@@ -26,10 +25,9 @@ protected:
 	const int windowMargin = 5;
 
 	void showAll(Canvas & to) override;
-	void activate() override;
 };
 
-class CHeroQuickBackpackWindow : public CWindowObject, public CWindowWithArtifacts
+class CHeroQuickBackpackWindow : public CWindowWithArtifacts
 {
 public:
 	CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot);

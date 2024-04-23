@@ -11,9 +11,8 @@
 
 #include "../lib/ResourceSet.h"
 #include "../widgets/CExchangeController.h"
-#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/Images.h"
-#include "../windows/CWindowObject.h"
+#include "CWindowWithArtifacts.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -326,7 +325,6 @@ public:
 
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
-	void deactivate() override;
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 

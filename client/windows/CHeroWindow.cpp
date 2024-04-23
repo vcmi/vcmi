@@ -19,7 +19,6 @@
 #include "../CPlayerInterface.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -71,7 +70,7 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("HeroScr4"))
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("HeroScr4"))
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
 
@@ -359,10 +358,4 @@ void CHeroWindow::updateGarrisons()
 bool CHeroWindow::holdsGarrison(const CArmedInstance * army)
 {
 	return army == curHero;
-}
-
-void CHeroWindow::deactivate()
-{
-	CCS->curh->dragAndDropCursor(nullptr);
-	CIntObject::deactivate();
 }

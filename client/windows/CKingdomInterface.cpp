@@ -19,7 +19,6 @@
 #include "../PlayerLocalState.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -549,7 +548,10 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 	switch(index)
 	{
 	case 0:
-		return std::make_shared<CKingdHeroList>(size);
+		return std::make_shared<CKingdHeroList>(size, [this](const CWindowWithArtifacts::CArtifactsOfHeroPtr & newHeroSet)
+			{
+				addSetAndCallbacks(newHeroSet);
+			});
 	case 1:
 		return std::make_shared<CKingdTownList>(size);
 	default:
@@ -674,31 +676,7 @@ bool CKingdomInterface::holdsGarrison(const CArmedInstance * army)
 	return army->getOwner() == LOCPLINT->playerID;
 }
 
-void CKingdomInterface::artifactAssembled(const ArtifactLocation& artLoc)
-{
-	if(auto arts = std::dynamic_pointer_cast<CWindowWithArtifacts>(tabArea->getItem()))
-		arts->artifactAssembled(artLoc);
-}
-
-void CKingdomInterface::artifactDisassembled(const ArtifactLocation& artLoc)
-{
-	if(auto arts = std::dynamic_pointer_cast<CWindowWithArtifacts>(tabArea->getItem()))
-		arts->artifactDisassembled(artLoc);
-}
-
-void CKingdomInterface::artifactMoved(const ArtifactLocation& artLoc, const ArtifactLocation& destLoc, bool withRedraw)
-{
-	if(auto arts = std::dynamic_pointer_cast<CWindowWithArtifacts>(tabArea->getItem()))
-		arts->artifactMoved(artLoc, destLoc, withRedraw);
-}
-
-void CKingdomInterface::artifactRemoved(const ArtifactLocation& artLoc)
-{
-	if(auto arts = std::dynamic_pointer_cast<CWindowWithArtifacts>(tabArea->getItem()))
-		arts->artifactRemoved(artLoc);
-}
-
-CKingdHeroList::CKingdHeroList(size_t maxSize)
+CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onCreateHeroItemCallback)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
@@ -708,8 +686,20 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = OVERVIEW_SIZE*116 + 19;
-	heroes = std::make_shared<CListBox>(std::bind(&CKingdHeroList::createHeroItem, this, _1),
-		Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
+	heroes = std::make_shared<CListBox>([onCreateHeroItemCallback](size_t idx) -> std::shared_ptr<CIntObject>
+		{
+			auto heroesList = LOCPLINT->localState->getWanderingHeroes();
+			if(idx < heroesList.size())
+			{
+				auto hero = std::make_shared<CHeroItem>(heroesList[idx]);
+				onCreateHeroItemCallback(hero->heroArts);
+				return hero;
+			}
+			else
+			{
+				return std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), (idx - 2) % GameConstants::KINGDOM_WINDOW_HEROES_SLOTS);
+			}
+		}, Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
 }
 
 void CKingdHeroList::updateGarrisons()
@@ -728,30 +718,6 @@ bool CKingdHeroList::holdsGarrison(const CArmedInstance * army)
 			if (garrison->holdsGarrison(army))
 				return true;
 	return false;
-}
-
-void CKingdHeroList::deactivate()
-{
-	CCS->curh->dragAndDropCursor(nullptr);
-	CIntObject::deactivate();
-}
-
-std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
-{
-	ui32 picCount = 4; // OVSLOT contains 4 images
-
-	auto heroesList = LOCPLINT->localState->getWanderingHeroes();
-
-	if(index < heroesList.size())
-	{
-		auto hero = std::make_shared<CHeroItem>(heroesList[index]);
-		//addSetAndCallbacks(hero->heroArts);
-		return hero;
-	}
-	else
-	{
-		return std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), (index-2) % picCount );
-	}
 }
 
 CKingdTownList::CKingdTownList(size_t maxSize)

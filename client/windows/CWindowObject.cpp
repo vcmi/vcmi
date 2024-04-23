@@ -239,11 +239,3 @@ bool CWindowObject::isPopupWindow() const
 {
 	return options & RCLICK_POPUP;
 }
-
-CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
-{
-}
-
-CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName) : CWindowObject(options, imageName)
-{
-}

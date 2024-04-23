@@ -9,8 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CWindowWithArtifacts.h"
-#include "CWindowObject.h"
+#include "CWindowWithArtifacts.h"
 
 #include "../../lib/bonuses/IBonusBearer.h"
 
@@ -108,7 +107,6 @@ public:
 	void switchHero(); //changes displayed hero
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
-	void deactivate() override;
 	void createBackpackWindow();
 
 	//friends

@@ -122,7 +122,6 @@ set(client_SRCS
 	widgets/CArtifactsOfHeroAltar.cpp
 	widgets/CArtifactsOfHeroMarket.cpp
 	widgets/CArtifactsOfHeroBackpack.cpp
-	widgets/CWindowWithArtifacts.cpp
 	widgets/RadialMenu.cpp
 	widgets/markets/CAltarArtifacts.cpp
 	widgets/markets/CAltarCreatures.cpp
@@ -152,6 +151,7 @@ set(client_SRCS
 	windows/InfoWindows.cpp
 	windows/QuickRecruitmentWindow.cpp
 	windows/CHeroBackpackWindow.cpp
+	windows/CWindowWithArtifacts.cpp
 	windows/settings/GeneralOptionsTab.cpp
 	windows/settings/OtherOptionsTab.cpp
 	windows/settings/SettingsMainWindow.cpp
@@ -312,7 +312,6 @@ set(client_HEADERS
 	widgets/CArtifactsOfHeroAltar.h
 	widgets/CArtifactsOfHeroMarket.h
 	widgets/CArtifactsOfHeroBackpack.h
-	widgets/CWindowWithArtifacts.h
 	widgets/RadialMenu.h
 	widgets/markets/CAltarArtifacts.h
 	widgets/markets/CAltarCreatures.h
@@ -342,6 +341,7 @@ set(client_HEADERS
 	windows/InfoWindows.h
 	windows/QuickRecruitmentWindow.h
 	windows/CHeroBackpackWindow.h
+	windows/CWindowWithArtifacts.h
 	windows/settings/GeneralOptionsTab.h
 	windows/settings/OtherOptionsTab.h
 	windows/settings/SettingsMainWindow.h
