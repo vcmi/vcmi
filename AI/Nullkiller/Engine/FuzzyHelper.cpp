@@ -53,15 +53,26 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 	// in some scenarios hero happens to be "under" the object (eg town). Then we consider ONLY the hero.
 	if(vstd::contains_if(visitableObjects, objWithID<Obj::HERO>))
 	{
-		vstd::erase_if(visitableObjects, [](const CGObjectInstance * obj)
+		vstd::erase_if(visitableObjects, [](const CGObjectInstance * obj) -> bool
 		{
-			return !objWithID<Obj::HERO>(obj);
+				return !objWithID<Obj::HERO>(obj);
 		});
 	}
 
 	if(const CGObjectInstance * dangerousObject = vstd::backOrNull(visitableObjects))
 	{
 		objectDanger = evaluateDanger(dangerousObject); //unguarded objects can also be dangerous or unhandled
+
+		if(objWithID<Obj::HERO>(dangerousObject))
+		{
+			auto hero = dynamic_cast<const CGHeroInstance *>(dangerousObject);
+
+			if(hero->visitedTown && !hero->visitedTown->garrisonHero)
+			{
+				objectDanger += evaluateDanger(hero->visitedTown.get());
+			}
+		}
+
 		if(objectDanger)
 		{
 			//TODO: don't downcast objects AI shouldn't know about!
