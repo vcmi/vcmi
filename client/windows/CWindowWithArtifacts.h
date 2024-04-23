@@ -28,15 +28,18 @@ public:
 		std::weak_ptr<CArtifactsOfHeroQuickBackpack>>;
 	using CloseCallback = std::function<void()>;
 
+	std::vector<CArtifactsOfHeroPtr> artSets;
+	CloseCallback closeCallback;
+
 	explicit CWindowWithArtifacts(const std::vector<CArtifactsOfHeroPtr> * artSets = nullptr);
-	void addSet(CArtifactsOfHeroPtr artSet);
-	void addSetAndCallbacks(CArtifactsOfHeroPtr artSet);
-	void addCloseCallback(CloseCallback callback);
+	void addSet(CArtifactsOfHeroPtr newArtSet);
+	void addSetAndCallbacks(CArtifactsOfHeroPtr newArtSet);
+	void addCloseCallback(const CloseCallback & callback);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();
-	void clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
-	void showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
-	void gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void clickPressedArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void showPopupArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void gestureArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 	void activate() override;
 	void deactivate() override;
 
@@ -46,13 +49,10 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation & artLoc);
 
 protected:
-	std::vector<CArtifactsOfHeroPtr> artSets;
-	CloseCallback closeCallback;
-
-	void updateSlots();
+	void update() const;
 	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
-	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(CArtifactsOfHeroBase & artsInst);
+	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(const CArtifactsOfHeroBase & artsInst);
 	void markPossibleSlots();
-	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade);
+	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade) const;
 	void setCursorAnimation(const CArtifactInstance & artInst);
 };

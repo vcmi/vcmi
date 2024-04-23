@@ -19,34 +19,35 @@ public:
 	using ClickFunctor = std::function<void(CArtPlace&, const Point&)>;
 
 	ArtifactPosition slot;
-
+	
 	CArtPlace(Point position, const CArtifactInstance * art = nullptr);
-	const CArtifactInstance * getArt();
+	const CArtifactInstance * getArt() const;
 	void lockSlot(bool on);
 	bool isLocked() const;
 	void setArtifact(const CArtifactInstance * art);
-	void setClickPressedCallback(ClickFunctor callback);
-	void setShowPopupCallback(ClickFunctor callback);
-	void setGestureCallback(ClickFunctor callback);
+	void setClickPressedCallback(const ClickFunctor & callback);
+	void setShowPopupCallback(const ClickFunctor & callback);
+	void setGestureCallback(const ClickFunctor & callback);
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 
-protected:
-	std::shared_ptr<CAnimImage> image;
+private:
 	const CArtifactInstance * ourArt;
-	int imageIndex;
 	bool locked;
+	int imageIndex;
+	std::shared_ptr<CAnimImage> image;
 	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;
 	ClickFunctor gestureCallback;
 
+protected:
 	void setInternals(const CArtifactInstance * artInst);
 };
 
 class CCommanderArtPlace : public CArtPlace
 {
-protected:
+private:
 	const CGHeroInstance * commanderOwner;
 	ArtifactPosition commanderSlotID;
 
@@ -62,7 +63,7 @@ class CHeroArtPlace: public CArtPlace
 {
 public:
 	CHeroArtPlace(Point position, const CArtifactInstance * art = nullptr);
-	void addCombinedArtInfo(std::map<const CArtifact*, int> & arts);
+	void addCombinedArtInfo(const std::map<const CArtifact*, int> & arts);
 };
 
 namespace ArtifactUtilsClient
