@@ -272,10 +272,16 @@ void LobbyDatabase::prepareStatements()
 		ORDER BY secondsElapsed ASC
 	)");
 
-	countRoomUsedSlotsStatement = database->prepare(R"(
+	getGameRoomPlayersStatement = database->prepare(R"(
 		SELECT a.accountID, a.displayName
 		FROM gameRoomPlayers grp
 		LEFT JOIN accounts a ON a.accountID = grp.accountID
+		WHERE roomID = ?
+	)");
+
+	countRoomUsedSlotsStatement = database->prepare(R"(
+		SELECT COUNT(grp.accountID)
+		FROM gameRoomPlayers grp
 		WHERE roomID = ?
 	)");
 
@@ -566,14 +572,14 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 
 	for (auto & room : result)
 	{
-		countRoomUsedSlotsStatement->setBinds(room.roomID);
-		while(countRoomUsedSlotsStatement->execute())
+		getGameRoomPlayersStatement->setBinds(room.roomID);
+		while(getGameRoomPlayersStatement->execute())
 		{
 			LobbyAccount account;
-			countRoomUsedSlotsStatement->getColumns(account.accountID, account.displayName);
+			getGameRoomPlayersStatement->getColumns(account.accountID, account.displayName);
 			room.participants.push_back(account);
 		}
-		countRoomUsedSlotsStatement->reset();
+		getGameRoomPlayersStatement->reset();
 	}
 	return result;
 }
@@ -593,14 +599,14 @@ std::vector<LobbyGameRoom> LobbyDatabase::getAccountGameHistory(const std::strin
 
 	for (auto & room : result)
 	{
-		countRoomUsedSlotsStatement->setBinds(room.roomID);
-		while(countRoomUsedSlotsStatement->execute())
+		getGameRoomPlayersStatement->setBinds(room.roomID);
+		while(getGameRoomPlayersStatement->execute())
 		{
 			LobbyAccount account;
-			countRoomUsedSlotsStatement->getColumns(account.accountID, account.displayName);
+			getGameRoomPlayersStatement->getColumns(account.accountID, account.displayName);
 			room.participants.push_back(account);
 		}
-		countRoomUsedSlotsStatement->reset();
+		getGameRoomPlayersStatement->reset();
 	}
 	return result;
 }
