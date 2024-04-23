@@ -240,7 +240,7 @@ void CBonusSelection::createBonusesIcons()
 		}
 		case CampaignBonusType::SECONDARY_SKILL:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 718);
-			desc.replaceTextID(TextIdentifier("core", "genrltxt", "levels", bonDescs[i].info3 - 1).get());
+			desc.replaceTextID(TextIdentifier("core", "skilllev", bonDescs[i].info3 - 1).get());
 			desc.replaceName(SecondarySkill(bonDescs[i].info2));
 			picNumber = bonDescs[i].info2 * 3 + bonDescs[i].info3 - 1;
 

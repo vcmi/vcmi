@@ -51,6 +51,12 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 		assert(!availableCreatures[currentLevel].empty());
 	}
 	guards = input["guards"];
+	bannedForRandomDwelling = input["bannedForRandomDwelling"].Bool();
+}
+
+bool DwellingInstanceConstructor::isBannedForRandomDwelling() const
+{
+	return bannedForRandomDwelling;
 }
 
 bool DwellingInstanceConstructor::objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const

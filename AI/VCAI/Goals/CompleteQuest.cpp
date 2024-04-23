@@ -99,7 +99,7 @@ std::string CompleteQuest::completeMessage() const
 
 std::string CompleteQuest::questToString() const
 {
-	if(q.quest->questName == CQuest::missionName(0))
+	if(q.quest->questName == CQuest::missionName(EQuestMission::NONE))
 		return "inactive quest";
 
 	MetaString ms;

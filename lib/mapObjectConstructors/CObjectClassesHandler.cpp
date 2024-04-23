@@ -351,12 +351,12 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 	}
 	catch (std::out_of_range & e)
 	{
-		// Leave catch block silently
+		// Leave catch block silently and handle error in block outside of try ... catch - all valid values should use 'return' in try block
 	}
 
 	std::string errorString = "Failed to find object of type " + std::to_string(type.getNum()) + "::" + std::to_string(subtype.getNum());
 	logGlobal->error(errorString);
-	throw std::runtime_error(errorString);
+	throw std::out_of_range(errorString);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const

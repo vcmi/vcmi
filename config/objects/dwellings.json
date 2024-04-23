@@ -65,6 +65,7 @@
 			},
 			"airConflux": {
 				"index": 7,
+				"bannedForRandomDwelling" : true,
 				"creatures": [["airElemental"]],
 				"sounds": {
 					"ambient": ["LOOPAIR"]
@@ -107,6 +108,7 @@
 			},
 			"earthConflux": {
 				"index": 13,
+				"bannedForRandomDwelling" : true,
 				"creatures": [["earthElemental"]],
 				"sounds": {
 					"ambient": ["LOOPEART"]
@@ -128,6 +130,7 @@
 			},
 			"fireConflux": {
 				"index": 16,
+				"bannedForRandomDwelling" : true,
 				"creatures": [["fireElemental"]],
 				"sounds": {
 					"ambient": ["LOOPFIRE"]
@@ -345,6 +348,7 @@
 			},
 			"waterConflux": {
 				"index": 47,
+				"bannedForRandomDwelling" : true,
 				"creatures": [["waterElemental"]],
 				"sounds": {
 					"ambient": ["LOOPFOUN"]
@@ -538,6 +542,7 @@
 		"types" : {
 			"elementalConflux" : {
 				"index" : 0,
+				"bannedForRandomDwelling" : true,
 				"creatures" : [ // 4 separate "levels" to give them separate growth
 					[ "airElemental" ],
 					[ "waterElemental" ],

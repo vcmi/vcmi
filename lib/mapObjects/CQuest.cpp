@@ -49,7 +49,7 @@ CQuest::CQuest():
 	isCustomNext(false),
 	isCustomComplete(false),
 	repeatedQuest(false),
-	questName(CQuest::missionName(0))
+	questName(CQuest::missionName(EQuestMission::NONE))
 {
 }
 
@@ -59,9 +59,9 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-const std::string & CQuest::missionName(int mission)
+const std::string & CQuest::missionName(EQuestMission mission)
 {
-	static const std::array<std::string, 13> names = {
+	static const std::array<std::string, 14> names = {
 		"empty",
 		"heroLevel",
 		"primarySkill",
@@ -72,9 +72,10 @@ const std::string & CQuest::missionName(int mission)
 		"bringResources",
 		"bringHero",
 		"bringPlayer",
+		"hotaINVALID", // only used for h3m parsing
 		"keymaster",
-		"hota",
-		"other"
+		"heroClass",
+		"reachDate"
 	};
 
 	if(static_cast<size_t>(mission) < names.size())
@@ -307,20 +308,18 @@ void CQuest::getCompletionText(IGameCallback * cb, MetaString &iwText) const
 void CQuest::defineQuestName()
 {
 	//standard quests
-	questName = CQuest::missionName(0);
-	if(mission != Rewardable::Limiter{}) questName = CQuest::missionName(12);
-	if(mission.heroLevel > 0) questName = CQuest::missionName(1);
-	for(auto & s : mission.primary) if(s) questName = CQuest::missionName(2);
-	if(!mission.spells.empty()) questName = CQuest::missionName(2);
-	if(!mission.secondary.empty()) questName = CQuest::missionName(2);
-	if(killTarget != ObjectInstanceID::NONE && !heroName.empty()) questName = CQuest::missionName(3);
-	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE) questName = CQuest::missionName(4);
-	if(!mission.artifacts.empty()) questName = CQuest::missionName(5);
-	if(!mission.creatures.empty()) questName = CQuest::missionName(6);
-	if(mission.resources.nonZero()) questName = CQuest::missionName(7);
-	if(!mission.heroes.empty()) questName = CQuest::missionName(8);
-	if(!mission.players.empty()) questName = CQuest::missionName(9);
-	if(mission.daysPassed > 0 || !mission.heroClasses.empty()) questName = CQuest::missionName(11);
+	questName = CQuest::missionName(EQuestMission::NONE);
+	if(mission.heroLevel > 0) questName = CQuest::missionName(EQuestMission::LEVEL);
+	for(auto & s : mission.primary) if(s) questName = CQuest::missionName(EQuestMission::PRIMARY_SKILL);
+	if(killTarget != ObjectInstanceID::NONE && !heroName.empty()) questName = CQuest::missionName(EQuestMission::KILL_HERO);
+	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE) questName = CQuest::missionName(EQuestMission::KILL_CREATURE);
+	if(!mission.artifacts.empty()) questName = CQuest::missionName(EQuestMission::ARTIFACT);
+	if(!mission.creatures.empty()) questName = CQuest::missionName(EQuestMission::ARMY);
+	if(mission.resources.nonZero()) questName = CQuest::missionName(EQuestMission::RESOURCES);
+	if(!mission.heroes.empty()) questName = CQuest::missionName(EQuestMission::HERO);
+	if(!mission.players.empty()) questName = CQuest::missionName(EQuestMission::PLAYER);
+	if(mission.daysPassed > 0) questName = CQuest::missionName(EQuestMission::HOTA_REACH_DATE);
+	if(!mission.heroClasses.empty()) questName = CQuest::missionName(EQuestMission::HOTA_HERO_CLASS);
 }
 
 void CQuest::addKillTargetReplacements(MetaString &out) const
@@ -466,7 +465,7 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 	if(quest->mission == Rewardable::Limiter{} && quest->killTarget == ObjectInstanceID::NONE)
 		quest->isCompleted = true;
 	
-	if(quest->questName == quest->missionName(0))
+	if(quest->questName == quest->missionName(EQuestMission::NONE))
 	{
 		quest->firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", quest->completedOption).get());
 	}
