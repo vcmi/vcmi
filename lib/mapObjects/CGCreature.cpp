@@ -221,7 +221,7 @@ void CGCreature::pickRandomObject(CRandomGenerator & rand)
 
 	try {
 		// sanity check
-		VLC->objtypeh->getHandlerFor(ID, subID);
+		VLC->objtypeh->getHandlerFor(MapObjectID::MONSTER, subID);
 	}
 	catch (const std::out_of_range & )
 	{
