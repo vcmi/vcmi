@@ -125,5 +125,27 @@
 		"heroToggleTactics":        "B",
 		"spellbookTabAdventure":    "A",
 		"spellbookTabCombat":       "C"
+	},
+	"joystick": {
+		"leftaxis": "cursorMotion",
+		"rightaxis": "mapScroll",
+		"a": ["globalAccept", "globalReturn", "lobbyBeginGame", "lobbyLoadGame", "lobbySaveGame",
+			"adventureViewSelected", "adventureExitWorldView", "battleTacticsEnd"],
+		"b": ["globalCancel", "globalReturn", "adventureExitWorldView"],
+		"x": "mouseLeftClick",
+		"y": "mouseRightClick",
+		"leftshoulder": ["adventureNextHero", "battleDefend"],
+		"rightshoulder": ["adventureNextTown", "battleWait"],
+		"lefttrigger": ["adventureVisitObject", "battleTacticsNext", "battleUseCreatureSpell"],
+		"righttrigger": ["adventureCastSpell", "battleCastSpell"],
+		"back": ["gameEndTurn", "battleAutocombatEnd"],
+		"start": ["globalOptions", "adventureGameOptions"],
+		"dpup": ["moveUp", "adventureViewWorld", "recruitmentUpgrade", "recruitmentUpgradeAll",
+			"battleConsoleUp", "recruitmentMax"],
+		"dpdown": ["moveDown", "adventureKingdomOverview", "battleConsoleDown","recruitmentMin"],
+		"dpleft": ["moveLeft", "adventureViewScenario"],
+		"dpright": ["moveRight", "adventureThievesGuild"],
+		"leftstick" : ["adventureToggleMapLevel", "battleToggleHeroesStats"],
+		"rightstick": ["adventureToggleGrid", "battleToggleQueue"]
 	}
 }

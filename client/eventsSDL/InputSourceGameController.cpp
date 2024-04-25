@@ -10,7 +10,6 @@
 
 #include "StdInc.h"
 #include "InputSourceGameController.h"
-#include "GameControllerShortcuts.h"
 #include "InputHandler.h"
 
 #include "../CGameInfo.h"
@@ -137,20 +136,57 @@ void InputSourceGameController::dispatchTriggerShortcuts(const std::vector<EShor
         GH.events().dispatchShortcutReleased(shortcutsVector);
 }
 
+void InputSourceGameController::dispatchTriggerLeftClick(int axisValue)
+{
+    const Point & position = GH.input().getCursorPosition();
+    if(axisValue >= TRIGGER_PRESS_THRESHOLD)
+        GH.events().dispatchMouseLeftButtonPressed(position, 0);
+    else
+        GH.events().dispatchMouseLeftButtonReleased(position, 0);
+}
+
+void InputSourceGameController::dispatchTriggerRightClick(int axisValue)
+{
+    const Point & position = GH.input().getCursorPosition();
+    if(axisValue >= TRIGGER_PRESS_THRESHOLD)
+        GH.events().dispatchShowPopup(position, 0);
+    else
+        GH.events().dispatchClosePopup(position);
+}
+
 void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEvent & axis)
 {
-    const auto & triggerShortcutsMap = getTriggerShortcutsMap();
     if(axis.axis == SDL_CONTROLLER_AXIS_LEFTX)
     {
-        axisValueX = getRealAxisValue(axis.value);
+        if(config.getLeftAxisType() == AxisType::CURSOR_MOTION)
+            axisValueX = getRealAxisValue(axis.value);
     }
     else if(axis.axis == SDL_CONTROLLER_AXIS_LEFTY)
     {
-        axisValueY = getRealAxisValue(axis.value);
+        if(config.getLeftAxisType() == AxisType::CURSOR_MOTION)
+            axisValueY = getRealAxisValue(axis.value);
     }
-    else if(triggerShortcutsMap.find(axis.axis) != triggerShortcutsMap.end())
+    if(axis.axis == SDL_CONTROLLER_AXIS_RIGHTX)
     {
-        const auto & shortcutsVector = triggerShortcutsMap.find(axis.axis)->second;
+        if(config.getRightAxisType() == AxisType::CURSOR_MOTION)
+            axisValueX = getRealAxisValue(axis.value);
+    }
+    else if(axis.axis == SDL_CONTROLLER_AXIS_RIGHTY)
+    {
+        if(config.getRightAxisType() == AxisType::CURSOR_MOTION)
+            axisValueY = getRealAxisValue(axis.value);
+    }
+    else if(config.isLeftClickTrigger(axis.axis))
+    {
+        dispatchTriggerLeftClick(axis.value);
+    }
+    else if(config.isRightClickTrigger(axis.axis))
+    {
+        dispatchTriggerRightClick(axis.value);
+    }
+    else if(config.isShortcutsTrigger(axis.axis))
+    {
+        const auto & shortcutsVector = config.getTriggerShortcuts(axis.axis);
         dispatchTriggerShortcuts(shortcutsVector, axis.value);
     }
 }
@@ -158,20 +194,20 @@ void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEv
 void InputSourceGameController::handleEventButtonDown(const SDL_ControllerButtonEvent & button)
 {
     const Point & position = GH.input().getCursorPosition();
-    const auto & buttonShortcutsMap = getButtonShortcutsMap();
 
-    // TODO: define keys by user
-    if(button.button == SDL_CONTROLLER_BUTTON_A)
+    if(config.isLeftClickButton(button.button))
     {
         GH.events().dispatchMouseLeftButtonPressed(position, 0);
     }
-    else if(button.button == SDL_CONTROLLER_BUTTON_Y)
+
+    if(config.isRightClickButton(button.button))
     {
         GH.events().dispatchShowPopup(position, 0);
     }
-    else if(buttonShortcutsMap.find(button.button) != buttonShortcutsMap.end())
+
+    if(config.isShortcutsButton(button.button))
     {
-        const auto & shortcutsVector = buttonShortcutsMap.find(button.button)->second;
+        const auto & shortcutsVector = config.getButtonShortcuts(button.button);
         GH.events().dispatchShortcutPressed(shortcutsVector);
     }
 }
@@ -179,18 +215,18 @@ void InputSourceGameController::handleEventButtonDown(const SDL_ControllerButton
 void InputSourceGameController::handleEventButtonUp(const SDL_ControllerButtonEvent & button)
 {
     const Point & position = GH.input().getCursorPosition();
-    const auto & buttonShortcutsMap = getButtonShortcutsMap();
-    if(button.button == SDL_CONTROLLER_BUTTON_A)
+
+    if(config.isLeftClickButton(button.button))
     {
         GH.events().dispatchMouseLeftButtonReleased(position, 0);
     }
-    else if(button.button == SDL_CONTROLLER_BUTTON_Y)
+    if(config.isRightClickButton(button.button))
     {
         GH.events().dispatchClosePopup(position);
     }
-    else if(buttonShortcutsMap.find(button.button) != buttonShortcutsMap.end())
+    if(config.isShortcutsButton(button.button))
     {
-        const auto & shortcutsVector = buttonShortcutsMap.find(button.button)->second;
+        const auto & shortcutsVector = config.getButtonShortcuts(button.button);
         GH.events().dispatchShortcutReleased(shortcutsVector);
     }
 }

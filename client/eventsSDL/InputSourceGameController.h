@@ -12,6 +12,7 @@
 
 #include <SDL.h>
 
+#include "GameControllerConfig.h"
 #include "../gui/Shortcut.h"
 
 
@@ -34,11 +35,14 @@ class InputSourceGameController
     int axisValueY;
     float planDisX;
     float planDisY;
+    GameControllerConfig config;
 
     void openGameController(int index);
     int getJoystickIndex(SDL_GameController * controller);
     int getRealAxisValue(int value);
     void dispatchTriggerShortcuts(const std::vector<EShortcut> & shortcutsVector, int axisValue);
+    void dispatchTriggerLeftClick(int axisValue);
+    void dispatchTriggerRightClick(int axisValue);
     void doCursorMove(int deltaX, int deltaY);
     int getMoveDis(float planDis);
 

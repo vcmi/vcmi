@@ -35,7 +35,7 @@ set(client_SRCS
 	eventsSDL/InputSourceText.cpp
 	eventsSDL/InputSourceTouch.cpp
 	eventsSDL/InputSourceGameController.cpp
-	eventsSDL/GameControllerShortcuts.cpp
+	eventsSDL/GameControllerConfig.cpp
 
 	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
@@ -214,7 +214,7 @@ set(client_HEADERS
 	eventsSDL/InputSourceText.h
 	eventsSDL/InputSourceTouch.h
     eventsSDL/InputSourceGameController.h
-	eventsSDL/GameControllerShortcuts.h
+	eventsSDL/GameControllerConfig.h
 
 	gui/CGuiHandler.h
 	gui/CIntObject.h
