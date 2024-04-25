@@ -94,7 +94,7 @@ void CSettingsView::loadSettings()
 	ui->comboBoxEnemyPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
 	ui->comboBoxAlliedPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["alliedAI"].String()));
 
-	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
+	ui->spinBoxNetworkPort->setValue(settings["server"]["localPort"].Integer());
 
 	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
 
