@@ -25,7 +25,7 @@
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "ENABLE_TEST": "OFF",
                 "ENABLE_STRICT_COMPILATION": "ON",
-                "ENABLE_GITVERSION": "$env{VCMI_PACKAGE_GITVERSION}",
+                "ENABLE_GOLDMASTER": "$env{VCMI_PACKAGE_GOLDMASTER}",
                 "ENABLE_PCH" : "OFF"
             }
         },
