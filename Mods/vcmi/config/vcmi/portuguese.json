@@ -87,7 +87,7 @@
 	"vcmi.lobby.header.chat.player" : "Bate-papo privado com %s", // %s -> apelido de outro jogador
 	"vcmi.lobby.header.history" : "Seus Jogos Anteriores",
 	"vcmi.lobby.header.players" : "Jogadores Online - %d",
-	"vcmi.lobby.match.solo" : "Jogo para um jogador",
+	"vcmi.lobby.match.solo" : "Jogo para um Jogador",
 	"vcmi.lobby.match.duel" : "Jogo com %s", // %s -> apelido de outro jogador
 	"vcmi.lobby.match.multi" : "%d jogadores",
 	"vcmi.lobby.room.create" : "Criar Nova Sala",
@@ -233,7 +233,7 @@
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s morreram por tiros precisos!",
 	"vcmi.battleWindow.endWithAutocombat" : "Tem certeza de que deseja terminar a batalha com o combate automático?",
 
-	"vcmi.battleResultsWindow.applyResultsLabel" : "Aplicar resultado da batalha",
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Aplicar resultado da batalha?",
 
 	"vcmi.tutorialWindow.title" : "Introdução à Tela Sensível ao Toque",
 	"vcmi.tutorialWindow.decription.RightClick" : "Toque e mantenha pressionado o elemento sobre o qual deseja clicar com o botão direito. Toque na área livre para fechar.",
