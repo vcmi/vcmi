@@ -386,6 +386,7 @@ void CInfoBar::pushComponents(const std::vector<Component> & components, std::st
 					reward_map.at(0).first.push_back(c);
 					reward_map.at(0).second = 8; //At most 8, cannot be more
 					break;
+				case ComponentType::NONE:
 				case ComponentType::SEC_SKILL:
 					reward_map.at(1).first.push_back(c);
 					reward_map.at(1).second = 4; //At most 4
