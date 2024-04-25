@@ -17,6 +17,7 @@ NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, cons
 	, listener(listener)
 {
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
+	socket->set_option(boost::asio::socket_base::keep_alive(true));
 
 	// iOS throws exception on attempt to set buffer size
 	constexpr auto bufferSize = 4 * 1024 * 1024;

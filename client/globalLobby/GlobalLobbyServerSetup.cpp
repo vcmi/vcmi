@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "GlobalLobbyServerSetup.h"
 
+#include "GlobalLobbyClient.h"
+
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
@@ -125,9 +127,9 @@ void GlobalLobbyServerSetup::onGameModeChanged(int value)
 void GlobalLobbyServerSetup::onCreate()
 {
 	if(toggleGameMode->getSelected() == 0)
-		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_HOST, {});
+		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_HOST, { CSH->getGlobalLobby().getAccountDisplayName() });
 	else
-		CSH->resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, EServerMode::LOBBY_HOST, {});
+		CSH->resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, EServerMode::LOBBY_HOST, { CSH->getGlobalLobby().getAccountDisplayName() });
 
 	CSH->loadMode = ELoadMode::MULTI;
 	CSH->startLocalServerAndConnect(true);

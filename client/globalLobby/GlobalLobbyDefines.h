@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../../lib/modding/ModVerificationInfo.h"
+
 struct GlobalLobbyAccount
 {
 	std::string accountID;
@@ -22,8 +24,10 @@ struct GlobalLobbyRoom
 	std::string hostAccountID;
 	std::string hostAccountDisplayName;
 	std::string description;
+	std::string gameVersion;
 	std::string statusID;
 	std::string startDateFormatted;
+	ModCompatibilityInfo modList;
 	std::vector<GlobalLobbyAccount> participants;
 	int playerLimit;
 };

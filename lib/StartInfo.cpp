@@ -109,9 +109,9 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 		throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.529"));
 	
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
-	ModIncompatibility::ModListWithVersion modList;
+	ModIncompatibility::ModList modList;
 	for(const auto & m : missingMods)
-		modList.push_back({m.second.name, m.second.version.toString()});
+		modList.push_back(m.second.name);
 	
 	if(!modList.empty())
 		throw ModIncompatibility(modList);

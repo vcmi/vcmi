@@ -73,6 +73,9 @@ public:
 	const std::vector<GlobalLobbyRoom> & getMatchesHistory() const;
 	const std::vector<GlobalLobbyChannelMessage> & getChannelHistory(const std::string & channelType, const std::string & channelName) const;
 
+	/// Returns active room by ID. Throws out-of-range on failure
+	const GlobalLobbyRoom & getActiveRoomByName(const std::string & roomUUID) const;
+
 	const std::string & getAccountID() const;
 	const std::string & getAccountCookie() const;
 	const std::string & getAccountDisplayName() const;

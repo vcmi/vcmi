@@ -36,6 +36,7 @@ class GlobalLobbyProcessor : public INetworkClientListener
 	void establishNewConnection();
 	void sendMessage(const NetworkConnectionPtr & targetConnection, const JsonNode & payload);
 
+	JsonNode getHostModList() const;
 	const std::string & getHostAccountID() const;
 	const std::string & getHostAccountCookie() const;
 	const std::string & getHostAccountDisplayName() const;
