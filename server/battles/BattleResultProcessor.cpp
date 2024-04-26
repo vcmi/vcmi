@@ -11,6 +11,7 @@
 #include "BattleResultProcessor.h"
 
 #include "../CGameHandler.h"
+#include "../TurnTimerHandler.h"
 #include "../processors/HeroPoolProcessor.h"
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"

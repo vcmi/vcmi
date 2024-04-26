@@ -13,6 +13,7 @@
 #include "BattleProcessor.h"
 
 #include "../CGameHandler.h"
+#include "../TurnTimerHandler.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/GameSettings.h"

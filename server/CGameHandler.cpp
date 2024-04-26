@@ -11,6 +11,7 @@
 #include "CGameHandler.h"
 
 #include "CVCMIServer.h"
+#include "TurnTimerHandler.h"
 #include "ServerNetPackVisitors.h"
 #include "ServerSpellCastEnvironment.h"
 #include "battles/BattleProcessor.h"

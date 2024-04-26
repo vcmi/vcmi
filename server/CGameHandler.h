@@ -14,7 +14,6 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
-#include "TurnTimerHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -49,6 +48,7 @@ class CBaseForGHApply;
 class PlayerMessageProcessor;
 class BattleProcessor;
 class TurnOrderProcessor;
+class TurnTimerHandler;
 class QueriesProcessor;
 class CObjectVisitQuery;
 

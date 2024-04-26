@@ -12,6 +12,7 @@
 
 #include "QueriesProcessor.h"
 #include "../CGameHandler.h"
+#include "../TurnTimerHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
