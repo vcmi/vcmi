@@ -417,9 +417,9 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 		if (bonuses -= b)
 			logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(), nodeName());
 		else
-			logBonus->error("Error on unpropagateBonus. #$# %s is not propagated to %s", b->Description(), nodeName());
+			logBonus->warn("Attempt to remove #$# %s, which is not propagated to %s", b->Description(), nodeName());
 
-		bonuses.remove_if([this, b](const auto & bonus)
+		bonuses.remove_if([b](const auto & bonus)
 		{
 			if (bonus->propagationUpdater && bonus->propagationUpdater == b->propagationUpdater)
 			{
