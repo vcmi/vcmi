@@ -62,6 +62,7 @@ public:
 	std::unique_ptr<BattleProcessor> battles;
 	std::unique_ptr<QueriesProcessor> queries;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
+	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -76,8 +77,6 @@ public:
 	ui32 QID;
 
 	SpellCastEnvironment * spellEnv;
-	
-	TurnTimerHandler turnTimerHandler;
 
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battleID) const override;

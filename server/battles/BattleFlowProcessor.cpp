@@ -126,7 +126,7 @@ void BattleFlowProcessor::onBattleStarted(const CBattleInfoCallback & battle)
 {
 	tryPlaceMoats(battle);
 	
-	gameHandler->turnTimerHandler.onBattleStart(battle.getBattle()->getBattleID());
+	gameHandler->turnTimerHandler->onBattleStart(battle.getBattle()->getBattleID());
 
 	if (battle.battleGetTacticDist() == 0)
 		onTacticsEnded(battle);
@@ -319,7 +319,7 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 		if(!removeGhosts.changedStacks.empty())
 			gameHandler->sendAndApply(&removeGhosts);
 		
-		gameHandler->turnTimerHandler.onBattleNextStack(battle.getBattle()->getBattleID(), *next);
+		gameHandler->turnTimerHandler->onBattleNextStack(battle.getBattle()->getBattleID(), *next);
 
 		if (!tryMakeAutomaticAction(battle, next))
 		{

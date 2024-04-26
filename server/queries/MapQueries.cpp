@@ -30,12 +30,12 @@ bool TimerPauseQuery::blocksPack(const CPack *pack) const
 
 void TimerPauseQuery::onAdding(PlayerColor color)
 {
-	gh->turnTimerHandler.setTimerEnabled(color, false);
+	gh->turnTimerHandler->setTimerEnabled(color, false);
 }
 
 void TimerPauseQuery::onRemoval(PlayerColor color)
 {
-	gh->turnTimerHandler.setTimerEnabled(color, true);
+	gh->turnTimerHandler->setTimerEnabled(color, true);
 }
 
 bool TimerPauseQuery::endsByPlayerAnswer() const

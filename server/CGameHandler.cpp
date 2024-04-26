@@ -514,7 +514,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
-	, turnTimerHandler(*this)
+	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
 {
 	QID = 1;
 	applier = std::make_shared<CApplier<CBaseForGHApply>>();
@@ -616,7 +616,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 {
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
-	turnTimerHandler.onPlayerGetTurn(which);
+	turnTimerHandler->onPlayerGetTurn(which);
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
@@ -1009,7 +1009,7 @@ void CGameHandler::start(bool resume)
 		onNewTurn();
 		events::TurnStarted::defaultExecute(serverEventBus.get());
 		for(auto & player : gs->players)
-			turnTimerHandler.onGameplayStart(player.first);
+			turnTimerHandler->onGameplayStart(player.first);
 	}
 	else
 		events::GameResumed::defaultExecute(serverEventBus.get());
@@ -1019,7 +1019,7 @@ void CGameHandler::start(bool resume)
 
 void CGameHandler::tick(int millisecondsPassed)
 {
-	turnTimerHandler.update(millisecondsPassed);
+	turnTimerHandler->update(millisecondsPassed);
 }
 
 void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
@@ -1307,7 +1307,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if(h->boat && !h->boat->onboardAssaultAllowed)
 			lookForGuards = IGNORE_GUARDS;
 
-		turnTimerHandler.setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
+		turnTimerHandler->setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;
 	}
