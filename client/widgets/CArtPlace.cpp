@@ -1,5 +1,5 @@
 /*
- * CArtifactHolder.cpp, part of VCMI engine
+ * CArtPlace.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CArtifactHolder.h"
+#include "CArtPlace.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -92,7 +92,7 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
 	image->disable();
 }
 
-const CArtifactInstance * CArtPlace::getArt()
+const CArtifactInstance * CArtPlace::getArt() const
 {
 	return ourArt;
 }
@@ -108,7 +108,7 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * co
 void CCommanderArtPlace::returnArtToHeroCallback()
 {
 	ArtifactPosition artifactPos = commanderSlotID;
-	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, ourArt->getTypeId());
+	ArtifactPosition freeSlot = ArtifactUtils::getArtBackpackPosition(commanderOwner, getArt()->getTypeId());
 	if(freeSlot == ArtifactPosition::PRE_FIRST)
 	{
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
@@ -119,7 +119,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 		src.creature = SlotID::COMMANDER_SLOT_PLACEHOLDER;
 		ArtifactLocation dst(commanderOwner->id, freeSlot);
 
-		if(ourArt->canBePutAt(commanderOwner, freeSlot, true))
+		if(getArt()->canBePutAt(commanderOwner, freeSlot, true))
 		{
 			LOCPLINT->cb->swapArtifacts(src, dst);
 			setArtifact(nullptr);
@@ -130,13 +130,13 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 
 void CCommanderArtPlace::clickPressed(const Point & cursorPosition)
 {
-	if(ourArt && text.size())
+	if(getArt() && text.size())
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
 }
 
-void CCommanderArtPlace::showPopupWindow(const Point& cursorPosition)
+void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
 {
-	if(ourArt && text.size())
+	if(getArt() && text.size())
 		CArtPlace::showPopupWindow(cursorPosition);
 }
 
@@ -204,22 +204,22 @@ void CArtPlace::setArtifact(const CArtifactInstance * art)
 	}
 }
 
-void CArtPlace::setClickPressedCallback(ClickFunctor callback)
+void CArtPlace::setClickPressedCallback(const ClickFunctor & callback)
 {
 	clickPressedCallback = callback;
 }
 
-void CArtPlace::setShowPopupCallback(ClickFunctor callback)
+void CArtPlace::setShowPopupCallback(const ClickFunctor & callback)
 {
 	showPopupCallback = callback;
 }
 
-void CArtPlace::setGestureCallback(ClickFunctor callback)
+void CArtPlace::setGestureCallback(const ClickFunctor & callback)
 {
 	gestureCallback = callback;
 }
 
-void CHeroArtPlace::addCombinedArtInfo(std::map<const CArtifact*, int> & arts)
+void CHeroArtPlace::addCombinedArtInfo(const std::map<const CArtifact*, int> & arts)
 {
 	for(const auto & combinedArt : arts)
 	{

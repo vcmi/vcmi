@@ -18,7 +18,7 @@
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 
-#include "CComponent.h"
+#include "../widgets/CComponent.h"
 
 #include "../windows/CHeroWindow.h"
 #include "../windows/CSpellWindow.h"
@@ -41,24 +41,24 @@ CWindowWithArtifacts::CWindowWithArtifacts(const std::vector<CArtifactsOfHeroPtr
 		this->artSets.insert(this->artSets.end(), artSets->begin(), artSets->end());
 }
 
-void CWindowWithArtifacts::addSet(CArtifactsOfHeroPtr artSet)
+void CWindowWithArtifacts::addSet(CArtifactsOfHeroPtr newArtSet)
 {
-	artSets.emplace_back(artSet);
+	artSets.emplace_back(newArtSet);
 }
 
-void CWindowWithArtifacts::addSetAndCallbacks(CArtifactsOfHeroPtr artSet)
+void CWindowWithArtifacts::addSetAndCallbacks(CArtifactsOfHeroPtr newArtSet)
 {
-	addSet(artSet);
+	addSet(newArtSet);
 	std::visit([this](auto artSetWeak)
 		{
 			auto artSet = artSetWeak.lock();
 			artSet->clickPressedCallback = std::bind(&CWindowWithArtifacts::clickPressedArtPlaceHero, this, _1, _2, _3);
 			artSet->showPopupCallback = std::bind(&CWindowWithArtifacts::showPopupArtPlaceHero, this, _1, _2, _3);
 			artSet->gestureCallback = std::bind(&CWindowWithArtifacts::gestureArtPlaceHero, this, _1, _2, _3);
-		}, artSet);
+		}, newArtSet);
 }
 
-void CWindowWithArtifacts::addCloseCallback(CloseCallback callback)
+void CWindowWithArtifacts::addCloseCallback(const CloseCallback & callback)
 {
 	closeCallback = callback;
 }
@@ -81,10 +81,10 @@ const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact()
 		return nullptr;
 }
 
-void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
+void CWindowWithArtifacts::clickPressedArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
 {
-	const auto artSet = findAOHbyRef(artsInst);
-	assert(artSet.has_value());
+	const auto currentArtSet = findAOHbyRef(artsInst);
+	assert(currentArtSet.has_value());
 
 	if(artPlace.isLocked())
 		return;
@@ -222,11 +222,8 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 
 				if constexpr(std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroBackpack>>)
 				{
-					if(!isTransferAllowed && artPlace.getArt())
-					{
-						if(closeCallback)
-							closeCallback();
-					}
+					if(!isTransferAllowed && artPlace.getArt() && closeCallback)
+						closeCallback();
 				}
 				else
 				{
@@ -259,13 +256,13 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 				if(closeCallback)
 					closeCallback();
 			}
-		}, artSet.value());
+		}, currentArtSet.value());
 }
 
-void CWindowWithArtifacts::showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
+void CWindowWithArtifacts::showPopupArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
 {
-	const auto artSetWeak = findAOHbyRef(artsInst);
-	assert(artSetWeak.has_value());
+	const auto currentArtSet = findAOHbyRef(artsInst);
+	assert(currentArtSet.has_value());
 
 	if(artPlace.isLocked())
 		return;
@@ -304,13 +301,13 @@ void CWindowWithArtifacts::showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst
 				if(artPlace.getArt() && artPlace.text.size())
 					artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
 			}
-		}, artSetWeak.value());
+		}, currentArtSet.value());
 }
 
-void CWindowWithArtifacts::gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
+void CWindowWithArtifacts::gestureArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
 {
-	const auto artSetWeak = findAOHbyRef(artsInst);
-	assert(artSetWeak.has_value());
+	const auto currentArtSet = findAOHbyRef(artsInst);
+	assert(currentArtSet.has_value());
 	if(artPlace.isLocked())
 		return;
 
@@ -330,12 +327,25 @@ void CWindowWithArtifacts::gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, 
 				backpackWindow->moveTo(cursorPosition - Point(1, 1));
 				backpackWindow->fitToScreen(15);
 			}
-		}, artSetWeak.value());
+		}, currentArtSet.value());
+}
+
+void CWindowWithArtifacts::activate()
+{
+	if(const auto art = getPickedArtifact())
+		setCursorAnimation(*art);
+	CWindowObject::activate();
+}
+
+void CWindowWithArtifacts::deactivate()
+{
+	CCS->curh->dragAndDropCursor(nullptr);
+	CWindowObject::deactivate();
 }
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)
 {
-	updateSlots();
+	update();
 }
 
 void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw)
@@ -394,16 +404,16 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 
 void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation & artLoc)
 {
-	updateSlots();
+	update();
 }
 
 void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation & artLoc)
 {
 	markPossibleSlots();
-	updateSlots();
+	update();
 }
 
-void CWindowWithArtifacts::updateSlots()
+void CWindowWithArtifacts::update() const
 {
 	auto updateSlotBody = [](auto artSetWeak) -> void
 	{
@@ -455,7 +465,7 @@ std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> CWind
 		return std::make_tuple(pickedCnt.begin()->first, artInst);
 }
 
-std::optional<CWindowWithArtifacts::CArtifactsOfHeroPtr> CWindowWithArtifacts::findAOHbyRef(CArtifactsOfHeroBase & artsInst)
+std::optional<CWindowWithArtifacts::CArtifactsOfHeroPtr> CWindowWithArtifacts::findAOHbyRef(const CArtifactsOfHeroBase & artsInst)
 {
 	std::optional<CArtifactsOfHeroPtr> res;
 
@@ -497,7 +507,7 @@ void CWindowWithArtifacts::markPossibleSlots()
 	}
 }
 
-bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade)
+bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade) const
 {
 	const auto artId = artInst.getTypeId();
 	
@@ -513,14 +523,11 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT))));
 		return false;
 	}
-	if(isTrade)
+	if(isTrade && !artInst.artType->isTradable())
 	{
-		if(!artInst.artType->isTradable())
-		{
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21],
-				std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
-			return false;
-		}
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21],
+			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
+		return false;
 	}
 	return true;
 }

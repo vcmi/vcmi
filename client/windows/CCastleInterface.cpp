@@ -1183,7 +1183,7 @@ void CTownInfo::showPopupWindow(const Point & cursorPosition)
 }
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from):
-	CStatusbarWindow(PLAYER_COLORED | BORDERED),
+	CWindowObject(PLAYER_COLORED | BORDERED),
 	town(Town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1459,7 +1459,7 @@ void CHallInterface::CBuildingBox::showPopupWindow(const Point & cursorPosition)
 }
 
 CHallInterface::CHallInterface(const CGTownInstance * Town):
-	CStatusbarWindow(PLAYER_COLORED | BORDERED, Town->town->clientInfo.hallBackground),
+	CWindowObject(PLAYER_COLORED | BORDERED, Town->town->clientInfo.hallBackground),
 	town(Town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1507,7 +1507,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 }
 
 CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, EBuildingState state, bool rightClick):
-	CStatusbarWindow(PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0), ImagePath::builtin("TPUBUILD")),
+	CWindowObject(PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0), ImagePath::builtin("TPUBUILD")),
 	town(Town),
 	building(Building)
 {
@@ -1660,7 +1660,7 @@ void LabeledValue::hover(bool on)
 }
 
 CFortScreen::CFortScreen(const CGTownInstance * town):
-	CStatusbarWindow(PLAYER_COLORED | BORDERED, getBgName(town))
+	CWindowObject(PLAYER_COLORED | BORDERED, getBgName(town))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
@@ -1849,7 +1849,7 @@ void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & imagename)
-	: CStatusbarWindow(BORDERED, imagename)
+	: CWindowObject(BORDERED, imagename)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -1918,7 +1918,7 @@ void CMageGuildScreen::Scroll::hover(bool on)
 }
 
 CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, ArtifactID aid, ObjectInstanceID hid):
-	CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPSMITH"))
+	CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPSMITH"))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 

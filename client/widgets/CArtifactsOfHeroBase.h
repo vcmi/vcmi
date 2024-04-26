@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CArtifactHolder.h"
+#include "CArtPlace.h"
 
 class CButton;
 

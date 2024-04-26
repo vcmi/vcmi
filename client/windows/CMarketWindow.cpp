@@ -12,7 +12,6 @@
 #include "CMarketWindow.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 
 #include "../widgets/Buttons.h"
@@ -34,7 +33,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode)
-	: CStatusbarWindow(PLAYER_COLORED)
+	: CWindowObject(PLAYER_COLORED)
 	, windowClosedCallback(onWindowClosed)
 {
 	assert(mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_PLAYER || mode == EMarketMode::CREATURE_RESOURCE ||
@@ -261,10 +260,4 @@ void CMarketWindow::createAltarCreatures(const IMarket * market, const CGHeroIns
 	marketWidget = std::make_shared<CAltarCreatures>(market, hero);
 	initWidgetInternals(EMarketMode::CREATURE_EXP, CGI->generaltexth->zelp[568]);
 	updateHero();
-}
-
-void CMarketWindow::deactivate()
-{
-	CCS->curh->dragAndDropCursor(nullptr);
-	CIntObject::deactivate();
 }

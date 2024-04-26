@@ -47,17 +47,14 @@ public:
 	 * centerAt - position of window center. Default - center of the screen
 	*/
 	CWindowObject(int options, const ImagePath & imageName, Point centerAt);
-	CWindowObject(int options, const ImagePath & imageName = {});
+	CWindowObject(int options = 0, const ImagePath & imageName = {});
 	~CWindowObject();
 
 	void showAll(Canvas & to) override;
 };
 
-class CStatusbarWindow : public CWindowObject
+class CStatusbarWindow : virtual public CWindowObject
 {
-public:
-	CStatusbarWindow(int options, const ImagePath & imageName, Point centerAt);
-	CStatusbarWindow(int options, const ImagePath & imageName = {});
 protected:
 	std::shared_ptr<CGStatusBar> statusbar;
 };
