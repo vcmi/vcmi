@@ -289,7 +289,12 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			performAutosave();
 		}
 
-		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
+		int humanPlayersCount = 0;
+		for(const auto & info : cb->getStartInfo()->playerInfos)
+			if (info.second.isControlledByHuman())
+				humanPlayersCount++;
+
+		if (humanPlayersCount > 1) //hot seat or MP message
 		{
 			adventureInt->onHotseatWaitStarted(playerID);
 

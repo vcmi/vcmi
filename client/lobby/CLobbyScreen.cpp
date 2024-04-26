@@ -47,10 +47,11 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
 
 		buttonSelect = std::make_shared<CButton>(Point(411, 80), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT_SCENARIO);
-		buttonSelect->addCallback([&]()
+		buttonSelect->addCallback([=]()
 		{
 			toggleTab(tabSel);
-			CSH->setMapInfo(tabSel->getSelectedMapInfo());
+			if (getMapInfo()->isRandomMap)
+				CSH->setMapInfo(tabSel->getSelectedMapInfo());
 		});
 
 		buttonOptions = std::make_shared<CButton>(Point(411, 510), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
@@ -74,10 +75,11 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		tabRand = std::make_shared<RandomMapTab>();
 		tabRand->mapInfoChanged += std::bind(&IServerAPI::setMapInfo, CSH, _1, _2);
 		buttonRMG = std::make_shared<CButton>(Point(411, 105), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[47], 0, EShortcut::LOBBY_RANDOM_MAP);
-		buttonRMG->addCallback([&]()
+		buttonRMG->addCallback([this]()
 		{
 			toggleTab(tabRand);
-			tabRand->updateMapInfoByHost(); // TODO: This is only needed to force-update mapInfo in CSH when tab is opened
+			if (!getMapInfo()->isRandomMap)
+				tabRand->updateMapInfoByHost();
 		});
 
 		card->iconDifficulty->addCallback(std::bind(&IServerAPI::setDifficulty, CSH, _1));

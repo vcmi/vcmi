@@ -249,10 +249,12 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	assert(gameHandler->getPlayerState(which));
 	assert(gameHandler->getPlayerState(which)->status == EPlayerStatus::INGAME);
 
-	//Note: on game load, "actingPlayer" might already contain list of players
+	// Only if player is actually starting his turn (and not loading from save)
+	if (!actingPlayers.count(which))
+		gameHandler->onPlayerTurnStarted(which);
+
 	actingPlayers.insert(which);
 	awaitingPlayers.erase(which);
-	gameHandler->onPlayerTurnStarted(which);
 
 	auto turnQuery = std::make_shared<TimerPauseQuery>(gameHandler, which);
 	gameHandler->queries->addQuery(turnQuery);
