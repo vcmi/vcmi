@@ -25,15 +25,10 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
 
-BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner)
+BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
-	, gameHandler(nullptr)
+	, gameHandler(newGameHandler)
 {
-}
-
-void BattleFlowProcessor::setGameHandler(CGameHandler * newGameHandler)
-{
-	gameHandler = newGameHandler;
 }
 
 void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard

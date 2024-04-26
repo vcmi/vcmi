@@ -29,15 +29,10 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 
-BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner)
+BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
-	, gameHandler(nullptr)
+	, gameHandler(newGameHandler)
 {
-}
-
-void BattleActionProcessor::setGameHandler(CGameHandler * newGameHandler)
-{
-	gameHandler = newGameHandler;
 }
 
 bool BattleActionProcessor::doEmptyAction(const CBattleInfoCallback & battle, const BattleAction & ba)

@@ -29,15 +29,10 @@
 #include "../../lib/serializer/Cast.h"
 #include "../../lib/spells/CSpellHandler.h"
 
-BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner)
+BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 //	: owner(owner)
-	: gameHandler(nullptr)
+	: gameHandler(newGameHandler)
 {
-}
-
-void BattleResultProcessor::setGameHandler(CGameHandler * newGameHandler)
-{
-	gameHandler = newGameHandler;
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle, uint8_t sideInBattle):

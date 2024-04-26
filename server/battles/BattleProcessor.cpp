@@ -33,15 +33,9 @@
 
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
-	, flowProcessor(std::make_unique<BattleFlowProcessor>(this))
-	, actionsProcessor(std::make_unique<BattleActionProcessor>(this))
-	, resultProcessor(std::make_unique<BattleResultProcessor>(this))
-{
-	setGameHandler(gameHandler);
-}
-
-BattleProcessor::BattleProcessor():
-	BattleProcessor(nullptr)
+	, flowProcessor(std::make_unique<BattleFlowProcessor>(this, gameHandler))
+	, actionsProcessor(std::make_unique<BattleActionProcessor>(this, gameHandler))
+	, resultProcessor(std::make_unique<BattleResultProcessor>(this, gameHandler))
 {
 }
 
@@ -315,13 +309,4 @@ void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 void BattleProcessor::battleAfterLevelUp(const BattleID & battleID, const BattleResult &result)
 {
 	resultProcessor->battleAfterLevelUp(battleID, result);
-}
-
-void BattleProcessor::setGameHandler(CGameHandler * newGameHandler)
-{
-	gameHandler = newGameHandler;
-
-	actionsProcessor->setGameHandler(newGameHandler);
-	flowProcessor->setGameHandler(newGameHandler);
-	resultProcessor->setGameHandler(newGameHandler);
 }
