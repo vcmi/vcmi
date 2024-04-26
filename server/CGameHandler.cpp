@@ -2892,7 +2892,7 @@ bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const Obj
 	return true;
 }
 
-bool CGameHandler::saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, size_t costumeIdx)
+bool CGameHandler::saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx)
 {
 	auto artSet = getArtSet(heroID);
 	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "saveArtifactsCostume: wrong hero's ID");
@@ -2908,7 +2908,7 @@ bool CGameHandler::saveArtifactsCostume(const PlayerColor & player, const Object
 	return true;
 }
 
-bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, size_t costumeIdx)
+bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx)
 {
 	const auto artSet = getArtSet(heroID);
 	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "switchArtifactsCostume: wrong hero's ID");

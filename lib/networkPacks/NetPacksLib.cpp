@@ -1078,7 +1078,7 @@ void ChangeArtifactsCostume::applyGs(CGameState * gs) const
 	if(const auto & costume = allCostumes.find(costumeIdx); costume != allCostumes.end())
 		costume->second = costumeSet;
 	else
-		allCostumes.emplace(costumeIdx, costumeSet);
+		allCostumes.try_emplace(costumeIdx, costumeSet);
 }
 
 void PlayerEndsGame::applyGs(CGameState * gs) const

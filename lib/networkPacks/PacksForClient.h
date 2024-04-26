@@ -1291,14 +1291,14 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 struct DLL_LINKAGE ChangeArtifactsCostume : public CPackForClient
 {
 	std::map<ArtifactPosition, ArtifactID> costumeSet;
-	size_t costumeIdx = 0;
+	uint32_t costumeIdx = 0;
 	const PlayerColor player = PlayerColor::NEUTRAL;
 
 	void applyGs(CGameState * gs) const;
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	ChangeArtifactsCostume() = default;
-	ChangeArtifactsCostume(const PlayerColor & player, const size_t costumeIdx)
+	ChangeArtifactsCostume(const PlayerColor & player, const uint32_t costumeIdx)
 		: costumeIdx(costumeIdx)
 		, player(player)
 	{

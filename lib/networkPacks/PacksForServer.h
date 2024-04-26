@@ -432,7 +432,7 @@ struct DLL_LINKAGE ManageBackpackArtifacts : public CPackForServer
 struct DLL_LINKAGE ManageEquippedArtifacts : public CPackForServer
 {
 	ManageEquippedArtifacts() = default;
-	ManageEquippedArtifacts(const ObjectInstanceID & artHolder, const size_t costumeIdx, bool saveCostume = false)
+	ManageEquippedArtifacts(const ObjectInstanceID & artHolder, const uint32_t costumeIdx, bool saveCostume = false)
 		: artHolder(artHolder)
 		, costumeIdx(costumeIdx)
 		, saveCostume(saveCostume)
@@ -440,7 +440,7 @@ struct DLL_LINKAGE ManageEquippedArtifacts : public CPackForServer
 	}
 
 	ObjectInstanceID artHolder;
-	size_t costumeIdx;
+	uint32_t costumeIdx;
 	bool saveCostume;
 
 	void visitTyped(ICPackVisitor & visitor) override;

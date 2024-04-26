@@ -42,7 +42,7 @@ public:
 	void gestureArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 	void activate() override;
 	void deactivate() override;
-	void enableArtifactsCostumeSwitcher();
+	void enableArtifactsCostumeSwitcher() const;
 
 	virtual void artifactRemoved(const ArtifactLocation & artLoc);
 	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw);

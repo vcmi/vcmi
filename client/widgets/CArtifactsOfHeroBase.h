@@ -13,7 +13,7 @@
 
 class CButton;
 
-class CArtifactsOfHeroBase : public CIntObject
+class CArtifactsOfHeroBase : virtual public CIntObject
 {
 protected:
 	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;

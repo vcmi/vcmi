@@ -343,7 +343,7 @@ void CWindowWithArtifacts::deactivate()
 	CWindowObject::deactivate();
 }
 
-void CWindowWithArtifacts::enableArtifactsCostumeSwitcher()
+void CWindowWithArtifacts::enableArtifactsCostumeSwitcher() const
 {
 	for(auto artSet : artSets)
 		std::visit(

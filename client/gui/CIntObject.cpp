@@ -314,20 +314,12 @@ CKeyShortcut::CKeyShortcut(EShortcut key)
 {
 }
 
-CKeyShortcut::CKeyShortcut(const EShortcut & key, const KeyPressedFunctor & keyPressedCallback)
-	: CKeyShortcut(key)
-{
-	this->keyPressedCallback = keyPressedCallback;
-}
-
 void CKeyShortcut::keyPressed(EShortcut key)
 {
 	if( assignedKey == key && assignedKey != EShortcut::NONE && !shortcutPressed)
 	{
 		shortcutPressed = true;
 		clickPressed(GH.getCursorPosition());
-		if(keyPressedCallback)
-			keyPressedCallback();
 	}
 }
 

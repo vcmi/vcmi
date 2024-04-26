@@ -13,12 +13,14 @@
 
 #include "../gui/Shortcut.h"
 
-class CArtifactsOfHeroMain : public CArtifactsOfHeroBase
+class CArtifactsOfHeroMain : public CArtifactsOfHeroBase, public CKeyShortcut
 {
 public:
 	CArtifactsOfHeroMain(const Point & position);
 	~CArtifactsOfHeroMain() override;
 	void enableArtifactsCostumeSwitcher();
+	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
 
 private:
 	const std::vector<EShortcut> costumesSwitcherHotkeys =
@@ -34,5 +36,4 @@ private:
 		EShortcut::HERO_COSTUME_8,
 		EShortcut::HERO_COSTUME_9
 	};
-	std::vector<std::shared_ptr<CKeyShortcut>> costumesSwitcherProcessors;
 };

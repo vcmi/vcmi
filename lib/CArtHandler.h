@@ -249,7 +249,7 @@ class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet
 {
 public:
 	CArtifactFittingSet(ArtBearer::ArtBearer Bearer);
-	CArtifactFittingSet(const CArtifactSet & artSet);
+	explicit CArtifactFittingSet(const CArtifactSet & artSet);
 	ArtBearer::ArtBearer bearerType() const override;
 
 protected:
