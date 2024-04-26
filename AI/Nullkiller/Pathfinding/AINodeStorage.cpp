@@ -1354,7 +1354,12 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
 		path.targetObjectDanger = evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
-		path.targetObjectArmyLoss = evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
+
+		path.targetObjectArmyLoss = evaluateArmyLoss(
+			path.targetHero,
+			getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy),
+			path.targetObjectDanger);
+
 		path.chainMask = node.actor->chainMask;
 		path.exchangeCount = node.actor->actorExchangeCount;
 		
@@ -1473,7 +1478,7 @@ uint8_t AIPath::turn() const
 
 uint64_t AIPath::getHeroStrength() const
 {
-	return targetHero->getFightingStrength() * heroArmy->getArmyStrength();
+	return targetHero->getFightingStrength() * getHeroArmyStrengthWithCommander(targetHero, heroArmy);
 }
 
 uint64_t AIPath::getTotalDanger() const

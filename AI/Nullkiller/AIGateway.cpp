@@ -911,6 +911,9 @@ void AIGateway::moveCreaturesToHero(const CGTownInstance * t)
 
 void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const CArmedInstance * source)
 {
+	if(source->stacksCount() == 0)
+		return;
+
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
 	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
