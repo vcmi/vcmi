@@ -133,6 +133,7 @@ std::vector<AnimationPath> CComponent::getFileName() const
 		case ComponentType::MANA:
 		case ComponentType::LEVEL:
 			return gen(primSkillsArr);
+		case ComponentType::NONE:
 		case ComponentType::SEC_SKILL:
 			return gen(secSkillsArr);
 		case ComponentType::RESOURCE:
@@ -165,6 +166,8 @@ size_t CComponent::getIndex() const
 {
 	switch(data.type)
 	{
+		case ComponentType::NONE:
+			return 0;
 		case ComponentType::PRIM_SKILL:
 			return data.subType.getNum();
 		case ComponentType::EXPERIENCE:
@@ -216,6 +219,7 @@ std::string CComponent::getDescription() const
 		case ComponentType::RESOURCE:
 		case ComponentType::RESOURCE_PER_DAY:
 			return CGI->generaltexth->allTexts[242];
+		case ComponentType::NONE:
 		case ComponentType::CREATURE:
 			return "";
 		case ComponentType::ARTIFACT:
@@ -288,9 +292,10 @@ std::string CComponent::getSubtitle() const
 		case ComponentType::SPELL_SCROLL:
 		case ComponentType::SPELL:
 			return CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
+		case ComponentType::NONE:
 		case ComponentType::MORALE:
-			return "";
 		case ComponentType::LUCK:
+		case ComponentType::HERO_PORTRAIT:
 			return "";
 		case ComponentType::BUILDING:
 			{
@@ -303,8 +308,6 @@ std::string CComponent::getSubtitle() const
 				}
 				return building->getNameTranslated();
 			}
-		case ComponentType::HERO_PORTRAIT:
-			return "";
 		case ComponentType::FLAG:
 			return CGI->generaltexth->capColors[data.subType.as<PlayerColor>().getNum()];
 		default:
