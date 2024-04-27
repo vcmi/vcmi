@@ -45,7 +45,7 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	layer = hero->boat ? hero->boat->layer : EPathfindingLayer::LAND;
 	initialMovement = hero->movementPointsRemaining();
 	initialTurn = 0;
-	armyValue = hero->getArmyStrength();
+	armyValue = getHeroArmyStrengthWithCommander(hero, hero);
 	heroFightingStrength = hero->getFightingStrength();
 	tiCache.reset(new TurnInfo(hero));
 }
@@ -55,7 +55,7 @@ ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, con
 	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
 	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount), armyCost(carrier->armyCost + other->armyCost), actorAction()
 {
-	armyValue = heroArmy->getArmyStrength();
+	armyValue = getHeroArmyStrengthWithCommander(hero, heroArmy);
 }
 
 ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatureSet, uint64_t chainMask, int initialTurn)

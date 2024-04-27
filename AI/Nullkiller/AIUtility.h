@@ -238,6 +238,8 @@ bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
 bool townHasFreeTavern(const CGTownInstance * town);
 
+uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy);
+
 uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start);
 
 // todo: move to obj manager
