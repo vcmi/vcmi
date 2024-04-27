@@ -1748,6 +1748,12 @@ void CGameHandler::throwIfWrongOwner(CPackForServer * pack, ObjectInstanceID id)
 	}
 }
 
+void CGameHandler::throwIfPlayerNotActive(CPackForServer * pack)
+{
+	if (!turnOrder->isPlayerMakingTurn(pack->player))
+		throwNotAllowedAction(pack);
+}
+
 void CGameHandler::throwIfWrongPlayer(CPackForServer * pack)
 {
 	throwIfWrongPlayer(pack, pack->player);
