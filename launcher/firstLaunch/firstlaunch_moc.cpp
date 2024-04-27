@@ -305,6 +305,11 @@ void FirstLaunchView::extractGogData()
 	QString fileExe = QFileDialog::getOpenFileName(this, tr("Select a GOG installer (exe) file..."), QDir::homePath(), filterExe);
 	if(fileExe.isEmpty())
 		return;
+	if(!fileExe.endsWith(".exe", Qt::CaseInsensitive)
+	{
+		QMessageBox::critical(this, tr("Invalid file selected"), tr("You have to select a GOG installer (exe) file!"));
+		return;
+	}
 
 #if defined(VCMI_MOBILE)
 	QString filterBin = tr("GOG bin file") + " (*.*)";
@@ -315,6 +320,11 @@ void FirstLaunchView::extractGogData()
 	QString fileBin = QFileDialog::getOpenFileName(this, tr("Select a GOG data (bin) file..."), QFileInfo(fileExe).absolutePath(), filterBin);
 	if(fileBin.isEmpty())
 		return;
+	if(!fileBin.endsWith(".bin", Qt::CaseInsensitive)
+	{
+		QMessageBox::critical(this, tr("Invalid file selected"), tr("You have to select a GOG data (bin) file!"));
+		return;
+	}
 
 	ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
 	QPalette pal = ui->pushButtonGogInstall->palette();
