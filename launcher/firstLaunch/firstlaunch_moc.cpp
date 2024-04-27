@@ -306,18 +306,18 @@ void FirstLaunchView::extractGogData()
 	if(fileBin.isEmpty())
 		return;
 
+	ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
+	QPalette pal = ui->pushButtonGogInstall->palette();
+	pal.setColor(QPalette::Button, QColor(Qt::yellow));
+	ui->pushButtonGogInstall->setAutoFillBackground(true);
+	ui->pushButtonGogInstall->setPalette(pal);
+	ui->pushButtonGogInstall->update();
+	ui->pushButtonGogInstall->repaint();
+
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QTemporaryDir dir;
 		if(dir.isValid()) {
 			QDir tempDir{dir.path()};
-
-			ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
-			QPalette pal = ui->pushButtonGogInstall->palette();
-			pal.setColor(QPalette::Button, QColor(Qt::yellow));
-			ui->pushButtonGogInstall->setAutoFillBackground(true);
-			ui->pushButtonGogInstall->setPalette(pal);
-			ui->pushButtonGogInstall->update();
-			ui->pushButtonGogInstall->repaint();
 
 			QString tmpFileExe = dir.filePath("h3_gog.exe");
 			QFile(fileExe).copy(tmpFileExe);
