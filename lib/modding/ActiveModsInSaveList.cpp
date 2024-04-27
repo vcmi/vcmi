@@ -47,7 +47,7 @@ void ActiveModsInSaveList::verifyActiveMods(const std::map<TModID, ModVerificati
 			missingMods.push_back(VLC->modh->getModInfo(compared.first).getVerificationInfo().name);
 
 		if (compared.second == ModVerificationStatus::EXCESSIVE)
-			excessiveMods.push_back(modList.at(compared.first).name);
+			excessiveMods.push_back(VLC->modh->getModInfo(compared.first).getVerificationInfo().name);
 	}
 
 	if(!missingMods.empty() || !excessiveMods.empty())
