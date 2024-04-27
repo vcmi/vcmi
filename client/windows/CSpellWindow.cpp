@@ -620,7 +620,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		const bool inCastle = owner->myInt->castleInt != nullptr;
 
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if((combatSpell ^ inCombat) || inCastle)
+		if((combatSpell != inCombat) || inCastle || (!combatSpell && !LOCPLINT->makingTurn))
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(ComponentType::SPELL, mySpell->id));
 			LOCPLINT->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
