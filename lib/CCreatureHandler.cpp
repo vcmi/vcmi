@@ -199,9 +199,9 @@ std::string CCreature::getNameTextID() const
 	return getNameSingularTextID();
 }
 
-std::string CCreature::getBiographyTranslated() const
+std::string CCreature::getDescriptionTranslated() const
 {
-	return VLC->generaltexth->translate(getBiographyTextID());
+	return VLC->generaltexth->translate(getDescriptionTextID());
 }
 
 std::string CCreature::getNamePluralTextID() const
@@ -214,9 +214,9 @@ std::string CCreature::getNameSingularTextID() const
 	return TextIdentifier("creatures", modScope, identifier, "name", "singular" ).get();
 }
 
-std::string CCreature::getBiographyTextID() const
+std::string CCreature::getDescriptionTextID() const
 {
-	return TextIdentifier("creatures", modScope, identifier, "biography").get();
+	return TextIdentifier("creatures", modScope, identifier, "description").get();
 }
 
 CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
@@ -610,7 +610,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
 	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
-	VLC->generaltexth->registerString(scope, cre->getBiographyTextID(), node["biography"].String());
+	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"].String());
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);

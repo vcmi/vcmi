@@ -519,8 +519,8 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	animation = std::make_shared<CCreaturePic>(5, 41, parent->info->creature);
 	animationArea = std::make_shared<LRClickableArea>(Rect(5, 41, 100, 130), nullptr, [&]{
-		if(!parent->info->creature->getBiographyTranslated().empty())
-			CRClickPopup::createAndPush(parent->info->creature->getBiographyTranslated());
+		if(!parent->info->creature->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(parent->info->creature->getDescriptionTranslated());
 	});
 
 	if(parent->info->stackNode != nullptr && parent->info->commander == nullptr)

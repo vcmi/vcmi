@@ -41,9 +41,9 @@
 				}
 			}
 		},
-		"biography" : {
+		"description" : {
 			"type" : "string",
-			"description" : "Creature biography"
+			"description" : "Description of creature"
 		},
 		"faction" : {
 			"type" : "string",

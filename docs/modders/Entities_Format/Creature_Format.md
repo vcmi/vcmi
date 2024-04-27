@@ -32,8 +32,8 @@ In order to make functional creature you also need:
 		"plural" : "Creatures"
 	},
 
-	// Biography and information about creature
-	"biography" : "",
+	// Description of creature
+	"description" : "",
 
 	"level" : 0,
 
