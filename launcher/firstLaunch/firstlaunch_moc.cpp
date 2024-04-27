@@ -305,7 +305,7 @@ void FirstLaunchView::extractGogData()
 	QString fileExe = QFileDialog::getOpenFileName(this, tr("Select a GOG installer (exe) file..."), QDir::homePath(), filterExe);
 	if(fileExe.isEmpty())
 		return;
-	if(!fileExe.endsWith(".exe", Qt::CaseInsensitive)
+	if(!fileExe.endsWith(".exe", Qt::CaseInsensitive))
 	{
 		QMessageBox::critical(this, tr("Invalid file selected"), tr("You have to select a GOG installer (exe) file!"));
 		return;
@@ -320,7 +320,7 @@ void FirstLaunchView::extractGogData()
 	QString fileBin = QFileDialog::getOpenFileName(this, tr("Select a GOG data (bin) file..."), QFileInfo(fileExe).absolutePath(), filterBin);
 	if(fileBin.isEmpty())
 		return;
-	if(!fileBin.endsWith(".bin", Qt::CaseInsensitive)
+	if(!fileBin.endsWith(".bin", Qt::CaseInsensitive))
 	{
 		QMessageBox::critical(this, tr("Invalid file selected"), tr("You have to select a GOG data (bin) file!"));
 		return;
