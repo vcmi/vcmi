@@ -296,12 +296,22 @@ QString FirstLaunchView::getHeroesInstallDir()
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
+#if defined(VCMI_MOBILE)
+	QString filterExe = tr("GOG executable") + " (*.*)";
+	QMessageBox::information(this, tr("File selection"), tr("Select a GOG installer (exe) file..."));
+#else
 	QString filterExe = tr("GOG executable") + " (*.exe)";
+#endif
 	QString fileExe = QFileDialog::getOpenFileName(this, tr("Select a GOG installer (exe) file..."), QDir::homePath(), filterExe);
 	if(fileExe.isEmpty())
 		return;
 
+#if defined(VCMI_MOBILE)
+	QString filterBin = tr("GOG bin file") + " (*.*)";
+	QMessageBox::information(this, tr("File selection"), tr("Select a GOG data (bin) file..."));
+#else
 	QString filterBin = tr("GOG bin file") + " (*.bin)";
+#endif
 	QString fileBin = QFileDialog::getOpenFileName(this, tr("Select a GOG data (bin) file..."), QFileInfo(fileExe).absolutePath(), filterBin);
 	if(fileBin.isEmpty())
 		return;
