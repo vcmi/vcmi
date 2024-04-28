@@ -47,6 +47,7 @@ public:
 	void visitExchangeArtifacts(ExchangeArtifacts & pack) override;
 	void visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack) override;
 	void visitManageBackpackArtifacts(ManageBackpackArtifacts & pack) override;
+	void visitManageEquippedArtifacts(ManageEquippedArtifacts & pack) override;
 	void visitAssembleArtifacts(AssembleArtifacts & pack) override;
 	void visitEraseArtifactByClient(EraseArtifactByClient & pack) override;
 	void visitBuyArtifact(BuyArtifact & pack) override;

@@ -221,6 +221,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
 			arts->setHero(curHero);
 			addSetAndCallbacks(arts);
+			enableArtifactsCostumeSwitcher();
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);

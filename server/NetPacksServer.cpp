@@ -179,6 +179,15 @@ void ApplyGhNetPackVisitor::visitManageBackpackArtifacts(ManageBackpackArtifacts
 	}
 }
 
+void ApplyGhNetPackVisitor::visitManageEquippedArtifacts(ManageEquippedArtifacts & pack)
+{
+	gh.throwIfWrongOwner(&pack, pack.artHolder);
+	if(pack.saveCostume)
+		result = gh.saveArtifactsCostume(pack.player, pack.artHolder, pack.costumeIdx);
+	else
+		result = gh.switchArtifactsCostume(pack.player, pack.artHolder, pack.costumeIdx);
+}
+
 void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.heroID);

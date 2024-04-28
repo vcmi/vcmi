@@ -180,6 +180,16 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"heroLooseFormation",       EShortcut::HERO_LOOSE_FORMATION      },
 		{"heroTightFormation",       EShortcut::HERO_TIGHT_FORMATION      },
 		{"heroToggleTactics",        EShortcut::HERO_TOGGLE_TACTICS       },
+		{"heroCostume0",             EShortcut::HERO_COSTUME_0            },
+		{"heroCostume1",             EShortcut::HERO_COSTUME_1            },
+		{"heroCostume2",             EShortcut::HERO_COSTUME_2            },
+		{"heroCostume3",             EShortcut::HERO_COSTUME_3            },
+		{"heroCostume4",             EShortcut::HERO_COSTUME_4            },
+		{"heroCostume5",             EShortcut::HERO_COSTUME_5            },
+		{"heroCostume6",             EShortcut::HERO_COSTUME_6            },
+		{"heroCostume7",             EShortcut::HERO_COSTUME_7            },
+		{"heroCostume8",             EShortcut::HERO_COSTUME_8            },
+		{"heroCostume9",             EShortcut::HERO_COSTUME_9            },
 		{"spellbookTabAdventure",    EShortcut::SPELLBOOK_TAB_ADVENTURE   },
 		{"spellbookTabCombat",       EShortcut::SPELLBOOK_TAB_COMBAT      }
 	};
