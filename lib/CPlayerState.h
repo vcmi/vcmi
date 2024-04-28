@@ -112,7 +112,8 @@ public:
 		h & daysWithoutCastle;
 		h & cheated;
 		h & battleBonuses;
-		h & costumesArtifacts;
+		if (h.version >= Handler::Version::ARTIFACT_COSTUMES)
+			h & costumesArtifacts;
 		h & enteredLosingCheatCode;
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);

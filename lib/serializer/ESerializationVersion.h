@@ -40,6 +40,7 @@ enum class ESerializationVersion : int32_t
 	MANA_LIMIT,	// 837 change MANA_PER_KNOWLEGDE to percentage
 	BONUS_META_STRING,	// 838 bonuses use MetaString instead of std::string for descriptions
 	TURN_TIMERS_STATE, // 839 current state of turn timers is serialized
+	ARTIFACT_COSTUMES, // 840 swappable artifacts set added
 
-	CURRENT = TURN_TIMERS_STATE
+	CURRENT = ARTIFACT_COSTUMES
 };

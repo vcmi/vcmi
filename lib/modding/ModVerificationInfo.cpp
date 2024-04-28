@@ -91,9 +91,9 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 		auto & localModInfo = VLC->modh->getModInfo(remoteModId).getVerificationInfo();
 		modAffectsGameplay |= VLC->modh->getModInfo(remoteModId).checkModGameplayAffecting();
 
-		assert(modAffectsGameplay); // such mods should not be in the list to begin with
+		// skip it. Such mods should only be present in old saves or if mod changed and no longer affects gameplay
 		if (!modAffectsGameplay)
-			continue; // skip it
+			continue;
 
 		if (!vstd::contains(VLC->modh->getActiveMods(), remoteModId))
 		{
