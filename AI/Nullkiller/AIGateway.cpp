@@ -11,6 +11,7 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -251,6 +252,7 @@ void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
 		nullkiller->memory->markObjectVisited(visitedObj);
+		nullkiller->objectClusterizer->invalidate(visitedObj->id);
 	}
 
 	status.heroVisit(visitedObj, start);
@@ -373,6 +375,7 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 		return;
 
 	nullkiller->memory->removeFromMemory(obj);
+	nullkiller->objectClusterizer->onObjectRemoved(obj->id);
 
 	if(nullkiller->baseGraph && nullkiller->settings->isObjectGraphAllowed())
 	{
@@ -542,6 +545,11 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
+	if(battleState.ourHero && battleState.ourHero->patrol.patrolling)
+	{
+		return std::nullopt;
+	}
+
 	double ourStrength = battleState.getOurStrength();
 	double fightRatio = ourStrength / (double)battleState.getEnemyStrength();
 
@@ -614,9 +622,9 @@ void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vec
 	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
-void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel)
+void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
-	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
+	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i', autoaccept '%i'", text % askID % soundID % selection % cancel % safeToAutoaccept);
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
 									  % components.size() % text));
@@ -682,7 +690,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					&& components.size() == 2
 					&& components.front().type == ComponentType::RESOURCE
 					&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
-						|| nullkiller->buildAnalyzer->isGoldPreasureHigh()))
+						|| nullkiller->buildAnalyzer->isGoldPressureHigh()))
 				{
 					sel = 1;
 				}
@@ -748,7 +756,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits && up->tempOwner == down->tempOwner)
+		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cb->getStartInfo()->isSteadwickFallCampaignMission())
 		{
 			pickBestCreatures(down, up);
 		}
@@ -1109,7 +1117,24 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 
 		if(!recruiter->getSlotFor(creID).validSlot())
 		{
-			continue;
+			for(auto stack : recruiter->Slots())
+			{
+				if(!stack.second->type)
+					continue;
+				
+				auto duplicatingSlot = recruiter->getSlotFor(stack.second->type);
+
+				if(duplicatingSlot != stack.first)
+				{
+					cb->mergeStacks(recruiter, recruiter, stack.first, duplicatingSlot);
+					break;
+				}
+			}
+
+			if(!recruiter->getSlotFor(creID).validSlot())
+			{
+				continue;
+			}
 		}
 
 		vstd::amin(count, cb->getResourceAmount() / creID.toCreature()->getFullRecruitCost());
@@ -1152,11 +1177,6 @@ void AIGateway::retrieveVisitableObjs()
 	{
 		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
 		{
-			if(!obj->appearance)
-			{
-				logAi->error("Bad!");
-			}
-
 			addVisitableObj(obj);
 		}
 	});
@@ -1216,7 +1236,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		//assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cb->moveHero(*h, h->convertFromVisitablePos(dst));
+		cb->moveHero(*h, h->convertFromVisitablePos(dst), false);
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
@@ -1278,7 +1298,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			destinationTeleport = exitId;
 			if(exitPos.valid())
 				destinationTeleportPos = h->convertFromVisitablePos(exitPos);
-			cb->moveHero(*h, h->pos);
+			cb->moveHero(*h, h->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
@@ -1401,7 +1421,7 @@ void AIGateway::tryRealize(Goals::DigAtTile & g)
 	assert(g.hero->visitablePos() == g.tile); //surely we want to crash here?
 	if(g.hero->diggingStatus() == EDiggingStatus::CAN_DIG)
 	{
-		cb->dig(g.hero.get());
+		cb->dig(g.hero);
 	}
 	else
 	{

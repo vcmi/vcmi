@@ -760,7 +760,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 					//TODO we need find batter way to handle double-wide stacks
 					//currently if only second occupied stack part is standing on gate / bridge hex then stack will start to wait for bridge to lower before it's needed. Though this is just a visual bug.
-					if (curStack->doubleWide())
+					if (curStack->doubleWide() && i + 2 < path.first.size())
 					{
 						BattleHex otherHex = curStack->occupiedHex(hex);
 						if (otherHex.isValid() && needOpenGates(otherHex))

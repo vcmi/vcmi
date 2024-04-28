@@ -201,6 +201,8 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
 		room.statusID = jsonEntry["status"].String();
+		room.gameVersion = jsonEntry["version"].String();
+		room.modList = ModVerificationInfo::jsonDeserializeList(jsonEntry["mods"]);
 		std::chrono::seconds ageSeconds (jsonEntry["ageSeconds"].Integer());
 		room.startDateFormatted = TextOperations::getCurrentFormattedDateTimeLocal(-ageSeconds);
 
@@ -277,7 +279,7 @@ void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 {
 	if (json["proxyMode"].Bool())
 	{
-		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, {});
+		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, { CSH->getGlobalLobby().getAccountDisplayName() });
 		CSH->loadMode = ELoadMode::MULTI;
 
 		std::string hostname = getServerHost();
@@ -428,6 +430,17 @@ const std::vector<std::string> & GlobalLobbyClient::getActiveChannels() const
 const std::vector<GlobalLobbyRoom> & GlobalLobbyClient::getMatchesHistory() const
 {
 	return matchesHistory;
+}
+
+const GlobalLobbyRoom & GlobalLobbyClient::getActiveRoomByName(const std::string & roomUUID) const
+{
+	for (auto const & room : activeRooms)
+	{
+		if (room.gameRoomID == roomUUID)
+			return room;
+	}
+
+	throw std::out_of_range("Failed to find room with UUID of " + roomUUID);
 }
 
 const std::vector<GlobalLobbyChannelMessage> & GlobalLobbyClient::getChannelHistory(const std::string & channelType, const std::string & channelName) const

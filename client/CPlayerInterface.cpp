@@ -1024,7 +1024,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<vo
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
 
-void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel )
+void CPlayerInterface::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
@@ -1034,6 +1034,12 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 	if (!selection && cancel) //simple yes/no dialog
 	{
+		if(settings["general"]["enableUiEnhancements"].Bool() && safeToAutoaccept)
+		{
+			cb->selectionMade(1, askID); //as in HD mod, we try to skip dialogs that server considers visual fluff which does not affect gamestate
+			return;
+		}
+
 		std::vector<std::shared_ptr<CComponent>> intComps;
 		for (auto & component : components)
 			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
@@ -1739,7 +1745,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
-	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->artifactRemoved(al);
 
 	waitWhileDialog();
@@ -1759,7 +1765,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 			redraw = false;
 	}
 
-	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->artifactMoved(src, dst, redraw);
 
 	waitWhileDialog();
@@ -1775,7 +1781,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
-	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->artifactAssembled(al);
 }
 
@@ -1784,7 +1790,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
-	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->artifactDisassembled(al);
 }
 

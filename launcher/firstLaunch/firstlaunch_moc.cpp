@@ -21,6 +21,10 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../languages.h"
 
+#ifdef ENABLE_INNOEXTRACT
+#include "cli/extract.hpp"
+#endif
+
 FirstLaunchView::FirstLaunchView(QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::FirstLaunchView)
@@ -32,6 +36,10 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 
 	ui->lineEditDataSystem->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front())));
 	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
+
+#ifndef ENABLE_INNOEXTRACT
+	ui->pushButtonGogInstall->hide();
+#endif
 }
 
 void FirstLaunchView::on_buttonTabLanguage_clicked()
@@ -93,6 +101,11 @@ void FirstLaunchView::on_pushButtonDataHelp_clicked()
 {
 	static const QUrl vcmibuilderWiki("https://github.com/vcmi/vcmi/blob/master/docs/players/Installation_Linux.md#install-data-using-vcmibuilder-script");
 	QDesktopServices::openUrl(vcmibuilderWiki);
+}
+
+void FirstLaunchView::on_pushButtonGogInstall_clicked()
+{
+	extractGogData();
 }
 
 void FirstLaunchView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -218,6 +231,7 @@ void FirstLaunchView::heroesDataDetected()
 
 	ui->labelDataSearch->setVisible(false);
 	ui->labelDataCopy->setVisible(false);
+	ui->pushButtonGogInstall->setVisible(false);
 
 	if(hasVCMIBuilderScript)
 	{
@@ -279,7 +293,65 @@ QString FirstLaunchView::getHeroesInstallDir()
 	return QString{};
 }
 
-void FirstLaunchView::copyHeroesData(const QString & path)
+void FirstLaunchView::extractGogData()
+{
+#ifdef ENABLE_INNOEXTRACT
+	QString filterExe = tr("GOG executable") + " (*.exe)";
+	QString fileExe = QFileDialog::getOpenFileName(this, tr("Select a GOG installer (exe) file..."), QDir::homePath(), filterExe);
+	if(fileExe.isEmpty())
+		return;
+
+	QString filterBin = tr("GOG bin file") + " (*.bin)";
+	QString fileBin = QFileDialog::getOpenFileName(this, tr("Select a GOG data (bin) file..."), QFileInfo(fileExe).absolutePath(), filterBin);
+	if(fileBin.isEmpty())
+		return;
+
+	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
+		QTemporaryDir dir;
+		if(dir.isValid()) {
+			QDir tempDir{dir.path()};
+
+			ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
+			QPalette pal = ui->pushButtonGogInstall->palette();
+			pal.setColor(QPalette::Button, QColor(Qt::yellow));
+			ui->pushButtonGogInstall->setAutoFillBackground(true);
+			ui->pushButtonGogInstall->setPalette(pal);
+			ui->pushButtonGogInstall->update();
+			ui->pushButtonGogInstall->repaint();
+
+			QString tmpFileExe = dir.filePath("h3_gog.exe");
+			QFile(fileExe).copy(tmpFileExe);
+			QFile(fileBin).copy(dir.filePath("h3_gog-1.bin"));
+
+			::extract_options o;
+			o.extract = true;
+
+			// standard settings
+			o.gog_galaxy = true;
+			o.codepage = 0U;
+			o.output_dir = dir.path().toStdString();
+			o.extract_temp = true;
+			o.extract_unknown = true;
+			o.filenames.set_expand(true);
+
+			o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
+
+			process_file(tmpFileExe.toStdString(), o);
+
+			QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
+			if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
+			{
+				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
+				ui->pushButtonGogInstall->setText(tr("Install GOG files"));
+				return;
+			}
+			copyHeroesData(dir.path(), true);
+		}
+	});
+#endif
+}
+
+void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 {
 	QDir sourceRoot = QDir(path);
 	
@@ -307,7 +379,7 @@ void FirstLaunchView::copyHeroesData(const QString & path)
 
 	if(dirData.empty())
 	{
-		QMessageBox::critical(this, "Heroes III data not found!", "Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
+		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
 		return;
 	}
 
@@ -321,19 +393,19 @@ void FirstLaunchView::copyHeroesData(const QString & path)
 		if (roeFiles.empty())
 		{
 			// Directory structure is correct (Data/Maps/Mp3) but no .lod archives that should be present in any install
-			QMessageBox::critical(this, "Heroes III data not found!", "Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
+			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
 			return;
 		}
 
 		if (!hdFiles.empty())
 		{
 			// HD Edition contains only RoE data so we can't use even unmodified files from it
-			QMessageBox::critical(this, "Heroes III data not found!", "Heroes III: HD Edition files are not supported by VCMI.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
+			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Heroes III: HD Edition files are not supported by VCMI.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
 			return;
 		}
 
 		// RoE or some other unsupported edition. Demo version?
-		QMessageBox::critical(this, "Heroes III data not found!", "Unknown or unsupported Heroes III version found.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
+		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Unknown or unsupported Heroes III version found.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
 		return;
 	}
 
@@ -359,7 +431,10 @@ void FirstLaunchView::copyHeroesData(const QString & path)
 		for(const QString & filename : sourceDir.entryList(QDir::Filter::Files))
 		{
 			QFile sourceFile(sourceDir.filePath(filename));
-			sourceFile.copy(targetDir.filePath(filename));
+			if(move)
+				sourceFile.rename(targetDir.filePath(filename));
+			else
+				sourceFile.copy(targetDir.filePath(filename));
 		}
 	}
 

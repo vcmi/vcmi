@@ -42,6 +42,38 @@ bool ExecuteHeroChain::operator==(const ExecuteHeroChain & other) const
 		&& chainPath.chainMask == other.chainPath.chainMask;
 }
 
+std::vector<ObjectInstanceID> ExecuteHeroChain::getAffectedObjects() const
+{
+	std::vector<ObjectInstanceID> affectedObjects = { chainPath.targetHero->id };
+
+	if(objid != -1)
+		affectedObjects.push_back(ObjectInstanceID(objid));
+
+	for(auto & node : chainPath.nodes)
+	{
+		if(node.targetHero)
+			affectedObjects.push_back(node.targetHero->id);
+	}
+
+	vstd::removeDuplicates(affectedObjects);
+
+	return affectedObjects;
+}
+
+bool ExecuteHeroChain::isObjectAffected(ObjectInstanceID id) const
+{
+	if(chainPath.targetHero->id == id || objid == id)
+		return true;
+
+	for(auto & node : chainPath.nodes)
+	{
+		if(node.targetHero && node.targetHero->id == id)
+			return true;
+	}
+
+	return false;
+}
+
 void ExecuteHeroChain::accept(AIGateway * ai)
 {
 	logAi->debug("Executing hero chain towards %s. Path %s", targetName, chainPath.toString());
@@ -71,6 +103,13 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 		const CGHeroInstance * hero = node->targetHero;
 		HeroPtr heroPtr = hero;
+
+		if(!heroPtr.validAndSet())
+		{
+			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name);
+
+			return;
+		}
 
 		if(node->parentIndex >= i)
 		{

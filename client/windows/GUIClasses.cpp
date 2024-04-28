@@ -204,7 +204,7 @@ void CRecruitmentWindow::showAll(Canvas & to)
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, const std::function<void()> & onClose, int y_offset):
-	CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPRCRT")),
+	CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPRCRT")),
 	onRecruit(Recruit),
 	onClose(onClose),
 	level(Level),
@@ -445,7 +445,7 @@ CLevelWindow::~CLevelWindow()
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPTAVERN")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPTAVERN")),
 	onWindowClosed(onWindowClosed),
 	tavernObj(TavernObj),
 	heroToInvite(nullptr)
@@ -692,7 +692,7 @@ static bool isQuickExchangeLayoutAvailable()
 }
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
-	: CStatusbarWindow(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2")),
+	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2")),
 	controller(hero1, hero2),
 	moveStackLeftButtons(),
 	moveStackRightButtons()
@@ -861,9 +861,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 		auto openBackpack = [this](const CGHeroInstance * hero) -> void
 		{
-			GH.windows().createAndPushWindow<CHeroBackpackWindow>(hero);
-			for(auto artSet : artSets)
-				GH.windows().topWindow<CHeroBackpackWindow>()->addSet(artSet);
+			GH.windows().createAndPushWindow<CHeroBackpackWindow>(hero, artSets);
 		};
 
 		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
@@ -971,7 +969,7 @@ void CExchangeWindow::updateWidgets()
 }
 
 CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boatType, const std::function<void()> & onBuy)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPSHIP"))
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPSHIP"))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -1089,7 +1087,7 @@ bool CTransformerWindow::holdsGarrison(const CArmedInstance * army)
 }
 
 CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("SKTRNBK")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("SKTRNBK")),
 	hero(_hero),
 	onWindowClosed(onWindowClosed),
 	market(_market)
@@ -1188,7 +1186,7 @@ void CUniversityWindow::CItem::showAll(Canvas & to)
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
 	hero(_hero),
 	onWindowClosed(onWindowClosed),
 	market(_market)
@@ -1250,7 +1248,7 @@ void CUniversityWindow::makeDeal(SecondarySkill skill)
 
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkill SKILL, bool available)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("UNIVERS2.PCX")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS2.PCX")),
 	owner(owner_)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1337,7 +1335,7 @@ bool CGarrisonWindow::holdsGarrison(const CArmedInstance * army)
 }
 
 CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("APHLFTBK")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("APHLFTBK")),
 	fort(object),
 	hero(visitor)
 {
@@ -1541,7 +1539,7 @@ int CHillFortWindow::getState(SlotID slot)
 }
 
 CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
-	CStatusbarWindow(PLAYER_COLORED | BORDERED, ImagePath::builtin("TpRank")),
+	CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("TpRank")),
 	owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);

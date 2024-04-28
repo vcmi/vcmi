@@ -195,7 +195,10 @@ bool CModManager::canEnableMod(QString modname)
 	{
 		if(!modList->hasMod(modEntry)) // required mod is not available
 			return addError(modname, QString("Required mod %1 is missing").arg(modEntry));
-		if(!modList->getMod(modEntry).isEnabled())
+
+		CModEntry modData = modList->getMod(modEntry);
+
+		if(!modData.isCompatibilityPatch() && !modData.isEnabled())
 			return addError(modname, QString("Required mod %1 is not enabled").arg(modEntry));
 	}
 
@@ -274,15 +277,15 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	const auto destDir = CLauncherDirs::modsPath() + QChar{'/'};
 
 	if(!QFile(archivePath).exists())
-		return addError(modname, "Mod archive is missing");
+		return addError(modname, tr("Mod archive is missing"));
 
 	if(localMods.contains(modname))
-		return addError(modname, "Mod with such name is already installed");
+		return addError(modname, tr("Mod with such name is already installed"));
 
 	std::vector<std::string> filesToExtract;
 	QString modDirName = ::detectModArchive(archivePath, modname, filesToExtract);
 	if(!modDirName.size())
-		return addError(modname, "Mod archive is invalid or corrupted");
+		return addError(modname, tr("Mod archive is invalid or corrupted"));
 	
 	std::atomic<int> filesCounter = 0;
 

@@ -89,15 +89,29 @@ std::string StartInfo::getCampaignName() const
 		return VLC->generaltexth->allTexts[508];
 }
 
+bool StartInfo::isSteadwickFallCampaignMission() const
+{
+	if (!campState)
+		return false;
+
+	if (campState->getFilename() != "DATA/EVIL1")
+		return false;
+
+	if (campState->currentScenario() != CampaignScenarioID(2))
+		return false;
+
+	return true;
+}
+
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
 	if(!mi || !mi->mapHeader)
 		throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.529"));
 	
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
-	ModIncompatibility::ModListWithVersion modList;
+	ModIncompatibility::ModList modList;
 	for(const auto & m : missingMods)
-		modList.push_back({m.second.name, m.second.version.toString()});
+		modList.push_back(m.second.name);
 	
 	if(!modList.empty())
 		throw ModIncompatibility(modList);

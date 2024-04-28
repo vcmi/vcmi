@@ -13,6 +13,7 @@
 
 #include "GlobalLobbyClient.h"
 #include "GlobalLobbyWindow.h"
+#include "GlobalLobbyRoomWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -209,17 +210,13 @@ GlobalLobbyAccountCard::GlobalLobbyAccountCard(GlobalLobbyWindow * window, const
 }
 
 GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & roomDescription)
+	: roomUUID(roomDescription.gameRoomID)
+	, window(window)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	addUsedEvents(LCLICK);
 
-	const auto & onJoinClicked = [window, roomID = roomDescription.gameRoomID]()
-	{
-		window->doJoinRoom(roomID);
-	};
-
-	bool publicRoom = roomDescription.statusID == "public";
 	bool hasInvite = CSH->getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
-	bool canJoin = publicRoom || hasInvite;
 
 	auto roomSizeText = MetaString::createFromRawString("%d/%d");
 	roomSizeText.replaceNumber(roomDescription.participants.size());
@@ -241,15 +238,14 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, roomDescription.hostAccountDisplayName);
 	labelDescription = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, roomDescription.description);
-	labelRoomSize = std::make_shared<CLabel>(178, 10, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, roomSizeText.toString());
-	labelRoomStatus = std::make_shared<CLabel>(190, 30, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, roomStatusText.toString());
-	iconRoomSize = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconPlayer"), Point(180, 5));
+	labelRoomSize = std::make_shared<CLabel>(212, 10, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, roomSizeText.toString());
+	labelRoomStatus = std::make_shared<CLabel>(225, 30, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, roomStatusText.toString());
+	iconRoomSize = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconPlayer"), Point(214, 5));
+}
 
-	if(!CSH->inGame() && canJoin)
-	{
-		buttonJoin = std::make_shared<CButton>(Point(194, 4), AnimationPath::builtin("lobbyJoinRoom"), CButton::tooltip(), onJoinClicked);
-		buttonJoin->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/iconEnter")));
-	}
+void GlobalLobbyRoomCard::clickPressed(const Point & cursorPosition)
+{
+	GH.windows().createAndPushWindow<GlobalLobbyRoomWindow>(window, roomUUID);
 }
 
 GlobalLobbyChannelCard::GlobalLobbyChannelCard(GlobalLobbyWindow * window, const std::string & channelName)

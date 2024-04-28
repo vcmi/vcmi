@@ -33,7 +33,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode)
-	: CStatusbarWindow(PLAYER_COLORED)
+	: CWindowObject(PLAYER_COLORED)
 	, windowClosedCallback(onWindowClosed)
 {
 	assert(mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_PLAYER || mode == EMarketMode::CREATURE_RESOURCE ||

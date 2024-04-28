@@ -11,8 +11,8 @@
 
 #include "../lib/ResourceSet.h"
 #include "../widgets/CExchangeController.h"
-#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/Images.h"
+#include "CWindowWithArtifacts.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

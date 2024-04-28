@@ -91,33 +91,10 @@ bool HeroPtr::operator<(const HeroPtr & rhs) const
 
 const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 {
-	//TODO? check if these all assertions every time we get info about hero affect efficiency
-	//
-	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
-	assert(doWeExpectNull || h);
-
-	if(h)
-	{
-		auto obj = cb->getObj(hid);
-		//const bool owned = obj && obj->tempOwner == ai->playerID;
-
-		if(doWeExpectNull && !obj)
-		{
-			return nullptr;
-		}
-		else
-		{
-			if (!obj)
-				logAi->error("Accessing no longer accessible hero %s!", h->getNameTranslated());
-			//assert(obj);
-			//assert(owned);
-		}
-	}
-
-	return h;
+	return get(cb, doWeExpectNull);
 }
 
-const CGHeroInstance * HeroPtr::get(CCallback * cb, bool doWeExpectNull) const
+const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull) const
 {
 	//TODO? check if these all assertions every time we get info about hero affect efficiency
 	//
@@ -323,6 +300,19 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
+int getDuplicatingSlots(const CArmedInstance * army)
+{
+	int duplicatingSlots = 0;
+
+	for(auto stack : army->Slots())
+	{
+		if(stack.second->type && army->getSlotFor(stack.second->type) != stack.first)
+			duplicatingSlots++;
+	}
+
+	return duplicatingSlots;
+}
+
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
@@ -370,13 +360,14 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			return false;
 
 		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+		auto duplicatingSlotsCount = getDuplicatingSlots(h);
 
 		for(auto level : d->creatures)
 		{
 			for(auto c : level.second)
 			{
 				if(level.first
-					&& h->getSlotFor(CreatureID(c)) != SlotID()
+					&& (h->getSlotFor(CreatureID(c)) != SlotID() || duplicatingSlotsCount > 0)
 					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
 				{
 					return true;

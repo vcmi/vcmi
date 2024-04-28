@@ -16,13 +16,24 @@
 * Fixed crash when player has manual control of arrow towers during siege
 * Fixed crash on attempt to attack with Magma Elementals with Erdamon as hero
 * Fixed crash on attempt to access removed Quest Guard
+* Fixed crash on moving through whirlpool when hero has no troops other than commander
+* Fixed possible freeze when moving hero over events that give enough experience to cause a level-up
+* Fixed possible crash on movement of double-wide creatures next to gates during siege
 
 ### Multiplayer
 * Implemented new lobby, available in game with persistent accounts and chat
 * Removed old lobby previously available in launcher
 * Fixed potential crash that could occur if two players act at the very same time
+* Game will no longer pause due to network lag after every tile when instant movement speed is selected in multiplayer
 
 ### Interface
+* Implemented configurable keyboard shortcuts, editable in file config/shortcutsConfig.json
+* Fixed broken keyboard shortcuts in main menu
+* If UI Enhancements are enabled, the game will skip confirmation dialogs when entering owned dwellings or refugee camp.
+* It is now possible to move artifact to or from backpack using Alt+click
+* It is now possible to transfer artifact to another hero during exchange using Ctrl+click
+* It is no longer possible to start single scenario by pressing "Enter", in line with H3 and to prevent interference with game chat
+* Empty treasure banks will no longer ask for confirmation when entering
 * Game will now save last used difficulty settings
 * Town Portal dialog will now show town icons
 * Town Portal dialog will now show town info on right click
@@ -44,6 +55,10 @@
 * Fixed translation of some bonuses using incorrect language
 * Added option to use 'nearest' rounding mode for UI scaling
 * Fixed various minor bugs in trade window interface
+* Game will now correctly reset artifact drag-and-drop cursor if player opens another dialog on top of hero window
+* If player has no valid saves, game will pick "NEWGAME" as proposed save name instead of empty field
+* Fixed incorrect visitation sounds of Crypt, Shipwreck and Abandoned Ship
+* Fixed double sound playback on capturing mines
 
 ### Campaigns
 * Game will now correctly track who defeated the hero or wandering monsters for related quests and victory conditions
@@ -52,6 +67,7 @@
 * Birth of a Barbarian: Yog can no longer purchase spellbook from the Mage Guild
 * Birth of a Barbarian: Yog will no longer gain Spellpower or Knowledge when leveling up
 * Birth of a Barbarian: Scenarios with mission to deliver an artifact will no longer end after just defeating enemies
+* Dungeons and Devils: AI will no longer take troops from garrisons in "Fall of Steadwick" scenario, in line with H3
 * Gem will now have her class set to "Sorceress" in campaigns
 * Fixed missing names for heroes who have their names customized in map after being transferred to the next scenario
 * Artifact transfer will now work correctly if the hero holding the transferable artifact is not also transferring
@@ -59,6 +75,7 @@
 * Fixed crash on advancing to campaign mission in which you can pick hero as starting bonus
 * It is now possible to replay the intro movie from the scenario information window
 * When playing the intro video, the subtitles are now correctly synchronized with the audio
+* Fixed invalid string on right-clicking secondary skill starting bonus
 
 ### Battles
 * Added option to enable unlimited combat replays during game setup
@@ -86,12 +103,15 @@
 * It is no longer possible to use summoning spells if such spell would summon 0 creatures
 * It is now possible to assemble or disassemble artifacts while in Altar of Sacrifice
 * It is no longer possible to move war machines to Altar of Sacrifice
+* If HotA mod is enabled, game will no longer incorrectly replace all prisons on map with HotA version
+* Fixed regression leading to large elemental dwellings being used as replacements for random dwellings
 
 ### Random Maps Generator
 * Game will now save last used RMG settings in game and in editor
 * Reduced number of obstacles placed in water zones
 * Treasure values in water zone should now be similar to values from HotA, due to bugs in H3:SoD values
 * Random map templates can now have optional description visible in random map setup
+* Implemented biomes system, for more consistent and natural obstacles placement
 * Implemented Penrose tiling to produce more natural zone edges
 * Increased minimal density of obstacles on surface level of the map
 * Decreased minimal density of obstacles on undergound level of the map
@@ -101,6 +121,11 @@
 * Windmill will now appear on top of all other objects
 
 ### Launcher
+* Launcher now supports installation of Heroes 3 data using gog.com offline installer thanks to innoextract tool
+* Fixed loading of mod screenshots if player opens screenshots tab without any preloaded screenshots
+* Fixed installation of mods if it has non-installed submod as dependency
+* It is now possible to import game settings using drag-and-drop
+* Added button to import mods, maps, or settings in addition to drag-and-drop
 * Added Spanish translation to launcher
 * Added Portuguese translation to launcher
 
@@ -120,6 +145,11 @@
 * Reduced memory usage and improved performance of AI pathfinding
 * Added experimental and disabled by default implementation of object graph
 * It is now possible to configure AI settings via config file
+* Improved parallelization when AI has multiple heroes
+* AI-controlled creatures will now correctly move across wide moat in Fortress
+* Fixed system error messages caused by visitation of Trading Posts by VCAI 
+* Patrolling heroes will never retreat from the battle
+* AI will now consider strength of town garrison and not just strength of visiting hero when deciding to attack town
 
 ### Modding
 * Added new game setting that allows inviting heroes to taverns
@@ -130,6 +160,8 @@
 * Replaced bonus MANA_PER_KNOWLEDGE with MANA_PER_KNOWLEDGE_PERCENTAGE to avoid rounding error with mysticism
 * Factions can now be marked as 'special', banning them from random selection
 * Replaced 'convert txt' text export command with more convenient 'translate' and 'translate maps' commands
+* Game will now report cases where minimal damage of a creature is greater than maximal damage
+* Added bonuses RESOURCES_CONSTANT_BOOST and RESOURCES_TOWN_MULTIPLYING_BOOST
 
 # 1.4.4 -> 1.4.5
 

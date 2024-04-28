@@ -202,7 +202,7 @@ void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const Js
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent) const
 {
-	assert(state != ELoadingState::LOADING);
+	//assert(state != ELoadingState::LOADING);
 
 	auto options = ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent);
 	return getIdentifierImpl(options, silent);

@@ -25,20 +25,19 @@ namespace NKAI
 		int mainHeroTurnDistanceLimit;
 		int scoutHeroTurnDistanceLimit;
 		int maxpass;
-		float maxGoldPreasure;
+		float maxGoldPressure;
 		bool allowObjectGraph;
+		bool useTroopsFromGarrisons;
 
 	public:
 		Settings();
 
 		int getMaxPass() const { return maxpass; }
-		float getMaxGoldPreasure() const { return maxGoldPreasure; }
+		float getMaxGoldPressure() const { return maxGoldPressure; }
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }
 		bool isObjectGraphAllowed() const { return allowObjectGraph; }
-
-	private:
-		void loadFromMod(const std::string & modName, const ResourcePath & resource);
+		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
 	};
 }

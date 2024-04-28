@@ -20,8 +20,8 @@
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
-CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
-	: CStatusbarWindow(0)
+CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets)
+	: CWindowWithArtifacts(&artsSets)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -49,7 +49,6 @@ void CHeroBackpackWindow::showAll(Canvas & to)
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)
-	: CWindowObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 

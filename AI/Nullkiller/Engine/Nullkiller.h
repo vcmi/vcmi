@@ -47,6 +47,24 @@ enum class ScanDepth
 	ALL_FULL = 2
 };
 
+struct TaskPlanItem
+{
+	std::vector<ObjectInstanceID> affectedObjects;
+	Goals::TSubgoal task;
+
+	TaskPlanItem(Goals::TSubgoal goal);
+};
+
+class TaskPlan
+{
+private:
+	std::vector<TaskPlanItem> tasks;
+
+public:
+	Goals::TTaskVec getTasks() const;
+	void merge(Goals::TSubgoal task);
+};
+
 class Nullkiller
 {
 private:
@@ -102,9 +120,10 @@ public:
 private:
 	void resetAiState();
 	void updateAiState(int pass, bool fast = false);
-	Goals::TTask choseBestTask(Goals::TSubgoal behavior, int decompositionMaxDepth) const;
-	Goals::TTask choseBestTask(Goals::TTaskVec & tasks) const;
-	void executeTask(Goals::TTask task);
+	void decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const;
+	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
+	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks) const;
+	bool executeTask(Goals::TTask task);
 };
 
 }

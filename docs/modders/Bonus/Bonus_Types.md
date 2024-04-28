@@ -33,6 +33,24 @@ On each turn, hides area in fog of war around affected town for all players othe
 
 - val: radius in tiles
 
+# Player bonuses
+
+Intended to be setup as global effect, AI cheat etc.
+
+### RESOURCES_CONSTANT_BOOST
+
+Bonus that does not account for propagation and gives specific amount of extra resources per day
+
+- subtype: resource identifier
+- val: - resource amount
+
+### RESOURCES_TOWN_MULTIPLYING_BOOST
+
+Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns
+
+- subtype: resource identifier
+- val: - base resource amount to be multipled times number of owned towns
+
 # Hero bonuses
 
 ### MOVEMENT

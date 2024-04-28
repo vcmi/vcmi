@@ -117,4 +117,36 @@ int Composition::getHeroExchangeCount() const
 	return result;
 }
 
+std::vector<ObjectInstanceID> Composition::getAffectedObjects() const
+{
+	std::vector<ObjectInstanceID> affectedObjects;
+
+	for(auto sequence : subtasks)
+	{
+		for(auto task : sequence)
+		{
+			if(task->isElementar())
+				vstd::concatenate(affectedObjects, task->asTask()->getAffectedObjects());
+		}
+	}
+
+	vstd::removeDuplicates(affectedObjects);
+
+	return affectedObjects;
+}
+
+bool Composition::isObjectAffected(ObjectInstanceID id) const
+{
+	for(auto sequence : subtasks)
+	{
+		for(auto task : sequence)
+		{
+			if(task->isElementar() && task->asTask()->isObjectAffected(id))
+				return true;
+		}
+	}
+
+	return false;
+}
+
 }

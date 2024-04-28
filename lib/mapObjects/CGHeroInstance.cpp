@@ -607,10 +607,9 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 
 	// to find object handler we must use heroClass->id
 	// after setType subID used to store unique hero identify id. Check issue 2277 for details
+	// exclude prisons which should use appearance as set in map, via map editor or RMG
 	if (ID != Obj::PRISON)
 		setType(ID, type->heroClass->getIndex());
-	else
-		setType(ID, 0);
 
 	this->subID = oldSubID;
 }

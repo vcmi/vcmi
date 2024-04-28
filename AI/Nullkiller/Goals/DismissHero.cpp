@@ -18,22 +18,22 @@ using namespace Goals;
 
 bool DismissHero::operator==(const DismissHero & other) const
 {
-	return hero.h == other.hero.h;
+	return hero == other.hero;
 }
 
 void DismissHero::accept(AIGateway * ai)
 {
-	if(!hero.validAndSet())
+	if(!hero)
 		throw cannotFulfillGoalException("Invalid hero!");
 
-	cb->dismissHero(hero.h);
+	cb->dismissHero(hero);
 
 	throw goalFulfilledException(sptr(*this));
 }
 
 std::string DismissHero::toString() const
 {
-	return "DismissHero " + hero.name;
+	return "DismissHero " + heroName;
 }
 
 }

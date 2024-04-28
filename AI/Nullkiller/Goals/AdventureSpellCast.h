@@ -22,7 +22,7 @@ namespace Goals
 		SpellID spellID;
 
 	public:
-		AdventureSpellCast(HeroPtr hero, SpellID spellID)
+		AdventureSpellCast(const CGHeroInstance * hero, SpellID spellID)
 			: ElementarGoal(Goals::ADVENTURE_SPELL_CAST), spellID(spellID)
 		{
 			sethero(hero);

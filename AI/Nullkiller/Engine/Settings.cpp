@@ -18,7 +18,7 @@
 #include "../../../lib/modding/CModHandler.h"
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../lib/filesystem/Filesystem.h"
-#include "../../../lib/json/JsonNode.h"
+#include "../../../lib/json/JsonUtils.h"
 
 namespace NKAI
 {
@@ -26,31 +26,13 @@ namespace NKAI
 		: maxRoamingHeroes(8),
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
-		maxGoldPreasure(0.3f), 
-		maxpass(30),
-		allowObjectGraph(false)
+		maxGoldPressure(0.3f), 
+		maxpass(10),
+		allowObjectGraph(false),
+		useTroopsFromGarrisons(false)
 	{
-		ResourcePath resource("config/ai/nkai/nkai-settings", EResType::JSON);
+		JsonNode node = JsonUtils::assembleFromFiles("config/ai/nkai/nkai-settings");
 
-		loadFromMod("core", resource);
-
-		for(const auto & modName : VLC->modh->getActiveMods())
-		{
-			if(CResourceHandler::get(modName)->existsResource(resource))
-				loadFromMod(modName, resource);
-		}
-	}
-
-	void Settings::loadFromMod(const std::string & modName, const ResourcePath & resource)
-	{
-		if(!CResourceHandler::get(modName)->existsResource(resource))
-		{
-			logGlobal->error("Failed to load font %s from mod %s", resource.getName(), modName);
-			return;
-		}
-
-	    JsonNode node(JsonPath::fromResource(resource), modName);
-		
 		if(node.Struct()["maxRoamingHeroes"].isNumber())
 		{
 			maxRoamingHeroes = node.Struct()["maxRoamingHeroes"].Integer();
@@ -71,14 +53,19 @@ namespace NKAI
 			maxpass = node.Struct()["maxpass"].Integer();
 		}
 
-		if(node.Struct()["maxGoldPreasure"].isNumber())
+		if(node.Struct()["maxGoldPressure"].isNumber())
 		{
-			maxGoldPreasure = node.Struct()["maxGoldPreasure"].Float();
+			maxGoldPressure = node.Struct()["maxGoldPressure"].Float();
 		}
 
 		if(!node.Struct()["allowObjectGraph"].isNull())
 		{
 			allowObjectGraph = node.Struct()["allowObjectGraph"].Bool();
+		}
+
+		if(!node.Struct()["useTroopsFromGarrisons"].isNull())
+		{
+			useTroopsFromGarrisons = node.Struct()["useTroopsFromGarrisons"].Bool();
 		}
 	}
 }

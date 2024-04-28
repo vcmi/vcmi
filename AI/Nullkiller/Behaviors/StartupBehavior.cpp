@@ -71,7 +71,15 @@ bool needToRecruitHero(const Nullkiller * ai, const CGTownInstance * startupTown
 
 	for(auto obj : ai->objectClusterizer->getNearbyObjects())
 	{
-		if((obj->ID == Obj::RESOURCE && dynamic_cast<const CGResource *>(obj)->resourceID() == EGameResID::GOLD)
+		auto armed = dynamic_cast<const CArmedInstance *>(obj);
+
+		if(armed && armed->getArmyStrength() > 0)
+			continue;
+
+		bool isGoldPile = dynamic_cast<const CGResource *>(obj)
+			&& dynamic_cast<const CGResource *>(obj)->resourceID() == EGameResID::GOLD;
+
+		if(isGoldPile
 			|| obj->ID == Obj::TREASURE_CHEST
 			|| obj->ID == Obj::CAMPFIRE
 			|| obj->ID == Obj::WATER_WHEEL)

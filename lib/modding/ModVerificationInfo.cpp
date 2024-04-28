@@ -1,0 +1,116 @@
+/*
+ * ModVerificationInfo.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#include "StdInc.h"
+#include "ModVerificationInfo.h"
+
+#include "CModInfo.h"
+#include "CModHandler.h"
+#include "ModIncompatibility.h"
+
+#include "../json/JsonNode.h"
+#include "../VCMI_Lib.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+JsonNode ModVerificationInfo::jsonSerializeList(const ModCompatibilityInfo & input)
+{
+	JsonNode output;
+
+	for(const auto & mod : input)
+	{
+		JsonNode modWriter;
+		modWriter["modId"].String() = mod.first;
+		modWriter["name"].String() = mod.second.name;
+		if (!mod.second.parent.empty())
+			modWriter["parent"].String() = mod.second.parent;
+		modWriter["version"].String() = mod.second.version.toString();
+		output.Vector().push_back(modWriter);
+	}
+
+	return output;
+}
+
+ModCompatibilityInfo ModVerificationInfo::jsonDeserializeList(const JsonNode & input)
+{
+	ModCompatibilityInfo output;
+
+	for(const auto & mod : input.Vector())
+	{
+		ModVerificationInfo info;
+		info.version = CModVersion::fromString(mod["version"].String());
+		info.name = mod["name"].String();
+		info.parent = mod["parent"].String();
+		info.checksum = 0;
+		info.impactsGameplay = true;
+
+		if(!mod["modId"].isNull())
+			output[mod["modId"].String()] = info;
+		else
+			output[mod["name"].String()] = info;
+	}
+
+	return output;
+}
+
+ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const ModCompatibilityInfo & modList)
+{
+	ModListVerificationStatus result;
+
+	for(const auto & m : VLC->modh->getActiveMods())
+	{
+		if(modList.count(m))
+			continue;
+
+		if(VLC->modh->getModInfo(m).checkModGameplayAffecting())
+			result[m] = ModVerificationStatus::EXCESSIVE;
+	}
+
+	for(const auto & infoPair : modList)
+	{
+		auto & remoteModId = infoPair.first;
+		auto & remoteModInfo = infoPair.second;
+
+		bool modAffectsGameplay = remoteModInfo.impactsGameplay;
+		//parent mod affects gameplay if child affects too
+		for(const auto & subInfoPair : modList)
+			modAffectsGameplay |= (subInfoPair.second.impactsGameplay && subInfoPair.second.parent == remoteModId);
+
+		if(!vstd::contains(VLC->modh->getAllMods(), remoteModId))
+		{
+			result[remoteModId] = ModVerificationStatus::NOT_INSTALLED;
+			continue;
+		}
+
+		auto & localModInfo = VLC->modh->getModInfo(remoteModId).getVerificationInfo();
+		modAffectsGameplay |= VLC->modh->getModInfo(remoteModId).checkModGameplayAffecting();
+
+		assert(modAffectsGameplay); // such mods should not be in the list to begin with
+		if (!modAffectsGameplay)
+			continue; // skip it
+
+		if (!vstd::contains(VLC->modh->getActiveMods(), remoteModId))
+		{
+			result[remoteModId] = ModVerificationStatus::DISABLED;
+			continue;
+		}
+
+		if(remoteModInfo.version != localModInfo.version)
+		{
+			result[remoteModId] = ModVerificationStatus::VERSION_MISMATCH;
+			continue;
+		}
+
+		result[remoteModId] = ModVerificationStatus::FULL_MATCH;
+	}
+
+	return result;
+}
+
+VCMI_LIB_NAMESPACE_END

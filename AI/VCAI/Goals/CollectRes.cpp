@@ -146,7 +146,10 @@ TSubgoal CollectRes::whatToDoToTrade()
 	markets.erase(boost::remove_if(markets, [](const IMarket * market) -> bool
 	{
 		auto * o = dynamic_cast<const CGObjectInstance *>(market);
-		if(o && !(o->ID == Obj::TOWN && o->tempOwner == ai->playerID))
+		// FIXME: disabled broken visitation of external markets
+		//if(o && !(o->ID == Obj::TOWN && o->tempOwner == ai->playerID))
+
+		if(o && o->ID == Obj::TOWN)
 		{
 			if(!ai->isAccessible(o->visitablePos()))
 				return true;

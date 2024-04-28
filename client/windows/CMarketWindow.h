@@ -10,8 +10,7 @@
 #pragma once
 
 #include "../widgets/markets/CMarketBase.h"
-#include "../widgets/CWindowWithArtifacts.h"
-#include "CWindowObject.h"
+#include "CWindowWithArtifacts.h"
 
 class CMarketWindow : public CStatusbarWindow, public CWindowWithArtifacts, public IGarrisonHolder
 {

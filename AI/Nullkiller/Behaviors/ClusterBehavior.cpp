@@ -41,7 +41,7 @@ Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller * ai) const
 
 Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * ai, std::shared_ptr<ObjectCluster> cluster) const
 {
-	auto center = cluster->calculateCenter();
+	auto center = cluster->calculateCenter(ai->cb.get());
 	auto paths = ai->pathfinder->getPathInfo(center->visitablePos(), ai->settings->isObjectGraphAllowed());
 
 	auto blockerPos = cluster->blocker->visitablePos();

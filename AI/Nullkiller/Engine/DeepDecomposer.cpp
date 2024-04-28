@@ -37,10 +37,8 @@ void DeepDecomposer::reset()
 	goals.clear();
 }
 
-Goals::TGoalVec DeepDecomposer::decompose(TSubgoal behavior, int depthLimit)
+void DeepDecomposer::decompose(TGoalVec & result, TSubgoal behavior, int depthLimit)
 {
-	TGoalVec tasks;
-
 	goals.clear();
 	goals.resize(depthLimit);
 	decompositionCache.resize(depthLimit);
@@ -79,7 +77,7 @@ Goals::TGoalVec DeepDecomposer::decompose(TSubgoal behavior, int depthLimit)
 #endif
 				if(!isCompositionLoop(subgoal))
 				{
-					tasks.push_back(task);
+					result.push_back(task);
 
 					if(!fromCache)
 					{
@@ -121,8 +119,6 @@ Goals::TGoalVec DeepDecomposer::decompose(TSubgoal behavior, int depthLimit)
 			}
 		}
 	}
-
-	return tasks;
 }
 
 Goals::TSubgoal DeepDecomposer::aggregateGoals(int startDepth, TSubgoal last)

@@ -133,11 +133,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
 	auto handler = VLC->objtypeh->getHandlerFor(newID, newSubID);
-	if(!handler)
-	{
-		logGlobal->error("Unknown object type %d:%d at %s", newID, newSubID, visitablePos().toString());
-		return;
-	}
+
 	if(!handler->getTemplates(tile.terType->getId()).empty())
 	{
 		appearance = handler->getTemplates(tile.terType->getId())[0];

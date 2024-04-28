@@ -850,23 +850,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
 	
 	//loading mods
-	if(!header["mods"].isNull())
-	{
-		for(auto & mod : header["mods"].Vector())
-		{
-			ModVerificationInfo info;
-			info.version = CModVersion::fromString(mod["version"].String());
-			info.checksum = mod["checksum"].Integer();
-			info.name = mod["name"].String();
-			info.parent = mod["parent"].String();
-			info.impactsGameplay = true;
-			
-			if(!mod["modId"].isNull())
-				mapHeader->mods[mod["modId"].String()] = info;
-			else
-				mapHeader->mods[mod["name"].String()] = info;
-		}
-	}
+	mapHeader->mods = ModVerificationInfo::jsonDeserializeList(header["mods"]);
 
 	//todo: multilevel map load support
 	{
@@ -1231,17 +1215,7 @@ void CMapSaverJson::writeHeader()
 	header["versionMinor"].Float() = VERSION_MINOR;
 	
 	//write mods
-	JsonNode & mods = header["mods"];
-	for(const auto & mod : mapHeader->mods)
-	{
-		JsonNode modWriter;
-		modWriter["modId"].String() = mod.first;
-		modWriter["name"].String() = mod.second.name;
-		modWriter["parent"].String() = mod.second.parent;
-		modWriter["version"].String() = mod.second.version.toString();
-		modWriter["checksum"].Integer() = mod.second.checksum;
-		mods.Vector().push_back(modWriter);
-	}
+	header["mods"] = ModVerificationInfo::jsonSerializeList(mapHeader->mods);
 
 	//todo: multilevel map save support
 	JsonNode & levels = header["mapLevels"];

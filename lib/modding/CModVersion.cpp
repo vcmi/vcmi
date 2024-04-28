@@ -59,6 +59,16 @@ std::string CModVersion::toString() const
 	return res;
 }
 
+bool CModVersion::operator ==(const CModVersion & other) const
+{
+	return major == other.major && minor == other.minor && patch == other.patch;
+}
+
+bool CModVersion::operator !=(const CModVersion & other) const
+{
+	return major != other.major || minor != other.minor || patch != other.patch;
+}
+
 bool CModVersion::compatible(const CModVersion & other, bool checkMinor, bool checkPatch) const
 {
 	bool doCheckMinor = checkMinor && minor != Any && other.minor != Any;

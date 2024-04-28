@@ -677,6 +677,9 @@ void SelectionTab::selectFileName(std::string fname)
 
 	filter(-1);
 	selectAbs(-1);
+
+	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
+		inputName->setText("NEWGAME");
 }
 
 std::shared_ptr<ElementInfo> SelectionTab::getSelectedMapInfo() const

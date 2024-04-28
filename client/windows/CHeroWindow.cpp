@@ -70,7 +70,7 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("HeroScr4"))
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("HeroScr4"))
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
 
@@ -325,7 +325,7 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::createBackpackWindow()
 {
-	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero);
+	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero, artSets);
 }
 
 void CHeroWindow::commanderWindow()

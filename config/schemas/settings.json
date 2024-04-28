@@ -252,7 +252,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -308,6 +308,10 @@
 				"hideBackground" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"backgroundDimSmallWindows" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
@@ -516,7 +520,7 @@
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.4.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.5.json",
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",

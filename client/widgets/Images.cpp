@@ -19,6 +19,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
+#include "../render/Graphics.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -177,7 +178,7 @@ CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, i
 {
 	pos.x += x;
 	pos.y += y;
-	anim = GH.renderHandler().loadAnimation(name);
+	anim = graphics->getAnimation(name);
 	init();
 }
 

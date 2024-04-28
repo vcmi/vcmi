@@ -13,6 +13,9 @@
 #include "CVCMIServer.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/json/JsonUtils.h"
+#include "../lib/VCMI_Lib.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/CModInfo.h"
 
 GlobalLobbyProcessor::GlobalLobbyProcessor(CVCMIServer & owner)
 	: owner(owner)
@@ -125,6 +128,7 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["accountID"].String() = getHostAccountID();
 		toSend["accountCookie"].String() = getHostAccountCookie();
 		toSend["version"].String() = VCMI_VERSION_STRING;
+		toSend["mods"] = getHostModList();
 
 		sendMessage(connection, toSend);
 	}
@@ -147,6 +151,19 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		proxyConnections[guestAccountID] = connection;
 		owner.onNewConnection(connection);
 	}
+}
+
+JsonNode GlobalLobbyProcessor::getHostModList() const
+{
+	ModCompatibilityInfo info;
+
+	for (auto const & modName : VLC->modh->getActiveMods())
+	{
+		if(VLC->modh->getModInfo(modName).checkModGameplayAffecting())
+			info[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+	}
+
+	return ModVerificationInfo::jsonSerializeList(info);
 }
 
 void GlobalLobbyProcessor::sendGameStarted()

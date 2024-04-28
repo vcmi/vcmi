@@ -32,6 +32,38 @@
 		{
 			"type" : "string",
 			"description" : "Version of match server, e.g. 1.5.0"
+		},
+		"mods" : 
+		{
+			"type" : "array",
+			"description" : "List of gameplay-affecting mods active on server",
+			"items" : {
+				"type" : "object",
+				"additionalProperties" : false,
+				"required" : [ "modId", "name", "version" ],
+				"properties" : {
+					"modId" :
+					{
+						"type" : "string",
+						"description" : "Unique identifier of the mod"
+					},
+					"name" :
+					{
+						"type" : "string",
+						"description" : "Human-readable name of the mod"
+					},
+					"parent" :
+					{
+						"type" : "string",
+						"description" : "Unique ID of parent mod, only for submods"
+					},
+					"version" :
+					{
+						"type" : "string",
+						"description" : "Version of mod, as specified in mod config"
+					}
+				}
+			}
 		}
 	}
 }

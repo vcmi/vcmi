@@ -59,22 +59,23 @@ struct DLL_LINKAGE DismissHero : public CPackForServer
 struct DLL_LINKAGE MoveHero : public CPackForServer
 {
 	MoveHero() = default;
-	MoveHero(const int3 & Dest, const ObjectInstanceID & HID, bool Transit)
-		: dest(Dest)
+	MoveHero(const std::vector<int3> & path, const ObjectInstanceID & HID, bool Transit)
+		: path(path)
 		, hid(HID)
 		, transit(Transit)
 	{
 	}
-	int3 dest;
+	std::vector<int3> path;
 	ObjectInstanceID hid;
 	bool transit = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h)
+	template<typename Handler>
+	void serialize(Handler & h)
 	{
 		h & static_cast<CPackForServer &>(*this);
-		h & dest;
+		h & path;
 		h & hid;
 		h & transit;
 	}

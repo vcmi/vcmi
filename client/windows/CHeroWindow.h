@@ -9,8 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CWindowWithArtifacts.h"
-#include "CWindowObject.h"
+#include "CWindowWithArtifacts.h"
 
 #include "../../lib/bonuses/IBonusBearer.h"
 

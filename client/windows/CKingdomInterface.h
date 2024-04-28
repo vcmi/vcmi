@@ -9,8 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CWindowWithArtifacts.h"
-#include "CWindowObject.h"
+#include "CWindowWithArtifacts.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGObjectInstance;
@@ -200,7 +199,7 @@ public:
 };
 
 /// Class which holds all parts of kingdom overview window
-class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder, public ITownHolder
+class CKingdomInterface : public IGarrisonHolder, public CWindowWithArtifacts, public ITownHolder
 {
 private:
 	struct OwnedObjectInfo
@@ -254,10 +253,6 @@ public:
 	void heroRemoved();
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
-	void artifactRemoved(const ArtifactLocation &artLoc) override;
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
-	void artifactDisassembled(const ArtifactLocation &artLoc) override;
-	void artifactAssembled(const ArtifactLocation &artLoc) override;
 	void buildChanged() override;
 };
 
@@ -330,7 +325,7 @@ public:
 };
 
 /// Tab with all hero-specific data
-class CKingdHeroList : public CIntObject, public IGarrisonHolder, public CWindowWithArtifacts
+class CKingdHeroList : public CIntObject, public IGarrisonHolder
 {
 private:
 	std::shared_ptr<CListBox> heroes;
@@ -338,10 +333,10 @@ private:
 	std::shared_ptr<CLabel> heroLabel;
 	std::shared_ptr<CLabel> skillsLabel;
 
-	std::shared_ptr<CIntObject> createHeroItem(size_t index);
 public:
-	CKingdHeroList(size_t maxSize);
+	using CreateHeroItemFunctor = std::function<void(const CWindowWithArtifacts::CArtifactsOfHeroPtr)>;
 
+	CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onCreateHeroItemCallback);
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
 };

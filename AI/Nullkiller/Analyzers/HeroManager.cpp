@@ -130,7 +130,14 @@ void HeroManager::update()
 
 	for(auto hero : myHeroes)
 	{
-		heroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+		if(hero->patrol.patrolling)
+		{
+			heroRoles[hero] = HeroRole::MAIN;
+		}
+		else
+		{
+			heroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+		}
 	}
 
 	for(auto hero : myHeroes)

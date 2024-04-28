@@ -112,7 +112,9 @@ public:
 
 	void addMinimalDistanceJunctions()
 	{
-		pforeachTilePaths(ai->cb->getMapSize(), ai, [this](const int3 & pos, std::vector<AIPath> & paths)
+		tbb::concurrent_unordered_set<int3, std::hash<int3>> junctions;
+
+		pforeachTilePaths(ai->cb->getMapSize(), ai, [this, &junctions](const int3 & pos, std::vector<AIPath> & paths)
 			{
 				if(target->hasNodeAt(pos))
 					return;
@@ -129,9 +131,14 @@ public:
 
 				if(currentCost.avg < neighborCost)
 				{
-					addJunctionActor(pos);
+					junctions.insert(pos);
 				}
 			});
+
+		for(auto pos : junctions)
+		{
+			addJunctionActor(pos);
+		}
 	}
 
 private:

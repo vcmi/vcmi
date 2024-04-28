@@ -51,6 +51,7 @@ class CModListView : public QWidget
 	// find mods that depend on this one
 	QStringList findDependentMods(QString mod, bool excludeDisabled);
 
+	void manualInstallFile(QUrl url);
 	void downloadFile(QString file, QString url, QString description, qint64 size = 0);
 
 	void installMods(QStringList archives);
@@ -119,6 +120,8 @@ private slots:
 	void on_uninstallButton_clicked();
 
 	void on_installButton_clicked();
+
+	void on_installFromFileButton_clicked();
 
 	void on_pushButton_clicked();
 

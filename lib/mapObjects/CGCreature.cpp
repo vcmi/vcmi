@@ -16,6 +16,7 @@
 #include "../CConfigHandler.h"
 #include "../GameSettings.h"
 #include "../IGameCallback.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
@@ -217,6 +218,18 @@ void CGCreature::pickRandomObject(CRandomGenerator & rand)
 			subID = VLC->creh->pickRandomMonster(rand, 7);
 			break;
 	}
+
+	try {
+		// sanity check
+		VLC->objtypeh->getHandlerFor(MapObjectID::MONSTER, subID);
+	}
+	catch (const std::out_of_range & )
+	{
+		// Try to generate some debug information if sanity check failed
+		CreatureID creatureID(subID.getNum());
+		throw std::out_of_range("Failed to find handler for creature " + std::to_string(creatureID.getNum()) + ", identifer:" + creatureID.toEntity(VLC)->getJsonKey());
+	}
+
 	ID = MapObjectID::MONSTER;
 	setType(ID, subID);
 }

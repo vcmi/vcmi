@@ -1,3 +1,8 @@
+if(ENABLE_INNOEXTRACT)
+	add_subdirectory("lib/innoextract")
+	add_definitions(-DENABLE_INNOEXTRACT)
+endif()
+
 set(launcher_SRCS
 		StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
@@ -10,6 +15,7 @@ set(launcher_SRCS
 		settingsView/csettingsview_moc.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
+		helper.cpp
 		mainwindow_moc.cpp
 		languages.cpp
 		launcherdirs.cpp
@@ -34,6 +40,7 @@ set(launcher_HEADERS
 		jsonutils.h
 		updatedialog_moc.h
 		main.h
+		helper.cpp
 )
 
 set(launcher_FORMS
@@ -142,6 +149,10 @@ target_include_directories(vcmilauncher
 )
 vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
+
+if(ENABLE_INNOEXTRACT)
+	target_link_libraries(vcmilauncher innoextract)
+endif()
 
 if(APPLE_IOS)
 	set(RESOURCES_DESTINATION ${DATA_DIR})
