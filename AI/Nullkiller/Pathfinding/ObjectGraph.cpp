@@ -504,11 +504,11 @@ void ObjectGraph::connectHeroes(const Nullkiller * ai)
 			auto heroPos = path.targetHero->visitablePos();
 
 			nodes[pos].connections[heroPos].update(
-				path.movementCost(),
+				std::max(0.0f, path.movementCost()),
 				path.getPathDanger());
 
 			nodes[heroPos].connections[pos].update(
-				path.movementCost(),
+				std::max(0.0f, path.movementCost()),
 				path.getPathDanger());
 		}
 	}
