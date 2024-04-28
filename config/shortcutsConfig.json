@@ -130,8 +130,8 @@
 	"joystick": {
 		"leftaxis": "cursorMotion",
 		"rightaxis": "mapScroll",
-		"a": ["globalAccept", "globalReturn", "lobbyBeginGame", "lobbyLoadGame", "lobbySaveGame",
-			"adventureViewSelected", "adventureExitWorldView", "battleTacticsEnd"],
+		"a": ["globalAccept", "globalReturn", "lobbyBeginStandardGame", "lobbyBeginCampaign", "lobbyLoadGame",
+			"lobbySaveGame", "adventureViewSelected", "adventureExitWorldView", "battleTacticsEnd"],
 		"b": ["globalCancel", "globalReturn", "adventureExitWorldView"],
 		"x": "mouseLeftClick",
 		"y": "mouseRightClick",
