@@ -319,9 +319,12 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 void CHeroWindow::dismissCurrent()
 {
-	CFunctionList<void()> ony = [=](){ close(); };
-	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], [this]()
+		{
+			arts->putBackPickedArtifact();
+			close();
+			LOCPLINT->cb->dismissHero(curHero);
+		}, nullptr);
 }
 
 void CHeroWindow::createBackpackWindow()
