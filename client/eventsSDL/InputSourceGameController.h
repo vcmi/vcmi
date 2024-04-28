@@ -14,6 +14,7 @@
 
 #include "GameControllerConfig.h"
 #include "../gui/Shortcut.h"
+#include "../../lib/Point.h"
 
 
 const int AXIS_DEAD_ZOOM = 6000;
@@ -30,12 +31,20 @@ class InputSourceGameController
     using GameControllerPtr = std::unique_ptr<SDL_GameController, decltype(&gameControllerDeleter)>;
 
     std::map<int, GameControllerPtr> gameControllerMap;
-    long long lastCheckTime;
-    int axisValueX;
-    int axisValueY;
-    float planDisX;
-    float planDisY;
     GameControllerConfig config;
+    long long lastCheckTime;
+    int cursorAxisValueX;
+    int cursorAxisValueY;
+    float cursorPlanDisX;
+    float cursorPlanDisY;
+
+    bool scrollAxisMoved;
+    Point scrollStart;
+    Point scrollCurrent;
+    int scrollAxisValueX;
+    int scrollAxisValueY;
+    float scrollPlanDisX;
+    float scrollPlanDisY;
 
     void openGameController(int index);
     int getJoystickIndex(SDL_GameController * controller);
@@ -43,8 +52,12 @@ class InputSourceGameController
     void dispatchTriggerShortcuts(const std::vector<EShortcut> & shortcutsVector, int axisValue);
     void dispatchTriggerLeftClick(int axisValue);
     void dispatchTriggerRightClick(int axisValue);
+    void tryToConvertCursor();
     void doCursorMove(int deltaX, int deltaY);
     int getMoveDis(float planDis);
+    void handleCursorUpdate(long long deltaTime);
+    void handleScrollUpdate(long long deltaTime);
+    bool isScrollAxisReleased();
 
 public:
     InputSourceGameController();
