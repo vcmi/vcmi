@@ -3390,7 +3390,9 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 bool CGameHandler::complain(const std::string &problem)
 {
+#ifndef ENABLE_GOLDMASTER
 	playerMessages->broadcastSystemMessage("Server encountered a problem: " + problem);
+#endif
 	logGlobal->error(problem);
 	return true;
 }
