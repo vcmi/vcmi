@@ -102,7 +102,7 @@ void CArtifactsBuying::highlightingChanged()
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
 		market->getOffer(bidTradePanel->getSelectedItemId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_ARTIFACT);
-		deal->block(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())) >= bidQty ? false : true);
+		deal->block(LOCPLINT->cb->getResourceAmount(GameResID(bidTradePanel->getSelectedItemId())) < bidQty || !LOCPLINT->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

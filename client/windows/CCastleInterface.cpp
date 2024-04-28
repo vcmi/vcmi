@@ -783,11 +783,14 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						if(upgrades == BuildingID::TAVERN)
 							LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 						else
-						enterBuilding(building);
+							enterBuilding(building);
 						break;
 
 				case BuildingSubID::CASTLE_GATE:
-						enterCastleGate();
+						if (LOCPLINT->makingTurn)
+							enterCastleGate();
+						else
+							enterBuilding(building);
 						break;
 
 				case BuildingSubID::CREATURE_TRANSFORMER: //Skeleton Transformer
@@ -966,7 +969,9 @@ void CCastleBuildings::enterMagesGuild()
 {
 	const CGHeroInstance *hero = getHero();
 
-	if(hero && !hero->hasSpellbook()) //hero doesn't have spellbok
+	// hero doesn't have spellbok
+	// or it is not our turn and we can't make actions
+	if(hero && !hero->hasSpellbook() && LOCPLINT->makingTurn)
 	{
 		if(hero->isCampaignYog())
 		{
