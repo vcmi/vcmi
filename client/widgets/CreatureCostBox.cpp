@@ -61,7 +61,7 @@ void CreatureCostBox::createItems(TResources res)
 		//reverse to display gold as first resource
 		for(auto & currentRes : boost::adaptors::reverse(resources))
 		{
-			currentRes.second.first->moveBy(Point(curx + 1, 22));
+			currentRes.second.first->moveBy(Point(curx + 2, 22));
 			currentRes.second.second->moveBy(Point(curx, 22));
 			curx += spacing;
 		}
