@@ -147,6 +147,9 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			descriptionHelper.replaceRawString(std::to_string(valueToShow));
 		else
 			descriptionHelper.replaceRawString("-" + std::to_string(valueToShow));
+
+		if(type == BonusType::CREATURE_GROWTH_PERCENT)
+			descriptionHelper.appendRawString(" +" + std::to_string(valueToShow));
 	}
 
 	return descriptionHelper.toString();
