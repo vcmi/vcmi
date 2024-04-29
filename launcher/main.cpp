@@ -44,6 +44,9 @@ int MAIN_EXPORT main(int argc, char * argv[])
 #ifdef VCMI_IOS
 	{
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 	QApplication vcmilauncher(argc, argv);
 
 	launcher::prepare();
