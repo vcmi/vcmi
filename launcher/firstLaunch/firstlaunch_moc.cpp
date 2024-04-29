@@ -296,35 +296,32 @@ QString FirstLaunchView::getHeroesInstallDir()
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
+
+	auto fileSelection = [this](QString type, QString filter, QString startPath = {}) {
+		QString titleSel = tr("Select a ") + filter + tr(" file...");
+		QString titleErr = tr("You have to select a ") + filter + tr(" file!");
 #if defined(VCMI_MOBILE)
-	QString filterExe = tr("GOG executable") + " (*.*)";
-	QMessageBox::information(this, tr("File selection"), tr("Select a GOG installer (exe) file..."));
-#else
-	QString filterExe = tr("GOG executable") + " (*.exe)";
+		filter = "GOG file (*.*)";
+		QMessageBox::information(this, tr("File selection"), titleSel);
 #endif
-	QString fileExe = QFileDialog::getOpenFileName(this, tr("Select a GOG installer (exe) file..."), QDir::homePath(), filterExe);
+		QString file = QFileDialog::getOpenFileName(this, titleSel, startPath.isEmpty() ? QDir::homePath() : startPath, filter);
+		if(file.isEmpty())
+			return QString{};
+		else if(!file.endsWith("." + type, Qt::CaseInsensitive))
+		{
+			QMessageBox::critical(this, tr("Invalid file selected"), titleErr);
+			return QString{};
+		}
+
+		return file;
+	};
+
+	QString fileExe = fileSelection("exe", tr("GOG installer") + " (*.exe)");
 	if(fileExe.isEmpty())
 		return;
-	if(!fileExe.endsWith(".exe", Qt::CaseInsensitive))
-	{
-		QMessageBox::critical(this, tr("Invalid file selected"), tr("You have to select a GOG installer (exe) file!"));
-		return;
-	}
-
-#if defined(VCMI_MOBILE)
-	QString filterBin = tr("GOG bin file") + " (*.*)";
-	QMessageBox::information(this, tr("File selection"), tr("Select a GOG data (bin) file..."));
-#else
-	QString filterBin = tr("GOG bin file") + " (*.bin)";
-#endif
-	QString fileBin = QFileDialog::getOpenFileName(this, tr("Select a GOG data (bin) file..."), QFileInfo(fileExe).absolutePath(), filterBin);
+	QString fileBin = fileSelection("bin", tr("GOG data") + " (*.bin)", QFileInfo(fileExe).absolutePath());
 	if(fileBin.isEmpty())
 		return;
-	if(!fileBin.endsWith(".bin", Qt::CaseInsensitive))
-	{
-		QMessageBox::critical(this, tr("Invalid file selected"), tr("You have to select a GOG data (bin) file!"));
-		return;
-	}
 
 	ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
 	QPalette pal = ui->pushButtonGogInstall->palette();
