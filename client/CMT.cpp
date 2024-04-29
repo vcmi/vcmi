@@ -55,7 +55,6 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
-static std::atomic<bool> quitRequestedDuringOpeningPlayback = false;
 static std::atomic<bool> headlessQuit = false;
 
 #ifndef VCMI_IOS
@@ -323,9 +322,6 @@ int main(int argc, char * argv[])
 	#endif // ANDROID
 #endif // THREADED
 
-	if (quitRequestedDuringOpeningPlayback)
-		quitApplication();
-
 	if(!settings["session"]["headless"].Bool())
 	{
 		pomtime.getDiff();
@@ -416,6 +412,20 @@ static void mainLoop()
 	}
 }
 
+[[noreturn]] static void quitApplicationImmediately()
+{
+	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
+	// We generally don't care about them and this leads to numerous issues, e.g.
+	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
+	// Android - std::quick_exit is available only starting from API level 21
+	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
+#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
+	::exit(0);
+#else
+	std::quick_exit(0);
+#endif
+}
+
 [[noreturn]] static void quitApplication()
 {
 	if(!settings["session"]["headless"].Bool())
@@ -466,24 +476,11 @@ static void mainLoop()
 	}
 
 	std::cout << "Ending...\n";
-
-	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
-	// We generally don't care about them and this leads to numerous issues, e.g.
-	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
-	// Android - std::quick_exit is available only starting from API level 21
-	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
-#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
-	::exit(0);
-#else
-	std::quick_exit(0);
-#endif
+	quitApplicationImmediately();
 }
 
 void handleQuit(bool ask)
 {
-	// FIXME: avoids crash if player attempts to close game while opening is still playing
-	// use cursor handler as indicator that loading is not done yet
-	// proper solution would be to abort init thread (or wait for it to finish)
 	if(!ask)
 	{
 		if(settings["session"]["headless"].Bool())
@@ -498,10 +495,12 @@ void handleQuit(bool ask)
 		return;
 	}
 
+	// FIXME: avoids crash if player attempts to close game while opening is still playing
+	// use cursor handler as indicator that loading is not done yet
+	// proper solution would be to abort init thread (or wait for it to finish)
 	if (!CCS->curh)
 	{
-		quitRequestedDuringOpeningPlayback = true;
-		return;
+		quitApplicationImmediately();
 	}
 
 	if (LOCPLINT)
