@@ -93,4 +93,5 @@ public:
 	void visitLobbySetSimturns(LobbySetSimturns & pack) override;
 	void visitLobbySetDifficulty(LobbySetDifficulty & pack) override;
 	void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) override;
+	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 };

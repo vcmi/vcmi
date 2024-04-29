@@ -49,6 +49,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/networkPacks/PacksForLobby.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -402,8 +403,26 @@ PvPBox::PvPBox(const Rect & rect)
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
-	buttonFlipCoin = std::make_shared<CButton>(Point(17, 160), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){ std::cout << "coin flip"; }, EShortcut::NONE);
+	buttonFlipCoin = std::make_shared<CButton>(Point(17, 160), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){
+		LobbyPvPAction lpa;
+		lpa.action = LobbyPvPAction::COIN;
+		CSH->sendLobbyPack(lpa);
+	}, EShortcut::NONE);
 	buttonFlipCoin->setTextOverlay("Flip coin2", EFonts::FONT_SMALL, Colors::WHITE);
+
+	buttonRandomTown = std::make_shared<CButton>(Point(17, 184), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town"), [](){
+		LobbyPvPAction lpa;
+		lpa.action = LobbyPvPAction::RANDOM_TOWN;
+		CSH->sendLobbyPack(lpa);
+	}, EShortcut::NONE);
+	buttonRandomTown->setTextOverlay("random town", EFonts::FONT_SMALL, Colors::WHITE);
+
+	buttonRandomTownVs = std::make_shared<CButton>(Point(17, 208), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town vs"), [](){
+		LobbyPvPAction lpa;
+		lpa.action = LobbyPvPAction::RANDOM_TOWN_VS;
+		CSH->sendLobbyPack(lpa);
+	}, EShortcut::NONE);
+	buttonRandomTownVs->setTextOverlay("random town vs", EFonts::FONT_SMALL, Colors::WHITE);
 }
 
 CFlagBox::CFlagBox(const Rect & rect)

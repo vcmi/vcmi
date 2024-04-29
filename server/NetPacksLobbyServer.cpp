@@ -18,6 +18,9 @@
 
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
+#include "../lib/CTownHandler.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -364,5 +367,31 @@ void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & p
 void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack)
 {
 	srv.si->playerInfos[pack.targetPlayerColor].connectedPlayerIDs.insert(pack.targetConnectedPlayer);
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
+{
+	std::set<FactionID> allowedFactions;
+	for(auto & player : srv.mi->mapHeader->players)
+	{
+		std::set<FactionID> tmpAllowedFactions = player.allowedFactions;
+		std::set_union(std::begin(tmpAllowedFactions), std::end(tmpAllowedFactions), std::begin(allowedFactions), std::end(allowedFactions), std::inserter(allowedFactions, std::begin(allowedFactions)));
+	}
+
+	std::vector<FactionID> randomFactions;
+	std::sample(allowedFactions.begin(), allowedFactions.end(), std::back_inserter(randomFactions), 2, std::mt19937{std::random_device{}()});
+
+	switch(pack.action) {
+		case LobbyPvPAction::COIN:
+			srv.announceTxt("Coin - " + std::to_string(std::rand()%2));
+			break;
+		case LobbyPvPAction::RANDOM_TOWN:
+			srv.announceTxt("Faction - " + VLC->townh->getById(randomFactions[0])->getNameTranslated());
+			break;
+		case LobbyPvPAction::RANDOM_TOWN_VS:
+			srv.announceTxt("Factions - " + VLC->townh->getById(randomFactions[0])->getNameTranslated() + " vs. " + VLC->townh->getById(randomFactions[randomFactions.size() > 1 ? 1 : 0])->getNameTranslated());
+			break;
+	}
 	result = true;
 }

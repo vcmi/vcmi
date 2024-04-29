@@ -59,6 +59,7 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToServer, LobbySetDifficulty>();
 	s.template registerType<CLobbyPackToServer, LobbyForceSetPlayer>();
 	s.template registerType<CLobbyPackToServer, LobbySetExtraOptions>();
+	s.template registerType<CLobbyPackToServer, LobbyPvPAction>();
 }
 
 VCMI_LIB_NAMESPACE_END

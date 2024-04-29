@@ -343,4 +343,19 @@ struct DLL_LINKAGE LobbyShowMessage : public CLobbyPackToPropagate
 	}
 };
 
+struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
+{
+	enum EAction : ui8 {
+		NONE, COIN, RANDOM_TOWN, RANDOM_TOWN_VS
+	} action = NONE;
+
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & action;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

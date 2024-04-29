@@ -147,6 +147,8 @@ class PvPBox : public CIntObject
 {
 public:
 	std::shared_ptr<CButton> buttonFlipCoin;
+	std::shared_ptr<CButton> buttonRandomTown;
+	std::shared_ptr<CButton> buttonRandomTownVs;
 
 	PvPBox(const Rect & rect);
 };

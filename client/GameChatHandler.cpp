@@ -75,7 +75,10 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 
 		lobby->card->chat->addNewMessage(formatted.toString());
 		if (lobby->card->chatMode != InfoCard::ChatMode::Enabled)
-				lobby->card->setChat(InfoCard::ChatMode::Enabled);
+		{
+			lobby->card->setChat(InfoCard::ChatMode::Disabled);
+			lobby->toggleChat();
+		}	
 	}
 
 	chatHistory.push_back({senderName, messageText, TextOperations::getCurrentFormattedTimeLocal()});
