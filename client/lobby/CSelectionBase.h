@@ -31,6 +31,7 @@ class ExtraOptionsTab;
 class SelectionTab;
 class InfoCard;
 class CChatBox;
+class PvPBox;
 class CLabel;
 class CFlagBox;
 class CLabelGroup;
@@ -107,9 +108,16 @@ class InfoCard : public CIntObject
 	std::shared_ptr<CLabelGroup> labelGroupPlayers;
 	std::shared_ptr<CButton> buttonInvitePlayers;
 	std::shared_ptr<CButton> buttonOpenGlobalLobby;
-public:
 
-	bool showChat;
+	std::shared_ptr<PvPBox> pvpBox;
+public:
+	enum ChatMode {
+		Disabled,
+		Enabled,
+		PvP
+	};
+
+	ChatMode chatMode;
 	std::shared_ptr<CChatBox> chat;
 	std::shared_ptr<CFlagBox> flagbox;
 
@@ -118,8 +126,7 @@ public:
 	InfoCard();
 	void disableLabelRedraws();
 	void changeSelection();
-	void toggleChat();
-	void setChat(bool activateChat);
+	void setChat(ChatMode setMode);
 };
 
 class CChatBox : public CIntObject
@@ -134,6 +141,14 @@ public:
 	void keyPressed(EShortcut key) override;
 	bool captureThisKey(EShortcut key) override;
 	void addNewMessage(const std::string & text);
+};
+
+class PvPBox : public CIntObject
+{
+public:
+	std::shared_ptr<CButton> buttonFlipCoin;
+
+	PvPBox(const Rect & rect);
 };
 
 class CFlagBox : public CIntObject
