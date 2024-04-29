@@ -298,8 +298,8 @@ void FirstLaunchView::extractGogData()
 #ifdef ENABLE_INNOEXTRACT
 
 	auto fileSelection = [this](QString type, QString filter, QString startPath = {}) {
-		QString titleSel = tr("Select a ") + filter + tr(" file...");
-		QString titleErr = tr("You have to select a ") + filter + tr(" file!");
+		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
+		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
 #if defined(VCMI_MOBILE)
 		filter = "GOG file (*.*)";
 		QMessageBox::information(this, tr("File selection"), titleSel);
