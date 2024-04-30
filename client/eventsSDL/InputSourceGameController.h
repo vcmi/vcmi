@@ -44,9 +44,17 @@ class InputSourceGameController
 	float scrollPlanDisX;
 	float scrollPlanDisY;
 
+	const double configTriggerTreshold;
+	const double configAxisDeadZone;
+	const double configAxisFullZone;
+	const double configPointerSpeed;
+	const double configPointerScale;
+	const double configPanningSpeed;
+	const double configPanningScale;
+
 	void openGameController(int index);
 	int getJoystickIndex(SDL_GameController * controller);
-	int getRealAxisValue(int value);
+	double getRealAxisValue(int value);
 	void dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue);
 	void tryToConvertCursor();
 	void doCursorMove(int deltaX, int deltaY);

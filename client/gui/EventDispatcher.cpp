@@ -17,6 +17,7 @@
 #include "WindowHandler.h"
 #include "gui/Shortcut.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
 
 template<typename Functor>
@@ -76,10 +77,10 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 	bool keysCaptured = false;
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonPressed(GH.getCursorPosition(), 0);
+		dispatchMouseLeftButtonPressed(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchShowPopup(GH.getCursorPosition(), 0);
+		dispatchShowPopup(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
@@ -105,7 +106,7 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	bool keysCaptured = false;
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonReleased(GH.getCursorPosition(), 0);
+		dispatchMouseLeftButtonReleased(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
 		dispatchClosePopup(GH.getCursorPosition());
@@ -164,7 +165,7 @@ AEventsReceiver * EventDispatcher::findElementInToleranceRange(const EventReceiv
 		if (distance.lengthSquared() == 0)
 			continue;
 
-		Point moveDelta = distance * tolerance / distance.length();
+		Point moveDelta = distance * std::min(1.0, static_cast<double>(tolerance) / distance.length());
 		Point testPosition = position + moveDelta;
 
 		if( !i->receiveEvent(testPosition, eventToTest))

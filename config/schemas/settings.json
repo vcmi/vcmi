@@ -236,7 +236,22 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "radialWheelGarrisonSwipe", "touchToleranceDistance" ],
+			"required" : [ 
+				"radialWheelGarrisonSwipe",
+				"touchToleranceDistance",
+				"mouseToleranceDistance",
+				"shortcutToleranceDistance",
+				"enableMouse",
+				"enableTouch",
+				"enableController",
+				"controllerTriggerTreshold",
+				"controllerAxisDeadZone",
+				"controllerAxisFullZone",
+				"controllerPointerSpeed",
+				"controllerPointerScale",
+				"controllerPanningSpeed",
+				"controllerPanningScale",
+			],
 			"properties" : {
 				"radialWheelGarrisonSwipe" : {
 					"type" : "boolean",
@@ -245,7 +260,55 @@
 				"touchToleranceDistance" : {
 					"type" : "number",
 					"default" : 20
+				},
+				"mouseToleranceDistance" : {
+					"type" : "number",
+					"default" : 0
+				},
+				"shortcutToleranceDistance" : {
+					"type" : "number",
+					"default" : 0
+				},
+				"enableMouse" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"enableTouch" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"enableController" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"controllerTriggerTreshold" : {
+					"type" : "number",
+					"default" : 0.3
 				}
+				"controllerAxisDeadZone" : {
+					"type" : "number",
+					"default" : 0.2
+				},
+				"controllerAxisFullZone" : {
+					"type" : "number",
+					"default" : 0.9
+				},
+				"controllerPointerSpeed" : {
+					"type" : "number",
+					"default" : 1
+				},
+				"controllerPointerScale" : {
+					"type" : "number",
+					"default" : 1
+				},
+				"controllerPanningSpeed" : {
+					"type" : "number",
+					"default" : 1
+				},
+				"controllerPanningScale" : {
+					"type" : "number",
+					"default" : 1
+				},
 			}
 		},
 		"adventure" : {
