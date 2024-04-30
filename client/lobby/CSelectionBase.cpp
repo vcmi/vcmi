@@ -31,6 +31,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/Images.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
@@ -124,7 +125,7 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 }
 
 InfoCard::InfoCard()
-	: chatMode(ChatMode::Enabled)
+	: showChat(true)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	setRedrawParent(true);
@@ -138,7 +139,7 @@ InfoCard::InfoCard()
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
-	pvpBox = std::make_shared<PvPBox>(Rect(18, 126, 335, 262));
+	pvpBox = std::make_shared<PvPBox>(Rect(17, 396, 338, 105));
 
 	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateRoomInviteInterface(); } );
 	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateInterface(); });
@@ -195,9 +196,9 @@ InfoCard::InfoCard()
 		labelGroupPlayers = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 		disableLabelRedraws();
 	}
-	setChat(ChatMode::Disabled);
+	setChat(false);
 	if (CSH->inLobbyRoom())
-		setChat(ChatMode::Enabled); // FIXME: less ugly version?
+		setChat(true); // FIXME: less ugly version?
 }
 
 void InfoCard::disableLabelRedraws()
@@ -251,7 +252,7 @@ void InfoCard::changeSelection()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	// FIXME: We recreate them each time because CLabelGroup don't use smart pointers
 	labelGroupPlayers = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	if(chatMode != ChatMode::Enabled)
+	if(!showChat)
 		labelGroupPlayers->disable();
 
 	for(const auto & p : CSH->playerNames)
@@ -268,14 +269,18 @@ void InfoCard::changeSelection()
 	}
 }
 
-void InfoCard::setChat(ChatMode setMode)
+void InfoCard::toggleChat()
 {
-	if(chatMode == setMode)
+	setChat(!showChat);
+}
+
+void InfoCard::setChat(bool activateChat)
+{
+	if(showChat == activateChat)
 		return;
 
-	switch(setMode)
+	if(activateChat)
 	{
-	case InfoCard::ChatMode::Enabled:
 		if(SEL->screenType == ESelectionScreen::campaignList)
 		{
 			labelCampaignDescription->disable();
@@ -296,12 +301,20 @@ void InfoCard::setChat(ChatMode setMode)
 			buttonInvitePlayers->enable();
 			buttonOpenGlobalLobby->enable();
 		}
+		labelMapDiff->disable();
+		labelPlayerDifficulty->disable();
+		labelRating->disable();
+		labelDifficulty->disable();
+		labelDifficultyPercent->disable();
+		flagbox->disable();
+		iconDifficulty->disable();
 		mapDescription->disable();
 		chat->enable();
-		pvpBox->disable();
+		pvpBox->enable();
 		playerListBg->enable();
-		break;
-	case InfoCard::ChatMode::Disabled:
+	}
+	else
+	{
 		buttonInvitePlayers->disable();
 		buttonOpenGlobalLobby->disable();
 		mapDescription->enable();
@@ -324,34 +337,16 @@ void InfoCard::setChat(ChatMode setMode)
 			labelLossConditionText->enable();
 			labelGroupPlayers->disable();
 		}
-		break;
-	case InfoCard::ChatMode::PvP:
-		buttonInvitePlayers->disable();
-		buttonOpenGlobalLobby->disable();
-		mapDescription->disable();
-		chat->disable();
-		pvpBox->enable();
-		playerListBg->enable();
-
-		if(SEL->screenType == ESelectionScreen::campaignList)
-		{
-			labelCampaignDescription->disable();
-		}
-		else
-		{
-			labelScenarioDescription->disable();
-			labelVictoryCondition->disable();
-			labelLossCondition->disable();
-			iconsVictoryCondition->disable();
-			iconsLossCondition->disable();
-			labelVictoryConditionText->disable();
-			labelLossConditionText->disable();
-			labelGroupPlayers->disable();
-		}
-		break;
+		labelMapDiff->enable();
+		labelPlayerDifficulty->enable();
+		labelRating->enable();
+		labelDifficulty->enable();
+		labelDifficultyPercent->enable();
+		flagbox->enable();
+		iconDifficulty->enable();
 	}
 
-	chatMode = setMode;
+	showChat = activateChat;
 	GH.windows().totalRedraw();
 }
 
@@ -403,21 +398,25 @@ PvPBox::PvPBox(const Rect & rect)
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
-	buttonFlipCoin = std::make_shared<CButton>(Point(17, 160), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, rect.w, rect.h));
+	backgroundTexture->playerColored(PlayerColor(1));
+	backgroundBorder = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, rect.w, rect.h), ColorRGBA(0, 0, 0, 64), ColorRGBA(96, 96, 96, 255), 1);
+
+	buttonFlipCoin = std::make_shared<CButton>(Point(17, 10), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::COIN;
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
 	buttonFlipCoin->setTextOverlay("Flip coin2", EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonRandomTown = std::make_shared<CButton>(Point(17, 184), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town"), [](){
+	buttonRandomTown = std::make_shared<CButton>(Point(17, 30), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town"), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN;
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
 	buttonRandomTown->setTextOverlay("random town", EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonRandomTownVs = std::make_shared<CButton>(Point(17, 208), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town vs"), [](){
+	buttonRandomTownVs = std::make_shared<CButton>(Point(17, 50), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town vs"), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN_VS;
 		CSH->sendLobbyPack(lpa);

@@ -221,21 +221,11 @@ void CLobbyScreen::toggleMode(bool host)
 
 void CLobbyScreen::toggleChat()
 {
-	switch(card->chatMode)
-	{
-	case InfoCard::ChatMode::Enabled:
-		card->setChat(InfoCard::ChatMode::PvP);
+	card->toggleChat();
+	if(card->showChat)
 		buttonChat->setTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
-		break;
-	case InfoCard::ChatMode::Disabled:
-		card->setChat(InfoCard::ChatMode::Enabled);
-		buttonChat->setTextOverlay("PvP actions", FONT_SMALL, Colors::WHITE);
-		break;
-	case InfoCard::ChatMode::PvP:
-		card->setChat(InfoCard::ChatMode::Disabled);
+	else
 		buttonChat->setTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
-		break;
-	}
 }
 
 void CLobbyScreen::updateAfterStateChange()

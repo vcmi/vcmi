@@ -36,6 +36,7 @@ class CLabel;
 class CFlagBox;
 class CLabelGroup;
 class TransparentFilledRectangle;
+class FilledTexturePlayerColored;
 
 class ISelectionScreenInfo
 {
@@ -111,13 +112,8 @@ class InfoCard : public CIntObject
 
 	std::shared_ptr<PvPBox> pvpBox;
 public:
-	enum ChatMode {
-		Disabled,
-		Enabled,
-		PvP
-	};
 
-	ChatMode chatMode;
+	bool showChat;
 	std::shared_ptr<CChatBox> chat;
 	std::shared_ptr<CFlagBox> flagbox;
 
@@ -126,7 +122,8 @@ public:
 	InfoCard();
 	void disableLabelRedraws();
 	void changeSelection();
-	void setChat(ChatMode setMode);
+	void toggleChat();
+	void setChat(bool activateChat);
 };
 
 class CChatBox : public CIntObject
@@ -145,11 +142,13 @@ public:
 
 class PvPBox : public CIntObject
 {
-public:
+	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
+	std::shared_ptr<TransparentFilledRectangle> backgroundBorder;
+	
 	std::shared_ptr<CButton> buttonFlipCoin;
 	std::shared_ptr<CButton> buttonRandomTown;
 	std::shared_ptr<CButton> buttonRandomTownVs;
-
+public:
 	PvPBox(const Rect & rect);
 };
 

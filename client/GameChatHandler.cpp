@@ -15,7 +15,6 @@
 #include "PlayerLocalState.h"
 #include "globalLobby/GlobalLobbyClient.h"
 #include "lobby/CLobbyScreen.h"
-#include "lobby/CSelectionBase.h"
 
 #include "adventureMap/CInGameConsole.h"
 
@@ -74,11 +73,8 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 		formatted.replaceRawString(messageText);
 
 		lobby->card->chat->addNewMessage(formatted.toString());
-		if (lobby->card->chatMode != InfoCard::ChatMode::Enabled)
-		{
-			lobby->card->setChat(InfoCard::ChatMode::Disabled);
-			lobby->toggleChat();
-		}	
+		if (!lobby->card->showChat)
+				lobby->toggleChat();
 	}
 
 	chatHistory.push_back({senderName, messageText, TextOperations::getCurrentFormattedTimeLocal()});
