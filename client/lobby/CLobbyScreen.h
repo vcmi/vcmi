@@ -13,14 +13,14 @@
 
 class CBonusSelection;
 
-class CLobbyScreen : public CSelectionBase
+class CLobbyScreen final : public CSelectionBase
 {
 public:
 	std::shared_ptr<CButton> buttonChat;
 
 	CLobbyScreen(ESelectionScreen type);
 	~CLobbyScreen();
-	void toggleTab(std::shared_ptr<CIntObject> tab) override;
+	void toggleTab(std::shared_ptr<CIntObject> tab) final;
 	void startCampaign();
 	void startScenario(bool allowOnlyAI = false);
 	void toggleMode(bool host);
@@ -28,8 +28,8 @@ public:
 
 	void updateAfterStateChange();
 
-	const CMapInfo * getMapInfo() override;
-	const StartInfo * getStartInfo() override;
+	const CMapInfo * getMapInfo() final;
+	const StartInfo * getStartInfo() final;
 
 	std::shared_ptr<CBonusSelection> bonusSel;
 };

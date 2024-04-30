@@ -343,6 +343,20 @@ void CWindowWithArtifacts::deactivate()
 	CWindowObject::deactivate();
 }
 
+void CWindowWithArtifacts::enableArtifactsCostumeSwitcher() const
+{
+	for(auto artSet : artSets)
+		std::visit(
+			[](auto artSetWeak)
+			{
+				if constexpr(std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMain>>)
+				{
+					const auto artSetPtr = artSetWeak.lock();
+					artSetPtr->enableArtifactsCostumeSwitcher();
+				}
+			}, artSet);
+}
+
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)
 {
 	update();

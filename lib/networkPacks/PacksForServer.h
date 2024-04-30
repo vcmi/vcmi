@@ -429,6 +429,31 @@ struct DLL_LINKAGE ManageBackpackArtifacts : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE ManageEquippedArtifacts : public CPackForServer
+{
+	ManageEquippedArtifacts() = default;
+	ManageEquippedArtifacts(const ObjectInstanceID & artHolder, const uint32_t costumeIdx, bool saveCostume = false)
+		: artHolder(artHolder)
+		, costumeIdx(costumeIdx)
+		, saveCostume(saveCostume)
+	{
+	}
+
+	ObjectInstanceID artHolder;
+	uint32_t costumeIdx;
+	bool saveCostume;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & artHolder;
+		h & costumeIdx;
+		h & saveCostume;
+	}
+};
+
 struct DLL_LINKAGE AssembleArtifacts : public CPackForServer
 {
 	AssembleArtifacts() = default;

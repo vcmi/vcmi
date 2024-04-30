@@ -11,6 +11,7 @@
 #include "BattleResultProcessor.h"
 
 #include "../CGameHandler.h"
+#include "../TurnTimerHandler.h"
 #include "../processors/HeroPoolProcessor.h"
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
@@ -29,15 +30,10 @@
 #include "../../lib/serializer/Cast.h"
 #include "../../lib/spells/CSpellHandler.h"
 
-BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner)
+BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 //	: owner(owner)
-	: gameHandler(nullptr)
+	: gameHandler(newGameHandler)
 {
-}
-
-void BattleResultProcessor::setGameHandler(CGameHandler * newGameHandler)
-{
-	gameHandler = newGameHandler;
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle, uint8_t sideInBattle):
@@ -297,7 +293,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 			otherBattleQuery->result = battleQuery->result;
 	}
 
-	gameHandler->turnTimerHandler.onBattleEnd(battle.getBattle()->getBattleID());
+	gameHandler->turnTimerHandler->onBattleEnd(battle.getBattle()->getBattleID());
 	gameHandler->sendAndApply(battleResult);
 
 	if (battleResult->queryID == QueryID::NONE)

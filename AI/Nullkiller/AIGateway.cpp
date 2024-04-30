@@ -911,6 +911,9 @@ void AIGateway::moveCreaturesToHero(const CGTownInstance * t)
 
 void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const CArmedInstance * source)
 {
+	if(source->stacksCount() == 0)
+		return;
+
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
 	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
@@ -1053,7 +1056,8 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				if(location.slot == ArtifactPosition::MACH4) // don't attempt to move catapult
 					continue;
 
-				auto s = cb->getHero(location.artHolder)->getSlot(location.slot);
+				auto artHolder = cb->getHero(location.artHolder);
+				auto s = artHolder->getSlot(location.slot);
 				if(!s || s->locked) //we can't move locks
 					continue;
 				auto artifact = s->artifact;
@@ -1081,10 +1085,27 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
 						{
 							//if that artifact is better than what we have, pick it
-							if(compareArtifacts(artifact, otherSlot->artifact) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
+							if(compareArtifacts(artifact, otherSlot->artifact)
+								&& artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 							{
-								ArtifactLocation destLocation(target->id, slot);
-								cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->artifact)));
+								logAi->trace(
+									"Exchange artifacts %s <-> %s",
+									artifact->artType->getNameTranslated(),
+									otherSlot->artifact->artType->getNameTranslated());
+
+								if(!otherSlot->artifact->canBePutAt(artHolder, location.slot, true))
+								{
+									ArtifactLocation destLocation(target->id, slot);
+									ArtifactLocation backpack(artHolder->id, ArtifactPosition::BACKPACK_START);
+									
+									cb->swapArtifacts(destLocation, backpack);
+									cb->swapArtifacts(location, destLocation);
+								}
+								else
+								{
+									cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->artifact)));
+								}
+
 								changeMade = true;
 								break;
 							}

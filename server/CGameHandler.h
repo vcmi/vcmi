@@ -14,7 +14,6 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
-#include "TurnTimerHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -49,6 +48,7 @@ class CBaseForGHApply;
 class PlayerMessageProcessor;
 class BattleProcessor;
 class TurnOrderProcessor;
+class TurnTimerHandler;
 class QueriesProcessor;
 class CObjectVisitQuery;
 
@@ -62,6 +62,7 @@ public:
 	std::unique_ptr<BattleProcessor> battles;
 	std::unique_ptr<QueriesProcessor> queries;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
+	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -76,8 +77,6 @@ public:
 	ui32 QID;
 
 	SpellCastEnvironment * spellEnv;
-	
-	TurnTimerHandler turnTimerHandler;
 
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battleID) const override;
@@ -131,6 +130,8 @@ public:
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	bool bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
 	bool scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left);
+	bool saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
+	bool switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool eraseArtifactByClient(const ArtifactLocation & al);
 	void synchronizeArtifactHandlerLists();
 
@@ -230,6 +231,9 @@ public:
 		h & *heroPool;
 		h & *playerMessages;
 		h & *turnOrder;
+
+		if (h.version >= Handler::Version::TURN_TIMERS_STATE)
+			h & *turnTimerHandler;
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;

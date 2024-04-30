@@ -124,6 +124,8 @@ private:
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks) const;
 	bool executeTask(Goals::TTask task);
+	bool areAffectedObjectsPresent(Goals::TTask task) const;
+	HeroRole getTaskRole(Goals::TTask task) const;
 };
 
 }

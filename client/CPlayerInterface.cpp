@@ -279,7 +279,14 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 	CTutorialWindow::openWindowFirstTime(TutorialMode::TOUCH_ADVENTUREMAP);
 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	{
+
+	int humanPlayersCount = 0;
+	for(const auto & info : cb->getStartInfo()->playerInfos)
+		if (info.second.isControlledByHuman())
+			humanPlayersCount++;
+
+	bool hotseatWait = humanPlayersCount > 1;
+
 		LOCPLINT = this;
 		GH.curInt = this;
 
@@ -289,7 +296,7 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			performAutosave();
 		}
 
-		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
+		if (hotseatWait) //hot seat or MP message
 		{
 			adventureInt->onHotseatWaitStarted(playerID);
 
@@ -305,11 +312,11 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			makingTurn = true;
 			adventureInt->onPlayerTurnStarted(playerID);
 		}
-	}
-	acceptTurn(queryID);
+
+	acceptTurn(queryID, hotseatWait);
 }
 
-void CPlayerInterface::acceptTurn(QueryID queryID)
+void CPlayerInterface::acceptTurn(QueryID queryID, bool hotseatWait)
 {
 	if (settings["session"]["autoSkip"].Bool())
 	{
@@ -317,7 +324,7 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 			iw->close();
 	}
 
-	if(CSH->howManyPlayerInterfaces() > 1)
+	if(hotseatWait)
 	{
 		waitWhileDialog(); // wait for player to accept turn in hot-seat mode
 

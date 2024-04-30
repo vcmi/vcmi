@@ -148,7 +148,7 @@ jobs:
 
     - name: ccache for everything but PRs
       uses: hendrikmuhs/ccache-action@v1.2
-      if: ${{ (github.repository == 'vcmi/vcmi' && github.event.number == '' && github.ref == 'refs/heads/develop') ||  github.repository != 'vcmi/vcmi' }}
+      if: ${{ (github.repository == 'vcmi/vcmi' && github.event.number == '' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master')) ||  github.repository != 'vcmi/vcmi' }}
       with:
         key: ${{ matrix.preset }}-no-PR
         restore-keys: |
@@ -195,7 +195,7 @@ jobs:
         fi
         echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
         echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
-        echo VCMI_PACKAGE_GITVERSION="$VCMI_PACKAGE_GITVERSION" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GOLDMASTER="$VCMI_PACKAGE_GOLDMASTER" >> $GITHUB_ENV
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
@@ -351,7 +351,7 @@ jobs:
         fi
         echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
         echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
-        echo VCMI_PACKAGE_GITVERSION="$VCMI_PACKAGE_GITVERSION" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GOLDMASTER="$VCMI_PACKAGE_GOLDMASTER" >> $GITHUB_ENV
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 

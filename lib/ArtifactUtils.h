@@ -30,7 +30,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE ArtifactPosition getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid);
 	// TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE const std::vector<ArtifactPosition> & unmovableSlots();
-	DLL_LINKAGE const std::vector<ArtifactPosition> & constituentWornSlots();
+	DLL_LINKAGE const std::vector<ArtifactPosition> & commonWornSlots();
 	DLL_LINKAGE const std::vector<ArtifactPosition> & allWornSlots();
 	DLL_LINKAGE const std::vector<ArtifactPosition> & commanderSlots();
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);

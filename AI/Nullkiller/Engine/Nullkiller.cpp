@@ -375,12 +375,14 @@ void Nullkiller::makeTurn()
 			if(cb->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
 				return;
 
-			std::string taskDescription = bestTask->toString();
-			HeroPtr hero = bestTask->getHero();
-			HeroRole heroRole = HeroRole::MAIN;
+			if(!areAffectedObjectsPresent(bestTask))
+			{
+				logAi->debug("Affected object not found. Canceling task.");
+				continue;
+			}
 
-			if(hero.validAndSet())
-				heroRole = heroManager->getHeroRole(hero);
+			std::string taskDescription = bestTask->toString();
+			HeroRole heroRole = getTaskRole(bestTask);
 
 			if(heroRole != HeroRole::MAIN || bestTask->getHeroExchangeCount() <= 1)
 				useHeroChain = false;
@@ -446,6 +448,30 @@ void Nullkiller::makeTurn()
 			logAi->warn("Maxpass exceeded. Terminating AI turn.");
 		}
 	}
+}
+
+bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
+{
+	auto affectedObjs = task->getAffectedObjects();
+
+	for(auto oid : affectedObjs)
+	{
+		if(!cb->getObj(oid, false))
+			return false;
+	}
+
+	return true;
+}
+
+HeroRole Nullkiller::getTaskRole(Goals::TTask task) const
+{
+	HeroPtr hero = task->getHero();
+	HeroRole heroRole = HeroRole::MAIN;
+
+	if(hero.validAndSet())
+		heroRole = heroManager->getHeroRole(hero);
+
+	return heroRole;
 }
 
 bool Nullkiller::executeTask(Goals::TTask task)

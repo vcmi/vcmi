@@ -21,6 +21,8 @@ class CGameHandler;
 
 class PlayerMessageProcessor
 {
+	CGameHandler * gameHandler;
+
 	void executeCheatCode(const std::string & cheatName, PlayerColor player, ObjectInstanceID currObj, const std::vector<std::string> & arguments );
 	bool handleCheatCode(const std::string & cheatFullCommand, PlayerColor player, ObjectInstanceID currObj);
 	bool handleHostCommand(PlayerColor player, const std::string & message);
@@ -43,9 +45,6 @@ class PlayerMessageProcessor
 	void cheatFly(PlayerColor player, const CGHeroInstance * hero);
 
 public:
-	CGameHandler * gameHandler;
-
-	PlayerMessageProcessor();
 	PlayerMessageProcessor(CGameHandler * gameHandler);
 
 	/// incoming NetPack handling

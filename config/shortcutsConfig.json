@@ -125,7 +125,17 @@
 		"heroTightFormation":       "T",
 		"heroToggleTactics":        "B",
 		"spellbookTabAdventure":    "A",
-		"spellbookTabCombat":       "C"
+		"spellbookTabCombat":       "C",
+		"heroCostume0":             "0",
+		"heroCostume1":             "1",
+		"heroCostume2":             "2",
+		"heroCostume3":             "3",
+		"heroCostume4":             "4",
+		"heroCostume5":             "5",
+		"heroCostume6":             "6",
+		"heroCostume7":             "7",
+		"heroCostume8":             "8",
+		"heroCostume9":             "9"
 	},
 	"joystick": {
 		"leftaxis": "cursorMotion",

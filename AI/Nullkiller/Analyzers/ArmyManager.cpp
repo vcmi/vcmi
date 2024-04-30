@@ -136,6 +136,10 @@ public:
 std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
 {
 	auto sortedSlots = getSortedSlots(target, source);
+
+	if(source->stacksCount() == 0)
+		return sortedSlots;
+
 	std::map<FactionID, uint64_t> alignmentMap;
 
 	for(auto & slot : sortedSlots)
@@ -348,6 +352,11 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 
 ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
 {
+	if(source->stacksCount() == 0)
+	{
+		return 0;
+	}
+
 	auto bestArmy = getBestArmy(armyCarrier, target, source);
 	uint64_t newArmy = 0;
 	uint64_t oldArmy = target->getArmyStrength();

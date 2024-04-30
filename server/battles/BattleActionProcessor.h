@@ -78,8 +78,7 @@ class BattleActionProcessor : boost::noncopyable
 	bool makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & ba);
 
 public:
-	explicit BattleActionProcessor(BattleProcessor * owner);
-	void setGameHandler(CGameHandler * newGameHandler);
+	explicit BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction & ba);

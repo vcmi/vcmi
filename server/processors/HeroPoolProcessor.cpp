@@ -25,11 +25,6 @@
 #include "../../lib/gameState/TavernSlot.h"
 #include "../../lib/GameSettings.h"
 
-HeroPoolProcessor::HeroPoolProcessor()
-	: gameHandler(nullptr)
-{
-}
-
 HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
 {

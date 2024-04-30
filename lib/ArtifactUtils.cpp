@@ -52,7 +52,7 @@ DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::unmovableSlots(
 	return positions;
 }
 
-DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::constituentWornSlots()
+DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::commonWornSlots()
 {
 	static const std::vector<ArtifactPosition> positions =
 	{

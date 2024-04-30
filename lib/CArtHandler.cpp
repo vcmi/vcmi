@@ -1086,6 +1086,14 @@ CArtifactFittingSet::CArtifactFittingSet(ArtBearer::ArtBearer Bearer):
 {
 }
 
+CArtifactFittingSet::CArtifactFittingSet(const CArtifactSet & artSet)
+	: CArtifactFittingSet(artSet.bearerType())
+{
+	artifactsWorn = artSet.artifactsWorn;
+	artifactsInBackpack = artSet.artifactsInBackpack;
+	artifactsTransitionPos = artSet.artifactsTransitionPos;
+}
+
 ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
 {
 	return this->Bearer;

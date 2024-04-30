@@ -136,8 +136,9 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 
 	for(auto & elem : CSH->client->gameState()->players)
 	{
-		if(elem.second.human || 
-			(colorName.length() && elem.first.getNum() != vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, colorName)))
+		if(!elem.first.isValidPlayer()
+			|| elem.second.human
+			|| (colorName.length() && elem.first.getNum() != vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, colorName)))
 		{
 			continue;
 		}

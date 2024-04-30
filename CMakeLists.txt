@@ -43,8 +43,8 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
-option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are required for game lobby" OFF)
+option(ENABLE_GOLDMASTER "Build in public release mode in which some debug routines are disabled" OFF)
 
 # Compilation options
 
@@ -90,6 +90,7 @@ endif()
 
 include(CMakeDependentOption)
 cmake_dependent_option(ENABLE_INNOEXTRACT "Enable innoextract for GOG file extraction in launcher" ON "ENABLE_LAUNCHER" OFF)
+cmake_dependent_option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON "NOT ENABLE_GOLDMASTER" OFF)
 
 ############################################
 #        Miscellaneous options             #
@@ -239,7 +240,6 @@ elseif(${CMAKE_CXX_BYTE_ORDER} EQUAL "BIG_ENDIAN")
 	add_definitions(-DVCMI_ENDIAN_BIG)
 endif()
 
-
 if(ENABLE_LAUNCHER)
 	add_definitions(-DENABLE_LAUNCHER)
 endif()
@@ -254,6 +254,10 @@ endif()
 
 if(ENABLE_MINIMAL_LIB)
 	add_definitions(-DENABLE_MINIMAL_LIB)
+endif()
+
+if(ENABLE_GOLDMASTER)
+	add_definitions(-DENABLE_GOLDMASTER)
 endif()
 
 if(APPLE_IOS)

@@ -28,6 +28,8 @@ class CGameHandler;
 
 class HeroPoolProcessor : boost::noncopyable
 {
+	CGameHandler * gameHandler;
+
 	/// per-player random generators
 	std::map<PlayerColor, std::unique_ptr<CRandomGenerator>> playerSeed;
 
@@ -49,9 +51,6 @@ class HeroPoolProcessor : boost::noncopyable
 	TavernHeroSlot selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID);
 
 public:
-	CGameHandler * gameHandler;
-
-	HeroPoolProcessor();
 	HeroPoolProcessor(CGameHandler * gameHandler);
 
 	void onHeroSurrendered(const PlayerColor & color, const CGHeroInstance * hero);
@@ -66,7 +65,6 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		// h & gameHandler; // FIXME: make this work instead of using deserializationFix in gameHandler
 		h & playerSeed;
 		h & heroSeed;
 	}

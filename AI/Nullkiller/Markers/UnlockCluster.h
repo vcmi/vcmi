@@ -34,6 +34,7 @@ namespace Goals
 		{
 			tile = cluster->blocker->visitablePos();
 			hero = pathToCenter.targetHero;
+			objid = cluster->blocker->id;
 		}
 
 		bool operator==(const UnlockCluster & other) const override;

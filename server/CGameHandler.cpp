@@ -11,6 +11,7 @@
 #include "CGameHandler.h"
 
 #include "CVCMIServer.h"
+#include "TurnTimerHandler.h"
 #include "ServerNetPackVisitors.h"
 #include "ServerSpellCastEnvironment.h"
 #include "battles/BattleProcessor.h"
@@ -514,7 +515,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
-	, turnTimerHandler(*this)
+	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
 {
 	QID = 1;
 	applier = std::make_shared<CApplier<CBaseForGHApply>>();
@@ -616,7 +617,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 {
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
-	turnTimerHandler.onPlayerGetTurn(which);
+	turnTimerHandler->onPlayerGetTurn(which);
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
@@ -1009,7 +1010,7 @@ void CGameHandler::start(bool resume)
 		onNewTurn();
 		events::TurnStarted::defaultExecute(serverEventBus.get());
 		for(auto & player : gs->players)
-			turnTimerHandler.onGameplayStart(player.first);
+			turnTimerHandler->onGameplayStart(player.first);
 	}
 	else
 		events::GameResumed::defaultExecute(serverEventBus.get());
@@ -1019,7 +1020,7 @@ void CGameHandler::start(bool resume)
 
 void CGameHandler::tick(int millisecondsPassed)
 {
-	turnTimerHandler.update(millisecondsPassed);
+	turnTimerHandler->update(millisecondsPassed);
 }
 
 void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
@@ -1307,7 +1308,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if(h->boat && !h->boat->onboardAssaultAllowed)
 			lookForGuards = IGNORE_GUARDS;
 
-		turnTimerHandler.setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
+		turnTimerHandler->setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;
 	}
@@ -2891,6 +2892,78 @@ bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const Obj
 	return true;
 }
 
+bool CGameHandler::saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx)
+{
+	auto artSet = getArtSet(heroID);
+	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "saveArtifactsCostume: wrong hero's ID");
+
+	ChangeArtifactsCostume costume(player, costumeIdx);
+	for(const auto & slot : ArtifactUtils::commonWornSlots())
+	{
+		if(const auto slotInfo = artSet->getSlot(slot); slotInfo != nullptr && !slotInfo->locked)
+			costume.costumeSet.emplace(slot, slotInfo->getArt()->getTypeId());
+	}
+
+	sendAndApply(&costume);
+	return true;
+}
+
+bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx)
+{
+	const auto artSet = getArtSet(heroID);
+	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "switchArtifactsCostume: wrong hero's ID");
+	const auto playerState = getPlayerState(player);
+	COMPLAIN_RET_FALSE_IF(playerState == nullptr, "switchArtifactsCostume: wrong player");
+
+	if(auto costume = playerState->costumesArtifacts.find(costumeIdx); costume != playerState->costumesArtifacts.end())
+	{
+		CArtifactFittingSet artFittingSet(*artSet);
+		BulkMoveArtifacts bma(player, heroID, heroID, false);
+		auto costumeArtMap = costume->second;
+		auto estimateBackpackSize = artSet->artifactsInBackpack.size();
+
+		// First, find those artifacts that are already in place
+		for(const auto & slot : ArtifactUtils::commonWornSlots())
+		{
+			if(const auto * slotInfo = artFittingSet.getSlot(slot); slotInfo != nullptr && !slotInfo->locked)
+				if(const auto artPos = costumeArtMap.find(slot); artPos != costumeArtMap.end() && artPos->second == slotInfo->getArt()->getTypeId())
+				{
+					costumeArtMap.erase(artPos);
+					artFittingSet.removeArtifact(slot);
+				}
+		}
+		
+		// Second, find the necessary artifacts for the costume
+		for(const auto & artPos : costumeArtMap)
+		{
+			if(const auto availableArts = artFittingSet.getAllArtPositions(artPos.second, false, false, false); !availableArts.empty())
+			{
+				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots
+					{
+						artSet->getSlotByInstance(artFittingSet.getArt(availableArts.front())),
+						artPos.first
+					});
+				artFittingSet.removeArtifact(availableArts.front());
+				if(ArtifactUtils::isSlotBackpack(availableArts.front()))
+					estimateBackpackSize--;
+			}
+		}
+
+		// Third, put unnecessary artifacts into backpack
+		for(const auto & slot : ArtifactUtils::commonWornSlots())
+			if(artFittingSet.getArt(slot))
+			{
+				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots{slot, ArtifactPosition::BACKPACK_START});
+				estimateBackpackSize++;
+			}
+		
+		const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+		if((backpackCap < 0 || estimateBackpackSize <= backpackCap) && !bma.artsPack0.empty())
+			sendAndApply(&bma);
+	}
+	return true;
+}
+
 /**
  * Assembles or disassembles a combination artifact.
  * @param heroID ID of hero holding the artifact(s).
@@ -3389,7 +3462,9 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 bool CGameHandler::complain(const std::string &problem)
 {
+#ifndef ENABLE_GOLDMASTER
 	playerMessages->broadcastSystemMessage("Server encountered a problem: " + problem);
+#endif
 	logGlobal->error(problem);
 	return true;
 }

@@ -67,6 +67,7 @@ void registerTypesClientPacks(Serializer &s)
 	s.template registerType<CPackForClient, HeroVisit>();
 	s.template registerType<CPackForClient, SetCommanderProperty>();
 	s.template registerType<CPackForClient, ChangeObjectVisitors>();
+	s.template registerType<CPackForClient, ChangeArtifactsCostume>();
 	s.template registerType<CPackForClient, ShowWorldViewEx>();
 	s.template registerType<CPackForClient, EntitiesChanged>();
 	s.template registerType<CPackForClient, BattleStart>();

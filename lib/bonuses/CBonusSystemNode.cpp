@@ -414,8 +414,20 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 {
 	if(b->propagator->shouldBeAttached(this))
 	{
-		bonuses -= b;
-		logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(), nodeName());
+		if (bonuses -= b)
+			logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(), nodeName());
+		else
+			logBonus->warn("Attempt to remove #$# %s, which is not propagated to %s", b->Description(), nodeName());
+
+		bonuses.remove_if([b](const auto & bonus)
+		{
+			if (bonus->propagationUpdater && bonus->propagationUpdater == b->propagationUpdater)
+			{
+				treeHasChanged();
+				return true;
+			}
+			return false;
+		});
 	}
 
 	TNodes lchildren;

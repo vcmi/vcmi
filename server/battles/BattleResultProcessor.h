@@ -70,8 +70,7 @@ class BattleResultProcessor : boost::noncopyable
 	std::map<BattleID, std::unique_ptr<FinishingBattleHelper>> finishingBattles;
 
 public:
-	explicit BattleResultProcessor(BattleProcessor * owner);
-	void setGameHandler(CGameHandler * newGameHandler);
+	explicit BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
 
 	bool battleIsEnding(const CBattleInfoCallback & battle) const;
 
