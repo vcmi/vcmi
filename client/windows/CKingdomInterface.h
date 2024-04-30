@@ -334,7 +334,7 @@ private:
 	std::shared_ptr<CLabel> skillsLabel;
 
 public:
-	using CreateHeroItemFunctor = std::function<void(const CWindowWithArtifacts::CArtifactsOfHeroPtr)>;
+	using CreateHeroItemFunctor = std::function<void(const CWindowWithArtifacts::ArtifactsOfHeroVar)>;
 
 	CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onCreateHeroItemCallback);
 	void updateGarrisons() override;

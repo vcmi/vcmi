@@ -20,7 +20,7 @@
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
-CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets)
+CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<ArtifactsOfHeroVar> & artsSets)
 	: CWindowWithArtifacts(&artsSets)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);

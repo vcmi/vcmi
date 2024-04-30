@@ -106,8 +106,6 @@ void CMarketWindow::artifactRemoved(const ArtifactLocation & artLoc)
 
 void CMarketWindow::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw)
 {
-	if(!getState().has_value())
-		return;
 	CWindowWithArtifacts::artifactMoved(srcLoc, destLoc, withRedraw);
 	assert(marketWidget);
 	marketWidget->update();

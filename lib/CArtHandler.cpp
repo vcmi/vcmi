@@ -897,13 +897,7 @@ const CArtifactInstance * CArtifactSet::getAssemblyByConstituent(const ArtifactI
 const ArtSlotInfo * CArtifactSet::getSlot(const ArtifactPosition & pos) const
 {
 	if(pos == ArtifactPosition::TRANSITION_POS)
-	{
-		// Always add to the end. Always take from the beginning.
-		if(artifactsTransitionPos.empty())
-			return nullptr;
-		else
-			return &(*artifactsTransitionPos.begin());
-	}
+		return &artifactsTransitionPos;
 	if(vstd::contains(artifactsWorn, pos))
 		return &artifactsWorn.at(pos);
 	if(ArtifactUtils::isSlotBackpack(pos))
@@ -936,9 +930,7 @@ void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, ConstTransitiveP
 	ArtSlotInfo * slotInfo;
 	if(slot == ArtifactPosition::TRANSITION_POS)
 	{
-		// Always add to the end. Always take from the beginning.
-		artifactsTransitionPos.emplace_back();
-		slotInfo = &artifactsTransitionPos.back();
+		slotInfo = &artifactsTransitionPos;
 	}
 	else if(ArtifactUtils::isSlotEquipment(slot))
 	{
@@ -957,8 +949,7 @@ void CArtifactSet::eraseArtSlot(const ArtifactPosition & slot)
 {
 	if(slot == ArtifactPosition::TRANSITION_POS)
 	{
-		assert(!artifactsTransitionPos.empty());
-		artifactsTransitionPos.erase(artifactsTransitionPos.begin());
+		artifactsTransitionPos.artifact = nullptr;
 	}
 	else if(ArtifactUtils::isSlotBackpack(slot))
 	{

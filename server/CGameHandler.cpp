@@ -2721,10 +2721,16 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	if(!isAllowedExchange(src.artHolder, dst.artHolder))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
+	COMPLAIN_RET_FALSE_IF(!ArtifactUtils::checkIfSlotValid(*srcArtSet, src.slot), "moveArtifact: wrong artifact source slot");
 	const auto srcArtifact = srcArtSet->getArt(src.slot);
-	const auto dstArtifact = dstArtSet->getArt(dst.slot);
+	auto dstSlot = dst.slot;
+	if(dstSlot == ArtifactPosition::FIRST_AVAILABLE)
+		dstSlot = ArtifactUtils::getArtAnyPosition(dstArtSet, srcArtifact->getTypeId());
+	if(!ArtifactUtils::checkIfSlotValid(*dstArtSet, dstSlot))
+		return true;
+	const auto dstArtifact = dstArtSet->getArt(dstSlot);
 	const bool isDstSlotOccupied = dstArtSet->bearerType() == ArtBearer::ALTAR ? false : dstArtifact != nullptr;
-	const bool isDstSlotBackpack = dstArtSet->bearerType() == ArtBearer::HERO ? ArtifactUtils::isSlotBackpack(dst.slot) : false;
+	const bool isDstSlotBackpack = dstArtSet->bearerType() == ArtBearer::HERO ? ArtifactUtils::isSlotBackpack(dstSlot) : false;
 
 	if(srcArtifact == nullptr)
 		COMPLAIN_RET("No artifact to move!");
@@ -2733,23 +2739,23 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if((!srcArtifact || !isDstSlotBackpack) && !srcArtifact->canBePutAt(dstArtSet, dst.slot, true))
+	if((!srcArtifact || !isDstSlotBackpack) && !srcArtifact->canBePutAt(dstArtSet, dstSlot, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
 	auto srcSlotInfo = srcArtSet->getSlot(src.slot);
-	auto dstSlotInfo = dstArtSet->getSlot(dst.slot);
+	auto dstSlotInfo = dstArtSet->getSlot(dstSlot);
 
 	if((srcSlotInfo && srcSlotInfo->locked) || (dstSlotInfo && dstSlotInfo->locked))
 		COMPLAIN_RET("Cannot move artifact locks.");
 
 	if(isDstSlotBackpack && srcArtifact->artType->isBig())
 		COMPLAIN_RET("Cannot put big artifacts in backpack!");
-	if(src.slot == ArtifactPosition::MACH4 || dst.slot == ArtifactPosition::MACH4)
+	if(src.slot == ArtifactPosition::MACH4 || dstSlot == ArtifactPosition::MACH4)
 		COMPLAIN_RET("Cannot move catapult!");
 	if(isDstSlotBackpack && !ArtifactUtils::isBackpackFreeSlots(dstArtSet))
 		COMPLAIN_RET("Backpack is full!");
 
-	auto dstSlot = std::min(dst.slot, ArtifactPosition(ArtifactPosition::BACKPACK_START + dstArtSet->artifactsInBackpack.size()));
+	dstSlot = std::min(dstSlot, ArtifactPosition(ArtifactPosition::BACKPACK_START + dstArtSet->artifactsInBackpack.size()));
 
 	if(src.slot == dstSlot && src.artHolder == dst.artHolder)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");

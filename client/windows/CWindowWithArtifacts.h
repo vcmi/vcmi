@@ -19,7 +19,7 @@
 class CWindowWithArtifacts : virtual public CWindowObject
 {
 public:
-	using CArtifactsOfHeroPtr = std::variant<
+	using ArtifactsOfHeroVar = std::variant<
 		std::weak_ptr<CArtifactsOfHeroMarket>,
 		std::weak_ptr<CArtifactsOfHeroAltar>,
 		std::weak_ptr<CArtifactsOfHeroKingdom>,
@@ -28,12 +28,12 @@ public:
 		std::weak_ptr<CArtifactsOfHeroQuickBackpack>>;
 	using CloseCallback = std::function<void()>;
 
-	std::vector<CArtifactsOfHeroPtr> artSets;
+	std::vector<ArtifactsOfHeroVar> artSets;
 	CloseCallback closeCallback;
 
-	explicit CWindowWithArtifacts(const std::vector<CArtifactsOfHeroPtr> * artSets = nullptr);
-	void addSet(CArtifactsOfHeroPtr newArtSet);
-	void addSetAndCallbacks(CArtifactsOfHeroPtr newArtSet);
+	explicit CWindowWithArtifacts(const std::vector<ArtifactsOfHeroVar> * artSets = nullptr);
+	void addSet(ArtifactsOfHeroVar newArtSet);
+	void addSetAndCallbacks(ArtifactsOfHeroVar newArtSet);
 	void addCloseCallback(const CloseCallback & callback);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();
@@ -51,8 +51,7 @@ public:
 
 protected:
 	void update() const;
-	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
-	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(const CArtifactsOfHeroBase & artsInst);
+	std::optional<ArtifactsOfHeroVar> findAOHbyRef(const CArtifactsOfHeroBase & artsInst);
 	void markPossibleSlots();
 	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade) const;
 	void setCursorAnimation(const CArtifactInstance & artInst);

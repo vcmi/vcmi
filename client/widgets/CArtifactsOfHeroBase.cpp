@@ -32,9 +32,9 @@ CArtifactsOfHeroBase::CArtifactsOfHeroBase()
 void CArtifactsOfHeroBase::putBackPickedArtifact()
 {
 	// Artifact located in artifactsTransitionPos should be returned
-	if(getPickedArtifact())
+	if(const auto art = getPickedArtifact())
 	{
-		auto slot = ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->getTypeId());
+		auto slot = ArtifactUtils::getArtAnyPosition(curHero, art->getTypeId());
 		if(slot == ArtifactPosition::PRE_FIRST)
 		{
 			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
@@ -196,10 +196,10 @@ void CArtifactsOfHeroBase::updateSlot(const ArtifactPosition & slot)
 const CArtifactInstance * CArtifactsOfHeroBase::getPickedArtifact()
 {
 	// Returns only the picked up artifact. Not just highlighted like in the trading window.
-	if(!curHero || curHero->artifactsTransitionPos.empty())
-		return nullptr;
-	else
+	if(curHero)
 		return curHero->getArt(ArtifactPosition::TRANSITION_POS);
+	else
+		return nullptr;
 }
 
 void CArtifactsOfHeroBase::addGestureCallback(CArtPlace::ClickFunctor callback)
