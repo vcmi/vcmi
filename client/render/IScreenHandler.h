@@ -43,7 +43,4 @@ public:
 
 	/// Window has focus
 	virtual bool hasFocus() = 0;
-
-	/// Get the scale value of screen
-	virtual void getRenderScale(float & scaleX, float & scaleY) = 0;
 };

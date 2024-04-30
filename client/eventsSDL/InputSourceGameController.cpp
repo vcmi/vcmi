@@ -209,9 +209,11 @@ void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEv
 
 void InputSourceGameController::tryToConvertCursor()
 {
-	if(CCS && CCS->curh && CCS->curh->getShowType() == Cursor::ShowType::HARDWARE)
+	assert(CCS);
+	assert(CCS->curh);
+	if(CCS->curh->getShowType() == Cursor::ShowType::HARDWARE)
 	{
-		const Point & cursorPosition = CCS->curh->getCursorPosition();
+		const Point & cursorPosition = GH.getCursorPosition();
 		CCS->curh->ChangeCursor(Cursor::ShowType::SOFTWARE);
 		CCS->curh->cursorMove(cursorPosition.x, cursorPosition.y);
 		GH.input().setCursorPosition(cursorPosition);

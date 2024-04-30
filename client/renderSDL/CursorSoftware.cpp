@@ -81,11 +81,6 @@ void CursorSoftware::setVisible(bool on)
 	visible = on;
 }
 
-const Point & CursorSoftware::getCursorPosition()
-{
-	return pos;
-}
-
 CursorSoftware::CursorSoftware():
 	cursorTexture(nullptr),
 	cursorSurface(nullptr),

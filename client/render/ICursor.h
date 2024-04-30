@@ -24,6 +24,5 @@ public:
 	virtual void setCursorPosition( const Point & newPos ) = 0;
 	virtual void render() = 0;
 	virtual void setVisible( bool on) = 0;
-	virtual const Point & getCursorPosition() = 0;
 };
 

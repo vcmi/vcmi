@@ -186,7 +186,6 @@ public:
 	/// change cursor's positions to (x, y)
 	void cursorMove(const int & x, const int & y);
 
-    Cursor::ShowType getShowType();
-    void ChangeCursor(Cursor::ShowType showType);
-    const Point & getCursorPosition();
+	Cursor::ShowType getShowType();
+	void ChangeCursor(Cursor::ShowType showType);
 };

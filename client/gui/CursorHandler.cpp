@@ -315,8 +315,3 @@ void CursorHandler::ChangeCursor(Cursor::ShowType showType)
 			break;
 	}
 }
-
-const Point & CursorHandler::getCursorPosition()
-{
-	return cursor->getCursorPosition();
-}
