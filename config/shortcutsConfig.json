@@ -163,8 +163,8 @@
 		"mouseClickLeft": "x",
 		"mouseClickRight": "y",
 
-		"leftshoulder": ["adventureNextHero", "battleDefend"],
-		"rightshoulder": ["adventureNextTown", "battleWait"],
+		"adventureNextHero" : "leftshoulder",
+		"battleDefend" : "leftshoulder",
 
 		"adventureNextTown" : "rightshoulder",
 		"battleWait" : "rightshoulder",
