@@ -18,8 +18,6 @@
 #include "../gui/EventDispatcher.h"
 #include "../gui/ShortcutHandler.h"
 
-
-
 void InputSourceGameController::gameControllerDeleter(SDL_GameController * gameController)
 {
 	if(gameController)
@@ -135,76 +133,56 @@ int InputSourceGameController::getRealAxisValue(int value)
 	return (value - base) * AXIS_MAX_ZOOM / (AXIS_MAX_ZOOM - AXIS_DEAD_ZOOM);
 }
 
-void InputSourceGameController::dispatchTriggerShortcuts(const std::vector<EShortcut> & shortcutsVector, int axisValue)
+void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue)
 {
 	if(axisValue >= TRIGGER_PRESS_THRESHOLD)
-		GH.events().dispatchShortcutPressed(shortcutsVector);
+	{
+		if (!pressedAxes.count(axisID))
+		{
+			GH.events().dispatchShortcutPressed(shortcutsVector);
+			pressedAxes.insert(axisID);
+		}
+	}
 	else
-		GH.events().dispatchShortcutReleased(shortcutsVector);
-}
-
-void InputSourceGameController::dispatchTriggerLeftClick(int axisValue)
-{
-	const Point & position = GH.input().getCursorPosition();
-	if(axisValue >= TRIGGER_PRESS_THRESHOLD)
-		GH.events().dispatchMouseLeftButtonPressed(position, 0);
-	else
-		GH.events().dispatchMouseLeftButtonReleased(position, 0);
-}
-
-void InputSourceGameController::dispatchTriggerRightClick(int axisValue)
-{
-	const Point & position = GH.input().getCursorPosition();
-	if(axisValue >= TRIGGER_PRESS_THRESHOLD)
-		GH.events().dispatchShowPopup(position, 0);
-	else
-		GH.events().dispatchClosePopup(position);
+	{
+		if (pressedAxes.count(axisID))
+		{
+			GH.events().dispatchShortcutReleased(shortcutsVector);
+			pressedAxes.erase(axisID);
+		}
+	}
 }
 
 void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEvent & axis)
 {
 	tryToConvertCursor();
-	if(axis.axis == SDL_CONTROLLER_AXIS_LEFTX)
+
+	SDL_GameControllerAxis axisID = static_cast<SDL_GameControllerAxis>(axis.axis);
+	std::string axisName =  SDL_GameControllerGetStringForAxis(axisID);
+
+	auto axisActions = GH.shortcuts().translateJoystickAxis(axisName);
+	auto buttonActions = GH.shortcuts().translateJoystickButton(axisName);
+
+	for (auto const & action : axisActions)
 	{
-		if(config.getLeftAxisType() == AxisType::CURSOR_MOTION)
-			cursorAxisValueX = getRealAxisValue(axis.value);
-		else if(config.getLeftAxisType() == AxisType::MAP_SCROLL)
-			scrollAxisValueX = getRealAxisValue(axis.value);
+		switch (action)
+		{
+			case EShortcut::MOUSE_CURSOR_X:
+				cursorAxisValueX = getRealAxisValue(axis.value);
+				break;
+			case EShortcut::MOUSE_CURSOR_Y:
+				cursorAxisValueY = getRealAxisValue(axis.value);
+				break;
+			case EShortcut::MOUSE_SWIPE_X:
+				scrollAxisValueX = getRealAxisValue(axis.value);
+				break;
+			case EShortcut::MOUSE_SWIPE_Y:
+				scrollAxisValueY = getRealAxisValue(axis.value);
+				break;
+		}
 	}
-	else if(axis.axis == SDL_CONTROLLER_AXIS_LEFTY)
-	{
-		if(config.getLeftAxisType() == AxisType::CURSOR_MOTION)
-			cursorAxisValueY = getRealAxisValue(axis.value);
-		else if(config.getLeftAxisType() == AxisType::MAP_SCROLL)
-			scrollAxisValueY = getRealAxisValue(axis.value);
-	}
-	if(axis.axis == SDL_CONTROLLER_AXIS_RIGHTX)
-	{
-		if(config.getRightAxisType() == AxisType::CURSOR_MOTION)
-			cursorAxisValueX = getRealAxisValue(axis.value);
-		else if(config.getRightAxisType() == AxisType::MAP_SCROLL)
-			scrollAxisValueX = getRealAxisValue(axis.value);
-	}
-	else if(axis.axis == SDL_CONTROLLER_AXIS_RIGHTY)
-	{
-		if(config.getRightAxisType() == AxisType::CURSOR_MOTION)
-			cursorAxisValueY = getRealAxisValue(axis.value);
-		else if(config.getRightAxisType() == AxisType::MAP_SCROLL)
-			scrollAxisValueY = getRealAxisValue(axis.value);
-	}
-	else if(config.isLeftClickTrigger(axis.axis))
-	{
-		dispatchTriggerLeftClick(axis.value);
-	}
-	else if(config.isRightClickTrigger(axis.axis))
-	{
-		dispatchTriggerRightClick(axis.value);
-	}
-	else if(config.isShortcutsTrigger(axis.axis))
-	{
-		const auto & shortcutsVector = config.getTriggerShortcuts(axis.axis);
-		dispatchTriggerShortcuts(shortcutsVector, axis.value);
-	}
+
+	dispatchAxisShortcuts(buttonActions, axisID, axis.value);
 }
 
 void InputSourceGameController::tryToConvertCursor()
@@ -222,42 +200,16 @@ void InputSourceGameController::tryToConvertCursor()
 
 void InputSourceGameController::handleEventButtonDown(const SDL_ControllerButtonEvent & button)
 {
-	const Point & position = GH.input().getCursorPosition();
-
-	if(config.isLeftClickButton(button.button))
-	{
-		GH.events().dispatchMouseLeftButtonPressed(position, 0);
-	}
-
-	if(config.isRightClickButton(button.button))
-	{
-		GH.events().dispatchShowPopup(position, 0);
-	}
-
-	if(config.isShortcutsButton(button.button))
-	{
-		const auto & shortcutsVector = config.getButtonShortcuts(button.button);
-		GH.events().dispatchShortcutPressed(shortcutsVector);
-	}
+	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
+	const auto & shortcutsVector = GH.shortcuts().translateJoystickButton(buttonName);
+	GH.events().dispatchShortcutPressed(shortcutsVector);
 }
 
 void InputSourceGameController::handleEventButtonUp(const SDL_ControllerButtonEvent & button)
 {
-	const Point & position = GH.input().getCursorPosition();
-
-	if(config.isLeftClickButton(button.button))
-	{
-		GH.events().dispatchMouseLeftButtonReleased(position, 0);
-	}
-	if(config.isRightClickButton(button.button))
-	{
-		GH.events().dispatchClosePopup(position);
-	}
-	if(config.isShortcutsButton(button.button))
-	{
-		const auto & shortcutsVector = config.getButtonShortcuts(button.button);
-		GH.events().dispatchShortcutReleased(shortcutsVector);
-	}
+	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
+	const auto & shortcutsVector = GH.shortcuts().translateJoystickButton(buttonName);
+	GH.events().dispatchShortcutReleased(shortcutsVector);
 }
 
 void InputSourceGameController::doCursorMove(int deltaX, int deltaY)

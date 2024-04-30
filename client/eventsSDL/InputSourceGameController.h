@@ -10,19 +10,24 @@
 
 #pragma once
 
-#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_gamecontroller.h>
 
-#include "GameControllerConfig.h"
 #include "../gui/Shortcut.h"
 #include "../../lib/Point.h"
 
+constexpr int AXIS_DEAD_ZOOM = 6000;
+constexpr int AXIS_MAX_ZOOM = 32000;
+constexpr int AXIS_MOVE_SPEED = 500;
+constexpr int AXIS_CURSOR_MOVE_INTERVAL = 1000;
+constexpr int TRIGGER_PRESS_THRESHOLD = 8000;
 
-const int AXIS_DEAD_ZOOM = 6000;
-const int AXIS_MAX_ZOOM = 32000;
-const int AXIS_MOVE_SPEED = 500;
-const int AXIS_CURSOR_MOVE_INTERVAL = 1000;
-const int TRIGGER_PRESS_THRESHOLD = 8000;
-
+enum class AxisType
+{
+	CURSOR_MOTION,
+	MAP_SCROLL,
+	NONE
+};
 
 /// Class that handles game controller input from SDL events
 class InputSourceGameController
@@ -31,7 +36,8 @@ class InputSourceGameController
 	using GameControllerPtr = std::unique_ptr<SDL_GameController, decltype(&gameControllerDeleter)>;
 
 	std::map<int, GameControllerPtr> gameControllerMap;
-	GameControllerConfig config;
+	std::set<SDL_GameControllerAxis> pressedAxes;
+
 	long long lastCheckTime;
 	int cursorAxisValueX;
 	int cursorAxisValueY;
@@ -49,9 +55,7 @@ class InputSourceGameController
 	void openGameController(int index);
 	int getJoystickIndex(SDL_GameController * controller);
 	int getRealAxisValue(int value);
-	void dispatchTriggerShortcuts(const std::vector<EShortcut> & shortcutsVector, int axisValue);
-	void dispatchTriggerLeftClick(int axisValue);
-	void dispatchTriggerRightClick(int axisValue);
+	void dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue);
 	void tryToConvertCursor();
 	void doCursorMove(int deltaX, int deltaY);
 	int getMoveDis(float planDis);
