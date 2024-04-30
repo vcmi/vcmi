@@ -19,7 +19,6 @@
 constexpr int AXIS_DEAD_ZOOM = 6000;
 constexpr int AXIS_MAX_ZOOM = 32000;
 constexpr int AXIS_MOVE_SPEED = 500;
-constexpr int AXIS_CURSOR_MOVE_INTERVAL = 1000;
 constexpr int TRIGGER_PRESS_THRESHOLD = 8000;
 
 enum class AxisType
@@ -38,7 +37,7 @@ class InputSourceGameController
 	std::map<int, GameControllerPtr> gameControllerMap;
 	std::set<SDL_GameControllerAxis> pressedAxes;
 
-	long long lastCheckTime;
+	std::chrono::steady_clock::time_point lastCheckTime;
 	int cursorAxisValueX;
 	int cursorAxisValueY;
 	float cursorPlanDisX;
@@ -59,8 +58,8 @@ class InputSourceGameController
 	void tryToConvertCursor();
 	void doCursorMove(int deltaX, int deltaY);
 	int getMoveDis(float planDis);
-	void handleCursorUpdate(long long deltaTime);
-	void handleScrollUpdate(long long deltaTime);
+	void handleCursorUpdate(int32_t deltaTimeMs);
+	void handleScrollUpdate(int32_t deltaTimeMs);
 	bool isScrollAxisReleased();
 
 public:

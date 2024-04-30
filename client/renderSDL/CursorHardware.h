@@ -23,7 +23,6 @@ class CursorHardware : public ICursor
 	std::shared_ptr<IImage> cursorImage;
 
 	SDL_Cursor * cursor;
-    Point pos;
 
 public:
 	CursorHardware();

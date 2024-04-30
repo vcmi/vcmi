@@ -26,7 +26,6 @@ void InputSourceGameController::gameControllerDeleter(SDL_GameController * gameC
 }
 
 InputSourceGameController::InputSourceGameController():
-	lastCheckTime(0),
 	cursorAxisValueX(0),
 	cursorAxisValueY(0),
 	cursorPlanDisX(0.0),
@@ -236,31 +235,31 @@ int InputSourceGameController::getMoveDis(float planDis)
 
 void InputSourceGameController::handleUpdate()
 {
-	auto now = std::chrono::high_resolution_clock::now();
-	auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-	if(lastCheckTime == 0)
+	std::chrono::steady_clock::time_point nowMs = std::chrono::steady_clock::now();
+
+	if(lastCheckTime == std::chrono::steady_clock::time_point())
 	{
 		lastCheckTime = nowMs;
 		return;
 	}
 
-	long long deltaTime = nowMs - lastCheckTime;
+	int32_t deltaTime = std::chrono::duration_cast<std::chrono::seconds>(nowMs - lastCheckTime).count();
 	handleCursorUpdate(deltaTime);
 	handleScrollUpdate(deltaTime);
 	lastCheckTime = nowMs;
 }
 
-void InputSourceGameController::handleCursorUpdate(long long deltaTime)
+void InputSourceGameController::handleCursorUpdate(int32_t deltaTimeMs)
 {
 	if(cursorAxisValueX == 0)
 		cursorPlanDisX = 0;
 	else
-		cursorPlanDisX += ((float)deltaTime / 1000) * ((float)cursorAxisValueX / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
+		cursorPlanDisX += ((float)deltaTimeMs / 1000) * ((float)cursorAxisValueX / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
 
 	if(cursorAxisValueY == 0)
 		cursorPlanDisY = 0;
 	else
-		cursorPlanDisY += ((float)deltaTime / 1000) * ((float)cursorAxisValueY / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
+		cursorPlanDisY += ((float)deltaTimeMs / 1000) * ((float)cursorAxisValueY / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
 
 	int moveDisX = getMoveDis(cursorPlanDisX);
 	int moveDisY = getMoveDis(cursorPlanDisY);
@@ -269,7 +268,7 @@ void InputSourceGameController::handleCursorUpdate(long long deltaTime)
 	doCursorMove(moveDisX, moveDisY);
 }
 
-void InputSourceGameController::handleScrollUpdate(long long deltaTime)
+void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 {
 	if(!scrollAxisMoved && isScrollAxisReleased())
 	{
@@ -288,8 +287,8 @@ void InputSourceGameController::handleScrollUpdate(long long deltaTime)
 		scrollPlanDisX = scrollPlanDisY = 0;
 		return;
 	}
-	scrollPlanDisX += ((float)deltaTime / 1000) * ((float)scrollAxisValueX / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
-	scrollPlanDisY += ((float)deltaTime / 1000) * ((float)scrollAxisValueY / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
+	scrollPlanDisX += ((float)deltaTimeMs / 1000) * ((float)scrollAxisValueX / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
+	scrollPlanDisY += ((float)deltaTimeMs / 1000) * ((float)scrollAxisValueY / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
 	int moveDisX = getMoveDis(scrollPlanDisX);
 	int moveDisY = getMoveDis(scrollPlanDisY);
 	if(moveDisX != 0 || moveDisY != 0)
