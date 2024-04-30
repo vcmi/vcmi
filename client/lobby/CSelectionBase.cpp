@@ -403,25 +403,35 @@ PvPBox::PvPBox(const Rect & rect)
 	backgroundTexture->playerColored(PlayerColor(1));
 	backgroundBorder = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, rect.w, rect.h), ColorRGBA(0, 0, 0, 64), ColorRGBA(96, 96, 96, 255), 1);
 
-	factionselector = std::make_shared<FactionSelector>(Point(5, 3));
+	factionSelector = std::make_shared<FactionSelector>(Point(5, 3));
 
-	buttonFlipCoin = std::make_shared<CButton>(Point(203, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){
+	auto getBannedTowns = [this](){
+		std::vector<FactionID> bannedTowns;
+		for(auto & town : factionSelector->townsEnabled)
+			if(!town.second)
+				bannedTowns.push_back(town.first);
+		return bannedTowns;
+	};
+
+	buttonFlipCoin = std::make_shared<CButton>(Point(190, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::COIN;
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
 	buttonFlipCoin->setTextOverlay("Flip coin2", EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonRandomTown = std::make_shared<CButton>(Point(203, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town"), [](){
+	buttonRandomTown = std::make_shared<CButton>(Point(190, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town"), [getBannedTowns](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN;
+		lpa.bannedTowns = getBannedTowns();
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
 	buttonRandomTown->setTextOverlay("random town", EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonRandomTownVs = std::make_shared<CButton>(Point(203, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town vs"), [](){
+	buttonRandomTownVs = std::make_shared<CButton>(Point(190, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town vs"), [getBannedTowns](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN_VS;
+		lpa.bannedTowns = getBannedTowns();
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
 	buttonRandomTownVs->setTextOverlay("random town vs", EFonts::FONT_SMALL, Colors::WHITE);
@@ -433,20 +443,46 @@ FactionSelector::FactionSelector(const Point & loc)
 	pos += loc;
 	setRedrawParent(true);
 
+	int count = 0;
+	CGI->factions()->forEach([this, &count](const Faction *entity, bool &stop){
+		if(!entity->hasTown())
+			return;
+		townsEnabled[entity->getFaction()] = true;
+		count++;
+	});
+
+	auto divisionRoundUp = [](int x, int y){ return (x + (y - 1)) / y; };
+	slider = std::make_shared<CSlider>(Point(144, 0), 96, std::bind(&FactionSelector::sliderMove, this, _1), 3, divisionRoundUp(count, 3), 0, Orientation::VERTICAL, CSlider::BLUE);
+	slider->setPanningStep(24);
+	slider->setScrollBounds(Rect(-144, 0, slider->pos.x - pos.x + slider->pos.w, slider->pos.h));
+
+	updateListItems();
+}
+
+void FactionSelector::updateListItems()
+{
+	OBJ_CONSTRUCTION;
+	int line = slider->getValue();
+	
+	towns.clear();
+	townsArea.clear();
+
 	int x = 0, y = 0;
-	CGI->factions()->forEach([this, &x, &y](const Faction *entity, bool &stop){
+	CGI->factions()->forEach([this, &x, &y, line](const Faction *entity, bool &stop){
 		if(!entity->hasTown())
 			return;
 
-		FactionID factionID = entity->getFaction();
-		auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
-		towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, true), 0, 48 * x, 32 * y);
-		townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(48 * x, 32 * y, 48, 32), [this, getImageIndex, factionID](){
-			townsEnabled[factionID] = !townsEnabled[factionID];
-			towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
-			redraw();
-		});
-		townsEnabled[factionID] = true;
+		if(y >= line && (y - line) < 3)
+			{
+			FactionID factionID = entity->getFaction();
+			auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
+			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, 48 * x, 32 * (y - line));
+			townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(48 * x, 32 * (y - line), 48, 32), [this, getImageIndex, factionID](){
+				townsEnabled[factionID] = !townsEnabled[factionID];
+				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
+				redraw();
+			});
+		}
 
 		if (x < 2)
 			x++;
@@ -456,6 +492,14 @@ FactionSelector::FactionSelector(const Point & loc)
 			y++;
 		}
 	});
+}
+
+void FactionSelector::sliderMove(int slidPos)
+{
+	if(!slider)
+		return; // ignore spurious call when slider is being created
+	updateListItems();
+	redraw();
 }
 
 CFlagBox::CFlagBox(const Rect & rect)

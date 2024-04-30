@@ -348,6 +348,7 @@ struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
 	enum EAction : ui8 {
 		NONE, COIN, RANDOM_TOWN, RANDOM_TOWN_VS
 	} action = NONE;
+	std::vector<FactionID> bannedTowns;
 
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -355,6 +356,7 @@ struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & action;
+		h & bannedTowns;
 	}
 };
 

@@ -148,7 +148,7 @@ class PvPBox : public CIntObject
 	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
 	std::shared_ptr<TransparentFilledRectangle> backgroundBorder;
 	
-	std::shared_ptr<FactionSelector> factionselector;
+	std::shared_ptr<FactionSelector> factionSelector;
 
 	std::shared_ptr<CButton> buttonFlipCoin;
 	std::shared_ptr<CButton> buttonRandomTown;
@@ -161,10 +161,14 @@ class FactionSelector : public CIntObject
 {
 	std::map<FactionID, std::shared_ptr<CAnimImage>> towns;
 	std::map<FactionID, std::shared_ptr<LRClickableArea>> townsArea;
-	std::map<FactionID, bool> townsEnabled;
 	std::shared_ptr<CSlider> slider;
 
+	void sliderMove(int slidPos);
+	void updateListItems();
+
 public:
+	std::map<FactionID, bool> townsEnabled;
+
 	FactionSelector(const Point & loc);
 };
 
