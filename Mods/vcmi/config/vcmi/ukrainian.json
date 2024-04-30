@@ -99,12 +99,11 @@
 	"vcmi.lobby.room.description.limit" : "До %d гравців можуть зайти у вашу кімнату, включаючи вас.",
 	"vcmi.lobby.invite.header" : "Запросити гравців",
 	"vcmi.lobby.invite.notification" : "Гравець запросив вас до своєї ігрової кімнати. Тепер ви можете приєднатися до його приватної кімнати.",
-	"vcmi.lobby.preview.title" : "Join Game Room",
+	"vcmi.lobby.preview.title" : "Приєднатися до кімнати",
 	"vcmi.lobby.preview.subtitle" : "Гра на %s, яку проводить %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
 	"vcmi.lobby.preview.version" : "Версія гри:",
 	"vcmi.lobby.preview.players" : "Гравці:",
 	"vcmi.lobby.preview.mods" : "Активні модифікації:",
-	"vcmi.lobby.preview.title" : "Приєднатися до кімнати",
 	"vcmi.lobby.preview.allowed" : "Приєднатися до цієї ігрової кімнати?",
 	"vcmi.lobby.preview.error.header" : "Неможливо приєднатися до цієї кімнати.",
 	"vcmi.lobby.preview.error.playing" : "Ви повинні спочатку вийти з поточної гри.",
