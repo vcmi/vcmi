@@ -291,17 +291,17 @@ void CursorHandler::show()
 	cursor->setVisible(true);
 }
 
-Cursor::ShowType CursorHandler::getShowType()
+Cursor::ShowType CursorHandler::getShowType() const
 {
 	return showType;
 }
 
-void CursorHandler::ChangeCursor(Cursor::ShowType showType)
+void CursorHandler::changeCursor(Cursor::ShowType newShowType)
 {
-	if(this->showType == showType)
+	if(newShowType == showType)
 		return;
 
-	switch(showType)
+	switch(newShowType)
 	{
 		case Cursor::ShowType::SOFTWARE:
 			cursor.reset(new CursorSoftware());

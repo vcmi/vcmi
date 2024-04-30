@@ -58,7 +58,7 @@ void InputSourceGameController::openGameController(int index)
 		logGlobal->error("Fail to open game controller %d!", index);
 		return;
 	}
-	GameControllerPtr controllerPtr(controller, gameControllerDeleter);
+	GameControllerPtr controllerPtr(controller, &gameControllerDeleter);
 
 	// Need to save joystick index for event. Joystick index may not be equal to index sometimes.
 	int joystickIndex = getJoystickIndex(controllerPtr.get());
@@ -74,7 +74,7 @@ void InputSourceGameController::openGameController(int index)
 		return;
 	}
 
-	gameControllerMap.emplace(joystickIndex, std::move(controllerPtr));
+	gameControllerMap.try_emplace(joystickIndex, std::move(controllerPtr));
 }
 
 int InputSourceGameController::getJoystickIndex(SDL_GameController * controller)
@@ -86,7 +86,7 @@ int InputSourceGameController::getJoystickIndex(SDL_GameController * controller)
 	SDL_JoystickID instanceID = SDL_JoystickInstanceID(joystick);
 	if(instanceID < 0)
 		return -1;
-	return (int)instanceID;
+	return instanceID;
 }
 
 void InputSourceGameController::handleEventDeviceAdded(const SDL_ControllerDeviceEvent & device)
@@ -191,7 +191,7 @@ void InputSourceGameController::tryToConvertCursor()
 	if(CCS->curh->getShowType() == Cursor::ShowType::HARDWARE)
 	{
 		const Point & cursorPosition = GH.getCursorPosition();
-		CCS->curh->ChangeCursor(Cursor::ShowType::SOFTWARE);
+		CCS->curh->changeCursor(Cursor::ShowType::SOFTWARE);
 		CCS->curh->cursorMove(cursorPosition.x, cursorPosition.y);
 		GH.input().setCursorPosition(cursorPosition);
 	}
@@ -243,7 +243,7 @@ void InputSourceGameController::handleUpdate()
 		return;
 	}
 
-	int32_t deltaTime = std::chrono::duration_cast<std::chrono::seconds>(nowMs - lastCheckTime).count();
+	int32_t deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(nowMs - lastCheckTime).count();
 	handleCursorUpdate(deltaTime);
 	handleScrollUpdate(deltaTime);
 	lastCheckTime = nowMs;
@@ -251,15 +251,17 @@ void InputSourceGameController::handleUpdate()
 
 void InputSourceGameController::handleCursorUpdate(int32_t deltaTimeMs)
 {
+	float deltaTimeSeconds = static_cast<float>(deltaTimeMs) / 1000;
+
 	if(cursorAxisValueX == 0)
 		cursorPlanDisX = 0;
 	else
-		cursorPlanDisX += ((float)deltaTimeMs / 1000) * ((float)cursorAxisValueX / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
+		cursorPlanDisX += deltaTimeSeconds * AXIS_MOVE_SPEED * cursorAxisValueX / AXIS_MAX_ZOOM;
 
 	if(cursorAxisValueY == 0)
 		cursorPlanDisY = 0;
 	else
-		cursorPlanDisY += ((float)deltaTimeMs / 1000) * ((float)cursorAxisValueY / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
+		cursorPlanDisY += deltaTimeSeconds * AXIS_MOVE_SPEED * cursorAxisValueY / AXIS_MAX_ZOOM;
 
 	int moveDisX = getMoveDis(cursorPlanDisX);
 	int moveDisY = getMoveDis(cursorPlanDisY);
@@ -287,8 +289,9 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 		scrollPlanDisX = scrollPlanDisY = 0;
 		return;
 	}
-	scrollPlanDisX += ((float)deltaTimeMs / 1000) * ((float)scrollAxisValueX / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
-	scrollPlanDisY += ((float)deltaTimeMs / 1000) * ((float)scrollAxisValueY / AXIS_MAX_ZOOM) * AXIS_MOVE_SPEED;
+	float deltaTimeSeconds = static_cast<float>(deltaTimeMs) / 1000;
+	scrollPlanDisX += deltaTimeSeconds * AXIS_MOVE_SPEED * scrollAxisValueX / AXIS_MAX_ZOOM;
+	scrollPlanDisY += deltaTimeSeconds * AXIS_MOVE_SPEED * scrollAxisValueY / AXIS_MAX_ZOOM;
 	int moveDisX = getMoveDis(scrollPlanDisX);
 	int moveDisY = getMoveDis(scrollPlanDisY);
 	if(moveDisX != 0 || moveDisY != 0)
