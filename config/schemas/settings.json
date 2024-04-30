@@ -284,7 +284,7 @@
 				"controllerTriggerTreshold" : {
 					"type" : "number",
 					"default" : 0.3
-				}
+				},
 				"controllerAxisDeadZone" : {
 					"type" : "number",
 					"default" : 0.2
@@ -308,7 +308,7 @@
 				"controllerPanningScale" : {
 					"type" : "number",
 					"default" : 2
-				},
+				}
 			}
 		},
 		"adventure" : {

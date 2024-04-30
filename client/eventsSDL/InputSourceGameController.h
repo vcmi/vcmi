@@ -16,11 +16,6 @@
 #include "../../lib/Point.h"
 #include "../gui/Shortcut.h"
 
-constexpr int AXIS_DEAD_ZOOM = 6000;
-constexpr int AXIS_MAX_ZOOM = 32000;
-constexpr int AXIS_MOVE_SPEED = 500;
-constexpr int TRIGGER_PRESS_THRESHOLD = 8000;
-
 /// Class that handles game controller input from SDL events
 class InputSourceGameController
 {
