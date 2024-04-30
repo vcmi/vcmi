@@ -89,8 +89,8 @@ public:
 	/// Window has focus
 	bool hasFocus() final;
 
-    /// Get the scale value of screen
-    void getRenderScale(float & scaleX, float & scaleY);
+	/// Get the scale value of screen
+	void getRenderScale(float & scaleX, float & scaleY);
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;

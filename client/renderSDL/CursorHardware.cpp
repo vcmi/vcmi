@@ -69,13 +69,13 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 
 const Point & CursorHardware::getCursorPosition()
 {
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-    float scaleX, scaleY;
-    GH.screenHandler().getRenderScale(scaleX, scaleY);
-    pos.x = int(mouseX / scaleX);
-    pos.y = int(mouseY / scaleY);
-    return pos;
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	float scaleX, scaleY;
+	GH.screenHandler().getRenderScale(scaleX, scaleY);
+	pos.x = int(mouseX / scaleX);
+	pos.y = int(mouseY / scaleY);
+	return pos;
 }
 
 void CursorHardware::setCursorPosition( const Point & newPos )

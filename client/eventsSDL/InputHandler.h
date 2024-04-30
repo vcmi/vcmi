@@ -40,7 +40,7 @@ class InputHandler
 	std::unique_ptr<InputSourceKeyboard> keyboardHandler;
 	std::unique_ptr<InputSourceTouch> fingerHandler;
 	std::unique_ptr<InputSourceText> textHandler;
-    std::unique_ptr<InputSourceGameController> gameControllerHandler;
+	std::unique_ptr<InputSourceGameController> gameControllerHandler;
 
 public:
 	InputHandler();
@@ -86,5 +86,4 @@ public:
 	bool isKeyboardAltDown() const;
 	bool isKeyboardCtrlDown() const;
 	bool isKeyboardShiftDown() const;
-
 };

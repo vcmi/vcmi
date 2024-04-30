@@ -585,5 +585,5 @@ bool ScreenHandler::hasFocus()
 
 void ScreenHandler::getRenderScale(float & scaleX, float & scaleY)
 {
-    SDL_RenderGetScale(mainRenderer, &scaleX, &scaleY);
+	SDL_RenderGetScale(mainRenderer, &scaleX, &scaleY);
 }

@@ -25,10 +25,10 @@ namespace Cursor
 		SPELLBOOK  // animated cursor for spellcasting
 	};
 
-    enum class ShowType {
-        SOFTWARE,
-        HARDWARE
-    };
+	enum class ShowType {
+		SOFTWARE,
+		HARDWARE
+	};
 
 	enum class Default {
 		POINTER      = 0,
@@ -125,7 +125,7 @@ class CursorHandler final
 
 	/// Current cursor
 	Cursor::Type type;
-    Cursor::ShowType showType;
+	Cursor::ShowType showType;
 	size_t frame;
 	float frameTime;
 	Point pos;

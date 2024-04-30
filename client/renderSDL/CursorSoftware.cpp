@@ -83,7 +83,7 @@ void CursorSoftware::setVisible(bool on)
 
 const Point & CursorSoftware::getCursorPosition()
 {
-    return pos;
+	return pos;
 }
 
 CursorSoftware::CursorSoftware():

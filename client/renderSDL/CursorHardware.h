@@ -33,6 +33,6 @@ public:
 	void setCursorPosition( const Point & newPos ) override;
 	void render() override;
 	void setVisible( bool on) override;
-    const Point & getCursorPosition() override;
+	const Point & getCursorPosition() override;
 };
 
