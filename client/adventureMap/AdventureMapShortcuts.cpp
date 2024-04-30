@@ -64,6 +64,8 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
 		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
+		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
+		{ EShortcut::ADVENTURE_TRACK_HERO,       optionInMapView(),      [this]() { this->toggleTrackHero(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_ASLEEP,  optionHeroAwake(),      [this]() { this->setHeroSleeping(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_AWAKE,   optionHeroSleeping(),   [this]() { this->setHeroAwake(); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO,        optionHeroCanMove(),    [this]() { this->moveHeroAlongPath(); } },
@@ -141,6 +143,18 @@ void AdventureMapShortcuts::switchMapLevel()
 void AdventureMapShortcuts::showQuestlog()
 {
 	LOCPLINT->showQuestLog();
+}
+
+void AdventureMapShortcuts::toggleTrackHero()
+{
+	Settings s = settings.write["session"];
+	s["adventureTrackHero"].Bool() = !settings["session"]["adventureTrackHero"].Bool();
+}
+
+void AdventureMapShortcuts::toggleGrid()
+{
+	Settings s = settings.write["gameTweaks"];
+	s["showGrid"].Bool() = !settings["gameTweaks"]["showGrid"].Bool();
 }
 
 void AdventureMapShortcuts::toggleSleepWake()

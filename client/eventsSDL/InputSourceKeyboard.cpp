@@ -15,6 +15,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/EventDispatcher.h"
+#include "../gui/Shortcut.h"
 #include "../gui/ShortcutHandler.h"
 #include "../CServerHandler.h"
 #include "../globalLobby/GlobalLobbyClient.h"
@@ -57,37 +58,29 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 			return; // ignore periodic event resends
 	}
 
-
-	if(key.keysym.sym == SDLK_TAB && isKeyboardCtrlDown())
-	{
-		CSH->getGlobalLobby().activateInterface();
-	}
-
-	if(key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
-	{
-		//TODO: we need some central place for all interface-independent hotkeys
-		Settings s = settings.write["session"];
-		switch(key.keysym.sym)
-		{
-			case SDLK_F6:
-				s["spectate-ignore-hero"].Bool() = !settings["session"]["spectate-ignore-hero"].Bool();
-				break;
-
-			case SDLK_F7:
-				s["spectate-skip-battle"].Bool() = !settings["session"]["spectate-skip-battle"].Bool();
-				break;
-
-			case SDLK_F8:
-				s["spectate-skip-battle-result"].Bool() = !settings["session"]["spectate-skip-battle-result"].Bool();
-				break;
-
-			default:
-				break;
-		}
-		return;
-	}
-
 	auto shortcutsVector = GH.shortcuts().translateKeycode(keyName);
+
+	if (vstd::contains(shortcutsVector, EShortcut::LOBBY_ACTIVATE_INTERFACE))
+		CSH->getGlobalLobby().activateInterface();
+
+	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_TRACK_HERO))
+	{
+		Settings s = settings.write["session"];
+		s["spectate-ignore-hero"].Bool() = !settings["session"]["spectate-ignore-hero"].Bool();
+	}
+
+	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_SKIP_BATTLE))
+	{
+		Settings s = settings.write["session"];
+		s["spectate-skip-battle"].Bool() = !settings["session"]["spectate-skip-battle"].Bool();
+	}
+
+	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_SKIP_BATTLE_RESULT))
+	{
+		Settings s = settings.write["session"];
+		s["spectate-skip-battle-result"].Bool() = !settings["session"]["spectate-skip-battle-result"].Bool();
+	}
+
 	GH.events().dispatchShortcutPressed(shortcutsVector);
 }
 

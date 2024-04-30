@@ -302,7 +302,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 	{
 		if (LOCPLINT->makingTurn)
 			return false;
-		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(initiator).isControlledByHuman())
+		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(initiator).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
 			return false;
 	}
 
@@ -328,7 +328,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	{
 		if (LOCPLINT->makingTurn)
 			return false;
-		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(obj->getOwner()).isControlledByHuman())
+		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(obj->getOwner()).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
 			return false;
 	}
 

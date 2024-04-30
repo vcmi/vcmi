@@ -40,6 +40,8 @@ class AdventureMapShortcuts
 	void worldViewScale4x();
 	void switchMapLevel();
 	void showQuestlog();
+	void toggleTrackHero();
+	void toggleGrid();
 	void toggleSleepWake();
 	void setHeroSleeping();
 	void setHeroAwake();
