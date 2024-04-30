@@ -15,6 +15,7 @@
 #include "CGuiHandler.h"
 #include "MouseButton.h"
 #include "WindowHandler.h"
+#include "gui/Shortcut.h"
 
 #include "../../lib/Rect.h"
 
@@ -74,6 +75,12 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 {
 	bool keysCaptured = false;
 
+	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+		dispatchMouseLeftButtonPressed(GH.getCursorPosition(), 0);
+
+	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchShowPopup(GH.getCursorPosition(), 0);
+
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
 			if(i->captureThisKey(shortcut))
@@ -96,6 +103,12 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & shortcutsVector)
 {
 	bool keysCaptured = false;
+
+	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+		dispatchMouseLeftButtonReleased(GH.getCursorPosition(), 0);
+
+	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchClosePopup(GH.getCursorPosition());
 
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)

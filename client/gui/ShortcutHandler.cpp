@@ -19,7 +19,16 @@ ShortcutHandler::ShortcutHandler()
 {
 	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
 
-	for (auto const & entry : config["keyboard"].Struct())
+	mappedKeyboardShortcuts = loadShortcuts(config["keyboard"]);
+	mappedJoystickShortcuts = loadShortcuts(config["joystickButtons"]);
+	mappedJoystickAxes = loadShortcuts(config["joystickAxes"]);
+}
+
+std::multimap<std::string, EShortcut> ShortcutHandler::loadShortcuts(const JsonNode & data) const
+{
+	std::multimap<std::string, EShortcut> result;
+
+	for (auto const & entry : data.Struct())
 	{
 		std::string shortcutName = entry.first;
 		EShortcut shortcutID = findShortcut(shortcutName);
@@ -32,20 +41,22 @@ ShortcutHandler::ShortcutHandler()
 
 		if (entry.second.isString())
 		{
-			mappedShortcuts.emplace(entry.second.String(), shortcutID);
+			result.emplace(entry.second.String(), shortcutID);
 		}
 
 		if (entry.second.isVector())
 		{
 			for (auto const & entryVector : entry.second.Vector())
-				mappedShortcuts.emplace(entryVector.String(), shortcutID);
+				result.emplace(entryVector.String(), shortcutID);
 		}
 	}
+
+	return result;
 }
 
-std::vector<EShortcut> ShortcutHandler::translateKeycode(const std::string & key) const
+std::vector<EShortcut> ShortcutHandler::translateShortcut(const std::multimap<std::string, EShortcut> & options, const std::string & key) const
 {
-	auto range = mappedShortcuts.equal_range(key);
+	auto range = options.equal_range(key);
 
 	// FIXME: some code expects calls to keyPressed / captureThisKey even without defined hotkeys
 	if (range.first == range.second)
@@ -59,9 +70,30 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(const std::string & key
 	return result;
 }
 
+std::vector<EShortcut> ShortcutHandler::translateKeycode(const std::string & key) const
+{
+	return translateShortcut(mappedKeyboardShortcuts, key);
+}
+
+std::vector<EShortcut> ShortcutHandler::translateJoystickButton(const std::string & key) const
+{
+	return translateShortcut(mappedJoystickShortcuts, key);
+}
+
+std::vector<EShortcut> ShortcutHandler::translateJoystickAxis(const std::string & key) const
+{
+	return translateShortcut(mappedJoystickAxes, key);
+}
+
 EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 {
 	static const std::map<std::string, EShortcut> shortcutNames = {
+		{"mouseClickLeft",           EShortcut::MOUSE_LEFT                },
+		{"mouseClickRight",          EShortcut::MOUSE_RIGHT               },
+		{"mouseCursorX",             EShortcut::MOUSE_CURSOR_X,           },
+		{"mouseCursorY",             EShortcut::MOUSE_CURSOR_Y,           },
+		{"mouseSwipeX",              EShortcut::MOUSE_SWIPE_X,            },
+		{"mouseSwipeY",              EShortcut::MOUSE_SWIPE_Y,            },
 		{"globalAccept",             EShortcut::GLOBAL_ACCEPT             },
 		{"globalCancel",             EShortcut::GLOBAL_CANCEL             },
 		{"globalReturn",             EShortcut::GLOBAL_RETURN             },
@@ -153,6 +185,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureZoomIn",          EShortcut::ADVENTURE_ZOOM_IN         },
 		{"adventureZoomOut",         EShortcut::ADVENTURE_ZOOM_OUT        },
 		{"adventureZoomReset",       EShortcut::ADVENTURE_ZOOM_RESET      },
+		{"battleToggleHeroesStats",  EShortcut::BATTLE_TOGGLE_HEROES_STATS},
 		{"battleToggleQueue",        EShortcut::BATTLE_TOGGLE_QUEUE       },
 		{"battleUseCreatureSpell",   EShortcut::BATTLE_USE_CREATURE_SPELL },
 		{"battleSurrender",          EShortcut::BATTLE_SURRENDER          },

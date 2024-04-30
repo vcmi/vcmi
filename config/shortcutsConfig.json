@@ -110,6 +110,7 @@
 		"battleConsoleDown":        "Down",
 		"battleTacticsNext":        "Space",
 		"battleTacticsEnd":         [ "Return", "Keypad Enter"],
+		"battleToggleHeroesStats":  [],
 		"battleSelectAction":       "S",
 		"townOpenTavern":           "T",
 		"townSwapArmies":           "Space",
@@ -136,5 +137,73 @@
 		"heroCostume7":             "7",
 		"heroCostume8":             "8",
 		"heroCostume9":             "9"
+	},
+	
+	"joystickAxes":
+	{
+		"mouseCursorX" : "leftx",
+		"mouseCursorY" : "lefty",
+		"mouseSwipeX" : "rightx",
+		"mouseSwipeY" : "righty"
+	},
+	
+	"joystickButtons": {
+		"globalAccept" : "a",
+		"globalCancel" : "b",
+		"globalReturn" : [ "a", "b" ],
+		
+		"lobbyBeginStandardGame" : "a",
+		"lobbyBeginCampaign" : "a",
+		"lobbyLoadGame" : "a",
+		"lobbySaveGame" : "a",
+		"adventureViewSelected" : "a",
+		"adventureExitWorldView" : [ "a", "b" ],
+		"battleTacticsEnd" : "a",
+		
+		"mouseClickLeft": "x",
+		"mouseClickRight": "y",
+
+		"adventureNextHero" : "leftshoulder",
+		"battleDefend" : "leftshoulder",
+
+		"adventureNextTown" : "rightshoulder",
+		"battleWait" : "rightshoulder",
+
+		"adventureVisitObject" : "lefttrigger",
+		"battleTacticsNext" : "lefttrigger",
+		"battleUseCreatureSpell" : "lefttrigger",
+
+		"adventureCastSpell" : "righttrigger",
+		"battleCastSpell" : "righttrigger",
+		
+		"gameEndTurn" : "back",
+		"battleAutocombatEnd" : "back",
+		
+		"globalOptions" : "start",
+		"adventureGameOptions" : "start",
+		
+		"moveUp" : "dpup",
+		"adventureViewWorld" : "dpup",
+		"recruitmentUpgrade" : "dpup",
+		"recruitmentUpgradeAll" : "dpup",
+		"battleConsoleUp" : "dpup",
+		"recruitmentMax" : "dpup",
+		
+		"moveDown" : "dpdown",
+		"adventureKingdomOverview" : "dpdown",
+		"battleConsoleDown" : "dpdown",
+		"recruitmentMin" : "dpdown",
+		
+		"moveLeft" : "dpleft",
+		"adventureViewScenario" : "dpleft",
+
+		"moveRight" : "dpright",
+		"adventureThievesGuild" : "dpright",
+		
+		"adventureToggleMapLevel" : "leftstick",
+		"battleToggleHeroesStats" : "leftstick",
+		
+		"adventureToggleGrid" : "rightstick",
+		"battleToggleQueue" : "rightstick",
 	}
 }

@@ -57,6 +57,7 @@ CursorHandler::CursorHandler()
 		cursor->preload();
 
 	set(Cursor::Map::POINTER);
+	showType = dynamic_cast<CursorSoftware *>(cursor.get()) ? Cursor::ShowType::SOFTWARE : Cursor::ShowType::HARDWARE;
 }
 
 CursorHandler::~CursorHandler() = default;
@@ -290,3 +291,27 @@ void CursorHandler::show()
 	cursor->setVisible(true);
 }
 
+Cursor::ShowType CursorHandler::getShowType() const
+{
+	return showType;
+}
+
+void CursorHandler::changeCursor(Cursor::ShowType newShowType)
+{
+	if(newShowType == showType)
+		return;
+
+	switch(newShowType)
+	{
+		case Cursor::ShowType::SOFTWARE:
+			cursor.reset(new CursorSoftware());
+			showType = Cursor::ShowType::SOFTWARE;
+			cursor->setImage(getCurrentImage(), getPivotOffset());
+			break;
+		case Cursor::ShowType::HARDWARE:
+			cursor.reset(new CursorHardware());
+			showType = Cursor::ShowType::HARDWARE;
+			cursor->setImage(getCurrentImage(), getPivotOffset());
+			break;
+	}
+}

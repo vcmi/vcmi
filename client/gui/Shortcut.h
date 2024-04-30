@@ -13,6 +13,14 @@ enum class EShortcut
 {
 	NONE,
 
+	// preudo-shortcuts that trigger mouse events
+	MOUSE_LEFT,
+	MOUSE_RIGHT,
+	MOUSE_CURSOR_X,
+	MOUSE_CURSOR_Y,
+	MOUSE_SWIPE_X,
+	MOUSE_SWIPE_Y,
+
 	// Global hotkeys that are available in multiple dialogs
 	GLOBAL_ACCEPT,     // Return - Accept query
 	GLOBAL_CANCEL,     // Escape - Cancel query
