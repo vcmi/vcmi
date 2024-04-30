@@ -10,11 +10,12 @@
 
 #include "StdInc.h"
 #include "InputSourceGameController.h"
+
 #include "InputHandler.h"
 
 #include "../CGameInfo.h"
-#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/ShortcutHandler.h"
 
@@ -50,7 +51,6 @@ void InputSourceGameController::tryOpenAllGameControllers()
 			logGlobal->warn("Joystick %d is an unsupported game controller!", i);
 }
 
-
 void InputSourceGameController::openGameController(int index)
 {
 	SDL_GameController * controller = SDL_GameControllerOpen(index);
@@ -80,7 +80,7 @@ void InputSourceGameController::openGameController(int index)
 
 int InputSourceGameController::getJoystickIndex(SDL_GameController * controller)
 {
-	SDL_Joystick* joystick = SDL_GameControllerGetJoystick(controller);
+	SDL_Joystick * joystick = SDL_GameControllerGetJoystick(controller);
 	if(!joystick)
 		return -1;
 
@@ -129,7 +129,7 @@ int InputSourceGameController::getRealAxisValue(int value)
 		return AXIS_MAX_ZOOM;
 	if(value < -AXIS_MAX_ZOOM)
 		return -AXIS_MAX_ZOOM;
-	int base = value > 0 ? AXIS_DEAD_ZOOM: -AXIS_DEAD_ZOOM;
+	int base = value > 0 ? AXIS_DEAD_ZOOM : -AXIS_DEAD_ZOOM;
 	return (value - base) * AXIS_MAX_ZOOM / (AXIS_MAX_ZOOM - AXIS_DEAD_ZOOM);
 }
 
@@ -137,7 +137,7 @@ void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcu
 {
 	if(axisValue >= TRIGGER_PRESS_THRESHOLD)
 	{
-		if (!pressedAxes.count(axisID))
+		if(!pressedAxes.count(axisID))
 		{
 			GH.events().dispatchShortcutPressed(shortcutsVector);
 			pressedAxes.insert(axisID);
@@ -145,7 +145,7 @@ void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcu
 	}
 	else
 	{
-		if (pressedAxes.count(axisID))
+		if(pressedAxes.count(axisID))
 		{
 			GH.events().dispatchShortcutReleased(shortcutsVector);
 			pressedAxes.erase(axisID);
@@ -158,14 +158,14 @@ void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEv
 	tryToConvertCursor();
 
 	SDL_GameControllerAxis axisID = static_cast<SDL_GameControllerAxis>(axis.axis);
-	std::string axisName =  SDL_GameControllerGetStringForAxis(axisID);
+	std::string axisName = SDL_GameControllerGetStringForAxis(axisID);
 
 	auto axisActions = GH.shortcuts().translateJoystickAxis(axisName);
 	auto buttonActions = GH.shortcuts().translateJoystickButton(axisName);
 
-	for (auto const & action : axisActions)
+	for(const auto & action : axisActions)
 	{
-		switch (action)
+		switch(action)
 		{
 			case EShortcut::MOUSE_CURSOR_X:
 				cursorAxisValueX = getRealAxisValue(axis.value);
@@ -238,7 +238,8 @@ void InputSourceGameController::handleUpdate()
 {
 	auto now = std::chrono::high_resolution_clock::now();
 	auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-	if (lastCheckTime == 0) {
+	if(lastCheckTime == 0)
+	{
 		lastCheckTime = nowMs;
 		return;
 	}

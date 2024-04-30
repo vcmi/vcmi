@@ -13,8 +13,8 @@
 #include <SDL_events.h>
 #include <SDL_gamecontroller.h>
 
-#include "../gui/Shortcut.h"
 #include "../../lib/Point.h"
+#include "../gui/Shortcut.h"
 
 constexpr int AXIS_DEAD_ZOOM = 6000;
 constexpr int AXIS_MAX_ZOOM = 32000;
