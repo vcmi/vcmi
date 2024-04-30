@@ -25,6 +25,11 @@ namespace Cursor
 		SPELLBOOK  // animated cursor for spellcasting
 	};
 
+    enum class ShowType {
+        SOFTWARE,
+        HARDWARE
+    };
+
 	enum class Default {
 		POINTER      = 0,
 		//ARROW_COPY = 1, // probably unused
@@ -120,6 +125,7 @@ class CursorHandler final
 
 	/// Current cursor
 	Cursor::Type type;
+    Cursor::ShowType showType;
 	size_t frame;
 	float frameTime;
 	Point pos;
@@ -179,4 +185,8 @@ public:
 
 	/// change cursor's positions to (x, y)
 	void cursorMove(const int & x, const int & y);
+
+    Cursor::ShowType getShowType();
+    void ChangeCursor(Cursor::ShowType showType);
+    const Point & getCursorPosition();
 };

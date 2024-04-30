@@ -172,7 +172,7 @@ ScreenHandler::ScreenHandler()
 	SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitor");
 #endif
 
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO))
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER))
 	{
 		logGlobal->error("Something was wrong: %s", SDL_GetError());
 		exit(-1);
@@ -581,4 +581,9 @@ bool ScreenHandler::hasFocus()
 {
 	ui32 flags = SDL_GetWindowFlags(mainWindow);
 	return flags & SDL_WINDOW_INPUT_FOCUS;
+}
+
+void ScreenHandler::getRenderScale(float & scaleX, float & scaleY)
+{
+    SDL_RenderGetScale(mainRenderer, &scaleX, &scaleY);
 }
