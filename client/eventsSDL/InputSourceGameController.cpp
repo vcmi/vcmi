@@ -259,19 +259,27 @@ void InputSourceGameController::handleUpdate()
 	lastCheckTime = nowMs;
 }
 
+static double scaleAxis(double value, double power)
+{
+	if (value > 0)
+		return std::pow(value, power);
+	else
+		return -std::pow(-value, power);
+}
+
 void InputSourceGameController::handleCursorUpdate(int32_t deltaTimeMs)
 {
 	float deltaTimeSeconds = static_cast<float>(deltaTimeMs) / 1000;
 
-	if(cursorAxisValueX == 0)
+	if(vstd::isAlmostZero(cursorAxisValueX))
 		cursorPlanDisX = 0;
 	else
-		cursorPlanDisX += deltaTimeSeconds * configPointerSpeed * std::pow(cursorAxisValueX, configPointerScale);
+		cursorPlanDisX += deltaTimeSeconds * configPointerSpeed * scaleAxis(cursorAxisValueX, configPointerScale);
 
-	if(cursorAxisValueY == 0)
+	if (vstd::isAlmostZero(cursorAxisValueY))
 		cursorPlanDisY = 0;
 	else
-		cursorPlanDisY += deltaTimeSeconds * configPointerSpeed * std::pow(cursorAxisValueY, configPointerScale);
+		cursorPlanDisY += deltaTimeSeconds * configPointerSpeed * scaleAxis(cursorAxisValueY, configPointerScale);
 
 	int moveDisX = getMoveDis(cursorPlanDisX);
 	int moveDisY = getMoveDis(cursorPlanDisY);
@@ -300,8 +308,8 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 		return;
 	}
 	float deltaTimeSeconds = static_cast<float>(deltaTimeMs) / 1000;
-	scrollPlanDisX += deltaTimeSeconds * configPanningSpeed * std::pow(scrollAxisValueX, configPanningScale);
-	scrollPlanDisY += deltaTimeSeconds * configPanningSpeed * std::pow(scrollAxisValueY, configPanningScale);
+	scrollPlanDisX += deltaTimeSeconds * configPanningSpeed * scaleAxis(scrollAxisValueX, configPanningScale);
+	scrollPlanDisY += deltaTimeSeconds * configPanningSpeed * scaleAxis(scrollAxisValueY, configPanningScale);
 	int moveDisX = getMoveDis(scrollPlanDisX);
 	int moveDisY = getMoveDis(scrollPlanDisY);
 	if(moveDisX != 0 || moveDisY != 0)

@@ -31,18 +31,18 @@ class InputSourceGameController
 	std::set<SDL_GameControllerAxis> pressedAxes;
 
 	std::chrono::steady_clock::time_point lastCheckTime;
-	int cursorAxisValueX;
-	int cursorAxisValueY;
-	float cursorPlanDisX;
-	float cursorPlanDisY;
+	double cursorAxisValueX;
+	double cursorAxisValueY;
+	double cursorPlanDisX;
+	double cursorPlanDisY;
 
 	bool scrollAxisMoved;
 	Point scrollStart;
 	Point scrollCurrent;
-	int scrollAxisValueX;
-	int scrollAxisValueY;
-	float scrollPlanDisX;
-	float scrollPlanDisY;
+	double scrollAxisValueX;
+	double scrollAxisValueY;
+	double scrollPlanDisX;
+	double scrollPlanDisY;
 
 	const double configTriggerTreshold;
 	const double configAxisDeadZone;

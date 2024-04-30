@@ -291,23 +291,23 @@
 				},
 				"controllerAxisFullZone" : {
 					"type" : "number",
-					"default" : 0.9
+					"default" : 1.0
 				},
 				"controllerPointerSpeed" : {
 					"type" : "number",
-					"default" : 1
+					"default" : 1000
 				},
 				"controllerPointerScale" : {
 					"type" : "number",
-					"default" : 1
+					"default" : 2
 				},
 				"controllerPanningSpeed" : {
 					"type" : "number",
-					"default" : 1
+					"default" : 1000
 				},
 				"controllerPanningScale" : {
 					"type" : "number",
-					"default" : 1
+					"default" : 2
 				},
 			}
 		},
