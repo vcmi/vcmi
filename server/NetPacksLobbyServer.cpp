@@ -372,32 +372,32 @@ void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer &
 
 void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 {
-	std::vector<FactionID> allowedFactions;
+	std::vector<FactionID> allowedTowns;
 
-	VLC->townh->forEach([pack, &allowedFactions](const Faction *entity, bool &stop){
+	VLC->townh->forEach([pack, &allowedTowns](const Faction *entity, bool &stop){
 		if(!entity->hasTown())
 			return;
 		if(std::find(pack.bannedTowns.begin(), pack.bannedTowns.end(), entity->getId()) == pack.bannedTowns.end()) {
-			allowedFactions.push_back(entity->getId());
+			allowedTowns.push_back(entity->getId());
 		}
 	});
 
 	std::vector<FactionID> randomFaction1;
-	std::sample(allowedFactions.begin(), allowedFactions.end(), std::back_inserter(randomFaction1), 1, std::mt19937{std::random_device{}()});
+	std::sample(allowedTowns.begin(), allowedTowns.end(), std::back_inserter(randomFaction1), 1, std::mt19937{std::random_device{}()});
 	std::vector<FactionID> randomFaction2;
-	std::sample(allowedFactions.begin(), allowedFactions.end(), std::back_inserter(randomFaction2), 1, std::mt19937{std::random_device{}()});
+	std::sample(allowedTowns.begin(), allowedTowns.end(), std::back_inserter(randomFaction2), 1, std::mt19937{std::random_device{}()});
 
 	switch(pack.action) {
 		case LobbyPvPAction::COIN:
 			srv.announceTxt("Coin - " + std::to_string(std::rand()%2));
 			break;
 		case LobbyPvPAction::RANDOM_TOWN:
-			if(allowedFactions.size())
-				srv.announceTxt("Faction - " + VLC->townh->getById(randomFaction1[0])->getNameTranslated());
+			if(allowedTowns.size())
+				srv.announceTxt("Town - " + VLC->townh->getById(randomFaction1[0])->getNameTranslated());
 			break;
 		case LobbyPvPAction::RANDOM_TOWN_VS:
-			if(allowedFactions.size())
-				srv.announceTxt("Factions - " + VLC->townh->getById(randomFaction1[0])->getNameTranslated() + " vs. " + VLC->townh->getById(randomFaction2[0])->getNameTranslated());
+			if(allowedTowns.size())
+				srv.announceTxt("Towns - " + VLC->townh->getById(randomFaction1[0])->getNameTranslated() + " vs. " + VLC->townh->getById(randomFaction2[0])->getNameTranslated());
 			break;
 	}
 	result = true;

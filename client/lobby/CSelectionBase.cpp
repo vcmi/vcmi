@@ -413,28 +413,33 @@ PvPBox::PvPBox(const Rect & rect)
 		return bannedTowns;
 	};
 
-	buttonFlipCoin = std::make_shared<CButton>(Point(190, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){
+	auto buttonColor = CSH->isGuest() ? Colors::WHITE : Colors::ORANGE;
+
+	buttonFlipCoin = std::make_shared<CButton>(Point(190, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.coin.help")), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::COIN;
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
-	buttonFlipCoin->setTextOverlay("Flip coin2", EFonts::FONT_SMALL, Colors::WHITE);
+	buttonFlipCoin->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.coin.hover"), EFonts::FONT_SMALL, buttonColor);
+	buttonFlipCoin->block(!CSH->isGuest());
 
-	buttonRandomTown = std::make_shared<CButton>(Point(190, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town"), [getBannedTowns](){
+	buttonRandomTown = std::make_shared<CButton>(Point(190, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.help")), [getBannedTowns](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN;
 		lpa.bannedTowns = getBannedTowns();
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
-	buttonRandomTown->setTextOverlay("random town", EFonts::FONT_SMALL, Colors::WHITE);
+	buttonRandomTown->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.hover"), EFonts::FONT_SMALL, buttonColor);
+	buttonRandomTown->block(!CSH->isGuest());
 
-	buttonRandomTownVs = std::make_shared<CButton>(Point(190, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town vs"), [getBannedTowns](){
+	buttonRandomTownVs = std::make_shared<CButton>(Point(190, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.help")), [getBannedTowns](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN_VS;
 		lpa.bannedTowns = getBannedTowns();
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
-	buttonRandomTownVs->setTextOverlay("random town vs", EFonts::FONT_SMALL, Colors::WHITE);
+	buttonRandomTownVs->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, buttonColor);
+	buttonRandomTownVs->block(!CSH->isGuest());
 }
 
 FactionSelector::FactionSelector(const Point & loc)
