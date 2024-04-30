@@ -21,13 +21,6 @@ constexpr int AXIS_MAX_ZOOM = 32000;
 constexpr int AXIS_MOVE_SPEED = 500;
 constexpr int TRIGGER_PRESS_THRESHOLD = 8000;
 
-enum class AxisType
-{
-	CURSOR_MOTION,
-	MAP_SCROLL,
-	NONE
-};
-
 /// Class that handles game controller input from SDL events
 class InputSourceGameController
 {
