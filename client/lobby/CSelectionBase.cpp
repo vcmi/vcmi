@@ -44,6 +44,7 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/CTownHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/MetaString.h"
@@ -402,26 +403,59 @@ PvPBox::PvPBox(const Rect & rect)
 	backgroundTexture->playerColored(PlayerColor(1));
 	backgroundBorder = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, rect.w, rect.h), ColorRGBA(0, 0, 0, 64), ColorRGBA(96, 96, 96, 255), 1);
 
-	buttonFlipCoin = std::make_shared<CButton>(Point(17, 10), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){
+	factionselector = std::make_shared<FactionSelector>(Point(5, 3));
+
+	buttonFlipCoin = std::make_shared<CButton>(Point(203, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("flip coin"), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::COIN;
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
 	buttonFlipCoin->setTextOverlay("Flip coin2", EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonRandomTown = std::make_shared<CButton>(Point(17, 30), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town"), [](){
+	buttonRandomTown = std::make_shared<CButton>(Point(203, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town"), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN;
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
 	buttonRandomTown->setTextOverlay("random town", EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonRandomTownVs = std::make_shared<CButton>(Point(17, 50), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town vs"), [](){
+	buttonRandomTownVs = std::make_shared<CButton>(Point(203, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("random town vs"), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN_VS;
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
 	buttonRandomTownVs->setTextOverlay("random town vs", EFonts::FONT_SMALL, Colors::WHITE);
+}
+
+FactionSelector::FactionSelector(const Point & loc)
+{
+	OBJ_CONSTRUCTION;
+	pos += loc;
+	setRedrawParent(true);
+
+	int x = 0, y = 0;
+	CGI->factions()->forEach([this, &x, &y](const Faction *entity, bool &stop){
+		if(!entity->hasTown())
+			return;
+
+		FactionID factionID = entity->getFaction();
+		auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
+		towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, true), 0, 48 * x, 32 * y);
+		townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(48 * x, 32 * y, 48, 32), [this, getImageIndex, factionID](){
+			townsEnabled[factionID] = !townsEnabled[factionID];
+			towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
+			redraw();
+		});
+		townsEnabled[factionID] = true;
+
+		if (x < 2)
+			x++;
+		else
+		{
+			x = 0;
+			y++;
+		}
+	});
 }
 
 CFlagBox::CFlagBox(const Rect & rect)
