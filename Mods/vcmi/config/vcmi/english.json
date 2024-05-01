@@ -260,6 +260,8 @@
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Accept battle result?",
 
+	"vcmi.chat.versus" : "vs.",
+
 	"vcmi.tutorialWindow.title" : "Touchscreen Introduction",
 	"vcmi.tutorialWindow.decription.RightClick" : "Touch and hold the element on which you want to right-click. Touch the free area to close.",
 	"vcmi.tutorialWindow.decription.MapPanning" : "Touch and drag with one finger to move the map.",

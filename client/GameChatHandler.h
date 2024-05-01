@@ -23,6 +23,8 @@ struct GameChatMessage
 class GameChatHandler : boost::noncopyable
 {
 	std::vector<GameChatMessage> chatHistory;
+
+	std::string translationReplace(std::string txt);
 public:
 	/// Returns all message history for current match
 	const std::vector<GameChatMessage> & getChatHistory() const;

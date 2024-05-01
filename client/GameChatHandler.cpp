@@ -25,6 +25,8 @@
 #include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/MetaString.h"
+#include "../lib/VCMI_Lib.h"
+#include "../lib/CGeneralTextHandler.h"
 
 const std::vector<GameChatMessage> & GameChatHandler::getChatHistory() const
 {
@@ -61,6 +63,8 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 
 	auto * lobby = dynamic_cast<CLobbyScreen*>(SEL);
 
+	std::string messageTextReplaced = translationReplace(messageText);
+
 	// FIXME: when can this happen?
 	assert(lobby);
 	assert(lobby->card);
@@ -70,14 +74,14 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 		MetaString formatted = MetaString::createFromRawString("[%s] %s: %s");
 		formatted.replaceRawString(TextOperations::getCurrentFormattedTimeLocal());
 		formatted.replaceRawString(senderName);
-		formatted.replaceRawString(messageText);
+		formatted.replaceRawString(messageTextReplaced);
 
 		lobby->card->chat->addNewMessage(formatted.toString());
 		if (!lobby->card->showChat)
 				lobby->toggleChat();
 	}
 
-	chatHistory.push_back({senderName, messageText, TextOperations::getCurrentFormattedTimeLocal()});
+	chatHistory.push_back({senderName, messageTextReplaced, TextOperations::getCurrentFormattedTimeLocal()});
 }
 
 void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::string & messageText)
@@ -86,22 +90,43 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 	std::string timeFormatted = TextOperations::getCurrentFormattedTimeLocal();
 	std::string playerName = "<UNKNOWN>";
 
+	std::string messageTextReplaced = translationReplace(messageText);
+
 	if (sender.isValidPlayer())
 		playerName = LOCPLINT->cb->getStartInfo()->playerInfos.at(sender).name;
 
 	if (sender.isSpectator())
 		playerName = "Spectator"; // FIXME: translate? Provide nickname somewhere?
 
-	chatHistory.push_back({playerName, messageText, timeFormatted});
+	chatHistory.push_back({playerName, messageTextReplaced, timeFormatted});
 
-	LOCPLINT->cingconsole->addMessage(timeFormatted, playerName, messageText);
+	LOCPLINT->cingconsole->addMessage(timeFormatted, playerName, messageTextReplaced);
 }
 
 void GameChatHandler::onNewSystemMessageReceived(const std::string & messageText)
 {
-	chatHistory.push_back({"System", messageText, TextOperations::getCurrentFormattedTimeLocal()});
+	std::string messageTextReplaced = translationReplace(messageText);
+
+	chatHistory.push_back({"System", messageTextReplaced, TextOperations::getCurrentFormattedTimeLocal()});
 
 	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
-		LOCPLINT->cingconsole->addMessage(TextOperations::getCurrentFormattedTimeLocal(), "System", messageText);
+		LOCPLINT->cingconsole->addMessage(TextOperations::getCurrentFormattedTimeLocal(), "System", messageTextReplaced);
 }
 
+std::string GameChatHandler::translationReplace(std::string txt)
+{
+	std::regex expr("~~([\\w\\d\\.]+)~~");
+	std::string result = "";
+	std::string tmp_suffix = "";
+	std::smatch match;
+	std::string::const_iterator searchStart( txt.cbegin() );
+	while(std::regex_search(searchStart, txt.cend(), match, expr) )
+	{
+		result += match.prefix();
+		result += VLC->generaltexth->translate(match.str(1));
+		
+		searchStart = match.suffix().first;
+		tmp_suffix = match.suffix();
+	}
+	return result.empty() ? txt : result + tmp_suffix;
+}

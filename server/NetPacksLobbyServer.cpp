@@ -389,15 +389,15 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 
 	switch(pack.action) {
 		case LobbyPvPAction::COIN:
-			srv.announceTxt("Coin - " + std::to_string(std::rand()%2));
+			srv.announceTxt("~~vcmi.lobby.pvp.coin.hover~~ - " + std::to_string(std::rand()%2));
 			break;
 		case LobbyPvPAction::RANDOM_TOWN:
 			if(allowedTowns.size())
-				srv.announceTxt("Town - " + VLC->townh->getById(randomFaction1[0])->getNameTranslated());
+				srv.announceTxt("~~core.overview.3~~ - ~~" + VLC->townh->getById(randomFaction1[0])->getNameTextID() + "~~");
 			break;
 		case LobbyPvPAction::RANDOM_TOWN_VS:
 			if(allowedTowns.size())
-				srv.announceTxt("Towns - " + VLC->townh->getById(randomFaction1[0])->getNameTranslated() + " vs. " + VLC->townh->getById(randomFaction2[0])->getNameTranslated());
+				srv.announceTxt("~~core.overview.3~~ - ~~" + VLC->townh->getById(randomFaction1[0])->getNameTextID() + "~~ ~~vcmi.chat.versus~~ ~~" + VLC->townh->getById(randomFaction2[0])->getNameTextID() + "~~");
 			break;
 	}
 	result = true;
