@@ -177,7 +177,7 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return QCoreApplication::translate("ModFields", header[section].toStdString().c_str()); // !!!
+		return QCoreApplication::translate("ModFields", header[section].toStdString().c_str());
 	return QVariant();
 }
 
