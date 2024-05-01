@@ -97,12 +97,6 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 	copyHeroesData();
 }
 
-void FirstLaunchView::on_pushButtonDataHelp_clicked()
-{
-	static const QUrl vcmibuilderWiki("https://github.com/vcmi/vcmi/blob/master/docs/players/Installation_Linux.md#install-data-using-vcmibuilder-script");
-	QDesktopServices::openUrl(vcmibuilderWiki);
-}
-
 void FirstLaunchView::on_pushButtonGogInstall_clicked()
 {
 	extractGogData();
@@ -142,11 +136,9 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabHeroesData->setChecked(true);
 	ui->buttonTabModPreset->setChecked(false);
 
-	if(!hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->hide();
-		ui->labelDataHelp->hide();
-	}
+#ifndef ENABLE_INNOEXTRACT
+	ui->labelDataHelp->hide();
+#endif
 	if(heroesDataUpdate())
 		return;
 
@@ -212,11 +204,9 @@ void FirstLaunchView::heroesDataMissing()
 	ui->labelDataFound->setVisible(false);
 	ui->pushButtonDataNext->setEnabled(false);
 
-	if(hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->setVisible(true);
-		ui->labelDataHelp->setVisible(true);
-	}
+#ifdef ENABLE_INNOEXTRACT
+	ui->labelDataHelp->setVisible(true);
+#endif
 }
 
 void FirstLaunchView::heroesDataDetected()
@@ -233,11 +223,9 @@ void FirstLaunchView::heroesDataDetected()
 	ui->labelDataCopy->setVisible(false);
 	ui->pushButtonGogInstall->setVisible(false);
 
-	if(hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->setVisible(false);
+#ifdef ENABLE_INNOEXTRACT
 		ui->labelDataHelp->setVisible(false);
-	}
+#endif
 
 	ui->labelDataFound->setVisible(true);
 	ui->pushButtonDataNext->setEnabled(true);
@@ -359,7 +347,7 @@ void FirstLaunchView::extractGogData()
 			if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 			{
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
-				ui->pushButtonGogInstall->setText(tr("Install GOG files"));
+				ui->pushButtonGogInstall->setText(tr("Install gog.com files"));
 				return;
 			}
 			copyHeroesData(dir.path(), true);
