@@ -417,6 +417,24 @@ void rmg::Object::setGuardedIfMonster(const Instance& object)
 	}
 }
 
+int3 rmg::Object::getGuardPos() const
+{
+	if (guarded)
+	{
+		for (auto & instance : dInstances)
+		{
+			if (instance.object().ID == Obj::MONSTER)
+			{
+				return instance.object().pos;
+			}
+		}
+	}
+	else
+	{
+		return int3(-1,-1,-1);
+	}
+}
+
 void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 {
 	if(!map.isOnMap(getPosition(true)))

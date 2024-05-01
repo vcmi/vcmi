@@ -55,7 +55,7 @@ void TreasurePlacer::init()
 	DEPENDENCY(ObjectManager);
 	DEPENDENCY(ConnectionsPlacer);
 	DEPENDENCY_ALL(PrisonHeroPlacer);
-	POSTFUNCTION(RoadPlacer);
+	DEPENDENCY(RoadPlacer);
 }
 
 void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
@@ -842,6 +842,15 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 			oi->maxPerZone++;
 		}
 	};
+
+	rmg::Area roads;
+	auto rp = zone.getModificator<RoadPlacer>();
+	if (rp)
+	{
+		roads = rp->getRoads();
+	}
+	rmg::Area nextToRoad(roads.getBorderOutside());
+
 	//place biggest treasures first at large distance, place smaller ones inbetween
 	auto treasureInfo = zone.getTreasureInfo();
 	boost::sort(treasureInfo, valueComparator);
@@ -928,7 +937,10 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 				if (guarded)
 				{
-					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3& tile)
+					// TODO: Guard cannot be adjacent to road, but blocked side of an object could be
+					searchArea.subtract(roads);
+
+					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager, &nextToRoad](const int3& tile)
 						{
 							float bestDistance = 10e9;
 							for (const auto& t : rmgObject.getArea().getTilesVector())
@@ -938,6 +950,10 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 									return -1.f;
 								else
 									vstd::amin(bestDistance, distance);
+							}
+							if (nextToRoad.contains(rmgObject.getGuardPos()))
+							{
+								return -1.f;
 							}
 
 							const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();

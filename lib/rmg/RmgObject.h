@@ -87,6 +87,7 @@ public:
 	const int3 getVisibleTop() const;
 
 	bool isGuarded() const;
+	int3 getGuardPos() const;
 	void setGuardedIfMonster(const Instance & object);
 	
 	void finalize(RmgMap & map, CRandomGenerator &);
