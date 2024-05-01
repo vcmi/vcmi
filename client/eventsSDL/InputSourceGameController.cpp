@@ -19,6 +19,8 @@
 #include "../gui/EventDispatcher.h"
 #include "../gui/ShortcutHandler.h"
 
+#include "../../lib/CConfigHandler.h"
+
 void InputSourceGameController::gameControllerDeleter(SDL_GameController * gameController)
 {
 	if(gameController)
@@ -26,6 +28,13 @@ void InputSourceGameController::gameControllerDeleter(SDL_GameController * gameC
 }
 
 InputSourceGameController::InputSourceGameController():
+	configTriggerTreshold(settings["input"]["controllerTriggerTreshold"].Float()),
+	configAxisDeadZone(settings["input"]["controllerAxisDeadZone"].Float()),
+	configAxisFullZone(settings["input"]["controllerAxisFullZone"].Float()),
+	configPointerSpeed(settings["input"]["controllerPointerSpeed"].Float()),
+	configPointerScale(settings["input"]["controllerPointerScale"].Float()),
+	configPanningSpeed(settings["input"]["controllerPanningSpeed"].Float()),
+	configPanningScale(settings["input"]["controllerPanningScale"].Float()),
 	cursorAxisValueX(0),
 	cursorAxisValueY(0),
 	cursorPlanDisX(0.0),
@@ -120,21 +129,22 @@ void InputSourceGameController::handleEventDeviceRemapped(const SDL_ControllerDe
 	openGameController(device.which);
 }
 
-int InputSourceGameController::getRealAxisValue(int value)
+double InputSourceGameController::getRealAxisValue(int value)
 {
-	if(value < AXIS_DEAD_ZOOM && value > -AXIS_DEAD_ZOOM)
+	double ratio = static_cast<double>(value) / SDL_JOYSTICK_AXIS_MAX;
+	double greenZone = configAxisFullZone - configAxisDeadZone;
+
+	if (std::abs(ratio) < configAxisDeadZone)
 		return 0;
-	if(value > AXIS_MAX_ZOOM)
-		return AXIS_MAX_ZOOM;
-	if(value < -AXIS_MAX_ZOOM)
-		return -AXIS_MAX_ZOOM;
-	int base = value > 0 ? AXIS_DEAD_ZOOM : -AXIS_DEAD_ZOOM;
-	return (value - base) * AXIS_MAX_ZOOM / (AXIS_MAX_ZOOM - AXIS_DEAD_ZOOM);
+
+	double scaledValue = (ratio - configAxisDeadZone) / greenZone;
+	double clampedValue = std::clamp(scaledValue, -1.0, +1.0);
+	return clampedValue;
 }
 
 void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue)
 {
-	if(axisValue >= TRIGGER_PRESS_THRESHOLD)
+	if(getRealAxisValue(axisValue) > configTriggerTreshold)
 	{
 		if(!pressedAxes.count(axisID))
 		{
@@ -249,19 +259,27 @@ void InputSourceGameController::handleUpdate()
 	lastCheckTime = nowMs;
 }
 
+static double scaleAxis(double value, double power)
+{
+	if (value > 0)
+		return std::pow(value, power);
+	else
+		return -std::pow(-value, power);
+}
+
 void InputSourceGameController::handleCursorUpdate(int32_t deltaTimeMs)
 {
 	float deltaTimeSeconds = static_cast<float>(deltaTimeMs) / 1000;
 
-	if(cursorAxisValueX == 0)
+	if(vstd::isAlmostZero(cursorAxisValueX))
 		cursorPlanDisX = 0;
 	else
-		cursorPlanDisX += deltaTimeSeconds * AXIS_MOVE_SPEED * cursorAxisValueX / AXIS_MAX_ZOOM;
+		cursorPlanDisX += deltaTimeSeconds * configPointerSpeed * scaleAxis(cursorAxisValueX, configPointerScale);
 
-	if(cursorAxisValueY == 0)
+	if (vstd::isAlmostZero(cursorAxisValueY))
 		cursorPlanDisY = 0;
 	else
-		cursorPlanDisY += deltaTimeSeconds * AXIS_MOVE_SPEED * cursorAxisValueY / AXIS_MAX_ZOOM;
+		cursorPlanDisY += deltaTimeSeconds * configPointerSpeed * scaleAxis(cursorAxisValueY, configPointerScale);
 
 	int moveDisX = getMoveDis(cursorPlanDisX);
 	int moveDisY = getMoveDis(cursorPlanDisY);
@@ -290,8 +308,8 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 		return;
 	}
 	float deltaTimeSeconds = static_cast<float>(deltaTimeMs) / 1000;
-	scrollPlanDisX += deltaTimeSeconds * AXIS_MOVE_SPEED * scrollAxisValueX / AXIS_MAX_ZOOM;
-	scrollPlanDisY += deltaTimeSeconds * AXIS_MOVE_SPEED * scrollAxisValueY / AXIS_MAX_ZOOM;
+	scrollPlanDisX += deltaTimeSeconds * configPanningSpeed * scaleAxis(scrollAxisValueX, configPanningScale);
+	scrollPlanDisY += deltaTimeSeconds * configPanningSpeed * scaleAxis(scrollAxisValueY, configPanningScale);
 	int moveDisX = getMoveDis(scrollPlanDisX);
 	int moveDisY = getMoveDis(scrollPlanDisY);
 	if(moveDisX != 0 || moveDisY != 0)

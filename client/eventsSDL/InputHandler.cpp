@@ -38,6 +38,9 @@ InputHandler::InputHandler()
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
 	, gameControllerHandler(std::make_unique<InputSourceGameController>())
+	, enableMouse(settings["input"]["enableMouse"].Bool())
+	, enableTouch(settings["input"]["enableTouch"].Bool())
+	, enableController(settings["input"]["enableController"].Bool())
 {
 }
 
@@ -48,35 +51,59 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 	switch (current.type)
 	{
 		case SDL_KEYDOWN:
-			return keyboardHandler->handleEventKeyDown(current.key);
+			keyboardHandler->handleEventKeyDown(current.key);
+			return;
 		case SDL_KEYUP:
-			return keyboardHandler->handleEventKeyUp(current.key);
+			keyboardHandler->handleEventKeyUp(current.key);
+			return;
 #ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 		case SDL_MOUSEMOTION:
-			return mouseHandler->handleEventMouseMotion(current.motion);
+			if (enableMouse)
+				mouseHandler->handleEventMouseMotion(current.motion);
+			return;
 		case SDL_MOUSEBUTTONDOWN:
-			return mouseHandler->handleEventMouseButtonDown(current.button);
+			if (enableMouse)
+				mouseHandler->handleEventMouseButtonDown(current.button);
+			return;
 		case SDL_MOUSEBUTTONUP:
-			return mouseHandler->handleEventMouseButtonUp(current.button);
+			if (enableMouse)
+				mouseHandler->handleEventMouseButtonUp(current.button);
+			return;
 		case SDL_MOUSEWHEEL:
-			return mouseHandler->handleEventMouseWheel(current.wheel);
+			if (enableMouse)
+				mouseHandler->handleEventMouseWheel(current.wheel);
+			return;
 #endif
 		case SDL_TEXTINPUT:
-			return textHandler->handleEventTextInput(current.text);
+			textHandler->handleEventTextInput(current.text);
+			return;
 		case SDL_TEXTEDITING:
-			return textHandler->handleEventTextEditing(current.edit);
+			textHandler->handleEventTextEditing(current.edit);
+			return;
 		case SDL_FINGERMOTION:
-			return fingerHandler->handleEventFingerMotion(current.tfinger);
+			if (enableTouch)
+				fingerHandler->handleEventFingerMotion(current.tfinger);
+			return;
 		case SDL_FINGERDOWN:
-			return fingerHandler->handleEventFingerDown(current.tfinger);
+			if (enableTouch)
+				fingerHandler->handleEventFingerDown(current.tfinger);
+			return;
 		case SDL_FINGERUP:
-			return fingerHandler->handleEventFingerUp(current.tfinger);
+			if (enableTouch)
+				fingerHandler->handleEventFingerUp(current.tfinger);
+			return;
 		case SDL_CONTROLLERAXISMOTION:
-			return gameControllerHandler->handleEventAxisMotion(current.caxis);
+			if (enableController)
+				gameControllerHandler->handleEventAxisMotion(current.caxis);
+			return;
 		case SDL_CONTROLLERBUTTONDOWN:
-			return gameControllerHandler->handleEventButtonDown(current.cbutton);
+			if (enableController)
+				gameControllerHandler->handleEventButtonDown(current.cbutton);
+			return;
 		case SDL_CONTROLLERBUTTONUP:
-			return gameControllerHandler->handleEventButtonUp(current.cbutton);
+			if (enableController)
+				gameControllerHandler->handleEventButtonUp(current.cbutton);
+			return;
 	}
 }
 

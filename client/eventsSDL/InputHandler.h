@@ -30,6 +30,10 @@ class InputHandler
 
 	Point cursorPosition;
 
+	const bool enableMouse;
+	const bool enableTouch;
+	const bool enableController;
+
 	std::vector<SDL_Event> acquireEvents();
 
 	void preprocessEvent(const SDL_Event & event);
