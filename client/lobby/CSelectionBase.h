@@ -32,7 +32,7 @@ class SelectionTab;
 class InfoCard;
 class CChatBox;
 class PvPBox;
-class FactionSelector;
+class TownSelector;
 class CLabel;
 class CSlider;
 class CFlagBox;
@@ -148,7 +148,7 @@ class PvPBox : public CIntObject
 	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
 	std::shared_ptr<TransparentFilledRectangle> backgroundBorder;
 	
-	std::shared_ptr<FactionSelector> factionSelector;
+	std::shared_ptr<TownSelector> townSelector;
 
 	std::shared_ptr<CButton> buttonFlipCoin;
 	std::shared_ptr<CButton> buttonRandomTown;
@@ -157,7 +157,7 @@ public:
 	PvPBox(const Rect & rect);
 };
 
-class FactionSelector : public CIntObject
+class TownSelector : public CIntObject
 {
 	std::map<FactionID, std::shared_ptr<CAnimImage>> towns;
 	std::map<FactionID, std::shared_ptr<LRClickableArea>> townsArea;
@@ -169,7 +169,7 @@ class FactionSelector : public CIntObject
 public:
 	std::map<FactionID, bool> townsEnabled;
 
-	FactionSelector(const Point & loc);
+	TownSelector(const Point & loc);
 };
 
 class CFlagBox : public CIntObject

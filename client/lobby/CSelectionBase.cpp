@@ -403,25 +403,22 @@ PvPBox::PvPBox(const Rect & rect)
 	backgroundTexture->playerColored(PlayerColor(1));
 	backgroundBorder = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, rect.w, rect.h), ColorRGBA(0, 0, 0, 64), ColorRGBA(96, 96, 96, 255), 1);
 
-	factionSelector = std::make_shared<FactionSelector>(Point(5, 3));
+	townSelector = std::make_shared<TownSelector>(Point(5, 3));
 
 	auto getBannedTowns = [this](){
 		std::vector<FactionID> bannedTowns;
-		for(auto & town : factionSelector->townsEnabled)
+		for(auto & town : townSelector->townsEnabled)
 			if(!town.second)
 				bannedTowns.push_back(town.first);
 		return bannedTowns;
 	};
-
-	auto buttonColor = CSH->isGuest() ? Colors::WHITE : Colors::ORANGE;
 
 	buttonFlipCoin = std::make_shared<CButton>(Point(190, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.coin.help")), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::COIN;
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
-	buttonFlipCoin->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.coin.hover"), EFonts::FONT_SMALL, buttonColor);
-	buttonFlipCoin->block(!CSH->isGuest());
+	buttonFlipCoin->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.coin.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
 	buttonRandomTown = std::make_shared<CButton>(Point(190, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.help")), [getBannedTowns](){
 		LobbyPvPAction lpa;
@@ -429,8 +426,7 @@ PvPBox::PvPBox(const Rect & rect)
 		lpa.bannedTowns = getBannedTowns();
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
-	buttonRandomTown->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.hover"), EFonts::FONT_SMALL, buttonColor);
-	buttonRandomTown->block(!CSH->isGuest());
+	buttonRandomTown->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
 	buttonRandomTownVs = std::make_shared<CButton>(Point(190, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.help")), [getBannedTowns](){
 		LobbyPvPAction lpa;
@@ -438,11 +434,10 @@ PvPBox::PvPBox(const Rect & rect)
 		lpa.bannedTowns = getBannedTowns();
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::NONE);
-	buttonRandomTownVs->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, buttonColor);
-	buttonRandomTownVs->block(!CSH->isGuest());
+	buttonRandomTownVs->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 }
 
-FactionSelector::FactionSelector(const Point & loc)
+TownSelector::TownSelector(const Point & loc)
 {
 	OBJ_CONSTRUCTION;
 	pos += loc;
@@ -460,7 +455,7 @@ FactionSelector::FactionSelector(const Point & loc)
 
 	if(count > 9)
 	{
-		slider = std::make_shared<CSlider>(Point(144, 0), 96, std::bind(&FactionSelector::sliderMove, this, _1), 3, divisionRoundUp(count, 3), 0, Orientation::VERTICAL, CSlider::BLUE);
+		slider = std::make_shared<CSlider>(Point(144, 0), 96, std::bind(&TownSelector::sliderMove, this, _1), 3, divisionRoundUp(count, 3), 0, Orientation::VERTICAL, CSlider::BLUE);
 		slider->setPanningStep(24);
 		slider->setScrollBounds(Rect(-144, 0, slider->pos.x - pos.x + slider->pos.w, slider->pos.h));
 	}
@@ -468,7 +463,7 @@ FactionSelector::FactionSelector(const Point & loc)
 	updateListItems();
 }
 
-void FactionSelector::updateListItems()
+void TownSelector::updateListItems()
 {
 	OBJ_CONSTRUCTION;
 	int line = slider ? slider->getValue() : 0;
@@ -488,8 +483,6 @@ void FactionSelector::updateListItems()
 			auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
 			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, x_offset + 48 * x, 32 * (y - line));
 			townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(x_offset + 48 * x, 32 * (y - line), 48, 32), [this, getImageIndex, factionID](){
-				if(CSH->isGuest())
-					return;
 				townsEnabled[factionID] = !townsEnabled[factionID];
 				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
 				redraw();
@@ -506,7 +499,7 @@ void FactionSelector::updateListItems()
 	});
 }
 
-void FactionSelector::sliderMove(int slidPos)
+void TownSelector::sliderMove(int slidPos)
 {
 	if(!slider)
 		return; // ignore spurious call when slider is being created

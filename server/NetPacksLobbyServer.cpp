@@ -370,6 +370,12 @@ void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer &
 	result = true;
 }
 
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
+{
+	result = true;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 {
 	std::vector<FactionID> allowedTowns;
