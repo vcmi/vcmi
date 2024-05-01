@@ -478,7 +478,7 @@ void FactionSelector::updateListItems()
 			return;
 
 		if(y >= line && (y - line) < 3)
-			{
+		{
 			FactionID factionID = entity->getFaction();
 			auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
 			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, 48 * x, 32 * (y - line));
@@ -486,7 +486,7 @@ void FactionSelector::updateListItems()
 				townsEnabled[factionID] = !townsEnabled[factionID];
 				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
 				redraw();
-			});
+			}, [factionID](){ CRClickPopup::createAndPush((*CGI->townh)[factionID]->town->faction->getNameTranslated()); });
 		}
 
 		if (x < 2)
