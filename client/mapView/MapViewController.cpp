@@ -16,6 +16,7 @@
 #include "MapViewCache.h"
 #include "MapViewModel.h"
 
+#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
@@ -23,6 +24,7 @@
 #include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/pathfinder/CGPathNode.h"
@@ -295,9 +297,14 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 	if(!GH.windows().isTopWindow(adventureInt))
 		return false;
 
-	// do not focus on actions of other players during our turn (e.g. simturns)
-	if (LOCPLINT->makingTurn && initiator != LOCPLINT->playerID)
-		return false;
+	// do not focus on actions of other players except for AI with simturns off
+	if (initiator != LOCPLINT->playerID)
+	{
+		if (LOCPLINT->makingTurn)
+			return false;
+		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(initiator).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
+			return false;
+	}
 
 	if(obj->isVisitable())
 		return context->isVisible(obj->visitablePos());
@@ -316,9 +323,14 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(!GH.windows().isTopWindow(adventureInt))
 		return false;
 
-	// do not focus on actions of other players during our turn (e.g. simturns)
-	if (LOCPLINT->makingTurn && obj->getOwner() != LOCPLINT->playerID)
-		return false;
+	// do not focus on actions of other players except for AI with simturns off
+	if (obj->getOwner() != LOCPLINT->playerID)
+	{
+		if (LOCPLINT->makingTurn)
+			return false;
+		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(obj->getOwner()).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
+			return false;
+	}
 
 	if(context->isVisible(obj->convertToVisitablePos(from)))
 		return true;

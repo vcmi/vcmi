@@ -205,7 +205,7 @@ void CAltarCreatures::sacrificeAll()
 	offerTradePanel->update();
 	updateShowcases();
 
-	deal->block(calcExpAltarForHero() == 0);
+	deal->block(calcExpAltarForHero() == 0 || !LOCPLINT->makingTurn);
 }
 
 void CAltarCreatures::updateAltarSlot(const std::shared_ptr<CTradeableItem> & slot)
@@ -222,7 +222,7 @@ void CAltarCreatures::onOfferSliderMoved(int newVal)
 		unitsOnAltar[bidTradePanel->highlightedSlot->serial] = newVal;
 	if(offerTradePanel->isHighlighted())
 		updateAltarSlot(offerTradePanel->highlightedSlot);
-	deal->block(calcExpAltarForHero() == 0);
+	deal->block(calcExpAltarForHero() == 0 || !LOCPLINT->makingTurn);
 	highlightingChanged();
 	redraw();
 }

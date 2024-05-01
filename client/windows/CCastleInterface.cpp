@@ -625,7 +625,7 @@ void CCastleBuildings::recreate()
 		buildings.push_back(std::make_shared<CBuildingRect>(this, town, toAdd));
 	}
 
-	auto const & buildSorter = [] (const CIntObject * a, const CIntObject * b)
+	const auto & buildSorter = [](const CIntObject * a, const CIntObject * b)
 	{
 		auto b1 = dynamic_cast<const CBuildingRect *>(a);
 		auto b2 = dynamic_cast<const CBuildingRect *>(b);
@@ -783,11 +783,14 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						if(upgrades == BuildingID::TAVERN)
 							LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 						else
-						enterBuilding(building);
+							enterBuilding(building);
 						break;
 
 				case BuildingSubID::CASTLE_GATE:
-						enterCastleGate();
+						if (LOCPLINT->makingTurn)
+							enterCastleGate();
+						else
+							enterBuilding(building);
 						break;
 
 				case BuildingSubID::CREATURE_TRANSFORMER: //Skeleton Transformer
@@ -966,7 +969,9 @@ void CCastleBuildings::enterMagesGuild()
 {
 	const CGHeroInstance *hero = getHero();
 
-	if(hero && !hero->hasSpellbook()) //hero doesn't have spellbok
+	// hero doesn't have spellbok
+	// or it is not our turn and we can't make actions
+	if(hero && !hero->hasSpellbook() && LOCPLINT->makingTurn)
 	{
 		if(hero->isCampaignYog())
 		{
@@ -1564,7 +1569,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 		buy = std::make_shared<CButton>(Point(45, 446), AnimationPath::builtin("IBUY30"), CButton::tooltip(tooltipYes.toString()), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
-		buy->block(state!=EBuildingState::ALLOWED || LOCPLINT->playerID != town->tempOwner);
+		buy->block(state != EBuildingState::ALLOWED || LOCPLINT->playerID != town->tempOwner || !LOCPLINT->makingTurn);
 
 		cancel = std::make_shared<CButton>(Point(290, 445), AnimationPath::builtin("ICANCEL"), CButton::tooltip(tooltipNo.toString()), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
 		cancel->setBorderColor(Colors::METALLIC_GOLD);

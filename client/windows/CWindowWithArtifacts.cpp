@@ -89,6 +89,9 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(const CArtifactsOfHeroBase &
 	if(artPlace.isLocked())
 		return;
 
+	if (!LOCPLINT->makingTurn)
+		return;
+
 	std::visit(
 		[this, &artPlace](auto artSetWeak) -> void
 		{

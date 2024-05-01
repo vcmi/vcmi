@@ -96,7 +96,7 @@ void CFreelancerGuild::highlightingChanged()
 		offerSlider->scrollTo(0);
 		offerSlider->block(false);
 		maxAmount->block(false);
-		deal->block(false);
+		deal->block(!LOCPLINT->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

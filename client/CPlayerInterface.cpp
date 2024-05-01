@@ -1215,7 +1215,6 @@ void CPlayerInterface::loadGame( BinaryDeserializer & h )
 
 void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 {
-	assert(LOCPLINT->makingTurn);
 	assert(h);
 	assert(!showingDialog->get());
 	assert(dialogs.empty());
