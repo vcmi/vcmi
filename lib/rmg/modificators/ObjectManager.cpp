@@ -648,15 +648,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			else if(!instance->object().appearance->isVisitableFromTop())
 			{
 				// Do not route road behind visitable tile
-				int3 visitablePos = instance->getVisitablePosition();
-				auto areaVisitable = rmg::Area({visitablePos});
-				auto borderAbove = areaVisitable.getBorderOutside();
-				vstd::erase_if(borderAbove, [&](const int3 & tile)
-				{
-					return tile.y >= visitablePos.y ||
-					(!instance->object().blockingAt(tile + int3(0, 1, 0)) && 
-					instance->object().blockingAt(tile));
-				});				
+				auto borderAbove = instance->getBorderAbove();
 				rp->areaIsolated().unite(borderAbove);
 			}
 

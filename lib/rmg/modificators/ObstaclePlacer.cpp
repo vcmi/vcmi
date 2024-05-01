@@ -64,6 +64,10 @@ void ObstaclePlacer::process()
 		areaPossible->subtract(blockedArea);
 
 		prohibitedArea = zone.freePaths() + areaUsed + manager->getVisitableArea();
+		if (auto * rp = zone.getModificator<RoadPlacer>())
+		{
+			prohibitedArea.unite(rp->getRoads());
+		}
 
 		//Progressively block tiles, but make sure they don't seal any gap between blocks
 		rmg::Area toBlock;
@@ -116,7 +120,7 @@ void ObstaclePlacer::init()
 	DEPENDENCY(RoadPlacer);
 	if (zone.isUnderground())
 	{
-		DEPENDENCY(RockFiller);
+		DEPENDENCY_ALL(RockFiller);
 	}
 	else
 	{

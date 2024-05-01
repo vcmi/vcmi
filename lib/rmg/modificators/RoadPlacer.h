@@ -19,6 +19,7 @@ public:
 	MODIFICATOR(RoadPlacer);
 	
 	void process() override;
+	void postProcess();
 	void init() override;
 	char dump(const int3 &) override;
 	
@@ -41,6 +42,8 @@ protected:
 	rmg::Area areaRoads;
 	rmg::Area isolated;
 	rmg::Area visitableTiles; // Tiles occupied by removable or passable objects
+
+	bool noRoadNodes = false;
 };
 
 VCMI_LIB_NAMESPACE_END

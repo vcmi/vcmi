@@ -34,12 +34,14 @@ void RoadPlacer::process()
 	connectRoads();
 }
 
+void RoadPlacer::postProcess()
+{
+	//Draw dirt roads if there are only mines
+	drawRoads(noRoadNodes);
+}
+
 void RoadPlacer::init()
 {
-	if(zone.isUnderground())
-	{
-		DEPENDENCY_ALL(RockFiller);
-	}
 }
 
 rmg::Area & RoadPlacer::areaForRoads()
@@ -75,11 +77,13 @@ bool RoadPlacer::createRoad(const int3 & dst)
 	{
 		if(areaIsolated().contains(dst))
 		{
-			return 1000.0f; //Do not route road behind objects that are not visitable from top
+			return 1000.0f; //Do not route road behind objects that are not visitable from top, such as Monoliths
 		}
 		else
 		{
-			auto ret = 1.0f;
+			float weight = dst.dist2dSQ(src);
+			auto ret =  weight * weight;
+
 			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
 			{
 				ret *= VISITABLE_PENALTY;
@@ -133,20 +137,12 @@ bool RoadPlacer::createRoad(const int3 & dst)
 
 void RoadPlacer::drawRoads(bool secondary)
 {	
+	//Do not draw roads on underground rock or water
+	roads.erase_if([this](const int3& pos) -> bool
 	{
-		//Clean space under roads even if they won't be eventually generated
-		Zone::Lock lock(zone.areaMutex);
-
-		//Do not draw roads on underground rock or water
-		roads.erase_if([this](const int3& pos) -> bool
-		{
-			const auto* terrain = map.getTile(pos).terType;
-			return !terrain->isPassable() || !terrain->isLand();
-		});
-
-		zone.areaPossible()->subtract(roads);
-		zone.freePaths()->unite(roads);
-	}
+		const auto* terrain = map.getTile(pos).terType;
+		return !terrain->isPassable() || !terrain->isLand();
+	});
 
 	if(!generator.getMapGenOptions().isRoadEnabled())
 	{
@@ -184,7 +180,6 @@ void RoadPlacer::addRoadNode(const int3& node)
 
 void RoadPlacer::connectRoads()
 {
-	bool noRoadNodes = false;
 	//Assumes objects are already placed
 	if(roadNodes.size() < 2)
 	{
@@ -224,13 +219,16 @@ void RoadPlacer::connectRoads()
 		}
 	}
 	
-	//Draw dirt roads if there are only mines
-	drawRoads(noRoadNodes);
+	if (!zone.isUnderground())
+	{
+		// Otherwise roads will be drawn only after rock is placed
+		postProcess();
+	}
 }
 
 char RoadPlacer::dump(const int3 & t)
 {
-	if(roadNodes.count(t))
+	if(vstd::contains(roadNodes, t))
 		return '@';
 	if(roads.contains(t))
 		return '+';
