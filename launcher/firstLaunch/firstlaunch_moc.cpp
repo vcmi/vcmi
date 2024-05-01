@@ -19,6 +19,7 @@
 #include "../../lib/Languages.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../helper.h"
 #include "../languages.h"
 
 #ifdef ENABLE_INNOEXTRACT
@@ -36,6 +37,8 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 
 	ui->lineEditDataSystem->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front())));
 	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
+
+	Helper::enableScrollBySwiping(ui->listWidgetLanguage);
 
 #ifndef ENABLE_INNOEXTRACT
 	ui->pushButtonGogInstall->hide();

@@ -151,13 +151,14 @@ CModListView::CModListView(QWidget * parent)
 	{
 		manager->resetRepositories();
 	}
-	
-#ifdef Q_OS_IOS
+
+#ifdef VCMI_MOBILE
 	for(auto * scrollWidget : {
 		(QAbstractItemView*)ui->allModsView,
 		(QAbstractItemView*)ui->screenshotsList})
 	{
-		QScroller::grabGesture(scrollWidget, QScroller::LeftMouseButtonGesture);
+		Helper::enableScrollBySwiping(scrollWidget);
+
 		scrollWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 		scrollWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	}
@@ -404,6 +405,9 @@ void CModListView::selectMod(const QModelIndex & index)
 
 		ui->modInfoBrowser->setHtml(genModInfoText(mod));
 		ui->changelogBrowser->setHtml(genChangelogText(mod));
+
+		Helper::enableScrollBySwiping(ui->modInfoBrowser);
+		Helper::enableScrollBySwiping(ui->changelogBrowser);
 
 		bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
 		bool hasBlockingMods = !findBlockingMods(modName).empty();

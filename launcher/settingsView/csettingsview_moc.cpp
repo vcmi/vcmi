@@ -14,6 +14,7 @@
 #include "mainwindow_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
+#include "../helper.h"
 #include "../jsonutils.h"
 #include "../languages.h"
 #include "../launcherdirs.h"
@@ -284,6 +285,7 @@ CSettingsView::CSettingsView(QWidget * parent)
 	: QWidget(parent), ui(new Ui::CSettingsView)
 {
 	ui->setupUi(this);
+	Helper::enableScrollBySwiping(ui->settingsScrollArea);
 
 	loadSettings();
 }
