@@ -670,6 +670,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		
 		if(rmgObject.instances().empty())
 		{
+			rmgObject.setValue(0);
 			accessibleArea.add(int3());
 		}
 		

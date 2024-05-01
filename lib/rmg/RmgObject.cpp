@@ -189,8 +189,8 @@ Object::Object(CGObjectInstance & object):
 }
 
 Object::Object(const Object & object):
-	guarded(false),
-	value(0)
+	guarded(object.guarded),
+	value(object.value)
 {
 	for(const auto & i : object.dInstances)
 		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
@@ -435,12 +435,12 @@ int3 rmg::Object::getGuardPos() const
 	return int3(-1,-1,-1);
 }
 
-void rmg::Object::setValue(size_t newValue)
+void rmg::Object::setValue(uint32_t newValue)
 {
 	value = newValue;
 }
 
-size_t rmg::Object::getValue() const
+uint32_t rmg::Object::getValue() const
 {
 	return value;
 }
