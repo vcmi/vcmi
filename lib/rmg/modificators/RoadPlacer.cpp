@@ -175,7 +175,7 @@ void RoadPlacer::drawRoads(bool secondary)
 void RoadPlacer::addRoadNode(const int3& node)
 {
 	RecursiveLock lock(externalAccessMutex);
-	roadNodes.push_back(node);
+	roadNodes.insert(node);
 }
 
 void RoadPlacer::connectRoads()

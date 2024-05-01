@@ -37,7 +37,7 @@ protected:
 	void drawRoads(bool secondary = false); //actually updates tiles
 
 protected:
-	std::vector<int3> roadNodes; //tiles to be connected with roads
+	rmg::Tileset roadNodes; //tiles to be connected with roads
 	rmg::Area roads; //all tiles with roads
 	rmg::Area areaRoads;
 	rmg::Area isolated;
