@@ -157,10 +157,10 @@ bool CModManager::canInstallMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if(mod.isSubmod())
-		return addError(modname, "Can not install submod");
+		return addError(modname, tr("Can not install submod"));
 
 	if(mod.isInstalled())
-		return addError(modname, "Mod is already installed");
+		return addError(modname, tr("Mod is already installed"));
 	return true;
 }
 
@@ -169,10 +169,10 @@ bool CModManager::canUninstallMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if(mod.isSubmod())
-		return addError(modname, "Can not uninstall submod");
+		return addError(modname, tr("Can not uninstall submod"));
 
 	if(!mod.isInstalled())
-		return addError(modname, "Mod is not installed");
+		return addError(modname, tr("Mod is not installed"));
 
 	return true;
 }
@@ -182,24 +182,24 @@ bool CModManager::canEnableMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if(mod.isEnabled())
-		return addError(modname, "Mod is already enabled");
+		return addError(modname, tr("Mod is already enabled"));
 
 	if(!mod.isInstalled())
-		return addError(modname, "Mod must be installed first");
+		return addError(modname, tr("Mod must be installed first"));
 
 	//check for compatibility
 	if(!mod.isCompatible())
-		return addError(modname, "Mod is not compatible, please update VCMI and checkout latest mod revisions");
+		return addError(modname, tr("Mod is not compatible, please update VCMI and checkout latest mod revisions"));
 
 	for(auto modEntry : mod.getDependencies())
 	{
 		if(!modList->hasMod(modEntry)) // required mod is not available
-			return addError(modname, QString("Required mod %1 is missing").arg(modEntry));
+			return addError(modname, tr("Required mod %1 is missing").arg(modEntry));
 
 		CModEntry modData = modList->getMod(modEntry);
 
 		if(!modData.isCompatibilityPatch() && !modData.isEnabled())
-			return addError(modname, QString("Required mod %1 is not enabled").arg(modEntry));
+			return addError(modname, tr("Required mod %1 is not enabled").arg(modEntry));
 	}
 
 	for(QString modEntry : modList->getModList())
@@ -208,14 +208,14 @@ bool CModManager::canEnableMod(QString modname)
 
 		// "reverse conflict" - enabled mod has this one as conflict
 		if(mod.isEnabled() && mod.getConflicts().contains(modname))
-			return addError(modname, QString("This mod conflicts with %1").arg(modEntry));
+			return addError(modname, tr("This mod conflicts with %1").arg(modEntry));
 	}
 
 	for(auto modEntry : mod.getConflicts())
 	{
 		// check if conflicting mod installed and enabled
 		if(modList->hasMod(modEntry) && modList->getMod(modEntry).isEnabled())
-			return addError(modname, QString("This mod conflicts with %1").arg(modEntry));
+			return addError(modname, tr("This mod conflicts with %1").arg(modEntry));
 	}
 	return true;
 }
@@ -225,17 +225,17 @@ bool CModManager::canDisableMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if(mod.isDisabled())
-		return addError(modname, "Mod is already disabled");
+		return addError(modname, tr("Mod is already disabled"));
 
 	if(!mod.isInstalled())
-		return addError(modname, "Mod must be installed first");
+		return addError(modname, tr("Mod must be installed first"));
 
 	for(QString modEntry : modList->getModList())
 	{
 		auto current = modList->getMod(modEntry);
 
 		if(current.getDependencies().contains(modname) && current.isEnabled())
-			return addError(modname, QString("This mod is needed to run %1").arg(modEntry));
+			return addError(modname, tr("This mod is needed to run %1").arg(modEntry));
 	}
 	return true;
 }
@@ -311,7 +311,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if(!futureExtract.get())
 	{
 		removeModDir(destDir + modDirName);
-		return addError(modname, "Failed to extract mod data");
+		return addError(modname, tr("Failed to extract mod data"));
 	}
 
 	//rename folder and fix the path
@@ -339,11 +339,11 @@ bool CModManager::doUninstallMod(QString modname)
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 
 	if(!QDir(modDir).exists())
-		return addError(modname, "Data with this mod was not found");
+		return addError(modname, tr("Data with this mod was not found"));
 
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
-		return addError(modname, "Mod is located in protected directory, please remove it manually:\n" + modFullDir.absolutePath());
+		return addError(modname, tr("Mod is located in protected directory, please remove it manually:\n") + modFullDir.absolutePath());
 
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
 	loadMods();

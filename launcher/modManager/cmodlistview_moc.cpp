@@ -307,9 +307,9 @@ QString CModListView::genModInfoText(CModEntry & mod)
 			if(minStr.isEmpty() || maxStr.isEmpty())
 			{
 				if(minStr.isEmpty())
-					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", "please upgrade mod");
+					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", tr("please upgrade mod"));
 				else
-					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", "or above");
+					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", tr("or above"));
 			}
 			else
 				result += supportedVersions.arg(tr("Supported VCMI versions"), minStr, " - ", maxStr);
@@ -574,7 +574,7 @@ void CModListView::on_updateButton_clicked()
 		auto mod = modModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
 		if(mod.isUpdateable() || !mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
+			downloadFile(name + ".zip", mod.getValue("download").toString(), name, mbToBytes(mod.getValue("downloadSize").toDouble()));
 	}
 }
 
@@ -604,7 +604,7 @@ void CModListView::on_installButton_clicked()
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
+			downloadFile(name + ".zip", mod.getValue("download").toString(), name, mbToBytes(mod.getValue("downloadSize").toDouble()));
 		else if(!mod.isEnabled())
 			enableModByName(name);
 	}
@@ -669,7 +669,7 @@ void CModListView::manualInstallFile(QUrl url)
 		}
 	}
 	else
-		downloadFile(fileName, urlStr, "mods", 0);
+		downloadFile(fileName, urlStr, fileName, 0);
 }
 
 void CModListView::downloadFile(QString file, QString url, QString description, qint64 size)
@@ -793,7 +793,7 @@ void CModListView::installFiles(QStringList files)
 					auto modjson = repoData[key].toMap().value("mod");
 					if(!modjson.isNull())
 					{
-						downloadFile(key + ".json", modjson.toString(), "repository index");
+						downloadFile(key + ".json", modjson.toString(), tr("repository index"));
 					}
 				}
 			}
@@ -957,7 +957,7 @@ void CModListView::loadScreenshots()
 			if(pixmap.isNull())
 			{
 				// image file not exists or corrupted - try to redownload
-				downloadFile(fileName, url, "screenshots");
+				downloadFile(fileName, url, tr("screenshots"));
 			}
 			else
 			{
@@ -994,7 +994,7 @@ void CModListView::doInstallMod(const QString & modName)
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
+			downloadFile(name + ".zip", mod.getValue("download").toString(), name, mbToBytes(mod.getValue("downloadSize").toDouble()));
 	}
 }
 

@@ -301,7 +301,7 @@ void FirstLaunchView::extractGogData()
 		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
 		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
 #if defined(VCMI_MOBILE)
-		filter = "GOG file (*.*)";
+		filter = tr("GOG file (*.*)");
 		QMessageBox::information(this, tr("File selection"), titleSel);
 #endif
 		QString file = QFileDialog::getOpenFileName(this, titleSel, startPath.isEmpty() ? QDir::homePath() : startPath, filter);
