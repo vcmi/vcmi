@@ -457,9 +457,13 @@ FactionSelector::FactionSelector(const Point & loc)
 	});
 
 	auto divisionRoundUp = [](int x, int y){ return (x + (y - 1)) / y; };
-	slider = std::make_shared<CSlider>(Point(144, 0), 96, std::bind(&FactionSelector::sliderMove, this, _1), 3, divisionRoundUp(count, 3), 0, Orientation::VERTICAL, CSlider::BLUE);
-	slider->setPanningStep(24);
-	slider->setScrollBounds(Rect(-144, 0, slider->pos.x - pos.x + slider->pos.w, slider->pos.h));
+
+	if(count > 9)
+	{
+		slider = std::make_shared<CSlider>(Point(144, 0), 96, std::bind(&FactionSelector::sliderMove, this, _1), 3, divisionRoundUp(count, 3), 0, Orientation::VERTICAL, CSlider::BLUE);
+		slider->setPanningStep(24);
+		slider->setScrollBounds(Rect(-144, 0, slider->pos.x - pos.x + slider->pos.w, slider->pos.h));
+	}
 
 	updateListItems();
 }
@@ -467,13 +471,14 @@ FactionSelector::FactionSelector(const Point & loc)
 void FactionSelector::updateListItems()
 {
 	OBJ_CONSTRUCTION;
-	int line = slider->getValue();
+	int line = slider ? slider->getValue() : 0;
+	int x_offset = slider ? 0 : 8;
 	
 	towns.clear();
 	townsArea.clear();
 
 	int x = 0, y = 0;
-	CGI->factions()->forEach([this, &x, &y, line](const Faction *entity, bool &stop){
+	CGI->factions()->forEach([this, &x, &y, line, x_offset](const Faction *entity, bool &stop){
 		if(!entity->hasTown())
 			return;
 
@@ -481,8 +486,8 @@ void FactionSelector::updateListItems()
 		{
 			FactionID factionID = entity->getFaction();
 			auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
-			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, 48 * x, 32 * (y - line));
-			townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(48 * x, 32 * (y - line), 48, 32), [this, getImageIndex, factionID](){
+			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, x_offset + 48 * x, 32 * (y - line));
+			townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(x_offset + 48 * x, 32 * (y - line), 48, 32), [this, getImageIndex, factionID](){
 				townsEnabled[factionID] = !townsEnabled[factionID];
 				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
 				redraw();
