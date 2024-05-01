@@ -937,7 +937,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 				if (guarded)
 				{
-					// TODO: Guard cannot be adjacent to road, but blocked side of an object could be
+					// Guard cannot be adjacent to road, but blocked side of an object could be
 					searchArea.subtract(roads);
 
 					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager, &nextToRoad](const int3& tile)
@@ -967,6 +967,12 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 				}
 				else
 				{
+					// Do not place non-removable objects on roads
+					if (!rmgObject.getRemovableArea().contains(rmgObject.getArea()))
+					{
+						searchArea.subtract(roads);
+					}
+
 					path = manager.placeAndConnectObject(searchArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
 				}
 			}

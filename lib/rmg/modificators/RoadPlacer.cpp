@@ -34,6 +34,12 @@ void RoadPlacer::process()
 	connectRoads();
 }
 
+void RoadPlacer::postProcess()
+{
+	//Draw dirt roads if there are only mines
+	drawRoads(noRoadNodes);
+}
+
 void RoadPlacer::init()
 {
 }
@@ -140,8 +146,9 @@ void RoadPlacer::drawRoads(bool secondary)
 			return !terrain->isPassable() || !terrain->isLand();
 		});
 
-		zone.areaPossible()->subtract(roads);
-		zone.freePaths()->unite(roads);
+		// FIXME: This area should still be available after road is created
+		//zone.areaPossible()->subtract(roads);
+		//zone.freePaths()->unite(roads);
 	}
 
 	if(!generator.getMapGenOptions().isRoadEnabled())
@@ -175,12 +182,11 @@ void RoadPlacer::drawRoads(bool secondary)
 void RoadPlacer::addRoadNode(const int3& node)
 {
 	RecursiveLock lock(externalAccessMutex);
-	roadNodes.insert(node);
+	roadNodes.push_back(node);
 }
 
 void RoadPlacer::connectRoads()
 {
-	bool noRoadNodes = false;
 	//Assumes objects are already placed
 	if(roadNodes.size() < 2)
 	{
@@ -220,13 +226,16 @@ void RoadPlacer::connectRoads()
 		}
 	}
 	
-	//Draw dirt roads if there are only mines
-	drawRoads(noRoadNodes);
+	if (!zone.isUnderground())
+	{
+		// Otherwise roads will be drawn only after rock is placed
+		postProcess();
+	}
 }
 
 char RoadPlacer::dump(const int3 & t)
 {
-	if(roadNodes.count(t))
+	if(vstd::contains(roadNodes, t))
 		return '@';
 	if(roads.contains(t))
 		return '+';

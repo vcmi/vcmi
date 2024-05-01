@@ -19,6 +19,7 @@ public:
 	MODIFICATOR(RoadPlacer);
 	
 	void process() override;
+	void postProcess();
 	void init() override;
 	char dump(const int3 &) override;
 	
@@ -36,11 +37,13 @@ protected:
 	void drawRoads(bool secondary = false); //actually updates tiles
 
 protected:
-	rmg::Tileset roadNodes; //tiles to be connected with roads
+	std::vector<int3> roadNodes; //tiles to be connected with roads
 	rmg::Area roads; //all tiles with roads
 	rmg::Area areaRoads;
 	rmg::Area isolated;
 	rmg::Area visitableTiles; // Tiles occupied by removable or passable objects
+
+	bool noRoadNodes = false;
 };
 
 VCMI_LIB_NAMESPACE_END
