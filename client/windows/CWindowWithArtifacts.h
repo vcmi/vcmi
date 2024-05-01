@@ -37,9 +37,12 @@ public:
 	void addCloseCallback(const CloseCallback & callback);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();
-	void clickPressedArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
-	void showPopupArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
-	void gestureArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void clickPressedOnArtPlace(const CGHeroInstance & hero, const ArtifactPosition & slot,
+		bool allowExchange, bool altarTrading, bool closeWindow);
+	void swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const ArtifactLocation & dstLoc);
+	void showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void showArifactInfo(CArtPlace & artPlace, const Point & cursorPosition);
+	void showQuickBackpackWindow(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 	void activate() override;
 	void deactivate() override;
 	void enableArtifactsCostumeSwitcher() const;
@@ -51,8 +54,8 @@ public:
 
 protected:
 	void update();
-	std::optional<ArtifactsOfHeroVar> findAOHbyRef(const CArtifactsOfHeroBase & artsInst);
 	void markPossibleSlots();
-	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade) const;
+	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance & hero, bool isTrade) const;
 	void setCursorAnimation(const CArtifactInstance & artInst);
+	void putPickedArtifact(const CGHeroInstance & curHero, const ArtifactPosition & targetSlot);
 };

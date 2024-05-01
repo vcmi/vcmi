@@ -25,3 +25,21 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int
 	for(auto artPlace : backpack)
 		artPlace->setSelectionWidth(selectionWidth);
 };
+
+void CArtifactsOfHeroMarket::onClickPrassedArtPlace(CArtPlace & artPlace)
+{
+	if(const auto art = getArt(artPlace.slot))
+	{
+		if(onSelectArtCallback && art->artType->isTradable())
+		{
+			unmarkSlots();
+			artPlace.selectSlot(true);
+			onSelectArtCallback(&artPlace);
+		}
+		else
+		{
+			if(onClickNotTradableCallback)
+				onClickNotTradableCallback();
+		}
+	}
+}

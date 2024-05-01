@@ -21,7 +21,7 @@ protected:
 
 public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
-	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CArtPlace&, const Point&)>;
+	using ClickFunctor = std::function<void(CArtPlace&, const Point&)>;
 
 	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;
@@ -44,6 +44,7 @@ public:
 	virtual void updateSlot(const ArtifactPosition & slot);
 	virtual const CArtifactInstance * getPickedArtifact();
 	void addGestureCallback(CArtPlace::ClickFunctor callback);
+	const CArtifactInstance * getArt(const ArtifactPosition & slot);
 
 protected:
 	const CGHeroInstance * curHero;

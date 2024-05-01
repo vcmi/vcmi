@@ -90,20 +90,29 @@ void CArtifactsOfHeroBase::init(
 
 void CArtifactsOfHeroBase::clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
+	if(artPlace.isLocked())
+		return;
+
 	if(clickPressedCallback)
-		clickPressedCallback(*this, artPlace, cursorPosition);
+		clickPressedCallback(artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
+	if(artPlace.isLocked())
+		return;
+
 	if(showPopupCallback)
-		showPopupCallback(*this, artPlace, cursorPosition);
+		showPopupCallback(artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
+	if(artPlace.isLocked())
+		return;
+
 	if(gestureCallback)
-		gestureCallback(*this, artPlace, cursorPosition);
+		gestureCallback(artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
@@ -224,6 +233,11 @@ void CArtifactsOfHeroBase::addGestureCallback(CArtPlace::ClickFunctor callback)
 		artPlace.second->setGestureCallback(callback);
 		artPlace.second->addUsedEvents(GESTURE);
 	}
+}
+
+const CArtifactInstance * CArtifactsOfHeroBase::getArt(const ArtifactPosition & slot)
+{
+	return curHero ? curHero->getArt(slot) : nullptr;
 }
 
 void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot)
