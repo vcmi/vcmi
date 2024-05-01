@@ -488,6 +488,8 @@ void FactionSelector::updateListItems()
 			auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
 			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, x_offset + 48 * x, 32 * (y - line));
 			townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(x_offset + 48 * x, 32 * (y - line), 48, 32), [this, getImageIndex, factionID](){
+				if(CSH->isGuest())
+					return;
 				townsEnabled[factionID] = !townsEnabled[factionID];
 				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
 				redraw();

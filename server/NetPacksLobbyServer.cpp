@@ -397,7 +397,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 			break;
 		case LobbyPvPAction::RANDOM_TOWN_VS:
 			if(allowedTowns.size())
-				srv.announceTxt("~~core.overview.3~~ - ~~" + VLC->townh->getById(randomFaction1[0])->getNameTextID() + "~~ ~~vcmi.chat.versus~~ ~~" + VLC->townh->getById(randomFaction2[0])->getNameTextID() + "~~");
+				srv.announceTxt("~~core.overview.3~~ - ~~" + VLC->townh->getById(randomFaction1[0])->getNameTextID() + "~~ ~~vcmi.lobby.pvp.versus~~ ~~" + VLC->townh->getById(randomFaction2[0])->getNameTextID() + "~~");
 			break;
 	}
 	result = true;
