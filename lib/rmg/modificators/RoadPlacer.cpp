@@ -36,10 +36,6 @@ void RoadPlacer::process()
 
 void RoadPlacer::init()
 {
-	if(zone.isUnderground())
-	{
-		DEPENDENCY_ALL(RockFiller);
-	}
 }
 
 rmg::Area & RoadPlacer::areaForRoads()
