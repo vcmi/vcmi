@@ -702,6 +702,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		}
 
 		auto & instance = rmgObject.addInstance(*object);
+		rmgObject.setValue(rmgObject.getValue() + oi->value);
 		instance.onCleared = oi->destroyObject;
 
 		do
@@ -829,6 +830,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 	int monsterStrength = (zone.monsterStrength == EMonsterStrength::ZONE_NONE ? 0 : zone.monsterStrength + mapMonsterStrength - 1); //array index from 0 to 4; pick any correct value for ZONE_NONE, minGuardedValue won't be used in this case anyway
 	static const int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
 	minGuardedValue = minGuardedValues[monsterStrength];
+	const auto blockingGuardMaxValue = zone.getMaxTreasureValue() / 3;
 
 	auto valueComparator = [](const CTreasureInfo& lhs, const CTreasureInfo& rhs) -> bool
 	{
@@ -937,10 +939,9 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 				if (guarded)
 				{
-					// Guard cannot be adjacent to road, but blocked side of an object could be
 					searchArea.subtract(roads);
 
-					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager, &nextToRoad](const int3& tile)
+					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager, blockingGuardMaxValue, &roads, &nextToRoad](const int3& tile)
 						{
 							float bestDistance = 10e9;
 							for (const auto& t : rmgObject.getArea().getTilesVector())
@@ -951,7 +952,9 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 								else
 									vstd::amin(bestDistance, distance);
 							}
-							if (nextToRoad.contains(rmgObject.getGuardPos()))
+
+							// Guard cannot be adjacent to road, but blocked side of an object could be
+							if (rmgObject.getValue() > blockingGuardMaxValue && nextToRoad.contains(rmgObject.getGuardPos()))
 							{
 								return -1.f;
 							}
@@ -959,7 +962,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 							const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();
 							const auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
 
-							if (zone.freePaths()->overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
+							if (zone.freePaths()->overlap(areaToBlock) || roads.overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
 								return -1.f;
 
 							return bestDistance;

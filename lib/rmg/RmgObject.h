@@ -89,6 +89,8 @@ public:
 	bool isGuarded() const;
 	int3 getGuardPos() const;
 	void setGuardedIfMonster(const Instance & object);
+	void setValue(size_t value);
+	size_t getValue() const;
 	
 	void finalize(RmgMap & map, CRandomGenerator &);
 	void clearCachedArea() const;
@@ -107,6 +109,7 @@ private:
 	mutable std::list<Object::Instance*> cachedInstanceList;
 	mutable std::list<const Object::Instance*> cachedInstanceConstList;
 	bool guarded;
+	size_t value;
 };
 }
 
