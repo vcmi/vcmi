@@ -179,7 +179,7 @@ void CModListView::loadRepositories()
 		auto hashed = QCryptographicHash::hash(entry.toUtf8(), QCryptographicHash::Md5);
 		auto hashedStr = QString::fromUtf8(hashed.toHex());
 
-		downloadFile(hashedStr + ".json", entry, "repository index");
+		downloadFile(hashedStr + ".json", entry, tr("mods repository index"));
 	}
 }
 
@@ -309,7 +309,7 @@ QString CModListView::genModInfoText(CModEntry & mod)
 				if(minStr.isEmpty())
 					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", tr("please upgrade mod"));
 				else
-					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", tr("or above"));
+					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", tr("or newer"));
 			}
 			else
 				result += supportedVersions.arg(tr("Supported VCMI versions"), minStr, " - ", maxStr);
@@ -793,7 +793,7 @@ void CModListView::installFiles(QStringList files)
 					auto modjson = repoData[key].toMap().value("mod");
 					if(!modjson.isNull())
 					{
-						downloadFile(key + ".json", modjson.toString(), tr("repository index"));
+						downloadFile(key + ".json", modjson.toString(), tr("mods repository index"));
 					}
 				}
 			}
