@@ -55,7 +55,7 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
 	arts = std::make_shared<CArtifactsOfHeroQuickBackpack>(targetSlot);
 	arts->moveBy(Point(windowMargin, windowMargin));
-	addSetAndCallbacks(static_cast<std::weak_ptr<CArtifactsOfHeroQuickBackpack>>(arts));
+	addSetAndCallbacks(static_cast<std::shared_ptr<CArtifactsOfHeroQuickBackpack>>(arts));
 	arts->setHero(hero);
 	addCloseCallback(std::bind(&CHeroQuickBackpackWindow::close, this));
 	addUsedEvents(GESTURE);

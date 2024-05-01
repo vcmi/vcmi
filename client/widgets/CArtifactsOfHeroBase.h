@@ -38,6 +38,7 @@ public:
 	virtual void markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved = true);
 	virtual void unmarkSlots();
 	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);
+	virtual ArtPlacePtr getArtPlace(const Point & cursorPosition);
 	virtual void updateWornSlots();
 	virtual void updateBackpackSlots();
 	virtual void updateSlot(const ArtifactPosition & slot);

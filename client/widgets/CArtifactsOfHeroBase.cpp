@@ -166,6 +166,21 @@ CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Artifa
 	}
 }
 
+CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Point & cursorPosition)
+{
+	for(const auto & [slot, artPlace] : artWorn)
+	{
+		if(artPlace->pos.isInside(cursorPosition))
+			return artPlace;
+	}
+	for(const auto & artPlace : backpack)
+	{
+		if(artPlace->pos.isInside(cursorPosition))
+			return artPlace;
+	}
+	return nullptr;
+}
+
 void CArtifactsOfHeroBase::updateWornSlots()
 {
 	for(auto place : artWorn)

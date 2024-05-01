@@ -20,12 +20,12 @@ class CWindowWithArtifacts : virtual public CWindowObject
 {
 public:
 	using ArtifactsOfHeroVar = std::variant<
-		std::weak_ptr<CArtifactsOfHeroMarket>,
-		std::weak_ptr<CArtifactsOfHeroAltar>,
-		std::weak_ptr<CArtifactsOfHeroKingdom>,
-		std::weak_ptr<CArtifactsOfHeroMain>,
-		std::weak_ptr<CArtifactsOfHeroBackpack>,
-		std::weak_ptr<CArtifactsOfHeroQuickBackpack>>;
+		std::shared_ptr<CArtifactsOfHeroMarket>,
+		std::shared_ptr<CArtifactsOfHeroAltar>,
+		std::shared_ptr<CArtifactsOfHeroKingdom>,
+		std::shared_ptr<CArtifactsOfHeroMain>,
+		std::shared_ptr<CArtifactsOfHeroBackpack>,
+		std::shared_ptr<CArtifactsOfHeroQuickBackpack>>;
 	using CloseCallback = std::function<void()>;
 
 	std::vector<ArtifactsOfHeroVar> artSets;
@@ -50,7 +50,7 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation & artLoc);
 
 protected:
-	void update() const;
+	void update();
 	std::optional<ArtifactsOfHeroVar> findAOHbyRef(const CArtifactsOfHeroBase & artsInst);
 	void markPossibleSlots();
 	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade) const;
