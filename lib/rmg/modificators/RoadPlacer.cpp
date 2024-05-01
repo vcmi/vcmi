@@ -145,10 +145,6 @@ void RoadPlacer::drawRoads(bool secondary)
 			const auto* terrain = map.getTile(pos).terType;
 			return !terrain->isPassable() || !terrain->isLand();
 		});
-
-		// FIXME: This area should still be available after road is created
-		//zone.areaPossible()->subtract(roads);
-		//zone.freePaths()->unite(roads);
 	}
 
 	if(!generator.getMapGenOptions().isRoadEnabled())

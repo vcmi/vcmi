@@ -432,10 +432,7 @@ int3 rmg::Object::getGuardPos() const
 			}
 		}
 	}
-	else
-	{
-		return int3(-1,-1,-1);
-	}
+	return int3(-1,-1,-1);
 }
 
 void rmg::Object::setValue(size_t newValue)
