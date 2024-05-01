@@ -42,7 +42,7 @@ void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string
 	if (handleCheatCode(message, player, currObj))
 	{
 		if(!gameHandler->getPlayerSettings(player)->isControlledByAI())
-			broadcastSystemMessage(VLC->generaltexth->allTexts[260]);
+			broadcastSystemMessage("~~core.genrltxt.260~~");
 
 		if(!player.isSpectator())
 			gameHandler->checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
