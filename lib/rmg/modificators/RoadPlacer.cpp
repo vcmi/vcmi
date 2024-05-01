@@ -137,17 +137,12 @@ bool RoadPlacer::createRoad(const int3 & dst)
 
 void RoadPlacer::drawRoads(bool secondary)
 {	
+	//Do not draw roads on underground rock or water
+	roads.erase_if([this](const int3& pos) -> bool
 	{
-		//Clean space under roads even if they won't be eventually generated
-		Zone::Lock lock(zone.areaMutex);
-
-		//Do not draw roads on underground rock or water
-		roads.erase_if([this](const int3& pos) -> bool
-		{
-			const auto* terrain = map.getTile(pos).terType;
-			return !terrain->isPassable() || !terrain->isLand();
-		});
-	}
+		const auto* terrain = map.getTile(pos).terType;
+		return !terrain->isPassable() || !terrain->isLand();
+	});
 
 	if(!generator.getMapGenOptions().isRoadEnabled())
 	{

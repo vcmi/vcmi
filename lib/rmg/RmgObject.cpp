@@ -189,7 +189,7 @@ Object::Object(CGObjectInstance & object):
 }
 
 Object::Object(const Object & object):
-	guarded(object.guarded),
+	guarded(false),
 	value(object.value)
 {
 	for(const auto & i : object.dInstances)
@@ -392,7 +392,11 @@ const Area & Object::getBorderAbove() const
 	if(dBorderAboveCache.empty())
 	{
 		for(const auto & instance : dInstances)
+		{
+			if (instance.isRemovable() || instance.object().appearance->isVisitableFromTop())
+				continue;
 			dBorderAboveCache.unite(instance.getBorderAbove());
+		}
 	}
 	return dBorderAboveCache;
 }
