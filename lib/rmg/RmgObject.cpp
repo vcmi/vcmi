@@ -428,7 +428,7 @@ int3 rmg::Object::getGuardPos() const
 		{
 			if (instance.object().ID == Obj::MONSTER)
 			{
-				return instance.getPosition(true);
+				return instance.getVisitablePosition();
 			}
 		}
 	}
