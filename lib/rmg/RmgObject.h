@@ -38,6 +38,7 @@ public:
 		bool isBlockedVisitable() const;
 		bool isRemovable() const;
 		const Area & getAccessibleArea() const;
+		Area getBorderAbove() const;
 		void setTemplate(TerrainId terrain, CRandomGenerator &); //cache invalidation
 		void setAnyTemplate(CRandomGenerator &); //cache invalidation
 		
@@ -78,6 +79,7 @@ public:
 	const Area & getVisitableArea() const;
 	const Area & getRemovableArea() const;
 	const Area getEntrableArea() const;
+	const Area & getBorderAbove() const;
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
@@ -104,6 +106,7 @@ private:
 	mutable Area dBlockVisitableCache;
 	mutable Area dVisitableCache;
 	mutable Area dRemovableAreaCache;
+	mutable Area dBorderAboveCache;
 	int3 dPosition;
 	mutable std::optional<int3> visibleTopOffset;
 	mutable std::list<Object::Instance*> cachedInstanceList;

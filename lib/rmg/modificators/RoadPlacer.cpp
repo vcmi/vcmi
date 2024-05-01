@@ -77,11 +77,13 @@ bool RoadPlacer::createRoad(const int3 & dst)
 	{
 		if(areaIsolated().contains(dst))
 		{
-			return 1000.0f; //Do not route road behind objects that are not visitable from top
+			return 1000.0f; //Do not route road behind objects that are not visitable from top, such as Monoliths
 		}
 		else
 		{
-			auto ret = 1.0f;
+			float weight = dst.dist2dSQ(src);
+			auto ret =  weight * weight;
+
 			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
 			{
 				ret *= VISITABLE_PENALTY;

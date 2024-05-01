@@ -966,6 +966,10 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 							if (zone.freePaths()->overlap(areaToBlock) || roads.overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
 								return -1.f;
 
+							// Add huge penalty for objects hiding roads
+							if (rmgObject.getBorderAbove().overlap(roads))
+								bestDistance /= 10.0f;
+
 							return bestDistance;
 						}, guarded, false, ObjectManager::OptimizeType::BOTH);
 				}

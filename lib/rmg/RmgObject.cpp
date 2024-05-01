@@ -359,6 +359,7 @@ void Object::setPosition(const int3 & position)
 	dVisitableCache.translate(shift);
 	dRemovableAreaCache.translate(shift);
 	dFullAreaCache.translate(shift);
+	dBorderAboveCache.translate(shift);
 	
 	dPosition = position;
 	for(auto& i : dInstances)
@@ -384,6 +385,16 @@ const Area & Object::getArea() const
 	}
 	
 	return dFullAreaCache;
+}
+
+const Area & Object::getBorderAbove() const
+{
+	if(dBorderAboveCache.empty())
+	{
+		for(const auto & instance : dInstances)
+			dBorderAboveCache.unite(instance.getBorderAbove());
+	}
+	return dBorderAboveCache;
 }
 
 const int3 Object::getVisibleTop() const
@@ -445,6 +456,20 @@ uint32_t rmg::Object::getValue() const
 	return value;
 }
 
+rmg::Area Object::Instance::getBorderAbove() const
+{
+	int3 visitablePos = getVisitablePosition();
+	auto areaVisitable = rmg::Area({visitablePos});
+	auto borderAbove = areaVisitable.getBorderOutside();
+	vstd::erase_if(borderAbove, [&](const int3 & tile)
+	{
+		return tile.y >= visitablePos.y ||
+		(!object().blockingAt(tile + int3(0, 1, 0)) && 
+		object().blockingAt(tile));
+	});
+	return borderAbove;
+}
+
 void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 {
 	if(!map.isOnMap(getPosition(true)))
@@ -501,6 +526,7 @@ void Object::clearCachedArea() const
 	dBlockVisitableCache.clear();
 	dVisitableCache.clear();
 	dRemovableAreaCache.clear();
+	dBorderAboveCache.clear();
 }
 
 void Object::clear()
