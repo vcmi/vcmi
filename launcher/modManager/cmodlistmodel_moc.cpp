@@ -169,11 +169,11 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 {
 	static const QString header[ModFields::COUNT] =
 	{
-		QT_TR_NOOP("Name"),
-		QT_TR_NOOP(""), // status icon
-		QT_TR_NOOP(""), // status icon
-		QT_TR_NOOP("Type"),
-		QT_TR_NOOP("Version"),
+		QT_TRANSLATE_NOOP("ModFields", "Name"),
+		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
+		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
+		QT_TRANSLATE_NOOP("ModFields", "Type"),
+		QT_TRANSLATE_NOOP("ModFields", "Version"),
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)

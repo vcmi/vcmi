@@ -17,14 +17,20 @@
 
 QString CModEntry::sizeToString(double size)
 {
-	static const std::array<QString, 5> sizes { "%1 B", "%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB" };
+	static const std::array sizes {
+		QT_TRANSLATE_NOOP("File size", "%1 B"),
+		QT_TRANSLATE_NOOP("File size", "%1 KiB"),
+		QT_TRANSLATE_NOOP("File size", "%1 MiB"),
+		QT_TRANSLATE_NOOP("File size", "%1 GiB"),
+		QT_TRANSLATE_NOOP("File size", "%1 TiB")
+	};
 	size_t index = 0;
 	while(size > 1024 && index < sizes.size())
 	{
 		size /= 1024;
 		index++;
 	}
-	return sizes[index].arg(QString::number(size, 'f', 1));
+	return QCoreApplication::translate("File size", sizes[index]).arg(QString::number(size, 'f', 1));
 }
 
 CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname)
