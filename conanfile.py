@@ -87,24 +87,58 @@ class VCMI(ConanFile):
         self.options["boost"].without_type_erasure = True
         self.options["boost"].without_wave = True
 
+        self.options["ffmpeg"].disable_all_bitstream_filters = True
+        self.options["ffmpeg"].disable_all_filters = True
+        self.options["ffmpeg"].disable_all_muxers = True
+        self.options["ffmpeg"].disable_all_hardware_accelerators = True
+        self.options["ffmpeg"].disable_all_protocols = True
+        self.options["ffmpeg"].disable_all_encoders = True
+        self.options["ffmpeg"].disable_all_decoders = True
+        self.options["ffmpeg"].disable_all_parsers = True
+        self.options["ffmpeg"].disable_all_demuxers = True
         self.options["ffmpeg"].avdevice = False
-        self.options["ffmpeg"].avfilter = False
         self.options["ffmpeg"].postproc = False
-        self.options["ffmpeg"].swresample = False
-        self.options["ffmpeg"].with_asm = self.settings.os != "Android"
+        self.options["ffmpeg"].with_asm = False
+        self.options["ffmpeg"].with_zlib = False
+        self.options["ffmpeg"].with_bzip2 = False
+        self.options["ffmpeg"].with_lzma = False
+        self.options["ffmpeg"].with_libiconv = False
         self.options["ffmpeg"].with_freetype = False
-        self.options["ffmpeg"].with_libfdk_aac = False
-        self.options["ffmpeg"].with_libmp3lame = False
-        self.options["ffmpeg"].with_libvpx = False
-        self.options["ffmpeg"].with_libwebp = False
+        self.options["ffmpeg"].with_openjpeg = False
+        self.options["ffmpeg"].with_openh264 = False
+        self.options["ffmpeg"].with_opus = False
+        self.options["ffmpeg"].with_vorbis = False
         self.options["ffmpeg"].with_libx264 = False
         self.options["ffmpeg"].with_libx265 = False
-        self.options["ffmpeg"].with_openh264 = False
-        self.options["ffmpeg"].with_openjpeg = False
-        self.options["ffmpeg"].with_opus = False
-        self.options["ffmpeg"].with_programs = False
+        self.options["ffmpeg"].with_libvpx = False
+        self.options["ffmpeg"].with_libmp3lame = False
+        self.options["ffmpeg"].with_libfdk_aac = False
+        self.options["ffmpeg"].with_libwebp = False
         self.options["ffmpeg"].with_ssl = False
-        self.options["ffmpeg"].with_vorbis = False
+
+        self.options["ffmpeg"].avcodec = True
+        self.options["ffmpeg"].avformat = True
+        self.options["ffmpeg"].swscale = True
+        # We want following options supported:
+        # H3:SoD - .bik and .smk
+        # H3:HD  -  ogg container / theora video / vorbis sound
+        # and for mods - webm container / vp9 video / opus sound
+        self.options["ffmpeg"].enable_protocols = "file"
+        self.options["ffmpeg"].enable_demuxers = "bink,binka,ogg,smacker,webm_dash_manifest"
+        self.options["ffmpeg"].enable_parsers = "opus,ogg,vorbis,vp9,webp"
+        self.options["ffmpeg"].enable_decoders = "bink,binkaudio_dct,binkaudio_rdft,smackaud,smacker,theora,vorbis,vp9,opus"
+
+        self.options["ffmpeg"].with_programs = False
+        self.options["ffmpeg"].avfilter = False
+        self.options["ffmpeg"].swresample = False #Note: we might want to enable this option to allow audio resampling
+        self.options["ffmpeg"].with_sdl = False
+
+        #optionally, for testing - enable ffplay/ffprobe binaries in conan package:
+        #self.options["ffmpeg"].with_programs = True
+        #self.options["ffmpeg"].avfilter = True
+        #self.options["ffmpeg"].swresample = True
+        #self.options["ffmpeg"].with_sdl = True
+        #self.options["ffmpeg"].enable_filters = "aresample,scale"
 
         self.options["sdl"].sdl2main = self.settings.os != "iOS"
         self.options["sdl"].vulkan = False
