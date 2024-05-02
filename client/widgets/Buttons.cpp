@@ -13,7 +13,6 @@
 #include "Images.h"
 #include "TextControls.h"
 
-#include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
@@ -23,6 +22,7 @@
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../gui/InterfaceObjectConfigurable.h"
+#include "../media/ISoundPlayer.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"

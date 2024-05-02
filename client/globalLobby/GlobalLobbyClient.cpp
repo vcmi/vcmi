@@ -17,11 +17,11 @@
 #include "GlobalLobbyWindow.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
+#include "../media/ISoundPlayer.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CConfigHandler.h"

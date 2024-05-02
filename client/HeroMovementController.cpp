@@ -11,7 +11,6 @@
 #include "HeroMovementController.h"
 
 #include "CGameInfo.h"
-#include "CMusicHandler.h"
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "adventureMap/AdventureMapInterface.h"
@@ -19,10 +18,12 @@
 #include "gui/CGuiHandler.h"
 #include "gui/CursorHandler.h"
 #include "mapView/mapHandler.h"
+#include "media/ISoundPlayer.h"
 
 #include "../CCallback.h"
 
 #include "../lib/CondSh.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/networkPacks/PacksForClient.h"

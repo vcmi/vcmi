@@ -36,21 +36,21 @@ class CMap;
 VCMI_LIB_NAMESPACE_END
 
 class CMapHandler;
-class CSoundHandler;
-class CMusicHandler;
+class ISoundPlayer;
+class IMusicPlayer;
 class CursorHandler;
-class IMainVideoPlayer;
+class IVideoPlayer;
 class CServerHandler;
 
 //a class for non-mechanical client GUI classes
 class CClientState
 {
 public:
-	CSoundHandler * soundh;
-	CMusicHandler * musich;
+	ISoundPlayer * soundh;
+	IMusicPlayer * musich;
 	CConsoleHandler * consoleh;
 	CursorHandler * curh;
-	IMainVideoPlayer * videoh;
+	IVideoPlayer * videoh;
 };
 extern CClientState * CCS;
 

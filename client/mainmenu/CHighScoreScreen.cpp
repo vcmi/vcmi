@@ -14,6 +14,9 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
+#include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
+#include "../media/IVideoPlayer.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/Images.h"
@@ -23,8 +26,6 @@
 #include "../render/Canvas.h"
 
 #include "../CGameInfo.h"
-#include "../CVideoHandler.h"
-#include "../CMusicHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"

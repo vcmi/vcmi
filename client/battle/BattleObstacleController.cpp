@@ -17,10 +17,10 @@
 #include "BattleRenderer.h"
 #include "CreatureAnimation.h"
 
-#include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 

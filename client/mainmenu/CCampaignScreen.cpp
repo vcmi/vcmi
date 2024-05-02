@@ -14,12 +14,12 @@
 #include "CMainMenu.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../media/IMusicPlayer.h"
+#include "../media/IVideoPlayer.h"
 #include "../render/Canvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -36,7 +36,7 @@
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
-
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"

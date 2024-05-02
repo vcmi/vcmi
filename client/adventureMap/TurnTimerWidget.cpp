@@ -11,11 +11,11 @@
 #include "TurnTimerWidget.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleStacksController.h"
 #include "../gui/CGuiHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/Graphics.h"
 #include "../widgets/Images.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"

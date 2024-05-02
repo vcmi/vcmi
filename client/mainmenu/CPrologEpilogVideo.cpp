@@ -12,8 +12,9 @@
 
 #include "CPrologEpilogVideo.h"
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
+#include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
+#include "../media/IVideoPlayer.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/FramerateManager.h"

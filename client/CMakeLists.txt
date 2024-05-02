@@ -75,6 +75,11 @@ set(client_SRCS
 	mapView/MapViewModel.cpp
 	mapView/mapHandler.cpp
 
+	media/CAudioBase.cpp
+	media/CMusicHandler.cpp
+	media/CSoundHandler.cpp
+	media/CVideoHandler.cpp
+
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
 	render/CDefFile.cpp
@@ -163,11 +168,9 @@ set(client_SRCS
 
 	CGameInfo.cpp
 	CMT.cpp
-	CMusicHandler.cpp
 	CPlayerInterface.cpp
 	PlayerLocalState.cpp
 	CServerHandler.cpp
-	CVideoHandler.cpp
 	Client.cpp
 	ClientCommandManager.cpp
 	GameChatHandler.cpp
@@ -259,6 +262,15 @@ set(client_HEADERS
 	mapView/MapViewController.h
 	mapView/MapViewModel.h
 	mapView/mapHandler.h
+
+	media/CAudioBase.h
+	media/CEmptyVideoPlayer.h
+	media/CMusicHandler.h
+	media/CSoundHandler.h
+	media/CVideoHandler.h
+	media/IMusicPlayer.h
+	media/ISoundPlayer.h
+	media/IVideoPlayer.h
 
 	render/CAnimation.h
 	render/CBitmapHandler.h
@@ -357,11 +369,9 @@ set(client_HEADERS
 
 	CGameInfo.h
 	CMT.h
-	CMusicHandler.h
 	CPlayerInterface.h
 	PlayerLocalState.h
 	CServerHandler.h
-	CVideoHandler.h
 	Client.h
 	ClientCommandManager.h
 	ClientNetPackVisitors.h

@@ -19,14 +19,14 @@
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../Client.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../CVideoHandler.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+
+#include "../media/IVideoPlayer.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
@@ -58,6 +58,7 @@
 #include "../lib/GameSettings.h"
 #include "../lib/CondSh.h"
 #include "../lib/CSkillHandler.h"
+#include "../lib/CSoundBase.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/TextOperations.h"
 

@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CVideoHandler.h"
 
+#ifndef DISABLE_VIDEO
+
 #include "CMT.h"
 #include "gui/CGuiHandler.h"
 #include "eventsSDL/InputHandler.h"
@@ -20,8 +22,6 @@
 #include "../lib/filesystem/CInputStream.h"
 
 #include <SDL_render.h>
-
-#ifndef DISABLE_VIDEO
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -43,7 +43,7 @@ static int lodRead(void* opaque, uint8_t* buf, int size)
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
 	int bytes = static_cast<int>(video->data->read(buf, size));
 	if(bytes == 0)
-    	return AVERROR_EOF;
+		return AVERROR_EOF;
 
 	return bytes;
 }
@@ -64,7 +64,7 @@ static int lodReadAudio(void* opaque, uint8_t* buf, int size)
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
 	int bytes = static_cast<int>(video->dataAudio->read(buf, size));
 	if(bytes == 0)
-    	return AVERROR_EOF;
+		return AVERROR_EOF;
 
 	return bytes;
 }
@@ -97,7 +97,7 @@ CVideoPlayer::CVideoPlayer()
 
 bool CVideoPlayer::open(const VideoPath & fname, bool scale)
 {
-	return open(fname, true, false);
+	return open(fname, true, false, false);
 }
 
 // loop = to loop through the video
@@ -395,7 +395,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 			if(onVideoRestart)
 				onVideoRestart();
 			VideoPath filenameToReopen = fname; // create copy to backup this->fname
-			open(filenameToReopen);
+			open(filenameToReopen, false);
 			nextFrame();
 
 			// The y position is wrong at the first frame.

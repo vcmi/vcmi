@@ -12,9 +12,10 @@
 
 #include "../CCallback.h"
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../mapView/mapHandler.h"
+#include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
 
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
