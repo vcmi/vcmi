@@ -335,13 +335,13 @@
 
 	"vcmi.optionsTab.simturns.select" : "Selecionar turnos simultâneos",
 	"vcmi.optionsTab.simturns.none" : "Sem turnos simultâneos",
-	"vcmi.optionsTab.simturns.tillContactMax" : "Turnos simultâneos: Até o contato",
-	"vcmi.optionsTab.simturns.tillContact1" : "Turnos simultâneos: 1 semana, interromper no contato",
-	"vcmi.optionsTab.simturns.tillContact2" : "Turnos simultâneos: 2 semanas, interromper no contato",
-	"vcmi.optionsTab.simturns.tillContact4" : "Turnos simultâneos: 1 mês, interromper no contato",
-	"vcmi.optionsTab.simturns.blocked1" : "Turnos simultâneos: 1 semana, contatos bloqueados",
-	"vcmi.optionsTab.simturns.blocked2" : "Turnos simultâneos: 2 semanas, contatos bloqueados",
-	"vcmi.optionsTab.simturns.blocked4" : "Turnos simultâneos: 1 mês, contatos bloqueados",
+	"vcmi.optionsTab.simturns.tillContactMax" : "Simultâneos até o contato",
+	"vcmi.optionsTab.simturns.tillContact1" : "Por 1 semana e parar no contato",
+	"vcmi.optionsTab.simturns.tillContact2" : "Por 2 semanas e parar no contato",
+	"vcmi.optionsTab.simturns.tillContact4" : "Por 1 mês e parar no contato",
+	"vcmi.optionsTab.simturns.blocked1" : "Por 1 semana, contatos bloqueados",
+	"vcmi.optionsTab.simturns.blocked2" : "Por 2 semanas, contatos bloqueados",
+	"vcmi.optionsTab.simturns.blocked4" : "Por 1 mês, contatos bloqueados",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -478,7 +478,7 @@
 	"core.bonus.DEFENSIVE_STANCE.description" : "+${val} de defesa ao se defender",
 	"core.bonus.DESTRUCTION.name" : "Destruição",
 	"core.bonus.DESTRUCTION.description" : "Tem ${val}% de chance de matar unidades extras após o ataque",
-	"core.bonus.DOUBLE_DAMAGE_CHANCE.name" : "Golpe de Morte",
+	"core.bonus.DOUBLE_DAMAGE_CHANCE.name" : "Golpe Mortal",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description" : "Tem ${val}% de chance de causar o dobro do dano base ao atacar",
 	"core.bonus.DRAGON_NATURE.name" : "Dragão",
 	"core.bonus.DRAGON_NATURE.description" : "A criatura possui Natureza de Dragão",
