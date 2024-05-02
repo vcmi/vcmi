@@ -341,7 +341,13 @@ void FirstLaunchView::extractGogData()
 
 			o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
 
-			process_file(tmpFileExe.toStdString(), o);
+			this->setEnabled(false);
+			process_file(tmpFileExe.toStdString(), o, [this](float percent) {
+				ui->pushButtonGogInstall->setText(tr("Installing...") + " " + QString::number(static_cast<int>(percent * 100)) + "%");
+				ui->pushButtonGogInstall->update();
+				qApp->processEvents();
+			});
+			this->setEnabled(true);
 
 			QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
 			if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
