@@ -27,9 +27,7 @@
 		[
 			{"type" : "snd", "path" : "Data/H3ab_ahd.snd"},
 			{"type" : "snd", "path" : "Data/Heroes3.snd"},
-			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"},
-			//WoG have overridden sounds with .82m extension in Data
-			{"type" : "dir",  "path" : "Data", "depth": 0}
+			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"}
 		],
 		"MUSIC/":
 		[
