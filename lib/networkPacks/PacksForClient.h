@@ -73,7 +73,7 @@ struct DLL_LINKAGE PackageApplied : public CPackForClient
 
 struct DLL_LINKAGE SystemMessage : public CPackForClient
 {
-	explicit SystemMessage(std::string Text)
+	explicit SystemMessage(MetaString Text)
 		: text(std::move(Text))
 	{
 	}
@@ -81,7 +81,7 @@ struct DLL_LINKAGE SystemMessage : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	std::string text;
+	MetaString text;
 
 	template <typename Handler> void serialize(Handler & h)
 	{

@@ -16,6 +16,7 @@
 #include "processors/PlayerMessageProcessor.h"
 
 #include "../lib/CHeroHandler.h"
+#include "../lib/MetaString.h"
 #include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/serializer/Connection.h"
@@ -378,21 +379,35 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 	applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
 }
 
+void CVCMIServer::announceMessage(MetaString txt)
+{
+	logNetwork->info("Show message: %s", txt.toString());
+	auto cm = std::make_unique<LobbyShowMessage>();
+	cm->message = txt;
+	announcePack(std::move(cm));
+}
+
 void CVCMIServer::announceMessage(const std::string & txt)
 {
-	logNetwork->info("Show message: %s", txt);
-	auto cm = std::make_unique<LobbyShowMessage>();
+	MetaString str;
+	str.appendRawString(txt);
+	announceMessage(str);
+}
+
+void CVCMIServer::announceTxt(MetaString txt, const std::string & playerName)
+{
+	logNetwork->info("%s says: %s", playerName, txt.toString());
+	auto cm = std::make_unique<LobbyChatMessage>();
+	cm->playerName = playerName;
 	cm->message = txt;
 	announcePack(std::move(cm));
 }
 
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
 {
-	logNetwork->info("%s says: %s", playerName, txt);
-	auto cm = std::make_unique<LobbyChatMessage>();
-	cm->playerName = playerName;
-	cm->message = txt;
-	announcePack(std::move(cm));
+	MetaString str;
+	str.appendRawString(txt);
+	announceTxt(str, playerName);
 }
 
 bool CVCMIServer::passHost(int toConnectionId)

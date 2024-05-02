@@ -47,7 +47,9 @@ void GameChatHandler::sendMessageGameplay(const std::string & messageText)
 void GameChatHandler::sendMessageLobby(const std::string & senderName, const std::string & messageText)
 {
 	LobbyChatMessage lcm;
-	lcm.message = messageText;
+	MetaString txt;
+	txt.appendRawString(messageText);
+	lcm.message = txt;
 	lcm.playerName = senderName;
 	CSH->sendLobbyPack(lcm);
 	CSH->getGlobalLobby().sendMatchChatMessage(messageText);
@@ -63,8 +65,6 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 
 	auto * lobby = dynamic_cast<CLobbyScreen*>(SEL);
 
-	std::string messageTextReplaced = translationReplace(messageText);
-
 	// FIXME: when can this happen?
 	assert(lobby);
 	assert(lobby->card);
@@ -74,14 +74,14 @@ void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, 
 		MetaString formatted = MetaString::createFromRawString("[%s] %s: %s");
 		formatted.replaceRawString(TextOperations::getCurrentFormattedTimeLocal());
 		formatted.replaceRawString(senderName);
-		formatted.replaceRawString(messageTextReplaced);
+		formatted.replaceRawString(messageText);
 
 		lobby->card->chat->addNewMessage(formatted.toString());
 		if (!lobby->card->showChat)
 				lobby->toggleChat();
 	}
 
-	chatHistory.push_back({senderName, messageTextReplaced, TextOperations::getCurrentFormattedTimeLocal()});
+	chatHistory.push_back({senderName, messageText, TextOperations::getCurrentFormattedTimeLocal()});
 }
 
 void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::string & messageText)
@@ -90,43 +90,21 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 	std::string timeFormatted = TextOperations::getCurrentFormattedTimeLocal();
 	std::string playerName = "<UNKNOWN>";
 
-	std::string messageTextReplaced = translationReplace(messageText);
-
 	if (sender.isValidPlayer())
 		playerName = LOCPLINT->cb->getStartInfo()->playerInfos.at(sender).name;
 
 	if (sender.isSpectator())
 		playerName = "Spectator"; // FIXME: translate? Provide nickname somewhere?
 
-	chatHistory.push_back({playerName, messageTextReplaced, timeFormatted});
+	chatHistory.push_back({playerName, messageText, timeFormatted});
 
-	LOCPLINT->cingconsole->addMessage(timeFormatted, playerName, messageTextReplaced);
+	LOCPLINT->cingconsole->addMessage(timeFormatted, playerName, messageText);
 }
 
 void GameChatHandler::onNewSystemMessageReceived(const std::string & messageText)
 {
-	std::string messageTextReplaced = translationReplace(messageText);
-
-	chatHistory.push_back({"System", messageTextReplaced, TextOperations::getCurrentFormattedTimeLocal()});
+	chatHistory.push_back({"System", messageText, TextOperations::getCurrentFormattedTimeLocal()});
 
 	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
-		LOCPLINT->cingconsole->addMessage(TextOperations::getCurrentFormattedTimeLocal(), "System", messageTextReplaced);
-}
-
-std::string GameChatHandler::translationReplace(std::string txt)
-{
-	std::regex expr("~~([\\w\\d\\.]+)~~");
-	std::string result = "";
-	std::string tmp_suffix = "";
-	std::smatch match;
-	std::string::const_iterator searchStart( txt.cbegin() );
-	while(std::regex_search(searchStart, txt.cend(), match, expr) )
-	{
-		result += match.prefix();
-		result += VLC->generaltexth->translate(match.str(1));
-		
-		searchStart = match.suffix().first;
-		tmp_suffix = match.suffix();
-	}
-	return result.empty() ? txt : result + tmp_suffix;
+		LOCPLINT->cingconsole->addMessage(TextOperations::getCurrentFormattedTimeLocal(), "System", messageText);
 }

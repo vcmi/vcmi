@@ -389,17 +389,33 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 	std::vector<FactionID> randomFaction2;
 	std::sample(allowedTowns.begin(), allowedTowns.end(), std::back_inserter(randomFaction2), 1, std::mt19937{std::random_device{}()});
 
+	MetaString txt;
+
 	switch(pack.action) {
 		case LobbyPvPAction::COIN:
-			srv.announceTxt("~~vcmi.lobby.pvp.coin.hover~~ - " + std::to_string(std::rand()%2));
+			txt.appendTextID("vcmi.lobby.pvp.coin.hover");
+			txt.appendRawString(" - " + std::to_string(std::rand()%2));
+			srv.announceTxt(txt);
 			break;
 		case LobbyPvPAction::RANDOM_TOWN:
-			if(allowedTowns.size())
-				srv.announceTxt("~~core.overview.3~~ - ~~" + VLC->townh->getById(randomFaction1[0])->getNameTextID() + "~~");
+			if(!allowedTowns.size())
+				break;
+			txt.appendTextID("core.overview.3");
+			txt.appendRawString(" - ");
+			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			srv.announceTxt(txt);
 			break;
 		case LobbyPvPAction::RANDOM_TOWN_VS:
-			if(allowedTowns.size())
-				srv.announceTxt("~~core.overview.3~~ - ~~" + VLC->townh->getById(randomFaction1[0])->getNameTextID() + "~~ ~~vcmi.lobby.pvp.versus~~ ~~" + VLC->townh->getById(randomFaction2[0])->getNameTextID() + "~~");
+			if(!allowedTowns.size())
+				break;
+			txt.appendTextID("core.overview.3");
+			txt.appendRawString(" - ");
+			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			txt.appendRawString(" ");
+			txt.appendTextID("vcmi.lobby.pvp.versus");
+			txt.appendRawString(" ");
+			txt.appendTextID(VLC->townh->getById(randomFaction2[0])->getNameTextID());
+			srv.announceTxt(txt);
 			break;
 	}
 	result = true;
