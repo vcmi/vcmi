@@ -444,12 +444,11 @@ TownSelector::TownSelector(const Point & loc)
 	setRedrawParent(true);
 
 	int count = 0;
-	CGI->factions()->forEach([this, &count](const Faction *entity, bool &stop){
-		if(!entity->hasTown())
-			return;
-		townsEnabled[entity->getFaction()] = true;
+	for(auto const & factionID : VLC->townh->getDefaultAllowed())
+	{
+		townsEnabled[factionID] = true;
 		count++;
-	});
+	};
 
 	auto divisionRoundUp = [](int x, int y){ return (x + (y - 1)) / y; };
 
@@ -472,7 +471,8 @@ void TownSelector::updateListItems()
 	towns.clear();
 	townsArea.clear();
 
-	int x = 0, y = 0;
+	int x = 0;
+	int y = 0;
 	CGI->factions()->forEach([this, &x, &y, line, x_offset](const Faction *entity, bool &stop){
 		if(!entity->hasTown())
 			return;

@@ -380,13 +380,9 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 {
 	std::vector<FactionID> allowedTowns;
 
-	VLC->townh->forEach([pack, &allowedTowns](const Faction *entity, bool &stop){
-		if(!entity->hasTown())
-			return;
-		if(std::find(pack.bannedTowns.begin(), pack.bannedTowns.end(), entity->getId()) == pack.bannedTowns.end()) {
-			allowedTowns.push_back(entity->getId());
-		}
-	});
+	for (auto const & factionID : VLC->townh->getDefaultAllowed())
+		if(std::find(pack.bannedTowns.begin(), pack.bannedTowns.end(), factionID) == pack.bannedTowns.end())
+			allowedTowns.push_back(factionID);
 
 	std::vector<FactionID> randomFaction1;
 	std::sample(allowedTowns.begin(), allowedTowns.end(), std::back_inserter(randomFaction1), 1, std::mt19937{std::random_device{}()});
