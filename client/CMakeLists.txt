@@ -131,6 +131,7 @@ set(client_SRCS
 	widgets/CArtifactsOfHeroMarket.cpp
 	widgets/CArtifactsOfHeroBackpack.cpp
 	widgets/RadialMenu.cpp
+	widgets/VideoWidget.cpp
 	widgets/markets/CAltarArtifacts.cpp
 	widgets/markets/CAltarCreatures.cpp
 	widgets/markets/CArtifactsBuying.cpp
@@ -332,6 +333,7 @@ set(client_HEADERS
 	widgets/CArtifactsOfHeroMarket.h
 	widgets/CArtifactsOfHeroBackpack.h
 	widgets/RadialMenu.h
+	widgets/VideoWidget.h
 	widgets/markets/CAltarArtifacts.h
 	widgets/markets/CAltarCreatures.h
 	widgets/markets/CArtifactsBuying.h

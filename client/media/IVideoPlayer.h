@@ -31,9 +31,6 @@ public:
 	virtual bool nextFrame()=0;
 	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
 	virtual void redraw(int x, int y, SDL_Surface *dst, bool update = true)=0; //reblits buffer
-	virtual bool wait()=0;
-	virtual int curFrame() const =0;
-	virtual int frameCount() const =0;
 	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> restart = nullptr) = 0;
 	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, EVideoType videoType) = 0;
 	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) = 0;

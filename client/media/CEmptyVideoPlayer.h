@@ -15,13 +15,10 @@
 class CEmptyVideoPlayer final : public IVideoPlayer
 {
 public:
-	int curFrame() const override {return -1;};
-	int frameCount() const override {return -1;};
 	void redraw( int x, int y, SDL_Surface *dst, bool update) override {};
 	void show( int x, int y, SDL_Surface *dst, bool update) override {};
 	bool nextFrame() override {return false;};
 	void close() override {};
-	bool wait() override {return false;};
 	bool open(const VideoPath & name, bool scale) override {return false;};
 	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update, std::function<void()> restart) override {}
 	bool openAndPlayVideo(const VideoPath & name, int x, int y, EVideoType videoType) override { return false; }

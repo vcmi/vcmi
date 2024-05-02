@@ -26,8 +26,6 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 
-#include "../media/IVideoPlayer.h"
-
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/CreatureCostBox.h"
@@ -36,6 +34,7 @@
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/VideoWidget.h"
 
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
@@ -516,11 +515,11 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 			recruit->block(true);
 	}
 	if(LOCPLINT->castleInt)
-		CCS->videoh->open(LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
 	else if(const auto * townObj = dynamic_cast<const CGTownInstance *>(TavernObj))
-		CCS->videoh->open(townObj->town->clientInfo.tavernVideo);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->town->clientInfo.tavernVideo);
 	else
-		CCS->videoh->open(VideoPath::builtin("TAVERN.BIK"));
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), VideoPath::builtin("TAVERN.BIK"));
 
 	addInvite();
 }
@@ -573,11 +572,6 @@ void CTavernWindow::close()
 	CStatusbarWindow::close();
 }
 
-CTavernWindow::~CTavernWindow()
-{
-	CCS->videoh->close();
-}
-
 void CTavernWindow::show(Canvas & to)
 {
 	CWindowObject::show(to);
@@ -601,8 +595,6 @@ void CTavernWindow::show(Canvas & to)
 
 		to.drawBorder(Rect::createAround(sel->pos, 2), Colors::BRIGHT_YELLOW, 2);
 	}
-
-	CCS->videoh->update(pos.x+70, pos.y+56, to.getInternalSurface(), true, false);
 }
 
 void CTavernWindow::HeroPortrait::clickPressed(const Point & cursorPosition)

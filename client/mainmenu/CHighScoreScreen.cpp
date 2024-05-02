@@ -16,11 +16,11 @@
 #include "../gui/Shortcut.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
-#include "../media/IVideoPlayer.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/Images.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
 #include "../render/Canvas.h"
@@ -217,7 +217,7 @@ void CHighScoreScreen::buttonExitClick()
 }
 
 CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc)
-	: CWindowObject(BORDERED), won(won), calc(calc), videoSoundHandle(-1)
+	: CWindowObject(BORDERED), won(won), calc(calc)
 {
 	addUsedEvents(LCLICK | KEYBOARD);
 
@@ -229,6 +229,8 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 
 	if(won)
 	{
+		videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), VideoPath::builtin("HSANIM.SMK"), VideoPath::builtin("HSLOOP.SMK"));
+
 		int border = 100;
 		int textareaW = ((pos.w - 2 * border) / 4);
 		std::vector<std::string> t = { "438", "439", "440", "441", "676" }; // time, score, difficulty, final score, rank
@@ -243,9 +245,10 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 		CCS->musich->playMusic(AudioPath::builtin("music/Win Scenario"), true, true);
 	}
 	else
+	{
+		videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), VideoPath::builtin("HSANIM.SMK"), VideoPath::builtin("LOSEGAME.SMK"));
 		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
-
-	video = won ? "HSANIM.SMK" : "LOSEGAME.SMK";
+	}
 }
 
 int CHighScoreInputScreen::addEntry(std::string text) {
@@ -286,47 +289,6 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	s->Vector() = baseNode;
 
 	return pos;
-}
-
-void CHighScoreInputScreen::show(Canvas & to)
-{
-	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false,
-	[&]()
-	{
-		if(won)
-		{
-			CCS->videoh->close();
-			video = "HSLOOP.SMK";
-			auto audioData = CCS->videoh->getAudio(VideoPath::builtin(video));
-			videoSoundHandle = CCS->soundh->playSound(audioData);
-			CCS->videoh->open(VideoPath::builtin(video));
-		}
-		else
-			close();
-	});
-	redraw();
-
-	CIntObject::show(to);
-}
-
-void CHighScoreInputScreen::activate()
-{
-	auto audioData = CCS->videoh->getAudio(VideoPath::builtin(video));
-	videoSoundHandle = CCS->soundh->playSound(audioData);
-	if(!CCS->videoh->open(VideoPath::builtin(video)))
-	{
-		if(!won)
-			close();
-	}
-	else
-		background = nullptr;
-	CIntObject::activate();
-}
-
-void CHighScoreInputScreen::deactivate()
-{
-	CCS->videoh->close();
-	CCS->soundh->stopSound(videoSoundHandle);
 }
 
 void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)

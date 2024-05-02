@@ -14,13 +14,12 @@
 #include "../CGameInfo.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
-#include "../media/IVideoPlayer.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/FramerateManager.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../render/Canvas.h"
-
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
 	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback), elapsedTimeMilliseconds(0)
@@ -30,9 +29,12 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
-	auto audioData = CCS->videoh->getAudio(spe.prologVideo);
-	videoSoundHandle = CCS->soundh->playSound(audioData, -1);
-	CCS->videoh->open(spe.prologVideo);
+	videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), spe.prologVideo);
+
+	//some videos are 800x600 in size while some are 800x400
+	if (videoPlayer->pos.h == 400)
+		videoPlayer->moveBy(Point(0, 100));
+
 	CCS->musich->playMusic(spe.prologMusic, true, true);
 	voiceDurationMilliseconds = CCS->soundh->getSoundDurationMilliseconds(spe.prologVoice);
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
@@ -66,9 +68,8 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 void CPrologEpilogVideo::show(Canvas & to)
 {
 	to.drawColor(pos, Colors::BLACK);
-	//some videos are 800x600 in size while some are 800x400
-	CCS->videoh->update(pos.x, pos.y + (CCS->videoh->size().y == 400 ? 100 : 0), to.getInternalSurface(), true, false);
 
+	videoPlayer->show(to);
 	text->showAll(to); // blit text over video, if needed
 }
 

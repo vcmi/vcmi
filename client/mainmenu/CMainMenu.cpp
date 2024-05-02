@@ -18,7 +18,6 @@
 #include "../lobby/CSelectionBase.h"
 #include "../lobby/CLobbyScreen.h"
 #include "../media/IMusicPlayer.h"
-#include "../media/IVideoPlayer.h"
 #include "../gui/CursorHandler.h"
 #include "../windows/GUIClasses.h"
 #include "../gui/CGuiHandler.h"
@@ -35,6 +34,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
 
@@ -92,8 +92,14 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	menuNameToEntry.push_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
-	if(config["video"].isNull())
+	if(!config["video"].isNull())
+	{
+		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
+		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]));
+	}
+	else
 		tabs->setRedrawParent(true);
+
 }
 
 std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
@@ -104,32 +110,10 @@ std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 		return std::make_shared<CMenuEntry>(this, config["items"].Vector()[index]);
 }
 
-void CMenuScreen::show(Canvas & to)
-{
-	if(!config["video"].isNull())
-	{
-		// redraw order: background -> video -> buttons and pictures
-		background->redraw();
-		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to.getInternalSurface(), true, false);
-		tabs->redraw();
-	}
-	CIntObject::show(to);
-}
-
 void CMenuScreen::activate()
 {
 	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
-	if(!config["video"].isNull())
-		CCS->videoh->open(VideoPath::fromJson(config["video"]["name"]));
 	CIntObject::activate();
-}
-
-void CMenuScreen::deactivate()
-{
-	if(!config["video"].isNull())
-		CCS->videoh->close();
-
-	CIntObject::deactivate();
 }
 
 void CMenuScreen::switchToTab(size_t index)

@@ -73,11 +73,6 @@ public:
 
 	Point size() override;
 
-	//TODO:
-	bool wait() override {return false;};
-	int curFrame() const override {return -1;};
-	int frameCount() const override {return -1;};
-
 	// public to allow access from ffmpeg IO functions
 	std::unique_ptr<CInputStream> data;
 	std::unique_ptr<CInputStream> dataAudio;
