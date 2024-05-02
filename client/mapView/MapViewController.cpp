@@ -298,7 +298,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (initiator != LOCPLINT->playerID)
+	if (initiator != LOCPLINT->playerID && initiator.isValidPlayer())
 	{
 		if (LOCPLINT->makingTurn)
 			return false;
@@ -324,7 +324,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (obj->getOwner() != LOCPLINT->playerID)
+	if (obj->getOwner() != LOCPLINT->playerID && obj->getOwner().isValidPlayer())
 	{
 		if (LOCPLINT->makingTurn)
 			return false;
