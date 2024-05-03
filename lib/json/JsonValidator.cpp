@@ -493,6 +493,7 @@ static std::string imageFile(const JsonNode & node)
 static std::string videoFile(const JsonNode & node)
 {
 	TEST_FILE(node.getModScope(), "Video/", node.String(), EResType::VIDEO);
+	TEST_FILE(node.getModScope(), "Video/", node.String(), EResType::VIDEO_LOW_QUALITY);
 	return "Video file \"" + node.String() + "\" was not found";
 }
 #undef TEST_FILE

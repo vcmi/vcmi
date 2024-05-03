@@ -61,14 +61,27 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 	throw std::runtime_error(errorMessage.data());
 }
 
-void CVideoInstance::open(const VideoPath & videoToOpen)
+static std::unique_ptr<CInputStream> findVideoData(const VideoPath & videoToOpen)
 {
 	if(CResourceHandler::get()->existsResource(videoToOpen))
-		state.actualPath = videoToOpen;
-	else
-		state.actualPath = videoToOpen.addPrefix("VIDEO/");
+		return CResourceHandler::get()->load(videoToOpen);
 
-	state.videoData = CResourceHandler::get()->load(state.actualPath);
+	auto highQualityVideoToOpenWithDir = videoToOpen.addPrefix("VIDEO/");
+	auto lowQualityVideo = videoToOpen.toType<EResType::VIDEO_LOW_QUALITY>();
+	auto lowQualityVideoWithDir = highQualityVideoToOpenWithDir.toType<EResType::VIDEO_LOW_QUALITY>();
+
+	if(CResourceHandler::get()->existsResource(highQualityVideoToOpenWithDir))
+		return CResourceHandler::get()->load(highQualityVideoToOpenWithDir);
+
+	if(CResourceHandler::get()->existsResource(lowQualityVideo))
+		return CResourceHandler::get()->load(lowQualityVideo);
+
+	return CResourceHandler::get()->load(lowQualityVideoWithDir);
+}
+
+void CVideoInstance::open(const VideoPath & videoToOpen)
+{
+	state.videoData = findVideoData(videoToOpen);
 
 	static const int BUFFER_SIZE = 4096;
 
