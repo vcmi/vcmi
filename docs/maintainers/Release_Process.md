@@ -18,7 +18,7 @@ Should be done immediately after start of stabilization stage for previous relea
 - Add all features and bugs that should be fixed as part of this release into this project
 
 ### Start of stabilization stage (major releases only)
-Should be done 2-4 weeks before planned release date. All major features should be finished at this point.
+Should be done 2 weeks before planned release date. All major features should be finished at this point.
 
 - Create `beta` branch from `develop`
 - Bump vcmi version in CMake on `develop` branch
@@ -37,9 +37,10 @@ Should be done 1 week before release. Release date should be decided at this poi
 - Make sure to announce codebase freeze deadline (1 day before release) to all developers
 - Create pull request for release preparation tasks targeting `beta`:
 - - Update [changelog](https://github.com/vcmi/vcmi/blob/develop/ChangeLog.md)
-- - Update release date for Linux packaging. See [example](https://github.com/vcmi/vcmi/pull/1258)
-- - Update build ID for Android packaging. See [example](https://github.com/vcmi/vcmi/pull/2090)
-- - Update downloads counter in readme.md. See [example](https://github.com/vcmi/vcmi/pull/2091)
+- - Update release date in `debian/changelog`
+- - Update release date in `launcher/eu.vcmi.VCMI.metainfo.xml`
+- - Update build ID `android/vcmi-app/build.gradle`
+- - Update downloads counter in `docs/readme.md`
 
 ### Release preparation stage
 Should be done 1 day before release. At this point beta branch is in full freeze.
