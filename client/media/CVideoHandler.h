@@ -36,7 +36,6 @@ struct FFMpegStreamState
 
 struct FFMpegFileState
 {
-	VideoPath actualPath;
 	std::unique_ptr<CInputStream> videoData;
 	AVIOContext * context = nullptr;
 	AVFormatContext * formatContext = nullptr;
@@ -46,7 +45,8 @@ struct FFMpegVideoOutput
 {
 	AVFrame * frame = nullptr;
 	struct SwsContext * sws = nullptr;
-	SDL_Texture * texture = nullptr;
+	SDL_Texture * textureRGB = nullptr;
+	SDL_Texture * textureYUV = nullptr;
 	SDL_Surface * surface = nullptr;
 	Point dimensions;
 

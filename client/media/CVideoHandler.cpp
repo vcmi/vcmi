@@ -170,9 +170,20 @@ void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput
 	// Allocate a place to put our YUV image on that screen
 	if (useTextureOutput)
 	{
-		output.texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING, output.dimensions.x, output.dimensions.y);
+		std::array potentialFormats = {
+			AV_PIX_FMT_YUV420P, // -> SDL_PIXELFORMAT_IYUV - most of H3 videos use YUV format, so it is preferred to save some space & conversion time
+			AV_PIX_FMT_RGB32,   // -> SDL_PIXELFORMAT_ARGB8888 - some .smk videos actually use palette, so RGB > YUV. This is also our screen texture format
+			AV_PIX_FMT_NONE
+		};
+
+		auto preferredFormat = avcodec_find_best_pix_fmt_of_list(potentialFormats.data(), video.codecContext->pix_fmt, false, nullptr);
+
+		if (preferredFormat == AV_PIX_FMT_YUV420P)
+			output.textureYUV = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING, output.dimensions.x, output.dimensions.y);
+		else
+			output.textureRGB = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, output.dimensions.x, output.dimensions.y);
 		output.sws = sws_getContext(video.codecContext->width, video.codecContext->height, video.codecContext->pix_fmt,
-							output.dimensions.x, output.dimensions.y, AV_PIX_FMT_YUV420P,
+							output.dimensions.x, output.dimensions.y, preferredFormat,
 							 SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 	else
@@ -213,17 +224,24 @@ bool CVideoInstance::nextFrame()
 			if(rc < 0)
 				throwFFmpegError(ret);
 
-			uint8_t * data[4];
-			int linesize[4];
+			uint8_t * data[4] = {};
+			int linesize[4] = {};
 
-			if(output.texture)
+			if(output.textureYUV)
 			{
 				av_image_alloc(data, linesize, output.dimensions.x, output.dimensions.y, AV_PIX_FMT_YUV420P, 1);
 				sws_scale(output.sws, output.frame->data, output.frame->linesize, 0, video.codecContext->height, data, linesize);
-				SDL_UpdateYUVTexture(output.texture, nullptr, data[0], linesize[0], data[1], linesize[1], data[2], linesize[2]);
+				SDL_UpdateYUVTexture(output.textureYUV, nullptr, data[0], linesize[0], data[1], linesize[1], data[2], linesize[2]);
 				av_freep(&data[0]);
 			}
-			else
+			if(output.textureRGB)
+			{
+				av_image_alloc(data, linesize, output.dimensions.x, output.dimensions.y, AV_PIX_FMT_RGB32, 1);
+				sws_scale(output.sws, output.frame->data, output.frame->linesize, 0, video.codecContext->height, data, linesize);
+				SDL_UpdateTexture(output.textureRGB, nullptr, data[0], linesize[0]);
+				av_freep(&data[0]);
+			}
+			if (output.surface)
 			{
 				// Avoid buffer overflow caused by sws_scale():
 				// http://trac.ffmpeg.org/ticket/9254
@@ -254,7 +272,8 @@ void CVideoInstance::close()
 	sws_freeContext(output.sws);
 	av_frame_free(&output.frame);
 
-	SDL_DestroyTexture(output.texture);
+	SDL_DestroyTexture(output.textureYUV);
+	SDL_DestroyTexture(output.textureRGB);
 	SDL_FreeSurface(output.surface);
 
 	// state.videoStream.codec???
@@ -427,7 +446,11 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		else
 			SDL_RenderClear(mainRenderer);
 
-		SDL_RenderCopy(mainRenderer, instance.output.texture, nullptr, &rect);
+		if (instance.output.textureYUV)
+			SDL_RenderCopy(mainRenderer, instance.output.textureYUV, nullptr, &rect);
+		else
+			SDL_RenderCopy(mainRenderer, instance.output.textureRGB, nullptr, &rect);
+
 		SDL_RenderPresent(mainRenderer);
 
 #if (LIBAVUTIL_VERSION_MAJOR < 58)
