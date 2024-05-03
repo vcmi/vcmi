@@ -18,6 +18,9 @@
 
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
+#include "../lib/CTownHandler.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -364,5 +367,56 @@ void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & p
 void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack)
 {
 	srv.si->playerInfos[pack.targetPlayerColor].connectedPlayerIDs.insert(pack.targetConnectedPlayer);
+	result = true;
+}
+
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
+{
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
+{
+	std::vector<FactionID> allowedTowns;
+
+	for (auto const & factionID : VLC->townh->getDefaultAllowed())
+		if(std::find(pack.bannedTowns.begin(), pack.bannedTowns.end(), factionID) == pack.bannedTowns.end())
+			allowedTowns.push_back(factionID);
+
+	std::vector<FactionID> randomFaction1;
+	std::sample(allowedTowns.begin(), allowedTowns.end(), std::back_inserter(randomFaction1), 1, std::mt19937{std::random_device{}()});
+	std::vector<FactionID> randomFaction2;
+	std::sample(allowedTowns.begin(), allowedTowns.end(), std::back_inserter(randomFaction2), 1, std::mt19937{std::random_device{}()});
+
+	MetaString txt;
+
+	switch(pack.action) {
+		case LobbyPvPAction::COIN:
+			txt.appendTextID("vcmi.lobby.pvp.coin.hover");
+			txt.appendRawString(" - " + std::to_string(std::rand()%2));
+			srv.announceTxt(txt);
+			break;
+		case LobbyPvPAction::RANDOM_TOWN:
+			if(!allowedTowns.size())
+				break;
+			txt.appendTextID("core.overview.3");
+			txt.appendRawString(" - ");
+			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			srv.announceTxt(txt);
+			break;
+		case LobbyPvPAction::RANDOM_TOWN_VS:
+			if(!allowedTowns.size())
+				break;
+			txt.appendTextID("core.overview.3");
+			txt.appendRawString(" - ");
+			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			txt.appendRawString(" ");
+			txt.appendTextID("vcmi.lobby.pvp.versus");
+			txt.appendRawString(" ");
+			txt.appendTextID(VLC->townh->getById(randomFaction2[0])->getNameTextID());
+			srv.announceTxt(txt);
+			break;
+	}
 	result = true;
 }

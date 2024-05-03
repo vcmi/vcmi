@@ -42,7 +42,11 @@ void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string
 	if (handleCheatCode(message, player, currObj))
 	{
 		if(!gameHandler->getPlayerSettings(player)->isControlledByAI())
-			broadcastSystemMessage(VLC->generaltexth->allTexts[260]);
+		{
+			MetaString txt;
+			txt.appendLocalString(EMetaText::GENERAL_TXT, 260);
+			broadcastSystemMessage(txt);
+		}			
 
 		if(!player.isSpectator())
 			gameHandler->checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
@@ -614,18 +618,32 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		callbacks.at(cheatName)();
 }
 
-void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
+void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, MetaString message)
 {
 	SystemMessage sm;
 	sm.text = message;
 	connection->sendPack(&sm);
 }
 
-void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)
+void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
+{
+	MetaString str;
+	str.appendRawString(message);
+	sendSystemMessage(connection, str);
+}
+
+void PlayerMessageProcessor::broadcastSystemMessage(MetaString message)
 {
 	SystemMessage sm;
 	sm.text = message;
 	gameHandler->sendToAllClients(&sm);
+}
+
+void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)
+{
+	MetaString str;
+	str.appendRawString(message);
+	broadcastSystemMessage(str);
 }
 
 void PlayerMessageProcessor::broadcastMessage(PlayerColor playerSender, const std::string & message)

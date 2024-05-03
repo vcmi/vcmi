@@ -11,6 +11,7 @@
 
 #include "StartInfo.h"
 #include "NetPacksBase.h"
+#include "../MetaString.h"
 
 class CServerHandler;
 class CVCMIServer;
@@ -73,7 +74,7 @@ struct DLL_LINKAGE LobbyClientDisconnected : public CLobbyPackToPropagate
 struct DLL_LINKAGE LobbyChatMessage : public CLobbyPackToPropagate
 {
 	std::string playerName;
-	std::string message;
+	MetaString message;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -333,13 +334,30 @@ struct DLL_LINKAGE LobbyForceSetPlayer : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbyShowMessage : public CLobbyPackToPropagate
 {
-	std::string message;
+	MetaString message;
 	
 	void visitTyped(ICPackVisitor & visitor) override;
 	
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & message;
+	}
+};
+
+struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
+{
+	enum EAction : ui8 {
+		NONE, COIN, RANDOM_TOWN, RANDOM_TOWN_VS
+	} action = NONE;
+	std::vector<FactionID> bannedTowns;
+
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & action;
+		h & bannedTowns;
 	}
 };
 

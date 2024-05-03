@@ -25,6 +25,8 @@
 #include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/MetaString.h"
+#include "../lib/VCMI_Lib.h"
+#include "../lib/CGeneralTextHandler.h"
 
 const std::vector<GameChatMessage> & GameChatHandler::getChatHistory() const
 {
@@ -45,7 +47,9 @@ void GameChatHandler::sendMessageGameplay(const std::string & messageText)
 void GameChatHandler::sendMessageLobby(const std::string & senderName, const std::string & messageText)
 {
 	LobbyChatMessage lcm;
-	lcm.message = messageText;
+	MetaString txt;
+	txt.appendRawString(messageText);
+	lcm.message = txt;
 	lcm.playerName = senderName;
 	CSH->sendLobbyPack(lcm);
 	CSH->getGlobalLobby().sendMatchChatMessage(messageText);
@@ -104,4 +108,3 @@ void GameChatHandler::onNewSystemMessageReceived(const std::string & messageText
 	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
 		LOCPLINT->cingconsole->addMessage(TextOperations::getCurrentFormattedTimeLocal(), "System", messageText);
 }
-

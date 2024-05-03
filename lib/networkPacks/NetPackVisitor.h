@@ -172,6 +172,7 @@ public:
 	virtual void visitLobbySetDifficulty(LobbySetDifficulty & pack) {}
 	virtual void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) {}
 	virtual void visitLobbyShowMessage(LobbyShowMessage & pack) {}
+	virtual void visitLobbyPvPAction(LobbyPvPAction & pack) {}
 };
 
 VCMI_LIB_NAMESPACE_END

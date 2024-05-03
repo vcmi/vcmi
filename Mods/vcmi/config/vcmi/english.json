@@ -125,6 +125,13 @@
 	"vcmi.lobby.mod.state.version" : "Version mismatch",
 	"vcmi.lobby.mod.state.excessive" : "Must be disabled",
 	"vcmi.lobby.mod.state.missing" : "Not installed",
+	"vcmi.lobby.pvp.coin.hover" : "Coin",
+	"vcmi.lobby.pvp.coin.help" : "Flips a coin",
+	"vcmi.lobby.pvp.randomTown.hover" : "Random town",
+	"vcmi.lobby.pvp.randomTown.help" : "Write a random town in the chat",
+	"vcmi.lobby.pvp.randomTownVs.hover" : "Random town vs.",
+	"vcmi.lobby.pvp.randomTownVs.help" : "Write two random towns in the chat",
+	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Invalid map or campaign}\n\nFailed to start game! Selected map or campaign might be invalid or corrupted. Reason:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Missing data files}\n\nCampaigns data files were not found! You may be using incomplete or corrupted Heroes 3 data files. Please reinstall game data.",

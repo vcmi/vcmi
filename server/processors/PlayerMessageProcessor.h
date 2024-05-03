@@ -15,6 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGTownInstance;
 class CConnection;
+class MetaString;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -51,9 +52,11 @@ public:
 	void playerMessage(PlayerColor player, const std::string & message, ObjectInstanceID currObj);
 
 	/// Send message to specific client with "System" as sender
+	void sendSystemMessage(std::shared_ptr<CConnection> connection, MetaString message);
 	void sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message);
 
 	/// Send message to all players with "System" as sender
+	void broadcastSystemMessage(MetaString message);
 	void broadcastSystemMessage(const std::string & message);
 
 	/// Send message from specific player to all other players
