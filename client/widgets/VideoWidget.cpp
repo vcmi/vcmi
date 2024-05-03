@@ -44,8 +44,8 @@ void VideoWidget::show(Canvas & to)
 
 void VideoWidget::activate()
 {
-	auto audioData = CCS->videoh->getAudio(current);
-	videoSoundHandle = CCS->soundh->playSound(audioData, -1);
+	if(videoInstance)
+		videoInstance->playAudio();
 
 	if(videoSoundHandle != -1)
 	{

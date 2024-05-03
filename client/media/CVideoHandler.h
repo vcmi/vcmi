@@ -29,16 +29,12 @@ VCMI_LIB_NAMESPACE_END
 
 struct FFMpegStreamState
 {
-	int streamIndex = -1;
-	const AVCodec * codec = nullptr;
-	AVCodecContext * codecContext = nullptr;
-};
-
-struct FFMpegFileState
-{
-	std::unique_ptr<CInputStream> videoData;
 	AVIOContext * context = nullptr;
 	AVFormatContext * formatContext = nullptr;
+
+	const AVCodec * codec = nullptr;
+	AVCodecContext * codecContext = nullptr;
+	int streamIndex = -1;
 };
 
 struct FFMpegVideoOutput
@@ -59,16 +55,20 @@ class CVideoInstance final : public IVideoInstance
 {
 	friend class CVideoPlayer;
 
-	FFMpegFileState state;
+	std::unique_ptr<CInputStream> input;
+
 	FFMpegStreamState video;
-	FFMpegStreamState audio;
 	FFMpegVideoOutput output;
 
 	void open(const VideoPath & fname);
-	void openStream(FFMpegStreamState & streamState, int streamIndex);
+	void openContext(FFMpegStreamState & streamState);
+	void openCodec(FFMpegStreamState & streamState, int streamIndex);
+	void openVideo();
 	void prepareOutput(bool scaleToScreenSize, bool useTextureOutput);
+
 	bool nextFrame();
 	void close();
+	void closeState(FFMpegStreamState & streamState);
 
 public:
 	~CVideoInstance();
@@ -78,6 +78,7 @@ public:
 
 	void show(const Point & position, Canvas & canvas) final;
 	void tick(uint32_t msPassed) final;
+	void playAudio() final;
 };
 
 class CVideoPlayer final : public IVideoPlayer
@@ -89,7 +90,6 @@ public:
 	bool playIntroVideo(const VideoPath & name) final;
 	void playSpellbookAnimation(const VideoPath & name, const Point & position) final;
 	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) final;
-	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) final;
 };
 
 #endif

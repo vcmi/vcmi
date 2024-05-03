@@ -12,6 +12,9 @@
 
 #ifndef DISABLE_VIDEO
 
+#include "ISoundPlayer.h"
+
+#include "../CGameInfo.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../eventsSDL/InputHandler.h"
@@ -81,12 +84,16 @@ static std::unique_ptr<CInputStream> findVideoData(const VideoPath & videoToOpen
 
 void CVideoInstance::open(const VideoPath & videoToOpen)
 {
-	state.videoData = findVideoData(videoToOpen);
+	input = findVideoData(videoToOpen);
+}
 
+void CVideoInstance::openContext(FFMpegStreamState & state)
+{
 	static const int BUFFER_SIZE = 4096;
+	input->seek(0);
 
 	auto * buffer = static_cast<unsigned char *>(av_malloc(BUFFER_SIZE)); // will be freed by ffmpeg
-	state.context = avio_alloc_context(buffer, BUFFER_SIZE, 0, state.videoData.get(), lodRead, nullptr, lodSeek);
+	state.context = avio_alloc_context(buffer, BUFFER_SIZE, 0, input.get(), lodRead, nullptr, lodSeek);
 
 	state.formatContext = avformat_alloc_context();
 	state.formatContext->pb = state.context;
@@ -101,49 +108,52 @@ void CVideoInstance::open(const VideoPath & videoToOpen)
 
 	if(avfopen < 0)
 		throwFFmpegError(findStreamInfo);
-
-	for(int i = 0; i < state.formatContext->nb_streams; i++)
-	{
-		if(state.formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && video.streamIndex == -1)
-		{
-			openStream(video, i);
-		}
-
-		if(state.formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && audio.streamIndex == -1)
-			openStream(audio, i);
-	}
 }
 
-void CVideoInstance::openStream(FFMpegStreamState & streamState, int streamIndex)
+void CVideoInstance::openCodec(FFMpegStreamState & state, int streamIndex)
 {
-	streamState.streamIndex = streamIndex;
+	state.streamIndex = streamIndex;
 
 	// Find the decoder for the stream
-	streamState.codec = avcodec_find_decoder(state.formatContext->streams[streamIndex]->codecpar->codec_id);
+	state.codec = avcodec_find_decoder(state.formatContext->streams[streamIndex]->codecpar->codec_id);
 
-	if(streamState.codec == nullptr)
+	if(state.codec == nullptr)
 		throw std::runtime_error("Unsupported codec");
 
-	streamState.codecContext = avcodec_alloc_context3(streamState.codec);
-	if(streamState.codecContext == nullptr)
+	state.codecContext = avcodec_alloc_context3(state.codec);
+	if(state.codecContext == nullptr)
 		throw std::runtime_error("Failed to create codec context");
 
 	// Get a pointer to the codec context for the video stream
-	int ret = avcodec_parameters_to_context(streamState.codecContext, state.formatContext->streams[streamIndex]->codecpar);
+	int ret = avcodec_parameters_to_context(state.codecContext, state.formatContext->streams[streamIndex]->codecpar);
 	if(ret < 0)
 	{
 		//We cannot get codec from parameters
-		avcodec_free_context(&streamState.codecContext);
+		avcodec_free_context(&state.codecContext);
 		throwFFmpegError(ret);
 	}
 
 	// Open codec
-	ret = avcodec_open2(streamState.codecContext, streamState.codec, nullptr);
+	ret = avcodec_open2(state.codecContext, state.codec, nullptr);
 	if(ret < 0)
 	{
 		// Could not open codec
-		streamState.codec = nullptr;
+		state.codec = nullptr;
 		throwFFmpegError(ret);
+	}
+}
+
+void CVideoInstance::openVideo()
+{
+	openContext(video);
+
+	for(int i = 0; i < video.formatContext->nb_streams; i++)
+	{
+		if(video.formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+		{
+			openCodec(video, i);
+			return;
+		}
 	}
 }
 
@@ -204,7 +214,7 @@ bool CVideoInstance::nextFrame()
 
 	for(;;)
 	{
-		int ret = av_read_frame(state.formatContext, &packet);
+		int ret = av_read_frame(video.formatContext, &packet);
 		if(ret < 0)
 		{
 			if(ret == AVERROR_EOF)
@@ -218,11 +228,11 @@ bool CVideoInstance::nextFrame()
 			// Decode video frame
 			int rc = avcodec_send_packet(video.codecContext, &packet);
 			if(rc < 0)
-				throwFFmpegError(ret);
+				throwFFmpegError(rc);
 
 			rc = avcodec_receive_frame(video.codecContext, output.frame);
 			if(rc < 0)
-				throwFFmpegError(ret);
+				throwFFmpegError(rc);
 
 			uint8_t * data[4] = {};
 			int linesize[4] = {};
@@ -276,22 +286,25 @@ void CVideoInstance::close()
 	SDL_DestroyTexture(output.textureRGB);
 	SDL_FreeSurface(output.surface);
 
+	closeState(video);
+}
+
+void CVideoInstance::closeState(FFMpegStreamState & streamState)
+{
 	// state.videoStream.codec???
 	// state.audioStream.codec???
 
 	avcodec_close(video.codecContext);
 	avcodec_free_context(&video.codecContext);
 
-	avcodec_close(audio.codecContext);
-	avcodec_free_context(&audio.codecContext);
+	avcodec_close(video.codecContext);
+	avcodec_free_context(&video.codecContext);
 
-	avformat_close_input(&state.formatContext);
-	av_free(state.context);
+	avformat_close_input(&video.formatContext);
+	av_free(video.context);
 
 	output = FFMpegVideoOutput();
 	video = FFMpegStreamState();
-	audio = FFMpegStreamState();
-	state = FFMpegFileState();
 }
 
 CVideoInstance::~CVideoInstance()
@@ -328,7 +341,7 @@ void CVideoInstance::tick(uint32_t msPassed)
 #	else
 	auto packet_duration = frame->duration;
 #	endif
-	double frameEndTime = (output.frame->pts + packet_duration) * av_q2d(state.formatContext->streams[video.streamIndex]->time_base);
+	double frameEndTime = (output.frame->pts + packet_duration) * av_q2d(video.formatContext->streams[video.streamIndex]->time_base);
 	output.frameTime += msPassed / 1000.0;
 
 	if(output.frameTime >= frameEndTime)
@@ -338,44 +351,118 @@ void CVideoInstance::tick(uint32_t msPassed)
 	}
 }
 
-#	if 0
-
-std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
+static int32_t sampleSizeBytes(int audioFormat)
 {
-	std::pair<std::unique_ptr<ui8 []>, si64> dat(std::make_pair(nullptr, 0));
-
-	FFMpegFileState audio;
-	openVideoFile(audio, videoToOpen);
-
-	if (audio.audioStream.streamIndex < 0)
+	switch (audioFormat)
 	{
-		closeVideoFile(audio);
-		return { nullptr, 0};
+		case AV_SAMPLE_FMT_U8:          ///< unsigned 8 bits
+		case AV_SAMPLE_FMT_U8P:         ///< unsigned 8 bits, planar
+			return 1;
+		case AV_SAMPLE_FMT_S16:         ///< signed 16 bits
+		case AV_SAMPLE_FMT_S16P:        ///< signed 16 bits, planar
+			return 2;
+		case AV_SAMPLE_FMT_S32:         ///< signed 32 bits
+		case AV_SAMPLE_FMT_S32P:        ///< signed 32 bits, planar
+		case AV_SAMPLE_FMT_FLT:         ///< float
+		case AV_SAMPLE_FMT_FLTP:        ///< float, planar
+			return 4;
+		case AV_SAMPLE_FMT_DBL:         ///< double
+		case AV_SAMPLE_FMT_DBLP:        ///< double, planar
+		case AV_SAMPLE_FMT_S64:         ///< signed 64 bits
+		case AV_SAMPLE_FMT_S64P:        ///< signed 64 bits, planar
+			return 8;
+	}
+	throw std::runtime_error("Invalid audio format");
+}
+
+static int32_t sampleWavType(int audioFormat)
+{
+	switch (audioFormat)
+	{
+		case AV_SAMPLE_FMT_U8:          ///< unsigned 8 bits
+		case AV_SAMPLE_FMT_U8P:         ///< unsigned 8 bits, planar
+		case AV_SAMPLE_FMT_S16:         ///< signed 16 bits
+		case AV_SAMPLE_FMT_S16P:        ///< signed 16 bits, planar
+		case AV_SAMPLE_FMT_S32:         ///< signed 32 bits
+		case AV_SAMPLE_FMT_S32P:        ///< signed 32 bits, planar
+		case AV_SAMPLE_FMT_S64:         ///< signed 64 bits
+		case AV_SAMPLE_FMT_S64P:        ///< signed 64 bits, planar
+			return 1; // PCM
+
+		case AV_SAMPLE_FMT_FLT:         ///< float
+		case AV_SAMPLE_FMT_FLTP:        ///< float, planar
+		case AV_SAMPLE_FMT_DBL:         ///< double
+		case AV_SAMPLE_FMT_DBLP:        ///< double, planar
+			return 3; // IEEE float
+	}
+	throw std::runtime_error("Invalid audio format");
+}
+
+void CVideoInstance::playAudio()
+{
+	FFMpegStreamState audio;
+
+	openContext(audio);
+
+	for(int i = 0; i < audio.formatContext->nb_streams; i++)
+	{
+		if(audio.formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+		{
+			openCodec(audio, i);
+			break;
+		}
 	}
 
-	// Open codec
+	std::pair<std::unique_ptr<ui8 []>, si64> dat(std::make_pair(nullptr, 0));
+
+	if (audio.streamIndex < 0)
+		return; // nothing to play
+
+	const auto * codecpar = audio.formatContext->streams[audio.streamIndex]->codecpar;
 	AVFrame *frameAudio = av_frame_alloc();
-		
+	AVFrame *frameVideo = av_frame_alloc();
 	AVPacket packet;
 
 	std::vector<ui8> samples;
 
+	int32_t sampleSize = sampleSizeBytes(codecpar->format);
+
+	samples.reserve(44100 * 5); // arbitrary 5-second buffer
+
 	while (av_read_frame(audio.formatContext, &packet) >= 0)
 	{
-		if(packet.stream_index == audio.audioStream.streamIndex)
+		if (packet.stream_index == video.streamIndex)
 		{
-			int rc = avcodec_send_packet(audio.audioStream.codecContext, &packet);
-			if (rc >= 0)
-				packet.size = 0;
-			rc = avcodec_receive_frame(audio.audioStream.codecContext, frameAudio);
-			int bytesToRead = (frameAudio->nb_samples * 2 * (audio.formatContext->streams[audio.audioStream.streamIndex]->codecpar->bits_per_coded_sample / 8));
-			if (rc >= 0)
-				for (int s = 0; s < bytesToRead; s += sizeof(ui8))
-				{
-					ui8 value;
-					memcpy(&value, &frameAudio->data[0][s], sizeof(ui8));
-					samples.push_back(value);
-				}
+			// Decode video frame
+			int rc = avcodec_send_packet(video.codecContext, &packet);
+			if(rc < 0)
+				throwFFmpegError(rc);
+
+			rc = avcodec_receive_frame(video.codecContext, frameVideo);
+			if(rc < 0)
+				throwFFmpegError(rc);
+		}
+
+		if(packet.stream_index == audio.streamIndex)
+		{
+			int rc = avcodec_send_packet(audio.codecContext, &packet);
+
+			if(rc < 0)
+				throwFFmpegError(rc);
+
+			for (;;)
+			{
+				rc = avcodec_receive_frame(audio.codecContext, frameAudio);
+				if (rc == AVERROR(EAGAIN))
+					break;
+
+				if(rc < 0)
+					throwFFmpegError(rc);
+
+				int bytesToRead = frameAudio->nb_samples * 2 * sampleSize;
+
+				samples.insert(samples.end(), frameAudio->data[0], frameAudio->data[0] + bytesToRead);
+			}
 		}
 		av_packet_unref(&packet);
 	}
@@ -391,16 +478,19 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 		ui32 SamplesPerSec = 22050;
 		ui32 bytesPerSec = 22050 * 2;
 		ui16 blockAlign = 2;
-		ui16 bitsPerSample = 16;
+		ui16 bitsPerSample = 32;
 		ui8 Subchunk2ID[4] = {'d', 'a', 't', 'a'};
 		ui32 Subchunk2Size;
 	} wav_hdr;
 
 	wav_hdr wav;
 	wav.ChunkSize = samples.size() + sizeof(wav_hdr) - 8;
-  	wav.Subchunk2Size = samples.size() + sizeof(wav_hdr) - 44;
-	wav.SamplesPerSec = audio.formatContext->streams[audio.audioStream.streamIndex]->codecpar->sample_rate;
-	wav.bitsPerSample = audio.formatContext->streams[audio.audioStream.streamIndex]->codecpar->bits_per_coded_sample;
+	wav.AudioFormat = sampleWavType(codecpar->format);
+	wav.NumOfChan = codecpar->channels;
+	wav.SamplesPerSec = codecpar->sample_rate;
+	wav.bytesPerSec = codecpar->sample_rate * sampleSize;
+	wav.bitsPerSample = sampleSize * 8;
+	wav.Subchunk2Size = samples.size() + sizeof(wav_hdr) - 44;
 	auto wavPtr = reinterpret_cast<ui8*>(&wav);
 
 	dat = std::make_pair(std::make_unique<ui8[]>(samples.size() + sizeof(wav_hdr)), samples.size() + sizeof(wav_hdr));
@@ -410,18 +500,17 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 	if (frameAudio)
 		av_frame_free(&frameAudio);
 
-	closeVideoFile(audio);
-
-	return dat;
+	CCS->soundh->playSound(dat);
+	closeState(audio);
 }
-
-#	endif
 
 bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey)
 {
 	CVideoInstance instance;
 
 	instance.open(name);
+	instance.playAudio();
+	instance.openVideo();
 	instance.prepareOutput(scale, useOverlay);
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
@@ -460,7 +549,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 #endif
 
 		// Framerate delay
-		double targetFrameTimeSeconds = packet_duration * av_q2d(instance.state.formatContext->streams[instance.video.streamIndex]->time_base);
+		double targetFrameTimeSeconds = packet_duration * av_q2d(instance.video.formatContext->streams[instance.video.streamIndex]->time_base);
 		auto targetFrameTime = boost::chrono::milliseconds(static_cast<int>(1000 * (targetFrameTimeSeconds)));
 
 		auto timePointAfterPresent = boost::chrono::steady_clock::now();
@@ -489,14 +578,10 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool 
 	auto result = std::make_unique<CVideoInstance>();
 
 	result->open(name);
+	result->openVideo();
 	result->prepareOutput(scaleToScreen, false);
 
 	return result;
-}
-
-std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
-{
-	return {nullptr, 0};
 }
 
 #endif
