@@ -2,8 +2,11 @@
 
 ### General
 * Added Portuguese (Brazilian) translation
+* Added basic support for game controllers
 * Added option to disable cheats in game
 * Game will no longer run vcmiserver as a separate process on desktop systems
+* Game will no longer show server error messages in game chat in release builds
+* Implemented switchable artifact sets from HD Mod
 
 ### Stability
 * Fixed possible crash in Altar of Sacrifice
@@ -19,12 +22,19 @@
 * Fixed crash on moving through whirlpool when hero has no troops other than commander
 * Fixed possible freeze when moving hero over events that give enough experience to cause a level-up
 * Fixed possible crash on movement of double-wide creatures next to gates during siege
+* Fixed possible hanging app on attempt to close game during loading
 
 ### Multiplayer
+* Game map will no longer be locked during turn of other human players, allowing to change hero paths or inspect towns or heroes
+* Game will now correctly block most of player actions outside of their turn
 * Implemented new lobby, available in game with persistent accounts and chat
 * Removed old lobby previously available in launcher
 * Fixed potential crash that could occur if two players act at the very same time
 * Game will no longer pause due to network lag after every tile when instant movement speed is selected in multiplayer
+* Game will now show "X player's turn" dialog on new turn in online multiplayer
+* Fixed loading of turn timers state from saved games
+* Simultaneous turns will now break when players are 1 turn away from each other instead of 2 turns
+* Implemented rolling and banning of towns before game start
 
 ### Interface
 * Implemented configurable keyboard shortcuts, editable in file config/shortcutsConfig.json
@@ -35,6 +45,7 @@
 * It is no longer possible to start single scenario by pressing "Enter", in line with H3 and to prevent interference with game chat
 * Empty treasure banks will no longer ask for confirmation when entering
 * Game will now save last used difficulty settings
+* Opening random map tab or scenario selection tab in pregame will no longer reset starting towns or heroes unless different map was selected
 * Town Portal dialog will now show town icons
 * Town Portal dialog will now show town info on right click
 * Town Portal dialog will center on town on clicking it
@@ -55,10 +66,12 @@
 * Fixed translation of some bonuses using incorrect language
 * Added option to use 'nearest' rounding mode for UI scaling
 * Fixed various minor bugs in trade window interface
+* Removed animation of spawning of every single new monster on new month
 * Game will now correctly reset artifact drag-and-drop cursor if player opens another dialog on top of hero window
 * If player has no valid saves, game will pick "NEWGAME" as proposed save name instead of empty field
 * Fixed incorrect visitation sounds of Crypt, Shipwreck and Abandoned Ship
 * Fixed double sound playback on capturing mines
+* Recruitment costs that consist from 3 different resources should now fit recruitment window UI better
 
 ### Campaigns
 * Game will now correctly track who defeated the hero or wandering monsters for related quests and victory conditions
@@ -88,6 +101,7 @@
 ### Mechanics
 * It is no longer possible to learn spells from Pandora or events if hero can not learn them
 * Fixed behavior of 'Dimension Door' spell to be in line with H3:SoD
+* Fixed behavior of 'Fly' spell to be in line with H3:SoD
 * If it is not possible to cast 'Dimension Door', game will show message immediately on picking spell in spellbook
 * Added options to configure 'Dimension Door' spell to be in line with HotA
 * Casting 'Town Portal' while in boat will now show correct message box instead of server error
@@ -117,6 +131,8 @@
 * Decreased minimal density of obstacles on undergound level of the map
 * Density of objects should now closely resemble H3 RMG
 * Generator will now avoid routing road under guarded objects whenever possible
+* Generator will now avoid placing guards near roads
+* Generator will not place a guard near the road if it's stronger than 1/3 of max guard strength for this zone
 * Interactive objects will now appear on top of static objects
 * Windmill will now appear on top of all other objects
 
@@ -140,6 +156,8 @@
 
 ### AI
 * Fixed possible crash on updating NKAI pathfinding data
+* Fixed possible crash if hero has only commander left without army
+* Fixed possible crash on attempt to build tavern in a town
 * Fixed counting mana usage cost of Fly spell
 * Added estimation of value of Pyramid and Cyclops Stockpile
 * Reduced memory usage and improved performance of AI pathfinding
@@ -153,6 +171,7 @@
 
 ### Modding
 * Added new game setting that allows inviting heroes to taverns
+* It is now possible to add creature or faction description accessible via right-click of the icon
 * Fixed reversed Overlord and Warlock classes mapping
 * Added 'selectAll' mode for configurable objects which grants all potential rewards 
 * It is now possible to use most of json5 format in vcmi json files
