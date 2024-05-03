@@ -311,13 +311,9 @@ void FirstLaunchView::extractGogData()
 	if(fileBin.isEmpty())
 		return;
 
-	ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
-	QPalette pal = ui->pushButtonGogInstall->palette();
-	pal.setColor(QPalette::Button, QColor(Qt::yellow));
-	ui->pushButtonGogInstall->setAutoFillBackground(true);
-	ui->pushButtonGogInstall->setPalette(pal);
-	ui->pushButtonGogInstall->update();
-	ui->pushButtonGogInstall->repaint();
+	ui->progressBarGog->setVisible(true);
+	ui->pushButtonGogInstall->setVisible(false);
+	setEnabled(false);
 
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QTemporaryDir dir;
@@ -340,20 +336,20 @@ void FirstLaunchView::extractGogData()
 			o.filenames.set_expand(true);
 
 			o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
-
-			this->setEnabled(false);
-			process_file(tmpFileExe.toStdString(), o, [this](float percent) {
-				ui->pushButtonGogInstall->setText(tr("Installing...") + " " + QString::number(static_cast<int>(percent * 100)) + "%");
-				ui->pushButtonGogInstall->update();
+			
+			process_file(tmpFileExe.toStdString(), o, [this](float progress) {
+				ui->progressBarGog->setValue(progress * 100);
 				qApp->processEvents();
 			});
-			this->setEnabled(true);
+
+			ui->progressBarGog->setVisible(false);
+			ui->pushButtonGogInstall->setVisible(true);
+			setEnabled(true);
 
 			QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
 			if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 			{
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
-				ui->pushButtonGogInstall->setText(tr("Install gog.com files"));
 				return;
 			}
 			copyHeroesData(dir.path(), true);
