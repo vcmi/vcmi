@@ -10,18 +10,29 @@
 #pragma once
 
 #include "IVideoPlayer.h"
-#include "../lib/Point.h"
 
 class CEmptyVideoPlayer final : public IVideoPlayer
 {
 public:
-	void redraw( int x, int y, SDL_Surface *dst, bool update) override {};
-	void show( int x, int y, SDL_Surface *dst, bool update) override {};
-	bool nextFrame() override {return false;};
-	void close() override {};
-	bool open(const VideoPath & name, bool scale) override {return false;};
-	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update, std::function<void()> restart) override {}
-	bool openAndPlayVideo(const VideoPath & name, int x, int y, EVideoType videoType) override { return false; }
-	std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) override { return std::make_pair(nullptr, 0); };
-	Point size() override { return Point(0, 0); };
+	/// Plays video on top of the screen, returns only after playback is over
+	virtual bool playIntroVideo(const VideoPath & name)
+	{
+		return false;
+	};
+
+	virtual void playSpellbookAnimation(const VideoPath & name, const Point & position)
+	{
+	}
+
+	/// Load video from specified path
+	virtual std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen)
+	{
+		return nullptr;
+	};
+
+	/// Extracts audio data from provided video in wav format
+	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen)
+	{
+		return { nullptr, 0};
+	};
 };

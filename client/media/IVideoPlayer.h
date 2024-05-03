@@ -11,30 +11,44 @@
 
 #include "../lib/filesystem/ResourcePath.h"
 
-struct SDL_Surface;
+class Canvas;
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 VCMI_LIB_NAMESPACE_END
 
-enum class EVideoType : ui8
+class IVideoInstance
 {
-	INTRO = 0, // use entire window: stopOnKey = true, scale = true, overlay = false
-	SPELLBOOK  // overlay video: stopOnKey = false, scale = false, overlay = true
+public:
+	/// Returns true if video playback is over
+	virtual bool videoEnded() = 0;
+
+	/// Returns dimensions of the video
+	virtual Point size() = 0;
+
+	/// Displays current frame at specified position
+	virtual void show(const Point & position, Canvas & canvas) = 0;
+
+	/// Advances video playback by specified duration
+	virtual void tick(uint32_t msPassed) = 0;
+
+	virtual ~IVideoInstance() = default;
 };
 
 class IVideoPlayer : boost::noncopyable
 {
 public:
-	virtual bool open(const VideoPath & name, bool scale = false)=0; //true - succes
-	virtual void close()=0;
-	virtual bool nextFrame()=0;
-	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
-	virtual void redraw(int x, int y, SDL_Surface *dst, bool update = true)=0; //reblits buffer
-	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> restart = nullptr) = 0;
-	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, EVideoType videoType) = 0;
-	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) = 0;
-	virtual Point size() = 0;
+	/// Plays video on top of the screen, returns only after playback is over, aborts on input event
+	virtual bool playIntroVideo(const VideoPath & name) = 0;
+
+	/// Plays video on top of the screen, returns only after playback is over
+	virtual void playSpellbookAnimation(const VideoPath & name, const Point & position) = 0;
+
+	/// Load video from specified path. Returns nullptr on failure
+	virtual std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) = 0;
+
+	/// Extracts audio data from provided video in wav format. Return nullptr on failure
+	virtual std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) = 0;
 
 	virtual ~IVideoPlayer() = default;
 };

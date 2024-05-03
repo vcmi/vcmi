@@ -524,13 +524,13 @@ void CSpellWindow::setCurrentPage(int value)
 void CSpellWindow::turnPageLeft()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNLFT.SMK"), pos.x+13, pos.y+15, EVideoType::SPELLBOOK);
+		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNLFT.SMK"), pos.topLeft() + Point(13, 15));
 }
 
 void CSpellWindow::turnPageRight()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNRGH.SMK"), pos.x+13, pos.y+15, EVideoType::SPELLBOOK);
+		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNRGH.SMK"), pos.topLeft() + Point(13, 15));
 }
 
 void CSpellWindow::keyPressed(EShortcut key)

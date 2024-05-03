@@ -13,12 +13,17 @@
 
 #include "../lib/filesystem/ResourcePath.h"
 
+class IVideoInstance;
+
 class VideoWidget final : public CIntObject
 {
+	std::unique_ptr<IVideoInstance> videoInstance;
+
 	VideoPath current;
 	VideoPath next;
 
 	int videoSoundHandle;
+
 public:
 	VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped);
 	VideoWidget(const Point & position, const VideoPath & looped);
