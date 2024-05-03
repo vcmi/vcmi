@@ -133,14 +133,13 @@ public:
 /// Classes wanting use it should have it as one of their base classes
 class CKeyShortcut : public virtual CIntObject
 {
-	bool shortcutPressed;
 public:
+	bool shortcutPressed;
 	EShortcut assignedKey;
 	CKeyShortcut();
 	CKeyShortcut(EShortcut key);
 	void keyPressed(EShortcut key) override;
 	void keyReleased(EShortcut key) override;
-
 };
 
 class WindowBase : public CIntObject

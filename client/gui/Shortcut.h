@@ -13,6 +13,14 @@ enum class EShortcut
 {
 	NONE,
 
+	// preudo-shortcuts that trigger mouse events
+	MOUSE_LEFT,
+	MOUSE_RIGHT,
+	MOUSE_CURSOR_X,
+	MOUSE_CURSOR_Y,
+	MOUSE_SWIPE_X,
+	MOUSE_SWIPE_Y,
+
 	// Global hotkeys that are available in multiple dialogs
 	GLOBAL_ACCEPT,     // Return - Accept query
 	GLOBAL_CANCEL,     // Escape - Cancel query
@@ -100,6 +108,7 @@ enum class EShortcut
 	ADVENTURE_VIEW_WORLD_X1,
 	ADVENTURE_VIEW_WORLD_X2,
 	ADVENTURE_VIEW_WORLD_X4,
+	ADVENTURE_TRACK_HERO,
 	ADVENTURE_TOGGLE_MAP_LEVEL,
 	ADVENTURE_KINGDOM_OVERVIEW,
 	ADVENTURE_QUEST_LOG,
@@ -137,6 +146,12 @@ enum class EShortcut
 	BATTLE_SELECT_ACTION, // Alternative actions toggle
 	BATTLE_TOGGLE_HEROES_STATS,
 
+	LOBBY_ACTIVATE_INTERFACE,
+
+	SPECTATE_TRACK_HERO,
+	SPECTATE_SKIP_BATTLE,
+	SPECTATE_SKIP_BATTLE_RESULT,
+
 	// Town screen
 	TOWN_OPEN_TAVERN,
 	TOWN_SWAP_ARMIES, // Swap garrisoned and visiting armies
@@ -158,6 +173,16 @@ enum class EShortcut
 	HERO_TIGHT_FORMATION,
 	HERO_TOGGLE_TACTICS, // b
 	HERO_BACKPACK,
+	HERO_COSTUME_0,
+	HERO_COSTUME_1,
+	HERO_COSTUME_2,
+	HERO_COSTUME_3,
+	HERO_COSTUME_4,
+	HERO_COSTUME_5,
+	HERO_COSTUME_6,
+	HERO_COSTUME_7,
+	HERO_COSTUME_8,
+	HERO_COSTUME_9,
 
 	// Spellbook screen
 	SPELLBOOK_TAB_ADVENTURE,

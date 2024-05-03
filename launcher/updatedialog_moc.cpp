@@ -61,7 +61,7 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 		if(response->error() != QNetworkReply::NoError)
 		{
 			ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
-			ui->versionLabel->setText("Network error");
+			ui->versionLabel->setText(tr("Network error"));
 			ui->plainTextEdit->setPlainText(response->errorString());
 			return;
 		}
@@ -98,7 +98,7 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	   node["changeLog"].getType() != JsonNode::JsonType::DATA_STRING ||
 	   node["downloadLinks"].getType() != JsonNode::JsonType::DATA_STRUCT) //we need at least one link - other are optional
 	{
-		ui->plainTextEdit->setPlainText("Cannot read JSON from url or incorrect JSON data");
+		ui->plainTextEdit->setPlainText(tr("Cannot read JSON from url or incorrect JSON data"));
 		return;
 	}
 	

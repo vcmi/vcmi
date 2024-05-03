@@ -12,15 +12,18 @@
 #include "InputSourceMouse.h"
 #include "InputHandler.h"
 
-#include "../../lib/Point.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
+
+#include "../../lib/Point.h"
+#include "../../lib/CConfigHandler.h"
 
 #include <SDL_events.h>
 #include <SDL_hints.h>
 
 InputSourceMouse::InputSourceMouse()
+	:mouseToleranceDistance(settings["input"]["mouseToleranceDistance"].Integer())
 {
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 }
@@ -48,12 +51,12 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 	{
 		case SDL_BUTTON_LEFT:
 			if(button.clicks > 1)
-				GH.events().dispatchMouseDoubleClick(position, 0);
+				GH.events().dispatchMouseDoubleClick(position, mouseToleranceDistance);
 			else
-				GH.events().dispatchMouseLeftButtonPressed(position, 0);
+				GH.events().dispatchMouseLeftButtonPressed(position, mouseToleranceDistance);
 			break;
 		case SDL_BUTTON_RIGHT:
-			GH.events().dispatchShowPopup(position, 0);
+			GH.events().dispatchShowPopup(position, mouseToleranceDistance);
 			break;
 		case SDL_BUTTON_MIDDLE:
 			middleClickPosition = position;
@@ -74,7 +77,7 @@ void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & but
 	switch(button.button)
 	{
 		case SDL_BUTTON_LEFT:
-			GH.events().dispatchMouseLeftButtonReleased(position, 0);
+			GH.events().dispatchMouseLeftButtonReleased(position, mouseToleranceDistance);
 			break;
 		case SDL_BUTTON_RIGHT:
 			GH.events().dispatchClosePopup(position);

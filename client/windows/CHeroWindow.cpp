@@ -221,6 +221,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
 			arts->setHero(curHero);
 			addSetAndCallbacks(arts);
+			enableArtifactsCostumeSwitcher();
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
@@ -318,9 +319,12 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 void CHeroWindow::dismissCurrent()
 {
-	CFunctionList<void()> ony = [=](){ close(); };
-	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], [this]()
+		{
+			arts->putBackPickedArtifact();
+			close();
+			LOCPLINT->cb->dismissHero(curHero);
+		}, nullptr);
 }
 
 void CHeroWindow::createBackpackWindow()

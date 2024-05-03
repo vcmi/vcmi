@@ -193,6 +193,12 @@ void CCallback::scrollBackpackArtifacts(ObjectInstanceID hero, bool left)
 	sendRequest(&mba);
 }
 
+void CCallback::manageHeroCostume(ObjectInstanceID hero, size_t costumeIndex, bool saveCostume)
+{
+	ManageEquippedArtifacts mea(hero, costumeIndex, saveCostume);
+	sendRequest(&mea);
+}
+
 void CCallback::eraseArtifactByClient(const ArtifactLocation & al)
 {
 	EraseArtifactByClient ea(al);

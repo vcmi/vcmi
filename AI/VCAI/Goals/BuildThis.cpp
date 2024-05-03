@@ -35,12 +35,12 @@ TSubgoal BuildThis::whatToDoToAchieve()
 
 	if(!town)
 	{
-		for(const CGTownInstance * t : cb->getTownsInfo())
+		for(const CGTownInstance * candidateTown : cb->getTownsInfo())
 		{
-			switch(cb->canBuildStructure(town, b))
+			switch(cb->canBuildStructure(candidateTown, b))
 			{
 			case EBuildingState::ALLOWED:
-				town = t;
+				town = candidateTown;
 				break; //TODO: look for prerequisites? this is not our reponsibility
 			default:
 				continue;

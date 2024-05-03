@@ -37,8 +37,7 @@ SDL_Surface * screen = nullptr; //main screen surface
 SDL_Surface * screen2 = nullptr; //and hlp surface (used to store not-active interfaces layer)
 SDL_Surface * screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
-static const std::string NAME_AFFIX = "client";
-static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
+static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 
 std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 {
@@ -173,7 +172,7 @@ ScreenHandler::ScreenHandler()
 	SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitor");
 #endif
 
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO))
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER))
 	{
 		logGlobal->error("Something was wrong: %s", SDL_GetError());
 		exit(-1);

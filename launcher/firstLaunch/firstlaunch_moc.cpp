@@ -97,12 +97,6 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 	copyHeroesData();
 }
 
-void FirstLaunchView::on_pushButtonDataHelp_clicked()
-{
-	static const QUrl vcmibuilderWiki("https://github.com/vcmi/vcmi/blob/master/docs/players/Installation_Linux.md#install-data-using-vcmibuilder-script");
-	QDesktopServices::openUrl(vcmibuilderWiki);
-}
-
 void FirstLaunchView::on_pushButtonGogInstall_clicked()
 {
 	extractGogData();
@@ -142,11 +136,9 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabHeroesData->setChecked(true);
 	ui->buttonTabModPreset->setChecked(false);
 
-	if(!hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->hide();
-		ui->labelDataHelp->hide();
-	}
+#ifndef ENABLE_INNOEXTRACT
+	ui->labelDataHelp->hide();
+#endif
 	if(heroesDataUpdate())
 		return;
 
@@ -212,11 +204,9 @@ void FirstLaunchView::heroesDataMissing()
 	ui->labelDataFound->setVisible(false);
 	ui->pushButtonDataNext->setEnabled(false);
 
-	if(hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->setVisible(true);
-		ui->labelDataHelp->setVisible(true);
-	}
+#ifdef ENABLE_INNOEXTRACT
+	ui->labelDataHelp->setVisible(true);
+#endif
 }
 
 void FirstLaunchView::heroesDataDetected()
@@ -233,11 +223,9 @@ void FirstLaunchView::heroesDataDetected()
 	ui->labelDataCopy->setVisible(false);
 	ui->pushButtonGogInstall->setVisible(false);
 
-	if(hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->setVisible(false);
+#ifdef ENABLE_INNOEXTRACT
 		ui->labelDataHelp->setVisible(false);
-	}
+#endif
 
 	ui->labelDataFound->setVisible(true);
 	ui->pushButtonDataNext->setEnabled(true);
@@ -296,28 +284,45 @@ QString FirstLaunchView::getHeroesInstallDir()
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
-	QString filterExe = tr("GOG executable") + " (*.exe)";
-	QString fileExe = QFileDialog::getOpenFileName(this, tr("Select a GOG installer (exe) file..."), QDir::homePath(), filterExe);
+
+	auto fileSelection = [this](QString type, QString filter, QString startPath = {}) {
+		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
+		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
+#if defined(VCMI_MOBILE)
+		filter = tr("GOG file (*.*)");
+		QMessageBox::information(this, tr("File selection"), titleSel);
+#endif
+		QString file = QFileDialog::getOpenFileName(this, titleSel, startPath.isEmpty() ? QDir::homePath() : startPath, filter);
+		if(file.isEmpty())
+			return QString{};
+		else if(!file.endsWith("." + type, Qt::CaseInsensitive))
+		{
+			QMessageBox::critical(this, tr("Invalid file selected"), titleErr);
+			return QString{};
+		}
+
+		return file;
+	};
+
+	QString fileExe = fileSelection("exe", tr("GOG installer") + " (*.exe)");
 	if(fileExe.isEmpty())
 		return;
-
-	QString filterBin = tr("GOG bin file") + " (*.bin)";
-	QString fileBin = QFileDialog::getOpenFileName(this, tr("Select a GOG data (bin) file..."), QFileInfo(fileExe).absolutePath(), filterBin);
+	QString fileBin = fileSelection("bin", tr("GOG data") + " (*.bin)", QFileInfo(fileExe).absolutePath());
 	if(fileBin.isEmpty())
 		return;
+
+	ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
+	QPalette pal = ui->pushButtonGogInstall->palette();
+	pal.setColor(QPalette::Button, QColor(Qt::yellow));
+	ui->pushButtonGogInstall->setAutoFillBackground(true);
+	ui->pushButtonGogInstall->setPalette(pal);
+	ui->pushButtonGogInstall->update();
+	ui->pushButtonGogInstall->repaint();
 
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QTemporaryDir dir;
 		if(dir.isValid()) {
 			QDir tempDir{dir.path()};
-
-			ui->pushButtonGogInstall->setText(tr("Installing... Please wait!"));
-			QPalette pal = ui->pushButtonGogInstall->palette();
-			pal.setColor(QPalette::Button, QColor(Qt::yellow));
-			ui->pushButtonGogInstall->setAutoFillBackground(true);
-			ui->pushButtonGogInstall->setPalette(pal);
-			ui->pushButtonGogInstall->update();
-			ui->pushButtonGogInstall->repaint();
 
 			QString tmpFileExe = dir.filePath("h3_gog.exe");
 			QFile(fileExe).copy(tmpFileExe);
@@ -342,7 +347,7 @@ void FirstLaunchView::extractGogData()
 			if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 			{
 				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
-				ui->pushButtonGogInstall->setText(tr("Install GOG files"));
+				ui->pushButtonGogInstall->setText(tr("Install gog.com files"));
 				return;
 			}
 			copyHeroesData(dir.path(), true);

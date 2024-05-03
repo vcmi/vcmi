@@ -19,7 +19,16 @@ ShortcutHandler::ShortcutHandler()
 {
 	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
 
-	for (auto const & entry : config["keyboard"].Struct())
+	mappedKeyboardShortcuts = loadShortcuts(config["keyboard"]);
+	mappedJoystickShortcuts = loadShortcuts(config["joystickButtons"]);
+	mappedJoystickAxes = loadShortcuts(config["joystickAxes"]);
+}
+
+std::multimap<std::string, EShortcut> ShortcutHandler::loadShortcuts(const JsonNode & data) const
+{
+	std::multimap<std::string, EShortcut> result;
+
+	for (auto const & entry : data.Struct())
 	{
 		std::string shortcutName = entry.first;
 		EShortcut shortcutID = findShortcut(shortcutName);
@@ -32,20 +41,22 @@ ShortcutHandler::ShortcutHandler()
 
 		if (entry.second.isString())
 		{
-			mappedShortcuts.emplace(entry.second.String(), shortcutID);
+			result.emplace(entry.second.String(), shortcutID);
 		}
 
 		if (entry.second.isVector())
 		{
 			for (auto const & entryVector : entry.second.Vector())
-				mappedShortcuts.emplace(entryVector.String(), shortcutID);
+				result.emplace(entryVector.String(), shortcutID);
 		}
 	}
+
+	return result;
 }
 
-std::vector<EShortcut> ShortcutHandler::translateKeycode(const std::string & key) const
+std::vector<EShortcut> ShortcutHandler::translateShortcut(const std::multimap<std::string, EShortcut> & options, const std::string & key) const
 {
-	auto range = mappedShortcuts.equal_range(key);
+	auto range = options.equal_range(key);
 
 	// FIXME: some code expects calls to keyPressed / captureThisKey even without defined hotkeys
 	if (range.first == range.second)
@@ -59,9 +70,30 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(const std::string & key
 	return result;
 }
 
+std::vector<EShortcut> ShortcutHandler::translateKeycode(const std::string & key) const
+{
+	return translateShortcut(mappedKeyboardShortcuts, key);
+}
+
+std::vector<EShortcut> ShortcutHandler::translateJoystickButton(const std::string & key) const
+{
+	return translateShortcut(mappedJoystickShortcuts, key);
+}
+
+std::vector<EShortcut> ShortcutHandler::translateJoystickAxis(const std::string & key) const
+{
+	return translateShortcut(mappedJoystickAxes, key);
+}
+
 EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 {
 	static const std::map<std::string, EShortcut> shortcutNames = {
+		{"mouseClickLeft",           EShortcut::MOUSE_LEFT                },
+		{"mouseClickRight",          EShortcut::MOUSE_RIGHT               },
+		{"mouseCursorX",             EShortcut::MOUSE_CURSOR_X,           },
+		{"mouseCursorY",             EShortcut::MOUSE_CURSOR_Y,           },
+		{"mouseSwipeX",              EShortcut::MOUSE_SWIPE_X,            },
+		{"mouseSwipeY",              EShortcut::MOUSE_SWIPE_Y,            },
 		{"globalAccept",             EShortcut::GLOBAL_ACCEPT             },
 		{"globalCancel",             EShortcut::GLOBAL_CANCEL             },
 		{"globalReturn",             EShortcut::GLOBAL_RETURN             },
@@ -144,6 +176,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureViewWorld1",      EShortcut::ADVENTURE_VIEW_WORLD_X1   },
 		{"adventureViewWorld2",      EShortcut::ADVENTURE_VIEW_WORLD_X2   },
 		{"adventureViewWorld4",      EShortcut::ADVENTURE_VIEW_WORLD_X4   },
+		{"adventureTrackHero",       EShortcut::ADVENTURE_TRACK_HERO,     },
 		{"adventureToggleMapLevel",  EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL},
 		{"adventureKingdomOverview", EShortcut::ADVENTURE_KINGDOM_OVERVIEW},
 		{"adventureQuestLog",        EShortcut::ADVENTURE_QUEST_LOG       },
@@ -153,6 +186,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureZoomIn",          EShortcut::ADVENTURE_ZOOM_IN         },
 		{"adventureZoomOut",         EShortcut::ADVENTURE_ZOOM_OUT        },
 		{"adventureZoomReset",       EShortcut::ADVENTURE_ZOOM_RESET      },
+		{"battleToggleHeroesStats",  EShortcut::BATTLE_TOGGLE_HEROES_STATS},
 		{"battleToggleQueue",        EShortcut::BATTLE_TOGGLE_QUEUE       },
 		{"battleUseCreatureSpell",   EShortcut::BATTLE_USE_CREATURE_SPELL },
 		{"battleSurrender",          EShortcut::BATTLE_SURRENDER          },
@@ -167,6 +201,10 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"battleTacticsNext",        EShortcut::BATTLE_TACTICS_NEXT       },
 		{"battleTacticsEnd",         EShortcut::BATTLE_TACTICS_END        },
 		{"battleSelectAction",       EShortcut::BATTLE_SELECT_ACTION      },
+		{"lobbyActivateInterface",   EShortcut::LOBBY_ACTIVATE_INTERFACE  },
+		{"spectateTrackHero",        EShortcut::SPECTATE_TRACK_HERO       },
+		{"spectateSkipBattle",       EShortcut::SPECTATE_SKIP_BATTLE      },
+		{"spectateSkipBattleResult", EShortcut::SPECTATE_SKIP_BATTLE_RESULT },
 		{"townOpenTavern",           EShortcut::TOWN_OPEN_TAVERN          },
 		{"townSwapArmies",           EShortcut::TOWN_SWAP_ARMIES          },
 		{"recruitmentMax",           EShortcut::RECRUITMENT_MAX           },
@@ -180,6 +218,16 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"heroLooseFormation",       EShortcut::HERO_LOOSE_FORMATION      },
 		{"heroTightFormation",       EShortcut::HERO_TIGHT_FORMATION      },
 		{"heroToggleTactics",        EShortcut::HERO_TOGGLE_TACTICS       },
+		{"heroCostume0",             EShortcut::HERO_COSTUME_0            },
+		{"heroCostume1",             EShortcut::HERO_COSTUME_1            },
+		{"heroCostume2",             EShortcut::HERO_COSTUME_2            },
+		{"heroCostume3",             EShortcut::HERO_COSTUME_3            },
+		{"heroCostume4",             EShortcut::HERO_COSTUME_4            },
+		{"heroCostume5",             EShortcut::HERO_COSTUME_5            },
+		{"heroCostume6",             EShortcut::HERO_COSTUME_6            },
+		{"heroCostume7",             EShortcut::HERO_COSTUME_7            },
+		{"heroCostume8",             EShortcut::HERO_COSTUME_8            },
+		{"heroCostume9",             EShortcut::HERO_COSTUME_9            },
 		{"spellbookTabAdventure",    EShortcut::SPELLBOOK_TAB_ADVENTURE   },
 		{"spellbookTabCombat",       EShortcut::SPELLBOOK_TAB_COMBAT      }
 	};

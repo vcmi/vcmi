@@ -510,9 +510,6 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	if(!LOCPLINT->makingTurn)
-		return;
-
 	const CGObjectInstance *topBlocking = LOCPLINT->cb->isVisible(targetPosition) ? getActiveObject(targetPosition) : nullptr;
 
 	if(spellBeingCasted)

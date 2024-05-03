@@ -38,6 +38,7 @@ public:
 		bool isBlockedVisitable() const;
 		bool isRemovable() const;
 		const Area & getAccessibleArea() const;
+		Area getBorderAbove() const;
 		void setTemplate(TerrainId terrain, CRandomGenerator &); //cache invalidation
 		void setAnyTemplate(CRandomGenerator &); //cache invalidation
 		
@@ -78,6 +79,7 @@ public:
 	const Area & getVisitableArea() const;
 	const Area & getRemovableArea() const;
 	const Area getEntrableArea() const;
+	const Area & getBorderAbove() const;
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
@@ -87,7 +89,10 @@ public:
 	const int3 getVisibleTop() const;
 
 	bool isGuarded() const;
+	int3 getGuardPos() const;
 	void setGuardedIfMonster(const Instance & object);
+	void setValue(uint32_t value);
+	uint32_t getValue() const;
 	
 	void finalize(RmgMap & map, CRandomGenerator &);
 	void clearCachedArea() const;
@@ -101,11 +106,13 @@ private:
 	mutable Area dBlockVisitableCache;
 	mutable Area dVisitableCache;
 	mutable Area dRemovableAreaCache;
+	mutable Area dBorderAboveCache;
 	int3 dPosition;
 	mutable std::optional<int3> visibleTopOffset;
 	mutable std::list<Object::Instance*> cachedInstanceList;
 	mutable std::list<const Object::Instance*> cachedInstanceConstList;
 	bool guarded;
+	uint32_t value;
 };
 }
 

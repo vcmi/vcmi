@@ -16,6 +16,7 @@
 #include "InputSourceKeyboard.h"
 #include "InputSourceTouch.h"
 #include "InputSourceText.h"
+#include "InputSourceGameController.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
@@ -36,6 +37,10 @@ InputHandler::InputHandler()
 	, keyboardHandler(std::make_unique<InputSourceKeyboard>())
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
+	, gameControllerHandler(std::make_unique<InputSourceGameController>())
+	, enableMouse(settings["input"]["enableMouse"].Bool())
+	, enableTouch(settings["input"]["enableTouch"].Bool())
+	, enableController(settings["input"]["enableController"].Bool())
 {
 }
 
@@ -46,29 +51,59 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 	switch (current.type)
 	{
 		case SDL_KEYDOWN:
-			return keyboardHandler->handleEventKeyDown(current.key);
+			keyboardHandler->handleEventKeyDown(current.key);
+			return;
 		case SDL_KEYUP:
-			return keyboardHandler->handleEventKeyUp(current.key);
+			keyboardHandler->handleEventKeyUp(current.key);
+			return;
 #ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 		case SDL_MOUSEMOTION:
-			return mouseHandler->handleEventMouseMotion(current.motion);
+			if (enableMouse)
+				mouseHandler->handleEventMouseMotion(current.motion);
+			return;
 		case SDL_MOUSEBUTTONDOWN:
-			return mouseHandler->handleEventMouseButtonDown(current.button);
+			if (enableMouse)
+				mouseHandler->handleEventMouseButtonDown(current.button);
+			return;
 		case SDL_MOUSEBUTTONUP:
-			return mouseHandler->handleEventMouseButtonUp(current.button);
+			if (enableMouse)
+				mouseHandler->handleEventMouseButtonUp(current.button);
+			return;
 		case SDL_MOUSEWHEEL:
-			return mouseHandler->handleEventMouseWheel(current.wheel);
+			if (enableMouse)
+				mouseHandler->handleEventMouseWheel(current.wheel);
+			return;
 #endif
 		case SDL_TEXTINPUT:
-			return textHandler->handleEventTextInput(current.text);
+			textHandler->handleEventTextInput(current.text);
+			return;
 		case SDL_TEXTEDITING:
-			return textHandler->handleEventTextEditing(current.edit);
+			textHandler->handleEventTextEditing(current.edit);
+			return;
 		case SDL_FINGERMOTION:
-			return fingerHandler->handleEventFingerMotion(current.tfinger);
+			if (enableTouch)
+				fingerHandler->handleEventFingerMotion(current.tfinger);
+			return;
 		case SDL_FINGERDOWN:
-			return fingerHandler->handleEventFingerDown(current.tfinger);
+			if (enableTouch)
+				fingerHandler->handleEventFingerDown(current.tfinger);
+			return;
 		case SDL_FINGERUP:
-			return fingerHandler->handleEventFingerUp(current.tfinger);
+			if (enableTouch)
+				fingerHandler->handleEventFingerUp(current.tfinger);
+			return;
+		case SDL_CONTROLLERAXISMOTION:
+			if (enableController)
+				gameControllerHandler->handleEventAxisMotion(current.caxis);
+			return;
+		case SDL_CONTROLLERBUTTONDOWN:
+			if (enableController)
+				gameControllerHandler->handleEventButtonDown(current.cbutton);
+			return;
+		case SDL_CONTROLLERBUTTONUP:
+			if (enableController)
+				gameControllerHandler->handleEventButtonUp(current.cbutton);
+			return;
 	}
 }
 
@@ -88,6 +123,7 @@ void InputHandler::processEvents()
 	for(const auto & currentEvent : eventsToProcess)
 		handleCurrentEvent(currentEvent);
 
+	gameControllerHandler->handleUpdate();
 	fingerHandler->handleUpdate();
 }
 
@@ -103,6 +139,7 @@ bool InputHandler::ignoreEventsUntilInput()
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_FINGERDOWN:
 			case SDL_KEYDOWN:
+			case SDL_CONTROLLERBUTTONDOWN:
 				inputFound = true;
 		}
 	}
@@ -159,15 +196,15 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	else if(ev.type == SDL_WINDOWEVENT)
 	{
 		switch (ev.window.event) {
-		case SDL_WINDOWEVENT_RESTORED:
+			case SDL_WINDOWEVENT_RESTORED:
 #ifndef VCMI_IOS
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 				GH.onScreenResize(false);
 			}
 #endif
-			break;
-		case SDL_WINDOWEVENT_FOCUS_GAINED:
+				break;
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 				if(settings["general"]["audioMuteFocus"].Bool()) {
@@ -175,8 +212,8 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 					CCS->soundh->setVolume(settings["general"]["sound"].Integer());
 				}
 			}
-			break;
-		case SDL_WINDOWEVENT_FOCUS_LOST:
+				break;
+			case SDL_WINDOWEVENT_FOCUS_LOST:
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 				if(settings["general"]["audioMuteFocus"].Bool()) {
@@ -184,7 +221,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 					CCS->soundh->setVolume(0);
 				}
 			}
-			break;
+				break;
 		}
 		return;
 	}
@@ -195,6 +232,21 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		{
 			NotificationHandler::handleSdlEvent(ev);
 		}
+	}
+	else if(ev.type == SDL_CONTROLLERDEVICEADDED)
+	{
+		gameControllerHandler->handleEventDeviceAdded(ev.cdevice);
+		return;
+	}
+	else if(ev.type == SDL_CONTROLLERDEVICEREMOVED)
+	{
+		gameControllerHandler->handleEventDeviceRemoved(ev.cdevice);
+		return;
+	}
+	else if(ev.type == SDL_CONTROLLERDEVICEREMAPPED)
+	{
+		gameControllerHandler->handleEventDeviceRemapped(ev.cdevice);
+		return;
 	}
 
 	//preprocessing

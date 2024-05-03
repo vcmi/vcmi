@@ -29,11 +29,6 @@
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/serializer/Connection.h"
 
-PlayerMessageProcessor::PlayerMessageProcessor()
-	:gameHandler(nullptr)
-{
-}
-
 PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
 	:gameHandler(gameHandler)
 {

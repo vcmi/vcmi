@@ -89,7 +89,7 @@ void CMarketResources::highlightingChanged()
 		const bool isControlsBlocked = bidTradePanel->getSelectedItemId() != offerTradePanel->getSelectedItemId() ? false : true;
 		offerSlider->block(isControlsBlocked);
 		maxAmount->block(isControlsBlocked);
-		deal->block(isControlsBlocked);
+		deal->block(isControlsBlocked || !LOCPLINT->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

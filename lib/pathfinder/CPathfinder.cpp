@@ -143,13 +143,13 @@ void CPathfinder::calculatePaths()
 		auto * hlp = config->getOrCreatePathfinderHelper(source, gamestate);
 
 		hlp->updateTurnInfo(turn);
-		if(!movement)
+		if(movement == 0)
 		{
 			hlp->updateTurnInfo(++turn);
 			movement = hlp->getMaxMovePoints(source.node->layer);
 			if(!hlp->passOneTurnLimitCheck(source))
 				continue;
-			if(turn >= hlp->options.turnLimit)
+			if(turn > hlp->options.turnLimit)
 				continue;
 		}
 

@@ -171,7 +171,7 @@ void CAltarArtifacts::updateAltarSlots()
 	}
 
 	calcExpAltarForHero();
-	deal->block(tradeSlotsMap.empty());
+	deal->block(tradeSlotsMap.empty() || !LOCPLINT->makingTurn);
 }
 
 void CAltarArtifacts::putBackArtifacts()
@@ -205,7 +205,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 			{
 				if(altarSlot->id == -1)
 					tradeSlotsMap.try_emplace(altarSlot, pickedArtInst);
-				deal->block(false);
+				deal->block(!LOCPLINT->makingTurn);
 
 				LOCPLINT->cb->swapArtifacts(ArtifactLocation(heroArts->getHero()->id, ArtifactPosition::TRANSITION_POS),
 					ArtifactLocation(altarId, ArtifactPosition::ALTAR));

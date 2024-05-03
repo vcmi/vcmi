@@ -21,13 +21,6 @@ class FirstLaunchView : public QWidget
 {
 	Q_OBJECT
 
-	// vcmibuilder script is not available on these platforms
-#if defined(VCMI_WINDOWS) || defined(VCMI_MOBILE) || defined(VCMI_APPLE)
-	static constexpr bool hasVCMIBuilderScript = false;
-#else
-	static constexpr bool hasVCMIBuilderScript = true;
-#endif
-
 	void changeEvent(QEvent *event);
 	CModListView * getModView();
 
@@ -86,8 +79,6 @@ private slots:
 	void on_pushButtonDataSearch_clicked();
 
 	void on_pushButtonDataCopy_clicked();
-
-	void on_pushButtonDataHelp_clicked();
 
 	void on_pushButtonGogInstall_clicked();
 

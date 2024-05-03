@@ -104,7 +104,6 @@
 	"vcmi.lobby.preview.version" : "Game version:",
 	"vcmi.lobby.preview.players" : "Players:",
 	"vcmi.lobby.preview.mods" : "Used mods:",
-	"vcmi.lobby.preview.title" : "Join Game Room",
 	"vcmi.lobby.preview.allowed" : "Join the game room?",
 	"vcmi.lobby.preview.error.header" : "Unable to join this room.",
 	"vcmi.lobby.preview.error.playing" : "You need to leave your current game first.",

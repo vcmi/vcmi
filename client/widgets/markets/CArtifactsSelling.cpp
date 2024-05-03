@@ -149,7 +149,7 @@ void CArtifactsSelling::highlightingChanged()
 	if(art && offerTradePanel->isHighlighted())
 	{
 		market->getOffer(art->getTypeId(), offerTradePanel->getSelectedItemId(), bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
-		deal->block(false);
+		deal->block(!LOCPLINT->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

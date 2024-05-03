@@ -156,7 +156,10 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	for(const auto & b : *bonuses2)
 	{
 		const auto growth = b->val * (base + castleBonus) / 100;
-		ret.entries.emplace_back(growth, b->Description(growth));
+		if (growth)
+		{
+			ret.entries.emplace_back(growth, b->Description(growth));
+		}
 	}
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)

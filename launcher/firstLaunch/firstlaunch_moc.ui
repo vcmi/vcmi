@@ -285,20 +285,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install GOG files</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="3">
-          <widget class="QPushButton" name="pushButtonDataHelp">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>25</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Open help in browser</string>
+            <string>Install gog.com files</string>
            </property>
           </widget>
          </item>
@@ -356,7 +343,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>If you don't have a copy of Heroes III installed, you can use our automatic installation tool 'vcmibuilder', which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</string>
+            <string>If you don't have a copy of Heroes III installed, VCMI can import Heroes III data using offline installer from gog.com</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>

@@ -100,7 +100,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * ai, std::sh
 	logAi->trace("Decompose unlock paths");
 #endif
 
-	auto unlockTasks = CaptureObjectsBehavior::getVisitGoals(blockerPaths, ai);
+	auto unlockTasks = CaptureObjectsBehavior::getVisitGoals(blockerPaths, ai, cluster->blocker);
 
 	for(int i = 0; i < paths.size(); i++)
 	{

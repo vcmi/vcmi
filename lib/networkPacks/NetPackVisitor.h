@@ -87,6 +87,7 @@ public:
 	virtual void visitInfoWindow(InfoWindow & pack) {}
 	virtual void visitSetObjectProperty(SetObjectProperty & pack) {}
 	virtual void visitChangeObjectVisitors(ChangeObjectVisitors & pack) {}
+	virtual void visitChangeArtifactsCostume(ChangeArtifactsCostume & pack) {}
 	virtual void visitHeroLevelUp(HeroLevelUp & pack) {}
 	virtual void visitCommanderLevelUp(CommanderLevelUp & pack) {}
 	virtual void visitBlockingDialog(BlockingDialog & pack) {}
@@ -132,6 +133,7 @@ public:
 	virtual void visitExchangeArtifacts(ExchangeArtifacts & pack) {}
 	virtual void visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack) {}
 	virtual void visitManageBackpackArtifacts(ManageBackpackArtifacts & pack) {}
+	virtual void visitManageEquippedArtifacts(ManageEquippedArtifacts & pack) {}
 	virtual void visitAssembleArtifacts(AssembleArtifacts & pack) {}
 	virtual void visitEraseArtifactByClient(EraseArtifactByClient & pack) {}
 	virtual void visitBuyArtifact(BuyArtifact & pack) {}

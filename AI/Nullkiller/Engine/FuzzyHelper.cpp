@@ -145,6 +145,12 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 		return danger;
 	}
 
+	case Obj::HERO:
+	{
+		const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(obj);
+		return getHeroArmyStrengthWithCommander(hero, hero);
+	}
+
 	case Obj::ARTIFACT:
 	case Obj::RESOURCE:
 	{
@@ -153,7 +159,6 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 		[[fallthrough]];
 	}
 	case Obj::MONSTER:
-	case Obj::HERO:
 	case Obj::GARRISON:
 	case Obj::GARRISON2:
 	case Obj::CREATURE_GENERATOR1:

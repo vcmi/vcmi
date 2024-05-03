@@ -89,6 +89,9 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(const CArtifactsOfHeroBase &
 	if(artPlace.isLocked())
 		return;
 
+	if (!LOCPLINT->makingTurn)
+		return;
+
 	std::visit(
 		[this, &artPlace](auto artSetWeak) -> void
 		{
@@ -341,6 +344,20 @@ void CWindowWithArtifacts::deactivate()
 {
 	CCS->curh->dragAndDropCursor(nullptr);
 	CWindowObject::deactivate();
+}
+
+void CWindowWithArtifacts::enableArtifactsCostumeSwitcher() const
+{
+	for(auto artSet : artSets)
+		std::visit(
+			[](auto artSetWeak)
+			{
+				if constexpr(std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMain>>)
+				{
+					const auto artSetPtr = artSetWeak.lock();
+					artSetPtr->enableArtifactsCostumeSwitcher();
+				}
+			}, artSet);
 }
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)

@@ -483,6 +483,8 @@ void GlobalLobbyClient::activateInterface()
 		GH.windows().pushWindow(createLobbyWindow());
 	else
 		GH.windows().pushWindow(createLoginWindow());
+
+	GH.windows().topWindow<CIntObject>()->center();
 }
 
 void GlobalLobbyClient::activateRoomInviteInterface()

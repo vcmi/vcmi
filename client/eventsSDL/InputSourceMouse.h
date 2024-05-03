@@ -23,6 +23,7 @@ class InputSourceMouse
 {
 	Point middleClickPosition;
 	int mouseButtonsMask = 0;
+	const int mouseToleranceDistance;
 public:
 	InputSourceMouse();
 
