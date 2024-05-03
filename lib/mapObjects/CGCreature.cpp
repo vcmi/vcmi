@@ -327,23 +327,15 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	else
 		powerFactor = -3;
 
-	std::set<CreatureID> myKindCres; //what creatures are the same kind as we
-	const CCreature * myCreature = getCreature().toCreature();
-	myKindCres.insert(myCreature->getId()); //we
-	myKindCres.insert(myCreature->upgrades.begin(), myCreature->upgrades.end()); //our upgrades
-
-	for(auto const & crea : VLC->creh->objects)
-	{
-		if(vstd::contains(crea->upgrades, myCreature->getId())) //it's our base creatures
-			myKindCres.insert(crea->getId());
-	}
-
 	int count = 0; //how many creatures of similar kind has hero
 	int totalCount = 0;
 
 	for(const auto & elem : h->Slots())
 	{
-		if(vstd::contains(myKindCres,elem.second->type->getId()))
+		bool isOurUpgrade = vstd::contains(getCreature().toCreature()->upgrades, elem.second->getCreatureID());
+		bool isOurDowngrade = vstd::contains(elem.second->type->upgrades, getCreature());
+
+		if(isOurUpgrade || isOurDowngrade)
 			count += elem.second->count;
 		totalCount += elem.second->count;
 	}
@@ -365,8 +357,12 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		if(diplomacy + sympathy + 1 >= character)
 			return JOIN_FOR_FREE;
 
-		else if(diplomacy * 2  +  sympathy  +  1 >= character)
-			return VLC->creatures()->getById(getCreature())->getRecruitCost(EGameResID::GOLD) * getStackCount(SlotID(0)); //join for gold
+		if(diplomacy * 2 + sympathy + 1 >= character)
+		{
+			int32_t recruitCost = VLC->creatures()->getById(getCreature())->getRecruitCost(EGameResID::GOLD);
+			int32_t stackCount = getStackCount(SlotID(0));
+			return recruitCost * stackCount; //join for gold
+		}
 	}
 
 	//we are still here - creatures have not joined hero, flee or fight
@@ -598,7 +594,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 	if(!resources.empty())
 	{
 		cb->giveResources(h->tempOwner, resources);
-		for(auto const & res : GameResID::ALL_RESOURCES())
+		for(const auto & res : GameResID::ALL_RESOURCES())
 		{
 			if(resources[res] > 0)
 				iw.components.emplace_back(ComponentType::RESOURCE, res, resources[res]);

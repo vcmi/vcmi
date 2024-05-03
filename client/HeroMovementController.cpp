@@ -205,6 +205,9 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 
 void HeroMovementController::onQueryReplyApplied()
 {
+	if (!waitingForQueryApplyReply)
+		return;
+
 	waitingForQueryApplyReply = false;
 
 	// Server accepted our TeleportDialog query reply and moved hero
