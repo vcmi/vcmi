@@ -952,7 +952,7 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation>Força mágica</translation>
+        <translation>Poder mágico</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="251"/>
@@ -1171,7 +1171,7 @@
         <location filename="../inspector/rewardswidget.ui" line="457"/>
         <location filename="../inspector/rewardswidget.ui" line="1169"/>
         <source>Spell power</source>
-        <translation>Força mágica</translation>
+        <translation>Poder mágico</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="471"/>
@@ -1395,7 +1395,7 @@
     <message>
         <location filename="../inspector/townbulidingswidget.ui" line="29"/>
         <source>Buildings</source>
-        <translation>Construções</translation>
+        <translation>Estruturas</translation>
     </message>
 </context>
 <context>
@@ -1413,7 +1413,7 @@
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
         <source>Suppported</source>
-        <translation>Compatível</translation>
+        <translation>Suportado</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="70"/>
