@@ -884,7 +884,7 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>UNFLAGGABLE</source>
-        <translation>INSINALIZÁVEL</translation>
+        <translation>NÃO TEM BANDEIRA</translation>
     </message>
 </context>
 <context>
@@ -1477,7 +1477,7 @@
     <message>
         <location filename="../validator.cpp" line="95"/>
         <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation>A instância armada %1 não pode ser marcada, mas deve ter neutro ou proprietário do jogador</translation>
+        <translation>A instância protegida %1 não tem bandeira mas precisa ser definida como neutra ou pertencente a um dos jogadores</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="101"/>
