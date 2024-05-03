@@ -1056,7 +1056,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="104"/>
         <source>On select text</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei markiertem Text</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="111"/>
