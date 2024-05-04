@@ -44,8 +44,8 @@ void VideoWidget::show(Canvas & to)
 
 void VideoWidget::activate()
 {
-	if(videoInstance)
-		videoInstance->playAudio();
+//	if(videoInstance)
+//		videoInstance->playAudio();
 
 	if(videoSoundHandle != -1)
 	{

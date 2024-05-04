@@ -19,6 +19,7 @@ struct SDL_Surface;
 struct SDL_Texture;
 struct AVFormatContext;
 struct AVCodecContext;
+struct AVCodecParameters;
 struct AVCodec;
 struct AVFrame;
 struct AVIOContext;
@@ -27,19 +28,50 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CInputStream;
 VCMI_LIB_NAMESPACE_END
 
-struct FFMpegStreamState
+class FFMpegStream
 {
+	std::unique_ptr<CInputStream> input;
+
 	AVIOContext * context = nullptr;
 	AVFormatContext * formatContext = nullptr;
 
 	const AVCodec * codec = nullptr;
 	AVCodecContext * codecContext = nullptr;
 	int streamIndex = -1;
+
+	AVFrame * frame = nullptr;
+
+protected:
+	void openContext();
+	void openCodec(int streamIndex);
+
+	int findVideoStream();
+	int findAudioStream();
+
+	const AVCodecParameters * getCodecParameters();
+	const AVCodecContext * getCodecContext();
+	void decodeNextFrame();
+	const AVFrame * getCurrentFrame();
+	double getCurrentFrameEndTime();
+	double getCurrentFrameDuration();
+
+public:
+	virtual ~FFMpegStream();
+
+	void openInput(const VideoPath & fname);
 };
 
-struct FFMpegVideoOutput
+class CAudioInstance final : public FFMpegStream
 {
-	AVFrame * frame = nullptr;
+public:
+	std::pair<std::unique_ptr<ui8 []>, si64> extractAudio(const VideoPath & videoToOpen);
+};
+
+class CVideoInstance final : public IVideoInstance, public FFMpegStream
+{
+	friend class CVideoPlayer;
+
+
 	struct SwsContext * sws = nullptr;
 	SDL_Texture * textureRGB = nullptr;
 	SDL_Texture * textureYUV = nullptr;
@@ -48,37 +80,20 @@ struct FFMpegVideoOutput
 
 	/// video playback current progress, in seconds
 	double frameTime = 0.0;
-	bool videoEnded = false;
-};
 
-class CVideoInstance final : public IVideoInstance
-{
-	friend class CVideoPlayer;
-
-	std::unique_ptr<CInputStream> input;
-
-	FFMpegStreamState video;
-	FFMpegVideoOutput output;
-
-	void open(const VideoPath & fname);
-	void openContext(FFMpegStreamState & streamState);
-	void openCodec(FFMpegStreamState & streamState, int streamIndex);
-	void openVideo();
 	void prepareOutput(bool scaleToScreenSize, bool useTextureOutput);
-
-	bool nextFrame();
-	void close();
-	void closeState(FFMpegStreamState & streamState);
 
 public:
 	~CVideoInstance();
+
+	void openVideo();
+	bool loadNextFrame();
 
 	bool videoEnded() final;
 	Point size() final;
 
 	void show(const Point & position, Canvas & canvas) final;
 	void tick(uint32_t msPassed) final;
-	void playAudio() final;
 };
 
 class CVideoPlayer final : public IVideoPlayer
@@ -90,6 +105,7 @@ public:
 	bool playIntroVideo(const VideoPath & name) final;
 	void playSpellbookAnimation(const VideoPath & name, const Point & position) final;
 	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) final;
+	std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) final;
 };
 
 #endif

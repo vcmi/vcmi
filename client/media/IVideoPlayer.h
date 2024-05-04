@@ -32,9 +32,6 @@ public:
 	/// Advances video playback by specified duration
 	virtual void tick(uint32_t msPassed) = 0;
 
-	/// Attempts to start audio playback from video, if any exists
-	virtual void playAudio() = 0;
-
 	virtual ~IVideoInstance() = default;
 };
 
@@ -49,6 +46,9 @@ public:
 
 	/// Load video from specified path. Returns nullptr on failure
 	virtual std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) = 0;
+
+	/// Extracts audio data from provided video in wav format
+	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) = 0;
 
 	virtual ~IVideoPlayer() = default;
 };
