@@ -389,72 +389,29 @@ void CVideoInstance::tick(uint32_t msPassed)
 		loadNextFrame();
 }
 
-static bool sampleIsPlanar(int audioFormat)
+struct FFMpegFormatDescription
+{
+	uint8_t sampleSizeBytes;
+	uint8_t wavFormatID;
+	bool isPlanar;
+};
+
+static FFMpegFormatDescription getAudioFormatProperties(int audioFormat)
 {
 	switch (audioFormat)
 	{
-		case AV_SAMPLE_FMT_U8:          ///< unsigned 8 bits
-		case AV_SAMPLE_FMT_S16:         ///< signed 16 bits
-		case AV_SAMPLE_FMT_S32:         ///< signed 32 bits
-		case AV_SAMPLE_FMT_S64:         ///< signed 64 bits
-		case AV_SAMPLE_FMT_FLT:         ///< float
-		case AV_SAMPLE_FMT_DBL:         ///< double
-			return false;
-		case AV_SAMPLE_FMT_U8P:         ///< unsigned 8 bits, planar
-		case AV_SAMPLE_FMT_S16P:        ///< signed 16 bits, planar
-		case AV_SAMPLE_FMT_S32P:        ///< signed 32 bits, planar
-		case AV_SAMPLE_FMT_S64P:        ///< signed 64 bits, planar
-		case AV_SAMPLE_FMT_FLTP:        ///< float, planar
-		case AV_SAMPLE_FMT_DBLP:        ///< double, planar
-			return true;
-	}
-	throw std::runtime_error("Invalid audio format");
-}
-
-
-static int32_t sampleSizeBytes(int audioFormat)
-{
-	switch (audioFormat)
-	{
-		case AV_SAMPLE_FMT_U8:          ///< unsigned 8 bits
-		case AV_SAMPLE_FMT_U8P:         ///< unsigned 8 bits, planar
-			return 1;
-		case AV_SAMPLE_FMT_S16:         ///< signed 16 bits
-		case AV_SAMPLE_FMT_S16P:        ///< signed 16 bits, planar
-			return 2;
-		case AV_SAMPLE_FMT_S32:         ///< signed 32 bits
-		case AV_SAMPLE_FMT_S32P:        ///< signed 32 bits, planar
-		case AV_SAMPLE_FMT_FLT:         ///< float
-		case AV_SAMPLE_FMT_FLTP:        ///< float, planar
-			return 4;
-		case AV_SAMPLE_FMT_DBL:         ///< double
-		case AV_SAMPLE_FMT_DBLP:        ///< double, planar
-		case AV_SAMPLE_FMT_S64:         ///< signed 64 bits
-		case AV_SAMPLE_FMT_S64P:        ///< signed 64 bits, planar
-			return 8;
-	}
-	throw std::runtime_error("Invalid audio format");
-}
-
-static int32_t sampleWavType(int audioFormat)
-{
-	switch (audioFormat)
-	{
-		case AV_SAMPLE_FMT_U8:          ///< unsigned 8 bits
-		case AV_SAMPLE_FMT_U8P:         ///< unsigned 8 bits, planar
-		case AV_SAMPLE_FMT_S16:         ///< signed 16 bits
-		case AV_SAMPLE_FMT_S16P:        ///< signed 16 bits, planar
-		case AV_SAMPLE_FMT_S32:         ///< signed 32 bits
-		case AV_SAMPLE_FMT_S32P:        ///< signed 32 bits, planar
-		case AV_SAMPLE_FMT_S64:         ///< signed 64 bits
-		case AV_SAMPLE_FMT_S64P:        ///< signed 64 bits, planar
-			return 1; // PCM
-
-		case AV_SAMPLE_FMT_FLT:         ///< float
-		case AV_SAMPLE_FMT_FLTP:        ///< float, planar
-		case AV_SAMPLE_FMT_DBL:         ///< double
-		case AV_SAMPLE_FMT_DBLP:        ///< double, planar
-			return 3; // IEEE float
+		case AV_SAMPLE_FMT_U8:   return { 1, 1, false};
+		case AV_SAMPLE_FMT_U8P:  return { 1, 1, true};
+		case AV_SAMPLE_FMT_S16:  return { 2, 1, false};
+		case AV_SAMPLE_FMT_S16P: return { 2, 1, true};
+		case AV_SAMPLE_FMT_S32:  return { 4, 1, false};
+		case AV_SAMPLE_FMT_S32P: return { 4, 1, true};
+		case AV_SAMPLE_FMT_S64:  return { 8, 1, false};
+		case AV_SAMPLE_FMT_S64P: return { 8, 1, true};
+		case AV_SAMPLE_FMT_FLT:  return { 4, 3, false};
+		case AV_SAMPLE_FMT_FLTP: return { 4, 3, true};
+		case AV_SAMPLE_FMT_DBL:  return { 8, 3, false};
+		case AV_SAMPLE_FMT_DBLP: return { 8, 3, true};
 	}
 	throw std::runtime_error("Invalid audio format");
 }
@@ -487,7 +444,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 
 	std::vector<ui8> samples;
 
-	int32_t sampleSize = sampleSizeBytes(codecpar->format);
+	auto formatProperties = getAudioFormatProperties(codecpar->format);
 	int numChannels = codecpar->channels;
 
 	// Workaround for lack of resampler
@@ -499,7 +456,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	// - use SDL resampler, however planar formats are not suppported by it either
 	// - generate two audio streams and play them separately
 	// Good news is that it looks like none of H3 video files use this format (only in not supported HD Edition)
-	if (sampleIsPlanar(codecpar->format))
+	if (formatProperties.isPlanar)
 		numChannels = 1;
 
 	samples.reserve(44100 * 5); // arbitrary 5-second buffer
@@ -512,7 +469,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 		if (!frame)
 			break;
 
-		int bytesToRead = frame->nb_samples * numChannels * sampleSize;
+		int bytesToRead = frame->nb_samples * numChannels * formatProperties.sampleSizeBytes;
 		samples.insert(samples.end(), frame->data[0], frame->data[0] + bytesToRead);
 	}
 
@@ -534,11 +491,11 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 
 	wav_hdr wav;
 	wav.ChunkSize = samples.size() + sizeof(wav_hdr) - 8;
-	wav.AudioFormat = sampleWavType(codecpar->format);
+	wav.AudioFormat = formatProperties.wavFormatID; // 1 = PCM, 3 = IEEE float
 	wav.NumOfChan = numChannels;
 	wav.SamplesPerSec = codecpar->sample_rate;
-	wav.bytesPerSec = codecpar->sample_rate * sampleSize;
-	wav.bitsPerSample = sampleSize * 8;
+	wav.bytesPerSec = codecpar->sample_rate * formatProperties.sampleSizeBytes;
+	wav.bitsPerSample = formatProperties.sampleSizeBytes * 8;
 	wav.Subchunk2Size = samples.size() + sizeof(wav_hdr) - 44;
 	auto wavPtr = reinterpret_cast<ui8*>(&wav);
 
