@@ -34,7 +34,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	SObjectSounds sounds;
 
-	[[deprecated]] std::optional<si32> aiValue;
+	std::optional<si32> aiValue; // TODO: Should be deprecated
 	BattleField battlefield;
 
 	std::string modScope;
