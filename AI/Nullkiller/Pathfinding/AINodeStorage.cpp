@@ -104,7 +104,7 @@ AINodeStorage::~AINodeStorage() = default;
 
 void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
 {
-	if(heroChainPass)
+	if(heroChainPass != EHeroChainPass::INITIAL)
 		return;
 
 	AISharedStorage::version++;
@@ -157,6 +157,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 void AINodeStorage::clear()
 {
 	actors.clear();
+	commitedTiles.clear();
 	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
@@ -169,7 +170,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	int bucketIndex = ((uintptr_t)actor) % AIPathfinding::BUCKET_COUNT;
+	int bucketIndex = ((uintptr_t)actor + static_cast<uint32_t>(layer)) % AIPathfinding::BUCKET_COUNT;
 	int bucketOffset = bucketIndex * AIPathfinding::BUCKET_SIZE;
 	auto chains = nodes.get(pos);
 
@@ -330,10 +331,38 @@ void AINodeStorage::calculateNeighbours(
 
 	for(auto & neighbour : accessibleNeighbourTiles)
 	{
+		if(getAccessibility(neighbour, layer) == EPathAccessibility::NOT_SET)
+		{
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+			logAi->trace(
+				"Node %s rejected for %s, layer %d because of inaccessibility",
+				neighbour.toString(),
+				source.coord.toString(),
+				static_cast<int32_t>(layer));
+#endif
+			continue;
+		}
+
 		auto nextNode = getOrCreateNode(neighbour, layer, srcNode->actor);
 
-		if(!nextNode || nextNode.value()->accessible == EPathAccessibility::NOT_SET)
+		if(!nextNode)
+		{
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+			logAi->trace(
+				"Failed to allocate node at %s[%d]",
+				neighbour.toString(),
+				static_cast<int32_t>(layer));
+#endif
 			continue;
+		}
+
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+		logAi->trace(
+			"Node %s added to neighbors of %s, layer %d",
+			neighbour.toString(),
+			source.coord.toString(),
+			static_cast<int32_t>(layer));
+#endif
 
 		result.push_back(nextNode.value());
 	}

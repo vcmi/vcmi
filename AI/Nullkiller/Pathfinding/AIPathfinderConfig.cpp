@@ -47,6 +47,7 @@ namespace AIPathfinding
 		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
 	{
 		options.canUseCast = true;
+		options.allowLayerTransitioningAfterBattle = true;
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;
