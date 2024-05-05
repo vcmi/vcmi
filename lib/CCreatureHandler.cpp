@@ -290,7 +290,7 @@ si32 CCreature::maxAmount(const TResources &res) const //how many creatures can 
 CCreature::CCreature()
 {
 	setNodeType(CBonusSystemNode::CREATURE);
-	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
+	AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
 }
 
 void CCreature::addBonus(int val, BonusType type)
@@ -543,8 +543,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		for(int v=0; v<7; ++v)
 			data["cost"][GameConstants::RESOURCE_NAMES[v]].Float() = parser.readNumber();
 
-		// Deprecated
-		int fightValueUnused = parser.readNumber();
+		parser.readNumber(); // Skip fightValue
 		data["aiValue"].Float() = parser.readNumber();
 		data["growth"].Float() = parser.readNumber();
 		data["horde"].Float() = parser.readNumber();
