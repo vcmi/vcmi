@@ -289,6 +289,34 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
+         <item row="4" column="3">
+          <widget class="QProgressBar" name="progressBarGog">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+            <property name="textVisible">
+             <bool>true</bool>
+            </property>
+            <property name="invertedAppearance">
+             <bool>false</bool>
+            </property>
+            <property name="format">
+             <string>Installing... %p%</string>
+            </property>
+            <property name="visible">
+              <bool>false</bool>
+            </property>
+           </widget>
+         </item>
          <item row="2" column="3">
           <widget class="QPushButton" name="pushButtonDataSearch">
            <property name="sizePolicy">
