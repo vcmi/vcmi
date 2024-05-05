@@ -125,6 +125,13 @@
 	"vcmi.lobby.mod.state.version" : "Niepoprawna wersja",
 	"vcmi.lobby.mod.state.excessive" : "Musi być wyłączony",
 	"vcmi.lobby.mod.state.missing" : "Nie zainstalowany",
+	"vcmi.lobby.pvp.coin.hover" : "Moneta",
+	"vcmi.lobby.pvp.coin.help" : "Rzut monetą",
+	"vcmi.lobby.pvp.randomTown.hover" : "Losowe miasto",
+	"vcmi.lobby.pvp.randomTown.help" : "Wyświetli nazwę wylosowanego miasta na czacie",
+	"vcmi.lobby.pvp.randomTownVs.hover" : "Losowe miasto vs.",
+	"vcmi.lobby.pvp.randomTownVs.help" : "Wyświetli nazwę 2 wylosowanych miast na czacie",
+	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Błędna mapa lub kampania}\n\nNie udało się stworzyć gry! Wybrana mapa lub kampania jest niepoprawna lub uszkodzona. Powód:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Brakujące pliki gry}\n\nPliki kampanii nie zostały znalezione! Możliwe że używasz niekompletnych lub uszkodzonych plików Heroes 3. Spróbuj ponownej instalacji plików gry.",
