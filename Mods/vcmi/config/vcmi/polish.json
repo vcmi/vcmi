@@ -91,7 +91,7 @@
 	"vcmi.lobby.match.duel" : "Graj z %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d graczy",
 	"vcmi.lobby.room.create" : "Stwórz nowy pokój",
-	"vcmi.lobby.room.players.limit" : "Maks. graczy",
+	"vcmi.lobby.room.players.limit" : "Limit graczy",
 	"vcmi.lobby.room.description.public" : "Każdy może dołączyć do pokoju.",
 	"vcmi.lobby.room.description.private" : "Tylko zaproszeni gracze mogą dołączyć do pokoju.",
 	"vcmi.lobby.room.description.new" : "By rozpocząć grę, wybierz scenariusz lub losowy szablon.",
@@ -136,7 +136,7 @@
 	"vcmi.server.errors.modConflict" : "Nie udało się wczytać moda {'%s'}!\n Konflikty z aktywnym modem {'%s'}!\n",
 	"vcmi.server.errors.unknownEntity" : "Nie udało się wczytać zapisu! Nieznany element '%s' znaleziony w pliku zapisu! Zapis może nie być zgodny z aktualnie zainstalowaną wersją modów!",
 
-	"vcmi.dimensionDoor.seaToLandError" : "Nie jest możliwa teleportacja drzwi wymiarów z wód na ląd i na odwrót.",
+	"vcmi.dimensionDoor.seaToLandError" : "Nie jest możliwa teleportacja przez drzwi wymiarów z wód na ląd i na odwrót.",
 
 	"vcmi.settingsMainWindow.generalTab.hover"   : "Ogólne",
 	"vcmi.settingsMainWindow.generalTab.help"    : "Przełącza do zakładki opcji ogólnych, która zawiera ustawienia związane z ogólnym działaniem gry",
