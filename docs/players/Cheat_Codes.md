@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Cheat Codes
-
 # Cheat Codes
 
 Similar to H3, VCMI provides cheat codes to make testing game more convenient.

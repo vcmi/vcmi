@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Code Structure
-
 The code of VCMI is divided into several main parts: client, server, lib and AIs, each one in a separate binary file.
 
 # The big picture

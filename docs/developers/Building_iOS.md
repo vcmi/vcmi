@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Building for iOS
-
 ## Requirements
 
 1. **macOS**

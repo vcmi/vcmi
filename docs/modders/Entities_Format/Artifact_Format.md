@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / Entities Format / Artifact Format
-
 Artifact bonuses use [Bonus Format](../Bonus_Format.md)
 
 ## Required data

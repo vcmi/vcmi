@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Coding Guidelines
-
 ## C++ Standard
 
 VCMI implementation bases on C++17 standard. Any feature is acceptable as long as it's will pass build on our CI, but there is list below on what is already being used.

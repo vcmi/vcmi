@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Lua Scripting System
-
 # Configuration
 
 ``` javascript

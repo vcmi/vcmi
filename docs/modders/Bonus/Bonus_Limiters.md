@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Limiters
-
 ## Predefined Limiters
 
 The limiters take no parameters:
