@@ -13,7 +13,6 @@
 			{
 				"index" : 0,
 				"name" : "Cyclops Stockpile",
-				"aiValue" : 3000,
 				"sounds" : {
 					"ambient" : ["LOOPCAVE"]
 				},
@@ -31,8 +30,6 @@
 							{ "amount": 4, "type": "cyclop" },
 							{ "amount": 4, "type": "cyclop" }
 						],
-
-						"combat_value": 506,
 						"reward" : {
 							"value": 10000,
 							"resources": 
@@ -46,7 +43,6 @@
 							}
 						}
 					},
-
 					{
 						"chance": 30,
 						"guards": [
@@ -56,7 +52,6 @@
 							{ "amount": 6, "type": "cyclop" },
 							{ "amount": 6, "type": "cyclop" }
 						],
-						"combat_value": 760,
 						"reward" : {
 							"value": 15000,
 							"resources": 
@@ -79,7 +74,6 @@
 							{ "amount": 8, "type": "cyclop" },
 							{ "amount": 8, "type": "cyclop" }
 						],
-						"combat_value": 1013,
 						"reward" : {
 							"value": 20000,
 							"resources":
@@ -102,7 +96,6 @@
 							{ "amount": 10, "type": "cyclop" },
 							{ "amount": 10, "type": "cyclop" }
 						],
-						"combat_value": 1266,
 						"reward" : {
 							"value": 25000,
 							"resources":
@@ -122,7 +115,6 @@
 				"index" : 1,
 				"resetDuration" : 0,
 				"name" : "Dwarven Treasury",
-				"aiValue" : 2000,
 				"sounds" : {
 					"ambient" : ["LOOPDWAR"]
 				},
@@ -140,7 +132,6 @@
 							{ "amount": 10, "type": "dwarf" },
 							{ "amount": 10, "type": "dwarf" }
 						],
-						"combat_value": 194,
 						"reward" : {
 						"value": 3500,
 							"resources":
@@ -159,7 +150,6 @@
 							{ "amount": 15, "type": "dwarf" },
 							{ "amount": 15, "type": "dwarf" }
 						],
-						"combat_value": 291,
 						"reward" : {
 							"value": 5500,
 							"resources":
@@ -178,7 +168,6 @@
 							{ "amount": 20, "type": "dwarf" },
 							{ "amount": 20, "type": "dwarf" }
 						],
-						"combat_value": 388,
 						"reward" : {
 							"value": 7500,
 							"resources":
@@ -197,7 +186,6 @@
 							{ "amount": 30, "type": "dwarf" },
 							{ "amount": 30, "type": "dwarf" }
 						],
-						"combat_value": 582,
 						"reward" : {
 							"value": 12500,
 							"resources":
@@ -213,7 +201,6 @@
 				"index" : 2,
 				"resetDuration" : 0,
 				"name" : "Griffin Conservatory",
-				"aiValue" : 9000,
 				"sounds" : {
 					"ambient" : ["LOOPGRIF"]
 				},
@@ -231,7 +218,6 @@
 							{ "amount": 10, "type": "griffin" },
 							{ "amount": 10, "type": "griffin" }
 						],
-						"combat_value": 351,
 						"reward" : {
 							"value": 3000,
 							"creatures": [ { "amount": 1, "type": "angel" } ]
@@ -246,7 +232,6 @@
 							{ "amount": 20, "type": "griffin" },
 							{ "amount": 20, "type": "griffin" }
 						],
-						"combat_value": 702,
 						"reward" : {
 							"value": 6000,
 							"creatures": [ { "amount": 2, "type": "angel" } ]
@@ -261,7 +246,6 @@
 							{ "amount": 30, "type": "griffin" },
 							{ "amount": 30, "type": "griffin" }
 						],
-						"combat_value": 1053,
 						"reward" : {
 							"value": 9000,
 							"creatures": [ { "amount": 3, "type": "angel" } ]
@@ -276,7 +260,6 @@
 							{ "amount": 40, "type": "griffin" },
 							{ "amount": 40, "type": "griffin" }
 						],
-						"combat_value": 1404,
 						"reward" : {
 							"value": 12000,
 							"creatures": [ { "amount": 4, "type": "angel" } ]
@@ -288,7 +271,6 @@
 				"index" : 3,
 				"resetDuration" : 0,
 				"name" : "Imp Cache",
-				"aiValue" : 1500,
 				"sounds" : {
 					"ambient" : ["LOOPFIRE"]
 				},
@@ -306,7 +288,6 @@
 							{ "amount": 20, "type": "imp" },
 							{ "amount": 20, "type": "imp" }
 						],
-						"combat_value": 100,
 						"reward" : {
 							"value": 2000,
 							"resources":
@@ -324,7 +305,6 @@
 							{ "amount": 30, "type": "imp" },
 							{ "amount": 30, "type": "imp" }
 						],
-						"combat_value": 150,
 						"reward" : {
 							"value": 3000,
 							"resources":
@@ -343,7 +323,6 @@
 							{ "amount": 40, "type": "imp" },
 							{ "amount": 40, "type": "imp" }
 						],
-						"combat_value": 200,
 						"reward" : {
 							"value": 4000,
 							"resources":
@@ -362,7 +341,6 @@
 							{ "amount": 60, "type": "imp" },
 							{ "amount": 60, "type": "imp" }
 						],
-						"combat_value": 300,
 						"reward" : {
 							"value": 6000,
 							"resources":
@@ -378,7 +356,6 @@
 				"index" : 4,
 				"resetDuration" : 0,
 				"name" : "Medusa Stores",
-				"aiValue" : 1500,
 				"sounds" : {
 					"ambient" : ["LOOPMEDU"]
 				},
@@ -396,7 +373,6 @@
 							{ "amount": 4, "type": "medusa" },
 							{ "amount": 4, "type": "medusa" }
 						],
-						"combat_value": 207,
 						"reward" : {
 							"value": 4500,
 							"resources":
@@ -415,7 +391,6 @@
 							{ "amount": 6, "type": "medusa" },
 							{ "amount": 6, "type": "medusa" }
 						],
-						"combat_value": 310,
 						"reward" : {
 							"value": 6000,
 							"resources":
@@ -434,7 +409,6 @@
 							{ "amount": 8, "type": "medusa" },
 							{ "amount": 8, "type": "medusa" }
 						],
-						"combat_value": 414,
 						"reward" : {
 							"value": 8000,
 							"resources":
@@ -453,7 +427,6 @@
 							{ "amount": 10, "type": "medusa" },
 							{ "amount": 10, "type": "medusa" }
 						],
-						"combat_value": 517,
 						"reward" : {
 							"value": 10000,
 							"resources":
@@ -469,7 +442,6 @@
 				"index" : 5,
 				"resetDuration" : 0,
 				"name" : "Naga Bank",
-				"aiValue" : 3000,
 				"sounds" : {
 					"ambient" : ["LOOPNAGA"]
 				},
@@ -487,7 +459,6 @@
 							{ "amount": 2, "type": "naga" },
 							{ "amount": 2, "type": "naga" }
 						],
-						"combat_value": 403,
 						"reward" : {
 							"value": 8000,
 							"resources":
@@ -506,7 +477,6 @@
 							{ "amount": 3, "type": "naga" },
 							{ "amount": 3, "type": "naga" }
 						],
-						"combat_value": 605,
 						"reward" : {
 							"value": 12000,
 							"resources":
@@ -525,7 +495,6 @@
 							{ "amount": 4, "type": "naga" },
 							{ "amount": 4, "type": "naga" }
 						],
-						"combat_value": 806,
 						"reward" : {
 							"value": 16000,
 							"resources":
@@ -544,7 +513,6 @@
 							{ "amount": 6, "type": "naga" },
 							{ "amount": 6, "type": "naga" }
 						],
-						"combat_value": 1210,
 						"reward" : {
 							"value": 24000,
 							"resources":
@@ -560,7 +528,6 @@
 				"index" : 6,
 				"resetDuration" : 0,
 				"name" : "Dragon Fly Hive",
-				"aiValue" : 9000,
 				"sounds" : {
 					"ambient" : ["LOOPLEAR"]
 				},
@@ -578,7 +545,6 @@
 							{ "amount": 6, "type": "fireDragonFly" },
 							{ "amount": 6, "type": "fireDragonFly" }
 						],
-						"combat_value": 154,
 						"reward" : {
 							"value": 3200,
 							"creatures": [ { "amount": 4, "type": "wyvern" } ]
@@ -593,7 +559,6 @@
 							{ "amount": 9, "type": "fireDragonFly" },
 							{ "amount": 9, "type": "fireDragonFly" }
 						],
-						"combat_value": 230,
 						"reward" : {
 							"value": 4800,
 							"creatures": [ { "amount": 6, "type": "wyvern" } ]
@@ -608,7 +573,6 @@
 							{ "amount": 12, "type": "fireDragonFly" },
 							{ "amount": 12, "type": "fireDragonFly" }
 						],
-						"combat_value": 307,
 						"reward" : {
 							"value": 6400,
 							"creatures": [ { "amount": 8, "type": "wyvern" } ]
@@ -623,7 +587,6 @@
 							{ "amount": 18, "type": "fireDragonFly" },
 							{ "amount": 18, "type": "fireDragonFly" }
 						],
-						"combat_value": 461,
 						"reward" : {
 							"value": 9600,
 							"creatures": [ { "amount": 12, "type": "wyvern" } ]
@@ -648,7 +611,6 @@
 				"blockedVisitable" : true,
 				"coastVisitable" : true,
 				"name" : "Shipwreck",
-				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
@@ -663,7 +625,6 @@
 							{ "amount": 2, "type": "wight" },
 							{ "amount": 2, "type": "wight" }
 						],
-						"combat_value": 31,
 						"reward" : {
 							"value": 2000,
 							"resources":
@@ -681,7 +642,6 @@
 							{ "amount": 3, "type": "wight" },
 							{ "amount": 3, "type": "wight" }
 						],
-						"combat_value": 46,
 						"reward" : {
 							"value": 3000,
 							"resources":
@@ -699,7 +659,6 @@
 							{ "amount": 5, "type": "wight" },
 							{ "amount": 5, "type": "wight" }
 						],
-						"combat_value": 77,
 						"reward" : {
 							"value": 5000,
 							"resources":
@@ -718,7 +677,6 @@
 							{ "amount": 10, "type": "wight" },
 							{ "amount": 10, "type": "wight" }
 						],
-						"combat_value": 154,
 						"reward" : {
 							"value": 7000,
 							"resources":
@@ -746,7 +704,6 @@
 				"resetDuration" : 0,
 				"blockedVisitable" : true,
 				"name" : "Derelict Ship",
-				"aiValue" : 4000,
 				"rmg" : {
 					"value"		: 4000,
 					"rarity"	: 20
@@ -761,7 +718,6 @@
 							{ "amount": 4, "type": "waterElemental" },
 							{ "amount": 4, "type": "waterElemental" }
 						],
-						"combat_value": 138,
 						"reward" : {
 							"value": 3000,
 							"resources":
@@ -779,7 +735,6 @@
 							{ "amount": 6, "type": "waterElemental" },
 							{ "amount": 6, "type": "waterElemental" }
 						],
-						"combat_value": 207,
 						"reward" : {
 							"value": 4000,
 							"resources":
@@ -798,7 +753,6 @@
 							{ "amount": 8, "type": "waterElemental" },
 							{ "amount": 8, "type": "waterElemental" }
 						],
-						"combat_value": 276,
 						"reward" : {
 							"value": 5000,
 							"resources":
@@ -817,7 +771,6 @@
 							{ "amount": 12, "type": "waterElemental" },
 							{ "amount": 12, "type": "waterElemental" }
 						],
-						"combat_value": 414,
 						"reward" : {
 							"value": 8000,
 							"resources":
@@ -845,7 +798,6 @@
 				"index" : 0,
 				"resetDuration" : 0,
 				"name" : "Crypt",
-				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1000,
 					"rarity"	: 100
@@ -860,7 +812,6 @@
 							{ "amount": 10, "type": "skeleton" },
 							{ "amount": 10, "type": "skeleton" }
 						],
-						"combat_value": 75,
 						"reward" : {
 							"value": 1500,
 							"resources":
@@ -878,7 +829,6 @@
 							{ "amount": 10, "type": "walkingDead" },
 							{ "amount": 12, "type": "skeleton" }
 						],
-						"combat_value": 94,
 						"reward" : {
 							"value": 2000,
 							"resources":
@@ -895,7 +845,6 @@
 							{ "amount": 10, "type": "wight" },
 							{ "amount": 5, "type": "vampire" }
 						],
-						"combat_value": 169,
 						"reward" : {
 							"value": 3500,
 							"resources":
@@ -913,7 +862,6 @@
 							{ "amount": 10, "type": "wight" },
 							{ "amount": 10, "type": "vampire" }
 						],
-						"combat_value": 225,
 						"reward" : {
 							"value": 6000,
 							"resources":
@@ -941,7 +889,6 @@
 				"index" : 0,
 				"resetDuration" : 0,
 				"name" : "Dragon Utopia",
-				"aiValue" : 11000,
 				"rmg" : {
 					"value"		: 10000,
 					"rarity"	: 100
@@ -955,7 +902,6 @@
 							{ "amount": 2, "type": "goldDragon" },
 							{ "amount": 1, "type": "blackDragon" }
 						],
-						"combat_value": 769,
 						"reward" : {
 							"value": 38000,
 							"resources":
@@ -978,7 +924,6 @@
 							{ "amount": 3, "type": "goldDragon" },
 							{ "amount": 2, "type": "blackDragon" }
 						],
-						"combat_value": 209,
 						"reward" : {
 							"value": 57000,
 							"resources":
@@ -1001,7 +946,6 @@
 							{ "amount": 4, "type": "goldDragon" },
 							{ "amount": 3, "type": "blackDragon" }
 						],
-						"combat_value": 556,
 						"reward" : {
 							"value": 75000,
 							"resources":
@@ -1024,7 +968,6 @@
 							{ "amount": 6, "type": "goldDragon" },
 							{ "amount": 5, "type": "blackDragon" }
 						],
-						"combat_value": 343,
 						"reward" : {
 							"value": 90000,
 							"resources":
@@ -1056,7 +999,6 @@
 				"index" : 0,
 				"resetDuration" : 0,
 				"name" : "Pyramid",
-				"aiValue" : 8000,
 				"rmg" : {
 					"value"		: 5000,
 					"rarity"	: 20
@@ -1069,7 +1011,6 @@
 							{ "amount": 10, "type": "diamondGolem" },
 							{ "amount": 10, "type": "diamondGolem" }
 						],
-						"combat_value": 786,
 						"reward" : {
 							"value": 15000,
 							"spells" : [ { "level" : 5 } ]
