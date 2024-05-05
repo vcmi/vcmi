@@ -43,8 +43,8 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	FactionID faction = FactionID::NEUTRAL;
 	ui8 level = 0; // 0 - unknown; 1-7 for "usual" creatures
 
-	//stats that are not handled by bonus system
-	ui32 fightValue, AIValue, growth, hordeGrowth;
+	ui32 fightValue [[deprecated("Use AIValue instead")]] = 0;
+	ui32 AIValue, growth, hordeGrowth;
 
 	bool doubleWide = false;
 
@@ -130,7 +130,7 @@ public:
 	int32_t getAdvMapAmountMin() const override;
 	int32_t getAdvMapAmountMax() const override;
 	int32_t getAIValue() const override;
-	int32_t getFightValue() const override;
+	[[deprecated("Use AIValue instead")]] int32_t getFightValue() const override;
 	int32_t getLevel() const override;
 	int32_t getGrowth() const override;
 	int32_t getHorde() const override;

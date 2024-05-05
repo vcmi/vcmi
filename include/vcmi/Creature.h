@@ -49,7 +49,7 @@ public:
 	virtual int32_t getAdvMapAmountMin() const = 0;
 	virtual int32_t getAdvMapAmountMax() const = 0;
 	virtual int32_t getAIValue() const = 0;
-	virtual int32_t getFightValue() const = 0;
+	virtual int32_t getFightValue() const [[deprecated("Use AIValue instead")]] { return 0; };
 	virtual int32_t getLevel() const = 0;
 	virtual int32_t getGrowth() const = 0;
 	virtual int32_t getHorde() const = 0;

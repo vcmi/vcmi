@@ -50,10 +50,8 @@ In order to make functional creature you also need:
 		"gems" : 0,
 		"gold" : 0
 	},
-	// "value" of creature, used to determine for example army strength
-	"fightValue" : 0,
 
-	// Describes how valuable this creature is to AI. Usually similar to fightValue
+	// Used by AI and RMG to evaluate creature strength.
 	"aiValue" : 0,
 	
 	// Basic growth of this creature in town or in external dwellings

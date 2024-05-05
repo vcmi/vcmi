@@ -11,7 +11,7 @@
 		{
 			"required" : [
 				"name", "level", "cost", "speed", "hitPoints", "attack", "defense", "damage",
-				"fightValue", "aiValue", "advMapAmount", "graphics", "sound"
+				"aiValue", "advMapAmount", "graphics", "sound"
 			]
 		}
 	],
@@ -88,11 +88,11 @@
 		},
 		"fightValue" : {
 			"type" : "number",
-			"description" : " \"value\" of creature, used to determine for example army strength"
+			"description" : "Unused, deprecated"
 		},
 		"aiValue" : {
 			"type" : "number",
-			"description" : "Describes how valuable this creature is to AI. Usually similar to fightValue"
+			"description" : "Used by AI and RMG to evaluate creature strength"
 		},
 		"growth" : {
 			"type" : "number",

@@ -90,7 +90,7 @@ int32_t CCreature::getAIValue() const
 
 int32_t CCreature::getFightValue() const
 {
-	return fightValue;
+	return 0;
 }
 
 int32_t CCreature::getLevel() const
@@ -376,7 +376,6 @@ void CCreature::updateFrom(const JsonNode & data)
 
 void CCreature::serializeJson(JsonSerializeFormat & handler)
 {
-	handler.serializeInt("fightValue", fightValue);
 	handler.serializeInt("aiValue", AIValue);
 	handler.serializeInt("growth", growth);
 	handler.serializeInt("horde", hordeGrowth);// Needed at least until configurable buildings
@@ -544,7 +543,8 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		for(int v=0; v<7; ++v)
 			data["cost"][GameConstants::RESOURCE_NAMES[v]].Float() = parser.readNumber();
 
-		data["fightValue"].Float() = parser.readNumber();
+		// Deprecated
+		int fightValueUnused = parser.readNumber();
 		data["aiValue"].Float() = parser.readNumber();
 		data["growth"].Float() = parser.readNumber();
 		data["horde"].Float() = parser.readNumber();

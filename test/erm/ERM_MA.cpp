@@ -109,7 +109,6 @@ TEST_F(ERM_MA, Example)
 	EXPECT_CALL(oldCreature, getBaseSpellPoints()).WillOnce(Return(CASTS));
 	EXPECT_CALL(oldCreature, getHorde()).WillOnce(Return(HORDE));
 	EXPECT_CALL(oldCreature, getAIValue()).WillOnce(Return(AI_VALUE));
-	EXPECT_CALL(oldCreature, getFightValue()).WillOnce(Return(FIGHT_VALUE));
 	EXPECT_CALL(oldCreature, getLevel()).WillOnce(Return(LEVEL));
 	EXPECT_CALL(oldCreature, getFaction()).WillOnce(Return(FACTION));
 
@@ -173,7 +172,6 @@ TEST_F(ERM_MA, Example)
 	config["spellPoints"].Integer() = 2;
 	config["horde"].Integer() = 0;
 	config["aiValue"].Integer() = 3388;
-	config["fightValue"].Integer() = 2420;
 	config["level"].Integer() = 6;
 	config["faction"].Integer() = 4;
 	config["doubleWide"].Bool() = true;

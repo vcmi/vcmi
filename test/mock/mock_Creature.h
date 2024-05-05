@@ -39,7 +39,6 @@ public:
 	MOCK_CONST_METHOD0(getAdvMapAmountMin, int32_t());
 	MOCK_CONST_METHOD0(getAdvMapAmountMax, int32_t());
 	MOCK_CONST_METHOD0(getAIValue, int32_t());
-	MOCK_CONST_METHOD0(getFightValue, int32_t());
 	MOCK_CONST_METHOD0(getLevel, int32_t());
 	MOCK_CONST_METHOD0(getGrowth, int32_t());
 	MOCK_CONST_METHOD0(getHorde, int32_t());
