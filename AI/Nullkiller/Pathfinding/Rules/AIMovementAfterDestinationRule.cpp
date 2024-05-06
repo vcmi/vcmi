@@ -84,10 +84,11 @@ namespace AIPathfinding
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
-			"Movement from tile %s is blocked. Try to bypass. Action: %d, blocker: %d",
+			"Movement from tile %s is blocked. Try to bypass. Action: %d, blocker: %d, source: %s",
 			destination.coord.toString(),
 			(int)destination.action,
-			(int)blocker);
+			(int)blocker,
+			source.coord.toString());
 #endif
 
 		auto destGuardians = cb->getGuardingCreatures(destination.coord);

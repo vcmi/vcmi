@@ -33,6 +33,7 @@ PathfinderOptions::PathfinderOptions()
 	, oneTurnSpecialLayersLimit(true)
 	, turnLimit(std::numeric_limits<uint8_t>::max())
 	, canUseCast(false)
+	, allowLayerTransitioningAfterBattle(false)
 {
 }
 

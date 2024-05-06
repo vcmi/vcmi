@@ -330,7 +330,7 @@ bool CPathfinder::isLayerTransitionPossible() const
 	ELayer destLayer = destination.node->layer;
 
 	/// No layer transition allowed when previous node action is BATTLE
-	if(source.node->action == EPathNodeAction::BATTLE)
+	if(!config->options.allowLayerTransitioningAfterBattle && source.node->action == EPathNodeAction::BATTLE)
 		return false;
 
 	switch(source.node->layer.toEnum())
