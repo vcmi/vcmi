@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Installation on Windows
-
 # Prerequisites
 
 As of VCMI 1.2 and newer Windows 10 or newer is required since our automated system uses elements incompatible with older Windows.

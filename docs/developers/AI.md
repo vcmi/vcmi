@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) /  AI Description
-
 There are two types of AI: adventure and battle.
 
 **Adventure AIs** are responsible for moving heroes across the map and developing towns  

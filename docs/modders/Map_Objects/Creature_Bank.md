@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Map Object Format](../Map_Object_Format.md) / Creature Bank
-
 Reward types for clearing creature bank are limited to resources, creatures, artifacts and spell.
 Format of rewards is same as in [Rewardable Objects](Rewardable.md)
 

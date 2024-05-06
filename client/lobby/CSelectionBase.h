@@ -31,10 +31,15 @@ class ExtraOptionsTab;
 class SelectionTab;
 class InfoCard;
 class CChatBox;
+class PvPBox;
+class TownSelector;
 class CLabel;
+class CSlider;
 class CFlagBox;
 class CLabelGroup;
 class TransparentFilledRectangle;
+class FilledTexturePlayerColored;
+class LRClickableArea;
 
 class ISelectionScreenInfo
 {
@@ -107,6 +112,8 @@ class InfoCard : public CIntObject
 	std::shared_ptr<CLabelGroup> labelGroupPlayers;
 	std::shared_ptr<CButton> buttonInvitePlayers;
 	std::shared_ptr<CButton> buttonOpenGlobalLobby;
+
+	std::shared_ptr<PvPBox> pvpBox;
 public:
 
 	bool showChat;
@@ -134,6 +141,35 @@ public:
 	void keyPressed(EShortcut key) override;
 	bool captureThisKey(EShortcut key) override;
 	void addNewMessage(const std::string & text);
+};
+
+class PvPBox : public CIntObject
+{
+	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
+	std::shared_ptr<TransparentFilledRectangle> backgroundBorder;
+	
+	std::shared_ptr<TownSelector> townSelector;
+
+	std::shared_ptr<CButton> buttonFlipCoin;
+	std::shared_ptr<CButton> buttonRandomTown;
+	std::shared_ptr<CButton> buttonRandomTownVs;
+public:
+	PvPBox(const Rect & rect);
+};
+
+class TownSelector : public CIntObject
+{
+	std::map<FactionID, std::shared_ptr<CAnimImage>> towns;
+	std::map<FactionID, std::shared_ptr<LRClickableArea>> townsArea;
+	std::shared_ptr<CSlider> slider;
+
+	void sliderMove(int slidPos);
+	void updateListItems();
+
+public:
+	std::map<FactionID, bool> townsEnabled;
+
+	TownSelector(const Point & loc);
 };
 
 class CFlagBox : public CIntObject

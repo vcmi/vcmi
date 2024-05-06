@@ -813,6 +813,11 @@ void LobbyShowMessage::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyShowMessage(*this);
 }
 
+void LobbyPvPAction::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyPvPAction(*this);
+}
+
 void SetResources::applyGs(CGameState * gs) const
 {
 	assert(player.isValidPlayer());

@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Networking
-
 # The big picture
 
 For implementation details see files located at `lib/network` directory.

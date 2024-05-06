@@ -277,6 +277,9 @@ bool MapViewController::isEventInstant(const CGObjectInstance * obj, const Playe
 	if (!isEventVisible(obj, initiator))
 		return true;
 
+	if (!initiator.isValidPlayer())
+		return true; // skip effects such as new monsters on new month
+
 	if(initiator != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() <= 0)
 		return true; // instant movement speed
 
@@ -298,7 +301,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (initiator != LOCPLINT->playerID)
+	if (initiator != LOCPLINT->playerID && initiator.isValidPlayer())
 	{
 		if (LOCPLINT->makingTurn)
 			return false;

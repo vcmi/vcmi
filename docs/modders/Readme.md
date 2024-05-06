@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Modding
-
 # Creating mod
 
 To make your own mod you need to create subdirectory in **<data dir>/Mods/** with name that will be used as identifier for your mod.

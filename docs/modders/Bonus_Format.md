@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / [Modding](Readme.md) / Bonus Format
-
 ## Full format
 
 All parameters but type are optional.

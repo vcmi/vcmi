@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Building on macOS
-
 # Requirements
 
 1. C++ toolchain, either of:

@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Building on Linux
-
 # Compiling VCMI
 
 - Current baseline requirement for building is Ubuntu 20.04

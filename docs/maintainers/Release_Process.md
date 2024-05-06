@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Release Process
-
 # Versioning
 For releases VCMI uses version numbering in form "1.X.Y", where:
 - 'X' indicates major release. Different major versions are generally not compatible with each other. Save format is different, network protocol is different, mod format likely different.

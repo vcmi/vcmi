@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / [Modding](Readme.md) / Translations
-
 # Translation system
 
 ## List of currently supported languages
@@ -23,6 +21,12 @@ This is list of all languages that are currently supported by VCMI. If your lang
 - Turkish
 - Ukrainian
 - Vietnamese
+
+## Progress of the translations
+You can see the current progress of the different translations here:
+[Translation progress](https://github.com/vcmi/vcmi-translation-status)
+
+The page will be automatically updated once a week.
 
 ## Translating Heroes III data
 

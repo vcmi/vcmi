@@ -29,15 +29,15 @@ public:
 	};
 
 	ui32 identifier; //unique code for this monster (used in missions)
-	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
+	si8 character = 0; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
 	MetaString message; //message printed for attacking hero
 	TResources resources; // resources given to hero that has won with monsters
 	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
-	bool neverFlees; //if true, the troops will never flee
-	bool notGrowingTeam; //if true, number of units won't grow
-	ui64 temppower; //used to handle fractional stack growth for tiny stacks
+	bool neverFlees = false; //if true, the troops will never flee
+	bool notGrowingTeam = false; //if true, number of units won't grow
+	ui64 temppower = 0; //used to handle fractional stack growth for tiny stacks
 
-	bool refusedJoining;
+	bool refusedJoining = false;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getHoverText(PlayerColor player) const override;

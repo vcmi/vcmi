@@ -34,6 +34,14 @@ namespace AIPathfinding
 	{
 		LayerTransitionRule::process(source, destination, pathfinderConfig, pathfinderHelper);
 
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+		logAi->trace("Layer transitioning %s -> %s, action: %d, blocked: %s",
+			source.coord.toString(),
+			destination.coord.toString(),
+			static_cast<int32_t>(destination.action),
+			destination.blocked ? "true" : "false");
+#endif
+
 		if(!destination.blocked)
 		{
 			if(source.node->layer == EPathfindingLayer::LAND

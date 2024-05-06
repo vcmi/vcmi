@@ -915,9 +915,9 @@ void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)
 void ApplyClientNetPackVisitor::visitSystemMessage(SystemMessage & pack)
 {
 	// usually used to receive error messages from server
-	logNetwork->error("System message: %s", pack.text);
+	logNetwork->error("System message: %s", pack.text.toString());
 
-	CSH->getGameChat().onNewSystemMessageReceived(pack.text);
+	CSH->getGameChat().onNewSystemMessageReceived(pack.text.toString());
 }
 
 void ApplyClientNetPackVisitor::visitPlayerBlocked(PlayerBlocked & pack)

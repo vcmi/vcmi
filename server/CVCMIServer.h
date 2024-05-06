@@ -23,6 +23,7 @@ struct StartInfo;
 struct LobbyInfo;
 struct PlayerSettings;
 class PlayerColor;
+class MetaString;
 
 template<typename T> class CApplier;
 
@@ -89,6 +90,7 @@ public:
 	void announcePack(std::unique_ptr<CPackForLobby> pack);
 	bool passHost(int toConnectionId);
 
+	void announceTxt(MetaString txt, const std::string & playerName = "system");
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
@@ -98,6 +100,7 @@ public:
 	void clientDisconnected(std::shared_ptr<CConnection> c);
 	void reconnectPlayer(int connId);
 
+	void announceMessage(MetaString txt);
 	void announceMessage(const std::string & txt);
 
 	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);

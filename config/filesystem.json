@@ -18,8 +18,8 @@
 		"SPRITES/":
 		[
 			{"type" : "lod", "path" : "Data/H3ab_spr.lod"}, // Contains H3:AB data
-			{"type" : "lod", "path" : "Data/H3sprite.lod"}, // Localized versions only, contains H3:AB patch data
-			{"type" : "lod", "path" : "Data/h3abp_sp.lod"}, // Contains H3:SoD data (overrides H3:AB data)
+			{"type" : "lod", "path" : "Data/h3abp_sp.lod"}, // Localized versions only, contains H3:AB patch data
+			{"type" : "lod", "path" : "Data/H3sprite.lod"}, // Contains H3:SoD data (overrides H3:AB data)
 //			{"type" : "lod", "path" : "Data/H3psprit.lod"}, // Localized versions only, contains H3:SoD patch data. Unused? Has corrupted data, e.g. lock icon for artifacts
 			{"type" : "dir",  "path" : "Sprites"}
 		],
@@ -27,9 +27,7 @@
 		[
 			{"type" : "snd", "path" : "Data/H3ab_ahd.snd"},
 			{"type" : "snd", "path" : "Data/Heroes3.snd"},
-			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"},
-			//WoG have overridden sounds with .82m extension in Data
-			{"type" : "dir",  "path" : "Data", "depth": 0}
+			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"}
 		],
 		"MUSIC/":
 		[

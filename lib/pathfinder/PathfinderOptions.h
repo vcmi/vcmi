@@ -79,6 +79,11 @@ struct DLL_LINKAGE PathfinderOptions
 	/// </summary>
 	bool canUseCast;
 
+	/// <summary>
+	/// For AI. AI pathfinder needs to ignore this rule as it simulates battles on the way
+	/// </summary>
+	bool allowLayerTransitioningAfterBattle;
+
 	PathfinderOptions();
 };
 
