@@ -70,7 +70,7 @@ private:
 	std::vector<std::shared_ptr<const ObjectTemplate>> obstacles;
 };
 
-typedef std::vector<std::shared_ptr<ObstacleSet>> TObstacleTypes;
+using TObstacleTypes = std::vector<std::shared_ptr<ObstacleSet>>;
 
 class DLL_LINKAGE ObstacleSetFilter
 {
@@ -81,7 +81,7 @@ public:
 	bool filter(const ObstacleSet &set) const;
 
 	void setType(ObstacleSet::EObstacleType type);
-	void setTypes(std::vector<ObstacleSet::EObstacleType> types);
+	void setTypes(const std::vector<ObstacleSet::EObstacleType> & types);
 	std::vector<ObstacleSet::EObstacleType> getAllowedTypes() const;
 	TerrainId getTerrain() const;
 
@@ -104,8 +104,8 @@ public:
 	~ObstacleSetHandler() = default;
 
 	std::vector<JsonNode> loadLegacyData() override;
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	std::shared_ptr<ObstacleSet> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
 	ObstacleSet::EObstacleType convertObstacleClass(MapObjectID id);

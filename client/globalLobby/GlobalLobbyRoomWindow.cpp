@@ -62,7 +62,7 @@ GlobalLobbyRoomModCard::GlobalLobbyRoomModCard(const GlobalLobbyRoomModInfo & mo
 	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
 }
 
-static const std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
+static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
 {
 	bool publicRoom = roomDescription.statusID == "public";
 	bool privateRoom = roomDescription.statusID == "private";
@@ -106,8 +106,8 @@ static const std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDes
 
 GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const std::string & roomUUID)
 	: CWindowObject(BORDERED)
-	, roomUUID(roomUUID)
 	, window(window)
+	, roomUUID(roomUUID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
