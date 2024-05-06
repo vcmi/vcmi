@@ -884,7 +884,7 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>UNFLAGGABLE</source>
-        <translation>INSINALIZÁVEL</translation>
+        <translation>NÃO TEM BANDEIRA</translation>
     </message>
 </context>
 <context>
@@ -952,7 +952,7 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation>Força mágica</translation>
+        <translation>Poder mágico</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="251"/>
@@ -1171,7 +1171,7 @@
         <location filename="../inspector/rewardswidget.ui" line="457"/>
         <location filename="../inspector/rewardswidget.ui" line="1169"/>
         <source>Spell power</source>
-        <translation>Força mágica</translation>
+        <translation>Poder mágico</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="471"/>
@@ -1395,7 +1395,7 @@
     <message>
         <location filename="../inspector/townbulidingswidget.ui" line="29"/>
         <source>Buildings</source>
-        <translation>Construções</translation>
+        <translation>Estruturas</translation>
     </message>
 </context>
 <context>
@@ -1413,7 +1413,7 @@
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
         <source>Suppported</source>
-        <translation>Compatível</translation>
+        <translation>Suportado</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="70"/>
@@ -1477,7 +1477,7 @@
     <message>
         <location filename="../validator.cpp" line="95"/>
         <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation>A instância armada %1 não pode ser marcada, mas deve ter neutro ou proprietário do jogador</translation>
+        <translation>A instância protegida %1 não tem bandeira mas precisa ser definida como neutra ou pertencente a um dos jogadores</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="101"/>
