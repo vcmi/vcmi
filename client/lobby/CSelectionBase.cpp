@@ -296,23 +296,23 @@ void InfoCard::setChat(bool activateChat)
 			iconsLossCondition->disable();
 			labelLossConditionText->disable();
 			labelGroupPlayers->enable();
+			labelMapDiff->disable();
+			labelPlayerDifficulty->disable();
+			labelRating->disable();
+			labelDifficulty->disable();
+			labelDifficultyPercent->disable();
+			flagbox->disable();
+			iconDifficulty->disable();
+			mapDescription->disable();
+			chat->enable();
+			pvpBox->enable();
+			playerListBg->enable();
 		}
 		if (CSH->inLobbyRoom())
 		{
 			buttonInvitePlayers->enable();
 			buttonOpenGlobalLobby->enable();
 		}
-		labelMapDiff->disable();
-		labelPlayerDifficulty->disable();
-		labelRating->disable();
-		labelDifficulty->disable();
-		labelDifficultyPercent->disable();
-		flagbox->disable();
-		iconDifficulty->disable();
-		mapDescription->disable();
-		chat->enable();
-		pvpBox->enable();
-		playerListBg->enable();
 	}
 	else
 	{
@@ -337,14 +337,14 @@ void InfoCard::setChat(bool activateChat)
 			labelVictoryConditionText->enable();
 			labelLossConditionText->enable();
 			labelGroupPlayers->disable();
+			labelMapDiff->enable();
+			labelPlayerDifficulty->enable();
+			labelRating->enable();
+			labelDifficulty->enable();
+			labelDifficultyPercent->enable();
+			flagbox->enable();
+			iconDifficulty->enable();
 		}
-		labelMapDiff->enable();
-		labelPlayerDifficulty->enable();
-		labelRating->enable();
-		labelDifficulty->enable();
-		labelDifficultyPercent->enable();
-		flagbox->enable();
-		iconDifficulty->enable();
 	}
 
 	showChat = activateChat;
