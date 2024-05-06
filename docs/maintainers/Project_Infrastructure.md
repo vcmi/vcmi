@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Project Infrastructure
-
 # Project Infrastructure
 
 This section hold important information about project infrastructure for current and future contributors. At moment it's all maintained by me (SXX), but following information will be useful if someone going to replace me in future.

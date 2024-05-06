@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Game Mechanics
-
 # List of features added in VCMI
 
 ## High resolutions

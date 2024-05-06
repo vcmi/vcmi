@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / [Modding](Readme.md) / Configurable Widgets
-
 # Table of contents
 
 - [Introduction](#introduction)

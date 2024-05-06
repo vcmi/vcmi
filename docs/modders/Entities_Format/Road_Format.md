@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / Entities Format / Road Format
-
 ## Format
 
 ```jsonc

@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Installation on Android
-
 ## Step 1: Download and install VCMI
 
 **This app requires original heroes 3 sod / complete files to operate, they are not supplied with this installer. it is recommended to purchase version from gog.com. Heroes 3 "hd edition" (steam version) files are not supported !!!**  

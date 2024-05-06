@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) /  Logging System
-
 # Features
 
 -   A logger belongs to a "domain", this enables us to change log level settings more selectively

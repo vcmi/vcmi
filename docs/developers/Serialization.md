@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Serialization System
-
 # Introduction
 
 The serializer translates between objects living in our code (like int or CGameState\*) and stream of bytes. Having objects represented as a stream of bytes is useful. Such bytes can send through the network connection (so client and server can communicate) or written to the disk (savegames).
