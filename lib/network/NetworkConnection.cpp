@@ -12,12 +12,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, const std::shared_ptr<NetworkContext> & context)
+NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket)
 	: socket(socket)
-	, context(context)
 	, listener(listener)
 {
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
+	socket->set_option(boost::asio::socket_base::keep_alive(true));
 
 	// iOS throws exception on attempt to set buffer size
 	constexpr auto bufferSize = 4 * 1024 * 1024;
@@ -43,30 +43,10 @@ NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, cons
 
 void NetworkConnection::start()
 {
-	heartbeat();
-
 	boost::asio::async_read(*socket,
 							readBuffer,
 							boost::asio::transfer_exactly(messageHeaderSize),
 							[self = shared_from_this()](const auto & ec, const auto & endpoint) { self->onHeaderReceived(ec); });
-}
-
-void NetworkConnection::heartbeat()
-{
-	constexpr auto heartbeatInterval = std::chrono::seconds(10);
-
-	auto timer = std::make_shared<NetworkTimer>(*context, heartbeatInterval);
-	timer->async_wait( [self = shared_from_this(), timer](const auto & ec)
-	{
-		if (ec)
-			return;
-
-		if (!self->socket->is_open())
-			return;
-
-		self->sendPacket({});
-		self->heartbeat();
-	});
 }
 
 void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHeader)
@@ -91,7 +71,7 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHea
 
 	if (messageSize == 0)
 	{
-		//heartbeat package with no payload - wait for next packet
+		// Zero-sized packet. Strange, but safe to ignore. Start reading next packet
 		start();
 		return;
 	}
@@ -124,13 +104,16 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 
 void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 {
+	std::lock_guard<std::mutex> lock(writeMutex);
+
 	boost::system::error_code ec;
 
 	// create array with single element - boost::asio::buffer can be constructed from containers, but not from plain integer
 	std::array<uint32_t, 1> messageSize{static_cast<uint32_t>(message.size())};
 
 	boost::asio::write(*socket, boost::asio::buffer(messageSize), ec );
-	boost::asio::write(*socket, boost::asio::buffer(message), ec );
+	if (message.size() > 0)
+		boost::asio::write(*socket, boost::asio::buffer(message), ec );
 
 	//Note: ignoring error code, intended
 }

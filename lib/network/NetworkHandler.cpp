@@ -34,14 +34,14 @@ void NetworkHandler::connectToRemote(INetworkClientListener & listener, const st
 	auto socket = std::make_shared<NetworkSocket>(*io);
 	boost::asio::ip::tcp::resolver resolver(*io);
 	auto endpoints = resolver.resolve(host, std::to_string(port));
-	boost::asio::async_connect(*socket, endpoints, [this, socket, &listener](const boost::system::error_code& error, const boost::asio::ip::tcp::endpoint& endpoint)
+	boost::asio::async_connect(*socket, endpoints, [socket, &listener](const boost::system::error_code& error, const boost::asio::ip::tcp::endpoint& endpoint)
 	{
 		if (error)
 		{
 			listener.onConnectionFailed(error.message());
 			return;
 		}
-		auto connection = std::make_shared<NetworkConnection>(listener, socket, io);
+		auto connection = std::make_shared<NetworkConnection>(listener, socket);
 		connection->start();
 
 		listener.onConnectionEstablished(connection);
