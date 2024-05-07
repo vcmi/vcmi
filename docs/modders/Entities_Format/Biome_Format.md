@@ -10,6 +10,7 @@ If not enough biomes are defined for [terrain type](Terrain_Format.md), map gene
 "obstacleSetId" : {
 	"biome" : {
 		"terrain" : "grass", // Id or vector of Ids this obstacle set can spawn at
+		"level" : "underground", // or "surface", by default both
 		"faction" : ["castle", "rampart"], //Id or vector of faction Ids. Set will only be used if zone belongs to this faction
 		"alignment" : ["good", "evil", "neutral"], //Alignment of the zone. Set will only be used if zone has this alignment
 		"objectType": "mountain"
