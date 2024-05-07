@@ -19,13 +19,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace PathfinderUtil
 {
-	using FoW = std::unique_ptr<boost::multi_array<ui8, 3>>;
+	using FoW = boost::multi_array<ui8, 3>;
 	using ELayer = EPathfindingLayer;
 
 	template<EPathfindingLayer::Type layer>
 	EPathAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile & tinfo, const FoW & fow, const PlayerColor player, const CGameState * gs)
 	{
-		if(!(*fow)[pos.z][pos.x][pos.y])
+		if(!fow[pos.z][pos.x][pos.y])
 			return EPathAccessibility::BLOCKED;
 
 		switch(layer)

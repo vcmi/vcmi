@@ -602,6 +602,7 @@ set(lib_MAIN_HEADERS
 	serializer/JsonUpdater.h
 	serializer/Cast.h
 	serializer/ESerializationVersion.h
+	serializer/Serializeable.h
 
 	spells/AbilityCaster.h
 	spells/AdventureSpellMechanics.h

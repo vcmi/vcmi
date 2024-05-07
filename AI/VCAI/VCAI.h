@@ -303,6 +303,8 @@ public:
 
 	template<typename Handler> void serializeInternal(Handler & h)
 	{
+#if 0
+// serialization of client-side data is broken and not performed at the moment
 		h & knownTeleportChannels;
 		h & knownSubterraneanGates;
 		h & destinationTeleport;
@@ -358,6 +360,7 @@ public:
 		h & heroesUnableToExplore;
 
 		//myCB is restored after load by init call
+#endif
 	}
 };
 

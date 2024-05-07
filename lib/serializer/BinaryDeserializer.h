@@ -119,7 +119,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	class IPointerLoader
 	{
 	public:
-		virtual void * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+		virtual Serializeable * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
 		virtual ~IPointerLoader() = default;
 
 		template<typename Type> static IPointerLoader *getApplier(const Type * t = nullptr)
@@ -132,7 +132,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	class CPointerLoader : public IPointerLoader
 	{
 	public:
-		void * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const override //data is pointer to the ACTUAL POINTER
+		Serializeable * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const override //data is pointer to the ACTUAL POINTER
 		{
 			auto & s = static_cast<BinaryDeserializer &>(ar);
 
@@ -142,7 +142,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 
 			ptr->serialize(s);
 
-			return static_cast<void*>(ptr);
+			return static_cast<Serializeable*>(ptr);
 		}
 	};
 
@@ -157,8 +157,8 @@ public:
 	Version version;
 
 	std::vector<std::string> loadedStrings;
-	std::map<ui32, void*> loadedPointers;
-	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
+	std::map<ui32, Serializeable*> loadedPointers;
+	std::map<const Serializeable*, std::shared_ptr<Serializeable>> loadedSharedPointers;
 	IGameCallback * cb = nullptr;
 	bool smartPointerSerialization;
 	bool saving;
@@ -355,7 +355,7 @@ public:
 			{
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
-				data = static_cast<T>(i->second);
+				data = dynamic_cast<T>(i->second);
 				return;
 			}
 		}
@@ -380,15 +380,15 @@ public:
 				data = nullptr;
 				return;
 			}
-			data = static_cast<T>(app->loadPtr(*this, cb, pid));
+			data = dynamic_cast<T>(app->loadPtr(*this, cb, pid));
 		}
 	}
 
 	template <typename T>
-	void ptrAllocated(const T *ptr, ui32 pid)
+	void ptrAllocated(T *ptr, ui32 pid)
 	{
 		if(smartPointerSerialization && pid != 0xffffffff)
-			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
+			loadedPointers[pid] = const_cast<Serializeable*>(dynamic_cast<const Serializeable*>(ptr)); //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 
 	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
@@ -403,7 +403,7 @@ public:
 		NonConstT *internalPtr;
 		load(internalPtr);
 
-		void * internalPtrDerived = static_cast<void*>(internalPtr);
+		Serializeable * internalPtrDerived = static_cast<Serializeable*>(internalPtr);
 
 		if(internalPtr)
 		{
@@ -418,7 +418,7 @@ public:
 			{
 				auto hlp = std::shared_ptr<NonConstT>(internalPtr);
 				data = hlp;
-				loadedSharedPointers[internalPtrDerived] = std::static_pointer_cast<void>(hlp);
+				loadedSharedPointers[internalPtrDerived] = std::static_pointer_cast<Serializeable>(hlp);
 			}
 		}
 		else

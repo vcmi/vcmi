@@ -206,6 +206,7 @@ public:
 
 	template<typename Handler> void serializeInternal(Handler & h)
 	{
+#if 0
 		h & nullkiller->memory->knownTeleportChannels;
 		h & nullkiller->memory->knownSubterraneanGates;
 		h & destinationTeleport;
@@ -213,6 +214,7 @@ public:
 		h & nullkiller->memory->alreadyVisited;
 		h & status;
 		h & battlename;
+#endif
 	}
 };
 

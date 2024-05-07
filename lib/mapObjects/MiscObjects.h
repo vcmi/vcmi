@@ -185,7 +185,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-struct DLL_LINKAGE TeleportChannel
+struct DLL_LINKAGE TeleportChannel : public Serializeable
 {
 	enum EPassability {UNKNOWN, IMPASSABLE, PASSABLE};
 

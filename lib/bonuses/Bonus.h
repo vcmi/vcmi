@@ -13,6 +13,7 @@
 #include "BonusCustomTypes.h"
 #include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
+#include "../serializer/Serializeable.h"
 #include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -55,7 +56,7 @@ public:
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
-struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
+struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable
 {
 	BonusDuration::Type duration = BonusDuration::PERMANENT; //uses BonusDuration values
 	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK

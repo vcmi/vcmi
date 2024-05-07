@@ -12,6 +12,7 @@
 #include "../GameConstants.h"
 #include "../MetaString.h"
 #include "../filesystem/ResourcePath.h"
+#include "../serializer/Serializeable.h"
 #include "../CGeneralTextHandler.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
@@ -214,7 +215,7 @@ struct DLL_LINKAGE CampaignScenario
 };
 
 /// Class that represents loaded campaign information
-class DLL_LINKAGE Campaign : public CampaignHeader
+class DLL_LINKAGE Campaign : public CampaignHeader, public Serializeable
 {
 	friend class CampaignHandler;
 

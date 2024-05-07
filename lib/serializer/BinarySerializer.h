@@ -12,6 +12,7 @@
 #include "CSerializer.h"
 #include "CTypeList.h"
 #include "ESerializationVersion.h"
+#include "Serializeable.h"
 #include "../mapObjects/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -114,7 +115,7 @@ public:
 	using Version = ESerializationVersion;
 
 	std::map<std::string, uint32_t> savedStrings;
-	std::map<const void*, ui32> savedPointers;
+	std::map<const Serializeable*, ui32> savedPointers;
 
 	const Version version = Version::CURRENT;
 	bool smartPointerSerialization;
@@ -268,7 +269,7 @@ public:
 		{
 			// We might have an object that has multiple inheritance and store it via the non-first base pointer.
 			// Therefore, all pointers need to be normalized to the actual object address.
-			const void * actualPointer = static_cast<const void*>(data);
+			const Serializeable * actualPointer = static_cast<const Serializeable*>(data);
 			auto i = savedPointers.find(actualPointer);
 			if(i != savedPointers.end())
 			{

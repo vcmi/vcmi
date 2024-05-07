@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include "GameConstants.h"
-
 #include "BonusList.h"
 #include "IBonusBearer.h"
+
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +21,7 @@ using TCNodes = std::set<const CBonusSystemNode *>;
 using TNodesVector = std::vector<CBonusSystemNode *>;
 using TCNodesVector = std::vector<const CBonusSystemNode *>;
 
-class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public boost::noncopyable
+class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public virtual Serializeable, public boost::noncopyable
 {
 public:
 	enum ENodeTypes
