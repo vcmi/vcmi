@@ -140,6 +140,32 @@ public:
 		return * this;
 	}
 
+	template< typename IntegerType>
+	void saveEncodedInteger(const IntegerType & value)
+	{
+		using UnsignedType = std::make_unsigned_t<IntegerType>;
+		UnsignedType valueUnsigned;
+		if constexpr(std::is_signed_v<IntegerType>)
+			valueUnsigned = std::abs(value);
+		else
+			valueUnsigned = value;
+
+		while (valueUnsigned > 0x3f)
+		{
+			uint8_t byteValue = (valueUnsigned & 0x7f) | 0x80;
+			valueUnsigned = valueUnsigned >> 7;
+			save(byteValue);
+		}
+
+		uint8_t lastByteValue = valueUnsigned & 0x3f;
+		if constexpr(std::is_signed_v<IntegerType>)
+		{
+			if (value < 0)
+				lastByteValue |= 0x40;
+		}
+		save(lastByteValue);
+	}
+
 	template < typename T, typename std::enable_if_t < std::is_same_v<T, bool>, int > = 0 >
 	void save(const T &data)
 	{
@@ -147,10 +173,32 @@ public:
 		save(writ);
 	}
 
-	template < class T, typename std::enable_if_t < std::is_fundamental_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
+	template < class T, typename std::enable_if_t < std::is_floating_point_v<T>, int  > = 0 >
 	void save(const T &data)
 	{
 		// save primitive - simply dump binary data to output
+		this->write(static_cast<const void *>(&data), sizeof(data));
+	}
+
+	template < class T, typename std::enable_if_t < std::is_integral_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
+	void save(const T &data)
+	{
+		if constexpr (sizeof(T) == 1)
+		{
+			// save primitive - simply dump binary data to output
+			this->write(static_cast<const void *>(&data), sizeof(data));
+		}
+		else
+		{
+			if (hasFeature(Version::COMPACT_INTEGER_SERIALIZATION))
+				saveEncodedInteger(data);
+			else
+				this->write(static_cast<const void *>(&data), sizeof(data));
+		}
+	}
+
+	void save(const Version &data)
+	{
 		this->write(static_cast<const void *>(&data), sizeof(data));
 	}
 

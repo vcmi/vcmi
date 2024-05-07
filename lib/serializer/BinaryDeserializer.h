@@ -177,10 +177,63 @@ public:
 		return * this;
 	}
 
-	template < class T, typename std::enable_if_t < std::is_fundamental_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
+	template< typename IntegerType>
+	void loadEncodedInteger(IntegerType & value)
+	{
+		using UnsignedType = std::make_unsigned_t<IntegerType>;
+		UnsignedType valueUnsigned = 0;
+
+		uint_fast8_t offset = 0;
+
+		for (;;)
+		{
+			uint8_t byteValue;
+			load(byteValue);
+
+			if ((byteValue & 0x80) != 0)
+			{
+				valueUnsigned |= (byteValue & 0x7f) << offset;
+				offset += 7;
+			}
+			else
+			{
+				valueUnsigned |= (byteValue & 0x3f) << offset;
+
+				if constexpr(std::is_signed_v<IntegerType>)
+				{
+					bool isNegative = (byteValue & 0x40) != 0;
+					if (isNegative)
+						value = -valueUnsigned;
+					else
+						value = valueUnsigned;
+				}
+				else
+					value = valueUnsigned;
+				return;
+			}
+		}
+	}
+
+	template < class T, typename std::enable_if_t < std::is_floating_point_v<T>, int  > = 0 >
 	void load(T &data)
 	{
 		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+	}
+
+	template < class T, typename std::enable_if_t < std::is_integral_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
+	void load(T &data)
+	{
+		if constexpr (sizeof(T) == 1)
+		{
+			this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+		}
+		else
+		{
+			if (hasFeature(Version::COMPACT_INTEGER_SERIALIZATION))
+				loadEncodedInteger(data);
+			else
+				this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+		}
 	}
 
 	template < typename T, typename std::enable_if_t < is_serializeable<BinaryDeserializer, T>::value, int  > = 0 >
@@ -197,6 +250,11 @@ public:
 		ui32 size = std::size(data);
 		for(ui32 i = 0; i < size; i++)
 			load(data[i]);
+	}
+
+	void load(Version &data)
+	{
+		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
 	}
 
 	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
