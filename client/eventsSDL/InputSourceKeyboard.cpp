@@ -32,9 +32,24 @@ InputSourceKeyboard::InputSourceKeyboard()
 #endif
 }
 
+std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & keyName) const
+{
+	std::string result;
+
+	if (isKeyboardCtrlDown())
+		result += "Ctrl+";
+	if (isKeyboardAltDown())
+		result += "Alt+";
+	if (isKeyboardShiftDown())
+		result += "Shift+";
+	result += keyName;
+
+	return result;
+}
+
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
-	std::string keyName = SDL_GetKeyName(key.keysym.sym);
+	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym));
 	logGlobal->trace("keyboard: key '%s' pressed", keyName);
 	assert(key.state == SDL_PRESSED);
 

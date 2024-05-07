@@ -4,6 +4,7 @@
 // For players (Linux): create file ~/.config/vcmi/shortcutsConfig.json (or ~/.var/app/eu.vcmi.VCMI/config for Flatpak) to modify this set
 //
 // When creating your own config, you can remove all hotkeys that you have not changed and game will read them from this file
+// It is possible to add modifiers to keys: Ctrl, Shift, or Alt. For example, "Ctrl+Tab" hotkey will only activate if Ctrl is pressed
 {
 	"keyboard" : {
 		"globalAccept":             [ "Return", "Keypad Enter"],
@@ -112,6 +113,10 @@
 		"battleTacticsEnd":         [ "Return", "Keypad Enter"],
 		"battleToggleHeroesStats":  [],
 		"battleSelectAction":       "S",
+		"lobbyActivateInterface":   "Ctrl+Tab",
+		"spectateTrackHero":        "F5",
+		"spectateSkipBattle":       "F7",
+		"spectateSkipBattleResult": "F8",
 		"townOpenTavern":           "T",
 		"townSwapArmies":           "Space",
 		"recruitmentMax":           "End",
