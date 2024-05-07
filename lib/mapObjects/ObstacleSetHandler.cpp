@@ -142,9 +142,9 @@ ObstacleSet::EMapLevel ObstacleSet::getLevel() const
 	return level;
 }
 
-void ObstacleSet::setLevel(ObstacleSet::EMapLevel level)
+void ObstacleSet::setLevel(ObstacleSet::EMapLevel newLevel)
 {
-	this->level = level;
+	level = newLevel;
 }
 
 std::set<FactionID> ObstacleSet::getFactions() const
