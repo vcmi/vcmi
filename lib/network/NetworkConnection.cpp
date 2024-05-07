@@ -12,12 +12,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, const std::shared_ptr<NetworkContext> & context)
+NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket)
 	: socket(socket)
-	, context(context)
 	, listener(listener)
 {
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
+	socket->set_option(boost::asio::socket_base::keep_alive(true));
 
 	// iOS throws exception on attempt to set buffer size
 	constexpr auto bufferSize = 4 * 1024 * 1024;
@@ -43,30 +43,10 @@ NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, cons
 
 void NetworkConnection::start()
 {
-	heartbeat();
-
 	boost::asio::async_read(*socket,
 							readBuffer,
 							boost::asio::transfer_exactly(messageHeaderSize),
 							[self = shared_from_this()](const auto & ec, const auto & endpoint) { self->onHeaderReceived(ec); });
-}
-
-void NetworkConnection::heartbeat()
-{
-	constexpr auto heartbeatInterval = std::chrono::seconds(10);
-
-	auto timer = std::make_shared<NetworkTimer>(*context, heartbeatInterval);
-	timer->async_wait( [self = shared_from_this(), timer](const auto & ec)
-	{
-		if (ec)
-			return;
-
-		if (!self->socket->is_open())
-			return;
-
-		self->sendPacket({});
-		self->heartbeat();
-	});
 }
 
 void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHeader)
@@ -91,8 +71,7 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHea
 
 	if (messageSize == 0)
 	{
-		//heartbeat package with no payload - wait for next packet
-		start();
+		listener.onDisconnected(shared_from_this(), "Zero-sized packet!");
 		return;
 	}
 

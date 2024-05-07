@@ -39,7 +39,7 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 	}
 
 	logNetwork->info("We got a new connection! :)");
-	auto connection = std::make_shared<NetworkConnection>(*this, upcomingConnection, io);
+	auto connection = std::make_shared<NetworkConnection>(*this, upcomingConnection);
 	connections.insert(connection);
 	connection->start();
 	listener.onNewConnection(connection);
