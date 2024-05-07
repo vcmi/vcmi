@@ -119,6 +119,11 @@ public:
 	bool smartPointerSerialization;
 	bool saving;
 
+	bool hasFeature(Version what)
+	{
+		return version >= what;
+	};
+
 	BinarySerializer(IBinaryWriter * w);
 
 	template<typename Base, typename Derived>

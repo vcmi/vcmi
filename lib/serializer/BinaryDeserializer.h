@@ -162,6 +162,11 @@ public:
 	bool smartPointerSerialization;
 	bool saving;
 
+	bool hasFeature(Version what)
+	{
+		return version >= what;
+	};
+
 	BinaryDeserializer(IBinaryReader * r);
 
 	template<class T>
