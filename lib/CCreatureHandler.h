@@ -51,6 +51,9 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
 
 public:
+	std::string getDescriptionTranslated() const;
+	std::string getDescriptionTextID() const;
+
 	ui32 ammMin; // initial size of stack of these creatures on adventure map (if not set in editor)
 	ui32 ammMax;
 

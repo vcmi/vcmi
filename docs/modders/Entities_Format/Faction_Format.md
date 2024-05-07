@@ -57,6 +57,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Localizable faction name, e.g. "Rampart"
 	"name" : "", 
 
+	// Description of town (e.g. history or story about town)
+	"description" : "",
+
 	// Faction alignment. Can be good, neutral (default) or evil.
 	"alignment" : "",
 
