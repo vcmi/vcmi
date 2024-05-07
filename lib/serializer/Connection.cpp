@@ -73,6 +73,7 @@ void CConnection::sendPack(const CPack * pack)
 	boost::mutex::scoped_lock lock(writeMutex);
 
 	auto connectionPtr = networkConnection.lock();
+	serializer->savedStrings.clear();
 
 	if (!connectionPtr)
 		throw std::runtime_error("Attempt to send packet on a closed connection!");
@@ -91,6 +92,7 @@ CPack * CConnection::retrievePack(const std::vector<std::byte> & data)
 
 	packReader->buffer = &data;
 	packReader->position = 0;
+	deserializer->loadedStrings.clear();
 
 	*deserializer & result;
 

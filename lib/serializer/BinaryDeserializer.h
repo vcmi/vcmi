@@ -156,6 +156,7 @@ public:
 	bool reverseEndianness; //if source has different endianness than us, we reverse bytes
 	Version version;
 
+	std::vector<std::string> loadedStrings;
 	std::map<ui32, void*> loadedPointers;
 	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
 	IGameCallback * cb = nullptr;
@@ -451,9 +452,33 @@ public:
 	}
 	void load(std::string &data)
 	{
-		ui32 length = readAndCheckLength();
-		data.resize(length);
-		this->read(static_cast<void *>(data.data()), length, false);
+		if (hasFeature(Version::COMPACT_STRING_SERIALIZATION))
+		{
+			int32_t length;
+			load(length);
+
+			if (length < 0)
+			{
+				int32_t stringID = -length - 1; // -1, -2 ... -> 0, 1 ...
+				data = loadedStrings[stringID];
+			}
+			if (length == 0)
+			{
+				data = {};
+			}
+			if (length > 0)
+			{
+				data.resize(length);
+				this->read(static_cast<void *>(data.data()), length, false);
+				loadedStrings.push_back(data);
+			}
+		}
+		else
+		{
+			ui32 length = readAndCheckLength();
+			data.resize(length);
+			this->read(static_cast<void *>(data.data()), length, false);
+		}
 	}
 
 	template<typename... TN>

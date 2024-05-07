@@ -113,6 +113,7 @@ class DLL_LINKAGE BinarySerializer : public CSaverBase
 public:
 	using Version = ESerializationVersion;
 
+	std::map<std::string, uint32_t> savedStrings;
 	std::map<const void*, ui32> savedPointers;
 
 	const Version version = Version::CURRENT;
@@ -322,11 +323,42 @@ public:
 		for(auto i = d.begin(); i != d.end(); i++)
 			save(*i);
 	}
+
 	void save(const std::string &data)
 	{
-		save(ui32(data.length()));
-		this->write(static_cast<const void *>(data.data()), data.size());
+		if (hasFeature(Version::COMPACT_STRING_SERIALIZATION))
+		{
+			if (data.empty())
+			{
+				save(ui32(0));
+				return;
+			}
+
+			auto it = savedStrings.find(data);
+
+			if (it == savedStrings.end())
+			{
+				save(ui32(data.length()));
+				this->write(static_cast<const void *>(data.data()), data.size());
+
+				// -1, -2...
+				int32_t newStringID = -1 - savedStrings.size();
+
+				savedStrings[data] = newStringID;
+			}
+			else
+			{
+				int32_t index = it->second;
+				save(index);
+			}
+		}
+		else
+		{
+			save(ui32(data.length()));
+			this->write(static_cast<const void *>(data.data()), data.size());
+		}
 	}
+
 	template <typename T1, typename T2>
 	void save(const std::pair<T1,T2> &data)
 	{
