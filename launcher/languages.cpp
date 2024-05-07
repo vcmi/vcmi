@@ -18,7 +18,7 @@
 #include <QListWidget>
 
 // list of language names, for generation of translations. Do not use directly, use Languages namespace instead
-static const std::array<std::string, 20> languageTranslatedNamesGenerator = {
+static const std::array<std::string, 17> languageTranslatedNamesGenerator = {
 	{
 		QT_TRANSLATE_NOOP("Language", "Czech"),
 		QT_TRANSLATE_NOOP("Language", "Chinese"),
@@ -37,9 +37,6 @@ static const std::array<std::string, 20> languageTranslatedNamesGenerator = {
 		QT_TRANSLATE_NOOP("Language", "Turkish"),
 		QT_TRANSLATE_NOOP("Language", "Ukrainian"),
 		QT_TRANSLATE_NOOP("Language", "Vietnamese"),
-		QT_TRANSLATE_NOOP("Language", "Other (East European)"),
-		QT_TRANSLATE_NOOP("Language", "Other (Cyrillic Script)"),
-		QT_TRANSLATE_NOOP("Language", "Other (West European)"),
 	 }
 };
 
@@ -73,9 +70,6 @@ QString Languages::generateLanguageName(const Languages::Options & language)
 	QString localizedName = QApplication::translate("Language", language.nameEnglish.c_str());
 	QString nativeName = language.nameNative.c_str();
 
-	if(!language.hasTranslation)
-		return localizedName;
-
 	if(activeLanguage == language.identifier)
 		return nativeName;
 
@@ -105,9 +99,6 @@ void Languages::fillLanguages(QComboBox * widget, bool includeAll)
 
 	for(const auto & language : Languages::getLanguageList())
 	{
-		if (!language.hasTranslation && !includeAll)
-			continue;
-
 		QString displayName = generateLanguageName(language);
 		QVariant userData = QString::fromStdString(language.identifier);
 
@@ -141,9 +132,6 @@ void Languages::fillLanguages(QListWidget * widget, bool includeAll)
 
 	for(const auto & language : Languages::getLanguageList())
 	{
-		if (!language.hasTranslation && !includeAll)
-			continue;
-
 		QString displayName = generateLanguageName(language);
 		QVariant userData = QString::fromStdString(language.identifier);
 

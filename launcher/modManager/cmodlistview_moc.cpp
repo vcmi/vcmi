@@ -331,9 +331,6 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	for(const auto & language : Languages::getLanguageList())
 	{
-		if (!language.hasTranslation)
-			continue;
-
 		QString languageID = QString::fromStdString(language.identifier);
 
 		if (languageID != baseLanguageID && !mod.getValue(languageID).isValid())
