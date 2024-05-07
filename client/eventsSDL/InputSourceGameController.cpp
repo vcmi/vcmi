@@ -28,13 +28,6 @@ void InputSourceGameController::gameControllerDeleter(SDL_GameController * gameC
 }
 
 InputSourceGameController::InputSourceGameController():
-	configTriggerTreshold(settings["input"]["controllerTriggerTreshold"].Float()),
-	configAxisDeadZone(settings["input"]["controllerAxisDeadZone"].Float()),
-	configAxisFullZone(settings["input"]["controllerAxisFullZone"].Float()),
-	configPointerSpeed(settings["input"]["controllerPointerSpeed"].Float()),
-	configPointerScale(settings["input"]["controllerPointerScale"].Float()),
-	configPanningSpeed(settings["input"]["controllerPanningSpeed"].Float()),
-	configPanningScale(settings["input"]["controllerPanningScale"].Float()),
 	cursorAxisValueX(0),
 	cursorAxisValueY(0),
 	cursorPlanDisX(0.0),
@@ -45,7 +38,14 @@ InputSourceGameController::InputSourceGameController():
 	scrollAxisValueX(0),
 	scrollAxisValueY(0),
 	scrollPlanDisX(0.0),
-	scrollPlanDisY(0.0)
+	scrollPlanDisY(0.0),
+	configTriggerTreshold(settings["input"]["controllerTriggerTreshold"].Float()),
+	configAxisDeadZone(settings["input"]["controllerAxisDeadZone"].Float()),
+	configAxisFullZone(settings["input"]["controllerAxisFullZone"].Float()),
+	configPointerSpeed(settings["input"]["controllerPointerSpeed"].Float()),
+	configPointerScale(settings["input"]["controllerPointerScale"].Float()),
+	configPanningSpeed(settings["input"]["controllerPanningSpeed"].Float()),
+	configPanningScale(settings["input"]["controllerPanningScale"].Float())
 {
 	tryOpenAllGameControllers();
 }
@@ -129,7 +129,7 @@ void InputSourceGameController::handleEventDeviceRemapped(const SDL_ControllerDe
 	openGameController(device.which);
 }
 
-double InputSourceGameController::getRealAxisValue(int value)
+double InputSourceGameController::getRealAxisValue(int value) const
 {
 	double ratio = static_cast<double>(value) / SDL_JOYSTICK_AXIS_MAX;
 	double greenZone = configAxisFullZone - configAxisDeadZone;
@@ -323,7 +323,7 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 	}
 }
 
-bool InputSourceGameController::isScrollAxisReleased()
+bool InputSourceGameController::isScrollAxisReleased() const
 {
-	return scrollAxisValueX == 0 && scrollAxisValueY == 0;
+	return vstd::isAlmostZero(scrollAxisValueX) && vstd::isAlmostZero(scrollAxisValueY);
 }

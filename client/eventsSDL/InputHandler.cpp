@@ -33,14 +33,14 @@
 #include <SDL_timer.h>
 
 InputHandler::InputHandler()
-	: mouseHandler(std::make_unique<InputSourceMouse>())
+	: enableMouse(settings["input"]["enableMouse"].Bool())
+	, enableTouch(settings["input"]["enableTouch"].Bool())
+	, enableController(settings["input"]["enableController"].Bool())
+	, mouseHandler(std::make_unique<InputSourceMouse>())
 	, keyboardHandler(std::make_unique<InputSourceKeyboard>())
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
 	, gameControllerHandler(std::make_unique<InputSourceGameController>())
-	, enableMouse(settings["input"]["enableMouse"].Bool())
-	, enableTouch(settings["input"]["enableTouch"].Bool())
-	, enableController(settings["input"]["enableController"].Bool())
 {
 }
 

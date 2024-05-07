@@ -49,17 +49,17 @@ void ObstacleSet::removeEmptyTemplates()
 
 ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain = TerrainId::ANY_TERRAIN, FactionID faction = FactionID::ANY, EAlignment alignment = EAlignment::ANY):
 	allowedTypes(allowedTypes),
-	terrain(terrain),
 	faction(faction),
-	alignment(alignment)
+	alignment(alignment),
+	terrain(terrain)
 {
 }
 
 ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain = TerrainId::ANY_TERRAIN, FactionID faction = FactionID::ANY, EAlignment alignment = EAlignment::ANY):
 	allowedTypes({allowedType}),
-	terrain(terrain),
 	faction(faction),
-	alignment(alignment)
+	alignment(alignment),
+	terrain(terrain)
 {
 }
 
@@ -142,9 +142,9 @@ ObstacleSet::EObstacleType ObstacleSet::getType() const
 	return type;
 }
 
-void ObstacleSet::setType(EObstacleType type)
+void ObstacleSet::setType(EObstacleType newType)
 {
-	this->type = type;
+	type = newType;
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>> ObstacleSet::getObstacles() const
@@ -258,7 +258,7 @@ void ObstacleSetFilter::setType(ObstacleSet::EObstacleType type)
 	allowedTypes = {type};
 }
 
-void ObstacleSetFilter::setTypes(std::vector<ObstacleSet::EObstacleType> types)
+void ObstacleSetFilter::setTypes(const std::vector<ObstacleSet::EObstacleType> & types)
 {
 	this->allowedTypes = types;
 }
@@ -424,10 +424,9 @@ void ObstacleSetHandler::addObstacleSet(std::shared_ptr<ObstacleSet> os)
 
 void ObstacleSetHandler::afterLoadFinalization()
 {
-	for (auto &os :biomes)
-	{
+	for(const auto & os : biomes)
 		os->removeEmptyTemplates();
-	}
+
 	vstd::erase_if(biomes, [](const std::shared_ptr<ObstacleSet> &os)
 	{
 		if (os->getObstacles().empty())
@@ -439,10 +438,8 @@ void ObstacleSetHandler::afterLoadFinalization()
 	});
 
 	// Populate map
-	for (auto &os : biomes)
-	{
+	for(const auto & os : biomes)
 		obstacleSets[os->getType()].push_back(os);
-	}
 }
 
 TObstacleTypes ObstacleSetHandler::getObstacles( const ObstacleSetFilter &filter) const

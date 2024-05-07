@@ -49,14 +49,15 @@ void CreatureCostBox::createItems(TResources res)
 	{
 		int curx = pos.w / 2;
 		int spacing = 48;
+		int resourcesCount = static_cast<int>(resources.size());
 		if (resources.size() > 2)
 		{
 			spacing = 32;
-			curx -= (15 + 16 * ((int)resources.size() - 1));
+			curx -= (15 + 16 * (resourcesCount - 1));
 		}
 		else
 		{
-			curx -= ((16 * (int)resources.size()) + (8 * ((int)resources.size() - 1)));
+			curx -= ((16 * resourcesCount) + (8 * (resourcesCount - 1)));
 		}
 		//reverse to display gold as first resource
 		for(auto & currentRes : boost::adaptors::reverse(resources))

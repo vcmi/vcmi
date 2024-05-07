@@ -140,7 +140,7 @@ struct GraphPathNodePointer
 	}
 };
 
-typedef std::unordered_map<int3, GraphPathNode[GrapthPathNodeType::LAST]> GraphNodeStorage;
+using GraphNodeStorage = std::unordered_map<int3, GraphPathNode[GrapthPathNodeType::LAST]>;
 
 class GraphNodeComparer
 {
