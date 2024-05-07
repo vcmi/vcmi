@@ -17,7 +17,6 @@
 #include "../helper.h"
 #include "../jsonutils.h"
 #include "../languages.h"
-#include "../launcherdirs.h"
 
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -35,10 +34,17 @@ QString resolutionToString(const QSize & resolution)
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
 }
 
-static const std::string cursorTypesList[] =
+static constexpr std::array cursorTypesList =
 {
 	"hardware",
 	"software"
+};
+
+static constexpr std::array upscalingFilterTypes =
+{
+	"nearest",
+	"linear",
+	"best"
 };
 
 }
@@ -72,9 +78,13 @@ void CSettingsView::loadSettings()
 #ifdef VCMI_MOBILE
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
+	ui->labelCursorTypeDesktop->hide();
+	ui->comboBoxCursorTypeDesktop->hide();
 #else
 	ui->labelReservedArea->hide();
-	ui->spinBoxReservedArea->hide();
+	ui->sliderReservedArea->hide();
+	ui->labelCursorTypeMobile->hide();
+	ui->comboBoxCursorTypeMobile->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
@@ -85,8 +95,8 @@ void CSettingsView::loadSettings()
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
-	ui->checkBoxVSync->setChecked(settings["video"]["vsync"].Bool());
-	ui->spinBoxReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
+	ui->comboBoxVSync->setCurrentIndex(settings["video"]["vsync"].Bool());
+	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
 	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
@@ -123,8 +133,25 @@ void CSettingsView::loadSettings()
 	fillValidRenderers();
 
 	std::string cursorType = settings["video"]["cursor"].String();
-	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
-	ui->comboBoxCursorType->setCurrentIndex((int)cursorTypeIndex);
+	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
+	ui->comboBoxCursorTypeDesktop->setCurrentIndex(cursorTypeIndex);
+	ui->comboBoxCursorTypeMobile->setCurrentIndex(cursorTypeIndex);
+
+	std::string upscalingFilter = settings["video"]["scalingMode"].String();
+	int upscalingFilterIndex = vstd::find_pos(upscalingFilterTypes, upscalingFilter);
+	ui->comboBoxUpscalingFilter->setCurrentIndex(upscalingFilterIndex);
+
+	ui->sliderMusicVolume->setValue(settings["general"]["music"].Integer());
+	ui->sliderSoundVolume->setValue(settings["general"]["sound"].Integer());
+	ui->comboBoxRelativeCursorMode->setCurrentIndex(settings["general"]["userRelativePointer"].Bool());
+	ui->sliderRelativeCursorSpeed->setValue(settings["general"]["relativePointerSpeedMultiplier"].Integer());
+	ui->comboBoxHapticFeedback->setCurrentIndex(settings["launcher"]["hapticFeedback"].Bool());
+	ui->sliderLongTouchDuration->setValue(settings["general"]["longTouchTimeMilliseconds"].Integer());
+	ui->slideToleranceDistanceMouse->setValue(settings["input"]["mouseToleranceDistance"].Integer());
+	ui->sliderToleranceDistanceTouch->setValue(settings["input"]["touchToleranceDistance"].Integer());
+	ui->sliderToleranceDistanceController->setValue(settings["input"]["shortcutToleranceDistance"].Integer());
+	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
+	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
 }
 
 void CSettingsView::fillValidResolutions()
@@ -395,7 +422,13 @@ void CSettingsView::showEvent(QShowEvent * event)
 	QWidget::showEvent(event);
 }
 
-void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
+void CSettingsView::on_comboBoxCursorTypeDesktop_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"]["cursor"];
+	node->String() = cursorTypesList[index];
+}
+
+void CSettingsView::on_comboBoxCursorTypeMobile_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["cursor"];
 	node->String() = cursorTypesList[index];
@@ -403,8 +436,6 @@ void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
 
 void CSettingsView::loadTranslation()
 {
-	Languages::fillLanguages(ui->comboBoxLanguageBase, true);
-
 	QString baseLanguage = Languages::getHeroesDataLanguage();
 
 	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
@@ -472,13 +503,6 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	{
 		mainWindow->getModView()->enableModByName(modName);
 	}
-}
-
-void CSettingsView::on_comboBoxLanguageBase_currentIndexChanged(int index)
-{
-	Settings node = settings.write["general"]["gameDataLanguage"];
-	QString selectedLanguage = ui->comboBoxLanguageBase->itemData(index).toString();
-	node->String() = selectedLanguage.toStdString();
 }
 
 void CSettingsView::on_checkBoxRepositoryDefault_stateChanged(int arg1)
@@ -556,7 +580,7 @@ void CSettingsView::on_spinBoxAutoSaveLimit_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString &arg1)
+void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString & arg1)
 {
 	Settings node = settings.write["general"]["savePrefix"];
 	node->String() = arg1.toStdString();
@@ -578,4 +602,76 @@ void CSettingsView::on_checkBoxIgnoreSslErrors_clicked(bool checked)
 {
 	Settings node = settings.write["launcher"]["ignoreSslErrors"];
 	node->Bool() = checked;
+}
+
+void CSettingsView::on_comboBoxUpscalingFilter_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"]["scalingMode"];
+	node->String() = upscalingFilterTypes[index];
+}
+
+void CSettingsView::on_sliderMusicVolume_valueChanged(int value)
+{
+	Settings node = settings.write["general"]["music"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_sliderSoundVolume_valueChanged(int value)
+{
+	Settings node = settings.write["general"]["sound"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_comboBoxRelativeCursorMode_currentIndexChanged(int index)
+{
+	Settings node = settings.write["general"]["userRelativePointer"];
+	node->Bool() = index;
+}
+
+void CSettingsView::on_sliderRelativeCursorSpeed_valueChanged(int value)
+{
+	Settings node = settings.write["general"]["relativePointerSpeedMultiplier"];
+	node->Float() = value / 100.0;
+}
+
+void CSettingsView::on_comboBoxHapticFeedback_currentIndexChanged(int index)
+{
+	Settings node = settings.write["general"]["hapticFeedback"];
+	node->Bool() = index;
+}
+
+void CSettingsView::on_sliderLongTouchDuration_valueChanged(int value)
+{
+	Settings node = settings.write["general"]["longTouchTimeMilliseconds"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_slideToleranceDistanceMouse_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["mouseToleranceDistance"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_sliderToleranceDistanceTouch_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["touchToleranceDistance"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_sliderToleranceDistanceController_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["shortcutToleranceDistance"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_lineEditGameLobbyHost_textChanged(const QString & arg1)
+{
+	Settings node = settings.write["lobby"]["hostname"];
+	node->String() = arg1.toStdString();
+}
+
+void CSettingsView::on_spinBoxNetworkPortLobby_valueChanged(int arg1)
+{
+	Settings node = settings.write["lobby"]["port"];
+	node->Integer() = arg1;
 }
