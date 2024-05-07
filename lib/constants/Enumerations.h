@@ -253,4 +253,13 @@ enum class EArmyFormation : int8_t
 	TIGHT
 };
 
+enum class EMovementMode : int8_t
+{
+	STANDARD,
+	DIMENSION_DOOR,
+	MONOLITH,
+	CASTLE_GATE,
+	TOWN_PORTAL,
+};
+
 VCMI_LIB_NAMESPACE_END
