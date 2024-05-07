@@ -37,6 +37,14 @@ public:
 		ANIMALS, // Living, or bones
 		OTHER // Crystals, shipwrecks, barrels, etc.
 	};
+
+	enum EMapLevel // TODO: Move somewhere to map definitions
+	{
+		ANY = -1,
+		SURFACE = 0,
+		UNDERGROUND = 1
+	};
+
 	ObstacleSet();
 	explicit ObstacleSet(EObstacleType type, TerrainId terrain);
 
@@ -51,6 +59,8 @@ public:
 	void setTerrain(TerrainId terrain);
 	void setTerrains(const std::set<TerrainId> & terrains);
 	void addTerrain(TerrainId terrain);
+	EMapLevel getLevel() const;
+	void setLevel(EMapLevel level);
 	std::set<EAlignment> getAlignments() const;
 	void addAlignment(EAlignment alignment);
 	std::set<FactionID> getFactions() const;
@@ -58,12 +68,14 @@ public:
 
 	static EObstacleType typeFromString(const std::string &str);
 	std::string toString() const;
+	static EMapLevel levelFromString(const std::string &str);
 
 	si32 id;
 
 private:
 
 	EObstacleType type;
+	EMapLevel level;
 	std::set<TerrainId> allowedTerrains; // Empty means all terrains
 	std::set<FactionID> allowedFactions; // Empty means all factions
 	std::set<EAlignment> allowedAlignments; // Empty means all alignments
@@ -75,8 +87,8 @@ typedef std::vector<std::shared_ptr<ObstacleSet>> TObstacleTypes;
 class DLL_LINKAGE ObstacleSetFilter
 {
 public:
-	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain, FactionID faction, EAlignment alignment);
-	ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain, FactionID faction, EAlignment alignment);
+	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain, ObstacleSet::EMapLevel level, FactionID faction, EAlignment alignment);
+	ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain, ObstacleSet::EMapLevel level, FactionID faction, EAlignment alignment);
 
 	bool filter(const ObstacleSet &set) const;
 
@@ -93,6 +105,7 @@ private:
 	EAlignment alignment;
 // TODO: Filter by faction,  surface/underground, etc.
 	const TerrainId terrain;
+	ObstacleSet::EMapLevel level;
 };
 
 // TODO: Instantiate ObstacleSetHandler
