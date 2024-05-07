@@ -71,7 +71,8 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHea
 
 	if (messageSize == 0)
 	{
-		listener.onDisconnected(shared_from_this(), "Zero-sized packet!");
+		// Zero-sized packet. Strange, but safe to ignore. Start reading next packet
+		start();
 		return;
 	}
 
@@ -103,13 +104,16 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 
 void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 {
+	std::lock_guard<std::mutex> lock(writeMutex);
+
 	boost::system::error_code ec;
 
 	// create array with single element - boost::asio::buffer can be constructed from containers, but not from plain integer
 	std::array<uint32_t, 1> messageSize{static_cast<uint32_t>(message.size())};
 
 	boost::asio::write(*socket, boost::asio::buffer(messageSize), ec );
-	boost::asio::write(*socket, boost::asio::buffer(message), ec );
+	if (message.size() > 0)
+		boost::asio::write(*socket, boost::asio::buffer(message), ec );
 
 	//Note: ignoring error code, intended
 }
