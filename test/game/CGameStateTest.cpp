@@ -121,7 +121,7 @@ public:
 		return gameState.get();
 	}
 
-	bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) override
+	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode) override
 	{
 		return false;
 	}

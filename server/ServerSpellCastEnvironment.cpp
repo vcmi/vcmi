@@ -89,9 +89,9 @@ const CMap * ServerSpellCastEnvironment::getMap() const
 	return gh->gameState()->map;
 }
 
-bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, bool teleporting)
+bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode)
 {
-	return gh->moveHero(hid, dst, teleporting, false);
+	return gh->moveHero(hid, dst, mode, false);
 }
 
 void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)

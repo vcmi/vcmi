@@ -439,7 +439,7 @@ void DimensionDoorMechanics::endCast(SpellCastEnvironment * env, const Adventure
 	const TerrainTile * curr = env->getCb()->getTile(casterPosition);
 
 	if(dest->isClear(curr))
-		env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), true);
+		env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), EMovementMode::DIMENSION_DOOR);
 }
 
 ///TownPortalMechanics
@@ -567,7 +567,7 @@ void TownPortalMechanics::endCast(SpellCastEnvironment * env, const AdventureSpe
 		destination = dynamic_cast<const CGTownInstance*>(topObj);
 	}
 
-	if(env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(destination->visitablePos()), true))
+	if(env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(destination->visitablePos()), EMovementMode::TOWN_PORTAL))
 	{
 		SetMovePoints smp;
 		smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
