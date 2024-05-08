@@ -523,6 +523,15 @@ namespace vstd
 		}
 	}
 
+	// Removes all duplicate elements from the vector
+	template<typename T>
+	void unique(std::vector<T> &vec)
+	{
+		std::sort(vec.begin(), vec.end());
+		auto newEnd = std::unique(vec.begin(), vec.end());
+		vec.erase(newEnd, vec.end());
+	}
+
 	template<typename InputRange, typename OutputIterator, typename Predicate>
 	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
 	{

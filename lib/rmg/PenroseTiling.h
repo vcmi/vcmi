@@ -34,6 +34,7 @@ public:
 	Point2D rotated(float radians) const;
 
 	bool operator < (const Point2D& other) const;
+	bool operator == (const Point2D& other) const;
 
 	std::string toString() const;
 };
