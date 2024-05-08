@@ -256,7 +256,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="373"/>
         <source>Install from file</source>
-        <translation type="unfinished"></translation>
+        <translation>从文件中安装</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
@@ -352,18 +352,18 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <source>please upgrade mod</source>
-        <translation type="unfinished"></translation>
+        <translation>请更新模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="182"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="796"/>
         <source>mods repository index</source>
-        <translation type="unfinished"></translation>
+        <translation>模组源索引号</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>or newer</source>
-        <translation type="unfinished"></translation>
+        <translation>或更新的版本</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
@@ -420,42 +420,42 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>All supported files</source>
-        <translation type="unfinished"></translation>
+        <translation>所有支持的文件格式</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Maps</source>
-        <translation type="unfinished">地图</translation>
+        <translation>地图</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Campaigns</source>
-        <translation type="unfinished"></translation>
+        <translation>战役</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Configs</source>
-        <translation type="unfinished"></translation>
+        <translation>配置</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Mods</source>
-        <translation type="unfinished">模组</translation>
+        <translation>模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="628"/>
         <source>Select files (configs, mods, maps, campaigns) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>选择文件（配置，模组，地图，战役）来安装</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
         <source>Replace config file?</source>
-        <translation type="unfinished"></translation>
+        <translation>替换配置文件？</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>你想要替换%1吗？</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="693"/>
@@ -509,7 +509,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="960"/>
         <source>screenshots</source>
-        <translation type="unfinished"></translation>
+        <translation>截图</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="966"/>
@@ -528,95 +528,96 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="160"/>
         <source>Can not install submod</source>
-        <translation type="unfinished"></translation>
+        <translation>无法安装子模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="163"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished"></translation>
+        <translation>模组已安装</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="172"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished"></translation>
+        <translation>无法卸载子模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="175"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished"></translation>
+        <translation>模组未安装</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="185"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>模组已启用</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="188"/>
         <location filename="../modManager/cmodmanager.cpp" line="231"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished"></translation>
+        <translation>需要先安装模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="192"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="unfinished"></translation>
+        <translation>模组不兼容，请更新VCMI并获取模组最新版本</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="197"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished"></translation>
+        <translation>需要的模组%1未找到</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="202"/>
         <source>Required mod %1 is not enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>需要的模组%1未启用</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="211"/>
         <location filename="../modManager/cmodmanager.cpp" line="218"/>
         <source>This mod conflicts with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>此模组和%1冲突</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="228"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>模组已禁用</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="238"/>
         <source>This mod is needed to run %1</source>
-        <translation type="unfinished"></translation>
+        <translation>此模组需要运行%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="280"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished"></translation>
+        <translation>模组归档文件未找到</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="283"/>
         <source>Mod with such name is already installed</source>
-        <translation type="unfinished"></translation>
+        <translation>同名模组已安装</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="288"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>模组归档文件无效或损坏</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="314"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished"></translation>
+        <translation>提取模组数据失败</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="342"/>
         <source>Data with this mod was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>此模组的数据未找到</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="346"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>模组位于受保护的目录，请手动删除它:
+</translation>
     </message>
 </context>
 <context>
@@ -864,27 +865,27 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../modManager/cmodlist.cpp" line="21"/>
         <source>%1 B</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 B</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="22"/>
         <source>%1 KiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 KiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="23"/>
         <source>%1 MiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 MiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="24"/>
         <source>%1 GiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 GiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="25"/>
         <source>%1 TiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 TiB</translation>
     </message>
 </context>
 <context>
@@ -940,7 +941,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="288"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="350"/>
         <source>Install gog.com files</source>
-        <translation type="unfinished"></translation>
+        <translation>安装  gog.com 文件</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="362"/>
@@ -1026,7 +1027,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
         <source>If you don&apos;t have a copy of Heroes III installed, VCMI can import your Heroes III data using the offline installer from gog.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果你没有一份英雄无敌3的安装拷贝，VCMI可以从 gog.com的离线安装包导入你的英雄无敌3数据。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
@@ -1089,53 +1090,53 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="289"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>选择%1文件...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="290"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>你必须选择%1文件！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="292"/>
         <source>GOG file (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>GOG文件 (*.*)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="293"/>
         <source>File selection</source>
-        <translation type="unfinished"></translation>
+        <translation>选择文件</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="300"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished"></translation>
+        <translation>所选的文件无效</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="307"/>
         <source>GOG installer</source>
-        <translation type="unfinished"></translation>
+        <translation>GOG安装包</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="310"/>
         <source>GOG data</source>
-        <translation type="unfinished"></translation>
+        <translation>GOC数据</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="314"/>
         <source>Installing... Please wait!</source>
-        <translation type="unfinished"></translation>
+        <translation>安装中...请等待！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="349"/>
         <source>No Heroes III data!</source>
-        <translation type="unfinished"></translation>
+        <translation>没有英雄无敌3数据！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="349"/>
         <source>Selected files do not contain Heroes III data!</source>
-        <translation type="unfinished"></translation>
+        <translation>所选的文件不包含英雄无敌3数据！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
@@ -1143,26 +1144,29 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="408"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
         <source>Heroes III data not found!</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到英雄无敌3数据！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select directory with installed Heroes III data.</source>
-        <translation type="unfinished"></translation>
+        <translation>从所选目录检测有效的英雄无敌3数据失败。
+请选择已安装英雄无敌3的数据目录。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="408"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI不支持英雄无敌3高清版文件。
+请选择包含《英雄无敌3：完全版》或《英雄无敌3：死亡阴影》的目录。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>检测到未知或不支持的英雄无敌3版本。
+请选择包含《英雄无敌3：完全版》或《英雄无敌3：死亡阴影》的目录。</translation>
     </message>
 </context>
 <context>
@@ -1319,17 +1323,17 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="172"/>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="175"/>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="176"/>
         <source>Version</source>
-        <translation type="unfinished">版本</translation>
+        <translation>版本</translation>
     </message>
 </context>
 <context>
@@ -1352,12 +1356,12 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
     <message>
         <location filename="../updatedialog_moc.cpp" line="64"/>
         <source>Network error</source>
-        <translation type="unfinished"></translation>
+        <translation>网络错误</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from url or incorrect JSON data</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从url中读取JSON或JSON数据不正确</translation>
     </message>
 </context>
 </TS>
