@@ -21,21 +21,27 @@ Point2D Point2D::operator * (float scale) const
 	return Point2D(x() * scale, y() * scale);
 }
 
+Point2D Point2D::operator / (float scale) const
+{
+	return Point2D(x() / scale, y() / scale);
+}
+
 Point2D Point2D::operator + (const Point2D& other) const
 {
 	return Point2D(x() + other.x(), y() + other.y());
 }
 
+Point2D Point2D::operator - (const Point2D& other) const
+{
+	return Point2D(x() - other.x(), y() - other.y());
+}
+
 bool Point2D::operator < (const Point2D& other) const
 {
-	if (x() < other.x())
-	{
-		return true;
-	}
-	else
-	{
-		return y() < other.y();
-	}
+	if (x() != other.x())
+		return x() < other.x();
+
+	return y() < other.y();
 }
 
 std::string Point2D::toString() const
@@ -164,7 +170,29 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomG
 		split(t, points, indices, DEPTH);
 	}
 
-	vstd::copy_if(points, vstd::set_inserter(finalPoints), [](const Point2D point)
+	std::set<Point2D> uniquePoints(points.begin(), points.end());
+	std::vector<Point2D> uniquePointsVec(uniquePoints.begin(), uniquePoints.end());
+	logGlobal->info("Generated %d vertices and %d unique vertices", points.size(), uniquePointsVec.size());
+
+	// Find center of the mass, shift that center to (0.5, 0.5)
+	Point2D center = Point2D(0.0f, 0.0f);
+	for (const auto & point : uniquePointsVec)
+	{
+		center = center + point;
+	};
+	center = center / uniquePointsVec.size();
+
+	// This center is very close to (0.0, 0.0), anyway
+	logGlobal->info("Penrose tiling center: %s", center.toString().c_str());
+
+	for (auto & point : uniquePointsVec)
+	{
+		point = point - center + Point2D(0.5f, 0.5f);
+	};
+
+	// For 8X8 map, only 650 out of 15971 points are in the range
+
+	vstd::copy_if(uniquePointsVec, vstd::set_inserter(finalPoints), [](const Point2D point)
 	{
 		return vstd::isbetween(point.x(), 0.f, 1.0f) && vstd::isbetween(point.y(), 0.f, 1.0f);
 	});
