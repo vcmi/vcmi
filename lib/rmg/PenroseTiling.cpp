@@ -21,9 +21,19 @@ Point2D Point2D::operator * (float scale) const
 	return Point2D(x() * scale, y() * scale);
 }
 
+Point2D Point2D::operator / (float scale) const
+{
+	return Point2D(x() / scale, y() / scale);
+}
+
 Point2D Point2D::operator + (const Point2D& other) const
 {
 	return Point2D(x() + other.x(), y() + other.y());
+}
+
+Point2D Point2D::operator - (const Point2D& other) const
+{
+	return Point2D(x() - other.x(), y() - other.y());
 }
 
 bool Point2D::operator < (const Point2D& other) const
@@ -163,6 +173,19 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomG
 
 		split(t, points, indices, DEPTH);
 	}
+	// Find center of the mass, shift that center to (0.5, 0.5)
+
+	Point2D center = Point2D(0.0f, 0.0f);
+	for (auto & point : points)
+	{
+		center = center + point;
+	};
+	center = center / points.size();
+
+	for (auto & point : points)
+	{
+		point = point - center + Point2D(0.5f, 0.5f);
+	};
 
 	vstd::copy_if(points, vstd::set_inserter(finalPoints), [](const Point2D point)
 	{
