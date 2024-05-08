@@ -523,95 +523,96 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="160"/>
         <source>Can not install submod</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível instalar o submod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="163"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished"></translation>
+        <translation>O mod já está instalado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="172"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível desinstalar o submod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="175"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished"></translation>
+        <translation>O mod não está instalado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="185"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>O mod já está ativado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="188"/>
         <location filename="../modManager/cmodmanager.cpp" line="231"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished"></translation>
+        <translation>O mod deve ser instalado primeiro</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="192"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="unfinished"></translation>
+        <translation>O mod não é compatível, por favor, atualize o VCMI e verifique as últimas revisões do mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="197"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished"></translation>
+        <translation>O mod necessário %1 está faltando</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="202"/>
         <source>Required mod %1 is not enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>O mod necessário %1 não está habilitado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="211"/>
         <location filename="../modManager/cmodmanager.cpp" line="218"/>
         <source>This mod conflicts with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Este mod entra em conflito com %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="228"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>O mod já está desativado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="238"/>
         <source>This mod is needed to run %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Este mod é necessário para executar %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="280"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished"></translation>
+        <translation>O arquivo do mod está faltando</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="283"/>
         <source>Mod with such name is already installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Um mod com esse nome já está instalado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="288"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>O arquivo do mod é inválido ou está corrompido</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="314"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha ao extrair os dados do mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="342"/>
         <source>Data with this mod was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foram encontrados dados com este mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="346"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>O mod está localizado em um diretório protegido, por favor, remova-o manualmente:
+</translation>
     </message>
 </context>
 <context>
@@ -1082,53 +1083,53 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="289"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar arquivo %1...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="290"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Você precisa selecionar o arquivo %1!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="292"/>
         <source>GOG file (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivo GOG (*.*)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="293"/>
         <source>File selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleção de arquivo</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="300"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivo selecionado inválido</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="307"/>
         <source>GOG installer</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalador GOG</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="310"/>
         <source>GOG data</source>
-        <translation type="unfinished"></translation>
+        <translation>Dados do GOG</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="314"/>
         <source>Installing... Please wait!</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalando... Por favor, aguarde!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="349"/>
         <source>No Heroes III data!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhum dado do Heroes III!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="349"/>
         <source>Selected files do not contain Heroes III data!</source>
-        <translation type="unfinished"></translation>
+        <translation>Os arquivos selecionados não contêm dados do Heroes III!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
@@ -1136,26 +1137,29 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="408"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
         <source>Heroes III data not found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Dados do Heroes III não encontrados!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select directory with installed Heroes III data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha ao detectar dados válidos do Heroes III no diretório escolhido.
+Por favor, selecione o diretório com os dados do Heroes III instalados.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="408"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivos do Heroes III: HD Edition não são suportados pelo VCMI.
+Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versão desconhecida ou não suportada do Heroes III encontrada.
+Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III: Shadow of Death.</translation>
     </message>
 </context>
 <context>
