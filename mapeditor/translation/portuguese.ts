@@ -1591,7 +1591,7 @@
         <location filename="../mapsettings/victoryconditions.cpp" line="36"/>
         <source>No special victory</source>
         <translation>Nenhuma vitória especial</translation>
-</message>
+    </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="37"/>
         <source>Capture artifact</source>
