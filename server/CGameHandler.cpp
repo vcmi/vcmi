@@ -543,7 +543,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 {
 	if (si->seedToBeUsed == 0)
 	{
-		si->seedToBeUsed = static_cast<ui32>(std::time(nullptr));
+		si->seedToBeUsed = CRandomGenerator::getDefault().nextInt();
 	}
 	CMapService mapService;
 	gs = new CGameState();
