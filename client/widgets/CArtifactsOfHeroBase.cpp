@@ -235,7 +235,7 @@ void CArtifactsOfHeroBase::addGestureCallback(CArtPlace::ClickFunctor callback)
 	}
 }
 
-const CArtifactInstance * CArtifactsOfHeroBase::getArt(const ArtifactPosition & slot)
+const CArtifactInstance * CArtifactsOfHeroBase::getArt(const ArtifactPosition & slot) const
 {
 	return curHero ? curHero->getArt(slot) : nullptr;
 }

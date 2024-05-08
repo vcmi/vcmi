@@ -925,7 +925,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		}
 	}
 
-	updateWidgets();
+	update();
 }
 
 const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const
@@ -937,7 +937,7 @@ void CExchangeWindow::updateGarrisons()
 {
 	garr->recreateSlots();
 
-	updateWidgets();
+	update();
 }
 
 bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
@@ -951,8 +951,9 @@ void CExchangeWindow::questlog(int whichHero)
 	LOCPLINT->showQuestLog();
 }
 
-void CExchangeWindow::updateWidgets()
+void CExchangeWindow::update()
 {
+	CWindowWithArtifacts::update();
 	for(size_t leftRight : {0, 1})
 	{
 		const CGHeroInstance * hero = heroInst.at(leftRight);

@@ -20,15 +20,14 @@
 
 #include "../widgets/CComponent.h"
 
-#include "../windows/CHeroWindow.h"
 #include "../windows/CSpellWindow.h"
-#include "../windows/GUIClasses.h"
 #include "../windows/CHeroBackpackWindow.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CConfigHandler.h"
 
@@ -54,7 +53,7 @@ void CWindowWithArtifacts::addSetAndCallbacks(ArtifactsOfHeroVar newArtSet)
 			{
 				artSet->clickPressedCallback = [artSet](CArtPlace & artPlace, const Point & cursorPosition)
 				{
-					artSet->onClickPrassedArtPlace(artPlace);
+					artSet->onClickPressedArtPlace(artPlace);
 				};
 			}
 			if constexpr(std::is_same_v<decltype(artSet), std::shared_ptr<CArtifactsOfHeroQuickBackpack>>)
@@ -62,7 +61,7 @@ void CWindowWithArtifacts::addSetAndCallbacks(ArtifactsOfHeroVar newArtSet)
 				artSet->clickPressedCallback = [this, artSet](CArtPlace & artPlace, const Point & cursorPosition)
 				{
 					if(const auto curHero = artSet->getHero())
-						swapArtifactAndClose(*artSet, artPlace, ArtifactLocation(curHero->id, artSet->getFilterSlot()));
+						swapArtifactAndClose(*artSet, artPlace.slot, ArtifactLocation(curHero->id, artSet->getFilterSlot()));
 				};
 			}
 			if constexpr(
@@ -106,7 +105,8 @@ void CWindowWithArtifacts::addSetAndCallbacks(ArtifactsOfHeroVar newArtSet)
 			{
 				artSet->gestureCallback = [this, artSet](CArtPlace & artPlace, const Point & cursorPosition)
 				{
-					showQuickBackpackWindow(*artSet, artPlace, cursorPosition);
+					if(const auto curHero = artSet->getHero())
+						showQuickBackpackWindow(*curHero, artPlace.slot, cursorPosition);
 				};
 			}
 		}, newArtSet);
@@ -165,40 +165,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance & hero, c
 		if(hero.getOwner() == LOCPLINT->playerID)
 		{
 			if(checkSpecialArts(*art, hero, altarTrading))
-			{
-				assert(hero.getArt(slot));
-				auto srcLoc = ArtifactLocation(hero.id, slot);
-				auto dstLoc = ArtifactLocation(hero.id, ArtifactPosition::TRANSITION_POS);
-
-				if(GH.isKeyboardCtrlDown())
-				{
-					for(auto & anotherSet : artSets)
-						if(std::holds_alternative<std::shared_ptr<CArtifactsOfHeroMain>>(anotherSet))
-						{
-							const auto anotherHeroEquipment = std::get<std::shared_ptr<CArtifactsOfHeroMain>>(anotherSet);
-							if(hero.id != anotherHeroEquipment->getHero()->id)
-							{
-								dstLoc.slot = ArtifactPosition::FIRST_AVAILABLE;
-								dstLoc.artHolder = anotherHeroEquipment->getHero()->id;
-								break;
-							}
-						}
-				}
-				else if(GH.isKeyboardAltDown())
-				{
-					const auto artId = hero.getArt(slot)->getTypeId();
-					if(ArtifactUtils::isSlotEquipment(slot))
-						dstLoc.slot = ArtifactUtils::getArtBackpackPosition(&hero, artId);
-					else if(ArtifactUtils::isSlotBackpack(slot))
-						dstLoc.slot = ArtifactUtils::getArtEquippedPosition(&hero, artId);
-				}
-				else if(closeWindow && closeCallback)
-				{
-					closeCallback();
-				}
-				if(dstLoc.slot != ArtifactPosition::PRE_FIRST)
-					LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
-			}
+				onClickPressedCommonArtifact(hero, slot, closeWindow);
 		}
 		else
 		{
@@ -212,16 +179,18 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance & hero, c
 	}
 }
 
-void CWindowWithArtifacts::swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const ArtifactLocation & dstLoc)
+void CWindowWithArtifacts::swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, const ArtifactPosition & slot,
+	const ArtifactLocation & dstLoc) const
 {
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(artsInst.getHero()->id, artPlace.slot), dstLoc);
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(artsInst.getHero()->id, slot), dstLoc);
 	if(closeCallback)
 		closeCallback();
 }
 
-void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
+void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace,
+	const Point & cursorPosition) const
 {
-	if(artPlace.getArt())
+	if(artsInst.getArt(artPlace.slot))
 	{
 		if(ArtifactUtilsClient::askToDisassemble(artsInst.getHero(), artPlace.slot))
 			return;
@@ -232,18 +201,19 @@ void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & a
 	}
 }
 
-void CWindowWithArtifacts::showArifactInfo(CArtPlace & artPlace, const Point & cursorPosition)
+void CWindowWithArtifacts::showArifactInfo(CArtPlace & artPlace, const Point & cursorPosition) const
 {
 	if(artPlace.getArt() && artPlace.text.size())
 		artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
 }
 
-void CWindowWithArtifacts::showQuickBackpackWindow(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
+void CWindowWithArtifacts::showQuickBackpackWindow(const CGHeroInstance & hero, const ArtifactPosition & slot,
+	const Point & cursorPosition) const
 {
 	if(!settings["general"]["enableUiEnhancements"].Bool())
 		return;
 
-	GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(artsInst.getHero(), artPlace.slot);
+	GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(&hero, slot);
 	auto backpackWindow = GH.windows().topWindow<CHeroQuickBackpackWindow>();
 	backpackWindow->moveTo(cursorPosition - Point(1, 1));
 	backpackWindow->fitToScreen(15);
@@ -252,7 +222,10 @@ void CWindowWithArtifacts::showQuickBackpackWindow(const CArtifactsOfHeroBase & 
 void CWindowWithArtifacts::activate()
 {
 	if(const auto art = getPickedArtifact())
+	{
+		markPossibleSlots();
 		setCursorAnimation(*art);
+	}
 	CWindowObject::activate();
 }
 
@@ -278,26 +251,22 @@ void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)
 	update();
 }
 
-void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw)
+void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc)
 {
-	auto artifactMovedBody = [this](auto artSetPtr)
-	{
-		if(const auto pickedArtInst = getPickedArtifact())
-		{
-			setCursorAnimation(*pickedArtInst);
-		}
-		else
-		{
-			artSetPtr->unmarkSlots();
-			CCS->curh->dragAndDropCursor(nullptr);
-		}
-	};
-
 	for(auto & artSet : artSets)
-		std::visit(artifactMovedBody, artSet);
-
-	if(withRedraw)
-		update();
+		std::visit([this](auto artSetPtr)
+			{
+				if(const auto pickedArtInst = getPickedArtifact())
+				{
+					markPossibleSlots();
+					setCursorAnimation(*pickedArtInst);
+				}
+				else
+				{
+					artSetPtr->unmarkSlots();
+					CCS->curh->dragAndDropCursor(nullptr);
+				}
+			}, artSet);
 }
 
 void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation & artLoc)
@@ -314,27 +283,14 @@ void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation & artLoc)
 void CWindowWithArtifacts::update()
 {
 	for(auto & artSet : artSets)
-		std::visit([this](auto artSetPtr)
+		std::visit([](auto artSetPtr)
 			{
 				artSetPtr->updateWornSlots();
 				artSetPtr->updateBackpackSlots();
 
-				// Update arts bonuses on window.
-				// TODO rework this part when CHeroWindow and CExchangeWindow are reworked
-				if(auto * chw = dynamic_cast<CHeroWindow*>(this))
-				{
-					chw->update(artSetPtr->getHero(), true);
-				}
-				else if(auto * cew = dynamic_cast<CExchangeWindow*>(this))
-				{
-					cew->updateWidgets();
-				}
-
 				// Make sure the status bar is updated so it does not display old text
 				if(auto artPlace = artSetPtr->getArtPlace(GH.getCursorPosition()))
 					artPlace->hover(true);
-
-				artSetPtr->redraw();
 			}, artSet);
 }
 
@@ -385,7 +341,6 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 
 void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 {
-	markPossibleSlots();
 	if(artInst.isScroll() && settings["general"]["enableUiEnhancements"].Bool())
 	{
 		assert(artInst.getScrollSpellID().num >= 0);
@@ -426,4 +381,50 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 	{
 		LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
 	}
+}
+
+void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & curHero, const ArtifactPosition & slot, bool closeWindow)
+{
+	assert(curHero.getArt(slot));
+	auto srcLoc = ArtifactLocation(curHero.id, slot);
+	auto dstLoc = ArtifactLocation(curHero.id, ArtifactPosition::TRANSITION_POS);
+
+	if(GH.isKeyboardCmdDown())
+	{
+		for(auto & anotherSet : artSets)
+		{
+			if(std::holds_alternative<std::shared_ptr<CArtifactsOfHeroMain>>(anotherSet))
+			{
+				const auto anotherHeroEquipment = std::get<std::shared_ptr<CArtifactsOfHeroMain>>(anotherSet);
+				if(curHero.id != anotherHeroEquipment->getHero()->id)
+				{
+					dstLoc.slot = ArtifactPosition::FIRST_AVAILABLE;
+					dstLoc.artHolder = anotherHeroEquipment->getHero()->id;
+					break;
+				}
+			}
+			if(std::holds_alternative<std::shared_ptr<CArtifactsOfHeroAltar>>(anotherSet))
+			{
+				const auto heroEquipment = std::get<std::shared_ptr<CArtifactsOfHeroAltar>>(anotherSet);
+				dstLoc.slot = ArtifactPosition::FIRST_AVAILABLE;
+				dstLoc.artHolder = heroEquipment->altarId;
+				break;
+			}
+		}
+	}
+	else if(GH.isKeyboardAltDown())
+	{
+		const auto artId = curHero.getArt(slot)->getTypeId();
+		if(ArtifactUtils::isSlotEquipment(slot))
+			dstLoc.slot = ArtifactUtils::getArtBackpackPosition(&curHero, artId);
+		else if(ArtifactUtils::isSlotBackpack(slot))
+			dstLoc.slot = ArtifactUtils::getArtEquippedPosition(&curHero, artId);
+	}
+	else if(closeWindow && closeCallback)
+	{
+		closeCallback();
+	}
+	if(dstLoc.slot != ArtifactPosition::PRE_FIRST)
+		LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
+
 }

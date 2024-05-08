@@ -62,24 +62,27 @@ CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero
 
 void CMarketWindow::updateArtifacts()
 {
-	assert(marketWidget);
-	marketWidget->update();
+	update();
 }
 
 void CMarketWindow::updateGarrisons()
 {
-	assert(marketWidget);
-	marketWidget->update();
+	update();
 }
 
 void CMarketWindow::updateResource()
 {
-	assert(marketWidget);
-	marketWidget->update();
+	update();
 }
 
 void CMarketWindow::updateHero()
 {
+	update();
+}
+
+void CMarketWindow::update()
+{
+	CWindowWithArtifacts::update();
 	assert(marketWidget);
 	marketWidget->update();
 }
@@ -96,19 +99,6 @@ bool CMarketWindow::holdsGarrison(const CArmedInstance * army)
 {
 	assert(marketWidget);
 	return marketWidget->hero == army;
-}
-
-void CMarketWindow::artifactRemoved(const ArtifactLocation & artLoc)
-{
-	marketWidget->update();
-	CWindowWithArtifacts::artifactRemoved(artLoc);
-}
-
-void CMarketWindow::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw)
-{
-	CWindowWithArtifacts::artifactMoved(srcLoc, destLoc, withRedraw);
-	assert(marketWidget);
-	marketWidget->update();
 }
 
 void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero)

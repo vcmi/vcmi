@@ -18,5 +18,5 @@ public:
 	std::function<void()> onClickNotTradableCallback;
 
 	CArtifactsOfHeroMarket(const Point & position, const int selectionWidth);
-	void onClickPrassedArtPlace(CArtPlace & artPlace);
+	void onClickPressedArtPlace(CArtPlace & artPlace);
 };

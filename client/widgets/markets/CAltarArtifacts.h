@@ -26,7 +26,6 @@ public:
 	void putBackArtifacts();
 
 private:
-	ObjectInstanceID altarId;
 	const CArtifactSet * altarArtifacts;
 	std::shared_ptr<CButton> sacrificeBackpackButton;
 	std::shared_ptr<CArtifactsOfHeroAltar> heroArts;

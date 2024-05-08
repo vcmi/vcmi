@@ -32,7 +32,6 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 
 	assert(dynamic_cast<const CGArtifactsAltar*>(market));
 	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(market);
-	altarId = altarObj->id;
 	altarArtifacts = altarObj;
 
 	deal = std::make_shared<CButton>(Point(269, 520), AnimationPath::builtin("ALTSACR.DEF"),
@@ -51,6 +50,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	// Hero's artifacts
 	heroArts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -11));
 	heroArts->setHero(hero);
+	heroArts->altarId = altarObj->id;
 
 	// Altar
 	offerTradePanel = std::make_shared<ArtifactsAltarPanel>([this](const std::shared_ptr<CTradeableItem> & altarSlot)
@@ -109,12 +109,12 @@ void CAltarArtifacts::makeDeal()
 
 void CAltarArtifacts::sacrificeAll()
 {
-	LOCPLINT->cb->bulkMoveArtifacts(heroArts->getHero()->id, altarId, false, true, true);
+	LOCPLINT->cb->bulkMoveArtifacts(heroArts->getHero()->id, heroArts->altarId, false, true, true);
 }
 
 void CAltarArtifacts::sacrificeBackpack()
 {
-	LOCPLINT->cb->bulkMoveArtifacts(heroArts->getHero()->id, altarId, false, false, true);
+	LOCPLINT->cb->bulkMoveArtifacts(heroArts->getHero()->id, heroArts->altarId, false, false, true);
 }
 
 std::shared_ptr<CArtifactsOfHeroAltar> CAltarArtifacts::getAOHset() const
@@ -179,7 +179,7 @@ void CAltarArtifacts::putBackArtifacts()
 	// TODO: If the backpack capacity limit is enabled, artifacts may remain on the altar.
 	// Perhaps should be erased in CGameHandler::objectVisitEnded if id of visited object will be available
 	if(!altarArtifacts->artifactsInBackpack.empty())
-		LOCPLINT->cb->bulkMoveArtifacts(altarId, heroArts->getHero()->id, false, true, true);
+		LOCPLINT->cb->bulkMoveArtifacts(heroArts->altarId, heroArts->getHero()->id, false, true, true);
 }
 
 CMarketBase::MarketShowcasesParams CAltarArtifacts::getShowcasesParams() const
@@ -208,7 +208,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 				deal->block(!LOCPLINT->makingTurn);
 
 				LOCPLINT->cb->swapArtifacts(ArtifactLocation(heroArts->getHero()->id, ArtifactPosition::TRANSITION_POS),
-					ArtifactLocation(altarId, ArtifactPosition::ALTAR));
+					ArtifactLocation(heroArts->altarId, ArtifactPosition::ALTAR));
 			}
 			else
 			{
@@ -222,7 +222,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 		assert(tradeSlotsMap.at(altarSlot));
 		const auto slot = altarArtifacts->getSlotByInstance(tradeSlotsMap.at(altarSlot));
 		assert(slot != ArtifactPosition::PRE_FIRST);
-		LOCPLINT->cb->swapArtifacts(ArtifactLocation(altarId, slot),
+		LOCPLINT->cb->swapArtifacts(ArtifactLocation(heroArts->altarId, slot),
 			ArtifactLocation(hero->id, GH.isKeyboardCtrlDown() ? ArtifactPosition::FIRST_AVAILABLE : ArtifactPosition::TRANSITION_POS));
 		tradeSlotsMap.erase(altarSlot);
 	}

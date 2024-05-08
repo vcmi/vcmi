@@ -1772,18 +1772,16 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(dst.artHolder));
 
-	bool redraw = true;
 	// If a bulk transfer has arrived, then redrawing only the last art movement.
 	if(numOfMovedArts != 0)
-	{
 		numOfMovedArts--;
-		if(numOfMovedArts != 0)
-			redraw = false;
-	}
 
 	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
-		artWin->artifactMoved(src, dst, redraw);
-
+	{
+		artWin->artifactMoved(src, dst);
+		if(numOfMovedArts == 0)
+			artWin->update();
+	}
 	waitWhileDialog();
 }
 

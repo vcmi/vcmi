@@ -39,23 +39,24 @@ public:
 	const CArtifactInstance * getPickedArtifact();
 	void clickPressedOnArtPlace(const CGHeroInstance & hero, const ArtifactPosition & slot,
 		bool allowExchange, bool altarTrading, bool closeWindow);
-	void swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const ArtifactLocation & dstLoc);
-	void showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
-	void showArifactInfo(CArtPlace & artPlace, const Point & cursorPosition);
-	void showQuickBackpackWindow(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, const ArtifactPosition & slot, const ArtifactLocation & dstLoc) const;
+	void showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const;
+	void showArifactInfo(CArtPlace & artPlace, const Point & cursorPosition) const;
+	void showQuickBackpackWindow(const CGHeroInstance & hero, const ArtifactPosition & slot, const Point & cursorPosition) const;
 	void activate() override;
 	void deactivate() override;
 	void enableArtifactsCostumeSwitcher() const;
 
 	virtual void artifactRemoved(const ArtifactLocation & artLoc);
-	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw);
+	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc);
 	virtual void artifactDisassembled(const ArtifactLocation & artLoc);
 	virtual void artifactAssembled(const ArtifactLocation & artLoc);
+	virtual void update();
 
 protected:
-	void update();
 	void markPossibleSlots();
 	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance & hero, bool isTrade) const;
 	void setCursorAnimation(const CArtifactInstance & artInst);
 	void putPickedArtifact(const CGHeroInstance & curHero, const ArtifactPosition & targetSlot);
+	void onClickPressedCommonArtifact(const CGHeroInstance & curHero, const ArtifactPosition & slot, bool closeWindow);
 };

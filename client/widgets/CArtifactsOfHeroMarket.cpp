@@ -26,7 +26,7 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int
 		artPlace->setSelectionWidth(selectionWidth);
 };
 
-void CArtifactsOfHeroMarket::onClickPrassedArtPlace(CArtPlace & artPlace)
+void CArtifactsOfHeroMarket::onClickPressedArtPlace(CArtPlace & artPlace)
 {
 	if(const auto art = getArt(artPlace.slot))
 	{

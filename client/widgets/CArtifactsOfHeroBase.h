@@ -44,7 +44,7 @@ public:
 	virtual void updateSlot(const ArtifactPosition & slot);
 	virtual const CArtifactInstance * getPickedArtifact();
 	void addGestureCallback(CArtPlace::ClickFunctor callback);
-	const CArtifactInstance * getArt(const ArtifactPosition & slot);
+	const CArtifactInstance * getArt(const ArtifactPosition & slot) const;
 
 protected:
 	const CGHeroInstance * curHero;
