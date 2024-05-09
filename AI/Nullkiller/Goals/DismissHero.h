@@ -17,16 +17,20 @@ namespace Goals
 {
 	class DLL_EXPORT DismissHero : public ElementarGoal<DismissHero>
 	{
+	private:
+		std::string heroName;
+
 	public:
-		DismissHero(HeroPtr hero)
+		DismissHero(const CGHeroInstance * hero)
 			: ElementarGoal(Goals::DISMISS_HERO)
 		{
 			sethero(hero);
+			heroName = hero->getNameTranslated();
 		}
 
 		void accept(AIGateway * ai) override;
 		std::string toString() const override;
-		virtual bool operator==(const DismissHero & other) const override;
+		bool operator==(const DismissHero & other) const override;
 	};
 }
 

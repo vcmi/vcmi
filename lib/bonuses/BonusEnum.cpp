@@ -7,13 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-
 #include "StdInc.h"
 
 #include "BonusEnum.h"
-
-#include "../JsonNode.h"
+#include "../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -70,13 +67,13 @@ namespace BonusDuration
 		}
 		if(durationNames.size() == 1)
 		{
-			return JsonUtils::stringNode(durationNames[0]);
+			return JsonNode(durationNames[0]);
 		}
 		else
 		{
-			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+			JsonNode node;
 			for(const std::string & dur : durationNames)
-				node.Vector().push_back(JsonUtils::stringNode(dur));
+				node.Vector().emplace_back(dur);
 			return node;
 		}
 	}

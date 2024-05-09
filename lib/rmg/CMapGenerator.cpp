@@ -17,6 +17,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
+#include "../CArtHandler.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
 #include "../constants/StringConstants.h"
@@ -33,14 +34,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
+CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0)
 {
 	loadConfig();
 	rand.setSeed(this->randomSeed);
 	mapGenOptions.finalize(rand);
-	map = std::make_unique<RmgMap>(mapGenOptions);
+	map = std::make_unique<RmgMap>(mapGenOptions, cb);
 	placer = std::make_shared<CZonePlacer>(*map);
 }
 
@@ -129,6 +130,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	catch (rmgException &e)
 	{
 		logGlobal->error("Random map generation received exception: %s", e.what());
+		throw;
 	}
 	Load::Progress::finish();
 	return std::move(map->mapInstance);
@@ -417,7 +419,8 @@ void CMapGenerator::fillZones()
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 
-	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
+	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths()->getTiles(), rand);
+	map->getMap(this).reindexObjects();
 
 	logGlobal->info("Zones filled successfully");
 
@@ -433,7 +436,7 @@ void CMapGenerator::addHeaderInfo()
 	m.twoLevel = mapGenOptions.getHasTwoLevels();
 	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	m.description.appendRawString(getMapDescription());
-	m.difficulty = 1;
+	m.difficulty = EMapDifficulty::NORMAL;
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
 	m.banWaterContent();

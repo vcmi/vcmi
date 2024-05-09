@@ -1,0 +1,17 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: gameStarted",
+	"description" : "Sent by match server to lobby on starting gameplay",
+
+	"required" : [ "type" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "gameStarted"
+		}
+	}
+}

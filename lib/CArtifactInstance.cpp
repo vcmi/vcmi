@@ -62,7 +62,7 @@ void CCombinedArtifactInstance::addPlacementMap(CArtifactSet::ArtPlacementMap & 
 SpellID CScrollArtifactInstance::getScrollSpellID() const
 {
 	auto artInst = static_cast<const CArtifactInstance*>(this);
-	const auto bonus = artInst->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
+	const auto bonus = artInst->getFirstBonus(Selector::type()(BonusType::SPELL));
 	if(!bonus)
 		return SpellID::NONE;
 	return bonus->subtype.as<SpellID>();
@@ -107,7 +107,7 @@ void CArtifactInstance::init()
 	setNodeType(ARTIFACT_INSTANCE);
 }
 
-CArtifactInstance::CArtifactInstance(CArtifact * art)
+CArtifactInstance::CArtifactInstance(const CArtifact * art)
 {
 	init();
 	setType(art);
@@ -118,10 +118,10 @@ CArtifactInstance::CArtifactInstance()
 	init();
 }
 
-void CArtifactInstance::setType(CArtifact * art)
+void CArtifactInstance::setType(const CArtifact * art)
 {
 	artType = art;
-	attachTo(*art);
+	attachToSource(*art);
 }
 
 std::string CArtifactInstance::nodeName() const

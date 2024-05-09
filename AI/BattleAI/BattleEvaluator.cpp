@@ -22,6 +22,8 @@
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/CRandomGenerator.h"
+
 
 // TODO: remove
 // Eventually only IBattleInfoCallback and battle::Unit should be used,
@@ -62,6 +64,18 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
 		result.push_back(moatHex);
+
+		moatHex = moatHex.cloneInDirection(BattleHex::LEFT);
+		auto obstaclesSecondRow = cb->getBattle(battleID)->battleGetAllObstaclesOnPos(moatHex, false);
+
+		for(auto obstacle : obstaclesSecondRow)
+		{
+			if(obstacle->obstacleType == CObstacleInstance::EObstacleType::MOAT)
+			{
+				result.push_back(moatHex);
+				break;
+			}
+		}
 	}
 
 	return result;
@@ -350,10 +364,11 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	LOGL("Casting spells sounds like fun. Let's see...");
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
-	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [hero, this](const CSpell *s) -> bool
-	{
-		return s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero);
-	});
+
+	for (auto const & s : VLC->spellh->objects)
+		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
+			possibleSpells.push_back(s.get());
+
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
 	vstd::erase_if(possibleSpells, [](const CSpell *s)

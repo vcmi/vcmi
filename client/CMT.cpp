@@ -55,8 +55,7 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
-static std::atomic<bool> quitRequestedDuringOpeningPlayback = false;
-static po::variables_map vm;
+static std::atomic<bool> headlessQuit = false;
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
@@ -72,7 +71,7 @@ void init()
 	CStopWatch tmh;
 
 	loadDLLClasses();
-	const_cast<CGameInfo*>(CGI)->setFromLib();
+	CGI->setFromLib();
 
 	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 
@@ -118,6 +117,8 @@ int main(int argc, char * argv[])
 #endif
 	std::cout << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");
+	po::variables_map vm;
+
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
@@ -138,16 +139,7 @@ int main(int argc, char * argv[])
 		("nointro,i", "skips intro movies")
 		("donotstartserver,d","do not attempt to start server and just connect to it instead server")
 		("serverport", po::value<si64>(), "override port specified in config file")
-		("savefrequency", po::value<si64>(), "limit auto save creation to each N days")
-		("lobby", "parameters address, port, uuid to connect ro remote lobby session")
-		("lobby-address", po::value<std::string>(), "address to remote lobby")
-		("lobby-port", po::value<ui16>(), "port to remote lobby")
-		("lobby-host", "if this client hosts session")
-		("lobby-uuid", po::value<std::string>(), "uuid to the server")
-		("lobby-connections", po::value<ui16>(), "connections of server")
-		("lobby-username", po::value<std::string>(), "player name")
-		("lobby-gamemode", po::value<ui16>(), "use 0 for new game and 1 for load game")
-		("uuid", po::value<std::string>(), "uuid for the client");
+		("savefrequency", po::value<si64>(), "limit auto save creation to each N days");
 
 	if(argc > 1)
 	{
@@ -182,7 +174,8 @@ int main(int argc, char * argv[])
 	}
 
 	// Init old logging system and new (temporary) logging system
-	CStopWatch total, pomtime;
+	CStopWatch total;
+	CStopWatch pomtime;
 	std::cout.flags(std::ios::unitbuf);
 #ifndef VCMI_IOS
 	console = new CConsoleHandler();
@@ -197,6 +190,7 @@ int main(int argc, char * argv[])
 	console->start();
 #endif
 
+	setThreadNameLoggingOnly("MainGUI");
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
@@ -208,17 +202,17 @@ int main(int argc, char * argv[])
 	preinitDLL(::console, false);
 
 	Settings session = settings.write["session"];
-	auto setSettingBool = [](std::string key, std::string arg) {
+	auto setSettingBool = [&](std::string key, std::string arg) {
 		Settings s = settings.write(vstd::split(key, "/"));
-		if(::vm.count(arg))
+		if(vm.count(arg))
 			s->Bool() = true;
 		else if(s->isNull())
 			s->Bool() = false;
 	};
-	auto setSettingInteger = [](std::string key, std::string arg, si64 defaultValue) {
+	auto setSettingInteger = [&](std::string key, std::string arg, si64 defaultValue) {
 		Settings s = settings.write(vstd::split(key, "/"));
-		if(::vm.count(arg))
-			s->Integer() = ::vm[arg].as<si64>();
+		if(vm.count(arg))
+			s->Integer() = vm[arg].as<si64>();
 		else if(s->isNull())
 			s->Integer() = defaultValue;
 	};
@@ -249,7 +243,7 @@ int main(int argc, char * argv[])
 
 	// Initialize logging based on settings
 	logConfig->configure();
-	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
+	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message)
@@ -328,9 +322,6 @@ int main(int argc, char * argv[])
 	#endif // ANDROID
 #endif // THREADED
 
-	if (quitRequestedDuringOpeningPlayback)
-		quitApplication();
-
 	if(!settings["session"]["headless"].Bool())
 	{
 		pomtime.getDiff();
@@ -370,46 +361,6 @@ int main(int argc, char * argv[])
 	}
 	
 	std::vector<std::string> names;
-	session["lobby"].Bool() = false;
-	if(vm.count("lobby"))
-	{
-		session["lobby"].Bool() = true;
-		session["host"].Bool() = false;
-		session["address"].String() = vm["lobby-address"].as<std::string>();
-		if(vm.count("lobby-username"))
-			session["username"].String() = vm["lobby-username"].as<std::string>();
-		else
-			session["username"].String() = settings["launcher"]["lobbyUsername"].String();
-		if(vm.count("lobby-gamemode"))
-			session["gamemode"].Integer() = vm["lobby-gamemode"].as<ui16>();
-		else
-			session["gamemode"].Integer() = 0;
-		CSH->uuid = vm["uuid"].as<std::string>();
-		session["port"].Integer() = vm["lobby-port"].as<ui16>();
-		logGlobal->info("Remote lobby mode at %s:%d, uuid is %s", session["address"].String(), session["port"].Integer(), CSH->uuid);
-		if(vm.count("lobby-host"))
-		{
-			session["host"].Bool() = true;
-			session["hostConnections"].String() = std::to_string(vm["lobby-connections"].as<ui16>());
-			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
-			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
-		}
-		
-		//we should not reconnect to previous game in online mode
-		Settings saveSession = settings.write["server"]["reconnect"];
-		saveSession->Bool() = false;
-		
-		//start lobby immediately
-		names.push_back(session["username"].String());
-		ESelectionScreen sscreen = session["gamemode"].Integer() == 0 ? ESelectionScreen::newGame : ESelectionScreen::loadGame;
-		CMM->openLobby(sscreen, session["host"].Bool(), &names, ELoadMode::MULTI);
-	}
-	
-	// Restore remote session - start game immediately
-	if(settings["server"]["reconnect"].Bool())
-	{
-		CSH->restoreLastSession();
-	}
 
 	if(!settings["session"]["headless"].Bool())
 	{
@@ -417,8 +368,12 @@ int main(int argc, char * argv[])
 	}
 	else
 	{
-		while(true)
+		while(!headlessQuit)
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
+
+		quitApplication();
 	}
 
 	return 0;
@@ -429,15 +384,15 @@ void playIntro()
 {
 	auto audioData = CCS->videoh->getAudio(VideoPath::builtin("3DOLOGO.SMK"));
 	int sound = CCS->soundh->playSound(audioData);
-	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, true, true))
+	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, EVideoType::INTRO))
 	{
 		audioData = CCS->videoh->getAudio(VideoPath::builtin("NWCLOGO.SMK"));
 		sound = CCS->soundh->playSound(audioData);
-		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, true, true))
+		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, EVideoType::INTRO))
 		{
 			audioData = CCS->videoh->getAudio(VideoPath::builtin("H3INTRO.SMK"));
 			sound = CCS->soundh->playSound(audioData);
-			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), 0, 1, true, true);
+			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), 0, 1, EVideoType::INTRO);
 		}
 	}
 	CCS->soundh->stopSound(sound);
@@ -445,14 +400,30 @@ void playIntro()
 
 static void mainLoop()
 {
+#ifndef VCMI_UNIX
+	// on Linux, name of main thread is also name of our process. Which we don't want to change
 	setThreadName("MainGUI");
+#endif
 
 	while(1) //main SDL events loop
 	{
 		GH.input().fetchEvents();
-		CSH->applyPacksOnLobbyScreen();
 		GH.renderFrame();
 	}
+}
+
+[[noreturn]] static void quitApplicationImmediately()
+{
+	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
+	// We generally don't care about them and this leads to numerous issues, e.g.
+	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
+	// Android - std::quick_exit is available only starting from API level 21
+	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
+#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
+	::exit(0);
+#else
+	std::quick_exit(0);
+#endif
 }
 
 [[noreturn]] static void quitApplication()
@@ -461,9 +432,9 @@ static void mainLoop()
 	{
 		if(CSH->client)
 			CSH->endGameplay();
-	}
 
-	GH.windows().clear();
+		GH.windows().clear();
+	}
 
 	CMM.reset();
 
@@ -505,43 +476,37 @@ static void mainLoop()
 	}
 
 	std::cout << "Ending...\n";
-
-	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
-	// We generally don't care about them and this leads to numerous issues, e.g.
-	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
-	// Android - std::quick_exit is available only starting from API level 21
-	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
-#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
-	::exit(0);
-#else
-	std::quick_exit(0);
-#endif
+	quitApplicationImmediately();
 }
 
 void handleQuit(bool ask)
 {
+	if(!ask)
+	{
+		if(settings["session"]["headless"].Bool())
+		{
+			headlessQuit = true;
+		}
+		else
+		{
+			quitApplication();
+		}
+
+		return;
+	}
+
 	// FIXME: avoids crash if player attempts to close game while opening is still playing
 	// use cursor handler as indicator that loading is not done yet
 	// proper solution would be to abort init thread (or wait for it to finish)
 	if (!CCS->curh)
 	{
-		quitRequestedDuringOpeningPlayback = true;
-		return;
+		quitApplicationImmediately();
 	}
 
-	if(ask)
-	{
-		CCS->curh->set(Cursor::Map::POINTER);
-
-		if (LOCPLINT)
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
-		else
-			CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
-	}
+	if (LOCPLINT)
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
 	else
-	{
-		quitApplication();
-	}
+		CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 }
 
 void handleFatalError(const std::string & message, bool terminate)

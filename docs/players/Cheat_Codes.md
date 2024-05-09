@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Cheat Codes
-
 # Cheat Codes
 
 Similar to H3, VCMI provides cheat codes to make testing game more convenient.
@@ -114,7 +112,8 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 `bonuses` - shows bonuses of currently selected adventure map object
 
 #### Extract commands
-`convert txt` - save game texts into json files  
+`translate` - save game texts into json files  
+`translate maps` - save map and campaign texts into json files  
 `get config` - save game objects data into json files  
 `get scripts` - dumps lua script stuff into files (currently inactive due to scripting disabled for default builds)    
 `get txt` - save game texts into .txt files matching original heroes 3 files  

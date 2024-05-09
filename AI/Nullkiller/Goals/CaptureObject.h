@@ -34,11 +34,11 @@ namespace Goals
 			name = obj->getObjectName();
 		}
 
-		virtual bool operator==(const CaptureObject & other) const override;
-		virtual Goals::TGoalVec decompose() const override;
-		virtual std::string toString() const override;
-		virtual bool hasHash() const override { return true; }
-		virtual uint64_t getHash() const override;
+		bool operator==(const CaptureObject & other) const override;
+		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
+		std::string toString() const override;
+		bool hasHash() const override { return true; }
+		uint64_t getHash() const override;
 	};
 }
 

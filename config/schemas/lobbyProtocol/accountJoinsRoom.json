@@ -1,0 +1,21 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: accountJoinsRoom",
+	"description" : "Sent by server to match server when new account joins the room",
+	"required" : [ "type", "accountID" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "accountJoinsRoom"
+		},
+		"accountID" :
+		{
+			"type" : "string",
+			"description" : "ID of account that have joined the room"
+		}
+	}
+}

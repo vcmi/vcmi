@@ -9,8 +9,9 @@
  */
 #pragma once
 
+#include "../constants/EntityIdentifiers.h"
 #include "../IHandlerBase.h"
-#include "../JsonNode.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

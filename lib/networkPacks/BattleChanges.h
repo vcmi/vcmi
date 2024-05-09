@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "JsonNode.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -47,7 +47,7 @@ public:
 	{
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 		h & healthDelta;
@@ -69,7 +69,7 @@ public:
 	{
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 		h & data;

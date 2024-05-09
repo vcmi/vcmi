@@ -37,8 +37,10 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-//must be instantiated in .cpp file for access to complete types of all member fields
-CBank::CBank() = default;
+CBank::CBank(IGameCallback *cb)
+	: CArmedInstance(cb)
+{}
+
 //must be instantiated in .cpp file for access to complete types of all member fields
 CBank::~CBank() = default;
 
@@ -59,7 +61,7 @@ std::string CBank::getHoverText(PlayerColor player) const
 	if (!wasVisited(player))
 		return getObjectName();
 
-	return getObjectName() + "\n" + visitedTxt(bc == nullptr);
+	return getObjectName() + "\n" + visitedTxt(bankConfig == nullptr);
 }
 
 std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
@@ -70,7 +72,7 @@ std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
 	if (!VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
 		return {};
 
-	if (bc == nullptr)
+	if (bankConfig == nullptr)
 		return {};
 
 	std::map<CreatureID, int> guardsAmounts;
@@ -90,7 +92,7 @@ std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
 
 void CBank::setConfig(const BankConfig & config)
 {
-	bc = std::make_unique<BankConfig>(config);
+	bankConfig = std::make_unique<BankConfig>(config);
 	clearSlots(); // remove all stacks, if any
 
 	for(const auto & stack : config.guards)
@@ -110,14 +112,14 @@ void CBank::setPropertyDer (ObjProperty what, ObjPropertyID identifier)
 			daycounter = 1; //yes, 1 since "today" daycounter won't be incremented
 			break;
 		case ObjProperty::BANK_CLEAR:
-			bc.reset();
+			bankConfig.reset();
 			break;
 	}
 }
 
 void CBank::newTurn(CRandomGenerator & rand) const
 {
-	if (bc == nullptr)
+	if (bankConfig == nullptr)
 	{
 		if (resetDuration != 0)
 		{
@@ -138,6 +140,12 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 {
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
 	cb->sendAndApply(&cov);
+
+	if(!bankConfig && (ID.toEnum() == Obj::CREATURE_BANK || ID.toEnum() == Obj::DRAGON_UTOPIA))
+	{
+		blockingDialogAnswered(h, 1);
+		return;
+	}
 
 	int banktext = 0;
 	switch (ID.toEnum())
@@ -181,7 +189,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	iw.player = hero->getOwner();
 	MetaString loot;
 
-	if (bc)
+	if (bankConfig)
 	{
 		switch (ID.toEnum())
 		{
@@ -223,26 +231,27 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			{
 			case Obj::SHIPWRECK:
 				textID = 123;
-				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[99]);
+				gbonus.bonus.description = MetaString::createFromTextID("core.arraytxt.99");
 				break;
 			case Obj::DERELICT_SHIP:
 				textID = 42;
-				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[101]);
+				gbonus.bonus.description = MetaString::createFromTextID("core.arraytxt.101");
 				break;
 			case Obj::CRYPT:
 				textID = 120;
-				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[98]);
+				gbonus.bonus.description = MetaString::createFromTextID("core.arraytxt.98");
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
 			iw.components.emplace_back(ComponentType::MORALE, -1);
-			iw.soundID = soundBase::GRAVEYARD;
+			iw.soundID = soundBase::invalid;
 			break;
 		}
 		case Obj::PYRAMID:
 		{
 			GiveBonus gb;
-			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, -2, BonusSourceID(id), VLC->generaltexth->arraytxt[70]);
+			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, -2, BonusSourceID(id));
+			gb.bonus.description = MetaString::createFromTextID("core.arraytxt.70");
 			gb.id = hero->id;
 			cb->giveHeroBonus(&gb);
 			textID = 107;
@@ -264,21 +273,21 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 
 	//grant resources
-	if (bc)
+	if (bankConfig)
 	{
 		for (GameResID it : GameResID::ALL_RESOURCES())
 		{
-			if (bc->resources[it] != 0)
+			if (bankConfig->resources[it] != 0)
 			{
-				iw.components.emplace_back(ComponentType::RESOURCE, it, bc->resources[it]);
+				iw.components.emplace_back(ComponentType::RESOURCE, it, bankConfig->resources[it]);
 				loot.appendRawString("%d %s");
-				loot.replaceNumber(bc->resources[it]);
+				loot.replaceNumber(bankConfig->resources[it]);
 				loot.replaceName(it);
-				cb->giveResource(hero->getOwner(), it, bc->resources[it]);
+				cb->giveResource(hero->getOwner(), it, bankConfig->resources[it]);
 			}
 		}
 		//grant artifacts
-		for (auto & elem : bc->artifacts)
+		for (auto & elem : bankConfig->artifacts)
 		{
 			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
@@ -291,7 +300,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, textID);
 			if (textID == 34)
 			{
-				const auto * strongest = boost::range::max_element(bc->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
+				const auto * strongest = boost::range::max_element(bankConfig->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
 				{
 					return a.type->getFightValue() < b.type->getFightValue();
 				})->type;
@@ -306,7 +315,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		iw.components.clear();
 		iw.text.clear();
 
-		if (!bc->spells.empty())
+		if (!bankConfig->spells.empty())
 		{
 			std::set<SpellID> spells;
 
@@ -315,7 +324,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			{
 				iw.text.appendLocalString(EMetaText::ADVOB_TXT, textID); //pyramid
 			}
-			for(const SpellID & spellId : bc->spells)
+			for(const SpellID & spellId : bankConfig->spells)
 			{
 				const auto * spell = spellId.toEntity(VLC);
 				iw.text.appendName(spellId);
@@ -348,7 +357,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 		//grant creatures
 		CCreatureSet ourArmy;
-		for(const auto & slot : bc->creatures)
+		for(const auto & slot : bankConfig->creatures)
 		{
 			ourArmy.addToSlot(ourArmy.getSlotFor(slot.type->getId()), slot.type->getId(), slot.count);
 		}
@@ -388,7 +397,7 @@ void CBank::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) cons
 {
 	if (answer)
 	{
-		if (bc) // not looted bank
+		if (bankConfig) // not looted bank
 			cb->startBattleI(hero, this, true);
 		else
 			doVisit(hero);

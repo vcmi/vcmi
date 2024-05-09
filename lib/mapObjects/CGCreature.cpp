@@ -16,10 +16,12 @@
 #include "../CConfigHandler.h"
 #include "../GameSettings.h"
 #include "../IGameCallback.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -170,6 +172,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			//ask if player agrees to pay gold
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
+			ynd.components.emplace_back(ComponentType::RESOURCE, GameResID(GameResID::GOLD), action);
 			std::string tmp = VLC->generaltexth->advobtxt[90];
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
@@ -215,6 +218,18 @@ void CGCreature::pickRandomObject(CRandomGenerator & rand)
 			subID = VLC->creh->pickRandomMonster(rand, 7);
 			break;
 	}
+
+	try {
+		// sanity check
+		VLC->objtypeh->getHandlerFor(MapObjectID::MONSTER, subID);
+	}
+	catch (const std::out_of_range & )
+	{
+		// Try to generate some debug information if sanity check failed
+		CreatureID creatureID(subID.getNum());
+		throw std::out_of_range("Failed to find handler for creature " + std::to_string(creatureID.getNum()) + ", identifer:" + creatureID.toEntity(VLC)->getJsonKey());
+	}
+
 	ID = MapObjectID::MONSTER;
 	setType(ID, subID);
 }
@@ -312,23 +327,15 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	else
 		powerFactor = -3;
 
-	std::set<CreatureID> myKindCres; //what creatures are the same kind as we
-	const CCreature * myCreature = VLC->creh->objects[getCreature().getNum()];
-	myKindCres.insert(myCreature->getId()); //we
-	myKindCres.insert(myCreature->upgrades.begin(), myCreature->upgrades.end()); //our upgrades
-
-	for(ConstTransitivePtr<CCreature> &crea : VLC->creh->objects)
-	{
-		if(vstd::contains(crea->upgrades, myCreature->getId())) //it's our base creatures
-			myKindCres.insert(crea->getId());
-	}
-
 	int count = 0; //how many creatures of similar kind has hero
 	int totalCount = 0;
 
 	for(const auto & elem : h->Slots())
 	{
-		if(vstd::contains(myKindCres,elem.second->type->getId()))
+		bool isOurUpgrade = vstd::contains(getCreature().toCreature()->upgrades, elem.second->getCreatureID());
+		bool isOurDowngrade = vstd::contains(elem.second->type->upgrades, getCreature());
+
+		if(isOurUpgrade || isOurDowngrade)
 			count += elem.second->count;
 		totalCount += elem.second->count;
 	}
@@ -350,8 +357,12 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		if(diplomacy + sympathy + 1 >= character)
 			return JOIN_FOR_FREE;
 
-		else if(diplomacy * 2  +  sympathy  +  1 >= character)
-			return VLC->creatures()->getById(getCreature())->getRecruitCost(EGameResID::GOLD) * getStackCount(SlotID(0)); //join for gold
+		if(diplomacy * 2 + sympathy + 1 >= character)
+		{
+			int32_t recruitCost = VLC->creatures()->getById(getCreature())->getRecruitCost(EGameResID::GOLD);
+			int32_t stackCount = getStackCount(SlotID(0));
+			return recruitCost * stackCount; //join for gold
+		}
 	}
 
 	//we are still here - creatures have not joined hero, flee or fight
@@ -583,7 +594,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 	if(!resources.empty())
 	{
 		cb->giveResources(h->tempOwner, resources);
-		for(auto const & res : GameResID::ALL_RESOURCES())
+		for(const auto & res : GameResID::ALL_RESOURCES())
 		{
 			if(resources[res] > 0)
 				iw.components.emplace_back(ComponentType::RESOURCE, res, resources[res]);

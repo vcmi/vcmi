@@ -15,12 +15,13 @@
 
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
 #include "CMessage.h"
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
-CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
-	: CWindowObject((EOptions)0)
+CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets)
+	: CWindowWithArtifacts(&artsSets)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -30,21 +31,24 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 	addSetAndCallbacks(arts);
 	arts->setHero(hero);
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
-	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
+		[this]() { WindowBase::close(); }, EShortcut::GLOBAL_RETURN);
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + quitButton->pos.h + 3 * windowMargin;
 	quitButton->moveTo(Point(pos.x + pos.w / 2 - quitButton->pos.w / 2, pos.y + arts->pos.h + 2 * windowMargin));
+	statusbar = CGStatusBar::create(0, pos.h, ImagePath::builtin("ADROLLVR.bmp"), pos.w);
+	pos.h += statusbar->pos.h;
+
 	center();
 }
 
 void CHeroBackpackWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
-	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)
-	: CWindowObject((EOptions)0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -82,6 +86,6 @@ void CHeroQuickBackpackWindow::showAll(Canvas & to)
 		close();
 		return;
 	}
-	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to.getInternalSurface(), pos.w + 28, pos.h + 29, pos.x - 14, pos.y - 15);
+	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to, pos.w + 28, pos.h + 29, pos.x - 14, pos.y - 15);
 	CIntObject::showAll(to);
 }

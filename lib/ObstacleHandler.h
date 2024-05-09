@@ -40,7 +40,8 @@ public:
 	
 	bool isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
 	bool isForegroundObstacle;
-	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
+	si32 width; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
+	si32 height;
 	std::vector<si16> blockedTiles; //offsets relative to obstacle position (that is its left bottom corner)
 	
 	int32_t getIndex() const override;

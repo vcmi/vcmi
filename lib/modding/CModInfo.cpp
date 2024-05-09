@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 static JsonNode addMeta(JsonNode config, const std::string & meta)
 {
-	config.setMeta(meta);
+	config.setModScope(meta);
 	return config;
 }
 
@@ -127,7 +127,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 
 	if (config["modType"].String() == "Translation")
 	{
-		if (baseLanguage != VLC->generaltexth->getPreferredLanguage())
+		if (baseLanguage != CGeneralTextHandler::getPreferredLanguage())
 		{
 			if (identifier.find_last_of('.') == std::string::npos)
 				logGlobal->warn("Translation mod %s was not loaded: language mismatch!", verificationInfo.name);

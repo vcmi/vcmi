@@ -67,10 +67,7 @@ public:
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
 	//////////////////////////////////////////////////////////////////////////
-	static std::vector<const CArtifact *> merchantArtifacts; //vector of artifacts available at Artifact merchant, NULLs possible (for making empty space when artifact is bought)
-	static std::vector<TradeItemBuy> universitySkills;//skills for university of magic
-
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
@@ -200,7 +197,7 @@ public:
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
 
-	CGTownInstance();
+	CGTownInstance(IGameCallback *cb);
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides
@@ -216,7 +213,6 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
-	static void reset();
 
 	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
 	{

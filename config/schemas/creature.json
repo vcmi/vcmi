@@ -41,6 +41,10 @@
 				}
 			}
 		},
+		"description" : {
+			"type" : "string",
+			"description" : "Description of creature"
+		},
 		"faction" : {
 			"type" : "string",
 			"description" : "Faction this creature belongs to. Examples: castle, rampart"
@@ -133,12 +137,12 @@
 				"animation" : {
 					"type" : "string",
 					"description" : "File with animation of this creature in battles",
-					"format" : "defFile"
+					"format" : "animationFile"
 				},
 				"map" : {
 					"type" : "string",
 					"description" : "File with animation of this creature on adventure map",
-					"format" : "defFile"
+					"format" : "animationFile"
 				},
 				"mapMask" : {
 					"type" : "array",
@@ -184,7 +188,7 @@
 						"projectile" : {
 							"type" : "string",
 							"description" : "Path to projectile animation",
-							"format" : "defFile"
+							"format" : "animationFile"
 						},
 						"ray" : {
 							"type" : "array",

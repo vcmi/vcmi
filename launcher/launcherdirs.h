@@ -10,14 +10,11 @@
 #pragma once
 
 /// similar to lib/VCMIDirs, controls where all launcher-related data will be stored
-class CLauncherDirs
+namespace CLauncherDirs
 {
-public:
-	CLauncherDirs();
-
-	static CLauncherDirs & get();
+	void prepare();
 
 	QString downloadsPath();
 	QString modsPath();
 	QString mapsPath();
-};
+}

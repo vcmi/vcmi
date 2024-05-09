@@ -11,12 +11,14 @@
 #include "BattleResultProcessor.h"
 
 #include "../CGameHandler.h"
+#include "../TurnTimerHandler.h"
 #include "../processors/HeroPoolProcessor.h"
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CStack.h"
+#include "../../lib/CPlayerState.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
@@ -28,15 +30,10 @@
 #include "../../lib/serializer/Cast.h"
 #include "../../lib/spells/CSpellHandler.h"
 
-BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner)
+BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 //	: owner(owner)
-	: gameHandler(nullptr)
+	: gameHandler(newGameHandler)
 {
-}
-
-void BattleResultProcessor::setGameHandler(CGameHandler * newGameHandler)
-{
-	gameHandler = newGameHandler;
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle, uint8_t sideInBattle):
@@ -46,26 +43,31 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 
 	PlayerColor color = battle.sideToPlayer(sideInBattle);
 
-	for(const CStack * stConst : battle.battleGetAllStacks(true))
+	auto allStacks = battle.battleGetStacksIf([color](const CStack * stack){
+
+		if (stack->summoned)//don't take into account temporary summoned stacks
+			return false;
+
+		if(stack->unitOwner() != color) //remove only our stacks
+			return false;
+
+		if (stack->isTurret())
+			return false;
+
+		return true;
+	});
+
+	for(const CStack * stConst : allStacks)
 	{
 		// Use const cast - in order to call non-const "takeResurrected" for proper calculation of casualties
 		// TODO: better solution
 		CStack * st = const_cast<CStack*>(stConst);
 
-		if(st->summoned) //don't take into account temporary summoned stacks
-			continue;
-		if(st->unitOwner() != color) //remove only our stacks
-			continue;
-
 		logGlobal->debug("Calculating casualties for %s", st->nodeName());
 
 		st->health.takeResurrected();
 
-		if(st->unitSlot() == SlotID::ARROW_TOWERS_SLOT)
-		{
-			logGlobal->debug("Ignored arrow towers stack.");
-		}
-		else if(st->unitSlot() == SlotID::WAR_MACHINES_SLOT)
+		if(st->unitSlot() == SlotID::WAR_MACHINES_SLOT)
 		{
 			auto warMachine = st->unitType()->warMachine;
 
@@ -124,15 +126,9 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 				StackLocation sl(army, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
 			}
-			else if(st->getCount() < army->getStackCount(st->unitSlot()))
+			else if(st->getCount() != army->getStackCount(st->unitSlot()))
 			{
-				logGlobal->debug("Stack lost %d units.", army->getStackCount(st->unitSlot()) - st->getCount());
-				StackLocation sl(army, st->unitSlot());
-				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
-			}
-			else if(st->getCount() > army->getStackCount(st->unitSlot()))
-			{
-				logGlobal->debug("Stack gained %d units.", st->getCount() - army->getStackCount(st->unitSlot()));
+				logGlobal->debug("Stack size changed: %d -> %d units.", army->getStackCount(st->unitSlot()), st->getCount());
 				StackLocation sl(army, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
 			}
@@ -256,6 +252,8 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		battleResult->exp[1] = heroDefender->calculateXp(battleResult->exp[1]);
 
 	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(0)));
+	if(!battleQuery)
+		battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(1)));
 	if (!battleQuery)
 	{
 		logGlobal->error("Cannot find battle query!");
@@ -272,9 +270,15 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult, queriedPlayers);
 
 	// in battles against neutrals, 1st player can ask to replay battle manually
-	if (!battle.sideToPlayer(1).isValidPlayer())
+	const auto * attackerPlayer = gameHandler->getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::ATTACKER));
+	const auto * defenderPlayer = gameHandler->getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::DEFENDER));
+	bool isAttackerHuman = attackerPlayer && attackerPlayer->isHuman();
+	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
+	bool onlyOnePlayerHuman = isAttackerHuman != isDefenderHuman;
+	// in battles against neutrals attacker can ask to replay battle manually, additionally in battles against AI player human side can also ask for replay
+	if(onlyOnePlayerHuman)
 	{
-		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, battle.getBattle());
+		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, battle.getBattle(), battleQuery->result);
 		battleResult->queryID = battleDialogQuery->queryID;
 		gameHandler->queries->addQuery(battleDialogQuery);
 	}
@@ -289,7 +293,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 			otherBattleQuery->result = battleQuery->result;
 	}
 
-	gameHandler->turnTimerHandler.onBattleEnd(battle.getBattle()->getBattleID());
+	gameHandler->turnTimerHandler->onBattleEnd(battle.getBattle()->getBattleID());
 	gameHandler->sendAndApply(battleResult);
 
 	if (battleResult->queryID == QueryID::NONE)
@@ -299,6 +303,8 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 {
 	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(0)));
+	if(!battleQuery)
+		battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(1)));
 	if(!battleQuery)
 	{
 		logGlobal->trace("No battle query, battle end was confirmed by another player");
@@ -585,7 +591,18 @@ void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, 
 	battleResult->result = resultType;
 	battleResult->winner = victoriusSide; //surrendering side loses
 
-	for(const auto & st : battle.battleGetAllStacks(true)) //setting casualties
+	auto allStacks = battle.battleGetStacksIf([](const CStack * stack){
+
+		if (stack->summoned)//don't take into account temporary summoned stacks
+			return false;
+
+		if (stack->isTurret())
+			return false;
+
+		return true;
+	});
+
+	for(const auto & st : allStacks) //setting casualties
 	{
 		si32 killed = st->getKilled();
 		if(killed > 0)

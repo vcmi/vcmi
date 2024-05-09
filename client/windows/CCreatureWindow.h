@@ -29,6 +29,7 @@ class CButton;
 class CMultiLineLabel;
 class CListBox;
 class CCommanderArtPlace;
+class LRClickableArea;
 
 class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
@@ -132,6 +133,7 @@ class CStackWindow : public CWindowObject
 		};
 
 		std::shared_ptr<CCreaturePic> animation;
+		std::shared_ptr<LRClickableArea> animationArea;
 		std::shared_ptr<CLabel> name;
 		std::shared_ptr<CPicture> icons;
 		std::shared_ptr<MoraleLuckBox> morale;

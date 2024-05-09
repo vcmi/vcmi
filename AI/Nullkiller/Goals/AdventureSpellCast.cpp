@@ -18,12 +18,12 @@ using namespace Goals;
 
 bool AdventureSpellCast::operator==(const AdventureSpellCast & other) const
 {
-	return hero.h == other.hero.h;
+	return hero == other.hero;
 }
 
 void AdventureSpellCast::accept(AIGateway * ai)
 {
-	if(!hero.validAndSet())
+	if(!hero)
 		throw cannotFulfillGoalException("Invalid hero!");
 
 	auto spell = getSpell();
@@ -39,18 +39,24 @@ void AdventureSpellCast::accept(AIGateway * ai)
 	if(hero->mana < hero->getSpellCost(spell))
 		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->getNameTranslated());
 
-	if(spellID == SpellID::TOWN_PORTAL && town && town->visitingHero)
-		throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->getNameTranslated());
 
 	if(town && spellID == SpellID::TOWN_PORTAL)
 	{
 		ai->selectedObject = town->id;
+
+		if(town->visitingHero && town->tempOwner == ai->playerID && !town->getUpperArmy()->stacksCount())
+		{
+			ai->myCb->swapGarrisonHero(town);
+		}
+
+		if(town->visitingHero)
+			throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->getNameTranslated());
 	}
 
 	auto wait = cb->waitTillRealize;
 
 	cb->waitTillRealize = true;
-	cb->castSpell(hero.h, spellID, tile);
+	cb->castSpell(hero, spellID, tile);
 
 	if(town && spellID == SpellID::TOWN_PORTAL)
 	{

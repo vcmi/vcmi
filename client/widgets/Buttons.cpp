@@ -22,6 +22,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
+#include "../gui/InterfaceObjectConfigurable.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -29,33 +30,28 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/filesystem/Filesystem.h"
 
-void CButton::update()
+void ButtonBase::update()
 {
 	if (overlay)
 	{
 		Point targetPos = Rect::createCentered( pos, overlay->pos.dimensions()).topLeft();
 
-		if (state == PRESSED)
+		if (state == EButtonState::PRESSED)
 			overlay->moveTo(targetPos + Point(1,1));
 		else
 			overlay->moveTo(targetPos);
 	}
 
-	int newPos = stateToIndex[int(state)];
-	if(animateLonelyFrame)
+	if (image)
 	{
-		if(state == PRESSED)
-			image->moveBy(Point(1,1));
-		else
-			image->moveBy(Point(-1,-1));
+		// checkbox - has only have two frames: normal and pressed/highlighted
+		// hero movement speed buttons: only three frames: normal, pressed and blocked/highlighted
+		if (state == EButtonState::HIGHLIGHTED && image->size() < 4)
+			image->setFrame(image->size()-1);
+		image->setFrame(stateToIndex[vstd::to_underlying(state)]);
 	}
-	if (newPos < 0)
-		newPos = 0;
-
-	if (state == HIGHLIGHTED && image->size() < 4)
-		newPos = (int)image->size()-1;
-	image->setFrame(newPos);
 
 	if (isActive())
 		redraw();
@@ -71,14 +67,14 @@ void CButton::addCallback(const std::function<void()> & callback)
 	this->callback += callback;
 }
 
-void CButton::addTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
+void ButtonBase::setTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
+	setOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
 	update();
 }
 
-void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
+void ButtonBase::setOverlay(const std::shared_ptr<CIntObject>& newOverlay)
 {
 	overlay = newOverlay;
 	if(overlay)
@@ -90,17 +86,59 @@ void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 	update();
 }
 
-void CButton::addImage(const AnimationPath & filename)
+void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButton)
 {
-	imageNames.push_back(filename);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+
+	configurable.reset();
+	image = std::make_shared<CAnimImage>(defName, vstd::to_underlying(getState()));
+	pos = image->pos;
+
+	if (playerColoredButton)
+		image->playerColored(LOCPLINT->playerID);
 }
 
-void CButton::addHoverText(ButtonState state, std::string text)
+const JsonNode & ButtonBase::getCurrentConfig() const
 {
-	hoverTexts[state] = text;
+	if (!config)
+		throw std::runtime_error("No config found in button!");
+
+	static constexpr std::array stateToConfig = {
+		"normal",
+		"pressed",
+		"blocked",
+		"highlighted"
+	};
+
+	std::string key = stateToConfig[vstd::to_underlying(getState())];
+	const JsonNode & value = (*config)[key];
+
+	if (value.isNull())
+		throw std::runtime_error("No config found in button for state " + key + "!");
+
+	return value;
 }
 
-void CButton::setImageOrder(int state1, int state2, int state3, int state4)
+void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredButton)
+{
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+
+	config = std::make_unique<JsonNode>(jsonName);
+
+	image.reset();
+	configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
+	pos = configurable->pos;
+
+	if (playerColoredButton)
+		image->playerColored(LOCPLINT->playerID);
+}
+
+void CButton::addHoverText(EButtonState state, const std::string & text)
+{
+	hoverTexts[vstd::to_underlying(state)] = text;
+}
+
+void ButtonBase::setImageOrder(int state1, int state2, int state3, int state4)
 {
 	stateToIndex[0] = state1;
 	stateToIndex[1] = state2;
@@ -109,44 +147,85 @@ void CButton::setImageOrder(int state1, int state2, int state3, int state4)
 	update();
 }
 
-void CButton::setAnimateLonelyFrame(bool agreement)
+std::shared_ptr<CIntObject> ButtonBase::getOverlay()
 {
-	animateLonelyFrame = agreement;
+	return overlay;
 }
-void CButton::setState(ButtonState newState)
+
+void ButtonBase::setStateImpl(EButtonState newState)
 {
-	if (state == newState)
+	state = newState;
+
+	if (configurable)
+	{
+		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
+		pos = configurable->pos;
+
+		if (overlay)
+		{
+			// Force overlay on top
+			removeChild(overlay.get());
+			addChild(overlay.get());
+		}
+	}
+
+	update();
+}
+
+void CButton::setState(EButtonState newState)
+{
+	if (getState() == newState)
 		return;
 
-	if (newState == BLOCKED)
+	if (newState == EButtonState::BLOCKED)
 		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 	else
 		addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 
-
-	state = newState;
-	update();
+	setStateImpl(newState);
 }
 
-CButton::ButtonState CButton::getState()
+EButtonState ButtonBase::getState() const
 {
 	return state;
 }
 
 bool CButton::isBlocked()
 {
-	return state == BLOCKED;
+	return getState() == EButtonState::BLOCKED;
 }
 
 bool CButton::isHighlighted()
 {
-	return state == HIGHLIGHTED;
+	return getState() == EButtonState::HIGHLIGHTED;
+}
+
+void CButton::setHoverable(bool on)
+{
+	hoverable = on;
+}
+
+void CButton::setSoundDisabled(bool on)
+{
+	soundDisabled = on;
+}
+
+void CButton::setActOnDown(bool on)
+{
+	actOnDown = on;
+}
+
+void CButton::setHelp(const std::pair<std::string, std::string> & help)
+{
+	hoverTexts[0] = help.first;
+	helpBox = help.second;
 }
 
 void CButton::block(bool on)
 {
-	if(on || state == BLOCKED) //dont change button state if unblock requested, but it's not blocked
-		setState(on ? BLOCKED : NORMAL);
+	if(on || getState() == EButtonState::BLOCKED) //dont change button state if unblock requested, but it's not blocked
+		setState(on ? EButtonState::BLOCKED : EButtonState::NORMAL);
 }
 
 void CButton::onButtonClicked()
@@ -169,14 +248,14 @@ void CButton::clickPressed(const Point & cursorPosition)
 	if(isBlocked())
 		return;
 
-	if (getState() != PRESSED)
+	if (getState() != EButtonState::PRESSED)
 	{
 		if (!soundDisabled)
 		{
 			CCS->soundh->playSound(soundBase::button);
 			GH.input().hapticFeedback();
 		}
-		setState(PRESSED);
+		setState(EButtonState::PRESSED);
 
 		if (actOnDown)
 			onButtonClicked();
@@ -185,12 +264,12 @@ void CButton::clickPressed(const Point & cursorPosition)
 
 void CButton::clickReleased(const Point & cursorPosition)
 {
-	if (getState() == PRESSED)
+	if (getState() == EButtonState::PRESSED)
 	{
 		if(hoverable && isHovered())
-			setState(HIGHLIGHTED);
+			setState(EButtonState::HIGHLIGHTED);
 		else
-			setState(NORMAL);
+			setState(EButtonState::NORMAL);
 
 		if (!actOnDown)
 			onButtonClicked();
@@ -199,18 +278,18 @@ void CButton::clickReleased(const Point & cursorPosition)
 
 void CButton::clickCancel(const Point & cursorPosition)
 {
-	if (getState() == PRESSED)
+	if (getState() == EButtonState::PRESSED)
 	{
 		if(hoverable && isHovered())
-			setState(HIGHLIGHTED);
+			setState(EButtonState::HIGHLIGHTED);
 		else
-			setState(NORMAL);
+			setState(EButtonState::NORMAL);
 	}
 }
 
 void CButton::showPopupWindow(const Point & cursorPosition)
 {
-	if(helpBox.size()) //there is no point to show window with nothing inside...
+	if(!helpBox.empty()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
 
@@ -219,17 +298,17 @@ void CButton::hover (bool on)
 	if(hoverable && !isBlocked())
 	{
 		if(on)
-			setState(HIGHLIGHTED);
+			setState(EButtonState::HIGHLIGHTED);
 		else
-			setState(NORMAL);
+			setState(EButtonState::NORMAL);
 	}
 
 	/*if(pressedL && on) // WTF is this? When this is used?
 		setState(PRESSED);*/
 
-	std::string name = hoverTexts[getState()].empty()
+	std::string name = hoverTexts[vstd::to_underlying(getState())].empty()
 		? hoverTexts[0]
-		: hoverTexts[getState()];
+		: hoverTexts[vstd::to_underlying(getState())];
 
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
@@ -240,55 +319,43 @@ void CButton::hover (bool on)
 	}
 }
 
-CButton::CButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
-    CKeyShortcut(key),
-    callback(Callback)
+ButtonBase::ButtonBase(Point position, const AnimationPath & defName, EShortcut key, bool playerColoredButton)
+	: CKeyShortcut(key)
+	, stateToIndex({0, 1, 2, 3})
+	, state(EButtonState::NORMAL)
 {
-	defActions = 255-DISPOSE;
-	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
-
-	stateToIndex[0] = 0;
-	stateToIndex[1] = 1;
-	stateToIndex[2] = 2;
-	stateToIndex[3] = 3;
-
-	state=NORMAL;
-
-	currentImage = -1;
-	hoverable = actOnDown = soundDisabled = false;
-	hoverTexts[0] = help.first;
-	helpBox=help.second;
-
 	pos.x += position.x;
 	pos.y += position.y;
 
-	if (!defName.empty())
+	JsonPath jsonConfig = defName.toType<EResType::JSON>().addPrefix("CONFIG/WIDGETS/BUTTONS/");
+	if (CResourceHandler::get()->existsResource(jsonConfig))
 	{
-		imageNames.push_back(defName);
-		setIndex(0);
-		if (playerColoredButton)
-			image->playerColored(LOCPLINT->playerID);
+		setConfigurable(jsonConfig, playerColoredButton);
+		return;
+	}
+	else
+	{
+		setImage(defName, playerColoredButton);
+		return;
 	}
 }
 
-void CButton::setIndex(size_t index)
+ButtonBase::~ButtonBase() = default;
+
+CButton::CButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
+	ButtonBase(position, defName, key, playerColoredButton),
+	callback(Callback),
+	helpBox(help.second),
+	actOnDown(false),
+	hoverable(false),
+	soundDisabled(false)
 {
-	if (index == currentImage || index>=imageNames.size())
-		return;
-	currentImage = index;
-	auto anim = GH.renderHandler().loadAnimation(imageNames[index]);
-	setImage(anim);
+	defActions = 255-DISPOSE;
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+	hoverTexts[0] = help.first;
 }
 
-void CButton::setImage(std::shared_ptr<CAnimation> anim, int animFlags)
-{
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-
-	image = std::make_shared<CAnimImage>(anim, getState(), 0, 0, 0, animFlags);
-	pos = image->pos;
-}
-
-void CButton::setPlayerColor(PlayerColor player)
+void ButtonBase::setPlayerColor(PlayerColor player)
 {
 	if (image && image->isPlayerColored())
 		image->playerColored(player);
@@ -353,16 +420,24 @@ void CToggleBase::setSelected(bool on)
 		callback(on);
 }
 
-bool CToggleBase::canActivate()
+bool CToggleBase::isSelected() const
 {
-	if (selected && !allowDeselection)
-		return false;
-	return true;
+	return selected;
 }
 
-void CToggleBase::addCallback(std::function<void(bool)> function)
+bool CToggleBase::canActivate() const
+{
+	return !selected || allowDeselection;
+}
+
+void CToggleBase::addCallback(const std::function<void(bool)> & function)
 {
 	callback += function;
+}
+
+void CToggleBase::setAllowDeselection(bool on)
+{
+	allowDeselection = on;
 }
 
 CToggleButton::CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
@@ -370,24 +445,23 @@ CToggleButton::CToggleButton(Point position, const AnimationPath &defName, const
   CButton(position, defName, help, 0, key, playerColoredButton),
   CToggleBase(callback)
 {
-	allowDeselection = true;
 }
 
 void CToggleButton::doSelect(bool on)
 {
 	if (on)
 	{
-		setState(HIGHLIGHTED);
+		setState(EButtonState::HIGHLIGHTED);
 	}
 	else
 	{
-		setState(NORMAL);
+		setState(EButtonState::NORMAL);
 	}
 }
 
 void CToggleButton::setEnabled(bool enabled)
 {
-	setState(enabled ? NORMAL : BLOCKED);
+	setState(enabled ? EButtonState::NORMAL : EButtonState::BLOCKED);
 }
 
 void CToggleButton::clickPressed(const Point & cursorPosition)
@@ -403,7 +477,7 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 	{
 		CCS->soundh->playSound(soundBase::button);
 		GH.input().hapticFeedback();
-		setState(PRESSED);
+		setState(EButtonState::PRESSED);
 	}
 }
 
@@ -416,13 +490,13 @@ void CToggleButton::clickReleased(const Point & cursorPosition)
 	if(isBlocked())
 		return;
 
-	if (getState() == PRESSED && canActivate())
+	if (getState() == EButtonState::PRESSED && canActivate())
 	{
 		onButtonClicked();
-		setSelected(!selected);
+		setSelected(!isSelected());
 	}
 	else
-		doSelect(selected); // restore
+		doSelect(isSelected()); // restore
 }
 
 void CToggleButton::clickCancel(const Point & cursorPosition)
@@ -434,10 +508,10 @@ void CToggleButton::clickCancel(const Point & cursorPosition)
 	if(isBlocked())
 		return;
 
-	doSelect(selected);
+	doSelect(isSelected());
 }
 
-void CToggleGroup::addCallback(std::function<void(int)> callback)
+void CToggleGroup::addCallback(const std::function<void(int)> & callback)
 {
 	onChange += callback;
 }
@@ -447,7 +521,7 @@ void CToggleGroup::resetCallback()
 	onChange.clear();
 }
 
-void CToggleGroup::addToggle(int identifier, std::shared_ptr<CToggleBase> button)
+void CToggleGroup::addToggle(int identifier, const std::shared_ptr<CToggleBase> & button)
 {
 	if(auto intObj = std::dynamic_pointer_cast<CIntObject>(button)) // hack-ish workagound to avoid diamond problem with inheritance
 	{
@@ -455,7 +529,7 @@ void CToggleGroup::addToggle(int identifier, std::shared_ptr<CToggleBase> button
 	}
 
 	button->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
-	button->allowDeselection = false;
+	button->setAllowDeselection(false);
 
 	if(buttons.count(identifier)>0)
 		logAnim->error("Duplicated toggle button id %d", identifier);
@@ -474,11 +548,8 @@ void CToggleGroup::setSelected(int id)
 
 void CToggleGroup::setSelectedOnly(int id)
 {
-	for(auto it = buttons.begin(); it != buttons.end(); it++)
-	{
-		int buttonId = it->first;
-		buttons[buttonId]->setEnabled(buttonId == id);
-	}
+	for(const auto & button : buttons)
+		button.second->setEnabled(button.first == id);
 
 	selectionChanged(id);
 }

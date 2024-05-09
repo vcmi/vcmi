@@ -1,5 +1,5 @@
 /*
- * EInfoWindowMode.h, part of VCMI engine
+ * EntityChanges.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include <vcmi/Metatype.h>
+#include "../json/JsonNode.h"
 
-#include "../JsonNode.h"
+#include <vcmi/Metatype.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +21,7 @@ public:
 	Metatype metatype = Metatype::UNKNOWN;
 	int32_t entityIndex = 0;
 	JsonNode data;
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & metatype;
 		h & entityIndex;

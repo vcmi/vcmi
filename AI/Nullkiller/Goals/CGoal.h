@@ -14,7 +14,6 @@
 namespace NKAI
 {
 
-struct HeroPtr;
 class AIGateway;
 
 namespace Goals
@@ -37,14 +36,14 @@ namespace Goals
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
 		}
-		template<typename Handler> void serialize(Handler & h, const int version)
+		template<typename Handler> void serialize(Handler & h)
 		{
 			h & static_cast<AbstractGoal &>(*this);
 			//h & goalType & isElementar & isAbstract & priority;
 			//h & value & resID & objid & aid & tile & hero & town & bid;
 		}
 
-		virtual bool operator==(const AbstractGoal & g) const override
+		bool operator==(const AbstractGoal & g) const override
 		{
 			if(goalType != g.goalType)
 				return false;
@@ -54,9 +53,9 @@ namespace Goals
 
 		virtual bool operator==(const T & other) const = 0;
 
-		virtual TGoalVec decompose() const override
+		TGoalVec decompose(const Nullkiller * ai) const override
 		{
-			TSubgoal single = decomposeSingle();
+			TSubgoal single = decomposeSingle(ai);
 
 			if(!single || single->invalid())
 				return {};
@@ -65,7 +64,7 @@ namespace Goals
 		}
 
 	protected:
-		virtual TSubgoal decomposeSingle() const
+		virtual TSubgoal decomposeSingle(const Nullkiller * ai) const
 		{
 			return TSubgoal();
 		}
@@ -90,11 +89,39 @@ namespace Goals
 			return *((T *)this);
 		}
 
-		virtual bool isElementar() const override { return true; }
+		bool isElementar() const override { return true; }
 
-		virtual HeroPtr getHero() const override { return AbstractGoal::hero; }
+		const CGHeroInstance * getHero() const override { return AbstractGoal::hero; }
 
-		virtual int getHeroExchangeCount() const override { return 0; }
+		int getHeroExchangeCount() const override { return 0; }
+
+		bool isObjectAffected(ObjectInstanceID id) const override
+		{
+			return (AbstractGoal::hero && AbstractGoal::hero->id == id)
+				|| AbstractGoal::objid == id
+				|| (AbstractGoal::town && AbstractGoal::town->id == id);
+		}
+
+		std::vector<ObjectInstanceID> getAffectedObjects() const override
+		{
+			auto result = std::vector<ObjectInstanceID>();
+
+			if(AbstractGoal::hero)
+				result.push_back(AbstractGoal::hero->id);
+
+			if(AbstractGoal::objid != -1)
+				result.push_back(ObjectInstanceID(AbstractGoal::objid));
+
+			if(AbstractGoal::town)
+				result.push_back(AbstractGoal::town->id);
+
+			return result;
+		}
+
+		ITask * asTask() override
+		{
+			return this;
+		}
 	};
 }
 

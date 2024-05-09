@@ -15,7 +15,9 @@
 #include "CGuiHandler.h"
 #include "MouseButton.h"
 #include "WindowHandler.h"
+#include "gui/Shortcut.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
 
 template<typename Functor>
@@ -74,6 +76,12 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 {
 	bool keysCaptured = false;
 
+	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+		dispatchMouseLeftButtonPressed(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+
+	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchShowPopup(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
 			if(i->captureThisKey(shortcut))
@@ -96,6 +104,12 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & shortcutsVector)
 {
 	bool keysCaptured = false;
+
+	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
+		dispatchMouseLeftButtonReleased(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+
+	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
+		dispatchClosePopup(GH.getCursorPosition());
 
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
@@ -151,7 +165,7 @@ AEventsReceiver * EventDispatcher::findElementInToleranceRange(const EventReceiv
 		if (distance.lengthSquared() == 0)
 			continue;
 
-		Point moveDelta = distance * tolerance / distance.length();
+		Point moveDelta = distance * std::min(1.0, static_cast<double>(tolerance) / distance.length());
 		Point testPosition = position + moveDelta;
 
 		if( !i->receiveEvent(testPosition, eventToTest))
@@ -213,12 +227,21 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 		if( i->receiveEvent(position, AEventsReceiver::LCLICK) || i == nearestElement)
 		{
 			if(isPressed)
+			{
+				i->mouseClickedState = isPressed;
 				i->clickPressed(position, lastActivated);
+			}
+			else
+			{
+				if (i->mouseClickedState)
+				{
+					i->mouseClickedState = isPressed;
+					i->clickReleased(position, lastActivated);
+				}
+				else
+					i->mouseClickedState = isPressed;
+			}
 
-			if (i->mouseClickedState && !isPressed)
-				i->clickReleased(position, lastActivated);
-
-			i->mouseClickedState = isPressed;
 			lastActivated = false;
 		}
 		else

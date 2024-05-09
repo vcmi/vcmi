@@ -30,11 +30,11 @@ std::string GatherArmyBehavior::toString() const
 	return "Gather army";
 }
 
-Goals::TGoalVec GatherArmyBehavior::decompose() const
+Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 
-	auto heroes = cb->getHeroesInfo();
+	auto heroes = ai->cb->getHeroesInfo();
 
 	if(heroes.empty())
 	{
@@ -43,33 +43,33 @@ Goals::TGoalVec GatherArmyBehavior::decompose() const
 
 	for(const CGHeroInstance * hero : heroes)
 	{
-		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::MAIN)
+		if(ai->heroManager->getHeroRole(hero) == HeroRole::MAIN)
 		{
-			vstd::concatenate(tasks, deliverArmyToHero(hero));
+			vstd::concatenate(tasks, deliverArmyToHero(ai, hero));
 		}
 	}
 
-	auto towns = cb->getTownsInfo();
+	auto towns = ai->cb->getTownsInfo();
 
 	for(const CGTownInstance * town : towns)
 	{
-		vstd::concatenate(tasks, upgradeArmy(town));
+		vstd::concatenate(tasks, upgradeArmy(ai, town));
 	}
 
 	return tasks;
 }
 
-Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * hero) const
+Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, const CGHeroInstance * hero) const
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = hero->visitablePos();
-	auto targetHeroScore = ai->nullkiller->heroManager->evaluateHero(hero);
+	auto targetHeroScore = ai->heroManager->evaluateHero(hero);
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
 
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
+	auto paths = ai->pathfinder->getPathInfo(pos, ai->settings->isObjectGraphAllowed());
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Gather army found %d paths", paths.size());
@@ -89,7 +89,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 			continue;
 		}
 
-		if(path.turn() > 0 && ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
+		if(path.turn() > 0 && ai->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
@@ -97,7 +97,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 			continue;
 		}
 
-		if(ai->nullkiller->arePathHeroesLocked(path))
+		if(ai->arePathHeroesLocked(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path because of locked hero");
@@ -107,7 +107,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		HeroExchange heroExchange(hero, path);
 
-		uint64_t armyValue = heroExchange.getReinforcementArmyStrength();
+		uint64_t armyValue = heroExchange.getReinforcementArmyStrength(ai);
 		float armyRatio = (float)armyValue / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
@@ -126,11 +126,11 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		{
 			if(!node.targetHero) continue;
 
-			auto heroRole = ai->nullkiller->heroManager->getHeroRole(node.targetHero);
+			auto heroRole = ai->heroManager->getHeroRole(node.targetHero);
 
 			if(heroRole == HeroRole::MAIN)
 			{
-				auto score = ai->nullkiller->heroManager->evaluateHero(node.targetHero);
+				auto score = ai->heroManager->evaluateHero(node.targetHero);
 
 				if(score >= targetHeroScore)
 				{
@@ -174,7 +174,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 			if(hero->inTownGarrison && path.turn() == 0)
 			{
-				auto lockReason = ai->nullkiller->getHeroLockedReason(hero);
+				auto lockReason = ai->getHeroLockedReason(hero);
 
 				if(path.targetHero->visitedTown == hero->visitedTown)
 				{
@@ -201,7 +201,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Action is blocked. Considering decomposition.");
 	#endif
-				auto subGoal = blockedAction->decompose(path.targetHero);
+				auto subGoal = blockedAction->decompose(ai, path.targetHero);
 
 				if(subGoal->invalid())
 				{
@@ -221,18 +221,18 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	return tasks;
 }
 
-Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader) const
+Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGTownInstance * upgrader) const
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = upgrader->visitablePos();
-	TResources availableResources = ai->nullkiller->getFreeResources();
+	TResources availableResources = ai->getFreeResources();
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());
 #endif
 	
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
-	auto goals = CaptureObjectsBehavior::getVisitGoals(paths);
+	auto paths = ai->pathfinder->getPathInfo(pos, ai->settings->isObjectGraphAllowed());
+	auto goals = CaptureObjectsBehavior::getVisitGoals(paths, ai);
 
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
@@ -244,9 +244,9 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 	for(const AIPath & path : paths)
 	{
-		auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+		auto heroRole = ai->heroManager->getHeroRole(path.targetHero);
 
-		if(heroRole == HeroRole::MAIN && path.turn() < SCOUT_TURN_DISTANCE_LIMIT)
+		if(heroRole == HeroRole::MAIN && path.turn() < ai->settings->getScoutHeroTurnDistanceLimit())
 			hasMainAround = true;
 	}
 
@@ -275,7 +275,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			continue;
 		}
 
-		if(ai->nullkiller->arePathHeroesLocked(path))
+		if(ai->arePathHeroesLocked(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path because of locked hero");
@@ -292,10 +292,10 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			continue;
 		}
 
-		auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+		auto heroRole = ai->heroManager->getHeroRole(path.targetHero);
 
 		if(heroRole == HeroRole::SCOUT
-			&& ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
+			&& ai->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
@@ -303,17 +303,17 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			continue;
 		}
 
-		auto upgrade = ai->nullkiller->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
+		auto upgrade = ai->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
 		if(!upgrader->garrisonHero
 			&& (
 				hasMainAround
-				|| ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
+				|| ai->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
 		{
 			ArmyUpgradeInfo armyToGetOrBuy;
 
 			armyToGetOrBuy.addArmyToGet(
-				ai->nullkiller->armyManager->getBestArmy(
+				ai->armyManager->getBestArmy(
 					path.targetHero,
 					path.heroArmy,
 					upgrader->getUpperArmy()));
@@ -321,11 +321,11 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			armyToGetOrBuy.upgradeValue -= path.heroArmy->getArmyStrength();
 
 			armyToGetOrBuy.addArmyToBuy(
-				ai->nullkiller->armyManager->toSlotInfo(
-					ai->nullkiller->armyManager->getArmyAvailableToBuy(
+				ai->armyManager->toSlotInfo(
+					ai->armyManager->getArmyAvailableToBuy(
 						path.heroArmy,
 						upgrader,
-						ai->nullkiller->getFreeResources(),
+						ai->getFreeResources(),
 						path.turn())));
 
 			upgrade.upgradeValue += armyToGetOrBuy.upgradeValue;
@@ -334,17 +334,17 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 			if(!upgrade.upgradeValue
 				&& armyToGetOrBuy.upgradeValue > 20000
-				&& ai->nullkiller->heroManager->canRecruitHero(town)
-				&& path.turn() < SCOUT_TURN_DISTANCE_LIMIT)
+				&& ai->heroManager->canRecruitHero(town)
+				&& path.turn() < ai->settings->getScoutHeroTurnDistanceLimit())
 			{
 				for(auto hero : cb->getAvailableHeroes(town))
 				{
-					auto scoutReinforcement =  ai->nullkiller->armyManager->howManyReinforcementsCanBuy(hero, town)
-						+ ai->nullkiller->armyManager->howManyReinforcementsCanGet(hero, town);
+					auto scoutReinforcement =  ai->armyManager->howManyReinforcementsCanBuy(hero, town)
+						+ ai->armyManager->howManyReinforcementsCanGet(hero, town);
 
 					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
-						&& ai->nullkiller->getFreeGold() >20000
-						&& ai->nullkiller->buildAnalyzer->getGoldPreasure() < MAX_GOLD_PEASURE)
+						&& ai->getFreeGold() >20000
+						&& !ai->buildAnalyzer->isGoldPressureHigh())
 					{
 						Composition recruitHero;
 

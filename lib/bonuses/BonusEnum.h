@@ -162,7 +162,7 @@ class JsonNode;
 	BONUS_NAME(BEFORE_BATTLE_REPOSITION_BLOCK) /*skill-agnostic tactics, bonus for blocking opposite tactics. For now donble side tactics is TODO.*/\
 	BONUS_NAME(HERO_EXPERIENCE_GAIN_PERCENT) /*skill-agnostic learning, and we can use it as a global effect also*/\
 	BONUS_NAME(UNDEAD_RAISE_PERCENTAGE) /*Percentage of killed enemy creatures to be raised after battle as undead*/\
-	BONUS_NAME(MANA_PER_KNOWLEDGE) /*Percentage rate of translating 10 hero knowledge to mana, used to intelligence and global bonus*/\
+	BONUS_NAME(MANA_PER_KNOWLEDGE_PERCENTAGE) /*Percentage rate of translating hero knowledge to 10 mana, used to intelligence and global bonus*/\
 	BONUS_NAME(HERO_GRANTS_ATTACKS) /*If hero can grant additional attacks to creature, value is number of attacks, subtype is creatureID*/\
 	BONUS_NAME(BONUS_DAMAGE_PERCENTAGE) /*If hero can grant conditional damage to creature, value is percentage, subtype is creatureID*/\
 	BONUS_NAME(BONUS_DAMAGE_CHANCE) /*If hero can grant additional damage to creature, value is chance, subtype is creatureID*/\
@@ -176,6 +176,8 @@ class JsonNode;
 	BONUS_NAME(FEROCITY) /*extra attacks, only if at least some creatures killed while attacking target unit, val = amount of additional attacks, additional info = amount of creatures killed to trigger (default 1)*/ \
 	BONUS_NAME(ENEMY_ATTACK_REDUCTION) /*in % (value) eg. Nix (HotA)*/ \
 	BONUS_NAME(REVENGE) /*additional damage based on how many units in stack died - formula: sqrt((number of creatures at battle start + 1) * creature health) / (total health now + 1 creature health) - 1) * 100% */ \
+	BONUS_NAME(RESOURCES_CONSTANT_BOOST) /*Bonus that does not account for propagation and gives extra resources per day. val - resource amount, subtype - resource type*/ \
+	BONUS_NAME(RESOURCES_TOWN_MULTIPLYING_BOOST) /*Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns. val - base resource amount to be multipled times number of owned towns, subtype - resource type*/ \
 	/* end of list */
 
 

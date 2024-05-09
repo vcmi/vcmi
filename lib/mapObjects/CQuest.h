@@ -17,11 +17,30 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
 
+enum class EQuestMission {
+	NONE = 0,
+	LEVEL = 1,
+	PRIMARY_SKILL = 2,
+	KILL_HERO = 3,
+	KILL_CREATURE = 4,
+	ARTIFACT = 5,
+	ARMY = 6,
+	RESOURCES = 7,
+	HERO = 8,
+	PLAYER = 9,
+	HOTA_MULTI = 10,
+	// end of H3 missions
+
+	KEYMASTER = 11,
+	HOTA_HERO_CLASS = 12,
+	HOTA_REACH_DATE = 13,
+};
+
 class DLL_LINKAGE CQuest final
 {
 public:
 
-	static const std::string & missionName(int index);
+	static const std::string & missionName(EQuestMission index);
 	static const std::string & missionState(int index);
 	
 	std::string questName;
@@ -56,11 +75,11 @@ public:
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	virtual bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	virtual void getVisitText(MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	virtual void getCompletionText(MetaString &text) const;
-	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
+	virtual void getVisitText(IGameCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual void getCompletionText(IGameCallback * cb, MetaString &text) const;
+	virtual void getRolloverText (IGameCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
 	virtual void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
-	virtual void addTextReplacements(MetaString &out, std::vector<Component> & components) const;
+	virtual void addTextReplacements(IGameCallback * cb, MetaString &out, std::vector<Component> & components) const;
 	virtual void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
 
@@ -69,7 +88,7 @@ public:
 		return (quest.qid == qid);
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & qid;
 		h & isCompleted;
@@ -103,10 +122,10 @@ public:
 	///Information about quest should remain accessible even if IQuestObject removed from map
 	///All CQuest objects are freed in CMap destructor
 	virtual ~IQuestObject() = default;
-	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const = 0;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & quest;
 	}
@@ -117,6 +136,8 @@ protected:
 class DLL_LINKAGE CGSeerHut : public CRewardableObject, public IQuestObject
 {
 public:
+	using CRewardableObject::CRewardableObject;
+
 	std::string seerName;
 
 	void initObj(CRandomGenerator & rand) override;
@@ -129,17 +150,18 @@ public:
 	void newTurn(CRandomGenerator & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 
 	virtual void init(CRandomGenerator & rand);
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
-	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
-	const CGCreature *getCreatureToKill(bool allowNull = false) const;
+	const CGHeroInstance *getHeroToKill(bool allowNull) const;
+	const CGCreature *getCreatureToKill(bool allowNull) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
 
 	void afterAddToMap(CMap * map) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CRewardableObject&>(*this);
 		h & static_cast<IQuestObject&>(*this);
@@ -154,12 +176,14 @@ protected:
 class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
+	using CGSeerHut::CGSeerHut;
+
 	void init(CRandomGenerator & rand) override;
 	
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGSeerHut&>(*this);
 	}
@@ -170,12 +194,14 @@ protected:
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	bool wasMyColorVisited(const PlayerColor & player) const;
 
 	std::string getObjectName() const override; //depending on color
 	std::string getHoverText(PlayerColor player) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
@@ -184,10 +210,12 @@ public:
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
+	using CGKeys::CGKeys;
+
 	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
@@ -196,6 +224,8 @@ public:
 class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
+	using CGKeys::CGKeys;
+
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
@@ -206,7 +236,7 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<IQuestObject&>(*this);
 		h & static_cast<CGObjectInstance&>(*this);
@@ -216,11 +246,13 @@ public:
 class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 {
 public:
+	using CGBorderGuard::CGBorderGuard;
+
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	bool passableFor(PlayerColor color) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGBorderGuard&>(*this); //need to serialize or object will be empty
 	}

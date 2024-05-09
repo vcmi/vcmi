@@ -28,7 +28,8 @@ public:
 	
 protected:
 	
-	rmg::Area rockArea, accessibleArea;
+	rmg::Area rockArea;
+	rmg::Area accessibleArea;
 	TerrainId rockTerrain;
 };
 

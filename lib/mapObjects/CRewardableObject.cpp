@@ -50,6 +50,22 @@ void CRewardableObject::selectRewardWthMessage(const CGHeroInstance * contextHer
 	sd.text = dialog;
 	sd.components = loadComponents(contextHero, rewardIndices);
 	cb->showBlockingDialog(&sd);
+
+}
+
+void CRewardableObject::grantAllRewardsWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, bool markAsVisit) const
+{
+	if (rewardIndices.empty())
+		return;
+		
+	for (auto index : rewardIndices)
+	{
+		// TODO: Merge all rewards of same type, with single message?
+		grantRewardWithMessage(contextHero, index, false);
+	}
+	// Mark visited only after all rewards were processed
+	if(markAsVisit)
+		markAsVisited(contextHero);
 }
 
 std::vector<Component> CRewardableObject::loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const
@@ -125,6 +141,9 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 							grantRewardWithMessage(h, rewardIndex, true);
 						break;
 					}
+					case Rewardable::SELECT_ALL: // grant all possible
+						grantAllRewardsWthMessage(h, rewards, true);
+						break;
 				}
 				break;
 			}
@@ -385,7 +404,8 @@ void CRewardableObject::initObj(CRandomGenerator & rand)
 	getObjectHandler()->configureObject(this, rand);
 }
 
-CRewardableObject::CRewardableObject()
+CRewardableObject::CRewardableObject(IGameCallback *cb)
+	:CArmedInstance(cb)
 {}
 
 void CRewardableObject::serializeJsonOptions(JsonSerializeFormat & handler)

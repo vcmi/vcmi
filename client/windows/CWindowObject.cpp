@@ -232,18 +232,10 @@ void CWindowObject::showAll(Canvas & to)
 
 	CIntObject::showAll(to);
 	if ((options & BORDERED) && (pos.dimensions() != GH.screenDimensions()))
-		CMessage::drawBorder(color, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 bool CWindowObject::isPopupWindow() const
 {
 	return options & RCLICK_POPUP;
-}
-
-CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
-{
-}
-
-CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName) : CWindowObject(options, imageName)
-{
 }

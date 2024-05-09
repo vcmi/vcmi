@@ -43,13 +43,13 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	if(waterContent == EWaterContent::NONE || zone.isUnderground() || zone.getType() == ETemplateZoneType::WATER)
 		return; //do nothing
 	
-	distanceMap = zone.area().computeDistanceMap(reverseDistanceMap);
+	distanceMap = zone.area()->computeDistanceMap(reverseDistanceMap);
 	
 	//add border tiles as water for ISLANDS
 	if(waterContent == EWaterContent::ISLANDS)
 	{
 		waterArea.unite(collectDistantTiles(zone, zone.getSize() + 1));
-		waterArea.unite(zone.area().getBorder());
+		waterArea.unite(zone.area()->getBorder());
 	}
 	
 	//protect some parts from water for NORMAL
@@ -199,7 +199,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 		std::vector<int3> groundCoast;
 		map.foreachDirectNeighbour(tile, [this, &groundCoast](const int3 & t)
 		{
-			if(!waterArea.contains(t) && zone.area().contains(t)) //for ground tiles of same zone
+			if(!waterArea.contains(t) && zone.area()->contains(t)) //for ground tiles of same zone
 			{
 				groundCoast.push_back(t);
 			}
@@ -223,12 +223,12 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	
 	{
 		Zone::Lock waterLock(map.getZones()[waterZoneId]->areaMutex);
-		map.getZones()[waterZoneId]->area().unite(waterArea);
+		map.getZones()[waterZoneId]->area()->unite(waterArea);
 	}
 	Zone::Lock lock(zone.areaMutex);
-	zone.area().subtract(waterArea);
-	zone.areaPossible().subtract(waterArea);
-	distanceMap = zone.area().computeDistanceMap(reverseDistanceMap);
+	zone.area()->subtract(waterArea);
+	zone.areaPossible()->subtract(waterArea);
+	distanceMap = zone.area()->computeDistanceMap(reverseDistanceMap);
 }
 
 void WaterAdopter::setWaterZone(TRmgTemplateZoneId water)

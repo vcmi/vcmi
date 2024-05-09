@@ -35,7 +35,7 @@ const std::string & Modificator::getName() const
 
 bool Modificator::isReady()
 {
-	Lock lock(mx, boost::try_to_lock_t{});
+	Lock lock(mx, boost::try_to_lock);
 	if (!lock.owns_lock())
 	{
 		return false;
@@ -63,7 +63,7 @@ bool Modificator::isReady()
 
 bool Modificator::isFinished()
 {
-	Lock lock(mx, boost::try_to_lock_t{});
+	Lock lock(mx, boost::try_to_lock);
 	if (!lock.owns_lock())
 	{
 		return false;
@@ -80,7 +80,7 @@ void Modificator::run()
 
 	if(!finished)
 	{
-		logGlobal->info("Modificator zone %d - %s - started", zone.getId(), getName());
+		logGlobal->trace("Modificator zone %d - %s - started", zone.getId(), getName());
 		CStopWatch processTime;
 		try
 		{
@@ -94,7 +94,7 @@ void Modificator::run()
 		dump();
 #endif
 		finished = true;
-		logGlobal->info("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
+		logGlobal->trace("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
 	}
 }
 
@@ -119,6 +119,8 @@ void Modificator::postfunction(Modificator * modificator)
 
 void Modificator::dump()
 {
+	// TODO: Refactor to lock zone area only once
+
 	std::ofstream out(boost::str(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
 	int levels = map.levels();
 	int width =  map.width();
@@ -140,13 +142,13 @@ void Modificator::dump()
 
 char Modificator::dump(const int3 & t)
 {
-	if(zone.freePaths().contains(t))
+	if(zone.freePaths()->contains(t))
 		return '.'; //free path
-	if(zone.areaPossible().contains(t))
+	if(zone.areaPossible()->contains(t))
 		return ' '; //possible
-	if(zone.areaUsed().contains(t))
+	if(zone.areaUsed()->contains(t))
 		return 'U'; //used
-	if(zone.area().contains(t))
+	if(zone.area()->contains(t))
 	{
 		if(map.shouldBeBlocked(t))
 			return '#'; //obstacle

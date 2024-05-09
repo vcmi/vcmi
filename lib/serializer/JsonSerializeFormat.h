@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../JsonNode.h"
+#include "../constants/IdentifierBase.h"
+#include "../json/JsonNode.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../VCMI_Lib.h"
@@ -144,7 +145,9 @@ public:
 		const std::set<si32> & standard;
 		const TDecoder decoder;
 		const TEncoder encoder;
-		std::set<si32> all, any, none;
+		std::set<si32> all;
+		std::set<si32> any;
+		std::set<si32> none;
 	};
 
 	const bool saving;

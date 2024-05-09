@@ -20,9 +20,10 @@
 #include "../PlayerLocalState.h"
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
-#include "../windows/CTradeWindow.h"
-#include "../widgets/TextControls.h"
+#include "../windows/CMarketWindow.h"
 #include "../widgets/CGarrisonInt.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/TextControls.h"
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
@@ -465,6 +466,9 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 			if(town->id == townId && town->builtBuildings.count(BuildingID::TAVERN))
 				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 		}
+	}, [&]{
+		if(!town->town->faction->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(143, 31, 30, 34), []()
 	{
@@ -473,7 +477,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		{
 			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
 			{
-				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
 			}
 		}
@@ -663,30 +667,40 @@ void CCreaturePic::setAmount(int newAmount)
 		amount->setText("");
 }
 
-TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color) :
-	color(color), colorLine(ColorRGBA()), drawLine(false)
+SelectableSlot::SelectableSlot(Rect area, Point oversize, const int width)
+	: LRClickableAreaWTextComp(area)
+	, selected(false)
 {
-	pos = position + pos.topLeft();
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	selection = std::make_shared<TransparentFilledRectangle>( Rect(-oversize, area.dimensions() + oversize * 2), Colors::TRANSPARENCY, Colors::YELLOW, width);
+	selectSlot(false);
 }
 
-TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine) :
-	color(color), colorLine(colorLine), drawLine(true)
+SelectableSlot::SelectableSlot(Rect area, Point oversize)
+	: SelectableSlot(area, oversize, 1)
 {
-	pos = position + pos.topLeft();
 }
 
-void TransparentFilledRectangle::showAll(Canvas & to) 
+SelectableSlot::SelectableSlot(Rect area, const int width)
+	: SelectableSlot(area, Point(), width)
 {
-	to.drawColorBlended(pos, color);
-	if(drawLine)
-		to.drawBorder(pos, colorLine);
 }
 
-SimpleLine::SimpleLine(Point pos1, Point pos2, ColorRGBA color) :
-	pos1(pos1), pos2(pos2), color(color)
-{}
-
-void SimpleLine::showAll(Canvas & to) 
+void SelectableSlot::selectSlot(bool on)
 {
-	to.drawLine(pos1 + pos.topLeft(), pos2 + pos.topLeft(), color, color);
+	selection->setEnabled(on);
+	selected = on;
+}
+
+bool SelectableSlot::isSelected() const
+{
+	return selected;
+}
+
+void SelectableSlot::setSelectionWidth(int width)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	selection = std::make_shared<TransparentFilledRectangle>( selection->pos - pos.topLeft(), Colors::TRANSPARENCY, Colors::YELLOW, width);
+	selectSlot(selected);
 }

@@ -27,21 +27,23 @@ namespace NKAI
 
 using namespace Goals;
 
-#if NKAI_TRACE_LEVEL >= 1
-#define MAXPASS 1000000
-#else
-#define MAXPASS 30
-#endif
+// while we play vcmieagles graph can be shared
+std::unique_ptr<ObjectGraph> Nullkiller::baseGraph;
 
 Nullkiller::Nullkiller()
+	:activeHero(nullptr), scanDepth(ScanDepth::MAIN_FULL), useHeroChain(true)
 {
-	memory.reset(new AIMemory());
+	memory = std::make_unique<AIMemory>();
+	settings = std::make_unique<Settings>();
 }
 
-void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
+void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 {
 	this->cb = cb;
-	this->playerID = playerID;
+	this->gateway = gateway;
+	this->playerID = gateway->playerID;
+
+	baseGraph.reset();
 
 	priorityEvaluator.reset(new PriorityEvaluator(this));
 	priorityEvaluators.reset(
@@ -58,20 +60,108 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	pathfinder.reset(new AIPathfinder(cb.get(), this));
 	armyManager.reset(new ArmyManager(cb.get(), this));
 	heroManager.reset(new HeroManager(cb.get(), this));
-	decomposer.reset(new DeepDecomposer());
+	decomposer.reset(new DeepDecomposer(this));
 	armyFormation.reset(new ArmyFormation(cb, this));
 }
 
-Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
+TaskPlanItem::TaskPlanItem(TSubgoal task)
+	:task(task), affectedObjects(task->asTask()->getAffectedObjects())
 {
-	Goals::TTask bestTask = *vstd::maxElementByFun(tasks, [](Goals::TTask task) -> float{
-		return task->priority;
-	});
-
-	return bestTask;
 }
 
-Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositionMaxDepth) const
+Goals::TTaskVec TaskPlan::getTasks() const
+{
+	Goals::TTaskVec result;
+
+	for(auto & item : tasks)
+	{
+		result.push_back(taskptr(*item.task));
+	}
+
+	vstd::removeDuplicates(result);
+
+	return result;
+}
+
+void TaskPlan::merge(TSubgoal task)
+{
+	TGoalVec blockers;
+
+	for(auto & item : tasks)
+	{
+		for(auto objid : item.affectedObjects)
+		{
+			if(task == item.task || task->asTask()->isObjectAffected(objid))
+			{
+				if(item.task->asTask()->priority >= task->asTask()->priority)
+					return;
+
+				blockers.push_back(item.task);
+				break;
+			}
+		}
+	}
+
+	vstd::erase_if(tasks, [&](const TaskPlanItem & task)
+		{
+			return vstd::contains(blockers, task.task);
+		});
+
+	tasks.emplace_back(task);
+}
+
+Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
+{
+	if(tasks.empty())
+	{
+		return taskptr(Invalid());
+	}
+
+	for(TSubgoal & task : tasks)
+	{
+		if(task->asTask()->priority <= 0)
+			task->asTask()->priority = priorityEvaluator->evaluate(task);
+	}
+
+	auto bestTask = *vstd::maxElementByFun(tasks, [](Goals::TSubgoal task) -> float
+		{
+			return task->asTask()->priority;
+		});
+
+	return taskptr(*bestTask);
+}
+
+Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks) const
+{
+	TaskPlan taskPlan;
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks](const tbb::blocked_range<size_t> & r)
+		{
+			auto evaluator = this->priorityEvaluators->acquire();
+
+			for(size_t i = r.begin(); i != r.end(); i++)
+			{
+				auto task = tasks[i];
+
+				if(task->asTask()->priority <= 0)
+					task->asTask()->priority = evaluator->evaluate(task);
+			}
+		});
+
+	std::sort(tasks.begin(), tasks.end(), [](TSubgoal g1, TSubgoal g2) -> bool
+		{
+			return g2->asTask()->priority < g1->asTask()->priority;
+		});
+
+	for(TSubgoal & task : tasks)
+	{
+		taskPlan.merge(task);
+	}
+
+	return taskPlan.getTasks();
+}
+
+void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const
 {
 	boost::this_thread::interruption_point();
 
@@ -79,53 +169,39 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 
 	auto start = std::chrono::high_resolution_clock::now();
 	
-	Goals::TGoalVec elementarGoals = decomposer->decompose(behavior, decompositionMaxDepth);
-	Goals::TTaskVec tasks;
+	decomposer->decompose(result, behavior, decompositionMaxDepth);
 
 	boost::this_thread::interruption_point();
-	
-	for(auto goal : elementarGoals)
-	{
-		Goals::TTask task = Goals::taskptr(*goal);
-
-		if(task->priority <= 0)
-			task->priority = priorityEvaluator->evaluate(goal);
-
-		tasks.push_back(task);
-	}
-
-	if(tasks.empty())
-	{
-		logAi->debug("Behavior %s found no tasks. Time taken %ld", behavior->toString(), timeElapsed(start));
-
-		return Goals::taskptr(Goals::Invalid());
-	}
-
-	auto task = choseBestTask(tasks);
 
 	logAi->debug(
-		"Behavior %s returns %s, priority %f. Time taken %ld",
+		"Behavior %s. Time taken %ld",
 		behavior->toString(),
-		task->toString(),
-		task->priority,
 		timeElapsed(start));
-
-	return task;
 }
 
 void Nullkiller::resetAiState()
 {
+	std::unique_lock<std::mutex> lockGuard(aiStateMutex);
+
 	lockedResources = TResources();
 	scanDepth = ScanDepth::MAIN_FULL;
-	playerID = ai->playerID;
 	lockedHeroes.clear();
 	dangerHitMap->reset();
 	useHeroChain = true;
+	objectClusterizer->reset();
+
+	if(!baseGraph && settings->isObjectGraphAllowed())
+	{
+		baseGraph = std::make_unique<ObjectGraph>();
+		baseGraph->updateGraph(this);
+	}
 }
 
 void Nullkiller::updateAiState(int pass, bool fast)
 {
 	boost::this_thread::interruption_point();
+
+	std::unique_lock<std::mutex> lockGuard(aiStateMutex);
 
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -159,20 +235,29 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		PathfinderSettings cfg;
 		cfg.useHeroChain = useHeroChain;
+		cfg.allowBypassObjects = true;
 
-		if(scanDepth == ScanDepth::SMALL)
+		if(scanDepth == ScanDepth::SMALL || settings->isObjectGraphAllowed())
 		{
-			cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT;
+			cfg.mainTurnDistanceLimit = settings->getMainHeroTurnDistanceLimit();
 		}
 
-		if(scanDepth != ScanDepth::ALL_FULL)
+		if(scanDepth != ScanDepth::ALL_FULL || settings->isObjectGraphAllowed())
 		{
-			cfg.scoutTurnDistanceLimit = SCOUT_TURN_DISTANCE_LIMIT;
+			cfg.scoutTurnDistanceLimit =settings->getScoutHeroTurnDistanceLimit();
 		}
 
 		boost::this_thread::interruption_point();
 
 		pathfinder->updatePaths(activeHeroes, cfg);
+
+		if(settings->isObjectGraphAllowed())
+		{
+			pathfinder->updateGraphs(
+				activeHeroes,
+				scanDepth == ScanDepth::SMALL ? 255 : 10,
+				scanDepth == ScanDepth::ALL_FULL ? 255 : 3);
+		}
 
 		boost::this_thread::interruption_point();
 
@@ -231,24 +316,29 @@ void Nullkiller::makeTurn()
 
 	resetAiState();
 
-	for(int i = 1; i <= MAXPASS; i++)
+	Goals::TGoalVec bestTasks;
+
+	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
+		auto start = std::chrono::high_resolution_clock::now();
 		updateAiState(i);
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
-		for(;i <= MAXPASS; i++)
+		for(;i <= settings->getMaxPass(); i++)
 		{
-			Goals::TTaskVec fastTasks = {
-				choseBestTask(sptr(BuyArmyBehavior()), 1),
-				choseBestTask(sptr(BuildingBehavior()), 1)
-			};
+			bestTasks.clear();
 
-			bestTask = choseBestTask(fastTasks);
+			decompose(bestTasks, sptr(BuyArmyBehavior()), 1);
+			decompose(bestTasks, sptr(BuildingBehavior()), 1);
+
+			bestTask = choseBestTask(bestTasks);
 
 			if(bestTask->priority >= FAST_TASK_MINIMAL_PRIORITY)
 			{
-				executeTask(bestTask);
+				if(!executeTask(bestTask))
+					return;
+
 				updateAiState(i, true);
 			}
 			else
@@ -257,81 +347,134 @@ void Nullkiller::makeTurn()
 			}
 		}
 
-		Goals::TTaskVec bestTasks = {
-			bestTask,
-			choseBestTask(sptr(RecruitHeroBehavior()), 1),
-			choseBestTask(sptr(CaptureObjectsBehavior()), 1),
-			choseBestTask(sptr(ClusterBehavior()), MAX_DEPTH),
-			choseBestTask(sptr(DefenceBehavior()), MAX_DEPTH),
-			choseBestTask(sptr(GatherArmyBehavior()), MAX_DEPTH),
-			choseBestTask(sptr(StayAtTownBehavior()), MAX_DEPTH)
-		};
+		decompose(bestTasks, sptr(RecruitHeroBehavior()), 1);
+		decompose(bestTasks, sptr(CaptureObjectsBehavior()), 1);
+		decompose(bestTasks, sptr(ClusterBehavior()), MAX_DEPTH);
+		decompose(bestTasks, sptr(DefenceBehavior()), MAX_DEPTH);
+		decompose(bestTasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
+		decompose(bestTasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
 
 		if(cb->getDate(Date::DAY) == 1)
 		{
-			bestTasks.push_back(choseBestTask(sptr(StartupBehavior()), 1));
+			decompose(bestTasks, sptr(StartupBehavior()), 1);
 		}
 
-		bestTask = choseBestTask(bestTasks);
+		auto selectedTasks = buildPlan(bestTasks);
 
-		std::string taskDescription = bestTask->toString();
-		HeroPtr hero = bestTask->getHero();
-		HeroRole heroRole = HeroRole::MAIN;
+		logAi->debug("Decission madel in %ld", timeElapsed(start));
 
-		if(hero.validAndSet())
-			heroRole = heroManager->getHeroRole(hero);
-
-		if(heroRole != HeroRole::MAIN || bestTask->getHeroExchangeCount() <= 1)
-			useHeroChain = false;
-
-		// TODO: better to check turn distance here instead of priority
-		if((heroRole != HeroRole::MAIN || bestTask->priority < SMALL_SCAN_MIN_PRIORITY)
-			&& scanDepth == ScanDepth::MAIN_FULL)
+		if(selectedTasks.empty())
 		{
-			useHeroChain = false;
-			scanDepth = ScanDepth::SMALL;
-
-			logAi->trace(
-				"Goal %s has low priority %f so decreasing  scan depth to gain performance.",
-				taskDescription,
-				bestTask->priority);
-		}
-
-		if(bestTask->priority < MIN_PRIORITY)
-		{
-			auto heroes = cb->getHeroesInfo();
-			auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
-				{
-					return h->movementPointsRemaining() > 100;
-				});
-
-			if(hasMp && scanDepth != ScanDepth::ALL_FULL)
-			{
-				logAi->trace(
-					"Goal %s has too low priority %f so increasing scan depth to full.",
-					taskDescription,
-					bestTask->priority);
-
-				scanDepth = ScanDepth::ALL_FULL;
-				useHeroChain = false;
-				continue;
-			}
-
-			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", taskDescription);
-
 			return;
 		}
 
-		executeTask(bestTask);
+		bool hasAnySuccess = false;
 
-		if(i == MAXPASS)
+		for(auto bestTask : selectedTasks)
 		{
-			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", taskDescription);
+			if(cb->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
+				return;
+
+			if(!areAffectedObjectsPresent(bestTask))
+			{
+				logAi->debug("Affected object not found. Canceling task.");
+				continue;
+			}
+
+			std::string taskDescription = bestTask->toString();
+			HeroRole heroRole = getTaskRole(bestTask);
+
+			if(heroRole != HeroRole::MAIN || bestTask->getHeroExchangeCount() <= 1)
+				useHeroChain = false;
+
+			// TODO: better to check turn distance here instead of priority
+			if((heroRole != HeroRole::MAIN || bestTask->priority < SMALL_SCAN_MIN_PRIORITY)
+				&& scanDepth == ScanDepth::MAIN_FULL)
+			{
+				useHeroChain = false;
+				scanDepth = ScanDepth::SMALL;
+
+				logAi->trace(
+					"Goal %s has low priority %f so decreasing  scan depth to gain performance.",
+					taskDescription,
+					bestTask->priority);
+			}
+
+			if(bestTask->priority < MIN_PRIORITY)
+			{
+				auto heroes = cb->getHeroesInfo();
+				auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
+					{
+						return h->movementPointsRemaining() > 100;
+					});
+
+				if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+				{
+					logAi->trace(
+						"Goal %s has too low priority %f so increasing scan depth to full.",
+						taskDescription,
+						bestTask->priority);
+
+					scanDepth = ScanDepth::ALL_FULL;
+					useHeroChain = false;
+					hasAnySuccess = true;
+					break;;
+				}
+
+				logAi->trace("Goal %s has too low priority. It is not worth doing it.", taskDescription);
+
+				continue;
+			}
+
+			if(!executeTask(bestTask))
+			{
+				if(hasAnySuccess)
+					break;
+				else
+					return;
+			}
+
+			hasAnySuccess = true;
+		}
+
+		if(!hasAnySuccess)
+		{
+			logAi->trace("Nothing was done this turn. Ending turn.");
+			return;
+		}
+
+		if(i == settings->getMaxPass())
+		{
+			logAi->warn("Maxpass exceeded. Terminating AI turn.");
 		}
 	}
 }
 
-void Nullkiller::executeTask(Goals::TTask task)
+bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
+{
+	auto affectedObjs = task->getAffectedObjects();
+
+	for(auto oid : affectedObjs)
+	{
+		if(!cb->getObj(oid, false))
+			return false;
+	}
+
+	return true;
+}
+
+HeroRole Nullkiller::getTaskRole(Goals::TTask task) const
+{
+	HeroPtr hero = task->getHero();
+	HeroRole heroRole = HeroRole::MAIN;
+
+	if(hero.validAndSet())
+		heroRole = heroManager->getHeroRole(hero);
+
+	return heroRole;
+}
+
+bool Nullkiller::executeTask(Goals::TTask task)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
@@ -341,7 +484,7 @@ void Nullkiller::executeTask(Goals::TTask task)
 
 	try
 	{
-		task->accept(ai);
+		task->accept(gateway);
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(goalFulfilledException &)
@@ -353,10 +496,10 @@ void Nullkiller::executeTask(Goals::TTask task)
 		logAi->error("Failed to realize subgoal of type %s, I will stop.", taskDescr);
 		logAi->error("The error message was: %s", e.what());
 
-#if NKAI_TRACE_LEVEL == 0
-		throw; // will be recatched and AI turn ended
-#endif
+		return false;
 	}
+
+	return true;
 }
 
 TResources Nullkiller::getFreeResources() const

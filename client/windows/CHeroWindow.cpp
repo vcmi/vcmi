@@ -70,7 +70,7 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("HeroScr4"))
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("HeroScr4"))
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
 
@@ -88,8 +88,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
 		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
-		backpackButton = std::make_shared<CButton>(Point(424, 429), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
-		backpackButton->addOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+		backpackButton = std::make_shared<CButton>(Point(424, 429), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
+		backpackButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 		dismissButton = std::make_shared<CButton>(Point(534, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
 	}
 	else
@@ -106,7 +106,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	if(hero->commander)
 	{
-		commanderButton = std::make_shared<CButton>(Point(317, 18), AnimationPath::builtin("buttons/commander"), CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, EShortcut::HERO_COMMANDER);
+		commanderButton = std::make_shared<CButton>(Point(317, 18), AnimationPath::builtin("heroCommander"), CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, EShortcut::HERO_COMMANDER);
+		commanderButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/commanderButtonIcon")));
 	}
 
 	//right list of heroes
@@ -190,17 +191,17 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	assert(hero == curHero);
 
 	name->setText(curHero->getNameTranslated());
-	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->type->heroClass->getNameTranslated()).str());
+	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->getClassNameTranslated()).str());
 
 	specArea->text = curHero->type->getSpecialtyDescriptionTranslated();
 	specImage->setFrame(curHero->type->imageIndex);
 	specName->setText(curHero->type->getSpecialtyNameTranslated());
 
 	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
-	tacticsButton->addHoverText(CButton::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
+	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
 
-	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated()));
-	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated());
+	dismissButton->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->getClassNameTranslated()));
+	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->getClassNameTranslated());
 	portraitArea->text = curHero->getBiographyTranslated();
 	portraitImage->setFrame(curHero->getIconIndex());
 
@@ -220,6 +221,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
 			arts->setHero(curHero);
 			addSetAndCallbacks(arts);
+			enableArtifactsCostumeSwitcher();
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
@@ -317,14 +319,17 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 void CHeroWindow::dismissCurrent()
 {
-	CFunctionList<void()> ony = [=](){ close(); };
-	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], [this]()
+		{
+			arts->putBackPickedArtifact();
+			close();
+			LOCPLINT->cb->dismissHero(curHero);
+		}, nullptr);
 }
 
 void CHeroWindow::createBackpackWindow()
 {
-	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero);
+	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero, artSets);
 }
 
 void CHeroWindow::commanderWindow()

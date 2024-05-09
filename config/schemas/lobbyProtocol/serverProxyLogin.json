@@ -1,0 +1,32 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: serverProxyLogin",
+	"description" : "Sent by match server to establish proxy connection to be used by player",
+
+	"required" : [ "type", "gameRoomID", "guestAccountID", "accountCookie" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "serverProxyLogin"
+		},
+		"gameRoomID" :
+		{
+			"type" : "string",
+			"description" : "ID of server game room to login with"
+		},
+		"guestAccountID" :
+		{
+			"type" : "string",
+			"description" : "Account ID of player that should use this connection"
+		},
+		"accountCookie" :
+		{
+			"type" : "string",
+			"description" : "Secret UUID for identification of account that hosts match server"
+		}
+	}
+}

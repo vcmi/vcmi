@@ -21,6 +21,7 @@ class InputSourceMouse;
 class InputSourceKeyboard;
 class InputSourceTouch;
 class InputSourceText;
+class InputSourceGameController;
 
 class InputHandler
 {
@@ -28,6 +29,10 @@ class InputHandler
 	boost::mutex eventsMutex;
 
 	Point cursorPosition;
+
+	const bool enableMouse;
+	const bool enableTouch;
+	const bool enableController;
 
 	std::vector<SDL_Event> acquireEvents();
 
@@ -39,6 +44,7 @@ class InputHandler
 	std::unique_ptr<InputSourceKeyboard> keyboardHandler;
 	std::unique_ptr<InputSourceTouch> fingerHandler;
 	std::unique_ptr<InputSourceText> textHandler;
+	std::unique_ptr<InputSourceGameController> gameControllerHandler;
 
 public:
 	InputHandler();

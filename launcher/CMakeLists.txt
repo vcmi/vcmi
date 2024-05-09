@@ -1,3 +1,8 @@
+if(ENABLE_INNOEXTRACT)
+	add_subdirectory("lib/innoextract")
+	add_definitions(-DENABLE_INNOEXTRACT)
+endif()
+
 set(launcher_SRCS
 		StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
@@ -10,15 +15,12 @@ set(launcher_SRCS
 		settingsView/csettingsview_moc.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
+		helper.cpp
 		mainwindow_moc.cpp
 		languages.cpp
 		launcherdirs.cpp
 		jsonutils.cpp
 		updatedialog_moc.cpp
-		lobby/lobby.cpp
-		lobby/lobby_moc.cpp
-		lobby/lobbyroomrequest_moc.cpp
-		lobby/chat_moc.cpp
 )
 
 set(launcher_HEADERS
@@ -37,11 +39,8 @@ set(launcher_HEADERS
 		launcherdirs.h
 		jsonutils.h
 		updatedialog_moc.h
-		lobby/lobby.h
-		lobby/lobby_moc.h
-		lobby/lobbyroomrequest_moc.h
-		lobby/chat_moc.h
 		main.h
+		helper.cpp
 )
 
 set(launcher_FORMS
@@ -52,9 +51,6 @@ set(launcher_FORMS
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
 		updatedialog_moc.ui
-		lobby/lobby_moc.ui
-		lobby/lobbyroomrequest_moc.ui
-		lobby/chat_moc.ui
 )
 
 set(launcher_TS
@@ -64,6 +60,7 @@ set(launcher_TS
 	translation/french.ts
 	translation/german.ts
 	translation/polish.ts
+	translation/portuguese.ts	
 	translation/russian.ts
 	translation/spanish.ts
 	translation/ukrainian.ts
@@ -146,12 +143,16 @@ if (NOT APPLE_IOS AND NOT ANDROID)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
-target_link_libraries(vcmilauncher ${VCMI_LIB_TARGET} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
 vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
+
+if(ENABLE_INNOEXTRACT)
+	target_link_libraries(vcmilauncher innoextract)
+endif()
 
 if(APPLE_IOS)
 	set(RESOURCES_DESTINATION ${DATA_DIR})

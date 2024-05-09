@@ -27,10 +27,10 @@ struct DLL_LINKAGE CPack
 	CPack() = default;
 	virtual ~CPack() = default;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		logNetwork->error("CPack serialized... this should not happen!");
-		assert(false && "CPack serialized");
+		throw std::runtime_error("CPack serialized... this should not happen!");
 	}
 
 	void applyGs(CGameState * gs)
@@ -64,9 +64,9 @@ struct DLL_LINKAGE Query : public CPackForClient
 struct DLL_LINKAGE CPackForServer : public CPack
 {
 	mutable PlayerColor player = PlayerColor::NEUTRAL;
-	mutable si32 requestID;
+	mutable uint32_t requestID = 0;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & player;
 		h & requestID;

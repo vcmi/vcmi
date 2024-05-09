@@ -1,6 +1,3 @@
-namespace Nullkiller
-{
-
 /*
 * Build.h, part of VCMI engine
 *
@@ -13,6 +10,9 @@ namespace Nullkiller
 #pragma once
 
 #include "CGoal.h"
+
+namespace Nullkiller
+{
 
 struct HeroPtr;
 class AIGateway;
@@ -32,7 +32,7 @@ namespace Goals
 		TSubgoal whatToDoToAchieve() override;
 		bool fulfillsMe(TSubgoal goal) override;
 
-		virtual bool operator==(const Build & other) const override
+		bool operator==(const Build & other) const override
 		{
 			return true;
 		}

@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / Entities Format / Faction Format
-
 ## Required data
 
 In order to make functional town you also need:
@@ -59,6 +57,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Localizable faction name, e.g. "Rampart"
 	"name" : "", 
 
+	// Description of town (e.g. history or story about town)
+	"description" : "",
+
 	// Faction alignment. Can be good, neutral (default) or evil.
 	"alignment" : "",
 
@@ -75,6 +76,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	
 	// Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground.
 	"preferUndergroundPlacement" : false
+	
+	// Optional, if set to true then faction cannot be selected on game start and will not be used for "random town" object
+	"special" : false
 
 	// Town puzzle map
 	"puzzleMap" :

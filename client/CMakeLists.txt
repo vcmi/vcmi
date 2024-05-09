@@ -34,6 +34,7 @@ set(client_SRCS
 	eventsSDL/InputSourceMouse.cpp
 	eventsSDL/InputSourceText.cpp
 	eventsSDL/InputSourceTouch.cpp
+	eventsSDL/InputSourceGameController.cpp
 
 	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
@@ -52,6 +53,7 @@ set(client_SRCS
 	lobby/CScenarioInfoScreen.cpp
 	lobby/CSelectionBase.cpp
 	lobby/TurnOptionsTab.cpp
+	lobby/ExtraOptionsTab.cpp
 	lobby/OptionsTab.cpp
 	lobby/OptionsTabBase.cpp
 	lobby/RandomMapTab.cpp
@@ -94,15 +96,22 @@ set(client_SRCS
 	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
+	globalLobby/GlobalLobbyClient.cpp
+	globalLobby/GlobalLobbyInviteWindow.cpp
+	globalLobby/GlobalLobbyLoginWindow.cpp
+	globalLobby/GlobalLobbyRoomWindow.cpp
+	globalLobby/GlobalLobbyServerSetup.cpp
+	globalLobby/GlobalLobbyWidget.cpp
+	globalLobby/GlobalLobbyWindow.cpp
+
 	widgets/Buttons.cpp
-	widgets/CAltar.cpp
-	widgets/CArtifactHolder.cpp
+	widgets/CArtPlace.cpp
 	widgets/CComponent.cpp
 	widgets/CExchangeController.cpp
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
 	widgets/ComboBox.cpp
-	widgets/CTradeBase.cpp
+	widgets/GraphicalPrimitiveCanvas.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
@@ -115,21 +124,28 @@ set(client_SRCS
 	widgets/CArtifactsOfHeroAltar.cpp
 	widgets/CArtifactsOfHeroMarket.cpp
 	widgets/CArtifactsOfHeroBackpack.cpp
-	widgets/CWindowWithArtifacts.cpp
 	widgets/RadialMenu.cpp
+	widgets/markets/CAltarArtifacts.cpp
+	widgets/markets/CAltarCreatures.cpp
+	widgets/markets/CArtifactsBuying.cpp
+	widgets/markets/CArtifactsSelling.cpp
+	widgets/markets/CFreelancerGuild.cpp
+	widgets/markets/CMarketResources.cpp
+	widgets/markets/CTransferResources.cpp
+	widgets/markets/CMarketBase.cpp
+	widgets/markets/TradePanels.cpp
 
-	windows/CAltarWindow.cpp
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
 	windows/CHeroOverview.cpp
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
 	windows/CMapOverview.cpp
+	windows/CMarketWindow.cpp
 	windows/CMessage.cpp
 	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
-	windows/CTradeWindow.cpp
 	windows/CTutorialWindow.cpp
 	windows/CWindowObject.cpp
 	windows/CreaturePurchaseCard.cpp
@@ -137,6 +153,7 @@ set(client_SRCS
 	windows/InfoWindows.cpp
 	windows/QuickRecruitmentWindow.cpp
 	windows/CHeroBackpackWindow.cpp
+	windows/CWindowWithArtifacts.cpp
 	windows/settings/GeneralOptionsTab.cpp
 	windows/settings/OtherOptionsTab.cpp
 	windows/settings/SettingsMainWindow.cpp
@@ -152,9 +169,11 @@ set(client_SRCS
 	CVideoHandler.cpp
 	Client.cpp
 	ClientCommandManager.cpp
+	GameChatHandler.cpp
 	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
+	ServerRunner.cpp
 )
 
 set(client_HEADERS
@@ -194,6 +213,7 @@ set(client_HEADERS
 	eventsSDL/InputSourceMouse.h
 	eventsSDL/InputSourceText.h
 	eventsSDL/InputSourceTouch.h
+	eventsSDL/InputSourceGameController.h
 
 	gui/CGuiHandler.h
 	gui/CIntObject.h
@@ -215,6 +235,7 @@ set(client_HEADERS
 	lobby/CScenarioInfoScreen.h
 	lobby/CSelectionBase.h
 	lobby/TurnOptionsTab.h
+	lobby/ExtraOptionsTab.h
 	lobby/OptionsTab.h
 	lobby/OptionsTabBase.h
 	lobby/RandomMapTab.h
@@ -266,15 +287,23 @@ set(client_HEADERS
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 
+	globalLobby/GlobalLobbyClient.h
+	globalLobby/GlobalLobbyDefines.h
+	globalLobby/GlobalLobbyInviteWindow.h
+	globalLobby/GlobalLobbyLoginWindow.h
+	globalLobby/GlobalLobbyRoomWindow.h
+	globalLobby/GlobalLobbyServerSetup.h
+	globalLobby/GlobalLobbyWidget.h
+	globalLobby/GlobalLobbyWindow.h
+
 	widgets/Buttons.h
-	widgets/CAltar.h
-	widgets/CArtifactHolder.h
+	widgets/CArtPlace.h
 	widgets/CComponent.h
 	widgets/CExchangeController.h
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
 	widgets/ComboBox.h
-	widgets/CTradeBase.h
+	widgets/GraphicalPrimitiveCanvas.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
@@ -287,10 +316,17 @@ set(client_HEADERS
 	widgets/CArtifactsOfHeroAltar.h
 	widgets/CArtifactsOfHeroMarket.h
 	widgets/CArtifactsOfHeroBackpack.h
-	widgets/CWindowWithArtifacts.h
 	widgets/RadialMenu.h
+	widgets/markets/CAltarArtifacts.h
+	widgets/markets/CAltarCreatures.h
+	widgets/markets/CArtifactsBuying.h
+	widgets/markets/CArtifactsSelling.h
+	widgets/markets/CFreelancerGuild.h
+	widgets/markets/CMarketResources.h
+	widgets/markets/CTransferResources.h
+	widgets/markets/CMarketBase.h
+	widgets/markets/TradePanels.h
 
-	windows/CAltarWindow.h
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
 	windows/CHeroOverview.h
@@ -298,10 +334,10 @@ set(client_HEADERS
 	windows/CKingdomInterface.h
 	windows/CMessage.h
 	windows/CMapOverview.h
+	windows/CMarketWindow.h
 	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
-	windows/CTradeWindow.h
 	windows/CTutorialWindow.h
 	windows/CWindowObject.h
 	windows/CreaturePurchaseCard.h
@@ -309,6 +345,7 @@ set(client_HEADERS
 	windows/InfoWindows.h
 	windows/QuickRecruitmentWindow.h
 	windows/CHeroBackpackWindow.h
+	windows/CWindowWithArtifacts.h
 	windows/settings/GeneralOptionsTab.h
 	windows/settings/OtherOptionsTab.h
 	windows/settings/SettingsMainWindow.h
@@ -326,7 +363,9 @@ set(client_HEADERS
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
 	HeroMovementController.h
+	GameChatHandler.h
 	LobbyClientNetPackVisitors.h
+	ServerRunner.h
 	resource.h
 )
 
@@ -354,8 +393,7 @@ else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
-add_dependencies(vcmiclient vcmiserver)
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	add_dependencies(vcmiclient
 		BattleAI
 		EmptyAI
@@ -432,14 +470,13 @@ elseif(APPLE_IOS)
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
-if(ENABLE_SINGLE_APP_BUILD)
-	target_link_libraries(vcmiclient PRIVATE vcmiserver)
-	if(ENABLE_LAUNCHER)
-		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
-	endif()
+target_link_libraries(vcmiclient PRIVATE vcmiservercommon)
+if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
+	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()
+
 target_link_libraries(vcmiclient PRIVATE
-		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
 if(ffmpeg_LIBRARIES)
@@ -486,16 +523,18 @@ endif()
 #install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE AND NOT ANDROID)
 	#FIXME: move to client makefile?
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.16x16.png"     DESTINATION share/icons/hicolor/16x16/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.22x22.png"     DESTINATION share/icons/hicolor/22x22/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"     DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"     DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"     DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.128x128.png"   DESTINATION share/icons/hicolor/128x128/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png"   DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.512x512.png"   DESTINATION share/icons/hicolor/512x512/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.1024x1024.png" DESTINATION share/icons/hicolor/1024x1024/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.2048x2048.png" DESTINATION share/icons/hicolor/2048x2048/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.svg"           DESTINATION share/icons/hicolor/scalable/apps RENAME vcmiclient.svg)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"       DESTINATION share/applications)
+	foreach(iconSize 16 22 32 48 64 128 256 512 1024 2048)
+		install(FILES "icons/vcmiclient.${iconSize}x${iconSize}.png"
+			DESTINATION "share/icons/hicolor/${iconSize}x${iconSize}/apps"
+			RENAME vcmiclient.png
+		)
+	endforeach()
+
+	install(FILES icons/vcmiclient.svg
+		DESTINATION share/icons/hicolor/scalable/apps
+		RENAME vcmiclient.svg
+	)
+	install(FILES icons/vcmiclient.desktop
+		DESTINATION share/applications
+	)
 endif()

@@ -87,6 +87,7 @@ public: // TODO: make private
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
+	bool isAutoFightEndBattle; //Flag, if battle forced to end with autocombat
 
 protected: // Call-ins from server, should not be called directly, but only via GameInterface
 
@@ -118,7 +119,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void receivedResource() override;
 	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID) override;
-	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
+	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
@@ -145,8 +146,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
 	void playerEndsTurn(PlayerColor player) override;
-	void saveGame(BinarySerializer & h, const int version) override; //saving
-	void loadGame(BinaryDeserializer & h, const int version) override; //loading
+	void saveGame(BinarySerializer & h) override; //saving
+	void loadGame(BinaryDeserializer & h) override; //loading
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	//for battles
@@ -225,7 +226,7 @@ private:
 	void heroKilled(const CGHeroInstance* hero);
 	void garrisonsChanged(std::vector<const CArmedInstance *> objs);
 	void requestReturningToMainMenu(bool won);
-	void acceptTurn(QueryID queryID); //used during hot seat after your turn message is close
+	void acceptTurn(QueryID queryID, bool hotseatWait); //used during hot seat after your turn message is close
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 };

@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / [Modding](Readme.md) / Translations
-
 # Translation system
 
 ## List of currently supported languages
@@ -24,22 +22,32 @@ This is list of all languages that are currently supported by VCMI. If your lang
 - Ukrainian
 - Vietnamese
 
+## Progress of the translations
+You can see the current progress of the different translations here:
+[Translation progress](https://github.com/vcmi/vcmi-translation-status)
+
+The page will be automatically updated once a week.
+
 ## Translating Heroes III data
 
 VCMI allows translating game data into languages other than English. In order to translate Heroes III in your language easiest approach is to:
 
-- Copy existing translation, such as English translation from here: https://github.com/vcmi-mods/h3-for-vcmi-englisation
+- Copy existing translation, such as English translation from here: https://github.com/vcmi-mods/h3-for-vcmi-englisation (delete sound and video folders)
 - Rename mod to indicate your language, preferred form is "(language)-translation"
 - Update mod.json to match your mod
 - Translate all texts strings from game.json, campaigns.json and maps.json
+- Replace images in data and sprites with translated ones (or delete it if you don't want to translate them)
+- If unicode characters needed for language: Create a submod with a free font like here: https://github.com/vcmi-mods/vietnamese-translation/tree/vcmi-1.4/vietnamese-translation/mods/VietnameseTrueTypeFonts
 
 If you have already existing Heroes III translation you can:
 
 - Install VCMI and select your localized Heroes III data files for VCMI data files
-- Launch VCMI_Client.exe directly from game install directory
-- In console window, type `convert txt`
+- Launch VCMI and start any map to get in game
+- Press Tab to activate chat and enter '/translate'
 
-This will export all strings from game into `Documents/My Games/VCMI/VCMI_Client_log.txt` which you can then use to update json files in your translation
+This will export all strings from game into `Documents/My Games/VCMI/extracted/translation/` directory which you can then use to update json files in your translation.
+
+To export maps and campaigns, use '/translate maps' command instead.
 
 ## Translating VCMI data
 
@@ -48,6 +56,7 @@ VCMI contains several new strings, to cover functionality not existing in Heroes
 - In-game texts, most noticeably - in-game settings menu.
 - Game Launcher
 - Map Editor
+- Linux specific
 - Android Launcher
 
 Before you start, make sure that you have copy of VCMI source code. If you are not familiar with git, you can use Github Desktop to clone VCMI repository.
@@ -75,10 +84,25 @@ Translation of Map Editor is identical, except for location of translation files
 
 TODO: how to test translation locally
 
-### Translation of Android Launcher
+### Translation of Linux specific files
+#### Translation of AppStream metainfo
 
-TODO
-see https://github.com/vcmi/vcmi/blob/develop/android/vcmi-app/src/main/res/values/strings.xml
+The [AppStream](https://freedesktop.org/software/appstream/docs/chap-Metadata.html) [metainfo file](https://github.com/vcmi/vcmi/blob/develop/launcher/eu.vcmi.VCMI.metainfo.xml) is used for Linux software centers.
+
+It can be translated using a text editor or using [jdAppStreamEdit](https://flathub.org/apps/page.codeberg.JakobDev.jdAppStreamEdit):
+- Install jdAppStreamEdit
+- Open `<VCMI>/launcher/eu.vcmi.VCMI.metainfo.xml`
+- Translate and save the file
+  
+#### Desktop file
+- Edit `<VCMI>/launcher/vcmilauncher.desktop` and `<VCMI>/launcher/vcmieditor.desktop`
+- Add `GenericName[xyz]` and `Comment[xyz]` with your language code and translation
+
+### Translation of Android Launcher
+- Copy `<VCMI>/android/vcmi-app/src/main/res/values/strings.xml` to `<VCMI>/android/vcmi-app/src/main/res/values-xyz/strings.xml` (`xyz` is your language code)
+- Translate this file
+
+See also here: https://developer.android.com/guide/topics/resources/localization
 
 ### Submitting changes
 
@@ -93,7 +117,15 @@ If everything is OK, your changes will be accepted and will be part of next rele
 
 ### Exporting translation
 
-TODO
+If you want to start new translation for a mod or to update existing one you may need to export it first. To do that:
+
+- Enable mod(s) that you want to export and set game language in Launcher to one that you want to target
+- Launch VCMI and start any map to get in game
+- Press Tab to activate chat and enter '/translate'
+
+After that, start Launcher, switch to Help tab and open "log files directory". You can find exported json's in 'extracted/translation' directory.
+
+If your mod also contains maps or campaigns that you want to translate, then use '/translate maps' command instead.
 
 ### Translating mod information
 In order to display information in Launcher in language selected by user add following block into your mod.json:
@@ -108,6 +140,12 @@ In order to display information in Launcher in language selected by user add fol
 	},
 ```
 However, normally you don't need to use block for English. Instead, English text should remain in root section of your mod.json file, to be used when game can not find translated version.
+
+### Tranlating in-game strings
+
+After you have exported translation and added mod information for your language, copy exported file to `<mod directory>/Content/config/<mod name>/<language>.json`.
+
+Use any text editor (Notepad++ is recommended for Windows) and translate all strings from this file to your language
 
 # Developers documentation
 

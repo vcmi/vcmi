@@ -40,12 +40,13 @@ void CArmedInstance::randomizeArmy(FactionID type)
 // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
 CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX);
 
-CArmedInstance::CArmedInstance()
-	:CArmedInstance(false)
+CArmedInstance::CArmedInstance(IGameCallback *cb)
+	:CArmedInstance(cb, false)
 {
 }
 
-CArmedInstance::CArmedInstance(bool isHypothetic):
+CArmedInstance::CArmedInstance(IGameCallback *cb, bool isHypothetic):
+	CGObjectInstance(cb),
 	CBonusSystemNode(isHypothetic),
 	nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector),
 	battle(nullptr)
@@ -100,28 +101,21 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 			factionsInArmy -= mixableFactions - 1;
 	}
 
-	std::string description;
+	MetaString bonusDescription;
 
 	if(factionsInArmy == 1)
 	{
 		b->val = +1;
-		description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
-		description = description.substr(0, description.size()-3);//trim "+1"
+		bonusDescription.appendTextID("core.arraytxt.115"); //All troops of one alignment +1
 	}
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
 		b->val = 2 - static_cast<si32>(factionsInArmy);
-		MetaString formatter;
-		formatter.appendTextID("core.arraytxt.114"); //Troops of %d alignments %d
-		formatter.replaceNumber(factionsInArmy);
-		formatter.replaceNumber(b->val);
-
-		description = formatter.toString();
-		description = description.substr(0, description.size()-3);//trim value
+		bonusDescription.appendTextID("core.arraytxt.114"); //Troops of %d alignments %d
+		bonusDescription.replaceNumber(factionsInArmy);
 	}
 	
-	boost::algorithm::trim(description);
-	b->description = description;
+	b->description = bonusDescription;
 
 	CBonusSystemNode::treeHasChanged();
 
@@ -131,8 +125,8 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	{
 		if(!undeadModifier)
 		{
-			undeadModifier = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, -1, BonusCustomSource::undeadMoraleDebuff, VLC->generaltexth->arraytxt[116]);
-			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size()-2);//trim value
+			undeadModifier = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, -1, BonusCustomSource::undeadMoraleDebuff);
+			undeadModifier->description.appendTextID("core.arraytxt.116");
 			addNewBonus(undeadModifier);
 		}
 	}

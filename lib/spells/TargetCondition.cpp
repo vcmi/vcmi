@@ -17,7 +17,7 @@
 #include "../battle/Unit.h"
 #include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
-
+#include "../json/JsonBonus.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -318,19 +318,19 @@ class DefaultTargetConditionItemFactory : public TargetConditionItemFactory
 public:
 	Object createAbsoluteLevel() const override
 	{
-		static std::shared_ptr<TargetConditionItem> antimagicCondition = std::make_shared<AbsoluteLevelCondition>();
+		static auto antimagicCondition = std::make_shared<AbsoluteLevelCondition>();
         return antimagicCondition;
 	}
 
 	Object createAbsoluteSpell() const override
 	{
-		static std::shared_ptr<TargetConditionItem> alCondition = std::make_shared<AbsoluteSpellCondition>();
+		static auto alCondition = std::make_shared<AbsoluteSpellCondition>();
 		return alCondition;
 	}
 
 	Object createElemental() const override
 	{
-		static std::shared_ptr<TargetConditionItem> elementalCondition = std::make_shared<ElementalCondition>();
+		static auto elementalCondition = std::make_shared<ElementalCondition>();
 		return elementalCondition;
 	}
 
@@ -342,13 +342,13 @@ public:
 
 	Object createNormalLevel() const override
 	{
-		static std::shared_ptr<TargetConditionItem> nlCondition = std::make_shared<NormalLevelCondition>();
+		static auto nlCondition = std::make_shared<NormalLevelCondition>();
 		return nlCondition;
 	}
 
 	Object createNormalSpell() const override
 	{
-		static std::shared_ptr<TargetConditionItem> nsCondition = std::make_shared<NormalSpellCondition>();
+		static auto nsCondition = std::make_shared<NormalSpellCondition>();
 		return nsCondition;
 	}
 
@@ -424,13 +424,13 @@ public:
 
 	Object createReceptiveFeature() const override
 	{
-		static std::shared_ptr<TargetConditionItem> condition = std::make_shared<ReceptiveFeatureCondition>();
+		static auto condition = std::make_shared<ReceptiveFeatureCondition>();
 		return condition;
 	}
 
 	Object createImmunityNegation() const override
 	{
-		static std::shared_ptr<TargetConditionItem> condition = std::make_shared<ImmunityNegationCondition>();
+		static auto condition = std::make_shared<ImmunityNegationCondition>();
 		return condition;
 	}
 };
@@ -544,7 +544,7 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 
 			ModUtility::parseIdentifier(keyValue.first, scope, type, identifier);
 
-			item = itemFactory->createConfigurable(keyValue.second.meta, type, identifier);
+			item = itemFactory->createConfigurable(keyValue.second.getModScope(), type, identifier);
 		}
 
 		if(item)

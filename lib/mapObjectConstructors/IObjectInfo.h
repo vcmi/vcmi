@@ -34,11 +34,6 @@ public:
 		}
 	};
 
-	/// Returns possible composition of guards. Actual guards would be
-	/// somewhere between these two values
-	virtual CArmyStructure minGuards() const { return CArmyStructure(); }
-	virtual CArmyStructure maxGuards() const { return CArmyStructure(); }
-
 	virtual bool givesResources() const { return false; }
 
 	virtual bool givesExperience() const { return false; }

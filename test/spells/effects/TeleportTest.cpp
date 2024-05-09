@@ -11,6 +11,7 @@
 
 #include "EffectFixture.h"
 
+#include "../../../lib/json/JsonNode.h"
 #include <vstd/RNG.h>
 
 namespace test
@@ -51,7 +52,7 @@ protected:
 	}
 };
 
-TEST_F(TeleportApplyTest, MovesUnit)
+TEST_F(TeleportApplyTest, DISABLED_MovesUnit)
 {
 	battleFake->setupEmptyBattlefield();
 

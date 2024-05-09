@@ -23,11 +23,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/TavernHeroesPool.h"
 #include "../../lib/gameState/TavernSlot.h"
-
-HeroPoolProcessor::HeroPoolProcessor()
-	: gameHandler(nullptr)
-{
-}
+#include "../../lib/GameSettings.h"
 
 HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
@@ -104,14 +100,14 @@ void HeroPoolProcessor::clearHeroFromSlot(const PlayerColor & color, TavernHeroS
 	gameHandler->sendAndApply(&sah);
 }
 
-void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveArmy)
+void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveArmy, const HeroTypeID & nextHero)
 {
 	SetAvailableHero sah;
 	sah.player = color;
 	sah.slotID = slot;
 	sah.replenishPoints = true;
 
-	CGHeroInstance *newHero = pickHeroFor(needNativeHero, color);
+	CGHeroInstance *newHero = (nextHero == HeroTypeID::NONE) ? pickHeroFor(needNativeHero, color) : gameHandler->gameState()->heroesPool->unusedHeroesFromPool()[nextHero];
 
 	if (newHero)
 	{
@@ -145,11 +141,12 @@ void HeroPoolProcessor::onNewWeek(const PlayerColor & color)
 	selectNewHeroForSlot(color, TavernHeroSlot::RANDOM, false, true);
 }
 
-bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTypeID & heroToRecruit, const PlayerColor & player)
+bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTypeID & heroToRecruit, const PlayerColor & player, const HeroTypeID & nextHero)
 {
 	const PlayerState * playerState = gameHandler->getPlayerState(player);
 	const CGObjectInstance * mapObject = gameHandler->getObj(objectID);
 	const CGTownInstance * town = gameHandler->getTown(objectID);
+	const auto & heroesPool = gameHandler->gameState()->heroesPool;
 
 	if (!mapObject && gameHandler->complain("Invalid map object!"))
 		return false;
@@ -165,6 +162,18 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	if (gameHandler->getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))
 		return false;
+
+	if (nextHero != HeroTypeID::NONE) // player attempts to invite next hero
+	{
+		if(!VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && gameHandler->complain("Inviting heroes not allowed!"))
+			return false;
+
+		if(!heroesPool->unusedHeroesFromPool().count(nextHero) && gameHandler->complain("Cannot invite specified hero!"))
+			return false;
+		
+		if(!heroesPool->isHeroAvailableFor(nextHero, player) && gameHandler->complain("Cannot invite specified hero!"))
+			return false;
+	}
 
 	if(town) //tavern in town
 	{
@@ -192,7 +201,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 			return false;
 	}
 
-	auto recruitableHeroes = gameHandler->gameState()->heroesPool->getHeroesFor(player);
+	auto recruitableHeroes = heroesPool->getHeroesFor(player);
 
 	const CGHeroInstance * recruitedHero = nullptr;
 
@@ -226,9 +235,9 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	gameHandler->sendAndApply(&hr);
 
 	if(recruitableHeroes[0] == recruitedHero)
-		selectNewHeroForSlot(player, TavernHeroSlot::NATIVE, false, false);
+		selectNewHeroForSlot(player, TavernHeroSlot::NATIVE, false, false, nextHero);
 	else
-		selectNewHeroForSlot(player, TavernHeroSlot::RANDOM, false, false);
+		selectNewHeroForSlot(player, TavernHeroSlot::RANDOM, false, false, nextHero);
 
 	gameHandler->giveResource(player, EGameResID::GOLD, -GameConstants::HERO_GOLD_COST);
 
@@ -247,13 +256,13 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 	const auto & heroesPool = gameHandler->gameState()->heroesPool;
 	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
 
-	for(auto & elem : heroesPool->unusedHeroesFromPool())
+	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		if (vstd::contains(result, elem.second->type->heroClass))
 			continue;
 
 		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, player);
-		bool heroClassBanned = elem.second->type->heroClass->selectionProbability[factionID] == 0;
+		bool heroClassBanned = elem.second->type->heroClass->tavernProbability(factionID) == 0;
 
 		if(heroAvailable && !heroClassBanned)
 			result.push_back(elem.second->type->heroClass);
@@ -268,7 +277,7 @@ std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Pl
 
 	const auto & heroesPool = gameHandler->gameState()->heroesPool;
 
-	for(auto & elem : heroesPool->unusedHeroesFromPool())
+	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		assert(!vstd::contains(result, elem.second));
 
@@ -326,13 +335,13 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 
 	int totalWeight = 0;
 	for(const auto & heroClass : possibleClasses)
-		totalWeight += heroClass->selectionProbability.at(factionID);
+		totalWeight += heroClass->tavernProbability(factionID);
 
 	int roll = getRandomGenerator(player).nextInt(totalWeight - 1);
 
 	for(const auto & heroClass : possibleClasses)
 	{
-		roll -= heroClass->selectionProbability.at(factionID);
+		roll -= heroClass->tavernProbability(factionID);
 		if(roll < 0)
 			return heroClass;
 	}

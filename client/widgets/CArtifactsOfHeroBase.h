@@ -9,11 +9,11 @@
  */
 #pragma once
 
-#include "CArtifactHolder.h"
+#include "CArtPlace.h"
 
 class CButton;
 
-class CArtifactsOfHeroBase : public CIntObject
+class CArtifactsOfHeroBase : virtual public CIntObject
 {
 protected:
 	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;
@@ -22,7 +22,6 @@ protected:
 public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
 	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CArtPlace&, const Point&)>;
-	using PutBackPickedArtCallback = std::function<void()>;
 
 	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;
@@ -30,13 +29,12 @@ public:
 	
 	CArtifactsOfHeroBase();
 	virtual void putBackPickedArtifact();
-	virtual void setPutBackPickedArtifactCallback(PutBackPickedArtCallback callback);
 	virtual void clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
 	virtual void showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
 	virtual void gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
 	virtual void setHero(const CGHeroInstance * hero);
 	virtual const CGHeroInstance * getHero() const;
-	virtual void scrollBackpack(int offset);
+	virtual void scrollBackpack(bool left);
 	virtual void markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved = true);
 	virtual void unmarkSlots();
 	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);
@@ -52,8 +50,6 @@ protected:
 	std::vector<ArtPlacePtr> backpack;
 	std::shared_ptr<CButton> leftBackpackRoll;
 	std::shared_ptr<CButton> rightBackpackRoll;
-	int backpackPos; // Position to display artifacts in heroes backpack
-	PutBackPickedArtCallback putBackPickedArtCallback;
 
 	const std::vector<Point> slotPos =
 	{
@@ -66,9 +62,8 @@ protected:
 		Point(381,295) //18
 	};
 
-	virtual void init(CHeroArtPlace::ClickFunctor lClickCallback, CHeroArtPlace::ClickFunctor showPopupCallback,
-		const Point & position, BpackScrollFunctor scrollCallback);
+	virtual void init(const CHeroArtPlace::ClickFunctor & lClickCallback, const CHeroArtPlace::ClickFunctor & showPopupCallback,
+		const Point & position, const BpackScrollFunctor & scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
-	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot, const CArtifactSet & artSet);
-	virtual void scrollBackpackForArtSet(int offset, const CArtifactSet & artSet);
+	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot);
 };

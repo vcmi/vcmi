@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../Pathfinding/AINodeStorage.h"
+#include "../Engine/PriorityEvaluator.h"
 
 namespace NKAI
 {
@@ -22,7 +23,15 @@ struct ClusterObjectInfo
 	uint8_t turn;
 };
 
-using ClusterObjects = tbb::concurrent_hash_map<const CGObjectInstance *, ClusterObjectInfo>;
+struct ObjectInstanceIDHash
+{
+	ObjectInstanceID::hash hash;
+	bool equal(ObjectInstanceID o1, ObjectInstanceID o2) const
+	{
+		return o1 == o2;
+	}
+};
+using ClusterObjects = tbb::concurrent_hash_map<ObjectInstanceID, ClusterObjectInfo, ObjectInstanceIDHash>;
 
 struct ObjectCluster
 {
@@ -43,19 +52,24 @@ public:
 	{
 	}
 
-	std::vector<const CGObjectInstance *> getObjects() const;
-	const CGObjectInstance * calculateCenter() const;
+	std::vector<const CGObjectInstance *> getObjects(const CPlayerSpecificInfoCallback * cb) const;
+	const CGObjectInstance * calculateCenter(const CPlayerSpecificInfoCallback * cb) const;
 };
 
-using ClusterMap = tbb::concurrent_hash_map<const CGObjectInstance *, std::shared_ptr<ObjectCluster>>;
+using ClusterMap = tbb::concurrent_hash_map<ObjectInstanceID, std::shared_ptr<ObjectCluster>, ObjectInstanceIDHash>;
 
 class ObjectClusterizer
 {
 private:
+	static Obj IgnoredObjectTypes[];
+
 	ObjectCluster nearObjects;
 	ObjectCluster farObjects;
 	ClusterMap blockedObjects;
 	const Nullkiller * ai;
+	RewardEvaluator valueEvaluator;
+	bool isUpToDate;
+	std::vector<ObjectInstanceID> invalidated;
 
 public:
 	void clusterize();
@@ -63,11 +77,26 @@ public:
 	std::vector<const CGObjectInstance *> getFarObjects() const;
 	std::vector<std::shared_ptr<ObjectCluster>> getLockedClusters() const;
 	const CGObjectInstance * getBlocker(const AIPath & path) const;
+	std::optional<const CGObjectInstance *> getBlocker(const AIPathNodeInfo & node) const;
 
-	ObjectClusterizer(const Nullkiller * ai): ai(ai) {}
+	ObjectClusterizer(const Nullkiller * ai): ai(ai), valueEvaluator(ai), isUpToDate(false){}
+
+	void validateObjects();
+	void onObjectRemoved(ObjectInstanceID id);
+	void invalidate(ObjectInstanceID id);
+
+	void reset() {
+		isUpToDate = false;
+		invalidated.clear();
+	}
 
 private:
 	bool shouldVisitObject(const CGObjectInstance * obj) const;
+	void clusterizeObject(
+		const CGObjectInstance * obj,
+		PriorityEvaluator * priorityEvaluator,
+		std::vector<AIPath> & pathCache,
+		std::vector<const CGHeroInstance *> & heroes);
 };
 
 }

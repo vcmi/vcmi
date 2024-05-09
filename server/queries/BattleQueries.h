@@ -14,6 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class IBattleInfo;
+struct SideInBattle;
 VCMI_LIB_NAMESPACE_END
 
 class CBattleQuery : public CQuery
@@ -22,23 +23,24 @@ public:
 	std::array<const CArmedInstance *,2> belligerents;
 	std::array<int, 2> initialHeroMana;
 
+	bool isAiVsHuman;
 	BattleID battleID;
 	std::optional<BattleResult> result;
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi); //TODO
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-	virtual bool blocksPack(const CPack *pack) const override;
-	virtual void onRemoval(PlayerColor color) override;
-	virtual void onExposure(QueryPtr topQuery) override;
+	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	bool blocksPack(const CPack *pack) const override;
+	void onRemoval(PlayerColor color) override;
+	void onExposure(QueryPtr topQuery) override;
 };
 
 class CBattleDialogQuery : public CDialogQuery
 {
 public:
-	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi);
+	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, std::optional<BattleResult> Br);
 
 	const IBattleInfo * bi;
-
-	virtual void onRemoval(PlayerColor color) override;
+	std::optional<BattleResult> result;
+	void onRemoval(PlayerColor color) override;
 };

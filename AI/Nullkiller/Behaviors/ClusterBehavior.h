@@ -28,16 +28,16 @@ namespace Goals
 		{
 		}
 
-		virtual TGoalVec decompose() const override;
-		virtual std::string toString() const override;
+		TGoalVec decompose(const Nullkiller * ai) const override;
+		std::string toString() const override;
 
-		virtual bool operator==(const ClusterBehavior & other) const override
+		bool operator==(const ClusterBehavior & other) const override
 		{
 			return true;
 		}
 
 	private:
-		Goals::TGoalVec decomposeCluster(std::shared_ptr<ObjectCluster> cluster) const;
+		Goals::TGoalVec decomposeCluster(const Nullkiller * ai, std::shared_ptr<ObjectCluster> cluster) const;
 	};
 }
 

@@ -91,33 +91,10 @@ bool HeroPtr::operator<(const HeroPtr & rhs) const
 
 const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 {
-	//TODO? check if these all assertions every time we get info about hero affect efficiency
-	//
-	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
-	assert(doWeExpectNull || h);
-
-	if(h)
-	{
-		auto obj = cb->getObj(hid);
-		//const bool owned = obj && obj->tempOwner == ai->playerID;
-
-		if(doWeExpectNull && !obj)
-		{
-			return nullptr;
-		}
-		else
-		{
-			if (!obj)
-				logAi->error("Accessing no longer accessible hero %s!", h->getNameTranslated());
-			//assert(obj);
-			//assert(owned);
-		}
-	}
-
-	return h;
+	return get(cb, doWeExpectNull);
 }
 
-const CGHeroInstance * HeroPtr::get(CCallback * cb, bool doWeExpectNull) const
+const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull) const
 {
 	//TODO? check if these all assertions every time we get info about hero affect efficiency
 	//
@@ -163,15 +140,7 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 	return h == rhs.get(true);
 }
 
-bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const
-{
-	const CGPathNode * ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
-	const CGPathNode * rn = ai->myCb->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
-
-	return ln->getCost() < rn->getCost();
-}
-
-bool isSafeToVisit(HeroPtr h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
+bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
 {
 	const ui64 heroStrength = h->getFightingStrength() * heroArmy->getArmyStrength();
 
@@ -183,9 +152,9 @@ bool isSafeToVisit(HeroPtr h, const CCreatureSet * heroArmy, uint64_t dangerStre
 	return true; //there's no danger
 }
 
-bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength)
+bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength)
 {
-	return isSafeToVisit(h, h.get(), dangerStrength);
+	return isSafeToVisit(h, h, dangerStrength);
 }
 
 bool isObjectRemovable(const CGObjectInstance * obj)
@@ -235,11 +204,6 @@ bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj)
 	return isObjectPassable(obj, ai->playerID, ai->cb->getPlayerRelations(obj->tempOwner, ai->playerID));
 }
 
-bool isObjectPassable(const CGObjectInstance * obj)
-{
-	return isObjectPassable(obj, ai->playerID, ai->myCb->getPlayerRelations(obj->tempOwner, ai->playerID));
-}
-
 // Pathfinder internal helper
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations)
 {
@@ -276,18 +240,16 @@ creInfo infoFromDC(const dwellingContent & dc)
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
 	if (ci.creID != CreatureID::NONE)
 	{
-		ci.cre = VLC->creatures()->getById(ci.creID);
-		ci.level = ci.cre->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
+		ci.level = ci.creID.toCreature()->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
 	}
 	else
 	{
-		ci.cre = nullptr;
 		ci.level = 0;
 	}
 	return ci;
 }
 
-bool compareHeroStrength(HeroPtr h1, HeroPtr h2)
+bool compareHeroStrength(const CGHeroInstance * h1, const CGHeroInstance * h2)
 {
 	return h1->getTotalStrength() < h2->getTotalStrength();
 }
@@ -308,7 +270,7 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 		return art1->getPrice() > art2->getPrice();
 }
 
-bool isWeeklyRevisitable(const CGObjectInstance * obj)
+bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj)
 {
 	if(!obj)
 		return false;
@@ -336,6 +298,19 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 	auto end = std::chrono::high_resolution_clock::now();
 
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+}
+
+int getDuplicatingSlots(const CArmedInstance * army)
+{
+	int duplicatingSlots = 0;
+
+	for(auto stack : army->Slots())
+	{
+		if(stack.second->type && army->getSlotFor(stack.second->type) != stack.first)
+			duplicatingSlots++;
+	}
+
+	return duplicatingSlots;
 }
 
 // todo: move to obj manager
@@ -385,13 +360,14 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			return false;
 
 		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+		auto duplicatingSlotsCount = getDuplicatingSlots(h);
 
 		for(auto level : d->creatures)
 		{
 			for(auto c : level.second)
 			{
 				if(level.first
-					&& h->getSlotFor(CreatureID(c)) != SlotID()
+					&& (h->getSlotFor(CreatureID(c)) != SlotID() || duplicatingSlotsCount > 0)
 					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
 				{
 					return true;
@@ -439,7 +415,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->cb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		return !ai->heroManager->heroCapReached();
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
 	case Obj::BOAT:
@@ -461,6 +437,18 @@ bool townHasFreeTavern(const CGTownInstance * town)
 	bool canMoveVisitingHeroToGarnison = !town->getUpperArmy()->stacksCount();
 
 	return canMoveVisitingHeroToGarnison;
+}
+
+uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy)
+{
+	auto armyStrength = heroArmy->getArmyStrength();
+
+	if(hero && hero->commander && hero->commander->alive)
+	{
+		armyStrength += 100 * hero->commander->level;
+	}
+
+	return armyStrength;
 }
 
 }

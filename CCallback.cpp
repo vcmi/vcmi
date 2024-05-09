@@ -16,6 +16,7 @@
 #include "client/Client.h"
 #include "lib/mapping/CMap.h"
 #include "lib/mapObjects/CGHeroInstance.h"
+#include "lib/mapObjects/CGTownInstance.h"
 #include "lib/CBuildingHandler.h"
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
@@ -33,11 +34,16 @@ bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *wh
 	return true;
 }
 
-bool CCallback::moveHero(const CGHeroInstance *h, int3 dst, bool transit)
+void CCallback::moveHero(const CGHeroInstance *h, const int3 & destination, bool transit)
 {
-	MoveHero pack(dst,h->id,transit);
+	MoveHero pack({destination}, h->id, transit);
 	sendRequest(&pack);
-	return true;
+}
+
+void CCallback::moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit)
+{
+	MoveHero pack(path, h->id, transit);
+	sendRequest(&pack);
 }
 
 int CCallback::selectionMade(int selection, QueryID queryID)
@@ -179,6 +185,20 @@ void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dst
 	sendRequest(&bma);
 }
 
+void CCallback::scrollBackpackArtifacts(ObjectInstanceID hero, bool left)
+{
+	ManageBackpackArtifacts mba(hero, ManageBackpackArtifacts::ManageCmd::SCROLL_RIGHT);
+	if(left)
+		mba.cmd = ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT;
+	sendRequest(&mba);
+}
+
+void CCallback::manageHeroCostume(ObjectInstanceID hero, size_t costumeIndex, bool saveCostume)
+{
+	ManageEquippedArtifacts mea(hero, costumeIndex, saveCostume);
+	sendRequest(&mea);
+}
+
 void CCallback::eraseArtifactByClient(const ArtifactLocation & al)
 {
 	EraseArtifactByClient ea(al);
@@ -260,12 +280,12 @@ void CCallback::setFormation(const CGHeroInstance * hero, EArmyFormation mode)
 	sendRequest(&pack);
 }
 
-void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)
+void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero)
 {
 	assert(townOrTavern);
 	assert(hero);
 
-	HireHero pack(hero->getHeroType(), townOrTavern->id);
+	HireHero pack(hero->getHeroType(), townOrTavern->id, nextHero);
 	pack.player = *player;
 	sendRequest(&pack);
 }

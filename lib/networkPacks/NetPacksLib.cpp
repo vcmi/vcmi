@@ -34,6 +34,9 @@
 #include "TerrainHandler.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
+#include "mapObjects/CGTownInstance.h"
+#include "mapObjects/CQuest.h"
+#include "mapObjects/MiscObjects.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "campaign/CampaignState.h"
@@ -380,6 +383,11 @@ void ChangeObjectVisitors::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeObjectVisitors(*this);
 }
 
+void ChangeArtifactsCostume::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeArtifactsCostume(*this);
+}
+
 void HeroLevelUp::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitHeroLevelUp(*this);
@@ -605,6 +613,16 @@ void BulkExchangeArtifacts::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBulkExchangeArtifacts(*this);
 }
 
+void ManageBackpackArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitManageBackpackArtifacts(*this);
+}
+
+void ManageEquippedArtifacts::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitManageEquippedArtifacts(*this);
+}
+
 void AssembleArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitAssembleArtifacts(*this);
@@ -705,14 +723,19 @@ void LobbyLoadProgress::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyLoadProgress(*this);
 }
 
-void LobbyEndGame::visitTyped(ICPackVisitor & visitor)
+void LobbyRestartGame::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitLobbyEndGame(*this);
+	visitor.visitLobbyRestartGame(*this);
 }
 
 void LobbyStartGame::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyStartGame(*this);
+}
+
+void LobbyPrepareStartGame::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyPrepareStartGame(*this);
 }
 
 void LobbyChangeHost::visitTyped(ICPackVisitor & visitor)
@@ -770,6 +793,11 @@ void LobbySetTurnTime::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbySetTurnTime(*this);
 }
 
+void LobbySetExtraOptions::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetExtraOptions(*this);
+}
+
 void LobbySetDifficulty::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbySetDifficulty(*this);
@@ -783,6 +811,11 @@ void LobbyForceSetPlayer::visitTyped(ICPackVisitor & visitor)
 void LobbyShowMessage::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyShowMessage(*this);
+}
+
+void LobbyPvPAction::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyPvPAction(*this);
 }
 
 void SetResources::applyGs(CGameState * gs) const
@@ -986,31 +1019,6 @@ void GiveBonus::applyGs(CGameState *gs)
 
 	auto b = std::make_shared<Bonus>(bonus);
 	cbsn->addNewBonus(b);
-
-	std::string &descr = b->description;
-
-	if(!bdescr.empty()) 
-	{
-		descr = bdescr.toString();
-	}
-	else if(!descr.empty())
-	{
-		//use preseet description
-	}
-	else if((bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE)
-		  && (bonus.source == BonusSource::OBJECT_TYPE || bonus.source == BonusSource::OBJECT_INSTANCE))
-	{
-		//no description, use generic
-		//?could use allways when Type == BonusDuration::Type::ONE_BATTLE
-		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
-	}
-	else
-	{
-		logGlobal->debug("Empty bonus decription. Type=%d", (int) bonus.type);
-	}
-	// Some of(?) versions of H3 use " %s" here instead of %d. Try to replace both of them
-	boost::replace_first(descr, "%d", std::to_string(std::abs(bonus.val))); // " +/-%d Temporary until next battle
-	boost::replace_first(descr, " %s", boost::str(boost::format(" %+d") % bonus.val));  // " %s" in arraytxt.69, fountian of fortune
 }
 
 void ChangeObjPos::applyGs(CGameState *gs)
@@ -1067,6 +1075,15 @@ void ChangeObjectVisitors::applyGs(CGameState * gs) const
 			gs->getHero(hero)->visitedObjects.erase(object);
 			break;
 	}
+}
+
+void ChangeArtifactsCostume::applyGs(CGameState * gs) const
+{
+	auto & allCostumes = gs->getPlayerState(player)->costumesArtifacts;
+	if(const auto & costume = allCostumes.find(costumeIdx); costume != allCostumes.end())
+		costume->second = costumeSet;
+	else
+		allCostumes.try_emplace(costumeIdx, costumeSet);
 }
 
 void PlayerEndsGame::applyGs(CGameState * gs) const
@@ -1148,6 +1165,9 @@ void RemoveObject::applyGs(CGameState *gs)
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
+	if (initiator.isValidPlayer())
+		gs->getPlayerState(initiator)->destroyedObjects.insert(objectID);
+
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
@@ -1203,37 +1223,12 @@ void RemoveObject::applyGs(CGameState *gs)
 		gs->map->quests[quest->quest->qid] = nullptr;
 		for (auto &player : gs->players)
 		{
-			for (auto &q : player.second.quests)
-			{
-				if (q.obj == obj)
-				{
-					q.obj = nullptr;
-				}
-			}
+			vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
+				return q.obj == obj;
+			});
 		}
 	}
 
-	for (TriggeredEvent & event : gs->map->triggeredEvents)
-	{
-		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
-		{
-			if (cond.objectID == obj->id)
-			{
-				if (cond.condition == EventCondition::DESTROY)
-				{
-					cond.condition = EventCondition::CONST_VALUE;
-					cond.value = 1; // destroyed object, from now on always fulfilled
-				}
-				else if (cond.condition == EventCondition::CONTROL)
-				{
-					cond.condition = EventCondition::CONST_VALUE;
-					cond.value = 0; // destroyed object, from now on can not be fulfilled
-				}
-			}
-			return cond;
-		};
-		event.trigger = event.trigger.morph(patcher);
-	}
 	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[objectID.getNum()].dellNull();
 	gs->map->calculateGuardingGreaturePositions();
@@ -1492,7 +1487,7 @@ void NewObject::applyGs(CGameState *gs)
 
 	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
 
-	CGObjectInstance * o = handler->create();
+	CGObjectInstance * o = handler->create(gs->callback, nullptr);
 	handler->configureObject(o, gs->getRandomGenerator());
 	assert(o->ID == this->ID);
 	
@@ -1768,35 +1763,35 @@ void PutArtifact::applyGs(CGameState *gs)
 
 void EraseArtifact::applyGs(CGameState *gs)
 {
-	const auto hero = gs->getHero(al.artHolder);
-	assert(hero);
-	const auto slot = hero->getSlot(al.slot);
+	const auto artSet = gs->getArtSet(al.artHolder);
+	assert(artSet);
+	const auto slot = artSet->getSlot(al.slot);
 	if(slot->locked)
 	{
 		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
 		
-		for(auto & slotInfo : hero->artifactsWorn)
+		for(auto & slotInfo : artSet->artifactsWorn)
 		{
 			auto art = slotInfo.second.artifact;
 			if(art->isCombined() && art->isPart(slot->artifact))
 			{
-				dis.al.slot = hero->getArtPos(art);
+				dis.al.slot = artSet->getArtPos(art);
 				break;
 			}
 		}
 		assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", hero->getArt(dis.al.slot)->artType->getNameTranslated());
+		logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->artType->getNameTranslated());
 		dis.applyGs(gs);
 	}
 	else
 	{
 		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getNameTranslated());
 	}
-	auto art = hero->getArt(al.slot);
+	auto art = artSet->getArt(al.slot);
 	assert(art);
-	art->removeFrom(*hero, al.slot);
+	art->removeFrom(*artSet, al.slot);
 }
 
 void MoveArtifact::applyGs(CGameState * gs)
@@ -1812,69 +1807,47 @@ void MoveArtifact::applyGs(CGameState * gs)
 
 void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
-	enum class EBulkArtsOp
+	const auto bulkArtsRemove = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
 	{
-		BULK_MOVE,
-		BULK_REMOVE,
-		BULK_PUT
+		std::vector<ArtifactPosition> packToRemove;
+		for(const auto & slotsPair : artsPack)
+			packToRemove.push_back(slotsPair.srcPos);
+		std::sort(packToRemove.begin(), packToRemove.end(), [](const ArtifactPosition & slot0, const ArtifactPosition & slot1) -> bool
+			{
+				return slot0.num > slot1.num;
+			});
+
+		for(const auto & slot : packToRemove)
+		{
+			auto * art = artSet.getArt(slot);
+			assert(art);
+			art->removeFrom(artSet, slot);
+		}
 	};
 
-	auto bulkArtsOperation = [this, gs](std::vector<LinkedSlots> & artsPack, 
-		CArtifactSet & artSet, EBulkArtsOp operation) -> void
+	const auto bulkArtsPut = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
 	{
-		int numBackpackArtifactsMoved = 0;
-		for(auto & slot : artsPack)
+		for(const auto & slotsPair : artsPack)
 		{
-			// When an object gets removed from the backpack, the backpack shrinks
-			// so all the following indices will be affected. Thus, we need to update
-			// the subsequent artifact slots to account for that
-			auto srcPos = slot.srcPos;
-			if(ArtifactUtils::isSlotBackpack(srcPos) && (operation != EBulkArtsOp::BULK_PUT))
-			{
-				srcPos = ArtifactPosition(srcPos.num - numBackpackArtifactsMoved);
-			}
-			auto * art = artSet.getArt(srcPos);
+			auto * art = initArtSet.getArt(slotsPair.srcPos);
 			assert(art);
-			switch(operation)
-			{
-			case EBulkArtsOp::BULK_MOVE:
-				art->move(artSet, srcPos, *gs->getArtSet(ArtifactLocation(dstArtHolder, dstCreature)), slot.dstPos);
-				break;
-			case EBulkArtsOp::BULK_REMOVE:
-				art->removeFrom(artSet, srcPos);
-				break;
-			case EBulkArtsOp::BULK_PUT:
-				art->putAt(*gs->getArtSet(ArtifactLocation(srcArtHolder, srcCreature)), slot.dstPos);
-				break;
-			default:
-				break;
-			}
-
-			if(srcPos >= ArtifactPosition::BACKPACK_START)
-			{
-				numBackpackArtifactsMoved++;
-			}
+			art->putAt(dstArtSet, slotsPair.dstPos);
 		}
 	};
 	
 	auto * leftSet = gs->getArtSet(ArtifactLocation(srcArtHolder, srcCreature));
-	if(swap)
+	assert(leftSet);
+	auto * rightSet = gs->getArtSet(ArtifactLocation(dstArtHolder, dstCreature));
+	assert(rightSet);
+	CArtifactFittingSet artInitialSetLeft(*leftSet);
+	bulkArtsRemove(artsPack0, *leftSet);
+	if(!artsPack1.empty())
 	{
-		// Swap
-		auto * rightSet = gs->getArtSet(ArtifactLocation(dstArtHolder, dstCreature));
-		CArtifactFittingSet artFittingSet(leftSet->bearerType());
-
-		artFittingSet.artifactsWorn = rightSet->artifactsWorn;
-		artFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
-
-		bulkArtsOperation(artsPack1, *rightSet, EBulkArtsOp::BULK_REMOVE);
-		bulkArtsOperation(artsPack0, *leftSet, EBulkArtsOp::BULK_MOVE);
-		bulkArtsOperation(artsPack1, artFittingSet, EBulkArtsOp::BULK_PUT);
+		CArtifactFittingSet artInitialSetRight(*rightSet);
+		bulkArtsRemove(artsPack1, *rightSet);
+		bulkArtsPut(artsPack1, artInitialSetRight, *leftSet);
 	}
-	else
-	{
-		bulkArtsOperation(artsPack0, *leftSet, EBulkArtsOp::BULK_MOVE);
-	}
+	bulkArtsPut(artsPack0, artInitialSetLeft, *rightSet);
 }
 
 void AssembledArtifact::applyGs(CGameState *gs)
@@ -1985,7 +1958,7 @@ void SetAvailableArtifacts::applyGs(CGameState * gs) const
 	}
 	else
 	{
-		CGTownInstance::merchantArtifacts = arts;
+		gs->map->townMerchantArtifacts = arts;
 	}
 }
 
@@ -2139,7 +2112,7 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 	}
 	case BonusType::POISON:
 	{
-		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID(SpellID::POISON))
+		auto b = st->getLocalBonus(Selector::source(BonusSource::SPELL_EFFECT, SpellID(SpellID::POISON))
 				.And(Selector::type()(BonusType::STACK_HEALTH)));
 		if (b)
 			b->val = val;

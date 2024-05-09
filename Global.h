@@ -41,6 +41,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define VCMI_UNIX
 #  define VCMI_XDG
 #  define VCMI_FREEBSD
+#elif defined(__OpenBSD__)
+#  define VCMI_UNIX
+#  define VCMI_XDG
+#  define VCMI_OPENBSD
 #elif defined(__HAIKU__)
 #  define VCMI_UNIX
 #  define VCMI_XDG
@@ -100,12 +104,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #define _USE_MATH_DEFINES
 
-#ifndef NDEBUG
-// Enable additional debug checks from glibc / libstdc++ when building with enabled assertions
-// Since these defines must be declared BEFORE including glibc header we can not check for __GLIBCXX__ macro to detect that glibc is in use
-#  define _GLIBCXX_ASSERTIONS
-#endif
-
 #include <algorithm>
 #include <any>
 #include <array>
@@ -144,6 +142,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_FILESYSTEM_VERSION 3
 #if BOOST_VERSION > 105000
 #  define BOOST_THREAD_VERSION 3
+#endif
+#if BOOST_VERSION == 107400
+#  define BOOST_ALLOW_DEPRECATED_HEADERS
 #endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
 //need to link boost thread dynamically to avoid https://stackoverflow.com/questions/35978572/boost-thread-interupt-does-not-work-when-crossing-a-dll-boundary
@@ -211,10 +212,10 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 /* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
 #ifdef VCMI_WINDOWS
-#ifdef VCMI_DLL_STATIC
+#  ifdef VCMI_DLL_STATIC
 #    define DLL_IMPORT
 #    define DLL_EXPORT
-#elif defined(__GNUC__)
+#  elif defined(__GNUC__)
 #    define DLL_IMPORT __attribute__((dllimport))
 #    define DLL_EXPORT __attribute__((dllexport))
 #  else
@@ -508,6 +509,29 @@ namespace vstd
 		}
 	}
 
+	//works for std::unordered_map, maybe something else
+	template<typename Key, typename Val, typename Predicate>
+	void erase_if(std::unordered_map<Key, Val> & container, Predicate pred)
+	{
+		auto itr = container.begin();
+		auto endItr = container.end();
+		while(itr != endItr)
+		{
+			auto tmpItr = itr++;
+			if(pred(*tmpItr))
+				container.erase(tmpItr);
+		}
+	}
+
+	// Removes all duplicate elements from the vector
+	template<typename T>
+	void unique(std::vector<T> &vec)
+	{
+		std::sort(vec.begin(), vec.end());
+		auto newEnd = std::unique(vec.begin(), vec.end());
+		vec.erase(newEnd, vec.end());
+	}
+
 	template<typename InputRange, typename OutputIterator, typename Predicate>
 	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
 	{
@@ -679,6 +703,23 @@ namespace vstd
 	Arithmetic lerp(const Arithmetic & a, const Arithmetic & b, const Floating & f)
 	{
 		return a + (b - a) * f;
+	}
+
+	template<typename Floating>
+	bool isAlmostZero(const Floating & value)
+	{
+		constexpr Floating epsilon(0.00001);
+		return std::abs(value) <= epsilon;
+	}
+
+	template<typename Floating1, typename Floating2>
+	bool isAlmostEqual(const Floating1 & left, const Floating2 & right)
+	{
+		using Floating = decltype(left + right);
+		constexpr Floating epsilon(0.00001);
+		const Floating relativeEpsilon = std::max(std::abs(left), std::abs(right)) * epsilon;
+		const Floating value = std::abs(left - right);
+		return value <= relativeEpsilon;
 	}
 
 	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr

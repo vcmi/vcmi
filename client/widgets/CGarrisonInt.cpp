@@ -234,7 +234,8 @@ bool CGarrisonSlot::split()
 	const CGarrisonSlot * selection = owner->getSelection();
 	owner->setSplittingMode(false);
 
-	int minLeft=0, minRight=0;
+	int minLeft=0;
+	int minRight=0;
 
 	if(upg != selection->upg) // not splitting within same army
 	{
@@ -268,14 +269,22 @@ bool CGarrisonSlot::mustForceReselection() const
 {
 	const CGarrisonSlot * selection = owner->getSelection();
 	bool withAlly = selection->our() ^ our();
+
+	// not our turn - actions are blocked
+	if (!LOCPLINT->makingTurn)
+		return true;
+
 	if (!creature || !selection->creature)
 		return false;
+
 	// Attempt to take creatures from ally (select theirs first)
 	if (!selection->our())
 		return true;
+
 	// Attempt to swap creatures with ally (select ours first)
 	if (selection->creature != creature && withAlly)
 		return true;
+
 	if (!owner->removableUnits)
 	{
 		if (selection->upg == EGarrisonType::UPPER)
@@ -314,7 +323,7 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 		{
 			if(creature)
 				owner->selectSlot(this);
-			redraw();
+			owner->redraw();
 			refr = true;
 		}
 		else

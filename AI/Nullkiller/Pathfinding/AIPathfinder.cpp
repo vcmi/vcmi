@@ -17,6 +17,8 @@
 namespace NKAI
 {
 
+std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  AIPathfinder::heroGraphs;
+
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {
@@ -33,19 +35,45 @@ bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile) con
 		|| storage->isTileAccessible(hero, tile, EPathfindingLayer::SAIL);
 }
 
-std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile) const
+void AIPathfinder::calculateQuickPathsWithBlocker(std::vector<AIPath> & result, const std::vector<const CGHeroInstance *> & heroes, const int3 & tile)
+{
+	result.clear();
+
+	for(auto hero : heroes)
+	{
+		auto graph = heroGraphs.find(hero->id);
+
+		if(graph != heroGraphs.end())
+			graph->second->quickAddChainInfoWithBlocker(result, tile, hero, ai);
+	}
+}
+
+void AIPathfinder::calculatePathInfo(std::vector<AIPath> & result, const int3 & tile, bool includeGraph) const
 {
 	const TerrainTile * tileInfo = cb->getTile(tile, false);
 
+	result.clear();
+
 	if(!tileInfo)
 	{
-		return std::vector<AIPath>();
+		return;
 	}
 
-	return storage->getChainInfo(tile, !tileInfo->isWater());
+	storage->calculateChainInfo(result, tile, !tileInfo->isWater());
+
+	if(includeGraph)
+	{
+		for(auto hero : cb->getHeroesInfo())
+		{
+			auto graph = heroGraphs.find(hero->id);
+
+			if(graph != heroGraphs.end())
+				graph->second->addChainInfo(result, tile, hero, ai);
+		}
+	}
 }
 
-void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings)
+void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings)
 {
 	if(!storage)
 	{
@@ -71,13 +99,17 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 		storage->setTownsAndDwellings(cb->getTownsInfo(), ai->memory->visitableObjs);
 	}
 
-	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
+	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage, pathfinderSettings.allowBypassObjects);
 
 	logAi->trace("Recalculate paths pass %d", pass++);
 	cb->calculatePaths(config);
 
 	if(!pathfinderSettings.useHeroChain)
+	{
+		logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+
 		return;
+	}
 
 	do
 	{
@@ -110,6 +142,47 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	} while(storage->increaseHeroChainTurnLimit());
 
 	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+}
+
+void AIPathfinder::updateGraphs(
+	const std::map<const CGHeroInstance *, HeroRole> & heroes,
+	uint8_t mainScanDepth,
+	uint8_t scoutScanDepth)
+{
+	auto start = std::chrono::high_resolution_clock::now();
+	std::vector<const CGHeroInstance *> heroesVector;
+
+	heroGraphs.clear();
+
+	for(auto hero : heroes)
+	{
+		if(heroGraphs.try_emplace(hero.first->id).second)
+		{
+			heroGraphs[hero.first->id] = std::make_unique<GraphPaths>();
+			heroesVector.push_back(hero.first);
+		}
+	}
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, heroesVector.size()), [this, &heroesVector, &heroes, mainScanDepth, scoutScanDepth](const tbb::blocked_range<size_t> & r)
+		{
+			for(auto i = r.begin(); i != r.end(); i++)
+			{
+				auto role = heroes.at(heroesVector[i]);
+				auto scanLimit = role == HeroRole::MAIN ? mainScanDepth : scoutScanDepth;
+
+				heroGraphs.at(heroesVector[i]->id)->calculatePaths(heroesVector[i], ai, scanLimit);
+			}
+		});
+
+	if(NKAI_GRAPH_TRACE_LEVEL >= 1)
+	{
+		for(auto hero : heroes)
+		{
+			heroGraphs[hero.first->id]->dumpToLog();
+		}
+	}
+
+	logAi->trace("Graph paths updated in %lld", timeElapsed(start));
 }
 
 }

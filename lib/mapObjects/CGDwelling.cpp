@@ -16,6 +16,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -43,7 +44,10 @@ void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-CGDwelling::CGDwelling() = default;
+CGDwelling::CGDwelling(IGameCallback *cb):
+	CArmedInstance(cb)
+{}
+
 CGDwelling::~CGDwelling() = default;
 
 FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
@@ -142,7 +146,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 			{
 				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
 
-				if (handler->producesCreature(cid.toCreature()))
+				if (!handler->isBannedForRandomDwelling() && handler->producesCreature(cid.toCreature()))
 					return MapObjectSubID(entry);
 			}
 			return MapObjectSubID();
@@ -285,6 +289,11 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
 	else
 		throw std::runtime_error("Illegal dwelling!");
+
+	if(ID == Obj::REFUGEE_CAMP || (ID == Obj::CREATURE_GENERATOR1 && VLC->creatures()->getById(creatures[0].second[0])->getLevel() != 1))
+	{
+		bd.flags |= BlockingDialog::SAFE_TO_AUTOACCEPT;
+	}
 
 	cb->showBlockingDialog(&bd);
 }

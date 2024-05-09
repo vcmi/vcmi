@@ -98,13 +98,13 @@ Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, in
 
 std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) const
 {
-	std::vector<Canvas> ret = std::vector<Canvas>();
+	auto ret = std::vector<Canvas>();
 
 	CMapService mapService;
 	std::unique_ptr<CMap> map;
 	try
 	{
-		map = mapService.loadMap(resource);
+		map = mapService.loadMap(resource, nullptr);
 	}
 	catch (const std::exception & e)
 	{
@@ -117,7 +117,7 @@ std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) co
 
 std::vector<Canvas> CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map) const
 {
-	std::vector<Canvas> ret = std::vector<Canvas>();
+	auto ret = std::vector<Canvas>();
 
 	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
 		ret.push_back(createMinimapForLayer(map, i));
@@ -161,15 +161,15 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		std::unique_ptr<CMap> campaignMap = nullptr;
 		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), ESerializationVersion::MINIMAL);
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 
-			std::unique_ptr<CMapHeader> mapHeader = std::make_unique<CMapHeader>();
+			auto mapHeader = std::make_unique<CMapHeader>();
 			StartInfo * startInfo;
 			lf >> *(mapHeader) >> startInfo;
 
 			if(startInfo->campState)
-				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario());
+				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario(), nullptr);
 			res = ResourcePath(startInfo->fileURI, EResType::MAP);
 		}
 		if(!campaignMap)

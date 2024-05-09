@@ -255,6 +255,11 @@
 			"description" : "List of configuration files for objects",
 			"items" : { "type" : "string", "format" : "textFile" }
 		},
+		"biomes" : {
+			"type" : "array",
+			"description" : "List of configuration files for biomes",
+			"items" : { "type" : "string", "format" : "textFile" }
+		},
 		"bonuses" : {
 			"type" : "array",
 			"description" : "List of configuration files for bonuses",

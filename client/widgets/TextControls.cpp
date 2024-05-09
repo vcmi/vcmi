@@ -82,9 +82,24 @@ void CLabel::setAutoRedraw(bool value)
 
 void CLabel::setText(const std::string & Txt)
 {
+	assert(TextOperations::isValidUnicodeString(Txt));
+
 	text = Txt;
 	
 	trimText();
+
+	if(autoRedraw)
+	{
+		if(background || !parent)
+			redraw();
+		else
+			parent->redraw();
+	}
+}
+
+void CLabel::clear()
+{
+	text.clear();
 
 	if(autoRedraw)
 	{
@@ -121,7 +136,7 @@ void CLabel::setColor(const ColorRGBA & Color)
 
 size_t CLabel::getWidth()
 {
-	return graphics->fonts[font]->getStringWidth(visibleText());;
+	return graphics->fonts[font]->getStringWidth(visibleText());
 }
 
 CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text) :
@@ -183,29 +198,24 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
-	if(alignment == ETextAlignment::TOPLEFT)
-	{
+
+	if(alignment == ETextAlignment::TOPLEFT || alignment == ETextAlignment::CENTERLEFT  || alignment == ETextAlignment::BOTTOMLEFT)
 		where.x += getBorderSize().x;
+
+	if(alignment == ETextAlignment::CENTER || alignment == ETextAlignment::TOPCENTER || alignment == ETextAlignment::BOTTOMCENTER)
+		where.x += (destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersCount)) / 2;
+
+	if(alignment == ETextAlignment::TOPRIGHT || alignment == ETextAlignment::BOTTOMRIGHT || alignment == ETextAlignment::CENTERRIGHT)
+		where.x += getBorderSize().x + destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersCount);
+
+	if(alignment == ETextAlignment::TOPLEFT || alignment == ETextAlignment::TOPCENTER || alignment == ETextAlignment::TOPRIGHT)
 		where.y += getBorderSize().y;
-	}
 
-	if(alignment == ETextAlignment::TOPCENTER)
-	{
-		where.x += (int(destRect.w) - int(f->getStringWidth(what) - delimitersCount)) / 2;
-		where.y += getBorderSize().y;
-	}
+	if(alignment == ETextAlignment::CENTERLEFT || alignment == ETextAlignment::CENTER || alignment == ETextAlignment::CENTERRIGHT)
+		where.y += (destRect.h - static_cast<int>(f->getLineHeight())) / 2;
 
-	if(alignment == ETextAlignment::CENTER)
-	{
-		where.x += (int(destRect.w) - int(f->getStringWidth(what) - delimitersCount)) / 2;
-		where.y += (int(destRect.h) - int(f->getLineHeight())) / 2;
-	}
-
-	if(alignment == ETextAlignment::BOTTOMRIGHT)
-	{
-		where.x += getBorderSize().x + destRect.w - ((int)f->getStringWidth(what) - delimitersCount);
-		where.y += getBorderSize().y + destRect.h - (int)f->getLineHeight();
-	}
+	if(alignment == ETextAlignment::BOTTOMLEFT || alignment == ETextAlignment::BOTTOMCENTER || alignment == ETextAlignment::BOTTOMRIGHT)
+		where.y += getBorderSize().y + destRect.h - static_cast<int>(f->getLineHeight());
 
 	size_t begin = 0;
 	size_t currDelimeter = 0;
@@ -367,6 +377,17 @@ CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts 
 void CTextBox::sliderMoved(int to)
 {
 	label->scrollTextTo(to);
+}
+
+void CTextBox::trimToFit()
+{
+	if (slider)
+		return;
+
+	pos.w = label->textSize.x;
+	pos.h = label->textSize.y;
+	label->pos.w = label->textSize.x;
+	label->pos.h = label->textSize.y;
 }
 
 void CTextBox::resize(Point newSize)
@@ -551,8 +572,8 @@ Point CGStatusBar::getBorderSize()
 	return Point();
 }
 
-CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, bool giveFocusToInput)
-	: CLabel(Pos.x, Pos.y, font, ETextAlignment::CENTER),
+CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, ETextAlignment alignment, bool giveFocusToInput)
+	: CLabel(Pos.x, Pos.y, font, alignment),
 	cb(CB)
 {
 	setRedrawParent(true);

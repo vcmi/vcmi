@@ -29,15 +29,10 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 
-BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner)
+BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
-	, gameHandler(nullptr)
+	, gameHandler(newGameHandler)
 {
-}
-
-void BattleActionProcessor::setGameHandler(CGameHandler * newGameHandler)
-{
-	gameHandler = newGameHandler;
 }
 
 bool BattleActionProcessor::doEmptyAction(const CBattleInfoCallback & battle, const BattleAction & ba)
@@ -404,7 +399,7 @@ bool BattleActionProcessor::doCatapultAction(const CBattleInfoCallback & battle,
 	if (!canStackAct(battle, stack))
 		return false;
 
-	std::shared_ptr<const Bonus> catapultAbility = stack->getBonusLocalFirst(Selector::type()(BonusType::CATAPULT));
+	std::shared_ptr<const Bonus> catapultAbility = stack->getFirstBonus(Selector::type()(BonusType::CATAPULT));
 	if(!catapultAbility || catapultAbility->subtype == BonusSubtypeID())
 	{
 		gameHandler->complain("We do not know how to shoot :P");
@@ -492,7 +487,7 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	}
 
 	const battle::Unit * destStack = nullptr;
-	std::shared_ptr<const Bonus> healerAbility = stack->getBonusLocalFirst(Selector::type()(BonusType::HEALER));
+	std::shared_ptr<const Bonus> healerAbility = stack->getFirstBonus(Selector::type()(BonusType::HEALER));
 
 	if(target.at(0).unitValue)
 		destStack = target.at(0).unitValue;
@@ -760,7 +755,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 					//TODO we need find batter way to handle double-wide stacks
 					//currently if only second occupied stack part is standing on gate / bridge hex then stack will start to wait for bridge to lower before it's needed. Though this is just a visual bug.
-					if (curStack->doubleWide())
+					if (curStack->doubleWide() && i + 2 < path.first.size())
 					{
 						BattleHex otherHex = curStack->occupiedHex(hex);
 						if (otherHex.isValid() && needOpenGates(otherHex))
@@ -975,7 +970,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			drainedLife += applyBattleEffects(battle, bat, attackerState, fireShield, stack, distance, true);
 	}
 
-	std::shared_ptr<const Bonus> bonus = attacker->getBonusLocalFirst(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 	if(bonus && ranged) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
@@ -1523,26 +1518,27 @@ void BattleActionProcessor::addGenericKilledLog(BattleLogMessage & blm, const CS
 {
 	if(killed > 0)
 	{
-		const int32_t txtIndex = (killed > 1) ? 379 : 378;
-		std::string formatString = VLC->generaltexth->allTexts[txtIndex];
-
-		// these default h3 texts have unnecessary new lines, so get rid of them before displaying (and trim just in case, trimming newlines does not works for some reason)
-		formatString.erase(std::remove(formatString.begin(), formatString.end(), '\n'), formatString.end());
-		formatString.erase(std::remove(formatString.begin(), formatString.end(), '\r'), formatString.end());
-		boost::algorithm::trim(formatString);
-
-		boost::format txt(formatString);
-		if(killed > 1)
-		{
-			txt % killed % (multiple ? VLC->generaltexth->allTexts[43] : defender->unitType()->getNamePluralTranslated()); // creatures perish
-		}
-		else //killed == 1
-		{
-			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->unitType()->getNameSingularTranslated()); // creature perishes
-		}
 		MetaString line;
-		line.appendRawString(txt.str());
-		blm.lines.push_back(std::move(line));
+
+		if (killed > 1)
+		{
+			line.appendTextID("core.genrltxt.379"); // %d %s perished
+			line.replaceNumber(killed);
+		}
+		else
+			line.appendTextID("core.genrltxt.378"); // One %s perishes
+
+		if (multiple)
+		{
+			if (killed > 1)
+				line.replaceTextID("core.genrltxt.43"); // creatures
+			else
+				line.replaceTextID("core.genrltxt.42"); // creature
+		}
+		else
+			line.replaceName(defender->unitType()->getId(), killed);
+
+		blm.lines.push_back(line);
 	}
 }
 
@@ -1573,8 +1569,11 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	else
 	{
 		auto active = battle.battleActiveUnit();
-		if(!active && gameHandler->complain("No active unit in battle!"))
+		if(!active)
+		{
+			gameHandler->complain("No active unit in battle!");
 			return false;
+		}
 
 		if (ba.isUnitAction() && ba.stackNumber != active->unitId())
 		{
@@ -1584,8 +1583,11 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 
 		auto unitOwner = battle.battleGetOwner(active);
 
-		if(player != unitOwner && gameHandler->complain("Can not make actions in battles you are not part of!"))
+		if(player != unitOwner)
+		{
+			gameHandler->complain("Can not make actions in battles you are not part of!");
 			return false;
+		}
 	}
 
 	return makeBattleActionImpl(battle, ba);

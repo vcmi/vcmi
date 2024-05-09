@@ -51,11 +51,11 @@
      <rect>
       <x>0</x>
       <y>20</y>
-      <width>261</width>
+      <width>281</width>
       <height>68</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,0,0">
+    <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,0,1">
      <item row="1" column="0">
       <widget class="QCheckBox" name="twoLevelCheck">
        <property name="text">
@@ -65,6 +65,12 @@
      </item>
      <item row="0" column="2">
       <widget class="QLineEdit" name="widthTxt">
+       <property name="maximumSize">
+        <size>
+         <width>64</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="inputMethodHints">
         <set>Qt::ImhDigitsOnly</set>
        </property>
@@ -85,6 +91,12 @@
      </item>
      <item row="1" column="2">
       <widget class="QLineEdit" name="heightTxt">
+       <property name="maximumSize">
+        <size>
+         <width>64</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="inputMethodHints">
         <set>Qt::ImhDigitsOnly</set>
        </property>
@@ -143,28 +155,43 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>120</width>
+           <width>144</width>
            <height>16777215</height>
           </size>
          </property>
          <item>
           <property name="text">
-           <string>S (36x36)</string>
+           <string>S  (36x36)</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>M (72x72)</string>
+           <string>M  (72x72)</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>L (108x108)</string>
+           <string>L  (108x108)</string>
           </property>
          </item>
          <item>
           <property name="text">
            <string>XL (144x144)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>H  (180x180)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>XH (216x216)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>G  (252x252)</string>
           </property>
          </item>
         </widget>

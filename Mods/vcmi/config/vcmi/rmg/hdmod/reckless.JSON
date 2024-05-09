@@ -1,9 +1,9 @@
 {
 	"Reckless" :
-	//(2 player, 6-Jan-03, midnight design)
 	{
 		"minSize" : "l", "maxSize" : "xl+u",
 		"players" : "2",
+		"description" : "2 players, 6-Jan-03, Midnight design",
 		"zones" :
 		{
 			"1" :

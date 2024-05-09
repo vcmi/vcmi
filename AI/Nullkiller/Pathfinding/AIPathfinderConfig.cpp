@@ -24,16 +24,17 @@ namespace AIPathfinding
 	std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
 		CPlayerSpecificInfoCallback * cb,
 		Nullkiller * ai,
-		std::shared_ptr<AINodeStorage> nodeStorage)
+		std::shared_ptr<AINodeStorage> nodeStorage,
+		bool allowBypassObjects)
 	{
-		std::vector<std::shared_ptr<IPathfindingRule>> rules = {
-			std::make_shared<AILayerTransitionRule>(cb, ai, nodeStorage),
-			std::make_shared<DestinationActionRule>(),
-			std::make_shared<AIMovementToDestinationRule>(nodeStorage),
-			std::make_shared<MovementCostRule>(),
-			std::make_shared<AIPreviousNodeRule>(nodeStorage),
-			std::make_shared<AIMovementAfterDestinationRule>(cb, nodeStorage)
-		};
+			std::vector<std::shared_ptr<IPathfindingRule>> rules = {
+				std::make_shared<AILayerTransitionRule>(cb, ai, nodeStorage),
+				std::make_shared<DestinationActionRule>(),
+				std::make_shared<AIMovementToDestinationRule>(nodeStorage, allowBypassObjects),
+				std::make_shared<MovementCostRule>(),
+				std::make_shared<AIPreviousNodeRule>(nodeStorage),
+				std::make_shared<AIMovementAfterDestinationRule>(ai, cb, nodeStorage, allowBypassObjects)
+			};
 
 		return rules;
 	}
@@ -41,10 +42,12 @@ namespace AIPathfinding
 	AIPathfinderConfig::AIPathfinderConfig(
 		CPlayerSpecificInfoCallback * cb,
 		Nullkiller * ai,
-		std::shared_ptr<AINodeStorage> nodeStorage)
-		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage)), aiNodeStorage(nodeStorage)
+		std::shared_ptr<AINodeStorage> nodeStorage,
+		bool allowBypassObjects)
+		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
 	{
 		options.canUseCast = true;
+		options.allowLayerTransitioningAfterBattle = true;
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;

@@ -1,4 +1,6 @@
 {
+	"library" : "config/widgets/commonPrimitives.json",
+
 	"items":
 	[		
 		{
@@ -8,10 +10,8 @@
 			"rect": {"w": 428, "h": 379}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 5, "y": 5, "w": 418, "h": 20},
-			"color": [0, 0, 0, 75],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 5, "y": 5, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -22,10 +22,8 @@
 			"position": {"x": 214, "y": 15}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 5, "y": 30, "w": 418, "h": 20},
-			"color": [0, 0, 0, 75],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 5, "y": 30, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -37,10 +35,8 @@
 			"position": {"x": 214, "y": 40}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 5, "y": 55, "w": 418, "h": 20},
-			"color": [0, 0, 0, 75],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 5, "y": 55, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -51,10 +47,8 @@
 			"position": {"x": 214, "y": 65}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 29, "y": 79, "w": 171, "h": 171},
-			"color": [0, 0, 0, 255],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 29, "y": 79, "w": 171, "h": 171}
 		},
 		{
 			"type": "label",
@@ -70,10 +64,8 @@
 			"rect": {"x": 30, "y": 80, "w": 169, "h": 169}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 228, "y": 79, "w": 171, "h": 171},
-			"color": [0, 0, 0, 255],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 228, "y": 79, "w": 171, "h": 171}
 		},
 		{
 			"type": "label",
@@ -90,10 +82,8 @@
 			"rect": {"x": 229, "y": 80, "w": 169, "h": 169}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 5, "y": 254, "w": 418, "h": 20},
-			"color": [0, 0, 0, 75],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 5, "y": 254, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -104,10 +94,8 @@
 			"position": {"x": 214, "y": 264}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 5, "y": 279, "w": 418, "h": 20},
-			"color": [0, 0, 0, 75],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 5, "y": 279, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -119,10 +107,8 @@
 			"position": {"x": 214, "y": 289}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 5, "y": 304, "w": 418, "h": 20},
-			"color": [0, 0, 0, 75],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 5, "y": 304, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -133,10 +119,8 @@
 			"position": {"x": 214, "y": 314}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 5, "y": 329, "w": 418, "h": 45},
-			"color": [0, 0, 0, 75],
-			"colorLine": [128, 100, 75, 255]
+			"type": "boxWithBackground",
+			"rect": {"x": 5, "y": 329, "w": 418, "h": 45}
 		},
 		{
 			"type": "textBox",

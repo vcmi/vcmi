@@ -1,0 +1,127 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: activeGameRooms",
+	"description" : "Sent by server to initialized or update list of game rooms",
+	"required" : [ "type", "gameRooms" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "activeGameRooms"
+		},
+		"gameRooms" :
+		{
+			"type" : "array",
+			"description" : "List of currently available game rooms",
+			"items" :
+			{
+				"type" : "object",
+				"additionalProperties" : false,
+				"required" : [ "gameRoomID", "hostAccountID", "hostAccountDisplayName", "description", "participants", "playerLimit", "status", "ageSeconds", "mods", "version" ],
+				"properties" : {
+					"gameRoomID" :
+					{
+						"type" : "string",
+						"description" : "Unique ID of game room"
+					},
+					"hostAccountID" :
+					{
+						"type" : "string",
+						"description" : "ID of account that created and hosts this game room"
+					},
+					"hostAccountDisplayName" :
+					{
+						"type" : "string",
+						"description" : "Display name of account that created and hosts this game room"
+					},
+					"description" :
+					{
+						"type" : "string",
+						"description" : "Auto-generated description of this room"
+					},
+					"participants" :
+					{
+						"type" : "array",
+						"description" : "List of accounts in the room, including host",
+						"items" :
+						{
+							"type" : "object",
+							"additionalProperties" : false,
+							"required" : [ "accountID", "displayName" ],
+							"properties" : {
+								"accountID" :
+								{
+									"type" : "string",
+									"description" : "Unique ID of an account"
+								},
+								"displayName" :
+								{
+									"type" : "string",
+									"description" : "Display name of an account"
+								}
+							}
+						}
+					},
+					"mods" : 
+					{
+						"type" : "array",
+						"description" : "List of gameplay-affecting mods active on server",
+						"items" : {
+							"type" : "object",
+							"additionalProperties" : false,
+							"required" : [ "modId", "name", "version" ],
+							"properties" : {
+								"modId" :
+								{
+									"type" : "string",
+									"description" : "Unique identifier of the mod"
+								},
+								"name" :
+								{
+									"type" : "string",
+									"description" : "Human-readable name of the mod"
+								},
+								"parent" :
+								{
+									"type" : "string",
+									"description" : "Unique ID of parent mod, only for submods"
+								},
+								"version" :
+								{
+									"type" : "string",
+									"description" : "Version of mod, as specified in mod config"
+								}
+							}
+						}
+					},
+					"status" :
+					{
+						"type" : "string",
+						"enum" : [ "idle", "public", "private", "busy", "cancelled", "closed" ],
+						"description" : "Current status of game room"
+					},
+					"playerLimit" :
+					{
+						"type" : "number",
+						"minimum" : 1,
+						"maximum" : 8,
+						"description" : "Maximum number of players that can join this room, including host"
+					},
+					"version" :
+					{
+						"type" : "string",
+						"description" : "Version of match server, e.g. 1.5.0"
+					},
+					"ageSeconds" :
+					{
+						"type" : "number",
+						"description" : "Age of this room in seconds. For example, 10 means that this room was created 10 seconds ago"
+					}
+				}
+			}
+		}
+	}
+}

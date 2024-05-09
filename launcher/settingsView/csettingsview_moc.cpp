@@ -94,7 +94,7 @@ void CSettingsView::loadSettings()
 	ui->comboBoxEnemyPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
 	ui->comboBoxAlliedPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["alliedAI"].String()));
 
-	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
+	ui->spinBoxNetworkPort->setValue(settings["server"]["localPort"].Integer());
 
 	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
 
@@ -395,25 +395,6 @@ void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["cursor"];
 	node->String() = cursorTypesList[index];
-}
-
-void CSettingsView::on_listWidgetSettings_currentRowChanged(int currentRow)
-{
-	QVector<QWidget*> targetWidgets = {
-		ui->labelGeneral,
-		ui->labelVideo,
-		ui->labelArtificialIntelligence,
-		ui->labelRepositories
-	};
-
-	QWidget * currentTarget = targetWidgets[currentRow];
-
-	// We want to scroll in a way that will put target widget in topmost visible position
-	// To show not just header, but all settings in this group as well
-	// In order to do that, let's scroll to the very bottom and the scroll back up until target widget is visible
-	int maxPosition = ui->settingsScrollArea->verticalScrollBar()->maximum();
-	ui->settingsScrollArea->verticalScrollBar()->setValue(maxPosition);
-	ui->settingsScrollArea->ensureWidgetVisible(currentTarget, 5, 5);
 }
 
 void CSettingsView::loadTranslation()

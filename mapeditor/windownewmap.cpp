@@ -17,7 +17,10 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/serializer/JsonSerializer.h"
+#include "../lib/serializer/JsonDeserializer.h"
 
+#include "jsonutils.h"
 #include "windownewmap.h"
 #include "ui_windownewmap.h"
 #include "mainwindow.h"
@@ -52,84 +55,77 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		ui->cpuTeamsCombo->setItemData(i, QVariant(cpuPlayers.at(i)));
 	}
 	
-	for(auto * combo : {ui->humanCombo, ui->cpuCombo, ui->humanTeamsCombo, ui->cpuTeamsCombo})
-		combo->setCurrentIndex(0);
 
-	loadUserSettings();
+	bool useLoaded = loadUserSettings();
+	if (!useLoaded)
+	{
+		for(auto * combo : {ui->humanCombo, ui->cpuCombo, ui->humanTeamsCombo, ui->cpuTeamsCombo})
+			combo->setCurrentIndex(0);
+	}
 
 	show();
 
-	//setup initial parameters
-	int width = ui->widthTxt->text().toInt();
-	int height = ui->heightTxt->text().toInt();
-	mapGenOptions.setWidth(width ? width : 1);
-	mapGenOptions.setHeight(height ? height : 1);
-	bool twoLevel = ui->twoLevelCheck->isChecked();
-	mapGenOptions.setHasTwoLevels(twoLevel);
-	updateTemplateList();
+	if (!useLoaded)
+	{
+		//setup initial parameters
+		int width = ui->widthTxt->text().toInt();
+		int height = ui->heightTxt->text().toInt();
+		mapGenOptions.setWidth(width ? width : 1);
+		mapGenOptions.setHeight(height ? height : 1);
+		bool twoLevel = ui->twoLevelCheck->isChecked();
+		mapGenOptions.setHasTwoLevels(twoLevel);
+
+		updateTemplateList();
+	}
 }
 
 WindowNewMap::~WindowNewMap()
 {
-	saveUserSettings();
 	delete ui;
 }
 
-void WindowNewMap::loadUserSettings()
+bool WindowNewMap::loadUserSettings()
 {
-	//load window settings
+	bool ret = false;
+	CRmgTemplate * templ = nullptr;
+
 	QSettings s(Ui::teamName, Ui::appName);
 
-	auto width = s.value(newMapWidth);
-	if (width.isValid())
-	{
-		ui->widthTxt->setText(width.toString());
-	}
-	auto height = s.value(newMapHeight);
-	if (height.isValid())
-	{
-		ui->heightTxt->setText(height.toString());
-	}
-	for(auto & sz : mapSizes)
-	{
-		if(sz.second.first == width.toInt() && sz.second.second == height.toInt())
-			ui->sizeCombo->setCurrentIndex(sz.first);
-	}
-	auto twoLevel = s.value(newMapTwoLevel);
-	if (twoLevel.isValid())
-	{
-		ui->twoLevelCheck->setChecked(twoLevel.toBool());
-	}
 	auto generateRandom = s.value(newMapGenerateRandom);
 	if (generateRandom.isValid())
 	{
 		ui->randomMapCheck->setChecked(generateRandom.toBool());
 	}
-	auto players = s.value(newMapPlayers);
-	if (players.isValid())
+
+	auto settings = s.value(newMapWindow);
+
+	if (settings.isValid())
 	{
-		ui->humanCombo->setCurrentIndex(players.toInt());
-	}
-	auto cpuPlayers = s.value(newMapCpuPlayers);
-	if (cpuPlayers.isValid())
-	{
-		ui->cpuCombo->setCurrentIndex(cpuPlayers.toInt());
-	}
-	auto teams = s.value(newMapHumanTeams);
-	if(teams.isValid())
-	{
-		ui->humanTeamsCombo->setCurrentIndex(teams.toInt());
-	}
-	auto cputeams = s.value(newMapCpuTeams);
-	if(cputeams.isValid())
-	{
-		ui->cpuTeamsCombo->setCurrentIndex(cputeams.toInt());
-	}
-	
-	auto waterContent = s.value(newMapWaterContent);
-	if (waterContent.isValid())
-	{
-		switch (waterContent.toInt())
+		auto node = JsonUtils::toJson(settings);
+		JsonDeserializer handler(nullptr, node);
+		handler.serializeStruct("lastSettings", mapGenOptions);
+		templ = const_cast<CRmgTemplate*>(mapGenOptions.getMapTemplate()); // Remember for later
+
+		ui->widthTxt->setText(QString::number(mapGenOptions.getWidth()));
+		ui->heightTxt->setText(QString::number(mapGenOptions.getHeight()));
+		for(auto & sz : mapSizes)
+		{
+			if(sz.second.first == mapGenOptions.getWidth() &&
+			sz.second.second == mapGenOptions.getHeight())
+			{
+				ui->sizeCombo->setCurrentIndex(sz.first);
+				break;
+			}
+		}
+
+		ui->twoLevelCheck->setChecked(mapGenOptions.getHasTwoLevels());
+
+		ui->humanCombo->setCurrentIndex(mapGenOptions.getHumanOrCpuPlayerCount());
+		ui->cpuCombo->setCurrentIndex(mapGenOptions.getCompOnlyPlayerCount());
+		ui->humanTeamsCombo->setCurrentIndex(mapGenOptions.getTeamCount());
+		ui->cpuTeamsCombo->setCurrentIndex(mapGenOptions.getCompOnlyTeamCount());
+
+		switch (mapGenOptions.getWaterContent())
 		{
 			case EWaterContent::RANDOM:
 				ui->waterOpt1->setChecked(true); break;
@@ -141,11 +137,7 @@ void WindowNewMap::loadUserSettings()
 				ui->waterOpt4->setChecked(true); break;
 		}
 
-	}
-	auto monsterStrength = s.value(newMapMonsterStrength);
-	if (monsterStrength.isValid())
-	{
-		switch (monsterStrength.toInt())
+		switch (mapGenOptions.getMonsterStrength())
 		{
 			case EMonsterStrength::RANDOM:
 				ui->monsterOpt1->setChecked(true); break;
@@ -156,71 +148,47 @@ void WindowNewMap::loadUserSettings()
 			case EMonsterStrength::GLOBAL_STRONG:
 				ui->monsterOpt4->setChecked(true); break;
 		}
+
+		ret = true;
 	}
 
-	auto templateName = s.value(newMapTemplate);
-	if (templateName.isValid())
+	updateTemplateList();
+	mapGenOptions.setMapTemplate(templ); // Can be null
+
+	if (templ)
 	{
-		updateTemplateList();
-		
-		auto* templ = VLC->tplh->getTemplate(templateName.toString().toStdString());
-		if (templ)
+		std::string name = templ->getName();
+		for (size_t i = 0; i < ui->templateCombo->count(); i++)
 		{
-			ui->templateCombo->setCurrentText(templateName.toString());
-			//TODO: validate inside this method
-			mapGenOptions.setMapTemplate(templ);
+			if (ui->templateCombo->itemText(i).toStdString() == name)
+			{
+				ui->templateCombo->setCurrentIndex(i);
+				break;
+			}
 		}
-		else
-		{
-			//Display problem on status bar
-		}
+		ret = true;
 	}
+
+	return ret;
 }
 
 void WindowNewMap::saveUserSettings()
 {
 	QSettings s(Ui::teamName, Ui::appName);
-	s.setValue(newMapWidth, ui->widthTxt->text().toInt());
-	s.setValue(newMapHeight, ui->heightTxt->text().toInt());
-	s.setValue(newMapTwoLevel, ui->twoLevelCheck->isChecked());
+
+	JsonNode data;
+	JsonSerializer ser(nullptr, data);
+
+	ser.serializeStruct("lastSettings", mapGenOptions);
+
+	auto variant = JsonUtils::toVariant(data);
+	s.setValue(newMapWindow, variant);
 	s.setValue(newMapGenerateRandom, ui->randomMapCheck->isChecked());
-
-	s.setValue(newMapPlayers,ui->humanCombo->currentIndex());
-	s.setValue(newMapCpuPlayers,ui->cpuCombo->currentIndex());
-	s.setValue(newMapHumanTeams, ui->humanTeamsCombo->currentIndex());
-	s.setValue(newMapCpuTeams, ui->cpuTeamsCombo->currentIndex());
-
-	EWaterContent::EWaterContent water = EWaterContent::RANDOM;
-	if(ui->waterOpt1->isChecked())
-		water = EWaterContent::RANDOM;
-	else if(ui->waterOpt2->isChecked())
-		water = EWaterContent::NONE;
-	else if(ui->waterOpt3->isChecked())
-		water = EWaterContent::NORMAL;
-	else if(ui->waterOpt4->isChecked())
-		water = EWaterContent::ISLANDS;
-	s.setValue(newMapWaterContent, static_cast<int>(water));
-
-	EMonsterStrength::EMonsterStrength monster = EMonsterStrength::RANDOM;
-	if(ui->monsterOpt1->isChecked())
-		monster = EMonsterStrength::RANDOM;
-	else if(ui->monsterOpt2->isChecked())
-		monster = EMonsterStrength::GLOBAL_WEAK;
-	else if(ui->monsterOpt3->isChecked())
-		monster = EMonsterStrength::GLOBAL_NORMAL;
-	else if(ui->monsterOpt4->isChecked())
-		monster = EMonsterStrength::GLOBAL_STRONG;
-	s.setValue(newMapMonsterStrength, static_cast<int>(monster));
-
-	auto templateName = ui->templateCombo->currentText();
-	if (templateName.size())
-	{
-		s.setValue(newMapTemplate, templateName);
-	}
 }
 
 void WindowNewMap::on_cancelButton_clicked()
 {
+	saveUserSettings();
 	close();
 }
 
@@ -231,7 +199,7 @@ void generateRandomMap(CMapGenerator & gen, MainWindow * window)
 
 std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 {
-	std::unique_ptr<CMap> map(new CMap);
+	auto map = std::make_unique<CMap>(nullptr);
 	map->version = EMapFormat::VCMI;
 	map->width = options.getWidth();
 	map->height = options.getHeight();
@@ -267,6 +235,8 @@ void WindowNewMap::on_okButton_clicked()
 	mapGenOptions.setWaterContent(water);
 	mapGenOptions.setMonsterStrength(monster);
 	
+	saveUserSettings();
+
 	std::unique_ptr<CMap> nmap;
 	if(ui->randomMapCheck->isChecked())
 	{
@@ -281,7 +251,7 @@ void WindowNewMap::on_okButton_clicked()
 		if(ui->checkSeed->isChecked() && !ui->lineSeed->text().isEmpty())
 			seed = ui->lineSeed->text().toInt();
 			
-		CMapGenerator generator(mapGenOptions, seed);
+		CMapGenerator generator(mapGenOptions, nullptr, seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
 	

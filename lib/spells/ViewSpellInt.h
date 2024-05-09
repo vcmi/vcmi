@@ -8,10 +8,10 @@
  *
  */
 
- #pragma once
+#pragma once
 
- #include "../int3.h"
- #include "../GameConstants.h"
+#include "../int3.h"
+#include "../GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,7 +26,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	ObjectPosInfo() = default;
 	ObjectPosInfo(const CGObjectInstance * obj);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & pos;
 		h & id;

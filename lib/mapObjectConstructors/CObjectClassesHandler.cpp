@@ -12,12 +12,12 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
+#include "../json/JsonUtils.h"
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../CGeneralTextHandler.h"
 #include "../GameSettings.h"
-#include "../JsonNode.h"
 #include "../CSoundBase.h"
 
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
@@ -34,6 +34,7 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/ObstacleSetHandler.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
@@ -42,7 +43,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 CObjectClassesHandler::CObjectClassesHandler()
 {
-#define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
+#define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>
 #define SET_HANDLER(STRING, TYPENAME) handlerConstructors[STRING] = std::make_shared<CDefaultObjectTypeHandler<TYPENAME>>
 
 	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
@@ -204,17 +205,35 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	auto createdObject = handlerConstructors.at(handler)();
 
 	createdObject->modScope = scope;
-	createdObject->typeName = obj->identifier;;
+	createdObject->typeName = obj->identifier;
 	createdObject->subTypeName = identifier;
 
 	createdObject->type = obj->id;
 	createdObject->subtype = index;
 	createdObject->init(entry);
 
+	bool staticObject = createdObject->isStaticObject();
+	if (staticObject)
+	{
+		for (auto & templ : createdObject->getTemplates())
+		{
+			// Register templates for new objects from mods
+			VLC->biomeHandler->addTemplate(scope, templ->stringID, templ);
+		}
+	}
+
 	auto range = legacyTemplates.equal_range(std::make_pair(obj->id, index));
 	for (auto & templ : boost::make_iterator_range(range.first, range.second))
 	{
+		if (staticObject)
+		{
+			// Register legacy templates as "core"
+			// FIXME: Why does it clear stringID?
+			VLC->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
+		}
+
 		createdObject->addTemplate(templ.second);
+
 	}
 	legacyTemplates.erase(range.first, range.second);
 
@@ -259,21 +278,21 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	{
 		if (!subData.second["index"].isNull())
 		{
-			const std::string & subMeta = subData.second["index"].meta;
+			const std::string & subMeta = subData.second["index"].getModScope();
 
 			if ( subMeta == "core")
 			{
 				size_t subIndex = subData.second["index"].Integer();
-				loadSubObject(subData.second.meta, subData.first, subData.second, obj.get(), subIndex);
+				loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get(), subIndex);
 			}
 			else
 			{
 				logMod->error("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
-				loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
+				loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get());
 			}
 		}
 		else
-			loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
+			loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get());
 	}
 
 	if (obj->id == MapObjectID::MONOLITH_TWO_WAY)
@@ -306,7 +325,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 		objects.at(ID.getNum())->objects.resize(subID.getNum()+1);
 
 	JsonUtils::inherit(config, objects.at(ID.getNum())->base);
-	loadSubObject(config.meta, identifier, config, objects.at(ID.getNum()).get(), subID.getNum());
+	loadSubObject(config.getModScope(), identifier, config, objects.at(ID.getNum()).get(), subID.getNum());
 }
 
 void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID)
@@ -332,12 +351,12 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 	}
 	catch (std::out_of_range & e)
 	{
-		// Leave catch block silently
+		// Leave catch block silently and handle error in block outside of try ... catch - all valid values should use 'return' in try block
 	}
 
 	std::string errorString = "Failed to find object of type " + std::to_string(type.getNum()) + "::" + std::to_string(subtype.getNum());
 	logGlobal->error(errorString);
-	throw std::runtime_error(errorString);
+	throw std::out_of_range(errorString);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const

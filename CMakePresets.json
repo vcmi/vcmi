@@ -25,7 +25,7 @@
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "ENABLE_TEST": "OFF",
                 "ENABLE_STRICT_COMPILATION": "ON",
-                "ENABLE_GITVERSION": "$env{VCMI_PACKAGE_GITVERSION}",
+                "ENABLE_GOLDMASTER": "$env{VCMI_PACKAGE_GOLDMASTER}",
                 "ENABLE_PCH" : "OFF"
             }
         },
@@ -51,7 +51,8 @@
             "inherits": "linux-release",
             "hidden": true,
             "cacheVariables": {
-                "ENABLE_TEST": "ON",
+                "ENABLE_LOBBY": "ON",
+				"ENABLE_TEST": "ON",
                 "ENABLE_LUA": "ON"
             }
         },
@@ -66,6 +67,15 @@
             }
         },
         {
+            "name": "linux-clang-release-ccache",
+            "displayName": "Clang x86_64-pc-linux-gnu with ccache",
+            "description": "VCMI Linux Clang with ccache",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "ENABLE_CCACHE": "ON"
+            }
+        },
+        {
             "name": "linux-gcc-release",
             "displayName": "GCC x86_64-pc-linux-gnu",
             "description": "VCMI Linux GCC",
@@ -74,6 +84,15 @@
                 "ENABLE_LUA" : "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-gcc-release-ccache",
+            "displayName": "GCC x86_64-pc-linux-gnu with ccache",
+            "description": "VCMI Linux GCC with ccache",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "ENABLE_CCACHE": "ON"
             }
         },
         {
@@ -107,6 +126,15 @@
                 "ENABLE_LUA" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "windows-mingw-release",
+            "displayName": "Windows x64 MinGW Release",
+            "description": "VCMI Windows Ninja using MinGW",
+            "inherits": "default-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
@@ -285,6 +313,11 @@
             "inherits": "default-release"
         },
         {
+            "name": "linux-clang-release-ccache",
+            "configurePreset": "linux-clang-release-ccache",
+            "inherits": "linux-clang-release"
+        },
+        {
             "name": "linux-clang-test",
             "configurePreset": "linux-clang-test",
             "inherits": "default-release"
@@ -298,6 +331,11 @@
             "name": "linux-gcc-release",
             "configurePreset": "linux-gcc-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release-ccache",
+            "configurePreset": "linux-gcc-release-ccache",
+            "inherits": "linux-gcc-release"
         },
         {
             "name": "linux-gcc-debug",
@@ -322,6 +360,11 @@
         {
             "name": "macos-arm-conan-ninja-release",
             "configurePreset": "macos-arm-conan-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-mingw-release",
+            "configurePreset": "windows-mingw-release",
             "inherits": "default-release"
         },
         {
@@ -408,6 +451,11 @@
         {
             "name": "macos-ninja-release",
             "configurePreset": "macos-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-mingw-release",
+            "configurePreset": "windows-mingw-release",
             "inherits": "default-release"
         },
         {

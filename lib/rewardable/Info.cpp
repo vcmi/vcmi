@@ -17,9 +17,10 @@
 
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
-#include "../JsonRandom.h"
+#include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -74,7 +75,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 
 	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
 		if (entry.isString() && !entry.String().empty() && entry.String()[0] != '@')
-			VLC->generaltexth->registerString(entry.meta, textID, entry.String());
+			VLC->generaltexth->registerString(entry.getModScope(), textID, entry.String());
 	};
 
 	parameters = objectConfig;
@@ -105,14 +106,14 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	loadString(parameters["onEmptyMessage"], TextIdentifier(objectName, "onEmpty"));
 }
 
-Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
+Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const
 {
 	Rewardable::LimitersList result;
 	for (const auto & input : source.Vector())
 	{
 		auto newLimiter = std::make_shared<Rewardable::Limiter>();
 
-		configureLimiter(object, rng, *newLimiter, input);
+		configureLimiter(object, rng, cb, *newLimiter, input);
 
 		result.push_back(newLimiter);
 	}
@@ -120,65 +121,67 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 	return result;
 }
 
-void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const
+void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
+	JsonRandom randomizer(cb);
 
-	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng, variables);
-	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng, variables);
-	limiter.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
-	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
+	limiter.dayOfWeek = randomizer.loadValue(source["dayOfWeek"], rng, variables);
+	limiter.daysPassed = randomizer.loadValue(source["daysPassed"], rng, variables);
+	limiter.heroExperience = randomizer.loadValue(source["heroExperience"], rng, variables);
+	limiter.heroLevel = randomizer.loadValue(source["heroLevel"], rng, variables);
 	limiter.canLearnSkills = source["canLearnSkills"].Bool();
 
-	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables);
-	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng, variables);
+	limiter.manaPercentage = randomizer.loadValue(source["manaPercentage"], rng, variables);
+	limiter.manaPoints = randomizer.loadValue(source["manaPoints"], rng, variables);
 
-	limiter.resources = JsonRandom::loadResources(source["resources"], rng, variables);
+	limiter.resources = randomizer.loadResources(source["resources"], rng, variables);
 
-	limiter.primary = JsonRandom::loadPrimaries(source["primary"], rng, variables);
-	limiter.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
-	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
-	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, variables);
-	limiter.canLearnSpells  = JsonRandom::loadSpells(source["canLearnSpells"], rng, variables);
-	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
+	limiter.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
+	limiter.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
+	limiter.artifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
+	limiter.spells  = randomizer.loadSpells(source["spells"], rng, variables);
+	limiter.canLearnSpells  = randomizer.loadSpells(source["canLearnSpells"], rng, variables);
+	limiter.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
 	
-	limiter.players = JsonRandom::loadColors(source["colors"], rng, variables);
-	limiter.heroes = JsonRandom::loadHeroes(source["heroes"], rng);
-	limiter.heroClasses = JsonRandom::loadHeroClasses(source["heroClasses"], rng);
+	limiter.players = randomizer.loadColors(source["colors"], rng, variables);
+	limiter.heroes = randomizer.loadHeroes(source["heroes"], rng);
+	limiter.heroClasses = randomizer.loadHeroClasses(source["heroClasses"], rng);
 
-	limiter.allOf  = configureSublimiters(object, rng, source["allOf"] );
-	limiter.anyOf  = configureSublimiters(object, rng, source["anyOf"] );
-	limiter.noneOf = configureSublimiters(object, rng, source["noneOf"] );
+	limiter.allOf  = configureSublimiters(object, rng, cb, source["allOf"] );
+	limiter.anyOf  = configureSublimiters(object, rng, cb, source["anyOf"] );
+	limiter.noneOf = configureSublimiters(object, rng, cb, source["noneOf"] );
 }
 
-void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Reward & reward, const JsonNode & source) const
+void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
+	JsonRandom randomizer(cb);
 
-	reward.resources = JsonRandom::loadResources(source["resources"], rng, variables);
+	reward.resources = randomizer.loadResources(source["resources"], rng, variables);
 
-	reward.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
-	reward.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
+	reward.heroExperience = randomizer.loadValue(source["heroExperience"], rng, variables);
+	reward.heroLevel = randomizer.loadValue(source["heroLevel"], rng, variables);
 
-	reward.manaDiff = JsonRandom::loadValue(source["manaPoints"], rng, variables);
-	reward.manaOverflowFactor = JsonRandom::loadValue(source["manaOverflowFactor"], rng, variables);
-	reward.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables, -1);
+	reward.manaDiff = randomizer.loadValue(source["manaPoints"], rng, variables);
+	reward.manaOverflowFactor = randomizer.loadValue(source["manaOverflowFactor"], rng, variables);
+	reward.manaPercentage = randomizer.loadValue(source["manaPercentage"], rng, variables, -1);
 
-	reward.movePoints = JsonRandom::loadValue(source["movePoints"], rng, variables);
-	reward.movePercentage = JsonRandom::loadValue(source["movePercentage"], rng, variables, -1);
+	reward.movePoints = randomizer.loadValue(source["movePoints"], rng, variables);
+	reward.movePercentage = randomizer.loadValue(source["movePercentage"], rng, variables, -1);
 
 	reward.removeObject = source["removeObject"].Bool();
-	reward.bonuses = JsonRandom::loadBonuses(source["bonuses"]);
+	reward.bonuses = randomizer.loadBonuses(source["bonuses"]);
 
-	reward.primary = JsonRandom::loadPrimaries(source["primary"], rng, variables);
-	reward.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
+	reward.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
+	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
 
-	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
-	reward.spells = JsonRandom::loadSpells(source["spells"], rng, variables);
-	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
+	reward.artifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
+	reward.spells = randomizer.loadSpells(source["spells"], rng, variables);
+	reward.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
 	{
-		reward.spellCast.first = JsonRandom::loadSpell(source["spellCast"]["spell"], rng, variables);
+		reward.spellCast.first = randomizer.loadSpell(source["spellCast"]["spell"], rng, variables);
 		reward.spellCast.second = source["spellCast"]["schoolLevel"].Integer();
 	}
 
@@ -187,19 +190,19 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 		auto const & entry = source["revealTiles"];
 
 		reward.revealTiles = RewardRevealTiles();
-		reward.revealTiles->radius = JsonRandom::loadValue(entry["radius"], rng, variables);
+		reward.revealTiles->radius = randomizer.loadValue(entry["radius"], rng, variables);
 		reward.revealTiles->hide = entry["hide"].Bool();
 
-		reward.revealTiles->scoreSurface = JsonRandom::loadValue(entry["surface"], rng, variables);
-		reward.revealTiles->scoreSubterra = JsonRandom::loadValue(entry["subterra"], rng, variables);
-		reward.revealTiles->scoreWater = JsonRandom::loadValue(entry["water"], rng, variables);
-		reward.revealTiles->scoreRock = JsonRandom::loadValue(entry["rock"], rng, variables);
+		reward.revealTiles->scoreSurface = randomizer.loadValue(entry["surface"], rng, variables);
+		reward.revealTiles->scoreSubterra = randomizer.loadValue(entry["subterra"], rng, variables);
+		reward.revealTiles->scoreWater = randomizer.loadValue(entry["water"], rng, variables);
+		reward.revealTiles->scoreRock = randomizer.loadValue(entry["rock"], rng, variables);
 	}
 
 	for ( auto node : source["changeCreatures"].Struct() )
 	{
-		CreatureID from(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.first).value());
-		CreatureID dest(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.second.String()).value());
+		CreatureID from(VLC->identifiers()->getIdentifier(node.second.getModScope(), "creature", node.first).value());
+		CreatureID dest(VLC->identifiers()->getIdentifier(node.second.getModScope(), "creature", node.second.String()).value());
 
 		reward.extraComponents.emplace_back(ComponentType::CREATURE, dest);
 
@@ -214,8 +217,10 @@ void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, CR
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
-void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
+void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const
 {
+	JsonRandom randomizer(cb);
+
 	for(const auto & category : source.Struct())
 	{
 		for(const auto & entry : category.second.Struct())
@@ -225,19 +230,19 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CR
 			int32_t value = -1;
 
 			if (category.first == "number")
-				value = JsonRandom::loadValue(input, rng, object.variables.values);
+				value = randomizer.loadValue(input, rng, object.variables.values);
 
 			if (category.first == "artifact")
-				value = JsonRandom::loadArtifact(input, rng, object.variables.values).getNum();
+				value = randomizer.loadArtifact(input, rng, object.variables.values).getNum();
 
 			if (category.first == "spell")
-				value = JsonRandom::loadSpell(input, rng, object.variables.values).getNum();
+				value = randomizer.loadSpell(input, rng, object.variables.values).getNum();
 
 			if (category.first == "primarySkill")
-				value = JsonRandom::loadPrimary(input, rng, object.variables.values).getNum();
+				value = randomizer.loadPrimary(input, rng, object.variables.values).getNum();
 
 			if (category.first == "secondarySkill")
-				value = JsonRandom::loadSecondary(input, rng, object.variables.values).getNum();
+				value = randomizer.loadSecondary(input, rng, object.variables.values).getNum();
 
 			object.initVariable(category.first, entry.first, value);
 		}
@@ -273,6 +278,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
 		CRandomGenerator & rng,
+		IGameCallback * cb,
 		const JsonNode & source,
 		Rewardable::EEventType event,
 		const std::string & modeName) const
@@ -315,8 +321,8 @@ void Rewardable::Info::configureRewards(
 		}
 
 		Rewardable::VisitInfo info;
-		configureLimiter(object, rng, info.limiter, reward["limiter"]);
-		configureReward(object, rng, info.reward, reward);
+		configureLimiter(object, rng, cb, info.limiter, reward["limiter"]);
+		configureReward(object, rng, cb, info.reward, reward);
 
 		info.visitType = event;
 		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));
@@ -329,15 +335,15 @@ void Rewardable::Info::configureRewards(
 	}
 }
 
-void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng) const
+void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb) const
 {
 	object.info.clear();
 
-	configureVariables(object, rng, parameters["variables"]);
+	configureVariables(object, rng, cb, parameters["variables"]);
 
-	configureRewards(object, rng, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
-	configureRewards(object, rng, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
-	configureRewards(object, rng, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
+	configureRewards(object, rng, cb, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
+	configureRewards(object, rng, cb, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
+	configureRewards(object, rng, cb, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
 
 	object.onSelect = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
 	object.description = loadMessage(parameters["description"], TextIdentifier(objectTextID, "description"));
@@ -401,7 +407,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 	}
 
 	if (object.visitMode == Rewardable::VISIT_LIMITER)
-		configureLimiter(object, rng, object.visitLimiter, parameters["visitLimiter"]);
+		configureLimiter(object, rng, cb, object.visitLimiter, parameters["visitLimiter"]);
 
 }
 

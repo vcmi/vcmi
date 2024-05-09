@@ -12,6 +12,7 @@
 
 #include "CBonusSelection.h"
 #include "TurnOptionsTab.h"
+#include "ExtraOptionsTab.h"
 #include "OptionsTab.h"
 #include "RandomMapTab.h"
 #include "SelectionTab.h"
@@ -22,6 +23,7 @@
 #include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Colors.h"
+#include "../globalLobby/GlobalLobbyClient.h"
 
 #include "../../CCallback.h"
 
@@ -45,19 +47,23 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
 
 		buttonSelect = std::make_shared<CButton>(Point(411, 80), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT_SCENARIO);
-		buttonSelect->addCallback([&]()
+		buttonSelect->addCallback([=]()
 		{
 			toggleTab(tabSel);
-			CSH->setMapInfo(tabSel->getSelectedMapInfo());
+			if (getMapInfo()->isRandomMap)
+				CSH->setMapInfo(tabSel->getSelectedMapInfo());
 		});
 
 		buttonOptions = std::make_shared<CButton>(Point(411, 510), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
 		if(settings["general"]["enableUiEnhancements"].Bool())
-			buttonTurnOptions = std::make_shared<CButton>(Point(619, 510), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabTurnOptions), EShortcut::NONE);
+		{
+			buttonTurnOptions = std::make_shared<CButton>(Point(619, 105), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabTurnOptions), EShortcut::NONE);
+			buttonExtraOptions = std::make_shared<CButton>(Point(619, 510), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabExtraOptions), EShortcut::NONE);
+		}
 	};
 
 	buttonChat = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_HIDE_CHAT);
-	buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
+	buttonChat->setTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
 
 	switch(screenType)
 	{
@@ -65,18 +71,20 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	{
 		tabOpt = std::make_shared<OptionsTab>();
 		tabTurnOptions = std::make_shared<TurnOptionsTab>();
+		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
 		tabRand = std::make_shared<RandomMapTab>();
 		tabRand->mapInfoChanged += std::bind(&IServerAPI::setMapInfo, CSH, _1, _2);
 		buttonRMG = std::make_shared<CButton>(Point(411, 105), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[47], 0, EShortcut::LOBBY_RANDOM_MAP);
-		buttonRMG->addCallback([&]()
+		buttonRMG->addCallback([this]()
 		{
 			toggleTab(tabRand);
-			tabRand->updateMapInfoByHost(); // TODO: This is only needed to force-update mapInfo in CSH when tab is opened
+			if (!getMapInfo()->isRandomMap)
+				tabRand->updateMapInfoByHost();
 		});
 
 		card->iconDifficulty->addCallback(std::bind(&IServerAPI::setDifficulty, CSH, _1));
 
-		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRBEG.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), EShortcut::LOBBY_BEGIN_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRBEG.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), EShortcut::LOBBY_BEGIN_STANDARD_GAME);
 		initLobby();
 		break;
 	}
@@ -84,13 +92,14 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	{
 		tabOpt = std::make_shared<OptionsTab>();
 		tabTurnOptions = std::make_shared<TurnOptionsTab>();
+		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
 		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), EShortcut::LOBBY_LOAD_GAME);
 		initLobby();
 		break;
 	}
 	case ESelectionScreen::campaignList:
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
-		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CButton::tooltip(), std::bind(&CLobbyScreen::startCampaign, this), EShortcut::LOBBY_BEGIN_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CButton::tooltip(), std::bind(&CLobbyScreen::startCampaign, this), EShortcut::LOBBY_BEGIN_CAMPAIGN);
 		break;
 	}
 
@@ -98,15 +107,19 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 
 	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), CGI->generaltexth->zelp[105], [&]()
 	{
+		bool wasInLobbyRoom = CSH->inLobbyRoom();
 		CSH->sendClientDisconnecting();
 		close();
+
+		if (wasInLobbyRoom)
+			CSH->getGlobalLobby().activateInterface();
 	}, EShortcut::GLOBAL_CANCEL);
 }
 
 CLobbyScreen::~CLobbyScreen()
 {
 	// TODO: For now we always destroy whole lobby when leaving bonus selection screen
-	if(CSH->state == EClientState::LOBBY_CAMPAIGN)
+	if(CSH->getState() == EClientState::LOBBY_CAMPAIGN)
 		CSH->sendClientDisconnecting();
 }
 
@@ -122,6 +135,8 @@ void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
 		CSH->sendGuiAction(LobbyGuiAction::OPEN_RANDOM_MAP_OPTIONS);
 	else if(tab == tabTurnOptions)
 		CSH->sendGuiAction(LobbyGuiAction::OPEN_TURN_OPTIONS);
+	else if(tab == tabExtraOptions)
+		CSH->sendGuiAction(LobbyGuiAction::OPEN_EXTRA_OPTIONS);
 	CSelectionBase::toggleTab(tab);
 }
 
@@ -148,6 +163,16 @@ void CLobbyScreen::startCampaign()
 
 void CLobbyScreen::startScenario(bool allowOnlyAI)
 {
+	if (tabRand && CSH->si->mapGenOptions)
+	{
+		// Save RMG settings at game start
+		tabRand->saveOptions(*CSH->si->mapGenOptions);
+	}
+
+	// Save chosen difficulty
+	Settings lastDifficulty = settings.write["general"]["lastDifficulty"];
+	lastDifficulty->Integer() = getCurrentDifficulty();
+
 	if (CSH->validateGameStart(allowOnlyAI))
 	{
 		CSH->sendStartGame(allowOnlyAI);
@@ -163,15 +188,18 @@ void CLobbyScreen::toggleMode(bool host)
 		return;
 
 	auto buttonColor = host ? Colors::WHITE : Colors::ORANGE;
-	buttonSelect->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL, buttonColor);
-	buttonOptions->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL, buttonColor);
+	buttonSelect->setTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL, buttonColor);
+	buttonOptions->setTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL, buttonColor);
 
 	if (buttonTurnOptions)
-		buttonTurnOptions->addTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.turnOptions.hover"), FONT_SMALL, buttonColor);
+		buttonTurnOptions->setTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.turnOptions.hover"), FONT_SMALL, buttonColor);
+
+	if (buttonExtraOptions)
+		buttonExtraOptions->setTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, buttonColor);
 
 	if(buttonRMG)
 	{
-		buttonRMG->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL, buttonColor);
+		buttonRMG->setTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL, buttonColor);
 		buttonRMG->block(!host);
 	}
 	buttonSelect->block(!host);
@@ -180,10 +208,14 @@ void CLobbyScreen::toggleMode(bool host)
 	if (buttonTurnOptions)
 		buttonTurnOptions->block(!host);
 
+	if (buttonExtraOptions)
+		buttonExtraOptions->block(!host);
+
 	if(CSH->mi)
 	{
 		tabOpt->recreate();
 		tabTurnOptions->recreate();
+		tabExtraOptions->recreate();
 	}
 }
 
@@ -191,9 +223,9 @@ void CLobbyScreen::toggleChat()
 {
 	card->toggleChat();
 	if(card->showChat)
-		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
+		buttonChat->setTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
 	else
-		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
+		buttonChat->setTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
 }
 
 void CLobbyScreen::updateAfterStateChange()
@@ -203,7 +235,9 @@ void CLobbyScreen::updateAfterStateChange()
 		if (tabOpt)
 			tabOpt->recreate();
 		if (tabTurnOptions)
-		tabTurnOptions->recreate();
+			tabTurnOptions->recreate();
+		if (tabExtraOptions)
+			tabExtraOptions->recreate();
 	}
 
 	buttonStart->block(CSH->mi == nullptr || CSH->isGuest());

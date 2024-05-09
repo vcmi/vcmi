@@ -84,7 +84,7 @@ private:
 	std::vector<TownDevelopmentInfo> developmentInfos;
 	TResources armyCost;
 	TResources dailyIncome;
-	float goldPreasure;
+	float goldPressure;
 	Nullkiller * ai;
 
 public:
@@ -95,7 +95,8 @@ public:
 	TResources getTotalResourcesRequired() const;
 	const std::vector<TownDevelopmentInfo> & getDevelopmentInfo() const { return developmentInfos; }
 	TResources getDailyIncome() const { return dailyIncome; }
-	float getGoldPreasure() const { return goldPreasure; }
+	float getGoldPressure() const { return goldPressure; }
+	bool isGoldPressureHigh() const;
 	bool hasAnyBuilding(int32_t alignment, BuildingID bid) const;
 
 private:

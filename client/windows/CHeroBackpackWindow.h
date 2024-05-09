@@ -9,15 +9,14 @@
  */
 #pragma once
 
-#include "../widgets/CWindowWithArtifacts.h"
-#include "CWindowObject.h"
+#include "CWindowWithArtifacts.h"
 
 class CFilledTexture;
 
-class CHeroBackpackWindow : public CWindowObject, public CWindowWithArtifacts
+class CHeroBackpackWindow : public CStatusbarWindow, public CWindowWithArtifacts
 {
 public:
-	CHeroBackpackWindow(const CGHeroInstance * hero);
+	CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets);
 	
 protected:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;
@@ -28,7 +27,7 @@ protected:
 	void showAll(Canvas & to) override;
 };
 
-class CHeroQuickBackpackWindow : public CWindowObject, public CWindowWithArtifacts
+class CHeroQuickBackpackWindow : public CWindowWithArtifacts
 {
 public:
 	CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot);

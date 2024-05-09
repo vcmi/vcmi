@@ -41,8 +41,14 @@ public:
 	TacticalAdvantageEngine();
 	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
 private:
-	fl::InputVariable * ourWalkers, *ourShooters, *ourFlyers, *enemyWalkers, *enemyShooters, *enemyFlyers;
-	fl::InputVariable * ourSpeed, *enemySpeed;
+	fl::InputVariable * ourWalkers;
+	fl::InputVariable * ourShooters;
+	fl::InputVariable * ourFlyers;
+	fl::InputVariable * enemyWalkers;
+	fl::InputVariable * enemyShooters;
+	fl::InputVariable * enemyFlyers;
+	fl::InputVariable * ourSpeed;
+	fl::InputVariable * enemySpeed;
 	fl::InputVariable * bankPresent;
 	fl::InputVariable * castleWalls;
 	fl::OutputVariable * threat;

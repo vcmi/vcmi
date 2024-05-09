@@ -21,13 +21,6 @@ class FirstLaunchView : public QWidget
 {
 	Q_OBJECT
 
-	// vcmibuilder script is not available on these platforms
-#if defined(VCMI_WINDOWS) || defined(VCMI_MOBILE) || defined(VCMI_APPLE)
-	static constexpr bool hasVCMIBuilderScript = false;
-#else
-	static constexpr bool hasVCMIBuilderScript = true;
-#endif
-
 	void changeEvent(QEvent *event);
 	CModListView * getModView();
 
@@ -52,7 +45,8 @@ class FirstLaunchView : public QWidget
 	void forceHeroesLanguage(const QString & language);
 
 	QString getHeroesInstallDir();
-	void copyHeroesData(const QString & path = {});
+	void extractGogData();
+	void copyHeroesData(const QString & path = {}, bool move = false);
 
 	// Tab Mod Preset
 	void modPresetUpdate();
@@ -86,7 +80,7 @@ private slots:
 
 	void on_pushButtonDataCopy_clicked();
 
-	void on_pushButtonDataHelp_clicked();
+	void on_pushButtonGogInstall_clicked();
 
 	void on_comboBoxLanguage_currentIndexChanged(int index);
 

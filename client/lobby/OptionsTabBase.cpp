@@ -12,6 +12,7 @@
 #include "CSelectionBase.h"
 
 #include "../widgets/ComboBox.h"
+#include "../widgets/Images.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../CServerHandler.h"
@@ -96,6 +97,18 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
 		info.allowHumanWithAI = index;
 		CSH->setSimturnsInfo(info);
+	});
+
+	addCallback("setCheatAllowed", [&](int index){
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.cheatsAllowed = index;
+		CSH->setExtraOptionsInfo(info);
+	});
+
+	addCallback("setUnlimitedReplay", [&](int index){
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.unlimitedReplay = index;
+		CSH->setExtraOptionsInfo(info);
 	});
 
 	addCallback("setTurnTimerAccumulate", [&](int index){
@@ -283,7 +296,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	}
 }
 
-void OptionsTabBase::recreate()
+void OptionsTabBase::recreate(bool campaign)
 {
 	auto const & generateSimturnsDurationText = [](int days) -> std::string
 	{
@@ -392,5 +405,23 @@ void OptionsTabBase::recreate()
 				if(turnSlider->isActive())
 					w->setItem(1);
 		}
+	}
+
+	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
+	{
+		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.cheatsAllowed);
+		buttonCheatAllowed->block(SEL->screenType == ESelectionScreen::loadGame);
+	}
+
+	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
+	{
+		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
+		buttonUnlimitedReplay->block(SEL->screenType == ESelectionScreen::loadGame);
+	}
+
+	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))
+	{
+		if(!campaign)
+			textureCampaignOverdraw->disable();
 	}
 }

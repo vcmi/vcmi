@@ -13,7 +13,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 enum class EAlignment : int8_t
 {
-	GOOD,
+	ANY = -1,
+	GOOD = 0,
 	EVIL,
 	NEUTRAL
 };
@@ -64,10 +65,10 @@ enum class EMarketMode : int8_t
 enum class EAiTactic : int8_t
 {
 	NONE = -1,
-	RANDOM,
-	WARRIOR,
-	BUILDER,
-	EXPLORER
+	RANDOM = 0,
+	WARRIOR = 1,
+	BUILDER = 2,
+	EXPLORER = 3
 };
 
 enum class EBuildingState : int8_t
@@ -250,6 +251,15 @@ enum class EArmyFormation : int8_t
 {
 	LOOSE,
 	TIGHT
+};
+
+enum class EMovementMode : int8_t
+{
+	STANDARD,
+	DIMENSION_DOOR,
+	MONOLITH,
+	CASTLE_GATE,
+	TOWN_PORTAL,
 };
 
 VCMI_LIB_NAMESPACE_END

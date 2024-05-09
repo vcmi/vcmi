@@ -83,7 +83,8 @@ private:
 
 	struct InvalidTiles
 	{
-		std::set<int3> foreignTiles, nativeTiles;
+		std::set<int3> foreignTiles;
+		std::set<int3> nativeTiles;
 		bool centerPosValid;
 
 		InvalidTiles() : centerPosValid(false) { }

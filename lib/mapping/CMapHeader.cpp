@@ -15,6 +15,7 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CGeneralTextHandler.h"
+#include "../json/JsonUtils.h"
 #include "../modding/CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../Languages.h"
@@ -117,7 +118,7 @@ void CMapHeader::setupEvents()
 }
 
 CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),
-	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
+	twoLevel(true), difficulty(EMapDifficulty::NORMAL), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {
 	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();
@@ -134,7 +135,8 @@ ui8 CMapHeader::levels() const
 void CMapHeader::registerMapStrings()
 {
 	//get supported languages. Assuming that translation containing most strings is the base language
-	std::set<std::string> mapLanguages, mapBaseLanguages;
+	std::set<std::string, std::less<>> mapLanguages;
+	std::set<std::string, std::less<>> mapBaseLanguages;
 	int maxStrings = 0;
 	for(auto & translation : translations.Struct())
 	{
@@ -148,7 +150,7 @@ void CMapHeader::registerMapStrings()
 	
 	if(maxStrings == 0 || mapLanguages.empty())
 	{
-		logGlobal->info("Map %s doesn't have any supported translation", name.toString());
+		logGlobal->trace("Map %s doesn't have any supported translation", name.toString());
 		return;
 	}
 	
@@ -159,7 +161,8 @@ void CMapHeader::registerMapStrings()
 			mapBaseLanguages.insert(translation.first);
 	}
 	
-	std::string baseLanguage, language;
+	std::string baseLanguage;
+	std::string language;
 	//english is preferrable as base language
 	if(mapBaseLanguages.count(Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier))
 		baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;

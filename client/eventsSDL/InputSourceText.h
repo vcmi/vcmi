@@ -21,6 +21,8 @@ struct SDL_TextInputEvent;
 class InputSourceText
 {
 public:
+	InputSourceText();
+
 	void handleEventTextInput(const SDL_TextInputEvent & current);
 	void handleEventTextEditing(const SDL_TextEditingEvent & current);
 

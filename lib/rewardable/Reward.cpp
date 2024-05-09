@@ -63,8 +63,15 @@ Component Rewardable::Reward::getDisplayedComponent(const CGHeroInstance * h) co
 {
 	std::vector<Component> comps;
 	loadComponents(comps, h);
-	assert(!comps.empty());
-	return comps.front();
+
+	if (!comps.empty())
+		return comps.front();
+
+	// Rewardable requested component that represent such rewards, to be used as button in UI selection dialog, e.g. Chest with its experience / money pick
+	// However reward is either completely empty OR has no rewards that target hero can receive OR these rewards have no visible component (e.g. movement)
+	// Such cases are unreachable in H3, however can be reached by mods
+	logMod->warn("Failed to find displayed component for reward!");
+	return Component(ComponentType::NONE, 0);
 }
 
 void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CGHeroInstance * h) const
@@ -102,7 +109,8 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 		comps.emplace_back(ComponentType::ARTIFACT, entry);
 
 	for(const auto & entry : spells)
-		comps.emplace_back(ComponentType::SPELL, entry);
+		if (!h || h->canLearnSpell(entry.toEntity(VLC), true))
+			comps.emplace_back(ComponentType::SPELL, entry);
 
 	for(const auto & entry : creatures)
 		comps.emplace_back(ComponentType::CREATURE, entry.type->getId(), entry.count);

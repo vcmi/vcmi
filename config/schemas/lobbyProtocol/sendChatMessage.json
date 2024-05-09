@@ -1,0 +1,32 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: sendChatMessage",
+	"description" : "Sent by client when player enters a chat message",
+	"required" : [ "type", "messageText", "channelType", "channelName" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "sendChatMessage"
+		},
+		"messageText" :
+		{
+			"type" : "string",
+			"description" : "Text of sent message"
+		},
+		"channelType" :
+		{
+			"type" : "string",
+			"enum" : [ "global", "match", "player" ],
+			"description" : "Type of room to which this message has been set."
+		},
+		"channelName" :
+		{
+			"type" : "string",
+			"description" : "Name of room to which this message has been set. For 'global' this is language, for 'match' and 'player' this is receiver UUID"
+		}
+	}
+}

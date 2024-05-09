@@ -20,9 +20,9 @@ VCMI_LIB_NAMESPACE_END
 class CArtifactsOfHeroKingdom : public CArtifactsOfHeroBase
 {
 public:
+	CArtifactsOfHeroKingdom() = delete;
 	CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,
 		std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll);
-	~CArtifactsOfHeroKingdom();
-	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
-	void pickUpArtifact(CArtPlace & artPlace);
+
+	void deactivate() override;
 };

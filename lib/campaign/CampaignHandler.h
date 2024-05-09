@@ -31,7 +31,7 @@ class DLL_LINKAGE CampaignHandler
 	static CampaignTravel readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
-	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, bool headerOnly);
+	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, const std::string & filename, bool headerOnly);
 
 	static VideoPath prologVideoName(ui8 index);
 	static AudioPath prologMusicName(ui8 index);

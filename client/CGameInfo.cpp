@@ -12,16 +12,13 @@
 
 #include "../lib/VCMI_Lib.h"
 
-const CGameInfo * CGI;
+CGameInfo * CGI;
 CClientState * CCS = nullptr;
 CServerHandler * CSH;
 
 
 CGameInfo::CGameInfo()
 {
-	generaltexth = nullptr;
-	mh = nullptr;
-	townh = nullptr;
 	globalServices = nullptr;
 }
 
@@ -40,6 +37,7 @@ void CGameInfo::setFromLib()
 	terrainTypeHandler = VLC->terrainTypeHandler;
 	battleFieldHandler = VLC->battlefieldsHandler;
 	obstacleHandler = VLC->obstacleHandler;
+	//TODO: biomeHandler?
 }
 
 const ArtifactService * CGameInfo::artifacts() const

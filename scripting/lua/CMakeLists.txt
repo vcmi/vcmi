@@ -83,7 +83,7 @@ set(lib_HDRS
 )
 
 add_library(vcmiLua SHARED ${lib_SRCS} ${lib_HDRS})
-target_link_libraries(vcmiLua Boost::boost luajit::luajit ${VCMI_LIB_TARGET})
+target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
 
 vcmi_set_output_dir(vcmiLua "scripting")
 enable_pch(vcmiLua)

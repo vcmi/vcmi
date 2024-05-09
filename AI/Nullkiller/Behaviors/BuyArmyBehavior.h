@@ -20,13 +20,9 @@ namespace Goals
 	class BuyArmyBehavior : public CGoal<BuyArmyBehavior>
 	{
 	public:
-		BuyArmyBehavior()
-		{
-		}
-
-		virtual Goals::TGoalVec decompose() const override;
-		virtual std::string toString() const override;
-		virtual bool operator==(const BuyArmyBehavior & other) const override
+		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
+		std::string toString() const override;
+		bool operator==(const BuyArmyBehavior & other) const override
 		{
 			return true;
 		}

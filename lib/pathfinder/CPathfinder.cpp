@@ -19,6 +19,8 @@
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "spells/CSpellHandler.h"
 
@@ -47,30 +49,27 @@ bool CPathfinderHelper::canMoveFromNode(const PathNodeInfo & source) const
 	return true;
 }
 
-std::vector<int3> CPathfinderHelper::getNeighbourTiles(const PathNodeInfo & source) const
+void CPathfinderHelper::calculateNeighbourTiles(std::vector<int3> & result, const PathNodeInfo & source) const
 {
-	std::vector<int3> neighbourTiles;
+	result.clear();
 
 	if (!canMoveFromNode(source))
-		return neighbourTiles;
+		return;
 
-	neighbourTiles.reserve(8);
 	getNeighbours(
 		*source.tile,
 		source.node->coord,
-		neighbourTiles,
+		result,
 		boost::logic::indeterminate,
 		source.node->layer == EPathfindingLayer::SAIL);
 
 	if(source.isNodeObjectVisitable())
 	{
-		vstd::erase_if(neighbourTiles, [&](const int3 & tile) -> bool
+		vstd::erase_if(result, [&](const int3 & tile) -> bool
 		{
 			return !canMoveBetween(tile, source.nodeObject->visitablePos());
 		});
 	}
-
-	return neighbourTiles;
 }
 
 CPathfinder::CPathfinder(CGameState * _gs, std::shared_ptr<PathfinderConfig> config): 
@@ -127,6 +126,8 @@ void CPathfinder::calculatePaths()
 		pq.push(initialNode);
 	}
 
+	std::vector<CGPathNode *> neighbourNodes;
+
 	while(!pq.empty())
 	{
 		counter++;
@@ -142,13 +143,13 @@ void CPathfinder::calculatePaths()
 		auto * hlp = config->getOrCreatePathfinderHelper(source, gamestate);
 
 		hlp->updateTurnInfo(turn);
-		if(!movement)
+		if(movement == 0)
 		{
 			hlp->updateTurnInfo(++turn);
 			movement = hlp->getMaxMovePoints(source.node->layer);
 			if(!hlp->passOneTurnLimitCheck(source))
 				continue;
-			if(turn >= hlp->options.turnLimit)
+			if(turn > hlp->options.turnLimit)
 				continue;
 		}
 
@@ -156,43 +157,47 @@ void CPathfinder::calculatePaths()
 		source.updateInfo(hlp, gamestate);
 
 		//add accessible neighbouring nodes to the queue
-		auto neighbourNodes = config->nodeStorage->calculateNeighbours(source, config.get(), hlp);
-		for(CGPathNode * neighbour : neighbourNodes)
+		for(EPathfindingLayer layer = EPathfindingLayer::LAND; layer < EPathfindingLayer::NUM_LAYERS; layer.advance(1))
 		{
-			if(neighbour->locked)
+			if(!hlp->isLayerAvailable(layer))
 				continue;
 
-			if(!hlp->isLayerAvailable(neighbour->layer))
-				continue;
+			config->nodeStorage->calculateNeighbours(neighbourNodes, source, layer, config.get(), hlp);
 
-			destination.setNode(gamestate, neighbour);
-			hlp = config->getOrCreatePathfinderHelper(destination, gamestate);
-
-			if(!hlp->isPatrolMovementAllowed(neighbour->coord))
-				continue;
-
-			/// Check transition without tile accessability rules
-			if(source.node->layer != neighbour->layer && !isLayerTransitionPossible())
-				continue;
-
-			destination.turn = turn;
-			destination.movementLeft = movement;
-			destination.cost = cost;
-			destination.updateInfo(hlp, gamestate);
-			destination.isGuardianTile = destination.guarded && isDestinationGuardian();
-
-			for(const auto & rule : config->rules)
+			for(CGPathNode * neighbour : neighbourNodes)
 			{
-				rule->process(source, destination, config.get(), hlp);
+				if(neighbour->locked)
+					continue;
 
-				if(destination.blocked)
-					break;
-			}
+				destination.setNode(gamestate, neighbour);
+				hlp = config->getOrCreatePathfinderHelper(destination, gamestate);
 
-			if(!destination.blocked)
-				push(destination.node);
+				if(!hlp->isPatrolMovementAllowed(neighbour->coord))
+					continue;
 
-		} //neighbours loop
+				/// Check transition without tile accessability rules
+				if(source.node->layer != neighbour->layer && !isLayerTransitionPossible())
+					continue;
+
+				destination.turn = turn;
+				destination.movementLeft = movement;
+				destination.cost = cost;
+				destination.updateInfo(hlp, gamestate);
+				destination.isGuardianTile = destination.guarded && isDestinationGuardian();
+
+				for(const auto & rule : config->rules)
+				{
+					rule->process(source, destination, config.get(), hlp);
+
+					if(destination.blocked)
+						break;
+				}
+
+				if(!destination.blocked)
+					push(destination.node);
+
+			} //neighbours loop
+		}
 
 		//just add all passable teleport exits
 		hlp = config->getOrCreatePathfinderHelper(source, gamestate);
@@ -325,7 +330,7 @@ bool CPathfinder::isLayerTransitionPossible() const
 	ELayer destLayer = destination.node->layer;
 
 	/// No layer transition allowed when previous node action is BATTLE
-	if(source.node->action == EPathNodeAction::BATTLE)
+	if(!config->options.allowLayerTransitioningAfterBattle && source.node->action == EPathNodeAction::BATTLE)
 		return false;
 
 	switch(source.node->layer.toEnum())
@@ -481,7 +486,7 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 		return false;
 	if(source.node->layer == EPathfindingLayer::AIR)
 	{
-		return options.originalMovementRules && source.node->accessible == EPathAccessibility::ACCESSIBLE;
+		return options.originalFlyRules && source.node->accessible == EPathAccessibility::ACCESSIBLE;
 	}
 
 	return true;

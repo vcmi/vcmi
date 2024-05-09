@@ -27,7 +27,6 @@ class CreatureService;
 class CMap;
 class CGameInfoCallback;
 class CBattleInfoCallback;
-class IGameInfoCallback;
 class JsonNode;
 class CStack;
 class CGObjectInstance;
@@ -60,7 +59,7 @@ public:
 	virtual const CMap * getMap() const = 0;
 	virtual const CGameInfoCallback * getCb() const = 0;
 
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) = 0;	//TODO: remove
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
 
 	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
 };
@@ -81,7 +80,6 @@ public:
 	virtual Mode getMode() const = 0;
 	virtual const Caster * getCaster() const = 0;
 	virtual const CBattleInfoCallback * getBattle() const = 0;
-	virtual const IGameInfoCallback * getGame() const = 0;
 
 	virtual OptionalValue getSpellLevel() const = 0;
 
@@ -114,7 +112,6 @@ public:
 	Mode getMode() const override;
 	const Caster * getCaster() const override;
 	const CBattleInfoCallback * getBattle() const override;
-	const IGameInfoCallback * getGame() const override;
 
 	OptionalValue getSpellLevel() const override;
 
@@ -162,7 +159,6 @@ private:
 	Mode mode;
 	const CSpell * spell;
 	const CBattleInfoCallback * cb;
-	const IGameInfoCallback * gameCb;
 	const Caster * caster;
 };
 
@@ -252,7 +248,6 @@ public:
 #endif
 	virtual const Service * spells() const = 0;
 
-	virtual const IGameInfoCallback * game() const = 0;
 	virtual const CBattleInfoCallback * battle() const = 0;
 
 	const Caster * caster;
@@ -311,7 +306,6 @@ public:
 #endif
 	const Service * spells() const override;
 
-	const IGameInfoCallback * game() const override;
 	const CBattleInfoCallback * battle() const override;
 
 protected:
@@ -335,7 +329,6 @@ private:
 	boost::logic::tribool smart;
 	boost::logic::tribool massive;
 
-	const IGameInfoCallback * gameCb;
 	const CBattleInfoCallback * cb;
 };
 
@@ -361,6 +354,9 @@ class DLL_LINKAGE IAdventureSpellMechanics
 public:
 	IAdventureSpellMechanics(const CSpell * s);
 	virtual ~IAdventureSpellMechanics() = default;
+
+	virtual bool canBeCast(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const = 0;
+	virtual bool canBeCastAt(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
 
 	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 

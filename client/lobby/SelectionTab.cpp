@@ -43,7 +43,6 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/serializer/Connection.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -72,7 +71,10 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (a->defeatIconIndex < b->defeatIconIndex);
 			break;
 		case _playerAm: //by player amount
-			int playerAmntB, humenPlayersB, playerAmntA, humenPlayersA;
+			int playerAmntB;
+			int humenPlayersB;
+			int playerAmntA;
+			int humenPlayersA;
 			playerAmntB = humenPlayersB = playerAmntA = humenPlayersA = 0;
 			for(int i = 0; i < 8; i++)
 			{
@@ -153,19 +155,24 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	OBJ_CONSTRUCTION;
 		
 	generalSortingBy = getSortBySelectionScreen(tabType);
+	sortingBy = _format;
 
 	bool enableUiEnhancements = settings["general"]["enableUiEnhancements"].Bool();
 
 	if(tabType != ESelectionScreen::campaignList)
 	{
-		sortingBy = _format;
 		background = std::make_shared<CPicture>(ImagePath::builtin("SCSELBCK.bmp"), 0, 6);
 		pos = background->pos;
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"), 0);
 		inputName->filters += CTextInput::filenameFilter;
 		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
 
-		int sizes[] = {36, 72, 108, 144, 0};
+		// TODO: Global constants?
+		int sizes[] = {CMapHeader::MAP_SIZE_SMALL,
+						CMapHeader::MAP_SIZE_MIDDLE,
+						CMapHeader::MAP_SIZE_LARGE,
+						CMapHeader::MAP_SIZE_XLARGE,
+						0};
 		const char * filterIconNmes[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 		for(int i = 0; i < 5; i++)
 			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), AnimationPath::builtin(filterIconNmes[i]), CGI->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true)));
@@ -214,8 +221,9 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	if(enableUiEnhancements)
 	{
-		buttonsSortBy.push_back(std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("lobby/selectionTabSortDate"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate)));
-		buttonsSortBy.back()->setAnimateLonelyFrame(true);
+		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate));
+		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
+		buttonsSortBy.push_back(sortByDate);
 	}
 
 	iconsMapFormats = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCSELC.DEF"));
@@ -455,7 +463,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 				}			
 			}
 
-			std::shared_ptr<ElementInfo> folder = std::make_shared<ElementInfo>();
+			auto folder = std::make_shared<ElementInfo>();
 			folder->isFolder = true;
 			folder->folderName = folderName;
 			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
@@ -669,6 +677,9 @@ void SelectionTab::selectFileName(std::string fname)
 
 	filter(-1);
 	selectAbs(-1);
+
+	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
+		inputName->setText("NEWGAME");
 }
 
 std::shared_ptr<ElementInfo> SelectionTab::getSelectedMapInfo() const
@@ -766,7 +777,7 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 			mapInfo->saveInit(file);
 
 			// Filter out other game modes
-			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == StartInfo::CAMPAIGN;
+			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
 			bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
 			bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
 			switch(CSH->getLoadMode())

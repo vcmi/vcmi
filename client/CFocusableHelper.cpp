@@ -7,9 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
 #include "CFocusableHelper.h"
 #include "../Global.h"
-#include "StdInc.h"
 #include "widgets/TextControls.h"
 
 void removeFocusFromActiveInput()

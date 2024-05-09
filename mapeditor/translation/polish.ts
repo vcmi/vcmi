@@ -24,27 +24,27 @@
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="34"/>
         <source>Timed events</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdarzenia czasowe</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="60"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="73"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.cpp" line="101"/>
         <source>New event</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowe zdarzenie</translation>
     </message>
 </context>
 <context>
@@ -52,27 +52,27 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="32"/>
         <source>Map name</source>
-        <translation type="unfinished">Nazwa mapy</translation>
+        <translation>Nazwa mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="42"/>
         <source>Map description</source>
-        <translation type="unfinished">Opis mapy</translation>
+        <translation>Opis mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="76"/>
         <source>Limit maximum heroes level</source>
-        <translation type="unfinished">Ogranicz maksymalny poziom bohaterów</translation>
+        <translation>Ogranicz maksymalny poziom bohaterów</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="85"/>
         <source>Difficulty</source>
-        <translation type="unfinished">Poziom trudności</translation>
+        <translation>Poziom trudności</translation>
     </message>
 </context>
 <context>
@@ -88,7 +88,7 @@
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="14"/>
         <source>Hero skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Umiejętności bohatera</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="28"/>
@@ -96,32 +96,32 @@
         <location filename="../inspector/heroskillswidget.ui" line="48"/>
         <location filename="../inspector/heroskillswidget.ui" line="58"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="97"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="113"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="153"/>
         <source>Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Umiejętność</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="158"/>
         <source>Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Poziom</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="166"/>
         <source>Customize skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Ręcznie ustaw umiejętności</translation>
     </message>
 </context>
 <context>
@@ -129,47 +129,47 @@
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="40"/>
         <source>Defeat message</source>
-        <translation type="unfinished">Komunikat o porażce</translation>
+        <translation>Komunikat o porażce</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="59"/>
         <source>7 days without town</source>
-        <translation type="unfinished">7 dni bez miasta</translation>
+        <translation>7 dni bez miasta</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="72"/>
         <source>Parameters</source>
-        <translation type="unfinished">Parametry</translation>
+        <translation>Parametry</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="37"/>
         <source>No special loss</source>
-        <translation type="unfinished">Bez specjalnych warunków porażki</translation>
+        <translation>Bez specjalnych warunków porażki</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="38"/>
         <source>Lose castle</source>
-        <translation type="unfinished">Utrata miasta</translation>
+        <translation>Utrata miasta</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="39"/>
         <source>Lose hero</source>
-        <translation type="unfinished">Utrata bohatera</translation>
+        <translation>Utrata bohatera</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="40"/>
         <source>Time expired</source>
-        <translation type="unfinished">Upłynięcie czasu</translation>
+        <translation>Upłynięcie czasu</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="41"/>
         <source>Days without town</source>
-        <translation type="unfinished">Dni bez miasta</translation>
+        <translation>Dni bez miasta</translation>
     </message>
 </context>
 <context>
@@ -242,12 +242,12 @@
     <message>
         <location filename="../mainwindow.ui" line="449"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Narzędzia</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="845"/>
         <source>Painting</source>
-        <translation type="unfinished"></translation>
+        <translation>Malowanie</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="897"/>
@@ -267,7 +267,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1014"/>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Podgląd</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1052"/>
@@ -301,7 +301,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1099"/>
-        <location filename="../mainwindow.cpp" line="781"/>
+        <location filename="../mainwindow.cpp" line="782"/>
         <source>View underground</source>
         <translation>Pokaż podziemia</translation>
     </message>
@@ -383,9 +383,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1289"/>
-        <location filename="../mainwindow.cpp" line="1052"/>
-        <location filename="../mainwindow.cpp" line="1056"/>
-        <location filename="../mainwindow.cpp" line="1113"/>
+        <location filename="../mainwindow.cpp" line="1053"/>
+        <location filename="../mainwindow.cpp" line="1057"/>
+        <location filename="../mainwindow.cpp" line="1114"/>
         <source>Update appearance</source>
         <translation>Aktualizuj wygląd</translation>
     </message>
@@ -442,78 +442,78 @@
     <message>
         <location filename="../mainwindow.ui" line="1408"/>
         <source>Translations</source>
-        <translation type="unfinished"></translation>
+        <translation>Tłumaczenia</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1411"/>
         <source>Ctrl+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+T</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1416"/>
         <location filename="../mainwindow.ui" line="1419"/>
         <source>h3m converter</source>
-        <translation type="unfinished"></translation>
+        <translation>konwerter h3m</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1428"/>
         <source>Lock</source>
-        <translation type="unfinished"></translation>
+        <translation>Zablokuj</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1431"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Zablokuj obiekty na mapie by uniknąć przypadkowych zmian</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1434"/>
         <source>Ctrl+L</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+L</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1443"/>
         <source>Unlock</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokuj</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1446"/>
         <source>Unlock all objects on the map</source>
-        <translation type="unfinished"></translation>
+        <translation>Odblokuj wszystkie obiekty na mapie</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1449"/>
         <source>Ctrl+Shift+L</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1458"/>
         <source>Zoom in</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1461"/>
         <source>Ctrl+=</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+=</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1470"/>
         <source>Zoom out</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomniejsz</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1473"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+-</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1482"/>
         <source>Zoom reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślne powiększenie</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1485"/>
         <source>Ctrl+Shift+=</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="258"/>
@@ -546,64 +546,64 @@
         <translation>Mapy VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="623"/>
+        <location filename="../mainwindow.cpp" line="624"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="785"/>
+        <location filename="../mainwindow.cpp" line="786"/>
         <source>View surface</source>
         <translation>Pokaż powierzchnię</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1052"/>
+        <location filename="../mainwindow.cpp" line="1053"/>
         <source>No objects selected</source>
         <translation>Brak wybranych obiektów</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1056"/>
+        <location filename="../mainwindow.cpp" line="1057"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Ta operacja jest nieodwracalna. Czy chcesz kontynuować?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1113"/>
+        <location filename="../mainwindow.cpp" line="1114"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Wystąpiły błędy. %1 obiektów nie zostało zaktualizowanych</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1153"/>
+        <location filename="../mainwindow.cpp" line="1154"/>
         <source>Save to image</source>
         <translation>Zapisz jako obraz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1172"/>
+        <location filename="../mainwindow.cpp" line="1173"/>
         <source>Select maps to convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz mapy do konwersji</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1174"/>
+        <location filename="../mainwindow.cpp" line="1175"/>
         <source>HoMM3 maps(*.h3m)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapy HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1179"/>
         <source>Choose directory to save converted maps</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz folder zapisu skonwertowanych map</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1191"/>
+        <location filename="../mainwindow.cpp" line="1192"/>
         <source>Operation completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Operacja zakończona</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1191"/>
+        <location filename="../mainwindow.cpp" line="1192"/>
         <source>Successfully converted %1 maps</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomyślnie skonwertowano %1 map</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1195"/>
+        <location filename="../mainwindow.cpp" line="1196"/>
         <source>Failed to convert the map. Abort operation</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieudana konwersja mapy. Przerywanie operacji</translation>
     </message>
 </context>
 <context>
@@ -641,12 +641,12 @@
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="137"/>
         <source>Timed</source>
-        <translation type="unfinished"></translation>
+        <translation>Czasowe</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="156"/>
         <source>Rumors</source>
-        <translation type="unfinished"></translation>
+        <translation>Pogłoski</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="179"/>
@@ -677,7 +677,7 @@
 <context>
     <name>MapView</name>
     <message>
-        <location filename="../mapview.cpp" line="623"/>
+        <location filename="../mapview.cpp" line="625"/>
         <source>Can&apos;t place object</source>
         <translation>Nie można umieścić obiektu</translation>
     </message>
@@ -695,47 +695,47 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="32"/>
         <source>Mandatory mods to play this map</source>
-        <translation type="unfinished"></translation>
+        <translation>Mody wymagane do rozegrania tej mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="46"/>
         <source>Mod name</source>
-        <translation type="unfinished">Nazwa modyfikacji</translation>
+        <translation>Nazwa modyfikacji</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="51"/>
         <source>Version</source>
-        <translation type="unfinished">Wersja</translation>
+        <translation>Wersja</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="61"/>
         <source>Automatic assignment</source>
-        <translation type="unfinished">Automatyczne przypisanie</translation>
+        <translation>Automatyczne przypisanie</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="68"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation type="unfinished">Wybierz wymagane modyfikacje bazując na obiektach umeszczonych na mapie. Ta metoda może stworzyć problemy jeśli masz własne nagrody, garnizony itp. z modyfikacji</translation>
+        <translation>Wybierz wymagane modyfikacje bazując na obiektach umieszczonych na mapie. Ta metoda może stworzyć problemy jeśli masz własne nagrody, garnizony itp. z modyfikacji</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
         <source>Map objects mods</source>
-        <translation type="unfinished">Mody od nowych obiektów mapy</translation>
+        <translation>Mody od nowych obiektów mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="81"/>
         <source>Set all mods having a game content as mandatory</source>
-        <translation type="unfinished">Ustaw wszystkie modyfikacje mające nową elementy gry jako obowiązkowe</translation>
+        <translation>Ustaw wszystkie modyfikacje mające nowe elementy gry jako obowiązkowe</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="84"/>
         <source>Full content mods</source>
-        <translation type="unfinished">Mody od złożonej zawartości</translation>
+        <translation>Mody ze złożoną zawartością</translation>
     </message>
 </context>
 <context>
@@ -768,7 +768,7 @@
     <message>
         <location filename="../playerparams.ui" line="164"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="221"/>
@@ -819,18 +819,18 @@
     <message>
         <location filename="../inspector/portraitwidget.ui" line="14"/>
         <source>Portrait</source>
-        <translation type="unfinished"></translation>
+        <translation>Portret</translation>
     </message>
     <message>
         <location filename="../inspector/portraitwidget.ui" line="52"/>
         <location filename="../inspector/portraitwidget.ui" line="71"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../inspector/portraitwidget.ui" line="85"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny</translation>
     </message>
 </context>
 <context>
@@ -838,53 +838,53 @@
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="19"/>
         <source>Beginner</source>
-        <translation type="unfinished"></translation>
+        <translation>Początkujący</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="20"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaawansowany</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="21"/>
         <source>Expert</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekspert</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="35"/>
         <source>Compliant</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyjazny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="36"/>
         <source>Friendly</source>
-        <translation type="unfinished"></translation>
+        <translation>Przychylny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="37"/>
         <source>Aggressive</source>
-        <translation type="unfinished"></translation>
+        <translation>Agresywny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="38"/>
         <source>Hostile</source>
-        <translation type="unfinished"></translation>
+        <translation>Wrogi</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="39"/>
         <source>Savage</source>
-        <translation type="unfinished"></translation>
+        <translation>Nienawistny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="478"/>
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>neutral</source>
-        <translation type="unfinished"></translation>
+        <translation>neutralny</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>UNFLAGGABLE</source>
-        <translation type="unfinished"></translation>
+        <translation>NIEOFLAGOWYWALNY</translation>
     </message>
 </context>
 <context>
@@ -897,127 +897,127 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="28"/>
         <source>Day of week</source>
-        <translation type="unfinished"></translation>
+        <translation>Dzień tygodnia</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="45"/>
         <source>Days passed</source>
-        <translation type="unfinished"></translation>
+        <translation>Dni minęło</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation type="unfinished"></translation>
+        <translation>Poziom bohatera</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation type="unfinished"></translation>
+        <translation>Doświadczenie bohatera</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkty magii</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="156"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation type="unfinished"></translation>
+        <translation>Zabij bohatera/potwora</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="197"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Umiejętności podstawowe</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="221"/>
         <source>Attack</source>
-        <translation type="unfinished"></translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="231"/>
         <source>Defence</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrona</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished"></translation>
+        <translation>Moc</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="251"/>
         <source>Knowledge</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiedza</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Zasoby</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation type="unfinished">Zaklęcia</translation>
+        <translation>Zaklęcia</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Umiejętności</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Stworzenia</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="491"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation type="unfinished">Bohaterowie</translation>
+        <translation>Bohaterowie</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasy bohaterów</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="602"/>
         <source>Players</source>
-        <translation type="unfinished">Gracze</translation>
+        <translation>Gracze</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="34"/>
         <source>None</source>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="36"/>
         <source>Day %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Dzień %1</translation>
     </message>
 </context>
 <context>
@@ -1033,7 +1033,7 @@
         <location filename="../inspector/rewardswidget.ui" line="818"/>
         <location filename="../inspector/rewardswidget.ui" line="1407"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="40"/>
@@ -1041,90 +1041,90 @@
         <location filename="../inspector/rewardswidget.ui" line="825"/>
         <location filename="../inspector/rewardswidget.ui" line="1414"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="61"/>
         <source>Visit mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Tryb odwiedzin</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="82"/>
         <source>Select mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz tryb</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="104"/>
         <source>On select text</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst wyboru</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="111"/>
         <source>Can refuse</source>
-        <translation type="unfinished"></translation>
+        <translation>Można odmówić</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="118"/>
         <source>Reset parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Reset parametrów</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="138"/>
         <source>Period</source>
-        <translation type="unfinished"></translation>
+        <translation>Okres</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="145"/>
         <source> days</source>
-        <translation type="unfinished"></translation>
+        <translation> dni</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="157"/>
         <source>Reset visitors</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj odwiedzających</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="164"/>
         <source>Reset rewards</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj nagrody</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="176"/>
         <source>Window type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ okna</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="196"/>
         <source>Event info</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacje o zdarzeniu</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="214"/>
         <source>Message to be displayed on granting of this reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiadomość do wyświetlenia przy przyznaniu nagrody</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="225"/>
         <source>Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Nagroda</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="245"/>
         <location filename="../inspector/rewardswidget.ui" line="1032"/>
         <source>Hero level</source>
-        <translation type="unfinished"></translation>
+        <translation>Poziom bohatera</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="262"/>
         <location filename="../inspector/rewardswidget.ui" line="1049"/>
         <source>Hero experience</source>
-        <translation type="unfinished"></translation>
+        <translation>Doświadczenie bohatera</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="302"/>
         <location filename="../inspector/rewardswidget.ui" line="1089"/>
         <source>Spell points</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkty magii</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="325"/>
@@ -1132,171 +1132,171 @@
         <location filename="../inspector/rewardswidget.ui" line="379"/>
         <location filename="../inspector/rewardswidget.ui" line="1109"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="338"/>
         <source>Overflow</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepełnienie</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="362"/>
         <source>Movement</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkty ruchu</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="405"/>
         <source>Remove object</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń obiekt</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="414"/>
         <location filename="../inspector/rewardswidget.ui" line="1134"/>
         <source>Primary skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Umiejętności podstawowe</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="429"/>
         <location filename="../inspector/rewardswidget.ui" line="1149"/>
         <source>Attack</source>
-        <translation type="unfinished"></translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="443"/>
         <location filename="../inspector/rewardswidget.ui" line="1159"/>
         <source>Defence</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrona</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="457"/>
         <location filename="../inspector/rewardswidget.ui" line="1169"/>
         <source>Spell power</source>
-        <translation type="unfinished"></translation>
+        <translation>Moc</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="471"/>
         <location filename="../inspector/rewardswidget.ui" line="1179"/>
         <source>Knowledge</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiedza</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="501"/>
         <location filename="../inspector/rewardswidget.ui" line="1205"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Zasoby</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="550"/>
         <location filename="../inspector/rewardswidget.ui" line="1254"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="582"/>
         <location filename="../inspector/rewardswidget.ui" line="1286"/>
         <source>Spells</source>
-        <translation type="unfinished">Zaklęcia</translation>
+        <translation>Zaklęcia</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="614"/>
         <location filename="../inspector/rewardswidget.ui" line="1318"/>
         <source>Skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Umiejętności</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="654"/>
         <location filename="../inspector/rewardswidget.ui" line="1358"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Stworzenia</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="747"/>
         <source>Bonuses</source>
-        <translation type="unfinished"></translation>
+        <translation>Bonusy</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="764"/>
         <location filename="../inspector/rewardswidget.ui" line="856"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas trwania</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="774"/>
         <location filename="../inspector/rewardswidget.ui" line="861"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="784"/>
         <location filename="../inspector/rewardswidget.ui" line="866"/>
         <source>Value</source>
-        <translation type="unfinished">Wartość</translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="875"/>
         <source>Cast</source>
-        <translation type="unfinished"></translation>
+        <translation>Rzucenie zaklęcia</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="881"/>
         <source>Cast an adventure map spell</source>
-        <translation type="unfinished"></translation>
+        <translation>Rzucenie zaklęcia mapy przygody</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="890"/>
         <source>Spell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaklęcie</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="911"/>
         <source>Magic school level</source>
-        <translation type="unfinished"></translation>
+        <translation>Poziom szkoły czarów</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="961"/>
         <source>Limiter</source>
-        <translation type="unfinished"></translation>
+        <translation>Limiter</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="981"/>
         <source>Day of week</source>
-        <translation type="unfinished"></translation>
+        <translation>Dzień tygodnia</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="998"/>
         <source>Days passed</source>
-        <translation type="unfinished"></translation>
+        <translation>Dni minęło</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1454"/>
         <source>Heroes</source>
-        <translation type="unfinished">Bohaterowie</translation>
+        <translation>Bohaterowie</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1486"/>
         <source>Hero classes</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasy bohaterów</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1518"/>
         <source>Players</source>
-        <translation type="unfinished">Gracze</translation>
+        <translation>Gracze</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="45"/>
         <source>None</source>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="47"/>
         <source>Day %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Dzień %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="234"/>
         <location filename="../inspector/rewardswidget.cpp" line="605"/>
         <source>Reward %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nagroda %1</translation>
     </message>
 </context>
 <context>
@@ -1304,27 +1304,27 @@
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="37"/>
         <source>Tavern rumors</source>
-        <translation type="unfinished"></translation>
+        <translation>Pogłoski w karczmie</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="63"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="82"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.cpp" line="59"/>
         <source>New rumor</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowa pogłoska</translation>
     </message>
 </context>
 <context>
@@ -1332,62 +1332,62 @@
     <message>
         <location filename="../mapsettings/timedevent.ui" line="17"/>
         <source>Timed event</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdarzenie czasowe</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="28"/>
         <source>Event name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa zdarzenia</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="35"/>
         <source>Type event message text</source>
-        <translation type="unfinished"></translation>
+        <translation>Wpisz treść komunikatu zdarzenia</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="47"/>
         <source>affects human</source>
-        <translation type="unfinished"></translation>
+        <translation>dotyczy graczy ludzkich</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="54"/>
         <source>affects AI</source>
-        <translation type="unfinished"></translation>
+        <translation>dotyczy graczy AI</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
         <source>Day of first occurance</source>
-        <translation type="unfinished"></translation>
+        <translation>Dzień pierwszego wystąpienia</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="87"/>
         <source>Repeat after (0 = no repeat)</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtórz po... (0 = nigdy)</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="108"/>
         <source>Affected players</source>
-        <translation type="unfinished"></translation>
+        <translation>Dotyczy graczy</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="131"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Zasoby</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="190"/>
         <source>type</source>
-        <translation type="unfinished"></translation>
+        <translation>typ</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="195"/>
         <source>qty</source>
-        <translation type="unfinished"></translation>
+        <translation>ilość</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="203"/>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
 </context>
 <context>
@@ -1403,43 +1403,43 @@
     <message>
         <location filename="../mapsettings/translations.ui" line="14"/>
         <source>Map translations</source>
-        <translation type="unfinished"></translation>
+        <translation>Tłumaczenia mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="31"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Język</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
         <source>Suppported</source>
-        <translation type="unfinished"></translation>
+        <translation>Wspierany</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="70"/>
         <source>String ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID tekstu</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="75"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="156"/>
         <location filename="../mapsettings/translations.cpp" line="160"/>
         <source>Remove translation</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń tłumaczenie</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="156"/>
         <source>Default language cannot be removed</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny język nie może zostać usunięty</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="160"/>
         <source>All existing text records for this language will be removed. Continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie istniejące wpisy dla tego języka zostaną usunięte. Kontynuować?</translation>
     </message>
 </context>
 <context>
@@ -1565,72 +1565,72 @@
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="40"/>
         <source>Victory message</source>
-        <translation type="unfinished">Komunikat zwycięstwa</translation>
+        <translation>Komunikat zwycięstwa</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="59"/>
         <source>Only for human players</source>
-        <translation type="unfinished">Dotyczy tylko graczy ludzkich</translation>
+        <translation>Dotyczy tylko graczy ludzkich</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="66"/>
         <source>Allow standard victory</source>
-        <translation type="unfinished">Także standardowy warunek zwycięstwa</translation>
+        <translation>Także standardowy warunek zwycięstwa</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="79"/>
         <source>Parameters</source>
-        <translation type="unfinished">Parametry</translation>
+        <translation>Parametry</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="36"/>
         <source>No special victory</source>
-        <translation type="unfinished">Bez specjalnych warunków zwycięstwa</translation>
+        <translation>Bez specjalnych warunków zwycięstwa</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="37"/>
         <source>Capture artifact</source>
-        <translation type="unfinished">Zdobądź artefakt</translation>
+        <translation>Zdobądź artefakt</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="38"/>
         <source>Hire creatures</source>
-        <translation type="unfinished">Zdobądź stworzenia</translation>
+        <translation>Zdobądź stworzenia</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
         <source>Accumulate resources</source>
-        <translation type="unfinished">Zbierz zasoby</translation>
+        <translation>Zbierz zasoby</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
         <source>Construct building</source>
-        <translation type="unfinished">Zbuduj budynek</translation>
+        <translation>Zbuduj budynek</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
         <source>Capture town</source>
-        <translation type="unfinished">Zdobądź miasto</translation>
+        <translation>Zdobądź miasto</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Defeat hero</source>
-        <translation type="unfinished">Pokonaj bohatera</translation>
+        <translation>Pokonaj bohatera</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Transport artifact</source>
-        <translation type="unfinished">Przenieś artefakt</translation>
+        <translation>Przenieś artefakt</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Kill monster</source>
-        <translation type="unfinished"></translation>
+        <translation>Zabij potwora</translation>
     </message>
 </context>
 <context>

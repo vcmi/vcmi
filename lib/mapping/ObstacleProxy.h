@@ -19,6 +19,8 @@ class CMapEditManager;
 class CGObjectInstance;
 class ObjectTemplate;
 class CRandomGenerator;
+class IGameCallback;
+class ObstacleSetFilter;
 
 class DLL_LINKAGE ObstacleProxy
 {
@@ -28,6 +30,7 @@ public:
 	virtual ~ObstacleProxy() = default;
 
 	void collectPossibleObstacles(TerrainId terrain);
+	bool prepareBiome(const ObstacleSetFilter & filter, CRandomGenerator & rand);
 
 	void addBlockedTile(const int3 & tile);
 
@@ -41,7 +44,7 @@ public:
 
 	virtual void placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances);
 
-	virtual std::set<CGObjectInstance*> createObstacles(CRandomGenerator & rand);
+	virtual std::set<CGObjectInstance*> createObstacles(CRandomGenerator & rand, IGameCallback * cb);
 
 	virtual bool isInTheMap(const int3& tile) = 0;
 	
@@ -50,7 +53,8 @@ public:
 	virtual void postProcess(const rmg::Object& object) {};
 
 protected:
-	int getWeightedObjects(const int3& tile, CRandomGenerator& rand, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
+	int getWeightedObjects(const int3& tile, CRandomGenerator& rand, IGameCallback * cb, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
+	void sortObstacles();
 
 	rmg::Area blockedArea;
 

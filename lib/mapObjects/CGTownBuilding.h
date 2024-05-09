@@ -22,9 +22,12 @@ class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
 ///basic class for town structures handled as map objects
 public:
+	CGTownBuilding(CGTownInstance * town);
+	CGTownBuilding(IGameCallback *cb);
+
 	si32 indexOnTV = 0; //identifies its index on towns vector
 	
-	CGTownInstance * town = nullptr;
+	CGTownInstance * town;
 
 	STRONG_INLINE
 	BuildingSubID::EBuildingSubID getBuildingSubtype() const
@@ -51,7 +54,7 @@ public:
 	int3 visitablePos() const override;
 	int3 getPosition() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & bID;
 		h & indexOnTV;
@@ -74,9 +77,9 @@ public:
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
 	COPWBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
-	COPWBonus() = default;
+	COPWBonus(IGameCallback *cb);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTownBuilding&>(*this);
 		h & visitors;
@@ -93,9 +96,9 @@ public:
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
 	CTownBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
-	CTownBonus() = default;
+	CTownBonus(IGameCallback *cb);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTownBuilding&>(*this);
 		h & visitors;
@@ -131,9 +134,9 @@ public:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	
 	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * town, CRandomGenerator & rand);
-	CTownRewardableBuilding() = default;
+	CTownRewardableBuilding(IGameCallback *cb);
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTownBuilding&>(*this);
 		h & static_cast<Rewardable::Interface&>(*this);

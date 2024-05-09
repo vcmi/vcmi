@@ -30,10 +30,12 @@ private:
 	std::vector<Goals::TGoalVec> goals;
 	std::vector<TGoalHashSet> decompositionCache;
 	int depth;
+	const Nullkiller * ai;
 
 public:
+	DeepDecomposer(const Nullkiller * ai);
 	void reset();
-	Goals::TGoalVec decompose(Goals::TSubgoal behavior, int depthLimit);
+	void decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int depthLimit);
 
 private:
 	Goals::TSubgoal aggregateGoals(int startDepth, Goals::TSubgoal last);

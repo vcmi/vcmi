@@ -26,6 +26,7 @@
 CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax)
 	: slotsColumnsMax(slotsColumnsMax)
 	, slotsRowsMax(slotsRowsMax)
+	, backpackPos(0)
 {
 	setRedrawParent(true);
 }
@@ -41,36 +42,23 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 	initAOHbackpack(visibleCapacityMax, backpackCap < 0 || visibleCapacityMax < backpackCap);
 }
 
-void CArtifactsOfHeroBackpack::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
+void CArtifactsOfHeroBackpack::onSliderMoved(int newVal)
 {
-	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
-}
-
-void CArtifactsOfHeroBackpack::pickUpArtifact(CArtPlace & artPlace)
-{
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
-		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
-}
-
-void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
-{
-	if(backpackListBox)
-		backpackListBox->resize(getActiveSlotRowsNum());
-	backpackPos += offset;
-	auto slot = ArtifactPosition::BACKPACK_START + backpackPos;
-	for(auto artPlace : backpack)
-	{
-		setSlotData(artPlace, slot, *curHero);
-		slot = slot + 1;
-	}
-	redraw();
+	backpackPos += newVal;
+	updateBackpackSlots();
 }
 
 void CArtifactsOfHeroBackpack::updateBackpackSlots()
 {
 	if(backpackListBox)
 		backpackListBox->resize(getActiveSlotRowsNum());
-	CArtifactsOfHeroBase::updateBackpackSlots();
+	auto slot = ArtifactPosition::BACKPACK_START + backpackPos;
+	for(const auto & artPlace : backpack)
+	{
+		setSlotData(artPlace, slot);
+		slot = slot + 1;
+	}
+	redraw();
 }
 
 size_t CArtifactsOfHeroBackpack::getActiveSlotRowsNum()
@@ -109,7 +97,7 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 		};
 		CListBoxWithCallback::MovedPosCallback posMoved = [this](size_t pos) -> void
 		{
-			scrollBackpack(static_cast<int>(pos) * slotsColumnsMax - backpackPos);
+			onSliderMoved(static_cast<int>(pos) * slotsColumnsMax - backpackPos);
 		};
 		backpackListBox = std::make_shared<CListBoxWithCallback>(
 			posMoved, onCreate, Point(0, 0), Point(0, 0), slotsRowsMax, 0, 0, 1,
@@ -188,9 +176,9 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		initAOHbackpack(requiredSlots, false);
 		auto artPlace = backpack.begin();
 		for(auto & art : filteredArts)
-			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second), *curHero);
+			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second));
 		for(auto & art : filteredScrolls)
-			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second), *curHero);
+			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second));
 	}
 }
 
@@ -215,5 +203,5 @@ void CArtifactsOfHeroQuickBackpack::swapSelected()
 			break;
 		}
 	if(backpackLoc.slot != ArtifactPosition::PRE_FIRST && filterBySlot != ArtifactPosition::PRE_FIRST && curHero)
-		swapArtifacts(backpackLoc, ArtifactLocation(curHero->id, filterBySlot));
+		LOCPLINT->cb->swapArtifacts(backpackLoc, ArtifactLocation(curHero->id, filterBySlot));
 }

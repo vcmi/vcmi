@@ -1,6 +1,3 @@
-namespace Nullkiller
-{
-
 /*
 * GatherArmy.h, part of VCMI engine
 *
@@ -13,6 +10,9 @@ namespace Nullkiller
 #pragma once
 
 #include "CGoal.h"
+
+namespace Nullkiller
+{
 
 struct HeroPtr;
 class AIGateway;
@@ -36,7 +36,7 @@ namespace Goals
 		TGoalVec getAllPossibleSubgoals() override;
 		TSubgoal whatToDoToAchieve() override;
 		std::string completeMessage() const override;
-		virtual bool operator==(const GatherArmy & other) const override;
+		bool operator==(const GatherArmy & other) const override;
 	};
 }
 

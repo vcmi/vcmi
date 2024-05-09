@@ -12,6 +12,7 @@
 
 #include "QueriesProcessor.h"
 #include "../CGameHandler.h"
+#include "../TurnTimerHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
@@ -30,12 +31,12 @@ bool TimerPauseQuery::blocksPack(const CPack *pack) const
 
 void TimerPauseQuery::onAdding(PlayerColor color)
 {
-	gh->turnTimerHandler.setTimerEnabled(color, false);
+	gh->turnTimerHandler->setTimerEnabled(color, false);
 }
 
 void TimerPauseQuery::onRemoval(PlayerColor color)
 {
-	gh->turnTimerHandler.setTimerEnabled(color, true);
+	gh->turnTimerHandler->setTimerEnabled(color, true);
 }
 
 bool TimerPauseQuery::endsByPlayerAnswer() const
@@ -128,6 +129,9 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 	if(auto arts = dynamic_ptr_cast<BulkExchangeArtifacts>(pack))
 		return !vstd::contains(ourIds, arts->srcHero) || !vstd::contains(ourIds, arts->dstHero);
 
+	if(auto arts = dynamic_ptr_cast<ManageBackpackArtifacts>(pack))
+		return !vstd::contains(ourIds, arts->artHolder);
+
 	if(auto art = dynamic_ptr_cast<EraseArtifactByClient>(pack))
 	{
 		if(auto id = art->al.artHolder)
@@ -198,6 +202,12 @@ bool OpenWindowQuery::blocksPack(const CPack *pack) const
 	if (mode == EOpenWindowMode::MARKET_WINDOW)
 	{
 		if(dynamic_ptr_cast<ExchangeArtifacts>(pack) != nullptr)
+			return false;
+
+		if(dynamic_ptr_cast<BulkExchangeArtifacts>(pack) != nullptr)
+			return false;
+
+		if(dynamic_ptr_cast<ManageBackpackArtifacts>(pack) != nullptr)
 			return false;
 
 		if(dynamic_ptr_cast<AssembleArtifacts>(pack))

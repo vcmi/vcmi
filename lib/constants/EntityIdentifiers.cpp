@@ -53,6 +53,9 @@ const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
+const HeroTypeID HeroTypeID::GEM(27);
+const HeroTypeID HeroTypeID::SOLMYR(45);
+
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER(-2);
@@ -149,6 +152,16 @@ std::string HeroClassID::encode(const si32 index)
 std::string HeroClassID::entityType()
 {
 	return "heroClass";
+}
+
+const CHeroClass * HeroClassID::toHeroClass() const
+{
+	return dynamic_cast<const CHeroClass*>(toEntity(VLC));
+}
+
+const HeroClass * HeroClassID::toEntity(const Services * services) const
+{
+	return services->heroClasses()->getByIndex(num);
 }
 
 si32 ObjectInstanceID::decode(const std::string & identifier)
@@ -349,6 +362,10 @@ const HeroType * HeroTypeID::toEntity(const Services * services) const
 
 si32 SpellID::decode(const std::string & identifier)
 {
+	if (identifier == "preset")
+		return SpellID::PRESET;
+	if (identifier == "spellbook_preset")
+		return SpellID::SPELLBOOK_PRESET;
 	return resolveIdentifier("spell", identifier);
 }
 
@@ -356,6 +373,10 @@ std::string SpellID::encode(const si32 index)
 {
 	if (index == -1)
 		return "";
+	if (index == SpellID::PRESET)
+		return "preset";
+	if (index == SpellID::SPELLBOOK_PRESET)
+		return "spellbook_preset";
 	return VLC->spells()->getByIndex(index)->getJsonKey();
 }
 
@@ -443,6 +464,11 @@ std::string FactionID::encode(const si32 index)
 std::string FactionID::entityType()
 {
 	return "faction";
+}
+
+const CFaction * FactionID::toFaction() const
+{
+	return dynamic_cast<const CFaction*>(toEntity(VLC));
 }
 
 const Faction * FactionID::toEntity(const Services * service) const

@@ -25,6 +25,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -741,7 +742,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * 
 {
 	RETURN_IF_NOT_BATTLE({});
 	auto reachability = battleGetDistances(attacker, attacker->getPosition());
-	int getMovementRange = reachability[attackerPosition];
+	int getMovementRange = attackerPosition.isValid() ? reachability[attackerPosition] : 0;
 	return battleEstimateDamage(attacker, defender, getMovementRange, retaliationDmg);
 }
 
@@ -796,7 +797,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 
 std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking) const
 {
-	std::vector<std::shared_ptr<const CObstacleInstance>> obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
+	auto obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
 	RETURN_IF_NOT_BATTLE(obstacles);
 	for(auto & obs : battleGetAllObstacles())
 	{

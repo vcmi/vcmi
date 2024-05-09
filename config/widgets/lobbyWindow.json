@@ -1,0 +1,211 @@
+{
+	"customTypes" : {
+		"labelTitleMain" : {
+			"type": "label",
+			"font": "big",
+			"alignment": "left",
+			"color": "yellow"
+		},
+		"labelTitle" : {
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "yellow"
+		},
+		"backgroundTexture" : {
+			"type": "texture",
+			"font": "tiny",
+			"color" : "blue",
+			"image": "DIBOXBCK"
+		},
+		"areaFilled":{
+			"type": "transparentFilledRectangle",
+			"color": [0, 0, 0, 75],
+			"colorLine": [64, 80, 128, 255]
+		}
+	},
+	
+	
+	"width": 1024,
+	"height": 600,
+	
+	"items":
+	[
+		{
+			"type": "backgroundTexture",
+			"rect": {"w": 1024, "h": 600}
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 5, "y": 5, "w": 250, "h": 40}
+		},
+		{
+			"name" : "accountNameLabel",
+			"type": "labelTitleMain",
+			"position": {"x": 15, "y": 10}
+		},
+
+		{
+			"type": "areaFilled",
+			"rect": {"x": 5, "y": 50, "w": 250, "h": 500}
+		},
+		{
+			"name" : "headerRoomList",
+			"type": "labelTitle",
+			"position": {"x": 15, "y": 53}
+		},
+		{
+			"type" : "lobbyItemList",
+			"name" : "roomList",
+			"itemType" : "room",
+			"position" : { "x" : 7, "y" : 68 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"sliderPosition" : { "x" : 230, "y" : 0 },
+			"sliderSize" : { "x" : 480, "y" : 480 },
+			"visibleAmount" : 12
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 270, "y": 50, "w": 150, "h": 140}
+		},
+		{
+			"name" : "headerChannelList",
+			"type": "labelTitle",
+			"position": {"x": 280, "y": 53}
+		},
+		{
+			"type" : "lobbyItemList",
+			"name" : "channelList",
+			"itemType" : "channel",
+			"position" : { "x" : 272, "y" : 68 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"visibleAmount" : 3
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 270, "y": 210, "w": 150, "h": 380}
+		},
+		{
+			"name" : "headerMatchList",
+			"type": "labelTitle",
+			"position": {"x": 280, "y": 213}
+		},
+		{
+			"type" : "lobbyItemList",
+			"name" : "matchList",
+			"itemType" : "match",
+			"position" : { "x" : 272, "y" : 228 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"sliderPosition" : { "x" : 130, "y" : 0 },
+			"sliderSize" : { "x" : 360, "y" : 360 },
+			"visibleAmount" : 9
+		},
+
+		{
+			"type": "areaFilled",
+			"rect": {"x": 430, "y": 50, "w": 430, "h": 515}
+		},
+		{
+			"name" : "headerGameChat",
+			"type": "labelTitle",
+			"position": {"x": 440, "y": 53}
+		},
+		{
+			"type": "textBox",
+			"name": "gameChat",
+			"font": "small",
+			"alignment": "left",
+			"color": "white",
+			"blueTheme" : true,
+			"rect": {"x": 440, "y": 68, "w": 418, "h": 495}
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 430, "y": 565, "w": 397, "h": 25}
+		},
+		{
+			"name" : "messageInput",
+			"type": "textInput",
+			"alignment" : "left",
+			"rect": {"x": 440, "y": 568, "w": 377, "h": 20}
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 870, "y": 50, "w": 150, "h": 540}
+		},
+		{
+			"name": "headerAccountList",
+			"type": "labelTitle",
+			"position": {"x": 880, "y": 53}
+		},
+		{
+			"type" : "lobbyItemList",
+			"name" : "accountList",
+			"itemType" : "account",
+			"position" : { "x" : 872, "y" : 68 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"sliderPosition" : { "x" : 130, "y" : 0 },
+			"sliderSize" : { "x" : 520, "y" : 520 },
+			"visibleAmount" : 13
+		},
+
+		{
+			"type": "button",
+			"position": {"x": 870, "y": 10},
+			"image": "lobbyHideWindow",
+			"help": "core.help.288",
+			"callback": "closeWindow",
+			"hotkey": "globalCancel",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "core.help.561.hover" // Back
+				}
+			]
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 828, "y": 565},
+			"image": "lobbySendMessage",
+			"help": "core.help.288",
+			"callback": "sendMessage",
+			"hotkey": "globalAccept",
+			"items":
+			[
+				{
+					"type": "picture",
+					"image": "lobby/iconSend"
+				}
+			]
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 10, "y": 555},
+			"image": "lobbyCreateRoom",
+			"help": "core.help.288",
+			"callback": "createGameRoom",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "vcmi.lobby.room.create"
+				}
+			]
+		},
+
+	]
+}

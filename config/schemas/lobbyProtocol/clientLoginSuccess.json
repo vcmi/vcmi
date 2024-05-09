@@ -1,0 +1,26 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: clientLoginSuccess",
+	"description" : "Sent by server once player sucesfully logs into the lobby",
+	"required" : [ "type", "accountCookie", "displayName" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "clientLoginSuccess"
+		},
+		"accountCookie" :
+		{
+			"type" : "string",
+			"description" : "Security cookie that should be stored by client and used for future operations"
+		},
+		"displayName" :
+		{
+			"type" : "string",
+			"description" : "Account display name - how client should display this account"
+		}
+	}
+}

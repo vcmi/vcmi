@@ -176,7 +176,7 @@
 			"bonuses" : {
 				"damage" : {
 					"type" : "CREATURE_DAMAGE",
-					"subtype" : "creatureDamageMin",
+					"subtype" : "creatureDamageBoth",
 					"val" : 5
 				},
 				"attack" : {

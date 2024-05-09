@@ -14,6 +14,7 @@
 
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
+#include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -33,6 +34,7 @@ class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
 public:
 	bool isStaticObject() override;
+
 };
 
 class CreatureInstanceConstructor : public CDefaultObjectTypeHandler<CGCreature>
@@ -57,7 +59,7 @@ protected:
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	CFaction * faction = nullptr;
+	const CFaction * faction = nullptr;
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	void initializeObject(CGTownInstance * object) const override;
@@ -76,7 +78,7 @@ protected:
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	CHeroClass * heroClass = nullptr;
+	const CHeroClass * heroClass = nullptr;
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
 	void initializeObject(CGHeroInstance * object) const override;
@@ -117,10 +119,11 @@ protected:
 	JsonNode predefinedOffer;
 	int marketEfficiency;
 	
-	std::string title, speech;
+	std::string title;
+	std::string speech;
 	
 public:
-	CGMarket * createObject() const override;
+	CGMarket * createObject(IGameCallback * cb) const override;
 	void initializeObject(CGMarket * object) const override;
 	void randomizeObject(CGMarket * object, CRandomGenerator & rng) const override;
 

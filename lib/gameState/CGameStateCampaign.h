@@ -25,24 +25,30 @@ struct CampaignHeroReplacement
 	CampaignHeroReplacement(CGHeroInstance * hero, const ObjectInstanceID & heroPlaceholderId);
 	CGHeroInstance * hero;
 	ObjectInstanceID heroPlaceholderId;
+	std::vector<ArtifactPosition> transferrableArtifacts;
 };
 
 class CGameStateCampaign
 {
 	CGameState * gameState;
 
+	/// Contains list of heroes that may be available in this scenario
+	/// temporary helper for game initialization, not serialized
+	std::vector<CampaignHeroReplacement> campaignHeroReplacements;
+
 	/// Returns ID of scenario from which hero placeholders should be selected
 	std::optional<CampaignScenarioID> getHeroesSourceScenario() const;
 
 	/// returns heroes and placeholders in where heroes will be put
-	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace();
+	void generateCampaignHeroesToReplace();
 
 	std::optional<CampaignBonus> currentBonus() const;
 
 	/// Trims hero parameters that should not transfer between scenarios according to travelOptions flags
-	void trimCrossoverHeroesParameters(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CampaignTravel & travelOptions);
+	void trimCrossoverHeroesParameters(const CampaignTravel & travelOptions);
 
-	void replaceHeroesPlaceholders(const std::vector<CampaignHeroReplacement> & campaignHeroReplacements);
+	void replaceHeroesPlaceholders();
+	void transferMissingArtifacts(const CampaignTravel & travelOptions);
 
 	void giveCampaignBonusToHero(CGHeroInstance * hero);
 
@@ -56,9 +62,9 @@ public:
 	void initTowns();
 
 	bool playerHasStartingHero(PlayerColor player) const;
-	std::unique_ptr<CMap> getCurrentMap() const;
+	std::unique_ptr<CMap> getCurrentMap();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & gameState;
 	}

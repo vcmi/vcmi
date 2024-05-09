@@ -21,6 +21,10 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../languages.h"
 
+#ifdef ENABLE_INNOEXTRACT
+#include "cli/extract.hpp"
+#endif
+
 FirstLaunchView::FirstLaunchView(QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::FirstLaunchView)
@@ -32,6 +36,10 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 
 	ui->lineEditDataSystem->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front())));
 	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
+
+#ifndef ENABLE_INNOEXTRACT
+	ui->pushButtonGogInstall->hide();
+#endif
 }
 
 void FirstLaunchView::on_buttonTabLanguage_clicked()
@@ -89,10 +97,9 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 	copyHeroesData();
 }
 
-void FirstLaunchView::on_pushButtonDataHelp_clicked()
+void FirstLaunchView::on_pushButtonGogInstall_clicked()
 {
-	static const QUrl vcmibuilderWiki("https://github.com/vcmi/vcmi/blob/master/docs/players/Installation_Linux.md#install-data-using-vcmibuilder-script");
-	QDesktopServices::openUrl(vcmibuilderWiki);
+	extractGogData();
 }
 
 void FirstLaunchView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -129,11 +136,9 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabHeroesData->setChecked(true);
 	ui->buttonTabModPreset->setChecked(false);
 
-	if(!hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->hide();
-		ui->labelDataHelp->hide();
-	}
+#ifndef ENABLE_INNOEXTRACT
+	ui->labelDataHelp->hide();
+#endif
 	if(heroesDataUpdate())
 		return;
 
@@ -199,11 +204,9 @@ void FirstLaunchView::heroesDataMissing()
 	ui->labelDataFound->setVisible(false);
 	ui->pushButtonDataNext->setEnabled(false);
 
-	if(hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->setVisible(true);
-		ui->labelDataHelp->setVisible(true);
-	}
+#ifdef ENABLE_INNOEXTRACT
+	ui->labelDataHelp->setVisible(true);
+#endif
 }
 
 void FirstLaunchView::heroesDataDetected()
@@ -218,12 +221,11 @@ void FirstLaunchView::heroesDataDetected()
 
 	ui->labelDataSearch->setVisible(false);
 	ui->labelDataCopy->setVisible(false);
+	ui->pushButtonGogInstall->setVisible(false);
 
-	if(hasVCMIBuilderScript)
-	{
-		ui->pushButtonDataHelp->setVisible(false);
+#ifdef ENABLE_INNOEXTRACT
 		ui->labelDataHelp->setVisible(false);
-	}
+#endif
 
 	ui->labelDataFound->setVisible(true);
 	ui->pushButtonDataNext->setEnabled(true);
@@ -279,7 +281,84 @@ QString FirstLaunchView::getHeroesInstallDir()
 	return QString{};
 }
 
-void FirstLaunchView::copyHeroesData(const QString & path)
+void FirstLaunchView::extractGogData()
+{
+#ifdef ENABLE_INNOEXTRACT
+
+	auto fileSelection = [this](QString type, QString filter, QString startPath = {}) {
+		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
+		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
+#if defined(VCMI_MOBILE)
+		filter = tr("GOG file (*.*)");
+		QMessageBox::information(this, tr("File selection"), titleSel);
+#endif
+		QString file = QFileDialog::getOpenFileName(this, titleSel, startPath.isEmpty() ? QDir::homePath() : startPath, filter);
+		if(file.isEmpty())
+			return QString{};
+		else if(!file.endsWith("." + type, Qt::CaseInsensitive))
+		{
+			QMessageBox::critical(this, tr("Invalid file selected"), titleErr);
+			return QString{};
+		}
+
+		return file;
+	};
+
+	QString fileExe = fileSelection("exe", tr("GOG installer") + " (*.exe)");
+	if(fileExe.isEmpty())
+		return;
+	QString fileBin = fileSelection("bin", tr("GOG data") + " (*.bin)", QFileInfo(fileExe).absolutePath());
+	if(fileBin.isEmpty())
+		return;
+
+	ui->progressBarGog->setVisible(true);
+	ui->pushButtonGogInstall->setVisible(false);
+	setEnabled(false);
+
+	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
+		QTemporaryDir dir;
+		if(dir.isValid()) {
+			QDir tempDir{dir.path()};
+
+			QString tmpFileExe = dir.filePath("h3_gog.exe");
+			QFile(fileExe).copy(tmpFileExe);
+			QFile(fileBin).copy(dir.filePath("h3_gog-1.bin"));
+
+			::extract_options o;
+			o.extract = true;
+
+			// standard settings
+			o.gog_galaxy = true;
+			o.codepage = 0U;
+			o.output_dir = dir.path().toStdString();
+			o.extract_temp = true;
+			o.extract_unknown = true;
+			o.filenames.set_expand(true);
+
+			o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
+			
+			process_file(tmpFileExe.toStdString(), o, [this](float progress) {
+				ui->progressBarGog->setValue(progress * 100);
+				qApp->processEvents();
+			});
+
+			ui->progressBarGog->setVisible(false);
+			ui->pushButtonGogInstall->setVisible(true);
+			setEnabled(true);
+
+			QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
+			if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
+			{
+				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
+				return;
+			}
+			copyHeroesData(dir.path(), true);
+		}
+	});
+#endif
+}
+
+void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 {
 	QDir sourceRoot = QDir(path);
 	
@@ -307,7 +386,7 @@ void FirstLaunchView::copyHeroesData(const QString & path)
 
 	if(dirData.empty())
 	{
-		QMessageBox::critical(this, "Heroes III data not found!", "Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
+		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
 		return;
 	}
 
@@ -321,19 +400,19 @@ void FirstLaunchView::copyHeroesData(const QString & path)
 		if (roeFiles.empty())
 		{
 			// Directory structure is correct (Data/Maps/Mp3) but no .lod archives that should be present in any install
-			QMessageBox::critical(this, "Heroes III data not found!", "Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
+			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
 			return;
 		}
 
 		if (!hdFiles.empty())
 		{
 			// HD Edition contains only RoE data so we can't use even unmodified files from it
-			QMessageBox::critical(this, "Heroes III data not found!", "Heroes III: HD Edition files are not supported by VCMI.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
+			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Heroes III: HD Edition files are not supported by VCMI.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
 			return;
 		}
 
 		// RoE or some other unsupported edition. Demo version?
-		QMessageBox::critical(this, "Heroes III data not found!", "Unknown or unsupported Heroes III version found.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
+		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Unknown or unsupported Heroes III version found.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death."));
 		return;
 	}
 
@@ -359,7 +438,10 @@ void FirstLaunchView::copyHeroesData(const QString & path)
 		for(const QString & filename : sourceDir.entryList(QDir::Filter::Files))
 		{
 			QFile sourceFile(sourceDir.filePath(filename));
-			sourceFile.copy(targetDir.filePath(filename));
+			if(move)
+				sourceFile.rename(targetDir.filePath(filename));
+			else
+				sourceFile.copy(targetDir.filePath(filename));
 		}
 	}
 

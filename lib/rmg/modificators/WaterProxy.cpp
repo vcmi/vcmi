@@ -15,6 +15,7 @@
 #include "../../TerrainHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjects/MiscObjects.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../RmgPath.h"
@@ -33,45 +34,51 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void WaterProxy::process()
 {
-	for(const auto & t : zone.area().getTilesVector())
+	auto area = zone.area();
+
+	for(const auto & t : area->getTilesVector())
 	{
 		map.setZoneID(t, zone.getId());
 		map.setOccupied(t, ETileType::POSSIBLE);
 	}
 	
-	auto v = zone.getArea().getTilesVector();
+	auto v = area->getTilesVector();
 	mapProxy->drawTerrain(zone.getRand(), v, zone.getTerrainType());
 	
 	//check terrain type
-	for([[maybe_unused]] const auto & t : zone.area().getTilesVector())
+	for([[maybe_unused]] const auto & t : area->getTilesVector())
 	{
 		assert(map.isOnMap(t));
 		assert(map.getTile(t).terType->getId() == zone.getTerrainType());
 	}
 
+	// FIXME: Possible deadlock for 2 zones
+
+	auto areaPossible = zone.areaPossible();
 	for(const auto & z : map.getZones())
 	{
 		if(z.second->getId() == zone.getId())
 			continue;
 
-		Zone::Lock lock(z.second->areaMutex);
-		for(const auto & t : z.second->area().getTilesVector())
+		auto secondArea = z.second->area();
+		auto secondAreaPossible = z.second->areaPossible();
+		for(const auto & t : secondArea->getTilesVector())
 		{
 			if(map.getTile(t).terType->getId() == zone.getTerrainType())
 			{
-				z.second->areaPossible().erase(t);
-				z.second->area().erase(t);
-				zone.area().add(t);
-				zone.areaPossible().add(t);
+				secondArea->erase(t);
+				secondAreaPossible->erase(t);
+				area->add(t);
+				areaPossible->add(t);
 				map.setZoneID(t, zone.getId());
 				map.setOccupied(t, ETileType::POSSIBLE);
 			}
 		}
 	}
 	
-	if(!zone.area().contains(zone.getPos()))
+	if(!area->contains(zone.getPos()))
 	{
-		zone.setPos(zone.area().getTilesVector().front());
+		zone.setPos(area->getTilesVector().front());
 	}
 	
 	zone.initFreeTiles();
@@ -104,7 +111,7 @@ void WaterProxy::collectLakes()
 {
 	RecursiveLock lock(externalAccessMutex);
 	int lakeId = 0;
-	for(const auto & lake : connectedAreas(zone.getArea(), true))
+	for(const auto & lake : connectedAreas(zone.area().get(), true))
 	{
 		lakes.push_back(Lake{});
 		lakes.back().area = lake;
@@ -116,8 +123,8 @@ void WaterProxy::collectLakes()
 			lakeMap[t] = lakeId;
 		
 		//each lake must have at least one free tile
-		if(!lake.overlap(zone.freePaths()))
-			zone.freePaths().add(*lakes.back().reverseDistanceMap[lakes.back().reverseDistanceMap.size() - 1].begin());
+		if(!lake.overlap(zone.freePaths().get()))
+			zone.freePaths()->add(*lakes.back().reverseDistanceMap[lakes.back().reverseDistanceMap.size() - 1].begin());
 		
 		++lakeId;
 	}
@@ -150,7 +157,7 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 				}
 
 				Zone::Lock lock(dst.areaMutex);
-				dst.areaPossible().subtract(lake.neighbourZones[dst.getId()]);
+				dst.areaPossible()->subtract(lake.neighbourZones[dst.getId()]);
 				continue;
 			}
 
@@ -240,7 +247,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, Rout
 	for(auto subObj : subObjects)
 	{
 		//making a temporary object
-		std::unique_ptr<CGObjectInstance> obj(VLC->objtypeh->getHandlerFor(Obj::BOAT, subObj)->create());
+		std::unique_ptr<CGObjectInstance> obj(VLC->objtypeh->getHandlerFor(Obj::BOAT, subObj)->create(map.mapInstance->cb, nullptr));
 		if(auto * testBoat = dynamic_cast<CGBoat *>(obj.get()))
 		{
 			if(testBoat->layer == EPathfindingLayer::SAIL)
@@ -251,7 +258,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, Rout
 	if(sailingBoatTypes.empty())
 		return false;
 	
-	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(sailingBoatTypes, zone.getRand()))->create());
+	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(sailingBoatTypes, zone.getRand()))->create(map.mapInstance->cb, nullptr));
 
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
@@ -315,7 +322,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 		return false;
 	
 	int subtype = chooseRandomAppearance(zone.getRand(), Obj::SHIPYARD, land.getTerrainType());
-	auto * shipyard = dynamic_cast<CGShipyard *>(VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create());
+	auto * shipyard = dynamic_cast<CGShipyard *>(VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create(map.mapInstance->cb, nullptr));
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	rmg::Object rmgObject(*shipyard);
@@ -348,7 +355,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 		}
 		
 		//try to place shipyard close to boarding position and appropriate water access
-		auto path = manager->placeAndConnectObject(land.areaPossible(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
+		auto path = manager->placeAndConnectObject(land.areaPossible().get(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
 		{
 			//Must only check the border of shipyard and not the added guard
 			rmg::Area shipyardOut = rmgObject.instances().front()->getBlockedArea().getBorderOutside();
@@ -360,9 +367,9 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 		}, guarded, true, ObjectManager::OptimizeType::NONE);
 		
 		//search path to boarding position
-		auto searchArea = land.areaPossible() - rmgObject.getArea();
+		auto searchArea = land.areaPossible().get() - rmgObject.getArea();
 		rmg::Path pathToBoarding(searchArea);
-		pathToBoarding.connect(land.freePaths());
+		pathToBoarding.connect(land.freePaths().get());
 		pathToBoarding.connect(path);
 		pathToBoarding = pathToBoarding.search(boardingPosition, false);
 		
@@ -390,7 +397,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 		
 		manager->placeObject(rmgObject, guarded, true, createRoad);
 		
-		zone.areaPossible().subtract(shipyardOutToBlock);
+		zone.areaPossible()->subtract(shipyardOutToBlock);
 		for(const auto & i : shipyardOutToBlock.getTilesVector())
 			if(map.isOnMap(i) && map.isPossible(i))
 				map.setOccupied(i, ETileType::BLOCKED);

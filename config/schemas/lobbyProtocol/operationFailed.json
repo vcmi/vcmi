@@ -1,0 +1,21 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: operationFailed",
+	"description" : "Sent by server whenever operation requested by client fails",
+	"required" : [ "type", "reason" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "operationFailed"
+		},
+		"reason" :
+		{
+			"type" : "string",
+			"description" : "Human-readable description of reason behind operation failure, in English"
+		}
+	}
+}

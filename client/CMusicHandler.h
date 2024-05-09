@@ -77,6 +77,7 @@ public:
 	void setChannelVolume(int channel, ui32 percent);
 
 	// Sounds
+	uint32_t getSoundDurationMilliseconds(const AudioPath & sound);
 	int playSound(soundBase::soundID soundID, int repeats=0);
 	int playSound(const AudioPath & sound, int repeats=0, bool cache=false);
 	int playSound(std::pair<std::unique_ptr<ui8 []>, si64> & data, int repeats=0, bool cache=false);
@@ -84,6 +85,7 @@ public:
 	void stopSound(int handler);
 
 	void setCallback(int channel, std::function<void()> function);
+	void resetCallback(int channel);
 	void soundFinishedCallback(int channel);
 
 	int ambientGetRange() const;

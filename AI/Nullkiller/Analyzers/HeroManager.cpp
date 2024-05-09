@@ -17,7 +17,7 @@
 namespace NKAI
 {
 
-SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluator(
+const SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
 			std::map<SecondarySkill, float>
@@ -46,7 +46,7 @@ SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluato
 		std::make_shared<AtLeastOneMagicRule>()
 	});
 
-SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEvaluator(
+const SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
 			std::map<SecondarySkill, float>
@@ -109,6 +109,7 @@ void HeroManager::update()
 	for(auto & hero : myHeroes)
 	{
 		scores[hero] = evaluateFightingStrength(hero);
+		knownFightingStrength[hero->id] = hero->getFightingStrength();
 	}
 
 	auto scoreSort = [&](const CGHeroInstance * h1, const CGHeroInstance * h2) -> bool
@@ -129,7 +130,14 @@ void HeroManager::update()
 
 	for(auto hero : myHeroes)
 	{
-		heroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+		if(hero->patrol.patrolling)
+		{
+			heroRoles[hero] = HeroRole::MAIN;
+		}
+		else
+		{
+			heroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+		}
 	}
 
 	for(auto hero : myHeroes)
@@ -187,8 +195,16 @@ bool HeroManager::heroCapReached() const
 	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
 
 	return heroCount >= ALLOWED_ROAMING_HEROES
+		|| heroCount >= ai->settings->getMaxRoamingHeroes()
 		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
 		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
+}
+
+float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const
+{
+	auto cached = knownFightingStrength.find(hero->id);
+
+	return cached != knownFightingStrength.end() ? cached->second : hero->getFightingStrength();
 }
 
 float HeroManager::getMagicStrength(const CGHeroInstance * hero) const
@@ -332,7 +348,7 @@ void WisdomRule::evaluateScore(const CGHeroInstance * hero, SecondarySkill skill
 		score += 1.5;
 }
 
-std::vector<SecondarySkill> AtLeastOneMagicRule::magicSchools = {
+const std::vector<SecondarySkill> AtLeastOneMagicRule::magicSchools = {
 	SecondarySkill::AIR_MAGIC,
 	SecondarySkill::EARTH_MAGIC,
 	SecondarySkill::FIRE_MAGIC,

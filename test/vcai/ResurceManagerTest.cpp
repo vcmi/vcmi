@@ -87,7 +87,7 @@ TEST_F(ResourceManagerTest, notifyGoalImplemented)
 	EXPECT_FALSE(rm->notifyGoalCompleted(invalidGoal));
 	EXPECT_FALSE(rm->hasTasksLeft());
 
-	TResources res(0,0,0,0,0,0,12345);;
+	TResources res(0,0,0,0,0,0,12345);
 	rm->reserveResoures(res, invalidGoal);
 	ASSERT_FALSE(rm->hasTasksLeft()) << "Can't push Invalid goal";
 	EXPECT_FALSE(rm->notifyGoalCompleted(invalidGoal));
@@ -114,13 +114,13 @@ TEST_F(ResourceManagerTest, queueOrder)
 {
 	ASSERT_FALSE(rm->hasTasksLeft());
 
-	TSubgoal buildLow = sptr(StrictMock<BuildThis>()),
-		buildBit = sptr(StrictMock<BuildThis>()),
-		buildMed = sptr(StrictMock<BuildThis>()),
-		buildHigh = sptr(StrictMock<BuildThis>()),
-		buildVeryHigh = sptr(StrictMock<BuildThis>()),
-		buildExtra = sptr(StrictMock<BuildThis>()),
-		buildNotSoExtra = sptr(StrictMock<BuildThis>());
+	TSubgoal buildLow = sptr(StrictMock<BuildThis>());
+	TSubgoal buildBit = sptr(StrictMock<BuildThis>());
+	TSubgoal buildMed = sptr(StrictMock<BuildThis>());
+	TSubgoal buildHigh = sptr(StrictMock<BuildThis>());
+	TSubgoal buildVeryHigh = sptr(StrictMock<BuildThis>());
+	TSubgoal buildExtra = sptr(StrictMock<BuildThis>());
+	TSubgoal buildNotSoExtra = sptr(StrictMock<BuildThis>());
 
 	buildLow->setpriority(0).setbid(1);
 	buildLow->setpriority(1).setbid(2);

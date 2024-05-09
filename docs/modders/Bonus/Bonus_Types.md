@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Types
-
 The bonuses were grouped according to their original purpose. The bonus system allows them to propagate freely betwen the nodes, however they may not be recognized properly beyond the scope of original use.
 
 # General-purpose bonuses
@@ -32,6 +30,24 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 On each turn, hides area in fog of war around affected town for all players other than town owner. Currently does not work for any entities other than towns.
 
 - val: radius in tiles
+
+# Player bonuses
+
+Intended to be setup as global effect, AI cheat etc.
+
+### RESOURCES_CONSTANT_BOOST
+
+Bonus that does not account for propagation and gives specific amount of extra resources per day
+
+- subtype: resource identifier
+- val: - resource amount
+
+### RESOURCES_TOWN_MULTIPLYING_BOOST
+
+Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns
+
+- subtype: resource identifier
+- val: - base resource amount to be multipled times number of owned towns
 
 # Hero bonuses
 
@@ -172,11 +188,11 @@ Defines percentage of enemy troops that will be raised after battle into own arm
 
 - val: percentage of raised troops
 
-### MANA_PER_KNOWLEDGE
+### MANA_PER_KNOWLEDGE_PERCENTAGE
 
-Defines amount of mana points that hero gains per each point of knowledge (Intelligence)
+Defines percentage of mana points that hero gains per each point of knowledge (Intelligence)
 
-- val: Amount of mana points per knowledge
+- val: percentage of mana points per knowledge
 
 ### HERO_GRANTS_ATTACKS
 

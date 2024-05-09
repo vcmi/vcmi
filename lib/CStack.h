@@ -9,7 +9,6 @@
  */
 
 #pragma once
-#include "JsonNode.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "CCreatureHandler.h" //todo: remove
@@ -93,7 +92,7 @@ public:
 		return this->owner;
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		//this assumes that stack objects is newly created
 		//stackState is not serialized here

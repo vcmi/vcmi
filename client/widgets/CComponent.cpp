@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CComponent.h"
 
-#include "CArtifactHolder.h"
 #include "Images.h"
 
 #include <vcmi/spells/Service.h>
@@ -80,13 +79,14 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 
 	pos.h += 4; //distance between text and image
 
-	auto max = 80;
+	// WARNING: too low values will lead to bad line-breaks in CPlayerOptionTooltipBox - check right-click on starting town in pregame
+	int max = 80;
 	if (size < large)
 		max = 72;
 	if (size < medium)
-		max = 40;
+		max = 60;
 	if (size < small)
-		max = 30;
+		max = 55;
 
 	if(Type == ComponentType::RESOURCE && !ValText.empty())
 		max = 80;
@@ -132,6 +132,7 @@ std::vector<AnimationPath> CComponent::getFileName() const
 		case ComponentType::MANA:
 		case ComponentType::LEVEL:
 			return gen(primSkillsArr);
+		case ComponentType::NONE:
 		case ComponentType::SEC_SKILL:
 			return gen(secSkillsArr);
 		case ComponentType::RESOURCE:
@@ -164,6 +165,8 @@ size_t CComponent::getIndex() const
 {
 	switch(data.type)
 	{
+		case ComponentType::NONE:
+			return 0;
 		case ComponentType::PRIM_SKILL:
 			return data.subType.getNum();
 		case ComponentType::EXPERIENCE:
@@ -215,6 +218,7 @@ std::string CComponent::getDescription() const
 		case ComponentType::RESOURCE:
 		case ComponentType::RESOURCE_PER_DAY:
 			return CGI->generaltexth->allTexts[242];
+		case ComponentType::NONE:
 		case ComponentType::CREATURE:
 			return "";
 		case ComponentType::ARTIFACT:
@@ -287,9 +291,10 @@ std::string CComponent::getSubtitle() const
 		case ComponentType::SPELL_SCROLL:
 		case ComponentType::SPELL:
 			return CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
+		case ComponentType::NONE:
 		case ComponentType::MORALE:
-			return "";
 		case ComponentType::LUCK:
+		case ComponentType::HERO_PORTRAIT:
 			return "";
 		case ComponentType::BUILDING:
 			{
@@ -302,8 +307,6 @@ std::string CComponent::getSubtitle() const
 				}
 				return building->getNameTranslated();
 			}
-		case ComponentType::HERO_PORTRAIT:
-			return "";
 		case ComponentType::FLAG:
 			return CGI->generaltexth->capColors[data.subType.as<PlayerColor>().getNum()];
 		default:
@@ -426,6 +429,7 @@ void CComponentBox::placeComponents(bool selectable)
 	for(auto & comp : components)
 	{
 		addChild(comp.get());
+		comp->recActions = defActions; //FIXME: for some reason, received component might have recActions set to 0
 		comp->moveTo(Point(pos.x, pos.y));
 	}
 

@@ -13,8 +13,9 @@
 
 #include "IObjectInfo.h"
 #include "../CGeneralTextHandler.h"
-#include "../modding/IdentifierStorage.h"
 #include "../VCMI_Lib.h"
+#include "../json/JsonUtils.h"
+#include "../modding/IdentifierStorage.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 

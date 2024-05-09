@@ -132,7 +132,8 @@ void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLog
 			else if (unitHPgained > 0 && m->caster->getHeroCaster() == nullptr) //Show text about healed HP if healed by unit
 			{
 				MetaString healText;
-				auto casterUnit = dynamic_cast<const battle::Unit*>(m->caster);
+				auto casterUnitID = m->caster->getCasterUnitId();
+				auto casterUnit = m->battle()->battleGetUnitByID(casterUnitID);
 				healText.appendLocalString(EMetaText::GENERAL_TXT, 414);
 				casterUnit->addNameReplacement(healText, false);
 				state->addNameReplacement(healText, false);

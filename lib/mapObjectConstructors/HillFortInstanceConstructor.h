@@ -10,6 +10,8 @@
 #pragma once
 
 #include "CDefaultObjectTypeHandler.h"
+#include "../json/JsonNode.h"
+#include "../mapObjects/MiscObjects.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

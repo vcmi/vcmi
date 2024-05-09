@@ -11,6 +11,7 @@
 #include "CKingdomInterface.h"
 
 #include "CCastleInterface.h"
+#include "CPlayerState.h"
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
@@ -26,7 +27,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/ObjectLists.h"
-#include "../windows/CTradeWindow.h"
+#include "../windows/CMarketWindow.h"
 
 #include "../../CCallback.h"
 
@@ -547,7 +548,10 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 	switch(index)
 	{
 	case 0:
-		return std::make_shared<CKingdHeroList>(size);
+		return std::make_shared<CKingdHeroList>(size, [this](const CWindowWithArtifacts::CArtifactsOfHeroPtr & newHeroSet)
+			{
+				addSetAndCallbacks(newHeroSet);
+			});
 	case 1:
 		return std::make_shared<CKingdTownList>(size);
 	default:
@@ -577,9 +581,9 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 
 	//Heroes can produce gold as well - skill, specialty or arts
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
-	for(auto & heroe : heroes)
+	for(auto & hero : heroes)
 	{
-		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD))));
+		totalIncome += hero->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD))));
 	}
 
 	//Add town income of all towns
@@ -588,6 +592,11 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	{
 		totalIncome += town->dailyIncome()[EGameResID::GOLD];
 	}
+
+	//if player has some modded boosts we want to show that as well
+	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD)));
+	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size();
+
 	for(int i=0; i<7; i++)
 	{
 		std::string value = std::to_string(minesCount[i]);
@@ -667,31 +676,7 @@ bool CKingdomInterface::holdsGarrison(const CArmedInstance * army)
 	return army->getOwner() == LOCPLINT->playerID;
 }
 
-void CKingdomInterface::artifactAssembled(const ArtifactLocation& artLoc)
-{
-	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
-		arts->artifactAssembled(artLoc);
-}
-
-void CKingdomInterface::artifactDisassembled(const ArtifactLocation& artLoc)
-{
-	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
-		arts->artifactDisassembled(artLoc);
-}
-
-void CKingdomInterface::artifactMoved(const ArtifactLocation& artLoc, const ArtifactLocation& destLoc, bool withRedraw)
-{
-	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
-		arts->artifactMoved(artLoc, destLoc, withRedraw);
-}
-
-void CKingdomInterface::artifactRemoved(const ArtifactLocation& artLoc)
-{
-	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
-		arts->artifactRemoved(artLoc);
-}
-
-CKingdHeroList::CKingdHeroList(size_t maxSize)
+CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onCreateHeroItemCallback)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
@@ -701,8 +686,20 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = OVERVIEW_SIZE*116 + 19;
-	heroes = std::make_shared<CListBox>(std::bind(&CKingdHeroList::createHeroItem, this, _1),
-		Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
+	heroes = std::make_shared<CListBox>([onCreateHeroItemCallback](size_t idx) -> std::shared_ptr<CIntObject>
+		{
+			auto heroesList = LOCPLINT->localState->getWanderingHeroes();
+			if(idx < heroesList.size())
+			{
+				auto hero = std::make_shared<CHeroItem>(heroesList[idx]);
+				onCreateHeroItemCallback(hero->heroArts);
+				return hero;
+			}
+			else
+			{
+				return std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), (idx - 2) % GameConstants::KINGDOM_WINDOW_HEROES_SLOTS);
+			}
+		}, Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
 }
 
 void CKingdHeroList::updateGarrisons()
@@ -721,24 +718,6 @@ bool CKingdHeroList::holdsGarrison(const CArmedInstance * army)
 			if (garrison->holdsGarrison(army))
 				return true;
 	return false;
-}
-
-std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
-{
-	ui32 picCount = 4; // OVSLOT contains 4 images
-
-	auto heroesList = LOCPLINT->localState->getWanderingHeroes();
-
-	if(index < heroesList.size())
-	{
-		auto hero = std::make_shared<CHeroItem>(heroesList[index]);
-		addSetAndCallbacks(hero->heroArts);
-		return hero;
-	}
-	else
-	{
-		return std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), (index-2) % picCount );
-	}
 }
 
 CKingdTownList::CKingdTownList(size_t maxSize)
@@ -821,17 +800,20 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*(int)i, 78), town, (int)i, true, false));
 	}
 
-	fastTownHall = std::make_shared<CButton>(Point(69, 31), AnimationPath::builtin("ITMTL.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterTownHall(); });
-	fastTownHall->setImageOrder(town->hallLevel(), town->hallLevel(), town->hallLevel(), town->hallLevel());
-	fastTownHall->setAnimateLonelyFrame(true);
+	fastTownHall = std::make_shared<CButton>(Point(69, 31), AnimationPath::builtin("castleInterfaceQuickAccess"), CButton::tooltip(), [this]() { std::make_shared<CCastleBuildings>(town)->enterTownHall(); });
+	fastTownHall->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("ITMTL"), town->hallLevel()));
+
 	int imageIndex = town->fortLevel() == CGTownInstance::EFortLevel::NONE ? 3 : town->fortLevel() - 1;
-	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("itmcl.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
-	fastArmyPurchase->setImageOrder(imageIndex, imageIndex, imageIndex, imageIndex);
-	fastArmyPurchase->setAnimateLonelyFrame(true);
+	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("castleInterfaceQuickAccess"), CButton::tooltip(), [this]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
+	fastArmyPurchase->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("itmcl"), imageIndex));
+
 	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
 	{
 		if(town->builtBuildings.count(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+	}, [&]{
+		if(!town->town->faction->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
 	{
@@ -840,7 +822,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		{
 			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
 			{
-				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
 			}
 		}
@@ -976,7 +958,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 		std::string overlay = CGI->generaltexth->overview[8+it];
 
 		auto button = std::make_shared<CToggleButton>(Point(364+(int)it*112, 46), AnimationPath::builtin("OVBUTN3"), CButton::tooltip(hover, overlay), 0);
-		button->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
+		button->setTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
 		artButtons->addToggle((int)it, button);
 	}
 	artButtons->addCallback(std::bind(&CTabbedInt::setActive, artsTabs, _1));

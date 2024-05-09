@@ -20,9 +20,12 @@
 #include "cmodlistmodel_moc.h"
 #include "cmodmanager.h"
 #include "cdownloadmanager_moc.h"
+#include "../settingsView/csettingsview_moc.h"
 #include "../launcherdirs.h"
 #include "../jsonutils.h"
+#include "../helper.h"
 
+#include "../../lib/VCMIDirs.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 #include "../../lib/modding/CModVersion.h"
@@ -52,7 +55,7 @@ void CModListView::dragEnterEvent(QDragEnterEvent* event)
 {
 	if(event->mimeData()->hasUrls())
 		for(const auto & url : event->mimeData()->urls())
-			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp"}))
+			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp", ".json"}))
 				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
 				{
 					event->acceptProposedAction();
@@ -69,19 +72,7 @@ void CModListView::dropEvent(QDropEvent* event)
 		const QList<QUrl> urlList = mimeData->urls();
 
 		for (const auto & url : urlList)
-		{
-			QString urlStr = url.toString();
-			QString fileName = url.fileName();
-			if(urlStr.endsWith(".zip", Qt::CaseInsensitive))
-				downloadFile(fileName.toLower()
-					// mod name currently comes from zip file -> remove suffixes from github zip download
-					.replace(QRegularExpression("-[0-9a-f]{40}"), "")
-					.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
-					.replace("-main.zip", ".zip")
-					, urlStr, "mods", 0);
-			else
-				downloadFile(fileName, urlStr, "mods", 0);
-		}
+			manualInstallFile(url);
 	}
 }
 
@@ -188,7 +179,7 @@ void CModListView::loadRepositories()
 		auto hashed = QCryptographicHash::hash(entry.toUtf8(), QCryptographicHash::Md5);
 		auto hashedStr = QString::fromUtf8(hashed.toHex());
 
-		downloadFile(hashedStr + ".json", entry, "repository index");
+		downloadFile(hashedStr + ".json", entry, tr("mods repository index"));
 	}
 }
 
@@ -316,9 +307,9 @@ QString CModListView::genModInfoText(CModEntry & mod)
 			if(minStr.isEmpty() || maxStr.isEmpty())
 			{
 				if(minStr.isEmpty())
-					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", "please upgrade mod");
+					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", tr("please upgrade mod"));
 				else
-					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", "or above");
+					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", tr("or newer"));
 			}
 			else
 				result += supportedVersions.arg(tr("Supported VCMI versions"), minStr, " - ", maxStr);
@@ -483,10 +474,10 @@ void CModListView::on_comboBox_currentIndexChanged(int index)
 QStringList CModListView::findInvalidDependencies(QString mod)
 {
 	QStringList ret;
-	for(QString requrement : modModel->getRequirements(mod))
+	for(QString requirement : modModel->getRequirements(mod))
 	{
-		if(!modModel->hasMod(requrement))
-			ret += requrement;
+		if(!modModel->hasMod(requirement) && !modModel->hasMod(requirement.split(QChar('.'))[0]))
+			ret += requirement;
 	}
 	return ret;
 }
@@ -583,7 +574,7 @@ void CModListView::on_updateButton_clicked()
 		auto mod = modModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
 		if(mod.isUpdateable() || !mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
+			downloadFile(name + ".zip", mod.getValue("download").toString(), name, mbToBytes(mod.getValue("downloadSize").toDouble()));
 	}
 }
 
@@ -613,8 +604,72 @@ void CModListView::on_installButton_clicked()
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
+			downloadFile(name + ".zip", mod.getValue("download").toString(), name, mbToBytes(mod.getValue("downloadSize").toDouble()));
+		else if(!mod.isEnabled())
+			enableModByName(name);
 	}
+
+	for(auto & name : modModel->getMod(modName).getConflicts())
+	{
+		auto mod = modModel->getMod(name);
+		if(mod.isEnabled())
+		{
+			//TODO: consider reverse dependencies disabling
+			//TODO: consider if it may be possible for subdependencies to block disabling conflicting mod?
+			//TODO: consider if it may be possible to get subconflicts that will block disabling conflicting mod?
+			disableModByName(name);
+		}
+	}
+}
+
+void CModListView::on_installFromFileButton_clicked()
+{
+	QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json);;" + tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Configs") + " (*.json);;" + tr("Mods") + " (*.zip)";
+	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns) to install..."), QDir::homePath(), filter);
+
+	for (const auto & file : files)
+	{
+		QUrl url = QUrl::fromLocalFile(file);
+		manualInstallFile(url);
+	}
+}
+
+void CModListView::manualInstallFile(QUrl url)
+{
+	QString urlStr = url.toString();
+	QString fileName = url.fileName();
+	if(urlStr.endsWith(".zip", Qt::CaseInsensitive))
+		downloadFile(fileName.toLower()
+			// mod name currently comes from zip file -> remove suffixes from github zip download
+			.replace(QRegularExpression("-[0-9a-f]{40}"), "")
+			.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
+			.replace("-main.zip", ".zip")
+			, urlStr, "mods", 0);
+	else if(urlStr.endsWith(".json", Qt::CaseInsensitive))
+	{
+		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
+		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
+		if(!configFile.empty())
+		{
+			auto dialogResult = QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+			if(dialogResult == QMessageBox::Yes)
+			{
+				const auto configFilePath = configDir.filePath(configFile[0]);
+				QFile::remove(configFilePath);
+				QFile::copy(url.toLocalFile(), configFilePath);
+
+				// reload settings
+				Helper::loadSettings();
+				for(auto widget : qApp->allWidgets())
+					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
+						settingsView->loadSettings();
+				manager->loadMods();
+				manager->loadModSettings();
+			}
+		}
+	}
+	else
+		downloadFile(fileName, urlStr, fileName, 0);
 }
 
 void CModListView::downloadFile(QString file, QString url, QString description, qint64 size)
@@ -738,7 +793,7 @@ void CModListView::installFiles(QStringList files)
 					auto modjson = repoData[key].toMap().value("mod");
 					if(!modjson.isNull())
 					{
-						downloadFile(key + ".json", modjson.toString(), "repository index");
+						downloadFile(key + ".json", modjson.toString(), tr("mods repository index"));
 					}
 				}
 			}
@@ -755,7 +810,8 @@ void CModListView::installFiles(QStringList files)
 			images.push_back(filename);
 	}
 
-	manager->loadRepositories(repositories);
+	if (!repositories.empty())
+		manager->loadRepositories(repositories);
 
 	if(!mods.empty())
 		installMods(mods);
@@ -841,7 +897,7 @@ void CModListView::installMods(QStringList archives)
 
 void CModListView::installMaps(QStringList maps)
 {
-	QString destDir = CLauncherDirs::get().mapsPath() + "/";
+	const auto destDir = CLauncherDirs::mapsPath() + QChar{'/'};
 
 	for(QString map : maps)
 	{
@@ -890,24 +946,24 @@ void CModListView::loadScreenshots()
 		QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 		assert(modModel->hasMod(modName)); //should be filtered out by check above
 
-		for(QString & url : modModel->getMod(modName).getValue("screenshots").toStringList())
+		for(QString url : modModel->getMod(modName).getValue("screenshots").toStringList())
 		{
 			// URL must be encoded to something else to get rid of symbols illegal in file names
-			auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
-			auto hashedStr = QString::fromUtf8(hashed.toHex());
+			const auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
+			const auto fileName = QString{QLatin1String{"%1.png"}}.arg(QLatin1String{hashed.toHex()});
 
-			QString fullPath = CLauncherDirs::get().downloadsPath() + '/' + hashedStr + ".png";
+			const auto fullPath = QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), fileName);
 			QPixmap pixmap(fullPath);
 			if(pixmap.isNull())
 			{
 				// image file not exists or corrupted - try to redownload
-				downloadFile(hashedStr + ".png", url, "screenshots");
+				downloadFile(fileName, url, tr("screenshots"));
 			}
 			else
 			{
 				// managed to load cached image
 				QIcon icon(pixmap);
-				QListWidgetItem * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
+				auto * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
 				ui->screenshotsList->addItem(item);
 			}
 		}
@@ -938,7 +994,7 @@ void CModListView::doInstallMod(const QString & modName)
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
+			downloadFile(name + ".zip", mod.getValue("download").toString(), name, mbToBytes(mod.getValue("downloadSize").toDouble()));
 	}
 }
 

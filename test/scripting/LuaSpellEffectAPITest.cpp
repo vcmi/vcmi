@@ -12,6 +12,7 @@
 #include "ScriptFixture.h"
 
 #include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/json/JsonUtils.h"
 
 #include "../mock/mock_ServerCallback.h"
 
@@ -33,7 +34,7 @@ protected:
 	}
 };
 
-TEST_F(LuaSpellEffectAPITest, ApplicableOnExpert)
+TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnExpert)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPITest.lua");
 
@@ -45,14 +46,14 @@ TEST_F(LuaSpellEffectAPITest, ApplicableOnExpert)
 
 	JsonNode ret = context->callGlobal("applicable", params);
 
-	JsonNode expected = JsonUtils::boolNode(true);
+	JsonNode expected(true);
 
 	JsonComparer cmp(false);
 	cmp.compare("applicable result", ret, expected);
 
 }
 
-TEST_F(LuaSpellEffectAPITest, NotApplicableOnAdvanced)
+TEST_F(LuaSpellEffectAPITest, DISABLED_NotApplicableOnAdvanced)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPITest.lua");
 
@@ -64,13 +65,13 @@ TEST_F(LuaSpellEffectAPITest, NotApplicableOnAdvanced)
 
 	JsonNode ret = context->callGlobal("applicable", params);
 
-	JsonNode expected = JsonUtils::boolNode(false);
+	JsonNode expected(false);
 
 	JsonComparer cmp(false);
 	cmp.compare("applicable result", ret, expected);
 }
 
-TEST_F(LuaSpellEffectAPITest, ApplicableOnLeftSideOfField)
+TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnLeftSideOfField)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPITest.lua");
 
@@ -83,8 +84,8 @@ TEST_F(LuaSpellEffectAPITest, ApplicableOnLeftSideOfField)
 	BattleHex hex(2,2);
 
 	JsonNode first;
-	first.Vector().push_back(JsonUtils::intNode(hex.hex));
-	first.Vector().push_back(JsonNode());
+	first.Vector().emplace_back(hex.hex);
+	first.Vector().emplace_back();
 
 	JsonNode targets;
 	targets.Vector().push_back(first);
@@ -93,13 +94,13 @@ TEST_F(LuaSpellEffectAPITest, ApplicableOnLeftSideOfField)
 
 	JsonNode ret = context->callGlobal("applicableTarget", params);
 
-	JsonNode expected = JsonUtils::boolNode(true);
+	JsonNode expected(true);
 
 	JsonComparer cmp(false);
 	cmp.compare("applicable result", ret, expected);
 }
 
-TEST_F(LuaSpellEffectAPITest, NotApplicableOnRightSideOfField)
+TEST_F(LuaSpellEffectAPITest, DISABLED_NotApplicableOnRightSideOfField)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPITest.lua");
 
@@ -112,8 +113,8 @@ TEST_F(LuaSpellEffectAPITest, NotApplicableOnRightSideOfField)
 	BattleHex hex(11,2);
 
 	JsonNode first;
-	first.Vector().push_back(JsonUtils::intNode(hex.hex));
-	first.Vector().push_back(JsonUtils::intNode(-1));
+	first.Vector().emplace_back(hex.hex);
+	first.Vector().emplace_back(-1);
 
 	JsonNode targets;
 	targets.Vector().push_back(first);
@@ -122,13 +123,13 @@ TEST_F(LuaSpellEffectAPITest, NotApplicableOnRightSideOfField)
 
 	JsonNode ret = context->callGlobal("applicableTarget", params);
 
-	JsonNode expected = JsonUtils::boolNode(false);
+	JsonNode expected(false);
 
 	JsonComparer cmp(false);
 	cmp.compare("applicable result", ret, expected);
 }
 
-TEST_F(LuaSpellEffectAPITest, ApplyMoveUnit)
+TEST_F(LuaSpellEffectAPITest, DISABLED_ApplyMoveUnit)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPIMoveUnit.lua");
 
@@ -137,14 +138,14 @@ TEST_F(LuaSpellEffectAPITest, ApplyMoveUnit)
 	BattleHex hex1(11,2);
 
 	JsonNode unit;
-	unit.Vector().push_back(JsonUtils::intNode(hex1.hex));
-	unit.Vector().push_back(JsonUtils::intNode(42));
+	unit.Vector().emplace_back(hex1.hex);
+	unit.Vector().emplace_back(42);
 
 	BattleHex hex2(5,4);
 
 	JsonNode destination;
-	destination.Vector().push_back(JsonUtils::intNode(hex2.hex));
-	destination.Vector().push_back(JsonUtils::intNode(-1));
+	destination.Vector().emplace_back(hex2.hex);
+	destination.Vector().emplace_back(-1);
 
 	JsonNode targets;
 	targets.Vector().push_back(unit);

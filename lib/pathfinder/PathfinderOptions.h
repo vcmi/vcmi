@@ -24,8 +24,8 @@ struct DLL_LINKAGE PathfinderOptions
 {
 	bool useFlying;
 	bool useWaterWalking;
-	bool useEmbarkAndDisembark;
 	bool ignoreGuards;
+	bool useEmbarkAndDisembark;
 	bool useTeleportTwoWay; // Two-way monoliths and Subterranean Gate
 	bool useTeleportOneWay; // One-way monoliths with one known exit only
 	bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
@@ -67,7 +67,9 @@ struct DLL_LINKAGE PathfinderOptions
 	/// - Option should also allow same tile land <-> air layer transitions.
 	///   Current implementation only allow go into (from) air layer only to neighbour tiles.
 	///   I find it's reasonable limitation, but it's will make some movements more expensive than in H3.
-	bool originalMovementRules;
+	///   Further work can also be done to mimic SoD quirks if needed
+	///   (such as picking unoptimal paths on purpose when targeting guards or being interrupted on guarded resource tile when picking it during diagonal u-turn)
+	bool originalFlyRules;
 
 	/// Max number of turns to compute. Default = infinite
 	uint8_t turnLimit;
@@ -76,6 +78,11 @@ struct DLL_LINKAGE PathfinderOptions
 	/// For AI. Allows water walk and fly layers if hero can cast appropriate spells
 	/// </summary>
 	bool canUseCast;
+
+	/// <summary>
+	/// For AI. AI pathfinder needs to ignore this rule as it simulates battles on the way
+	/// </summary>
+	bool allowLayerTransitioningAfterBattle;
 
 	PathfinderOptions();
 };
@@ -104,7 +111,7 @@ public:
 	SingleHeroPathfinderConfig(CPathsInfo & out, CGameState * gs, const CGHeroInstance * hero);
 	virtual ~SingleHeroPathfinderConfig();
 
-	virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
+	CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
 
 	static std::vector<std::shared_ptr<IPathfindingRule>> buildRuleSet();
 };

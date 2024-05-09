@@ -16,13 +16,13 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/gameState/CGameState.h"
-#include "../../lib/bonuses/CBonusSystemNode.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
 #include "../../lib/bonuses/Propagators.h"
@@ -66,7 +66,7 @@ struct SetGlobalState
 };
 
 
-#define SET_GLOBAL_STATE(ai) SetGlobalState _hlpSetState(ai);
+#define SET_GLOBAL_STATE(ai) SetGlobalState _hlpSetState(ai)
 
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 #define MAKING_TURN SET_GLOBAL_STATE(this)
@@ -104,7 +104,7 @@ void VCAI::heroMoved(const TryMoveHero & details, bool verbose)
 	validateObject(details.id);
 	auto hero = cb->getHero(details.id);
 
-	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));;
+	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
 
 	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
@@ -312,7 +312,8 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 
 	requestActionASAP([=]()
 	{
-		float goalpriority1 = 0, goalpriority2 = 0;
+		float goalpriority1 = 0;
+		float goalpriority2 = 0;
 
 		auto firstGoal = getGoal(firstHero);
 		if(firstGoal->goalType == Goals::GATHER_ARMY)
@@ -654,9 +655,9 @@ void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<u
 	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
-void VCAI::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel)
+void VCAI::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
-	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
+	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i', autoaccept '%i'", text % askID % soundID % selection % cancel % safeToAutoaccept);
 	NET_EVENT_HANDLER;
 	int sel = 0;
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
@@ -732,7 +733,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * 
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits)
+		if(removableUnits && !cb->getStartInfo()->isSteadwickFallCampaignMission())
 			pickBestCreatures(down, up);
 
 		answerQuery(queryID, 0);
@@ -746,9 +747,8 @@ void VCAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, cons
 	requestActionASAP([=](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
-void VCAI::saveGame(BinarySerializer & h, const int version)
+void VCAI::saveGame(BinarySerializer & h)
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
 	validateVisitableObjs();
 
@@ -756,21 +756,20 @@ void VCAI::saveGame(BinarySerializer & h, const int version)
 	//disabled due to issue 2890
 	registerGoals(h);
 	#endif // 0
-	CAdventureAI::saveGame(h, version);
-	serializeInternal(h, version);
+	CAdventureAI::saveGame(h);
+	serializeInternal(h);
 }
 
-void VCAI::loadGame(BinaryDeserializer & h, const int version)
+void VCAI::loadGame(BinaryDeserializer & h)
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	//NET_EVENT_HANDLER;
 
 	#if 0
 	//disabled due to issue 2890
 	registerGoals(h);
 	#endif // 0
-	CAdventureAI::loadGame(h, version);
-	serializeInternal(h, version);
+	CAdventureAI::loadGame(h);
+	serializeInternal(h);
 }
 
 void makePossibleUpgrades(const CArmedInstance * obj)
@@ -1415,8 +1414,8 @@ void VCAI::wander(HeroPtr h)
 			auto compareReinforcements = [&](const CGTownInstance * lhs, const CGTownInstance * rhs) -> bool
 			{
 				const CGHeroInstance * hptr = h.get();
-				auto r1 = ah->howManyReinforcementsCanGet(hptr, lhs),
-					r2 = ah->howManyReinforcementsCanGet(hptr, rhs);
+				auto r1 = ah->howManyReinforcementsCanGet(hptr, lhs);
+				auto r2 = ah->howManyReinforcementsCanGet(hptr, rhs);
 				if (r1 != r2)
 					return r1 < r2;
 				else
@@ -1610,15 +1609,6 @@ void VCAI::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	if (queryID != QueryID::NONE)
-	{
-		status.addQuery(queryID, "Combat result dialog");
-		const int confirmAction = 0;
-		requestActionASAP([=]()
-		{
-			answerQuery(queryID, confirmAction);
-		});
-	}
 	CAdventureAI::battleEnd(battleID, br, queryID);
 }
 
@@ -1848,7 +1838,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cb->moveHero(*h, h->convertFromVisitablePos(dst));
+		cb->moveHero(*h, h->convertFromVisitablePos(dst), false);
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
@@ -1910,7 +1900,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			destinationTeleport = exitId;
 			if(exitPos.valid())
 				destinationTeleportPos = h->convertFromVisitablePos(exitPos);
-			cb->moveHero(*h, h->pos);
+			cb->moveHero(*h, h->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
@@ -2042,6 +2032,9 @@ void VCAI::tryRealize(Goals::Explore & g)
 
 void VCAI::tryRealize(Goals::RecruitHero & g)
 {
+	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
+		throw cannotFulfillGoalException("Not enough gold to recruit hero!");
+
 	if(const CGTownInstance * t = findTownWithTavern())
 	{
 		recruitHero(t, true);
@@ -2145,7 +2138,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 	int accquiredResources = 0;
 	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
 	{
-		if(const IMarket * m = IMarket::castFrom(obj, false))
+		if(const auto * m = dynamic_cast<const IMarket*>(obj))
 		{
 			auto freeRes = ah->freeResources(); //trade only resources which are not reserved
 			for(auto it = ResourceSet::nziterator(freeRes); it.valid(); it++)
@@ -2154,7 +2147,8 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 				if(res.getNum() == g.resID) //sell any other resource
 					continue;
 
-				int toGive, toGet;
+				int toGive;
+				int toGet;
 				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed
@@ -2221,8 +2215,8 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			*boost::max_element(creaturesInDwellings, [](const creInfo & lhs, const creInfo & rhs)
 		{
 			//max value of creatures we can buy with our res
-			int value1 = lhs.cre->getAIValue() * lhs.count,
-				value2 = rhs.cre->getAIValue() * rhs.count;
+			int value1 = lhs.cre->getAIValue() * lhs.count;
+			int value2 = rhs.cre->getAIValue() * rhs.count;
 
 			return value1 < value2;
 		});

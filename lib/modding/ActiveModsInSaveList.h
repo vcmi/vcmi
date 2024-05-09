@@ -16,17 +16,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class ActiveModsInSaveList
 {
-	std::vector<TModID> getActiveMods();
+	std::vector<TModID> getActiveGameplayAffectingMods();
 	const ModVerificationInfo & getVerificationInfo(TModID mod);
 
 	/// Checks whether provided mod list is compatible with current VLC and throws on failure
-	void verifyActiveMods(const std::vector<std::pair<TModID, ModVerificationInfo>> & modList);
+	void verifyActiveMods(const std::map<TModID, ModVerificationInfo> & modList);
 public:
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		if(h.saving)
 		{
-			std::vector<TModID> activeMods = getActiveMods();
+			std::vector<TModID> activeMods = getActiveGameplayAffectingMods();
 			h & activeMods;
 			for(const auto & m : activeMods)
 				h & getVerificationInfo(m);
@@ -36,11 +36,11 @@ public:
 			std::vector<TModID> saveActiveMods;
 			h & saveActiveMods;
 
-			std::vector<std::pair<TModID, ModVerificationInfo>> saveModInfos(saveActiveMods.size());
+			std::map<TModID, ModVerificationInfo> saveModInfos;
 			for(int i = 0; i < saveActiveMods.size(); ++i)
 			{
-				saveModInfos[i].first = saveActiveMods[i];
-				h & saveModInfos[i].second;
+				ModVerificationInfo data;
+				h & saveModInfos[saveActiveMods[i]];
 			}
 
 			verifyActiveMods(saveModInfos);

@@ -37,6 +37,7 @@
 #include "../lib/modding/ModUtility.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/logging/VisualLogger.h"
 #include "CMT.h"
 
 #ifdef SCRIPTING_ENABLED
@@ -135,8 +136,9 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 
 	for(auto & elem : CSH->client->gameState()->players)
 	{
-		if(elem.second.human || 
-			(colorName.length() && elem.first.getNum() != vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, colorName)))
+		if(!elem.first.isValidPlayer()
+			|| elem.second.human
+			|| (colorName.length() && elem.first.getNum() != vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, colorName)))
 		{
 			continue;
 		}
@@ -182,44 +184,108 @@ void ClientCommandManager::handleNotDialogCommand()
 	LOCPLINT->showingDialog->setn(false);
 }
 
-void ClientCommandManager::handleConvertTextCommand()
+void ClientCommandManager::handleTranslateGameCommand()
 {
-	logGlobal->info("Searching for available maps");
+	std::map<std::string, std::map<std::string, std::string>> textsByMod;
+	VLC->generaltexth->exportAllTexts(textsByMod);
+
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
+	boost::filesystem::create_directories(outPath);
+
+	for(const auto & modEntry : textsByMod)
+	{
+		JsonNode output;
+
+		for(const auto & stringEntry : modEntry.second)
+		{
+			if(boost::algorithm::starts_with(stringEntry.first, "map."))
+				continue;
+			if(boost::algorithm::starts_with(stringEntry.first, "campaign."))
+				continue;
+
+			output[stringEntry.first].String() = stringEntry.second;
+		}
+
+		if (!output.isNull())
+		{
+			const boost::filesystem::path filePath = outPath / (modEntry.first + ".json");
+			std::ofstream file(filePath.c_str());
+			file << output.toString();
+		}
+	}
+
+	printCommandMessage("Translation export complete");
+}
+
+void ClientCommandManager::handleTranslateMapsCommand()
+{
+	CMapService mapService;
+
+	printCommandMessage("Searching for available maps");
 	std::unordered_set<ResourcePath> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
 	{
 		return ident.getType() == EResType::MAP;
 	});
 
-	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
-	{
-		return ident.getType() == EResType::CAMPAIGN;
-	});
+	std::vector<std::unique_ptr<CMap>> loadedMaps;
+	std::vector<std::shared_ptr<CampaignState>> loadedCampaigns;
 
-	CMapService mapService;
-
-	logGlobal->info("Loading maps for export");
+	printCommandMessage("Loading maps for export");
 	for (auto const & mapName : mapList)
 	{
 		try
 		{
 			// load and drop loaded map - we only need loader to run over all maps
-			mapService.loadMap(mapName);
+			loadedMaps.push_back(mapService.loadMap(mapName, nullptr));
 		}
 		catch(std::exception & e)
 		{
-			logGlobal->error("Map %s is invalid. Message: %s", mapName.getName(), e.what());
+			logGlobal->warn("Map %s is invalid. Message: %s", mapName.getName(), e.what());
 		}
 	}
+
+	printCommandMessage("Searching for available campaigns");
+	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
+	{
+		return ident.getType() == EResType::CAMPAIGN;
+	});
 
 	logGlobal->info("Loading campaigns for export");
 	for (auto const & campaignName : campaignList)
 	{
-		auto state = CampaignHandler::getCampaign(campaignName.getName());
-		for (auto const & part : state->allScenarios())
-			state->getMap(part);
+		loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
+		for (auto const & part : loadedCampaigns.back()->allScenarios())
+			loadedCampaigns.back()->getMap(part, nullptr);
 	}
 
-	VLC->generaltexth->dumpAllTexts();
+	std::map<std::string, std::map<std::string, std::string>> textsByMod;
+	VLC->generaltexth->exportAllTexts(textsByMod);
+
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
+	boost::filesystem::create_directories(outPath);
+
+	for(const auto & modEntry : textsByMod)
+	{
+		JsonNode output;
+
+		for(const auto & stringEntry : modEntry.second)
+		{
+			if(boost::algorithm::starts_with(stringEntry.first, "map."))
+				output[stringEntry.first].String() = stringEntry.second;
+
+			if(boost::algorithm::starts_with(stringEntry.first, "campaign."))
+				output[stringEntry.first].String() = stringEntry.second;
+		}
+
+		if (!output.isNull())
+		{
+			const boost::filesystem::path filePath = outPath / (modEntry.first + ".json");
+			std::ofstream file(filePath.c_str());
+			file << output.toString();
+		}
+	}
+
+	printCommandMessage("Translation export complete");
 }
 
 void ClientCommandManager::handleGetConfigCommand()
@@ -248,13 +314,13 @@ void ClientCommandManager::handleGetConfigCommand()
 			{
 				const JsonNode& object = nameAndObject.second;
 
-				std::string name = ModUtility::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
+				std::string name = ModUtility::makeFullIdentifier(object.getModScope(), contentName, nameAndObject.first);
 
 				boost::algorithm::replace_all(name, ":", "_");
 
 				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
 				std::ofstream file(filePath.c_str());
-				file << object.toJson();
+				file << object.toString();
 			}
 		}
 	}
@@ -272,7 +338,7 @@ void ClientCommandManager::handleGetScriptsCommand()
 
 	boost::filesystem::create_directories(outPath);
 
-	for(auto & kv : VLC->scriptHandler->objects)
+	for(const auto & kv : VLC->scriptHandler->objects)
 	{
 		std::string name = kv.first;
 		boost::algorithm::replace_all(name,":","_");
@@ -358,7 +424,7 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 	auto format = [outputFormat](const BonusList & b) -> std::string
 	{
 		if(outputFormat == "json")
-			return b.toJsonNode().toJson(true);
+			return b.toJsonNode().toCompactString();
 
 		std::ostringstream ss;
 		ss << b;
@@ -379,7 +445,8 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffer)
 {
 	std::string what;
-	int id1, id2;
+	int id1;
+	int id2;
 	singleWordBuffer >> what >> id1 >> id2;
 
 	if(what == "hs")
@@ -399,7 +466,8 @@ void ClientCommandManager::handleMpCommand()
 
 void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer)
 {
-	std::string what, value;
+	std::string what;
+	std::string value;
 	singleWordBuffer >> what;
 
 	Settings config = settings.write["session"][what];
@@ -423,6 +491,14 @@ void ClientCommandManager::handleCrashCommand()
 	int* ptr = nullptr;
 	*ptr = 666;
 	//disaster!
+}
+
+void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
+{
+	std::string key;
+	singleWordBuffer >> key;
+
+	logVisual->setKey(key);
 }
 
 void ClientCommandManager::printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType)
@@ -457,7 +533,7 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		if(LOCPLINT && LOCPLINT->cingconsole)
 		{
-			LOCPLINT->cingconsole->print(commandMessage);
+			LOCPLINT->cingconsole->addMessage("", "System", commandMessage);
 		}
 	}
 }
@@ -511,8 +587,11 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(commandName == "not dialog")
 		handleNotDialogCommand();
 
-	else if(message=="convert txt")
-		handleConvertTextCommand();
+	else if(message=="translate" || message=="translate game")
+		handleTranslateGameCommand();
+
+	else if(message=="translate maps")
+		handleTranslateMapsCommand();
 
 	else if(message=="get config")
 		handleGetConfigCommand();
@@ -543,6 +622,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "crash")
 		handleCrashCommand();
+
+	else if(commandName == "vslog")
+		handleVsLog(singleWordBuffer);
 
 	else
 	{

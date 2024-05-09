@@ -38,6 +38,9 @@ protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override final;
 
 private:
+	int32_t summonedCreatureAmount(const Mechanics * m) const;
+	int32_t summonedCreatureHealth(const Mechanics * m, const battle::Unit * unit) const;
+
 	CreatureID creature;
 
 	bool permanent = false;

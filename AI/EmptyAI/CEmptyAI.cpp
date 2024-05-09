@@ -14,11 +14,11 @@
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
 
-void CEmptyAI::saveGame(BinarySerializer & h, const int version)
+void CEmptyAI::saveGame(BinarySerializer & h)
 {
 }
 
-void CEmptyAI::loadGame(BinaryDeserializer & h, const int version)
+void CEmptyAI::loadGame(BinaryDeserializer & h)
 {
 }
 
@@ -56,7 +56,7 @@ void CEmptyAI::commanderGotLevel(const CCommanderInstance * commander, std::vect
 	cb->selectionMade(CRandomGenerator::getDefault().nextInt((int)skills.size() - 1), queryID);
 }
 
-void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel)
+void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
 	cb->selectionMade(0, askID);
 }

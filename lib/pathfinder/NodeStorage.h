@@ -34,10 +34,12 @@ public:
 	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
 	virtual ~NodeStorage() = default;
 
-	virtual std::vector<CGPathNode *> getInitialNodes() override;
+	std::vector<CGPathNode *> getInitialNodes() override;
 
-	virtual std::vector<CGPathNode *> calculateNeighbours(
+	virtual void calculateNeighbours(
+		std::vector<CGPathNode *> & result,
 		const PathNodeInfo & source,
+		EPathfindingLayer layer,
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) override;
 
@@ -46,7 +48,7 @@ public:
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) override;
 
-	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
+	void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
 };
 
 VCMI_LIB_NAMESPACE_END

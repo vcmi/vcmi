@@ -34,7 +34,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/CMessage.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
@@ -449,12 +449,10 @@ void HeroInfoBasicPanel::show(Canvas & to)
 }
 
 
-StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground)
+StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBackground)
 	: CIntObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	if (position != nullptr)
-		moveTo(*position);
 
 	if(initializeBackground)
 	{
@@ -530,7 +528,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 		if (hasGraphics)
 		{
 			//FIXME: support permanent duration
-			int duration = stack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
+			int duration = stack->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
 
 			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
 			if(settings["general"]["enableUiEnhancements"].Bool())
@@ -585,7 +583,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 	
-	if(allowReplay)
+	if(allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay)
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
@@ -854,12 +852,19 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	uint32_t queueSize = QUEUE_SIZE_BIG;
+
 	if(embedded)
 	{
-		pos.w = QUEUE_SIZE * 41;
+		int32_t queueSmallOutsideYOffset = 65;
+		bool queueSmallOutside = settings["battle"]["queueSmallOutside"].Bool() && (pos.y - queueSmallOutsideYOffset) >= 0;
+		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, queueSmallOutside ? GH.screenDimensions().x / 41 : 19);
+
+		pos.w = queueSize * 41;
 		pos.h = 49;
 		pos.x += parent->pos.w/2 - pos.w/2;
-		pos.y += 10;
+		pos.y += queueSmallOutside ? -queueSmallOutsideYOffset : 10;
 
 		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"));
 		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
@@ -880,7 +885,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	}
 	stateIcons->preload();
 
-	stackBoxes.resize(QUEUE_SIZE);
+	stackBoxes.resize(queueSize);
 	for (int i = 0; i < stackBoxes.size(); i++)
 	{
 		stackBoxes[i] = std::make_shared<StackBox>(this);

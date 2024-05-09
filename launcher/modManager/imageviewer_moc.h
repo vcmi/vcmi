@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#ifndef IMAGEVIEWER_H
-#define IMAGEVIEWER_H
+#pragma once
 
 #include <QDialog>
 
@@ -38,5 +37,3 @@ protected:
 private:
 	Ui::ImageViewer * ui;
 };
-
-#endif // IMAGEVIEWER_H

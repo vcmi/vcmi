@@ -122,7 +122,7 @@ TEST_F(TargetConditionTest, SerializesCorrectly)
 
 	EXPECT_CALL(factoryMock, createConfigurable(Eq(""), Eq("bonus"), Eq("UNDEAD"))).WillOnce(Return(normalItem));
 
-	JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode config;
 	config["noneOf"]["bonus.NON_LIVING"].String() = "normal";
 	config["anyOf"]["bonus.SIEGE_WEAPON"].String() = "absolute";
 	config["allOf"]["bonus.UNDEAD"].String() = "normal";

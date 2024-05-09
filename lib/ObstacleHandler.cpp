@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "ObstacleHandler.h"
 #include "BattleFieldHandler.h"
+#include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
-#include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

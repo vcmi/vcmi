@@ -14,7 +14,6 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/JsonNode.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/int3.h"
 #include "../lib/CRandomGenerator.h"
@@ -25,7 +24,7 @@ TEST(MapManager, DrawTerrain_Type)
 {
 	try
 	{
-		auto map = std::make_unique<CMap>();
+		auto map = std::make_unique<CMap>(nullptr);
 		map->width = 52;
 		map->height = 52;
 		map->initTerrain();
@@ -114,8 +113,8 @@ TEST(MapManager, DrawTerrain_View)
 		const ResourcePath testMap("test/TerrainViewTest", EResType::MAP);
 		// Load maps and json config
 		CMapService mapService;
-		const auto originalMap = mapService.loadMap(testMap);
-		auto map = mapService.loadMap(testMap);
+		const auto originalMap = mapService.loadMap(testMap, nullptr);
+		auto map = mapService.loadMap(testMap, nullptr);
 
 		// Validate edit manager
 		auto editManager = map->getEditManager();

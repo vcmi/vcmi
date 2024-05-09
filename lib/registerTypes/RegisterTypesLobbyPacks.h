@@ -34,10 +34,12 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToPropagate, LobbyClientConnected>();
 	s.template registerType<CLobbyPackToPropagate, LobbyClientDisconnected>();
 	s.template registerType<CLobbyPackToPropagate, LobbyChatMessage>();
+	s.template registerType<CLobbyPackToServer, LobbyPvPAction>();
 	// Only host client send
 	s.template registerType<CLobbyPackToPropagate, LobbyGuiAction>();
 	s.template registerType<CLobbyPackToPropagate, LobbyLoadProgress>();
-	s.template registerType<CLobbyPackToPropagate, LobbyEndGame>();
+	s.template registerType<CLobbyPackToPropagate, LobbyRestartGame>();
+	s.template registerType<CLobbyPackToPropagate, LobbyPrepareStartGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyStartGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyChangeHost>();
 	// Only server send
@@ -57,6 +59,7 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToServer, LobbySetSimturns>();
 	s.template registerType<CLobbyPackToServer, LobbySetDifficulty>();
 	s.template registerType<CLobbyPackToServer, LobbyForceSetPlayer>();
+	s.template registerType<CLobbyPackToServer, LobbySetExtraOptions>();
 }
 
 VCMI_LIB_NAMESPACE_END

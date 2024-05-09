@@ -11,21 +11,26 @@
 #include "cmodlist.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/modding/CModVersion.h"
 
 QString CModEntry::sizeToString(double size)
 {
-	static const std::array<QString, 5> sizes { "%1 B", "%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB" };
+	static const std::array sizes {
+		QT_TRANSLATE_NOOP("File size", "%1 B"),
+		QT_TRANSLATE_NOOP("File size", "%1 KiB"),
+		QT_TRANSLATE_NOOP("File size", "%1 MiB"),
+		QT_TRANSLATE_NOOP("File size", "%1 GiB"),
+		QT_TRANSLATE_NOOP("File size", "%1 TiB")
+	};
 	size_t index = 0;
 	while(size > 1024 && index < sizes.size())
 	{
 		size /= 1024;
 		index++;
 	}
-	return sizes[index].arg(QString::number(size, 'f', 1));
+	return QCoreApplication::translate("File size", sizes[index]).arg(QString::number(size, 'f', 1));
 }
 
 CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname)
@@ -95,13 +100,13 @@ bool CModEntry::isInstalled() const
 
 bool CModEntry::isVisible() const
 {
-	if (getBaseValue("modType").toString() == "Compatibility")
+	if (isCompatibilityPatch())
 	{
 		if (isSubmod())
 			return false;
 	}
 
-	if (getBaseValue("modType").toString() == "Translation")
+	if (isTranslation())
 	{
 		// Do not show not installed translation mods to languages other than player language
 		if (localData.empty() && getBaseValue("language") != QString::fromStdString(settings["general"]["language"].String()) )
@@ -114,6 +119,11 @@ bool CModEntry::isVisible() const
 bool CModEntry::isTranslation() const
 {
 	return getBaseValue("modType").toString() == "Translation";
+}
+
+bool CModEntry::isCompatibilityPatch() const
+{
+	return getBaseValue("modType").toString() == "Compatibility";
 }
 
 bool CModEntry::isSubmod() const

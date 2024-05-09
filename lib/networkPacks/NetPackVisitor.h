@@ -87,6 +87,7 @@ public:
 	virtual void visitInfoWindow(InfoWindow & pack) {}
 	virtual void visitSetObjectProperty(SetObjectProperty & pack) {}
 	virtual void visitChangeObjectVisitors(ChangeObjectVisitors & pack) {}
+	virtual void visitChangeArtifactsCostume(ChangeArtifactsCostume & pack) {}
 	virtual void visitHeroLevelUp(HeroLevelUp & pack) {}
 	virtual void visitCommanderLevelUp(CommanderLevelUp & pack) {}
 	virtual void visitBlockingDialog(BlockingDialog & pack) {}
@@ -131,6 +132,8 @@ public:
 	virtual void visitGarrisonHeroSwap(GarrisonHeroSwap & pack) {}
 	virtual void visitExchangeArtifacts(ExchangeArtifacts & pack) {}
 	virtual void visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack) {}
+	virtual void visitManageBackpackArtifacts(ManageBackpackArtifacts & pack) {}
+	virtual void visitManageEquippedArtifacts(ManageEquippedArtifacts & pack) {}
 	virtual void visitAssembleArtifacts(AssembleArtifacts & pack) {}
 	virtual void visitEraseArtifactByClient(EraseArtifactByClient & pack) {}
 	virtual void visitBuyArtifact(BuyArtifact & pack) {}
@@ -151,7 +154,8 @@ public:
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) {}
 	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) {}
 	virtual void visitLobbyLoadProgress(LobbyLoadProgress & pack) {}
-	virtual void visitLobbyEndGame(LobbyEndGame & pack) {}
+	virtual void visitLobbyRestartGame(LobbyRestartGame & pack) {}
+	virtual void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) {}
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) {}
@@ -164,9 +168,11 @@ public:
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
 	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) {}
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) {}
+	virtual void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) {}
 	virtual void visitLobbySetDifficulty(LobbySetDifficulty & pack) {}
 	virtual void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) {}
 	virtual void visitLobbyShowMessage(LobbyShowMessage & pack) {}
+	virtual void visitLobbyPvPAction(LobbyPvPAction & pack) {}
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -120,6 +120,11 @@ TResources BuildAnalyzer::getTotalResourcesRequired() const
 	return result;
 }
 
+bool BuildAnalyzer::isGoldPressureHigh() const
+{
+	return goldPressure > ai->settings->getMaxGoldPressure();
+}
+
 void BuildAnalyzer::update()
 {
 	logAi->trace("Start analysing build");
@@ -162,15 +167,15 @@ void BuildAnalyzer::update()
 
 	if(ai->cb->getDate(Date::DAY) == 1)
 	{
-		goldPreasure = 1;
+		goldPressure = 1;
 	}
 	else
 	{
-		goldPreasure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
+		goldPressure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
 			+ (float)armyCost[EGameResID::GOLD] / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 	}
 
-	logAi->trace("Gold preasure: %f", goldPreasure);
+	logAi->trace("Gold pressure: %f", goldPressure);
 }
 
 void BuildAnalyzer::reset()

@@ -10,10 +10,9 @@
 #include "StdInc.h"
 #include "JsonUpdater.h"
 
-#include "../JsonNode.h"
-
 #include "../bonuses/CBonusSystemNode.h"
 #include "../bonuses/Bonus.h"
+#include "../json/JsonBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -208,8 +207,7 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 				&& mask->sid == b->sid
 				&& mask->valType == b->valType
 				&& mask->additionalInfo == b->additionalInfo
-				&& mask->effectRange == b->effectRange
-				&& mask->description == b->description;
+				&& mask->effectRange == b->effectRange;
 			};
 
 			value->removeBonuses(selector);

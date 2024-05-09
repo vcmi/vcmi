@@ -1,3 +1,187 @@
+# 1.4.5 -> 1.5.0
+
+### General
+* Added Portuguese (Brazilian) translation
+* Added basic support for game controllers
+* Added option to disable cheats in game
+* Game will no longer run vcmiserver as a separate process on desktop systems
+* Game will no longer show server error messages in game chat in release builds
+* Implemented switchable artifact sets from HD Mod
+
+### Stability
+* Fixed possible crash in Altar of Sacrifice
+* Fixed possible crash on activation of 'Enchanted' bonus
+* Fixed possible race condition on random maps generation on placement treasures near border with water zone
+* Fixed crash on missing video files
+* Fixed crash on using healing spell as 'casts before/after attack' bonus
+* Fixed crash on defeating hero that was located in boat on game start
+* Fixed possible crash on turn timer running out while player has town screen open
+* Fixed crash when player has manual control of arrow towers during siege
+* Fixed crash on attempt to attack with Magma Elementals with Erdamon as hero
+* Fixed crash on attempt to access removed Quest Guard
+* Fixed crash on moving through whirlpool when hero has no troops other than commander
+* Fixed possible freeze when moving hero over events that give enough experience to cause a level-up
+* Fixed possible crash on movement of double-wide creatures next to gates during siege
+* Fixed possible hanging app on attempt to close game during loading
+
+### Multiplayer
+* Game map will no longer be locked during turn of other human players, allowing to change hero paths or inspect towns or heroes
+* Game will now correctly block most of player actions outside of their turn
+* Implemented new lobby, available in game with persistent accounts and chat
+* Removed old lobby previously available in launcher
+* Fixed potential crash that could occur if two players act at the very same time
+* Game will no longer pause due to network lag after every tile when instant movement speed is selected in multiplayer
+* Game will now show "X player's turn" dialog on new turn in online multiplayer
+* Fixed loading of turn timers state from saved games
+* Simultaneous turns will now break when players are 1 turn away from each other instead of 2 turns
+* Implemented rolling and banning of towns before game start
+
+### Interface
+* Implemented configurable keyboard shortcuts, editable in file config/shortcutsConfig.json
+* Fixed broken keyboard shortcuts in main menu
+* If UI Enhancements are enabled, the game will skip confirmation dialogs when entering owned dwellings or refugee camp.
+* It is now possible to move artifact to or from backpack using Alt+click
+* It is now possible to transfer artifact to another hero during exchange using Ctrl+click
+* It is no longer possible to start single scenario by pressing "Enter", in line with H3 and to prevent interference with game chat
+* Empty treasure banks will no longer ask for confirmation when entering
+* Game will now save last used difficulty settings
+* Opening random map tab or scenario selection tab in pregame will no longer reset starting towns or heroes unless different map was selected
+* Town Portal dialog will now show town icons
+* Town Portal dialog will now show town info on right click
+* Town Portal dialog will center on town on clicking it
+* Town Portal dialog now uses same town ordering as in adventure map interface
+* Game will now remember scrolling position of hero backpack
+* Heroes can now be recruited from the tavern by double-clicking on them
+* Added status bar to the backpack window
+* Quick backpack window is now only available when enabled Interface enhancements
+* Fixed assembly of artifacts in the backpack when backpack is full
+* Attempt to use enemy turn replay feature will now show "Not implemented" message
+* It is now possible to configure size of small battle queue in config file
+* Opening hero window in town will now open exchange dialog if there are two heroes in town, allowing artifact exchange
+* Fixed positioning of FPS counter after resolution change
+* It is now possible to access extra options window from campaigns startup dialog
+* Size of message boxes should now match H3 better. Maximum-size message box will always be smaller than screen size
+* If monsters are willing to join for money, game will now show gold icon in this dialog box
+* Fixed visual duplication of artifacts on Altar of Sacrifice
+* Fixed translation of some bonuses using incorrect language
+* Added option to use 'nearest' rounding mode for UI scaling
+* Fixed various minor bugs in trade window interface
+* Removed animation of spawning of every single new monster on new month
+* Game will now correctly reset artifact drag-and-drop cursor if player opens another dialog on top of hero window
+* If player has no valid saves, game will pick "NEWGAME" as proposed save name instead of empty field
+* Fixed incorrect visitation sounds of Crypt, Shipwreck and Abandoned Ship
+* Fixed double sound playback on capturing mines
+* Recruitment costs that consist from 3 different resources should now fit recruitment window UI better
+
+### Campaigns
+* Game will now correctly track who defeated the hero or wandering monsters for related quests and victory conditions
+* Birth of a Barbarian: Yog will now start the third scenario with Angelic Alliance in his inventory
+* Birth of a Barbarian: Heroes with Angelic Alliance components are now considered to be mission-critical and can't be dismissed or lost in combat
+* Birth of a Barbarian: Yog can no longer purchase spellbook from the Mage Guild
+* Birth of a Barbarian: Yog will no longer gain Spellpower or Knowledge when leveling up
+* Birth of a Barbarian: Scenarios with mission to deliver an artifact will no longer end after just defeating enemies
+* Dungeons and Devils: AI will no longer take troops from garrisons in "Fall of Steadwick" scenario, in line with H3
+* Gem will now have her class set to "Sorceress" in campaigns
+* Fixed missing names for heroes who have their names customized in map after being transferred to the next scenario
+* Artifact transfer will now work correctly if the hero holding the transferable artifact is not also transferring
+* Fixed crash on opening of some campaigns in the French version from gog.com
+* Fixed crash on advancing to campaign mission in which you can pick hero as starting bonus
+* It is now possible to replay the intro movie from the scenario information window
+* When playing the intro video, the subtitles are now correctly synchronized with the audio
+* Fixed invalid string on right-clicking secondary skill starting bonus
+
+### Battles
+* Added option to enable unlimited combat replays during game setup
+* Added option to instantly end battle using quick combat (shotcut: 'e')
+* Added option to replace auto-combat button action with instant end using quick combat
+* Battles against AI players can now be done using quick combat
+* Disabling battle queue will now correctly reposition hero statistics preview popup
+* Fixed positioning of unit stack size label
+
+### Mechanics
+* It is no longer possible to learn spells from Pandora or events if hero can not learn them
+* Fixed behavior of 'Dimension Door' spell to be in line with H3:SoD
+* Fixed behavior of 'Fly' spell to be in line with H3:SoD
+* If it is not possible to cast 'Dimension Door', game will show message immediately on picking spell in spellbook
+* Added options to configure 'Dimension Door' spell to be in line with HotA
+* Casting 'Town Portal' while in boat will now show correct message box instead of server error
+* Game will now take mana before visiting town after casting 'Town Portal', allowing Mana Vortex to correctly replenish all mana points
+* Fixed loading of negative luck and morale in events, pandoras and quests on h3m maps
+* Fixed incorrect 'duplicate hero' error on loading of some vmap maps
+* Fixed previously broken digging of the Grail
+* Successful digging for Grail will now show correct message
+* Game will now correctly update movement range after rearranging armies
+* It is no longer possible for two towns with random names to have same name, just like in H3
+* Creatures that were consumed by Demon Summon ability will no longer return to life after the battle
+* Effects of melee-only or ranged-only spells, such as Bloodlust or Precision are no longer cumulative
+* It is no longer possible to use summoning spells if such spell would summon 0 creatures
+* It is now possible to assemble or disassemble artifacts while in Altar of Sacrifice
+* It is no longer possible to move war machines to Altar of Sacrifice
+* If HotA mod is enabled, game will no longer incorrectly replace all prisons on map with HotA version
+* Fixed regression leading to large elemental dwellings being used as replacements for random dwellings
+
+### Random Maps Generator
+* Game will now save last used RMG settings in game and in editor
+* Reduced number of obstacles placed in water zones
+* Treasure values in water zone should now be similar to values from HotA, due to bugs in H3:SoD values
+* Random map templates can now have optional description visible in random map setup
+* Implemented biomes system, for more consistent and natural obstacles placement
+* Implemented Penrose tiling to produce more natural zone edges
+* Increased minimal density of obstacles on surface level of the map
+* Decreased minimal density of obstacles on undergound level of the map
+* Density of objects should now closely resemble H3 RMG
+* Generator will now avoid routing road under guarded objects whenever possible
+* Generator will now avoid placing guards near roads
+* Generator will not place a guard near the road if it's stronger than 1/3 of max guard strength for this zone
+* Interactive objects will now appear on top of static objects
+* Windmill will now appear on top of all other objects
+
+### Launcher
+* Launcher now supports installation of Heroes 3 data using gog.com offline installer thanks to innoextract tool
+* Fixed loading of mod screenshots if player opens screenshots tab without any preloaded screenshots
+* Fixed installation of mods if it has non-installed submod as dependency
+* It is now possible to import game settings using drag-and-drop
+* Added button to import mods, maps, or settings in addition to drag-and-drop
+* Added Spanish translation to launcher
+* Added Portuguese translation to launcher
+
+### Map Editor
+* Added Chinese translation to map editor
+* Added Portuguese translation to map editor
+* Mod list in settings will now correctly show submods of submods
+* Fixed display of resource type and quantity in mines
+* Fixed inability to change object owner in editor
+* Added map sizes larger than XL in map editor
+* It is now possible to customize hero spells
+
+### AI
+* Fixed possible crash on updating NKAI pathfinding data
+* Fixed possible crash if hero has only commander left without army
+* Fixed possible crash on attempt to build tavern in a town
+* Fixed counting mana usage cost of Fly spell
+* Added estimation of value of Pyramid and Cyclops Stockpile
+* Reduced memory usage and improved performance of AI pathfinding
+* Added experimental and disabled by default implementation of object graph
+* It is now possible to configure AI settings via config file
+* Improved parallelization when AI has multiple heroes
+* AI-controlled creatures will now correctly move across wide moat in Fortress
+* Fixed system error messages caused by visitation of Trading Posts by VCAI 
+* Patrolling heroes will never retreat from the battle
+* AI will now consider strength of town garrison and not just strength of visiting hero when deciding to attack town
+
+### Modding
+* Added new game setting that allows inviting heroes to taverns
+* It is now possible to add creature or faction description accessible via right-click of the icon
+* Fixed reversed Overlord and Warlock classes mapping
+* Added 'selectAll' mode for configurable objects which grants all potential rewards 
+* It is now possible to use most of json5 format in vcmi json files
+* Main mod.json file (including any submods) now requires strict json, without comments or extra commas
+* Replaced bonus MANA_PER_KNOWLEDGE with MANA_PER_KNOWLEDGE_PERCENTAGE to avoid rounding error with mysticism
+* Factions can now be marked as 'special', banning them from random selection
+* Replaced 'convert txt' text export command with more convenient 'translate' and 'translate maps' commands
+* Game will now report cases where minimal damage of a creature is greater than maximal damage
+* Added bonuses RESOURCES_CONSTANT_BOOST and RESOURCES_TOWN_MULTIPLYING_BOOST
+
 # 1.4.4 -> 1.4.5
 
 ### Stability

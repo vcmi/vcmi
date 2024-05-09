@@ -13,7 +13,7 @@
 
 #include "../filesystem/CInputStream.h"
 #include "../filesystem/COutputStream.h"
-#include "../JsonDetail.h"
+#include "../json/JsonWriter.h"
 #include "CMap.h"
 #include "MapFormat.h"
 #include "../ArtifactUtils.h"
@@ -28,6 +28,7 @@
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModUtility.h"
 #include "../spells/CSpellHandler.h"
@@ -544,13 +545,10 @@ void CMapFormatJson::writeTeams(JsonSerializer & handler)
 
 		for(const std::set<PlayerColor> & teamData : teamsData)
 		{
-			JsonNode team(JsonNode::JsonType::DATA_VECTOR);
+			JsonNode team;
 			for(const PlayerColor & player : teamData)
-			{
-				JsonNode member(JsonNode::JsonType::DATA_STRING);
-				member.String() = GameConstants::PLAYER_COLOR_NAMES[player.getNum()];
-				team.Vector().push_back(std::move(member));
-			}
+				team.Vector().emplace_back(GameConstants::PLAYER_COLOR_NAMES[player.getNum()]);
+
 			dest.Vector().push_back(std::move(team));
 		}
 		handler.serializeRaw("teams", dest, std::nullopt);
@@ -585,7 +583,7 @@ void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode &
 
 void CMapFormatJson::writeTriggeredEvents(JsonSerializer & handler)
 {
-	JsonNode triggeredEvents(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode triggeredEvents;
 
 	for(const auto & event : mapHeader->triggeredEvents)
 		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
@@ -656,7 +654,7 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 
 		auto definition = definitions->enterStruct(type);
 
-		JsonNode players(JsonNode::JsonType::DATA_VECTOR);
+		JsonNode players;
 		definition->serializeIdArray("availableFor", hero.players);
 	}
 }
@@ -677,19 +675,19 @@ void CMapFormatJson::serializeTimedEvents(JsonSerializeFormat & handler)
 
 void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 {
-    //todo:serializePredefinedHeroes
+	//todo:serializePredefinedHeroes
 
-    if(handler.saving)
+	if(handler.saving)
 	{
 		if(!map->predefinedHeroes.empty())
 		{
 			auto predefinedHeroes = handler.enterStruct("predefinedHeroes");
 
-            for(auto & hero : map->predefinedHeroes)
+			for(auto & hero : map->predefinedHeroes)
 			{
-                auto predefinedHero = handler.enterStruct(hero->getHeroTypeName());
+				auto predefinedHero = handler.enterStruct(hero->getHeroTypeName());
 
-                hero->serializeJsonDefinition(handler);
+				hero->serializeJsonDefinition(handler);
 			}
 		}
 	}
@@ -697,13 +695,13 @@ void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 	{
 		auto predefinedHeroes = handler.enterStruct("predefinedHeroes");
 
-        const JsonNode & data = handler.getCurrent();
+		const JsonNode & data = handler.getCurrent();
 
-        for(const auto & p : data.Struct())
+		for(const auto & p : data.Struct())
 		{
 			auto predefinedHero = handler.enterStruct(p.first);
 
-			auto * hero = new CGHeroInstance();
+			auto * hero = new CGHeroInstance(map->cb);
 			hero->ID = Obj::HERO;
 			hero->setHeroTypeName(p.first);
 			hero->serializeJsonDefinition(handler);
@@ -777,10 +775,10 @@ CMapLoaderJson::CMapLoaderJson(CInputStream * stream)
 {
 }
 
-std::unique_ptr<CMap> CMapLoaderJson::loadMap()
+std::unique_ptr<CMap> CMapLoaderJson::loadMap(IGameCallback * cb)
 {
 	LOG_TRACE(logGlobal);
-	std::unique_ptr<CMap> result = std::make_unique<CMap>();
+	auto result = std::make_unique<CMap>(cb);
 	map = result.get();
 	mapHeader = map;
 	readMap();
@@ -791,7 +789,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 {
 	LOG_TRACE(logGlobal);
 	map = nullptr;
-	std::unique_ptr<CMapHeader> result = std::make_unique<CMapHeader>();
+	auto result = std::make_unique<CMapHeader>();
 	mapHeader = result.get();
 	readHeader(false);
 	return result;
@@ -811,7 +809,7 @@ JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 
 	auto data = loader.load(resource)->readAll();
 
-	JsonNode res(reinterpret_cast<char*>(data.first.get()), data.second);
+	JsonNode res(reinterpret_cast<const std::byte*>(data.first.get()), data.second);
 
 	return res;
 }
@@ -852,23 +850,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
 	
 	//loading mods
-	if(!header["mods"].isNull())
-	{
-		for(auto & mod : header["mods"].Vector())
-		{
-			ModVerificationInfo info;
-			info.version = CModVersion::fromString(mod["version"].String());
-			info.checksum = mod["checksum"].Integer();
-			info.name = mod["name"].String();
-			info.parent = mod["parent"].String();
-			info.impactsGameplay = true;
-			
-			if(!mod["modId"].isNull())
-				mapHeader->mods[mod["modId"].String()] = info;
-			else
-				mapHeader->mods[mod["name"].String()] = info;
-		}
-	}
+	mapHeader->mods = ModVerificationInfo::jsonDeserializeList(header["mods"]);
 
 	//todo: multilevel map load support
 	{
@@ -1048,7 +1030,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	if(typeName.empty())
 	{
 		logGlobal->error("Object type missing");
-		logGlobal->debug(configuration.toJson());
+		logGlobal->debug(configuration.toString());
 		return;
 	}
 
@@ -1068,7 +1050,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	else if(subtypeName.empty())
 	{
 		logGlobal->error("Object subtype missing");
-		logGlobal->debug(configuration.toJson());
+		logGlobal->debug(configuration.toString());
 		return;
 	}
 
@@ -1081,7 +1063,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	appearance->readJson(configuration["template"], false);
 
 	// Will be destroyed soon and replaced with shared template
-	instance = handler->create(appearance);
+	instance = handler->create(owner->map->cb, appearance);
 
 	instance->id = ObjectInstanceID(static_cast<si32>(owner->map->objects.size()));
 	instance->instanceName = jsonKey;
@@ -1155,6 +1137,21 @@ void CMapLoaderJson::readObjects()
 	{
 		return a->getObjTypeIndex() < b->getObjTypeIndex();
 	});
+
+
+	std::set<HeroTypeID> debugHeroesOnMap;
+	for (auto const & object : map->objects)
+	{
+		if(object->ID != Obj::HERO && object->ID != Obj::PRISON)
+			continue;
+
+		auto * hero = dynamic_cast<const CGHeroInstance *>(object.get());
+
+		if (debugHeroesOnMap.count(hero->getHeroType()))
+			logGlobal->error("Hero is already on the map at %s", hero->visitablePos().toString());
+
+		debugHeroesOnMap.insert(hero->getHeroType());
+	}
 }
 
 void CMapLoaderJson::readTranslations()
@@ -1185,7 +1182,7 @@ CMapSaverJson::~CMapSaverJson() = default;
 void CMapSaverJson::addToArchive(const JsonNode & data, const std::string & filename)
 {
 	std::ostringstream out;
-	JsonWriter writer(out);
+	JsonWriter writer(out, false);
 	writer.writeNode(data);
 	out.flush();
 
@@ -1218,17 +1215,7 @@ void CMapSaverJson::writeHeader()
 	header["versionMinor"].Float() = VERSION_MINOR;
 	
 	//write mods
-	JsonNode & mods = header["mods"];
-	for(const auto & mod : mapHeader->mods)
-	{
-		JsonNode modWriter;
-		modWriter["modId"].String() = mod.first;
-		modWriter["name"].String() = mod.second.name;
-		modWriter["parent"].String() = mod.second.parent;
-		modWriter["version"].String() = mod.second.version.toString();
-		modWriter["checksum"].Integer() = mod.second.checksum;
-		mods.Vector().push_back(modWriter);
-	}
+	header["mods"] = ModVerificationInfo::jsonSerializeList(mapHeader->mods);
 
 	//todo: multilevel map save support
 	JsonNode & levels = header["mapLevels"];
@@ -1313,7 +1300,7 @@ void CMapSaverJson::writeTerrain()
 void CMapSaverJson::writeObjects()
 {
 	logGlobal->trace("Saving objects");
-	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode data;
 
 	JsonSerializer handler(mapObjectResolver.get(), data);
 
@@ -1327,7 +1314,7 @@ void CMapSaverJson::writeObjects()
 
 	if(map->grailPos.valid())
 	{
-		JsonNode grail(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode grail;
 		grail["type"].String() = "grail";
 
 		grail["x"].Float() = map->grailPos.x;
@@ -1360,7 +1347,7 @@ void CMapSaverJson::writeTranslations()
 		if(Languages::getLanguageOptions(language).identifier.empty())
 		{
 			logGlobal->error("Serializing of unsupported language %s is not permitted", language);
-			continue;;
+			continue;
 		}
 		logGlobal->trace("Saving translations, language: %s", language);
 		addToArchive(s.second, language + ".json");

@@ -11,17 +11,29 @@
 
 #include "CArtifactsOfHeroBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include "../gui/Shortcut.h"
 
-struct ArtifactLocation;
-
-VCMI_LIB_NAMESPACE_END
-
-class CArtifactsOfHeroMain : public CArtifactsOfHeroBase
+class CArtifactsOfHeroMain : public CArtifactsOfHeroBase, public CKeyShortcut
 {
 public:
 	CArtifactsOfHeroMain(const Point & position);
-	~CArtifactsOfHeroMain();
-	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
-	void pickUpArtifact(CArtPlace & artPlace);
+	~CArtifactsOfHeroMain() override;
+	void enableArtifactsCostumeSwitcher();
+	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
+
+private:
+	const std::vector<EShortcut> costumesSwitcherHotkeys =
+	{
+		EShortcut::HERO_COSTUME_0,
+		EShortcut::HERO_COSTUME_1,
+		EShortcut::HERO_COSTUME_2,
+		EShortcut::HERO_COSTUME_3,
+		EShortcut::HERO_COSTUME_4,
+		EShortcut::HERO_COSTUME_5,
+		EShortcut::HERO_COSTUME_6,
+		EShortcut::HERO_COSTUME_7,
+		EShortcut::HERO_COSTUME_8,
+		EShortcut::HERO_COSTUME_9
+	};
 };

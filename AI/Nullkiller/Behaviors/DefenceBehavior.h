@@ -20,7 +20,6 @@ struct HitMapInfo;
 
 namespace Goals
 {
-
 	class DefenceBehavior : public CGoal<DefenceBehavior>
 	{
 	public:
@@ -29,17 +28,17 @@ namespace Goals
 		{
 		}
 
-		virtual Goals::TGoalVec decompose() const override;
-		virtual std::string toString() const override;
+		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
+		std::string toString() const override;
 
-		virtual bool operator==(const DefenceBehavior & other) const override
+		bool operator==(const DefenceBehavior & other) const override
 		{
 			return true;
 		}
 
 	private:
-		void evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const;
-		void evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town) const;
+		void evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town, const Nullkiller * ai) const;
+		void evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * ai) const;
 	};
 }
 

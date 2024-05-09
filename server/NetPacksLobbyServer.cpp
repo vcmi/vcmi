@@ -13,11 +13,14 @@
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
 
-#include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
+#include "../lib/CRandomGenerator.h"
 
-// Campaigns
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/serializer/Connection.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
+#include "../lib/CTownHandler.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -38,67 +41,11 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(srv.gh)
-	{
-		for(auto & connection : srv.hangingConnections)
-		{
-			if(connection->uuid == pack.uuid)
-			{
-				{
-				result = true;
-				return;
-				}
-			}
-		}
-	}
-	
-	if(srv.getState() == EServerState::LOBBY)
-	{
-		result = true;
-		return;
-	}
-	
-	//disconnect immediately and ignore this client
-	srv.connections.erase(pack.c);
-	if(pack.c && pack.c->isOpen())
-	{
-		pack.c->close();
-		pack.c->connected = false;
-	}
-	{
-	result = false;
-	return;
-	}
+	result = srv.getState() == EServerState::LOBBY;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(srv.gh)
-	{
-		for(auto & connection : srv.hangingConnections)
-		{
-			if(connection->uuid == pack.uuid)
-			{
-				logNetwork->info("Reconnection player");
-				pack.c->connectionID = connection->connectionID;
-				for(auto & playerConnection : srv.gh->connections)
-				{
-					for(auto & existingConnection : playerConnection.second)
-					{
-						if(existingConnection == connection)
-						{
-							playerConnection.second.erase(existingConnection);
-							playerConnection.second.insert(pack.c);
-							break;
-						}
-					}
-				}
-				srv.hangingConnections.erase(connection);
-				break;
-			}
-		}
-	}
-	
 	srv.clientConnected(pack.c, pack.names, pack.uuid, pack.mode);
 	// Server need to pass some data to newly connected client
 	pack.clientId = pack.c->connectionID;
@@ -114,15 +61,17 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyCl
 	// Until UUID set we only pass LobbyClientConnected to this client
 	pack.c->uuid = pack.uuid;
 	srv.updateAndPropagateLobbyState();
-	if(srv.getState() == EServerState::GAMEPLAY)
-	{
-		//immediately start game
-		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
-		startGameForReconnectedPlayer->initializedStartInfo = srv.si;
-		startGameForReconnectedPlayer->initializedGameState = srv.gh->gameState();
-		startGameForReconnectedPlayer->clientId = pack.c->connectionID;
-		srv.addToAnnounceQueue(std::move(startGameForReconnectedPlayer));
-	}
+
+// FIXME: what is this??? We do NOT support reconnection into ongoing game - at the very least queries and battles are NOT serialized
+//	if(srv.getState() == EServerState::GAMEPLAY)
+//	{
+//		//immediately start game
+//		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
+//		startGameForReconnectedPlayer->initializedStartInfo = srv.si;
+//		startGameForReconnectedPlayer->initializedGameState = srv.gh->gameState();
+//		startGameForReconnectedPlayer->clientId = pack.c->connectionID;
+//		srv.announcePack(std::move(startGameForReconnectedPlayer));
+//	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
@@ -135,13 +84,13 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 
 	if(pack.shutdownServer)
 	{
-		if(!srv.cmdLineOptions.count("run-by-client"))
+		if(!srv.wasStartedByClient())
 		{
 			result = false;
 			return;
 		}
 
-		if(pack.c->uuid != srv.cmdLineOptions["uuid"].as<std::string>())
+		if(pack.c->connectionID != srv.hostClientId)
 		{
 			result = false;
 			return;
@@ -154,38 +103,28 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 void ApplyOnServerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
 	srv.clientDisconnected(pack.c);
-	pack.c->close();
-	pack.c->connected = false;
-
 	result = true;
 }
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(pack.c && pack.c->isOpen())
-	{
-		boost::unique_lock<boost::mutex> lock(*pack.c->mutexWrite);
-		pack.c->close();
-		pack.c->connected = false;
-	}
-
 	if(pack.shutdownServer)
 	{
 		logNetwork->info("Client requested shutdown, server will close itself...");
 		srv.setState(EServerState::SHUTDOWN);
 		return;
 	}
-	else if(srv.connections.empty())
+	else if(srv.activeConnections.empty())
 	{
 		logNetwork->error("Last connection lost, server will close itself...");
 		srv.setState(EServerState::SHUTDOWN);
 	}
-	else if(pack.c == srv.hostClient)
+	else if(pack.c->connectionID == srv.hostClientId)
 	{
 		auto ph = std::make_unique<LobbyChangeHost>();
-		auto newHost = *RandomGeneratorUtil::nextItem(srv.connections, CRandomGenerator::getDefault());
+		auto newHost = srv.activeConnections.front();
 		ph->newHostConnectionId = newHost->connectionID;
-		srv.addToAnnounceQueue(std::move(ph));
+		srv.announcePack(std::move(ph));
 	}
 	srv.updateAndPropagateLobbyState();
 	
@@ -217,7 +156,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 {
 	srv.si->mapname = pack.ourCampaign->getFilename();
-	srv.si->mode = StartInfo::CAMPAIGN;
+	srv.si->mode = EStartMode::CAMPAIGN;
 	srv.si->campState = pack.ourCampaign;
 	srv.si->turnTimerInfo = TurnTimerInfo{};
 
@@ -256,26 +195,27 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction 
 	result = srv.isClientHost(pack.c->connectionID);
 }
 
-void ClientPermissionsCheckerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
 	result = srv.isClientHost(pack.c->connectionID);
 }
 
-void ApplyOnServerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
+void ApplyOnServerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
 	srv.prepareToRestart();
 
 	result = true;
 }
 
-void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
-	boost::unique_lock<boost::mutex> stateLock(srv.stateMutex);
-	for(auto & c : srv.connections)
-	{
-		c->enterLobbyConnectionMode();
-		c->disableStackSendingByID();
-	}
+	for(const auto & connection : srv.activeConnections)
+		connection->enterLobbyConnectionMode();
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
+{
+	result = srv.isClientHost(pack.c->connectionID);
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
@@ -304,22 +244,20 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 	
 	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getStartInfo(true));
 	pack.initializedGameState = srv.gh->gameState();
-
-	srv.setState(EServerState::GAMEPLAY_STARTING);
 	result = true;
 }
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
 	if(pack.clientId == -1) //do not restart game for single client only
-		srv.startGameImmidiately();
+		srv.startGameImmediately();
 	else
 	{
-		for(auto & c : srv.connections)
+		for(const auto & connection : srv.activeConnections)
 		{
-			if(c->connectionID == pack.clientId)
+			if(connection->connectionID == pack.clientId)
 			{
-				c->enterGameplayConnectionMode(srv.gh->gameState());
+				connection->enterGameplayConnectionMode(srv.gh->gameState());
 				srv.reconnectPlayer(pack.clientId);
 			}
 		}
@@ -414,6 +352,12 @@ void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 	result = true;
 }
 
+void ApplyOnServerNetPackVisitor::visitLobbySetExtraOptions(LobbySetExtraOptions & pack)
+{
+	srv.si->extraOptionsInfo = pack.extraOptionsInfo;
+	result = true;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & pack)
 {
 	srv.si->difficulty = std::clamp<uint8_t>(pack.difficulty, 0, 4);
@@ -423,5 +367,56 @@ void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & p
 void ApplyOnServerNetPackVisitor::visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack)
 {
 	srv.si->playerInfos[pack.targetPlayerColor].connectedPlayerIDs.insert(pack.targetConnectedPlayer);
+	result = true;
+}
+
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
+{
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
+{
+	std::vector<FactionID> allowedTowns;
+
+	for (auto const & factionID : VLC->townh->getDefaultAllowed())
+		if(std::find(pack.bannedTowns.begin(), pack.bannedTowns.end(), factionID) == pack.bannedTowns.end())
+			allowedTowns.push_back(factionID);
+
+	std::vector<FactionID> randomFaction1;
+	std::sample(allowedTowns.begin(), allowedTowns.end(), std::back_inserter(randomFaction1), 1, std::mt19937{std::random_device{}()});
+	std::vector<FactionID> randomFaction2;
+	std::sample(allowedTowns.begin(), allowedTowns.end(), std::back_inserter(randomFaction2), 1, std::mt19937{std::random_device{}()});
+
+	MetaString txt;
+
+	switch(pack.action) {
+		case LobbyPvPAction::COIN:
+			txt.appendTextID("vcmi.lobby.pvp.coin.hover");
+			txt.appendRawString(" - " + std::to_string(std::rand()%2));
+			srv.announceTxt(txt);
+			break;
+		case LobbyPvPAction::RANDOM_TOWN:
+			if(!allowedTowns.size())
+				break;
+			txt.appendTextID("core.overview.3");
+			txt.appendRawString(" - ");
+			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			srv.announceTxt(txt);
+			break;
+		case LobbyPvPAction::RANDOM_TOWN_VS:
+			if(!allowedTowns.size())
+				break;
+			txt.appendTextID("core.overview.3");
+			txt.appendRawString(" - ");
+			txt.appendTextID(VLC->townh->getById(randomFaction1[0])->getNameTextID());
+			txt.appendRawString(" ");
+			txt.appendTextID("vcmi.lobby.pvp.versus");
+			txt.appendRawString(" ");
+			txt.appendTextID(VLC->townh->getById(randomFaction2[0])->getNameTextID());
+			srv.announceTxt(txt);
+			break;
+	}
 	result = true;
 }

@@ -374,7 +374,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 		if(!elem.empty())
 			components.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, elem.front(), std::nullopt, CComponent::tiny));
 	}
-	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140));
+	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140), 20, 10, 22, 4);
 }
 
 void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
@@ -480,7 +480,7 @@ void OptionsTab::SelectionWindow::setSelection()
 
 void OptionsTab::SelectionWindow::reopen()
 {
-	std::shared_ptr<SelectionWindow> window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
+	auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
 	close();
 	if(CSH->isMyColor(color) || CSH->isHost())
 		GH.windows().pushWindow(window);
@@ -892,7 +892,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, name, 95);
 	else
 	{
-		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, nullptr, false);
+		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, nullptr, ETextAlignment::CENTER, false);
 		labelPlayerNameEdit->setText(name);
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
@@ -917,7 +917,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 			CGI->generaltexth->zelp[180],
 			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, *s)
 		);
-		flag->hoverable = true;
+		flag->setHoverable(true);
 		flag->block(CSH->isGuest());
 	}
 	else

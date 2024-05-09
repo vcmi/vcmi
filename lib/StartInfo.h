@@ -13,6 +13,7 @@
 
 #include "GameConstants.h"
 #include "TurnTimerInfo.h"
+#include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -40,7 +41,7 @@ struct DLL_LINKAGE SimturnsInfo
 	}
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & requiredTurns;
 		h & optionalTurns;
@@ -75,7 +76,7 @@ struct DLL_LINKAGE PlayerSettings
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
 	bool compOnly; //true if this player is a computer only player; required for RMG
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & castle;
 		h & hero;
@@ -97,12 +98,18 @@ struct DLL_LINKAGE PlayerSettings
 	HeroTypeID getHeroValidated() const;
 };
 
+enum class EStartMode : int32_t
+{
+	NEW_GAME,
+	LOAD_GAME,
+	CAMPAIGN,
+	INVALID = 255
+};
+
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
 struct DLL_LINKAGE StartInfo
 {
-	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, INVALID = 255};
-
-	EMode mode;
+	EStartMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
 
 	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
@@ -115,6 +122,7 @@ struct DLL_LINKAGE StartInfo
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
+	ExtraOptionsInfo extraOptionsInfo;
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
 	bool createRandomMap() const { return mapGenOptions != nullptr; }
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
@@ -128,8 +136,11 @@ struct DLL_LINKAGE StartInfo
 	// TODO: Must be client-side
 	std::string getCampaignName() const;
 
+	/// Controls hardcoded check for "Steadwick's Fall" scenario from "Dungeon and Devils" campaign
+	bool isSteadwickFallCampaignMission() const;
+
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & mode;
 		h & difficulty;
@@ -141,12 +152,16 @@ struct DLL_LINKAGE StartInfo
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
+		if(h.version >= Handler::Version::HAS_EXTRA_OPTIONS)
+			h & extraOptionsInfo;
+		else
+			extraOptionsInfo = ExtraOptionsInfo();
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
 	}
 
-	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
+	StartInfo() : mode(EStartMode::INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
 		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI("")
 	{
 
@@ -158,7 +173,7 @@ struct ClientPlayer
 	int connection;
 	std::string name;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & connection;
 		h & name;
@@ -178,7 +193,7 @@ struct DLL_LINKAGE LobbyState
 
 	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & si;
 		h & mi;
@@ -191,7 +206,6 @@ struct DLL_LINKAGE LobbyState
 
 struct DLL_LINKAGE LobbyInfo : public LobbyState
 {
-	boost::mutex stateMutex;
 	std::string uuid;
 
 	LobbyInfo() {}
@@ -199,7 +213,8 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	void verifyStateBeforeStart(bool ignoreNoHuman = false) const;
 
 	bool isClientHost(int clientId) const;
-	std::set<PlayerColor> getAllClientPlayers(int clientId);
+	bool isPlayerHost(const PlayerColor & color) const;
+	std::set<PlayerColor> getAllClientPlayers(int clientId) const;
 	std::vector<ui8> getConnectedPlayerIdsForClient(int clientId) const;
 
 	// Helpers for lobby state access

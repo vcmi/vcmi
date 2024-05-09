@@ -34,6 +34,7 @@ set(editor_SRCS
 		inspector/rewardswidget.cpp
 		inspector/questwidget.cpp
 		inspector/heroskillswidget.cpp
+		inspector/herospellwidget.cpp
 		inspector/PickObjectDelegate.cpp
 		inspector/portraitwidget.cpp
 		resourceExtractor/ResourceConverter.cpp
@@ -74,6 +75,7 @@ set(editor_HEADERS
 		inspector/rewardswidget.h
 		inspector/questwidget.h
 		inspector/heroskillswidget.h
+		inspector/herospellwidget.h
 		inspector/PickObjectDelegate.h
 		inspector/portraitwidget.h
 		resourceExtractor/ResourceConverter.h
@@ -101,15 +103,18 @@ set(editor_FORMS
 		inspector/rewardswidget.ui
 		inspector/questwidget.ui
 		inspector/heroskillswidget.ui
+		inspector/herospellwidget.ui
 		inspector/portraitwidget.ui
 )
 
 set(editor_TS
+	translation/chinese.ts
 	translation/czech.ts
 	translation/english.ts
 	translation/french.ts
 	translation/german.ts
 	translation/polish.ts
+	translation/portuguese.ts
 	translation/russian.ts
 	translation/spanish.ts
 	translation/ukrainian.ts
@@ -177,7 +182,7 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 
-target_link_libraries(vcmieditor ${VCMI_LIB_TARGET} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(vcmieditor vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmieditor
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / Entities Format / Hero Class Format
-
 ## Required data
 
 In order to make functional hero class you also need:

@@ -12,6 +12,7 @@
 #include "CursorHardware.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../renderSDL/ScreenHandler.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"
 #include "SDL_Extensions.h"

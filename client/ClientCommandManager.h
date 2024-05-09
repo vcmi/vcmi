@@ -48,8 +48,11 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Set the state indicating if dialog box is active to "no"
 	void handleNotDialogCommand();
 
-	// Dumps all game text, maps text and campaign maps text into Client log between BEGIN TEXT EXPORT and END TEXT EXPORT
-	void handleConvertTextCommand();
+	// Extracts all translateable game texts into Translation directory, separating files on per-mod basis
+	void handleTranslateGameCommand();
+
+	// Extracts all translateable texts from maps and campaigns into Translation directory, separating files on per-mod basis
+	void handleTranslateMapsCommand();
 
 	// Saves current game configuration into extracted/configuration folder
 	void handleGetConfigCommand();
@@ -80,6 +83,9 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 
 	// Crashes the game forcing an exception
 	void handleCrashCommand();
+
+	// shows object graph
+	void handleVsLog(std::istringstream & singleWordBuffer);
 
 	// Prints in Chat the given message
 	void printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType = ELogLevel::NOT_SET);

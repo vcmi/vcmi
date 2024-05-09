@@ -13,7 +13,6 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Magic.h>
-#include "../JsonNode.h"
 #include "../IHandlerBase.h"
 #include "../ConstTransitivePtr.h"
 #include "../int3.h"
@@ -21,6 +20,7 @@
 #include "../battle/BattleHex.h"
 #include "../bonuses/Bonus.h"
 #include "../filesystem/ResourcePath.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -68,7 +68,7 @@ public:
 		///resource name
 		AnimationPath resourceName;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & minimumAngle;
 			h & resourceName;
@@ -84,11 +84,10 @@ public:
 
 		AnimationItem();
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & resourceName;
-			if (version > 806)
-				h & effectName;
+			h & effectName;
 			h & verticalPosition;
 			h & pause;
 		}
@@ -112,7 +111,7 @@ public:
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & projectile;
 			h & hit;
@@ -141,7 +140,7 @@ public:
 
 		JsonNode battleEffects;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & cost;
 			h & power;
@@ -291,6 +290,7 @@ public://internal, for use only by Mechanics classes
 	///returns raw damage or healed HP
 	int64_t calculateRawEffectValue(int32_t effectLevel, int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const;
 
+	const IAdventureSpellMechanics & getAdventureMechanics() const;
 	std::unique_ptr<spells::Mechanics> battleMechanics(const spells::IBattleCast * event) const;
 private:
 	void setIsOffensive(const bool val);

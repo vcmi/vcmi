@@ -72,12 +72,12 @@ void CGuiHandler::init()
 {
 	inGuiThread = true;
 
-	inputHandlerInstance = std::make_unique<InputHandler>();
 	eventDispatcherInstance = std::make_unique<EventDispatcher>();
 	windowHandlerInstance = std::make_unique<WindowHandler>();
 	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	renderHandlerInstance = std::make_unique<RenderHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
+	inputHandlerInstance = std::make_unique<InputHandler>(); // Must be after windowHandlerInstance and shortcutsHandlerInstance
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
 }
 
@@ -191,7 +191,7 @@ void CGuiHandler::drawFPSCounter()
 	int y = screen->h-20;
 	int width3digitFPSIncludingPadding = 48;
 	int heightFPSTextIncludingPadding = 11;
-	static SDL_Rect overlay = { x, y, width3digitFPSIncludingPadding, heightFPSTextIncludingPadding};
+	SDL_Rect overlay = { x, y, width3digitFPSIncludingPadding, heightFPSTextIncludingPadding};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
 
@@ -251,8 +251,11 @@ void CGuiHandler::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
 	currentStatusBar = newStatusBar;
 }
 
-void CGuiHandler::onScreenResize()
+void CGuiHandler::onScreenResize(bool resolutionChanged)
 {
-	screenHandler().onScreenResize();
+	if(resolutionChanged)
+	{
+		screenHandler().onScreenResize();
+	}
 	windows().onScreenResize();
 }

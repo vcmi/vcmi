@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Updaters
-
 TODO: this page may be incorrect or outdated
 
 # List of Bonus Updaters

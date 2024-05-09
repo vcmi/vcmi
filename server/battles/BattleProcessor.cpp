@@ -18,6 +18,7 @@
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
 
+#include "../../lib/CPlayerState.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
@@ -32,15 +33,9 @@
 
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
-	, flowProcessor(std::make_unique<BattleFlowProcessor>(this))
-	, actionsProcessor(std::make_unique<BattleActionProcessor>(this))
-	, resultProcessor(std::make_unique<BattleResultProcessor>(this))
-{
-	setGameHandler(gameHandler);
-}
-
-BattleProcessor::BattleProcessor():
-	BattleProcessor(nullptr)
+	, flowProcessor(std::make_unique<BattleFlowProcessor>(this, gameHandler))
+	, actionsProcessor(std::make_unique<BattleActionProcessor>(this, gameHandler))
+	, resultProcessor(std::make_unique<BattleResultProcessor>(this, gameHandler))
 {
 }
 
@@ -63,6 +58,8 @@ void BattleProcessor::restartBattlePrimary(const BattleID & battleID, const CArm
 	auto battle = gameHandler->gameState()->getBattle(battleID);
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+	if(!lastBattleQuery)
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[1].color));
 
 	assert(lastBattleQuery);
 
@@ -130,6 +127,8 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	}
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+	if(!lastBattleQuery)
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[1].color));
 
 	if (lastBattleQuery)
 	{
@@ -183,7 +182,13 @@ BattleID BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2]
 	engageIntoBattle(bs.info->sides[1].color);
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->sides[0].color));
-	bs.info->replayAllowed = lastBattleQuery == nullptr && !bs.info->sides[1].color.isValidPlayer();
+	if(!lastBattleQuery)
+		lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->sides[1].color));
+	bool isDefenderHuman = bs.info->sides[1].color.isValidPlayer() && gameHandler->getPlayerState(bs.info->sides[1].color)->isHuman();
+	bool isAttackerHuman = gameHandler->getPlayerState(bs.info->sides[0].color)->isHuman();
+
+	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
+	bs.info->replayAllowed = lastBattleQuery == nullptr && onlyOnePlayerHuman;
 
 	gameHandler->sendAndApply(&bs);
 
@@ -304,13 +309,4 @@ void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 void BattleProcessor::battleAfterLevelUp(const BattleID & battleID, const BattleResult &result)
 {
 	resultProcessor->battleAfterLevelUp(battleID, result);
-}
-
-void BattleProcessor::setGameHandler(CGameHandler * newGameHandler)
-{
-	gameHandler = newGameHandler;
-
-	actionsProcessor->setGameHandler(newGameHandler);
-	flowProcessor->setGameHandler(newGameHandler);
-	resultProcessor->setGameHandler(newGameHandler);
 }

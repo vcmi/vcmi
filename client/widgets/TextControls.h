@@ -57,6 +57,7 @@ public:
 	virtual void setText(const std::string & Txt);
 	virtual void setMaxWidth(int width);
 	virtual void setColor(const ColorRGBA & Color);
+	void clear();
 	size_t getWidth();
 
 	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT,
@@ -116,6 +117,9 @@ public:
 	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE);
 
 	void resize(Point newSize);
+	/// Resizes text box to minimal size needed to fit current text
+	/// No effect if text is too large to fit and requires slider
+	void trimToFit();
 	void setText(const std::string & Txt);
 	void sliderMoved(int to);
 };
@@ -204,7 +208,7 @@ public:
 	void setText(const std::string & nText, bool callCb);
 	void setHelpText(const std::string &);
 
-	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, bool giveFocusToInput = true);
+	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, ETextAlignment alignment, bool giveFocusToInput);
 	CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 

@@ -52,10 +52,7 @@ class BattleProcessor : boost::noncopyable
 
 public:
 	explicit BattleProcessor(CGameHandler * gameHandler);
-	BattleProcessor();
 	~BattleProcessor();
-
-	void setGameHandler(CGameHandler * gameHandler);
 
 	/// Starts battle with specified parameters
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr);
@@ -74,10 +71,9 @@ public:
 	/// Applies results of a battle after potential levelup
 	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 
 	}
-
 };
 

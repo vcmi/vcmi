@@ -10,8 +10,7 @@
 
 #include "StdInc.h"
 #include "CBonusSystemNode.h"
-
-#include "../JsonNode.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -191,9 +190,7 @@ void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSe
 	out.reserve(bonuses.size());
 	for(const auto & b : bonuses)
 	{
-		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
-		auto noFightLimit = b->effectRange == BonusLimitEffect::NO_LIMIT;
-		if(selector(b.get()) && ((!limit && noFightLimit) || ((bool)limit && limit(b.get()))))
+		if(selector(b.get()) && (!limit || ((bool)limit && limit(b.get()))))
 			out.push_back(b);
 	}
 }
@@ -214,7 +211,7 @@ int BonusList::valOfBonuses(const CSelector &select) const
 
 JsonNode BonusList::toJsonNode() const
 {
-	JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+	JsonNode node;
 	for(const std::shared_ptr<Bonus> & b : bonuses)
 		node.Vector().push_back(b->toJsonNode());
 	return node;

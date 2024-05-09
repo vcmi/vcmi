@@ -33,7 +33,6 @@
 #include "../../mock/mock_ServerCallback.h"
 
 
-#include "../../../lib/JsonNode.h"
 #include "../../../lib/battle/CBattleInfoCallback.h"
 
 namespace battle

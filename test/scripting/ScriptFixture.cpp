@@ -23,7 +23,7 @@ ScriptFixture::~ScriptFixture() = default;
 
 void ScriptFixture::loadScriptFromFile(const std::string & path)
 {
-	JsonNode scriptConfig(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode scriptConfig;
 	scriptConfig["source"].String() = path;
 	loadScript(scriptConfig);
 }
@@ -41,7 +41,7 @@ void ScriptFixture::loadScript(const JsonNode & scriptConfig)
 
 void ScriptFixture::loadScript(ModulePtr module, const std::string & scriptSource)
 {
-	subject = std::make_shared<ScriptImpl>(VLC->scriptHandler);
+	subject = std::make_shared<ScriptImpl>(VLC->scriptHandler.get());
 
 	subject->host = module;
 	subject->sourceText = scriptSource;

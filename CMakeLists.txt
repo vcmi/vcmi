@@ -5,11 +5,6 @@ cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)
 # TODO
-# macOS:
-# - There is problem with running fixup_bundle in main project after subdirectories.
-# Cmake put them after all install code of main CMakelists in cmake_install.cmake
-# Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
-#
 # Vckpg:
 # - Improve install code once there is better way to deploy DLLs and Qt plugins
 #
@@ -23,7 +18,7 @@ project(VCMI)
 # - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
 
 if(APPLE)
-	if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 		set(APPLE_MACOS 1)
 	else()
 		set(APPLE_IOS 1)
@@ -41,85 +36,111 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
-set(singleProcess OFF)
-set(staticAI OFF)
-if(ANDROID)
-	set(staticAI ON)
-	set(singleProcess ON)
-endif()
+# Platform-independent options
 
+option(ENABLE_CLIENT "Enable compilation of game client" ON)
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
-if(NOT ANDROID)
-	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
-	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
-endif()
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
+option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are required for game lobby" OFF)
+option(ENABLE_GOLDMASTER "Build in public release mode in which some debug routines are disabled" OFF)
 
-if(APPLE_IOS)
-	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
-	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
-	set(ENABLE_SINGLE_APP_BUILD ON)
-else()
-	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
-	option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" ${singleProcess})
-endif()
+# Compilation options
 
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
-option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
-option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
-option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
+option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
+option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
 
-# Used for Snap packages and also useful for debugging
-if(NOT APPLE_IOS AND NOT ANDROID)
-	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
+# Platform-specific options
+
+if(ANDROID)
+	set(ENABLE_STATIC_LIBS ON)
+	set(ENABLE_LAUNCHER OFF)
+else()
+	option(ENABLE_STATIC_LIBS "Build library and all components such as AI statically" OFF)
+	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 endif()
 
-# On Linux, use -DCMAKE_CXX_COMPILER_LAUNCHER=ccache instead.
-# The XCode and MSVC builds each require some more configuration, which is enabled by the following option:
-if(MSVC OR (CMAKE_GENERATOR STREQUAL "Xcode"))
-  option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+if(APPLE_IOS OR ANDROID)
+	set(ENABLE_MONOLITHIC_INSTALL OFF)
+	set(ENABLE_SINGLE_APP_BUILD ON)
+	set(ENABLE_EDITOR OFF)
+	set(ENABLE_TEST OFF)
+	set(ENABLE_LOBBY OFF)
+	set(ENABLE_SERVER OFF)
+	set(COPY_CONFIG_ON_BUILD OFF)
+else()
+	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF) # Used for Snap packages and also useful for debugging
+	option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
+	option(ENABLE_SERVER "Enable compilation of dedicated server" ON)
+	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+	option(ENABLE_SINGLE_APP_BUILD "Builds client and launcher as single executable" OFF)
+	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
 endif()
-
-if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
-	find_program(CCACHE ccache REQUIRED)
-	if(CCACHE)
-		# https://stackoverflow.com/a/36515503/2278742
-		# Set up wrapper scripts
-		configure_file(xcode/launch-c.in   xcode/launch-c)
-		configure_file(xcode/launch-cxx.in xcode/launch-cxx)
-		execute_process(COMMAND chmod a+rx
-												"${CMAKE_BINARY_DIR}/xcode/launch-c"
-												"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-		# Set Xcode project attributes to route compilation through our scripts
-		set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
-		set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-		set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
-		set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-	endif()
-endif()
-
-# Allow to pass package name from Travis CI
-set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
-set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
 # ERM depends on LUA implicitly
 if(ENABLE_ERM AND NOT ENABLE_LUA)
 	set(ENABLE_LUA ON)
 endif()
 
-# We don't want to deploy assets into build directory for android/iOS build
-if((APPLE_IOS OR ANDROID) AND COPY_CONFIG_ON_BUILD)
-	set(COPY_CONFIG_ON_BUILD OFF)
-endif()
+include(CMakeDependentOption)
+cmake_dependent_option(ENABLE_INNOEXTRACT "Enable innoextract for GOG file extraction in launcher" ON "ENABLE_LAUNCHER" OFF)
+cmake_dependent_option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON "NOT ENABLE_GOLDMASTER" OFF)
 
 ############################################
 #        Miscellaneous options             #
 ############################################
+
+if (ENABLE_STATIC_LIBS AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
+if(APPLE_IOS)
+	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
+	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
+endif()
+
+if(ENABLE_COLORIZED_COMPILER_OUTPUT)
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-fcolor-diagnostics)
+	elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		add_compile_options(-fdiagnostics-color=always)
+	endif()
+endif()
+
+if(ENABLE_CCACHE)
+	find_program(CCACHE ccache REQUIRED)
+endif()
+
+# The XCode and MSVC builds each require some more configuration further down.
+if(ENABLE_CCACHE)
+	set(CMAKE_C_COMPILER_LAUNCHER "ccache")
+	set(CMAKE_CXX_COMPILER_LAUNCHER "ccache")
+endif()
+
+if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
+	# https://stackoverflow.com/a/36515503/2278742
+	# Set up wrapper scripts
+	configure_file(xcode/launch-c.in   xcode/launch-c)
+	configure_file(xcode/launch-cxx.in xcode/launch-cxx)
+	execute_process(COMMAND chmod a+rx
+											"${CMAKE_BINARY_DIR}/xcode/launch-c"
+											"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+	# Set Xcode project attributes to route compilation through our scripts
+	set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+	set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+	set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+	set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+endif()
+
+# Allow to pass package name from Travis CI
+set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
+set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR}/CI)
 # Contains custom functions and macros, but don't altering any options
@@ -219,7 +240,6 @@ elseif(${CMAKE_CXX_BYTE_ORDER} EQUAL "BIG_ENDIAN")
 	add_definitions(-DVCMI_ENDIAN_BIG)
 endif()
 
-
 if(ENABLE_LAUNCHER)
 	add_definitions(-DENABLE_LAUNCHER)
 endif()
@@ -229,7 +249,15 @@ if(ENABLE_EDITOR)
 endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
-	add_definitions(-DSINGLE_PROCESS_APP=1)
+	add_definitions(-DENABLE_SINGLE_APP_BUILD)
+endif()
+
+if(ENABLE_MINIMAL_LIB)
+	add_definitions(-DENABLE_MINIMAL_LIB)
+endif()
+
+if(ENABLE_GOLDMASTER)
+	add_definitions(-DENABLE_GOLDMASTER)
 endif()
 
 if(APPLE_IOS)
@@ -266,19 +294,16 @@ if(MINGW OR MSVC)
 	if(MSVC)
 		if(ENABLE_CCACHE)
 			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
-			find_program(CCACHE ccache REQUIRED)
-			if (CCACHE)
-				file(COPY_FILE
-					${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
-					ONLY_IF_DIFFERENT)
+			file(COPY_FILE
+				${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
+				ONLY_IF_DIFFERENT)
 
-				set(CMAKE_VS_GLOBALS
-					"CLToolExe=cl.exe"
-					"CLToolPath=${CMAKE_BINARY_DIR}"
-					"TrackFileAccess=false"
-					"UseMultiToolTask=true"
-				)
-			endif()
+			set(CMAKE_VS_GLOBALS
+				"CLToolExe=cl.exe"
+				"CLToolPath=${CMAKE_BINARY_DIR}"
+				"TrackFileAccess=false"
+				"UseMultiToolTask=true"
+			)
 		endif()
 
 		add_definitions(-DBOOST_ALL_NO_LIB)
@@ -375,6 +400,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
 	endif()
 
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT WIN32)
+		# For gcc 14+ we can use -fhardened instead
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
+	endif()
+
 	# Fix string inspection with lldb
 	# https://stackoverflow.com/questions/58578615/cannot-inspect-a-stdstring-variable-in-lldb
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -430,19 +460,17 @@ endif()
 #        Finding packages                  #
 ############################################
 
-find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time filesystem locale program_options system thread)
+set(BOOST_COMPONENTS date_time filesystem locale program_options system thread)
+if(ENABLE_INNOEXTRACT)
+	list(APPEND BOOST_COMPONENTS iostreams)
+endif()
+find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 
 find_package(ZLIB REQUIRED)
 # Conan compatibility
 if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
-
-set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
-if(APPLE_IOS AND NOT USING_CONAN)
-	list(APPEND FFMPEG_COMPONENTS swresample)
-endif()
-find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
 
 option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
 if(NOT FORCE_BUNDLED_MINIZIP)
@@ -452,18 +480,30 @@ if(NOT FORCE_BUNDLED_MINIZIP)
 	endif()
 endif()
 
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-if(TARGET SDL2_image::SDL2_image)
-	add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
+if (ENABLE_CLIENT)
+	set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
+	if(APPLE_IOS AND NOT USING_CONAN)
+		list(APPEND FFMPEG_COMPONENTS swresample)
+	endif()
+	find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
+
+	find_package(SDL2 REQUIRED)
+	find_package(SDL2_image REQUIRED)
+	if(TARGET SDL2_image::SDL2_image)
+		add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
+	endif()
+	find_package(SDL2_mixer REQUIRED)
+	if(TARGET SDL2_mixer::SDL2_mixer)
+		add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
+	endif()
+	find_package(SDL2_ttf REQUIRED)
+	if(TARGET SDL2_ttf::SDL2_ttf)
+		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+	endif()
 endif()
-find_package(SDL2_mixer REQUIRED)
-if(TARGET SDL2_mixer::SDL2_mixer)
-	add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
-endif()
-find_package(SDL2_ttf REQUIRED)
-if(TARGET SDL2_ttf::SDL2_ttf)
-	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+
+if(ENABLE_LOBBY)
+	find_package(SQLite3 REQUIRED)
 endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
@@ -477,7 +517,7 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	endif()
 endif()
 
-if(ENABLE_NULLKILLER_AI)
+if(ENABLE_NULLKILLER_AI AND ENABLE_CLIENT)
 	find_package(TBB REQUIRED)
 endif()
 
@@ -587,21 +627,24 @@ if(APPLE_IOS)
 	add_subdirectory(ios)
 endif()
 
-set(VCMI_LIB_TARGET vcmi)
-add_subdirectory_with_folder("AI" AI)
+if (ENABLE_CLIENT)
+	add_subdirectory_with_folder("AI" AI)
+endif()
 
-include(VCMI_lib)
 add_subdirectory(lib)
-if(ENABLE_SINGLE_APP_BUILD)
-	add_subdirectory(lib_server)
+
+if (ENABLE_CLIENT OR ENABLE_SERVER)
+	add_subdirectory(server)
 endif()
 
 if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
 endif()
+
 if(ENABLE_LUA)
 	add_subdirectory(scripting/lua)
 endif()
+
 if(NOT TARGET minizip::minizip)
 	add_subdirectory_with_folder("3rdparty" lib/minizip)
 	add_library(minizip::minizip ALIAS minizip)
@@ -610,11 +653,23 @@ endif()
 if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()
+
 if(ENABLE_EDITOR)
 	add_subdirectory(mapeditor)
 endif()
-add_subdirectory(client)
-add_subdirectory(server)
+
+if(ENABLE_LOBBY)
+	add_subdirectory(lobby)
+endif()
+
+if (ENABLE_CLIENT)
+	add_subdirectory(client)
+endif()
+
+if(ENABLE_SERVER)
+	add_subdirectory(serverapp)
+endif()
+
 if(ENABLE_TEST)
 	enable_testing()
 	add_subdirectory(test)
@@ -653,7 +708,9 @@ if(ANDROID)
 	")
 else()
 	install(DIRECTORY config DESTINATION ${DATA_DIR})
-	install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+	if (ENABLE_CLIENT OR ENABLE_SERVER)
+		install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+	endif()
 endif()
 if(ENABLE_LUA)
 	install(DIRECTORY scripts DESTINATION ${DATA_DIR})
@@ -770,10 +827,12 @@ if(WIN32)
 	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
 		CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\${VCMI_MAIN_EXECUTABLE}.exe\\\"
 		ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_server dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_server.exe\\\" enable=yes profile=public,private' SW_HIDE
+		ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_client dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_client.exe\\\" enable=yes profile=public,private' SW_HIDE
 	")
 	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
 		Delete \\\"$DESKTOP\\\\VCMI.lnk\\\"
 		ExecShell '' 'netsh' 'advfirewall firewall delete rule name=vcmi_server' SW_HIDE
+		ExecShell '' 'netsh' 'advfirewall firewall delete rule name=vcmi_client' SW_HIDE
 	")
 
 	# Strip MinGW CPack target if build configuration without debug info
@@ -806,6 +865,10 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
+	# Workaround for this issue:
+	# CPack Error: Error executing: /usr/bin/hdiutil detach "/Volumes/VCMI"
+	# https://github.com/actions/runner-images/issues/7522#issuecomment-1564467252
+	set(CPACK_COMMAND_HDIUTIL "/usr/bin/sudo /usr/bin/hdiutil")
 	# CMake code for CPACK_DMG_DS_STORE executed before DS_STORE_SETUP_SCRIPT
 	# So we can keep both enabled and this shouldn't hurt
 	# set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")

@@ -46,19 +46,8 @@ CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vecto
 	setRedrawParent(true);
 }
 
-CArtifactsOfHeroKingdom::~CArtifactsOfHeroKingdom()
+void CArtifactsOfHeroKingdom::deactivate()
 {
 	putBackPickedArtifact();
+	CArtifactsOfHeroBase::deactivate();
 }
-
-void CArtifactsOfHeroKingdom::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
-{
-	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
-}
-
-void CArtifactsOfHeroKingdom::pickUpArtifact(CArtPlace & artPlace)
-{
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
-		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
-}
-

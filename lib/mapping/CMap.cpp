@@ -19,6 +19,8 @@
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../CGeneralTextHandler.h"
 #include "../spells/CSpellHandler.h"
@@ -40,8 +42,12 @@ DisposedHero::DisposedHero() : heroId(0), portrait(255)
 
 }
 
-CMapEvent::CMapEvent() : players(0), humanAffected(0), computerAffected(0),
-	firstOccurence(0), nextOccurence(0)
+CMapEvent::CMapEvent()
+	: players(0)
+	, humanAffected(false)
+	, computerAffected(false)
+	, firstOccurence(0)
+	, nextOccurence(0)
 {
 
 }
@@ -160,13 +166,15 @@ bool TerrainTile::isWater() const
 	return terType->isWater();
 }
 
-CMap::CMap()
-	: checksum(0)
+CMap::CMap(IGameCallback * cb)
+	: GameCallbackHolder(cb)
+	, checksum(0)
 	, grailPos(-1, -1, -1)
 	, grailRadius(0)
+	, waterMap(false)
 	, uidCounter(0)
 {
-	allHeroes.resize(VLC->heroh->objects.size());
+	allHeroes.resize(VLC->heroh->size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
 	allowedSpells = VLC->spellh->getDefaultAllowed();
@@ -564,16 +572,18 @@ void CMap::removeObject(CGObjectInstance * obj)
 	instanceNames.erase(obj->instanceName);
 
 	//update indeces
+
 	auto iter = std::next(objects.begin(), obj->id.getNum());
 	iter = objects.erase(iter);
 	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
 	{
 		(*iter)->id = ObjectInstanceID(i);
 	}
-	
+
 	obj->afterRemoveFromMap(this);
 
 	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
+	//This causes crash with undo/redo in editor
 }
 
 bool CMap::isWaterMap() const
@@ -597,6 +607,10 @@ bool CMap::calculateWaterContent()
 	if (waterTiles >= totalTiles / 100) //At least 1% of area is water
 	{
 		waterMap = true;
+	}
+	else
+	{
+		waterMap = false;
 	}
 
 	return waterMap;
@@ -675,8 +689,55 @@ CMapEditManager * CMap::getEditManager()
 
 void CMap::resetStaticData()
 {
-	CGObelisk::reset();
-	CGTownInstance::reset();
+	obeliskCount = 0;
+	obelisksVisited.clear();
+	townMerchantArtifacts.clear();
+	townUniversitySkills.clear();
+}
+
+void CMap::resolveQuestIdentifiers()
+{
+	//FIXME: move to CMapLoaderH3M
+	for (auto & quest : quests)
+	{
+		if (quest->killTarget != ObjectInstanceID::NONE)
+			quest->killTarget = questIdentifierToId[quest->killTarget.getNum()];
+	}
+	questIdentifierToId.clear();
+}
+
+void CMap::reindexObjects()
+{
+	// Only reindex at editor / RMG operations
+
+	std::sort(objects.begin(), objects.end(), [](const CGObjectInstance * lhs, const CGObjectInstance * rhs)
+	{
+		// Obstacles first, then visitable, at the end - removable
+
+		if (!lhs->isVisitable() && rhs->isVisitable())
+			return true;
+		if (lhs->isVisitable() && !rhs->isVisitable())
+			return false;
+
+		// Special case for Windomill - draw on top of other objects
+		if (lhs->ID != Obj::WINDMILL && rhs->ID == Obj::WINDMILL)
+			return true;
+		if (lhs->ID == Obj::WINDMILL && rhs->ID != Obj::WINDMILL)
+			return false;
+
+		if (!lhs->isRemovable() && rhs->isRemovable())
+			return true;
+		if (lhs->isRemovable() && !rhs->isRemovable())
+			return false;
+
+		return lhs->pos.y < rhs->pos.y;
+	});
+
+	// instanceNames don't change
+	for (size_t i = 0; i < objects.size(); ++i)
+	{
+		objects[i]->id = ObjectInstanceID(i);
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

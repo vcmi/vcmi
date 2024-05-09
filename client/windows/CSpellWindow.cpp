@@ -25,7 +25,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
@@ -40,6 +40,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 #include "../../lib/GameConstants.h"
 
@@ -94,7 +95,7 @@ public:
 
 		return A->getNameTranslated() < B->getNameTranslated();
 	}
-} spellsorter;
+};
 
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
 	CWindowObject(PLAYER_COLORED | (settings["gameTweaks"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
@@ -136,7 +137,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
 		searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, CGI->generaltexth->translate("vcmi.spellBook.search"));
 
-		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, std::bind(&CSpellWindow::searchInput, this));
+		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, std::bind(&CSpellWindow::searchInput, this), ETextAlignment::CENTER, true);
 	}
 
 	processSpells();
@@ -180,7 +181,8 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 487 + offR + pos.x, 72 + offT + pos.y, rightCorner->pos.h, rightCorner->pos.w ), std::bind(&CSpellWindow::fRcornerb, this), 451, this));
 
 	//areas for spells
-	int xpos = 117 + offL + pos.x, ypos = 90 + offT + pos.y;
+	int xpos = 117 + offL + pos.x;
+	int ypos = 90 + offT + pos.y;
 
 	for(int v=0; v<spellsPerPage; ++v)
 	{
@@ -292,6 +294,8 @@ void CSpellWindow::processSpells()
 		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell) && searchTextFound)
 			mySpells.push_back(spell);
 	}
+
+	SpellbookSpellSorter spellsorter;
 	std::sort(mySpells.begin(), mySpells.end(), spellsorter);
 
 	//initializing sizes of spellbook's parts
@@ -518,13 +522,13 @@ void CSpellWindow::setCurrentPage(int value)
 void CSpellWindow::turnPageLeft()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNLFT.SMK"), pos.x+13, pos.y+15);
+		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNLFT.SMK"), pos.x+13, pos.y+15, EVideoType::SPELLBOOK);
 }
 
 void CSpellWindow::turnPageRight()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNRGH.SMK"), pos.x+13, pos.y+15);
+		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNRGH.SMK"), pos.x+13, pos.y+15, EVideoType::SPELLBOOK);
 }
 
 void CSpellWindow::keyPressed(EShortcut key)
@@ -616,7 +620,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		const bool inCastle = owner->myInt->castleInt != nullptr;
 
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if((combatSpell ^ inCombat) || inCastle)
+		if((combatSpell != inCombat) || inCastle || (!combatSpell && !LOCPLINT->makingTurn))
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(ComponentType::SPELL, mySpell->id));
 			LOCPLINT->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
@@ -650,12 +654,25 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 				owner->myInt->localState->spellbookSettings.spellbookLastPageAdvmap = owner->currentPage;
 			});
 
-			if(mySpell->getTargetType() == spells::AimType::LOCATION)
-				adventureInt->enterCastingMode(mySpell);
-			else if(mySpell->getTargetType() == spells::AimType::NO_TARGET)
-				owner->myInt->cb->castSpell(h, mySpell->id);
+			spells::detail::ProblemImpl problem;
+			if (mySpell->getAdventureMechanics().canBeCast(problem, LOCPLINT->cb.get(), owner->myHero))
+			{
+				if(mySpell->getTargetType() == spells::AimType::LOCATION)
+					adventureInt->enterCastingMode(mySpell);
+				else if(mySpell->getTargetType() == spells::AimType::NO_TARGET)
+					owner->myInt->cb->castSpell(h, mySpell->id);
+				else
+					logGlobal->error("Invalid spell target type");
+			}
 			else
-				logGlobal->error("Invalid spell target type");
+			{
+				std::vector<std::string> texts;
+				problem.getAll(texts);
+				if(!texts.empty())
+					LOCPLINT->showInfoDialog(texts.front());
+				else
+					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
+			}
 		}
 	}
 }

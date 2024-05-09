@@ -37,7 +37,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/CConfigHandler.h"
+#include "../../lib/GameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -45,6 +45,8 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/Problem.h"
 
 std::shared_ptr<AdventureMapInterface> adventureInt;
 
@@ -169,18 +171,20 @@ void AdventureMapInterface::show(Canvas & to)
 
 void AdventureMapInterface::dim(Canvas & to)
 {
+	auto const isBigWindow = [&](std::shared_ptr<CIntObject> window) { return window->pos.w >= 800 && window->pos.h >= 600; }; // OH3 fullscreen
+
 	if(settings["adventure"]["hideBackground"].Bool())
-		for (auto window : GH.windows().findWindows<IShowActivatable>())
+		for (auto window : GH.windows().findWindows<CIntObject>())
 		{
-			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 800 && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 600)
+			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && isBigWindow(window))
 			{
 				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck")));
 				return;
 			}
 		}
-	for (auto window : GH.windows().findWindows<IShowActivatable>())
+	for (auto window : GH.windows().findWindows<CIntObject>())
 	{
-		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow())
+		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow() && (settings["adventure"]["backgroundDimSmallWindows"].Bool() || isBigWindow(window)))
 		{
 			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
 			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
@@ -314,7 +318,7 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 		auto town = dynamic_cast<const CGTownInstance*>(sel);
 
 		widget->getInfoBar()->showTownSelection(town);
-		widget->getTownList()->updateWidget();;
+		widget->getTownList()->updateWidget();
 		widget->getTownList()->select(town);
 		widget->getHeroList()->select(nullptr);
 		onHeroChanged(nullptr);
@@ -501,44 +505,26 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 	return *boost::range::max_element(bobjs, &CMapHandler::compareObjectBlitOrder);
 }
 
-void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
+void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	//FIXME: this line breaks H3 behavior for Dimension Door
-	if(!LOCPLINT->cb->isVisible(mapPos))
-		return;
-	if(!LOCPLINT->makingTurn)
-		return;
+	const CGObjectInstance *topBlocking = LOCPLINT->cb->isVisible(targetPosition) ? getActiveObject(targetPosition) : nullptr;
 
-	const TerrainTile *tile = LOCPLINT->cb->getTile(mapPos);
-
-	const CGObjectInstance *topBlocking = getActiveObject(mapPos);
-
-	int3 selPos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
 	if(spellBeingCasted)
 	{
 		assert(shortcuts->optionSpellcasting());
+		assert(spellBeingCasted->id == SpellID::SCUTTLE_BOAT || spellBeingCasted->id == SpellID::DIMENSION_DOOR);
 
-		if (!isInScreenRange(selPos, mapPos))
-			return;
-
-		const TerrainTile *heroTile = LOCPLINT->cb->getTile(selPos);
-
-		switch(spellBeingCasted->id)
-		{
-		case SpellID::SCUTTLE_BOAT: //Scuttle Boat
-			if(topBlocking && topBlocking->ID == Obj::BOAT)
-				performSpellcasting(mapPos);
-			break;
-		case SpellID::DIMENSION_DOOR:
-			if(!tile || tile->isClear(heroTile))
-				performSpellcasting(mapPos);
-			break;
-		}
+		if(isValidAdventureSpellTarget(targetPosition))
+			performSpellcasting(targetPosition);
 		return;
 	}
+
+	if(!LOCPLINT->cb->isVisible(targetPosition))
+		return;
+
 	//check if we can select this object
 	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == LOCPLINT->playerID;
 	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES;
@@ -555,7 +541,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	{
 		isHero = true;
 
-		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(mapPos);
+		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(targetPosition);
 		if(currentHero == topBlocking) //clicked selected hero
 		{
 			LOCPLINT->openHeroWindow(currentHero);
@@ -569,7 +555,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
 			if(LOCPLINT->localState->hasPath(currentHero) &&
-			   LOCPLINT->localState->getPath(currentHero).endPos() == mapPos)//we'll be moving
+			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition)//we'll be moving
 			{
 				assert(!CGI->mh->hasOngoingAnimations());
 				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
@@ -585,7 +571,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 				}
 				else //remove old path and find a new one if we clicked on accessible tile
 				{
-					LOCPLINT->localState->setPath(currentHero, mapPos);
+					LOCPLINT->localState->setPath(currentHero, targetPosition);
 					onHeroChanged(currentHero);
 				}
 			}
@@ -603,23 +589,55 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	}
 }
 
-void AdventureMapInterface::onTileHovered(const int3 &mapPos)
+void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
 
-	//may occur just at the start of game (fake move before full intiialization)
+	//may occur just at the start of game (fake move before full initialization)
 	if(!LOCPLINT->localState->getCurrentArmy())
 		return;
 
-	if(!LOCPLINT->cb->isVisible(mapPos))
+	bool isTargetPositionVisible = LOCPLINT->cb->isVisible(targetPosition);
+	const CGObjectInstance *objAtTile = isTargetPositionVisible ? getActiveObject(targetPosition) : nullptr;
+
+	if(spellBeingCasted)
+	{
+		switch(spellBeingCasted->id)
+		{
+		case SpellID::SCUTTLE_BOAT:
+			if(isValidAdventureSpellTarget(targetPosition))
+				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
+			else
+				CCS->curh->set(Cursor::Map::POINTER);
+			return;
+
+		case SpellID::DIMENSION_DOOR:
+			if(isValidAdventureSpellTarget(targetPosition))
+			{
+				if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
+					CCS->curh->set(Cursor::Map::T1_ATTACK);
+				else
+					CCS->curh->set(Cursor::Map::TELEPORT);
+				return;
+			}
+			else
+				CCS->curh->set(Cursor::Map::POINTER);
+			return;
+		default:
+			CCS->curh->set(Cursor::Map::POINTER);
+			return;
+		}
+	}
+
+	if(!isTargetPositionVisible)
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		GH.statusbar()->clear();
 		return;
 	}
+
 	auto objRelations = PlayerRelations::ALLIES;
-	const CGObjectInstance *objAtTile = getActiveObject(mapPos);
+
 	if(objAtTile)
 	{
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
@@ -627,37 +645,10 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		boost::replace_all(text,"\n"," ");
 		GH.statusbar()->write(text);
 	}
-	else
+	else if(isTargetPositionVisible)
 	{
-		std::string hlp = CGI->mh->getTerrainDescr(mapPos, false);
-		GH.statusbar()->write(hlp);
-	}
-
-	if(spellBeingCasted)
-	{
-		switch(spellBeingCasted->id)
-		{
-		case SpellID::SCUTTLE_BOAT:
-			{
-			int3 hpos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
-
-			if(objAtTile && objAtTile->ID == Obj::BOAT && isInScreenRange(hpos, mapPos))
-				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
-			else
-				CCS->curh->set(Cursor::Map::POINTER);
-			return;
-			}
-		case SpellID::DIMENSION_DOOR:
-			{
-				const TerrainTile * t = LOCPLINT->cb->getTile(mapPos, false);
-				int3 hpos = LOCPLINT->localState->getCurrentArmy()->getSightCenter();
-				if((!t || t->isClear(LOCPLINT->cb->getTile(hpos))) && isInScreenRange(hpos, mapPos))
-					CCS->curh->set(Cursor::Map::TELEPORT);
-				else
-					CCS->curh->set(Cursor::Map::POINTER);
-				return;
-			}
-		}
+		std::string tileTooltipText = CGI->mh->getTerrainDescr(targetPosition, false);
+		GH.statusbar()->write(tileTooltipText);
 	}
 
 	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || GH.isKeyboardCtrlDown())
@@ -684,7 +675,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		std::array<Cursor::Map, 4> cursorVisit     = { Cursor::Map::T1_VISIT,      Cursor::Map::T2_VISIT,      Cursor::Map::T3_VISIT,      Cursor::Map::T4_VISIT,      };
 		std::array<Cursor::Map, 4> cursorSailVisit = { Cursor::Map::T1_SAIL_VISIT, Cursor::Map::T2_SAIL_VISIT, Cursor::Map::T3_SAIL_VISIT, Cursor::Map::T4_SAIL_VISIT, };
 
-		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(mapPos);
+		const CGPathNode * pathNode = LOCPLINT->cb->getPathsInfo(hero)->getPathInfo(targetPosition);
 		assert(pathNode);
 
 		if((GH.isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info
@@ -852,7 +843,7 @@ Rect AdventureMapInterface::terrainAreaPixels() const
 
 const IShipyard * AdventureMapInterface::ourInaccessibleShipyard(const CGObjectInstance *obj) const
 {
-	const IShipyard *ret = IShipyard::castFrom(obj);
+	const auto *ret = dynamic_cast<const IShipyard *>(obj);
 
 	if(!ret ||
 		obj->tempOwner != currentPlayerID ||
@@ -931,4 +922,11 @@ void AdventureMapInterface::onScreenResize()
 
 	if (widgetActive)
 		activate();
+}
+
+bool AdventureMapInterface::isValidAdventureSpellTarget(int3 targetPosition) const
+{
+	spells::detail::ProblemImpl problem;
+
+	return spellBeingCasted->getAdventureMechanics().canBeCastAt(problem, LOCPLINT->cb.get(), LOCPLINT->localState->getCurrentHero(), targetPosition);
 }

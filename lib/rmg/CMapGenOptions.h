@@ -67,14 +67,13 @@ public:
 
 	public:
 		template <typename Handler>
-		void serialize(Handler & h, const int version)
+		void serialize(Handler & h)
 		{
 			h & color;
 			h & startingTown;
 			h & playerType;
-			if(version >= 806)
-				h & team;
-			if (version >= 832)
+			h & team;
+			if (h.version >= Handler::Version::RELEASE_143)
 				h & startingHero;
 			else
 				startingHero = HeroTypeID::RANDOM;
@@ -168,9 +167,13 @@ private:
 	void updatePlayers();
 	const CRmgTemplate * getPossibleTemplate(CRandomGenerator & rand) const;
 
-	si32 width, height;
+	si32 width;
+	si32 height;
 	bool hasTwoLevels;
-	si8 humanOrCpuPlayerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
+	si8 humanOrCpuPlayerCount;
+	si8 teamCount;
+	si8 compOnlyPlayerCount;
+	si8 compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
@@ -182,7 +185,7 @@ private:
 
 public:
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & width;
 		h & height;
@@ -199,17 +202,16 @@ public:
 		{
 			templateName = mapTemplate->getId();
 		}
-		if(version >= 806)
+		h & templateName;
+		if(!h.saving)
 		{
-			h & templateName;
-			if(!h.saving)
-			{
-				setMapTemplate(templateName);
-			}
-			
-			h & enabledRoads;
+			setMapTemplate(templateName);
 		}
+
+		h & enabledRoads;
 	}
+
+	void serializeJson(JsonSerializeFormat & handler);
 };
 
 VCMI_LIB_NAMESPACE_END

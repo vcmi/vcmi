@@ -43,7 +43,7 @@ void ImageViewer::showPixmap(QPixmap & pixmap, QWidget * parent)
 {
 	assert(!pixmap.isNull());
 
-	ImageViewer * iw = new ImageViewer(parent);
+	auto * iw = new ImageViewer(parent);
 
 	QSize size = pixmap.size();
 	size.scale(iw->calculateWindowSize(), Qt::KeepAspectRatio);

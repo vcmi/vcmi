@@ -33,10 +33,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
-std::vector<TradeItemBuy> CGTownInstance::universitySkills;
-
-
 int CGTownInstance::getSightRadius() const //returns sight distance
 {
 	auto ret = CBuilding::HEIGHT_NO_TOWER;
@@ -160,7 +156,10 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	for(const auto & b : *bonuses2)
 	{
 		const auto growth = b->val * (base + castleBonus) / 100;
-		ret.entries.emplace_back(growth, b->Description(growth));
+		if (growth)
+		{
+			ret.entries.emplace_back(growth, b->Description(growth));
+		}
 	}
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
@@ -228,7 +227,8 @@ bool CGTownInstance::hasCapitol() const
 	return hasBuilt(BuildingID::CAPITOL);
 }
 
-CGTownInstance::CGTownInstance():
+CGTownInstance::CGTownInstance(IGameCallback *cb):
+	CGDwelling(cb),
 	town(nullptr),
 	builded(0),
 	destroyed(0),
@@ -760,6 +760,9 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 
 	case EMarketMode::RESOURCE_SKILL:
 		return hasBuilt(BuildingSubID::MAGIC_UNIVERSITY);
+	case EMarketMode::CREATURE_EXP:
+	case EMarketMode::ARTIFACT_EXP:
+		return false;
 	default:
 		assert(0);
 		return false;
@@ -771,7 +774,7 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<TradeItemBuy> ret;
-		for(const CArtifact *a : merchantArtifacts)
+		for(const CArtifact *a : cb->gameState()->map->townMerchantArtifacts)
 			if(a)
 				ret.push_back(a->getId());
 			else
@@ -780,7 +783,7 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
-		return universitySkills;
+		return cb->gameState()->map->townUniversitySkills;
 	}
 	else
 		return IMarket::availableItemsIds(mode);
@@ -1112,12 +1115,6 @@ void CGTownInstance::afterAddToMap(CMap * map)
 void CGTownInstance::afterRemoveFromMap(CMap * map)
 {
 	vstd::erase_if_present(map->towns, this);
-}
-
-void CGTownInstance::reset()
-{
-	CGTownInstance::merchantArtifacts.clear();
-	CGTownInstance::universitySkills.clear();
 }
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)

@@ -93,7 +93,6 @@ public:
 //	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 //	const CGObjectInstance * getTopObj (int3 pos) const;
 //	PlayerColor getOwner(ObjectInstanceID heroID) const;
-//	const CGObjectInstance *getObjByQuestIdentifier(ObjectInstanceID identifier) const; //nullptr if object has been removed (eg. killed)
 
 	//map
 //	int3 guardingCreaturePosition (int3 pos) const;
@@ -172,7 +171,7 @@ public:
 	virtual void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
 
 	//hero
-	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
+	const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
 	const CGHeroInstance * getHeroWithSubid(int subid) const override;
 	virtual int getHeroCount(PlayerColor player, bool includeGarrisoned) const;
 	virtual bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
@@ -180,24 +179,25 @@ public:
 	virtual int64_t estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	virtual const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
 	virtual const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
-	virtual CArtifactSet * getArtSet(const ArtifactLocation & loc) const;
+	virtual const CArtifactSet * getArtSet(const ArtifactLocation & loc) const;
 	//virtual const CGObjectInstance * getArmyInstance(ObjectInstanceID oid) const;
 
 	//objects
-	virtual const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
+	const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
 	virtual std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos)const;
-	virtual std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true) const override;
+	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true) const override;
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	virtual const CGObjectInstance * getTopObj (int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
-	virtual const CGObjectInstance *getObjByQuestIdentifier(ObjectInstanceID identifier) const; //nullptr if object has been removed (eg. killed)
 
 	//map
 	virtual int3 guardingCreaturePosition (int3 pos) const;
 	virtual std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const;
+	virtual bool isTileGuardedUnchecked(int3 tile) const;
 	virtual const CMapHeader * getMapHeader()const;
 	virtual int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual const TerrainTile * getTile(int3 tile, bool verbose = true) const;
+	virtual const TerrainTile * getTileUnchecked(int3 tile) const;
 	virtual std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
 	virtual void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;

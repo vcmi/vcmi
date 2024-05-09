@@ -38,10 +38,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
+RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
-	mapInstance = std::make_unique<CMap>();
+	mapInstance = std::make_unique<CMap>(cb);
 	mapProxy = std::make_shared<MapProxy>(*this);
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
 }
@@ -237,6 +237,19 @@ void RmgMap::assertOnMap(const int3& tile) const
 RmgMap::Zones & RmgMap::getZones()
 {
 	return zones;
+}
+
+RmgMap::Zones RmgMap::getZonesOnLevel(int level) const
+{
+	Zones zonesOnLevel;
+	for(const auto& zonePair : zones)
+	{
+		if(zonePair.second->isUnderground() == (bool)level)
+		{
+			zonesOnLevel.insert(zonePair);
+		}
+	}
+	return zonesOnLevel;
 }
 
 bool RmgMap::isBlocked(const int3 &tile) const

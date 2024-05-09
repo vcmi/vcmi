@@ -12,7 +12,6 @@
 #include <vcmi/Metatype.h>
 
 #include "CGameInfoCallback.h" // for CGameInfoCallback
-#include "CRandomGenerator.h"
 #include "networkPacks/ObjProperty.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -23,6 +22,7 @@ struct BlockingDialog;
 struct TeleportDialog;
 struct StackLocation;
 struct ArtifactLocation;
+class CRandomGenerator;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
@@ -78,7 +78,6 @@ public:
 	virtual void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) = 0;
 
 	virtual void showInfoDialog(InfoWindow * iw) = 0;
-	virtual void showInfoDialog(const std::string & msg, PlayerColor player) = 0;
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
@@ -110,7 +109,7 @@ public:
 	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) = 0;
 	virtual bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble = std::nullopt) = 0;
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
-	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
+	virtual bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) = 0;
 
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
@@ -118,7 +117,7 @@ public:
 	virtual void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr)=0; //use hero=nullptr for no hero
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL)=0;
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveMove, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL)=0;
 	virtual bool swapGarrisonOnSiege(ObjectInstanceID tid)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
@@ -146,6 +145,7 @@ public:
 	using CGameInfoCallback::getTile;
 	using CGameInfoCallback::getArtInstance;
 	using CGameInfoCallback::getObjInstance;
+	using CGameInfoCallback::getArtSet;
 
 	PlayerState * getPlayerState(const PlayerColor & color, bool verbose = true);
 	TeamState * getTeam(const TeamID & teamID); //get team by team ID
@@ -156,6 +156,7 @@ public:
 	CArtifactInstance * getArtInstance(const ArtifactInstanceID & aid);
 	CGObjectInstance * getObjInstance(const ObjectInstanceID & oid);
 	CArmedInstance * getArmyInstance(const ObjectInstanceID & oid);
+	CArtifactSet * getArtSet(const ArtifactLocation & loc);
 
 	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
 };

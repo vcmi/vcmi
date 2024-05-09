@@ -67,13 +67,14 @@ class IGameActionCallback
 {
 public:
 	//hero
-	virtual bool moveHero(const CGHeroInstance *h, int3 dst, bool transit) =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	virtual void moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit) =0; //moves hero alongside provided path
+	virtual void moveHero(const CGHeroInstance *h, const int3 & destination, bool transit) =0; //moves hero alongside provided path
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
 	virtual void dig(const CGObjectInstance *hero)=0;
 	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1))=0; //cast adventure map spell
 
 	//town
-	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
+	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
 	virtual void recruitCreatures(const CGDwelling *obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
@@ -90,6 +91,8 @@ public:
 	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)=0;//split creatures from the first stack
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)=0;
+	virtual void scrollBackpackArtifacts(ObjectInstanceID hero, bool left) = 0;
+	virtual void manageHeroCostume(ObjectInstanceID hero, size_t costumeIndex, bool saveCostume) = 0;
 	virtual void assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
 	virtual void eraseArtifactByClient(const ArtifactLocation & al)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos)=0;
@@ -158,7 +161,8 @@ public:
 	void unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
 
 //commands
-	bool moveHero(const CGHeroInstance *h, int3 dst, bool transit = false) override; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	void moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit) override;
+	void moveHero(const CGHeroInstance *h, const int3 & destination, bool transit) override;
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
 	int selectionMade(int selection, QueryID queryID) override;
 	int sendQueryReply(std::optional<int32_t> reply, QueryID queryID) override;
@@ -174,6 +178,8 @@ public:
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
 	void assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
 	void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped = true, bool backpack = true) override;
+	void scrollBackpackArtifacts(ObjectInstanceID hero, bool left) override;
+	void manageHeroCostume(ObjectInstanceID hero, size_t costumeIdx, bool saveCostume) override;
 	void eraseArtifactByClient(const ArtifactLocation & al) override;
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;
 	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1) override;
@@ -185,7 +191,7 @@ public:
 	void trade(const IMarket * market, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;
 	void trade(const IMarket * market, EMarketMode mode, const std::vector<TradeItemSell> & id1, const std::vector<TradeItemBuy> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr) override;
 	void setFormation(const CGHeroInstance * hero, EArmyFormation mode) override;
-	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero) override;
+	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE) override;
 	void save(const std::string &fname) override;
 	void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) override;
 	void gamePause(bool pause) override;

@@ -13,12 +13,12 @@
 
 #include "CBonusTypeHandler.h"
 
-#include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 
 #include "GameConstants.h"
 #include "CCreatureHandler.h"
 #include "CGeneralTextHandler.h"
+#include "json/JsonUtils.h"
 #include "spells/CSpellHandler.h"
 
 template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
@@ -239,8 +239,8 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 
 	if (!dest.hidden)
 	{
-		VLC->generaltexth->registerString( "core", dest.getNameTextID(), source["name"].String());
-		VLC->generaltexth->registerString( "core", dest.getDescriptionTextID(), source["description"].String());
+		VLC->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"].String());
+		VLC->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"].String());
 	}
 
 	const JsonNode & graphics = source["graphics"];

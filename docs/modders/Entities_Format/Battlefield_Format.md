@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / Entities Format / Battlefield Format
-
 ```jsonc
 	// Human-readable name of the battlefield
 	"name" : ""

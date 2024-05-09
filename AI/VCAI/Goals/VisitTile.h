@@ -32,6 +32,6 @@ namespace Goals
 		TGoalVec getAllPossibleSubgoals() override;
 		TSubgoal whatToDoToAchieve() override;
 		std::string completeMessage() const override;
-		virtual bool operator==(const VisitTile & other) const override;
+		bool operator==(const VisitTile & other) const override;
 	};
 }

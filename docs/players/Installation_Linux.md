@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Installation on Linux
-
 VCMI requires data from original Heroes 3: Shadow of Death or Complete editions. Data from native Linux version made by LOKI will not work.
 
 # Step 1: Binaries installation
@@ -96,6 +94,10 @@ flatpak run --command=vcmibuilder eu.vcmi.VCMI --data /path/to/h3/data`
 ## Install data using gog.com offline installer
 
 Download both files for the "offline backup game installers" and extract them using innoextract tool
+
+You can select both downloaded files in launcher to extract automatically.
+
+Alternativly you can use the classic way:
 ```
 innoextract --output-dir=~/Downloads/HoMM3 "setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe"
 ```

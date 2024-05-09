@@ -87,13 +87,13 @@ TEST_F(ERM_MA, Example)
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::FLYING, BonusSource::CREATURE_ABILITY, 0, 0));
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::KING, BonusSource::CREATURE_ABILITY, 0, 0));
 
-	std::shared_ptr<Bonus> removed = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::MIND_IMMUNITY, BonusSource::CREATURE_ABILITY, 0, 0);
+	auto removed = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::MIND_IMMUNITY, BonusSource::CREATURE_ABILITY, 0, 0);
 
 	creatureBonuses.addNewBonus(removed);
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MORALE, BonusSource::CREATURE_ABILITY, 0, 0));
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::UNDEAD, BonusSource::CREATURE_ABILITY, 0, 0));
 
-	std::shared_ptr<Bonus> added = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MELEE_PENALTY, BonusSource::CREATURE_ABILITY, 0, 0);
+	auto added = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MELEE_PENALTY, BonusSource::CREATURE_ABILITY, 0, 0);
 
 
 	EXPECT_CALL(oldCreature, getRecruitCost(Eq(6))).WillOnce(Return(COST));
@@ -206,13 +206,13 @@ TEST_F(ERM_MA, Bonuses)
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::FLYING, BonusSource::CREATURE_ABILITY, 0, 0));
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::KING, BonusSource::CREATURE_ABILITY, 0, 0));
 
-	std::shared_ptr<Bonus> removed = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::MIND_IMMUNITY, BonusSource::CREATURE_ABILITY, 0, 0);
+	auto removed = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::MIND_IMMUNITY, BonusSource::CREATURE_ABILITY, 0, 0);
 
 	creatureBonuses.addNewBonus(removed);
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MORALE, BonusSource::CREATURE_ABILITY, 0, 0));
 	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::UNDEAD, BonusSource::CREATURE_ABILITY, 0, 0));
 
-	std::shared_ptr<Bonus> added = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MELEE_PENALTY, BonusSource::CREATURE_ABILITY, 0, 0);
+	auto added = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MELEE_PENALTY, BonusSource::CREATURE_ABILITY, 0, 0);
 
 	EXPECT_CALL(oldCreature, isDoubleWide()).WillRepeatedly(Return(false));
 

@@ -13,7 +13,7 @@
 #if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 #include "IHandlerBase.h"
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -108,7 +108,7 @@ public:
 
 	void run(std::shared_ptr<Pool> pool) const override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		JsonNode state;
 		if(h.saving)

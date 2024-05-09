@@ -15,12 +15,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGTownInstance;
 class CConnection;
+class MetaString;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 
 class PlayerMessageProcessor
 {
+	CGameHandler * gameHandler;
+
 	void executeCheatCode(const std::string & cheatName, PlayerColor player, ObjectInstanceID currObj, const std::vector<std::string> & arguments );
 	bool handleCheatCode(const std::string & cheatFullCommand, PlayerColor player, ObjectInstanceID currObj);
 	bool handleHostCommand(PlayerColor player, const std::string & message);
@@ -43,24 +46,23 @@ class PlayerMessageProcessor
 	void cheatFly(PlayerColor player, const CGHeroInstance * hero);
 
 public:
-	CGameHandler * gameHandler;
-
-	PlayerMessageProcessor();
 	PlayerMessageProcessor(CGameHandler * gameHandler);
 
 	/// incoming NetPack handling
 	void playerMessage(PlayerColor player, const std::string & message, ObjectInstanceID currObj);
 
 	/// Send message to specific client with "System" as sender
+	void sendSystemMessage(std::shared_ptr<CConnection> connection, MetaString message);
 	void sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message);
 
 	/// Send message to all players with "System" as sender
+	void broadcastSystemMessage(MetaString message);
 	void broadcastSystemMessage(const std::string & message);
 
 	/// Send message from specific player to all other players
 	void broadcastMessage(PlayerColor playerSender, const std::string & message);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 	}
 };

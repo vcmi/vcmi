@@ -13,6 +13,7 @@
 #include "ui_translations.h"
 #include "../../lib/Languages.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/VCMI_Lib.h"
 
 void Translations::cleanupRemovedItems(CMap & map)
@@ -23,7 +24,7 @@ void Translations::cleanupRemovedItems(CMap & map)
 	
 	for(auto & translations : map.translations.Struct())
 	{
-		auto updateTranslations = JsonNode(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode updateTranslations;
 		for(auto & s : translations.second.Struct())
 		{
 			for(auto part : QString::fromStdString(s.first).split('.'))
@@ -43,7 +44,7 @@ void Translations::cleanupRemovedItems(CMap & map, const std::string & pattern)
 {
 	for(auto & translations : map.translations.Struct())
 	{
-		auto updateTranslations = JsonNode(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode updateTranslations;
 		for(auto & s : translations.second.Struct())
 		{
 			if(s.first.find(pattern) == std::string::npos)
@@ -170,7 +171,7 @@ void Translations::on_supportedCheck_toggled(bool checked)
 		}
 		ui->translationsTable->blockSignals(true);
 		ui->translationsTable->setRowCount(0);
-		translation = JsonNode(JsonNode::JsonType::DATA_NULL);
+		translation.clear();
 		ui->translationsTable->blockSignals(false);
 		ui->translationsTable->setEnabled(false);
 	}

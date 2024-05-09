@@ -26,7 +26,7 @@ struct DLL_LINKAGE TerrainPaletteAnimation
 	/// total numbers of colors to cycle
 	int32_t length;
 
-	template <typename Handler> void serialize(Handler& h, const int version)
+	template <typename Handler> void serialize(Handler& h)
 	{
 		h & start;
 		h & length;
@@ -107,8 +107,8 @@ public:
 		const std::string & identifier,
 		size_t index) override;
 
-	virtual const std::vector<std::string> & getTypeNames() const override;
-	virtual std::vector<JsonNode> loadLegacyData() override;
+	const std::vector<std::string> & getTypeNames() const override;
+	std::vector<JsonNode> loadLegacyData() override;
 };
 
 VCMI_LIB_NAMESPACE_END

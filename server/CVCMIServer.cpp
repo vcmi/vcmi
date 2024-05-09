@@ -8,61 +8,32 @@
  *
  */
 #include "StdInc.h"
-#include <boost/asio.hpp>
-
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/campaign/CampaignState.h"
-#include "../lib/CThreadHelper.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/CArtHandler.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/CHeroHandler.h"
-#include "../lib/CTownHandler.h"
-#include "../lib/CBuildingHandler.h"
-#include "../lib/spells/CSpellHandler.h"
-#include "../lib/CCreatureHandler.h"
-#include "zlib.h"
 #include "CVCMIServer.h"
-#include "../lib/StartInfo.h"
-#include "../lib/mapping/CMapHeader.h"
-#include "../lib/rmg/CMapGenOptions.h"
-#include "LobbyNetPackVisitors.h"
-#ifdef VCMI_ANDROID
-#include <jni.h>
-#include <android/log.h>
-#include "lib/CAndroidVMHelper.h"
-#endif
-#include "../lib/VCMI_Lib.h"
-#include "../lib/VCMIDirs.h"
+
 #include "CGameHandler.h"
+#include "GlobalLobbyProcessor.h"
+#include "LobbyNetPackVisitors.h"
 #include "processors/PlayerMessageProcessor.h"
-#include "../lib/mapping/CMapInfo.h"
-#include "../lib/GameConstants.h"
-#include "../lib/logging/CBasicLogConfigurator.h"
-#include "../lib/CConfigHandler.h"
-#include "../lib/ScopeGuard.h"
-#include "../lib/serializer/CMemorySerializer.h"
-#include "../lib/serializer/Cast.h"
 
-#include "../lib/UnlockGuard.h"
-
-// for applier
+#include "../lib/CHeroHandler.h"
+#include "../lib/MetaString.h"
 #include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
+#include "../lib/serializer/CMemorySerializer.h"
+#include "../lib/serializer/Connection.h"
 
 // UUID generation
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-
-#include "../lib/gameState/CGameState.h"
+#include <boost/program_options.hpp>
 
 template<typename T> class CApplyOnServer;
 
 class CBaseForServerApply
 {
 public:
-	virtual bool applyOnServerBefore(CVCMIServer * srv, void * pack) const =0;
-	virtual void applyOnServerAfter(CVCMIServer * srv, void * pack) const =0;
+	virtual bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const =0;
+	virtual void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const =0;
 	virtual ~CBaseForServerApply() {}
 	template<typename U> static CBaseForServerApply * getApplier(const U * t = nullptr)
 	{
@@ -73,7 +44,7 @@ public:
 template <typename T> class CApplyOnServer : public CBaseForServerApply
 {
 public:
-	bool applyOnServerBefore(CVCMIServer * srv, void * pack) const override
+	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
 		ClientPermissionsCheckerNetPackVisitor checker(*srv);
@@ -81,18 +52,15 @@ public:
 
 		if(checker.getResult())
 		{
-			boost::unique_lock<boost::mutex> stateLock(srv->stateMutex);
 			ApplyOnServerNetPackVisitor applier(*srv);
-			
 			ptr->visit(applier);
-
 			return applier.getResult();
 		}
 		else
 			return false;
 	}
 
-	void applyOnServerAfter(CVCMIServer * srv, void * pack) const override
+	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
 		ApplyOnServerAfterAnnounceNetPackVisitor applier(*srv);
@@ -104,192 +72,187 @@ template <>
 class CApplyOnServer<CPack> : public CBaseForServerApply
 {
 public:
-	bool applyOnServerBefore(CVCMIServer * srv, void * pack) const override
+	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply plain CPack!");
 		assert(0);
 		return false;
 	}
-	void applyOnServerAfter(CVCMIServer * srv, void * pack) const override
+	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply plain CPack!");
 		assert(0);
 	}
 };
 
-std::string SERVER_NAME_AFFIX = "server";
-std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
+class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+{
+private:
+	CVCMIServer & handler;
+	std::shared_ptr<CGameHandler> gh;
 
-CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
-	: port(3030), io(std::make_shared<boost::asio::io_service>()), state(EServerState::LOBBY), cmdLineOptions(opts), currentClientId(1), currentPlayerId(1), restartGameplay(false)
+public:
+	CVCMIServerPackVisitor(CVCMIServer & handler, std::shared_ptr<CGameHandler> gh)
+			:handler(handler), gh(gh)
+	{
+	}
+
+	bool callTyped() override { return false; }
+
+	void visitForLobby(CPackForLobby & packForLobby) override
+	{
+		handler.handleReceivedPack(std::unique_ptr<CPackForLobby>(&packForLobby));
+	}
+
+	void visitForServer(CPackForServer & serverPack) override
+	{
+		if (gh)
+			gh->handleReceivedPack(&serverPack);
+		else
+			logNetwork->error("Received pack for game server while in lobby!");
+	}
+
+	void visitForClient(CPackForClient & clientPack) override
+	{
+	}
+};
+
+CVCMIServer::CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient)
+	: currentClientId(1)
+	, currentPlayerId(1)
+	, port(port)
+	, runByClient(runByClient)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
 	applier = std::make_shared<CApplier<CBaseForServerApply>>();
 	registerTypesLobbyPacks(*applier);
 
-	if(cmdLineOptions.count("port"))
-		port = cmdLineOptions["port"].as<ui16>();
+	networkHandler = INetworkHandler::createHandler();
+
+	if(connectToLobby)
+		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
+	else
+		startAcceptingIncomingConnections();
+}
+
+CVCMIServer::~CVCMIServer() = default;
+
+void CVCMIServer::startAcceptingIncomingConnections()
+{
 	logNetwork->info("Port %d will be used", port);
-	try
-	{
-		acceptor = std::make_shared<TAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
-	}
-	catch(...)
-	{
-		logNetwork->info("Port %d is busy, trying to use random port instead", port);
-		if(cmdLineOptions.count("run-by-client"))
-		{
-			logNetwork->error("Port must be specified when run-by-client is used!!");
-#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
-			::exit(0);
-#else
-			std::quick_exit(0);
-#endif
-		}
-		acceptor = std::make_shared<TAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 0));
-		port = acceptor->local_endpoint().port();
-	}
+
+	networkServer = networkHandler->createServerTCP(*this);
+	networkServer->start(port);
 	logNetwork->info("Listening for connections at port %d", port);
 }
 
-CVCMIServer::~CVCMIServer()
+void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & connection)
 {
-	announceQueue.clear();
+	if(getState() == EServerState::LOBBY)
+	{
+		activeConnections.push_back(std::make_shared<CConnection>(connection));
+		activeConnections.back()->enterLobbyConnectionMode();
+	}
+	else
+	{
+		// TODO: reconnection support
+		connection->close();
+	}
+}
 
-	if(announceLobbyThread)
-		announceLobbyThread->join();
+void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
+{
+	std::shared_ptr<CConnection> c = findConnection(connection);
+	auto pack = c->retrievePack(message);
+	pack->c = c;
+	CVCMIServerPackVisitor visitor(*this, this->gh);
+	pack->visit(visitor);
 }
 
 void CVCMIServer::setState(EServerState value)
 {
-	state.store(value);
+	if (value == EServerState::SHUTDOWN && state == EServerState::SHUTDOWN)
+		logGlobal->warn("Attempt to shutdown already shutdown server!");
+
+	// do not attempt to restart dying server
+	assert(state != EServerState::SHUTDOWN || state == value);
+	state = value;
+
+	if (state == EServerState::SHUTDOWN)
+		networkHandler->stop();
 }
 
 EServerState CVCMIServer::getState() const
 {
-	return state.load();
+	return state;
+}
+
+std::shared_ptr<CConnection> CVCMIServer::findConnection(const std::shared_ptr<INetworkConnection> & netConnection)
+{
+	for(const auto & gameConnection : activeConnections)
+	{
+		if (gameConnection->isMyConnection(netConnection))
+			return gameConnection;
+	}
+
+	throw std::runtime_error("Unknown connection received in CVCMIServer::findConnection");
+}
+
+bool CVCMIServer::wasStartedByClient() const
+{
+	return runByClient;
 }
 
 void CVCMIServer::run()
 {
-	if(!restartGameplay)
-	{
-		this->announceLobbyThread = std::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
-
-		startAsyncAccept();
-		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
-		{
-			remoteConnectionsThread = std::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
-		}
-
-#if defined(VCMI_ANDROID)
-#ifndef SINGLE_PROCESS_APP
-		CAndroidVMHelper vmHelper;
-		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
-#endif
-#endif
-	}
-
-	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
-
-	logNetwork->info("Thread handling connections ended");
-
-	if(state == EServerState::GAMEPLAY)
-	{
-		gh->run(si->mode == StartInfo::LOAD_GAME);
-	}
-	while(state == EServerState::GAMEPLAY_ENDED)
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+	networkHandler->run();
 }
 
-void CVCMIServer::establishRemoteConnections()
+void CVCMIServer::onTimer()
 {
-	setThreadName("establishConnection");
+	// we might receive onTimer call after transitioning from GAMEPLAY to LOBBY state, e.g. on game restart
+	if (getState() != EServerState::GAMEPLAY)
+		return;
 
-	//wait for host connection
-	while(connections.empty())
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
-	
-	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
-    int numOfConnections = cmdLineOptions["connections"].as<ui16>();
-	for(int i = 0; i < numOfConnections; ++i)
-		connectToRemote();
-}
+	static const auto serverUpdateInterval = std::chrono::milliseconds(100);
 
-void CVCMIServer::connectToRemote()
-{
-	std::shared_ptr<CConnection> c;
-	try
-	{
-		auto address = cmdLineOptions["lobby"].as<std::string>();
-		int port = cmdLineOptions["lobby-port"].as<ui16>();
-		
-		logNetwork->info("Establishing connection to remote at %s:%d with uuid %s", address, port, uuid);
-		c = std::make_shared<CConnection>(address, port, SERVER_NAME, uuid);
-	}
-	catch(...)
-	{
-		logNetwork->error("\nCannot establish remote connection!");
-	}
-	
-	if(c)
-	{
-		connections.insert(c);
-		remoteConnections.insert(c);
-		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
-	}
-}
+	auto timeNow = std::chrono::steady_clock::now();
+	auto timePassedBefore = lastTimerUpdateTime - gameplayStartTime;
+	auto timePassedNow = timeNow - gameplayStartTime;
 
-void CVCMIServer::threadAnnounceLobby()
-{
-	setThreadName("announceLobby");
-	while(state != EServerState::SHUTDOWN)
-	{
-		{
-			boost::unique_lock<boost::recursive_mutex> myLock(mx);
-			while(!announceQueue.empty())
-			{
-				announcePack(std::move(announceQueue.front()));
-				announceQueue.pop_front();
-			}
+	lastTimerUpdateTime = timeNow;
 
-			if(acceptor)
-			{
-				io->reset();
-				io->poll();
-			}
-		}
+	auto msPassedBefore = std::chrono::duration_cast<std::chrono::milliseconds>(timePassedBefore);
+	auto msPassedNow = std::chrono::duration_cast<std::chrono::milliseconds>(timePassedNow);
+	auto msDelta = msPassedNow - msPassedBefore;
 
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
-	}
+	if (msDelta.count())
+		gh->tick(msDelta.count());
+	networkHandler->createTimer(*this, serverUpdateInterval);
 }
 
 void CVCMIServer::prepareToRestart()
 {
-	if(state == EServerState::GAMEPLAY)
+	if(getState() != EServerState::GAMEPLAY)
 	{
-		restartGameplay = true;
-		* si = * gh->gs->initialOpts;
-		si->seedToBeUsed = si->seedPostInit = 0;
-		state = EServerState::LOBBY;
-		if (si->campState)
-		{
-			assert(si->campState->currentScenario().has_value());
-			campaignMap = si->campState->currentScenario().value_or(CampaignScenarioID(0));
-			campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
-		}
-		// FIXME: dirry hack to make sure old CGameHandler::run is finished
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+		assert(0);
+		return;
+	}
+
+	* si = * gh->gs->initialOpts;
+	si->seedToBeUsed = si->seedPostInit = 0;
+	setState(EServerState::LOBBY);
+	if (si->campState)
+	{
+		assert(si->campState->currentScenario().has_value());
+		campaignMap = si->campState->currentScenario().value_or(CampaignScenarioID(0));
+		campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
 	}
 	
-	for(auto c : connections)
-	{
-		c->enterLobbyConnectionMode();
-		c->disableStackSendingByID();
-	}
-	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+	for(auto activeConnection : activeConnections)
+		activeConnection->enterLobbyConnectionMode();
+
 	gh = nullptr;
 }
 
@@ -298,18 +261,23 @@ bool CVCMIServer::prepareToStartGame()
 	Load::ProgressAccumulator progressTracking;
 	Load::Progress current(1);
 	progressTracking.include(current);
-	Load::Type currentProgress = std::numeric_limits<Load::Type>::max();
-	
-	auto progressTrackingThread = boost::thread([this, &progressTracking, &currentProgress]()
+
+	if (lobbyProcessor)
+		lobbyProcessor->sendGameStarted();
+
+	auto progressTrackingThread = boost::thread([this, &progressTracking]()
 	{
+		auto currentProgress = std::numeric_limits<Load::Type>::max();
+
 		while(!progressTracking.finished())
 		{
 			if(progressTracking.get() != currentProgress)
 			{
+				//FIXME: UNGUARDED MULTITHREADED ACCESS!!!
 				currentProgress = progressTracking.get();
 				std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
 				loadProgress->progress = currentProgress;
-				addToAnnounceQueue(std::move(loadProgress));
+				announcePack(std::move(loadProgress));
 			}
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 		}
@@ -318,7 +286,7 @@ bool CVCMIServer::prepareToStartGame()
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
-	case StartInfo::CAMPAIGN:
+	case EStartMode::CAMPAIGN:
 		logNetwork->info("Preparing to start new campaign");
 		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 		si->fileURI = mi->fileURI;
@@ -327,14 +295,14 @@ bool CVCMIServer::prepareToStartGame()
 		gh->init(si.get(), progressTracking);
 		break;
 
-	case StartInfo::NEW_GAME:
+	case EStartMode::NEW_GAME:
 		logNetwork->info("Preparing to start new game");
 		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 		si->fileURI = mi->fileURI;
 		gh->init(si.get(), progressTracking);
 		break;
 
-	case StartInfo::LOAD_GAME:
+	case EStartMode::LOAD_GAME:
 		logNetwork->info("Preparing to start loaded game");
 		if(!gh->load(si->mapname))
 		{
@@ -355,284 +323,185 @@ bool CVCMIServer::prepareToStartGame()
 	return true;
 }
 
-void CVCMIServer::startGameImmidiately()
+void CVCMIServer::startGameImmediately()
 {
-	for(auto c : connections)
-		c->enterGameplayConnectionMode(gh->gs);
+	for(auto activeConnection : activeConnections)
+		activeConnection->enterGameplayConnectionMode(gh->gs);
 
-	state = EServerState::GAMEPLAY;
+	gh->start(si->mode == EStartMode::LOAD_GAME);
+	setState(EServerState::GAMEPLAY);
+	lastTimerUpdateTime = gameplayStartTime = std::chrono::steady_clock::now();
+	onTimer();
 }
 
-void CVCMIServer::startAsyncAccept()
+void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	assert(!upcomingConnection);
-	assert(acceptor);
+	logNetwork->error("Network error receiving a pack. Connection has been closed");
 
-#if BOOST_VERSION >= 107000  // Boost version >= 1.70
-	upcomingConnection = std::make_shared<TSocket>(acceptor->get_executor());
-#else
-	upcomingConnection = std::make_shared<TSocket>(acceptor->get_io_service());
-#endif
-	acceptor->async_accept(*upcomingConnection, std::bind(&CVCMIServer::connectionAccepted, this, _1));
-}
+	std::shared_ptr<CConnection> c = findConnection(connection);
+	vstd::erase(activeConnections, c);
 
-void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
-{
-	if(ec)
+	if(activeConnections.empty() || hostClientId == c->connectionID)
 	{
-		if(state != EServerState::SHUTDOWN)
-			logNetwork->info("Something wrong during accepting: %s", ec.message());
+		setState(EServerState::SHUTDOWN);
 		return;
 	}
 
-	try
+	if(gh && getState() == EServerState::GAMEPLAY)
 	{
-		if(state == EServerState::LOBBY || !hangingConnections.empty())
-		{
-			logNetwork->info("We got a new connection! :)");
-			auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
-			upcomingConnection.reset();
-			connections.insert(c);
-			c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
-		}
-	}
-	catch(std::exception & e)
-	{
-		logNetwork->error("Failure processing new connection! %s", e.what());
-		upcomingConnection.reset();
-	}
+		gh->handleClientDisconnection(c);
 
-	startAsyncAccept();
-}
-
-class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
-{
-private:
-	CVCMIServer & handler;
-	std::shared_ptr<CGameHandler> gh;
-
-public:
-	CVCMIServerPackVisitor(CVCMIServer & handler, std::shared_ptr<CGameHandler> gh)
-			:handler(handler), gh(gh)
-	{
-	}
-
-	virtual bool callTyped() override { return false; }
-
-	virtual void visitForLobby(CPackForLobby & packForLobby) override
-	{
-		handler.handleReceivedPack(std::unique_ptr<CPackForLobby>(&packForLobby));
-	}
-
-	virtual void visitForServer(CPackForServer & serverPack) override
-	{
-		if (gh)
-			gh->handleReceivedPack(&serverPack);
-		else
-			logNetwork->error("Received pack for game server while in lobby!");
-	}
-
-	virtual void visitForClient(CPackForClient & clientPack) override
-	{
-	}
-};
-
-void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
-{
-	setThreadName("handleClient");
-	c->enterLobbyConnectionMode();
-
-	while(c->connected)
-	{
-		CPack * pack;
-
-		try
-		{
-			pack = c->retrievePack();
-			pack->c = c;
-		}
-		catch(boost::system::system_error & e)
-		{
-			if (e.code() == boost::asio::error::eof)
-				logNetwork->error("Network error receiving a pack. Connection has been closed");
-			else
-				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
-
-			hangingConnections.insert(c);
-			connections.erase(c);
-			if(connections.empty() || hostClient == c)
-				state = EServerState::SHUTDOWN;
-
-			if(gh && state == EServerState::GAMEPLAY)
-			{
-				gh->handleClientDisconnection(c);
-			}
-			break;
-		}
-
-		CVCMIServerPackVisitor visitor(*this, this->gh);
-		pack->visit(visitor);
-	}
-
-	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-
-	if(c->connected)
-	{
 		auto lcd = std::make_unique<LobbyClientDisconnected>();
 		lcd->c = c;
 		lcd->clientId = c->connectionID;
 		handleReceivedPack(std::move(lcd));
 	}
-
-	logNetwork->info("Thread listening for %s ended", c->toString());
-	c->handler.reset();
 }
 
 void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
 {
 	CBaseForServerApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()));
 	if(apply->applyOnServerBefore(this, pack.get()))
-		addToAnnounceQueue(std::move(pack));
+		announcePack(std::move(pack));
 }
 
 void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 {
-	for(auto c : connections)
+	for(auto activeConnection : activeConnections)
 	{
 		// FIXME: we need to avoid sending something to client that not yet get answer for LobbyClientConnected
 		// Until UUID set we only pass LobbyClientConnected to this client
-		if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
-			continue;
-
-		c->sendPack(pack.get());
+		//if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
+		//	continue;
+		activeConnection->sendPack(pack.get());
 	}
 
 	applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
 }
 
-void CVCMIServer::announceMessage(const std::string & txt)
+void CVCMIServer::announceMessage(MetaString txt)
 {
-	logNetwork->info("Show message: %s", txt);
+	logNetwork->info("Show message: %s", txt.toString());
 	auto cm = std::make_unique<LobbyShowMessage>();
 	cm->message = txt;
-	addToAnnounceQueue(std::move(cm));
+	announcePack(std::move(cm));
+}
+
+void CVCMIServer::announceMessage(const std::string & txt)
+{
+	MetaString str;
+	str.appendRawString(txt);
+	announceMessage(str);
+}
+
+void CVCMIServer::announceTxt(MetaString txt, const std::string & playerName)
+{
+	logNetwork->info("%s says: %s", playerName, txt.toString());
+	auto cm = std::make_unique<LobbyChatMessage>();
+	cm->playerName = playerName;
+	cm->message = txt;
+	announcePack(std::move(cm));
 }
 
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
 {
-	logNetwork->info("%s says: %s", playerName, txt);
-	auto cm = std::make_unique<LobbyChatMessage>();
-	cm->playerName = playerName;
-	cm->message = txt;
-	addToAnnounceQueue(std::move(cm));
-}
-
-void CVCMIServer::addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack)
-{
-	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-	announceQueue.push_back(std::move(pack));
+	MetaString str;
+	str.appendRawString(txt);
+	announceTxt(str, playerName);
 }
 
 bool CVCMIServer::passHost(int toConnectionId)
 {
-	for(auto c : connections)
+	for(auto activeConnection : activeConnections)
 	{
-		if(isClientHost(c->connectionID))
+		if(isClientHost(activeConnection->connectionID))
 			continue;
-		if(c->connectionID != toConnectionId)
+		if(activeConnection->connectionID != toConnectionId)
 			continue;
 
-		hostClient = c;
-		hostClientId = c->connectionID;
+		hostClientId = activeConnection->connectionID;
 		announceTxt(boost::str(boost::format("Pass host to connection %d") % toConnectionId));
 		return true;
 	}
 	return false;
 }
 
-void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode)
+void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
 {
-	if(state == EServerState::LOBBY)
-		c->connectionID = currentClientId++;
+	assert(getState() == EServerState::LOBBY);
 
-	if(!hostClient)
+	c->connectionID = currentClientId++;
+
+	if(hostClientId == -1)
 	{
-		hostClient = c;
 		hostClientId = c->connectionID;
 		si->mode = mode;
 	}
 
 	logNetwork->info("Connection with client %d established. UUID: %s", c->connectionID, c->uuid);
 	
-	if(state == EServerState::LOBBY)
+	for(auto & name : names)
 	{
-		for(auto & name : names)
+		logNetwork->info("Client %d player: %s", c->connectionID, name);
+		ui8 id = currentPlayerId++;
+
+		ClientPlayer cp;
+		cp.connection = c->connectionID;
+		cp.name = name;
+		playerNames.insert(std::make_pair(id, cp));
+		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
+
+		//put new player in first slot with AI
+		for(auto & elem : si->playerInfos)
 		{
-			logNetwork->info("Client %d player: %s", c->connectionID, name);
-			ui8 id = currentPlayerId++;
-
-			ClientPlayer cp;
-			cp.connection = c->connectionID;
-			cp.name = name;
-			playerNames.insert(std::make_pair(id, cp));
-			announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
-
-			//put new player in first slot with AI
-			for(auto & elem : si->playerInfos)
+			if(elem.second.isControlledByAI() && !elem.second.compOnly)
 			{
-				if(elem.second.isControlledByAI() && !elem.second.compOnly)
-				{
-					setPlayerConnectedId(elem.second, id);
-					break;
-				}
+				setPlayerConnectedId(elem.second, id);
+				break;
 			}
 		}
 	}
 }
 
-void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
+void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 {
-	connections -= c;
-	if(connections.empty() || hostClient == c)
-	{
-		state = EServerState::SHUTDOWN;
-		return;
-	}
-	
-	PlayerReinitInterface startAiPack;
-	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
-	
-	for(auto it = playerNames.begin(); it != playerNames.end();)
-	{
-		if(it->second.connection != c->connectionID)
-		{
-			++it;
-			continue;
-		}
+	connection->getConnection()->close();
+	vstd::erase(activeConnections, connection);
 
-		int id = it->first;
-		std::string playerLeftMsgText = boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID);
-		announceTxt(playerLeftMsgText); //send lobby text, it will be ignored for non-lobby clients
-		auto * playerSettings = si->getPlayersSettings(id);
-		if(!playerSettings)
-		{
-			++it;
-			continue;
-		}
-		
-		it = playerNames.erase(it);
-		setPlayerConnectedId(*playerSettings, PlayerSettings::PLAYER_AI);
-		
-		if(gh && si && state == EServerState::GAMEPLAY)
-		{
-			gh->playerMessages->broadcastMessage(playerSettings->color, playerLeftMsgText);
-			gh->connections[playerSettings->color].insert(hostClient);
-			startAiPack.players.push_back(playerSettings->color);
-		}
-	}
-	
-	if(!startAiPack.players.empty())
-		gh->sendAndApply(&startAiPack);
+//	PlayerReinitInterface startAiPack;
+//	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
+//
+//	for(auto it = playerNames.begin(); it != playerNames.end();)
+//	{
+//		if(it->second.connection != c->connectionID)
+//		{
+//			++it;
+//			continue;
+//		}
+//
+//		int id = it->first;
+//		std::string playerLeftMsgText = boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID);
+//		announceTxt(playerLeftMsgText); //send lobby text, it will be ignored for non-lobby clients
+//		auto * playerSettings = si->getPlayersSettings(id);
+//		if(!playerSettings)
+//		{
+//			++it;
+//			continue;
+//		}
+//
+//		it = playerNames.erase(it);
+//		setPlayerConnectedId(*playerSettings, PlayerSettings::PLAYER_AI);
+//
+//		if(gh && si && state == EServerState::GAMEPLAY)
+//		{
+//			gh->playerMessages->broadcastMessage(playerSettings->color, playerLeftMsgText);
+//	//		gh->connections[playerSettings->color].insert(hostClient);
+//			startAiPack.players.push_back(playerSettings->color);
+//		}
+//	}
+//
+//	if(!startAiPack.players.empty())
+//		gh->sendAndApply(&startAiPack);
 }
 
 void CVCMIServer::reconnectPlayer(int connId)
@@ -640,7 +509,7 @@ void CVCMIServer::reconnectPlayer(int connId)
 	PlayerReinitInterface startAiPack;
 	startAiPack.playerConnectionId = connId;
 	
-	if(gh && si && state == EServerState::GAMEPLAY)
+	if(gh && si && getState() == EServerState::GAMEPLAY)
 	{
 		for(auto it = playerNames.begin(); it != playerNames.end(); ++it)
 		{
@@ -686,7 +555,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 	if(mi->scenarioOptionsOfSave)
 	{
 		si = CMemorySerializer::deepCopy(*mi->scenarioOptionsOfSave);
-		si->mode = StartInfo::LOAD_GAME;
+		si->mode = EStartMode::LOAD_GAME;
 		if(si->campState)
 			campaignMap = si->campState->currentScenario().value();
 
@@ -702,7 +571,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 			}
 		}
 	}
-	else if(si->mode == StartInfo::NEW_GAME || si->mode == StartInfo::CAMPAIGN)
+	else if(si->mode == EStartMode::NEW_GAME || si->mode == EStartMode::CAMPAIGN)
 	{
 		if(mi->campaign)
 			return;
@@ -748,15 +617,32 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 		else
 			si->mapGenOptions.reset();
 	}
+
+	if (lobbyProcessor)
+	{
+		std::string roomDescription;
+
+		if (si->mapGenOptions)
+		{
+			if (si->mapGenOptions->getMapTemplate())
+				roomDescription = si->mapGenOptions->getMapTemplate()->getName();
+			// else - no template selected.
+			// TODO: handle this somehow?
+		}
+		else
+			roomDescription = mi->getNameTranslated();
+
+		lobbyProcessor->sendChangeRoomDescription(roomDescription);
+	}
+
 	si->mapname = mi->fileURI;
 }
 
 void CVCMIServer::updateAndPropagateLobbyState()
 {
-	boost::unique_lock<boost::mutex> stateLock(stateMutex);
 	// Update player settings for RMG
 	// TODO: find appropriate location for this code
-	if(si->mapGenOptions && si->mode == StartInfo::NEW_GAME)
+	if(si->mapGenOptions && si->mode == EStartMode::NEW_GAME)
 	{
 		for(const auto & psetPair : si->playerInfos)
 		{
@@ -772,7 +658,7 @@ void CVCMIServer::updateAndPropagateLobbyState()
 
 	auto lus = std::make_unique<LobbyUpdateState>();
 	lus->state = *this;
-	addToAnnounceQueue(std::move(lus));
+	announcePack(std::move(lus));
 }
 
 void CVCMIServer::setPlayer(PlayerColor clickedColor)
@@ -1056,7 +942,7 @@ void CVCMIServer::optionSetBonus(PlayerColor player, PlayerStartingBonus id)
 	if(s.castle == FactionID::RANDOM && id == PlayerStartingBonus::RESOURCE) //random castle - can't be resource
 		return;
 
-	s.bonus = id;;
+	s.bonus = id;
 }
 
 bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)
@@ -1090,169 +976,10 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 		if(!si->getPlayersSettings(i->first))
 			return i->first;
 	}
-
 	return 0;
 }
 
-static void handleCommandOptions(int argc, const char * argv[], boost::program_options::variables_map & options)
+INetworkHandler & CVCMIServer::getNetworkHandler()
 {
-	namespace po = boost::program_options;
-	po::options_description opts("Allowed options");
-	opts.add_options()
-	("help,h", "display help and exit")
-	("version,v", "display version information and exit")
-	("run-by-client", "indicate that server launched by client on same machine")
-	("uuid", po::value<std::string>(), "")
-	("port", po::value<ui16>(), "port at which server will listen to connections from client")
-	("lobby", po::value<std::string>(), "address to remote lobby")
-	("lobby-port", po::value<ui16>(), "port at which server connect to remote lobby")
-	("lobby-uuid", po::value<std::string>(), "")
-	("connections", po::value<ui16>(), "amount of connections to remote lobby");
-
-	if(argc > 1)
-	{
-		try
-		{
-			po::store(po::parse_command_line(argc, argv, opts), options);
-		}
-		catch(boost::program_options::error & e)
-		{
-			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
-		}
-	}
-	
-#ifdef SINGLE_PROCESS_APP
-	options.emplace("run-by-client", po::variable_value{true, true});
-#endif
-
-	po::notify(options);
-
-#ifndef SINGLE_PROCESS_APP
-	if(options.count("help"))
-	{
-		auto time = std::time(nullptr);
-		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-		printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
-		printf("This is free software; see the source for copying conditions. There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
-		printf("\n");
-		std::cout << opts;
-		exit(0);
-	}
-
-	if(options.count("version"))
-	{
-		printf("%s\n", GameConstants::VCMI_VERSION.c_str());
-		std::cout << VCMIDirs::get().genHelpString();
-		exit(0);
-	}
-#endif
+	return *networkHandler;
 }
-
-#ifdef SINGLE_PROCESS_APP
-#define main server_main
-#endif
-
-#if VCMI_ANDROID_DUAL_PROCESS
-void CVCMIServer::create()
-{
-	const int argc = 1;
-	const char * argv[argc] = { "android-server" };
-#else
-int main(int argc, const char * argv[])
-{
-#endif
-
-#if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
-	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
-	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
-#endif
-
-#ifndef VCMI_IOS
-	console = new CConsoleHandler();
-#endif
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
-	logConfig.configureDefault();
-	logGlobal->info(SERVER_NAME);
-
-	boost::program_options::variables_map opts;
-	handleCommandOptions(argc, argv, opts);
-	preinitDLL(console, false);
-	logConfig.configure();
-
-	loadDLLClasses();
-	srand((ui32)time(nullptr));
-
-#ifdef SINGLE_PROCESS_APP
-	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(const_cast<char *>(argv[0]));
-	cond->notify_one();
-#endif
-
-	try
-	{
-		boost::asio::io_service io_service;
-		CVCMIServer server(opts);
-
-		try
-		{
-			while(server.getState() != EServerState::SHUTDOWN)
-			{
-				server.run();
-			}
-			io_service.run();
-		}
-		catch(boost::system::system_error & e) //for boost errors just log, not crash - probably client shut down connection
-		{
-			logNetwork->error(e.what());
-			server.setState(EServerState::SHUTDOWN);
-		}
-	}
-	catch(boost::system::system_error & e)
-	{
-		logNetwork->error(e.what());
-		//catch any startup errors (e.g. can't access port) errors
-		//and return non-zero status so client can detect error
-		throw;
-	}
-#if VCMI_ANDROID_DUAL_PROCESS
-	CAndroidVMHelper envHelper;
-	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
-#endif
-	logConfig.deconfigure();
-	vstd::clear_pointer(VLC);
-
-#if !VCMI_ANDROID_DUAL_PROCESS
-	return 0;
-#endif
-}
-
-#if VCMI_ANDROID_DUAL_PROCESS
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_createServer(JNIEnv * env, jclass cls)
-{
-	__android_log_write(ANDROID_LOG_INFO, "VCMI", "Got jni call to init server");
-	CAndroidVMHelper::cacheVM(env);
-
-	CVCMIServer::create();
-}
-
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
-{
-	CAndroidVMHelper::initClassloader(baseEnv);
-}
-#elif defined(SINGLE_PROCESS_APP)
-void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
-{
-	std::vector<const void *> argv = {cond};
-	for(auto & a : args)
-		argv.push_back(a.c_str());
-	main(argv.size(), reinterpret_cast<const char **>(&*argv.begin()));
-}
-
-#ifdef VCMI_ANDROID
-void CVCMIServer::reuseClientJNIEnv(void * jniEnv)
-{
-	CAndroidVMHelper::initClassloader(jniEnv);
-	CAndroidVMHelper::alwaysUseLoadedClass = true;
-}
-#endif // VCMI_ANDROID
-#endif // VCMI_ANDROID_DUAL_PROCESS

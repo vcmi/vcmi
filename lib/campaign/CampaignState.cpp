@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CampaignState.h"
 
-#include "../JsonNode.h"
+#include "../Point.h"
 #include "../filesystem/ResourcePath.h"
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
@@ -224,7 +224,7 @@ std::set<HeroTypeID> CampaignState::getReservedHeroes() const
 
 const CGHeroInstance * CampaignState::strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const
 {
-	std::function<bool(const JsonNode & node)> isOwned = [owner](const JsonNode & node)
+	std::function<bool(const JsonNode & node)> isOwned = [&](const JsonNode & node)
 	{
 		auto * h = CampaignState::crossoverDeserialize(node, nullptr);
 		bool result = h->tempOwner == owner;
@@ -316,7 +316,7 @@ std::optional<ui8> CampaignState::getBonusID(CampaignScenarioID which) const
 	return chosenCampaignBonuses.at(which);
 }
 
-std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId) const
+std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGameCallback * cb)
 {
 	// FIXME: there is certainly better way to handle maps inside campaigns
 	if(scenarioId == CampaignScenarioID::NONE)
@@ -327,7 +327,10 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId) const
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId.getNum());
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
-	return mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding());
+	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
+
+	mapTranslations[scenarioId] = result->texts;
+	return result;
 }
 
 std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scenarioId) const
@@ -355,7 +358,7 @@ std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioI
 	return mapInfo;
 }
 
-JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero)
+JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero) const
 {
 	JsonNode node;
 	JsonSerializer handler(nullptr, node);
@@ -363,10 +366,10 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero)
 	return node;
 }
 
-CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map)
+CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map) const
 {
 	JsonDeserializer handler(nullptr, const_cast<JsonNode&>(node));
-	auto * hero = new CGHeroInstance();
+	auto * hero = new CGHeroInstance(map ? map->cb : nullptr);
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	if (map)

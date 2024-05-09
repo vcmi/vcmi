@@ -219,4 +219,22 @@ std::string TextOperations::getFormattedDateTimeLocal(std::time_t dt)
 	return vstd::getFormattedDateTime(dt, Languages::getLanguageOptions(settings["general"]["language"].String()).dateTimeFormat);
 }
 
+std::string TextOperations::getFormattedTimeLocal(std::time_t dt)
+{
+	return vstd::getFormattedDateTime(dt, "%H:%M");
+}
+
+std::string TextOperations::getCurrentFormattedTimeLocal(std::chrono::seconds timeOffset)
+{
+	auto timepoint = std::chrono::system_clock::now() + timeOffset;
+	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timepoint));
+}
+
+std::string TextOperations::getCurrentFormattedDateTimeLocal(std::chrono::seconds timeOffset)
+{
+	auto timepoint = std::chrono::system_clock::now() + timeOffset;
+	return TextOperations::getFormattedDateTimeLocal(std::chrono::system_clock::to_time_t(timepoint));
+}
+
+
 VCMI_LIB_NAMESPACE_END

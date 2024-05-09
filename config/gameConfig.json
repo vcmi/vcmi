@@ -67,6 +67,11 @@
 		"config/objects/witchHut.json"
 	],
 
+	"biomes" :
+	[
+		"config/biomes.json"
+	],
+
 	"artifacts" :
 	[
 		"config/artifacts.json"
@@ -130,7 +135,7 @@
 			"object"     : 256,
 			"terrain"    : 10,
 			"river"      : 5,
-			"road"       : 4,
+			"road"       : 4
 		},
 		
 		"mapFormat" : {
@@ -289,7 +294,9 @@
 			// Chances for a hero with default army to receive corresponding stack out of his predefined starting troops
 			"startingStackChances": [ 100, 88, 25],
 			// number of artifacts that can fit in a backpack. -1 is unlimited.
-			"backpackSize"		: -1
+			"backpackSize"		: -1,
+			// if heroes are invitable in tavern
+			"tavernInvite"            : false
 		},
 
 		"towns":
@@ -310,7 +317,7 @@
 			// defines dice size of a luck roll, based on creature's luck
 			"goodLuckDice" : [ 24, 12, 8 ],
 			"badLuckDice" : [],
-			
+
 			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
 			"attackPointDamageFactor": 0.05, 
 			// limit of damage increase that can be achieved by overpowering attack points
@@ -382,7 +389,23 @@
 			// if enabled, pathfinder will take use of one-way monoliths with multiple exits.
 			"useMonolithOneWayRandom" : false,
 			// if enabled and hero has whirlpool protection effect, pathfinder will take use of whirpools
-			"useWhirlpool" : true
+			"useWhirlpool" : true,
+			// if enabled flying will work like in original game, otherwise nerf similar to HotA flying is applied
+			"originalFlyRules" : true
+		},
+
+		"spells":
+		{
+			// if enabled, dimension work doesn't work into tiles under Fog of War
+			"dimensionDoorOnlyToUncoveredTiles" : false,
+			// if enabled, dimension door will hint regarding tile being incompatible terrain type, unlike H3 (water/land)
+			"dimensionDoorExposesTerrainType" : false,
+			// if enabled, attempt to use dimension door on incompatible terrain (water/land) will result in spending of mana, movement and casts per day (H3 behavior)
+			"dimensionDoorFailureSpendsPoints" : true,
+			// if enabled, dimension door will initiate a fight upon landing on tile adjacent to neutral creature
+			"dimensionDoorTriggersGuards" : false,
+			// if enabled, dimension door can be used 1x per day, exception being 2x per day for XL+U or bigger maps (41472 tiles) + hero having expert air magic
+			"dimensionDoorTournamentRulesLimit" : false
 		},
 		
 		"bonuses" : 
@@ -425,8 +448,8 @@
 				},
 				"manaPerKnowledge" :
 				{
-					"type" : "MANA_PER_KNOWLEDGE", //10 mana per knowledge
-					"val" : 10,
+					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE", //1000% mana per knowledge
+					"val" : 1000,
 					"valueType" : "BASE_NUMBER"
 				},
 				"landMovement" :

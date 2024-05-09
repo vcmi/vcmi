@@ -38,7 +38,7 @@ QString CModListModel::modIndexToName(const QModelIndex & index) const
 
 QString CModListModel::modTypeName(QString modTypeID) const
 {
-	static QMap<QString, QString> modTypes = {
+	static const QMap<QString, QString> modTypes = {
 		{"Translation", tr("Translation")},
 		{"Town",        tr("Town")       },
 		{"Test",        tr("Test")       },
@@ -169,11 +169,11 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 {
 	static const QString header[ModFields::COUNT] =
 	{
-		QT_TR_NOOP("Name"),
-		QT_TR_NOOP(""), // status icon
-		QT_TR_NOOP(""), // status icon
-		QT_TR_NOOP("Type"),
-		QT_TR_NOOP("Version"),
+		QT_TRANSLATE_NOOP("ModFields", "Name"),
+		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
+		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
+		QT_TRANSLATE_NOOP("ModFields", "Type"),
+		QT_TRANSLATE_NOOP("ModFields", "Version"),
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)

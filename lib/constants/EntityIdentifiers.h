@@ -21,7 +21,10 @@ class Creature;
 class CreatureService;
 class HeroType;
 class CHero;
+class CHeroClass;
+class HeroClass;
 class HeroTypeService;
+class CFaction;
 class Faction;
 class Skill;
 class RoadType;
@@ -81,6 +84,9 @@ public:
 	DLL_LINKAGE static si32 decode(const std::string & identifier);
 	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
+
+	const CHeroClass * toHeroClass() const;
+	const HeroClass * toEntity(const Services * services) const;
 };
 
 class DLL_LINKAGE HeroTypeID : public EntityIdentifier<HeroTypeID>
@@ -97,6 +103,8 @@ public:
 
 	static const HeroTypeID NONE;
 	static const HeroTypeID RANDOM;
+	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
+	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
 
 	bool isValid() const
 	{
@@ -254,6 +262,7 @@ public:
 
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
+	const CFaction * toFaction() const;
 	const Faction * toEntity(const Services * service) const;
 	static std::string entityType();
 
@@ -323,7 +332,7 @@ public:
 	static BuildingID FORT_LEVEL(unsigned int level)
 	{
 		assert(level < 3);
-		return BuildingID(Type::TOWN_HALL + level);
+		return BuildingID(Type::FORT + level);
 	}
 
 	static std::string encode(int32_t index);
@@ -448,7 +457,47 @@ public:
 		WHIRLPOOL = 111,
 		WINDMILL = 112,
 		WITCH_HUT = 113,
+		BRUSH = 114, // TODO: How does it look like?
+		BUSH = 115,
+		CACTUS = 116,
+		CANYON = 117,
+		CRATER = 118,
+		DEAD_VEGETATION = 119,
+		FLOWERS = 120,
+		FROZEN_LAKE = 121,
+		HEDGE = 122,
+		HILL = 123,
 		HOLE = 124,
+		KELP = 125,
+		LAKE = 126,
+		LAVA_FLOW = 127,
+		LAVA_LAKE = 128,
+		MUSHROOMS = 129,
+		LOG = 130,
+		MANDRAKE = 131,
+		MOSS = 132,
+		MOUND = 133,
+		MOUNTAIN = 134,
+		OAK_TREES = 135,
+		OUTCROPPING = 136,
+		PINE_TREES = 137,
+		PLANT = 138,
+		RIVER_DELTA = 143,
+		ROCK = 147,
+		SAND_DUNE = 148,
+		SAND_PIT = 149,
+		SHRUB = 150,
+		SKULL = 151,
+		STALAGMITE = 152,
+		STUMP = 153,
+		TAR_PIT = 154,
+		TREES = 155,
+		VINE = 156,
+		VOLCANIC_VENT = 157,
+		VOLCANO = 158,
+		WILLOW_TREES = 159,
+		YUCCA_TREES = 160,
+		REEF = 161,
 		RANDOM_MONSTER_L5 = 162,
 		RANDOM_MONSTER_L6 = 163,
 		RANDOM_MONSTER_L7 = 164,
@@ -522,7 +571,7 @@ public:
 	}
 
 	template <typename Handler>
-	void serializeIdentifier(Handler &h, const MapObjectID & primaryID, const int version)
+	void serializeIdentifier(Handler &h, const MapObjectID & primaryID)
 	{
 		std::string secondaryStringID;
 
@@ -605,7 +654,10 @@ public:
 		CREATURE_SLOT = 0,
 		
 		// Commander
-		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6
+		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6,
+
+		// Altar
+		ALTAR = BACKPACK_START
 	};
 
 	static_assert(MISC5 < BACKPACK_START, "incorrect number of artifact slots");
@@ -641,6 +693,7 @@ public:
 		FIRST_AID_TENT = 6,
 		VIAL_OF_DRAGON_BLOOD = 127,
 		ARMAGEDDONS_BLADE = 128,
+		ANGELIC_ALLIANCE = 129,
 		TITANS_THUNDER = 135,
 		ART_SELECTION = 144,
 		ART_LOCK = 145, // FIXME: We must get rid of this one since it's conflict with artifact from mods. See issue 2455
@@ -954,7 +1007,7 @@ public:
 	using Identifier<BuildingTypeUniqueID>::Identifier;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		FactionID faction = getFaction();
 		BuildingID building = getBuilding();

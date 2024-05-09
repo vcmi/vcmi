@@ -96,14 +96,14 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 	case EMarketMode::CREATURE_EXP:
 		{
 			val1 = 1;
-			val2 = (VLC->creh->objects[id1]->getAIValue() / 40) * 5;
+			val2 = (CreatureID(id1).toEntity(VLC)->getAIValue() / 40) * 5;
 		}
 		break;
 	case EMarketMode::ARTIFACT_EXP:
 		{
 			val1 = 1;
 
-			int givenClass = VLC->arth->objects[id1]->getArtClassSerial();
+			int givenClass = ArtifactID(id1).toArtifact()->getArtClassSerial();
 			if(givenClass < 0 || givenClass > 3)
 			{
 				val2 = 0;
@@ -152,20 +152,6 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(EMarketMode mode) const
 			ret.push_back(res);
 	}
 	return ret;
-}
-
-const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose)
-{
-	auto * imarket = dynamic_cast<const IMarket *>(obj);
-	if(verbose && !imarket)
-	{
-		logGlobal->error("Cannot cast to IMarket");
-		if(obj)
-		{
-			logGlobal->error("Object type %s", obj->typeName);
-		}
-	}
-	return imarket;
 }
 
 IMarket::IMarket()

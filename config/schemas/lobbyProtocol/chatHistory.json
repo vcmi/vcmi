@@ -1,0 +1,62 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: chatHistory",
+	"description" : "Sent by server immediately after login to fill initial chat history",
+	"required" : [ "type", "messages", "channelType", "channelName" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "chatHistory"
+		},
+
+		"channelType" :
+		{
+			"type" : "string",
+			"enum" : [ "global", "match", "player" ],
+			"description" : "Type of room to which these messages have been set."
+		},
+		"channelName" :
+		{
+			"type" : "string",
+			"description" : "Name of room to which these messages have been set. For 'global' this is language, for 'match' and 'player' this is receiver UUID"
+		},
+
+		"messages" :
+		{
+			"type" : "array",
+			"description" : "List of recent chat messages",
+			"items" :
+			{
+				"type" : "object",
+				"additionalProperties" : false,
+				"required" : [ "messageText", "accountID", "displayName", "ageSeconds" ],
+				"properties" : {
+					"messageText" :
+					{
+						"type" : "string",
+						"description" : "Text of sent message"
+					},
+					"accountID" :
+					{
+						"type" : "string",
+						"description" : "ID of account that have sent this message"
+					},
+					"displayName" :
+					{
+						"type" : "string",
+						"description" : "Display name of account that have sent this message"
+					},
+					"ageSeconds" :
+					{
+						"type" : "number",
+						"description" : "Age of this message in seconds. For example, 10 means that this message was sent 10 seconds ago"
+					}
+				}
+			}
+		}
+	}
+}

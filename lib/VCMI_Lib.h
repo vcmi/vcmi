@@ -16,12 +16,14 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CConsoleHandler;
 class CArtHandler;
 class CHeroHandler;
+class CHeroClassHandler;
 class CCreatureHandler;
 class CSpellHandler;
 class CSkillHandler;
 class CBuildingHandler;
 class CObjectHandler;
 class CObjectClassesHandler;
+class ObstacleSetHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CModHandler;
@@ -47,20 +49,15 @@ namespace scripting
 }
 #endif
 
-
 /// Loads and constructs several handlers
-class DLL_LINKAGE LibClasses : public Services
+class DLL_LINKAGE LibClasses final : public Services
 {
-	CBonusTypeHandler * bth;
+	std::shared_ptr<CBonusTypeHandler> bth;
 
-	void callWhenDeserializing(); //should be called only by serialize !!!
-	void makeNull(); //sets all handler pointers to null
 	std::shared_ptr<CContentHandler> getContent() const;
 	void setContent(std::shared_ptr<CContentHandler> content);
 
 public:
-	bool IS_AI_ENABLED = false; //unused?
-
 	const ArtifactService * artifacts() const override;
 	const CreatureService * creatures() const override;
 	const FactionService * factions() const override;
@@ -83,35 +80,36 @@ public:
 	const IBonusTypeHandler * getBth() const; //deprecated
 	const CIdentifierStorage * identifiers() const;
 
-	CArtHandler * arth;
-	CHeroHandler * heroh;
-	CCreatureHandler * creh;
-	CSpellHandler * spellh;
-	CSkillHandler * skillh;
-	CObjectHandler * objh;
-	CObjectClassesHandler * objtypeh;
-	CTownHandler * townh;
-	CGeneralTextHandler * generaltexth;
-	CModHandler * modh;
+	std::shared_ptr<CArtHandler> arth;
+	std::shared_ptr<CHeroHandler> heroh;
+	std::shared_ptr<CHeroClassHandler> heroclassesh;
+	std::shared_ptr<CCreatureHandler> creh;
+	std::shared_ptr<CSpellHandler> spellh;
+	std::shared_ptr<CSkillHandler> skillh;
+	// TODO: Remove ObjectHandler altogether?
+	std::shared_ptr<CObjectHandler> objh;
+	std::shared_ptr<CObjectClassesHandler> objtypeh;
+	std::shared_ptr<CTownHandler> townh;
+	std::shared_ptr<CGeneralTextHandler> generaltexth;
+	std::shared_ptr<CModHandler> modh;
+	std::shared_ptr<TerrainTypeHandler> terrainTypeHandler;
+	std::shared_ptr<RoadTypeHandler> roadTypeHandler;
+	std::shared_ptr<RiverTypeHandler> riverTypeHandler;
+	std::shared_ptr<CIdentifierStorage> identifiersHandler;
+	std::shared_ptr<CTerrainViewPatternConfig> terviewh;
+	std::shared_ptr<CRmgTemplateStorage> tplh;
+	std::shared_ptr<BattleFieldHandler> battlefieldsHandler;
+	std::shared_ptr<ObstacleHandler> obstacleHandler;
+	std::shared_ptr<GameSettings> settingsHandler;
+	std::shared_ptr<ObstacleSetHandler> biomeHandler;
 
-	TerrainTypeHandler * terrainTypeHandler;
-	RoadTypeHandler * roadTypeHandler;
-	RiverTypeHandler * riverTypeHandler;
-	CIdentifierStorage * identifiersHandler;
-
-	CTerrainViewPatternConfig * terviewh;
-	CRmgTemplateStorage * tplh;
-	BattleFieldHandler * battlefieldsHandler;
-	ObstacleHandler * obstacleHandler;
-	GameSettings * settingsHandler;
 #if SCRIPTING_ENABLED
-	scripting::ScriptHandler * scriptHandler;
+	std::shared_ptr<scripting::ScriptHandler> scriptHandler;
 #endif
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
 	~LibClasses();
 	void init(bool onlyEssential); //uses standard config file
-	void clear(); //deletes all handlers and its data
 
 	// basic initialization. should be called before init(). Can also extract original H3 archives
 	void loadFilesystem(bool extractArchives);

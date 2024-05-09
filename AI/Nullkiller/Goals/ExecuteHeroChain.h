@@ -27,16 +27,18 @@ namespace Goals
 
 		ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj = nullptr);
 
-		
 		void accept(AIGateway * ai) override;
 		std::string toString() const override;
-		virtual bool operator==(const ExecuteHeroChain & other) const override;
+		bool operator==(const ExecuteHeroChain & other) const override;
 		const AIPath & getPath() const { return chainPath; }
 
-		virtual int getHeroExchangeCount() const override { return chainPath.exchangeCount; }
+		int getHeroExchangeCount() const override { return chainPath.exchangeCount; }
+
+		std::vector<ObjectInstanceID> getAffectedObjects() const override;
+		bool isObjectAffected(ObjectInstanceID id) const override;
 
 	private:
-		bool moveHeroToTile(const CGHeroInstance * hero, const int3 & tile);
+		bool moveHeroToTile(AIGateway * ai, const CGHeroInstance * hero, const int3 & tile);
 	};
 }
 

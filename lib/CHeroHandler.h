@@ -31,11 +31,11 @@ class CRandomGenerator;
 class JsonSerializeFormat;
 class BattleField;
 
-enum class EHeroGender : uint8_t
+enum class EHeroGender : int8_t
 {
+	DEFAULT = -1, // from h3m, instance has same gender as hero type
 	MALE = 0,
 	FEMALE = 1,
-	DEFAULT = 0xff // from h3m, instance has same gender as hero type
 };
 
 class DLL_LINKAGE CHero : public HeroType
@@ -57,7 +57,7 @@ public:
 
 	std::vector<InitialArmyStack> initialArmy;
 
-	CHeroClass * heroClass{};
+	const CHeroClass * heroClass = nullptr;
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	BonusList specialty;
 	std::set<SpellID> spells;
@@ -121,7 +121,7 @@ public:
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
 
-	CCreature * commander;
+	const CCreature * commander;
 
 	std::vector<int> primarySkillInitial;  // initial primary skills
 	std::vector<int> primarySkillLowLevel; // probability (%) of getting point of primary skill when getting level
@@ -154,6 +154,8 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 
 	EAlignment getAlignment() const;
+
+	int tavernProbability(FactionID faction) const;
 };
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
@@ -189,8 +191,6 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	std::vector<std::function<void()>> callAfterLoadFinalization;
 
 public:
-	CHeroClassHandler classes;
-
 	ui32 level(TExpType experience) const; //calculates level corresponding to given experience amount
 	TExpType reqExp(ui32 level) const; //calculates experience required for given level
 	ui32 maxSupportedLevel() const;

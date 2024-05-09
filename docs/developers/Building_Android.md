@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Building for Android
-
 The following instructions apply to **v1.2 and later**. For earlier versions the best documentation is https://github.com/vcmi/vcmi-android/blob/master/building.txt (and reading scripts in that repo), however very limited to no support will be provided from our side if you wish to go down that rabbit hole.
 
 *Note*: building has been tested only on Linux and macOS. It may or may not work on Windows out of the box.
@@ -62,7 +60,7 @@ Building for Android is a 2-step process. First, native C++ code is compiled to 
 This is a traditional CMake project, you can build it from command line or some IDE. You're not required to pass any custom options (except Conan toolchain file), defaults are already good. If you wish to use your own CMake presets, inherit them from our `build-with-conan` preset. Example:
 
 ```
-cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -D CMAKE_C_COMPILER_LAUNCHER=ccache --toolchain ...
+cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug -D ENABLE_CCACHE:BOOL=ON --toolchain ...
 cmake --build ../build
 ```
 

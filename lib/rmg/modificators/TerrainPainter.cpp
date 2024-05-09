@@ -20,6 +20,7 @@
 #include "../RmgMap.h"
 #include "../../VCMI_Lib.h"
 #include "../../TerrainHandler.h"
+#include "../../CTownHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,7 @@ void TerrainPainter::process()
 {
 	initTerrainType();
 
-	auto v = zone.getArea().getTilesVector();
+	auto v = zone.area()->getTilesVector();
 	mapProxy->drawTerrain(zone.getRand(), v, zone.getTerrainType());
 }
 

@@ -37,6 +37,8 @@ protected:
 	virtual void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
 	virtual void selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const;
 
+	virtual void grantAllRewardsWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32>& rewardIndices, bool markAsVisit) const;
+
 	std::vector<Component> loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const;
 
 	std::string getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const;
@@ -67,7 +69,7 @@ public:
 	
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
-	CRewardableObject();
+	CRewardableObject(IGameCallback *cb);
 	
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
@@ -78,7 +80,7 @@ public:
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & static_cast<Rewardable::Interface&>(*this);

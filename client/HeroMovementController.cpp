@@ -22,6 +22,7 @@
 
 #include "../CCallback.h"
 
+#include "../lib/CondSh.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/networkPacks/PacksForClient.h"
@@ -204,6 +205,9 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 
 void HeroMovementController::onQueryReplyApplied()
 {
+	if (!waitingForQueryApplyReply)
+		return;
+
 	waitingForQueryApplyReply = false;
 
 	// Server accepted our TeleportDialog query reply and moved hero
@@ -233,7 +237,7 @@ void HeroMovementController::onMoveHeroApplied()
 	assert(currentlyMovingHero);
 	const auto * hero = currentlyMovingHero;
 
-	bool canMove = LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nextNode().turns == 0;
+	bool canMove = LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nextNode().turns == 0 && !LOCPLINT->showingDialog->get();
 	bool wantStop = stoppingMovement;
 	bool canStop = !canMove || canHeroStopAtNode(LOCPLINT->localState->getPath(hero).currNode());
 
@@ -243,7 +247,7 @@ void HeroMovementController::onMoveHeroApplied()
 	}
 	else
 	{
-		moveOnce(hero, LOCPLINT->localState->getPath(hero));
+		sendMovementRequest(hero, LOCPLINT->localState->getPath(hero));
 	}
 }
 
@@ -334,27 +338,26 @@ bool HeroMovementController::canHeroStopAtNode(const CGPathNode & node) const
 void HeroMovementController::requestMovementStart(const CGHeroInstance * h, const CGPath & path)
 {
 	assert(duringMovement == false);
+
 	duringMovement = true;
 	currentlyMovingHero = h;
 
 	CCS->curh->hide();
-	moveOnce(h, path);
+	sendMovementRequest(h, path);
 }
 
-void HeroMovementController::moveOnce(const CGHeroInstance * h, const CGPath & path)
+void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const CGPath & path)
 {
-	// Moves hero once, sends request to server and immediately returns
-	// movement alongside paths will be done on receiving response from server
-
 	assert(duringMovement == true);
+
+	int heroMovementSpeed = settings["adventure"]["heroMoveTime"].Integer();
+	bool useMovementBatching = heroMovementSpeed == 0;
 
 	const auto & currNode = path.currNode();
 	const auto & nextNode = path.nextNode();
 
 	assert(nextNode.turns == 0);
 	assert(currNode.coord == h->visitablePos());
-
-	int3 nextCoord = h->convertFromVisitablePos(nextNode.coord);
 
 	if(nextNode.isTeleportAction())
 	{
@@ -363,7 +366,8 @@ void HeroMovementController::moveOnce(const CGHeroInstance * h, const CGPath & p
 		LOCPLINT->cb->moveHero(h, h->pos, false);
 		return;
 	}
-	else
+
+	if (!useMovementBatching)
 	{
 		updateMovementSound(h, currNode.coord, nextNode.coord, nextNode.action);
 
@@ -372,7 +376,44 @@ void HeroMovementController::moveOnce(const CGHeroInstance * h, const CGPath & p
 		logGlobal->trace("Requesting hero movement to %s", nextNode.coord.toString());
 
 		bool useTransit = nextNode.layer == EPathfindingLayer::AIR || nextNode.layer == EPathfindingLayer::WATER;
+		int3 nextCoord = h->convertFromVisitablePos(nextNode.coord);
+
 		LOCPLINT->cb->moveHero(h, nextCoord, useTransit);
 		return;
+	}
+
+	bool useTransitAtStart = path.nextNode().layer == EPathfindingLayer::AIR || path.nextNode().layer == EPathfindingLayer::WATER;
+	std::vector<int3> pathToMove;
+
+	for (auto const & node : boost::adaptors::reverse(path.nodes))
+	{
+		if (node.coord == h->visitablePos())
+			continue; // first node, ignore - this is hero current position
+
+		if(node.isTeleportAction())
+			break; // pause after monolith / subterra gates
+
+		if (node.turns != 0)
+			break; // ran out of move points
+
+		bool useTransitHere = node.layer == EPathfindingLayer::AIR || node.layer == EPathfindingLayer::WATER;
+		if (useTransitHere != useTransitAtStart)
+			break;
+
+		int3 coord = h->convertFromVisitablePos(node.coord);
+		pathToMove.push_back(coord);
+
+		if (LOCPLINT->cb->guardingCreaturePosition(node.coord) != int3(-1, -1, -1))
+			break; // we reached zone-of-control of wandering monster
+
+		if (!LOCPLINT->cb->getVisitableObjs(node.coord).empty())
+			break; // we reached event, garrison or some other visitable object - end this movement batch
+	}
+
+	assert(!pathToMove.empty());
+	if (!pathToMove.empty())
+	{
+		updateMovementSound(h, currNode.coord, nextNode.coord, nextNode.action);
+		LOCPLINT->cb->moveHero(h, pathToMove, useTransitAtStart);
 	}
 }

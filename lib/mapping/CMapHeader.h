@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../constants/EntityIdentifiers.h"
+#include "../constants/Enumerations.h"
 #include "../constants/VariantIdentifier.h"
 #include "../modding/CModInfo.h"
 #include "../LogicalExpression.h"
@@ -21,7 +23,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 enum class EMapFormat : uint8_t;
-using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 
 /// The hero name struct consists of the hero id and the hero name.
 struct DLL_LINKAGE SHeroName
@@ -32,7 +33,7 @@ struct DLL_LINKAGE SHeroName
 	std::string heroName;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & heroId;
 		h & heroName;
@@ -76,7 +77,7 @@ struct DLL_LINKAGE PlayerInfo
 	TeamID team; /// The default value NO_TEAM
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & hasRandomHero;
 		h & mainCustomHeroId;
@@ -128,7 +129,7 @@ struct DLL_LINKAGE EventCondition
 	EWinLoseType condition;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & objectID;
 		h & value;
@@ -156,7 +157,7 @@ struct DLL_LINKAGE EventEffect
 	MetaString toOtherMessage;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & type;
 		h & toOtherMessage;
@@ -181,7 +182,7 @@ struct DLL_LINKAGE TriggeredEvent
 	EventEffect effect;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & identifier;
 		h & trigger;
@@ -189,6 +190,15 @@ struct DLL_LINKAGE TriggeredEvent
 		h & onFulfill;
 		h & effect;
 	}
+};
+
+enum class EMapDifficulty : uint8_t
+{
+	EASY = 0,
+	NORMAL = 1,
+	HARD = 2,
+	EXPERT = 3,
+	IMPOSSIBLE = 4
 };
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
@@ -218,7 +228,7 @@ public:
 	bool twoLevel; /// The default value is true.
 	MetaString name;
 	MetaString description;
-	ui8 difficulty; /// The default value is 1 representing a normal map difficulty.
+	EMapDifficulty difficulty;
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.
 	ui8 levelLimit;
@@ -245,7 +255,7 @@ public:
 	void registerMapStrings();
 
 	template <typename Handler>
-	void serialize(Handler & h, const int Version)
+	void serialize(Handler & h)
 	{
 		h & texts;
 		h & version;
@@ -255,7 +265,12 @@ public:
 		h & width;
 		h & height;
 		h & twoLevel;
-		h & difficulty;
+		// FIXME: we should serialize enum's according to their underlying type
+		// should be fixed when we are making breaking change to save compatiblity
+		static_assert(Handler::Version::MINIMAL < Handler::Version::RELEASE_143);
+		uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
+		h & difficultyInteger;
+		difficulty = static_cast<EMapDifficulty>(difficultyInteger);
 		h & levelLimit;
 		h & areAnyPlayers;
 		h & players;

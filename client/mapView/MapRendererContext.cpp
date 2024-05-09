@@ -21,6 +21,7 @@
 
 #include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"

@@ -169,7 +169,15 @@ DLL_LINKAGE std::string MetaString::toString() const
 				break;
 			case EMessage::REPLACE_POSITIVE_NUMBER:
 				if (dst.find("%+d") != std::string::npos)
-					boost::replace_first(dst, "%+d", '+' + std::to_string(numbers[nums++]));
+				{
+					int64_t value = numbers[nums];
+					if (value > 0)
+						boost::replace_first(dst, "%+d", '+' + std::to_string(value));
+					else
+						boost::replace_first(dst, "%+d", std::to_string(value));
+
+					nums++;
+				}
 				else
 					boost::replace_first(dst, "%d", std::to_string(numbers[nums++]));
 				break;
@@ -323,6 +331,11 @@ void MetaString::serializeJson(JsonSerializeFormat & handler)
 
 	if(!handler.saving)
 		jsonDeserialize(handler.getCurrent());
+}
+
+void MetaString::appendName(const ArtifactID & id)
+{
+	appendTextID(id.toEntity(VLC)->getNameTextID());
 }
 
 void MetaString::appendName(const SpellID & id)

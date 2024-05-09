@@ -17,6 +17,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../mapObjects/CGObjectInstance.h"
 #include "Functions.h"
 #include "../TerrainHandler.h"
 
@@ -174,19 +175,22 @@ const CGObjectInstance & Object::Instance::object() const
 }
 
 Object::Object(CGObjectInstance & object, const int3 & position):
-	guarded(false)
+	guarded(false),
+	value(0)
 {
 	addInstance(object, position);
 }
 
 Object::Object(CGObjectInstance & object):
-	guarded(false)
+	guarded(false),
+	value(0)
 {
 	addInstance(object);
 }
 
 Object::Object(const Object & object):
-	guarded(false)
+	guarded(false),
+	value(object.value)
 {
 	for(const auto & i : object.dInstances)
 		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
@@ -355,6 +359,7 @@ void Object::setPosition(const int3 & position)
 	dVisitableCache.translate(shift);
 	dRemovableAreaCache.translate(shift);
 	dFullAreaCache.translate(shift);
+	dBorderAboveCache.translate(shift);
 	
 	dPosition = position;
 	for(auto& i : dInstances)
@@ -380,6 +385,20 @@ const Area & Object::getArea() const
 	}
 	
 	return dFullAreaCache;
+}
+
+const Area & Object::getBorderAbove() const
+{
+	if(dBorderAboveCache.empty())
+	{
+		for(const auto & instance : dInstances)
+		{
+			if (instance.isRemovable() || instance.object().appearance->isVisitableFromTop())
+				continue;
+			dBorderAboveCache.unite(instance.getBorderAbove());
+		}
+	}
+	return dBorderAboveCache;
 }
 
 const int3 Object::getVisibleTop() const
@@ -414,6 +433,45 @@ void rmg::Object::setGuardedIfMonster(const Instance& object)
 	{
 		guarded = true;
 	}
+}
+
+int3 rmg::Object::getGuardPos() const
+{
+	if (guarded)
+	{
+		for (auto & instance : dInstances)
+		{
+			if (instance.object().ID == Obj::MONSTER)
+			{
+				return instance.getVisitablePosition();
+			}
+		}
+	}
+	return int3(-1,-1,-1);
+}
+
+void rmg::Object::setValue(uint32_t newValue)
+{
+	value = newValue;
+}
+
+uint32_t rmg::Object::getValue() const
+{
+	return value;
+}
+
+rmg::Area Object::Instance::getBorderAbove() const
+{
+	int3 visitablePos = getVisitablePosition();
+	auto areaVisitable = rmg::Area({visitablePos});
+	auto borderAbove = areaVisitable.getBorderOutside();
+	vstd::erase_if(borderAbove, [&](const int3 & tile)
+	{
+		return tile.y >= visitablePos.y ||
+		(!object().blockingAt(tile + int3(0, 1, 0)) && 
+		object().blockingAt(tile));
+	});
+	return borderAbove;
 }
 
 void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
@@ -472,6 +530,7 @@ void Object::clearCachedArea() const
 	dBlockVisitableCache.clear();
 	dVisitableCache.clear();
 	dRemovableAreaCache.clear();
+	dBorderAboveCache.clear();
 }
 
 void Object::clear()

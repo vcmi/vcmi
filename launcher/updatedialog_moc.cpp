@@ -61,13 +61,13 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 		if(response->error() != QNetworkReply::NoError)
 		{
 			ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
-			ui->versionLabel->setText("Network error");
+			ui->versionLabel->setText(tr("Network error"));
 			ui->plainTextEdit->setPlainText(response->errorString());
 			return;
 		}
 		
 		auto byteArray = response->readAll();
-		JsonNode node(byteArray.constData(), byteArray.size());
+		JsonNode node(reinterpret_cast<const std::byte*>(byteArray.constData()), byteArray.size());
 		loadFromJson(node);
 	});
 }
@@ -79,7 +79,7 @@ UpdateDialog::~UpdateDialog()
 
 void UpdateDialog::showUpdateDialog(bool isManually)
 {
-	UpdateDialog * dialog = new UpdateDialog(isManually);
+	auto * dialog = new UpdateDialog(isManually);
 	
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -96,9 +96,9 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	   node["updateType"].getType() != JsonNode::JsonType::DATA_STRING ||
 	   node["version"].getType() != JsonNode::JsonType::DATA_STRING ||
 	   node["changeLog"].getType() != JsonNode::JsonType::DATA_STRING ||
-	   node.getType() != JsonNode::JsonType::DATA_STRUCT) //we need at least one link - other are optional
+	   node["downloadLinks"].getType() != JsonNode::JsonType::DATA_STRUCT) //we need at least one link - other are optional
 	{
-		ui->plainTextEdit->setPlainText("Cannot read JSON from url or incorrect JSON data");
+		ui->plainTextEdit->setPlainText(tr("Cannot read JSON from url or incorrect JSON data"));
 		return;
 	}
 	

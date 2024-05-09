@@ -17,11 +17,12 @@
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../widgets/Buttons.h"
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CArtPlace.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
+#include "../windows/InfoWindows.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 
@@ -225,7 +226,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 			boost::replace_first(spellText, "%s", spell->getNameTranslated());
 			//FIXME: support permanent duration
-			int duration = battleStack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
+			int duration = battleStack->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
 			boost::replace_first(spellText, "%d", std::to_string(duration));
 
 			spellIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
@@ -340,7 +341,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CGI->generaltexth->zelp[446], onClick);
 
-			upgradeBtn->addOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->getIconIndex()));
+			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->getIconIndex()));
 
 			if(buttonsToCreate == 1) // single upgrade avaialbe
 				upgradeBtn->assignedKey = EShortcut::RECRUITMENT_UPGRADE;
@@ -366,7 +367,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 			std::string tooltipText = "vcmi.creatureWindow." + btnIDs[buttonIndex];
 			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CButton::tooltipLocalized(tooltipText), onSwitch);
-			parent->switchButtons[buttonIndex]->addOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/switchModeIcons"), buttonIndex));
+			parent->switchButtons[buttonIndex]->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/switchModeIcons"), buttonIndex));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
 	}
@@ -517,6 +518,10 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	};
 
 	animation = std::make_shared<CCreaturePic>(5, 41, parent->info->creature);
+	animationArea = std::make_shared<LRClickableArea>(Rect(5, 41, 100, 130), nullptr, [&]{
+		if(!parent->info->creature->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(parent->info->creature->getDescriptionTranslated());
+	});
 
 	if(parent->info->stackNode != nullptr && parent->info->commander == nullptr)
 	{
@@ -765,7 +770,8 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	BonusList output, input;
+	BonusList output;
+	BonusList input;
 	input = *(info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all));
 
 	while(!input.empty())

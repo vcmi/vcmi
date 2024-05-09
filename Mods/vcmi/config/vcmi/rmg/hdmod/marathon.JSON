@@ -3,6 +3,7 @@
 	{
 		"minSize" : "xl", "maxSize" : "xl",
 		"players" : "2",
+		"description" : "Ban Fly/DD, 2 player, 31-May-03, Midnight design",
 		"zones" :
 		{
 			"1" :
@@ -322,6 +323,7 @@
 	{
 		"minSize" : "xl+u", "maxSize" : "g+u",
 		"players" : "2",
+		"description" : "Ban Fly/DD, 2 player, 31-May-03, Midnight design",
 		"zones" :
 		{
 			"1" :

@@ -11,7 +11,7 @@
 
 #include "BonusSystem.h"
 
-#include "../../../lib/JsonNode.h"
+#include "../../../lib/json/JsonNode.h"
 
 #include "../../../lib/bonuses/BonusList.h"
 #include "../../../lib/bonuses/Bonus.h"
@@ -143,7 +143,7 @@ int BonusProxy::getDescription(lua_State * L)
 	std::shared_ptr<const Bonus> object;
 	if(!S.tryGet(1, object))
 		return S.retNil();
-	return LuaStack::quickRetStr(L, object->description);
+	return LuaStack::quickRetStr(L, object->description.toString());
 }
 
 int BonusProxy::toJsonNode(lua_State * L)

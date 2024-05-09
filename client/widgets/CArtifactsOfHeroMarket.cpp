@@ -12,30 +12,16 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position)
+CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int selectionWidth)
 {
 	init(
 		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
 		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
 		position,
-		std::bind(&CArtifactsOfHeroMarket::scrollBackpack, this, _1));
+		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
+
+	for(const auto & [slot, artPlace] : artWorn)
+		artPlace->setSelectionWidth(selectionWidth);
+	for(auto artPlace : backpack)
+		artPlace->setSelectionWidth(selectionWidth);
 };
-
-void CArtifactsOfHeroMarket::scrollBackpack(int offset)
-{
-	CArtifactsOfHeroBase::scrollBackpackForArtSet(offset, *curHero);
-
-	// We may have highlight on one of backpack artifacts
-	if(selectArtCallback)
-	{
-		for(auto & artPlace : backpack)
-		{
-			if(artPlace->isSelected())
-			{
-				selectArtCallback(artPlace.get());
-				break;
-			}
-		}
-	}
-	redraw();
-}

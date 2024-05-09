@@ -28,6 +28,23 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Zone> otherZone)
+{
+	if (zone.getId() == otherZone->getId())
+		return {};
+
+	while (true)
+	{
+		auto lock1 = Zone::Lock(zone.areaMutex, boost::try_to_lock);
+		auto lock2 = Zone::Lock(otherZone->areaMutex, boost::try_to_lock);
+
+		if (lock1.owns_lock() && lock2.owns_lock())
+		{
+			return { std::move(lock1), std::move(lock2) };
+		}
+	}
+}
+
 void ConnectionsPlacer::process()
 {
 	collectNeighbourZones();
@@ -36,16 +53,13 @@ void ConnectionsPlacer::process()
 	{
 		for (auto& c : dConnections)
 		{
-			if (c.getZoneA() != zone.getId() && c.getZoneB() != zone.getId())
-				continue;
-
 			auto otherZone = map.getZones().at(c.getZoneB());
 			auto* cp = otherZone->getModificator<ConnectionsPlacer>();
 
 			while (cp)
 			{
-				RecursiveLock lock1(externalAccessMutex, boost::try_to_lock_t{});
-				RecursiveLock lock2(cp->externalAccessMutex, boost::try_to_lock_t{});
+				RecursiveLock lock1(externalAccessMutex, boost::try_to_lock);
+				RecursiveLock lock2(cp->externalAccessMutex, boost::try_to_lock);
 				if (lock1.owns_lock() && lock2.owns_lock())
 				{
 					if (!vstd::contains(dCompleted, c))
@@ -78,8 +92,15 @@ void ConnectionsPlacer::init()
 	POSTFUNCTION(RoadPlacer);
 	POSTFUNCTION(ObjectManager);
 	
+	auto id = zone.getId();
 	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
-		addConnection(c);
+	{
+		// Only consider connected zones
+		if (c.getZoneA() == id || c.getZoneB() == id)
+		{
+			addConnection(c);
+		}
+	}
 }
 
 void ConnectionsPlacer::addConnection(const rmg::ZoneConnection& connection)
@@ -106,6 +127,9 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 
 	bool directProhibited = vstd::contains(ourTerrain->prohibitTransitions, otherZone->getTerrainType())
 						 || vstd::contains(otherTerrain->prohibitTransitions, zone.getTerrainType());
+
+	auto lock = lockZones(otherZone);
+
 	auto directConnectionIterator = dNeighbourZones.find(otherZoneId);
 
 	if (directConnectionIterator != dNeighbourZones.end())
@@ -115,19 +139,19 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			for (auto borderPos : directConnectionIterator->second)
 			{
 				//TODO: Refactor common code with direct connection
-				int3 potentialPos = zone.areaPossible().nearest(borderPos);
+				int3 potentialPos = zone.areaPossible()->nearest(borderPos);
 				assert(borderPos != potentialPos);
 
 				auto safetyGap = rmg::Area({ potentialPos });
 				safetyGap.unite(safetyGap.getBorderOutside());
-				safetyGap.intersect(zone.areaPossible());
+				safetyGap.intersect(zone.areaPossible().get());
 				if (!safetyGap.empty())
 				{
-					safetyGap.intersect(otherZone->areaPossible());
+					safetyGap.intersect(otherZone->areaPossible().get());
 					if (safetyGap.empty())
 					{
-						rmg::Area border(zone.getArea().getBorder());
-						border.unite(otherZone->getArea().getBorder());
+						rmg::Area border(zone.area()->getBorder());
+						border.unite(otherZone->area()->getBorder());
 
 						auto costFunction = [&border](const int3& s, const int3& d)
 						{
@@ -139,9 +163,9 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 						theirArea.add(potentialPos);
 						rmg::Path ourPath(ourArea);
 						rmg::Path theirPath(theirArea);
-						ourPath.connect(zone.freePaths());
+						ourPath.connect(zone.freePaths().get());
 						ourPath = ourPath.search(potentialPos, true, costFunction);
-						theirPath.connect(otherZone->freePaths());
+						theirPath.connect(otherZone->freePaths().get());
 						theirPath = theirPath.search(potentialPos, true, costFunction);
 
 						if (ourPath.valid() && theirPath.valid())
@@ -174,7 +198,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 		int3 roadNode;
 		for (auto borderPos : directConnectionIterator->second)
 		{
-			int3 potentialPos = zone.areaPossible().nearest(borderPos);
+			int3 potentialPos = zone.areaPossible()->nearest(borderPos);
 			assert(borderPos != potentialPos);
 
 			//Check if guard pos doesn't touch any 3rd zone. This would create unwanted passage to 3rd zone
@@ -200,10 +224,10 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 
 				auto safetyGap = rmg::Area({ potentialPos });
 				safetyGap.unite(safetyGap.getBorderOutside());
-				safetyGap.intersect(zone.areaPossible());
+				safetyGap.intersect(zone.areaPossible().get());
 				if (!safetyGap.empty())
 				{
-					safetyGap.intersect(otherZone->areaPossible());
+					safetyGap.intersect(otherZone->areaPossible().get());
 					if (safetyGap.empty())
 					{
 						float distanceToCenter = zone.getPos().dist2d(potentialPos) * otherZone->getPos().dist2d(potentialPos);
@@ -228,8 +252,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			auto & manager = *zone.getModificator<ObjectManager>();
 			auto * monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
 			
-			rmg::Area border(zone.getArea().getBorder());
-			border.unite(otherZone->getArea().getBorder());
+			rmg::Area border(zone.area()->getBorder());
+			border.unite(otherZone->area()->getBorder());
 			
 			auto costFunction = [&border](const int3 & s, const int3 & d)
 			{
@@ -241,9 +265,9 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			theirArea.add(guardPos);
 			rmg::Path ourPath(ourArea);
 			rmg::Path theirPath(theirArea);
-			ourPath.connect(zone.freePaths());
+			ourPath.connect(zone.freePaths().get());
 			ourPath = ourPath.search(guardPos, true, costFunction);
-			theirPath.connect(otherZone->freePaths());
+			theirPath.connect(otherZone->freePaths().get());
 			theirPath = theirPath.search(guardPos, true, costFunction);
 			
 			if(ourPath.valid() && theirPath.valid())
@@ -262,8 +286,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 				else
 				{
 					//Update distances from empty passage, too
-					zone.areaPossible().erase(guardPos);
-					zone.freePaths().add(guardPos);
+					zone.areaPossible()->erase(guardPos);
+					zone.freePaths()->add(guardPos);
 					map.setOccupied(guardPos, ETileType::FREE);
 					manager.updateDistances(guardPos);
 					otherZone->getModificator<ObjectManager>()->updateDistances(guardPos);
@@ -318,8 +342,10 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	{
 		int3 zShift(0, 0, zone.getPos().z - otherZone->getPos().z);
 
+		auto lock = lockZones(otherZone);
+
 		std::scoped_lock doubleLock(zone.areaMutex, otherZone->areaMutex);
-		auto commonArea = zone.areaPossible() * (otherZone->areaPossible() + zShift);
+		auto commonArea = zone.areaPossible().get() * (otherZone->areaPossible().get() + zShift);
 		if(!commonArea.empty())
 		{
 			assert(zone.getModificator<ObjectManager>());
@@ -329,8 +355,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 			
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			auto * gate1 = factory->create();
-			auto * gate2 = factory->create();
+			auto * gate1 = factory->create(map.mapInstance->cb, nullptr);
+			auto * gate2 = factory->create(map.mapInstance->cb, nullptr);
 			rmg::Object rmgGate1(*gate1);
 			rmg::Object rmgGate2(*gate2);
 			rmgGate1.setTemplate(zone.getTerrainType(), zone.getRand());
@@ -339,7 +365,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
 			int minDist = 3;
 			
-			rmg::Path path2(otherZone->area());
+			rmg::Path path2(otherZone->area().get());
 			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
 			{
 				auto ti = map.getTileInfo(tile);
@@ -383,8 +409,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	if(!success)
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-		auto * teleport1 = factory->create();
-		auto * teleport2 = factory->create();
+		auto * teleport1 = factory->create(map.mapInstance->cb, nullptr);
+		auto * teleport2 = factory->create(map.mapInstance->cb, nullptr);
 
 		RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
 		RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
@@ -403,7 +429,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 
 void ConnectionsPlacer::collectNeighbourZones()
 {
-	auto border = zone.area().getBorderOutside();
+	auto border = zone.area()->getBorderOutside();
 	for(const auto & i : border)
 	{
 		if(!map.isOnMap(i))
@@ -423,8 +449,8 @@ bool ConnectionsPlacer::shouldGenerateRoad(const rmg::ZoneConnection& connection
 
 void ConnectionsPlacer::createBorder()
 {
-	rmg::Area borderArea(zone.getArea().getBorder());
-	rmg::Area borderOutsideArea(zone.getArea().getBorderOutside());
+	rmg::Area borderArea(zone.area()->getBorder());
+	rmg::Area borderOutsideArea(zone.area()->getBorderOutside());
 	auto blockBorder = borderArea.getSubarea([this, &borderOutsideArea](const int3 & t)
 	{
 		auto tile = borderOutsideArea.nearest(t);
@@ -448,21 +474,21 @@ void ConnectionsPlacer::createBorder()
 		}
 	};
 
-	Zone::Lock lock(zone.areaMutex); //Protect from erasing same tiles again
+	auto areaPossible = zone.areaPossible();
 	for(const auto & tile : blockBorder.getTilesVector())
 	{
 		if(map.isPossible(tile))
 		{
 			map.setOccupied(tile, ETileType::BLOCKED);
-			zone.areaPossible().erase(tile);
+			areaPossible->erase(tile);
 		}
 
-		map.foreachDirectNeighbour(tile, [this](int3 &nearbyPos)
+		map.foreachDirectNeighbour(tile, [this, &areaPossible](int3 &nearbyPos)
 		{
 			if(map.isPossible(nearbyPos) && map.getZoneID(nearbyPos) == zone.getId())
 			{
 				map.setOccupied(nearbyPos, ETileType::BLOCKED);
-				zone.areaPossible().erase(nearbyPos);
+				areaPossible->erase(nearbyPos);
 			}
 		});
 	}

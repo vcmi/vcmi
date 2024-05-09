@@ -14,6 +14,7 @@
 #include "TreasurePlacer.h"
 #include "ObjectManager.h"
 #include "RiverPlacer.h"
+#include "RoadPlacer.h"
 #include "../RmgMap.h"
 #include "../CMapGenerator.h"
 #include "../Functions.h"
@@ -35,7 +36,7 @@ void RockFiller::process()
 void RockFiller::processMap()
 {
 	//Merge all areas
-	for(auto & z : map.getZones())
+	for(auto & z : map.getZonesOnLevel(1))
 	{
 		auto zone = z.second;
 		if(auto * m = zone->getModificator<RockPlacer>())
@@ -45,7 +46,7 @@ void RockFiller::processMap()
 		}
 	}
 	
-	for(auto & z : map.getZones())
+	for(auto & z : map.getZonesOnLevel(1))
 	{
 		auto zone = z.second;
 		if(auto * m = zone->getModificator<RockPlacer>())
@@ -55,6 +56,12 @@ void RockFiller::processMap()
 			mapProxy->drawTerrain(zone->getRand(), tiles, zone->getTerrainType());
 
 			m->postProcess();
+		}
+
+		// Draw roads after rock is placed
+		if(auto * rp = zone->getModificator<RoadPlacer>())
+		{
+			rp->postProcess();
 		}
 	}
 }
@@ -68,7 +75,7 @@ char RockFiller::dump(const int3 & t)
 {
 	if(!map.getTile(t).terType->isPassable())
 	{
-		return zone.area().contains(t) ? 'R' : 'E';
+		return zone.area()->contains(t) ? 'R' : 'E';
 	}
 	return Modificator::dump(t);
 }

@@ -31,12 +31,12 @@ TTask Goals::taskptr(const AbstractGoal & tmp)
 	if(!tmp.isElementar())
 		throw cannotFulfillGoalException(tmp.toString() + " is not elementar");
 
-	ptr.reset(dynamic_cast<ITask *>(tmp.clone()));
+	ptr.reset(tmp.clone()->asTask());
 
 	return ptr;
 }
 
-std::string AbstractGoal::toString() const //TODO: virtualize
+std::string AbstractGoal::toString() const
 {
 	std::string desc;
 	switch(goalType)
@@ -63,8 +63,10 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 	default:
 		return std::to_string(goalType);
 	}
-	if(hero.get(true)) //FIXME: used to crash when we lost hero and failed goal
+
+	if(hero)
 		desc += " (" + hero->getNameTranslated() + ")";
+
 	return desc;
 }
 

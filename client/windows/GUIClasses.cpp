@@ -17,6 +17,8 @@
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
+#include "../CServerHandler.h"
+#include "../Client.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
@@ -37,6 +39,7 @@
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
+#include "../render/IImage.h"
 
 #include "../../CCallback.h"
 
@@ -48,6 +51,7 @@
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/SThievesGuildInfo.h"
+#include "../lib/gameState/TavernHeroesPool.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/GameSettings.h"
@@ -200,7 +204,7 @@ void CRecruitmentWindow::showAll(Canvas & to)
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, const std::function<void()> & onClose, int y_offset):
-	CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPRCRT")),
+	CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPRCRT")),
 	onRecruit(Recruit),
 	onClose(onClose),
 	level(Level),
@@ -298,7 +302,7 @@ void CRecruitmentWindow::sliderMoved(int to)
 	if(!selected)
 		return;
 
-	buyButton->block(!to);
+	buyButton->block(!to || !LOCPLINT->makingTurn);
 	availableValue->setText(std::to_string(selected->amount - to));
 	toRecruitValue->setText(std::to_string(to));
 
@@ -324,8 +328,8 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 
 	int sliderPosition = total - leftMin - rightMin;
 
-	leftInput = std::make_shared<CTextInput>(Rect(20, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, true));
-	rightInput = std::make_shared<CTextInput>(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false));
+	leftInput = std::make_shared<CTextInput>(Rect(20, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, true), ETextAlignment::CENTER, true);
+	rightInput = std::make_shared<CTextInput>(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false), ETextAlignment::CENTER, true);
 
 	//add filters to allow only number input
 	leftInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax);
@@ -421,7 +425,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	std::string levelTitleText = CGI->generaltexth->translate("core.genrltxt.445");
 	boost::replace_first(levelTitleText, "%s", hero->getNameTranslated());
 	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
-	boost::replace_first(levelTitleText, "%s", hero->type->heroClass->getNameTranslated());
+	boost::replace_first(levelTitleText, "%s", hero->getClassNameTranslated());
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
 
@@ -441,9 +445,10 @@ CLevelWindow::~CLevelWindow()
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPTAVERN")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPTAVERN")),
 	onWindowClosed(onWindowClosed),
-	tavernObj(TavernObj)
+	tavernObj(TavernObj),
+	heroToInvite(nullptr)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -459,8 +464,8 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 
 	oldSelected = -1;
 
-	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0]);
-	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1]);
+	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0], [this]() { if(!recruit->isBlocked()) recruitb(); });
+	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1], [this]() { if(!recruit->isBlocked()) recruitb(); });
 
 	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
 	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(GameConstants::HERO_GOLD_COST));
@@ -474,26 +479,30 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	recruit = std::make_shared<CButton>(Point(272, 355), AnimationPath::builtin("TPTAV01.DEF"), CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), EShortcut::GLOBAL_ACCEPT);
 	thiefGuild = std::make_shared<CButton>(Point(22, 428), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
 
-	if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
+	if(!LOCPLINT->makingTurn)
 	{
-		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
+		recruit->block(true);
+	}
+	else if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
+	{
+		recruit->addHoverText(EButtonState::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
 	}
 	else if(LOCPLINT->cb->howManyHeroes(true) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
 	{
 		//Cannot recruit. You already have %d Heroes.
-		recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(true)));
+		recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(true)));
 		recruit->block(true);
 	}
 	else if(LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 	{
 		//Cannot recruit. You already have %d Heroes.
-		recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(false)));
+		recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(false)));
 		recruit->block(true);
 	}
 	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->visitingHero)
 	{
-		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
+		recruit->addHoverText(EButtonState::NORMAL, CGI->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
 		recruit->block(true);
 	}
 	else
@@ -507,6 +516,34 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		CCS->videoh->open(townObj->town->clientInfo.tavernVideo);
 	else
 		CCS->videoh->open(VideoPath::builtin("TAVERN.BIK"));
+
+	addInvite();
+}
+
+void CTavernWindow::addInvite()
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	if(!VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
+		return;
+
+	const auto & heroesPool = CSH->client->gameState()->heroesPool;
+	for(auto & elem : heroesPool->unusedHeroesFromPool())
+	{
+		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());
+		if(heroAvailable)
+			inviteableHeroes[elem.first] = elem.second;
+	}
+
+	if(!inviteableHeroes.empty())
+	{
+		if(!heroToInvite)
+			heroToInvite = (*RandomGeneratorUtil::nextItem(inviteableHeroes, CRandomGenerator::getDefault())).second;
+
+		inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
+		inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[heroToInvite->getHeroType()]->imageIndex, 0, 245, 428);
+		inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [this](){ GH.windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [this](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [this](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
+	}
 }
 
 void CTavernWindow::recruitb()
@@ -514,7 +551,7 @@ void CTavernWindow::recruitb()
 	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
 	const CGObjectInstance *obj = tavernObj;
 
-	LOCPLINT->cb->recruitHero(obj, toBuy);
+	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroType() : HeroTypeID::NONE);
 	close();
 }
 
@@ -553,7 +590,7 @@ void CTavernWindow::show(Canvas & to)
 
 			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->type->heroClass->getNameTranslated()));
+				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->getClassNameTranslated()));
 
 		}
 
@@ -569,15 +606,23 @@ void CTavernWindow::HeroPortrait::clickPressed(const Point & cursorPosition)
 		*_sel = _id;
 }
 
+void CTavernWindow::HeroPortrait::clickDouble(const Point & cursorPosition)
+{
+	clickPressed(cursorPosition);
+	
+	if(onChoose)
+		onChoose();
+}
+
 void CTavernWindow::HeroPortrait::showPopupWindow(const Point & cursorPosition)
 {
 	if(h)
 		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
-CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
-	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
-	h(H), _sel(&sel), _id(id)
+CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H, std::function<void()> OnChoose)
+	: CIntObject(LCLICK | DOUBLECLICK | SHOW_POPUP | HOVER),
+	h(H), _sel(&sel), _id(id), onChoose(OnChoose)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	h = H;
@@ -599,7 +644,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 		description = CGI->generaltexth->allTexts[215];
 		boost::algorithm::replace_first(description, "%s", h->getNameTranslated());
 		boost::algorithm::replace_first(description, "%d", std::to_string(h->level));
-		boost::algorithm::replace_first(description, "%s", h->type->heroClass->getNameTranslated());
+		boost::algorithm::replace_first(description, "%s", h->getClassNameTranslated());
 		boost::algorithm::replace_first(description, "%d", std::to_string(artifs));
 
 		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("portraitsLarge"), h->getIconIndex());
@@ -615,6 +660,33 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 		GH.statusbar()->clear();
 }
 
+CTavernWindow::HeroSelector::HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose)
+	: CWindowObject(BORDERED), inviteableHeroes(InviteableHeroes), onChoose(OnChoose)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	pos = Rect(0, 0, 16 * 48, (inviteableHeroes.size() / 16 + (inviteableHeroes.size() % 16 != 0)) * 32);
+	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
+
+	int x = 0;
+	int y = 0;
+	for(auto & h : inviteableHeroes)
+	{
+		portraits.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[h.first]->imageIndex, 0, x * 48, y * 32));
+		portraitAreas.push_back(std::make_shared<LRClickableArea>(Rect(x * 48, y * 32, 48, 32), [this, h](){ close(); onChoose(inviteableHeroes[h.first]); }, [this, h](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(inviteableHeroes[h.first])); }));
+
+		if(x > 0 && x % 15 == 0)
+		{
+			x = 0;
+			y++;
+		}
+		else
+			x++;
+	}
+
+	center();
+}
+
 static const std::string QUICK_EXCHANGE_MOD_PREFIX = "quick-exchange";
 static const std::string QUICK_EXCHANGE_BG = QUICK_EXCHANGE_MOD_PREFIX + "/TRADEQE";
 
@@ -624,7 +696,7 @@ static bool isQuickExchangeLayoutAvailable()
 }
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
-	: CStatusbarWindow(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2")),
+	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2")),
 	controller(hero1, hero2),
 	moveStackLeftButtons(),
 	moveStackRightButtons()
@@ -639,7 +711,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	auto genTitle = [](const CGHeroInstance * h)
 	{
 		boost::format fmt(CGI->generaltexth->allTexts[138]);
-		fmt % h->getNameTranslated() % h->level % h->type->heroClass->getNameTranslated();
+		fmt % h->getNameTranslated() % h->level % h->getClassNameTranslated();
 		return boost::str(fmt);
 	};
 
@@ -793,9 +865,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 		auto openBackpack = [this](const CGHeroInstance * hero) -> void
 		{
-			GH.windows().createAndPushWindow<CHeroBackpackWindow>(hero);
-			for(auto artSet : artSets)
-				GH.windows().topWindow<CHeroBackpackWindow>()->addSet(artSet);
+			GH.windows().createAndPushWindow<CHeroBackpackWindow>(hero, artSets);
 		};
 
 		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
@@ -810,12 +880,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.swapArtifacts(equipped, baclpack);}));
 		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]),
 			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(false, equipped, baclpack);}));
-		backpackButtonLeft       = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+		backpackButtonLeft       = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			std::bind(openBackpack, heroInst[0]));
-		backpackButtonLeft->addOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
-		backpackButtonRight      = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
+		backpackButtonRight      = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			std::bind(openBackpack, heroInst[1]));
-		backpackButtonRight->addOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 
 		auto leftHeroBlock = heroInst[0]->tempOwner != LOCPLINT->cb->getPlayerID();
 		auto rightHeroBlock = heroInst[1]->tempOwner != LOCPLINT->cb->getPlayerID();
@@ -903,7 +973,7 @@ void CExchangeWindow::updateWidgets()
 }
 
 CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boatType, const std::function<void()> & onBuy)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPSHIP"))
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPSHIP"))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -1021,7 +1091,7 @@ bool CTransformerWindow::holdsGarrison(const CArmedInstance * army)
 }
 
 CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("SKTRNBK")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("SKTRNBK")),
 	hero(_hero),
 	onWindowClosed(onWindowClosed),
 	market(_market)
@@ -1120,7 +1190,7 @@ void CUniversityWindow::CItem::showAll(Canvas & to)
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
 	hero(_hero),
 	onWindowClosed(onWindowClosed),
 	market(_market)
@@ -1182,7 +1252,7 @@ void CUniversityWindow::makeDeal(SecondarySkill skill)
 
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkill SKILL, bool available)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("UNIVERS2.PCX")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS2.PCX")),
 	owner(owner_)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1269,7 +1339,7 @@ bool CGarrisonWindow::holdsGarrison(const CArmedInstance * army)
 }
 
 CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object)
-	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("APHLFTBK")),
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("APHLFTBK")),
 	fort(object),
 	hero(visitor)
 {
@@ -1287,9 +1357,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 
 	for(int i = 0; i < slotsCount; i++)
 	{
-		upgrade[i] = std::make_shared<CButton>(Point(107 + i * 76, 171), AnimationPath(), CButton::tooltip(getTextForSlot(SlotID(i))), [=](){ makeDeal(SlotID(i)); }, vstd::next(EShortcut::SELECT_INDEX_1, i));
-		for(auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
-			upgrade[i]->addImage(AnimationPath::builtin(image));
+		upgrade[i] = std::make_shared<CButton>(Point(107 + i * 76, 171), AnimationPath::builtin("APHLF1R"), CButton::tooltip(getTextForSlot(SlotID(i))), [this, i](){ makeDeal(SlotID(i)); }, vstd::next(EShortcut::SELECT_INDEX_1, i));
 
 		for(int j : {0,1})
 		{
@@ -1298,11 +1366,9 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 		}
 	}
 
-	upgradeAll = std::make_shared<CButton>(Point(30, 231), AnimationPath(), CButton::tooltip(CGI->generaltexth->allTexts[432]), [&](){ makeDeal(SlotID(slotsCount));}, EShortcut::RECRUITMENT_UPGRADE_ALL);
-	for(auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
-		upgradeAll->addImage(AnimationPath::builtin(image));
+	upgradeAll = std::make_shared<CButton>(Point(30, 231), AnimationPath::builtin("APHLF4R"), CButton::tooltip(CGI->generaltexth->allTexts[432]), [this](){ makeDeal(SlotID(slotsCount));}, EShortcut::RECRUITMENT_UPGRADE_ALL);
 
-	quit = std::make_shared<CButton>(Point(294, 275), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), std::bind(&CHillFortWindow::close, this), EShortcut::GLOBAL_ACCEPT);
+	quit = std::make_shared<CButton>(Point(294, 275), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), [this](){close();}, EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);
@@ -1316,6 +1382,9 @@ bool CHillFortWindow::holdsGarrison(const CArmedInstance * army)
 
 void CHillFortWindow::updateGarrisons()
 {
+	constexpr std::array slotImages = { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" };
+	constexpr std::array allImages =  { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" };
+
 	std::array<TResources, slotsCount> costs;// costs [slot ID] [resource ID] = resource count for upgrade
 
 	TResources totalSum; // totalSum[resource ID] = value
@@ -1336,9 +1405,9 @@ void CHillFortWindow::updateGarrisons()
 		}
 
 		currState[i] = newState;
-		upgrade[i]->setIndex(currState[i] == -1 ? 0 : currState[i]);
+		upgrade[i]->setImage(AnimationPath::builtin(currState[i] == -1 ? slotImages[0] : slotImages[currState[i]]));
 		upgrade[i]->block(currState[i] == -1);
-		upgrade[i]->addHoverText(CButton::NORMAL, getTextForSlot(SlotID(i)));
+		upgrade[i]->addHoverText(EButtonState::NORMAL, getTextForSlot(SlotID(i)));
 	}
 
 	//"Upgrade all" slot
@@ -1358,7 +1427,7 @@ void CHillFortWindow::updateGarrisons()
 	}
 
 	currState[slotsCount] = newState;
-	upgradeAll->setIndex(newState);
+	upgradeAll->setImage(AnimationPath::builtin(allImages[newState]));
 
 	garr->recreateSlots();
 
@@ -1474,7 +1543,7 @@ int CHillFortWindow::getState(SlotID slot)
 }
 
 CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
-	CStatusbarWindow(PLAYER_COLORED | BORDERED, ImagePath::builtin("TpRank")),
+	CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("TpRank")),
 	owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1490,7 +1559,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	//data for information table:
 	// fields[row][column] = list of id's of players for this box
-	static std::vector< std::vector< PlayerColor > > SThievesGuildInfo::* fields[] =
+	constexpr std::vector< std::vector< PlayerColor > > SThievesGuildInfo::* fields[] =
 		{ &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes,       &SThievesGuildInfo::gold,
 		  &SThievesGuildInfo::woodOre,    &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks,
 		  &SThievesGuildInfo::artifacts,  &SThievesGuildInfo::army,              &SThievesGuildInfo::income };
@@ -1607,11 +1676,13 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 }
 
 CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
-	: CIntObject(LCLICK | DOUBLECLICK),
+	: CIntObject(LCLICK | DOUBLECLICK | RCLICK_POPUP),
 	parent(_parent),
 	index(_id)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	if(parent->images.size() > index)
+		icon = std::make_shared<CPicture>(parent->images[index], Point(1, 1));
 	border = std::make_shared<CPicture>(ImagePath::builtin("TPGATES"));
 	pos = border->pos;
 
@@ -1634,6 +1705,9 @@ void CObjectListWindow::CItem::select(bool on)
 void CObjectListWindow::CItem::clickPressed(const Point & cursorPosition)
 {
 	parent->changeSelection(index);
+
+	if(parent->onClicked)
+		parent->onClicked(index);
 }
 
 void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
@@ -1641,10 +1715,17 @@ void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
 	parent->elementSelected();
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
+void CObjectListWindow::CItem::showPopupWindow(const Point & cursorPosition)
+{
+	if(parent->onPopup)
+		parent->onPopup(index);
+}
+
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
-	selected(initialSelection)
+	selected(initialSelection),
+	images(images)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
@@ -1657,10 +1738,11 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	init(titleWidget_, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
-	selected(initialSelection)
+	selected(initialSelection),
+	images(images)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
@@ -1738,7 +1820,7 @@ void CObjectListWindow::changeSelection(size_t which)
 	selected = which;
 }
 
-void CObjectListWindow::keyPressed (EShortcut key)
+void CObjectListWindow::keyPressed(EShortcut key)
 {
 	int sel = static_cast<int>(selected);
 

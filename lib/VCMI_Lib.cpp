@@ -37,6 +37,7 @@
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
+#include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
@@ -65,54 +66,54 @@ DLL_LINKAGE void loadDLLClasses(bool onlyEssential)
 
 const ArtifactService * LibClasses::artifacts() const
 {
-	return arth;
+	return arth.get();
 }
 
 const CreatureService * LibClasses::creatures() const
 {
-	return creh;
+	return creh.get();
 }
 
 const FactionService * LibClasses::factions() const
 {
-	return townh;
+	return townh.get();
 }
 
 const HeroClassService * LibClasses::heroClasses() const
 {
-	return &heroh->classes;
+	return heroclassesh.get();
 }
 
 const HeroTypeService * LibClasses::heroTypes() const
 {
-	return heroh;
+	return heroh.get();
 }
 
 #if SCRIPTING_ENABLED
 const scripting::Service * LibClasses::scripts() const
 {
-	return scriptHandler;
+	return scriptHandler.get();
 }
 #endif
 
 const spells::Service * LibClasses::spells() const
 {
-	return spellh;
+	return spellh.get();
 }
 
 const SkillService * LibClasses::skills() const
 {
-	return skillh;
+	return skillh.get();
 }
 
 const IBonusTypeHandler * LibClasses::getBth() const
 {
-	return bth;
+	return bth.get();
 }
 
 const CIdentifierStorage * LibClasses::identifiers() const
 {
-	return identifiersHandler;
+	return identifiersHandler.get();
 }
 
 const spells::effects::Registry * LibClasses::spellEffects() const
@@ -127,17 +128,17 @@ spells::effects::Registry * LibClasses::spellEffects()
 
 const BattleFieldService * LibClasses::battlefields() const
 {
-	return battlefieldsHandler;
+	return battlefieldsHandler.get();
 }
 
 const ObstacleService * LibClasses::obstacles() const
 {
-	return obstacleHandler;
+	return obstacleHandler.get();
 }
 
 const IGameSettings * LibClasses::settings() const
 {
-	return settingsHandler;
+	return settingsHandler.get();
 }
 
 void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
@@ -154,7 +155,7 @@ void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 		townh->updateEntity(index, data);
 		break;
 	case Metatype::HERO_CLASS:
-		heroh->classes.updateEntity(index, data);
+		heroclassesh->updateEntity(index, data);
 		break;
 	case Metatype::HERO_TYPE:
 		heroh->updateEntity(index, data);
@@ -185,8 +186,8 @@ void LibClasses::loadFilesystem(bool extractArchives)
 void LibClasses::loadModFilesystem()
 {
 	CStopWatch loadTime;
-	modh = new CModHandler();
-	identifiersHandler = new CIdentifierStorage();
+	modh = std::make_unique<CModHandler>();
+	identifiersHandler = std::make_unique<CIdentifierStorage>();
 	modh->loadMods();
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
@@ -199,9 +200,9 @@ static void logHandlerLoaded(const std::string & name, CStopWatch & timer)
 	logGlobal->info("\t\t %s handler: %d ms", name, timer.getDiff());
 }
 
-template <class Handler> void createHandler(Handler *&handler, const std::string &name, CStopWatch &timer)
+template <class Handler> void createHandler(std::shared_ptr<Handler> & handler, const std::string &name, CStopWatch &timer)
 {
-	handler = new Handler();
+	handler = std::make_shared<Handler>();
 	logHandlerLoaded(name, timer);
 }
 
@@ -219,9 +220,11 @@ void LibClasses::init(bool onlyEssential)
 	createHandler(riverTypeHandler, "River", pomtime);
 	createHandler(terrainTypeHandler, "Terrain", pomtime);
 	createHandler(heroh, "Hero", pomtime);
+	createHandler(heroclassesh, "Hero classes", pomtime);
 	createHandler(arth, "Artifact", pomtime);
 	createHandler(creh, "Creature", pomtime);
 	createHandler(townh, "Town", pomtime);
+	createHandler(biomeHandler, "Obstacle set", pomtime);
 	createHandler(objh, "Object", pomtime);
 	createHandler(objtypeh, "Object types information", pomtime);
 	createHandler(spellh, "Spell", pomtime);
@@ -239,77 +242,6 @@ void LibClasses::init(bool onlyEssential)
 	modh->afterLoad(onlyEssential);
 }
 
-void LibClasses::clear()
-{
-	delete heroh;
-	delete arth;
-	delete creh;
-	delete townh;
-	delete objh;
-	delete objtypeh;
-	delete spellh;
-	delete skillh;
-	delete modh;
-	delete bth;
-	delete tplh;
-	delete terviewh;
-#if SCRIPTING_ENABLED
-	delete scriptHandler;
-#endif
-	delete battlefieldsHandler;
-	delete generaltexth;
-	delete identifiersHandler;
-	delete obstacleHandler;
-	delete terrainTypeHandler;
-	delete riverTypeHandler;
-	delete roadTypeHandler;
-	delete settingsHandler;
-	makeNull();
-}
-
-void LibClasses::makeNull()
-{
-	generaltexth = nullptr;
-	heroh = nullptr;
-	arth = nullptr;
-	creh = nullptr;
-	townh = nullptr;
-	objh = nullptr;
-	objtypeh = nullptr;
-	spellh = nullptr;
-	skillh = nullptr;
-	modh = nullptr;
-	bth = nullptr;
-	tplh = nullptr;
-	terviewh = nullptr;
-#if SCRIPTING_ENABLED
-	scriptHandler = nullptr;
-#endif
-	battlefieldsHandler = nullptr;
-	identifiersHandler = nullptr;
-	obstacleHandler = nullptr;
-	terrainTypeHandler = nullptr;
-	riverTypeHandler = nullptr;
-	roadTypeHandler = nullptr;
-	settingsHandler = nullptr;
-}
-
-LibClasses::LibClasses()
-{
-	//init pointers to handlers
-	makeNull();
-}
-
-void LibClasses::callWhenDeserializing()
-{
-	//FIXME: check if any of these are needed
-	//generaltexth = new CGeneralTextHandler();
-	//generaltexth->load();
-	//arth->load(true);
-	//modh->recreateHandlers();
-	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
-}
-
 #if SCRIPTING_ENABLED
 void LibClasses::scriptsLoaded()
 {
@@ -317,10 +249,8 @@ void LibClasses::scriptsLoaded()
 }
 #endif
 
-LibClasses::~LibClasses()
-{
-	clear();
-}
+LibClasses::LibClasses() = default;
+LibClasses::~LibClasses() = default;
 
 std::shared_ptr<CContentHandler> LibClasses::getContent() const
 {

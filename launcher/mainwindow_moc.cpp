@@ -21,6 +21,7 @@
 
 #include "updatedialog_moc.h"
 #include "main.h"
+#include "helper.h"
 
 void MainWindow::load()
 {
@@ -45,7 +46,7 @@ void MainWindow::load()
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
 #endif
 
-	settings.init("config/settings.json", "vcmi:settings");
+	Helper::loadSettings();
 }
 
 void MainWindow::computeSidePanelSizes()
@@ -53,7 +54,6 @@ void MainWindow::computeSidePanelSizes()
 	QVector<QToolButton*> widgets = {
 		ui->modslistButton,
 		ui->settingsButton,
-		ui->lobbyButton,
 		ui->aboutButton,
 		ui->startEditorButton,
 		ui->startGameButton
@@ -86,10 +86,6 @@ MainWindow::MainWindow(QWidget * parent)
 
 	ui->setupUi(this);
 	
-	connect(ui->lobbyView, &Lobby::enableMod, ui->modlistView, &CModListView::enableModByName);
-	connect(ui->lobbyView, &Lobby::disableMod, ui->modlistView, &CModListView::disableModByName);
-	connect(ui->modlistView, &CModListView::modsChanged, ui->lobbyView, &Lobby::updateMods);
-
 	//load window settings
 	QSettings s(Ui::teamName, Ui::appName);
 
@@ -151,7 +147,6 @@ void MainWindow::enterSetup()
 {
 	ui->startGameButton->setEnabled(false);
 	ui->startEditorButton->setEnabled(false);
-	ui->lobbyButton->setEnabled(false);
 	ui->settingsButton->setEnabled(false);
 	ui->aboutButton->setEnabled(false);
 	ui->modslistButton->setEnabled(false);
@@ -165,7 +160,6 @@ void MainWindow::exitSetup()
 
 	ui->startGameButton->setEnabled(true);
 	ui->startEditorButton->setEnabled(true);
-	ui->lobbyButton->setEnabled(true);
 	ui->settingsButton->setEnabled(true);
 	ui->aboutButton->setEnabled(true);
 	ui->modslistButton->setEnabled(true);
@@ -226,12 +220,6 @@ void MainWindow::on_settingsButton_clicked()
 {
 	ui->startGameButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::SETTINGS);
-}
-
-void MainWindow::on_lobbyButton_clicked()
-{
-	ui->startGameButton->setEnabled(false);
-	ui->tabListWidget->setCurrentIndex(TabRows::LOBBY);
 }
 
 void MainWindow::on_aboutButton_clicked()

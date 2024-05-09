@@ -10,355 +10,167 @@
 #include "StdInc.h"
 #include "Connection.h"
 
-#include "../networkPacks/NetPacksBase.h"
+#include "BinaryDeserializer.h"
+#include "BinarySerializer.h"
 
-#include <boost/asio.hpp>
+#include "../gameState/CGameState.h"
+#include "../networkPacks/NetPacksBase.h"
+#include "../network/NetworkInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-using namespace boost;
-using namespace boost::asio::ip;
-
-struct ConnectionBuffers
+class DLL_LINKAGE ConnectionPackWriter final : public IBinaryWriter
 {
-	boost::asio::streambuf readBuffer;
-	boost::asio::streambuf writeBuffer;
+public:
+	std::vector<std::byte> buffer;
+
+	int write(const std::byte * data, unsigned size) final;
 };
 
-void CConnection::init()
+class DLL_LINKAGE ConnectionPackReader final : public IBinaryReader
 {
-	enableBufferedWrite = false;
-	enableBufferedRead = false;
-	connectionBuffers = std::make_unique<ConnectionBuffers>();
+public:
+	const std::vector<std::byte> * buffer;
+	size_t position;
 
-	socket->set_option(boost::asio::ip::tcp::no_delay(true));
-    try
-    {
-        socket->set_option(boost::asio::socket_base::send_buffer_size(4194304));
-        socket->set_option(boost::asio::socket_base::receive_buffer_size(4194304));
-    }
-    catch (const boost::system::system_error & e)
-    {
-        logNetwork->error("error setting socket option: %s", e.what());
-    }
+	int read(std::byte * data, unsigned size) final;
+};
 
-	enableSmartPointerSerialization();
-	disableStackSendingByID();
-#ifndef VCMI_ENDIAN_BIG
-	myEndianess = true;
-#else
-	myEndianess = false;
-#endif
-	connected = true;
-	std::string pom;
-	//we got connection
-	oser & std::string("Aiya!\n") & name & uuid & myEndianess; //identify ourselves
-	iser & pom & pom & contactUuid & contactEndianess;
-	logNetwork->info("Established connection with %s. UUID: %s", pom, contactUuid);
-	mutexRead = std::make_shared<boost::mutex>();
-	mutexWrite = std::make_shared<boost::mutex>();
-
-	iser.fileVersion = SERIALIZATION_VERSION;
-}
-
-CConnection::CConnection(const std::string & host, ui16 port, std::string Name, std::string UUID):
-	io_service(std::make_shared<asio::io_service>()),
-	iser(this),
-	oser(this),
-	name(std::move(Name)),
-	uuid(std::move(UUID))
+int ConnectionPackWriter::write(const std::byte * data, unsigned size)
 {
-	int i = 0;
-	boost::system::error_code error = asio::error::host_not_found;
-	socket = std::make_shared<tcp::socket>(*io_service);
-
-	tcp::resolver resolver(*io_service);
-	tcp::resolver::iterator end;
-	tcp::resolver::iterator pom;
-	tcp::resolver::iterator endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port)), error);
-	if(error)
-	{
-		logNetwork->error("Problem with resolving: \n%s", error.message());
-		throw std::runtime_error("Problem with resolving");
-	}
-	pom = endpoint_iterator;
-	if(pom != end)
-		logNetwork->info("Found endpoints:");
-	else
-	{
-		logNetwork->error("Critical problem: No endpoints found!");
-		throw std::runtime_error("No endpoints found!");
-	}
-	while(pom != end)
-	{
-		logNetwork->info("\t%d:%s", i, (boost::asio::ip::tcp::endpoint&)*pom);
-		pom++;
-	}
-	i=0;
-	while(endpoint_iterator != end)
-	{
-		logNetwork->info("Trying connection to %s(%d)", (boost::asio::ip::tcp::endpoint&)*endpoint_iterator, i++);
-		socket->connect(*endpoint_iterator, error);
-		if(!error)
-		{
-			init();
-			return;
-		}
-		else
-		{
-			throw std::runtime_error("Failed to connect!");
-		}
-		endpoint_iterator++;
-	}
+	buffer.insert(buffer.end(), data, data + size);
+	return size;
 }
 
-CConnection::CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID):
-	iser(this),
-	oser(this),
-	socket(std::move(Socket)),
-	name(std::move(Name)),
-	uuid(std::move(UUID))
+int ConnectionPackReader::read(std::byte * data, unsigned size)
 {
-	init();
+	if (position + size > buffer->size())
+		throw std::runtime_error("End of file reached when reading received network pack!");
+
+	std::copy_n(buffer->begin() + position, size, data);
+	position += size;
+	return size;
 }
-CConnection::CConnection(const std::shared_ptr<TAcceptor> & acceptor,
-						 const std::shared_ptr<boost::asio::io_service> & io_service,
-						 std::string Name,
-						 std::string UUID):
-	io_service(io_service),
-	iser(this),
-	oser(this),
-	name(std::move(Name)),
-	uuid(std::move(UUID))
+
+CConnection::CConnection(std::weak_ptr<INetworkConnection> networkConnection)
+	: networkConnection(networkConnection)
+	, packReader(std::make_unique<ConnectionPackReader>())
+	, packWriter(std::make_unique<ConnectionPackWriter>())
+	, deserializer(std::make_unique<BinaryDeserializer>(packReader.get()))
+	, serializer(std::make_unique<BinarySerializer>(packWriter.get()))
+	, connectionID(-1)
 {
-	boost::system::error_code error = asio::error::host_not_found;
-	socket = std::make_shared<tcp::socket>(*io_service);
-	acceptor->accept(*socket,error);
-	if (error)
-	{
-		logNetwork->error("Error on accepting: %s", error.message());
-		socket.reset();
-		throw std::runtime_error("Can't establish connection :(");
-	}
-	init();
+	assert(networkConnection.lock() != nullptr);
+
+	enterLobbyConnectionMode();
+	deserializer->version = ESerializationVersion::CURRENT;
 }
 
-void CConnection::flushBuffers()
-{
-	if(!enableBufferedWrite)
-		return;
-
-	if (!socket)
-		throw std::runtime_error("Can't write to closed socket!");
-
-	try
-	{
-		asio::write(*socket, connectionBuffers->writeBuffer);
-	}
-	catch(...)
-	{
-		//connection has been lost
-		connected = false;
-		throw;
-	}
-
-	enableBufferedWrite = false;
-}
-
-int CConnection::write(const void * data, unsigned size)
-{
-	if (!socket)
-		throw std::runtime_error("Can't write to closed socket!");
-
-	try
-	{
-		if(enableBufferedWrite)
-		{
-			std::ostream ostream(&connectionBuffers->writeBuffer);
-		
-			ostream.write(static_cast<const char *>(data), size);
-
-			return size;
-		}
-
-		int ret = static_cast<int>(asio::write(*socket, asio::const_buffers_1(asio::const_buffer(data, size))));
-		return ret;
-	}
-	catch(...)
-	{
-		//connection has been lost
-		connected = false;
-		throw;
-	}
-}
-
-int CConnection::read(void * data, unsigned size)
-{
-	try
-	{
-		if(enableBufferedRead)
-		{
-			auto available = connectionBuffers->readBuffer.size();
-
-			while(available < size)
-			{
-				auto bytesRead = socket->read_some(connectionBuffers->readBuffer.prepare(1024));
-				connectionBuffers->readBuffer.commit(bytesRead);
-				available = connectionBuffers->readBuffer.size();
-			}
-
-			std::istream istream(&connectionBuffers->readBuffer);
-
-			istream.read(static_cast<char *>(data), size);
-
-			return size;
-		}
-
-		int ret = static_cast<int>(asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size))));
-		return ret;
-	}
-	catch(...)
-	{
-		//connection has been lost
-		connected = false;
-		throw;
-	}
-}
-
-CConnection::~CConnection()
-{
-	close();
-
-	if(handler)
-	{
-		// ugly workaround to avoid self-join if last strong reference to shared_ptr that owns this class has been released in this very thread, e.g. on netpack processing
-		if (boost::this_thread::get_id() != handler->get_id())
-			handler->join();
-		else
-			handler->detach();
-	}
-}
-
-template<class T>
-CConnection & CConnection::operator&(const T &t) {
-//	throw std::exception();
-//XXX this is temporaly ? solution to fix gcc (4.3.3, other?) compilation
-//    problem for more details contact t0@czlug.icis.pcz.pl or impono@gmail.com
-//    do not remove this exception it shoudnt be called
-	return *this;
-}
-
-void CConnection::close()
-{
-	if(socket)
-	{
-		try
-		{
-			socket->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
-		}
-		catch (const boost::system::system_error & e)
-		{
-			logNetwork->error("error closing socket: %s", e.what());
-		}
-
-		socket->close();
-		socket.reset();
-	}
-}
-
-bool CConnection::isOpen() const
-{
-	return socket && connected;
-}
-
-void CConnection::reportState(vstd::CLoggerBase * out)
-{
-	out->debug("CConnection");
-	if(socket && socket->is_open())
-	{
-		out->debug("\tWe have an open and valid socket");
-		out->debug("\t %d bytes awaiting", socket->available());
-	}
-}
-
-CPack * CConnection::retrievePack()
-{
-	enableBufferedRead = true;
-
-	CPack * pack = nullptr;
-	boost::unique_lock<boost::mutex> lock(*mutexRead);
-	iser & pack;
-	logNetwork->trace("Received CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
-	if(pack == nullptr)
-		logNetwork->error("Received a nullptr CPack! You should check whether client and server ABI matches.");
-
-	enableBufferedRead = false;
-
-	return pack;
-}
+CConnection::~CConnection() = default;
 
 void CConnection::sendPack(const CPack * pack)
 {
-	boost::unique_lock<boost::mutex> lock(*mutexWrite);
+	boost::mutex::scoped_lock lock(writeMutex);
+
+	auto connectionPtr = networkConnection.lock();
+
+	if (!connectionPtr)
+		throw std::runtime_error("Attempt to send packet on a closed connection!");
+
+	*serializer & pack;
+
 	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
 
-	enableBufferedWrite = true;
+	connectionPtr->sendPacket(packWriter->buffer);
+	packWriter->buffer.clear();
+}
 
-	oser & pack;
+CPack * CConnection::retrievePack(const std::vector<std::byte> & data)
+{
+	CPack * result;
 
-	flushBuffers();
+	packReader->buffer = &data;
+	packReader->position = 0;
+
+	*deserializer & result;
+
+	if (result == nullptr)
+		throw std::runtime_error("Failed to retrieve pack!");
+
+	if (packReader->position != data.size())
+		throw std::runtime_error("Failed to retrieve pack! Not all data has been read!");
+
+	logNetwork->trace("Received CPack of type %s", typeid(*result).name());
+	return result;
+}
+
+bool CConnection::isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const
+{
+	return otherConnection != nullptr && networkConnection.lock() == otherConnection;
+}
+
+std::shared_ptr<INetworkConnection> CConnection::getConnection()
+{
+	return networkConnection.lock();
 }
 
 void CConnection::disableStackSendingByID()
 {
-	CSerializer::sendStackInstanceByIds = false;
+	packReader->sendStackInstanceByIds = false;
+	packWriter->sendStackInstanceByIds = false;
 }
 
 void CConnection::enableStackSendingByID()
 {
-	CSerializer::sendStackInstanceByIds = true;
-}
-
-void CConnection::disableSmartPointerSerialization()
-{
-	iser.smartPointerSerialization = oser.smartPointerSerialization = false;
-}
-
-void CConnection::enableSmartPointerSerialization()
-{
-	iser.smartPointerSerialization = oser.smartPointerSerialization = true;
+	packReader->sendStackInstanceByIds = true;
+	packWriter->sendStackInstanceByIds = true;
 }
 
 void CConnection::enterLobbyConnectionMode()
 {
-	iser.loadedPointers.clear();
-	oser.savedPointers.clear();
+	deserializer->loadedPointers.clear();
+	serializer->savedPointers.clear();
 	disableSmartVectorMemberSerialization();
 	disableSmartPointerSerialization();
+	disableStackSendingByID();
+}
+
+void CConnection::setCallback(IGameCallback * cb)
+{
+	deserializer->cb = cb;
 }
 
 void CConnection::enterGameplayConnectionMode(CGameState * gs)
 {
 	enableStackSendingByID();
 	disableSmartPointerSerialization();
-	addStdVecItems(gs);
+
+	setCallback(gs->callback);
+	enableSmartVectorMemberSerializatoin(gs);
+}
+
+void CConnection::disableSmartPointerSerialization()
+{
+	deserializer->smartPointerSerialization = false;
+	serializer->smartPointerSerialization = false;
+}
+
+void CConnection::enableSmartPointerSerialization()
+{
+	deserializer->smartPointerSerialization = true;
+	serializer->smartPointerSerialization = true;
 }
 
 void CConnection::disableSmartVectorMemberSerialization()
 {
-	CSerializer::smartVectorMembersSerialization = false;
+	packReader->smartVectorMembersSerialization = false;
+	packWriter->smartVectorMembersSerialization = false;
 }
 
-void CConnection::enableSmartVectorMemberSerializatoin()
+void CConnection::enableSmartVectorMemberSerializatoin(CGameState * gs)
 {
-	CSerializer::smartVectorMembersSerialization = true;
-}
-
-std::string CConnection::toString() const
-{
-	boost::format fmt("Connection with %s (ID: %d UUID: %s)");
-	fmt % name % connectionID % uuid;
-	return fmt.str();
+	packWriter->addStdVecItems(gs);
+	packReader->addStdVecItems(gs);
 }
 
 VCMI_LIB_NAMESPACE_END

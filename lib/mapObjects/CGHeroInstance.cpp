@@ -13,6 +13,7 @@
 
 #include <vcmi/ServerCallback.h>
 #include <vcmi/spells/Spell.h>
+#include <vstd/RNG.h>
 
 #include "../CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
@@ -28,11 +29,15 @@
 #include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMap.h"
+#include "../StartInfo.h"
 #include "CGTownInstance.h"
+#include "../campaign/CampaignState.h"
+#include "../json/JsonBonus.h"
 #include "../pathfinder/TurnInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../modding/ModScope.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -274,7 +279,9 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 	return ti->valOfBonuses(BonusType::MOVEMENT, onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea);
 }
 
-CGHeroInstance::CGHeroInstance():
+CGHeroInstance::CGHeroInstance(IGameCallback * cb)
+	: CArmedInstance(cb),
+	type(nullptr),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
 	moveDir(4),
@@ -316,7 +323,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 {
 	assert(validTypes(true));
 	if(!type)
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 
 	if (ID == Obj::HERO)
 		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -383,7 +390,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
 	// must be done separately from global bonuses since recruitable heroes in taverns 
 	// are not attached to global bonus node but need access to some global bonuses
-	// e.g. MANA_PER_KNOWLEDGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
+	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
 	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_PER_HERO);
 	for(const auto & b : baseBonuses.Struct())
@@ -552,7 +559,7 @@ std::string CGHeroInstance::getObjectName() const
 	{
 		std::string hoverName = VLC->generaltexth->allTexts[15];
 		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
-		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->getNameTranslated());
+		boost::algorithm::replace_first(hoverName,"%s", getClassNameTranslated());
 		return hoverName;
 	}
 	else
@@ -590,20 +597,19 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 	{
 		ID = Obj::HERO;
 		subID = cb->gameState()->pickNextHeroType(getOwner());
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 		randomizeArmy(type->heroClass->faction);
 	}
 	else
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 
 	auto oldSubID = subID;
 
 	// to find object handler we must use heroClass->id
 	// after setType subID used to store unique hero identify id. Check issue 2277 for details
+	// exclude prisons which should use appearance as set in map, via map editor or RMG
 	if (ID != Obj::PRISON)
 		setType(ID, type->heroClass->getIndex());
-	else
-		setType(ID, 0);
 
 	this->subID = oldSubID;
 }
@@ -789,7 +795,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = IObjectInterface::cb->isAllowed(spell->getId());
+	const bool isAllowed = cb->isAllowed(spell->getId());
 
 	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
 	const bool specificBonus = hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
@@ -853,7 +859,7 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
 		return false;//creature abilities can not be learned
 	}
 
-	if(!allowBanned && !IObjectInterface::cb->isAllowed(spell->getId()))
+	if(!allowBanned && !cb->isAllowed(spell->getId()))
 	{
 		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
 		return false;//banned spells should not be learned
@@ -879,7 +885,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double necromancySkill = valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE) / 100.0;
 		const ui8 necromancyLevel = valOfBonuses(BonusType::IMPROVED_NECROMANCY);
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
-		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
+		const std::map<CreatureID,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
@@ -888,7 +894,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		{
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
-				vstd::amax(maxCasualtyLevel, VLC->creatures()->getByIndex(casualty.first)->getLevel());
+				vstd::amax(maxCasualtyLevel, VLC->creatures()->getById(casualty.first)->getLevel());
 			// pick best bonus available
 			std::shared_ptr<Bonus> topPick;
 			for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
@@ -936,7 +942,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double raisedUnits = 0;
 		for(const auto & casualty : casualties)
 		{
-			const CCreature * c = VLC->creh->objects[casualty.first];
+			const CCreature * c = casualty.first.toCreature();
 			double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
 			if(c->getLevel() < requiredCasualtyLevel)
 				raisedFromCasualty *= 0.5;
@@ -1075,7 +1081,7 @@ std::string CGHeroInstance::nodeName() const
 si32 CGHeroInstance::manaLimit() const
 {
 	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE)
-		* (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE)));
+		* (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE))) / 100;
 }
 
 HeroTypeID CGHeroInstance::getPortraitSource() const
@@ -1094,6 +1100,18 @@ int32_t CGHeroInstance::getIconIndex() const
 std::string CGHeroInstance::getNameTranslated() const
 {
 	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string CGHeroInstance::getClassNameTranslated() const
+{
+	return VLC->generaltexth->translate(getClassNameTextID());
+}
+
+std::string CGHeroInstance::getClassNameTextID() const
+{
+	if (isCampaignGem())
+		return "core.genrltxt.735";
+	return type->heroClass->getNameTextID();
 }
 
 std::string CGHeroInstance::getNameTextID() const
@@ -1258,7 +1276,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 {
 	if(static_cast<int>(movement) < movementPointsLimit(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
-	if(!VLC->arth->objects[ArtifactID::GRAIL]->canBePutAt(this))
+	if(!ArtifactID(ArtifactID::GRAIL).toArtifact()->canBePutAt(this))
 		return EDiggingStatus::BACKPACK_IS_FULL;
 	return cb->getTileDigStatus(visitablePos());
 }
@@ -1350,28 +1368,17 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(CR
 PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
 {
 	assert(gainsLevel());
-	int randomValue = rand.nextInt(99);
-	int pom = 0;
-	int primarySkill = 0;
 	const auto isLowLevelHero = level < GameConstants::HERO_HIGH_LEVEL;
 	const auto & skillChances = isLowLevelHero ? type->heroClass->primarySkillLowLevel : type->heroClass->primarySkillHighLevel;
 
-	for(; primarySkill < GameConstants::PRIMARY_SKILLS; ++primarySkill)
+	if (isCampaignYog())
 	{
-		pom += skillChances[primarySkill];
-		if(randomValue < pom)
-		{
-			break;
-		}
+		// Yog can only receive Attack or Defence on level-up
+		std::vector<int> yogChances = { skillChances[0], skillChances[1]};
+		return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(yogChances, rand));
 	}
-	if(primarySkill >= GameConstants::PRIMARY_SKILLS)
-	{
-		primarySkill = rand.nextInt(GameConstants::PRIMARY_SKILLS - 1);
-		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", type->heroClass->getNameTranslated());
-		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
-	}
-	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
-	return static_cast<PrimarySkill>(primarySkill);
+
+	return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(skillChances, rand));
 }
 
 std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerator & rand) const
@@ -1409,7 +1416,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 {
 	if(primarySkill < PrimarySkill::EXPERIENCE)
 	{
-		auto skill = getBonusLocalFirst(Selector::type()(BonusType::PRIMARY_SKILL)
+		auto skill = getLocalBonus(Selector::type()(BonusType::PRIMARY_SKILL)
 			.And(Selector::subtype()(BonusSubtypeID(primarySkill)))
 			.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 		assert(skill);
@@ -1517,28 +1524,6 @@ std::string CGHeroInstance::getHeroTypeName() const
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
-	if(ID != Obj::RANDOM_HERO)
-	{
-		auto existingHero = std::find_if(map->objects.begin(), map->objects.end(), [&](const CGObjectInstance * o) ->bool
-			{
-				return o && (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
-			});
-
-		if(existingHero != map->objects.end())
-		{
-			if(settings["session"]["editor"].Bool())
-			{
-				logGlobal->warn("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
-			}
-			else
-			{
-				logGlobal->error("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
-
-				throw std::runtime_error("Hero is already on the map");
-			}
-		}
-	}
-
 	if(ID != Obj::PRISON)
 	{		
 		map->heroesOnMap.emplace_back(this);
@@ -1742,7 +1727,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(!appearance)
 			{
 				// crossoverDeserialize
-				type = VLC->heroh->objects[getHeroType().getNum()];
+				type = getHeroType().toHeroType();
 				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			}
 
@@ -1760,7 +1745,7 @@ void CGHeroInstance::serializeJsonDefinition(JsonSerializeFormat & handler)
 
 bool CGHeroInstance::isMissionCritical() const
 {
-	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)
+	for(const TriggeredEvent & event : cb->getMapHeader()->triggeredEvents)
 	{
 		if (event.effect.type != EventEffect::DEFEAT)
 			continue;
@@ -1769,6 +1754,12 @@ bool CGHeroInstance::isMissionCritical() const
 		{
 			if ((condition.condition == EventCondition::CONTROL) && condition.objectID != ObjectInstanceID::NONE)
 				return (id != condition.objectID);
+
+			if (condition.condition == EventCondition::HAVE_ARTIFACT)
+			{
+				if(hasArt(condition.objectType.as<ArtifactID>()))
+					return true;
+			}
 
 			if(condition.condition == EventCondition::IS_HUMAN)
 				return true;
@@ -1794,6 +1785,42 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
 		}
 	}
+}
+
+bool CGHeroInstance::isCampaignYog() const
+{
+	const StartInfo *si = cb->getStartInfo();
+
+	// it would be nice to find a way to move this hack to config/mapOverrides.json
+	if(!si || !si->campState)
+		return false;
+
+	std::string campaign = si->campState->getFilename();
+	if (!boost::starts_with(campaign, "DATA/YOG")) // "Birth of a Barbarian"
+		return false;
+
+	if (getHeroType() != HeroTypeID::SOLMYR) // Yog (based on Solmyr)
+		return false;
+
+	return true;
+}
+
+bool CGHeroInstance::isCampaignGem() const
+{
+	const StartInfo *si = cb->getStartInfo();
+
+	// it would be nice to find a way to move this hack to config/mapOverrides.json
+	if(!si || !si->campState)
+		return false;
+
+	std::string campaign = si->campState->getFilename();
+	if (!boost::starts_with(campaign, "DATA/GEM") &&  !boost::starts_with(campaign, "DATA/FINAL")) // "New Beginning" and "Unholy Alliance"
+		return false;
+
+	if (getHeroType() != HeroTypeID::GEM) // Yog (based on Solmyr)
+		return false;
+
+	return true;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -14,9 +14,11 @@ set(Nullkiller_SRCS
 		Pathfinding/Rules/AIMovementAfterDestinationRule.cpp
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
 		Pathfinding/Rules/AIPreviousNodeRule.cpp
+		Pathfinding/ObjectGraph.cpp
 		AIUtility.cpp
 		Analyzers/ArmyManager.cpp
 		Analyzers/HeroManager.cpp
+		Engine/Settings.cpp
 		Engine/FuzzyEngines.cpp
 		Engine/FuzzyHelper.cpp
 		Engine/AIMemory.cpp
@@ -77,9 +79,12 @@ set(Nullkiller_HEADERS
 		Pathfinding/Rules/AIMovementAfterDestinationRule.h
 		Pathfinding/Rules/AIMovementToDestinationRule.h
 		Pathfinding/Rules/AIPreviousNodeRule.h
+		Pathfinding/ObjectGraph.h
 		AIUtility.h
+		pforeach.h
 		Analyzers/ArmyManager.h
 		Analyzers/HeroManager.h
+		Engine/Settings.h
 		Engine/FuzzyEngines.h
 		Engine/FuzzyHelper.h
 		Engine/AIMemory.h
@@ -125,12 +130,12 @@ set(Nullkiller_HEADERS
 		AIGateway.h
 )
 
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	list(APPEND Nullkiller_SRCS main.cpp StdInc.cpp)
 endif()
 assign_source_group(${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
-if(ENABLE_STATIC_AI_LIBS)
+if(ENABLE_STATIC_LIBS)
 	add_library(Nullkiller STATIC ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 else()
 	add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
@@ -138,7 +143,7 @@ else()
 endif()
 
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Nullkiller PUBLIC ${VCMI_LIB_TARGET} fuzzylite::fuzzylite TBB::tbb)
+target_link_libraries(Nullkiller PUBLIC vcmi fuzzylite::fuzzylite TBB::tbb)
 
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)

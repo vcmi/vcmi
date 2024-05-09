@@ -141,7 +141,7 @@ bool CCreatureSet::isCreatureBalanced(const CCreature * c, TQuantity ignoreAmoun
 {
 	assert(c && c->valid());
 	TQuantity max = 0;
-	TQuantity min = std::numeric_limits<TQuantity>::max();
+	auto min = std::numeric_limits<TQuantity>::max();
 
 	for(const auto & elem : stacks)
 	{
@@ -739,11 +739,10 @@ void CStackInstance::giveStackExp(TExpType exp)
 	if (!vstd::iswithin(level, 1, 7))
 		level = 0;
 
-	CCreatureHandler * creh = VLC->creh;
-	ui32 maxExp = creh->expRanks[level].back();
+	ui32 maxExp = VLC->creh->expRanks[level].back();
 
 	vstd::amin(exp, static_cast<TExpType>(maxExp)); //prevent exp overflow due to different types
-	vstd::amin(exp, (maxExp * creh->maxExpPerBattle[level])/100);
+	vstd::amin(exp, (maxExp * VLC->creh->maxExpPerBattle[level])/100);
 	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
 }
 
@@ -759,7 +758,7 @@ void CStackInstance::setType(const CCreature *c)
 {
 	if(type)
 	{
-		detachFrom(const_cast<CCreature&>(*type));
+		detachFromSource(*type);
 		if (type->isMyUpgrade(c) && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
 	}
@@ -767,7 +766,7 @@ void CStackInstance::setType(const CCreature *c)
 	CStackBasicDescriptor::setType(c);
 
 	if(type)
-		attachTo(const_cast<CCreature&>(*type));
+		attachToSource(*type);
 }
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
@@ -992,7 +991,7 @@ ArtBearer::ArtBearer CCommanderInstance::bearerType() const
 
 bool CCommanderInstance::gainsLevel() const
 {
-	return experience >= static_cast<TExpType>(VLC->heroh->reqExp(level + 1));
+	return experience >= VLC->heroh->reqExp(level + 1);
 }
 
 //This constructor should be placed here to avoid side effects
@@ -1055,7 +1054,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 		std::string typeName;
 		handler.serializeString("type", typeName);
 		if(!typeName.empty())
-			setType(VLC->creh->getCreature(ModScope::scopeMap(), typeName));
+			setType(CreatureID(CreatureID::decode(typeName)).toCreature());
 	}
 }
 

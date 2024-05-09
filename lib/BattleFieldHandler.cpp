@@ -11,7 +11,7 @@
 
 #include <vcmi/Entity.h>
 #include "BattleFieldHandler.h"
-#include "JsonNode.h"
+#include "json/JsonBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -50,7 +50,7 @@ std::vector<JsonNode> BattleFieldHandler::loadLegacyData()
 
 const std::vector<std::string> & BattleFieldHandler::getTypeNames() const
 {
-	static const  std::vector<std::string> types = std::vector<std::string> { "battlefield" };
+	static const auto types = std::vector<std::string> { "battlefield" };
 
 	return types;
 }

@@ -248,6 +248,7 @@ public:
 	void setName(const std::string & value);
 	const std::string & getId() const;
 	const std::string & getName() const;
+	const std::string & getDescription() const;
 
 	const CPlayerCountRange & getPlayers() const;
 	const CPlayerCountRange & getHumanPlayers() const;
@@ -263,8 +264,11 @@ public:
 private:
 	std::string id;
 	std::string name;
-	int3 minSize, maxSize;
-	CPlayerCountRange players, humanPlayers;
+	std::string description;
+	int3 minSize;
+	int3 maxSize;
+	CPlayerCountRange players;
+	CPlayerCountRange humanPlayers;
 	Zones zones;
 	std::vector<rmg::ZoneConnection> connectedZoneIds;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;

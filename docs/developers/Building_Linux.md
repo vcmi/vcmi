@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Building on Linux
-
 # Compiling VCMI
 
 - Current baseline requirement for building is Ubuntu 20.04
@@ -27,7 +25,7 @@ To compile, the following packages (and their development counterparts) are need
 
 For Ubuntu and Debian you need to install this list of packages:
 
-`sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev qtbase5-dev libtbb-dev libluajit-5.1-dev qttools5-dev ninja-build ccache`
+`sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev libboost-iostreams-dev qtbase5-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev qttools5-dev ninja-build ccache`
 
 Alternatively if you have VCMI installed from repository or PPA you can use:
 
@@ -35,7 +33,7 @@ Alternatively if you have VCMI installed from repository or PPA you can use:
 
 ## On RPM-based distributions (e.g. Fedora)
 
-`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel fuzzylite-devel ccache`
+`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel liblzma-devel libsqlite3-devel fuzzylite-devel ccache`
 
 NOTE: `fuzzylite-devel` package is no longer available in recent version of Fedora, for example Fedora 38. It's not a blocker because VCMI bundles fuzzylite lib in its source code.
 
@@ -49,11 +47,13 @@ Information about building packages from the Arch User Repository (AUR) can be f
 
 # Getting the sources
 
-VCMI is still in development. We recommend the following initial directory structure:
+We recommend the following directory structure:
 
     .
     ├── vcmi -> contains sources and is under git control
     └── build -> contains build output, makefiles, object files,...
+
+Out-of-source builds keep the local repository clean so one doesn't have to manually exclude files generated during the build from commits.
 
 You can get latest sources with:
 
@@ -65,25 +65,25 @@ You can get latest sources with:
 
 ```sh
 mkdir build && cd build
-cmake ../vcmi
+cmake -S ../vcmi
 ```
 
 # Additional options that you may want to use:
 
 ## To enable debugging:
-`cmake ../vcmi -D CMAKE_BUILD_TYPE=Debug`
+`cmake -S ../vcmi -D CMAKE_BUILD_TYPE=Debug`
 
 **Notice**: The ../vcmi/ is not a typo, it will place makefile scripts into the build dir as the build dir is your working dir when calling CMake.
 
 ## To use ccache:
-`cmake ../vcmi -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -D CMAKE_C_COMPILER_LAUNCHER=ccache`
+`cmake -S ../vcmi -D ENABLE_CCACHE:BOOL=ON`
 
 ## Trigger build
 
 `cmake --build . -- -j2`
 (-j2 = compile with 2 threads, you can specify any value)
 
-That will generate vcmiclient, vcmiserver, vcmilauncher as well as .so libraries in **build/bin/** directory.
+That will generate vcmiclient, vcmiserver, vcmilauncher as well as .so libraries in the **build/bin/** directory.
 
 # Package building
 

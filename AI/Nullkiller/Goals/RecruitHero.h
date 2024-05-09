@@ -38,12 +38,12 @@ namespace Goals
 		{
 		}
 
-		virtual bool operator==(const RecruitHero & other) const override
+		bool operator==(const RecruitHero & other) const override
 		{
 			return true;
 		}
 
-		virtual std::string toString() const override;
+		std::string toString() const override;
 		void accept(AIGateway * ai) override;
 	};
 }

@@ -59,8 +59,8 @@ public:
 
 	RoadTypeHandler();
 
-	virtual const std::vector<std::string> & getTypeNames() const override;
-	virtual std::vector<JsonNode> loadLegacyData() override;
+	const std::vector<std::string> & getTypeNames() const override;
+	std::vector<JsonNode> loadLegacyData() override;
 };
 
 VCMI_LIB_NAMESPACE_END

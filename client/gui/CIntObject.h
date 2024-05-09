@@ -108,7 +108,7 @@ public:
 	bool isPopupWindow() const override;
 
 	/// called only for windows whenever screen size changes
-	/// default behavior is to re-center, can be overriden
+	/// default behavior is to re-center, can be overridden
 	void onScreenResize() override;
 
 	/// returns true if UI elements wants to handle event of specific type (LCLICK, SHOW_POPUP ...)
@@ -133,14 +133,13 @@ public:
 /// Classes wanting use it should have it as one of their base classes
 class CKeyShortcut : public virtual CIntObject
 {
-	bool shortcutPressed;
 public:
+	bool shortcutPressed;
 	EShortcut assignedKey;
 	CKeyShortcut();
 	CKeyShortcut(EShortcut key);
 	void keyPressed(EShortcut key) override;
 	void keyReleased(EShortcut key) override;
-
 };
 
 class WindowBase : public CIntObject

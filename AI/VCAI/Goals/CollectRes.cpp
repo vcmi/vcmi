@@ -124,7 +124,9 @@ TSubgoal CollectRes::whatToDoToTrade()
 	ai->retrieveVisitableObjs(visObjs, true);
 	for(const CGObjectInstance * obj : visObjs)
 	{
-		if(const IMarket * m = IMarket::castFrom(obj, false); m && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
+		const auto * m = dynamic_cast<const IMarket*>(obj);
+
+		if(m && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
 		{
 			if(obj->ID == Obj::TOWN)
 			{
@@ -144,7 +146,10 @@ TSubgoal CollectRes::whatToDoToTrade()
 	markets.erase(boost::remove_if(markets, [](const IMarket * market) -> bool
 	{
 		auto * o = dynamic_cast<const CGObjectInstance *>(market);
-		if(o && !(o->ID == Obj::TOWN && o->tempOwner == ai->playerID))
+		// FIXME: disabled broken visitation of external markets
+		//if(o && !(o->ID == Obj::TOWN && o->tempOwner == ai->playerID))
+
+		if(o && o->ID == Obj::TOWN)
 		{
 			if(!ai->isAccessible(o->visitablePos()))
 				return true;
@@ -169,7 +174,8 @@ TSubgoal CollectRes::whatToDoToTrade()
 		{
 			if (i.getNum() == resID)
 				continue;
-			int toGive = -1, toReceive = -1;
+			int toGive = -1;
+			int toReceive = -1;
 			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
 			howManyCanWeBuy += toReceive * (ai->ah->freeResources()[i] / toGive);

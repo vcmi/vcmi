@@ -25,11 +25,10 @@ class CGameHandler;
 class TurnTimerHandler
 {	
 	CGameHandler & gameHandler;
-	const int turnTimePropagateFrequency = 1000;
+	static constexpr int turnTimePropagateFrequency = 1000;
 	std::map<PlayerColor, TurnTimerInfo> timers;
 	std::map<PlayerColor, int> lastUpdate;
 	std::map<PlayerColor, bool> endTurnAllowed;
-	std::recursive_mutex mx;
 	
 	void onPlayerMakingTurn(PlayerColor player, int waitTime);
 	void onBattleLoop(const BattleID & battleID, int waitTime);
@@ -49,4 +48,11 @@ public:
 	void update(int waitTime);
 	void setTimerEnabled(PlayerColor player, bool enabled);
 	void setEndTurnAllowed(PlayerColor player, bool enabled);
+
+	template<typename Handler>
+	void serialize(Handler & h)
+	{
+		h & timers;
+		h & endTurnAllowed;
+	}
 };

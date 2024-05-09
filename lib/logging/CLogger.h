@@ -107,12 +107,7 @@ private:
 /// The struct LogRecord holds the log message and additional logging information.
 struct DLL_LINKAGE LogRecord
 {
-	LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
-		: domain(domain),
-		level(level),
-		message(message),
-		timeStamp(boost::posix_time::microsec_clock::local_time()),
-		threadId(boost::lexical_cast<std::string>(boost::this_thread::get_id())) { }
+	LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message);
 
 	CLoggerDomain domain;
 	ELogLevel::ELogLevel level;

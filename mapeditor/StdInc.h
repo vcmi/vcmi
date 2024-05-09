@@ -1,3 +1,12 @@
+/*
+ * StdInc.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
 
 #include "../Global.h"
@@ -15,8 +24,8 @@
 
 VCMI_LIB_USING_NAMESPACE
 
-using NumericPointer = typename std::conditional<sizeof(void *) == sizeof(unsigned long long),
-												 unsigned long long, unsigned int>::type;
+using NumericPointer = typename std::conditional_t<sizeof(void *) == sizeof(unsigned long long),
+												 unsigned long long, unsigned int>;
 
 template<class Type>
 NumericPointer data_cast(Type * _pointer)

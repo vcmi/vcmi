@@ -1,8 +1,5 @@
-[![GitHub](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg)](https://github.com/vcmi/vcmi/actions/workflows/github.yml)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.0)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.1)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.2/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.2)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.3/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.3)
+[![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.5.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.5.0)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 
 # VCMI Project
@@ -24,6 +21,7 @@ VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving 
  * Bugtracker: https://github.com/vcmi/vcmi/issues
  * Slack:      https://slack.vcmi.eu/
  * Discord:    https://discord.gg/chBT42V
+ * GPT Store:  https://chat.openai.com/g/g-1kNhX0mlO-vcmi-assistant
 
 ## Latest release
 
@@ -47,7 +45,6 @@ Please see corresponding installation guide articles for details for your platfo
 
 ## Documentation and guidelines for players
 
-- [General information about VCMI Project](players/Manual.md)
 - [Frequently asked questions](https://vcmi.eu/faq/) (external link)
 - [Game mechanics](players/Game_Mechanics.md)
 - [Bug reporting guidelines](players/Bug_Reporting_Guidelines.md)
@@ -94,4 +91,4 @@ Engine documentation: (NOTE: may be outdated)
 VCMI Project source code is licensed under GPL version 2 or later.
 VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: https://github.com/vcmi/vcmi-assets
 
-Copyright (C) 2007-2023  VCMI Team (check AUTHORS file for the contributors list)
+Copyright (C) 2007-2024  VCMI Team (check AUTHORS file for the contributors list)

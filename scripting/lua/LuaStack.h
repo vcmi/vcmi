@@ -26,13 +26,13 @@ namespace detail
 	template<typename T>
 	struct IsRegularClass
 	{
-		static constexpr auto value = std::is_class<T>::value && !std::is_base_of<IdentifierBase, T>::value;
+		static constexpr auto value = std::is_class_v<T> && !std::is_base_of_v<IdentifierBase, T>;
 	};
 
 	template<typename T>
 	struct IsIdClass
 	{
-		static constexpr auto value = std::is_class<T>::value && std::is_base_of<IdentifierBase, T>::value;
+		static constexpr auto value = std::is_class_v<T> && std::is_base_of_v<IdentifierBase, T>;
 	};
 }
 
@@ -61,13 +61,13 @@ public:
 			pushNil();
 	}
 
-	template<typename T, typename std::enable_if< std::is_integral<T>::value && !std::is_same<T, bool>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t< std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
 	void push(const T value)
 	{
 		pushInteger(static_cast<lua_Integer>(value));
 	}
 
-	template<typename T, typename std::enable_if< std::is_enum<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t< std::is_enum_v<T>, int> = 0>
 	void push(const T value)
 	{
 		pushInteger(static_cast<lua_Integer>(value));
@@ -75,13 +75,13 @@ public:
 
 	void push(const int3 & value);
 
-	template<typename T, typename std::enable_if< detail::IsIdClass<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t< detail::IsIdClass<T>::value, int> = 0>
 	void push(const T & value)
 	{
 		pushInteger(static_cast<lua_Integer>(value.getNum()));
 	}
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t<detail::IsRegularClass<T>::value, int> = 0>
 	void push(T * value)
 	{
 		using UData = T *;
@@ -107,7 +107,7 @@ public:
 		lua_setmetatable(L, -2);
 	}
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t<detail::IsRegularClass<T>::value, int> = 0>
 	void push(std::shared_ptr<T> value)
 	{
 		using UData = std::shared_ptr<T>;
@@ -133,7 +133,7 @@ public:
 		lua_setmetatable(L, -2);
 	}
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t<detail::IsRegularClass<T>::value, int> = 0>
 	void push(std::unique_ptr<T> && value)
 	{
 		using UData = std::unique_ptr<T>;
@@ -163,7 +163,7 @@ public:
 
 	bool tryGet(int position, bool & value);
 
-	template<typename T, typename std::enable_if< std::is_integral<T>::value && !std::is_same<T, bool>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t< std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
 	bool tryGet(int position, T & value)
 	{
 		lua_Integer temp;
@@ -178,7 +178,7 @@ public:
 		}
 	}
 
-	template<typename T, typename std::enable_if<detail::IsIdClass<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t<detail::IsIdClass<T>::value, int> = 0>
 	bool tryGet(int position, T & value)
 	{
 		lua_Integer temp;
@@ -193,7 +193,7 @@ public:
 		}
 	}
 
-	template<typename T, typename std::enable_if< std::is_enum<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t< std::is_enum_v<T>, int> = 0>
 	bool tryGet(int position, T & value)
 	{
 		lua_Integer temp;
@@ -213,10 +213,10 @@ public:
 	bool tryGet(int position, double & value);
 	bool tryGet(int position, std::string & value);
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value && std::is_const<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t<detail::IsRegularClass<T>::value && std::is_const_v<T>, int> = 0>
 	STRONG_INLINE bool tryGet(int position, T * & value)
 	{
-		using NCValue = typename std::remove_const<T>::type;
+		using NCValue = typename std::remove_const_t<T>;
 
 		using UData = NCValue *;
 		using CUData = T *;
@@ -224,16 +224,16 @@ public:
 		return tryGetCUData<T *, UData, CUData>(position, value);
 	}
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value && !std::is_const<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t<detail::IsRegularClass<T>::value && !std::is_const_v<T>, int> = 0>
 	STRONG_INLINE bool tryGet(int position, T * & value)
 	{
 		return tryGetUData<T *>(position, value);
 	}
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value && std::is_const<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t<detail::IsRegularClass<T>::value && std::is_const_v<T>, int> = 0>
 	STRONG_INLINE bool tryGet(int position, std::shared_ptr<T> & value)
 	{
-		using NCValue = typename std::remove_const<T>::type;
+		using NCValue = typename std::remove_const_t<T>;
 
 		using UData = std::shared_ptr<NCValue>;
 		using CUData = std::shared_ptr<T>;
@@ -241,7 +241,7 @@ public:
 		return tryGetCUData<std::shared_ptr<T>, UData, CUData>(position, value);
 	}
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value && !std::is_const<T>::value, int>::type = 0>
+	template<typename T, typename std::enable_if_t<detail::IsRegularClass<T>::value && !std::is_const_v<T>, int> = 0>
 	STRONG_INLINE bool tryGet(int position, std::shared_ptr<T> & value)
 	{
 		return tryGetUData<std::shared_ptr<T>>(position, value);

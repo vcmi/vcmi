@@ -153,17 +153,11 @@ void MapController::repairMap(CMap * map) const
 			}
 			
 			if(obj->ID != Obj::RANDOM_HERO)
-				nih->type = type;
+				nih->type = type.get();
 			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
-			//fix spells
-			if(nih->spellbookContainsSpell(SpellID::PRESET))
-			{
-				nih->removeSpellFromSpellbook(SpellID::PRESET);
-				for(auto spellID : type->spells)
-					nih->addSpellToSpellbook(spellID);
-			}
+			//fix spellbook
 			if(nih->spellbookContainsSpell(SpellID::SPELLBOOK_PRESET))
 			{
 				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
@@ -202,6 +196,15 @@ void MapController::repairMap(CMap * map) const
 				}
 				auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 				art->storedArtifact = a;
+			}
+		}
+		//fix mines 
+		if(auto * mine = dynamic_cast<CGMine*>(obj.get()))
+		{
+			if(!mine->isAbandoned())
+			{
+				mine->producedResource = GameResID(mine->subID);
+				mine->producedQuantity = mine->defaultResProduction();
 			}
 		}
 	}

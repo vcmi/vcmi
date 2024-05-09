@@ -14,11 +14,13 @@
 #include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
+#include "CRandomGenerator.h"
 #include "CTownHandler.h"
 #include "GameSettings.h"
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
+#include "json/JsonBonus.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
@@ -197,6 +199,11 @@ std::string CCreature::getNameTextID() const
 	return getNameSingularTextID();
 }
 
+std::string CCreature::getDescriptionTranslated() const
+{
+	return VLC->generaltexth->translate(getDescriptionTextID());
+}
+
 std::string CCreature::getNamePluralTextID() const
 {
 	return TextIdentifier("creatures", modScope, identifier, "name", "plural" ).get();
@@ -205,6 +212,11 @@ std::string CCreature::getNamePluralTextID() const
 std::string CCreature::getNameSingularTextID() const
 {
 	return TextIdentifier("creatures", modScope, identifier, "name", "singular" ).get();
+}
+
+std::string CCreature::getDescriptionTextID() const
+{
+	return TextIdentifier("creatures", modScope, identifier, "description").get();
 }
 
 CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
@@ -407,18 +419,7 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 CCreatureHandler::CCreatureHandler()
 	: expAfterUpgrade(0)
 {
-	VLC->creh = this;
 	loadCommanders();
-}
-
-const CCreature * CCreatureHandler::getCreature(const std::string & scope, const std::string & identifier) const
-{
-	std::optional<si32> index = VLC->identifiers()->getIdentifier(scope, "creature", identifier);
-
-	if(!index)
-		throw std::runtime_error("Creature not found "+identifier);
-
-	return objects[*index];
 }
 
 void CCreatureHandler::loadCommanders()
@@ -427,7 +428,7 @@ void CCreatureHandler::loadCommanders()
 
 	std::string modSource = VLC->modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
-	data.setMeta(modSource);
+	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
 
@@ -609,6 +610,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
 	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
+	VLC->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"].String());
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
@@ -649,7 +651,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [=](si32 index)
 	{
 		JsonNode conf;
-		conf.setMeta(scope);
+		conf.setModScope(scope);
 
 		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!advMapFile.isNull())
@@ -658,7 +660,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 			templ["animation"] = advMapFile;
 			if (!advMapMask.isNull())
 				templ["mask"] = advMapMask;
-			templ.setMeta(scope);
+			templ.setModScope(scope);
 
 			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
 			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
@@ -797,7 +799,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
-				(*this)[sid]->addNewBonus(b); //add directly to CCreature Node
+				objects[sid.getNum()]->addNewBonus(b); //add directly to CCreature Node
 		}
 		while (parser.endLine());
 
@@ -854,8 +856,8 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 	missile["attackClimaxFrame"].Float() = parser.readNumber();
 
 	// assume that creature is not a shooter and should not have whole missile field
-	if (missile["frameAngles"].Vector()[0].Float() == 0 &&
-	    missile["attackClimaxFrame"].Float() == 0)
+	if (missile["frameAngles"].Vector()[0].Integer() == 0 &&
+		missile["attackClimaxFrame"].Integer() == 0)
 		graphics.Struct().erase("missile");
 }
 
@@ -997,10 +999,10 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			int lastVal = 0;
 			for (const JsonNode &val : values)
 			{
-				if (val.Float() != lastVal)
+				if (val.Integer() != lastVal)
 				{
 					JsonNode bonusInput = exp["bonus"];
-					bonusInput["val"].Float() = static_cast<int>(val.Float()) - lastVal;
+					bonusInput["val"].Float() = val.Integer() - lastVal;
 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;

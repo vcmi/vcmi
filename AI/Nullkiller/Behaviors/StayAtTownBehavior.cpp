@@ -27,24 +27,29 @@ std::string StayAtTownBehavior::toString() const
 	return "StayAtTownBehavior";
 }
 
-Goals::TGoalVec StayAtTownBehavior::decompose() const
+Goals::TGoalVec StayAtTownBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
-	auto towns = cb->getTownsInfo();
+	auto towns = ai->cb->getTownsInfo();
 
 	if(!towns.size())
 		return tasks;
+
+	std::vector<AIPath> paths;
 
 	for(auto town : towns)
 	{
 		if(!town->hasBuilt(BuildingID::MAGES_GUILD_1))
 			continue;
 
-		auto paths = ai->nullkiller->pathfinder->getPathInfo(town->visitablePos());
+		ai->pathfinder->calculatePathInfo(paths, town->visitablePos());
 
 		for(auto & path : paths)
 		{
 			if(town->visitingHero && town->visitingHero.get() != path.targetHero)
+				continue;
+
+			if(!path.targetHero->hasSpellbook() || path.targetHero->mana >= 0.75f * path.targetHero->manaLimit())
 				continue;
 
 			if(path.turn() == 0 && !path.getFirstBlockedAction() && path.exchangeCount <= 1)

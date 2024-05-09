@@ -41,9 +41,9 @@ const AIPath getShortestPath(const CGTownInstance * town, const std::vector<AIPa
 	return shortestPath;
 }
 
-const CGHeroInstance * getNearestHero(const CGTownInstance * town)
+const CGHeroInstance * getNearestHero(const Nullkiller * ai, const CGTownInstance * town)
 {
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(town->visitablePos());
+	auto paths = ai->pathfinder->getPathInfo(town->visitablePos());
 
 	if(paths.empty())
 		return nullptr;
@@ -59,9 +59,9 @@ const CGHeroInstance * getNearestHero(const CGTownInstance * town)
 	return shortestPath.targetHero;
 }
 
-bool needToRecruitHero(const CGTownInstance * startupTown)
+bool needToRecruitHero(const Nullkiller * ai, const CGTownInstance * startupTown)
 {
-	if(!ai->nullkiller->heroManager->canRecruitHero(startupTown))
+	if(!ai->heroManager->canRecruitHero(startupTown))
 		return false;
 
 	if(!startupTown->garrisonHero && !startupTown->visitingHero)
@@ -69,9 +69,17 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 
 	int treasureSourcesCount = 0;
 
-	for(auto obj : ai->nullkiller->objectClusterizer->getNearbyObjects())
+	for(auto obj : ai->objectClusterizer->getNearbyObjects())
 	{
-		if((obj->ID == Obj::RESOURCE && dynamic_cast<const CGResource *>(obj)->resourceID() == EGameResID::GOLD)
+		auto armed = dynamic_cast<const CArmedInstance *>(obj);
+
+		if(armed && armed->getArmyStrength() > 0)
+			continue;
+
+		bool isGoldPile = dynamic_cast<const CGResource *>(obj)
+			&& dynamic_cast<const CGResource *>(obj)->resourceID() == EGameResID::GOLD;
+
+		if(isGoldPile
 			|| obj->ID == Obj::TREASURE_CHEST
 			|| obj->ID == Obj::CAMPFIRE
 			|| obj->ID == Obj::WATER_WHEEL)
@@ -91,10 +99,10 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 	return cb->getHeroCount(ai->playerID, true) < basicCount + boost;
 }
 
-Goals::TGoalVec StartupBehavior::decompose() const
+Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
-	auto towns = cb->getTownsInfo();
+	auto towns = ai->cb->getTownsInfo();
 
 	if(!towns.size())
 		return tasks;
@@ -103,38 +111,38 @@ Goals::TGoalVec StartupBehavior::decompose() const
 
 	if(towns.size() > 1)
 	{
-		startupTown = *vstd::maxElementByFun(towns, [](const CGTownInstance * town) -> float
+		startupTown = *vstd::maxElementByFun(towns, [ai](const CGTownInstance * town) -> float
 		{
 			if(town->garrisonHero)
-				return ai->nullkiller->heroManager->evaluateHero(town->garrisonHero.get());
+				return ai->heroManager->evaluateHero(town->garrisonHero.get());
 
-			auto closestHero = getNearestHero(town);
+			auto closestHero = getNearestHero(ai, town);
 
 			if(closestHero)
-				return ai->nullkiller->heroManager->evaluateHero(closestHero);
+				return ai->heroManager->evaluateHero(closestHero);
 
 			return 0;
 		});
 	}
 
 	if(!startupTown->hasBuilt(BuildingID::TAVERN)
-		&& cb->canBuildStructure(startupTown, BuildingID::TAVERN) == EBuildingState::ALLOWED)
+		&& ai->cb->canBuildStructure(startupTown, BuildingID::TAVERN) == EBuildingState::ALLOWED)
 	{
 		tasks.push_back(Goals::sptr(Goals::BuildThis(BuildingID::TAVERN, startupTown).setpriority(100)));
 
 		return tasks;
 	}
 
-	bool canRecruitHero = needToRecruitHero(startupTown);
-	auto closestHero = getNearestHero(startupTown);
+	bool canRecruitHero = needToRecruitHero(ai, startupTown);
+	auto closestHero = getNearestHero(ai, startupTown);
 
 	if(closestHero)
 	{
 		if(!startupTown->visitingHero)
 		{
-			if(ai->nullkiller->armyManager->howManyReinforcementsCanGet(startupTown->getUpperArmy(), startupTown->getUpperArmy(), closestHero) > 200)
+			if(ai->armyManager->howManyReinforcementsCanGet(startupTown->getUpperArmy(), startupTown->getUpperArmy(), closestHero) > 200)
 			{
-				auto paths = ai->nullkiller->pathfinder->getPathInfo(startupTown->visitablePos());
+				auto paths = ai->pathfinder->getPathInfo(startupTown->visitablePos());
 
 				if(paths.size())
 				{
@@ -147,22 +155,22 @@ Goals::TGoalVec StartupBehavior::decompose() const
 		else
 		{
 			auto visitingHero = startupTown->visitingHero.get();
-			auto visitingHeroScore = ai->nullkiller->heroManager->evaluateHero(visitingHero);
+			auto visitingHeroScore = ai->heroManager->evaluateHero(visitingHero);
 				
 			if(startupTown->garrisonHero)
 			{
 				auto garrisonHero = startupTown->garrisonHero.get();
-				auto garrisonHeroScore = ai->nullkiller->heroManager->evaluateHero(garrisonHero);
+				auto garrisonHeroScore = ai->heroManager->evaluateHero(garrisonHero);
 
 				if(visitingHeroScore > garrisonHeroScore
-					|| (ai->nullkiller->heroManager->getHeroRole(garrisonHero) == HeroRole::SCOUT && ai->nullkiller->heroManager->getHeroRole(visitingHero) == HeroRole::MAIN))
+					|| (ai->heroManager->getHeroRole(garrisonHero) == HeroRole::SCOUT && ai->heroManager->getHeroRole(visitingHero) == HeroRole::MAIN))
 				{
-					if(canRecruitHero || ai->nullkiller->armyManager->howManyReinforcementsCanGet(visitingHero, garrisonHero) > 200)
+					if(canRecruitHero || ai->armyManager->howManyReinforcementsCanGet(visitingHero, garrisonHero) > 200)
 					{
 						tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero, HeroLockedReason::STARTUP).setpriority(100)));
 					}
 				}
-				else if(ai->nullkiller->armyManager->howManyReinforcementsCanGet(garrisonHero, visitingHero) > 200)
+				else if(ai->armyManager->howManyReinforcementsCanGet(garrisonHero, visitingHero) > 200)
 				{
 					tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, garrisonHero, HeroLockedReason::STARTUP).setpriority(100)));
 				}
@@ -170,7 +178,7 @@ Goals::TGoalVec StartupBehavior::decompose() const
 			else if(canRecruitHero)
 			{
 				auto canPickTownArmy = startupTown->stacksCount() == 0
-					|| ai->nullkiller->armyManager->howManyReinforcementsCanGet(startupTown->visitingHero, startupTown) > 0;
+					|| ai->armyManager->howManyReinforcementsCanGet(startupTown->visitingHero, startupTown) > 0;
 
 				if(canPickTownArmy)
 				{
@@ -189,7 +197,7 @@ Goals::TGoalVec StartupBehavior::decompose() const
 	{
 		for(auto town : towns)
 		{
-			if(!town->visitingHero && needToRecruitHero(town))
+			if(!town->visitingHero && needToRecruitHero(ai, town))
 			{
 				tasks.push_back(Goals::sptr(Goals::RecruitHero(town)));
 
@@ -205,7 +213,7 @@ Goals::TGoalVec StartupBehavior::decompose() const
 			if(town->garrisonHero
 				&& town->garrisonHero->movementPointsRemaining()
 				&& !town->visitingHero
-				&& ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
+				&& ai->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
 			{
 				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(town, nullptr).setpriority(MIN_PRIORITY)));
 			}

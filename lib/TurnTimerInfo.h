@@ -34,7 +34,7 @@ struct DLL_LINKAGE TurnTimerInfo
 	bool operator == (const TurnTimerInfo & other) const;
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & turnTimer;
 		h & baseTimer;

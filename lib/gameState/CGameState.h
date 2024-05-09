@@ -13,6 +13,7 @@
 #include "IGameCallback.h"
 #include "LoadProgress.h"
 #include "ConstTransitivePtr.h"
+#include "../CRandomGenerator.h"
 
 namespace boost
 {
@@ -59,7 +60,7 @@ struct DLL_LINKAGE RumorState
 	RumorState(){type = TYPE_NONE;};
 	bool update(int id, int extra);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & type;
 		h & last;
@@ -97,15 +98,18 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
+	IGameCallback * callback;
+
 	CGameState();
 	virtual ~CGameState();
 
-	void preInit(Services * services);
+	void preInit(Services * services, IGameCallback * callback);
 
 	void init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
 	void updateOnLoad(StartInfo * si);
 
-	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
+	ConstTransitivePtr<StartInfo> scenarioOps;
+	ConstTransitivePtr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
 	std::map<PlayerColor, PlayerState> players;
@@ -171,7 +175,7 @@ public:
 	/// Any server-side code outside of GH must use CRandomGenerator::getDefault
 	CRandomGenerator & getRandomGenerator();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & scenarioOps;
 		h & initialOpts;
@@ -192,7 +196,6 @@ public:
 
 private:
 	// ----- initialization -----
-	void preInitAuto();
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
 	void checkMapChecksum();
 	void initGlobalBonuses();
@@ -209,6 +212,7 @@ private:
 	void initFogOfWar();
 	void initStartingBonus();
 	void initTowns();
+	void initTownNames();
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();

@@ -22,7 +22,7 @@
 #include "../mapView/mapHandler.h"
 #include "../windows/CKingdomInterface.h"
 #include "../windows/CSpellWindow.h"
-#include "../windows/CTradeWindow.h"
+#include "../windows/CMarketWindow.h"
 #include "../windows/settings/SettingsMainWindow.h"
 #include "AdventureMapInterface.h"
 #include "AdventureOptions.h"
@@ -64,6 +64,8 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
 		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
+		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
+		{ EShortcut::ADVENTURE_TRACK_HERO,       optionInMapView(),      [this]() { this->toggleTrackHero(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_ASLEEP,  optionHeroAwake(),      [this]() { this->setHeroSleeping(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_AWAKE,   optionHeroSleeping(),   [this]() { this->setHeroAwake(); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO,        optionHeroCanMove(),    [this]() { this->moveHeroAlongPath(); } },
@@ -141,6 +143,18 @@ void AdventureMapShortcuts::switchMapLevel()
 void AdventureMapShortcuts::showQuestlog()
 {
 	LOCPLINT->showQuestLog();
+}
+
+void AdventureMapShortcuts::toggleTrackHero()
+{
+	Settings s = settings.write["session"];
+	s["adventureTrackHero"].Bool() = !settings["session"]["adventureTrackHero"].Bool();
+}
+
+void AdventureMapShortcuts::toggleGrid()
+{
+	Settings s = settings.write["gameTweaks"];
+	s["showGrid"].Bool() = !settings["gameTweaks"]["showGrid"].Bool();
 }
 
 void AdventureMapShortcuts::toggleSleepWake()
@@ -314,7 +328,7 @@ void AdventureMapShortcuts::visitObject()
 	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
 
 	if(h)
-		LOCPLINT->cb->moveHero(h, h->pos);
+		LOCPLINT->cb->moveHero(h, h->pos, false);
 }
 
 void AdventureMapShortcuts::openObject()
@@ -342,7 +356,7 @@ void AdventureMapShortcuts::showMarketplace()
 	}
 
 	if(townWithMarket) //if any town has marketplace, open window
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+		GH.windows().createAndPushWindow<CMarketWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }
@@ -475,16 +489,16 @@ bool AdventureMapShortcuts::optionInWorldView()
 
 bool AdventureMapShortcuts::optionSidePanelActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
 }
 
 bool AdventureMapShortcuts::optionMapScrollingActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || (state == EAdventureState::OTHER_HUMAN_PLAYER_TURN);
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
 }
 
 bool AdventureMapShortcuts::optionMapViewActive()
 {
 	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL
-		|| (state == EAdventureState::OTHER_HUMAN_PLAYER_TURN);
+		|| state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
 }

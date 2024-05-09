@@ -38,7 +38,6 @@ public:
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) override {}
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {}
 	void showInfoDialog(InfoWindow * iw) override {}
-	void showInfoDialog(const std::string & msg, PlayerColor player) override {}
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {}
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;}
@@ -70,7 +69,7 @@ public:
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
 	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;}
 	void removeArtifact(const ArtifactLocation &al) override {}
-	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;}
+	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;}
 
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {}
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {}
@@ -78,7 +77,7 @@ public:
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override {} //use hero=nullptr for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override {} //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override {} //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
-	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;}
+	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;}
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;}
 	void giveHeroBonus(GiveBonus * bonus) override {}
 	void setMovePoints(SetMovePoints * smp) override {}

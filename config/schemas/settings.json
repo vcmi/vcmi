@@ -28,6 +28,7 @@
 				"lastSave",
 				"lastSettingsTab",
 				"lastCampaign",
+				"lastDifficulty",
 				"saveFrequency",
 				"notifications",
 				"extraDump",
@@ -84,6 +85,10 @@
 				"lastCampaign" : {
 					"type" : "string",
 					"default" : ""
+				},
+				"lastDifficulty" : {
+					"type" : "number",
+					"default" : 1
 				},
 				"saveFrequency" : {
 					"type" : "number",
@@ -155,7 +160,8 @@
 				"displayIndex",
 				"showfps",
 				"targetfps",
-				"vsync"
+				"vsync",
+				"scalingMode"
 			],
 			"properties" : {
 				"resolution" : {
@@ -218,6 +224,11 @@
 				"vsync" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"scalingMode" : {
+					"type" : "string",
+					"enum" : [ "nearest", "linear", "best" ],
+					"default" : "best"
 				}
 			}
 		},
@@ -225,7 +236,22 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "radialWheelGarrisonSwipe", "touchToleranceDistance" ],
+			"required" : [ 
+				"radialWheelGarrisonSwipe",
+				"touchToleranceDistance",
+				"mouseToleranceDistance",
+				"shortcutToleranceDistance",
+				"enableMouse",
+				"enableTouch",
+				"enableController",
+				"controllerTriggerTreshold",
+				"controllerAxisDeadZone",
+				"controllerAxisFullZone",
+				"controllerPointerSpeed",
+				"controllerPointerScale",
+				"controllerPanningSpeed",
+				"controllerPanningScale",
+			],
 			"properties" : {
 				"radialWheelGarrisonSwipe" : {
 					"type" : "boolean",
@@ -234,6 +260,54 @@
 				"touchToleranceDistance" : {
 					"type" : "number",
 					"default" : 20
+				},
+				"mouseToleranceDistance" : {
+					"type" : "number",
+					"default" : 0
+				},
+				"shortcutToleranceDistance" : {
+					"type" : "number",
+					"default" : 0
+				},
+				"enableMouse" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"enableTouch" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"enableController" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"controllerTriggerTreshold" : {
+					"type" : "number",
+					"default" : 0.3
+				},
+				"controllerAxisDeadZone" : {
+					"type" : "number",
+					"default" : 0.2
+				},
+				"controllerAxisFullZone" : {
+					"type" : "number",
+					"default" : 1.0
+				},
+				"controllerPointerSpeed" : {
+					"type" : "number",
+					"default" : 1000
+				},
+				"controllerPointerScale" : {
+					"type" : "number",
+					"default" : 2
+				},
+				"controllerPanningSpeed" : {
+					"type" : "number",
+					"default" : 1000
+				},
+				"controllerPanningScale" : {
+					"type" : "number",
+					"default" : 2
 				}
 			}
 		},
@@ -241,7 +315,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -297,6 +371,10 @@
 				"hideBackground" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"backgroundDimSmallWindows" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
@@ -304,7 +382,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -350,6 +428,18 @@
 				"enableAutocombatSpells" : {
 					"type": "boolean",
 					"default": true
+				},
+				"endWithAutocombat" : {
+					"type": "boolean",
+					"default": false
+				},
+				"queueSmallSlots" : {
+					"type": "number",
+					"default": 10
+				},
+				"queueSmallOutside" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},
@@ -357,19 +447,23 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
+			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI" ],
 			"properties" : {
-				"server" : {
+				"localHostname" : {
 					"type" : "string",
 					"default" : "127.0.0.1"
 				},
-				"port" : {
+				"localPort" : {
 					"type" : "number",
 					"default" : 3030
 				},
-				"localInformation" : {
+				"remoteHostname" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"remotePort" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 3030
 				},
 				"playerAI" : {
 					"type" : "string",
@@ -390,23 +484,6 @@
 				"enemyAI" : {
 					"type" : "string",
 					"default" : "BattleAI"
-				},
-				"reconnect" : {
-					"type" : "boolean",
-					"default" : false
-				},
-				"uuid" : {
-					"type" : "string",
-					"default" : ""
-				},
-				"names" : {
-					"type" : "array",
-					"default" : [],
-					"items" :
-					{
-						"type" : "string",
-						"default" : ""
-					}
 				}
 			}
 		},
@@ -464,7 +541,7 @@
 					"properties" : {
 						"format" : {
 							"type" : "string",
-							"default" : "[%c] %l %n - %m"
+							"default" : "[%c] %l [%t] %n - %m"
 						}
 					}
 				},
@@ -497,11 +574,7 @@
 				"enableInstalledMods", 
 				"autoCheckRepositories", 
 				"updateOnStartup", 
-				"updateConfigUrl", 
-				"lobbyUrl", 
-				"lobbyPort", 
-				"lobbyUsername", 
-				"connectionTimeout"
+				"updateConfigUrl"
 			],
 			"properties" : {
 				"defaultRepositoryEnabled" : {
@@ -510,7 +583,7 @@
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.4.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.5.json",
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",
@@ -539,26 +612,6 @@
 				"updateConfigUrl" : {
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
-				},
-				"lobbyUrl" : {
-					"type" : "string",
-					"description" : "ip address or web link to remote proxy server",
-					"default" : "beholder.vcmi.eu"
-				},
-				"lobbyPort" : {
-					"type" : "number",
-					"description" : "connection port for remote proxy server",
-					"default" : 5002
-				},
-				"lobbyUsername" : {
-					"type" : "string",
-					"description" : "username for the client on the remote proxy server",
-					"default" : ""
-				},
-				"connectionTimeout" : {
-					"type" : "number",
-					"description" : "maximum time in ms, should be enough to establish socket connection to remote proxy server.",
-					"default" : 2000
 				}
 			}
 		},
@@ -566,11 +619,31 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview" ],
+			"required" : [ "mapPreview", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"hostname" : {
+					"type" : "string",
+					"default" : "beholder.vcmi.eu"
+				},
+				"port" : {
+					"type" : "number",
+					"default" : 3031
+				},
+				"roomPlayerLimit" : {
+					"type" : "number",
+					"default" : 2
+				},
+				"roomType" : {
+					"type" : "number",
+					"default" : 0
+				},
+				"roomMode" : {
+					"type" : "number",
+					"default" : 0
 				}
 			}
 		},

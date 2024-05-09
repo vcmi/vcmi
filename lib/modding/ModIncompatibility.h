@@ -14,18 +14,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE ModIncompatibility: public std::exception
 {
 public:
-	using ModListWithVersion = std::vector<std::pair<const std::string, const std::string>>;
 	using ModList = std::vector<std::string>;
 
-	ModIncompatibility(const ModListWithVersion & _missingMods)
+	ModIncompatibility(const ModList & _missingMods)
 	{
 		std::ostringstream _ss;
 		for(const auto & m : _missingMods)
-			_ss << m.first << ' ' << m.second << std::endl;
+			_ss << m << std::endl;
 		messageMissingMods = _ss.str();
 	}
 	
-	ModIncompatibility(const ModListWithVersion & _missingMods, ModList & _excessiveMods)
+	ModIncompatibility(const ModList & _missingMods, ModList & _excessiveMods)
 		: ModIncompatibility(_missingMods)
 	{
 		std::ostringstream _ss;
@@ -51,7 +50,8 @@ public:
 	}
 
 private:
-	std::string messageMissingMods, messageExcessiveMods;
+	std::string messageMissingMods;
+	std::string messageExcessiveMods;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -36,12 +36,6 @@ public class NativeMethods
 
     public static native void initClassloader();
 
-    public static native void createServer();
-
-    public static native void notifyServerReady();
-
-    public static native void notifyServerClosed();
-
     public static native boolean tryToSaveTheGame();
 
     public static void setupMsg(final Messenger msg)
@@ -75,62 +69,6 @@ public class NativeMethods
         final Context ctx = SDL.getContext();
         Log.i("Accessing ndk path: " + ctx.getApplicationInfo().nativeLibraryDir);
         return ctx.getApplicationInfo().nativeLibraryDir;
-    }
-
-    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    public static void startServer()
-    {
-        Log.i("Got server create request");
-        final Context ctx = SDL.getContext();
-
-        if (!(ctx instanceof VcmiSDLActivity))
-        {
-            Log.e("Unexpected context... " + ctx);
-            return;
-        }
-
-        Intent intent = new Intent(ctx, SDLActivity.class);
-        intent.setAction(VcmiSDLActivity.NATIVE_ACTION_CREATE_SERVER);
-        // I probably do something incorrectly, but sending new intent to the activity "normally" breaks SDL events handling (probably detaches jnienv?)
-        // so instead let's call onNewIntent directly, as out context SHOULD be SDLActivity anyway
-        ((VcmiSDLActivity) ctx).hackCallNewIntentDirectly(intent);
-//        ctx.startActivity(intent);
-    }
-
-    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    public static void killServer()
-    {
-        Log.i("Got server close request");
-
-        final Context ctx = SDL.getContext();
-        ctx.stopService(new Intent(ctx, ServerService.class));
-
-        Messenger messenger = requireServerMessenger();
-        try
-        {
-            // we need to actually inform client about killing the server, beacuse it needs to unbind service connection before server gets destroyed
-            messenger.send(Message.obtain(null, VcmiSDLActivity.SERVER_MESSAGE_SERVER_KILLED));
-        }
-        catch (RemoteException e)
-        {
-            Log.w("Connection with client process broken?");
-        }
-    }
-
-    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    public static void onServerReady()
-    {
-        Log.i("Got server ready msg");
-        Messenger messenger = requireServerMessenger();
-
-        try
-        {
-            messenger.send(Message.obtain(null, VcmiSDLActivity.SERVER_MESSAGE_SERVER_READY));
-        }
-        catch (RemoteException e)
-        {
-            Log.w("Connection with client process broken?");
-        }
     }
 
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)

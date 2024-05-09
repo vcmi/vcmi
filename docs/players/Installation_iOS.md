@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Installation on iOS
-
 You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish to run on iOS 10 or 11, you should build from source, see [How to build VCMI (iOS)](../developers/Building_iOS.md).
 
 ## Step 1: Download and install VCMI
@@ -24,17 +22,21 @@ To install the signed ipa on your device, you can use Xcode or Apple Configurato
 
 Note: if you don't need in-game videos, you can omit downloading/copying file VIDEO.VID from data folder - it will save your time and space. The same applies to the Mp3 directory.
 
-### Step 2.a: Installing data files with Finder or Windows explorer
+### Step 2.a: Installing data files with GOG offline installer
+
+If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher. Select the .exe file first, then the .bin file. This may take a few seconds. Please be patient.
+
+### Step 2.b: Installing data files with Finder or Windows explorer
 
 To play the game, you need to upload HoMM3 data files - **Data**, **Maps** and **Mp3** directories - to the device. Use Finder (or iTunes, if you're on Windows or your macOS is 10.14 or earlier) for that. You can also add various mods by uploading **Mods** directory. Follow [official Apple guide](https://support.apple.com/en-us/HT210598) and place files into VCMI app. Unfortunately, Finder doesn't display copy progress, give it about 10 minutes to finish.
 
-### Step 2.b: Installing data files using iOS device only
+### Step 2.c: Installing data files using iOS device only
 
 If you have data somewhere on device or in shared folder or you have downloaded it, you can copy it directly on your iPhone/iPad using Files application.
 
 Place **Data**, **Maps** and **Mp3** folders into vcmi application - it will be visible in Files along with other applications' folders.
 
-### Step 2.c: Installing data files with Xcode on macOS
+### Step 2.d: Installing data files with Xcode on macOS
 
 You can also upload files with Xcode. You need to prepare "container" for that.
 

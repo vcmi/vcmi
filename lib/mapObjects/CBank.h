@@ -18,7 +18,7 @@ class CBankInstanceConstructor;
 
 class DLL_LINKAGE CBank : public CArmedInstance
 {
-	std::unique_ptr<BankConfig> bc;
+	std::unique_ptr<BankConfig> bankConfig;
 	ui32 daycounter;
 	ui32 resetDuration;
 	bool coastVisitable;
@@ -27,7 +27,7 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	void doVisit(const CGHeroInstance * hero) const;
 
 public:
-	CBank();
+	CBank(IGameCallback *cb);
 	~CBank() override;
 
 	void setConfig(const BankConfig & bc);
@@ -43,11 +43,11 @@ public:
 
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & daycounter;
-		h & bc;
+		h & bankConfig;
 		h & resetDuration;
 		h & coastVisitable;
 	}

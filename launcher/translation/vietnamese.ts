@@ -192,21 +192,6 @@
         <source>AI</source>
         <translation>Trí tuệ nhân tạo</translation>
     </message>
-    <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="172"/>
-        <source>Name</source>
-        <translation>Tên</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="175"/>
-        <source>Type</source>
-        <translation>Loại</translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="176"/>
-        <source>Version</source>
-        <translation>Phiên bản</translation>
-    </message>
 </context>
 <context>
     <name>CModListView</name>
@@ -252,7 +237,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Description</source>
         <translation>Mô tả</translation>
     </message>
@@ -267,27 +252,32 @@
         <translation>Hình ảnh</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="389"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="373"/>
+        <source>Install from file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
         <source>Uninstall</source>
         <translation>Gỡ bỏ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <source>Enable</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="494"/>
         <source>Disable</source>
         <translation>Tắt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="494"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="529"/>
         <source>Update</source>
         <translation>Cập nhật</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="529"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="564"/>
         <source>Install</source>
         <translation>Cài đặt</translation>
     </message>
@@ -302,123 +292,179 @@
         <translation>Hủy</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
         <source>Mod name</source>
         <translation>Tên bản sửa đổi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="288"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="279"/>
         <source>Installed version</source>
         <translation>Phiên bản cài đặt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="289"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="280"/>
         <source>Latest version</source>
         <translation>Phiên bản mới nhất</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="283"/>
         <source>Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
         <source>Download size</source>
         <translation>Kích thước tải về</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
         <source>Authors</source>
         <translation>Tác giả</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="299"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="290"/>
         <source>License</source>
         <translation>Giấy phép</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="302"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
         <source>Contact</source>
         <translation>Liên hệ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="302"/>
         <source>Compatibility</source>
         <translation>Tương thích</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="304"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>Required VCMI version</source>
         <translation>Cần phiên bản VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <source>Supported VCMI version</source>
         <translation>Hỗ trợ phiên bản VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
+        <source>please upgrade mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="182"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="796"/>
+        <source>mods repository index</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
+        <source>or newer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Supported VCMI versions</source>
         <translation>Phiên bản VCMI hỗ trợ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="351"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="342"/>
         <source>Languages</source>
         <translation>Ngôn ngữ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
         <source>Required mods</source>
         <translation>Cần các bản sửa đổi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="345"/>
         <source>Conflicting mods</source>
         <translation>Bản sửa đổi không tương thích</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>Bản sửa đổi này không thể cài đặt hoặc kích hoạt do thiếu các bản sửa đổi sau</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="351"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>Bản sửa đổi này không thể kích hoạt do không tương thích các bản sửa đổi sau</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>Bản sửa đổi này không thể tắt do cần thiết cho các bản sửa đổi sau</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>Bản sửa đổi này không thể gỡ bỏ hoặc nâng cấp do cần thiết cho các bản sửa đổi sau</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Đây là bản con, không thể cài đặt hoặc gỡ bỏ tách biệt với bản cha</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Notes</source>
         <translation>Ghi chú</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="638"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
+        <source>All supported files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
+        <source>Maps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
+        <source>Campaigns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
+        <source>Configs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
+        <source>Mods</source>
+        <translation type="unfinished">Bản sửa đổi</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="628"/>
+        <source>Select files (configs, mods, maps, campaigns) to install...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
+        <source>Replace config file?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
+        <source>Do you want to replace %1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="693"/>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="665"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="720"/>
         <source>Download failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="721"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -427,37 +473,138 @@ Encountered errors:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="667"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="722"/>
         <source>
 
 Install successfully downloaded?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="868"/>
         <source>Installing mod %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="874"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
         <source>Operation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="875"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>Encountered errors:
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="910"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="960"/>
+        <source>screenshots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="966"/>
         <source>Screenshot %1</source>
         <translation>Hình ảnh %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="273"/>
         <source>Mod is incompatible</source>
         <translation>Bản sửa đổi này không tương thích</translation>
+    </message>
+</context>
+<context>
+    <name>CModManager</name>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="160"/>
+        <source>Can not install submod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="163"/>
+        <source>Mod is already installed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="172"/>
+        <source>Can not uninstall submod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="175"/>
+        <source>Mod is not installed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="185"/>
+        <source>Mod is already enabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="188"/>
+        <location filename="../modManager/cmodmanager.cpp" line="231"/>
+        <source>Mod must be installed first</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="192"/>
+        <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="197"/>
+        <source>Required mod %1 is missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="202"/>
+        <source>Required mod %1 is not enabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="211"/>
+        <location filename="../modManager/cmodmanager.cpp" line="218"/>
+        <source>This mod conflicts with %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="228"/>
+        <source>Mod is already disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="238"/>
+        <source>This mod is needed to run %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="280"/>
+        <source>Mod archive is missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="283"/>
+        <source>Mod with such name is already installed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="288"/>
+        <source>Mod archive is invalid or corrupted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="314"/>
+        <source>Failed to extract mod data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="342"/>
+        <source>Data with this mod was not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodmanager.cpp" line="346"/>
+        <source>Mod is located in protected directory, please remove it manually:
+</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -674,56 +821,56 @@ Toàn màn hình riêng biệt - Trò chơi chạy toàn màn hình và dùng đ
         <translation>Hiện thị giới thiệu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="450"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="431"/>
         <source>Active</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="436"/>
         <source>Disabled</source>
         <translation>Tắt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="456"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="437"/>
         <source>Enable</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="461"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="442"/>
         <source>Not Installed</source>
         <translation>Chưa cài đặt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="462"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="443"/>
         <source>Install</source>
         <translation>Cài đặt</translation>
     </message>
 </context>
 <context>
-    <name>Chat</name>
+    <name>File size</name>
     <message>
-        <location filename="../lobby/chat_moc.ui" line="14"/>
-        <source>Form</source>
+        <location filename="../modManager/cmodlist.cpp" line="21"/>
+        <source>%1 B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lobby/chat_moc.ui" line="40"/>
-        <source>Users in lobby</source>
+        <location filename="../modManager/cmodlist.cpp" line="22"/>
+        <source>%1 KiB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lobby/chat_moc.ui" line="50"/>
-        <source>Global chat</source>
+        <location filename="../modManager/cmodlist.cpp" line="23"/>
+        <source>%1 MiB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lobby/chat_moc.ui" line="104"/>
-        <source>type you message</source>
+        <location filename="../modManager/cmodlist.cpp" line="24"/>
+        <source>%1 GiB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lobby/chat_moc.ui" line="111"/>
-        <source>send</source>
+        <location filename="../modManager/cmodlist.cpp" line="25"/>
+        <source>%1 TiB</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -777,9 +924,10 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
         <translation>Định vị tệp dữ liệu Heroes III</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
-        <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool &apos;vcmibuilder&apos;, which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</source>
-        <translation>Nếu không có bản sao Heroes III, bạn có thể sử dụng &apos;vcmibuilder&apos;, cái mà chỉ cần bản cài GoG.com Heroes III. Tham khảo trang wiki của chúng tôi để biết thêm chi tiết.</translation>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="288"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="350"/>
+        <source>Install gog.com files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="362"/>
@@ -858,14 +1006,14 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
         <translation>Tiếp theo</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="288"/>
-        <source>Open help in browser</source>
-        <translation>Mở trợ giúp trên trình duyệt</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="301"/>
         <source>Search again</source>
         <translation>Tìm kiếm lại</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
+        <source>If you don&apos;t have a copy of Heroes III installed, VCMI can import your Heroes III data using the offline installer from gog.com.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
@@ -912,6 +1060,95 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
         <source>In The Wake of Gods</source>
         <translation>In The Wake of Gods</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="148"/>
+        <source>Heroes III installation found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="148"/>
+        <source>Copy data to VCMI folder?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="289"/>
+        <source>Select %1 file...</source>
+        <comment>param is file extension</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="290"/>
+        <source>You have to select %1 file!</source>
+        <comment>param is file extension</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="292"/>
+        <source>GOG file (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="293"/>
+        <source>File selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="300"/>
+        <source>Invalid file selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="307"/>
+        <source>GOG installer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="310"/>
+        <source>GOG data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="314"/>
+        <source>Installing... Please wait!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="349"/>
+        <source>No Heroes III data!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="349"/>
+        <source>Selected files do not contain Heroes III data!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="408"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
+        <source>Heroes III data not found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
+        <source>Failed to detect valid Heroes III data in chosen directory.
+Please select directory with installed Heroes III data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="408"/>
+        <source>Heroes III: HD Edition files are not supported by VCMI.
+Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
+        <source>Unknown or unsupported Heroes III version found.
+Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1031,118 +1268,6 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
     </message>
 </context>
 <context>
-    <name>Lobby</name>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="402"/>
-        <source>Connect</source>
-        <translation>Kết nối</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="29"/>
-        <source>Username</source>
-        <translation>Tên đăng nhập</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="59"/>
-        <source>Server</source>
-        <translation>Máy chủ</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="173"/>
-        <source>Session</source>
-        <translation>Phiên</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="178"/>
-        <source>Players</source>
-        <translation>Người chơi</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="268"/>
-        <source>Resolve</source>
-        <translation>Phân tích</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="280"/>
-        <source>New game</source>
-        <translation>Tạo mới</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="287"/>
-        <source>Load game</source>
-        <translation>Tải lại</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="128"/>
-        <source>New room</source>
-        <translation>Tạo phòng</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="138"/>
-        <source>Join room</source>
-        <translation>Vào phòng</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="261"/>
-        <source>Ready</source>
-        <translation>Sẵn sàng</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="244"/>
-        <source>Mods mismatch</source>
-        <translation>Bản sửa đổi chưa giống</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="237"/>
-        <source>Leave</source>
-        <translation>Rời khỏi</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="210"/>
-        <source>Kick player</source>
-        <translation>Mời ra</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="230"/>
-        <source>Players in the room</source>
-        <translation>Người chơi trong phòng</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="369"/>
-        <source>Disconnect</source>
-        <translation>Thoát</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="462"/>
-        <source>No issues detected</source>
-        <translation>Không có vấn đề</translation>
-    </message>
-</context>
-<context>
-    <name>LobbyRoomRequest</name>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="17"/>
-        <source>Room settings</source>
-        <translation>Cài đặt phòng</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="32"/>
-        <source>Room name</source>
-        <translation>Tên phòng</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="42"/>
-        <source>Maximum players</source>
-        <translation>Số người chơi tối đa</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="97"/>
-        <source>Password (optional)</source>
-        <translation>Mật khẩu (tùy chọn)</translation>
-    </message>
-</context>
-<context>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
@@ -1155,29 +1280,42 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
         <translation>Cài đặt</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="207"/>
+        <location filename="../mainwindow_moc.ui" line="157"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="276"/>
+        <location filename="../mainwindow_moc.ui" line="226"/>
         <source>Map Editor</source>
         <translation>Tạo bản đồ</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="329"/>
+        <location filename="../mainwindow_moc.ui" line="279"/>
         <source>Start game</source>
         <translation>Chơi ngay</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow_moc.ui" line="157"/>
-        <source>Lobby</source>
-        <translation>Sảnh</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="57"/>
         <source>Mods</source>
         <translation>Bản sửa đổi</translation>
+    </message>
+</context>
+<context>
+    <name>ModFields</name>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="172"/>
+        <source>Name</source>
+        <translation type="unfinished">Tên</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="175"/>
+        <source>Type</source>
+        <translation type="unfinished">Loại</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="176"/>
+        <source>Version</source>
+        <translation type="unfinished">Phiên bản</translation>
     </message>
 </context>
 <context>
@@ -1195,6 +1333,16 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
     <message>
         <location filename="../updatedialog_moc.ui" line="101"/>
         <source>Check for updates on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updatedialog_moc.cpp" line="64"/>
+        <source>Network error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updatedialog_moc.cpp" line="101"/>
+        <source>Cannot read JSON from url or incorrect JSON data</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

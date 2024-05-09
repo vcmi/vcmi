@@ -10,7 +10,7 @@
 
 #pragma once
 
-#if defined(__UCLIBC__) || defined(__FreeBSD__)
+#if defined(__UCLIBC__) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #undef major
 #undef minor
 #undef patch
@@ -35,10 +35,12 @@ struct DLL_LINKAGE CModVersion
 	static CModVersion fromString(std::string from);
 	std::string toString() const;
 
+	bool operator !=(const CModVersion & other) const;
+	bool operator ==(const CModVersion & other) const;
 	bool compatible(const CModVersion & other, bool checkMinor = false, bool checkPatch = false) const;
 	bool isNull() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & major;
 		h & minor;

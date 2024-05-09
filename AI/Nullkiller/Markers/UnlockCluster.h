@@ -33,11 +33,12 @@ namespace Goals
 			: CGoal(Goals::UNLOCK_CLUSTER), cluster(cluster), pathToCenter(pathToCenter)
 		{
 			tile = cluster->blocker->visitablePos();
-			sethero(pathToCenter.targetHero);
+			hero = pathToCenter.targetHero;
+			objid = cluster->blocker->id;
 		}
 
-		virtual bool operator==(const UnlockCluster & other) const override;
-		virtual std::string toString() const override;
+		bool operator==(const UnlockCluster & other) const override;
+		std::string toString() const override;
 		std::shared_ptr<ObjectCluster> getCluster() const { return cluster; }
 		const AIPath & getPathToCenter() { return pathToCenter; }
 	};

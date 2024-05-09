@@ -49,7 +49,6 @@ CBattleAI::~CBattleAI()
 
 void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
-	setCbc(CB);
 	env = ENV;
 	cb = CB;
 	playerID = *CB->getPlayerID();
@@ -90,7 +89,8 @@ void CBattleAI::yourTacticPhase(const BattleID & battleID, int distance)
 static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, int side)
 {
 	auto stacks = cb->battleGetAllStacks();
-	auto our = 0, enemy = 0;
+	auto our = 0;
+	auto enemy = 0;
 
 	for(auto stack : stacks)
 	{
@@ -120,7 +120,6 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 	};
 
 	BattleAction result = BattleAction::makeDefend(stack);
-	setCbc(cb); //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
 
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -166,10 +165,6 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 	catch(boost::thread_interrupted &)
 	{
 		throw;
-	}
-	catch(std::exception &e)
-	{
-		logAi->error("Exception occurred in %s %s",__FUNCTION__, e.what());
 	}
 
 	if(result.actionType == EActionType::DEFEND)

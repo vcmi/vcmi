@@ -15,6 +15,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/CRandomGenerator.h"
 
 CStupidAI::CStupidAI()
 	: side(-1)
@@ -66,7 +67,8 @@ class EnemyInfo
 {
 public:
 	const CStack * s;
-	int adi, adr;
+	int adi;
+	int adr;
 	std::vector<BattleHex> attackFrom; //for melee fight
 	EnemyInfo(const CStack * _s) : s(_s), adi(0), adr(0)
 	{}
@@ -115,7 +117,9 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	//boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	print("activeStack called for " + stack->nodeName());
 	ReachabilityInfo dists = cb->getBattle(battleID)->getReachability(stack);
-	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
+	std::vector<EnemyInfo> enemiesShootable;
+	std::vector<EnemyInfo> enemiesReachable;
+	std::vector<EnemyInfo> enemiesUnreachable;
 
 	if(stack->creatureId() == CreatureID::CATAPULT)
 	{
@@ -150,7 +154,7 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 			{
 				if(CStack::isMeleeAttackPossible(stack, s, hex))
 				{
-					std::vector<EnemyInfo>::iterator i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
+					auto i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
 					if(i == enemiesReachable.end())
 					{
 						enemiesReachable.push_back(s);

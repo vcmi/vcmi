@@ -31,6 +31,7 @@
 #include "../modding/ModUtility.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../spells/CSpellHandler.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -48,7 +49,7 @@ CQuest::CQuest():
 	isCustomNext(false),
 	isCustomComplete(false),
 	repeatedQuest(false),
-	questName(CQuest::missionName(0))
+	questName(CQuest::missionName(EQuestMission::NONE))
 {
 }
 
@@ -58,9 +59,9 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-const std::string & CQuest::missionName(int mission)
+const std::string & CQuest::missionName(EQuestMission mission)
 {
-	static const std::array<std::string, 13> names = {
+	static const std::array<std::string, 14> names = {
 		"empty",
 		"heroLevel",
 		"primarySkill",
@@ -71,9 +72,10 @@ const std::string & CQuest::missionName(int mission)
 		"bringResources",
 		"bringHero",
 		"bringPlayer",
+		"hotaINVALID", // only used for h3m parsing
 		"keymaster",
-		"hota",
-		"other"
+		"heroClass",
+		"reachDate"
 	};
 
 	if(static_cast<size_t>(mission) < names.size())
@@ -128,12 +130,12 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 	if(!mission.heroAllowed(h))
 		return false;
 	
-	if(killTarget != ObjectInstanceID::NONE)
+	if(killTarget.hasValue())
 	{
-		if(CGHeroInstance::cb->getObjByQuestIdentifier(killTarget))
+		PlayerColor owner = h->getOwner();
+		if (!h->cb->getPlayerState(owner)->destroyedObjects.count(killTarget))
 			return false;
 	}
-	
 	return true;
 }
 
@@ -167,7 +169,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	cb->giveResources(h->getOwner(), mission.resources);
 }
 
-void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & components) const
+void CQuest::addTextReplacements(IGameCallback * cb, MetaString & text, std::vector<Component> & components) const
 {
 	if(mission.heroLevel > 0)
 		text.replaceNumber(mission.heroLevel);
@@ -263,10 +265,10 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	}
 	
 	if(lastDay >= 0)
-		text.replaceNumber(lastDay - IObjectInterface::cb->getDate(Date::DAY));
+		text.replaceNumber(lastDay - cb->getDate(Date::DAY));
 }
 
-void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
+void CQuest::getVisitText(IGameCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
 	mission.loadComponents(components, h);
@@ -279,10 +281,10 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	if(lastDay >= 0)
 		iwText.appendTextID(TextIdentifier("core", "seerhut", "time", textOption).get());
 	
-	addTextReplacements(iwText, components);
+	addTextReplacements(cb, iwText, components);
 }
 
-void CQuest::getRolloverText(MetaString &ms, bool onHover) const
+void CQuest::getRolloverText(IGameCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(onHover)
 		ms.appendRawString("\n\n");
@@ -292,34 +294,32 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, questState, textOption).get());
 
 	std::vector<Component> components;
-	addTextReplacements(ms, components);
+	addTextReplacements(cb, ms, components);
 }
 
-void CQuest::getCompletionText(MetaString &iwText) const
+void CQuest::getCompletionText(IGameCallback * cb, MetaString &iwText) const
 {
 	iwText.appendRawString(completedText.toString());
 	
 	std::vector<Component> components;
-	addTextReplacements(iwText, components);
+	addTextReplacements(cb, iwText, components);
 }
 
 void CQuest::defineQuestName()
 {
 	//standard quests
-	questName = CQuest::missionName(0);
-	if(mission != Rewardable::Limiter{}) questName = CQuest::missionName(12);
-	if(mission.heroLevel > 0) questName = CQuest::missionName(1);
-	for(auto & s : mission.primary) if(s) questName = CQuest::missionName(2);
-	if(!mission.spells.empty()) questName = CQuest::missionName(2);
-	if(!mission.secondary.empty()) questName = CQuest::missionName(2);
-	if(killTarget != ObjectInstanceID::NONE && !heroName.empty()) questName = CQuest::missionName(3);
-	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE) questName = CQuest::missionName(4);
-	if(!mission.artifacts.empty()) questName = CQuest::missionName(5);
-	if(!mission.creatures.empty()) questName = CQuest::missionName(6);
-	if(mission.resources.nonZero()) questName = CQuest::missionName(7);
-	if(!mission.heroes.empty()) questName = CQuest::missionName(8);
-	if(!mission.players.empty()) questName = CQuest::missionName(9);
-	if(mission.daysPassed > 0 || !mission.heroClasses.empty()) questName = CQuest::missionName(11);
+	questName = CQuest::missionName(EQuestMission::NONE);
+	if(mission.heroLevel > 0) questName = CQuest::missionName(EQuestMission::LEVEL);
+	for(auto & s : mission.primary) if(s) questName = CQuest::missionName(EQuestMission::PRIMARY_SKILL);
+	if(killTarget != ObjectInstanceID::NONE && !heroName.empty()) questName = CQuest::missionName(EQuestMission::KILL_HERO);
+	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE) questName = CQuest::missionName(EQuestMission::KILL_CREATURE);
+	if(!mission.artifacts.empty()) questName = CQuest::missionName(EQuestMission::ARTIFACT);
+	if(!mission.creatures.empty()) questName = CQuest::missionName(EQuestMission::ARMY);
+	if(mission.resources.nonZero()) questName = CQuest::missionName(EQuestMission::RESOURCES);
+	if(!mission.heroes.empty()) questName = CQuest::missionName(EQuestMission::HERO);
+	if(!mission.players.empty()) questName = CQuest::missionName(EQuestMission::PLAYER);
+	if(mission.daysPassed > 0) questName = CQuest::missionName(EQuestMission::HOTA_REACH_DATE);
+	if(!mission.heroClasses.empty()) questName = CQuest::missionName(EQuestMission::HOTA_HERO_CLASS);
 }
 
 void CQuest::addKillTargetReplacements(MetaString &out) const
@@ -411,9 +411,9 @@ bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 	return quest->checkQuest(h);
 }
 
-void IQuestObject::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
+void CGSeerHut::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	quest->getVisitText(text, components, FirstVisit, h);
+	quest->getVisitText(cb, text, components, FirstVisit, h);
 }
 
 void IQuestObject::afterAddToMapCommon(CMap * map) const
@@ -465,7 +465,7 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 	if(quest->mission == Rewardable::Limiter{} && quest->killTarget == ObjectInstanceID::NONE)
 		quest->isCompleted = true;
 	
-	if(quest->questName == quest->missionName(0))
+	if(quest->questName == quest->missionName(EQuestMission::NONE))
 	{
 		quest->firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", quest->completedOption).get());
 	}
@@ -479,14 +479,14 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest-> questName, quest->missionState(2), quest->textOption).get());
 	}
 	
-	quest->getCompletionText(configuration.onSelect);
+	quest->getCompletionText(cb, configuration.onSelect);
 	for(auto & i : configuration.info)
-		quest->getCompletionText(i.message);
+		quest->getCompletionText(cb, i.message);
 }
 
 void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
 {
-	quest->getRolloverText(text, onHover);//TODO: simplify?
+	quest->getRolloverText(cb, text, onHover);//TODO: simplify?
 	if(!onHover)
 		text.replaceRawString(seerName);
 }
@@ -611,7 +611,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 
 int CGSeerHut::checkDirection() const
 {
-	int3 cord = getCreatureToKill()->pos;
+	int3 cord = getCreatureToKill(false)->pos;
 	if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.34) //north
 	{
 		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //northwest
@@ -643,7 +643,7 @@ int CGSeerHut::checkDirection() const
 
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
+	const CGObjectInstance *o = cb->getObj(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGHeroInstance *>(o);
@@ -651,7 +651,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
+	const CGObjectInstance *o = cb->getObj(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGCreature *>(o);
@@ -683,6 +683,9 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		//backward compatibility for VCMI maps that use old SeerHut format
 		auto s = handler.enterStruct("reward");
 		const JsonNode & rewardsJson = handler.getCurrent();
+
+		if (rewardsJson.Struct().empty())
+			return;
 		
 		std::string fullIdentifier;
 		std::string metaTypeName;

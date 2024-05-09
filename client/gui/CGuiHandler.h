@@ -92,8 +92,8 @@ public:
 	void init();
 	void renderFrame();
 
-	/// called whenever user selects different resolution, requiring to center/resize all windows
-	void onScreenResize();
+	/// called whenever SDL_WINDOWEVENT_RESTORED is reported or the user selects a different resolution, requiring to center/resize all windows
+	void onScreenResize(bool resolutionChanged);
 
 	void handleEvents(); //takes events from queue and calls interested objects
 	void fakeMouseMove();

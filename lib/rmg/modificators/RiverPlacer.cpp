@@ -106,14 +106,14 @@ char RiverPlacer::dump(const int3 & t)
 		return '2';
 	if(source.contains(t))
 		return '1';
-	if(zone.area().contains(t))
+	if(zone.area()->contains(t))
 		return ' ';
 	return '?';
 }
 
 void RiverPlacer::addRiverNode(const int3 & node)
 {
-	assert(zone.area().contains(node));
+	assert(zone.area()->contains(node));
 	riverNodes.insert(node);
 }
 
@@ -140,14 +140,17 @@ void RiverPlacer::prepareHeightmap()
 		roads.unite(m->getRoads());
 	}
 
-	for(const auto & t : zone.area().getTilesVector())
+	auto area = zone.area();
+	auto areaUsed = zone.areaUsed();
+
+	for(const auto & t : area->getTilesVector())
 	{
 		heightMap[t] = zone.getRand().nextInt(5);
 		
 		if(roads.contains(t))
 			heightMap[t] += 30.f;
 		
-		if(zone.areaUsed().contains(t))
+		if(areaUsed->contains(t))
 			heightMap[t] += 1000.f;
 	}
 	
@@ -157,7 +160,7 @@ void RiverPlacer::prepareHeightmap()
 		for(int i = 0; i < map.width(); i += 2)
 		{
 			int3 t{i, j, zone.getPos().z};
-			if(zone.area().contains(t))
+			if(area->contains(t))
 				heightMap[t] += 10.f;
 		}
 	}
@@ -167,9 +170,10 @@ void RiverPlacer::preprocess()
 {
 	rmg::Area outOfMapTiles;
 	std::map<TRmgTemplateZoneId, rmg::Area> neighbourZonesTiles;
-	rmg::Area borderArea(zone.getArea().getBorder());
+
+	rmg::Area borderArea(zone.area()->getBorder());
 	TRmgTemplateZoneId connectedToWaterZoneId = -1;
-	for(const auto & t : zone.getArea().getBorderOutside())
+	for(const auto & t : zone.area()->getBorderOutside())
 	{
 		if(!map.isOnMap(t))
 		{
@@ -182,6 +186,7 @@ void RiverPlacer::preprocess()
 			neighbourZonesTiles[map.getZoneID(t)].add(t);
 		}
 	}
+
 	rmg::Area outOfMapInternal(outOfMapTiles.getBorderOutside());
 	outOfMapInternal.intersect(borderArea);
 	
@@ -297,7 +302,7 @@ void RiverPlacer::preprocess()
 	prepareHeightmap();
 	
 	//decorative river
-	if(!sink.empty() && !source.empty() && riverNodes.empty() && !zone.areaPossible().empty())
+	if(!sink.empty() && !source.empty() && riverNodes.empty() && !zone.areaPossible()->empty())
 	{
 		addRiverNode(*RandomGeneratorUtil::nextItem(source.getTilesVector(), zone.getRand()));
 	}
@@ -347,7 +352,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 		return cost;
 	};
 	
-	auto availableArea = zone.area() - prohibit;
+	auto availableArea = zone.area().get() - prohibit;
 	
 	rmg::Path pathToSource(availableArea);
 	pathToSource.connect(source);
@@ -395,7 +400,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 			{
 				if(templ->animationFile == targetTemplateName)
 				{
-					auto * obj = handler->create(templ);
+					auto * obj = handler->create(map.mapInstance->cb, templ);
 					rmg::Object deltaObj(*obj, deltaPositions[pos]);
 					deltaObj.finalize(map, zone.getRand());
 				}

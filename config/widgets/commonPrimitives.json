@@ -1,0 +1,61 @@
+{
+	"boxWithNoBackground" : {
+		"type": "graphicalPrimitive",
+		"primitives" : [
+			// Top line
+			{ "type" : "line", "a" : { "x" : 0, "y" : 0}, "b" : { "x" : -1, "y" : 0}, "color" : [ 255, 255, 255, 32 ] },
+			{ "type" : "line", "a" : { "x" : 0, "y" : 1}, "b" : { "x" : -1, "y" : 1}, "color" : [ 0, 0, 0, 48 ] },
+			
+			// Left line
+			{ "type" : "line", "a" : { "x" : 0, "y" : 1}, "b" : { "x" : 0, "y" : -2}, "color" : [ 255, 255, 255, 32 ] },
+			{ "type" : "line", "a" : { "x" : 1, "y" : 2}, "b" : { "x" : 1, "y" : -2}, "color" : [ 0, 0, 0, 48 ] },
+			
+			// Right line
+			{ "type" : "line", "a" : { "x" : -2, "y" : 2}, "b" : { "x" : -2, "y" : -3}, "color" : [ 255, 255, 255, 24 ] },
+			{ "type" : "line", "a" : { "x" : -1, "y" : 1}, "b" : { "x" : -1, "y" : -2}, "color" : [ 255, 255, 255, 48 ] },
+
+			// Bottom line
+			{ "type" : "line", "a" : { "x" : 1, "y" : -2}, "b" : { "x" : -1, "y" : -2}, "color" : [ 255, 255, 255, 24 ] },
+			{ "type" : "line", "a" : { "x" : 0, "y" : -1}, "b" : { "x" : -1, "y" : -1}, "color" : [ 255, 255, 255, 48 ] },
+		]
+	},
+	
+	"horizontalLine" : {
+		"type": "graphicalPrimitive",
+		"primitives" : [
+			{ "type" : "line", "a" : { "x" : 0, "y" : 0}, "b" : { "x" : -1, "y" : 0}, "color" : [ 255, 255, 255, 64 ] },
+			{ "type" : "line", "a" : { "x" : 0, "y" : 1}, "b" : { "x" : -1, "y" : 1}, "color" : [ 0, 0, 0, 64 ] }
+		]
+	},
+	
+	"verticalLine" : {
+		"type": "graphicalPrimitive",
+		"primitives" : [
+			{ "type" : "line", "a" : { "x" : 0, "y" : 0}, "b" : { "x" : 0, "y" : -1}, "color" : [ 255, 255, 255, 64 ] },
+			{ "type" : "line", "a" : { "x" : 1, "y" : 0}, "b" : { "x" : 1, "y" : -1}, "color" : [ 0, 0, 0, 64 ] }
+		]
+	},
+	
+	"boxWithBackground" : {
+		"type": "graphicalPrimitive",
+		"primitives" : [
+			{ "type" : "filledBox", "a" : { "x" : 1, "y" : 1}, "b" : { "x" : -2, "y" : -2}, "color" : [ 0, 0, 0, 75 ] },
+		
+			// Top line
+			{ "type" : "line", "a" : { "x" : 0, "y" : 0}, "b" : { "x" : -1, "y" : 0}, "color" : [ 255, 255, 255, 32 ] },
+			{ "type" : "line", "a" : { "x" : 0, "y" : 1}, "b" : { "x" : -1, "y" : 1}, "color" : [ 0, 0, 0, 48 ] },
+			
+			// Left line
+			{ "type" : "line", "a" : { "x" : 0, "y" : 1}, "b" : { "x" : 0, "y" : -2}, "color" : [ 255, 255, 255, 32 ] },
+			{ "type" : "line", "a" : { "x" : 1, "y" : 2}, "b" : { "x" : 1, "y" : -2}, "color" : [ 0, 0, 0, 48 ] },
+			
+			// Right line
+			{ "type" : "line", "a" : { "x" : -2, "y" : 2}, "b" : { "x" : -2, "y" : -3}, "color" : [ 255, 255, 255, 24 ] },
+			{ "type" : "line", "a" : { "x" : -1, "y" : 1}, "b" : { "x" : -1, "y" : -2}, "color" : [ 255, 255, 255, 48 ] },
+
+			// Bottom line
+			{ "type" : "line", "a" : { "x" : 1, "y" : -2}, "b" : { "x" : -1, "y" : -2}, "color" : [ 255, 255, 255, 24 ] },
+			{ "type" : "line", "a" : { "x" : 0, "y" : -1}, "b" : { "x" : -1, "y" : -1}, "color" : [ 255, 255, 255, 48 ] }
+		]
+	},
+}

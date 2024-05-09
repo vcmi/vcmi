@@ -35,7 +35,6 @@ class BattleInterface;
 class CPicture;
 class CFilledTexture;
 class CButton;
-class CToggleButton;
 class CLabel;
 class CMultiLineLabel;
 class CTextBox;
@@ -155,7 +154,7 @@ private:
 	std::vector<std::shared_ptr<CMultiLineLabel>> labelsMultiline;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 public:
-	StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground = true);
+	StackInfoBasicPanel(const CStack * stack, bool initializeBackground = true);
 
 	void show(Canvas & to) override;
 
@@ -239,7 +238,7 @@ class StackQueue : public CIntObject
 		std::optional<uint32_t> getBoundUnitID() const;
 	};
 
-	static const int QUEUE_SIZE = 10;
+	static const int QUEUE_SIZE_BIG = 10;
 	std::shared_ptr<CFilledTexture> background;
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
 	BattleInterface & owner;

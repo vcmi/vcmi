@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Serialization System
-
 # Introduction
 
 The serializer translates between objects living in our code (like int or CGameState\*) and stream of bytes. Having objects represented as a stream of bytes is useful. Such bytes can send through the network connection (so client and server can communicate) or written to the disk (savegames).
@@ -25,7 +23,7 @@ Additionally, if your class is part of one of registered object hierarchies (bas
 They are simply stored in a binary form, as in memory. Compatibility is ensued through the following means:
 
 - VCMI uses internally types that have constant, defined size (like int32_t - has 32 bits on all platforms)
-- serializer stores information about its endianess
+- serializer stores information about its endianness
 
 It's not "really" portable, yet it works properly across all platforms we currently support.
 
@@ -132,7 +130,7 @@ struct DLL_LINKAGE Rumor
 
 ### Common information
 
-Serializer classes provide iostream-like interface with operator `<<` for serialization and operator `>>` for deserialization. Serializer upon creation will retrieve/store some metadata (version number, endianess), so even if no object is actually serialized, some data will be passed.
+Serializer classes provide iostream-like interface with operator `<<` for serialization and operator `>>` for deserialization. Serializer upon creation will retrieve/store some metadata (version number, endianness), so even if no object is actually serialized, some data will be passed.
 
 ### Serialization to file
 
@@ -140,12 +138,7 @@ CLoadFile/CSaveFile classes allow to read data to file and store data to file. T
 
 ### Networking
 
-CConnection class provides support for sending data structures over TCP/IP protocol. It provides 3 constructors: 
-1. connect to given hostname at given port (host must be accepting connection) 
-2. accept connection (takes boost.asio acceptor and io_service) 
-3. adapt boost.asio socket with already established connection
-
-All three constructors take as the last parameter the name that will be used to identify the peer.
+See [Networking](Networking.md) 
 
 ## Additional features
 

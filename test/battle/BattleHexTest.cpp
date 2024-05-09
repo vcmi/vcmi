@@ -45,7 +45,8 @@ TEST(BattleHexTest, getNeighbouringTiles)
 
 TEST(BattleHexTest, getDistance)
 {
-	BattleHex firstHex(0,0), secondHex(16,0);
+	BattleHex firstHex(0,0);
+	BattleHex secondHex(16,0);
 	EXPECT_EQ((int)firstHex.getDistance(firstHex,secondHex), 16);
 	firstHex=0, secondHex=170;
 	EXPECT_EQ((int)firstHex.getDistance(firstHex,secondHex), 10);
@@ -63,7 +64,8 @@ TEST(BattleHexTest, getDistance)
 
 TEST(BattleHexTest, mutualPositions)
 {
-	BattleHex firstHex(0,0), secondHex(16,0);
+	BattleHex firstHex(0,0);
+	BattleHex secondHex(16,0);
 	firstHex=86, secondHex=68;
 	EXPECT_EQ((int)firstHex.mutualPosition(firstHex,secondHex), BattleHex::EDir::TOP_LEFT);
 	secondHex=69;

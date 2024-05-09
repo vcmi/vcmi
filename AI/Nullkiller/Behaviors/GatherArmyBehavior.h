@@ -25,17 +25,17 @@ namespace Goals
 		{
 		}
 
-		virtual TGoalVec decompose() const override;
-		virtual std::string toString() const override;
+		TGoalVec decompose(const Nullkiller * ai) const override;
+		std::string toString() const override;
 
-		virtual bool operator==(const GatherArmyBehavior & other) const override
+		bool operator==(const GatherArmyBehavior & other) const override
 		{
 			return true;
 		}
 
 	private:
-		TGoalVec deliverArmyToHero(const CGHeroInstance * hero) const;
-		TGoalVec upgradeArmy(const CGTownInstance * upgrader) const;
+		TGoalVec deliverArmyToHero(const Nullkiller * ai, const CGHeroInstance * hero) const;
+		TGoalVec upgradeArmy(const Nullkiller * ai, const CGTownInstance * upgrader) const;
 	};
 }
 

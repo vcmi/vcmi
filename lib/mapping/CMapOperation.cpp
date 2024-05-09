@@ -12,7 +12,9 @@
 #include "CMapOperation.h"
 
 #include "../VCMI_Lib.h"
+#include "../CRandomGenerator.h"
 #include "../TerrainHandler.h"
+#include "../mapObjects/CGObjectInstance.h"
 #include "CMap.h"
 #include "MapEditUtils.h"
 
@@ -45,6 +47,8 @@ CComposedOperation::CComposedOperation(CMap* map) : CMapOperation(map)
 
 void CComposedOperation::execute()
 {
+	// FIXME: Only reindex objects at the end of composite operation
+
 	for(auto & operation : operations)
 	{
 		operation->execute();
@@ -510,9 +514,8 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 		{
 			if(map->isInTheMap(pos))
 			{
-				auto * ptrConfig = VLC->terviewh;
 				const auto * terType = map->getTile(pos).terType;
-				auto valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById("n1")).result;
+				auto valid = validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById("n1")).result;
 
 				// Special validity check for rock & water
 				if(valid && (terType->isWater() || !terType->isPassable()))
@@ -520,7 +523,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 					static const std::string patternIds[] = { "s1", "s2" };
 					for(const auto & patternId : patternIds)
 					{
-						valid = !validateTerrainView(pos, ptrConfig->getTerrainTypePatternById(patternId)).result;
+						valid = !validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById(patternId)).result;
 						if(!valid) break;
 					}
 				}
@@ -530,7 +533,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 					static const std::string patternIds[] = { "n2", "n3" };
 					for(const auto & patternId : patternIds)
 					{
-						valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById(patternId)).result;
+						valid = validateTerrainView(pos, VLC->terviewh->getTerrainTypePatternById(patternId)).result;
 						if(valid) break;
 					}
 				}

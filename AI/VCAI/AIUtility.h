@@ -70,7 +70,7 @@ public:
 	bool validAndSet() const;
 
 
-	template<typename Handler> void serialize(Handler & h, const int version)
+	template<typename Handler> void serialize(Handler & h)
 	{
 		h & this->h;
 		h & hid;
@@ -102,7 +102,7 @@ struct ObjectIdRef
 	bool operator<(const ObjectIdRef & rhs) const;
 
 
-	template<typename Handler> void serialize(Handler & h, const int version)
+	template<typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 	}

@@ -13,15 +13,18 @@
 #include "../Actions/QuestAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
+#include "../../../../lib/pathfinder/PathfinderOptions.h"
 
 namespace NKAI
 {
 namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
+		const Nullkiller * ai,
 		CPlayerSpecificInfoCallback * cb, 
-		std::shared_ptr<AINodeStorage> nodeStorage)
-		:cb(cb), nodeStorage(nodeStorage)
+		std::shared_ptr<AINodeStorage> nodeStorage,
+		bool allowBypassObjects)
+		:ai(ai), cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 
@@ -38,21 +41,54 @@ namespace AIPathfinding
 
 			return;
 		}
+		
+		if(!allowBypassObjects
+			&& destination.action == EPathNodeAction::EMBARK
+			&& source.node->layer == EPathfindingLayer::LAND
+			&& destination.node->layer == EPathfindingLayer::SAIL)
+		{
+			destination.blocked = true;
+
+			return;
+		}
 
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
+
 		if(blocker == BlockingReason::NONE)
 		{
 			destination.blocked = nodeStorage->isDistanceLimitReached(source, destination);
+
+			if(destination.nodeObject
+				&& !destination.blocked
+				&& !allowBypassObjects
+				&& !dynamic_cast<const CGTeleport *>(destination.nodeObject)
+				&& destination.nodeObject->ID != Obj::EVENT)
+			{
+				destination.blocked = true;
+				destination.node->locked = true;
+			}
+
+			return;
+		}
+		
+		if(!allowBypassObjects)
+		{
+			if(destination.nodeObject)
+			{
+				destination.blocked = true;
+				destination.node->locked = true;
+			}
 
 			return;
 		}
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
-			"Movement from tile %s is blocked. Try to bypass. Action: %d, blocker: %d",
+			"Movement from tile %s is blocked. Try to bypass. Action: %d, blocker: %d, source: %s",
 			destination.coord.toString(),
 			(int)destination.action,
-			(int)blocker);
+			(int)blocker,
+			source.coord.toString());
 #endif
 
 		auto destGuardians = cb->getGuardingCreatures(destination.coord);
@@ -137,7 +173,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		if(!questAction.canAct(destinationNode))
+		if(!questAction.canAct(ai, destinationNode))
 		{
 			if(!destinationNode->actor->allowUseResources)
 			{

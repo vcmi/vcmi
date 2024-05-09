@@ -13,7 +13,6 @@
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
 
-#include "../../lib/serializer/Connection.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/modding/IdentifierStorage.h"
@@ -22,16 +21,13 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
-
-PlayerMessageProcessor::PlayerMessageProcessor()
-	:gameHandler(nullptr)
-{
-}
+#include "../../lib/serializer/Connection.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
 	:gameHandler(gameHandler)
@@ -46,7 +42,11 @@ void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string
 	if (handleCheatCode(message, player, currObj))
 	{
 		if(!gameHandler->getPlayerSettings(player)->isControlledByAI())
-			broadcastSystemMessage(VLC->generaltexth->allTexts[260]);
+		{
+			MetaString txt;
+			txt.appendLocalString(EMetaText::GENERAL_TXT, 260);
+			broadcastSystemMessage(txt);
+		}			
 
 		if(!player.isSpectator())
 			gameHandler->checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
@@ -62,10 +62,7 @@ bool PlayerMessageProcessor::handleHostCommand(PlayerColor player, const std::st
 	std::vector<std::string> words;
 	boost::split(words, message, boost::is_any_of(" "));
 
-	bool isHost = false;
-	for(auto & c : gameHandler->connections[player])
-		if(gameHandler->gameLobby()->isClientHost(c->connectionID))
-			isHost = true;
+	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
 
 	if(!isHost || words.size() < 2 || words[0] != "game")
 		return false;
@@ -137,7 +134,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 
 	///Give hero spellbook
 	if (!hero->hasSpellbook())
-		gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
 
 	///Give all spells with bonus (to allow banned spells)
 	GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
@@ -215,11 +212,11 @@ void PlayerMessageProcessor::cheatGiveMachines(PlayerColor player, const CGHeroI
 		return;
 
 	if (!hero->getArt(ArtifactPosition::MACH1))
-		gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::BALLISTA).toArtifact(), ArtifactPosition::MACH1);
 	if (!hero->getArt(ArtifactPosition::MACH2))
-		gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::AMMO_CART).toArtifact(), ArtifactPosition::MACH2);
 	if (!hero->getArt(ArtifactPosition::MACH3))
-		gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::FIRST_AID_TENT).toArtifact(), ArtifactPosition::MACH3);
 }
 
 void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -233,7 +230,7 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		{
 			auto artID = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", word, false);
 			if(artID &&  VLC->arth->objects[*artID])
-				gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[*artID], ArtifactPosition::FIRST_AVAILABLE);
+				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID).toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
 	else
@@ -241,7 +238,7 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
 		{
 			if(VLC->arth->objects[g]->canBePutAt(hero))
-				gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[g], ArtifactPosition::FIRST_AVAILABLE);
+				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g).toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
 }
@@ -293,7 +290,7 @@ void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInsta
 	bool unlimited = false;
 	try
 	{
-		smp.val = std::stol(words.at(0));;
+		smp.val = std::stol(words.at(0));
 	}
 	catch(std::logic_error&)
 	{
@@ -326,7 +323,7 @@ void PlayerMessageProcessor::cheatResources(PlayerColor player, std::vector<std:
 	int baseResourceAmount;
 	try
 	{
-		baseResourceAmount = std::stol(words.at(0));;
+		baseResourceAmount = std::stol(words.at(0));
 	}
 	catch(std::logic_error&)
 	{
@@ -438,9 +435,9 @@ void PlayerMessageProcessor::cheatMaxMorale(PlayerColor player, const CGHeroInst
 bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerColor player, ObjectInstanceID currObj)
 {
 	std::vector<std::string> words;
-	boost::split(words, cheat, boost::is_any_of("\t\r\n "));
+	boost::split(words, boost::trim_copy(cheat), boost::is_any_of("\t\r\n "));
 
-	if (words.empty())
+	if (words.empty() || !gameHandler->getStartInfo()->extraOptionsInfo.cheatsAllowed)
 		return false;
 
 	//Make cheat name case-insensitive, but keep words/parameters (e.g. creature name) as it
@@ -621,18 +618,32 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		callbacks.at(cheatName)();
 }
 
-void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
+void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, MetaString message)
 {
 	SystemMessage sm;
 	sm.text = message;
 	connection->sendPack(&sm);
 }
 
-void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)
+void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
+{
+	MetaString str;
+	str.appendRawString(message);
+	sendSystemMessage(connection, str);
+}
+
+void PlayerMessageProcessor::broadcastSystemMessage(MetaString message)
 {
 	SystemMessage sm;
 	sm.text = message;
 	gameHandler->sendToAllClients(&sm);
+}
+
+void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)
+{
+	MetaString str;
+	str.appendRawString(message);
+	broadcastSystemMessage(str);
 }
 
 void PlayerMessageProcessor::broadcastMessage(PlayerColor playerSender, const std::string & message)

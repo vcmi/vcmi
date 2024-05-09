@@ -80,7 +80,7 @@ private:
 
 Registry * GlobalRegistry::get()
 {
-	static std::unique_ptr<Registry> Instance = std::make_unique<detail::RegistryImpl>();
+	static auto Instance = std::make_unique<detail::RegistryImpl>();
 	return Instance.get();
 }
 

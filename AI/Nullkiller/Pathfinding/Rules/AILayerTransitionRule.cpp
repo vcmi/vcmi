@@ -17,7 +17,10 @@ namespace NKAI
 {
 namespace AIPathfinding
 {
-	AILayerTransitionRule::AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, Nullkiller * ai, std::shared_ptr<AINodeStorage> nodeStorage)
+	AILayerTransitionRule::AILayerTransitionRule(
+		CPlayerSpecificInfoCallback * cb,
+		Nullkiller * ai,
+		std::shared_ptr<AINodeStorage> nodeStorage)
 		:cb(cb), ai(ai), nodeStorage(nodeStorage)
 	{
 		setup();
@@ -30,6 +33,14 @@ namespace AIPathfinding
 		CPathfinderHelper * pathfinderHelper) const
 	{
 		LayerTransitionRule::process(source, destination, pathfinderConfig, pathfinderHelper);
+
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+		logAi->trace("Layer transitioning %s -> %s, action: %d, blocked: %s",
+			source.coord.toString(),
+			destination.coord.toString(),
+			static_cast<int32_t>(destination.action),
+			destination.blocked ? "true" : "false");
+#endif
 
 		if(!destination.blocked)
 		{
@@ -61,6 +72,12 @@ namespace AIPathfinding
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::WATER)
 		{
+			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::WATER_WALK_CAST)
+			{
+				destination.blocked = false;
+				return;
+			}
+
 			auto action = waterWalkingActions.find(nodeStorage->getHero(source.node));
 
 			if(action != waterWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
@@ -73,6 +90,12 @@ namespace AIPathfinding
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::AIR)
 		{
+			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::FLY_CAST)
+			{
+				destination.blocked = false;
+				return;
+			}
+
 			auto action = airWalkingActions.find(nodeStorage->getHero(source.node));
 
 			if(action != airWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
@@ -119,7 +142,7 @@ namespace AIPathfinding
 		{
 			if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 			{
-				if(const IShipyard * shipyard = IShipyard::castFrom(obj))
+				if(const auto * shipyard = dynamic_cast<const IShipyard *>(obj))
 					shipyards.push_back(shipyard);
 			}
 		}
@@ -162,7 +185,7 @@ namespace AIPathfinding
 			const CGHeroInstance * hero = nodeStorage->getHero(source.node);
 
 			if(vstd::contains(summonableVirtualBoats, hero)
-				&& summonableVirtualBoats.at(hero)->canAct(nodeStorage->getAINode(source.node)))
+				&& summonableVirtualBoats.at(hero)->canAct(ai, nodeStorage->getAINode(source.node)))
 			{
 				virtualBoat = summonableVirtualBoats.at(hero);
 			}

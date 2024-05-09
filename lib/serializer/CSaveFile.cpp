@@ -21,9 +21,9 @@ CSaveFile::CSaveFile(const boost::filesystem::path &fname)
 //must be instantiated in .cpp file for access to complete types of all member fields
 CSaveFile::~CSaveFile() = default;
 
-int CSaveFile::write(const void * data, unsigned size)
+int CSaveFile::write(const std::byte * data, unsigned size)
 {
-	sfile->write((char *)data,size);
+	sfile->write(reinterpret_cast<const char *>(data), size);
 	return size;
 }
 
@@ -39,7 +39,7 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 			THROW_FORMAT("Error: cannot open to write %s!", fname);
 
 		sfile->write("VCMI",4); //write magic identifier
-		serializer & SERIALIZATION_VERSION; //write format version
+		serializer & ESerializationVersion::CURRENT; //write format version
 	}
 	catch(...)
 	{
@@ -66,7 +66,7 @@ void CSaveFile::clear()
 
 void CSaveFile::putMagicBytes(const std::string &text)
 {
-	write(text.c_str(), static_cast<unsigned int>(text.length()));
+	write(reinterpret_cast<const std::byte*>(text.c_str()), text.length());
 }
 
 VCMI_LIB_NAMESPACE_END

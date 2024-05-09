@@ -16,12 +16,11 @@
 
 #include "CGeneralTextHandler.h"
 #include "filesystem/Filesystem.h"
+#include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModUtility.h"
 #include "modding/ModScope.h"
-
-#include "JsonNode.h"
-
 #include "constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -59,7 +58,7 @@ std::string CSkill::getNameTranslated() const
 
 std::string CSkill::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 std::string CSkill::getDescriptionTextID(int level) const
@@ -95,7 +94,8 @@ void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 	b->source = BonusSource::SECONDARY_SKILL;
 	b->sid = BonusSourceID(id);
 	b->duration = BonusDuration::PERMANENT;
-	b->description = getNameTranslated();
+	b->description.appendTextID(getNameTextID());
+	b->description.appendRawString(" %+d");
 	levels[level-1].effects.push_back(b);
 }
 
@@ -169,7 +169,7 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData()
 	std::vector<JsonNode> legacyData;
 	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
 	{
-		JsonNode skillNode(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode skillNode;
 		skillNode["name"].String() = skillNames[id];
 		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 		{
@@ -194,7 +194,8 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
-	bool major, minor;
+	bool major;
+	bool minor;
 
 	major = json["obligatoryMajor"].Bool();
 	minor = json["obligatoryMinor"].Bool();

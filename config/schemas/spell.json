@@ -15,13 +15,13 @@
 					{
 						//assumed verticalPosition: top
 						"type" : "string",
-						"format" : "defFile"
+						"format" : "animationFile"
 					},
 					{
 						"type" : "object",
 						"properties" : {
 							"verticalPosition" : {"type" : "string", "enum" :["top","bottom"]},
-							"defName" : {"type" : "string", "format" : "defFile"},
+							"defName" : {"type" : "string", "format" : "animationFile"},
 							"effectName" : { "type" : "string" }
 						},
 						"additionalProperties" : false
@@ -41,7 +41,7 @@
 					"items" : {
 						"type" : "object",
 						"properties" : {
-							"defName" : {"type" : "string", "format" : "defFile"},
+							"defName" : {"type" : "string", "format" : "animationFile"},
 							"minimumAngle" : {"type" : "number", "minimum" : 0}
 						},
 						"additionalProperties" : false

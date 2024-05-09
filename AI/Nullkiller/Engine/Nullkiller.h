@@ -11,6 +11,7 @@
 
 #include "PriorityEvaluator.h"
 #include "FuzzyHelper.h"
+#include "Settings.h"
 #include "AIMemory.h"
 #include "DeepDecomposer.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
@@ -23,7 +24,6 @@
 namespace NKAI
 {
 
-const float MAX_GOLD_PEASURE = 0.3f;
 const float MIN_PRIORITY = 0.01f;
 const float SMALL_SCAN_MIN_PRIORITY = 0.4f;
 
@@ -47,6 +47,24 @@ enum class ScanDepth
 	ALL_FULL = 2
 };
 
+struct TaskPlanItem
+{
+	std::vector<ObjectInstanceID> affectedObjects;
+	Goals::TSubgoal task;
+
+	TaskPlanItem(Goals::TSubgoal goal);
+};
+
+class TaskPlan
+{
+private:
+	std::vector<TaskPlanItem> tasks;
+
+public:
+	Goals::TTaskVec getTasks() const;
+	void merge(Goals::TSubgoal task);
+};
+
 class Nullkiller
 {
 private:
@@ -57,8 +75,11 @@ private:
 	ScanDepth scanDepth;
 	TResources lockedResources;
 	bool useHeroChain;
+	AIGateway * gateway;
 
 public:
+	static std::unique_ptr<ObjectGraph> baseGraph;
+
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
 	std::unique_ptr<BuildAnalyzer> buildAnalyzer;
 	std::unique_ptr<ObjectClusterizer> objectClusterizer;
@@ -71,11 +92,13 @@ public:
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::unique_ptr<DeepDecomposer> decomposer;
 	std::unique_ptr<ArmyFormation> armyFormation;
+	std::unique_ptr<Settings> settings;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
+	std::mutex aiStateMutex;
 
 	Nullkiller();
-	void init(std::shared_ptr<CCallback> cb, PlayerColor playerID);
+	void init(std::shared_ptr<CCallback> cb, AIGateway * gateway);
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;
@@ -97,9 +120,12 @@ public:
 private:
 	void resetAiState();
 	void updateAiState(int pass, bool fast = false);
-	Goals::TTask choseBestTask(Goals::TSubgoal behavior, int decompositionMaxDepth) const;
-	Goals::TTask choseBestTask(Goals::TTaskVec & tasks) const;
-	void executeTask(Goals::TTask task);
+	void decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const;
+	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
+	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks) const;
+	bool executeTask(Goals::TTask task);
+	bool areAffectedObjectsPresent(Goals::TTask task) const;
+	HeroRole getTaskRole(Goals::TTask task) const;
 };
 
 }

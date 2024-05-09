@@ -105,7 +105,7 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static BattleHex getClosestTile(ui8 side, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & hex;
 	}

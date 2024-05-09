@@ -1,5 +1,3 @@
-< [Documentation](../Readme.md) / Modding
-
 # Creating mod
 
 To make your own mod you need to create subdirectory in **<data dir>/Mods/** with name that will be used as identifier for your mod.
@@ -31,7 +29,10 @@ Minimalistic version of this file:
 ``` javascript
 {
     "name" : "My test mod",
-    "description" : "My test mod that add a lot of useless stuff into the game"
+    "description" : "My test mod that add a lot of useless stuff into the game",
+    "version" : "1.00",
+	"modType" : "Graphical",	
+	"contact" : "http://www.contact.example.com"
 }
 ```
 
@@ -70,6 +71,7 @@ Other:
 - [Terrain](Entities_Format/Terrain_Format.md)
 - [River](Entities_Format/River_Format.md)
 - [Road](Entities_Format/Road_Format.md)
+- [Biome](Entities_Format/Biome_Format.md)
 - [Battlefield](Entities_Format/Battlefield_Format.md)
 - [Battle Obstacle](Entities_Format/Battle_Obstacle_Format.md)
 

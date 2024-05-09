@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Map Object Format](../Map_Object_Format.md) / Dwelling
-
 ``` javascript
 {
 	/// List of creatures in this bank. Each list represents one "level" of bank

@@ -1,5 +1,3 @@
-< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Map Object Format](../Map_Object_Format.md) / Boat
-
 ``` javascript
 {
 	// Layer on which this boat moves. Possible values:

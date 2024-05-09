@@ -270,7 +270,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	{
 		float score = evaluateExchange(ap, 0, targets, damageCache, hb);
 
-		if(score > result.score || (score == result.score && result.wait))
+		if(score > result.score || (vstd::isAlmostEqual(score, result.score) && result.wait))
 		{
 			result.score = score;
 			result.bestAttack = ap;
@@ -843,7 +843,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 					}
 				}
 
-				if(!reachable && vstd::contains(reachabilityMap[hex], unit))
+				if(!reachable && std::count(reachabilityMap[hex].begin(), reachabilityMap[hex].end(), unit) > 1)
 				{
 					blockingScore += ratio * (enemyUnit ? BLOCKING_OWN_ATTACK_PENALTY : BLOCKING_OWN_MOVE_PENALTY);
 				}
