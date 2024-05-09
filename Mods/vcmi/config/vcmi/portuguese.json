@@ -125,6 +125,13 @@
 	"vcmi.lobby.mod.state.version" : "Versão incompatível",
 	"vcmi.lobby.mod.state.excessive" : "Deve estar desativado",
 	"vcmi.lobby.mod.state.missing" : "Não instalado",
+	"vcmi.lobby.pvp.coin.hover" : "Moeda",
+	"vcmi.lobby.pvp.coin.help" : "Lança uma moeda ao ar",
+	"vcmi.lobby.pvp.randomTown.hover" : "Cidade aleatória",
+	"vcmi.lobby.pvp.randomTown.help" : "Escreve uma cidade aleatória no bate-papo",
+	"vcmi.lobby.pvp.randomTownVs.hover" : "Cidade aleatória vs.",
+	"vcmi.lobby.pvp.randomTownVs.help" : "Escreve duas cidades aleatórias no bate-papo",
+	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Mapa ou campanha inválido}\n\nFalha ao iniciar o jogo! O mapa ou campanha selecionado pode ser inválido ou corrompido. Motivo:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Arquivos de dados ausentes}\n\nOs arquivos de dados das campanhas não foram encontrados! Você pode estar usando arquivos de dados incompletos ou corrompidos do Heroes 3. Por favor, reinstale os dados do jogo.",
