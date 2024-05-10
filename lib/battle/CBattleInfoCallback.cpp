@@ -760,7 +760,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 
 	DamageEstimation ret = calculateDmgRange(bai);
 
-	if(retaliationDmg)
+	if(retaliationDmg && bai.defender->ableToRetaliate())
 	{
 		if(bai.shooting)
 		{
@@ -782,7 +782,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 			};
 
 			DamageEstimation retaliationMin = estimateRetaliation(ret.damage.min);
-			DamageEstimation retaliationMax = estimateRetaliation(ret.damage.min);
+			DamageEstimation retaliationMax = estimateRetaliation(ret.damage.max);
 
 			retaliationDmg->damage.min = std::min(retaliationMin.damage.min, retaliationMax.damage.min);
 			retaliationDmg->damage.max = std::max(retaliationMin.damage.max, retaliationMax.damage.max);
