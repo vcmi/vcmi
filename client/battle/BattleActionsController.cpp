@@ -124,8 +124,8 @@ static std::string formatRetaliation(const DamageEstimation & estimation, bool m
 								 "vcmi.battleWindow.damageRetaliation.damageKills";
 
 	std::string prefixTextID = mayBeKilled ?
-		"vcmi.battleWindow.damageRetaliation.will" :
-		"vcmi.battleWindow.damageRetaliation.may";
+		"vcmi.battleWindow.damageRetaliation.may" :
+		"vcmi.battleWindow.damageRetaliation.will";
 
 	return CGI->generaltexth->translate(prefixTextID) + formatAttack(estimation, "", baseTextID, 0);
 }
@@ -517,14 +517,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(shooter, targetStack, shooter->getPosition(), &retaliation);
 			estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
 			estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
-			bool enemyMayBeKilled = estimation.kills.max == targetStack->getCount();
-			bool mayRetaliate = retaliation.damage.max > 0;
-
-			// for ranged attacks only show retaliation info if retaliation actually happens - since most shooters don't retaliate
-			if (mayRetaliate)
-				return formatRangedAttack(estimation, targetStack->getName(), shooter->shots.available()) + "\n" + formatRetaliation(retaliation, enemyMayBeKilled);
-			else
-				return formatRangedAttack(estimation, targetStack->getName(), shooter->shots.available());
+			return formatRangedAttack(estimation, targetStack->getName(), shooter->shots.available());
 		}
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
