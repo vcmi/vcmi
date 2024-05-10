@@ -616,6 +616,9 @@ void CTavernWindow::HeroPortrait::clickDouble(const Point & cursorPosition)
 
 void CTavernWindow::HeroPortrait::showPopupWindow(const Point & cursorPosition)
 {
+	// h3 behavior - right-click also selects hero
+	clickPressed(cursorPosition);
+
 	if(h)
 		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
@@ -1712,6 +1715,12 @@ void CObjectListWindow::CItem::clickPressed(const Point & cursorPosition)
 
 void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
 {
+	if (parent->selected != index)
+	{
+		clickPressed(cursorPosition);
+		return;
+	}
+
 	parent->elementSelected();
 }
 

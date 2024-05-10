@@ -358,6 +358,17 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 	if(itemIndex >= curItems.size())
 		return;
 
+	auto clickedItem = curItems[itemIndex];
+	auto selectedItem = getSelectedMapInfo();
+
+	if (clickedItem != selectedItem)
+	{
+		// double-click BUT player hit different item than he had selected
+		// ignore - clickReleased would still trigger and update selection.
+		// After which another (3rd) click if it happens would still register as double-click
+		return;
+	}
+
 	if(itemIndex >= 0 && curItems[itemIndex]->isFolder)
 	{
 		select(position);
