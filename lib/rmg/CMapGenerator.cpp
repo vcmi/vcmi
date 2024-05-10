@@ -130,6 +130,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	catch (rmgException &e)
 	{
 		logGlobal->error("Random map generation received exception: %s", e.what());
+		throw;
 	}
 	Load::Progress::finish();
 	return std::move(map->mapInstance);

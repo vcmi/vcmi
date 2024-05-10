@@ -1351,6 +1351,9 @@ void CCastleInterface::recreateIcons()
 	{
 		if(town->builtBuildings.count(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+	}, [&]{
+		if(!town->town->faction->getDescriptionTranslated().empty())
+			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
 	});
 
 	creainfo.clear();

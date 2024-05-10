@@ -40,6 +40,10 @@
 			"type" : "string",
 			"description" : "Localizable faction name, e.g. Rampart"
 		},
+		"description" : {
+			"type" : "string",
+			"description" : "Description about the faction"
+		},
 		"alignment" : {
 			"type" : "string",
 			"enum" : [ "good", "neutral", "evil" ],

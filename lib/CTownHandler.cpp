@@ -188,6 +188,16 @@ std::string CFaction::getNameTextID() const
 	return TextIdentifier("faction", modScope, identifier, "name").get();
 }
 
+std::string CFaction::getDescriptionTranslated() const
+{
+	return VLC->generaltexth->translate(getDescriptionTextID());
+}
+
+std::string CFaction::getDescriptionTextID() const
+{
+	return TextIdentifier("faction", modScope, identifier, "description").get();
+}
+
 FactionID CFaction::getId() const
 {
 	return FactionID(index);
@@ -1037,6 +1047,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->identifier = identifier;
 
 	VLC->generaltexth->registerString(scope, faction->getNameTextID(), source["name"].String());
+	VLC->generaltexth->registerString(scope, faction->getDescriptionTranslated(), source["description"].String());
 
 	faction->creatureBg120 = ImagePath::fromJson(source["creatureBackground"]["120px"]);
 	faction->creatureBg130 = ImagePath::fromJson(source["creatureBackground"]["130px"]);
