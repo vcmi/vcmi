@@ -121,16 +121,12 @@ bool RoadPlacer::createRoad(const int3 & dst)
 				}
 			}
 
-			auto ret = dst.dist2d(src);
+			float weight = dst.dist2dSQ(src);
+			auto ret =  weight * weight; // Still prefer straight paths
 
 			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
 			{
 				ret *= VISITABLE_PENALTY;
-			}
-			float dist = border.distance(dst);
-			if(dist > 1)
-			{
-				ret /= dist;
 			}
 			return ret;
 		};
