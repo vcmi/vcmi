@@ -73,9 +73,7 @@ bool RoadPlacer::createRoad(const int3 & destination)
 	rmg::Path path(searchArea);
 	path.connect(roads);
 
-	const float VISITABLE_PENALTY = 1.33f;
-
-	auto simpleRoutig = [this, &border, &VISITABLE_PENALTY](const int3& src, const int3& dst)
+	auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
 	{
 		if(areaIsolated().contains(dst))
 		{
@@ -101,36 +99,8 @@ bool RoadPlacer::createRoad(const int3 & destination)
 	auto res = path.search(destination, true, simpleRoutig);
 	if(!res.valid())
 	{
-		auto desperateRoutig = [this, &VISITABLE_PENALTY](const int3& src, const int3& dst) -> float
-		{
-			//Do not allow connections straight up through object not visitable from top
-			if(std::abs((src - dst).y) == 1)
-			{
-				if(areaIsolated().contains(dst) || areaIsolated().contains(src))
-				{
-					return 1e12;
-				}
-			}
-			else
-			{
-				if(areaIsolated().contains(dst))
-				{
-					return 1e6;
-				}
-			}
-
-			float weight = dst.dist2dSQ(src);
-			auto ret =  weight * weight; // Still prefer straight paths
-
-			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
-			{
-				ret *= VISITABLE_PENALTY;
-			}
-			return ret;
-		};
-		res = path.search(destination, false, desperateRoutig);
-
-		if(!res.valid())
+		res = createRoadDesperate(path, destination);
+		if (!res.valid())
 		{
 			logGlobal->warn("Failed to create road to node %s", destination.toString());
 			return false;
@@ -139,6 +109,38 @@ bool RoadPlacer::createRoad(const int3 & destination)
 	roads.unite(res.getPathArea());
 	return true;
 	
+}
+
+rmg::Path RoadPlacer::createRoadDesperate(rmg::Path & path, const int3 & destination)
+{
+	auto desperateRoutig = [this](const int3& src, const int3& dst) -> float
+	{
+		//Do not allow connections straight up through object not visitable from top
+		if(std::abs((src - dst).y) == 1)
+		{
+			if(areaIsolated().contains(dst) || areaIsolated().contains(src))
+			{
+				return 1e12;
+			}
+		}
+		else
+		{
+			if(areaIsolated().contains(dst))
+			{
+				return 1e6;
+			}
+		}
+
+		float weight = dst.dist2dSQ(src);
+		auto ret =  weight * weight; // Still prefer straight paths
+
+		if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+		{
+			ret *= VISITABLE_PENALTY;
+		}
+		return ret;
+	};
+	return path.search(destination, false, desperateRoutig);
 }
 
 void RoadPlacer::drawRoads(bool secondary)
