@@ -64,7 +64,7 @@ const rmg::Area & RoadPlacer::getRoads() const
 	return roads;
 }
 
-bool RoadPlacer::createRoad(const int3 & dst)
+bool RoadPlacer::createRoad(const int3 & destination)
 {
 	auto searchArea = zone.areaPossible() + zone.freePaths() + areaRoads + roads;
 
@@ -84,8 +84,6 @@ bool RoadPlacer::createRoad(const int3 & dst)
 		else
 		{
 			float ret = dst.dist2d(src);
-			
-			// TODO: Prefer zig-zag connections
 
 			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
 			{
@@ -100,7 +98,7 @@ bool RoadPlacer::createRoad(const int3 & dst)
 		}
 	};
 	
-	auto res = path.search(dst, true, simpleRoutig);
+	auto res = path.search(destination, true, simpleRoutig);
 	if(!res.valid())
 	{
 		auto desperateRoutig = [this, &VISITABLE_PENALTY](const int3& src, const int3& dst) -> float
@@ -130,11 +128,11 @@ bool RoadPlacer::createRoad(const int3 & dst)
 			}
 			return ret;
 		};
-		res = path.search(dst, false, desperateRoutig);
+		res = path.search(destination, false, desperateRoutig);
 
 		if(!res.valid())
 		{
-			logGlobal->warn("Failed to create road to node %s", dst.toString());
+			logGlobal->warn("Failed to create road to node %s", destination.toString());
 			return false;
 		}
 	}
