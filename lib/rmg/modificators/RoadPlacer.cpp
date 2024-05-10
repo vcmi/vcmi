@@ -103,7 +103,7 @@ bool RoadPlacer::createRoad(const int3 & dst)
 	auto res = path.search(dst, true, simpleRoutig);
 	if(!res.valid())
 	{
-		auto desperateRoutig = [this, &border, &VISITABLE_PENALTY](const int3& src, const int3& dst) -> float
+		auto desperateRoutig = [this, &VISITABLE_PENALTY](const int3& src, const int3& dst) -> float
 		{
 			//Do not allow connections straight up through object not visitable from top
 			if(std::abs((src - dst).y) == 1)
