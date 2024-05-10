@@ -254,6 +254,11 @@ bool Area::overlap(const Area & area) const
 	return overlap(area.getTilesVector());
 }
 
+int Area::distance(const int3 & tile) const
+{
+	return nearest(tile).dist2d(tile);
+}
+
 int Area::distanceSqr(const int3 & tile) const
 {
 	return nearest(tile).dist2dSQ(tile);

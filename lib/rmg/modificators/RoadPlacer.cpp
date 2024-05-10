@@ -68,12 +68,14 @@ bool RoadPlacer::createRoad(const int3 & dst)
 {
 	auto searchArea = zone.areaPossible() + zone.freePaths() + areaRoads + roads;
 
+	rmg::Area border(zone.area()->getBorder());
+
 	rmg::Path path(searchArea);
 	path.connect(roads);
 
 	const float VISITABLE_PENALTY = 1.33f;
 
-	auto simpleRoutig = [this, VISITABLE_PENALTY](const int3& src, const int3& dst)
+	auto simpleRoutig = [this, &border, &VISITABLE_PENALTY](const int3& src, const int3& dst)
 	{
 		if(areaIsolated().contains(dst))
 		{
@@ -81,12 +83,18 @@ bool RoadPlacer::createRoad(const int3 & dst)
 		}
 		else
 		{
-			float weight = dst.dist2dSQ(src);
-			auto ret =  weight * weight;
+			float ret = dst.dist2d(src);
+			
+			// TODO: Prefer zig-zag connections
 
 			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
 			{
 				ret *= VISITABLE_PENALTY;
+			}
+			float dist = border.distance(dst);
+			if(dist > 1)
+			{
+				ret /= dist;
 			}
 			return ret;
 		}
@@ -95,7 +103,7 @@ bool RoadPlacer::createRoad(const int3 & dst)
 	auto res = path.search(dst, true, simpleRoutig);
 	if(!res.valid())
 	{
-		auto desperateRoutig = [this, VISITABLE_PENALTY](const int3& src, const int3& dst) -> float
+		auto desperateRoutig = [this, &border, &VISITABLE_PENALTY](const int3& src, const int3& dst) -> float
 		{
 			//Do not allow connections straight up through object not visitable from top
 			if(std::abs((src - dst).y) == 1)
@@ -113,12 +121,16 @@ bool RoadPlacer::createRoad(const int3 & dst)
 				}
 			}
 
-			float weight = dst.dist2dSQ(src);
+			auto ret = dst.dist2d(src);
 
-			auto ret =  weight * weight;
 			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
 			{
 				ret *= VISITABLE_PENALTY;
+			}
+			float dist = border.distance(dst);
+			if(dist > 1)
+			{
+				ret /= dist;
 			}
 			return ret;
 		};
