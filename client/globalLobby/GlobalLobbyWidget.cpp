@@ -210,8 +210,8 @@ GlobalLobbyAccountCard::GlobalLobbyAccountCard(GlobalLobbyWindow * window, const
 }
 
 GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & roomDescription)
-	: roomUUID(roomDescription.gameRoomID)
-	, window(window)
+	: window(window)
+	, roomUUID(roomDescription.gameRoomID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	addUsedEvents(LCLICK);

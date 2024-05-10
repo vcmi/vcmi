@@ -348,7 +348,9 @@ struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
 {
 	enum EAction : ui8 {
 		NONE, COIN, RANDOM_TOWN, RANDOM_TOWN_VS
-	} action = NONE;
+	};
+
+	EAction action = NONE;
 	std::vector<FactionID> bannedTowns;
 
 

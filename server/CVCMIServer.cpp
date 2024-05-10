@@ -379,7 +379,7 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 	applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
 }
 
-void CVCMIServer::announceMessage(MetaString txt)
+void CVCMIServer::announceMessage(const MetaString & txt)
 {
 	logNetwork->info("Show message: %s", txt.toString());
 	auto cm = std::make_unique<LobbyShowMessage>();
@@ -394,7 +394,7 @@ void CVCMIServer::announceMessage(const std::string & txt)
 	announceMessage(str);
 }
 
-void CVCMIServer::announceTxt(MetaString txt, const std::string & playerName)
+void CVCMIServer::announceTxt(const MetaString & txt, const std::string & playerName)
 {
 	logNetwork->info("%s says: %s", playerName, txt.toString());
 	auto cm = std::make_unique<LobbyChatMessage>();
