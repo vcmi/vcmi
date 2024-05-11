@@ -58,6 +58,8 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 	for(const auto & entry : history)
 		onGameChatMessage(entry.displayName, entry.messageText, entry.timeFormatted, channelType, channelName);
 
+	refreshChatText();
+
 	MetaString text;
 	text.appendTextID("vcmi.lobby.header.chat." + channelType);
 	text.replaceRawString(roomDescription);
@@ -133,7 +135,9 @@ void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std:
 	chatMessageFormatted.replaceRawString(message);
 
 	chatHistory += chatMessageFormatted.toString();
-
+}
+void GlobalLobbyWindow::refreshChatText()
+{
 	widget->getGameChat()->setText(chatHistory);
 }
 

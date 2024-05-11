@@ -44,6 +44,7 @@ public:
 	// Callbacks for network packs
 
 	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when, const std::string & channelType, const std::string & channelName);
+	void refreshChatText();
 	void onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts);
 	void onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms);
 	void onMatchesHistory(const std::vector<GlobalLobbyRoom> & history);
