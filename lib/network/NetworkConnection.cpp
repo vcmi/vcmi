@@ -105,17 +105,44 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 {
 	std::lock_guard<std::mutex> lock(writeMutex);
+	std::vector<std::byte> headerVector(sizeof(uint32_t));
+	uint32_t messageSize = message.size();
+	std::memcpy(headerVector.data(), &messageSize, sizeof(uint32_t));
 
-	boost::system::error_code ec;
-
-	// create array with single element - boost::asio::buffer can be constructed from containers, but not from plain integer
-	std::array<uint32_t, 1> messageSize{static_cast<uint32_t>(message.size())};
-
-	boost::asio::write(*socket, boost::asio::buffer(messageSize), ec );
+	bool messageQueueEmpty = dataToSend.empty();
+	dataToSend.push_back(headerVector);
 	if (message.size() > 0)
-		boost::asio::write(*socket, boost::asio::buffer(message), ec );
+		dataToSend.push_back(message);
 
-	//Note: ignoring error code, intended
+	if (messageQueueEmpty)
+		doSendData();
+	//else - data sending loop is still active and still sending previous messages
+}
+
+void NetworkConnection::doSendData()
+{
+	if (dataToSend.empty())
+		throw std::runtime_error("Attempting to sent data but there is no data to send!");
+
+	boost::asio::async_write(*socket, boost::asio::buffer(dataToSend.front()), [self = shared_from_this()](const auto & error, const auto & )
+	{
+		self->onDataSent(error);
+	});
+}
+
+void NetworkConnection::onDataSent(const boost::system::error_code & ec)
+{
+	std::lock_guard<std::mutex> lock(writeMutex);
+	dataToSend.pop_front();
+	if (ec)
+	{
+		logNetwork->error("Failed to send package: %s", ec.message());
+		// TODO: Throw?
+		return;
+	}
+
+	if (!dataToSend.empty())
+		doSendData();
 }
 
 void NetworkConnection::close()
