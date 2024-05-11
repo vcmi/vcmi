@@ -387,25 +387,31 @@ jobs:
 
 
   deploy-src:
+    if: always() && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: pwsh
+        shell: bash
     steps:
         - uses: actions/checkout@v4
           with:
             submodules: recursive
+
+        - name: Build Number
+          run: |
+            source '${{github.workspace}}/CI/get_package_name.sh'
+            echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
             
         - name: Create source code archive (including submodules)
           run: |
-            git archive HEAD -o "release.zip" --worktree-attributes -v
+            git archive HEAD -o "release.tar" --worktree-attributes -v
             git submodule update --init --recursive
-            git submodule --quiet foreach 'cd "$toplevel"; zip -ru "release.zip" "$sm_path"'
-            unzip -q release.zip -d ./src
+            git submodule --quiet foreach 'cd "$toplevel"; tar -rvf "release.tar" "$sm_path"'
+            gzip release.tar
             
         - name: Upload source code archive
           uses: actions/upload-artifact@v4
           with:
-            name: src
+            name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
             path: |
-              ./src
+              ./release.tar.gz
