@@ -19,9 +19,9 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/Slider.h"
 #include "../widgets/ObjectLists.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"
 #include "../../lib/TextOperations.h"
@@ -139,6 +139,8 @@ void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std:
 void GlobalLobbyWindow::refreshChatText()
 {
 	widget->getGameChat()->setText(chatHistory);
+	if (widget->getGameChat()->slider)
+		widget->getGameChat()->slider->scrollToMax();
 }
 
 bool GlobalLobbyWindow::isChannelUnread(const std::string & channelType, const std::string & channelName) const
