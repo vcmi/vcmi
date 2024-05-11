@@ -262,4 +262,11 @@ enum class EMovementMode : int8_t
 	TOWN_PORTAL,
 };
 
+enum class EMapLevel : int8_t
+{
+	ANY = -1,
+	SURFACE = 0,
+	UNDERGROUND = 1
+};
+
 VCMI_LIB_NAMESPACE_END

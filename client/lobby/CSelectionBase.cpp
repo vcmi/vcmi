@@ -407,7 +407,7 @@ PvPBox::PvPBox(const Rect & rect)
 
 	auto getBannedTowns = [this](){
 		std::vector<FactionID> bannedTowns;
-		for(auto & town : townSelector->townsEnabled)
+		for(const auto & town : townSelector->townsEnabled)
 			if(!town.second)
 				bannedTowns.push_back(town.first);
 		return bannedTowns;
@@ -448,7 +448,7 @@ TownSelector::TownSelector(const Point & loc)
 	{
 		townsEnabled[factionID] = true;
 		count++;
-	};
+	}
 
 	auto divisionRoundUp = [](int x, int y){ return (x + (y - 1)) / y; };
 
@@ -473,20 +473,17 @@ void TownSelector::updateListItems()
 
 	int x = 0;
 	int y = 0;
-	CGI->factions()->forEach([this, &x, &y, line, x_offset](const Faction *entity, bool &stop){
-		if(!entity->hasTown())
-			return;
-
+	for (auto const & factionID : CGI->townh->getDefaultAllowed())
+	{
 		if(y >= line && (y - line) < 3)
 		{
-			FactionID factionID = entity->getFaction();
-			auto getImageIndex = [](FactionID factionID, bool enabled){ return (*CGI->townh)[factionID]->town->clientInfo.icons[true][!enabled] + 2; }; 
+			auto getImageIndex = [](FactionID factionID, bool enabled){ return factionID.toFaction()->town->clientInfo.icons[true][!enabled] + 2; };
 			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, x_offset + 48 * x, 32 * (y - line));
 			townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(x_offset + 48 * x, 32 * (y - line), 48, 32), [this, getImageIndex, factionID](){
 				townsEnabled[factionID] = !townsEnabled[factionID];
 				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
 				redraw();
-			}, [factionID](){ CRClickPopup::createAndPush((*CGI->townh)[factionID]->town->faction->getNameTranslated()); });
+			}, [factionID](){ CRClickPopup::createAndPush(factionID.toFaction()->town->faction->getNameTranslated()); });
 		}
 
 		if (x < 2)
@@ -496,7 +493,7 @@ void TownSelector::updateListItems()
 			x = 0;
 			y++;
 		}
-	});
+	}
 }
 
 void TownSelector::sliderMove(int slidPos)

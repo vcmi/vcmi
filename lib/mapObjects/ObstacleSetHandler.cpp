@@ -19,15 +19,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 ObstacleSet::ObstacleSet():
 	type(INVALID),
-	allowedTerrains({TerrainId::NONE}),
-	level(EMapLevel::ANY)
+	level(EMapLevel::ANY),
+	allowedTerrains({TerrainId::NONE})
 {
 }
 
 ObstacleSet::ObstacleSet(EObstacleType type, TerrainId terrain):
 	type(type),
-	allowedTerrains({terrain}),
-	level(EMapLevel::ANY)
+	level(EMapLevel::ANY),
+	allowedTerrains({terrain})
 {
 }
 
@@ -51,27 +51,27 @@ void ObstacleSet::removeEmptyTemplates()
 
 ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes,
 	TerrainId terrain = TerrainId::ANY_TERRAIN,
-	ObstacleSet::EMapLevel level = ObstacleSet::EMapLevel::ANY,
+	EMapLevel level = EMapLevel::ANY,
 	FactionID faction = FactionID::ANY,
 	EAlignment alignment = EAlignment::ANY):
 	allowedTypes(allowedTypes),
-	level(level),
 	faction(faction),
 	alignment(alignment),
-	terrain(terrain)
+	terrain(terrain),
+	level(level)
 {
 }
 
 ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType,
 	TerrainId terrain = TerrainId::ANY_TERRAIN,
-	ObstacleSet::EMapLevel level = ObstacleSet::EMapLevel::ANY,
+	EMapLevel level = EMapLevel::ANY,
 	FactionID faction = FactionID::ANY,
 	EAlignment alignment = EAlignment::ANY):
 	allowedTypes({allowedType}),
-	level(level),
 	faction(faction),
 	alignment(alignment),
-	terrain(terrain)
+	terrain(terrain),
+	level(level)
 {
 }
 
@@ -82,7 +82,7 @@ bool ObstacleSetFilter::filter(const ObstacleSet &set) const
 		return false;
 	}
 
-	if (level != ObstacleSet::EMapLevel::ANY && set.getLevel() != ObstacleSet::EMapLevel::ANY)
+	if (level != EMapLevel::ANY && set.getLevel() != EMapLevel::ANY)
 	{
 		if (level != set.getLevel())
 		{
@@ -137,12 +137,12 @@ void ObstacleSet::addTerrain(TerrainId terrain)
 	this->allowedTerrains.insert(terrain);
 }
 
-ObstacleSet::EMapLevel ObstacleSet::getLevel() const
+EMapLevel ObstacleSet::getLevel() const
 {
 	return level;
 }
 
-void ObstacleSet::setLevel(ObstacleSet::EMapLevel newLevel)
+void ObstacleSet::setLevel(EMapLevel newLevel)
 {
 	level = newLevel;
 }
@@ -278,12 +278,12 @@ std::string ObstacleSet::toString() const
 	return OBSTACLE_TYPE_STRINGS.at(type);
 }
 
-ObstacleSet::EMapLevel ObstacleSet::levelFromString(const std::string &str)
+EMapLevel ObstacleSet::levelFromString(const std::string &str)
 {
 	static const std::map<std::string, EMapLevel> LEVEL_NAMES =
 	{
-		{"surface", SURFACE},
-		{"underground", UNDERGROUND}
+		{"surface", EMapLevel::SURFACE},
+		{"underground", EMapLevel::UNDERGROUND}
 	};
 
 	if (LEVEL_NAMES.find(str) != LEVEL_NAMES.end())

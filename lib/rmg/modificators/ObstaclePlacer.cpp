@@ -40,7 +40,7 @@ void ObstaclePlacer::process()
 
 	ObstacleSetFilter filter(ObstacleSet::EObstacleType::INVALID,
 							zone.getTerrainType(),
-							static_cast<ObstacleSet::EMapLevel>(zone.isUnderground()),
+							static_cast<EMapLevel>(zone.isUnderground()),
 							faction->getId(),
 							faction->alignment);
 

@@ -38,13 +38,6 @@ public:
 		OTHER // Crystals, shipwrecks, barrels, etc.
 	};
 
-	enum EMapLevel // TODO: Move somewhere to map definitions
-	{
-		ANY = -1,
-		SURFACE = 0,
-		UNDERGROUND = 1
-	};
-
 	ObstacleSet();
 	explicit ObstacleSet(EObstacleType type, TerrainId terrain);
 
@@ -87,8 +80,8 @@ using TObstacleTypes = std::vector<std::shared_ptr<ObstacleSet>>;
 class DLL_LINKAGE ObstacleSetFilter
 {
 public:
-	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain, ObstacleSet::EMapLevel level, FactionID faction, EAlignment alignment);
-	ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain, ObstacleSet::EMapLevel level, FactionID faction, EAlignment alignment);
+	ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain, EMapLevel level, FactionID faction, EAlignment alignment);
+	ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain, EMapLevel level, FactionID faction, EAlignment alignment);
 
 	bool filter(const ObstacleSet &set) const;
 
@@ -105,7 +98,7 @@ private:
 	EAlignment alignment;
 // TODO: Filter by faction,  surface/underground, etc.
 	const TerrainId terrain;
-	ObstacleSet::EMapLevel level;
+	EMapLevel level;
 };
 
 // TODO: Instantiate ObstacleSetHandler
