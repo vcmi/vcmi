@@ -243,10 +243,20 @@ JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, bo
 
 	for(const auto & file : files)
 	{
-		bool isValidFile = false;
-		JsonNode section(JsonPath::builtinTODO(file), isValidFile);
-		merge(result, section);
-		isValid |= isValidFile;
+		JsonPath path = JsonPath::builtinTODO(file);
+
+		if (CResourceHandler::get()->existsResource(path))
+		{
+			bool isValidFile = false;
+			JsonNode section(JsonPath::builtinTODO(file), isValidFile);
+			merge(result, section);
+			isValid |= isValidFile;
+		}
+		else
+		{
+			logMod->error("Failed to find file %s", file);
+			isValid = false;
+		}
 	}
 	return result;
 }
