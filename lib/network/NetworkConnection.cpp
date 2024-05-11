@@ -14,7 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, const std::shared_ptr<NetworkContext> & context)
 	: socket(socket)
-	, context(context)
+	, timer(std::make_shared<NetworkTimer>(*context))
 	, listener(listener)
 {
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
@@ -44,7 +44,11 @@ NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, cons
 void NetworkConnection::start()
 {
 	heartbeat();
+	startReceiving();
+}
 
+void NetworkConnection::startReceiving()
+{
 	boost::asio::async_read(*socket,
 							readBuffer,
 							boost::asio::transfer_exactly(messageHeaderSize),
@@ -55,8 +59,8 @@ void NetworkConnection::heartbeat()
 {
 	constexpr auto heartbeatInterval = std::chrono::seconds(10);
 
-	auto timer = std::make_shared<NetworkTimer>(*context, heartbeatInterval);
-	timer->async_wait( [self = shared_from_this(), timer](const auto & ec)
+	timer->expires_after(heartbeatInterval);
+	timer->async_wait( [self = shared_from_this()](const auto & ec)
 	{
 		if (ec)
 			return;
@@ -92,7 +96,7 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHea
 	if (messageSize == 0)
 	{
 		//heartbeat package with no payload - wait for next packet
-		start();
+		startReceiving();
 		return;
 	}
 
@@ -119,7 +123,7 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 	readBuffer.sgetn(reinterpret_cast<char *>(message.data()), expectedPacketSize);
 	listener.onPacketReceived(shared_from_this(), message);
 
-	start();
+	startReceiving();
 }
 
 void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
@@ -157,7 +161,7 @@ void NetworkConnection::onDataSent(const boost::system::error_code & ec)
 	if (ec)
 	{
 		logNetwork->error("Failed to send package: %s", ec.message());
-		// TODO: Throw?
+		listener.onDisconnected(shared_from_this(), ec.message());
 		return;
 	}
 
@@ -169,6 +173,7 @@ void NetworkConnection::close()
 {
 	boost::system::error_code ec;
 	socket->close(ec);
+	timer->cancel(ec);
 
 	//NOTE: ignoring error code, intended
 }
