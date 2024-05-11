@@ -50,7 +50,7 @@ void NetworkHandler::connectToRemote(INetworkClientListener & listener, const st
 				listener.onConnectionFailed(error.message());
 				return;
 			}
-			auto connection = std::make_shared<NetworkConnection>(listener, socket);
+			auto connection = std::make_shared<NetworkConnection>(listener, socket, io);
 			connection->start();
 
 			listener.onConnectionEstablished(connection);

@@ -20,11 +20,13 @@ class NetworkConnection : public INetworkConnection, public std::enable_shared_f
 
 	std::list<std::vector<std::byte>> dataToSend;
 	std::shared_ptr<NetworkSocket> socket;
+	std::shared_ptr<NetworkContext> context;
 	std::mutex writeMutex;
 
 	NetworkBuffer readBuffer;
 	INetworkConnectionListener & listener;
 
+	void heartbeat();
 	void onHeaderReceived(const boost::system::error_code & ec);
 	void onPacketReceived(const boost::system::error_code & ec, uint32_t expectedPacketSize);
 
@@ -32,7 +34,7 @@ class NetworkConnection : public INetworkConnection, public std::enable_shared_f
 	void onDataSent(const boost::system::error_code & ec);
 
 public:
-	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket);
+	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, const std::shared_ptr<NetworkContext> & context);
 
 	void start();
 	void close() override;
