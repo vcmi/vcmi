@@ -42,5 +42,7 @@ enum class ESerializationVersion : int32_t
 	TURN_TIMERS_STATE, // 839 current state of turn timers is serialized
 	ARTIFACT_COSTUMES, // 840 swappable artifacts set added
 
+	RELEASE_150 = ARTIFACT_COSTUMES, // for convenience
+
 	CURRENT = ARTIFACT_COSTUMES
 };

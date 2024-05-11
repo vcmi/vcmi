@@ -700,7 +700,7 @@ void CMap::resolveQuestIdentifiers()
 	//FIXME: move to CMapLoaderH3M
 	for (auto & quest : quests)
 	{
-		if (quest->killTarget != ObjectInstanceID::NONE)
+		if (quest && quest->killTarget != ObjectInstanceID::NONE)
 			quest->killTarget = questIdentifierToId[quest->killTarget.getNum()];
 	}
 	questIdentifierToId.clear();

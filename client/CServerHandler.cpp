@@ -612,13 +612,6 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	sendLobbyPack(lpsg);
 
 	LobbyStartGame lsg;
-	if(client)
-	{
-		lsg.initializedStartInfo = std::make_shared<StartInfo>(* const_cast<StartInfo *>(client->getStartInfo(true)));
-		lsg.initializedStartInfo->mode = EStartMode::NEW_GAME;
-		lsg.initializedStartInfo->seedToBeUsed = lsg.initializedStartInfo->seedPostInit = 0;
-		* si = * lsg.initializedStartInfo;
-	}
 	sendLobbyPack(lsg);
 }
 
@@ -845,7 +838,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
-	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
+	while(!mi || mapInfo->fileURI != mi->fileURI)
 	{
 		setMapInfo(mapInfo);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
@@ -932,10 +925,10 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 
 	if(client)
 	{
-		CSH->endGameplay();
+		endGameplay();
 		GH.defActionsDef = 63;
 		CMM->menu->switchToTab("main");
-		CSH->showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
+		showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
 	else
 	{
@@ -998,7 +991,7 @@ void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 
 bool CServerHandler::inLobbyRoom() const
 {
-	return CSH->serverMode == EServerMode::LOBBY_HOST || CSH->serverMode == EServerMode::LOBBY_GUEST;
+	return serverMode == EServerMode::LOBBY_HOST || serverMode == EServerMode::LOBBY_GUEST;
 }
 
 bool CServerHandler::inGame() const
