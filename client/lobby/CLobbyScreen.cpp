@@ -50,7 +50,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		buttonSelect->addCallback([=]()
 		{
 			toggleTab(tabSel);
-			if (getMapInfo()->isRandomMap)
+			if (getMapInfo() && getMapInfo()->isRandomMap)
 				CSH->setMapInfo(tabSel->getSelectedMapInfo());
 		});
 
@@ -78,7 +78,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		buttonRMG->addCallback([this]()
 		{
 			toggleTab(tabRand);
-			if (!getMapInfo()->isRandomMap)
+			if (getMapInfo() && !getMapInfo()->isRandomMap)
 				tabRand->updateMapInfoByHost();
 		});
 

@@ -87,6 +87,7 @@
 
 #include "../lib/gameState/CGameState.h"
 
+#include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
@@ -1658,6 +1659,15 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	auto onWindowClosed = [this, queryID](){
 		cb->selectionMade(0, queryID);
 	};
+
+	if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && dynamic_cast<const CGArtifactsAltar*>(market) == nullptr)
+	{
+		// compatibility check, safe to remove for 1.6
+		// 1.4 saves loaded in 1.5 will not be able to visit Altar of Sacrifice due to Altar now requiring different map object class
+		static_assert(ESerializationVersion::RELEASE_143 < ESerializationVersion::CURRENT, "Please remove this compatibility check once it no longer needed");
+		onWindowClosed();
+		return;
+	}
 
 	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
 		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
