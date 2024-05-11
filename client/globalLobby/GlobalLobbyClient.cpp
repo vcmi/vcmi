@@ -169,9 +169,10 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 	{
 		lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
 		lobbyWindowPtr->refreshChatText();
-	}
 
-	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+		if(channelType == "player" || lobbyWindowPtr->isChannelOpen(channelType, channelName))
+			CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+	}
 }
 
 void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
