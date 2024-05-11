@@ -317,7 +317,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);
 	addProperty("Spells", PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
 	
-	if(o->type)
+	if(o->type || o->ID == Obj::PRISON)
 	{ //Hero type
 		auto * delegate = new InspectorDelegate;
 		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
@@ -330,7 +330,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 				}
 			}
 		}
-		addProperty("Hero type", o->type->getNameTranslated(), delegate, false);
+		addProperty("Hero type", o->type ? o->type->getNameTranslated() : "", delegate, false);
 	}
 }
 
