@@ -51,7 +51,6 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 	currentChannelName = channelName;
 	chatHistory.clear();
 	unreadChannels.erase(channelType + "_" + channelName);
-	widget->getGameChat()->setText("");
 
 	auto history = CSH->getGlobalLobby().getChannelHistory(channelType, channelName);
 
