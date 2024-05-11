@@ -35,7 +35,7 @@ void NetworkHandler::connectToRemote(INetworkClientListener & listener, const st
 	auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*io);
 
 	resolver->async_resolve(host, std::to_string(port),
-	[&listener, resolver, socket](const boost::system::error_code& error, const boost::asio::ip::tcp::resolver::results_type & endpoints)
+	[this, &listener, resolver, socket](const boost::system::error_code& error, const boost::asio::ip::tcp::resolver::results_type & endpoints)
 	{
 		if (error)
 		{
@@ -43,7 +43,7 @@ void NetworkHandler::connectToRemote(INetworkClientListener & listener, const st
 			return;
 		}
 
-		boost::asio::async_connect(*socket, endpoints, [socket, &listener](const boost::system::error_code& error, const boost::asio::ip::tcp::endpoint& endpoint)
+		boost::asio::async_connect(*socket, endpoints, [this, socket, &listener](const boost::system::error_code& error, const boost::asio::ip::tcp::endpoint& endpoint)
 		{
 			if (error)
 			{
