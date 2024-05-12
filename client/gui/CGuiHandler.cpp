@@ -165,6 +165,11 @@ bool CGuiHandler::isKeyboardCtrlDown() const
 	return inputHandlerInstance->isKeyboardCtrlDown();
 }
 
+bool CGuiHandler::isKeyboardCmdDown() const
+{
+	return inputHandlerInstance->isKeyboardCmdDown();
+}
+
 bool CGuiHandler::isKeyboardAltDown() const
 {
 	return inputHandlerInstance->isKeyboardAltDown();

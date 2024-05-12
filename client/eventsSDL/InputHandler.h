@@ -88,6 +88,7 @@ public:
 
 	/// returns true if chosen keyboard key is currently pressed down
 	bool isKeyboardAltDown() const;
+	bool isKeyboardCmdDown() const;
 	bool isKeyboardCtrlDown() const;
 	bool isKeyboardShiftDown() const;
 };

@@ -62,9 +62,17 @@ public:
 	/// May not match size of window if user has UI scaling different from 100%
 	Point screenDimensions() const;
 
-	/// returns true if chosen keyboard key is currently pressed down
+	/// returns true if Alt is currently pressed down
 	bool isKeyboardAltDown() const;
+	/// returns true if Ctrl is currently pressed down
+	/// on Apple system, this also tests for Cmd key
+	/// For use with keyboard-based events
 	bool isKeyboardCtrlDown() const;
+	/// on Apple systems, returns true if Cmd key is pressed
+	/// on other systems, returns true if Ctrl is pressed
+	/// /// For use with mouse-based events
+	bool isKeyboardCmdDown() const;
+	/// returns true if Shift is currently pressed down
 	bool isKeyboardShiftDown() const;
 
 	void startTextInput(const Rect & where);

@@ -851,7 +851,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			bool moveEquipped = true;
 			bool moveBackpack = true;
 
-			if(GH.isKeyboardCtrlDown())
+			if(GH.isKeyboardCmdDown())
 				moveBackpack = false;
 			else if(GH.isKeyboardShiftDown())
 				moveEquipped = false;

@@ -300,6 +300,11 @@ void InputHandler::fetchEvents()
 	}
 }
 
+bool InputHandler::isKeyboardCmdDown() const
+{
+	return keyboardHandler->isKeyboardCmdDown();
+}
+
 bool InputHandler::isKeyboardCtrlDown() const
 {
 	return keyboardHandler->isKeyboardCtrlDown();
