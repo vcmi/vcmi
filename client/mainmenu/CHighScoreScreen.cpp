@@ -14,11 +14,12 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
-#include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/Images.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/InfoWindows.h"
+#include "../widgets/TextControls.h"
 #include "../render/Canvas.h"
 
 #include "../CGameInfo.h"

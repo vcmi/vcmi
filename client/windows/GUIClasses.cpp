@@ -31,6 +31,7 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/CreatureCostBox.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"

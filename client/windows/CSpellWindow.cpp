@@ -27,6 +27,7 @@
 #include "../gui/WindowHandler.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../render/CAnimation.h"

@@ -22,6 +22,7 @@
 #include "../render/IFont.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"

@@ -18,9 +18,10 @@
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../widgets/TextControls.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/Slider.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/TextControls.h"
 
 #include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"

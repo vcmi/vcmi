@@ -12,6 +12,7 @@
 #include "CSelectionBase.h"
 
 #include "../widgets/ComboBox.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/Images.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
