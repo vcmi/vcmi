@@ -27,6 +27,7 @@ class NetworkConnection : public INetworkConnection, public std::enable_shared_f
 	INetworkConnectionListener & listener;
 
 	void heartbeat();
+	void onError(const std::string & message);
 
 	void startReceiving();
 	void onHeaderReceived(const boost::system::error_code & ec);
