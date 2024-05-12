@@ -13,6 +13,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const float VISITABLE_PENALTY = 1.33f;
+
 class RoadPlacer: public Modificator
 {
 public:
@@ -34,6 +36,7 @@ public:
 	
 protected:
 	bool createRoad(const int3 & dst);
+	rmg::Path createRoadDesperate(rmg::Path & path, const int3 & destination);
 	void drawRoads(bool secondary = false); //actually updates tiles
 
 protected:
