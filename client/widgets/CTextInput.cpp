@@ -11,26 +11,34 @@
 #include "CTextInput.h"
 
 #include "Images.h"
+#include "TextControls.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
-#include "../windows/InfoWindows.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
 
 #include "../../lib/TextOperations.h"
 
-std::list<CFocusable*> CFocusable::focusables;
+std::list<CFocusable *> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
-CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, ETextAlignment alignment, bool giveFocusToInput)
-	: CLabel(Pos.x, Pos.y, font, alignment),
-	cb(CB)
+CTextInput::CTextInput(const Rect & Pos)
+	:originalAlignment(ETextAlignment::CENTERLEFT)
 {
-	setRedrawParent(true);
+	pos += Pos.topLeft();
 	pos.h = Pos.h;
 	pos.w = Pos.w;
-	maxWidth = Pos.w;
-	background.reset();
-	addUsedEvents(LCLICK | SHOW_POPUP | KEYBOARD | TEXTINPUT);
+
+	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
+}
+
+void CTextInput::createLabel(bool giveFocusToInput)
+{
+	OBJ_CONSTRUCTION;
+	label = std::make_shared<CLabel>();
+	label->pos = pos;
+	label->alignment = originalAlignment;
 
 #if !defined(VCMI_MOBILE)
 	if(giveFocusToInput)
@@ -38,69 +46,88 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 #endif
 }
 
-CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB)
-	:cb(CB)
+CTextInput::CTextInput(const Rect & Pos, EFonts font, const TextEditedCallback & onTextEdited, ETextAlignment alignment, bool giveFocusToInput)
+	: CTextInput(Pos)
 {
-	pos += Pos.topLeft();
-	pos.h = Pos.h;
-	pos.w = Pos.w;
-	maxWidth = Pos.w;
+	originalAlignment = alignment;
+	setRedrawParent(true);
+	this->onTextEdited = onTextEdited;
+	createLabel(giveFocusToInput);
+	setFont(font);
+	setAlignment(alignment);
+}
 
+CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName)
+	: CTextInput(Pos)
+{
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
-	addUsedEvents(LCLICK | SHOW_POPUP | KEYBOARD | TEXTINPUT);
-
-#if !defined(VCMI_MOBILE)
-	giveFocus();
-#endif
+	createLabel(true);
 }
 
 CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
+	: CTextInput(Pos)
 {
-	pos += Pos.topLeft();
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(srf, Pos);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
-	maxWidth = Pos.w;
 	background->pos = pos;
-	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
-
-#if !defined(VCMI_MOBILE)
-	giveFocus();
-#endif
+	createLabel(true);
 }
 
-std::atomic<int> CFocusable::usageIndex(0);
-
-void CFocusable::focusGot()
+void CTextInput::setFont(EFonts font)
 {
-	GH.startTextInput(pos);
-	usageIndex++;
+	label->font = font;
 }
 
-void CFocusable::focusLost()
+void CTextInput::setColor(const ColorRGBA & color)
 {
-	if(0 == --usageIndex)
-	{
-		GH.stopTextInput();
-	}
+	label->color = color;
 }
 
-std::string CTextInput::visibleText()
+void CTextInput::setAlignment(ETextAlignment alignment)
 {
-	return focus ? text + newText + "_" : text;
+	originalAlignment = alignment;
+	label->alignment = alignment;
+}
+
+const std::string & CTextInput::getText() const
+{
+	return currentText;
+}
+
+void CTextInput::setCallback(const TextEditedCallback & cb)
+{
+	assert(!onTextEdited);
+	onTextEdited = cb;
+}
+
+void CTextInput::setFilterFilename()
+{
+	assert(!onTextFiltering);
+	onTextFiltering = std::bind(&CTextInput::filenameFilter, _1, _2);
+}
+
+void CTextInput::setFilterNumber(int minValue, int maxValue)
+{
+	onTextFiltering = std::bind(&CTextInput::numberFilter, _1, _2, minValue, maxValue);
+}
+
+std::string CTextInput::getVisibleText()
+{
+	return hasFocus() ? currentText + composedText + "_" : currentText;
 }
 
 void CTextInput::clickPressed(const Point & cursorPosition)
 {
-	if(!focus)
+	if(!hasFocus())
 		giveFocus();
 }
 
 void CTextInput::keyPressed(EShortcut key)
 {
-	if(!focus)
+	if(!hasFocus())
 		return;
 
 	if(key == EShortcut::GLOBAL_MOVE_FOCUS)
@@ -114,14 +141,14 @@ void CTextInput::keyPressed(EShortcut key)
 	switch(key)
 	{
 		case EShortcut::GLOBAL_BACKSPACE:
-			if(!newText.empty())
+			if(!composedText.empty())
 			{
-				TextOperations::trimRightUnicode(newText);
+				TextOperations::trimRightUnicode(composedText);
 				redrawNeeded = true;
 			}
-			else if(!text.empty())
+			else if(!currentText.empty())
 			{
-				TextOperations::trimRightUnicode(text);
+				TextOperations::trimRightUnicode(currentText);
 				redrawNeeded = true;
 			}
 			break;
@@ -131,63 +158,64 @@ void CTextInput::keyPressed(EShortcut key)
 
 	if(redrawNeeded)
 	{
-		redraw();
-		cb(text);
+		updateLabel();
+		if(onTextEdited)
+			onTextEdited(currentText);
 	}
 }
 
-void CTextInput::showPopupWindow(const Point & cursorPosition)
-{
-	if(!helpBox.empty()) //there is no point to show window with nothing inside...
-		CRClickPopup::createAndPush(helpBox);
-}
-
-
 void CTextInput::setText(const std::string & nText)
 {
-	setText(nText, false);
+	currentText = nText;
+	updateLabel();
 }
 
-void CTextInput::setText(const std::string & nText, bool callCb)
+void CTextInput::updateLabel()
 {
-	CLabel::setText(nText);
-	if(callCb)
-		cb(text);
-}
+	std::string visibleText = getVisibleText();
 
-void CTextInput::setHelpText(const std::string & text)
-{
-	helpBox = text;
+	label->alignment = originalAlignment;
+
+	while (graphics->fonts[label->font]->getStringWidth(visibleText) > pos.w)
+	{
+		label->alignment = ETextAlignment::CENTERRIGHT;
+		visibleText = visibleText.substr(TextOperations::getUnicodeCharacterSize(visibleText[0]));
+	}
+
+	label->setText(visibleText);
 }
 
 void CTextInput::textInputed(const std::string & enteredText)
 {
-	if(!focus)
+	if(!hasFocus())
 		return;
-	std::string oldText = text;
+	std::string oldText = currentText;
 
 	setText(getText() + enteredText);
 
-	filters(text, oldText);
-	if(text != oldText)
+	if(onTextFiltering)
+		onTextFiltering(currentText, oldText);
+
+	if(currentText != oldText)
 	{
-		redraw();
-		cb(text);
+		updateLabel();
+		if(onTextEdited)
+			onTextEdited(currentText);
 	}
-	newText.clear();
+	composedText.clear();
 }
 
 void CTextInput::textEdited(const std::string & enteredText)
 {
-	if(!focus)
+	if(!hasFocus())
 		return;
 
-	newText = enteredText;
-	redraw();
-	cb(text + newText);
+	composedText = enteredText;
+	updateLabel();
+	//onTextEdited(currentText + composedText);
 }
 
-void CTextInput::filenameFilter(std::string & text, const std::string &)
+void CTextInput::filenameFilter(std::string & text, const std::string &oldText)
 {
 	static const std::string forbiddenChars = "<>:\"/\\|?*\r\n"; //if we are entering a filename, some special characters won't be allowed
 	size_t pos;
@@ -231,19 +259,37 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	}
 }
 
+void CTextInput::onFocusGot()
+{
+	updateLabel();
+}
+
+void CTextInput::onFocusLost()
+{
+	updateLabel();
+}
+
+void CFocusable::focusGot()
+{
+	GH.startTextInput(pos);
+	onFocusGot();
+}
+
+void CFocusable::focusLost()
+{
+	GH.stopTextInput();
+	onFocusLost();
+}
+
 CFocusable::CFocusable()
 {
-	focus = false;
 	focusables.push_back(this);
 }
 
 CFocusable::~CFocusable()
 {
 	if(hasFocus())
-	{
 		inputWithFocus = nullptr;
-		focusLost();
-	}
 
 	focusables -= this;
 }
@@ -255,30 +301,26 @@ bool CFocusable::hasFocus() const
 
 void CFocusable::giveFocus()
 {
-	focus = true;
-	focusGot();
-	redraw();
-
-	if(inputWithFocus)
-	{
-		inputWithFocus->focus = false;
-		inputWithFocus->focusLost();
-		inputWithFocus->redraw();
-	}
-
+	auto previousInput = inputWithFocus;
 	inputWithFocus = this;
+
+	if(previousInput)
+		previousInput->focusLost();
+
+	focusGot();
 }
 
 void CFocusable::moveFocus()
 {
-	auto i = vstd::find(focusables, this),
-		ourIt = i;
+	auto i = vstd::find(focusables, this);
+	auto ourIt = i;
+
 	for(i++; i != ourIt; i++)
 	{
 		if(i == focusables.end())
 			i = focusables.begin();
 
-		if (*i == this)
+		if(*i == this)
 			return;
 
 		if((*i)->isActive())
@@ -293,10 +335,7 @@ void CFocusable::removeFocus()
 {
 	if(this == inputWithFocus)
 	{
-		focus = false;
-		focusLost();
-		redraw();
-
 		inputWithFocus = nullptr;
+		focusLost();
 	}
 }

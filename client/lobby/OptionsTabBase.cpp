@@ -181,7 +181,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.baseTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldBase"))
-				ww->setText(timeToString(time), false);
+				ww->setText(timeToString(time));
 		}
 	});
 	addCallback("parseAndSetTimer_turn", [this, parseTimerString](const std::string & str){
@@ -192,7 +192,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.turnTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldTurn"))
-				ww->setText(timeToString(time), false);
+				ww->setText(timeToString(time));
 		}
 	});
 	addCallback("parseAndSetTimer_battle", [this, parseTimerString](const std::string & str){
@@ -203,7 +203,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.battleTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldBattle"))
-				ww->setText(timeToString(time), false);
+				ww->setText(timeToString(time));
 		}
 	});
 	addCallback("parseAndSetTimer_unit", [this, parseTimerString](const std::string & str){
@@ -214,7 +214,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.unitTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldUnit"))
-				ww->setText(timeToString(time), false);
+				ww->setText(timeToString(time));
 		}
 	});
 
@@ -397,13 +397,13 @@ void OptionsTabBase::recreate(bool campaign)
 	}
 
 	if(auto ww = widget<CTextInput>("chessFieldBase"))
-		ww->setText(timeToString(turnTimerRemote.baseTimer), false);
+		ww->setText(timeToString(turnTimerRemote.baseTimer));
 	if(auto ww = widget<CTextInput>("chessFieldTurn"))
-		ww->setText(timeToString(turnTimerRemote.turnTimer), false);
+		ww->setText(timeToString(turnTimerRemote.turnTimer));
 	if(auto ww = widget<CTextInput>("chessFieldBattle"))
-		ww->setText(timeToString(turnTimerRemote.battleTimer), false);
+		ww->setText(timeToString(turnTimerRemote.battleTimer));
 	if(auto ww = widget<CTextInput>("chessFieldUnit"))
-		ww->setText(timeToString(turnTimerRemote.unitTimer), false);
+		ww->setText(timeToString(turnTimerRemote.unitTimer));
 
 	if(auto w = widget<ComboBox>("timerModeSwitch"))
 	{

@@ -9,68 +9,54 @@
  */
 #pragma once
 
-#include "TextControls.h"
 #include "../gui/CIntObject.h"
 #include "../gui/TextAlignment.h"
 #include "../render/EFont.h"
 
-#include "../../lib/FunctionList.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 class CLabel;
 class IImage;
 
 /// UIElement which can get input focus
-class CFocusable : public virtual CIntObject
+class CFocusable : public CIntObject
 {
 	static std::atomic<int> usageIndex;
-public:
-	bool focus; //only one focusable control can have focus at one moment
-
-	void giveFocus(); //captures focus
-	void moveFocus(); //moves focus to next active control (may be used for tab switching)
-	void removeFocus(); //remove focus
-	bool hasFocus() const;
+	static std::list<CFocusable *> focusables; //all existing objs
+	static CFocusable * inputWithFocus; //who has focus now
 
 	void focusGot();
 	void focusLost();
 
-	static std::list<CFocusable *> focusables; //all existing objs
-	static CFocusable * inputWithFocus; //who has focus now
+	virtual void onFocusGot() = 0;
+	virtual void onFocusLost() = 0;
+
+public:
+	void giveFocus(); //captures focus
+	void moveFocus(); //moves focus to next active control (may be used for tab switching)
+	void removeFocus(); //remove focus
+	bool hasFocus() const;
 
 	CFocusable();
 	~CFocusable();
 };
 
 /// Text input box where players can enter text
-class CTextInput : public CLabel, public CFocusable
+class CTextInput final : public CFocusable
 {
-	std::string newText;
-	std::string helpBox; //for right-click help
+	using TextEditedCallback = std::function<void(const std::string &)>;
+	using TextFilterCallback = std::function<void(std::string &, const std::string &)>;
 
-protected:
-	std::string visibleText() override;
+private:
+	std::string currentText;
+	std::string composedText;
+	ETextAlignment originalAlignment;
 
-public:
+	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CLabel> label;
 
-	CFunctionList<void(const std::string &)> cb;
-	CFunctionList<void(std::string &, const std::string &)> filters;
-	void setText(const std::string & nText) override;
-	void setText(const std::string & nText, bool callCb);
-	void setHelpText(const std::string &);
-
-	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, ETextAlignment alignment, bool giveFocusToInput);
-	CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB);
-	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
-
-	void clickPressed(const Point & cursorPosition) override;
-	void keyPressed(EShortcut key) override;
-	void showPopupWindow(const Point & cursorPosition) override;
-
-	//bool captureThisKey(EShortcut key) override;
-
-	void textInputed(const std::string & enteredText) override;
-	void textEdited(const std::string & enteredText) override;
+	TextEditedCallback onTextEdited;
+	TextFilterCallback onTextFiltering;
 
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string & text, const std::string & oldText);
@@ -78,5 +64,39 @@ public:
 	//min-max should be set via something like std::bind
 	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue);
 
-	friend class CKeyboardFocusListener;
+	std::string getVisibleText();
+	void createLabel(bool giveFocusToInput);
+	void updateLabel();
+
+	void clickPressed(const Point & cursorPosition) final;
+	void textInputed(const std::string & enteredText) final;
+	void textEdited(const std::string & enteredText) final;
+	void onFocusGot() final;
+	void onFocusLost() final;
+
+	CTextInput(const Rect & Pos);
+public:
+	CTextInput(const Rect & Pos, EFonts font, const TextEditedCallback& onTextEdited, ETextAlignment alignment, bool giveFocusToInput);
+	CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName);
+	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
+
+	/// Returns currently entered text. May not match visible text
+	const std::string & getText() const;
+
+	void setText(const std::string & nText);
+
+	/// Set callback that will be called whenever player enters new text
+	void setCallback(const TextEditedCallback & cb);
+
+	/// Enables filtering entered text that ensures that text is valid filename (existing or not)
+	void setFilterFilename();
+	/// Enable filtering entered text that ensures that text is valid number in provided range [min, max]
+	void setFilterNumber(int minValue, int maxValue);
+
+	void setFont(EFonts Font);
+	void setColor(const ColorRGBA & Color);
+	void setAlignment(ETextAlignment alignment);
+
+	// CIntObject interface impl
+	void keyPressed(EShortcut key) final;
 };

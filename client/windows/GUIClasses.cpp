@@ -333,11 +333,11 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	rightInput = std::make_shared<CTextInput>(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false), ETextAlignment::CENTER, true);
 
 	//add filters to allow only number input
-	leftInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax);
-	rightInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax);
+	leftInput->setFilterNumber(leftMin, leftMax);
+	rightInput->setFilterNumber(rightMin, rightMax);
 
-	leftInput->setText(std::to_string(leftAmount), false);
-	rightInput->setText(std::to_string(rightAmount), false);
+	leftInput->setText(std::to_string(leftAmount));
+	rightInput->setText(std::to_string(rightAmount));
 
 	animLeft = std::make_shared<CCreaturePic>(20, 54, creature, true, false);
 	animRight = std::make_shared<CCreaturePic>(177, 54,creature, true, false);

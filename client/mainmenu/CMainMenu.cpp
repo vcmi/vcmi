@@ -455,7 +455,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
 	playerName->setText(getPlayerName());
-	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
+	playerName->setCallback(std::bind(&CMultiMode::onNameChange, this, _1));
 
 	buttonHotseat = std::make_shared<CButton>(Point(373, 78 + 57 * 0), AnimationPath::builtin("MUBHOT.DEF"), CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
 	buttonLobby = std::make_shared<CButton>(Point(373, 78 + 57 * 1), AnimationPath::builtin("MUBONL.DEF"), CGI->generaltexth->zelp[265], std::bind(&CMultiMode::openLobby, this));
@@ -514,15 +514,15 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 	for(int i = 0; i < inputNames.size(); i++)
 	{
 		inputNames[i] = std::make_shared<CTextInput>(Rect(60, 85 + i * 30, 280, 16), background->getSurface());
-		inputNames[i]->cb += std::bind(&CMultiPlayers::onChange, this, _1);
+		inputNames[i]->setCallback(std::bind(&CMultiPlayers::onChange, this, _1));
 	}
 
 	buttonOk = std::make_shared<CButton>(Point(95, 338), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), EShortcut::GLOBAL_ACCEPT);
 	buttonCancel = std::make_shared<CButton>(Point(205, 338), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 381, 348, 18), 7, 381));
 
-	inputNames[0]->setText(firstPlayer, true);
-#ifndef VCMI_IOS
+	inputNames[0]->setText(firstPlayer);
+#ifndef VCMI_MOBILE
 	inputNames[0]->giveFocus();
 #endif
 }
@@ -565,13 +565,14 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	else
 	{
 		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
-		inputAddress->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
-		inputPort->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
-		inputPort->filters += std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535);
+		inputAddress->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
+		inputPort->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
+		inputPort->setFilterNumber(0, 65535);
 		inputAddress->giveFocus();
 	}
-	inputAddress->setText(host ? CSH->getLocalHostname() : CSH->getRemoteHostname(), true);
-	inputPort->setText(std::to_string(host ? CSH->getLocalPort() : CSH->getRemotePort()), true);
+	inputAddress->setText(host ? CSH->getLocalHostname() : CSH->getRemoteHostname());
+	inputPort->setText(std::to_string(host ? CSH->getLocalPort() : CSH->getRemotePort()));
+	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
