@@ -334,13 +334,13 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 
 			if(!upgrade.upgradeValue
 				&& armyToGetOrBuy.upgradeValue > 20000
-				&& ai->heroManager->canRecruitHero(town)
+				&& ai->heroManager->canRecruitHero(upgrader)
 				&& path.turn() < ai->settings->getScoutHeroTurnDistanceLimit())
 			{
-				for(auto hero : cb->getAvailableHeroes(town))
+				for(auto hero : cb->getAvailableHeroes(upgrader))
 				{
-					auto scoutReinforcement =  ai->armyManager->howManyReinforcementsCanBuy(hero, town)
-						+ ai->armyManager->howManyReinforcementsCanGet(hero, town);
+					auto scoutReinforcement =  ai->armyManager->howManyReinforcementsCanBuy(hero, upgrader)
+						+ ai->armyManager->howManyReinforcementsCanGet(hero, upgrader);
 
 					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
 						&& ai->getFreeGold() >20000
@@ -348,7 +348,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 					{
 						Composition recruitHero;
 
-						recruitHero.addNext(ArmyUpgrade(path.targetHero, town, armyToGetOrBuy)).addNext(RecruitHero(town, hero));
+						recruitHero.addNext(ArmyUpgrade(path.targetHero, town, armyToGetOrBuy)).addNext(RecruitHero(upgrader, hero));
 					}
 				}
 			}
