@@ -21,6 +21,8 @@ class IImage;
 /// UIElement which can get input focus
 class CFocusable : public CIntObject
 {
+	friend void removeFocusFromActiveInput();
+
 	static std::atomic<int> usageIndex;
 	static std::list<CFocusable *> focusables; //all existing objs
 	static CFocusable * inputWithFocus; //who has focus now
@@ -76,7 +78,7 @@ private:
 
 	CTextInput(const Rect & Pos);
 public:
-	CTextInput(const Rect & Pos, EFonts font, const TextEditedCallback& onTextEdited, ETextAlignment alignment, bool giveFocusToInput);
+	CTextInput(const Rect & Pos, EFonts font, ETextAlignment alignment, bool giveFocusToInput);
 	CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName);
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 

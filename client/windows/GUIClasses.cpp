@@ -329,8 +329,11 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 
 	int sliderPosition = total - leftMin - rightMin;
 
-	leftInput = std::make_shared<CTextInput>(Rect(20, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, true), ETextAlignment::CENTER, true);
-	rightInput = std::make_shared<CTextInput>(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false), ETextAlignment::CENTER, true);
+	leftInput = std::make_shared<CTextInput>(Rect(20, 218, 100, 36), FONT_BIG, ETextAlignment::CENTER, true);
+	rightInput = std::make_shared<CTextInput>(Rect(176, 218, 100, 36), FONT_BIG, ETextAlignment::CENTER, true);
+
+	leftInput->setCallback(std::bind(&CSplitWindow::setAmountText, this, _1, true));
+	rightInput->setCallback(std::bind(&CSplitWindow::setAmountText, this, _1, false));
 
 	//add filters to allow only number input
 	leftInput->setFilterNumber(leftMin, leftMax);

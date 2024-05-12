@@ -46,12 +46,11 @@ void CTextInput::createLabel(bool giveFocusToInput)
 #endif
 }
 
-CTextInput::CTextInput(const Rect & Pos, EFonts font, const TextEditedCallback & onTextEdited, ETextAlignment alignment, bool giveFocusToInput)
+CTextInput::CTextInput(const Rect & Pos, EFonts font, ETextAlignment alignment, bool giveFocusToInput)
 	: CTextInput(Pos)
 {
 	originalAlignment = alignment;
 	setRedrawParent(true);
-	this->onTextEdited = onTextEdited;
 	createLabel(giveFocusToInput);
 	setFont(font);
 	setAlignment(alignment);
@@ -61,7 +60,11 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath
 	: CTextInput(Pos)
 {
 	OBJ_CONSTRUCTION;
-	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
+	if (!bgName.empty())
+		background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
+	else
+		setRedrawParent(true);
+
 	createLabel(true);
 }
 

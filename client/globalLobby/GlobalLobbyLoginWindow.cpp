@@ -46,7 +46,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	labelUsernameTitle = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.lobby.login.username"));
 	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, loginAs.toString());
 	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 90, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
-	inputUsername = std::make_shared<CTextInput>(Rect(15, 93, 260, 16), FONT_SMALL, nullptr, ETextAlignment::CENTERLEFT, true);
+	inputUsername = std::make_shared<CTextInput>(Rect(15, 93, 260, 16), FONT_SMALL, ETextAlignment::CENTERLEFT, true);
 	buttonLogin = std::make_shared<CButton>(Point(10, 180), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); });
 	buttonClose = std::make_shared<CButton>(Point(210, 180), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
 	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 115, 255, 60), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
