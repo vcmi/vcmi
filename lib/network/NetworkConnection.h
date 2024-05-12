@@ -18,17 +18,25 @@ class NetworkConnection : public INetworkConnection, public std::enable_shared_f
 	static const int messageHeaderSize = sizeof(uint32_t);
 	static const int messageMaxSize = 64 * 1024 * 1024; // arbitrary size to prevent potential massive allocation if we receive garbage input
 
+	std::list<std::vector<std::byte>> dataToSend;
 	std::shared_ptr<NetworkSocket> socket;
+	std::shared_ptr<NetworkTimer> timer;
 	std::mutex writeMutex;
 
 	NetworkBuffer readBuffer;
 	INetworkConnectionListener & listener;
 
+	void heartbeat();
+
+	void startReceiving();
 	void onHeaderReceived(const boost::system::error_code & ec);
 	void onPacketReceived(const boost::system::error_code & ec, uint32_t expectedPacketSize);
 
+	void doSendData();
+	void onDataSent(const boost::system::error_code & ec);
+
 public:
-	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket);
+	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, const std::shared_ptr<NetworkContext> & context);
 
 	void start();
 	void close() override;
