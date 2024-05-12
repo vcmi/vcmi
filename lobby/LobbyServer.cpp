@@ -212,7 +212,8 @@ static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
 	jsonEntry["status"].String() = LOBBY_ROOM_STATE_NAMES[vstd::to_underlying(gameRoom.roomState)];
 	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
 	jsonEntry["ageSeconds"].Integer() = gameRoom.age.count();
-	jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size());
+	if (!gameRoom.modsJson.empty()) // not present in match history
+		jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size());
 
 	for(const auto & account : gameRoom.participants)
 		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
