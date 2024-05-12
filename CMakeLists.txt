@@ -365,7 +365,7 @@ if(MINGW OR MSVC)
 		# Prevent compiler issues when building Debug
 		# Assembler might fail with "too many sections"
 		# With big-obj or 64-bit build will take hours
-		if(CMAKE_BUILD_TYPE MATCHES Debug)
+		if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og")
 		endif()
 	endif(MINGW)
@@ -400,7 +400,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
 	endif()
 
-	if(CMAKE_BUILD_TYPE MATCHES Debug)
+	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT WIN32)
 			# For gcc 14+ we can use -fhardened instead
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
@@ -742,7 +742,7 @@ if(WIN32)
 				"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
 	endif()
 
-	if(CMAKE_BUILD_TYPE MATCHES Debug)
+	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# Copy debug versions of libraries if build type is debug
 		set(debug_postfix d)
 	endif()
