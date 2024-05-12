@@ -400,9 +400,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only
 	endif()
 
-	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT WIN32)
-		# For gcc 14+ we can use -fhardened instead
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
+	if(CMAKE_BUILD_TYPE MATCHES Debug)
+		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT WIN32)
+			# For gcc 14+ we can use -fhardened instead
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
+		endif()
 	endif()
 
 	# Fix string inspection with lldb
