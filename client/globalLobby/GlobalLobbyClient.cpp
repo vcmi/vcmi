@@ -262,6 +262,7 @@ void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
 			account.displayName =  jsonParticipant["displayName"].String();
 			room.participants.push_back(account);
 		}
+
 		room.playerLimit = jsonEntry["playerLimit"].Integer();
 
 		matchesHistory.push_back(room);
@@ -569,6 +570,11 @@ void GlobalLobbyClient::resetMatchState()
 	currentGameRoomUUID.clear();
 }
 
+const std::string & GlobalLobbyClient::getCurrentGameRoomID() const
+{
+	return currentGameRoomUUID;
+}
+
 void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
 {
 	if (!isLoggedIn())
@@ -590,5 +596,15 @@ void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
 
 bool GlobalLobbyClient::isInvitedToRoom(const std::string & gameRoomID)
 {
-	return activeInvites.count(gameRoomID) > 0;
+	if (activeInvites.count(gameRoomID) > 0)
+		return true;
+
+	const auto & gameRoom = CSH->getGlobalLobby().getActiveRoomByName(gameRoomID);
+	for (auto const & invited : gameRoom.invited)
+	{
+		if (invited.accountID == getAccountID())
+			return true;
+	}
+
+	return false;
 }

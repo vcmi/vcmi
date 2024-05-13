@@ -31,10 +31,33 @@ GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(const GlobalLobbyAcco
 	pos.h = 40;
 	addUsedEvents(LCLICK);
 
+	bool thisAccountInvited = false;
+	const auto & myRoomID = CSH->getGlobalLobby().getCurrentGameRoomID();
+	if (!myRoomID.empty())
+	{
+		const auto & myRoom = CSH->getGlobalLobby().getActiveRoomByName(myRoomID);
+		for (auto const & invited : myRoom.invited)
+		{
+			if (invited.accountID == accountID)
+			{
+				thisAccountInvited = true;
+				break;
+			}
+		}
+	}
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
+	if (thisAccountInvited)
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::WHITE, 1);
+	else
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
+
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName);
-	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
+
+	if (thisAccountInvited)
+		labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.room.state.invited").toString());
+	else
+		labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
 }
 
 void GlobalLobbyInviteAccountCard::clickPressed(const Point & cursorPosition)

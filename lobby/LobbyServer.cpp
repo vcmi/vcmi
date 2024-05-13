@@ -819,6 +819,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 	database->insertGameRoomInvite(accountID, gameRoomID);
 	sendInviteReceived(targetAccountConnection, senderName, gameRoomID);
+	broadcastActiveGameRooms();
 }
 
 LobbyServer::~LobbyServer() = default;

@@ -76,6 +76,7 @@ public:
 	/// Returns active room by ID. Throws out-of-range on failure
 	const GlobalLobbyRoom & getActiveRoomByName(const std::string & roomUUID) const;
 
+	const std::string & getCurrentGameRoomID() const;
 	const std::string & getAccountID() const;
 	const std::string & getAccountCookie() const;
 	const std::string & getAccountDisplayName() const;

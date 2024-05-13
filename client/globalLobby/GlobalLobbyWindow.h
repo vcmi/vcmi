@@ -23,7 +23,6 @@ class GlobalLobbyWindow : public CWindowObject
 
 	std::shared_ptr<GlobalLobbyWidget> widget;
 	std::set<std::string> unreadChannels;
-	std::set<std::string> unreadInvites;
 
 public:
 	GlobalLobbyWindow();
@@ -39,7 +38,6 @@ public:
 	/// Returns true if provided chat channel is the one that is currently open in UI
 	bool isChannelOpen(const std::string & channelType, const std::string & channelName) const;
 	bool isChannelUnread(const std::string & channelType, const std::string & channelName) const;
-	bool isInviteUnread(const std::string & gameRoomID) const;
 
 	// Callbacks for network packs
 
