@@ -65,7 +65,7 @@ void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 
 	for (auto const & dest : pack.path)
 	{
-		if (!gh.moveHero(pack.hid, dest, 0, pack.transit, pack.player))
+		if (!gh.moveHero(pack.hid, dest, EMovementMode::STANDARD, pack.transit, pack.player))
 		{
 			result = false;
 			return;

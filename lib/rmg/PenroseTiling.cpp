@@ -21,21 +21,32 @@ Point2D Point2D::operator * (float scale) const
 	return Point2D(x() * scale, y() * scale);
 }
 
+Point2D Point2D::operator / (float scale) const
+{
+	return Point2D(x() / scale, y() / scale);
+}
+
 Point2D Point2D::operator + (const Point2D& other) const
 {
 	return Point2D(x() + other.x(), y() + other.y());
 }
 
+Point2D Point2D::operator - (const Point2D& other) const
+{
+	return Point2D(x() - other.x(), y() - other.y());
+}
+
 bool Point2D::operator < (const Point2D& other) const
 {
-	if (x() < other.x())
-	{
-		return true;
-	}
-	else
-	{
-		return y() < other.y();
-	}
+	if (x() != other.x())
+		return x() < other.x();
+
+	return y() < other.y();
+}
+
+bool Point2D::operator == (const Point2D& other) const
+{
+	return vstd::isAlmostEqual(x(), other.x()) && vstd::isAlmostEqual(y(), other.y());
 }
 
 std::string Point2D::toString() const
@@ -163,6 +174,16 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomG
 
 		split(t, points, indices, DEPTH);
 	}
+	// Remove duplicates
+	vstd::unique(points);
+
+	// Shift center to (0.5, 0.5)
+	for (auto & point : points)
+	{
+		point = point + Point2D(0.5f, 0.5f);
+	};
+
+	// For 8XM8 map, only 650 out of 15971 points are in the range
 
 	vstd::copy_if(points, vstd::set_inserter(finalPoints), [](const Point2D point)
 	{

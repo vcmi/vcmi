@@ -38,7 +38,11 @@ void ObstaclePlacer::process()
 
 	auto faction = zone.getTownType().toFaction();
 
-	ObstacleSetFilter filter(ObstacleSet::EObstacleType::INVALID, zone.getTerrainType(), faction->getId(), faction->alignment);
+	ObstacleSetFilter filter(ObstacleSet::EObstacleType::INVALID,
+							zone.getTerrainType(),
+							static_cast<EMapLevel>(zone.isUnderground()),
+							faction->getId(),
+							faction->alignment);
 
 	if (!prepareBiome(filter, zone.getRand()))
 	{

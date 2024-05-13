@@ -543,7 +543,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 {
 	if (si->seedToBeUsed == 0)
 	{
-		si->seedToBeUsed = static_cast<ui32>(std::time(nullptr));
+		si->seedToBeUsed = CRandomGenerator::getDefault().nextInt();
 	}
 	CMapService mapService;
 	gs = new CGameState();
@@ -1073,11 +1073,11 @@ bool CGameHandler::removeObject(const CGObjectInstance * obj, const PlayerColor 
 	return true;
 }
 
-bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit, PlayerColor asker)
+bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker)
 {
 	const CGHeroInstance *h = getHero(hid);
 	// not turn of that hero or player can't simply teleport hero (at least not with this function)
-	if(!h || (asker != PlayerColor::NEUTRAL && teleporting))
+	if(!h || (asker != PlayerColor::NEUTRAL && movementMode != EMovementMode::STANDARD))
 	{
 		if(h && getStartInfo()->turnTimerInfo.isEnabled() && gs->players[h->getOwner()].turnTimer.turnTimer == 0)
 			return true; //timer expired, no error
@@ -1164,13 +1164,13 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	if(h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
 		return complainRet("Cannot disembark hero, tile is blocked!");
 
-	if(distance(h->pos, dst) >= 1.5 && !teleporting)
+	if(distance(h->pos, dst) >= 1.5 && movementMode == EMovementMode::STANDARD)
 		return complainRet("Tiles are not neighboring!");
 
 	if(h->inTownGarrison)
 		return complainRet("Can not move garrisoned hero!");
 
-	if(h->movementPointsRemaining() < cost && dst != h->pos && !teleporting)
+	if(h->movementPointsRemaining() < cost && dst != h->pos && movementMode == EMovementMode::STANDARD)
 		return complainRet("Hero doesn't have any movement points left!");
 
 	if (transit && !canFly && !(canWalkOnSea && t.terType->isWater()) && !CGTeleport::isTeleport(objectToVisit))
@@ -1259,12 +1259,12 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		return doMove(TryMoveHero::DISEMBARK, CHECK_FOR_GUARDS, VISIT_DEST, LEAVING_TILE);
 	}
 
-	if (teleporting)
+	if (movementMode != EMovementMode::STANDARD)
 	{
 		if (blockingVisit()) // e.g. hero on the other side of teleporter
 			return true;
 
-		EGuardLook guardsCheck = VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS)
+		EGuardLook guardsCheck = (VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && movementMode == EMovementMode::DIMENSION_DOOR)
 			? CHECK_FOR_GUARDS
 			: IGNORE_GUARDS;
 
@@ -1337,7 +1337,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 			return false;
 
 	int3 pos = h->convertFromVisitablePos(t->visitablePos());
-	moveHero(hid,pos,1);
+	moveHero(hid,pos,EMovementMode::CASTLE_GATE);
 	return true;
 }
 

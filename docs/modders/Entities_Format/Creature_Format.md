@@ -29,6 +29,10 @@ In order to make functional creature you also need:
 		"singular" : "Creature",
 		"plural" : "Creatures"
 	},
+
+	// Description of creature
+	"description" : "",
+
 	"level" : 0,
 
 	// Marks this object as special and not available by default

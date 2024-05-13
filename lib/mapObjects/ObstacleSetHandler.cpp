@@ -19,12 +19,14 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 ObstacleSet::ObstacleSet():
 	type(INVALID),
+	level(EMapLevel::ANY),
 	allowedTerrains({TerrainId::NONE})
 {
 }
 
 ObstacleSet::ObstacleSet(EObstacleType type, TerrainId terrain):
 	type(type),
+	level(EMapLevel::ANY),
 	allowedTerrains({terrain})
 {
 }
@@ -47,19 +49,29 @@ void ObstacleSet::removeEmptyTemplates()
 	});
 }
 
-ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes, TerrainId terrain = TerrainId::ANY_TERRAIN, FactionID faction = FactionID::ANY, EAlignment alignment = EAlignment::ANY):
+ObstacleSetFilter::ObstacleSetFilter(std::vector<ObstacleSet::EObstacleType> allowedTypes,
+	TerrainId terrain = TerrainId::ANY_TERRAIN,
+	EMapLevel level = EMapLevel::ANY,
+	FactionID faction = FactionID::ANY,
+	EAlignment alignment = EAlignment::ANY):
 	allowedTypes(allowedTypes),
 	faction(faction),
 	alignment(alignment),
-	terrain(terrain)
+	terrain(terrain),
+	level(level)
 {
 }
 
-ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType, TerrainId terrain = TerrainId::ANY_TERRAIN, FactionID faction = FactionID::ANY, EAlignment alignment = EAlignment::ANY):
+ObstacleSetFilter::ObstacleSetFilter(ObstacleSet::EObstacleType allowedType,
+	TerrainId terrain = TerrainId::ANY_TERRAIN,
+	EMapLevel level = EMapLevel::ANY,
+	FactionID faction = FactionID::ANY,
+	EAlignment alignment = EAlignment::ANY):
 	allowedTypes({allowedType}),
 	faction(faction),
 	alignment(alignment),
-	terrain(terrain)
+	terrain(terrain),
+	level(level)
 {
 }
 
@@ -68,6 +80,14 @@ bool ObstacleSetFilter::filter(const ObstacleSet &set) const
 	if (terrain != TerrainId::ANY_TERRAIN && !vstd::contains(set.getTerrains(), terrain))
 	{
 		return false;
+	}
+
+	if (level != EMapLevel::ANY && set.getLevel() != EMapLevel::ANY)
+	{
+		if (level != set.getLevel())
+		{
+			return false;
+		}
 	}
 
 	if (faction != FactionID::ANY)
@@ -115,6 +135,16 @@ void ObstacleSet::setTerrains(const std::set<TerrainId> & terrains)
 void ObstacleSet::addTerrain(TerrainId terrain)
 {
 	this->allowedTerrains.insert(terrain);
+}
+
+EMapLevel ObstacleSet::getLevel() const
+{
+	return level;
+}
+
+void ObstacleSet::setLevel(EMapLevel newLevel)
+{
+	level = newLevel;
 }
 
 std::set<FactionID> ObstacleSet::getFactions() const
@@ -248,6 +278,22 @@ std::string ObstacleSet::toString() const
 	return OBSTACLE_TYPE_STRINGS.at(type);
 }
 
+EMapLevel ObstacleSet::levelFromString(const std::string &str)
+{
+	static const std::map<std::string, EMapLevel> LEVEL_NAMES =
+	{
+		{"surface", EMapLevel::SURFACE},
+		{"underground", EMapLevel::UNDERGROUND}
+	};
+
+	if (LEVEL_NAMES.find(str) != LEVEL_NAMES.end())
+	{
+		return LEVEL_NAMES.at(str);
+	}
+
+	throw std::runtime_error("Invalid map level: " + str);
+}
+
 std::vector<ObstacleSet::EObstacleType> ObstacleSetFilter::getAllowedTypes() const
 {
 	return allowedTypes;
@@ -323,6 +369,12 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	else
 	{
 		logMod->error("No terrain specified for obstacle set %s", name);
+	}
+
+	if (biome["level"].isString())
+	{
+		auto level = biome["level"].String();
+		os->setLevel(ObstacleSet::levelFromString(level));
 	}
 
 	auto handleFaction = [os, scope](const std::string & str)

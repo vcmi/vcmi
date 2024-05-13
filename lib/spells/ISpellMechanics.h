@@ -59,7 +59,7 @@ public:
 	virtual const CMap * getMap() const = 0;
 	virtual const CGameInfoCallback * getCb() const = 0;
 
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) = 0;	//TODO: remove
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
 
 	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
 };

@@ -524,7 +524,7 @@ void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer,
 	else
 		dPos = hero->convertFromVisitablePos(cb->getObj(randomExit)->visitablePos());
 
-	cb->moveHero(hero->id, dPos, true);
+	cb->moveHero(hero->id, dPos, EMovementMode::MONOLITH);
 }
 
 void CGMonolith::initObj(CRandomGenerator & rand)
@@ -703,7 +703,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 		dPos = hero->convertFromVisitablePos(*RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault()));
 	}
 
-	cb->moveHero(hero->id, dPos, true);
+	cb->moveHero(hero->id, dPos, EMovementMode::MONOLITH);
 }
 
 bool CGWhirlpool::isProtected(const CGHeroInstance * h)

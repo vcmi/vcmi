@@ -28,10 +28,13 @@ public:
 	using point_xy::point_xy;
 
 	Point2D operator * (float scale) const;
+	Point2D operator / (float scale) const;
 	Point2D operator + (const Point2D& other) const;
+	Point2D operator - (const Point2D& other) const;
 	Point2D rotated(float radians) const;
 
 	bool operator < (const Point2D& other) const;
+	bool operator == (const Point2D& other) const;
 
 	std::string toString() const;
 };

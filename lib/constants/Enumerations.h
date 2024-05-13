@@ -253,4 +253,20 @@ enum class EArmyFormation : int8_t
 	TIGHT
 };
 
+enum class EMovementMode : int8_t
+{
+	STANDARD,
+	DIMENSION_DOOR,
+	MONOLITH,
+	CASTLE_GATE,
+	TOWN_PORTAL,
+};
+
+enum class EMapLevel : int8_t
+{
+	ANY = -1,
+	SURFACE = 0,
+	UNDERGROUND = 1
+};
+
 VCMI_LIB_NAMESPACE_END

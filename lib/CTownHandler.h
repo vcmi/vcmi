@@ -192,6 +192,8 @@ public:
 
 	std::string getNameTranslated() const override;
 	std::string getNameTextID() const override;
+	std::string getDescriptionTranslated() const;
+	std::string getDescriptionTextID() const;
 
 	bool hasTown() const override;
 	TerrainId getNativeTerrain() const override;
