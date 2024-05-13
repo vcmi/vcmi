@@ -75,8 +75,6 @@ public:
 	void applyOnGS(CGameState *gs, CPack * pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
-
-		boost::unique_lock<boost::shared_mutex> lock(CGameState::mutex);
 		ptr->applyGs(gs);
 	}
 };
