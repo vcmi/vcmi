@@ -144,6 +144,9 @@ void GlobalLobbyClient::receiveChatHistory(const JsonNode & json)
 		if(lobbyWindowPtr && lobbyWindowPtr->isChannelOpen(channelType, channelName))
 			lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
 	}
+
+	if(lobbyWindowPtr && lobbyWindowPtr->isChannelOpen(channelType, channelName))
+		lobbyWindowPtr->refreshChatText();
 }
 
 void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
@@ -163,9 +166,13 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
+	{
 		lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
+		lobbyWindowPtr->refreshChatText();
 
-	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+		if(channelType == "player" || lobbyWindowPtr->isChannelOpen(channelType, channelName))
+			CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+	}
 }
 
 void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
@@ -270,6 +277,7 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 
 		lobbyWindowPtr->onGameChatMessage("System", message, time, "player", accountID);
 		lobbyWindowPtr->onInviteReceived(gameRoomID);
+		lobbyWindowPtr->refreshChatText();
 	}
 
 	CCS->soundh->playSound(AudioPath::builtin("CHAT"));

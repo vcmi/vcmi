@@ -409,6 +409,7 @@ void CTextBox::setText(const std::string & text)
 	{
 		// slider is no longer needed
 		slider.reset();
+		label->scrollTextTo(0);
 	}
 	else if(slider)
 	{
