@@ -157,7 +157,7 @@ void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> &
 	widget->getAccountListHeader()->setText(text.toString());
 }
 
-void GlobalLobbyWindow::onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms)
+void GlobalLobbyWindow::onActiveGameRooms(const std::vector<GlobalLobbyRoom> & rooms)
 {
 	if (rooms.size() == widget->getRoomList()->size())
 		widget->getRoomList()->reset();

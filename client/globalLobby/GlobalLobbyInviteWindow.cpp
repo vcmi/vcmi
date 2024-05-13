@@ -99,3 +99,18 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 
 	center();
 }
+
+void GlobalLobbyInviteWindow::onActiveGameRooms(const std::vector<GlobalLobbyRoom> & rooms)
+{
+	accountList->reset();
+	redraw();
+}
+
+void GlobalLobbyInviteWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts)
+{
+	if (accountList->size() == accounts.size())
+		accountList->reset();
+	else
+		accountList->resize(accounts.size());
+	redraw();
+}

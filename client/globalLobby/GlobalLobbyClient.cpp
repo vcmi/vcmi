@@ -13,6 +13,7 @@
 
 #include "GlobalLobbyInviteWindow.h"
 #include "GlobalLobbyLoginWindow.h"
+#include "GlobalLobbyObserver.h"
 #include "GlobalLobbyWindow.h"
 
 #include "../CGameInfo.h"
@@ -193,6 +194,9 @@ void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
 		lobbyWindowPtr->onActiveAccounts(activeAccounts);
+
+	for (auto const & window : GH.windows().findWindows<GlobalLobbyObserver>())
+		window->onActiveAccounts(activeAccounts);
 }
 
 void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
@@ -236,7 +240,10 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
-		lobbyWindowPtr->onActiveRooms(activeRooms);
+		lobbyWindowPtr->onActiveGameRooms(activeRooms);
+
+	for (auto const & window : GH.windows().findWindows<GlobalLobbyObserver>())
+		window->onActiveGameRooms(activeRooms);
 }
 
 void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
