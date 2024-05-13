@@ -51,6 +51,8 @@ void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnecti
 					message["accountID"].String() = proxy.first;
 
 					sendMessage(controlConnection, message);
+
+					proxyConnections.erase(proxy.first);
 					break;
 				}
 			}
