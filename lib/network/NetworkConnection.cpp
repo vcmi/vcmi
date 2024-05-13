@@ -60,16 +60,17 @@ void NetworkConnection::heartbeat()
 	constexpr auto heartbeatInterval = std::chrono::seconds(10);
 
 	timer->expires_after(heartbeatInterval);
-	timer->async_wait( [self = shared_from_this()](const auto & ec)
+	timer->async_wait( [self = weak_from_this()](const auto & ec)
 	{
 		if (ec)
 			return;
 
-		if (!self->socket->is_open())
+		auto locked = self.lock();
+		if (!locked)
 			return;
 
-		self->sendPacket({});
-		self->heartbeat();
+		locked->sendPacket({});
+		locked->heartbeat();
 	});
 }
 
@@ -77,7 +78,7 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHea
 {
 	if (ecHeader)
 	{
-		listener.onDisconnected(shared_from_this(), ecHeader.message());
+		onError(ecHeader.message());
 		return;
 	}
 
@@ -89,7 +90,7 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHea
 
 	if (messageSize > messageMaxSize)
 	{
-		listener.onDisconnected(shared_from_this(), "Invalid packet size!");
+		onError("Invalid packet size!");
 		return;
 	}
 
@@ -110,7 +111,7 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 {
 	if (ec)
 	{
-		listener.onDisconnected(shared_from_this(), ec.message());
+		onError(ec.message());
 		return;
 	}
 
@@ -160,13 +161,18 @@ void NetworkConnection::onDataSent(const boost::system::error_code & ec)
 	dataToSend.pop_front();
 	if (ec)
 	{
-		logNetwork->error("Failed to send package: %s", ec.message());
-		listener.onDisconnected(shared_from_this(), ec.message());
+		onError(ec.message());
 		return;
 	}
 
 	if (!dataToSend.empty())
 		doSendData();
+}
+
+void NetworkConnection::onError(const std::string & message)
+{
+	listener.onDisconnected(shared_from_this(), message);
+	close();
 }
 
 void NetworkConnection::close()
