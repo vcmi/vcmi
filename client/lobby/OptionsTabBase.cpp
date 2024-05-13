@@ -22,6 +22,7 @@
 #include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 static std::string timeToString(int time)
 {
@@ -100,12 +101,18 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	});
 
 	addCallback("setCheatAllowed", [&](int index){
+		bool isMultiplayer = CSH->loadMode == ELoadMode::MULTI;
+		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"][isMultiplayer ? "cheatsAllowed" : "cheatsNotAllowed"];
+		entry->Bool() = isMultiplayer ? index : !index;
 		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
 		info.cheatsAllowed = index;
 		CSH->setExtraOptionsInfo(info);
 	});
 
 	addCallback("setUnlimitedReplay", [&](int index){
+		bool isMultiplayer = CSH->loadMode == ELoadMode::MULTI;
+		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"]["unlimitedReplay"];
+		entry->Bool() = index;
 		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
 		info.unlimitedReplay = index;
 		CSH->setExtraOptionsInfo(info);
@@ -410,13 +417,11 @@ void OptionsTabBase::recreate(bool campaign)
 	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
 	{
 		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.cheatsAllowed);
-		buttonCheatAllowed->block(SEL->screenType == ESelectionScreen::loadGame);
 	}
 
 	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
-		buttonUnlimitedReplay->block(SEL->screenType == ESelectionScreen::loadGame);
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))
