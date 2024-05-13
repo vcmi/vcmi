@@ -126,6 +126,9 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		fillZones();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()
 		map->getZones().clear();
+
+		// undo manager keeps pointers to object that might be removed during gameplay. Remove them to prevent any hanging pointer after gameplay
+		map->getEditManager()->getUndoManager().clearAll();
 	}
 	catch (rmgException &e)
 	{
