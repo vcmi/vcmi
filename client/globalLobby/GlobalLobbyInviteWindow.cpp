@@ -75,7 +75,7 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	pos.w = 236;
-	pos.h = 400;
+	pos.h = 420;
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	filledBackground->playerColored(PlayerColor(1));
@@ -92,10 +92,10 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 		return std::make_shared<CIntObject>();
 	};
 
-	listBackground = std::make_shared<TransparentFilledRectangle>(Rect(8, 48, 220, 304), ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1);
-	accountList = std::make_shared<CListBox>(createAccountCardCallback, Point(10, 50), Point(0, 40), 8, 0, 0, 1 | 4, Rect(200, 0, 300, 300));
+	listBackground = std::make_shared<TransparentFilledRectangle>(Rect(8, 48, 220, 324), ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1);
+	accountList = std::make_shared<CListBox>(createAccountCardCallback, Point(10, 50), Point(0, 40), 8, 0, 0, 1 | 4, Rect(200, 0, 320, 320));
 
-	buttonClose = std::make_shared<CButton>(Point(86, 364), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this]() { close(); } );
+	buttonClose = std::make_shared<CButton>(Point(86, 384), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this]() { close(); } );
 
 	center();
 }
