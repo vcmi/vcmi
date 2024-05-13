@@ -417,11 +417,13 @@ void OptionsTabBase::recreate(bool campaign)
 	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
 	{
 		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.cheatsAllowed);
+		buttonCheatAllowed->block(CSH->isGuest());
 	}
 
 	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
+		buttonUnlimitedReplay->block(CSH->isGuest());
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))
