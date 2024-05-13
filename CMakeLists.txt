@@ -403,7 +403,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT WIN32)
 			# For gcc 14+ we can use -fhardened instead
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
 		endif()
 	endif()
 
