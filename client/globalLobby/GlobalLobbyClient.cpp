@@ -220,6 +220,15 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 			account.displayName =  jsonParticipant["displayName"].String();
 			room.participants.push_back(account);
 		}
+
+		for(const auto & jsonParticipant : jsonEntry["invited"].Vector())
+		{
+			GlobalLobbyAccount account;
+			account.accountID =  jsonParticipant["accountID"].String();
+			account.displayName =  jsonParticipant["displayName"].String();
+			room.invited.push_back(account);
+		}
+
 		room.playerLimit = jsonEntry["playerLimit"].Integer();
 
 		activeRooms.push_back(room);

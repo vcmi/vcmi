@@ -272,6 +272,13 @@ void LobbyDatabase::prepareStatements()
 		ORDER BY secondsElapsed ASC
 	)");
 
+	getGameRoomInvitesStatement = database->prepare(R"(
+		SELECT a.accountID, a.displayName
+		FROM gameRoomInvites gri
+		LEFT JOIN accounts a ON a.accountID = gri.accountID
+		WHERE roomID = ?
+	)");
+
 	getGameRoomPlayersStatement = database->prepare(R"(
 		SELECT a.accountID, a.displayName
 		FROM gameRoomPlayers grp
@@ -581,6 +588,19 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 		}
 		getGameRoomPlayersStatement->reset();
 	}
+
+	for (auto & room : result)
+	{
+		getGameRoomInvitesStatement->setBinds(room.roomID);
+		while(getGameRoomInvitesStatement->execute())
+		{
+			LobbyAccount account;
+			getGameRoomInvitesStatement->getColumns(account.accountID, account.displayName);
+			room.invited.push_back(account);
+		}
+		getGameRoomInvitesStatement->reset();
+	}
+
 	return result;
 }
 
