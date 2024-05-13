@@ -421,6 +421,7 @@ void CServerHandler::sendClientDisconnecting()
 	networkConnection->close();
 	networkConnection.reset();
 	logicConnection.reset();
+	waitForServerShutdown();
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
