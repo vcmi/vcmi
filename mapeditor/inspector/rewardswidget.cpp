@@ -636,10 +636,12 @@ void RewardsWidget::on_visitInfoList_itemSelectionChanged()
 	if(ui->visitInfoList->currentItem() == nullptr)
 	{
 		ui->eventInfoGroup->hide();
+		ui->removeVisitInfo->setEnabled(false);
 		return;
 	}
 	
 	ui->eventInfoGroup->show();
+	ui->removeVisitInfo->setEnabled(true);
 }
 
 void RewardsWidget::on_visitInfoList_currentItemChanged(QListWidgetItem * current, QListWidgetItem * previous)
