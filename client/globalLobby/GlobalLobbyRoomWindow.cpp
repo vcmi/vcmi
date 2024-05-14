@@ -76,7 +76,11 @@ static const std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDes
 	if (gameStarted)
 		return "vcmi.lobby.preview.error.busy";
 
-	if (VCMI_VERSION_STRING != roomDescription.gameVersion)
+	CModVersion localVersion = CModVersion::fromString(VCMI_VERSION_STRING);
+	CModVersion hostVersion = CModVersion::fromString(roomDescription.gameVersion);
+
+	// 1.5.X can play with each other, but not with 1.X.Y
+	if (localVersion.major != hostVersion.major || localVersion.minor != hostVersion.minor)
 		return "vcmi.lobby.preview.error.version";
 
 	if (roomDescription.playerLimit == roomDescription.participants.size())
