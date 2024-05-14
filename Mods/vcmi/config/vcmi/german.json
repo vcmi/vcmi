@@ -63,7 +63,11 @@
 	"vcmi.mainMenu.serverClosing" : "Trenne...",
 	"vcmi.mainMenu.hostTCP" : "Hoste TCP/IP Spiel",
 	"vcmi.mainMenu.joinTCP" : "Trete TCP/IP Spiel bei",
-	
+
+	"vcmi.multiplayerWelcomeMessage.additionalSettings" : "Zusätzliche Einstellungen",
+	"vcmi.multiplayerWelcomeMessage.cheatsAllowed" : "Cheats erlaubt",
+	"vcmi.multiplayerWelcomeMessage.unlimitedReplays" : "Unbegrenzte Kampfwiederholungen",
+
 	"vcmi.lobby.filepath" : "Dateipfad",
 	"vcmi.lobby.creationDate" : "Erstellungsdatum",
 	"vcmi.lobby.scenarioName" : "Szenario-Name",
