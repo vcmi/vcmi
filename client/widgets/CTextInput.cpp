@@ -124,8 +124,9 @@ std::string CTextInput::getVisibleText()
 
 void CTextInput::clickPressed(const Point & cursorPosition)
 {
-	if(!hasFocus())
-		giveFocus();
+	// attempt to give focus unconditionally, even if we already have it
+	// this forces on-screen keyboard to show up again, even if player have closed it before
+	giveFocus();
 }
 
 void CTextInput::keyPressed(EShortcut key)
