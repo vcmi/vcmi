@@ -29,6 +29,7 @@ struct GlobalLobbyRoom
 	std::string startDateFormatted;
 	ModCompatibilityInfo modList;
 	std::vector<GlobalLobbyAccount> participants;
+	std::vector<GlobalLobbyAccount> invited;
 	int playerLimit;
 };
 

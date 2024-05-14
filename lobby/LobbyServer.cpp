@@ -218,6 +218,9 @@ static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
 	for(const auto & account : gameRoom.participants)
 		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
 
+	for(const auto & account : gameRoom.invited)
+		jsonEntry["invited"].Vector().push_back(loadLobbyAccountToJson(account));
+
 	return jsonEntry;
 }
 
@@ -816,6 +819,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 	database->insertGameRoomInvite(accountID, gameRoomID);
 	sendInviteReceived(targetAccountConnection, senderName, gameRoomID);
+	broadcastActiveGameRooms();
 }
 
 LobbyServer::~LobbyServer() = default;

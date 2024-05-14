@@ -31,10 +31,33 @@ GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(const GlobalLobbyAcco
 	pos.h = 40;
 	addUsedEvents(LCLICK);
 
+	bool thisAccountInvited = false;
+	const auto & myRoomID = CSH->getGlobalLobby().getCurrentGameRoomID();
+	if (!myRoomID.empty())
+	{
+		const auto & myRoom = CSH->getGlobalLobby().getActiveRoomByName(myRoomID);
+		for (auto const & invited : myRoom.invited)
+		{
+			if (invited.accountID == accountID)
+			{
+				thisAccountInvited = true;
+				break;
+			}
+		}
+	}
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
+	if (thisAccountInvited)
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::WHITE, 1);
+	else
+		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
+
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName);
-	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
+
+	if (thisAccountInvited)
+		labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.room.state.invited").toString());
+	else
+		labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
 }
 
 void GlobalLobbyInviteAccountCard::clickPressed(const Point & cursorPosition)
@@ -52,7 +75,7 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	pos.w = 236;
-	pos.h = 400;
+	pos.h = 420;
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	filledBackground->playerColored(PlayerColor(1));
@@ -69,10 +92,25 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 		return std::make_shared<CIntObject>();
 	};
 
-	listBackground = std::make_shared<TransparentFilledRectangle>(Rect(8, 48, 220, 304), ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1);
-	accountList = std::make_shared<CListBox>(createAccountCardCallback, Point(10, 50), Point(0, 40), 8, 0, 0, 1 | 4, Rect(200, 0, 300, 300));
+	listBackground = std::make_shared<TransparentFilledRectangle>(Rect(8, 48, 220, 324), ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1);
+	accountList = std::make_shared<CListBox>(createAccountCardCallback, Point(10, 50), Point(0, 40), 8, 0, 0, 1 | 4, Rect(200, 0, 320, 320));
 
-	buttonClose = std::make_shared<CButton>(Point(86, 364), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this]() { close(); } );
+	buttonClose = std::make_shared<CButton>(Point(86, 384), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this]() { close(); } );
 
 	center();
+}
+
+void GlobalLobbyInviteWindow::onActiveGameRooms(const std::vector<GlobalLobbyRoom> & rooms)
+{
+	accountList->reset();
+	redraw();
+}
+
+void GlobalLobbyInviteWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts)
+{
+	if (accountList->size() == accounts.size())
+		accountList->reset();
+	else
+		accountList->resize(accounts.size());
+	redraw();
 }

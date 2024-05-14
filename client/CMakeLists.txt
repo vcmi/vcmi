@@ -293,6 +293,7 @@ set(client_HEADERS
 	globalLobby/GlobalLobbyLoginWindow.h
 	globalLobby/GlobalLobbyRoomWindow.h
 	globalLobby/GlobalLobbyServerSetup.h
+	globalLobby/GlobalLobbyObserver.h
 	globalLobby/GlobalLobbyWidget.h
 	globalLobby/GlobalLobbyWindow.h
 

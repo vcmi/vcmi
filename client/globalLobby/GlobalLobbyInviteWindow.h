@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "GlobalLobbyObserver.h"
+
 #include "../windows/CWindowObject.h"
 
 class CLabel;
@@ -18,13 +20,16 @@ class CListBox;
 class CButton;
 struct GlobalLobbyAccount;
 
-class GlobalLobbyInviteWindow : public CWindowObject
+class GlobalLobbyInviteWindow final : public CWindowObject, public GlobalLobbyObserver
 {
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::shared_ptr<CLabel> labelTitle;
 	std::shared_ptr<CListBox> accountList;
 	std::shared_ptr<TransparentFilledRectangle> listBackground;
 	std::shared_ptr<CButton> buttonClose;
+
+	void onActiveGameRooms(const std::vector<GlobalLobbyRoom> & rooms) override;
+	void onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts) override;
 
 public:
 	GlobalLobbyInviteWindow();

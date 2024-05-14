@@ -913,7 +913,6 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 
 	if(getState() == EClientState::DISCONNECTING)
 	{
-		assert(networkConnection == nullptr);
 		// Note: this branch can be reached on app shutdown, when main thread holds mutex till destruction
 		logNetwork->info("Successfully closed connection to server!");
 		return;

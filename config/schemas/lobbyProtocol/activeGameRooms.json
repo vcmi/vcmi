@@ -65,6 +65,29 @@
 							}
 						}
 					},
+					"invited" :
+					{
+						"type" : "array",
+						"description" : "List of accounts that were invited to this room",
+						"items" :
+						{
+							"type" : "object",
+							"additionalProperties" : false,
+							"required" : [ "accountID", "displayName" ],
+							"properties" : {
+								"accountID" :
+								{
+									"type" : "string",
+									"description" : "Unique ID of an account"
+								},
+								"displayName" :
+								{
+									"type" : "string",
+									"description" : "Display name of an account"
+								}
+							}
+						}
+					},
 					"mods" : 
 					{
 						"type" : "array",
