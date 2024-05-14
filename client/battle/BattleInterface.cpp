@@ -127,7 +127,7 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	}
 }
 
-bool BattleInterface::openingPlaying()
+bool BattleInterface::openingPlaying() const
 {
 	return battleOpeningDelayActive;
 }
