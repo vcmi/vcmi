@@ -1579,7 +1579,7 @@ void ChangeStackCount::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
-		logNetwork->error("[CRITICAL] ChangeStackCount: invalid army object %d, possible game state corruption.", army.getNum());
+		throw std::runtime_error("ChangeStackCount: invalid army object " + std::to_string(army.getNum()) + ", possible game state corruption.");
 
 	if(absoluteValue)
 		srcObj->setStackCount(slot, count);
@@ -1591,7 +1591,7 @@ void SetStackType::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
-		logNetwork->error("[CRITICAL] SetStackType: invalid army object %d, possible game state corruption.", army.getNum());
+		throw std::runtime_error("SetStackType: invalid army object " + std::to_string(army.getNum()) + ", possible game state corruption.");
 
 	srcObj->setStackType(slot, type);
 }
@@ -1600,7 +1600,7 @@ void EraseStack::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
 	if(!srcObj)
-		logNetwork->error("[CRITICAL] EraseStack: invalid army object %d, possible game state corruption.", army.getNum());
+		throw std::runtime_error("EraseStack: invalid army object " + std::to_string(army.getNum()) + ", possible game state corruption.");
 
 	srcObj->eraseStack(slot);
 }
@@ -1609,11 +1609,11 @@ void SwapStacks::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(srcArmy);
 	if(!srcObj)
-		logNetwork->error("[CRITICAL] SwapStacks: invalid army object %d, possible game state corruption.", srcArmy.getNum());
+		throw std::runtime_error("SwapStacks: invalid army object " + std::to_string(srcArmy.getNum()) + ", possible game state corruption.");
 
 	auto * dstObj = gs->getArmyInstance(dstArmy);
 	if(!dstObj)
-		logNetwork->error("[CRITICAL] SwapStacks: invalid army object %d, possible game state corruption.", dstArmy.getNum());
+		throw std::runtime_error("SwapStacks: invalid army object " + std::to_string(dstArmy.getNum()) + ", possible game state corruption.");
 
 	CStackInstance * s1 = srcObj->detachStack(srcSlot);
 	CStackInstance * s2 = dstObj->detachStack(dstSlot);
@@ -1627,18 +1627,18 @@ void InsertNewStack::applyGs(CGameState *gs)
 	if(auto * obj = gs->getArmyInstance(army))
 		obj->putStack(slot, new CStackInstance(type, count));
 	else
-		logNetwork->error("[CRITICAL] InsertNewStack: invalid army object %d, possible game state corruption.", army.getNum());
+		throw std::runtime_error("InsertNewStack: invalid army object " + std::to_string(army.getNum()) + ", possible game state corruption.");
 }
 
 void RebalanceStacks::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(srcArmy);
 	if(!srcObj)
-		logNetwork->error("[CRITICAL] RebalanceStacks: invalid army object %d, possible game state corruption.", srcArmy.getNum());
+		throw std::runtime_error("RebalanceStacks: invalid army object " + std::to_string(srcArmy.getNum()) + ", possible game state corruption.");
 
 	auto * dstObj = gs->getArmyInstance(dstArmy);
 	if(!dstObj)
-		logNetwork->error("[CRITICAL] RebalanceStacks: invalid army object %d, possible game state corruption.", dstArmy.getNum());
+		throw std::runtime_error("RebalanceStacks: invalid army object " + std::to_string(dstArmy.getNum()) + ", possible game state corruption.");
 
 	StackLocation src(srcObj, srcSlot);
 	StackLocation dst(dstObj, dstSlot);
