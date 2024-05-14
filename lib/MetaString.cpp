@@ -144,33 +144,33 @@ DLL_LINKAGE std::string MetaString::toString() const
 		switch(elem)
 		{
 			case EMessage::APPEND_RAW_STRING:
-				dst += exactStrings[exSt++];
+				dst += exactStrings.at(exSt++);
 				break;
 			case EMessage::APPEND_LOCAL_STRING:
-				dst += getLocalString(localStrings[loSt++]);
+				dst += getLocalString(localStrings.at(loSt++));
 				break;
 			case EMessage::APPEND_TEXTID_STRING:
-				dst += VLC->generaltexth->translate(stringsTextID[textID++]);
+				dst += VLC->generaltexth->translate(stringsTextID.at(textID++));
 				break;
 			case EMessage::APPEND_NUMBER:
-				dst += std::to_string(numbers[nums++]);
+				dst += std::to_string(numbers.at(nums++));
 				break;
 			case EMessage::REPLACE_RAW_STRING:
-				boost::replace_first(dst, "%s", exactStrings[exSt++]);
+				boost::replace_first(dst, "%s", exactStrings.at(exSt++));
 				break;
 			case EMessage::REPLACE_LOCAL_STRING:
-				boost::replace_first(dst, "%s", getLocalString(localStrings[loSt++]));
+				boost::replace_first(dst, "%s", getLocalString(localStrings.at(loSt++)));
 				break;
 			case EMessage::REPLACE_TEXTID_STRING:
-				boost::replace_first(dst, "%s", VLC->generaltexth->translate(stringsTextID[textID++]));
+				boost::replace_first(dst, "%s", VLC->generaltexth->translate(stringsTextID.at(textID++)));
 				break;
 			case EMessage::REPLACE_NUMBER:
-				boost::replace_first(dst, "%d", std::to_string(numbers[nums++]));
+				boost::replace_first(dst, "%d", std::to_string(numbers.at(nums++)));
 				break;
 			case EMessage::REPLACE_POSITIVE_NUMBER:
 				if (dst.find("%+d") != std::string::npos)
 				{
-					int64_t value = numbers[nums];
+					int64_t value = numbers.at(nums);
 					if (value > 0)
 						boost::replace_first(dst, "%+d", '+' + std::to_string(value));
 					else
@@ -179,7 +179,7 @@ DLL_LINKAGE std::string MetaString::toString() const
 					nums++;
 				}
 				else
-					boost::replace_first(dst, "%d", std::to_string(numbers[nums++]));
+					boost::replace_first(dst, "%d", std::to_string(numbers.at(nums++)));
 				break;
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", static_cast<int>(elem));
@@ -199,41 +199,41 @@ DLL_LINKAGE std::string MetaString::buildList() const
 	std::string lista;
 	for(int i = 0; i < message.size(); ++i)
 	{
-		if(i > 0 && (message[i] == EMessage::APPEND_RAW_STRING || message[i] == EMessage::APPEND_LOCAL_STRING))
+		if(i > 0 && (message.at(i) == EMessage::APPEND_RAW_STRING || message.at(i) == EMessage::APPEND_LOCAL_STRING))
 		{
 			if(exSt == exactStrings.size() - 1)
 				lista += VLC->generaltexth->allTexts[141]; //" and "
 			else
 				lista += ", ";
 		}
-		switch(message[i])
+		switch(message.at(i))
 		{
 			case EMessage::APPEND_RAW_STRING:
-				lista += exactStrings[exSt++];
+				lista += exactStrings.at(exSt++);
 				break;
 			case EMessage::APPEND_LOCAL_STRING:
-				lista += getLocalString(localStrings[loSt++]);
+				lista += getLocalString(localStrings.at(loSt++));
 				break;
 			case EMessage::APPEND_TEXTID_STRING:
-				lista += VLC->generaltexth->translate(stringsTextID[textID++]);
+				lista += VLC->generaltexth->translate(stringsTextID.at(textID++));
 				break;
 			case EMessage::APPEND_NUMBER:
-				lista += std::to_string(numbers[nums++]);
+				lista += std::to_string(numbers.at(nums++));
 				break;
 			case EMessage::REPLACE_RAW_STRING:
-				lista.replace(lista.find("%s"), 2, exactStrings[exSt++]);
+				lista.replace(lista.find("%s"), 2, exactStrings.at(exSt++));
 				break;
 			case EMessage::REPLACE_LOCAL_STRING:
-				lista.replace(lista.find("%s"), 2, getLocalString(localStrings[loSt++]));
+				lista.replace(lista.find("%s"), 2, getLocalString(localStrings.at(loSt++)));
 				break;
 			case EMessage::REPLACE_TEXTID_STRING:
-				lista.replace(lista.find("%s"), 2, VLC->generaltexth->translate(stringsTextID[textID++]));
+				lista.replace(lista.find("%s"), 2, VLC->generaltexth->translate(stringsTextID.at(textID++)));
 				break;
 			case EMessage::REPLACE_NUMBER:
-				lista.replace(lista.find("%d"), 2, std::to_string(numbers[nums++]));
+				lista.replace(lista.find("%d"), 2, std::to_string(numbers.at(nums++)));
 				break;
 			default:
-				logGlobal->error("MetaString processing error! Received message of type %d", int(message[i]));
+				logGlobal->error("MetaString processing error! Received message of type %d", int(message.at(i)));
 		}
 	}
 	return lista;

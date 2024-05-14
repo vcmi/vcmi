@@ -334,8 +334,12 @@ CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags
 	anim->loadGroup(group);
 	last = anim->size(group);
 
-	pos.w = anim->getImage(0, group)->width();
-	pos.h = anim->getImage(0, group)->height();
+	auto image = anim->getImage(0, group);
+	if (!image)
+		throw std::runtime_error("Failed to load group " + std::to_string(group) + " of animation file " + name.getOriginalName());
+
+	pos.w = image->width();
+	pos.h = image->height();
 	pos.x+= x;
 	pos.y+= y;
 

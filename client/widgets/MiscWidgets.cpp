@@ -466,7 +466,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 			if(town->id == townId && town->builtBuildings.count(BuildingID::TAVERN))
 				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 		}
-	}, [&]{
+	}, [town]{
 		if(!town->town->faction->getDescriptionTranslated().empty())
 			CRClickPopup::createAndPush(town->town->faction->getDescriptionTranslated());
 	});

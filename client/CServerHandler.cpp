@@ -119,7 +119,10 @@ CServerHandler::~CServerHandler()
 		if (serverRunner)
 			serverRunner->wait();
 		serverRunner.reset();
-		threadNetwork.join();
+		{
+			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+			threadNetwork.join();
+		}
 	}
 	catch (const std::runtime_error & e)
 	{
@@ -421,6 +424,7 @@ void CServerHandler::sendClientDisconnecting()
 	networkConnection->close();
 	networkConnection.reset();
 	logicConnection.reset();
+	waitForServerShutdown();
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
@@ -901,6 +905,8 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	if (connection != networkConnection)
 	{
 		// ServerHandler already closed this connection on its own
@@ -918,8 +924,6 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 		logNetwork->info("Successfully closed connection to server!");
 		return;
 	}
-
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
 	logNetwork->error("Lost connection to server! Connection has been closed");
 
@@ -955,7 +959,6 @@ void CServerHandler::waitForServerShutdown()
 	}
 	else
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		if (getState() == EClientState::CONNECTING)
 		{
 			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
