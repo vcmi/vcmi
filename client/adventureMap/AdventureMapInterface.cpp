@@ -564,7 +564,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			}
 			else
 			{
-				if(GH.isKeyboardCtrlDown()) //normal click behaviour (as no hero selected)
+				if(GH.isKeyboardCmdDown()) //normal click behaviour (as no hero selected)
 				{
 					if(canSelect)
 						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
