@@ -9,14 +9,10 @@
  */
 #include "StdInc.h"
 #include "CFocusableHelper.h"
-#include "../Global.h"
 #include "widgets/CTextInput.h"
 
 void removeFocusFromActiveInput()
 {
-    if(CFocusable::inputWithFocus == nullptr)
-        return;
-    CFocusable::inputWithFocus->focus = false;
-    CFocusable::inputWithFocus->redraw();
-    CFocusable::inputWithFocus = nullptr;
+    if(CFocusable::inputWithFocus != nullptr)
+        CFocusable::inputWithFocus->removeFocus();
 }
