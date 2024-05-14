@@ -660,6 +660,7 @@ set(lib_MAIN_HEADERS
 	CStack.h
 	CStopWatch.h
 	CTownHandler.h
+	ExceptionsCommon.h
 	ExtraOptionsInfo.h
 	FunctionList.h
 	GameCallbackHolder.h

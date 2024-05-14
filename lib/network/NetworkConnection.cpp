@@ -117,7 +117,7 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 
 	if (readBuffer.size() < expectedPacketSize)
 	{
-		throw std::runtime_error("Failed to read packet!");
+		throw std::runtime_error("Failed to read packet! " + std::to_string(readBuffer.size()) + " bytes read, but " + std::to_string(expectedPacketSize) + " bytes expected!");
 	}
 
 	std::vector<std::byte> message(expectedPacketSize);

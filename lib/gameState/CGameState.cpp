@@ -75,8 +75,6 @@ public:
 	void applyOnGS(CGameState *gs, CPack * pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
-
-		boost::unique_lock<boost::shared_mutex> lock(CGameState::mutex);
 		ptr->applyGs(gs);
 	}
 };
@@ -1101,6 +1099,9 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
+	if (t.terType->battleFields.empty())
+		throw std::runtime_error("Failed to find battlefield for terrain " + t.terType->getJsonKey());
+
 	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
 

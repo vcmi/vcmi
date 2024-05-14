@@ -12,6 +12,7 @@
 
 #include "ArtifactUtils.h"
 #include "CGeneralTextHandler.h"
+#include "ExceptionsCommon.h"
 #include "GameSettings.h"
 #include "mapObjects/MapObjects.h"
 #include "constants/StringConstants.h"
@@ -354,7 +355,13 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 				artData["slot"].Vector().emplace_back(artSlot);
 			}
 		}
-		artData["class"].String() = classes.at(parser.readString()[0]);
+
+		std::string artClass = parser.readString();
+
+		if (classes.count(artClass[0]))
+			artData["class"].String() = classes.at(artClass[0]);
+		else
+			throw DataLoadingException("File ARTRAITS.TXT is invalid or corrupted! Please reinstall Heroes III data files");
 		artData["text"]["description"].String() = parser.readString();
 
 		parser.endLine();
