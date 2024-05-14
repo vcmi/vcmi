@@ -119,7 +119,10 @@ CServerHandler::~CServerHandler()
 		if (serverRunner)
 			serverRunner->wait();
 		serverRunner.reset();
-		threadNetwork.join();
+		{
+			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+			threadNetwork.join();
+		}
 	}
 	catch (const std::runtime_error & e)
 	{
