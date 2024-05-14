@@ -828,7 +828,10 @@ void AIGateway::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("AIGateway::makeTurn");
 
-	cb->sendMessage("vcmieagles");
+	if(cb->getStartInfo()->extraOptionsInfo.cheatsAllowed)
+		cb->sendMessage("vcmieagles");
+	else
+		cb->sendMessage("Nullkiller AI currently requires the ability to cheat in order to function correctly! Please enable!");
 
 	retrieveVisitableObjs();
 
