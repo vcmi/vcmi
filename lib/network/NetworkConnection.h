@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class NetworkConnection : public INetworkConnection, public std::enable_shared_from_this<NetworkConnection>
+class NetworkConnection final : public INetworkConnection, public std::enable_shared_from_this<NetworkConnection>
 {
 	static const int messageHeaderSize = sizeof(uint32_t);
 	static const int messageMaxSize = 64 * 1024 * 1024; // arbitrary size to prevent potential massive allocation if we receive garbage input
@@ -25,6 +25,7 @@ class NetworkConnection : public INetworkConnection, public std::enable_shared_f
 
 	NetworkBuffer readBuffer;
 	INetworkConnectionListener & listener;
+	bool asyncWritesEnabled = false;
 
 	void heartbeat();
 	void onError(const std::string & message);
@@ -42,6 +43,7 @@ public:
 	void start();
 	void close() override;
 	void sendPacket(const std::vector<std::byte> & message) override;
+	void setAsyncWritesEnabled(bool on) override;
 };
 
 VCMI_LIB_NAMESPACE_END
