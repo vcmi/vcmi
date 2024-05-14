@@ -107,10 +107,14 @@ void setThreadName(const std::string &name)
 
 #elif defined(VCMI_APPLE)
 	pthread_setname_np(name.c_str());
+#elif defined(VCMI_FREEBSD)
+	pthread_setname_np(pthread_self(), name.c_str());
 #elif defined(VCMI_HAIKU)
 	rename_thread(find_thread(NULL), name.c_str());
 #elif defined(VCMI_UNIX)
 	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
+#else
+	#error "Failed to find method to set thread name on this system. Please provide one (or disable this line if you just want code to compile)"
 #endif
 }
 
