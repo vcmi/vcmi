@@ -292,6 +292,7 @@ void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std
 
 void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
 {
+	connection->setAsyncWritesEnabled(true);
 	// no-op - waiting for incoming data
 }
 

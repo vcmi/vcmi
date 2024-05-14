@@ -127,6 +127,11 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 	startReceiving();
 }
 
+void NetworkConnection::setAsyncWritesEnabled(bool on)
+{
+	asyncWritesEnabled = on;
+}
+
 void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 {
 	std::lock_guard<std::mutex> lock(writeMutex);
@@ -134,14 +139,27 @@ void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 	uint32_t messageSize = message.size();
 	std::memcpy(headerVector.data(), &messageSize, sizeof(uint32_t));
 
-	bool messageQueueEmpty = dataToSend.empty();
-	dataToSend.push_back(headerVector);
-	if (message.size() > 0)
-		dataToSend.push_back(message);
+	// At the moment, vcmilobby *requires* async writes in order to handle multiple connections with different speeds and at optimal performance
+	// However server (and potentially - client) can not handle this mode and may shutdown either socket or entire asio service too early, before all writes are performed
+	if (asyncWritesEnabled)
+	{
 
-	if (messageQueueEmpty)
-		doSendData();
-	//else - data sending loop is still active and still sending previous messages
+		bool messageQueueEmpty = dataToSend.empty();
+		dataToSend.push_back(headerVector);
+		if (message.size() > 0)
+			dataToSend.push_back(message);
+
+		if (messageQueueEmpty)
+			doSendData();
+		//else - data sending loop is still active and still sending previous messages
+	}
+	else
+	{
+		boost::system::error_code ec;
+		boost::asio::write(*socket, boost::asio::buffer(headerVector), ec );
+		if (message.size() > 0)
+			boost::asio::write(*socket, boost::asio::buffer(message), ec );
+	}
 }
 
 void NetworkConnection::doSendData()
