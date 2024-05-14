@@ -1,3 +1,14 @@
+# 1.5.0 -> 1.5.1
+
+### Stability
+* Fixed possible crash on accessing faction description
+* Fixed possible thread race on leaving to main menu
+* Game will now show error message instead of silent crash on corrupted H3 data
+* Fixed possible crash on double-deletion of quest artifacts placed by RMG
+
+### Interface
+* Fixed possible freeze on attempt to move hero when hero has non-zero movement points but not enough to reach first tile in path
+
 # 1.4.5 -> 1.5.0
 
 ### General
