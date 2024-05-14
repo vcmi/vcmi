@@ -191,7 +191,7 @@
 	"vcmi.battleWindow.damageEstimation.kills" : "%d perecerán",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d perecerá",
 	"vcmi.battleWindow.damageRetaliation.will" : "Contratacará ",
-	"vcmi.battleWindow.damageRetaliation.may" : "Puede contratacar",
+	"vcmi.battleWindow.damageRetaliation.may" : "Puede contratacar ",
 	"vcmi.battleWindow.damageRetaliation.never" : "No contratacará.",
 	"vcmi.battleWindow.killed" : "Eliminados",
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s han sido eliminados por disparos certeros",
