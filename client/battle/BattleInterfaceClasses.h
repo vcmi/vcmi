@@ -99,7 +99,7 @@ private:
 	std::shared_ptr<TransparentFilledRectangle> textBoxBackgroundBorder;
 	std::shared_ptr<CTextBox> textBox;
 public:
-	BattleConsoleWindow(std::string text);
+	BattleConsoleWindow(const std::string & text);
 };
 
 /// Hero battle animation

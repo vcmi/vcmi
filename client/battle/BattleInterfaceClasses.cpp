@@ -214,7 +214,7 @@ void BattleConsole::clear()
 	write({});
 }
 
-BattleConsoleWindow::BattleConsoleWindow(std::string text)
+BattleConsoleWindow::BattleConsoleWindow(const std::string & text)
 	: CWindowObject(BORDERED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -224,8 +224,6 @@ BattleConsoleWindow::BattleConsoleWindow(std::string text)
 
 	updateShadow();
 	center();
-
-	addUsedEvents(LCLICK);
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	buttonOk = std::make_shared<CButton>(Point(183, 388), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
