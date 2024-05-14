@@ -101,4 +101,6 @@ public:
 
 	// CIntObject interface impl
 	void keyPressed(EShortcut key) final;
+	void activate() final;
+	void deactivate() final;
 };

@@ -263,6 +263,24 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	}
 }
 
+void CTextInput::activate()
+{
+	CFocusable::activate();
+#if !defined(VCMI_MOBILE)
+	if (hasFocus())
+		GH.startTextInput(pos);
+#endif
+}
+
+void CTextInput::deactivate()
+{
+	CFocusable::deactivate();
+#if !defined(VCMI_MOBILE)
+	if (hasFocus())
+		GH.stopTextInput();
+#endif
+}
+
 void CTextInput::onFocusGot()
 {
 	updateLabel();
@@ -275,13 +293,15 @@ void CTextInput::onFocusLost()
 
 void CFocusable::focusGot()
 {
-	GH.startTextInput(pos);
+	if (isActive())
+		GH.startTextInput(pos);
 	onFocusGot();
 }
 
 void CFocusable::focusLost()
 {
-	GH.stopTextInput();
+	if (isActive())
+		GH.stopTextInput();
 	onFocusLost();
 }
 
