@@ -216,10 +216,10 @@ void FFMpegStream::decodeNextFrame()
 {
 	AVPacket packet;
 
-	for (;;)
+	for(;;)
 	{
 		int rc = avcodec_receive_frame(codecContext, frame);
-		if (rc == AVERROR(EAGAIN))
+		if(rc == AVERROR(EAGAIN))
 			break;
 
 		if(rc < 0)
@@ -252,7 +252,7 @@ void FFMpegStream::decodeNextFrame()
 				throwFFmpegError(rc);
 
 			rc = avcodec_receive_frame(codecContext, frame);
-			if (rc == AVERROR(EAGAIN))
+			if(rc == AVERROR(EAGAIN))
 			{
 				av_packet_unref(&packet);
 				continue;
@@ -272,7 +272,7 @@ bool CVideoInstance::loadNextFrame()
 	decodeNextFrame();
 	const AVFrame * frame = getCurrentFrame();
 
-	if (!frame)
+	if(!frame)
 		return false;
 
 	uint8_t * data[4] = {};
@@ -292,7 +292,7 @@ bool CVideoInstance::loadNextFrame()
 		SDL_UpdateTexture(textureRGB, nullptr, data[0], linesize[0]);
 		av_freep(&data[0]);
 	}
-	if (surface)
+	if(surface)
 	{
 		// Avoid buffer overflow caused by sws_scale():
 		// http://trac.ffmpeg.org/ticket/9254
@@ -357,21 +357,21 @@ void CVideoInstance::show(const Point & position, Canvas & canvas)
 
 double FFMpegStream::getCurrentFrameEndTime()
 {
-#	if(LIBAVUTIL_VERSION_MAJOR < 58)
+#if(LIBAVUTIL_VERSION_MAJOR < 58)
 	auto packet_duration = frame->pkt_duration;
-#	else
+#else
 	auto packet_duration = frame->duration;
-#	endif
+#endif
 	return (frame->pts + packet_duration) * av_q2d(formatContext->streams[streamIndex]->time_base);
 }
 
 double FFMpegStream::getCurrentFrameDuration()
 {
-#	if(LIBAVUTIL_VERSION_MAJOR < 58)
+#if(LIBAVUTIL_VERSION_MAJOR < 58)
 	auto packet_duration = frame->pkt_duration;
-#	else
+#else
 	auto packet_duration = frame->duration;
-#	endif
+#endif
 	return (packet_duration) * av_q2d(formatContext->streams[streamIndex]->time_base);
 }
 
@@ -552,7 +552,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		else
 			SDL_RenderClear(mainRenderer);
 
-		if (instance.textureYUV)
+		if(instance.textureYUV)
 			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &rect);
 		else
 			SDL_RenderCopy(mainRenderer, instance.textureRGB, nullptr, &rect);
@@ -567,7 +567,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);
 
 		logGlobal->info("Sleeping for %d", (targetFrameTime - timeSpentBusy).count());
-		if (targetFrameTime > timeSpentBusy)
+		if(targetFrameTime > timeSpentBusy)
 			boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
 
 		lastTimePoint = boost::chrono::steady_clock::now();
@@ -577,7 +577,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 
 bool CVideoPlayer::playIntroVideo(const VideoPath & name)
 {
-	return openAndPlayVideoImpl(name, Point(0,0), true, true, true);
+	return openAndPlayVideoImpl(name, Point(0, 0), true, true, true);
 }
 
 void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
@@ -596,7 +596,7 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool 
 	return result;
 }
 
-std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
+std::pair<std::unique_ptr<ui8[]>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
 {
 	CAudioInstance audio;
 	return audio.extractAudio(videoToOpen);

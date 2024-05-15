@@ -12,7 +12,6 @@
 #ifndef DISABLE_VIDEO
 
 #	include "IVideoPlayer.h"
-
 #	include "../lib/Rect.h"
 
 struct SDL_Surface;
@@ -64,13 +63,12 @@ public:
 class CAudioInstance final : public FFMpegStream
 {
 public:
-	std::pair<std::unique_ptr<ui8 []>, si64> extractAudio(const VideoPath & videoToOpen);
+	std::pair<std::unique_ptr<ui8[]>, si64> extractAudio(const VideoPath & videoToOpen);
 };
 
 class CVideoInstance final : public IVideoInstance, public FFMpegStream
 {
 	friend class CVideoPlayer;
-
 
 	struct SwsContext * sws = nullptr;
 	SDL_Texture * textureRGB = nullptr;
@@ -105,7 +103,7 @@ public:
 	bool playIntroVideo(const VideoPath & name) final;
 	void playSpellbookAnimation(const VideoPath & name, const Point & position) final;
 	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) final;
-	std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) final;
+	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) final;
 };
 
 #endif
