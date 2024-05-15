@@ -994,15 +994,15 @@ void CVCMIServer::multiplayerWelcomeMessage()
 
 	std::vector<std::string> optionIds;
 	if(si->extraOptionsInfo.cheatsAllowed)
-		optionIds.push_back("vcmi.multiplayerWelcomeMessage.cheatsAllowed");
+		optionIds.push_back("vcmi.optionsTab.cheatAllowed.hover");
 	if(si->extraOptionsInfo.unlimitedReplay)
-		optionIds.push_back("vcmi.multiplayerWelcomeMessage.unlimitedReplays");
+		optionIds.push_back("vcmi.optionsTab.unlimitedReplay.hover");
 
 	if(!optionIds.size()) // No settings to publish
 		return;
 
 	MetaString str;
-	str.appendTextID("vcmi.multiplayerWelcomeMessage.additionalSettings");
+	str.appendTextID("vcmi.optionsTab.extraOptions.hover");
 	str.appendRawString(": ");
 	for(int i = 0; i < optionIds.size(); i++)
 	{
