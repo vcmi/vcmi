@@ -266,19 +266,27 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 void CTextInput::activate()
 {
 	CFocusable::activate();
-#if !defined(VCMI_MOBILE)
 	if (hasFocus())
+	{
+#if defined(VCMI_MOBILE)
+		//giveFocus();
+#else
 		GH.startTextInput(pos);
 #endif
+	}
 }
 
 void CTextInput::deactivate()
 {
 	CFocusable::deactivate();
-#if !defined(VCMI_MOBILE)
 	if (hasFocus())
+	{
+#if defined(VCMI_MOBILE)
+		removeFocus();
+#else
 		GH.stopTextInput();
 #endif
+	}
 }
 
 void CTextInput::onFocusGot()
