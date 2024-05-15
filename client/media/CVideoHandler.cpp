@@ -445,19 +445,11 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	std::vector<ui8> samples;
 
 	auto formatProperties = getAudioFormatProperties(codecpar->format);
+#if(LIBAVUTIL_VERSION_MAJOR < 58)
 	int numChannels = codecpar->channels;
-
-	// Workaround for lack of resampler
-	// Currently, ffmpeg on conan systems is built without sws resampler
-	// Because of that, and because wav format does not supports 'planar' formats from ffmpeg
-	// we need to load only one channel and play this sound as mono-channel audio
-	// correct approach would be to either use resampler or to do this conversion manually
-	// alternative approaches:
-	// - use SDL resampler, however planar formats are not suppported by it either
-	// - generate two audio streams and play them separately
-	// Good news is that it looks like none of H3 video files use this format (only in not supported HD Edition)
-	if (formatProperties.isPlanar)
-		numChannels = 1;
+#else
+	int numChannels = codecpar->ch_layout.nb_channels;
+#endif
 
 	samples.reserve(44100 * 5); // arbitrary 5-second buffer
 
@@ -469,8 +461,24 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 		if (!frame)
 			break;
 
-		int bytesToRead = frame->nb_samples * numChannels * formatProperties.sampleSizeBytes;
-		samples.insert(samples.end(), frame->data[0], frame->data[0] + bytesToRead);
+		int samplesToRead = frame->nb_samples * numChannels;
+		int bytesToRead = samplesToRead * formatProperties.sampleSizeBytes;
+
+		if (formatProperties.isPlanar && numChannels > 1)
+		{
+			// Workaround for lack of resampler
+			// Currently, ffmpeg on conan systems is built without sws resampler
+			// Because of that, and because wav format does not supports 'planar' formats from ffmpeg
+			// we need to de-planarize it and convert to "normal" (non-planar / interleaved) steram
+			samples.reserve(samples.size() + bytesToRead);
+			for (int sm = 0; sm < frame->nb_samples; ++sm)
+				for (int ch = 0; ch < numChannels; ++ch)
+					samples.insert(samples.end(), frame->data[ch] + sm * formatProperties.sampleSizeBytes, frame->data[ch] + (sm+1) * formatProperties.sampleSizeBytes );
+		}
+		else
+		{
+			samples.insert(samples.end(), frame->data[0], frame->data[0] + bytesToRead);
+		}
 	}
 
 	typedef struct WAV_HEADER {
