@@ -47,6 +47,11 @@ void AdventureMapShortcuts::setState(EAdventureState newState)
 	state = newState;
 }
 
+EAdventureState AdventureMapShortcuts::getState()
+{
+	return state;
+}
+
 void AdventureMapShortcuts::onMapViewMoved(const Rect & visibleArea, int newMapLevel)
 {
 	mapLevel = newMapLevel;
