@@ -77,6 +77,7 @@ AIGateway::AIGateway()
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	nullkiller.reset(new Nullkiller());
+	announcedCheatingProblem = false;
 }
 
 AIGateway::~AIGateway()
@@ -831,7 +832,11 @@ void AIGateway::makeTurn()
 	if(cb->getStartInfo()->extraOptionsInfo.cheatsAllowed)
 		cb->sendMessage("vcmieagles");
 	else
-		cb->sendMessage("Nullkiller AI currently requires the ability to cheat in order to function correctly! Please enable!");
+	{
+		if(!announcedCheatingProblem)
+			cb->sendMessage("Nullkiller AI currently requires the ability to cheat in order to function correctly! Please enable!");
+		announcedCheatingProblem = true;
+	}
 
 	retrieveVisitableObjs();
 
