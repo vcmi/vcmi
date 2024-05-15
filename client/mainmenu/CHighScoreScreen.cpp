@@ -229,7 +229,8 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 
 	if(won)
 	{
-		videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), VideoPath::builtin("HSANIM.SMK"), VideoPath::builtin("HSLOOP.SMK"));
+
+		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), VideoPath::builtin("HSANIM.SMK"), VideoPath::builtin("HSLOOP.SMK"), true);
 
 		int border = 100;
 		int textareaW = ((pos.w - 2 * border) / 4);
@@ -246,7 +247,7 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 	}
 	else
 	{
-		videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), VideoPath::builtin("HSANIM.SMK"), VideoPath::builtin("LOSEGAME.SMK"));
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), VideoPath::builtin("LOSEGAME.SMK"), true, [this](){close();});
 		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
 	}
 }
@@ -289,6 +290,11 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	s->Vector() = baseNode;
 
 	return pos;
+}
+
+void CHighScoreInputScreen::show(Canvas & to)
+{
+	CWindowObject::showAll(to);
 }
 
 void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)

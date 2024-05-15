@@ -12,72 +12,137 @@
 
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../media/IVideoPlayer.h"
 #include "../render/Canvas.h"
 
-VideoWidget::VideoWidget(const Point & position, const VideoPath & looped)
-	: VideoWidget(position, VideoPath(), looped)
+VideoWidgetBase::VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio)
+	: playAudio(playAudio)
 {
 	addUsedEvents(TIME);
+	pos += position;
+	playVideo(video);
 }
 
-VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped)
-	: current(prologue)
-	, next(looped)
-	, videoSoundHandle(-1)
+VideoWidgetBase::~VideoWidgetBase() = default;
+
+void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 {
-	if(current.empty())
-		videoInstance = CCS->videoh->open(looped, false);
-	else
-		videoInstance = CCS->videoh->open(current, false);
-}
-
-VideoWidget::~VideoWidget() = default;
-
-void VideoWidget::show(Canvas & to)
-{
-	if(videoInstance)
-		videoInstance->show(pos.topLeft(), to);
-}
-
-void VideoWidget::activate()
-{
-//	if(videoInstance)
-//		videoInstance->playAudio();
-
-	if(videoSoundHandle != -1)
+	videoInstance = CCS->videoh->open(fileToPlay, false);
+	if (videoInstance)
 	{
-		CCS->soundh->setCallback(
-			videoSoundHandle,
-			[this]()
-			{
-				if(GH.windows().isTopWindow(this))
-					this->videoSoundHandle = -1;
-			}
-		);
+		pos.w = videoInstance->size().x;
+		pos.h = videoInstance->size().y;
+	}
+
+	if (playAudio)
+	{
+		loadAudio(fileToPlay);
+		if (isActive())
+			startAudio();
 	}
 }
 
-void VideoWidget::deactivate()
-{
-	CCS->soundh->stopSound(videoSoundHandle);
-}
-
-void VideoWidget::showAll(Canvas & to)
+void VideoWidgetBase::show(Canvas & to)
 {
 	if(videoInstance)
 		videoInstance->show(pos.topLeft(), to);
 }
 
-void VideoWidget::tick(uint32_t msPassed)
+void VideoWidgetBase::loadAudio(const VideoPath & fileToPlay)
+{
+	if (!playAudio)
+		return;
+
+	audioData = CCS->videoh->getAudio(fileToPlay);
+}
+
+void VideoWidgetBase::startAudio()
+{
+	if(audioData.first == nullptr)
+		return;
+
+	audioHandle = CCS->soundh->playSound(audioData);
+
+	if(audioHandle != -1)
+	{
+		CCS->soundh->setCallback(
+			audioHandle,
+			[this]()
+			{
+				this->audioHandle = -1;
+			}
+			);
+	}
+}
+
+void VideoWidgetBase::stopAudio()
+{
+	if(audioHandle != -1)
+	{
+		CCS->soundh->resetCallback(audioHandle);
+		CCS->soundh->stopSound(audioHandle);
+		audioHandle = -1;
+	}
+}
+
+void VideoWidgetBase::activate()
+{
+	CIntObject::activate();
+	startAudio();
+}
+
+void VideoWidgetBase::deactivate()
+{
+	CIntObject::deactivate();
+	stopAudio();
+}
+
+void VideoWidgetBase::showAll(Canvas & to)
+{
+	if(videoInstance)
+		videoInstance->show(pos.topLeft(), to);
+}
+
+void VideoWidgetBase::tick(uint32_t msPassed)
 {
 	if(videoInstance)
 	{
 		videoInstance->tick(msPassed);
 
 		if(videoInstance->videoEnded())
-			videoInstance = CCS->videoh->open(next, false);
+		{
+			videoInstance.reset();
+			stopAudio();
+			onPlaybackFinished();
+		}
 	}
+}
+
+VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)
+	: VideoWidgetBase(position, prologue, playAudio)
+	, loopedVideo(looped)
+{
+}
+
+VideoWidget::VideoWidget(const Point & position, const VideoPath & looped, bool playAudio)
+	: VideoWidgetBase(position, looped, playAudio)
+	, loopedVideo(looped)
+{
+}
+
+void VideoWidget::onPlaybackFinished()
+{
+	playVideo(loopedVideo);
+}
+
+VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, const std::function<void()> & callback)
+	: VideoWidgetBase(position, video, playAudio)
+	, callback(callback)
+{
+}
+
+void VideoWidgetOnce::onPlaybackFinished()
+{
+	callback();
 }

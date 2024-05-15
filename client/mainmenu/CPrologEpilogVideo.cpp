@@ -29,7 +29,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
-	videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), spe.prologVideo);
+	videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo, true);
 
 	//some videos are 800x600 in size while some are 800x400
 	if (videoPlayer->pos.h == 400)

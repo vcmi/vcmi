@@ -15,7 +15,7 @@ class CLabel;
 class CMultiLineLabel;
 class CAnimImage;
 class CTextInput;
-class VideoWidget;
+class VideoWidgetBase;
 
 class TransparentFilledRectangle;
 
@@ -94,7 +94,7 @@ class CHighScoreInputScreen : public CWindowObject
 	std::vector<std::shared_ptr<CMultiLineLabel>> texts;
 	std::shared_ptr<CHighScoreInput> input;
 	std::shared_ptr<TransparentFilledRectangle> background;
-	std::shared_ptr<VideoWidget> videoPlayer;
+	std::shared_ptr<VideoWidgetBase> videoPlayer;
 
 	bool won;
 	HighScoreCalculation calc;
@@ -105,4 +105,5 @@ public:
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
+	void show(Canvas & to) override;
 };

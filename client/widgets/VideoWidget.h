@@ -15,23 +15,51 @@
 
 class IVideoInstance;
 
-class VideoWidget final : public CIntObject
+class VideoWidgetBase : public CIntObject
 {
 	std::unique_ptr<IVideoInstance> videoInstance;
 
-	VideoPath current;
-	VideoPath next;
+	std::pair<std::unique_ptr<ui8[]>, si64> audioData = {nullptr, 0};
+	int audioHandle = -1;
+	bool playAudio = false;
 
-	int videoSoundHandle;
+	void loadAudio(const VideoPath & file);
+	void startAudio();
+	void stopAudio();
+
+protected:
+	VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio);
+
+	virtual void onPlaybackFinished() = 0;
+	void playVideo(const VideoPath & video);
 
 public:
-	VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped);
-	VideoWidget(const Point & position, const VideoPath & looped);
-	~VideoWidget();
+	~VideoWidgetBase();
 
 	void activate() override;
 	void deactivate() override;
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
+
+	void setPlaybackFinishedCallback(std::function<void()>);
+};
+
+class VideoWidget final: public VideoWidgetBase
+{
+	VideoPath loopedVideo;
+
+	void onPlaybackFinished() final;
+public:
+	VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio);
+	VideoWidget(const Point & position, const VideoPath & looped, bool playAudio);
+};
+
+class VideoWidgetOnce final: public VideoWidgetBase
+{
+	std::function<void()> callback;
+
+	void onPlaybackFinished() final;
+public:
+	VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, const std::function<void()> & callback);
 };

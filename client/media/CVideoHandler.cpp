@@ -469,7 +469,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 			// Workaround for lack of resampler
 			// Currently, ffmpeg on conan systems is built without sws resampler
 			// Because of that, and because wav format does not supports 'planar' formats from ffmpeg
-			// we need to de-planarize it and convert to "normal" (non-planar / interleaved) steram
+			// we need to de-planarize it and convert to "normal" (non-planar / interleaved) stream
 			samples.reserve(samples.size() + bytesToRead);
 			for (int sm = 0; sm < frame->nb_samples; ++sm)
 				for (int ch = 0; ch < numChannels; ++ch)
@@ -592,6 +592,7 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool 
 	result->openInput(name);
 	result->openVideo();
 	result->prepareOutput(scaleToScreen, false);
+	result->loadNextFrame(); // prepare 1st frame
 
 	return result;
 }

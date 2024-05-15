@@ -709,7 +709,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	auto resources = getResources(br);
 
 	description = std::make_shared<CTextBox>(resources.resultText.toString(), Rect(69, 203, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	videoPlayer = std::make_shared<VideoWidget>(Point(107, 70), resources.prologueVideo, resources.loopedVideo);
+	videoPlayer = std::make_shared<VideoWidget>(Point(107, 70), resources.prologueVideo, resources.loopedVideo, false);
 
 	CCS->musich->playMusic(resources.musicName, false, true);
 }

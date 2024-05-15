@@ -95,7 +95,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	if(!config["video"].isNull())
 	{
 		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
-		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]));
+		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]), false);
 	}
 	else
 		tabs->setRedrawParent(true);
@@ -108,6 +108,12 @@ std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 		return std::make_shared<CreditsScreen>(this->pos);
 	else
 		return std::make_shared<CMenuEntry>(this, config["items"].Vector()[index]);
+}
+
+void CMenuScreen::show(Canvas & to)
+{
+	// TODO: avoid excessive redraws
+	CIntObject::showAll(to);
 }
 
 void CMenuScreen::activate()

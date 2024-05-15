@@ -57,7 +57,7 @@ void CTutorialWindow::setContent()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	auto video = VideoPath::builtin("tutorial/" + videos[page]);
 
-	videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), video);
+	videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), video, false);
 
 	buttonLeft->block(page<1);
 	buttonRight->block(page>videos.size() - 2);

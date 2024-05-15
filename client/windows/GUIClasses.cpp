@@ -515,11 +515,11 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 			recruit->block(true);
 	}
 	if(LOCPLINT->castleInt)
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), LOCPLINT->castleInt->town->town->clientInfo.tavernVideo, false);
 	else if(const auto * townObj = dynamic_cast<const CGTownInstance *>(TavernObj))
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->town->clientInfo.tavernVideo);
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), townObj->town->clientInfo.tavernVideo, false);
 	else
-		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), VideoPath::builtin("TAVERN.BIK"));
+		videoPlayer = std::make_shared<VideoWidget>(Point(70, 56), VideoPath::builtin("TAVERN.BIK"), false);
 
 	addInvite();
 }

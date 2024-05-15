@@ -145,7 +145,7 @@ void CCampaignScreen::CCampaignButton::hover(bool on)
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	if (on && !videoPath.empty())
-		videoPlayer = std::make_shared<VideoWidget>(Point(), videoPath);
+		videoPlayer = std::make_shared<VideoWidget>(Point(), videoPath, false);
 	else
 		videoPlayer.reset();
 
