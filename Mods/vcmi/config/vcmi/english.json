@@ -63,7 +63,7 @@
 	"vcmi.mainMenu.serverClosing" : "Closing...",
 	"vcmi.mainMenu.hostTCP" : "Host TCP/IP game",
 	"vcmi.mainMenu.joinTCP" : "Join TCP/IP game",
-	
+
 	"vcmi.lobby.filepath" : "File path",
 	"vcmi.lobby.creationDate" : "Creation date",
 	"vcmi.lobby.scenarioName" : "Scenario name",

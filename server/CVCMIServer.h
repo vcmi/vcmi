@@ -130,4 +130,6 @@ public:
 	void setCampaignBonus(int bonusId);
 
 	ui8 getIdOfFirstUnallocatedPlayer() const;
+
+	void multiplayerWelcomeMessage();
 };

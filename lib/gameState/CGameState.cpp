@@ -294,6 +294,7 @@ void CGameState::updateOnLoad(StartInfo * si)
 	scenarioOps->playerInfos = si->playerInfos;
 	for(auto & i : si->playerInfos)
 		gs->players[i.first].human = i.second.isControlledByHuman();
+	scenarioOps->extraOptionsInfo = si->extraOptionsInfo;
 }
 
 void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
