@@ -10,9 +10,11 @@
 
 #include "StdInc.h"
 #include "ExtraOptionsTab.h"
+#include "../widgets/Images.h"
 
 ExtraOptionsTab::ExtraOptionsTab()
 	: OptionsTabBase(JsonPath::builtin("config/widgets/extraOptionsTab.json"))
 {
-
+	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))
+		textureCampaignOverdraw->disable();
 }
