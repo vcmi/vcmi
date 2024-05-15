@@ -31,6 +31,7 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/CreatureCostBox.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
@@ -328,15 +329,18 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 
 	int sliderPosition = total - leftMin - rightMin;
 
-	leftInput = std::make_shared<CTextInput>(Rect(20, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, true), ETextAlignment::CENTER, true);
-	rightInput = std::make_shared<CTextInput>(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false), ETextAlignment::CENTER, true);
+	leftInput = std::make_shared<CTextInput>(Rect(20, 218, 100, 36), FONT_BIG, ETextAlignment::CENTER, true);
+	rightInput = std::make_shared<CTextInput>(Rect(176, 218, 100, 36), FONT_BIG, ETextAlignment::CENTER, true);
+
+	leftInput->setCallback(std::bind(&CSplitWindow::setAmountText, this, _1, true));
+	rightInput->setCallback(std::bind(&CSplitWindow::setAmountText, this, _1, false));
 
 	//add filters to allow only number input
-	leftInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax);
-	rightInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax);
+	leftInput->setFilterNumber(leftMin, leftMax);
+	rightInput->setFilterNumber(rightMin, rightMax);
 
-	leftInput->setText(std::to_string(leftAmount), false);
-	rightInput->setText(std::to_string(rightAmount), false);
+	leftInput->setText(std::to_string(leftAmount));
+	rightInput->setText(std::to_string(rightAmount));
 
 	animLeft = std::make_shared<CCreaturePic>(20, 54, creature, true, false);
 	animRight = std::make_shared<CCreaturePic>(177, 54,creature, true, false);
