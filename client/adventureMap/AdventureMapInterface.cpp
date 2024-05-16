@@ -184,7 +184,7 @@ void AdventureMapInterface::dim(Canvas & to)
 		}
 	for (auto window : GH.windows().findWindows<CIntObject>())
 	{
-		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow() && (settings["adventure"]["backgroundDimSmallWindows"].Bool() || isBigWindow(window)))
+		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow() && (settings["adventure"]["backgroundDimSmallWindows"].Bool() || isBigWindow(window) || shortcuts->getState() == EAdventureState::HOTSEAT_WAIT))
 		{
 			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
 			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
@@ -564,7 +564,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			}
 			else
 			{
-				if(GH.isKeyboardCtrlDown()) //normal click behaviour (as no hero selected)
+				if(GH.isKeyboardCmdDown()) //normal click behaviour (as no hero selected)
 				{
 					if(canSelect)
 						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));

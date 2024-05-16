@@ -201,8 +201,8 @@ jobs:
 
     - name: Configure
       run: |
-        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC13=1; fi
-        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC13:+-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13}
+        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC12=1; fi
+        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC12:+-DCMAKE_C_COMPILER=gcc-12 -DCMAKE_CXX_COMPILER=g++-12}
 
     - name: Build
       run: |
@@ -384,3 +384,34 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
+
+
+  deploy-src:
+    if: always() && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+        - uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        - name: Build Number
+          run: |
+            source '${{github.workspace}}/CI/get_package_name.sh'
+            echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
+            
+        - name: Create source code archive (including submodules)
+          run: |
+            git archive HEAD -o "release.tar" --worktree-attributes -v
+            git submodule update --init --recursive
+            git submodule --quiet foreach 'cd "$toplevel"; tar -rvf "release.tar" "$sm_path"'
+            gzip release.tar
+            
+        - name: Upload source code archive
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
+            path: |
+              ./release.tar.gz

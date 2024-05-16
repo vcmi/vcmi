@@ -212,10 +212,14 @@ static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
 	jsonEntry["status"].String() = LOBBY_ROOM_STATE_NAMES[vstd::to_underlying(gameRoom.roomState)];
 	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
 	jsonEntry["ageSeconds"].Integer() = gameRoom.age.count();
-	jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size());
+	if (!gameRoom.modsJson.empty()) // not present in match history
+		jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size());
 
 	for(const auto & account : gameRoom.participants)
 		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
+
+	for(const auto & account : gameRoom.invited)
+		jsonEntry["invited"].Vector().push_back(loadLobbyAccountToJson(account));
 
 	return jsonEntry;
 }
@@ -288,6 +292,7 @@ void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std
 
 void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
 {
+	connection->setAsyncWritesEnabled(true);
 	// no-op - waiting for incoming data
 }
 
@@ -815,6 +820,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 	database->insertGameRoomInvite(accountID, gameRoomID);
 	sendInviteReceived(targetAccountConnection, senderName, gameRoomID);
+	broadcastActiveGameRooms();
 }
 
 LobbyServer::~LobbyServer() = default;

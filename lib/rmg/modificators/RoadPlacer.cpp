@@ -64,16 +64,16 @@ const rmg::Area & RoadPlacer::getRoads() const
 	return roads;
 }
 
-bool RoadPlacer::createRoad(const int3 & dst)
+bool RoadPlacer::createRoad(const int3 & destination)
 {
 	auto searchArea = zone.areaPossible() + zone.freePaths() + areaRoads + roads;
+
+	rmg::Area border(zone.area()->getBorder());
 
 	rmg::Path path(searchArea);
 	path.connect(roads);
 
-	const float VISITABLE_PENALTY = 1.33f;
-
-	auto simpleRoutig = [this, VISITABLE_PENALTY](const int3& src, const int3& dst)
+	auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
 	{
 		if(areaIsolated().contains(dst))
 		{
@@ -81,58 +81,66 @@ bool RoadPlacer::createRoad(const int3 & dst)
 		}
 		else
 		{
-			float weight = dst.dist2dSQ(src);
-			auto ret =  weight * weight;
+			float ret = dst.dist2d(src);
 
 			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
 			{
 				ret *= VISITABLE_PENALTY;
+			}
+			float dist = border.distance(dst);
+			if(dist > 1)
+			{
+				ret /= dist;
 			}
 			return ret;
 		}
 	};
 	
-	auto res = path.search(dst, true, simpleRoutig);
+	auto res = path.search(destination, true, simpleRoutig);
 	if(!res.valid())
 	{
-		auto desperateRoutig = [this, VISITABLE_PENALTY](const int3& src, const int3& dst) -> float
+		res = createRoadDesperate(path, destination);
+		if (!res.valid())
 		{
-			//Do not allow connections straight up through object not visitable from top
-			if(std::abs((src - dst).y) == 1)
-			{
-				if(areaIsolated().contains(dst) || areaIsolated().contains(src))
-				{
-					return 1e12;
-				}
-			}
-			else
-			{
-				if(areaIsolated().contains(dst))
-				{
-					return 1e6;
-				}
-			}
-
-			float weight = dst.dist2dSQ(src);
-
-			auto ret =  weight * weight;
-			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
-			{
-				ret *= VISITABLE_PENALTY;
-			}
-			return ret;
-		};
-		res = path.search(dst, false, desperateRoutig);
-
-		if(!res.valid())
-		{
-			logGlobal->warn("Failed to create road to node %s", dst.toString());
+			logGlobal->warn("Failed to create road to node %s", destination.toString());
 			return false;
 		}
 	}
 	roads.unite(res.getPathArea());
 	return true;
 	
+}
+
+rmg::Path RoadPlacer::createRoadDesperate(rmg::Path & path, const int3 & destination)
+{
+	auto desperateRoutig = [this](const int3& src, const int3& dst) -> float
+	{
+		//Do not allow connections straight up through object not visitable from top
+		if(std::abs((src - dst).y) == 1)
+		{
+			if(areaIsolated().contains(dst) || areaIsolated().contains(src))
+			{
+				return 1e12;
+			}
+		}
+		else
+		{
+			if(areaIsolated().contains(dst))
+			{
+				return 1e6;
+			}
+		}
+
+		float weight = dst.dist2dSQ(src);
+		auto ret =  weight * weight; // Still prefer straight paths
+
+		if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+		{
+			ret *= VISITABLE_PENALTY;
+		}
+		return ret;
+	};
+	return path.search(destination, false, desperateRoutig);
 }
 
 void RoadPlacer::drawRoads(bool secondary)

@@ -12,6 +12,7 @@
 #include "CSelectionBase.h"
 
 #include "../widgets/ComboBox.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/Images.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
@@ -22,6 +23,7 @@
 #include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 static std::string timeToString(int time)
 {
@@ -100,12 +102,18 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	});
 
 	addCallback("setCheatAllowed", [&](int index){
+		bool isMultiplayer = CSH->loadMode == ELoadMode::MULTI;
+		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"][isMultiplayer ? "cheatsAllowed" : "cheatsNotAllowed"];
+		entry->Bool() = isMultiplayer ? index : !index;
 		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
 		info.cheatsAllowed = index;
 		CSH->setExtraOptionsInfo(info);
 	});
 
 	addCallback("setUnlimitedReplay", [&](int index){
+		bool isMultiplayer = CSH->loadMode == ELoadMode::MULTI;
+		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"]["unlimitedReplay"];
+		entry->Bool() = index;
 		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
 		info.unlimitedReplay = index;
 		CSH->setExtraOptionsInfo(info);
@@ -173,7 +181,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.baseTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldBase"))
-				ww->setText(timeToString(time), false);
+				ww->setText(timeToString(time));
 		}
 	});
 	addCallback("parseAndSetTimer_turn", [this, parseTimerString](const std::string & str){
@@ -184,7 +192,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.turnTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldTurn"))
-				ww->setText(timeToString(time), false);
+				ww->setText(timeToString(time));
 		}
 	});
 	addCallback("parseAndSetTimer_battle", [this, parseTimerString](const std::string & str){
@@ -195,7 +203,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.battleTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldBattle"))
-				ww->setText(timeToString(time), false);
+				ww->setText(timeToString(time));
 		}
 	});
 	addCallback("parseAndSetTimer_unit", [this, parseTimerString](const std::string & str){
@@ -206,7 +214,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.unitTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldUnit"))
-				ww->setText(timeToString(time), false);
+				ww->setText(timeToString(time));
 		}
 	});
 
@@ -389,13 +397,13 @@ void OptionsTabBase::recreate(bool campaign)
 	}
 
 	if(auto ww = widget<CTextInput>("chessFieldBase"))
-		ww->setText(timeToString(turnTimerRemote.baseTimer), false);
+		ww->setText(timeToString(turnTimerRemote.baseTimer));
 	if(auto ww = widget<CTextInput>("chessFieldTurn"))
-		ww->setText(timeToString(turnTimerRemote.turnTimer), false);
+		ww->setText(timeToString(turnTimerRemote.turnTimer));
 	if(auto ww = widget<CTextInput>("chessFieldBattle"))
-		ww->setText(timeToString(turnTimerRemote.battleTimer), false);
+		ww->setText(timeToString(turnTimerRemote.battleTimer));
 	if(auto ww = widget<CTextInput>("chessFieldUnit"))
-		ww->setText(timeToString(turnTimerRemote.unitTimer), false);
+		ww->setText(timeToString(turnTimerRemote.unitTimer));
 
 	if(auto w = widget<ComboBox>("timerModeSwitch"))
 	{
@@ -410,18 +418,15 @@ void OptionsTabBase::recreate(bool campaign)
 	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
 	{
 		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.cheatsAllowed);
-		buttonCheatAllowed->block(SEL->screenType == ESelectionScreen::loadGame);
+		buttonCheatAllowed->block(CSH->isGuest());
 	}
 
 	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
-		buttonUnlimitedReplay->block(SEL->screenType == ESelectionScreen::loadGame);
+		buttonUnlimitedReplay->block(CSH->isGuest());
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))
-	{
-		if(!campaign)
-			textureCampaignOverdraw->disable();
-	}
+		textureCampaignOverdraw->setEnabled(campaign);
 }

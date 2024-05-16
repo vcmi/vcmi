@@ -124,6 +124,49 @@ void CMapLoaderH3M::init()
 	//map->banWaterContent(); //Not sure if force this for custom scenarios
 }
 
+static MapIdentifiersH3M generateMapping(EMapFormat format)
+{
+	auto features = MapFormatFeaturesH3M::find(format, 0);
+	MapIdentifiersH3M identifierMapper;
+
+	if(features.levelROE)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
+	if(features.levelAB)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
+	if(features.levelSOD)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+	if(features.levelWOG)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
+	if(features.levelHOTA0)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
+
+	return identifierMapper;
+}
+
+static std::map<EMapFormat, MapIdentifiersH3M> generateMappings()
+{
+	std::map<EMapFormat, MapIdentifiersH3M> result;
+	auto addMapping = [&result](EMapFormat format)
+	{
+		try
+		{
+			result[format] = generateMapping(format);
+		}
+		catch(const std::runtime_error &)
+		{
+			// unsupported map format - skip
+		}
+	};
+
+	addMapping(EMapFormat::ROE);
+	addMapping(EMapFormat::AB);
+	addMapping(EMapFormat::SOD);
+	addMapping(EMapFormat::HOTA);
+	addMapping(EMapFormat::WOG);
+
+	return result;
+}
+
 void CMapLoaderH3M::readHeader()
 {
 	// Map version
@@ -159,18 +202,10 @@ void CMapLoaderH3M::readHeader()
 		features = MapFormatFeaturesH3M::find(mapHeader->version, 0);
 		reader->setFormatLevel(features);
 	}
-	MapIdentifiersH3M identifierMapper;
 
-	if (features.levelROE)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
-	if (features.levelAB)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
-	if (features.levelSOD)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
-	if (features.levelWOG)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
-	if (features.levelHOTA0)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
+	// optimization - load mappings only once to avoid slow parsing of map headers for map list
+	static const std::map<EMapFormat, MapIdentifiersH3M> identifierMappers = generateMappings();
+	const MapIdentifiersH3M & identifierMapper = identifierMappers.at(mapHeader->version);
 
 	reader->setIdentifierRemapper(identifierMapper);
 

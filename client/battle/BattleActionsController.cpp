@@ -114,6 +114,22 @@ static std::string formatRangedAttack(const DamageEstimation & estimation, const
 	return formatAttack(estimation, creatureName, baseTextID, shotsLeft);
 }
 
+static std::string formatRetaliation(const DamageEstimation & estimation, bool mayBeKilled)
+{
+	if (estimation.damage.max == 0)
+		return CGI->generaltexth->translate("vcmi.battleWindow.damageRetaliation.never");
+
+	std::string baseTextID = estimation.kills.max == 0 ?
+								 "vcmi.battleWindow.damageRetaliation.damage" :
+								 "vcmi.battleWindow.damageRetaliation.damageKills";
+
+	std::string prefixTextID = mayBeKilled ?
+		"vcmi.battleWindow.damageRetaliation.may" :
+		"vcmi.battleWindow.damageRetaliation.will";
+
+	return CGI->generaltexth->translate(prefixTextID) + formatAttack(estimation, "", baseTextID, 0);
+}
+
 BattleActionsController::BattleActionsController(BattleInterface & owner):
 	owner(owner),
 	selectedStack(nullptr),
@@ -484,21 +500,23 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
 				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
-				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex);
+				DamageEstimation retaliation;
+				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex, &retaliation);
 				estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
 				estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
+				bool enemyMayBeKilled = estimation.kills.max == targetStack->getCount();
 
-				return formatMeleeAttack(estimation, targetStack->getName());
+				return formatMeleeAttack(estimation, targetStack->getName()) + "\n" + formatRetaliation(retaliation, enemyMayBeKilled);
 			}
 
 		case PossiblePlayerBattleAction::SHOOT:
 		{
 			const auto * shooter = owner.stacksController->getActiveStack();
 
-			DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(shooter, targetStack, shooter->getPosition());
+			DamageEstimation retaliation;
+			DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(shooter, targetStack, shooter->getPosition(), &retaliation);
 			estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
 			estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
-
 			return formatRangedAttack(estimation, targetStack->getName(), shooter->shots.available());
 		}
 

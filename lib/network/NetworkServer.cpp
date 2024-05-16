@@ -39,7 +39,7 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 	}
 
 	logNetwork->info("We got a new connection! :)");
-	auto connection = std::make_shared<NetworkConnection>(*this, upcomingConnection);
+	auto connection = std::make_shared<NetworkConnection>(*this, upcomingConnection, io);
 	connections.insert(connection);
 	connection->start();
 	listener.onNewConnection(connection);
@@ -49,9 +49,11 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 void NetworkServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
 	logNetwork->info("Connection lost! Reason: %s", errorMessage);
-	assert(connections.count(connection));
-	connections.erase(connection);
-	listener.onDisconnected(connection, errorMessage);
+	if (connections.count(connection))
+	{
+		connections.erase(connection);
+		listener.onDisconnected(connection, errorMessage);
+	}
 }
 
 void NetworkServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)

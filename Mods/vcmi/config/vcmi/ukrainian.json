@@ -241,11 +241,19 @@
 	"vcmi.battleWindow.damageEstimation.rangedKills" : "Стріляти в %CREATURE (%SHOTS, %DAMAGE, %KILLS).",
 	"vcmi.battleWindow.damageEstimation.shots" : "%d пострілів залишилось",
 	"vcmi.battleWindow.damageEstimation.shots.1" : "%d постріл залишився",
-	"vcmi.battleWindow.damageEstimation.damage" : "%d одиниць пошкоджень",
-	"vcmi.battleWindow.damageEstimation.damage.1" : "%d одиниця пошкодження",
+	"vcmi.battleWindow.damageEstimation.damage" : "%d пошкоджень",
+	"vcmi.battleWindow.damageEstimation.damage.1" : "%d пошкодження",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d загинуть",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d загине",
+	
+	"vcmi.battleWindow.damageRetaliation.will" : "Буде відповідати ",
+	"vcmi.battleWindow.damageRetaliation.may" : "Може відповісти ",
+	"vcmi.battleWindow.damageRetaliation.never" : "Не буде відповідати.",
+	"vcmi.battleWindow.damageRetaliation.damage" : "(%DAMAGE).",
+	"vcmi.battleWindow.damageRetaliation.damageKills" : "(%DAMAGE, %KILLS).",
+	
 	"vcmi.battleWindow.killed" : "Загинуло",
+	
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s було вбито влучними пострілами!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s було вбито влучним пострілом!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s було вбито влучними пострілами!",

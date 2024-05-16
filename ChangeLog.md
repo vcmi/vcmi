@@ -2,12 +2,61 @@
 
 ### Stability
 * Fixed possible crash on accessing faction description
-* Fixed possible thread race on leaving to main menu
+* Fixed possible thread race on exit to main menu
 * Game will now show error message instead of silent crash on corrupted H3 data
 * Fixed possible crash on double-deletion of quest artifacts placed by RMG
+* Fixed crash on loading save made in version 1.4 with removed from map Quest Guards
+* Added workaround for crash on accessing Altar of Sacrifice on saves made in 1.4
+* Fixed possible crash on map restart request
+* Fixed crash on attempt to open scenario list with no save or map selected
+* Fixed crash on host resolving error when connecting to online lobby
+* If json file specified in mod.json is missing, vcmi will now only log an error instead of crashing
 
 ### Interface
-* Fixed possible freeze on attempt to move hero when hero has non-zero movement points but not enough to reach first tile in path
+* Added retaliation damage and kills preview when hovering over units that can be attacked in melee during combat
+* Clicking on combat log would now open a window with full combat log history
+* Removed message length limit in text input fields, such as global lobby chat
+* Tapping on already active text input field will display on-screen keyboard on systems with one
+* Fixed possible freeze when trying to move hero if hero has non-zero movement points but not enough to reach first tile in path
+* Fixed selection of the wrong reward in dialogs such as the level-up window when double-clicking on it
+* Fixed launch of wrong map or save when double-clicking in scenario list screen
+* Right-clicking on a hero in a tavern will now select that hero as well, in line with H3
+* Fixed slow map list parsing when hota map format is enabled
+* MacOS and iOS can now use either Ctrl or Cmd key for all keyboard shortcuts
+* Small windows no longer dim the entire screen by default
+
+### Mechanics
+* Recruiting a hero will now immediately reveal the fog of war around him
+* When both a visiting hero and a garrisoned hero are in town, the garrisoned hero will visit town buildings first.
+
+### Multiplayer
+* Fixed in-game chat text not being visible after switching from achannel with a long history
+* Fixed lag when switching to channel with long history
+* Game now automatically scrolls in-game chat on new messages
+* Game will now only plays chat sound for active channel and for private channels
+* Cheats are now disabled by default in multiplayer
+* Game will now show status of cheats and battle replays on map start
+* It is possible to change cheats or battle replay on game loading
+* It is now possible to join rooms hosted by different hotfix versions, e.g. 1.5.1 can join 1.5.0 games
+* Fixed game rooms remaining visible in the lobby even after they have been closed
+* Fixed possible lag when there is a player in lobby with a very slow (or dying) connection
+* Game will show correctly if player has been invited into a room
+* Fixed overflow in invite window when there are more than 8 players in the lobby
+
+### Random Maps Generator
+* Generator will now prefer to place roads away from zone borders
+
+### AI
+* Fixed possible crash when Nullkiller AI tries to upgrade army
+* Nullkiller AI will now recruit new heroes if he left with 0 heroes
+* AI in combat now knows when an enemy unit has used all of its retaliations.
+
+### Map Editor
+* Fixed setting up hero types of heroes in Prisons placed in map editor
+* Fixed crash on setting up Seer Hut in map editor
+* Added text auto-completion hints for army widget
+* Editor will now automatically add .vmap extensions when saving map
+* Fixed text size in map validation window
 
 # 1.4.5 -> 1.5.0
 

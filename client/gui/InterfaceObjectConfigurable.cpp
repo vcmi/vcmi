@@ -22,6 +22,7 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
@@ -610,19 +611,17 @@ std::shared_ptr<CTextInput> InterfaceObjectConfigurable::buildTextInput(const Js
 	auto rect = readRect(config["rect"]);
 	auto offset = readPosition(config["backgroundOffset"]);
 	auto bgName = ImagePath::fromJson(config["background"]);
-	auto result = std::make_shared<CTextInput>(rect, offset, bgName, 0);
+	auto result = std::make_shared<CTextInput>(rect, offset, bgName);
 	if(!config["alignment"].isNull())
-		result->alignment = readTextAlignment(config["alignment"]);
+		result->setAlignment(readTextAlignment(config["alignment"]));
 	if(!config["font"].isNull())
-		result->font = readFont(config["font"]);
+		result->setFont(readFont(config["font"]));
 	if(!config["color"].isNull())
 		result->setColor(readColor(config["color"]));
 	if(!config["text"].isNull() && config["text"].isString())
 		result->setText(config["text"].String()); //for input field raw string is taken
 	if(!config["callback"].isNull())
-		result->cb += callbacks_string.at(config["callback"].String());
-	if(!config["help"].isNull())
-		result->setHelpText(readText(config["help"]));
+		result->setCallback(callbacks_string.at(config["callback"].String()));
 	return result;
 }
 

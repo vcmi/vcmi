@@ -199,7 +199,7 @@ std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode &
 	auto rect = readRect(config["rect"]);
 	auto offset = readPosition(config["imagePosition"]);
 	auto background = widget<CPicture>("menuBattle");
-	return std::make_shared<BattleConsole>(background, rect.topLeft(), offset, rect.dimensions() );
+	return std::make_shared<BattleConsole>(owner, background, rect.topLeft(), offset, rect.dimensions() );
 }
 
 void BattleWindow::toggleQueueVisibility()

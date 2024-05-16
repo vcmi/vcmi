@@ -130,7 +130,6 @@
 		{
 			"name" : "messageInput",
 			"type": "textInput",
-			"alignment" : "left",
 			"rect": {"x": 440, "y": 568, "w": 377, "h": 20}
 		},
 		

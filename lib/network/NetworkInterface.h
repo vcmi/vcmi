@@ -17,6 +17,7 @@ class DLL_LINKAGE INetworkConnection : boost::noncopyable
 public:
 	virtual ~INetworkConnection() = default;
 	virtual void sendPacket(const std::vector<std::byte> & message) = 0;
+	virtual void setAsyncWritesEnabled(bool on) = 0;
 	virtual void close() = 0;
 };
 

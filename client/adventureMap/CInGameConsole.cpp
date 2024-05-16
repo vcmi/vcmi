@@ -266,7 +266,13 @@ void CInGameConsole::startEnteringText()
 		return;
 
 	if(isEnteringText())
+	{
+		// force-reset text input to re-show on-screen keyboard
+		GH.statusbar()->setEnteringMode(false);
+		GH.statusbar()->setEnteringMode(true);
+		GH.statusbar()->setEnteredText(enteredText);
 		return;
+	}
 		
 	assert(currentStatusBar.expired());//effectively, nullptr check
 

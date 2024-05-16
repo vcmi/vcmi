@@ -9,13 +9,14 @@
  */
 #pragma once
 
+#include "GlobalLobbyObserver.h"
 #include "../windows/CWindowObject.h"
 
 class GlobalLobbyWidget;
 struct GlobalLobbyAccount;
 struct GlobalLobbyRoom;
 
-class GlobalLobbyWindow : public CWindowObject
+class GlobalLobbyWindow final : public CWindowObject, public GlobalLobbyObserver
 {
 	std::string chatHistory;
 	std::string currentChannelType;
@@ -23,7 +24,6 @@ class GlobalLobbyWindow : public CWindowObject
 
 	std::shared_ptr<GlobalLobbyWidget> widget;
 	std::set<std::string> unreadChannels;
-	std::set<std::string> unreadInvites;
 
 public:
 	GlobalLobbyWindow();
@@ -38,14 +38,15 @@ public:
 
 	/// Returns true if provided chat channel is the one that is currently open in UI
 	bool isChannelOpen(const std::string & channelType, const std::string & channelName) const;
+	/// Returns true if provided channel has unread messages (only messages that were received after login)
 	bool isChannelUnread(const std::string & channelType, const std::string & channelName) const;
-	bool isInviteUnread(const std::string & gameRoomID) const;
 
 	// Callbacks for network packs
 
 	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when, const std::string & channelType, const std::string & channelName);
-	void onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts);
-	void onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms);
+	void refreshChatText();
+	void onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts) override;
+	void onActiveGameRooms(const std::vector<GlobalLobbyRoom> & rooms) override;
 	void onMatchesHistory(const std::vector<GlobalLobbyRoom> & history);
 	void onInviteReceived(const std::string & invitedRoomID);
 	void onJoinedRoom();

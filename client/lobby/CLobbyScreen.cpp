@@ -230,6 +230,16 @@ void CLobbyScreen::toggleChat()
 
 void CLobbyScreen::updateAfterStateChange()
 {
+	if(CSH->isHost() && screenType == ESelectionScreen::newGame)
+	{
+		bool isMultiplayer = CSH->loadMode == ELoadMode::MULTI;
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.cheatsAllowed = isMultiplayer ? persistentStorage["startExtraOptions"]["multiPlayer"]["cheatsAllowed"].Bool() : !persistentStorage["startExtraOptions"]["singlePlayer"]["cheatsNotAllowed"].Bool();
+		info.unlimitedReplay = persistentStorage["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"]["unlimitedReplay"].Bool();
+		if(info.cheatsAllowed != CSH->si->extraOptionsInfo.cheatsAllowed || info.unlimitedReplay != CSH->si->extraOptionsInfo.unlimitedReplay)
+			CSH->setExtraOptionsInfo(info);
+	}
+
 	if(CSH->mi)
 	{
 		if (tabOpt)

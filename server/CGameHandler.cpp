@@ -900,7 +900,7 @@ void CGameHandler::onNewTurn()
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
-					changeFogOfWar(t->visitablePos(), t->getFirstBonus(Selector::type()(BonusType::DARKNESS))->val, player.first, ETileVisibility::HIDDEN);
+					changeFogOfWar(t->getSightCenter(), t->getFirstBonus(Selector::type()(BonusType::DARKNESS))->val, player.first, ETileVisibility::HIDDEN);
 			}
 		}
 	}
@@ -1550,7 +1550,7 @@ void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player, ObjectInsta
 
 	//Reveal fow around new hero, especially released from Prison
 	auto h = getHero(id);
-	changeFogOfWar(h->pos, h->getSightRadius(), player, ETileVisibility::REVEALED);
+	changeFogOfWar(h->getSightCenter(), h->getSightRadius(), player, ETileVisibility::REVEALED);
 }
 
 void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)
@@ -2434,10 +2434,10 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	// now when everything is built - reveal tiles for lookout tower
 	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
+	if(t->garrisonHero) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+		visitCastleObjects(t, t->garrisonHero);
 	if(t->visitingHero)
 		visitCastleObjects(t, t->visitingHero);
-	if(t->garrisonHero)
-		visitCastleObjects(t, t->garrisonHero);
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;

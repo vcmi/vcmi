@@ -48,6 +48,7 @@ class LobbyDatabase
 	SQLiteStatementPtr getAccountGameRoomStatement;
 	SQLiteStatementPtr getAccountDisplayNameStatement;
 	SQLiteStatementPtr getGameRoomPlayersStatement;
+	SQLiteStatementPtr getGameRoomInvitesStatement;
 	SQLiteStatementPtr countRoomUsedSlotsStatement;
 	SQLiteStatementPtr countRoomTotalSlotsStatement;
 

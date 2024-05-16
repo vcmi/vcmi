@@ -18,10 +18,11 @@
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../widgets/TextControls.h"
+#include "../widgets/CTextInput.h"
+#include "../widgets/Slider.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/TextControls.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"
 #include "../../lib/TextOperations.h"
@@ -51,12 +52,13 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 	currentChannelName = channelName;
 	chatHistory.clear();
 	unreadChannels.erase(channelType + "_" + channelName);
-	widget->getGameChat()->setText("");
 
 	auto history = CSH->getGlobalLobby().getChannelHistory(channelType, channelName);
 
 	for(const auto & entry : history)
 		onGameChatMessage(entry.displayName, entry.messageText, entry.timeFormatted, channelType, channelName);
+
+	refreshChatText();
 
 	MetaString text;
 	text.appendTextID("vcmi.lobby.header.chat." + channelType);
@@ -105,8 +107,6 @@ void GlobalLobbyWindow::doInviteAccount(const std::string & accountID)
 
 void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
 {
-	unreadInvites.erase(roomID);
-
 	JsonNode toSend;
 	toSend["type"].String() = "joinGameRoom";
 	toSend["gameRoomID"].String() = roomID;
@@ -133,8 +133,12 @@ void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std:
 	chatMessageFormatted.replaceRawString(message);
 
 	chatHistory += chatMessageFormatted.toString();
-
+}
+void GlobalLobbyWindow::refreshChatText()
+{
 	widget->getGameChat()->setText(chatHistory);
+	if (widget->getGameChat()->slider)
+		widget->getGameChat()->slider->scrollToMax();
 }
 
 bool GlobalLobbyWindow::isChannelUnread(const std::string & channelType, const std::string & channelName) const
@@ -154,7 +158,7 @@ void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> &
 	widget->getAccountListHeader()->setText(text.toString());
 }
 
-void GlobalLobbyWindow::onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms)
+void GlobalLobbyWindow::onActiveGameRooms(const std::vector<GlobalLobbyRoom> & rooms)
 {
 	if (rooms.size() == widget->getRoomList()->size())
 		widget->getRoomList()->reset();
@@ -180,13 +184,7 @@ void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & hi
 
 void GlobalLobbyWindow::onInviteReceived(const std::string & invitedRoomID)
 {
-	unreadInvites.insert(invitedRoomID);
 	widget->getRoomList()->reset();
-}
-
-bool GlobalLobbyWindow::isInviteUnread(const std::string & gameRoomID) const
-{
-	return unreadInvites.count(gameRoomID) > 0;
 }
 
 void GlobalLobbyWindow::onJoinedRoom()

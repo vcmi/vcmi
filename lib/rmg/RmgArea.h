@@ -51,6 +51,7 @@ namespace rmg
 		bool contains(const Area & area) const;
 		bool overlap(const Area & area) const;
 		bool overlap(const std::vector<int3> & tiles) const;
+		int distance(const int3 & tile) const;
 		int distanceSqr(const int3 & tile) const;
 		int distanceSqr(const Area & area) const;
 		int3 nearest(const int3 & tile) const;

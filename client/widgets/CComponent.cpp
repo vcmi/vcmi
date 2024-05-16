@@ -335,8 +335,15 @@ void CSelectableComponent::clickPressed(const Point & cursorPosition)
 
 void CSelectableComponent::clickDouble(const Point & cursorPosition)
 {
-	if(onChoose)
-		onChoose();
+	if (!selected)
+	{
+		clickPressed(cursorPosition);
+	}
+	else
+	{
+		if (onChoose)
+			onChoose();
+	}
 }
 
 void CSelectableComponent::init()
