@@ -141,15 +141,9 @@ public:
 		return * this;
 	}
 
-	template< typename IntegerType>
-	void saveEncodedInteger(const IntegerType & value)
+	void saveEncodedInteger(int64_t value)
 	{
-		using UnsignedType = std::make_unsigned_t<IntegerType>;
-		UnsignedType valueUnsigned;
-		if constexpr(std::is_signed_v<IntegerType>)
-			valueUnsigned = std::abs(value);
-		else
-			valueUnsigned = value;
+		uint64_t valueUnsigned = std::abs(value);
 
 		while (valueUnsigned > 0x3f)
 		{
@@ -159,11 +153,9 @@ public:
 		}
 
 		uint8_t lastByteValue = valueUnsigned & 0x3f;
-		if constexpr(std::is_signed_v<IntegerType>)
-		{
-			if (value < 0)
-				lastByteValue |= 0x40;
-		}
+		if (value < 0)
+			lastByteValue |= 0x40;
+
 		save(lastByteValue);
 	}
 

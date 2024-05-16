@@ -197,7 +197,7 @@ public:
 	void serialize(Handler & h)
 	{
 		std::string key;
-		auto sz = stringsLocalizations.size();
+		int64_t sz = stringsLocalizations.size();
 		h & sz;
 		if(h.saving)
 		{

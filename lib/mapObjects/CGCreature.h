@@ -35,7 +35,7 @@ public:
 	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
 	bool neverFlees = false; //if true, the troops will never flee
 	bool notGrowingTeam = false; //if true, number of units won't grow
-	ui64 temppower = 0; //used to handle fractional stack growth for tiny stacks
+	int64_t temppower = 0; //used to handle fractional stack growth for tiny stacks
 
 	bool refusedJoining = false;
 

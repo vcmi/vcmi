@@ -177,12 +177,9 @@ public:
 		return * this;
 	}
 
-	template< typename IntegerType>
-	void loadEncodedInteger(IntegerType & value)
+	int64_t loadEncodedInteger()
 	{
-		using UnsignedType = std::make_unsigned_t<IntegerType>;
-		UnsignedType valueUnsigned = 0;
-
+		uint64_t valueUnsigned = 0;
 		uint_fast8_t offset = 0;
 
 		for (;;)
@@ -198,18 +195,11 @@ public:
 			else
 			{
 				valueUnsigned |= (byteValue & 0x3f) << offset;
-
-				if constexpr(std::is_signed_v<IntegerType>)
-				{
-					bool isNegative = (byteValue & 0x40) != 0;
-					if (isNegative)
-						value = -valueUnsigned;
-					else
-						value = valueUnsigned;
-				}
+				bool isNegative = (byteValue & 0x40) != 0;
+				if (isNegative)
+					return -static_cast<int64_t>(valueUnsigned);
 				else
-					value = valueUnsigned;
-				return;
+					return valueUnsigned;
 			}
 		}
 	}
@@ -229,8 +219,9 @@ public:
 		}
 		else
 		{
+			static_assert(!std::is_same_v<uint64_t, T>, "Serialization of unsigned 64-bit value may not work in some cases");
 			if (hasFeature(Version::COMPACT_INTEGER_SERIALIZATION))
-				loadEncodedInteger(data);
+				data = loadEncodedInteger();
 			else
 				this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
 		}
