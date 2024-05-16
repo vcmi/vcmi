@@ -587,12 +587,12 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 	return h3Data;
 }
 
-CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
 
-	auto * cre = new CCreature();
+	auto cre = std::make_shared<CCreature>();
 
 	if(node["hasDoubleWeek"].Bool())
 	{
@@ -635,9 +635,9 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	if(!node["shots"].isNull())
 		cre->addBonus(node["shots"].Integer(), BonusType::SHOTS);
 
-	loadStackExperience(cre, node["stackExperience"]);
-	loadJsonAnimation(cre, node["graphics"]);
-	loadCreatureJson(cre, node);
+	loadStackExperience(cre.get(), node["stackExperience"]);
+	loadJsonAnimation(cre.get(), node["graphics"]);
+	loadCreatureJson(cre.get(), node);
 
 	for(const auto & extraName : node["extraNames"].Vector())
 	{

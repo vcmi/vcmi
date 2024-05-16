@@ -247,14 +247,14 @@ const std::vector<std::string> & CHeroClassHandler::getTypeNames() const
 	return typeNames;
 }
 
-CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
 
 	std::string affinityStr[2] = { "might", "magic" };
 
-	auto * heroClass = new CHeroClass();
+	auto heroClass = std::make_shared<CHeroClass>();
 
 	heroClass->id = HeroClassID(index);
 	heroClass->identifier = identifier;
@@ -277,10 +277,10 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 		heroClass->affinity = CHeroClass::MIGHT;
 	}
 
-	fillPrimarySkillData(node, heroClass, PrimarySkill::ATTACK);
-	fillPrimarySkillData(node, heroClass, PrimarySkill::DEFENSE);
-	fillPrimarySkillData(node, heroClass, PrimarySkill::SPELL_POWER);
-	fillPrimarySkillData(node, heroClass, PrimarySkill::KNOWLEDGE);
+	fillPrimarySkillData(node, heroClass.get(), PrimarySkill::ATTACK);
+	fillPrimarySkillData(node, heroClass.get(), PrimarySkill::DEFENSE);
+	fillPrimarySkillData(node, heroClass.get(), PrimarySkill::SPELL_POWER);
+	fillPrimarySkillData(node, heroClass.get(), PrimarySkill::KNOWLEDGE);
 
 	auto percentSumm = std::accumulate(heroClass->primarySkillLowLevel.begin(), heroClass->primarySkillLowLevel.end(), 0);
 	if(percentSumm <= 0)
@@ -432,12 +432,12 @@ const std::vector<std::string> & CHeroHandler::getTypeNames() const
 	return typeNames;
 }
 
-CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CHero> CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
 
-	auto * hero = new CHero();
+	auto hero = std::make_shared<CHero>();
 	hero->ID = HeroTypeID(index);
 	hero->identifier = identifier;
 	hero->modScope = scope;
@@ -459,9 +459,9 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	hero->portraitLarge = node["images"]["large"].String();
 	hero->battleImage = AnimationPath::fromJson(node["battleImage"]);
 
-	loadHeroArmy(hero, node);
-	loadHeroSkills(hero, node);
-	loadHeroSpecialty(hero, node);
+	loadHeroArmy(hero.get(), node);
+	loadHeroSkills(hero.get(), node);
+	loadHeroSpecialty(hero.get(), node);
 
 	VLC->identifiers()->requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
@@ -753,7 +753,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	size_t index = objects.size();
 	static const int specialFramesCount = 2; // reserved for 2 special frames
-	auto * object = loadFromJson(scope, data, name, index);
+	auto object = loadFromJson(scope, data, name, index);
 	object->imageIndex = static_cast<si32>(index) + specialFramesCount;
 
 	objects.emplace_back(object);
@@ -766,7 +766,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto * object = loadFromJson(scope, data, name, index);
+	auto object = loadFromJson(scope, data, name, index);
 	object->imageIndex = static_cast<si32>(index);
 
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before

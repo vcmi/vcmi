@@ -12,6 +12,7 @@
 #include "BattleFieldHandler.h"
 #include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -84,11 +85,11 @@ bool ObstacleInfo::isAppropriate(const TerrainId terrainType, const BattleField 
 	return vstd::contains(allowedTerrains, terrainType);
 }
 
-ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * info = new ObstacleInfo(Obstacle(index), identifier);
+	auto info = std::make_shared<ObstacleInfo>(Obstacle(index), identifier);
 	
 	info->animation = AnimationPath::fromJson(json["animation"]);
 	info->width = json["width"].Integer();

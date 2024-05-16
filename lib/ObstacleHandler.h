@@ -64,8 +64,8 @@ public:
 
 class ObstacleHandler: public CHandlerBase<Obstacle, ObstacleInfo, ObstacleInfo, ObstacleService>
 {
-public:	
-	ObstacleInfo * loadFromJson(const std::string & scope,
+public:
+	std::shared_ptr<ObstacleInfo> loadFromJson(const std::string & scope,
 										const JsonNode & json,
 										const std::string & identifier,
 										size_t index) override;

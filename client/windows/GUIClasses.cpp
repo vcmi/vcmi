@@ -261,7 +261,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 
 		//create new cards
 		for(auto & creature : boost::adaptors::reverse(dwelling->creatures[i].second))
-			cards.push_back(std::make_shared<CCreatureCard>(this, CGI->creh->objects[creature], amount));
+			cards.push_back(std::make_shared<CCreatureCard>(this, creature.toCreature(), amount));
 	}
 
 	const int creatureWidth = 102;

@@ -725,7 +725,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
 	std::vector<CreatureID> possibleCreatures;
-	for(auto cre : VLC->creh->objects)
+	for(auto const & cre : VLC->creh->objects)
 	{
 		if(cre->special)
 			continue;

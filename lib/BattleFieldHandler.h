@@ -64,7 +64,7 @@ public:
 class BattleFieldHandler : public CHandlerBase<BattleField, BattleFieldInfo, BattleFieldInfo, BattleFieldService>
 {
 public:
-	virtual BattleFieldInfo * loadFromJson(
+	std::shared_ptr<BattleFieldInfo> loadFromJson(
 		const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,

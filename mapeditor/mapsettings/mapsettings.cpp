@@ -30,7 +30,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	
 	show();
 
-	for(auto objectPtr : VLC->skillh->objects)
+	for(auto const & objectPtr : VLC->skillh->objects)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -38,7 +38,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedAbilities.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listAbilities->addItem(item);
 	}
-	for(auto objectPtr : VLC->spellh->objects)
+	for(auto const & objectPtr : VLC->spellh->objects)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -46,7 +46,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedSpells.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listSpells->addItem(item);
 	}
-	for(auto objectPtr : VLC->arth->objects)
+	for(auto const & objectPtr : VLC->arth->objects)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -54,7 +54,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedArtifact.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listArts->addItem(item);
 	}
-	for(auto objectPtr : VLC->heroh->objects)
+	for(auto const & objectPtr : VLC->heroh->objects)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));

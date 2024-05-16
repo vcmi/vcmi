@@ -171,7 +171,7 @@ public:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	CHeroClass * loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CHeroClass> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 
 };
 
@@ -209,7 +209,7 @@ public:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	CHero * loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CHero> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 };
 
 VCMI_LIB_NAMESPACE_END

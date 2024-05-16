@@ -13,6 +13,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../TerrainHandler.h"
+#include "../VCMI_Lib.h"
 #include "CMap.h"
 #include "CMapOperation.h"
 

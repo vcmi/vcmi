@@ -20,6 +20,7 @@
 #include "../../mapObjects/ObjectTemplate.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
+#include "../../VCMI_Lib.h"
 #include "../RmgPath.h"
 #include "ObjectManager.h"
 #include "ObstaclePlacer.h"

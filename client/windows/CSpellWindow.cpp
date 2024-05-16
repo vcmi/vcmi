@@ -290,11 +290,11 @@ void CSpellWindow::processSpells()
 
 	//initializing castable spells
 	mySpells.reserve(CGI->spellh->objects.size());
-	for(const CSpell * spell : CGI->spellh->objects)
+	for(auto const & spell : CGI->spellh->objects)
 	{
 		bool searchTextFound = !searchBox || boost::algorithm::contains(boost::algorithm::to_lower_copy(spell->getNameTranslated()), boost::algorithm::to_lower_copy(searchBox->getText()));
-		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell) && searchTextFound)
-			mySpells.push_back(spell);
+		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell.get()) && searchTextFound)
+			mySpells.push_back(spell.get());
 	}
 
 	SpellbookSpellSorter spellsorter;

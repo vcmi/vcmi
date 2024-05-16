@@ -36,6 +36,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"
 #include "../spells/CSpellHandler.h"
+#include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

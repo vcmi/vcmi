@@ -14,6 +14,7 @@
 #include <vstd/StringUtils.h>
 #include <vcmi/events/EventBus.h>
 #include <vcmi/ServerCallback.h>
+#include "vcmi/Services.h"
 
 #include "LuaStack.h"
 

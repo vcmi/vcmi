@@ -20,6 +20,7 @@
 #include "../../TerrainHandler.h"
 #include "../../CRandomGenerator.h"
 #include "../../mapping/CMapEditManager.h"
+#include "../../VCMI_Lib.h"
 #include "../TileInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

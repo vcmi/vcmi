@@ -16,6 +16,7 @@
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/VCMI_Lib.h"
 
 
 MinimapView::MinimapView(QWidget * parent):

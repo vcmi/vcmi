@@ -61,7 +61,7 @@ public:
 class DLL_LINKAGE RiverTypeHandler : public CHandlerBase<RiverId, RiverType, RiverType, RiverTypeService>
 {
 public:
-	virtual RiverType * loadFromJson(
+	std::shared_ptr<RiverType> loadFromJson(
 		const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,

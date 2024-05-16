@@ -22,6 +22,7 @@
 #include "modding/ModUtility.h"
 #include "modding/ModScope.h"
 #include "constants/StringConstants.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -190,7 +191,7 @@ const std::vector<std::string> & CSkillHandler::getTypeNames() const
 	return typeNames;
 }
 
-CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -199,7 +200,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	major = json["obligatoryMajor"].Bool();
 	minor = json["obligatoryMinor"].Bool();
-	auto * skill = new CSkill(SecondarySkill((si32)index), identifier, major, minor);
+	auto skill = std::make_shared<CSkill>(SecondarySkill((si32)index), identifier, major, minor);
 	skill->modScope = scope;
 
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();

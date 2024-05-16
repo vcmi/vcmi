@@ -222,15 +222,15 @@ std::string CComponent::getDescription() const
 		case ComponentType::CREATURE:
 			return "";
 		case ComponentType::ARTIFACT:
-			return VLC->artifacts()->getById(data.subType.as<ArtifactID>())->getDescriptionTranslated();
+			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getDescriptionTranslated();
 		case ComponentType::SPELL_SCROLL:
 		{
-			auto description = VLC->arth->objects[ArtifactID::SPELL_SCROLL]->getDescriptionTranslated();
+			auto description = ArtifactID(ArtifactID::SPELL_SCROLL).toEntity(CGI)->getDescriptionTranslated();
 			ArtifactUtils::insertScrrollSpellName(description, data.subType.as<SpellID>());
 			return description;
 		}
 		case ComponentType::SPELL:
-			return VLC->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(data.value.value_or(0));
+			return CGI->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(data.value.value_or(0));
 		case ComponentType::MORALE:
 			return CGI->generaltexth->heroscrn[ 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
 		case ComponentType::LUCK:
