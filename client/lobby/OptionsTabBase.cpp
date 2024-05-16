@@ -428,8 +428,5 @@ void OptionsTabBase::recreate(bool campaign)
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))
-	{
-		if(!campaign)
-			textureCampaignOverdraw->disable();
-	}
+		textureCampaignOverdraw->setEnabled(campaign);
 }
