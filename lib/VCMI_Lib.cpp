@@ -141,37 +141,6 @@ const IGameSettings * LibClasses::settings() const
 	return settingsHandler.get();
 }
 
-void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
-{
-	switch(metatype)
-	{
-	case Metatype::ARTIFACT:
-		arth->updateEntity(index, data);
-		break;
-	case Metatype::CREATURE:
-		creh->updateEntity(index, data);
-		break;
-	case Metatype::FACTION:
-		townh->updateEntity(index, data);
-		break;
-	case Metatype::HERO_CLASS:
-		heroclassesh->updateEntity(index, data);
-		break;
-	case Metatype::HERO_TYPE:
-		heroh->updateEntity(index, data);
-		break;
-	case Metatype::SKILL:
-		skillh->updateEntity(index, data);
-		break;
-	case Metatype::SPELL:
-		spellh->updateEntity(index, data);
-		break;
-	default:
-		logGlobal->error("Invalid Metatype id %d", static_cast<int32_t>(metatype));
-		break;
-	}
-}
-
 void LibClasses::loadFilesystem(bool extractArchives)
 {
 	CStopWatch loadTime;

@@ -97,11 +97,6 @@ const IGameSettings * CGameInfo::settings() const
 	return globalServices->settings();
 }
 
-void CGameInfo::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
-{
-	logGlobal->error("CGameInfo::updateEntity call is not expected.");
-}
-
 spells::effects::Registry * CGameInfo::spellEffects()
 {
 	return nullptr;

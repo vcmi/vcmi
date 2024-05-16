@@ -61,8 +61,6 @@ public:
 	virtual const ObstacleService * obstacles() const = 0;
 	virtual const IGameSettings * settings() const = 0;
 
-	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
-
 	virtual const spells::effects::Registry * spellEffects() const = 0;
 	virtual spells::effects::Registry * spellEffects() = 0;
 	//TODO: put map object types registry access here

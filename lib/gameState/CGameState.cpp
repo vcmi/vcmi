@@ -282,7 +282,7 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 		}
 		break;
 	default:
-		services->updateEntity(metatype, index, data);
+		logGlobal->error("This metatype update is not implemented");
 		break;
 	}
 }
