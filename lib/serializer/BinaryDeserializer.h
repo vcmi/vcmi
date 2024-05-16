@@ -488,6 +488,19 @@ public:
 	}
 
 	template <typename T1, typename T2>
+	void load(std::unordered_map<T1,T2> &data)
+	{
+		ui32 length = readAndCheckLength();
+		data.clear();
+		T1 key;
+		for(ui32 i=0;i<length;i++)
+		{
+			load(key);
+			load(data[key]);
+		}
+	}
+
+	template <typename T1, typename T2>
 	void load(std::map<T1,T2> &data)
 	{
 		ui32 length = readAndCheckLength();

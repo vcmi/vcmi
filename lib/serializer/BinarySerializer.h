@@ -407,6 +407,16 @@ public:
 		save(data.second);
 	}
 	template <typename T1, typename T2>
+	void save(const std::unordered_map<T1,T2> &data)
+	{
+		*this & ui32(data.size());
+		for(auto i = data.begin(); i != data.end(); i++)
+		{
+			save(i->first);
+			save(i->second);
+		}
+	}
+	template <typename T1, typename T2>
 	void save(const std::map<T1,T2> &data)
 	{
 		*this & ui32(data.size());
