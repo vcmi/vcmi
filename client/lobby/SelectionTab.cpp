@@ -677,6 +677,9 @@ void SelectionTab::selectFileName(std::string fname)
 		}
 	}
 
+	filter(-1);
+	selectAbs(-1);
+
 	for(int i = (int)curItems.size() - 1; i >= 0; i--)
 	{
 		if(curItems[i]->fileURI == fname)
@@ -687,11 +690,21 @@ void SelectionTab::selectFileName(std::string fname)
 		}
 	}
 
-	filter(-1);
-	selectAbs(-1);
-
 	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
 		inputName->setText("NEWGAME");
+}
+
+void SelectionTab::selectNewestFile()
+{
+	time_t newestTime = 0;
+	std::string newestFile = "";
+	for(int i = (int)allItems.size() - 1; i >= 0; i--)
+		if(allItems[i]->lastWrite > newestTime)
+		{
+			newestTime = allItems[i]->lastWrite;
+			newestFile = allItems[i]->fileURI;
+		}
+	selectFileName(newestFile);
 }
 
 std::shared_ptr<ElementInfo> SelectionTab::getSelectedMapInfo() const
@@ -733,6 +746,8 @@ void SelectionTab::restoreLastSelection()
 		selectFileName(settings["general"]["lastCampaign"].String());
 		break;
 	case ESelectionScreen::loadGame:
+		selectNewestFile();
+		break;
 	case ESelectionScreen::saveGame:
 		selectFileName(settings["general"]["lastSave"].String());
 	}

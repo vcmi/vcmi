@@ -101,6 +101,7 @@ public:
 	int getLine() const;
 	int getLine(const Point & position) const;
 	void selectFileName(std::string fname);
+	void selectNewestFile();
 	std::shared_ptr<ElementInfo> getSelectedMapInfo() const;
 	void rememberCurrentSelection();
 	void restoreLastSelection();
