@@ -54,6 +54,9 @@
 ### Map Editor
 * Fixed setting up hero types of heroes in Prisons placed in map editor
 * Fixed crash on setting up Seer Hut in map editor
+* Added text auto-completion hints for army widget
+* Editor will now automatically add .vmap extensions when saving map
+* Fixed text size in map validation window
 
 # 1.4.5 -> 1.5.0
 
