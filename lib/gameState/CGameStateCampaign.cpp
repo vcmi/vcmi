@@ -392,9 +392,15 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 
 		auto * donorHero = campaignHeroReplacement.hero;
 
+		if (!donorHero)
+			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString());
+
 		for (auto const & artLocation : campaignHeroReplacement.transferrableArtifacts)
 		{
 			auto * artifact = donorHero->getArt(artLocation);
+			if (!donorHero)
+				throw std::runtime_error("Failed to find artifacts to transfer to travelling hero! Scenario: " + gameState->map->name.toString());
+
 			artifact->removeFrom(*donorHero, artLocation);
 
 			if (receiver)
