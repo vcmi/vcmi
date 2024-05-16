@@ -20,11 +20,11 @@ jobs:
       matrix:
         include:
           - platform: linux-qt6
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             test: 0
             preset: linux-clang-test
           - platform: linux
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             test: 1
             preset: linux-gcc-test
           - platform: linux
@@ -124,7 +124,7 @@ jobs:
       # also, running it on multiple presets is redundant and slightly increases already long CI built times
       if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
       run: |
-        pip3 install jstyleson
+        sudo apt install python3-jstyleson
         python3 CI/linux-qt6/validate_json.py
 
     - name: Dependencies
@@ -201,8 +201,8 @@ jobs:
 
     - name: Configure
       run: |
-        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC12=1; fi
-        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC12:+-DCMAKE_C_COMPILER=gcc-12 -DCMAKE_CXX_COMPILER=g++-12}
+        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC14=1; fi
+        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC14:+-DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14}
 
     - name: Build
       run: |
