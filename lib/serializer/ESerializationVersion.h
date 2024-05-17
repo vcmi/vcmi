@@ -44,10 +44,10 @@ enum class ESerializationVersion : int32_t
 
 	RELEASE_150 = ARTIFACT_COSTUMES, // for convenience
 
-	COMPACT_STRING_SERIALIZATION,
-	COMPACT_INTEGER_SERIALIZATION,
-	REMOVE_FOG_OF_WAR_POINTER,
-	SIMPLE_TEXT_CONTAINER_SERIALIZATION,
+	COMPACT_STRING_SERIALIZATION, // 841 - optimized serialization of previoulsy encountered strings
+	COMPACT_INTEGER_SERIALIZATION, // 842 - serialize integers in forms similar to protobuf
+	REMOVE_FOG_OF_WAR_POINTER, // 843 - fog of war is serialized as reference instead of pointer
+	SIMPLE_TEXT_CONTAINER_SERIALIZATION, // 844 - text container is serialized using common routine instead of custom approach
 
-	CURRENT = REMOVE_FOG_OF_WAR_POINTER
+	CURRENT = SIMPLE_TEXT_CONTAINER_SERIALIZATION
 };
