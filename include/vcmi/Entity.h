@@ -30,7 +30,7 @@ public:
 	virtual bool isNativeTerrain(TerrainId terrain) const;
 };
 
-class DLL_LINKAGE Entity
+class DLL_LINKAGE Entity : boost::noncopyable
 {
 public:
 	using IconRegistar = std::function<void(int32_t index, int32_t group, const std::string & listName, const std::string & imageName)>;
