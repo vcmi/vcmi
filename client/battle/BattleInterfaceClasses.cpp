@@ -33,6 +33,7 @@
 #include "../render/Graphics.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/CMessage.h"
@@ -141,8 +142,10 @@ void BattleConsole::scrollDown(ui32 by)
 	redraw();
 }
 
-BattleConsole::BattleConsole(std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size)
-	: scrollPosition(-1)
+BattleConsole::BattleConsole(const BattleInterface & owner, std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size)
+	: CIntObject(LCLICK)
+	, owner(owner)
+	, scrollPosition(-1)
 	, enteringText(false)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -159,6 +162,14 @@ void BattleConsole::deactivate()
 		LOCPLINT->cingconsole->endEnteringText(false);
 
 	CIntObject::deactivate();
+}
+
+void BattleConsole::clickPressed(const Point & cursorPosition)
+{
+	if(owner.makingTurn() && !owner.openingPlaying())
+	{
+		GH.windows().createAndPushWindow<BattleConsoleWindow>(boost::algorithm::join(logEntries, "\n"));
+	}
 }
 
 void BattleConsole::setEnteringMode(bool on)
@@ -201,6 +212,26 @@ void BattleConsole::clearIfMatching(const std::string & Text)
 void BattleConsole::clear()
 {
 	write({});
+}
+
+BattleConsoleWindow::BattleConsoleWindow(const std::string & text)
+	: CWindowObject(BORDERED)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	pos.w = 429;
+	pos.h = 434;
+
+	updateShadow();
+	center();
+
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	buttonOk = std::make_shared<CButton>(Point(183, 388), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
+	Rect textArea(18, 17, 393, 354);
+	textBoxBackgroundBorder = std::make_shared<TransparentFilledRectangle>(textArea, ColorRGBA(0, 0, 0, 75), ColorRGBA(128, 100, 75));
+	textBox = std::make_shared<CTextBox>(text, textArea.resize(-5), CSlider::BROWN);
+	if(textBox->slider)
+		textBox->slider->scrollToMax();
 }
 
 const CGHeroInstance * BattleHero::instance()

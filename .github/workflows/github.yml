@@ -201,8 +201,8 @@ jobs:
 
     - name: Configure
       run: |
-        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC13=1; fi
-        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC13:+-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13}
+        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC12=1; fi
+        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC12:+-DCMAKE_C_COMPILER=gcc-12 -DCMAKE_CXX_COMPILER=g++-12}
 
     - name: Build
       run: |

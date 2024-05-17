@@ -254,7 +254,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="373"/>
         <source>Install from file</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalar a partir de arquivo</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
@@ -350,18 +350,18 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <source>please upgrade mod</source>
-        <translation type="unfinished"></translation>
+        <translation>por favor, atualize o mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="182"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="796"/>
         <source>mods repository index</source>
-        <translation type="unfinished"></translation>
+        <translation>índice do repositório de mods</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>or newer</source>
-        <translation type="unfinished"></translation>
+        <translation>ou mais recente</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
@@ -416,42 +416,42 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>All supported files</source>
-        <translation type="unfinished"></translation>
+        <translation>Todos os arquivos suportados</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Maps</source>
-        <translation type="unfinished">Mapas</translation>
+        <translation>Mapas</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Campaigns</source>
-        <translation type="unfinished"></translation>
+        <translation>Campanhas</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Configs</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Mods</source>
-        <translation type="unfinished">Mods</translation>
+        <translation>Mods</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="628"/>
         <source>Select files (configs, mods, maps, campaigns) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecione arquivos (configurações, mods, mapas, campanhas) para instalar...</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
         <source>Replace config file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Substituir arquivo de configuração?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Você deseja substituir %1?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="693"/>
@@ -505,7 +505,7 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="960"/>
         <source>screenshots</source>
-        <translation type="unfinished"></translation>
+        <translation>capturas de tela</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="966"/>
@@ -841,12 +841,12 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="437"/>
         <source>Enable</source>
-        <translation>Habilitar</translation>
+        <translation>Ativar</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="442"/>
         <source>Not Installed</source>
-        <translation>Não instalado</translation>
+        <translation>Não Instalado</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="443"/>
@@ -859,27 +859,27 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../modManager/cmodlist.cpp" line="21"/>
         <source>%1 B</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 B</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="22"/>
         <source>%1 KiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 KiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="23"/>
         <source>%1 MiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 MiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="24"/>
         <source>%1 GiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 GiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="25"/>
         <source>%1 TiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 TiB</translation>
     </message>
 </context>
 <context>
@@ -935,7 +935,7 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="288"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="350"/>
         <source>Install gog.com files</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalar arquivos do gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="362"/>
@@ -1021,7 +1021,7 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
         <source>If you don&apos;t have a copy of Heroes III installed, VCMI can import your Heroes III data using the offline installer from gog.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>Se você não tiver uma cópia do Heroes III instalada, o VCMI pode importar seus dados do Heroes III usando o instalador offline do gog.com.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
@@ -1316,17 +1316,17 @@ Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="172"/>
         <source>Name</source>
-        <translation type="unfinished">Nome</translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="175"/>
         <source>Type</source>
-        <translation type="unfinished">Tipo</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="176"/>
         <source>Version</source>
-        <translation type="unfinished">Versão</translation>
+        <translation>Versão</translation>
     </message>
 </context>
 <context>
@@ -1349,12 +1349,12 @@ Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III
     <message>
         <location filename="../updatedialog_moc.cpp" line="64"/>
         <source>Network error</source>
-        <translation type="unfinished"></translation>
+        <translation>Erro de rede</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from url or incorrect JSON data</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível ler JSON a partir do URL ou os dados JSON estão incorretos</translation>
     </message>
 </context>
 </TS>

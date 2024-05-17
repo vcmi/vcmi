@@ -78,6 +78,11 @@
 						"maximum" : 8,
 						"description" : "Maximum number of players that can join this room, including host"
 					},
+					"version" :
+					{
+						"type" : "string",
+						"description" : "Version of match server, e.g. 1.5.0"
+					},
 					"ageSeconds" :
 					{
 						"type" : "number",

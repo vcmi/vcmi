@@ -23,6 +23,7 @@ public:
 	void handleEventKeyUp(const SDL_KeyboardEvent & current);
 
 	bool isKeyboardAltDown() const;
+	bool isKeyboardCmdDown() const;
 	bool isKeyboardCtrlDown() const;
 	bool isKeyboardShiftDown() const;
 };

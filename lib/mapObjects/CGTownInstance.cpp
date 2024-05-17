@@ -544,11 +544,11 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 
 		//get Mana Vortex or Stables bonuses
 		//same code is in the CGameHandler::buildStructure method
+		if (garrisonHero != nullptr) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+			cb->visitCastleObjects(this, garrisonHero);
+
 		if (visitingHero != nullptr)
 			cb->visitCastleObjects(this, visitingHero);
-
-		if (garrisonHero != nullptr)
-			cb->visitCastleObjects(this, garrisonHero);
 
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 		{

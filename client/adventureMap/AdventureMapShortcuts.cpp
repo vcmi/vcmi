@@ -47,6 +47,11 @@ void AdventureMapShortcuts::setState(EAdventureState newState)
 	state = newState;
 }
 
+EAdventureState AdventureMapShortcuts::getState()
+{
+	return state;
+}
+
 void AdventureMapShortcuts::onMapViewMoved(const Rect & visibleArea, int newMapLevel)
 {
 	mapLevel = newMapLevel;
@@ -456,7 +461,7 @@ bool AdventureMapShortcuts::optionHeroSelected()
 bool AdventureMapShortcuts::optionHeroCanMove()
 {
 	const auto * hero = LOCPLINT->localState->getCurrentHero();
-	return optionInMapView() && hero && hero->movementPointsRemaining() != 0 && LOCPLINT->localState->hasPath(hero);
+	return optionInMapView() && hero && LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nextNode().turns == 0;
 }
 
 bool AdventureMapShortcuts::optionHasNextHero()

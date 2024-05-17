@@ -96,6 +96,7 @@ public:
 	std::unique_ptr<boost::thread> makingTurn;
 private:
 	boost::mutex turnInterruptionMutex;
+	bool announcedCheatingProblem;
 public:
 	ObjectInstanceID selectedObject;
 

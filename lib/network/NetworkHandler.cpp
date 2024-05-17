@@ -32,19 +32,29 @@ std::unique_ptr<INetworkServer> NetworkHandler::createServerTCP(INetworkServerLi
 void NetworkHandler::connectToRemote(INetworkClientListener & listener, const std::string & host, uint16_t port)
 {
 	auto socket = std::make_shared<NetworkSocket>(*io);
-	boost::asio::ip::tcp::resolver resolver(*io);
-	auto endpoints = resolver.resolve(host, std::to_string(port));
-	boost::asio::async_connect(*socket, endpoints, [socket, &listener](const boost::system::error_code& error, const boost::asio::ip::tcp::endpoint& endpoint)
+	auto resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*io);
+
+	resolver->async_resolve(host, std::to_string(port),
+	[this, &listener, resolver, socket](const boost::system::error_code& error, const boost::asio::ip::tcp::resolver::results_type & endpoints)
 	{
 		if (error)
 		{
 			listener.onConnectionFailed(error.message());
 			return;
 		}
-		auto connection = std::make_shared<NetworkConnection>(listener, socket);
-		connection->start();
 
-		listener.onConnectionEstablished(connection);
+		boost::asio::async_connect(*socket, endpoints, [this, socket, &listener](const boost::system::error_code& error, const boost::asio::ip::tcp::endpoint& endpoint)
+		{
+			if (error)
+			{
+				listener.onConnectionFailed(error.message());
+				return;
+			}
+			auto connection = std::make_shared<NetworkConnection>(listener, socket, io);
+			connection->start();
+
+			listener.onConnectionEstablished(connection);
+		});
 	});
 }
 

@@ -119,7 +119,10 @@ CServerHandler::~CServerHandler()
 		if (serverRunner)
 			serverRunner->wait();
 		serverRunner.reset();
-		threadNetwork.join();
+		{
+			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+			threadNetwork.join();
+		}
 	}
 	catch (const std::runtime_error & e)
 	{
@@ -421,6 +424,7 @@ void CServerHandler::sendClientDisconnecting()
 	networkConnection->close();
 	networkConnection.reset();
 	logicConnection.reset();
+	waitForServerShutdown();
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
@@ -612,13 +616,6 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	sendLobbyPack(lpsg);
 
 	LobbyStartGame lsg;
-	if(client)
-	{
-		lsg.initializedStartInfo = std::make_shared<StartInfo>(* const_cast<StartInfo *>(client->getStartInfo(true)));
-		lsg.initializedStartInfo->mode = EStartMode::NEW_GAME;
-		lsg.initializedStartInfo->seedToBeUsed = lsg.initializedStartInfo->seedPostInit = 0;
-		* si = * lsg.initializedStartInfo;
-	}
 	sendLobbyPack(lsg);
 }
 
@@ -845,7 +842,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
-	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
+	while(!mi || mapInfo->fileURI != mi->fileURI)
 	{
 		setMapInfo(mapInfo);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
@@ -908,6 +905,8 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	if (connection != networkConnection)
 	{
 		// ServerHandler already closed this connection on its own
@@ -920,22 +919,19 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 
 	if(getState() == EClientState::DISCONNECTING)
 	{
-		assert(networkConnection == nullptr);
 		// Note: this branch can be reached on app shutdown, when main thread holds mutex till destruction
 		logNetwork->info("Successfully closed connection to server!");
 		return;
 	}
 
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-
 	logNetwork->error("Lost connection to server! Connection has been closed");
 
 	if(client)
 	{
-		CSH->endGameplay();
+		endGameplay();
 		GH.defActionsDef = 63;
 		CMM->menu->switchToTab("main");
-		CSH->showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
+		showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
 	else
 	{
@@ -962,7 +958,6 @@ void CServerHandler::waitForServerShutdown()
 	}
 	else
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		if (getState() == EClientState::CONNECTING)
 		{
 			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
@@ -998,7 +993,7 @@ void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 
 bool CServerHandler::inLobbyRoom() const
 {
-	return CSH->serverMode == EServerMode::LOBBY_HOST || CSH->serverMode == EServerMode::LOBBY_GUEST;
+	return serverMode == EServerMode::LOBBY_HOST || serverMode == EServerMode::LOBBY_GUEST;
 }
 
 bool CServerHandler::inGame() const

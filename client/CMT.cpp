@@ -31,6 +31,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CThreadHelper.h"
+#include "../lib/ExceptionsCommon.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -56,6 +57,7 @@ namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
 static std::atomic<bool> headlessQuit = false;
+static std::optional<std::string> criticalInitializationError;
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
@@ -69,9 +71,16 @@ static CBasicLogConfigurator *logConfig;
 void init()
 {
 	CStopWatch tmh;
-
-	loadDLLClasses();
-	CGI->setFromLib();
+	try
+	{
+		loadDLLClasses();
+		CGI->setFromLib();
+	}
+	catch (const DataLoadingException & e)
+	{
+		criticalInitializationError = e.what();
+		return;
+	}
 
 	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 
@@ -322,6 +331,11 @@ int main(int argc, char * argv[])
 	#endif // ANDROID
 #endif // THREADED
 
+	if (criticalInitializationError.has_value())
+	{
+		handleFatalError(criticalInitializationError.value(), false);
+	}
+
 	if(!settings["session"]["headless"].Bool())
 	{
 		pomtime.getDiff();
@@ -412,7 +426,7 @@ static void mainLoop()
 	}
 }
 
-[[noreturn]] static void quitApplicationImmediately()
+[[noreturn]] static void quitApplicationImmediately(int error_code)
 {
 	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
 	// We generally don't care about them and this leads to numerous issues, e.g.
@@ -420,9 +434,9 @@ static void mainLoop()
 	// Android - std::quick_exit is available only starting from API level 21
 	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
 #if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
-	::exit(0);
+	::exit(error_code);
 #else
-	std::quick_exit(0);
+	std::quick_exit(error_code);
 #endif
 }
 
@@ -476,7 +490,7 @@ static void mainLoop()
 	}
 
 	std::cout << "Ending...\n";
-	quitApplicationImmediately();
+	quitApplicationImmediately(0);
 }
 
 void handleQuit(bool ask)
@@ -500,7 +514,7 @@ void handleQuit(bool ask)
 	// proper solution would be to abort init thread (or wait for it to finish)
 	if (!CCS->curh)
 	{
-		quitApplicationImmediately();
+		quitApplicationImmediately(0);
 	}
 
 	if (LOCPLINT)
@@ -521,5 +535,5 @@ void handleFatalError(const std::string & message, bool terminate)
 	if (terminate)
 		throw std::runtime_error(message);
 	else
-		exit(1);
+		quitApplicationImmediately(1);
 }

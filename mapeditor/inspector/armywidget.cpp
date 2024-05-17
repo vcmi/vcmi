@@ -40,6 +40,9 @@ ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 			uiSlots[i]->insertItem(c + 1, creature->getNamePluralTranslated().c_str());
 			uiSlots[i]->setItemData(c + 1, creature->getIndex());
 		}
+
+		uiSlots[i]->completer()->setCompletionMode(QCompleter::PopupCompletion);
+		uiSlots[i]->completer()->setFilterMode(Qt::MatchContains);
 	}
 	
 	ui->formationTight->setChecked(true);

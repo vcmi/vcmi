@@ -354,7 +354,7 @@ void Nullkiller::makeTurn()
 		decompose(bestTasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
 		decompose(bestTasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
 
-		if(cb->getDate(Date::DAY) == 1)
+		if(cb->getDate(Date::DAY) == 1 || heroManager->getHeroRoles().empty())
 		{
 			decompose(bestTasks, sptr(StartupBehavior()), 1);
 		}

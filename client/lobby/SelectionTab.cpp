@@ -21,6 +21,7 @@
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
@@ -163,8 +164,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("SCSELBCK.bmp"), 0, 6);
 		pos = background->pos;
-		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"), 0);
-		inputName->filters += CTextInput::filenameFilter;
+		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"));
+		inputName->setFilterFilename();
 		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
 
 		// TODO: Global constants?
@@ -313,7 +314,7 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 	{
 		select(line);
 	}
-#ifdef VCMI_IOS
+#ifdef VCMI_MOBILE
 	// focus input field if clicked inside it
 	else if(inputName && inputName->isActive() && inputNameRect.isInside(cursorPosition))
 		inputName->giveFocus();
@@ -357,6 +358,17 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 
 	if(itemIndex >= curItems.size())
 		return;
+
+	auto clickedItem = curItems[itemIndex];
+	auto selectedItem = getSelectedMapInfo();
+
+	if (clickedItem != selectedItem)
+	{
+		// double-click BUT player hit different item than he had selected
+		// ignore - clickReleased would still trigger and update selection.
+		// After which another (3rd) click if it happens would still register as double-click
+		return;
+	}
 
 	if(itemIndex >= 0 && curItems[itemIndex]->isFolder)
 	{

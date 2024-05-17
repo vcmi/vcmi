@@ -13,6 +13,7 @@
 
 #include "GlobalLobbyInviteWindow.h"
 #include "GlobalLobbyLoginWindow.h"
+#include "GlobalLobbyObserver.h"
 #include "GlobalLobbyWindow.h"
 
 #include "../CGameInfo.h"
@@ -144,6 +145,9 @@ void GlobalLobbyClient::receiveChatHistory(const JsonNode & json)
 		if(lobbyWindowPtr && lobbyWindowPtr->isChannelOpen(channelType, channelName))
 			lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
 	}
+
+	if(lobbyWindowPtr && lobbyWindowPtr->isChannelOpen(channelType, channelName))
+		lobbyWindowPtr->refreshChatText();
 }
 
 void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
@@ -163,9 +167,13 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
+	{
 		lobbyWindowPtr->onGameChatMessage(message.displayName, message.messageText, message.timeFormatted, channelType, channelName);
+		lobbyWindowPtr->refreshChatText();
 
-	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+		if(channelType == "player" || lobbyWindowPtr->isChannelOpen(channelType, channelName))
+			CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+	}
 }
 
 void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
@@ -186,6 +194,9 @@ void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
 		lobbyWindowPtr->onActiveAccounts(activeAccounts);
+
+	for (auto const & window : GH.windows().findWindows<GlobalLobbyObserver>())
+		window->onActiveAccounts(activeAccounts);
 }
 
 void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
@@ -213,6 +224,15 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 			account.displayName =  jsonParticipant["displayName"].String();
 			room.participants.push_back(account);
 		}
+
+		for(const auto & jsonParticipant : jsonEntry["invited"].Vector())
+		{
+			GlobalLobbyAccount account;
+			account.accountID =  jsonParticipant["accountID"].String();
+			account.displayName =  jsonParticipant["displayName"].String();
+			room.invited.push_back(account);
+		}
+
 		room.playerLimit = jsonEntry["playerLimit"].Integer();
 
 		activeRooms.push_back(room);
@@ -220,7 +240,10 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 
 	auto lobbyWindowPtr = lobbyWindow.lock();
 	if(lobbyWindowPtr)
-		lobbyWindowPtr->onActiveRooms(activeRooms);
+		lobbyWindowPtr->onActiveGameRooms(activeRooms);
+
+	for (auto const & window : GH.windows().findWindows<GlobalLobbyObserver>())
+		window->onActiveGameRooms(activeRooms);
 }
 
 void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
@@ -246,6 +269,7 @@ void GlobalLobbyClient::receiveMatchesHistory(const JsonNode & json)
 			account.displayName =  jsonParticipant["displayName"].String();
 			room.participants.push_back(account);
 		}
+
 		room.playerLimit = jsonEntry["playerLimit"].Integer();
 
 		matchesHistory.push_back(room);
@@ -270,6 +294,7 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 
 		lobbyWindowPtr->onGameChatMessage("System", message, time, "player", accountID);
 		lobbyWindowPtr->onInviteReceived(gameRoomID);
+		lobbyWindowPtr->refreshChatText();
 	}
 
 	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
@@ -552,6 +577,11 @@ void GlobalLobbyClient::resetMatchState()
 	currentGameRoomUUID.clear();
 }
 
+const std::string & GlobalLobbyClient::getCurrentGameRoomID() const
+{
+	return currentGameRoomUUID;
+}
+
 void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
 {
 	if (!isLoggedIn())
@@ -573,5 +603,15 @@ void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
 
 bool GlobalLobbyClient::isInvitedToRoom(const std::string & gameRoomID)
 {
-	return activeInvites.count(gameRoomID) > 0;
+	if (activeInvites.count(gameRoomID) > 0)
+		return true;
+
+	const auto & gameRoom = CSH->getGlobalLobby().getActiveRoomByName(gameRoomID);
+	for (auto const & invited : gameRoom.invited)
+	{
+		if (invited.accountID == getAccountID())
+			return true;
+	}
+
+	return false;
 }

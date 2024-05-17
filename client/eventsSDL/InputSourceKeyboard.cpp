@@ -120,10 +120,20 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 	GH.events().dispatchShortcutReleased(shortcutsVector);
 }
 
+bool InputSourceKeyboard::isKeyboardCmdDown() const
+{
+#ifdef VCMI_APPLE
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LGUI] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RGUI];
+#else
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
+#endif
+}
+
 bool InputSourceKeyboard::isKeyboardCtrlDown() const
 {
-#ifdef VCMI_MAC
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LGUI] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RGUI];
+#ifdef VCMI_APPLE
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL] ||
+		   SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LGUI] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RGUI];
 #else
 	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
 #endif

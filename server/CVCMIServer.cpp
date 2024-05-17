@@ -16,6 +16,7 @@
 #include "processors/PlayerMessageProcessor.h"
 
 #include "../lib/CHeroHandler.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/MetaString.h"
 #include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/CMemorySerializer.h"
@@ -332,6 +333,8 @@ void CVCMIServer::startGameImmediately()
 	setState(EServerState::GAMEPLAY);
 	lastTimerUpdateTime = gameplayStartTime = std::chrono::steady_clock::now();
 	onTimer();
+
+	multiplayerWelcomeMessage();
 }
 
 void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
@@ -977,6 +980,38 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 			return i->first;
 	}
 	return 0;
+}
+
+void CVCMIServer::multiplayerWelcomeMessage()
+{
+	int humanPlayer = 0;
+	for (auto & pi : si->playerInfos)
+        if(gh->getPlayerState(pi.first)->isHuman())
+			humanPlayer++;
+
+	if(humanPlayer < 2) // Singleplayer
+		return;
+
+	std::vector<std::string> optionIds;
+	if(si->extraOptionsInfo.cheatsAllowed)
+		optionIds.push_back("vcmi.optionsTab.cheatAllowed.hover");
+	if(si->extraOptionsInfo.unlimitedReplay)
+		optionIds.push_back("vcmi.optionsTab.unlimitedReplay.hover");
+
+	if(!optionIds.size()) // No settings to publish
+		return;
+
+	MetaString str;
+	str.appendTextID("vcmi.optionsTab.extraOptions.hover");
+	str.appendRawString(": ");
+	for(int i = 0; i < optionIds.size(); i++)
+	{
+		str.appendTextID(optionIds[i]);
+		if(i < optionIds.size() - 1)
+			str.appendRawString(", ");
+	}
+
+	gh->playerMessages->broadcastSystemMessage(str);
 }
 
 INetworkHandler & CVCMIServer::getNetworkHandler()

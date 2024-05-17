@@ -485,7 +485,7 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 {
 	const bool isAlt = GH.isKeyboardAltDown();
 	const bool isLShift = GH.isKeyboardShiftDown();
-	const bool isLCtrl = GH.isKeyboardCtrlDown();
+	const bool isLCtrl = GH.isKeyboardCmdDown();
 
 	if(!isAlt && !isLShift && !isLCtrl)
 		return false; // This is only case when return false

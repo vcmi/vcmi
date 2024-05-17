@@ -89,5 +89,6 @@ public:
 	bool optionMapViewActive();
 
 	void setState(EAdventureState newState);
+	EAdventureState getState();
 	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 };

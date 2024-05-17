@@ -63,7 +63,7 @@
 	"vcmi.mainMenu.serverClosing" : "Trenne...",
 	"vcmi.mainMenu.hostTCP" : "Hoste TCP/IP Spiel",
 	"vcmi.mainMenu.joinTCP" : "Trete TCP/IP Spiel bei",
-	
+
 	"vcmi.lobby.filepath" : "Dateipfad",
 	"vcmi.lobby.creationDate" : "Erstellungsdatum",
 	"vcmi.lobby.scenarioName" : "Szenario-Name",

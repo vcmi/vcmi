@@ -1797,7 +1797,7 @@
     <message>
         <location filename="../windownewmap.cpp" line="296"/>
         <source>RMG failure</source>
-        <translation>Falha do RMG</translation>
+        <translation>Falha do GMA</translation>
     </message>
 </context>
 <context>

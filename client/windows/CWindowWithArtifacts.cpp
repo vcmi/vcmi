@@ -151,7 +151,7 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(const CArtifactsOfHeroBase &
 						{
 							assert(artSetPtr->getHero()->getSlotByInstance(art) != ArtifactPosition::PRE_FIRST);
 
-							if(GH.isKeyboardCtrlDown())
+							if(GH.isKeyboardCmdDown())
 							{
 								std::shared_ptr<CArtifactsOfHeroMain> anotherHeroEquipmentPointer = nullptr;
 

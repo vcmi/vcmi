@@ -374,7 +374,7 @@
 				},
 				"backgroundDimSmallWindows" : {
 					"type" : "boolean",
-					"default" : true
+					"default" : false
 				}
 			}
 		},

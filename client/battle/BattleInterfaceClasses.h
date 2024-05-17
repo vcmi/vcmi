@@ -47,6 +47,8 @@ class BattleRenderer;
 class BattleConsole : public CIntObject, public IStatusBar
 {
 private:
+	const BattleInterface & owner;
+
 	std::shared_ptr<CPicture> background;
 
 	/// List of all texts added during battle, essentially - log of entire battle
@@ -70,10 +72,12 @@ private:
 	/// select line(s) that will be visible in UI
 	std::vector<std::string> getVisibleText();
 public:
-	BattleConsole(std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size);
+	BattleConsole(const BattleInterface & owner, std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size);
 
 	void showAll(Canvas & to) override;
 	void deactivate() override;
+
+	void clickPressed(const Point & cursorPosition) override;
 
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
 	void scrollUp(ui32 by = 1); //scrolls console up by 'by' positions
@@ -85,6 +89,17 @@ public:
 	void clear() override;
 	void setEnteringMode(bool on) override;
 	void setEnteredText(const std::string & text) override;
+};
+
+class BattleConsoleWindow : public CWindowObject
+{
+private:
+	std::shared_ptr<CFilledTexture> backgroundTexture;
+	std::shared_ptr<CButton> buttonOk;
+	std::shared_ptr<TransparentFilledRectangle> textBoxBackgroundBorder;
+	std::shared_ptr<CTextBox> textBox;
+public:
+	BattleConsoleWindow(const std::string & text);
 };
 
 /// Hero battle animation

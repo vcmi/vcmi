@@ -149,7 +149,7 @@ public:
 	std::shared_ptr<BattleHero> attackingHero;
 	std::shared_ptr<BattleHero> defendingHero;
 
-	bool openingPlaying();
+	bool openingPlaying() const;
 	void openingEnd();
 
 	bool makingTurn() const;
