@@ -101,9 +101,9 @@ class BinaryDeserializer : public CLoaderBase
 		}
 	};
 
-	STRONG_INLINE ui32 readAndCheckLength()
+	STRONG_INLINE uint32_t readAndCheckLength()
 	{
-		ui32 length;
+		uint32_t length;
 		load(length);
 		//NOTE: also used for h3m's embedded in campaigns, so it may be quite large in some cases (e.g. XXL maps with multiple objects)
 		if(length > 1000000)
@@ -119,7 +119,7 @@ class BinaryDeserializer : public CLoaderBase
 	class IPointerLoader
 	{
 	public:
-		virtual Serializeable * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+		virtual Serializeable * loadPtr(CLoaderBase &ar, IGameCallback * cb, uint32_t pid) const =0; //data is pointer to the ACTUAL POINTER
 		virtual ~IPointerLoader() = default;
 
 		template<typename Type> static IPointerLoader *getApplier(const Type * t = nullptr)
@@ -132,7 +132,7 @@ class BinaryDeserializer : public CLoaderBase
 	class CPointerLoader : public IPointerLoader
 	{
 	public:
-		Serializeable * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const override //data is pointer to the ACTUAL POINTER
+		Serializeable * loadPtr(CLoaderBase &ar, IGameCallback * cb, uint32_t pid) const override //data is pointer to the ACTUAL POINTER
 		{
 			auto & s = static_cast<BinaryDeserializer &>(ar);
 
@@ -157,13 +157,13 @@ public:
 	Version version;
 
 	std::vector<std::string> loadedStrings;
-	std::map<ui32, Serializeable*> loadedPointers;
+	std::map<uint32_t, Serializeable*> loadedPointers;
 	std::map<const Serializeable*, std::shared_ptr<Serializeable>> loadedSharedPointers;
 	IGameCallback * cb = nullptr;
 	bool smartPointerSerialization;
 	bool saving;
 
-	bool hasFeature(Version what)
+	bool hasFeature(Version what) const
 	{
 		return version >= what;
 	};
@@ -238,8 +238,8 @@ public:
 	template < typename T, typename std::enable_if_t < std::is_array_v<T>, int  > = 0 >
 	void load(T &data)
 	{
-		ui32 size = std::size(data);
-		for(ui32 i = 0; i < size; i++)
+		uint32_t size = std::size(data);
+		for(uint32_t i = 0; i < size; i++)
 			load(data[i]);
 	}
 
@@ -251,7 +251,7 @@ public:
 	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
 	void load(T &data)
 	{
-		si32 read;
+		int32_t read;
 		load( read );
 		data = static_cast<T>(read);
 	}
@@ -259,7 +259,7 @@ public:
 	template < typename T, typename std::enable_if_t < std::is_same_v<T, bool>, int > = 0 >
 	void load(T &data)
 	{
-		ui8 read;
+		uint8_t read;
 		load( read );
 		data = static_cast<bool>(read);
 	}
@@ -267,18 +267,18 @@ public:
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void load(std::vector<T> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.resize(length);
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 			load( data[i]);
 	}
 
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void load(std::deque<T> & data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.resize(length);
-		for(ui32 i = 0; i < length; i++)
+		for(uint32_t i = 0; i < length; i++)
 			load(data[i]);
 	}
 
@@ -336,7 +336,7 @@ public:
 				return;
 		}
 
-		ui32 pid = 0xffffffff; //pointer id (or maybe rather pointee id)
+		uint32_t pid = 0xffffffff; //pointer id (or maybe rather pointee id)
 		if(smartPointerSerialization)
 		{
 			load( pid ); //get the id
@@ -351,7 +351,7 @@ public:
 			}
 		}
 		//get type id
-		ui16 tid;
+		uint16_t tid;
 		load( tid );
 
 		if(!tid)
@@ -376,7 +376,7 @@ public:
 	}
 
 	template <typename T>
-	void ptrAllocated(T *ptr, ui32 pid)
+	void ptrAllocated(T *ptr, uint32_t pid)
 	{
 		if(smartPointerSerialization && pid != 0xffffffff)
 			loadedPointers[pid] = const_cast<Serializeable*>(dynamic_cast<const Serializeable*>(ptr)); //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
@@ -394,7 +394,7 @@ public:
 		NonConstT *internalPtr;
 		load(internalPtr);
 
-		Serializeable * internalPtrDerived = static_cast<Serializeable*>(internalPtr);
+		const auto * internalPtrDerived = static_cast<Serializeable*>(internalPtr);
 
 		if(internalPtr)
 		{
@@ -441,16 +441,16 @@ public:
 	template <typename T, size_t N>
 	void load(std::array<T, N> &data)
 	{
-		for(ui32 i = 0; i < N; i++)
+		for(uint32_t i = 0; i < N; i++)
 			load( data[i] );
 	}
 	template <typename T>
 	void load(std::set<T> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 		{
 			load( ins );
 			data.insert(ins);
@@ -459,10 +459,10 @@ public:
 	template <typename T, typename U>
 	void load(std::unordered_set<T, U> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 		{
 			load(ins);
 			data.insert(ins);
@@ -471,10 +471,10 @@ public:
 	template <typename T>
 	void load(std::list<T> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 		{
 			load(ins);
 			data.push_back(ins);
@@ -490,10 +490,10 @@ public:
 	template <typename T1, typename T2>
 	void load(std::unordered_map<T1,T2> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T1 key;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 		{
 			load(key);
 			load(data[key]);
@@ -503,10 +503,10 @@ public:
 	template <typename T1, typename T2>
 	void load(std::map<T1,T2> &data)
 	{
-		ui32 length = readAndCheckLength();
+		uint32_t length = readAndCheckLength();
 		data.clear();
 		T1 key;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 		{
 			load(key);
 			load(data[key]);
@@ -537,7 +537,7 @@ public:
 		}
 		else
 		{
-			ui32 length = readAndCheckLength();
+			uint32_t length = readAndCheckLength();
 			data.resize(length);
 			this->read(static_cast<void *>(data.data()), length, false);
 		}
@@ -546,7 +546,7 @@ public:
 	template<typename... TN>
 	void load(std::variant<TN...> & data)
 	{
-		si32 which;
+		int32_t which;
 		load( which );
 		assert(which < sizeof...(TN));
 
@@ -561,7 +561,7 @@ public:
 	template<typename T>
 	void load(std::optional<T> & data)
 	{
-		ui8 present;
+		uint8_t present;
 		load( present );
 		if(present)
 		{
@@ -579,16 +579,16 @@ public:
 	template <typename T>
 	void load(boost::multi_array<T, 3> & data)
 	{
-		ui32 length = readAndCheckLength();
-		ui32 x;
-		ui32 y;
-		ui32 z;
+		uint32_t length = readAndCheckLength();
+		uint32_t x;
+		uint32_t y;
+		uint32_t z;
 		load(x);
 		load(y);
 		load(z);
 		data.resize(boost::extents[x][y][z]);
 		assert(length == data.num_elements()); //x*y*z should be equal to number of elements
-		for(ui32 i = 0; i < length; i++)
+		for(uint32_t i = 0; i < length; i++)
 			load(data.data()[i]);
 	}
 	template <std::size_t T>

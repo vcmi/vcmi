@@ -123,10 +123,6 @@ public:
 	bool canBePlacedAt(TerrainId terrain) const;
 
 	ObjectTemplate();
-	//custom copy constructor is required
-	ObjectTemplate(const ObjectTemplate & other);
-
-	ObjectTemplate& operator=(const ObjectTemplate & rhs);
 
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();

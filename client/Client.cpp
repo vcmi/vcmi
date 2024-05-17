@@ -332,7 +332,7 @@ void CClient::initPlayerInterfaces()
 	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
 }
 
-std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman)
+std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman) const
 {
 	if(ps.name.size())
 	{
@@ -344,7 +344,7 @@ std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, b
 	return aiNameForPlayer(battleAI, alliedToHuman);
 }
 
-std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman)
+std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman) const
 {
 	const int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
 	std::string goodAdventureAI = alliedToHuman ? settings["server"]["alliedAI"].String() : settings["server"]["playerAI"].String();
