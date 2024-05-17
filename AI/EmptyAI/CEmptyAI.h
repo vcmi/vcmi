@@ -19,9 +19,6 @@ class CEmptyAI : public CGlobalAI
 	std::shared_ptr<CCallback> cb;
 
 public:
-	void saveGame(BinarySerializer & h) override;
-	void loadGame(BinaryDeserializer & h) override;
-
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 	void yourTurn(QueryID queryID) override;
 	void yourTacticPhase(const BattleID & battleID, int distance) override;

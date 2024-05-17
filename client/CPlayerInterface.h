@@ -61,8 +61,6 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 	bool ignoreEvents;
 	size_t numOfMovedArts;
 
-	// -1 - just loaded game; 1 - just started game; 0 otherwise
-	int firstCall;
 	int autosaveCount;
 
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
@@ -146,8 +144,6 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
 	void playerEndsTurn(PlayerColor player) override;
-	void saveGame(BinarySerializer & h) override; //saving
-	void loadGame(BinaryDeserializer & h) override; //loading
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	//for battles

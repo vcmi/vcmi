@@ -243,28 +243,4 @@ void CAdventureAI::yourTacticPhase(const BattleID & battleID, int distance)
 	battleAI->yourTacticPhase(battleID, distance);
 }
 
-void CAdventureAI::saveGame(BinarySerializer & h) /*saving */
-{
-	bool hasBattleAI = static_cast<bool>(battleAI);
-	h & hasBattleAI;
-	if(hasBattleAI)
-	{
-		h & battleAI->dllName;
-	}
-}
-
-void CAdventureAI::loadGame(BinaryDeserializer & h) /*loading */
-{
-	bool hasBattleAI = false;
-	h & hasBattleAI;
-	if(hasBattleAI)
-	{
-		std::string dllName;
-		h & dllName;
-		battleAI = CDynLibHandler::getNewBattleAI(dllName);
-		assert(cbc); //it should have been set by the one who new'ed us
-		battleAI->initBattleInterface(env, cbc);
-	}
-}
-
 VCMI_LIB_NAMESPACE_END

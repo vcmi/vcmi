@@ -45,15 +45,6 @@ public:
 		int spellbookLastPageAdvmap = 0;
 		int spellbookLastTabBattle = 4;
 		int spellbookLastTabAdvmap = 4;
-
-		template<typename Handler>
-		void serialize(Handler & h)
-		{
-			h & spellbookLastPageBattle;
-			h & spellbookLastPageAdvmap;
-			h & spellbookLastTabBattle;
-			h & spellbookLastTabAdvmap;
-		}
 	} spellbookSettings;
 
 	explicit PlayerLocalState(CPlayerInterface & owner);
@@ -92,22 +83,4 @@ public:
 
 	/// Changes currently selected object
 	void setSelection(const CArmedInstance *sel);
-
-	template<typename Handler>
-	void serialize(Handler & h)
-	{
-		//WARNING: this code is broken and not used. See CClient::loadGame
-		std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
-		if(h.saving)
-			saveHeroPaths(pathsMap);
-
-		h & pathsMap;
-
-		if(!h.saving)
-			loadHeroPaths(pathsMap);
-
-		h & ownedTowns;
-		h & wanderingHeroes;
-		h & sleepingHeroes;
-	}
 };
