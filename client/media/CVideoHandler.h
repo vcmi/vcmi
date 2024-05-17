@@ -11,8 +11,8 @@
 
 #ifndef DISABLE_VIDEO
 
-#	include "IVideoPlayer.h"
-#	include "../lib/Rect.h"
+#include "../lib/Point.h"
+#include "IVideoPlayer.h"
 
 struct SDL_Surface;
 struct SDL_Texture;
@@ -25,9 +25,10 @@ struct AVIOContext;
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CInputStream;
+class Point;
 VCMI_LIB_NAMESPACE_END
 
-class FFMpegStream
+class FFMpegStream : boost::noncopyable
 {
 	std::unique_ptr<CInputStream> input;
 
@@ -44,15 +45,15 @@ protected:
 	void openContext();
 	void openCodec(int streamIndex);
 
-	int findVideoStream();
-	int findAudioStream();
+	int findVideoStream() const;
+	int findAudioStream() const;
 
-	const AVCodecParameters * getCodecParameters();
-	const AVCodecContext * getCodecContext();
+	const AVCodecParameters * getCodecParameters() const;
+	const AVCodecContext * getCodecContext() const;
 	void decodeNextFrame();
-	const AVFrame * getCurrentFrame();
-	double getCurrentFrameEndTime();
-	double getCurrentFrameDuration();
+	const AVFrame * getCurrentFrame() const;
+	double getCurrentFrameEndTime() const;
+	double getCurrentFrameDuration() const;
 
 public:
 	virtual ~FFMpegStream();

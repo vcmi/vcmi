@@ -59,7 +59,7 @@ public:
 	CMenuScreen(const JsonNode & configNode);
 
 	void activate() override;
-	void show(Canvas & to);
+	void show(Canvas & to) override;
 
 	void switchToTab(size_t index);
 	void switchToTab(std::string name);

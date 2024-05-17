@@ -20,40 +20,41 @@ using Mix_Music = struct _Mix_Music;
 class CMusicHandler;
 
 //Class for handling one music file
-class MusicEntry
+class MusicEntry : boost::noncopyable
 {
-	CMusicHandler *owner;
-	Mix_Music *music;
+	CMusicHandler * owner;
+	Mix_Music * music;
 
-	int loop; // -1 = indefinite
-	bool fromStart;
-	bool playing;
-	uint32_t startTime;
-	uint32_t startPosition;
 	//if not null - set from which music will be randomly selected
 	std::string setName;
 	AudioPath currentName;
 
+	uint32_t startTime;
+	uint32_t startPosition;
+	int loop; // -1 = indefinite
+	bool fromStart;
+	bool playing;
+
 	void load(const AudioPath & musicURI);
 
 public:
-	MusicEntry(CMusicHandler *owner, std::string setName, const AudioPath & musicURI, bool looped, bool fromStart);
+	MusicEntry(CMusicHandler * owner, std::string setName, const AudioPath & musicURI, bool looped, bool fromStart);
 	~MusicEntry();
 
-	bool isSet(std::string setName);
+	bool isSet(const std::string & setName);
 	bool isTrack(const AudioPath & trackName);
-	bool isPlaying();
+	bool isPlaying() const;
 
 	bool play();
-	bool stop(int fade_ms=0);
+	bool stop(int fade_ms = 0);
 };
 
-class CMusicHandler final: public CAudioBase, public IMusicPlayer
+class CMusicHandler final : public CAudioBase, public IMusicPlayer
 {
 private:
 	//update volume on configuration change
 	SettingsListener listener;
-	void onVolumeChange(const JsonNode &volumeNode);
+	void onVolumeChange(const JsonNode & volumeNode);
 
 	std::unique_ptr<MusicEntry> current;
 	std::unique_ptr<MusicEntry> next;
@@ -61,7 +62,7 @@ private:
 	boost::mutex mutex;
 	int volume = 0; // from 0 (mute) to 100
 
-	void queueNext(CMusicHandler *owner, const std::string & setName, const AudioPath & musicURI, bool looped, bool fromStart);
+	void queueNext(CMusicHandler * owner, const std::string & setName, const AudioPath & musicURI, bool looped, bool fromStart);
 	void queueNext(std::unique_ptr<MusicEntry> queued);
 	void musicFinishedCallback() final;
 
@@ -88,7 +89,7 @@ public:
 	/// play random track from set (musicSet, entryID)
 	void playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop, bool fromStart) final;
 	/// stops currently playing music by fading out it over fade_ms and starts next scheduled track, if any
-	void stopMusic(int fade_ms=1000) final;
+	void stopMusic(int fade_ms) final;
 
 	friend class MusicEntry;
 };

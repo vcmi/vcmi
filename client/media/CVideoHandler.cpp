@@ -16,10 +16,8 @@
 
 #include "../CGameInfo.h"
 #include "../CMT.h"
-#include "../CPlayerInterface.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/FramerateManager.h"
 #include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
 
@@ -39,11 +37,11 @@ extern "C" {
 static int lodRead(void * opaque, uint8_t * buf, int size)
 {
 	auto * data = static_cast<CInputStream *>(opaque);
-	int bytes = static_cast<int>(data->read(buf, size));
-	if(bytes == 0)
+	auto bytesRead = data->read(buf, size);
+	if(bytesRead == 0)
 		return AVERROR_EOF;
 
-	return bytes;
+	return bytesRead;
 }
 
 static si64 lodSeek(void * opaque, si64 pos, int whence)
@@ -151,17 +149,17 @@ void FFMpegStream::openCodec(int desiredStreamIndex)
 	frame = av_frame_alloc();
 }
 
-const AVCodecParameters * FFMpegStream::getCodecParameters()
+const AVCodecParameters * FFMpegStream::getCodecParameters() const
 {
 	return formatContext->streams[streamIndex]->codecpar;
 }
 
-const AVCodecContext * FFMpegStream::getCodecContext()
+const AVCodecContext * FFMpegStream::getCodecContext() const
 {
 	return codecContext;
 }
 
-const AVFrame * FFMpegStream::getCurrentFrame()
+const AVFrame * FFMpegStream::getCurrentFrame() const
 {
 	return frame;
 }
@@ -330,8 +328,6 @@ CVideoInstance::~CVideoInstance()
 
 FFMpegStream::~FFMpegStream()
 {
-	// state.videoStream.codec???
-	// state.audioStream.codec???
 	av_frame_free(&frame);
 
 	avcodec_close(codecContext);
@@ -360,7 +356,7 @@ void CVideoInstance::show(const Point & position, Canvas & canvas)
 	CSDL_Ext::blitSurface(surface, canvas.getInternalSurface(), position);
 }
 
-double FFMpegStream::getCurrentFrameEndTime()
+double FFMpegStream::getCurrentFrameEndTime() const
 {
 #if(LIBAVUTIL_VERSION_MAJOR < 58)
 	auto packet_duration = frame->pkt_duration;
@@ -370,14 +366,14 @@ double FFMpegStream::getCurrentFrameEndTime()
 	return (frame->pts + packet_duration) * av_q2d(formatContext->streams[streamIndex]->time_base);
 }
 
-double FFMpegStream::getCurrentFrameDuration()
+double FFMpegStream::getCurrentFrameDuration() const
 {
 #if(LIBAVUTIL_VERSION_MAJOR < 58)
 	auto packet_duration = frame->pkt_duration;
 #else
 	auto packet_duration = frame->duration;
 #endif
-	return (packet_duration) * av_q2d(formatContext->streams[streamIndex]->time_base);
+	return packet_duration * av_q2d(formatContext->streams[streamIndex]->time_base);
 }
 
 void CVideoInstance::tick(uint32_t msPassed)
@@ -421,7 +417,7 @@ static FFMpegFormatDescription getAudioFormatProperties(int audioFormat)
 	throw std::runtime_error("Invalid audio format");
 }
 
-int FFMpegStream::findAudioStream()
+int FFMpegStream::findAudioStream() const
 {
 	for(int i = 0; i < formatContext->nb_streams; i++)
 		if(formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
@@ -430,7 +426,7 @@ int FFMpegStream::findAudioStream()
 	return -1;
 }
 
-int FFMpegStream::findVideoStream()
+int FFMpegStream::findVideoStream() const
 {
 	for(int i = 0; i < formatContext->nb_streams; i++)
 		if(formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
@@ -487,7 +483,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 		}
 	}
 
-	typedef struct WAV_HEADER {
+	struct WavHeader {
 		ui8 RIFF[4] = {'R', 'I', 'F', 'F'};
 		ui32 ChunkSize;
 		ui8 WAVE[4] = {'W', 'A', 'V', 'E'};
@@ -501,24 +497,23 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 		ui16 bitsPerSample = 32;
 		ui8 Subchunk2ID[4] = {'d', 'a', 't', 'a'};
 		ui32 Subchunk2Size;
-	} wav_hdr;
+	};
 
-	wav_hdr wav;
-	wav.ChunkSize = samples.size() + sizeof(wav_hdr) - 8;
+	WavHeader wav;
+	wav.ChunkSize = samples.size() + sizeof(WavHeader) - 8;
 	wav.AudioFormat = formatProperties.wavFormatID; // 1 = PCM, 3 = IEEE float
 	wav.NumOfChan = numChannels;
 	wav.SamplesPerSec = codecpar->sample_rate;
 	wav.bytesPerSec = codecpar->sample_rate * formatProperties.sampleSizeBytes;
 	wav.bitsPerSample = formatProperties.sampleSizeBytes * 8;
-	wav.Subchunk2Size = samples.size() + sizeof(wav_hdr) - 44;
-	auto wavPtr = reinterpret_cast<ui8*>(&wav);
+	wav.Subchunk2Size = samples.size() + sizeof(WavHeader) - 44;
+	auto * wavPtr = reinterpret_cast<ui8*>(&wav);
 
-	auto dat = std::make_pair(std::make_unique<ui8[]>(samples.size() + sizeof(wav_hdr)), samples.size() + sizeof(wav_hdr));
-	std::copy(wavPtr, wavPtr + sizeof(wav_hdr), dat.first.get());
-	std::copy(samples.begin(), samples.end(), dat.first.get() + sizeof(wav_hdr));
+	auto dat = std::make_pair(std::make_unique<ui8[]>(samples.size() + sizeof(WavHeader)), samples.size() + sizeof(WavHeader));
+	std::copy(wavPtr, wavPtr + sizeof(WavHeader), dat.first.get());
+	std::copy(samples.begin(), samples.end(), dat.first.get() + sizeof(WavHeader));
 
 	return dat;
-	//CCS->soundh->playSound(dat);
 }
 
 bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey)
@@ -569,7 +564,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 
 		// Framerate delay
 		double targetFrameTimeSeconds = instance.getCurrentFrameDuration();
-		auto targetFrameTime = boost::chrono::milliseconds(static_cast<int>(1000 * (targetFrameTimeSeconds)));
+		auto targetFrameTime = boost::chrono::milliseconds(static_cast<int>(1000 * targetFrameTimeSeconds));
 
 		auto timePointAfterPresent = boost::chrono::steady_clock::now();
 		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);

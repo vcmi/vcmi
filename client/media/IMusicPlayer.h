@@ -29,5 +29,5 @@ public:
 	/// play random track from set (musicSet, entryID)
 	virtual void playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop, bool fromStart) = 0;
 	/// stops currently playing music by fading out it over fade_ms and starts next scheduled track, if any
-	virtual void stopMusic(int fade_ms=1000) = 0;
+	virtual void stopMusic(int fade_ms = 1000) = 0;
 };

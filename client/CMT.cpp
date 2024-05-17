@@ -396,9 +396,13 @@ int main(int argc, char * argv[])
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	if(CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK")))
-		if (CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK")))
-			CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"));
+	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK")))
+		return;
+
+	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK")))
+		return;
+
+	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"));
 }
 
 static void mainLoop()

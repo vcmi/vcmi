@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "CAudioBase.h"
 
-#include "../CGameInfo.h"
-
 #include <SDL_mixer.h>
 
 int CAudioBase::initializationCounter = 0;

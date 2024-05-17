@@ -15,24 +15,24 @@ class CEmptyVideoPlayer final : public IVideoPlayer
 {
 public:
 	/// Plays video on top of the screen, returns only after playback is over
-	virtual bool playIntroVideo(const VideoPath & name)
+	bool playIntroVideo(const VideoPath & name) override
 	{
 		return false;
 	};
 
-	virtual void playSpellbookAnimation(const VideoPath & name, const Point & position)
+	void playSpellbookAnimation(const VideoPath & name, const Point & position) override
 	{
 	}
 
 	/// Load video from specified path
-	virtual std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen)
+	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) override
 	{
 		return nullptr;
 	};
 
 	/// Extracts audio data from provided video in wav format
-	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen)
+	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) override
 	{
-		return { nullptr, 0};
+		return {nullptr, 0};
 	};
 };

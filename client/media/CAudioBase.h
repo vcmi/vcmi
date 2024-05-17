@@ -9,10 +9,11 @@
  */
 #pragma once
 
-class CAudioBase
+class CAudioBase : boost::noncopyable
 {
 	static int initializationCounter;
 	static bool initializeSuccess;
+
 protected:
 	bool isInitialized() const;
 

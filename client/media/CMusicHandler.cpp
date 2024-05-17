@@ -11,19 +11,19 @@
 #include "CMusicHandler.h"
 
 #include "../CGameInfo.h"
-#include "../renderSDL/SDLRWwrapper.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../renderSDL/SDLRWwrapper.h"
 
-#include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 #include <SDL_mixer.h>
 
-void CMusicHandler::onVolumeChange(const JsonNode &volumeNode)
+void CMusicHandler::onVolumeChange(const JsonNode & volumeNode)
 {
-	setVolume((ui32)volumeNode.Float());
+	setVolume(volumeNode.Integer());
 }
 
 CMusicHandler::CMusicHandler():
@@ -58,12 +58,11 @@ CMusicHandler::CMusicHandler():
 			CCS->musich->musicFinishedCallback();
 		});
 	}
-
 }
 
 void CMusicHandler::loadTerrainMusicThemes()
 {
-	for (const auto & terrain : CGI->terrainTypeHandler->objects)
+	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
 		addEntryToSet("terrain_" + terrain->getJsonKey(), terrain->musicFilename);
 	}
@@ -76,7 +75,7 @@ void CMusicHandler::addEntryToSet(const std::string & set, const AudioPath & mus
 
 CMusicHandler::~CMusicHandler()
 {
-	if (isInitialized())
+	if(isInitialized())
 	{
 		boost::mutex::scoped_lock guard(mutex);
 
@@ -92,7 +91,7 @@ void CMusicHandler::playMusic(const AudioPath & musicURI, bool loop, bool fromSt
 {
 	boost::mutex::scoped_lock guard(mutex);
 
-	if (current && current->isPlaying() && current->isTrack(musicURI))
+	if(current && current->isPlaying() && current->isTrack(musicURI))
 		return;
 
 	queueNext(this, "", musicURI, loop, fromStart);
@@ -108,13 +107,13 @@ void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bo
 	boost::mutex::scoped_lock guard(mutex);
 
 	auto selectedSet = musicsSet.find(whichSet);
-	if (selectedSet == musicsSet.end())
+	if(selectedSet == musicsSet.end())
 	{
 		logGlobal->error("Error: playing music from non-existing set: %s", whichSet);
 		return;
 	}
 
-	if (current && current->isPlaying() && current->isSet(whichSet))
+	if(current && current->isPlaying() && current->isSet(whichSet))
 		return;
 
 	// in this mode - play random track from set
@@ -123,31 +122,31 @@ void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bo
 
 void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 {
-	if (!isInitialized())
+	if(!isInitialized())
 		return;
 
 	next = std::move(queued);
 
-	if (current.get() == nullptr || !current->stop(1000))
+	if(current == nullptr || !current->stop(1000))
 	{
 		current.reset(next.release());
 		current->play();
 	}
 }
 
-void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const AudioPath & musicURI, bool looped, bool fromStart)
+void CMusicHandler::queueNext(CMusicHandler * owner, const std::string & setName, const AudioPath & musicURI, bool looped, bool fromStart)
 {
 	queueNext(std::make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
 }
 
 void CMusicHandler::stopMusic(int fade_ms)
 {
-	if (!isInitialized())
+	if(!isInitialized())
 		return;
 
 	boost::mutex::scoped_lock guard(mutex);
 
-	if (current.get() != nullptr)
+	if(current != nullptr)
 		current->stop(fade_ms);
 	next.reset();
 }
@@ -161,8 +160,8 @@ void CMusicHandler::setVolume(ui32 percent)
 {
 	volume = std::min(100u, percent);
 
-	if (isInitialized())
-		Mix_VolumeMusic((MIX_MAX_VOLUME * volume)/100);
+	if(isInitialized())
+		Mix_VolumeMusic((MIX_MAX_VOLUME * volume) / 100);
 }
 
 void CMusicHandler::musicFinishedCallback()
@@ -175,49 +174,53 @@ void CMusicHandler::musicFinishedCallback()
 	// 1) SDL thread waiting to acquire music lock in this method (while keeping internal SDL mutex locked)
 	// 2) VCMI thread waiting to acquire internal SDL mutex (while keeping music mutex locked)
 
-	GH.dispatchMainThread([this]()
-	{
-		boost::unique_lock lockGuard(mutex);
-		if (current.get() != nullptr)
+	GH.dispatchMainThread(
+		[this]()
 		{
-			// if music is looped, play it again
-			if (current->play())
-				return;
-			else
-				current.reset();
-		}
+			boost::unique_lock lockGuard(mutex);
+			if(current != nullptr)
+			{
+				// if music is looped, play it again
+				if(current->play())
+					return;
+				else
+					current.reset();
+			}
 
-		if (current.get() == nullptr && next.get() != nullptr)
-		{
-			current.reset(next.release());
-			current->play();
+			if(current == nullptr && next != nullptr)
+			{
+				current.reset(next.release());
+				current->play();
+			}
 		}
-	});
+		);
 }
 
-MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, const AudioPath & musicURI, bool looped, bool fromStart):
-	owner(owner),
-	music(nullptr),
-	playing(false),
-	startTime(uint32_t(-1)),
-	startPosition(0),
-	loop(looped ? -1 : 1),
-	fromStart(fromStart),
-	setName(std::move(setName))
+MusicEntry::MusicEntry(CMusicHandler * owner, std::string setName, const AudioPath & musicURI, bool looped, bool fromStart)
+	: owner(owner)
+	, music(nullptr)
+	, setName(std::move(setName))
+	, startTime(static_cast<uint32_t>(-1))
+	, startPosition(0)
+	, loop(looped ? -1 : 1)
+	, fromStart(fromStart)
+	, playing(false)
+
 {
-	if (!musicURI.empty())
-		load(std::move(musicURI));
+	if(!musicURI.empty())
+		load(musicURI);
 }
+
 MusicEntry::~MusicEntry()
 {
-	if (playing && loop > 0)
+	if(playing && loop > 0)
 	{
 		assert(0);
 		logGlobal->error("Attempt to delete music while playing!");
 		Mix_HaltMusic();
 	}
 
-	if (loop == 0 && Mix_FadingMusic() != MIX_NO_FADING)
+	if(loop == 0 && Mix_FadingMusic() != MIX_NO_FADING)
 	{
 		assert(0);
 		logGlobal->error("Attempt to delete music while fading out!");
@@ -225,20 +228,20 @@ MusicEntry::~MusicEntry()
 	}
 
 	logGlobal->trace("Del-ing music file %s", currentName.getOriginalName());
-	if (music)
+	if(music)
 		Mix_FreeMusic(music);
 }
 
 void MusicEntry::load(const AudioPath & musicURI)
 {
-	if (music)
+	if(music)
 	{
 		logGlobal->trace("Del-ing music file %s", currentName.getOriginalName());
 		Mix_FreeMusic(music);
 		music = nullptr;
 	}
 
-	if (CResourceHandler::get()->existsResource(musicURI))
+	if(CResourceHandler::get()->existsResource(musicURI))
 		currentName = musicURI;
 	else
 		currentName = musicURI.addPrefix("MUSIC/");
@@ -249,10 +252,10 @@ void MusicEntry::load(const AudioPath & musicURI)
 
 	try
 	{
-		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(currentName));
+		auto * musicFile = MakeSDLRWops(CResourceHandler::get()->load(currentName));
 		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
 	}
-	catch(std::exception &e)
+	catch(std::exception & e)
 	{
 		logGlobal->error("Failed to load music. setName=%s\tmusicURI=%s", setName, currentName.getOriginalName());
 		logGlobal->error("Exception: %s", e.what());
@@ -267,10 +270,10 @@ void MusicEntry::load(const AudioPath & musicURI)
 
 bool MusicEntry::play()
 {
-	if (!(loop--) && music) //already played once - return
+	if(!(loop--) && music) //already played once - return
 		return false;
 
-	if (!setName.empty())
+	if(!setName.empty())
 	{
 		const auto & set = owner->musicsSet[setName];
 		const auto & iter = RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault());
@@ -279,7 +282,7 @@ bool MusicEntry::play()
 
 	logGlobal->trace("Playing music file %s", currentName.getOriginalName());
 
-	if (!fromStart && owner->trackPositions.count(currentName) > 0 && owner->trackPositions[currentName] > 0)
+	if(!fromStart && owner->trackPositions.count(currentName) > 0 && owner->trackPositions[currentName] > 0)
 	{
 		float timeToStart = owner->trackPositions[currentName];
 		startPosition = std::round(timeToStart * 1000);
@@ -289,7 +292,7 @@ bool MusicEntry::play()
 		// if music track is not interrupted and will finish by timeout/end of file - it will restart from begginning as it should
 		owner->trackPositions.erase(owner->trackPositions.find(currentName));
 
-		if (Mix_FadeInMusicPos(music, 1, 1000, timeToStart) == -1)
+		if(Mix_FadeInMusicPos(music, 1, 1000, timeToStart) == -1)
 		{
 			logGlobal->error("Unable to play music (%s)", Mix_GetError());
 			return false;
@@ -307,14 +310,14 @@ bool MusicEntry::play()
 	}
 
 	startTime = GH.input().getTicks();
-	
+
 	playing = true;
 	return true;
 }
 
 bool MusicEntry::stop(int fade_ms)
 {
-	if (Mix_PlayingMusic())
+	if(Mix_PlayingMusic())
 	{
 		playing = false;
 		loop = 0;
@@ -330,12 +333,12 @@ bool MusicEntry::stop(int fade_ms)
 	return false;
 }
 
-bool MusicEntry::isPlaying()
+bool MusicEntry::isPlaying() const
 {
 	return playing;
 }
 
-bool MusicEntry::isSet(std::string set)
+bool MusicEntry::isSet(const std::string & set)
 {
 	return !setName.empty() && set == setName;
 }
