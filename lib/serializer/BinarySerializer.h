@@ -35,7 +35,7 @@ public:
 /// Primitives:    copy memory into underlying stream (defined in CSaverBase)
 /// Containers:    custom overloaded method that decouples class into primitives
 /// VCMI Classes:  recursively serialize them via ClassName::serialize( BinarySerializer &, int version) call
-class DLL_LINKAGE BinarySerializer : public CSaverBase
+class BinarySerializer : public CSaverBase
 {
 	template<typename Handler>
 	struct VariantVisitorSaver
@@ -126,7 +126,7 @@ public:
 		return version >= what;
 	};
 
-	BinarySerializer(IBinaryWriter * w);
+	DLL_LINKAGE BinarySerializer(IBinaryWriter * w);
 
 	template<typename Base, typename Derived>
 	void registerType(const Base * b = nullptr, const Derived * d = nullptr)

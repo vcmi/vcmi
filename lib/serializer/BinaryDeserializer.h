@@ -35,7 +35,7 @@ public:
 
 /// Main class for deserialization of classes from binary form
 /// Effectively revesed version of BinarySerializer
-class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
+class BinaryDeserializer : public CLoaderBase
 {
 	template<typename Ser,typename T>
 	struct LoadIfStackInstance
@@ -168,7 +168,7 @@ public:
 		return version >= what;
 	};
 
-	BinaryDeserializer(IBinaryReader * r);
+	DLL_LINKAGE BinaryDeserializer(IBinaryReader * r);
 
 	template<class T>
 	BinaryDeserializer & operator&(T & t)
