@@ -79,12 +79,17 @@ static std::unique_ptr<CInputStream> findVideoData(const VideoPath & videoToOpen
 	if(CResourceHandler::get()->existsResource(lowQualityVideo))
 		return CResourceHandler::get()->load(lowQualityVideo);
 
-	return CResourceHandler::get()->load(lowQualityVideoWithDir);
+	if(CResourceHandler::get()->existsResource(lowQualityVideoWithDir))
+		return CResourceHandler::get()->load(lowQualityVideoWithDir);
+
+	return nullptr;
 }
 
-void FFMpegStream::openInput(const VideoPath & videoToOpen)
+bool FFMpegStream::openInput(const VideoPath & videoToOpen)
 {
 	input = findVideoData(videoToOpen);
+
+	return input != nullptr;
 }
 
 void FFMpegStream::openContext()
@@ -436,7 +441,8 @@ int FFMpegStream::findVideoStream()
 
 std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const VideoPath & videoToOpen)
 {
-	openInput(videoToOpen);
+	if (!openInput(videoToOpen))
+		return { nullptr, 0};
 	openContext();
 	openCodec(findAudioStream());
 
@@ -523,7 +529,9 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	auto extractedAudio = audio.extractAudio(name);
 	int audioHandle = CCS->soundh->playSound(extractedAudio);
 
-	instance.openInput(name);
+	if (!instance.openInput(name))
+		return true;
+
 	instance.openVideo();
 	instance.prepareOutput(scale, useOverlay);
 
@@ -589,7 +597,9 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool 
 {
 	auto result = std::make_unique<CVideoInstance>();
 
-	result->openInput(name);
+	if (!result->openInput(name))
+		return nullptr;
+
 	result->openVideo();
 	result->prepareOutput(scaleToScreen, false);
 	result->loadNextFrame(); // prepare 1st frame

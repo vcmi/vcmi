@@ -57,7 +57,7 @@ protected:
 public:
 	virtual ~FFMpegStream();
 
-	void openInput(const VideoPath & fname);
+	bool openInput(const VideoPath & fname);
 };
 
 class CAudioInstance final : public FFMpegStream
