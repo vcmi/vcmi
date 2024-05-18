@@ -49,6 +49,7 @@ class AdventureMapShortcuts
 	void showSpellbook();
 	void adventureOptions();
 	void systemOptions();
+	void firstHero();
 	void nextHero();
 	void endTurn();
 	void showThievesGuild();
@@ -61,6 +62,7 @@ class AdventureMapShortcuts
 	void visitObject();
 	void openObject();
 	void showMarketplace();
+	void firstTown();
 	void nextTown();
 	void nextObject();
 	void zoom( int distance);

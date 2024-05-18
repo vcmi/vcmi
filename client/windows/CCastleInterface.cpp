@@ -1034,6 +1034,40 @@ void CCastleBuildings::openTownHall()
 	GH.windows().createAndPushWindow<CHallInterface>(town);
 }
 
+void CCastleBuildings::enterAnyThievesGuild()
+{
+	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+	for(auto & town : towns)
+	{
+		if(town->builtBuildings.count(BuildingID::TAVERN))
+		{
+			LOCPLINT->showThievesGuildWindow(town);
+			return;
+		}
+	}
+	LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
+}
+
+void CCastleBuildings::enterAnyMarket()
+{
+	if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+	{
+		GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+		return;
+	}
+
+	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+	for(auto & town : towns)
+	{
+		if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+		{
+			GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+			return;
+		}
+	}
+	LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+}
+
 CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact, bool _showAvailable):
 	town(Town),
 	level(Level),
@@ -1333,20 +1367,7 @@ void CCastleInterface::recreateIcons()
 	fastArmyPurchase = std::make_shared<CButton>(Point(122, 413), AnimationPath::builtin("castleInterfaceQuickAccess"), CButton::tooltip(), [this](){ builds->enterToTheQuickRecruitmentWindow(); }, EShortcut::TOWN_OPEN_RECRUITMENT);
 	fastArmyPurchase->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("itmcl"), imageIndex));
 
-	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [&]()
-	{
-		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
-		for(auto & town : towns)
-		{
-			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
-			{
-				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
-				return;
-			}
-		}
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
-	});
-	
+	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [this]() { builds->enterAnyMarket(); });
 	fastTavern = std::make_shared<LRClickableArea>(Rect(15, 387, 58, 64), [&]()
 	{
 		if(town->builtBuildings.count(BuildingID::TAVERN))
@@ -1367,13 +1388,42 @@ void CCastleInterface::recreateIcons()
 
 	for(size_t i=0; i<4; i++)
 		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14 + 55 * (int)i, 507), town, (int)i + 4, compactCreatureInfo, useAvailableCreaturesForLabel));
-
 }
 
 void CCastleInterface::keyPressed(EShortcut key)
 {
 	switch(key)
 	{
+	case EShortcut::TOWN_OPEN_FORT:
+		GH.windows().createAndPushWindow<CFortScreen>(town);
+		break;
+	case EShortcut::TOWN_OPEN_MARKET:
+		builds->enterAnyMarket();
+		break;
+	case EShortcut::TOWN_OPEN_MAGE_GUILD:
+		if(town->hasBuilt(BuildingID::MAGES_GUILD_1))
+			builds->enterMagesGuild();
+		break;
+	case EShortcut::TOWN_OPEN_THIEVES_GUILD:
+		break;
+	case EShortcut::TOWN_OPEN_HERO_EXCHANGE:
+		if (town->visitingHero && town->garrisonHero)
+			LOCPLINT->showHeroExchange(town->visitingHero->id, town->garrisonHero->id);
+		break;
+	case EShortcut::TOWN_OPEN_HERO:
+		if (town->visitingHero)
+			LOCPLINT->openHeroWindow(town->visitingHero);
+		else if (town->garrisonHero)
+			LOCPLINT->openHeroWindow(town->garrisonHero);
+		break;
+	case EShortcut::TOWN_OPEN_VISITING_HERO:
+		if (town->visitingHero)
+			LOCPLINT->openHeroWindow(town->visitingHero);
+		break;
+	case EShortcut::TOWN_OPEN_GARRISONED_HERO:
+		if (town->garrisonHero)
+			LOCPLINT->openHeroWindow(town->garrisonHero);
+		break;
 	case EShortcut::TOWN_SWAP_ARMIES:
 		heroes->swapArmies();
 		break;

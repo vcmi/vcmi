@@ -77,6 +77,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_CAST_SPELL,       optionHeroSelected(),   [this]() { this->showSpellbook(); } },
 		{ EShortcut::ADVENTURE_GAME_OPTIONS,     optionInMapView(),      [this]() { this->adventureOptions(); } },
 		{ EShortcut::GLOBAL_OPTIONS,             optionInMapView(),      [this]() { this->systemOptions(); } },
+		{ EShortcut::ADVENTURE_FIRST_HERO,       optionInMapView(),      [this]() { this->firstHero(); } },
 		{ EShortcut::ADVENTURE_NEXT_HERO,        optionHasNextHero(),    [this]() { this->nextHero(); } },
 		{ EShortcut::GAME_END_TURN,              optionCanEndTurn(),     [this]() { this->endTurn(); } },
 		{ EShortcut::ADVENTURE_THIEVES_GUILD,    optionInMapView(),      [this]() { this->showThievesGuild(); } },
@@ -92,6 +93,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_ZOOM_IN,          optionSidePanelActive(),[this]() { this->zoom(+1); } },
 		{ EShortcut::ADVENTURE_ZOOM_OUT,         optionSidePanelActive(),[this]() { this->zoom(-1); } },
 		{ EShortcut::ADVENTURE_ZOOM_RESET,       optionSidePanelActive(),[this]() { this->zoom( 0); } },
+		{ EShortcut::ADVENTURE_FIRST_TOWN,       optionInMapView(),      [this]() { this->firstTown(); } },
 		{ EShortcut::ADVENTURE_NEXT_TOWN,        optionInMapView(),      [this]() { this->nextTown(); } },
 		{ EShortcut::ADVENTURE_NEXT_OBJECT,      optionInMapView(),      [this]() { this->nextObject(); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_SW,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({-1, +1}); } },
@@ -221,6 +223,16 @@ void AdventureMapShortcuts::adventureOptions()
 void AdventureMapShortcuts::systemOptions()
 {
 	GH.windows().createAndPushWindow<SettingsMainWindow>();
+}
+
+void AdventureMapShortcuts::firstHero()
+{
+	if (!LOCPLINT->localState->getWanderingHeroes().empty())
+	{
+		const auto * hero = LOCPLINT->localState->getWanderingHero(0);
+		LOCPLINT->localState->setSelection(hero);
+		owner.centerOnObject(hero);
+	}
 }
 
 void AdventureMapShortcuts::nextHero()
@@ -364,6 +376,16 @@ void AdventureMapShortcuts::showMarketplace()
 		GH.windows().createAndPushWindow<CMarketWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+}
+
+void AdventureMapShortcuts::firstTown()
+{
+	if (!LOCPLINT->localState->getOwnedTowns().empty())
+	{
+		const auto * town = LOCPLINT->localState->getOwnedTown(0);
+		LOCPLINT->localState->setSelection(town);
+		owner.centerOnObject(town);
+	}
 }
 
 void AdventureMapShortcuts::nextTown()

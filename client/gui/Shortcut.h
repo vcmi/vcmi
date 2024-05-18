@@ -81,7 +81,7 @@ enum class EShortcut
 	LOBBY_LOAD_GAME,  // l, Return
 	LOBBY_SAVE_GAME,  // s, Return
 	LOBBY_RANDOM_MAP, // Open random map tab
-	LOBBY_HIDE_CHAT,
+	LOBBY_TOGGLE_CHAT,
 	LOBBY_ADDITIONAL_OPTIONS, // Open additional options tab
 	LOBBY_SELECT_SCENARIO,    // Open map list tab
 	LOBBY_REPLAY_VIDEO,
@@ -129,9 +129,9 @@ enum class EShortcut
 	ADVENTURE_VIEW_SELECTED,// Open window with currently selected hero/town
 	ADVENTURE_NEXT_TOWN,
 	ADVENTURE_NEXT_HERO,
-	ADVENTURE_NEXT_OBJECT,  // TODO: context-sensitive next object - select next hero/town, depending on current selection
-	ADVENTURE_FIRST_TOWN,   // TODO: select first available town in the list
-	ADVENTURE_FIRST_HERO,   // TODO: select first available hero in the list
+	ADVENTURE_NEXT_OBJECT,  // context-sensitive next object - select next hero/town, depending on current selection
+	ADVENTURE_FIRST_TOWN,   // select first available town in the list
+	ADVENTURE_FIRST_HERO,   // select first available hero in the list
 	ADVENTURE_VIEW_SCENARIO,// View Scenario Information window
 	ADVENTURE_REPLAY_TURN,
 	ADVENTURE_DIG_GRAIL,
@@ -177,6 +177,8 @@ enum class EShortcut
 	BATTLE_TACTICS_END,
 	BATTLE_SELECT_ACTION, // Alternative actions toggle
 	BATTLE_TOGGLE_HEROES_STATS,
+	BATTLE_OPEN_ACTIVE_UNIT,
+	BATTLE_OPEN_HOVERED_UNIT,
 
 	MARKET_DEAL,
 	MARKET_MAX_AMOUNT,
@@ -198,7 +200,14 @@ enum class EShortcut
 	TOWN_OPEN_TAVERN,
 	TOWN_OPEN_HALL,
 	TOWN_OPEN_FORT,
+	TOWN_OPEN_MARKET,
+	TOWN_OPEN_MAGE_GUILD,
+	TOWN_OPEN_THIEVES_GUILD,
 	TOWN_OPEN_RECRUITMENT,
+	TOWN_OPEN_HERO_EXCHANGE,
+	TOWN_OPEN_HERO,
+	TOWN_OPEN_VISITING_HERO,
+	TOWN_OPEN_GARRISONED_HERO,
 	TOWN_SWAP_ARMIES, // Swap garrisoned and visiting armies
 
 	// Creature & creature recruitment screen

@@ -137,7 +137,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"lobbyLoadGame",            EShortcut::LOBBY_LOAD_GAME           },
 		{"lobbySaveGame",            EShortcut::LOBBY_SAVE_GAME           },
 		{"lobbyRandomMap",           EShortcut::LOBBY_RANDOM_MAP          },
-		{"lobbyHideChat",            EShortcut::LOBBY_HIDE_CHAT           },
+		{"lobbyToggleChat",          EShortcut::LOBBY_TOGGLE_CHAT         },
 		{"lobbyAdditionalOptions",   EShortcut::LOBBY_ADDITIONAL_OPTIONS  },
 		{"lobbySelectScenario",      EShortcut::LOBBY_SELECT_SCENARIO     },
 		{"gameEndTurn",              EShortcut::GAME_END_TURN             },
