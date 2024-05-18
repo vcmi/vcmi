@@ -292,7 +292,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 void CHighScoreInputScreen::show(Canvas & to)
 {
 	if(background)
-		background->redraw();
+		background->show(to);
 
 	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false,
 	[&]()
@@ -310,12 +310,9 @@ void CHighScoreInputScreen::show(Canvas & to)
 	});
 
 	if(input)
-		input->redraw();
+		input->showAll(to);
 	for(auto & text : texts)
-	{
-		text->setRedrawParent(false);
-		text->redraw();
-	}
+		text->showAll(to);
 
 	CIntObject::show(to);
 }
