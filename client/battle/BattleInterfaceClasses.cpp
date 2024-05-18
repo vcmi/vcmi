@@ -52,7 +52,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/StartInfo.h"
-#include "../ConditionalWait.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/TextOperations.h"

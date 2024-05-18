@@ -25,6 +25,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/pathfinder/CGPathNode.h"
@@ -346,6 +347,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 
 void MapViewController::fadeOutObject(const CGObjectInstance * obj)
 {
+	animationWait.setBusy();
 	logGlobal->debug("Starting fade out animation");
 	fadingOutContext = std::make_shared<MapRendererAdventureFadingContext>(*state);
 	fadingOutContext->animationTime = adventureContext->animationTime;
@@ -366,6 +368,7 @@ void MapViewController::fadeOutObject(const CGObjectInstance * obj)
 
 void MapViewController::fadeInObject(const CGObjectInstance * obj)
 {
+	animationWait.setBusy();
 	logGlobal->debug("Starting fade in animation");
 	fadingInContext = std::make_shared<MapRendererAdventureFadingContext>(*state);
 	fadingInContext->animationTime = adventureContext->animationTime;
@@ -505,6 +508,7 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 
 	if(isEventVisible(obj, from, dest))
 	{
+		animationWait.setBusy();
 		logGlobal->debug("Starting teleport animation");
 		teleportContext = std::make_shared<MapRendererAdventureTransitionContext>(*state);
 		teleportContext->animationTime = adventureContext->animationTime;
@@ -540,6 +544,7 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 
 	if(movementTime > 1)
 	{
+		animationWait.setBusy();
 		logGlobal->debug("Starting movement animation");
 		movementContext = std::make_shared<MapRendererAdventureMovingContext>(*state);
 		movementContext->animationTime = adventureContext->animationTime;
@@ -575,6 +580,17 @@ bool MapViewController::hasOngoingAnimations()
 		return true;
 
 	return false;
+}
+
+void MapViewController::waitForOngoingAnimations()
+{
+	auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+	animationWait.waitWhileBusy();
+}
+
+void MapViewController::endNetwork()
+{
+	animationWait.requestTermination();
 }
 
 void MapViewController::activateAdventureContext(uint32_t animationTime)
@@ -642,6 +658,7 @@ void MapViewController::resetContext()
 	worldViewContext.reset();
 	spellViewContext.reset();
 	puzzleMapContext.reset();
+	animationWait.setFree();
 }
 
 void MapViewController::setTerrainVisibility(bool showAllTerrain)

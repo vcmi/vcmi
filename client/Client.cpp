@@ -348,6 +348,7 @@ void CClient::save(const std::string & fname)
 
 void CClient::endNetwork()
 {
+	CGI->mh->endNetwork();
 	if (CPlayerInterface::battleInt)
 		CPlayerInterface::battleInt->endNetwork();
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "IMapRendererObserver.h"
+#include "../ConditionalWait.h"
 #include "../../lib/Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -34,6 +35,8 @@ class MapRendererPuzzleMapContext;
 /// such as its position and any animations
 class MapViewController : public IMapObjectObserver
 {
+	ConditionalWait animationWait;
+
 	std::shared_ptr<IMapRendererContext> context;
 	std::shared_ptr<MapRendererContextState> state;
 	std::shared_ptr<MapViewModel> model;
@@ -68,6 +71,9 @@ private:
 
 	// IMapObjectObserver impl
 	bool hasOngoingAnimations() override;
+	void waitForOngoingAnimations() override;
+	void endNetwork() override;
+
 	void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator) override;

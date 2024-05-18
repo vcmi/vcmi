@@ -58,7 +58,6 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"
-#include "../ConditionalWait.h"
 
 std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL;
