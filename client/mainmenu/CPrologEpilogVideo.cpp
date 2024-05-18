@@ -18,6 +18,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/FramerateManager.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/Images.h"
 #include "../render/Canvas.h"
 
 
@@ -27,7 +28,8 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	addUsedEvents(LCLICK | TIME);
 	pos = center(Rect(0, 0, 800, 600));
-	updateShadow();
+
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
 
 	auto audioData = CCS->videoh->getAudio(spe.prologVideo);
 	videoSoundHandle = CCS->soundh->playSound(audioData, -1);

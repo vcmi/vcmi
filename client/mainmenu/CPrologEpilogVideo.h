@@ -13,6 +13,7 @@
 #include "../../lib/campaign/CampaignScenarioPrologEpilog.h"
 
 class CMultiLineLabel;
+class CFilledTexture;
 
 class CPrologEpilogVideo : public CWindowObject
 {
@@ -25,6 +26,7 @@ class CPrologEpilogVideo : public CWindowObject
 	std::function<void()> exitCb;
 
 	std::shared_ptr<CMultiLineLabel> text;
+	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	bool voiceStopped = false;
 
