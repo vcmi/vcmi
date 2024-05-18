@@ -57,8 +57,8 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		buttonOptions = std::make_shared<CButton>(Point(411, 510), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
-			buttonTurnOptions = std::make_shared<CButton>(Point(619, 105), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabTurnOptions), EShortcut::NONE);
-			buttonExtraOptions = std::make_shared<CButton>(Point(619, 510), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabExtraOptions), EShortcut::NONE);
+			buttonTurnOptions = std::make_shared<CButton>(Point(619, 105), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabTurnOptions), EShortcut::LOBBY_TURN_OPTIONS);
+			buttonExtraOptions = std::make_shared<CButton>(Point(619, 510), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabExtraOptions), EShortcut::LOBBY_EXTRA_OPTIONS);
 		}
 	};
 

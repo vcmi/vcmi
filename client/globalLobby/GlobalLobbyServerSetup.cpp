@@ -16,6 +16,7 @@
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -74,8 +75,8 @@ GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 
 	labelDescription = std::make_shared<CTextBox>("", Rect(10, 195, pos.w - 20, 80), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
-	buttonCreate = std::make_shared<CButton>(Point(10, 300), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onCreate(); });
-	buttonClose = std::make_shared<CButton>(Point(210, 300), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
+	buttonCreate = std::make_shared<CButton>(Point(10, 300), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onCreate(); }, EShortcut::GLOBAL_ACCEPT);
+	buttonClose = std::make_shared<CButton>(Point(210, 300), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);
 
 	filledBackground->playerColored(PlayerColor(1));
 

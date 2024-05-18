@@ -14,6 +14,7 @@
 
 #include "../Images.h"
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
@@ -200,7 +201,7 @@ CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback
 		[this]()
 		{
 			offerSlider->scrollToMax();
-		});
+		}, EShortcut::MARKET_MAX_AMOUNT);
 }
 
 void CMarketSlider::deselect()

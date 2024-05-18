@@ -12,6 +12,7 @@
 #include "CMarketResources.h"
 
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
@@ -36,7 +37,7 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this]() {CMarketResources::makeDeal(); });
+		CGI->generaltexth->zelp[595], [this]() {CMarketResources::makeDeal(); }, EShortcut::MARKET_DEAL);
 
 	// Player's resources
 	assert(bidTradePanel);

@@ -71,9 +71,18 @@ CBonusSelection::CBonusSelection()
 
 	panelBackground = std::make_shared<CPicture>(ImagePath::builtin("CAMPBRF.BMP"), 456, 6);
 
-	buttonStart = std::make_shared<CButton>(Point(475, 536), AnimationPath::builtin("CBBEGIB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), EShortcut::GLOBAL_ACCEPT);
+	const auto & playVideo = [this]()
+	{
+		GH.windows().createAndPushWindow<CPrologEpilogVideo>(
+			getCampaign()->scenario(CSH->campaignMap).prolog,
+			[this]() { redraw(); } );
+	};
+
+	buttonStart = std::make_shared<CButton>(
+		Point(475, 536), AnimationPath::builtin("CBBEGIB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), EShortcut::GLOBAL_ACCEPT
+		);
 	buttonRestart = std::make_shared<CButton>(Point(475, 536), AnimationPath::builtin("CBRESTB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), EShortcut::GLOBAL_ACCEPT);
-	buttonVideo = std::make_shared<CButton>(Point(705, 214), AnimationPath::builtin("CBVIDEB.DEF"), CButton::tooltip(), [this](){ GH.windows().createAndPushWindow<CPrologEpilogVideo>(getCampaign()->scenario(CSH->campaignMap).prolog, [this](){ redraw(); }); });
+	buttonVideo = std::make_shared<CButton>(Point(705, 214), AnimationPath::builtin("CBVIDEB.DEF"), CButton::tooltip(), playVideo, EShortcut::LOBBY_REPLAY_VIDEO);
 	buttonBack = std::make_shared<CButton>(Point(624, 536), AnimationPath::builtin("CBCANCB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), EShortcut::GLOBAL_CANCEL);
 
 	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
@@ -104,8 +113,11 @@ CBonusSelection::CBonusSelection()
 
 	if(getCampaign()->playerSelectedDifficulty())
 	{
-		buttonDifficultyLeft = std::make_shared<CButton>(settings["general"]["enableUiEnhancements"].Bool() ? Point(693, 495) : Point(694, 508), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
-		buttonDifficultyRight = std::make_shared<CButton>(settings["general"]["enableUiEnhancements"].Bool() ? Point(739, 495) : Point(738, 508), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
+		Point posLeft = settings["general"]["enableUiEnhancements"].Bool() ? Point(693, 495) : Point(694, 508);
+		Point posRight = settings["general"]["enableUiEnhancements"].Bool() ? Point(739, 495) : Point(738, 508);
+
+		buttonDifficultyLeft = std::make_shared<CButton>(posLeft, AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this), EShortcut::MOVE_LEFT);
+		buttonDifficultyRight = std::make_shared<CButton>(posRight, AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this), EShortcut::MOVE_RIGHT);
 	}
 
 	for(auto scenarioID : getCampaign()->allScenarios())
@@ -125,7 +137,7 @@ CBonusSelection::CBonusSelection()
 		tabExtraOptions->recActions = UPDATE | SHOWALL | LCLICK | RCLICK_POPUP;
 		tabExtraOptions->recreate(true);
 		tabExtraOptions->setEnabled(false);
-		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); GH.windows().totalRedraw(); }, EShortcut::NONE);
+		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); GH.windows().totalRedraw(); }, EShortcut::LOBBY_EXTRA_OPTIONS);
 		buttonExtraOptions->setTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
 	}
 }

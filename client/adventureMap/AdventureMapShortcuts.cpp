@@ -494,7 +494,7 @@ bool AdventureMapShortcuts::optionInWorldView()
 
 bool AdventureMapShortcuts::optionSidePanelActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
+return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
 }
 
 bool AdventureMapShortcuts::optionMapScrollingActive()

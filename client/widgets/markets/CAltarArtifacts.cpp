@@ -12,6 +12,7 @@
 #include "CAltarArtifacts.h"
 
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
@@ -36,16 +37,16 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	altarArtifacts = altarObj;
 
 	deal = std::make_shared<CButton>(Point(269, 520), AnimationPath::builtin("ALTSACR.DEF"),
-		CGI->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); });
+		CGI->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); }, EShortcut::MARKET_DEAL);
 	labels.emplace_back(std::make_shared<CLabel>(450, 32, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
 	labels.emplace_back(std::make_shared<CLabel>(302, 424, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
 
 	sacrificeAllButton = std::make_shared<CButton>(Point(393, 520), AnimationPath::builtin("ALTFILL.DEF"),
-		CGI->generaltexth->zelp[571], std::bind(&CExperienceAltar::sacrificeAll, this));
+		CGI->generaltexth->zelp[571], std::bind(&CExperienceAltar::sacrificeAll, this), EShortcut::MARKET_SACRIFICE_ALL);
 	sacrificeAllButton->block(hero->artifactsInBackpack.empty() && hero->artifactsWorn.empty());
 
 	sacrificeBackpackButton = std::make_shared<CButton>(Point(147, 520), AnimationPath::builtin("ALTEMBK.DEF"),
-		CGI->generaltexth->zelp[570], std::bind(&CAltarArtifacts::sacrificeBackpack, this));
+		CGI->generaltexth->zelp[570], std::bind(&CAltarArtifacts::sacrificeBackpack, this), EShortcut::MARKET_SACRIFICE_BACKPACK);
 	sacrificeBackpackButton->block(hero->artifactsInBackpack.empty());
 
 	// Hero's artifacts

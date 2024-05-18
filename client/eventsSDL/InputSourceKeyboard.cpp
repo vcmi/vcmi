@@ -75,7 +75,7 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 
 	auto shortcutsVector = GH.shortcuts().translateKeycode(keyName);
 
-	if (vstd::contains(shortcutsVector, EShortcut::LOBBY_ACTIVATE_INTERFACE))
+	if (vstd::contains(shortcutsVector, EShortcut::MAIN_MENU_LOBBY))
 		CSH->getGlobalLobby().activateInterface();
 
 	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_TRACK_HERO))

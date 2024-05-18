@@ -12,6 +12,7 @@
 #include "CArtifactsBuying.h"
 
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
@@ -38,7 +39,7 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 		title = CGI->generaltexth->allTexts[349];
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this](){CArtifactsBuying::makeDeal();});
+		CGI->generaltexth->zelp[595], [this](){CArtifactsBuying::makeDeal();}, EShortcut::MARKET_DEAL);
 	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
 
 	// Player's resources

@@ -45,7 +45,7 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 
 	labelTitle = std::make_shared<CLabel>(190, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.tutorialWindow.title"));
 	labelInformation = std::make_shared<CMultiLineLabel>(Rect(5, 40, 370, 60), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "");
-	buttonOk = std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CTutorialWindow::exit, this), EShortcut::GLOBAL_ACCEPT); //62x28
+	buttonOk = std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CTutorialWindow::exit, this), EShortcut::GLOBAL_RETURN); //62x28
 	buttonLeft = std::make_shared<CButton>(Point(5, 217), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), std::bind(&CTutorialWindow::previous, this), EShortcut::MOVE_LEFT); //22x46
 	buttonRight = std::make_shared<CButton>(Point(352, 217), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), std::bind(&CTutorialWindow::next, this), EShortcut::MOVE_RIGHT); //22x46
 

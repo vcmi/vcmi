@@ -835,8 +835,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	if(queryID.getNum() > 0)
 		quit->addCallback([=](){ LOCPLINT->cb->selectionMade(0, queryID); });
 
-	questlogButton[0] = std::make_shared<CButton>(Point( 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 0));
-	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
+	questlogButton[0] = std::make_shared<CButton>(Point( 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 0), EShortcut::ADVENTURE_QUEST_LOG);
+	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1), EShortcut::ADVENTURE_QUEST_LOG);
 
 	Rect barRect(5, 578, 725, 18);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), barRect, 5, 578));
@@ -845,8 +845,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	garr = std::make_shared<CGarrisonInt>(Point(69, qeLayout ? 122 : 131), 4, Point(418,0), heroInst[0], heroInst[1], true, true);
 	auto splitButtonCallback = [&](){ garr->splitClick(); };
-	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
-	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
+	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback), EShortcut::HERO_ARMY_SPLIT);
+	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback), EShortcut::HERO_ARMY_SPLIT);
 
 	if(qeLayout)
 	{
@@ -876,22 +876,22 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		};
 
 		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
-			std::bind(moveArmy, true));
+			std::bind(moveArmy, true), EShortcut::EXCHANGE_ARMY_TO_LEFT);
 		exchangeGarrButton       = std::make_shared<CButton>(Point(377, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[2]),
-			std::bind(&CExchangeController::swapArmy, &controller));
+			std::bind(&CExchangeController::swapArmy, &controller), EShortcut::EXCHANGE_ARMY_SWAP);
 		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
-			std::bind(moveArmy, false));
+			std::bind(moveArmy, false), EShortcut::EXCHANGE_ARMY_TO_RIGHT);
 		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/artRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]),
-			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(true, equipped, baclpack);}));
+			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(true, equipped, baclpack);}), EShortcut::EXCHANGE_ARTIFACTS_TO_LEFT);
 		exchangeArtifactsButton  = std::make_shared<CButton>(Point(377, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[4]),
-			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.swapArtifacts(equipped, baclpack);}));
+			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.swapArtifacts(equipped, baclpack);}), EShortcut::EXCHANGE_ARTIFACTS_SWAP);
 		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]),
-			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(false, equipped, baclpack);}));
+			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(false, equipped, baclpack);}), EShortcut::EXCHANGE_ARTIFACTS_TO_RIGHT);
 		backpackButtonLeft       = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
-			std::bind(openBackpack, heroInst[0]));
+			std::bind(openBackpack, heroInst[0]), EShortcut::EXCHANGE_BACKPACK_LEFT);
 		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 		backpackButtonRight      = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
-			std::bind(openBackpack, heroInst[1]));
+			std::bind(openBackpack, heroInst[1]), EShortcut::EXCHANGE_BACKPACK_RIGHT);
 		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 
 		auto leftHeroBlock = heroInst[0]->tempOwner != LOCPLINT->cb->getPlayerID();
@@ -1306,7 +1306,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 
 	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down, removableUnits);
 	{
-		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(CGI->generaltexth->tcommands[3], ""), [&](){ garr->splitClick(); } );
+		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(CGI->generaltexth->tcommands[3], ""), [&](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
 		garr->addSplitBtn(split);
 	}
 	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(CGI->generaltexth->tcommands[8], ""), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
