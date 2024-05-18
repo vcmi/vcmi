@@ -42,49 +42,27 @@ void CArtifactsOfHeroMain::keyPressed(EShortcut key)
 {
 	if(!shortcutPressed)
 	{
-		uint32_t costumeIdx;
-		switch(key)
+		int saveIdx = vstd::find_pos(costumeSaveShortcuts, key);
+		int loadIdx = vstd::find_pos(costumeLoadShortcuts, key);
+
+		if (saveIdx != -1)
 		{
-		case EShortcut::HERO_COSTUME_0:
-			costumeIdx = 0;
-			break;
-		case EShortcut::HERO_COSTUME_1:
-			costumeIdx = 1;
-			break;
-		case EShortcut::HERO_COSTUME_2:
-			costumeIdx = 2;
-			break;
-		case EShortcut::HERO_COSTUME_3:
-			costumeIdx = 3;
-			break;
-		case EShortcut::HERO_COSTUME_4:
-			costumeIdx = 4;
-			break;
-		case EShortcut::HERO_COSTUME_5:
-			costumeIdx = 5;
-			break;
-		case EShortcut::HERO_COSTUME_6:
-			costumeIdx = 6;
-			break;
-		case EShortcut::HERO_COSTUME_7:
-			costumeIdx = 7;
-			break;
-		case EShortcut::HERO_COSTUME_8:
-			costumeIdx = 8;
-			break;
-		case EShortcut::HERO_COSTUME_9:
-			costumeIdx = 9;
-			break;
-		default:
+			shortcutPressed = true;
+			LOCPLINT->cb->manageHeroCostume(getHero()->id, saveIdx, true);
 			return;
 		}
-		shortcutPressed = true;
-		LOCPLINT->cb->manageHeroCostume(getHero()->id, costumeIdx, GH.isKeyboardCtrlDown());
+
+		if (loadIdx != -1)
+		{
+			shortcutPressed = true;
+			LOCPLINT->cb->manageHeroCostume(getHero()->id, loadIdx, false);
+			return;
+		}
 	}
 }
 
 void CArtifactsOfHeroMain::keyReleased(EShortcut key)
 {
-	if(vstd::contains(costumesSwitcherHotkeys, key))
+	if(vstd::contains(costumeSaveShortcuts, key) || vstd::contains(costumeLoadShortcuts, key))
 		shortcutPressed = false;
 }
