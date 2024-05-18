@@ -179,11 +179,6 @@ void ClientCommandManager::handleRedrawCommand()
 	GH.windows().totalRedraw();
 }
 
-void ClientCommandManager::handleNotDialogCommand()
-{
-	LOCPLINT->showingDialog->setn(false);
-}
-
 void ClientCommandManager::handleTranslateGameCommand()
 {
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
@@ -583,9 +578,6 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "redraw")
 		handleRedrawCommand();
-
-	else if(commandName == "not dialog")
-		handleNotDialogCommand();
 
 	else if(message=="translate" || message=="translate game")
 		handleTranslateGameCommand();

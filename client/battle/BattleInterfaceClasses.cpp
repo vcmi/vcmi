@@ -52,7 +52,7 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/CondSh.h"
+#include "../ConditionalWait.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/TextOperations.h"
@@ -771,7 +771,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 
 void BattleResultWindow::activate()
 {
-	owner.showingDialog->set(true);
+	owner.showingDialog->setBusy();
 	CIntObject::activate();
 }
 
@@ -864,7 +864,7 @@ void BattleResultWindow::buttonPressed(int button)
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.
-	intTmp.showingDialog->setn(false);
+	intTmp.showingDialog->setFree();
 	CCS->videoh->close();
 }
 

@@ -135,6 +135,7 @@ public:
 	void serialize(BinaryDeserializer & h);
 
 	void save(const std::string & fname);
+	void endNetwork();
 	void endGame();
 
 	void initMapHandler();

@@ -29,7 +29,7 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CondSh.h"
+#include "../ConditionalWait.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -140,7 +140,7 @@ void CInfoWindow::close()
 	WindowBase::close();
 
 	if(LOCPLINT)
-		LOCPLINT->showingDialog->setn(false);
+		LOCPLINT->showingDialog->setFree();
 }
 
 void CInfoWindow::showAll(Canvas & to)
@@ -158,7 +158,7 @@ void CInfoWindow::showInfoDialog(const std::string & text, const TCompsInfo & co
 
 void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player)
 {
-	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
+	assert(!LOCPLINT || LOCPLINT->showingDialog->isBusy());
 	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
 	pom.emplace_back(AnimationPath::builtin("IOKAY.DEF"), nullptr);
 	pom.emplace_back(AnimationPath::builtin("ICANCEL.DEF"), nullptr);

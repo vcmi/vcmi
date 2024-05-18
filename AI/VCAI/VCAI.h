@@ -23,7 +23,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/CondSh.h"
 #include "Pathfinding/AIPathfinder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

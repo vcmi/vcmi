@@ -39,7 +39,7 @@
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
-#include "../../lib/CondSh.h"
+#include "../ConditionalWait.h"
 #include "../../lib/TextOperations.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)

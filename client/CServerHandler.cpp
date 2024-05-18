@@ -29,6 +29,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "ConditionalWait.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TurnTimerInfo.h"
@@ -131,6 +132,17 @@ CServerHandler::~CServerHandler()
 	}
 }
 
+void CServerHandler::endNetwork()
+{
+	if (client)
+		client->endNetwork();
+	networkHandler->stop();
+	{
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		threadNetwork.join();
+	}
+}
+
 CServerHandler::CServerHandler()
 	: networkHandler(INetworkHandler::createHandler())
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
@@ -158,7 +170,14 @@ void CServerHandler::threadRunNetwork()
 {
 	logGlobal->info("Starting network thread");
 	setThreadName("runNetwork");
-	networkHandler->run();
+	try {
+		networkHandler->run();
+	}
+	catch (const TerminationRequestedException & e)
+	{
+		logGlobal->info("Terminating network thread");
+		return;
+	}
 	logGlobal->info("Ending network thread");
 }
 

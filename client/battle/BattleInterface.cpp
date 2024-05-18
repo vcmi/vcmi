@@ -38,7 +38,6 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CondSh.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -95,7 +94,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	obstacleController.reset(new BattleObstacleController(*this));
 
 	adventureInt->onAudioPaused();
-	ongoingAnimationsState.set(true);
+	ongoingAnimationsState.setBusy();
 
 	GH.windows().pushWindow(windowObject);
 	windowObject->blockUI(true);
@@ -744,6 +743,11 @@ void BattleInterface::castThisSpell(SpellID spellID)
 	actionsController->castThisSpell(spellID);
 }
 
+void BattleInterface::endNetwork()
+{
+	ongoingAnimationsState.requestTermination();
+}
+
 void BattleInterface::executeStagedAnimations()
 {
 	EAnimationEvents earliestStage = EAnimationEvents::COUNT;
@@ -775,19 +779,19 @@ void BattleInterface::executeAnimationStage(EAnimationEvents event)
 
 void BattleInterface::onAnimationsStarted()
 {
-	ongoingAnimationsState.setn(true);
+	ongoingAnimationsState.setBusy();
 }
 
 void BattleInterface::onAnimationsFinished()
 {
-	ongoingAnimationsState.setn(false);
+	ongoingAnimationsState.setFree();
 }
 
 void BattleInterface::waitForAnimations()
 {
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
-		ongoingAnimationsState.waitUntil(false);
+		ongoingAnimationsState.waitWhileBusy();
 	}
 
 	assert(!hasAnimations());
@@ -802,7 +806,7 @@ void BattleInterface::waitForAnimations()
 
 bool BattleInterface::hasAnimations()
 {
-	return ongoingAnimationsState.get();
+	return ongoingAnimationsState.isBusy();
 }
 
 void BattleInterface::checkForAnimations()

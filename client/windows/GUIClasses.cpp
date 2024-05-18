@@ -56,7 +56,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/GameSettings.h"
-#include "../lib/CondSh.h"
+#include "ConditionalWait.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/TextOperations.h"
@@ -402,7 +402,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	LOCPLINT->showingDialog->setn(true);
+	LOCPLINT->showingDialog->setBusy();
 
 	if(!skills.empty())
 	{
@@ -445,7 +445,7 @@ CLevelWindow::~CLevelWindow()
 	if (box && box->selectedIndex() != -1)
 		cb(box->selectedIndex());
 
-	LOCPLINT->showingDialog->setn(false);
+	LOCPLINT->showingDialog->setFree();
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed)

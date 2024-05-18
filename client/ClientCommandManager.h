@@ -45,9 +45,6 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Redraw the current screen
 	void handleRedrawCommand();
 
-	// Set the state indicating if dialog box is active to "no"
-	void handleNotDialogCommand();
-
 	// Extracts all translateable game texts into Translation directory, separating files on per-mod basis
 	void handleTranslateGameCommand();
 

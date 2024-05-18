@@ -346,6 +346,19 @@ void CClient::save(const std::string & fname)
 	sendRequest(&save_game, PlayerColor::NEUTRAL);
 }
 
+void CClient::endNetwork()
+{
+	if (CPlayerInterface::battleInt)
+		CPlayerInterface::battleInt->endNetwork();
+
+	for(auto & i : playerint)
+	{
+		auto interface = std::dynamic_pointer_cast<CPlayerInterface>(i.second);
+		if (interface)
+			interface->endNetwork();
+	}
+}
+
 void CClient::endGame()
 {
 #if SCRIPTING_ENABLED
