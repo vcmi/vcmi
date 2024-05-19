@@ -13,7 +13,7 @@
 #include "CCreatureWindow.h"
 #include "CHeroBackpackWindow.h"
 #include "CKingdomInterface.h"
-#include "GUIClasses.h"
+#include "CExchangeWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -22,6 +22,7 @@
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"

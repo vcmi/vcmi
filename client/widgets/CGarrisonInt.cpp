@@ -19,6 +19,7 @@
 #include "../render/IImage.h"
 #include "../render/Graphics.h"
 #include "../windows/CCreatureWindow.h"
+#include "../windows/CWindowWithArtifacts.h"
 #include "../windows/GUIClasses.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

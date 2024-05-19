@@ -9,21 +9,24 @@
  */
 #pragma once
 
+#include "CWindowObject.h"
 #include "../lib/ResourceSet.h"
-#include "../widgets/CExchangeController.h"
 #include "../widgets/Images.h"
-#include "CWindowWithArtifacts.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGHeroInstance;
 class CGObjectInstance;
 class CGDwelling;
 class IMarket;
 
 VCMI_LIB_NAMESPACE_END
 
+class CButton;
+class LRClickableArea;
 class CreatureCostBox;
 class CCreaturePic;
+class CMinorResDataBar;
 class MoraleLuckBox;
 class CHeroArea;
 class CSlider;
@@ -278,61 +281,6 @@ public:
 	void recruitb();
 	void thievesguildb();
 	void show(Canvas & to) override;
-};
-
-class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
-{
-	std::array<std::shared_ptr<CLabel>, 2> titles;
-	std::vector<std::shared_ptr<CAnimImage>> primSkillImages;//shared for both heroes
-	std::array<std::vector<std::shared_ptr<CLabel>>, 2> primSkillValues;
-	std::array<std::vector<std::shared_ptr<CAnimImage>>, 2> secSkillIcons;
-	std::array<std::shared_ptr<CAnimImage>, 2> specImages;
-	std::array<std::shared_ptr<CAnimImage>, 2> expImages;
-	std::array<std::shared_ptr<CLabel>, 2> expValues;
-	std::array<std::shared_ptr<CAnimImage>, 2> manaImages;
-	std::array<std::shared_ptr<CLabel>, 2> manaValues;
-
-	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
-	std::array<std::vector<std::shared_ptr<LRClickableAreaWTextComp>>, 2> secSkillAreas;
-
-	std::array<std::shared_ptr<CHeroArea>, 2> heroAreas;
-	std::array<std::shared_ptr<LRClickableAreaWText>, 2> specialtyAreas;
-	std::array<std::shared_ptr<LRClickableAreaWText>, 2> experienceAreas;
-	std::array<std::shared_ptr<LRClickableAreaWText>, 2> spellPointsAreas;
-
-	std::array<std::shared_ptr<MoraleLuckBox>, 2> morale;
-	std::array<std::shared_ptr<MoraleLuckBox>, 2> luck;
-
-	std::shared_ptr<CButton> quit;
-	std::array<std::shared_ptr<CButton>, 2> questlogButton;
-
-	std::shared_ptr<CGarrisonInt> garr;
-	std::shared_ptr<CButton> moveAllGarrButtonLeft;
-	std::shared_ptr<CButton> exchangeGarrButton;
-	std::shared_ptr<CButton> moveAllGarrButtonRight;
-	std::shared_ptr<CButton> moveArtifactsButtonLeft;
-	std::shared_ptr<CButton> exchangeArtifactsButton;
-	std::shared_ptr<CButton> moveArtifactsButtonRight;
-	std::vector<std::shared_ptr<CButton>> moveStackLeftButtons;
-	std::vector<std::shared_ptr<CButton>> moveStackRightButtons;
-	std::shared_ptr<CButton> backpackButtonLeft;
-	std::shared_ptr<CButton> backpackButtonRight;
-	CExchangeController controller;
-
-public:
-	std::array<const CGHeroInstance *, 2> heroInst;
-	std::array<std::shared_ptr<CArtifactsOfHeroMain>, 2> artifs;
-
-	void updateGarrisons() override;
-	bool holdsGarrison(const CArmedInstance * army) override;
-
-	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
-
-	void updateWidgets();
-
-	const CGarrisonSlot * getSelectedSlotID() const;
-
-	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
 };
 
 /// Here you can buy ships

@@ -1,0 +1,70 @@
+/*
+ * CExchangeWindow.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
+
+#include "CWindowWithArtifacts.h"
+#include "../widgets/CExchangeController.h"
+
+class CGarrisonSlot;
+
+class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
+{
+	std::array<std::shared_ptr<CLabel>, 2> titles;
+	std::vector<std::shared_ptr<CAnimImage>> primSkillImages;//shared for both heroes
+	std::array<std::vector<std::shared_ptr<CLabel>>, 2> primSkillValues;
+	std::array<std::vector<std::shared_ptr<CAnimImage>>, 2> secSkillIcons;
+	std::array<std::shared_ptr<CAnimImage>, 2> specImages;
+	std::array<std::shared_ptr<CAnimImage>, 2> expImages;
+	std::array<std::shared_ptr<CLabel>, 2> expValues;
+	std::array<std::shared_ptr<CAnimImage>, 2> manaImages;
+	std::array<std::shared_ptr<CLabel>, 2> manaValues;
+
+	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
+	std::array<std::vector<std::shared_ptr<LRClickableAreaWTextComp>>, 2> secSkillAreas;
+
+	std::array<std::shared_ptr<CHeroArea>, 2> heroAreas;
+	std::array<std::shared_ptr<LRClickableAreaWText>, 2> specialtyAreas;
+	std::array<std::shared_ptr<LRClickableAreaWText>, 2> experienceAreas;
+	std::array<std::shared_ptr<LRClickableAreaWText>, 2> spellPointsAreas;
+
+	std::array<std::shared_ptr<MoraleLuckBox>, 2> morale;
+	std::array<std::shared_ptr<MoraleLuckBox>, 2> luck;
+
+	std::shared_ptr<CButton> quit;
+	std::array<std::shared_ptr<CButton>, 2> questlogButton;
+
+	std::shared_ptr<CGarrisonInt> garr;
+	std::shared_ptr<CButton> moveAllGarrButtonLeft;
+	std::shared_ptr<CButton> exchangeGarrButton;
+	std::shared_ptr<CButton> moveAllGarrButtonRight;
+	std::shared_ptr<CButton> moveArtifactsButtonLeft;
+	std::shared_ptr<CButton> exchangeArtifactsButton;
+	std::shared_ptr<CButton> moveArtifactsButtonRight;
+	std::vector<std::shared_ptr<CButton>> moveStackLeftButtons;
+	std::vector<std::shared_ptr<CButton>> moveStackRightButtons;
+	std::shared_ptr<CButton> backpackButtonLeft;
+	std::shared_ptr<CButton> backpackButtonRight;
+	CExchangeController controller;
+
+public:
+	std::array<const CGHeroInstance *, 2> heroInst;
+	std::array<std::shared_ptr<CArtifactsOfHeroMain>, 2> artifs;
+
+	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
+
+	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
+
+	void updateWidgets();
+
+	const CGarrisonSlot * getSelectedSlotID() const;
+
+	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
+};
