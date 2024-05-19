@@ -417,8 +417,8 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	addUsedEvents(TIME);
 }
 
-QuickSpellPanel::QuickSpellPanel(std::shared_ptr<CButton> initWidget)
-	: CWindowObject(NEEDS_ANIMATED_BACKGROUND), initWidget(initWidget)
+QuickSpellPanel::QuickSpellPanel(std::shared_ptr<CButton> initWidget, std::shared_ptr<CPlayerBattleCallback> battle)
+	: CWindowObject(NEEDS_ANIMATED_BACKGROUND), initWidget(initWidget), battle(battle)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -435,17 +435,29 @@ QuickSpellPanel::QuickSpellPanel(std::shared_ptr<CButton> initWidget)
 
 void QuickSpellPanel::create()
 {
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	labels.clear();
+	buttons.clear();
+	buttonsDisabled.clear();
+
+	auto hero = battle->battleGetMyHero();
+	if(!hero)
+		return;
+
 	for(int i = 0; i < 10; i++) {
-		SpellID id = 14;
+		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(i)].String();
+		SpellID id = SpellID::decode(spellIdentifier);
+
 		auto button = std::make_shared<CButton>(Point(2, 1 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [&](){ std::cout << "test"; });
-		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), i > 0 ? id.num : 0));
-		button->addPopupCallback([this](){
+		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), !spellIdentifier.empty() ? id.num + 1 : 0));
+		button->addPopupCallback([this, i](){
+			panelSelect->spellSlot = i;
 			panelSelect->setEnabled(true);
 		});
 
-		if(i > 3)
+		if(!id.hasValue() || !id.toSpell()->canBeCast(battle.get(), spells::Mode::HERO, hero))
 		{
-			button->block(true);
 			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 1 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 128)));
 		}
 		labels.push_back(std::make_shared<CLabel>(7, 4 + 37 * i, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(i)));
@@ -525,10 +537,13 @@ QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
 	{
 		int y = i % 10;
 		int x = i / 10;
-		auto button = std::make_shared<CButton>(Point(2 + 50 * x, 1 + 37 * y), AnimationPath::builtin("spellint"), CButton::tooltip(), [this](){ 
+		ConstTransitivePtr<CSpell> spell = spellList[i];
+		auto button = std::make_shared<CButton>(Point(2 + 50 * x, 1 + 37 * y), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, spell](){ 
 			setEnabled(false);
 			GH.windows().totalRedraw();
 			wasEnabled = true;
+			Settings configID = persistentStorage.write["quickSpell"][std::to_string(spellSlot)];
+			configID->String() = spell->identifier;
 			parent->create();
 		});
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), spellList[i]->getId().num + 1));

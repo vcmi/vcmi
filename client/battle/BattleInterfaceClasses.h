@@ -45,6 +45,7 @@ class CPlayerInterface;
 class BattleRenderer;
 class VideoWidget;
 class QuickSpellPanel;
+class CPlayerBattleCallback;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class BattleConsole : public CIntObject, public IStatusBar
@@ -158,6 +159,7 @@ private:
 public:
 	QuickSpellPanelSelect(QuickSpellPanel * Parent);
 	bool wasEnabled; // was the panel opened? -> don't close window because mouse is not in area
+	int spellSlot;
 };
 
 class QuickSpellPanel : public CWindowObject
@@ -177,8 +179,9 @@ private:
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 
 	std::shared_ptr<CButton> initWidget;
+	std::shared_ptr<CPlayerBattleCallback> battle;
 public:
-	QuickSpellPanel(std::shared_ptr<CButton> initWidget);
+	QuickSpellPanel(std::shared_ptr<CButton> initWidget, std::shared_ptr<CPlayerBattleCallback> battle);
 
 	void create();
 
