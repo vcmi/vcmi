@@ -81,14 +81,20 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 	}
 }
 
-void TurnTimerHandler::update(int waitTime)
+void TurnTimerHandler::prolongTimers(int durationMs)
+{
+	for (auto & timer : timers)
+		timer.second.baseTimer += durationMs;
+}
+
+void TurnTimerHandler::update(int waitTimeMs)
 {
 	if(!gameHandler.getStartInfo()->turnTimerInfo.isEnabled())
 		return;
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 		if(gameHandler.gameState()->isPlayerMakingTurn(player))
-			onPlayerMakingTurn(player, waitTime);
+			onPlayerMakingTurn(player, waitTimeMs);
 
 	// create copy for iterations - battle might end during onBattleLoop call
 	std::vector<BattleID> ongoingBattles;
@@ -97,7 +103,7 @@ void TurnTimerHandler::update(int waitTime)
 		ongoingBattles.push_back(battle->battleID);
 
 	for (auto & battleID : ongoingBattles)
-		onBattleLoop(battleID, waitTime);
+		onBattleLoop(battleID, waitTimeMs);
 }
 
 bool TurnTimerHandler::timerCountDown(int & timer, int initialTimer, PlayerColor player, int waitTime)

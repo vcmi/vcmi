@@ -28,11 +28,15 @@ TurnOrderProcessor::TurnOrderProcessor(CGameHandler * owner):
 
 int TurnOrderProcessor::simturnsTurnsMaxLimit() const
 {
+	if (simturnsMaxDurationDays)
+		return *simturnsMaxDurationDays;
 	return gameHandler->getStartInfo()->simturnsInfo.optionalTurns;
 }
 
 int TurnOrderProcessor::simturnsTurnsMinLimit() const
 {
+	if (simturnsMinDurationDays)
+		return *simturnsMinDurationDays;
 	return gameHandler->getStartInfo()->simturnsInfo.requiredTurns;
 }
 
@@ -372,4 +376,14 @@ bool TurnOrderProcessor::isPlayerMakingTurn(PlayerColor which) const
 bool TurnOrderProcessor::isPlayerAwaitsNewDay(PlayerColor which) const
 {
 	return vstd::contains(actedPlayers, which);
+}
+
+void TurnOrderProcessor::setMinSimturnsDuration(int days)
+{
+	simturnsMinDurationDays = gameHandler->getDate(Date::DAY) + days;
+}
+
+void TurnOrderProcessor::setMaxSimturnsDuration(int days)
+{
+	simturnsMaxDurationDays = gameHandler->getDate(Date::DAY) + days;
 }
