@@ -417,10 +417,12 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	addUsedEvents(TIME);
 }
 
-QuickSpellPanel::QuickSpellPanel()
-	: CIntObject(LCLICK | SHOW_POPUP)
+QuickSpellPanel::QuickSpellPanel(std::shared_ptr<CButton> initWidget)
+	: CWindowObject(NEEDS_ANIMATED_BACKGROUND), initWidget(initWidget)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE);
 
 	setEnabled(false);
 
@@ -452,13 +454,33 @@ void QuickSpellPanel::show(Canvas & to)
 void QuickSpellPanel::clickReleased(const Point & cursorPosition)
 {
 	if(!pos.isInside(cursorPosition))
-		setEnabled(false);
+		close();
+	
+	if(initWidget->pos.isInside(cursorPosition))
+	{
+		initWidget->clickPressed(cursorPosition);
+		initWidget->clickReleased(cursorPosition);
+	}
 }
 
 void QuickSpellPanel::showPopupWindow(const Point & cursorPosition)
 {
 	if(!pos.isInside(cursorPosition))
-		setEnabled(false);
+		close();
+
+	if(initWidget->pos.isInside(cursorPosition))
+	{
+		initWidget->showPopupWindow(cursorPosition);
+	}
+}
+
+void QuickSpellPanel::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
+{
+	if(	cursorPosition.x <= initWidget->pos.x - 20 ||
+		cursorPosition.x >= initWidget->pos.x + initWidget->pos.w + 20 ||
+		cursorPosition.y <= initWidget->pos.y - pos.h - 20 ||
+		(cursorPosition.y >= initWidget->pos.y && !initWidget->pos.isInside(cursorPosition)))
+		close();
 }
 
 bool QuickSpellPanel::receiveEvent(const Point & position, int eventType) const

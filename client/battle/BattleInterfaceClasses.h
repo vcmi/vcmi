@@ -147,7 +147,7 @@ public:
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
-class QuickSpellPanel : public CIntObject
+class QuickSpellPanel : public CWindowObject
 {
 private:
 	std::shared_ptr<CFilledTexture> background;
@@ -158,8 +158,11 @@ private:
 	bool receiveEvent(const Point & position, int eventType) const override;
 	void clickReleased(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
+	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+
+	std::shared_ptr<CButton> initWidget;
 public:
-	QuickSpellPanel();
+	QuickSpellPanel(std::shared_ptr<CButton> initWidget);
 
 	void show(Canvas & to) override;
 };
