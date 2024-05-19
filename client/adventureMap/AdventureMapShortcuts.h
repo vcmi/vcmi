@@ -54,6 +54,9 @@ class AdventureMapShortcuts
 	void endTurn();
 	void showThievesGuild();
 	void showScenarioInfo();
+	void toMainMenu();
+	void newGame();
+	void quitGame();
 	void saveGame();
 	void loadGame();
 	void digGrail();

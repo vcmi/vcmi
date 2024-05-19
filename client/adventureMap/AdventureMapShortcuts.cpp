@@ -12,6 +12,7 @@
 #include "AdventureMapShortcuts.h"
 
 #include "../CGameInfo.h"
+#include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../PlayerLocalState.h"
@@ -79,17 +80,20 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::GLOBAL_OPTIONS,             optionInMapView(),      [this]() { this->systemOptions(); } },
 		{ EShortcut::ADVENTURE_FIRST_HERO,       optionInMapView(),      [this]() { this->firstHero(); } },
 		{ EShortcut::ADVENTURE_NEXT_HERO,        optionHasNextHero(),    [this]() { this->nextHero(); } },
-		{ EShortcut::GAME_END_TURN,              optionCanEndTurn(),     [this]() { this->endTurn(); } },
+		{ EShortcut::ADVENTURE_END_TURN,         optionCanEndTurn(),     [this]() { this->endTurn(); } },
 		{ EShortcut::ADVENTURE_THIEVES_GUILD,    optionInMapView(),      [this]() { this->showThievesGuild(); } },
 		{ EShortcut::ADVENTURE_VIEW_SCENARIO,    optionInMapView(),      [this]() { this->showScenarioInfo(); } },
-		{ EShortcut::GAME_SAVE_GAME,             optionInMapView(),      [this]() { this->saveGame(); } },
-		{ EShortcut::GAME_LOAD_GAME,             optionInMapView(),      [this]() { this->loadGame(); } },
+		{ EShortcut::ADVENTURE_QUIT_GAME,        optionInMapView(),      [this]() { this->quitGame(); } },
+		{ EShortcut::ADVENTURE_TO_MAIN_MENU,     optionInMapView(),      [this]() { this->toMainMenu(); } },
+		{ EShortcut::ADVENTURE_SAVE_GAME,        optionInMapView(),      [this]() { this->saveGame(); } },
+		{ EShortcut::ADVENTURE_NEW_GAME,         optionInMapView(),      [this]() { this->newGame(); } },
+		{ EShortcut::ADVENTURE_LOAD_GAME,        optionInMapView(),      [this]() { this->loadGame(); } },
+		{ EShortcut::ADVENTURE_RESTART_GAME,     optionInMapView(),      [this]() { this->restartGame(); } },
 		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroSelected(),   [this]() { this->digGrail(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
-		{ EShortcut::GAME_RESTART_GAME,          optionInMapView(),      [this]() { this->restartGame(); } },
 		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionCanVisitObject(), [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
-		{ EShortcut::GAME_OPEN_MARKETPLACE,      optionInMapView(),      [this]() { this->showMarketplace(); } },
+		{ EShortcut::ADVENTURE_MARKETPLACE,      optionInMapView(),      [this]() { this->showMarketplace(); } },
 		{ EShortcut::ADVENTURE_ZOOM_IN,          optionSidePanelActive(),[this]() { this->zoom(+1); } },
 		{ EShortcut::ADVENTURE_ZOOM_OUT,         optionSidePanelActive(),[this]() { this->zoom(-1); } },
 		{ EShortcut::ADVENTURE_ZOOM_RESET,       optionSidePanelActive(),[this]() { this->zoom( 0); } },
@@ -298,6 +302,49 @@ void AdventureMapShortcuts::showThievesGuild()
 void AdventureMapShortcuts::showScenarioInfo()
 {
 	AdventureOptions::showScenarioInfo();
+}
+
+void AdventureMapShortcuts::toMainMenu()
+{
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[578],
+		[]()
+		{
+			CSH->endGameplay();
+			GH.defActionsDef = 63;
+			CMM->menu->switchToTab("main");
+		},
+		0
+		);
+}
+
+void AdventureMapShortcuts::newGame()
+{
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[578],
+		[]()
+		{
+			CSH->endGameplay();
+			GH.defActionsDef = 63;
+			CMM->menu->switchToTab("new");
+		},
+		nullptr
+		);
+}
+
+void AdventureMapShortcuts::quitGame()
+{
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[578],
+		[]()
+		{
+			GH.dispatchMainThread( []()
+			{
+				handleQuit(false);
+			});
+		},
+		0
+		);
 }
 
 void AdventureMapShortcuts::saveGame()
