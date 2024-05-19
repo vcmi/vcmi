@@ -31,6 +31,7 @@
 #include "../render/IFont.h"
 #include "../render/Graphics.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
@@ -39,6 +40,7 @@
 #include "../windows/CMessage.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
+#include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
@@ -506,7 +508,7 @@ void QuickSpellPanel::mouseMoved(const Point & cursorPosition, const Point & las
 	if(	(cursorPosition.x <= initWidget->pos.x - 20 ||
 		cursorPosition.x >= initWidget->pos.x + initWidget->pos.w + 20 ||
 		cursorPosition.y <= initWidget->pos.y - pos.h - 20 ||
-		(cursorPosition.y >= initWidget->pos.y && !initWidget->pos.isInside(cursorPosition))) &&
+		(cursorPosition.y >= initWidget->pos.y + 5 && !initWidget->pos.isInside(cursorPosition))) &&
 		(!(panelSelect->isActive() || panelSelect->wasEnabled) || !panelSelect->pos.resize(20).isInside(cursorPosition))
 	)
 		close();
@@ -551,6 +553,9 @@ QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
 			Settings configID = persistentStorage.write["quickSpell"][std::to_string(spellSlot)];
 			configID->String() = spell->identifier;
 			parent->create();
+		});
+		button->addPopupCallback([spell](){
+			CRClickPopup::createAndPush(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 		});
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), spellList[i]->getId().num + 1));
 		buttons.push_back(button);
