@@ -121,7 +121,7 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 	if(w)
 	{
 		auto hero = owner.getBattle()->battleGetMyHero();
-		if(GH.screenDimensions().x >= 1000 && hero && owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO) != ESpellCastProblem::NO_SPELLBOOK && settings["general"]["enableUiEnhancements"].Bool())
+		if(hero && settings["general"]["enableUiEnhancements"].Bool())
 		{
 			auto createQuickSpellPanelWindow = [](std::shared_ptr<CButton> widget, BattleInterface & owner){
 				std::shared_ptr<QuickSpellPanel> window = std::make_shared<QuickSpellPanel>(widget, owner);
