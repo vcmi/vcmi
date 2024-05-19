@@ -94,8 +94,8 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionCanVisitObject(), [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
 		{ EShortcut::ADVENTURE_MARKETPLACE,      optionInMapView(),      [this]() { this->showMarketplace(); } },
-		{ EShortcut::ADVENTURE_ZOOM_IN,          optionSidePanelActive(),[this]() { this->zoom(+1); } },
-		{ EShortcut::ADVENTURE_ZOOM_OUT,         optionSidePanelActive(),[this]() { this->zoom(-1); } },
+		{ EShortcut::ADVENTURE_ZOOM_IN,          optionSidePanelActive(),[this]() { this->zoom(+10); } },
+		{ EShortcut::ADVENTURE_ZOOM_OUT,         optionSidePanelActive(),[this]() { this->zoom(-10); } },
 		{ EShortcut::ADVENTURE_ZOOM_RESET,       optionSidePanelActive(),[this]() { this->zoom( 0); } },
 		{ EShortcut::ADVENTURE_FIRST_TOWN,       optionInMapView(),      [this]() { this->firstTown(); } },
 		{ EShortcut::ADVENTURE_NEXT_TOWN,        optionInMapView(),      [this]() { this->nextTown(); } },
@@ -442,7 +442,7 @@ void AdventureMapShortcuts::nextTown()
 
 void AdventureMapShortcuts::zoom( int distance)
 {
-	owner.hotkeyZoom(distance);
+	owner.hotkeyZoom(distance, false);
 }
 
 void AdventureMapShortcuts::nextObject()
