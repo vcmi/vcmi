@@ -417,8 +417,8 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	addUsedEvents(TIME);
 }
 
-QuickSpellPanel::QuickSpellPanel(std::shared_ptr<CButton> initWidget, std::shared_ptr<CPlayerBattleCallback> battle)
-	: CWindowObject(NEEDS_ANIMATED_BACKGROUND), initWidget(initWidget), battle(battle)
+QuickSpellPanel::QuickSpellPanel(std::shared_ptr<CButton> initWidget, BattleInterface & owner)
+	: CWindowObject(NEEDS_ANIMATED_BACKGROUND), initWidget(initWidget), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -441,7 +441,7 @@ void QuickSpellPanel::create()
 	buttons.clear();
 	buttonsDisabled.clear();
 
-	auto hero = battle->battleGetMyHero();
+	auto hero = owner.getBattle()->battleGetMyHero();
 	if(!hero)
 		return;
 
@@ -449,14 +449,20 @@ void QuickSpellPanel::create()
 		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(i)].String();
 		SpellID id = SpellID::decode(spellIdentifier);
 
-		auto button = std::make_shared<CButton>(Point(2, 1 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [&](){ std::cout << "test"; });
+		auto button = std::make_shared<CButton>(Point(2, 1 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
+			if(id.hasValue() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
+			{
+				close();
+				owner.castThisSpell(id);
+			}
+		});
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), !spellIdentifier.empty() ? id.num + 1 : 0));
 		button->addPopupCallback([this, i](){
 			panelSelect->spellSlot = i;
 			panelSelect->setEnabled(true);
 		});
 
-		if(!id.hasValue() || !id.toSpell()->canBeCast(battle.get(), spells::Mode::HERO, hero))
+		if(!id.hasValue() || !id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 		{
 			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 1 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 128)));
 		}

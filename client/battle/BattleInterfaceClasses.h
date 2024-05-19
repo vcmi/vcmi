@@ -179,9 +179,9 @@ private:
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 
 	std::shared_ptr<CButton> initWidget;
-	std::shared_ptr<CPlayerBattleCallback> battle;
+	BattleInterface & owner;
 public:
-	QuickSpellPanel(std::shared_ptr<CButton> initWidget, std::shared_ptr<CPlayerBattleCallback> battle);
+	QuickSpellPanel(std::shared_ptr<CButton> initWidget, BattleInterface & owner);
 
 	void create();
 
