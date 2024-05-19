@@ -327,6 +327,12 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"exchangeArtifactsSwap",    EShortcut::EXCHANGE_ARTIFACTS_SWAP   },
 		{"exchangeBackpackLeft",     EShortcut::EXCHANGE_BACKPACK_LEFT    },
 		{"exchangeBackpackRight",    EShortcut::EXCHANGE_BACKPACK_RIGHT   },
+		{"exchangeEquippedToLeft",   EShortcut::EXCHANGE_EQUIPPED_TO_LEFT },
+		{"exchangeEquippedToRight",  EShortcut::EXCHANGE_EQUIPPED_TO_RIGHT},
+		{"exchangeEquippedSwap",     EShortcut::EXCHANGE_EQUIPPED_SWAP    },
+		{"exchangeBackpackToLeft",   EShortcut::EXCHANGE_BACKPACK_TO_LEFT },
+		{"exchangeBackpackToRight",  EShortcut::EXCHANGE_BACKPACK_TO_RIGHT},
+		{"exchangeBackpackSwap",     EShortcut::EXCHANGE_BACKPACK_SWAP    },
 	};
 
 #ifndef ENABLE_GOLDMASTER

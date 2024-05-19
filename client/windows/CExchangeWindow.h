@@ -53,18 +53,26 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	std::shared_ptr<CButton> backpackButtonRight;
 	CExchangeController controller;
 
-public:
+	void moveArtifactsCallback(bool leftToRight);
+	void swapArtifactsCallback();
+	void moveUnitsShortcut(bool leftToRight);
+	void backpackShortcut(bool leftHero);
+	void questLogShortcut();
+
 	std::array<const CGHeroInstance *, 2> heroInst;
 	std::array<std::shared_ptr<CArtifactsOfHeroMain>, 2> artifs;
 
-	void updateGarrisons() override;
-	bool holdsGarrison(const CArmedInstance * army) override;
+	const CGarrisonSlot * getSelectedSlotID() const;
 
-	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
+public:
+	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
+
+	void keyPressed(EShortcut key) override;
 
 	void updateWidgets();
 
-	const CGarrisonSlot * getSelectedSlotID() const;
+	// IGarrisonHolder impl
+	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 
-	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
 };

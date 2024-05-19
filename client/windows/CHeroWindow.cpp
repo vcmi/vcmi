@@ -282,9 +282,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	for(auto cew : GH.windows().findWindows<CExchangeWindow>())
 	{
-		for(int g=0; g < cew->heroInst.size(); ++g)
-			if(cew->heroInst[g] == curHero)
-				noDismiss = true;
+		if (cew->holdsGarrison(curHero))
+			noDismiss = true;
 	}
 
 	//if player only have one hero and no towns
