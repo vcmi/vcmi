@@ -230,7 +230,12 @@ This property describes how object state should be reset. Objects without this f
 
 ## Appear Chance definition
 This property describes chance for reward to be selected.
-When object is initialized on map load, game will roll a "dice" - random number in range 0-99, and pick all awards that have appear chance within selected number
+When object is initialized on map load, game will roll a "dice" - random number in range 0-99, and pick all awards that have appear chance within selected number.
+Note that object that uses appearChance MUST have continious range for every value in 0-99 range. For example, object with 3 different rewards may want to define them as
+- `"min" :  0, "max" : 33`
+- `"min" : 33, "max" : 66`
+- `"min" : 66, "max" : 100`
+In other words, min chance of second reward must be equal to max chance of previous reward
 
 ```jsonc
     "appearChance": 
