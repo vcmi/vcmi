@@ -381,7 +381,7 @@ void ObjectClusterizer::clusterizeObject(
 	logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
 #endif
 
-	if(ai->settings->isObjectGraphAllowed())
+	if(ai->isObjectGraphAllowed())
 	{
 		ai->pathfinder->calculateQuickPathsWithBlocker(pathCache, heroes, obj->visitablePos());
 	}
