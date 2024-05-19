@@ -417,6 +417,55 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	addUsedEvents(TIME);
 }
 
+QuickSpellPanel::QuickSpellPanel()
+	: CIntObject(LCLICK | SHOW_POPUP)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	setEnabled(false);
+
+	pos = Rect(0, 0, 52, 372);
+	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
+	rect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w + 1, pos.h + 1), ColorRGBA(0, 0, 0, 0), ColorRGBA(241, 216, 120, 255));
+
+	for(int i = 0; i < 10; i++) {
+		SpellID id = 14;
+		auto button = std::make_shared<CButton>(Point(2, 1 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [&](){ std::cout << "test"; }, EShortcut::HERO_COSTUME_0);
+		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), i > 0 ? id.num : 0));
+
+		if(i > 3)
+		{
+			button->block(true);
+			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 1 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 128)));
+		}
+
+		buttons.push_back(button);
+	}
+}
+
+void QuickSpellPanel::show(Canvas & to)
+{
+	showAll(to);
+	CIntObject::show(to);
+}
+
+void QuickSpellPanel::clickReleased(const Point & cursorPosition)
+{
+	if(!pos.isInside(cursorPosition))
+		setEnabled(false);
+}
+
+void QuickSpellPanel::showPopupWindow(const Point & cursorPosition)
+{
+	if(!pos.isInside(cursorPosition))
+		setEnabled(false);
+}
+
+bool QuickSpellPanel::receiveEvent(const Point & position, int eventType) const
+{
+	return true;  // capture click also outside of window
+}
+
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)
 	: CIntObject(0)
 {

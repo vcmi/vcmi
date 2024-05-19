@@ -27,6 +27,7 @@ class StackQueue;
 class TurnTimerWidget;
 class HeroInfoBasicPanel;
 class StackInfoBasicPanel;
+class QuickSpellPanel;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable
@@ -39,6 +40,7 @@ class BattleWindow : public InterfaceObjectConfigurable
 	std::shared_ptr<HeroInfoBasicPanel> defenderHeroWindow;
 	std::shared_ptr<StackInfoBasicPanel> attackerStackWindow;
 	std::shared_ptr<StackInfoBasicPanel> defenderStackWindow;
+	std::shared_ptr<QuickSpellPanel> quickSpellPanelWindow;
 
 	std::shared_ptr<TurnTimerWidget> attackerTimerWidget;
 	std::shared_ptr<TurnTimerWidget> defenderTimerWidget;

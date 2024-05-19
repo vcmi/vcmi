@@ -69,6 +69,8 @@ public:
 class CButton : public ButtonBase
 {
 	CFunctionList<void()> callback;
+	CFunctionList<void(bool)> hoverCallback;
+	CFunctionList<void(const Point &, const Point &, const Point &)> panningCallback;
 
 	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
 	std::optional<ColorRGBA> borderColor; // mapping of button state to border color
@@ -90,6 +92,8 @@ public:
 
 	/// adds one more callback to on-click actions
 	void addCallback(const std::function<void()> & callback);
+	void addHoverCallback(const std::function<void(bool)> & callback);
+	void addPanningCallback(const std::function<void(const Point &, const Point &, const Point &)> & callback);
 
 	void addHoverText(EButtonState state, const std::string & text);
 
@@ -114,6 +118,7 @@ public:
 	void clickReleased(const Point & cursorPosition) override;
 	void clickCancel(const Point & cursorPosition) override;
 	void hover (bool on) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void showAll(Canvas & to) override;
 
 	/// generates tooltip that can be passed into constructor

@@ -147,6 +147,23 @@ public:
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
+class QuickSpellPanel : public CIntObject
+{
+private:
+	std::shared_ptr<CFilledTexture> background;
+	std::shared_ptr<TransparentFilledRectangle> rect;
+	std::vector<std::shared_ptr<CButton>> buttons;
+	std::vector<std::shared_ptr<TransparentFilledRectangle>> buttonsDisabled;
+
+	bool receiveEvent(const Point & position, int eventType) const override;
+	void clickReleased(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+public:
+	QuickSpellPanel();
+
+	void show(Canvas & to) override;
+};
+
 class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
 {
 private:
