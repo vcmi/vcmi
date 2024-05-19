@@ -18,10 +18,11 @@ class AIGateway;
 
 namespace Goals
 {
-	template<typename T> class DLL_EXPORT CGoal : public AbstractGoal
+	template<typename T>
+	class DLL_EXPORT CGoal : public AbstractGoal
 	{
 	public:
-		CGoal<T>(EGoals goal = INVALID) : AbstractGoal(goal)
+		CGoal(EGoals goal = INVALID) : AbstractGoal(goal)
 		{
 			isAbstract = true;
 			value = 0;
@@ -32,7 +33,7 @@ namespace Goals
 			town = nullptr;
 		}
 
-		CGoal<T> * clone() const override
+		CGoal * clone() const override
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
 		}
@@ -70,15 +71,16 @@ namespace Goals
 		}
 	};
 
-	template<typename T> class DLL_EXPORT ElementarGoal : public CGoal<T>, public ITask
+	template<typename T>
+	class DLL_EXPORT ElementarGoal : public CGoal<T>, public ITask
 	{
 	public:
-		ElementarGoal<T>(EGoals goal = INVALID) : CGoal<T>(goal), ITask()
+		ElementarGoal(EGoals goal = INVALID) : CGoal<T>(goal), ITask()
 		{
 			AbstractGoal::isAbstract = false;
 		}
 
-		ElementarGoal<T>(const ElementarGoal<T> & other) : CGoal<T>(other), ITask(other)
+		ElementarGoal(const ElementarGoal<T> & other) : CGoal<T>(other), ITask(other)
 		{
 		}
 
