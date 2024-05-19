@@ -22,6 +22,25 @@ ShortcutHandler::ShortcutHandler()
 	mappedKeyboardShortcuts = loadShortcuts(config["keyboard"]);
 	mappedJoystickShortcuts = loadShortcuts(config["joystickButtons"]);
 	mappedJoystickAxes = loadShortcuts(config["joystickAxes"]);
+
+#ifndef ENABLE_GOLDMASTER
+	std::vector<EShortcut> assignedShortcuts;
+	std::vector<EShortcut> missingShortcuts;
+
+	for (auto const & entry : config["keyboard"].Struct())
+	{
+		EShortcut shortcutID = findShortcut(entry.first);
+		assert(!vstd::contains(assignedShortcuts, shortcutID));
+		assignedShortcuts.push_back(shortcutID);
+	}
+
+	for (EShortcut id = vstd::next(EShortcut::NONE, 1); id < EShortcut::AFTER_LAST; id = vstd::next(id, 1))
+		if (!vstd::contains(assignedShortcuts, id))
+			missingShortcuts.push_back(id);
+
+	if (!missingShortcuts.empty())
+		logGlobal->error("Found %d shortcuts without config entry!", missingShortcuts.size());
+#endif
 }
 
 std::multimap<std::string, EShortcut> ShortcutHandler::loadShortcuts(const JsonNode & data) const
