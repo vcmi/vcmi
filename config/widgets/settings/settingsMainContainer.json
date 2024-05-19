@@ -104,7 +104,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.321",
 			"callback": "loadGame",
-			"hotkey": "gameLoadGame"
+			"hotkey": "settingsLoadGame"
 		},
 		{
 			"name": "saveButton",
@@ -114,7 +114,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.322",
 			"callback": "saveGame",
-			"hotkey": "gameSaveGame"
+			"hotkey": "settingsSaveGame"
 		},
 		{
 			"name": "restartButton",
@@ -124,7 +124,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.323",
 			"callback": "restartGame",
-			"hotkey": "gameRestartGame"
+			"hotkey": "settingsRestartGame"
 		},
 		{
 			"name": "mainMenuButton",
@@ -134,7 +134,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.320",
 			"callback": "returnToMainMenu",
-			"hotkey": "gameMainMenu"
+			"hotkey": "settingsMainMenu"
 		},
 		{
 			"name": "quitButton",
@@ -144,7 +144,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.324",
 			"callback": "quitGame",
-			"hotkey": "gameQuitGame"
+			"hotkey": "settingsQuitGame"
 		},
 		{
 			"name": "closeSettingsButton",
