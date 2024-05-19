@@ -158,9 +158,6 @@ void CInGameConsole::keyPressed (EShortcut key)
 		break;
 
 	case EShortcut::GAME_ACTIVATE_CONSOLE:
-		if(GH.isKeyboardAltDown())
-			return; //QoL for alt-tab operating system shortcut
-
 		if(!enteredText.empty())
 			endEnteringText(false);
 		else

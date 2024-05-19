@@ -23,17 +23,29 @@ public:
 	void keyReleased(EShortcut key) override;
 
 private:
-	const std::vector<EShortcut> costumesSwitcherHotkeys =
-	{
-		EShortcut::HERO_COSTUME_0,
-		EShortcut::HERO_COSTUME_1,
-		EShortcut::HERO_COSTUME_2,
-		EShortcut::HERO_COSTUME_3,
-		EShortcut::HERO_COSTUME_4,
-		EShortcut::HERO_COSTUME_5,
-		EShortcut::HERO_COSTUME_6,
-		EShortcut::HERO_COSTUME_7,
-		EShortcut::HERO_COSTUME_8,
-		EShortcut::HERO_COSTUME_9
+	static constexpr std::array costumeSaveShortcuts = {
+		EShortcut::HERO_COSTUME_SAVE_0,
+		EShortcut::HERO_COSTUME_SAVE_1,
+		EShortcut::HERO_COSTUME_SAVE_2,
+		EShortcut::HERO_COSTUME_SAVE_3,
+		EShortcut::HERO_COSTUME_SAVE_4,
+		EShortcut::HERO_COSTUME_SAVE_5,
+		EShortcut::HERO_COSTUME_SAVE_6,
+		EShortcut::HERO_COSTUME_SAVE_7,
+		EShortcut::HERO_COSTUME_SAVE_8,
+		EShortcut::HERO_COSTUME_SAVE_9
+	};
+
+	static constexpr std::array costumeLoadShortcuts = {
+		EShortcut::HERO_COSTUME_LOAD_0,
+		EShortcut::HERO_COSTUME_LOAD_1,
+		EShortcut::HERO_COSTUME_LOAD_2,
+		EShortcut::HERO_COSTUME_LOAD_3,
+		EShortcut::HERO_COSTUME_LOAD_4,
+		EShortcut::HERO_COSTUME_LOAD_5,
+		EShortcut::HERO_COSTUME_LOAD_6,
+		EShortcut::HERO_COSTUME_LOAD_7,
+		EShortcut::HERO_COSTUME_LOAD_8,
+		EShortcut::HERO_COSTUME_LOAD_9
 	};
 };
