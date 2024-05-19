@@ -44,6 +44,7 @@ class TransparentFilledRectangle;
 class CPlayerInterface;
 class BattleRenderer;
 class VideoWidget;
+class QuickSpellPanel;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class BattleConsole : public CIntObject, public IStatusBar
@@ -153,9 +154,10 @@ private:
 	std::shared_ptr<CFilledTexture> background;
 	std::shared_ptr<TransparentFilledRectangle> rect;
 	std::vector<std::shared_ptr<CButton>> buttons;
-
+	QuickSpellPanel * parent;
 public:
-	QuickSpellPanelSelect();
+	QuickSpellPanelSelect(QuickSpellPanel * Parent);
+	bool wasEnabled; // was the panel opened? -> don't close window because mouse is not in area
 };
 
 class QuickSpellPanel : public CWindowObject
@@ -177,6 +179,8 @@ private:
 	std::shared_ptr<CButton> initWidget;
 public:
 	QuickSpellPanel(std::shared_ptr<CButton> initWidget);
+
+	void create();
 
 	void show(Canvas & to) override;
 };
