@@ -22,6 +22,7 @@ class CGHeroInstance;
 struct BattleResult;
 struct InfoAboutHero;
 class CStack;
+class CPlayerBattleCallback;
 
 namespace battle
 {
@@ -45,7 +46,6 @@ class CPlayerInterface;
 class BattleRenderer;
 class VideoWidget;
 class QuickSpellPanel;
-class CPlayerBattleCallback;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class BattleConsole : public CIntObject, public IStatusBar
