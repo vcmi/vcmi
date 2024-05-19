@@ -957,6 +957,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	}
 
 	creature->special = config["special"].Bool() || config["disabled"].Bool();
+	creature->excludeFromRandomization = config["excludeFromRandomization"].Bool();
 
 	const JsonNode & sounds = config["sound"];
 	creature->sounds.attack = AudioPath::fromJson(sounds["attack"]);
@@ -1355,6 +1356,9 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	for(const auto & creature : objects)
 	{
 		if(creature->special)
+			continue;
+
+		if(creature->excludeFromRandomization)
 			continue;
 
 		if (creature->level == tier || tier == -1)
