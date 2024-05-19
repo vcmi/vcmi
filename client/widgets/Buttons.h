@@ -69,6 +69,7 @@ public:
 class CButton : public ButtonBase
 {
 	CFunctionList<void()> callback;
+	CFunctionList<void()> callbackPopup;
 	CFunctionList<void(bool)> hoverCallback;
 	CFunctionList<void(const Point &, const Point &, const Point &)> panningCallback;
 
@@ -92,6 +93,7 @@ public:
 
 	/// adds one more callback to on-click actions
 	void addCallback(const std::function<void()> & callback);
+	void addPopupCallback(const std::function<void()> & callback);
 	void addHoverCallback(const std::function<void(bool)> & callback);
 	void addPanningCallback(const std::function<void(const Point &, const Point &, const Point &)> & callback);
 

@@ -147,6 +147,17 @@ public:
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
+class QuickSpellPanelSelect : public CIntObject
+{
+private:
+	std::shared_ptr<CFilledTexture> background;
+	std::shared_ptr<TransparentFilledRectangle> rect;
+	std::vector<std::shared_ptr<CButton>> buttons;
+
+public:
+	QuickSpellPanelSelect();
+};
+
 class QuickSpellPanel : public CWindowObject
 {
 private:
@@ -154,6 +165,9 @@ private:
 	std::shared_ptr<TransparentFilledRectangle> rect;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	std::vector<std::shared_ptr<TransparentFilledRectangle>> buttonsDisabled;
+	std::vector<std::shared_ptr<CLabel>> labels;
+
+	std::shared_ptr<QuickSpellPanelSelect> panelSelect;
 
 	bool receiveEvent(const Point & position, int eventType) const override;
 	void clickReleased(const Point & cursorPosition) override;

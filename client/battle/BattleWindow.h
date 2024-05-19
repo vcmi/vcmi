@@ -40,7 +40,6 @@ class BattleWindow : public InterfaceObjectConfigurable
 	std::shared_ptr<HeroInfoBasicPanel> defenderHeroWindow;
 	std::shared_ptr<StackInfoBasicPanel> attackerStackWindow;
 	std::shared_ptr<StackInfoBasicPanel> defenderStackWindow;
-	std::shared_ptr<QuickSpellPanel> quickSpellPanelWindow;
 
 	std::shared_ptr<TurnTimerWidget> attackerTimerWidget;
 	std::shared_ptr<TurnTimerWidget> defenderTimerWidget;

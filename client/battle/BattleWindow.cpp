@@ -104,17 +104,21 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 		auto hero = owner.getBattle()->battleGetMyHero();
 		if(GH.screenDimensions().x >= 1000 && hero && owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO) != ESpellCastProblem::NO_SPELLBOOK && settings["general"]["enableUiEnhancements"].Bool())
 		{
-			quickSpellPanelWindow = std::make_shared<QuickSpellPanel>(w);
-			quickSpellPanelWindow->moveTo(Point(w->pos.x - 2, w->pos.y - 378));
-			w->addHoverCallback([this, w](bool on)
+			auto createQuickSpellPanelWindow = [](std::shared_ptr<CButton> widget){
+				std::shared_ptr<QuickSpellPanel> window = std::make_shared<QuickSpellPanel>(widget);
+				window->moveTo(Point(widget->pos.x - 2, widget->pos.y - 378));
+				GH.windows().pushWindow(window);
+			};
+			
+			w->addHoverCallback([this, createQuickSpellPanelWindow, w](bool on)
 			{
 				if(on)
-					GH.windows().pushWindow(quickSpellPanelWindow);
+					createQuickSpellPanelWindow(w);
 			});
-			w->addPanningCallback([this](const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+			w->addPanningCallback([this, createQuickSpellPanelWindow, w](const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 			{
 				if((currentPosition - initialPosition).y < -20)
-					GH.windows().pushWindow(quickSpellPanelWindow);
+					createQuickSpellPanelWindow(w);
 			});
 		}
 	}

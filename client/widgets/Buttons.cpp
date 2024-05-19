@@ -67,6 +67,11 @@ void CButton::addCallback(const std::function<void()> & callback)
 	this->callback += callback;
 }
 
+void CButton::addPopupCallback(const std::function<void()> & callback)
+{
+	this->callbackPopup += callback;
+}
+
 void CButton::addHoverCallback(const std::function<void(bool)> & callback)
 {
 	this->hoverCallback += callback;
@@ -299,6 +304,8 @@ void CButton::clickCancel(const Point & cursorPosition)
 
 void CButton::showPopupWindow(const Point & cursorPosition)
 {
+	callbackPopup();
+
 	if(!helpBox.empty()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
