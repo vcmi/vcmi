@@ -68,7 +68,11 @@ namespace Goals
 
 		bool operator==(const CaptureObjectsBehavior & other) const override;
 
-		static Goals::TGoalVec getVisitGoals(const std::vector<AIPath> & paths, const Nullkiller * nullkiller, const CGObjectInstance * objToVisit = nullptr);
+		static Goals::TGoalVec getVisitGoals(
+			const std::vector<AIPath> & paths,
+			const Nullkiller * nullkiller,
+			const CGObjectInstance * objToVisit = nullptr,
+			bool force = false);
 
 	private:
 		bool objectMatchesFilter(const CGObjectInstance * obj) const;

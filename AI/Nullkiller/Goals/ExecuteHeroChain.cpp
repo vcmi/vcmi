@@ -148,7 +148,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						return;
 					}
 				}
-				else if(i > 0 && ai->nullkiller->settings->isObjectGraphAllowed())
+				else if(i > 0 && ai->nullkiller->isObjectGraphAllowed())
 				{
 					auto chainMask = i < chainPath.nodes.size() - 1 ? chainPath.nodes[i + 1].chainMask : node->chainMask;
 

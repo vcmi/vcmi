@@ -28,8 +28,9 @@ namespace NKAI
 		scoutHeroTurnDistanceLimit(5),
 		maxGoldPressure(0.3f), 
 		maxpass(10),
-		allowObjectGraph(false),
-		useTroopsFromGarrisons(false)
+		allowObjectGraph(true),
+		useTroopsFromGarrisons(false),
+		openMap(true)
 	{
 		JsonNode node = JsonUtils::assembleFromFiles("config/ai/nkai/nkai-settings");
 
@@ -61,6 +62,11 @@ namespace NKAI
 		if(!node.Struct()["allowObjectGraph"].isNull())
 		{
 			allowObjectGraph = node.Struct()["allowObjectGraph"].Bool();
+		}
+
+		if(!node.Struct()["openMap"].isNull())
+		{
+			openMap = node.Struct()["openMap"].Bool();
 		}
 
 		if(!node.Struct()["useTroopsFromGarrisons"].isNull())

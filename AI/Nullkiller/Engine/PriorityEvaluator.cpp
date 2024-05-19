@@ -735,6 +735,20 @@ public:
 	}
 };
 
+class ExplorePointEvaluator : public IEvaluationContextBuilder
+{
+public:
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::EXPLORATION_POINT)
+			return;
+
+		int tilesDiscovered = task->value;
+
+		evaluationContext.addNonCriticalStrategicalValue(0.03f * tilesDiscovered);
+	}
+};
+
 class StayAtTownManaRecoveryEvaluator : public IEvaluationContextBuilder
 {
 public:
@@ -1056,6 +1070,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<DismissHeroContextBuilder>(ai));
 	evaluationContextBuilders.push_back(std::make_shared<StayAtTownManaRecoveryEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<ExplorePointEvaluator>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const

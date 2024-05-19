@@ -4,5 +4,7 @@
 	"mainHeroTurnDistanceLimit" : 10,
 	"scoutHeroTurnDistanceLimit" : 5,
 	"maxGoldPressure" : 0.3,
-	"useTroopsFromGarrisons" : true
+	"useTroopsFromGarrisons" : true,
+	"openMap": true,
+	"allowObjectGraph": true
 }
