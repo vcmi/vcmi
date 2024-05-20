@@ -442,6 +442,8 @@ static void mainLoop()
 
 [[noreturn]] static void quitApplication()
 {
+	CSH->endNetwork();
+
 	if(!settings["session"]["headless"].Bool())
 	{
 		if(CSH->client)
@@ -449,6 +451,8 @@ static void mainLoop()
 
 		GH.windows().clear();
 	}
+
+	vstd::clear_pointer(CSH);
 
 	CMM.reset();
 
@@ -473,7 +477,6 @@ static void mainLoop()
 		vstd::clear_pointer(graphics);
 	}
 
-	vstd::clear_pointer(CSH);
 	vstd::clear_pointer(VLC);
 
 	// sometimes leads to a hang. TODO: investigate

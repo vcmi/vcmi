@@ -986,7 +986,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 {
 	int humanPlayer = 0;
 	for (auto & pi : si->playerInfos)
-        if(gh->getPlayerState(pi.first)->isHuman())
+		if(pi.second.isControlledByHuman())
 			humanPlayer++;
 
 	if(humanPlayer < 2) // Singleplayer

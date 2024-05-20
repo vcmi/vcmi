@@ -648,7 +648,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	JsonNode advMapFile = node["graphics"]["map"];
 	JsonNode advMapMask = node["graphics"]["mapMask"];
 
-	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [=](si32 index)
+	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [cre, scope, advMapFile, advMapMask](si32 index)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
@@ -669,7 +669,12 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
 		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
+		{
+			assert(cre->special);
+			if (!cre->special)
+				logMod->error("Creature %s does not have valid map object but is not marked as special!", cre->getJsonKey());
 			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
+		}
 	});
 
 	return cre;

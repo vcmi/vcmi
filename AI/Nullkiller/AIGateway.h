@@ -21,7 +21,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/CondSh.h"
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
