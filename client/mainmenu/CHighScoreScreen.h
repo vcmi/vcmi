@@ -15,6 +15,7 @@ class CLabel;
 class CMultiLineLabel;
 class CAnimImage;
 class CTextInput;
+class CFilledTexture;
 
 class TransparentFilledRectangle;
 
@@ -61,6 +62,7 @@ private:
 	HighScorePage highscorepage;
 
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	std::vector<std::shared_ptr<CLabel>> texts;
 	std::vector<std::shared_ptr<CAnimImage>> images;
@@ -93,6 +95,7 @@ class CHighScoreInputScreen : public CWindowObject
 	std::vector<std::shared_ptr<CMultiLineLabel>> texts;
 	std::shared_ptr<CHighScoreInput> input;
 	std::shared_ptr<TransparentFilledRectangle> background;
+	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	std::string video;
 	int videoSoundHandle;

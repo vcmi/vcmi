@@ -108,9 +108,9 @@ void CMenuScreen::show(Canvas & to)
 	if(!config["video"].isNull())
 	{
 		// redraw order: background -> video -> buttons and pictures
-		background->redraw();
+		background->showAll(to);
 		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to.getInternalSurface(), true, false);
-		tabs->redraw();
+		tabs->showAll(to);
 	}
 	CIntObject::show(to);
 }

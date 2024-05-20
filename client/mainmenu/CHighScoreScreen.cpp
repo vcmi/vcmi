@@ -21,6 +21,7 @@
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 
 #include "../CGameInfo.h"
 #include "../CVideoHandler.h"
@@ -81,7 +82,8 @@ CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos = center(Rect(0, 0, 800, 600));
-	updateShadow();
+
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
 
 	addHighScores();
 	addButtons();
@@ -222,8 +224,8 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos = center(Rect(0, 0, 800, 600));
-	updateShadow();
 
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
 	background = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), Colors::BLACK);
 
 	if(won)
@@ -289,6 +291,9 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 
 void CHighScoreInputScreen::show(Canvas & to)
 {
+	if(background)
+		background->show(to);
+
 	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false,
 	[&]()
 	{
@@ -303,7 +308,11 @@ void CHighScoreInputScreen::show(Canvas & to)
 		else
 			close();
 	});
-	redraw();
+
+	if(input)
+		input->showAll(to);
+	for(auto & text : texts)
+		text->showAll(to);
 
 	CIntObject::show(to);
 }
