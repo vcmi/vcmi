@@ -90,6 +90,7 @@
 	</screenshots>
 	<launchable type="desktop-id">vcmilauncher.desktop</launchable>
 	<releases>
+		<release version="1.5.2" date="2024-05-31" type="stable"/>
 		<release version="1.5.1" date="2024-05-17" type="stable"/>
 		<release version="1.5.0" date="2024-05-10" type="stable"/>
 		<release version="1.4.5" date="2024-01-23" type="stable"/>
