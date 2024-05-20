@@ -47,7 +47,11 @@ bool CaptureObjectsBehavior::operator==(const CaptureObjectsBehavior & other) co
 		&& vectorEquals(objectSubTypes, other.objectSubTypes);
 }
 
-Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> & paths, const Nullkiller * nullkiller, const CGObjectInstance * objToVisit)
+Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
+	const std::vector<AIPath> & paths,
+	const Nullkiller * nullkiller,
+	const CGObjectInstance * objToVisit,
+	bool force)
 {
 	Goals::TGoalVec tasks;
 
@@ -72,7 +76,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 			continue;
 		}
 
-		if(objToVisit && !shouldVisit(nullkiller, path.targetHero, objToVisit))
+		if(objToVisit && !force && !shouldVisit(nullkiller, path.targetHero, objToVisit))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Hero %s should not visit obj %s", path.targetHero->getNameTranslated(), objToVisit->getObjectName());
@@ -200,12 +204,12 @@ void CaptureObjectsBehavior::decomposeObjects(
 				logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
 #endif
 
-				nullkiller->pathfinder->calculatePathInfo(paths, objToVisit->visitablePos(), nullkiller->settings->isObjectGraphAllowed());
+				nullkiller->pathfinder->calculatePathInfo(paths, objToVisit->visitablePos(), nullkiller->isObjectGraphAllowed());
 
 #if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("Found %d paths", paths.size());
 #endif
-				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit));
+				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit, specificObjects));
 			}
 
 			std::lock_guard<std::mutex> lock(sync);

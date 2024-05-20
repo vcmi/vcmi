@@ -76,6 +76,8 @@ private:
 	TResources lockedResources;
 	bool useHeroChain;
 	AIGateway * gateway;
+	bool openMap;
+	bool useObjectGraph;
 
 public:
 	static std::unique_ptr<ObjectGraph> baseGraph;
@@ -116,6 +118,8 @@ public:
 	void lockResources(const TResources & res);
 	const TResources & getLockedResources() const { return lockedResources; }
 	ScanDepth getScanDepth() const { return scanDepth; }
+	bool isOpenMap() const { return openMap; }
+	bool isObjectGraphAllowed() const { return useObjectGraph; }
 
 private:
 	void resetAiState();

@@ -28,6 +28,7 @@ namespace NKAI
 		float maxGoldPressure;
 		bool allowObjectGraph;
 		bool useTroopsFromGarrisons;
+		bool openMap;
 
 	public:
 		Settings();
@@ -39,5 +40,6 @@ namespace NKAI
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }
 		bool isObjectGraphAllowed() const { return allowObjectGraph; }
 		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
+		bool isOpenMap() const { return openMap; }
 	};
 }

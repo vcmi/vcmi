@@ -19,8 +19,11 @@
 #include "../Behaviors/GatherArmyBehavior.h"
 #include "../Behaviors/ClusterBehavior.h"
 #include "../Behaviors/StayAtTownBehavior.h"
+#include "../Behaviors/ExplorationBehavior.h"
 #include "../Goals/Invalid.h"
 #include "../Goals/Composition.h"
+#include "../../../lib/CPlayerState.h"
+#include "../../lib/StartInfo.h"
 
 namespace NKAI
 {
@@ -35,13 +38,45 @@ Nullkiller::Nullkiller()
 {
 	memory = std::make_unique<AIMemory>();
 	settings = std::make_unique<Settings>();
+
+	useObjectGraph = settings->isObjectGraphAllowed();
+	openMap = settings->isOpenMap() || useObjectGraph;
+}
+
+bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
+{
+	if(!cb->getStartInfo()->extraOptionsInfo.cheatsAllowed)
+	{
+		return false;
+	}
+
+	const TeamState * team = cb->getPlayerTeam(playerID);
+
+	auto hasHumanInTeam = vstd::contains_if(team->players, [cb](PlayerColor teamMateID) -> bool
+		{
+			return cb->getPlayerState(teamMateID)->isHuman();
+		});
+
+	if(hasHumanInTeam)
+	{
+		return false;
+	}
+
+	return cb->getStartInfo()->difficulty >= 3;
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 {
 	this->cb = cb;
 	this->gateway = gateway;
-	this->playerID = gateway->playerID;
+	
+	playerID = gateway->playerID;
+
+	if(openMap && !canUseOpenMap(cb, playerID))
+	{
+		useObjectGraph = false;
+		openMap = false;
+	}
 
 	baseGraph.reset();
 
@@ -190,7 +225,7 @@ void Nullkiller::resetAiState()
 	useHeroChain = true;
 	objectClusterizer->reset();
 
-	if(!baseGraph && settings->isObjectGraphAllowed())
+	if(!baseGraph && isObjectGraphAllowed())
 	{
 		baseGraph = std::make_unique<ObjectGraph>();
 		baseGraph->updateGraph(this);
@@ -237,12 +272,12 @@ void Nullkiller::updateAiState(int pass, bool fast)
 		cfg.useHeroChain = useHeroChain;
 		cfg.allowBypassObjects = true;
 
-		if(scanDepth == ScanDepth::SMALL || settings->isObjectGraphAllowed())
+		if(scanDepth == ScanDepth::SMALL || isObjectGraphAllowed())
 		{
 			cfg.mainTurnDistanceLimit = settings->getMainHeroTurnDistanceLimit();
 		}
 
-		if(scanDepth != ScanDepth::ALL_FULL || settings->isObjectGraphAllowed())
+		if(scanDepth != ScanDepth::ALL_FULL || isObjectGraphAllowed())
 		{
 			cfg.scoutTurnDistanceLimit =settings->getScoutHeroTurnDistanceLimit();
 		}
@@ -251,7 +286,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		pathfinder->updatePaths(activeHeroes, cfg);
 
-		if(settings->isObjectGraphAllowed())
+		if(isObjectGraphAllowed())
 		{
 			pathfinder->updateGraphs(
 				activeHeroes,
@@ -353,6 +388,9 @@ void Nullkiller::makeTurn()
 		decompose(bestTasks, sptr(DefenceBehavior()), MAX_DEPTH);
 		decompose(bestTasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
 		decompose(bestTasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
+
+		if(!isOpenMap())
+			decompose(bestTasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		if(cb->getDate(Date::DAY) == 1 || heroManager->getHeroRoles().empty())
 		{
