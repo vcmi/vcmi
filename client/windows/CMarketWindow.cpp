@@ -194,7 +194,16 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	artSlotBack->moveTo(pos.topLeft() + Point(18, 339));
 	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero);
 	artSets.clear();
-	addSetAndCallbacks(artsSellingMarket->getAOHset());
+	const auto heroArts = artsSellingMarket->getAOHset();
+	heroArts->clickPressedCallback = [heroArts](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		heroArts->onClickPressedArtPlace(artPlace);
+	};
+	heroArts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showArifactInfo(artPlace, cursorPosition);
+	};
+	addSet(heroArts);
 	marketWidget = artsSellingMarket;
 	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, CGI->generaltexth->zelp[600]);	
 }
@@ -234,7 +243,20 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	auto altarArtifacts = std::make_shared<CAltarArtifacts>(market, hero);
 	marketWidget = altarArtifacts;
 	artSets.clear();
-	addSetAndCallbacks(altarArtifacts->getAOHset());
+	const auto heroArts = altarArtifacts->getAOHset();
+	heroArts->clickPressedCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		clickPressedOnArtPlace(heroArts->getHero(), artPlace.slot, true, true, false);
+	};
+	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showArtifactAssembling(*heroArts, artPlace, cursorPosition);
+	};
+	heroArts->gestureCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showQuickBackpackWindow(heroArts->getHero(), artPlace.slot, cursorPosition);
+	};
+	addSet(heroArts);
 	initWidgetInternals(EMarketMode::ARTIFACT_EXP, CGI->generaltexth->zelp[568]);
 	updateHero();
 	quitButton->addCallback([altarArtifacts](){altarArtifacts->putBackArtifacts();});

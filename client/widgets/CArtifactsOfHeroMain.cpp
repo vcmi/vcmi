@@ -33,11 +33,6 @@ CArtifactsOfHeroMain::~CArtifactsOfHeroMain()
 	CArtifactsOfHeroBase::putBackPickedArtifact();
 }
 
-void CArtifactsOfHeroMain::enableArtifactsCostumeSwitcher()
-{
-	addUsedEvents(AEventsReceiver::KEYBOARD);
-}
-
 void CArtifactsOfHeroMain::keyPressed(EShortcut key)
 {
 	if(!shortcutPressed)

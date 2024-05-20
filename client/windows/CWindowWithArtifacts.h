@@ -19,33 +19,26 @@
 class CWindowWithArtifacts : virtual public CWindowObject
 {
 public:
-	using ArtifactsOfHeroVar = std::variant<
-		std::shared_ptr<CArtifactsOfHeroMarket>,
-		std::shared_ptr<CArtifactsOfHeroAltar>,
-		std::shared_ptr<CArtifactsOfHeroKingdom>,
-		std::shared_ptr<CArtifactsOfHeroMain>,
-		std::shared_ptr<CArtifactsOfHeroBackpack>,
-		std::shared_ptr<CArtifactsOfHeroQuickBackpack>>;
+	using CArtifactsOfHeroPtr = std::shared_ptr<CArtifactsOfHeroBase>;
 	using CloseCallback = std::function<void()>;
 
-	std::vector<ArtifactsOfHeroVar> artSets;
+	std::vector<CArtifactsOfHeroPtr> artSets;
 	CloseCallback closeCallback;
 
-	explicit CWindowWithArtifacts(const std::vector<ArtifactsOfHeroVar> * artSets = nullptr);
-	void addSet(ArtifactsOfHeroVar newArtSet);
-	void addSetAndCallbacks(ArtifactsOfHeroVar newArtSet);
+	explicit CWindowWithArtifacts(const std::vector<CArtifactsOfHeroPtr> * artSets = nullptr);
+	void addSet(const std::shared_ptr<CArtifactsOfHeroBase> & newArtSet);
 	void addCloseCallback(const CloseCallback & callback);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();
-	void clickPressedOnArtPlace(const CGHeroInstance & hero, const ArtifactPosition & slot,
+	void clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
 		bool allowExchange, bool altarTrading, bool closeWindow);
 	void swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, const ArtifactPosition & slot, const ArtifactLocation & dstLoc) const;
 	void showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const;
 	void showArifactInfo(CArtPlace & artPlace, const Point & cursorPosition) const;
-	void showQuickBackpackWindow(const CGHeroInstance & hero, const ArtifactPosition & slot, const Point & cursorPosition) const;
+	void showQuickBackpackWindow(const CGHeroInstance * hero, const ArtifactPosition & slot, const Point & cursorPosition) const;
 	void activate() override;
 	void deactivate() override;
-	void enableArtifactsCostumeSwitcher() const;
+	void enableKeyboardShortcuts() const;
 
 	virtual void artifactRemoved(const ArtifactLocation & artLoc);
 	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc);

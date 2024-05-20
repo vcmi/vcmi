@@ -763,8 +763,33 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 151));
 	artifs[1]->setHero(heroInst[1]);
 
-	addSetAndCallbacks(artifs[0]);
-	addSetAndCallbacks(artifs[1]);
+	artifs[0]->clickPressedCallback = [this, heroArts = artifs[0]](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		clickPressedOnArtPlace(heroArts->getHero(), artPlace.slot, true, false, false);
+	};
+	artifs[0]->showPopupCallback = [this, heroArts = artifs[0]](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showArtifactAssembling(*heroArts, artPlace, cursorPosition);
+	};
+	artifs[0]->gestureCallback = [this, heroArts = artifs[0]](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showQuickBackpackWindow(heroArts->getHero(), artPlace.slot, cursorPosition);
+	};
+	artifs[1]->clickPressedCallback = [this, heroArts = artifs[1]](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		clickPressedOnArtPlace(heroArts->getHero(), artPlace.slot, true, false, false);
+	};
+	artifs[1]->showPopupCallback = [this, heroArts = artifs[1]](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showArtifactAssembling(*heroArts, artPlace, cursorPosition);
+	};
+	artifs[1]->gestureCallback = [this, heroArts = artifs[1]](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showQuickBackpackWindow(heroArts->getHero(), artPlace.slot, cursorPosition);
+	};
+
+	addSet(artifs[0]);
+	addSet(artifs[1]);
 
 	for(int g=0; g<4; ++g)
 	{

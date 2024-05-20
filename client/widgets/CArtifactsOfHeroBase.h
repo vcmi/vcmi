@@ -11,9 +11,11 @@
 
 #include "CArtPlace.h"
 
+#include "../gui/Shortcut.h"
+
 class CButton;
 
-class CArtifactsOfHeroBase : virtual public CIntObject
+class CArtifactsOfHeroBase : virtual public CIntObject, public CKeyShortcut
 {
 protected:
 	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;
@@ -45,6 +47,7 @@ public:
 	virtual const CArtifactInstance * getPickedArtifact();
 	void addGestureCallback(CArtPlace::ClickFunctor callback);
 	const CArtifactInstance * getArt(const ArtifactPosition & slot) const;
+	void enableKeyboardShortcuts();
 
 protected:
 	const CGHeroInstance * curHero;

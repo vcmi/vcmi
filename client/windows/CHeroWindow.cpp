@@ -214,8 +214,20 @@ void CHeroWindow::update()
 		{
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
 			arts->setHero(curHero);
-			addSetAndCallbacks(arts);
-			enableArtifactsCostumeSwitcher();
+			arts->clickPressedCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+			{
+				clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, false);
+			};
+			arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+			{
+				showArtifactAssembling(*arts, artPlace, cursorPosition);
+			};
+			arts->gestureCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+			{
+				showQuickBackpackWindow(arts->getHero(), artPlace.slot, cursorPosition);
+			};
+			addSet(arts);
+			enableKeyboardShortcuts();
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);

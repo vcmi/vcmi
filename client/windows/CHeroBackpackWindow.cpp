@@ -20,7 +20,10 @@
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
-CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<ArtifactsOfHeroVar> & artsSets)
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
+
+CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets)
 	: CWindowWithArtifacts(&artsSets)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -28,7 +31,15 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
 	arts = std::make_shared<CArtifactsOfHeroBackpack>();
 	arts->moveBy(Point(windowMargin, windowMargin));
-	addSetAndCallbacks(arts);
+	arts->clickPressedCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true);
+	};
+	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showArtifactAssembling(*arts, artPlace, cursorPosition);
+	};
+	addSet(arts);
 	arts->setHero(hero);
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
 	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
@@ -55,7 +66,16 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
 	arts = std::make_shared<CArtifactsOfHeroQuickBackpack>(targetSlot);
 	arts->moveBy(Point(windowMargin, windowMargin));
-	addSetAndCallbacks(static_cast<std::shared_ptr<CArtifactsOfHeroQuickBackpack>>(arts));
+	arts->clickPressedCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		if(const auto curHero = arts->getHero())
+			swapArtifactAndClose(*arts, artPlace.slot, ArtifactLocation(curHero->id, arts->getFilterSlot()));
+	};
+	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showArifactInfo(artPlace, cursorPosition);
+	};
+	addSet(arts);
 	arts->setHero(hero);
 	addCloseCallback(std::bind(&CHeroQuickBackpackWindow::close, this));
 	addUsedEvents(GESTURE);

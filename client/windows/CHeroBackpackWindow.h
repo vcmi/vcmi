@@ -16,7 +16,7 @@ class CFilledTexture;
 class CHeroBackpackWindow : public CStatusbarWindow, public CWindowWithArtifacts
 {
 public:
-	CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<ArtifactsOfHeroVar> & artsSets);
+	CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets);
 	
 protected:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;

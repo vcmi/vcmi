@@ -240,6 +240,11 @@ const CArtifactInstance * CArtifactsOfHeroBase::getArt(const ArtifactPosition & 
 	return curHero ? curHero->getArt(slot) : nullptr;
 }
 
+void CArtifactsOfHeroBase::enableKeyboardShortcuts()
+{
+	addUsedEvents(AEventsReceiver::KEYBOARD);
+}
+
 void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot)
 {
 	// Spurious call from artifactMoved in attempt to update hidden backpack slot

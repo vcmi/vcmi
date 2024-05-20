@@ -548,9 +548,21 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 	switch(index)
 	{
 	case 0:
-		return std::make_shared<CKingdHeroList>(size, [this](const CWindowWithArtifacts::ArtifactsOfHeroVar & newHeroSet)
+		return std::make_shared<CKingdHeroList>(size, [this](const CWindowWithArtifacts::CArtifactsOfHeroPtr & newHeroSet)
 			{
-				addSetAndCallbacks(newHeroSet);
+				newHeroSet->clickPressedCallback = [this, newHeroSet](CArtPlace & artPlace, const Point & cursorPosition)
+				{
+					clickPressedOnArtPlace(newHeroSet->getHero(), artPlace.slot, false, false, false);
+				};
+				newHeroSet->showPopupCallback = [this, newHeroSet](CArtPlace & artPlace, const Point & cursorPosition)
+				{
+					showArtifactAssembling(*newHeroSet, artPlace, cursorPosition);
+				};
+				newHeroSet->gestureCallback = [this, newHeroSet](CArtPlace & artPlace, const Point & cursorPosition)
+				{
+					showQuickBackpackWindow(newHeroSet->getHero(), artPlace.slot, cursorPosition);
+				};
+				addSet(newHeroSet);
 			});
 	case 1:
 		return std::make_shared<CKingdTownList>(size);
