@@ -12,7 +12,7 @@
 
 #include "../eventsSDL/InputHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CondSh.h"
+#include "../ConditionalWait.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
@@ -67,7 +67,7 @@ void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 	if(GH.input().hasTouchInputDevice() && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
 	{
 		if(LOCPLINT)
-			LOCPLINT->showingDialog->set(true);
+			LOCPLINT->showingDialog->setBusy();
 		GH.windows().pushWindow(std::make_shared<CTutorialWindow>(m));
 
 		Settings s = persistentStorage.write["gui"]["tutorialCompleted" + std::to_string(m)];
@@ -78,7 +78,7 @@ void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 void CTutorialWindow::exit()
 {
 	if(LOCPLINT)
-		LOCPLINT->showingDialog->setn(false);
+		LOCPLINT->showingDialog->setFree();
 
 	close();
 }

@@ -19,7 +19,6 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
@@ -36,11 +35,17 @@ bool CMapHandler::hasOngoingAnimations()
 
 void CMapHandler::waitForOngoingAnimations()
 {
-	while(CGI->mh->hasOngoingAnimations())
+	for(auto * observer : observers)
 	{
-		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
+		if (observer->hasOngoingAnimations())
+			observer->waitForOngoingAnimations();
 	}
+}
+
+void CMapHandler::endNetwork()
+{
+	for(auto * observer : observers)
+		observer->endNetwork();
 }
 
 std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) const

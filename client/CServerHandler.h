@@ -13,7 +13,6 @@
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
-#include "../lib/CondSh.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -208,6 +207,7 @@ public:
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void showHighScoresAndEndGameplay(PlayerColor player, bool victory);
+	void endNetwork();
 	void endGameplay();
 	void restartGameplay();
 	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});

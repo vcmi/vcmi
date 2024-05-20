@@ -58,7 +58,6 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"
-#include "../../lib/CondSh.h"
 
 std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL;
@@ -275,7 +274,8 @@ CMainMenuConfig::CMainMenuConfig()
 	: campaignSets(JsonPath::builtin("config/campaignSets.json"))
 	, config(JsonPath::builtin("config/mainmenu.json"))
 {
-
+	if (config["game-select"].Vector().empty())
+		handleFatalError("Main menu config is invalid or corrupted. Please disable any mods or reinstall VCMI", false);
 }
 
 const CMainMenuConfig & CMainMenuConfig::get()
