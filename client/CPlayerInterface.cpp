@@ -1780,7 +1780,10 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	{
 		artWin->artifactMoved(src, dst);
 		if(numOfMovedArts == 0)
+		{
 			artWin->update();
+			artWin->redraw();
+		}
 	}
 	waitWhileDialog();
 }

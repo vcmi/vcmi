@@ -213,19 +213,10 @@ void CHeroWindow::update()
 		if(!arts)
 		{
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
+			arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(curHero, artPlace.slot, true, false, false);};
+			arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*arts, artPlace, cursorPosition);};
+			arts->gestureCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(curHero, artPlace.slot, cursorPosition);};
 			arts->setHero(curHero);
-			arts->clickPressedCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
-			{
-				clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, false);
-			};
-			arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
-			{
-				showArtifactAssembling(*arts, artPlace, cursorPosition);
-			};
-			arts->gestureCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
-			{
-				showQuickBackpackWindow(arts->getHero(), artPlace.slot, cursorPosition);
-			};
 			addSet(arts);
 			enableKeyboardShortcuts();
 		}

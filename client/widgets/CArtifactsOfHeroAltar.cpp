@@ -21,12 +21,8 @@
 
 CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 {
-	init(
-		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
-		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
-		position,
-		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
-
+	init(position, std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
+	enableGesture();
 	// The backpack is in the altar window above and to the right
 	for(auto & slot : backpack)
 		slot->moveBy(Point(2, -1));

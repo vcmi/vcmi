@@ -195,14 +195,7 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero);
 	artSets.clear();
 	const auto heroArts = artsSellingMarket->getAOHset();
-	heroArts->clickPressedCallback = [heroArts](CArtPlace & artPlace, const Point & cursorPosition)
-	{
-		heroArts->onClickPressedArtPlace(artPlace);
-	};
-	heroArts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
-	{
-		showArifactInfo(artPlace, cursorPosition);
-	};
+	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition){showArifactInfo(*heroArts, artPlace, cursorPosition);};
 	addSet(heroArts);
 	marketWidget = artsSellingMarket;
 	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, CGI->generaltexth->zelp[600]);	
@@ -244,7 +237,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	marketWidget = altarArtifacts;
 	artSets.clear();
 	const auto heroArts = altarArtifacts->getAOHset();
-	heroArts->clickPressedCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
+	heroArts->clickPressedCallback = [this, heroArts](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
 		clickPressedOnArtPlace(heroArts->getHero(), artPlace.slot, true, true, false);
 	};
@@ -252,7 +245,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	{
 		showArtifactAssembling(*heroArts, artPlace, cursorPosition);
 	};
-	heroArts->gestureCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
+	heroArts->gestureCallback = [this, heroArts](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
 		showQuickBackpackWindow(heroArts->getHero(), artPlace.slot, cursorPosition);
 	};

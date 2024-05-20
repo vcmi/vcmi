@@ -47,8 +47,6 @@ void CArtifactsOfHeroBase::putBackPickedArtifact()
 }
 
 void CArtifactsOfHeroBase::init(
-	const CArtPlace::ClickFunctor & onClickPressedCallback,
-	const CArtPlace::ClickFunctor & onShowPopupCallback,
 	const Point & position,
 	const BpackScrollFunctor & scrollCallback)
 {
@@ -69,14 +67,14 @@ void CArtifactsOfHeroBase::init(
 	{
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
-		artPlace.second->setClickPressedCallback(onClickPressedCallback);
-		artPlace.second->setShowPopupCallback(onShowPopupCallback);
+		artPlace.second->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace.second->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
-		artPlace->setClickPressedCallback(onClickPressedCallback);
-		artPlace->setShowPopupCallback(onShowPopupCallback);
+		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(),
 		[scrollCallback](){scrollCallback(true);}, EShortcut::MOVE_LEFT);
@@ -226,11 +224,11 @@ const CArtifactInstance * CArtifactsOfHeroBase::getPickedArtifact()
 		return nullptr;
 }
 
-void CArtifactsOfHeroBase::addGestureCallback(CArtPlace::ClickFunctor callback)
+void CArtifactsOfHeroBase::enableGesture()
 {
 	for(auto & artPlace : artWorn)
 	{
-		artPlace.second->setGestureCallback(callback);
+		artPlace.second->setGestureCallback(std::bind(&CArtifactsOfHeroBase::gestureArtPlace, this, _1, _2));
 		artPlace.second->addUsedEvents(GESTURE);
 	}
 }

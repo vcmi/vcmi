@@ -31,7 +31,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
 	arts = std::make_shared<CArtifactsOfHeroBackpack>();
 	arts->moveBy(Point(windowMargin, windowMargin));
-	arts->clickPressedCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+	arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
 		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true);
 	};
@@ -41,7 +41,6 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	};
 	addSet(arts);
 	arts->setHero(hero);
-	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
 	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
 		[this]() { WindowBase::close(); }, EShortcut::GLOBAL_RETURN);
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
@@ -66,18 +65,17 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
 	arts = std::make_shared<CArtifactsOfHeroQuickBackpack>(targetSlot);
 	arts->moveBy(Point(windowMargin, windowMargin));
-	arts->clickPressedCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
+	arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
 		if(const auto curHero = arts->getHero())
 			swapArtifactAndClose(*arts, artPlace.slot, ArtifactLocation(curHero->id, arts->getFilterSlot()));
 	};
 	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		showArifactInfo(artPlace, cursorPosition);
+		showArifactInfo(*arts, artPlace, cursorPosition);
 	};
 	addSet(arts);
 	arts->setHero(hero);
-	addCloseCallback(std::bind(&CHeroQuickBackpackWindow::close, this));
 	addUsedEvents(GESTURE);
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + windowMargin;

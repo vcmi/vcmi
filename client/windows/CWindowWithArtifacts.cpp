@@ -44,16 +44,11 @@ void CWindowWithArtifacts::addSet(const std::shared_ptr<CArtifactsOfHeroBase> & 
 	artSets.emplace_back(newArtSet);
 }
 
-void CWindowWithArtifacts::addCloseCallback(const CloseCallback & callback)
-{
-	closeCallback = callback;
-}
-
-const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact()
+const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact() const
 {
 	const CGHeroInstance * hero = nullptr;
 
-	for(auto & artSet : artSets)
+	for(const auto & artSet : artSets)
 		if(const auto pickedArt = artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS))
 		{
 			hero = artSet->getHero();
@@ -62,11 +57,11 @@ const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact()
 	return hero;
 }
 
-const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact()
+const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact() const
 {
 	const CArtifactInstance * art = nullptr;
 
-	for(auto & artSet : artSets)
+	for(const auto & artSet : artSets)
 		if(const auto pickedArt = artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS))
 		{
 			art = pickedArt;
@@ -108,11 +103,10 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 }
 
 void CWindowWithArtifacts::swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, const ArtifactPosition & slot,
-	const ArtifactLocation & dstLoc) const
+	const ArtifactLocation & dstLoc)
 {
 	LOCPLINT->cb->swapArtifacts(ArtifactLocation(artsInst.getHero()->id, slot), dstLoc);
-	if(closeCallback)
-		closeCallback();
+	close();
 }
 
 void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace,
@@ -129,9 +123,9 @@ void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & a
 	}
 }
 
-void CWindowWithArtifacts::showArifactInfo(CArtPlace & artPlace, const Point & cursorPosition) const
+void CWindowWithArtifacts::showArifactInfo(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const
 {
-	if(artPlace.getArt() && artPlace.text.size())
+	if(artsInst.getArt(artPlace.slot) && artPlace.text.size())
 		artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
 }
 
@@ -176,7 +170,7 @@ void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)
 
 void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc)
 {
-	for(auto & artSet : artSets)
+	for(const auto & artSet : artSets)
 		if(const auto pickedArtInst = getPickedArtifact())
 		{
 			markPossibleSlots();
@@ -202,7 +196,7 @@ void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation & artLoc)
 
 void CWindowWithArtifacts::update()
 {
-	for(auto & artSet : artSets)
+	for(const auto & artSet : artSets)
 	{
 		artSet->updateWornSlots();
 		artSet->updateBackpackSlots();
@@ -213,20 +207,19 @@ void CWindowWithArtifacts::update()
 	}
 }
 
-void CWindowWithArtifacts::markPossibleSlots()
+void CWindowWithArtifacts::markPossibleSlots() const
 {
 	if(const auto pickedArtInst = getPickedArtifact())
 	{
-		const auto heroArtOwner = getHeroPickedArtifact();
-		for(auto & artSet : artSets)
+		for(const auto & artSet : artSets)
 		{
-			if(artSet->isActive())
-			{
-				const auto hero = artSet->getHero();
-				if(heroArtOwner == hero || !std::dynamic_pointer_cast<CArtifactsOfHeroKingdom>(artSet))
-					artSet->markPossibleSlots(pickedArtInst, hero->tempOwner == LOCPLINT->playerID);
-			}
-		};
+			const auto hero = artSet->getHero();
+			if(hero == nullptr || !artSet->isActive())
+				continue;
+
+			if(getHeroPickedArtifact() == hero || !std::dynamic_pointer_cast<CArtifactsOfHeroKingdom>(artSet))
+				artSet->markPossibleSlots(pickedArtInst, hero->tempOwner == LOCPLINT->playerID);
+		}
 	}
 }
 
@@ -255,7 +248,7 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 	return true;
 }
 
-void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
+void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst) const
 {
 	if(artInst.isScroll() && settings["general"]["enableUiEnhancements"].Bool())
 	{
@@ -270,7 +263,7 @@ void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 	}
 }
 
-void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, const ArtifactPosition & targetSlot)
+void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, const ArtifactPosition & targetSlot) const
 {
 	const auto heroArtOwner = getHeroPickedArtifact();
 	const auto pickedArt = getPickedArtifact();
@@ -307,16 +300,13 @@ void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & c
 
 	if(GH.isKeyboardCmdDown())
 	{
-		for(auto & anotherSet : artSets)
+		for(const auto & anotherSet : artSets)
 		{
-			if(std::dynamic_pointer_cast<CArtifactsOfHeroMain>(anotherSet))
+			if(std::dynamic_pointer_cast<CArtifactsOfHeroMain>(anotherSet) && curHero.id != anotherSet->getHero()->id)
 			{
-				if(curHero.id != anotherSet->getHero()->id)
-				{
-					dstLoc.slot = ArtifactPosition::FIRST_AVAILABLE;
-					dstLoc.artHolder = anotherSet->getHero()->id;
-					break;
-				}
+				dstLoc.slot = ArtifactPosition::FIRST_AVAILABLE;
+				dstLoc.artHolder = anotherSet->getHero()->id;
+				break;
 			}
 			if(const auto heroSetAltar = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(anotherSet))
 			{
@@ -334,11 +324,10 @@ void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & c
 		else if(ArtifactUtils::isSlotBackpack(slot))
 			dstLoc.slot = ArtifactUtils::getArtEquippedPosition(&curHero, artId);
 	}
-	else if(closeWindow && closeCallback)
+	else if(closeWindow)
 	{
-		closeCallback();
+		close();
 	}
 	if(dstLoc.slot != ArtifactPosition::PRE_FIRST)
 		LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
-
 }

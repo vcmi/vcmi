@@ -45,11 +45,10 @@ public:
 	virtual void updateBackpackSlots();
 	virtual void updateSlot(const ArtifactPosition & slot);
 	virtual const CArtifactInstance * getPickedArtifact();
-	void addGestureCallback(CArtPlace::ClickFunctor callback);
+	void enableGesture();
 	const CArtifactInstance * getArt(const ArtifactPosition & slot) const;
 	void enableKeyboardShortcuts();
 
-protected:
 	const CGHeroInstance * curHero;
 	ArtPlaceMap artWorn;
 	std::vector<ArtPlacePtr> backpack;
@@ -67,8 +66,8 @@ protected:
 		Point(381,295) //18
 	};
 
-	virtual void init(const CHeroArtPlace::ClickFunctor & lClickCallback, const CHeroArtPlace::ClickFunctor & showPopupCallback,
-		const Point & position, const BpackScrollFunctor & scrollCallback);
+protected:
+	virtual void init(const Point & position, const BpackScrollFunctor & scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
 	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot);
 };
