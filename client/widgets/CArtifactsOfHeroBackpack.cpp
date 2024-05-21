@@ -82,7 +82,7 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 		const auto pos = Point(slotSizeWithMargin * (artPlaceIdx % slotsColumnsMax),
 			slotSizeWithMargin * (artPlaceIdx / slotsColumnsMax));
 		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/artifactSlotEmpty"), pos));
-		artPlace = std::make_shared<CHeroArtPlace>(pos);
+		artPlace = std::make_shared<CArtPlace>(pos);
 		artPlace->setArtifact(nullptr);
 		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
 		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));

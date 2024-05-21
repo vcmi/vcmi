@@ -140,11 +140,6 @@ void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
 		CArtPlace::showPopupWindow(cursorPosition);
 }
 
-CHeroArtPlace::CHeroArtPlace(Point position, const CArtifactInstance * art)
-	: CArtPlace(position, art)
-{
-}
-
 void CArtPlace::lockSlot(bool on)
 {
 	if(locked == on)
@@ -219,20 +214,35 @@ void CArtPlace::setGestureCallback(const ClickFunctor & callback)
 	gestureCallback = callback;
 }
 
-void CHeroArtPlace::addCombinedArtInfo(const std::map<const CArtifact*, int> & arts)
+void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts)
 {
-	for(const auto & combinedArt : arts)
+	for(const auto & availableArts : arts)
 	{
-		std::string artList;
-		text += "\n\n";
-		text += "{" + combinedArt.first->getNameTranslated() + "}";
-		if(arts.size() == 1)
+		const auto combinedArt = availableArts.first.toArtifact();
+		MetaString info;
+		info.appendEOL();
+		info.appendEOL();
+		info.appendRawString("{");
+		info.appendName(combinedArt->getId());
+		info.appendRawString("}");
+		info.appendRawString(" (%d/%d)");
+		info.replaceNumber(availableArts.second.size());
+		info.replaceNumber(combinedArt->getConstituents().size());
+		for(const auto part : combinedArt->getConstituents())
 		{
-			for(const auto part : combinedArt.first->getConstituents())
-				artList += "\n" + part->getNameTranslated();
+			info.appendEOL();
+			if(vstd::contains(availableArts.second, part->getId()))
+			{
+				info.appendName(part->getId());
+			}
+			else
+			{
+				info.appendRawString("{#A9A9A9|");
+				info.appendName(part->getId());
+				info.appendRawString("}");
+			}
 		}
-		text += " (" + boost::str(boost::format("%d") % combinedArt.second) + " / " +
-			boost::str(boost::format("%d") % combinedArt.first->getConstituents().size()) + ")" + artList;
+		text += info.toString();
 	}
 }
 
