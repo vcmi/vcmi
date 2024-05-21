@@ -77,7 +77,6 @@ AIGateway::AIGateway()
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	nullkiller.reset(new Nullkiller());
-	announcedCheatingProblem = false;
 }
 
 AIGateway::~AIGateway()
@@ -378,7 +377,7 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 	nullkiller->memory->removeFromMemory(obj);
 	nullkiller->objectClusterizer->onObjectRemoved(obj->id);
 
-	if(nullkiller->baseGraph && nullkiller->settings->isObjectGraphAllowed())
+	if(nullkiller->baseGraph && nullkiller->isObjectGraphAllowed())
 	{
 		nullkiller->baseGraph->removeObject(obj);
 	}
@@ -829,13 +828,9 @@ void AIGateway::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("AIGateway::makeTurn");
 
-	if(cb->getStartInfo()->extraOptionsInfo.cheatsAllowed)
-		cb->sendMessage("vcmieagles");
-	else
+	if(nullkiller->isOpenMap())
 	{
-		if(!announcedCheatingProblem)
-			cb->sendMessage("Nullkiller AI currently requires the ability to cheat in order to function correctly! Please enable!");
-		announcedCheatingProblem = true;
+		cb->sendMessage("vcmieagles");
 	}
 
 	retrieveVisitableObjs();

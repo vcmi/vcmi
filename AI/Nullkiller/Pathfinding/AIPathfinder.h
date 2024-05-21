@@ -12,6 +12,7 @@
 
 #include "AINodeStorage.h"
 #include "ObjectGraph.h"
+#include "GraphPaths.h"
 #include "../AIUtility.h"
 
 namespace NKAI
