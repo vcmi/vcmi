@@ -89,7 +89,7 @@ void MapViewController::setTileSize(const Point & tileSize)
 	setViewCenter(newViewCenter, model->getLevel());
 }
 
-void MapViewController::modifyTileSize(int stepsChange)
+void MapViewController::modifyTileSize(int stepsChange, bool useDeadZone)
 {
 	// we want to zoom in/out in fixed 10% steps, to allow player to return back to exactly 100% zoom just by scrolling
 	// so, zooming in for 5 steps will put game at 1.1^5 = 1.61 scale
@@ -118,10 +118,13 @@ void MapViewController::modifyTileSize(int stepsChange)
 	if (actualZoom != currentZoom)
 	{
 		targetTileSize = actualZoom;
-		if(actualZoom.x >= defaultTileSize - zoomTileDeadArea && actualZoom.x <= defaultTileSize + zoomTileDeadArea)
-			actualZoom.x = defaultTileSize;
-		if(actualZoom.y >= defaultTileSize - zoomTileDeadArea && actualZoom.y <= defaultTileSize + zoomTileDeadArea)
-			actualZoom.y = defaultTileSize;
+		if (useDeadZone)
+		{
+			if(actualZoom.x >= defaultTileSize - zoomTileDeadArea && actualZoom.x <= defaultTileSize + zoomTileDeadArea)
+				actualZoom.x = defaultTileSize;
+			if(actualZoom.y >= defaultTileSize - zoomTileDeadArea && actualZoom.y <= defaultTileSize + zoomTileDeadArea)
+				actualZoom.y = defaultTileSize;
+		}
 		
 		bool isInDeadZone = targetTileSize != actualZoom || actualZoom == Point(defaultTileSize, defaultTileSize);
 

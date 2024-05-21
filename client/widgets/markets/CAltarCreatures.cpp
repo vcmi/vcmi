@@ -12,6 +12,7 @@
 #include "CAltarCreatures.h"
 
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
@@ -33,7 +34,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("ALTSACR.DEF"),
-		CGI->generaltexth->zelp[584], [this]() {CAltarCreatures::makeDeal();});
+		CGI->generaltexth->zelp[584], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);
 	labels.emplace_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
 		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 	labels.emplace_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));
@@ -44,7 +45,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	unitsOnAltar.resize(GameConstants::ARMY_SIZE, 0);
 	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
 	sacrificeAllButton = std::make_shared<CButton>(
-		Point(393, 520), AnimationPath::builtin("ALTARMY.DEF"), CGI->generaltexth->zelp[579], std::bind(&CExperienceAltar::sacrificeAll, this));
+		Point(393, 520), AnimationPath::builtin("ALTARMY.DEF"), CGI->generaltexth->zelp[579], std::bind(&CExperienceAltar::sacrificeAll, this), EShortcut::MARKET_SACRIFICE_ALL);
 
 	// Hero creatures panel
 	assert(bidTradePanel);

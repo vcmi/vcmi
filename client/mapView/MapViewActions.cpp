@@ -87,7 +87,7 @@ void MapViewActions::mouseMoved(const Point & cursorPosition, const Point & last
 
 void MapViewActions::wheelScrolled(int distance)
 {
-	adventureInt->hotkeyZoom(distance * 4);
+	adventureInt->hotkeyZoom(distance * 4, true);
 }
 
 void MapViewActions::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
@@ -114,7 +114,7 @@ void MapViewActions::gesturePinch(const Point & centerPosition, double lastUpdat
 	int oldZoomSteps = std::round(std::log(pinchZoomFactor) / std::log(1.01));
 
 	if (newZoomSteps != oldZoomSteps)
-		adventureInt->hotkeyZoom(newZoomSteps - oldZoomSteps);
+		adventureInt->hotkeyZoom(newZoomSteps - oldZoomSteps, true);
 
 	pinchZoomFactor = newZoom;
 }
