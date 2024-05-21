@@ -17,6 +17,9 @@
 #include "../CVCMIServer.h"
 
 #include "../../lib/CPlayerState.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/pathfinder/CPathfinder.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
 
@@ -102,6 +105,18 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 	const auto * leftInfo = gameHandler->getPlayerState(left, false);
 	const auto * rightInfo = gameHandler->getPlayerState(right, false);
 
+	for (auto obj : gameHandler->gameState()->map->objects)
+	{
+		if (obj && obj->isVisitable())
+		{
+			int3 pos = obj->visitablePos();
+			if (obj->tempOwner == left)
+				leftReachability[pos.z][pos.x][pos.y] = true;
+			if (obj->tempOwner == right)
+				rightReachability[pos.z][pos.x][pos.y] = true;
+		}
+	}
+
 	for(const auto & hero : leftInfo->heroes)
 	{
 		CPathsInfo out(mapSize, hero);
@@ -173,6 +188,9 @@ bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerC
 
 	if (gameHandler->getDate(Date::DAY) > simturnsTurnsMaxLimit())
 		return false;
+
+	if (gameHandler->getStartInfo()->simturnsInfo.ignoreAlliedContacts && activeInfo->team == waitingInfo->team)
+		return true;
 
 	if (playersInContact(active, waiting))
 		return false;
