@@ -131,7 +131,6 @@ Graphics::Graphics()
 	loadPaletteAndColors();
 	initializeBattleGraphics();
 	loadErmuToPicture();
-	initializeImageLists();
 
 	//(!) do not load any CAnimation here
 }
@@ -243,52 +242,4 @@ void Graphics::loadErmuToPicture()
 		etp_idx ++;
 	}
 	assert (etp_idx == 44);
-}
-
-void Graphics::addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName)
-{
-	if (!imageName.empty())
-	{
-		JsonNode entry;
-		if (group != 0)
-			entry["group"].Integer() = group;
-		entry["frame"].Integer() = index;
-		entry["file"].String() = imageName;
-
-		imageLists["SPRITES/" + listName]["images"].Vector().push_back(entry);
-	}
-}
-
-void Graphics::addImageListEntries(const EntityService * service)
-{
-	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3, _4);
-
-	auto loopCb = [&](const Entity * entity, bool & stop)
-	{
-		entity->registerIcons(cb);
-	};
-
-	service->forEachBase(loopCb);
-}
-
-void Graphics::initializeImageLists()
-{
-	addImageListEntries(CGI->creatures());
-	addImageListEntries(CGI->heroTypes());
-	addImageListEntries(CGI->artifacts());
-	addImageListEntries(CGI->factions());
-	addImageListEntries(CGI->spells());
-	addImageListEntries(CGI->skills());
-}
-
-std::shared_ptr<CAnimation> Graphics::getAnimation(const AnimationPath & path)
-{
-	if (cachedAnimations.count(path) != 0)
-		return cachedAnimations.at(path);
-
-	auto newAnimation = GH.renderHandler().loadAnimation(path);
-
-	newAnimation->preload();
-	cachedAnimations[path] = newAnimation;
-	return newAnimation;
 }
