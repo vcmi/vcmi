@@ -14,7 +14,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
-#include "../render/Graphics.h"
 #include "../render/IImage.h"
 #include "../renderSDL/RenderHandler.h"
 #include "../widgets/CComponent.h"

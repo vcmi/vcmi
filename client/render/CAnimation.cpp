@@ -12,7 +12,6 @@
 
 #include "CDefFile.h"
 
-#include "Graphics.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../renderSDL/SDLImage.h"
@@ -179,8 +178,8 @@ void CAnimation::init()
 			source[defEntry.first].resize(defEntry.second);
 	}
 
-	if (vstd::contains(graphics->imageLists, name.getName()))
-		initFromJson(graphics->imageLists[name.getName()]);
+//	if (vstd::contains(graphics->imageLists, name.getName()))
+//		initFromJson(graphics->imageLists[name.getName()]);
 
 	auto jsonResource = name.toType<EResType::JSON>();
 	auto configList = CResourceHandler::get()->getResourcesWithName(jsonResource);

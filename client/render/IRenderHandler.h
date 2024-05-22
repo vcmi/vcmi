@@ -26,6 +26,8 @@ public:
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
 
+	virtual std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group) = 0;
+
 	/// temporary compatibility method. Creates IImage from existing SDL_Surface
 	/// Surface will be shared, caller must still free it with SDL_FreeSurface
 	virtual std::shared_ptr<IImage> createImage(SDL_Surface * source) = 0;

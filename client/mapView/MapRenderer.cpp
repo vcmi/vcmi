@@ -115,14 +115,11 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 			entry->getImage(i)->setBlitMode(blitMode);
 	}
 
-	for(size_t i = 0; i < terrainAnimations[0]->size(); ++i)
-	{
-		terrainAnimations[1]->getImage(i)->verticalFlip();
-		terrainAnimations[3]->getImage(i)->verticalFlip();
+	terrainAnimations[1]->verticalFlip();
+	terrainAnimations[3]->verticalFlip();
 
-		terrainAnimations[2]->getImage(i)->horizontalFlip();
-		terrainAnimations[3]->getImage(i)->horizontalFlip();
-	}
+	terrainAnimations[2]->horizontalFlip();
+	terrainAnimations[3]->horizontalFlip();
 }
 
 std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
