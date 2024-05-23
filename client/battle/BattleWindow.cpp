@@ -192,11 +192,6 @@ void BattleWindow::createTimerInfoWindows()
 	}
 }
 
-BattleWindow::~BattleWindow()
-{
-	CPlayerInterface::battleInt = nullptr;
-}
-
 std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode & config) const
 {
 	auto rect = readRect(config["rect"]);

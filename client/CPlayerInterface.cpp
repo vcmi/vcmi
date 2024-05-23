@@ -137,7 +137,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	LOCPLINT = this;
 	playerID=Player;
 	human=true;
-	battleInt = nullptr;
+	battleInt.reset();
 	castleInt = nullptr;
 	makingTurn = false;
 	showingDialog = new ConditionalWait();
