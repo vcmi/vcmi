@@ -303,7 +303,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 
 		if(source.guarded)
 		{
-			if(!(pathfinderConfig->options.originalFlyRules && source.node->layer == EPathfindingLayer::AIR)
+			if(source.node->layer != EPathfindingLayer::AIR
 				&& !pathfinderConfig->options.ignoreGuards
 				&&	(!destination.isGuardianTile || pathfinderHelper->getGuardiansCount(source.coord) > 1)) // Can step into tile of guard
 			{
