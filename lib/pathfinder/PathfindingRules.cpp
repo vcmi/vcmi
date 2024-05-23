@@ -278,7 +278,6 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 			else
 				return BlockingReason::DESTINATION_GUARDED;
 		}
-
 		break;
 	}
 
@@ -394,16 +393,22 @@ void LayerTransitionRule::process(
 			if(source.node->accessible != EPathAccessibility::ACCESSIBLE &&
 				source.node->accessible != EPathAccessibility::VISITABLE &&
 				destination.node->accessible != EPathAccessibility::VISITABLE &&
-				 destination.node->accessible != EPathAccessibility::ACCESSIBLE)
+			   destination.node->accessible != EPathAccessibility::ACCESSIBLE)
 			{
-				if(destination.node->accessible == EPathAccessibility::BLOCKVIS)
+
+				if (destination.node->accessible == EPathAccessibility::BLOCKVIS)
 				{
-					if(source.nodeObject || (source.tile->blocked && destination.tile->blocked))
-					{
+					if (source.tile->blocked || !destination.tile->entrableTerrain(source.tile))
 						destination.blocked = true;
-					}
 				}
-				else
+
+				if (destination.node->accessible == EPathAccessibility::FLYABLE)
+					destination.blocked = true;
+			}
+
+			if(destination.node->accessible == EPathAccessibility::VISITABLE)
+			{
+				if (destination.node->accessible != EPathAccessibility::VISITABLE)
 					destination.blocked = true;
 			}
 		}
