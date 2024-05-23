@@ -267,6 +267,9 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 		return BlockingReason::DESTINATION_BLOCKED;
 
 	case EPathNodeAction::BATTLE:
+		if (config->options.originalFlyRules && destination.nodeObject && source.node->layer == EPathfindingLayer::AIR)
+			return BlockingReason::DESTINATION_BLOCKED;
+
 		/// Movement after BATTLE action only possible from guarded tile to guardian tile
 		if(destination.guarded)
 		{
