@@ -205,7 +205,7 @@ public:
 
 		if (h.version >= Handler::Version::REMOVE_TEXT_CONTAINER_SIZE_T)
 		{
-			int32_t size = sz;
+			int64_t size = sz;
 			h & size;
 			sz = size;
 		}
