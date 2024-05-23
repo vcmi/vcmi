@@ -342,11 +342,11 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 		break;
 
 	case EPathfindingLayer::WATER:
-		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord)
-			|| destination.node->accessible != EPathAccessibility::ACCESSIBLE)
-		{
+		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord))
 			return BlockingReason::DESTINATION_BLOCKED;
-		}
+
+		if (destination.node->accessible != EPathAccessibility::ACCESSIBLE)
+			return BlockingReason::DESTINATION_BLOCKED;
 
 		if(destination.guarded)
 			return BlockingReason::DESTINATION_BLOCKED;
