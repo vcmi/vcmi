@@ -377,7 +377,7 @@ void LayerTransitionRule::process(
 
 	case EPathfindingLayer::SAIL:
 		//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
-		if((destination.node->accessible != EPathAccessibility::ACCESSIBLE && (destination.node->accessible != EPathAccessibility::BLOCKVIS || destination.tile->blocked))
+		if((destination.node->accessible != EPathAccessibility::ACCESSIBLE && destination.node->accessible != EPathAccessibility::GUARDED)
 			|| destination.tile->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
 		{
 			destination.blocked = true;
