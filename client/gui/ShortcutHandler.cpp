@@ -159,6 +159,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"lobbyToggleChat",          EShortcut::LOBBY_TOGGLE_CHAT         },
 		{"lobbyAdditionalOptions",   EShortcut::LOBBY_ADDITIONAL_OPTIONS  },
 		{"lobbySelectScenario",      EShortcut::LOBBY_SELECT_SCENARIO     },
+		{"gameEndTurn",              EShortcut::ADVENTURE_END_TURN        }, // compatibility ID - extra's use this string
 		{"adventureEndTurn",         EShortcut::ADVENTURE_END_TURN        },
 		{"adventureLoadGame",        EShortcut::ADVENTURE_LOAD_GAME       },
 		{"adventureSaveGame",        EShortcut::ADVENTURE_SAVE_GAME       },
@@ -339,10 +340,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 	std::vector<EShortcut> assignedShortcuts;
 	std::vector<EShortcut> missingShortcuts;
 	for (auto const & entry : shortcutNames)
-	{
-		assert(!vstd::contains(assignedShortcuts, entry.second));
 		assignedShortcuts.push_back(entry.second);
-	}
 
 	for (EShortcut id = vstd::next(EShortcut::NONE, 1); id < EShortcut::AFTER_LAST; id = vstd::next(id, 1))
 		if (!vstd::contains(assignedShortcuts, id))
