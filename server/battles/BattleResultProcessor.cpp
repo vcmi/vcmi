@@ -544,7 +544,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	// units will be given after casualties are taken
 	const SlotID necroSlot = raisedStack.type ? finishingBattle->winnerHero->getSlotFor(raisedStack.type) : SlotID();
 
-	if (necroSlot != SlotID())
+	if (necroSlot != SlotID() && !finishingBattle->isDraw())
 	{
 		finishingBattle->winnerHero->showNecromancyDialog(raisedStack, gameHandler->getRandomGenerator());
 		gameHandler->addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.type, raisedStack.count);
