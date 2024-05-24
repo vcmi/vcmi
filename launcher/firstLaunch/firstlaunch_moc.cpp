@@ -318,7 +318,8 @@ void FirstLaunchView::extractGogData()
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
 		tempDir.mkdir("tmp");
-		tempDir.cd("tmp");
+		if(!tempDir.cd("tmp"))
+			return; // should not happen - but avoid deleting wrong folder in any case
 
 		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
 		QFile(fileExe).copy(tmpFileExe);
@@ -350,6 +351,7 @@ void FirstLaunchView::extractGogData()
 		if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 		{
 			QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
+			tempDir.removeRecursively();
 			return;
 		}
 		copyHeroesData(tempDir.path(), true);
