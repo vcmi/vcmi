@@ -121,7 +121,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translation>Cartes</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
@@ -180,7 +180,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Compatibilité</translation>
+        <translation>Compatibilité</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="63"/>
@@ -259,7 +259,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="373"/>
         <source>Install from file</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer depuis un fichier</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
@@ -309,7 +309,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="283"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Taille</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
@@ -350,18 +350,18 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <source>please upgrade mod</source>
-        <translation type="unfinished"></translation>
+        <translation>veuillez mettre à jour le mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="182"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="796"/>
         <source>mods repository index</source>
-        <translation type="unfinished"></translation>
+        <translation>Index du dépôt de mods</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>or newer</source>
-        <translation type="unfinished"></translation>
+        <translation>ou plus récente</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
@@ -421,52 +421,52 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>All supported files</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les fichiers supportés</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translation>Cartes</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Campaigns</source>
-        <translation type="unfinished"></translation>
+        <translation>Campagnes</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Configs</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurations</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="627"/>
         <source>Mods</source>
-        <translation type="unfinished">Mods</translation>
+        <translation>Mods</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="628"/>
         <source>Select files (configs, mods, maps, campaigns) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner les fichiers à installer (configurations, mods, cartes, campagnes)...</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
         <source>Replace config file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Remplacer le fichier de configuration?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="654"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voulez vous remplacer %1 ?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="693"/>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Téléchargement %s%. %p% (%v MB sur %m MB) terminé</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="720"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Téléchargement échoué</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="721"/>
@@ -475,35 +475,42 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de télécharger tous les fichiers.
+
+Erreur rencontrées:
+
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="722"/>
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Installer les téchargements réussis?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="868"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer le mod %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
         <source>Operation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Opération échouée</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Erreurs rencontrées:
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="960"/>
         <source>screenshots</source>
-        <translation type="unfinished"></translation>
+        <translation>captures d&apos;écran</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="966"/>
@@ -521,95 +528,96 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="160"/>
         <source>Can not install submod</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible d&apos;installer le sous-mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="163"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Le mod est déjà installé</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="172"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de désinstaller le sousmod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="175"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Le mod n&apos;est pas installé</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="185"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod déjà activé</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="188"/>
         <location filename="../modManager/cmodmanager.cpp" line="231"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished"></translation>
+        <translation>Le mode doit d&apos;abord être installé</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="192"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod non compatible, veuillez mettre à jour VCMI et vérifier la dernière revision du mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="197"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Le mod requis %1 est manquant</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="202"/>
         <source>Required mod %1 is not enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Le mod requis %1 n&apos;est pas activé</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="211"/>
         <location filename="../modManager/cmodmanager.cpp" line="218"/>
         <source>This mod conflicts with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ce mod rentre en conflit avec %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="228"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod déjà désactivé</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="238"/>
         <source>This mod is needed to run %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Le mod est requis pour lancer %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="280"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Archive du mod manquante</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="283"/>
         <source>Mod with such name is already installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Un mod avec le même nom est déjà installé</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="288"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;archive du mod est invalide ou corrompue</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="314"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished"></translation>
+        <translation>Echec de l&apos;extraction des données du mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="342"/>
         <source>Data with this mod was not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Les données de ce mod n&apos;ont pas étés trouvées</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="346"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Le mod est placé dans un dossier protégé, veuillez le supprimer manuellement:
+</translation>
     </message>
 </context>
 <context>
@@ -651,7 +659,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
         <source>VSync</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronisation verticalle</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="415"/>
@@ -688,7 +696,7 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="349"/>
         <source>Reserved screen area</source>
-        <translation type="unfinished"></translation>
+        <translation>Zone d&apos;écran réservée</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="394"/>
@@ -698,7 +706,7 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
         <source>Autosave limit (0 = off)</source>
-        <translation type="unfinished"></translation>
+        <translation>Limite de sauvegarde auto (0 = désactivé)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
@@ -708,12 +716,12 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="460"/>
         <source>Autosave prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Préfix de sauvegarde auto.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>empty = map name prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>vide = prefix du nom de carte</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="230"/>
@@ -748,7 +756,7 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="624"/>
         <source>Renderer</source>
-        <translation type="unfinished"></translation>
+        <translation>Moteur de rendu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="162"/>
@@ -856,27 +864,27 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
     <message>
         <location filename="../modManager/cmodlist.cpp" line="21"/>
         <source>%1 B</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 B</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="22"/>
         <source>%1 KiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 KiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="23"/>
         <source>%1 MiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 MiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="24"/>
         <source>%1 GiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 GiB</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlist.cpp" line="25"/>
         <source>%1 TiB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 TiB</translation>
     </message>
 </context>
 <context>
@@ -915,7 +923,7 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="288"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="350"/>
         <source>Install gog.com files</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer les fichier de GOG.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="426"/>
@@ -978,7 +986,7 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
         <source>If you don&apos;t have a copy of Heroes III installed, VCMI can import your Heroes III data using the offline installer from gog.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si vous n&apos;avez pas de copie de Heroes III installée, VCMI peut importer vos données Heroes III en utilisant l&apos;installeur hors-ligne de gog.com.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="362"/>
@@ -1069,64 +1077,64 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="148"/>
         <source>Heroes III installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation de Heroes III trouvée!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="148"/>
         <source>Copy data to VCMI folder?</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier le dossier data dans le dossier VCMI ?</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="289"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le fichier %1...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="290"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vous avez sélectionné le fichier %1 !</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="292"/>
         <source>GOG file (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier GOG (*.*)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="293"/>
         <source>File selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection de fichier</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="300"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier sélectionné non valide</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="307"/>
         <source>GOG installer</source>
-        <translation type="unfinished"></translation>
+        <translation>Installateur GOG</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="310"/>
         <source>GOG data</source>
-        <translation type="unfinished"></translation>
+        <translation>Données GOG</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="314"/>
         <source>Installing... Please wait!</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation... Veuillez patienter!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="349"/>
         <source>No Heroes III data!</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas de données Heroes III!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="349"/>
         <source>Selected files do not contain Heroes III data!</source>
-        <translation type="unfinished"></translation>
+        <translation>Les fichiers sélectionnés ne contiennent pas les données de Heroes III !</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
@@ -1134,26 +1142,29 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="408"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
         <source>Heroes III data not found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Données Heroes III introuvables !</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select directory with installed Heroes III data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de détecter des données Heroes III valides dans le répertoire choisi,
+Veuillez selectionner un dossier ou les données de Heroes III sont présentes.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="408"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les fichiers de Heroes III HD Edition ne sont pas supportés par VCMI.
+Veuillez sélectionner un dossier contenant les données de Heroes III: Complete Edition ou Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translation>Version inconnue ou non supportée de Heroes III.
+Veuillez sélectionner un dossier contenant les données de Heroes III: Complete Edition ou Heroes III: Shadow of Death.</translation>
     </message>
 </context>
 <context>
@@ -1249,7 +1260,7 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translation>Vietnamien</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1310,17 +1321,17 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="172"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="175"/>
         <source>Type</source>
-        <translation type="unfinished">Type</translation>
+        <translation>Type</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="176"/>
         <source>Version</source>
-        <translation type="unfinished">Version</translation>
+        <translation>Version</translation>
     </message>
 </context>
 <context>
@@ -1343,12 +1354,12 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
     <message>
         <location filename="../updatedialog_moc.cpp" line="64"/>
         <source>Network error</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur réseau</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from url or incorrect JSON data</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de lire les données JSON depuis l&apos;URL ou données JSON érronées</translation>
     </message>
 </context>
 </TS>
