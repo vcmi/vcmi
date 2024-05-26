@@ -26,6 +26,17 @@
 #include "cli/extract.hpp"
 #endif
 
+#ifdef VCMI_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+
+static FirstLaunchView * thiz;
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_heroesDataUpdate(JNIEnv * env, jclass cls)
+{
+	thiz->heroesDataUpdate();
+}
+#endif
+
 FirstLaunchView::FirstLaunchView(QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::FirstLaunchView)
@@ -97,7 +108,12 @@ void FirstLaunchView::on_pushButtonDataSearch_clicked()
 
 void FirstLaunchView::on_pushButtonDataCopy_clicked()
 {
+#ifdef VCMI_ANDROID
+	thiz = this;
+	QtAndroid::androidActivity().callMethod<void>("copyHeroesData");
+#else
 	copyHeroesData();
+#endif
 }
 
 void FirstLaunchView::on_pushButtonGogInstall_clicked()
@@ -198,11 +214,22 @@ void FirstLaunchView::heroesDataMissing()
 	ui->lineEditDataSystem->setPalette(newPalette);
 	ui->lineEditDataUser->setPalette(newPalette);
 
-	ui->pushButtonDataSearch->setVisible(true);
-	ui->pushButtonDataCopy->setVisible(true);
-
 	ui->labelDataSearch->setVisible(true);
-	ui->labelDataCopy->setVisible(true);
+	ui->pushButtonDataSearch->setVisible(true);
+
+#ifdef VCMI_ANDROID
+	// selecting directory with ACTION_OPEN_DOCUMENT_TREE is available only since API level 21
+	if (QtAndroid::androidSdkVersion() < 21)
+	{
+		ui->labelDataCopy->hide();
+		ui->pushButtonDataCopy->hide();
+	}
+	else
+#endif
+	{
+		ui->labelDataCopy->show();
+		ui->pushButtonDataCopy->show();
+	}
 
 	ui->labelDataFound->setVisible(false);
 	ui->pushButtonDataNext->setEnabled(false);
