@@ -70,7 +70,9 @@ void VictoryConditions::initialize(MapController & c)
 						case EventCondition::HAVE_ARTIFACT: {
 							ui->victoryComboBox->setCurrentIndex(1);
 							assert(victoryTypeWidget);
-							victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
+							auto artifactId = ArtifactID::decode(json["objectType"].String());
+							auto idx = victoryTypeWidget->findData(artifactId);
+							victoryTypeWidget->setCurrentIndex(idx);
 							break;
 						}
 
@@ -78,7 +80,8 @@ void VictoryConditions::initialize(MapController & c)
 							ui->victoryComboBox->setCurrentIndex(2);
 							assert(victoryTypeWidget);
 							assert(victoryValueWidget);
-							auto idx = victoryTypeWidget->findData(int(json["objectType"].Integer()));
+							auto creatureId = CreatureID::decode(json["objectType"].String());
+							auto idx = victoryTypeWidget->findData(creatureId);
 							victoryTypeWidget->setCurrentIndex(idx);
 							victoryValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
@@ -88,7 +91,8 @@ void VictoryConditions::initialize(MapController & c)
 							ui->victoryComboBox->setCurrentIndex(3);
 							assert(victoryTypeWidget);
 							assert(victoryValueWidget);
-							auto idx = victoryTypeWidget->findData(int(json["objectType"].Integer()));
+							auto resourceId = EGameResID::decode(json["objectType"].String());
+							auto idx = victoryTypeWidget->findData(resourceId);
 							victoryTypeWidget->setCurrentIndex(idx);
 							victoryValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
@@ -98,7 +102,8 @@ void VictoryConditions::initialize(MapController & c)
 							ui->victoryComboBox->setCurrentIndex(4);
 							assert(victoryTypeWidget);
 							assert(victorySelectWidget);
-							auto idx = victoryTypeWidget->findData(int(json["objectType"].Integer()));
+							auto buildingId = BuildingID::decode(json["objectType"].String());
+							auto idx = victoryTypeWidget->findData(buildingId);
 							victoryTypeWidget->setCurrentIndex(idx);
 							int townIdx = getObjectByPos<const CGTownInstance>(*controller->map(), posFromJson(json["position"]));
 							if(townIdx >= 0)
@@ -112,7 +117,8 @@ void VictoryConditions::initialize(MapController & c)
 						case EventCondition::CONTROL: {
 							ui->victoryComboBox->setCurrentIndex(5);
 							assert(victoryTypeWidget);
-							if(json["objectType"].Integer() == Obj::TOWN)
+							auto mapObject = MapObjectID::decode(json["objectType"].String());
+							if(mapObject == Obj::TOWN)
 							{
 								int townIdx = getObjectByPos<const CGTownInstance>(*controller->map(), posFromJson(json["position"]));
 								if(townIdx >= 0)
@@ -126,7 +132,8 @@ void VictoryConditions::initialize(MapController & c)
 						}
 
 						case EventCondition::DESTROY: {
-							if(json["objectType"].Integer() == Obj::HERO)
+							auto objectType = MapObjectID::decode(json["objectType"].String());
+							if(objectType == Obj::HERO)
 							{
 								ui->victoryComboBox->setCurrentIndex(6);
 								assert(victoryTypeWidget);
@@ -137,7 +144,7 @@ void VictoryConditions::initialize(MapController & c)
 									victoryTypeWidget->setCurrentIndex(idx);
 								}
 							}
-							if(json["objectType"].Integer() == Obj::MONSTER)
+							if(objectType == Obj::MONSTER)
 							{
 								ui->victoryComboBox->setCurrentIndex(8);
 								assert(victoryTypeWidget);
@@ -155,7 +162,9 @@ void VictoryConditions::initialize(MapController & c)
 							ui->victoryComboBox->setCurrentIndex(7);
 							assert(victoryTypeWidget);
 							assert(victorySelectWidget);
-							victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
+							auto artifactId = ArtifactID::decode(json["objectType"].String());
+							auto idx = victoryTypeWidget->findData(int(artifactId));
+							victoryTypeWidget->setCurrentIndex(idx);
 							int townIdx = getObjectByPos<const CGTownInstance>(*controller->map(), posFromJson(json["position"]));
 							if(townIdx >= 0)
 							{
@@ -468,7 +477,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i : getObjectIndexes<const CGCreature>(*controller->map()))
-				victoryTypeWidget->addItem(tr(getMonsterName(*controller->map(), i).c_str()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(getMonsterName(*controller->map(), i).c_str(), QVariant::fromValue(i));
 			pickObjectButton = new QToolButton;
 			connect(pickObjectButton, &QToolButton::clicked, this, &VictoryConditions::onObjectSelect);
 			ui->victoryParamsLayout->addWidget(pickObjectButton);

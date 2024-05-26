@@ -114,11 +114,9 @@ std::string AbstractSettings::getHeroName(const CMap & map, int objectIdx)
 std::string AbstractSettings::getMonsterName(const CMap & map, int objectIdx)
 {
 	std::string name;
-	[[maybe_unused]] auto monster = dynamic_cast<const CGCreature*>(map.objects[objectIdx].get());
-	if(monster)
+	if(auto monster = dynamic_cast<const CGCreature*>(map.objects[objectIdx].get()))
 	{
-		//TODO: get proper name
-		//name = hero->name;
+		name = boost::str(boost::format("%1% at %2%") % monster->getObjectName() % monster->getPosition().toString());
 	}
 	return name;
 }
