@@ -23,7 +23,7 @@ There're 2 ways to get dependencies automatically.
 
 ## Conan package manager
 
-Please find detailed instructions in [VCMI repository](https://github.com/vcmi/vcmi/tree/develop/docs/conan.md). Note that the link points to the cutting-edge state in `develop` branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/tree/master/docs/conan.md).
+Please find detailed instructions in [VCMI repository](./Conan.md). Note that the link points to the cutting-edge state in `develop` branch, for the latest release check the same document in the [master branch](./Conan.md).
 
 On the step where you need to replace **PROFILE**, choose:
 
