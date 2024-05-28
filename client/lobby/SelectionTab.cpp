@@ -809,7 +809,7 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 			switch(CSH->getLoadMode())
 			{
 			case ELoadMode::SINGLE:
-				if(isMultiplayer || isCampaign || isTutorial)
+				if(isCampaign || isTutorial)
 					mapInfo->mapHeader.reset();
 				break;
 			case ELoadMode::CAMPAIGN:
@@ -820,9 +820,13 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 				if(!isTutorial)
 					mapInfo->mapHeader.reset();
 				break;
-			default:
+			case ELoadMode::MULTI:
 				if(!isMultiplayer)
 					mapInfo->mapHeader.reset();
+				break;
+			default:
+				assert(0);
+				mapInfo->mapHeader.reset();
 				break;
 			}
 
