@@ -82,7 +82,6 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 public:
 	BattleWindow(BattleInterface & owner );
-	~BattleWindow();
 
 	/// Closes window once battle finished
 	void close();

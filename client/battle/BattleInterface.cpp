@@ -332,7 +332,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	GH.windows().pushWindow(wnd);
 
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
-	CPlayerInterface::battleInt = nullptr;
+	CPlayerInterface::battleInt.reset();
 }
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)

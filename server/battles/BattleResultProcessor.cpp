@@ -142,6 +142,9 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 
 void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 {
+	if (gh->getObjInstance(army->id) == nullptr)
+		throw std::runtime_error("Object " + army->getObjectName() + " is not on the map!");
+
 	for (TStackAndItsNewCount &ncount : newStackCounts)
 	{
 		if (ncount.second > 0)
@@ -544,7 +547,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	// units will be given after casualties are taken
 	const SlotID necroSlot = raisedStack.type ? finishingBattle->winnerHero->getSlotFor(raisedStack.type) : SlotID();
 
-	if (necroSlot != SlotID())
+	if (necroSlot != SlotID() && !finishingBattle->isDraw())
 	{
 		finishingBattle->winnerHero->showNecromancyDialog(raisedStack, gameHandler->getRandomGenerator());
 		gameHandler->addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.type, raisedStack.count);

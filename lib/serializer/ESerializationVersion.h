@@ -44,5 +44,7 @@ enum class ESerializationVersion : int32_t
 
 	RELEASE_150 = ARTIFACT_COSTUMES, // for convenience
 
-	CURRENT = ARTIFACT_COSTUMES
+	REMOVE_TEXT_CONTAINER_SIZE_T, // Fixed serialization of size_t from text containers
+
+	CURRENT = REMOVE_TEXT_CONTAINER_SIZE_T
 };
