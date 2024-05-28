@@ -481,12 +481,12 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	if(finishingBattle->loserHero) //remove beaten hero
 	{
-		RemoveObject ro(finishingBattle->loserHero->id, battle.battleGetArmyObject(0)->getOwner());
+		RemoveObject ro(finishingBattle->loserHero->id, finishingBattle->victor);
 		gameHandler->sendAndApply(&ro);
 	}
 	if(finishingBattle->isDraw() && finishingBattle->winnerHero) //for draw case both heroes should be removed
 	{
-		RemoveObject ro(finishingBattle->winnerHero->id, battle.battleGetArmyObject(0)->getOwner());
+		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->loser);
 		gameHandler->sendAndApply(&ro);
 	}
 
