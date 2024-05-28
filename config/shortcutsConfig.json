@@ -16,7 +16,7 @@
 		"adventureGameOptions":     "O",
 		"adventureKingdomOverview": "K",
 		"adventureLoadGame":        "L",
-		"adventureMainMenu":        "M",
+		"adventureMainMenu":        "Ctrl+M",
 		"adventureMarketplace":     "B",
 		"adventureMoveHero":        "M",
 		"adventureMoveHeroEE":      [ "Keypad 6", "Right" ],
