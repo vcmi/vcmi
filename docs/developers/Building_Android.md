@@ -26,8 +26,7 @@ git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 
 ## Obtaining dependencies
 
-We use Conan package manager to build/consume dependencies, find detailed usage instructions [here](https://github.com/vcmi/vcmi/tree/develop/docs/conan.md). Note that the link points to the cutting-edge state in `develop` branch, for the latest release check the same document in the [master
-branch](https://github.com/vcmi/vcmi/tree/master/docs/conan.md).
+We use Conan package manager to build/consume dependencies, find detailed usage instructions [here](./Conan.md). Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Сonan.md).
 
 On the step where you need to replace **PROFILE**, choose:
 - `android-32` to build for 32-bit architecture (armeabi-v7a)
