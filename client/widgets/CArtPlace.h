@@ -31,6 +31,7 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts);
 
 private:
 	const CArtifactInstance * ourArt;
@@ -57,13 +58,6 @@ public:
 	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * art = nullptr);
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
-};
-
-class CHeroArtPlace: public CArtPlace
-{
-public:
-	CHeroArtPlace(Point position, const CArtifactInstance * art = nullptr);
-	void addCombinedArtInfo(const std::map<const CArtifact*, int> & arts);
 };
 
 namespace ArtifactUtilsClient

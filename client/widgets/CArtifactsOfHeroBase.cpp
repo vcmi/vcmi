@@ -57,12 +57,12 @@ void CArtifactsOfHeroBase::init(
 	pos += position;
 	for(int g = 0; g < ArtifactPosition::BACKPACK_START; g++)
 	{
-		artWorn[ArtifactPosition(g)] = std::make_shared<CHeroArtPlace>(slotPos[g]);
+		artWorn[ArtifactPosition(g)] = std::make_shared<CArtPlace>(slotPos[g]);
 	}
 	backpack.clear();
 	for(int s = 0; s < 5; s++)
 	{
-		auto artPlace = std::make_shared<CHeroArtPlace>(Point(403 + 46 * s, 365));
+		auto artPlace = std::make_shared<CArtPlace>(Point(403 + 46 * s, 365));
 		backpack.push_back(artPlace);
 	}
 	for(auto artPlace : artWorn)
@@ -224,21 +224,21 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	{
 		artPlace->lockSlot(slotInfo->locked);
 		artPlace->setArtifact(slotInfo->artifact);
-		if(!slotInfo->artifact->isCombined())
+		if(slotInfo->locked || slotInfo->artifact->isCombined())
+			return;
+
+		// If the artifact is part of at least one combined artifact, add additional information
+		std::map<const ArtifactID, std::vector<ArtifactID>> arts;
+		for(const auto combinedArt : slotInfo->artifact->artType->getPartOf())
 		{
-			// If the artifact is part of at least one combined artifact, add additional information
-			std::map<const CArtifact*, int> arts;
-			for(const auto combinedArt : slotInfo->artifact->artType->getPartOf())
+			arts.try_emplace(combinedArt->getId(), std::vector<ArtifactID>{});
+			for(const auto part : combinedArt->getConstituents())
 			{
-				arts.insert(std::pair(combinedArt, 0));
-				for(const auto part : combinedArt->getConstituents())
-				{
-					if(curHero->hasArt(part->getId(), false))
-						arts.at(combinedArt)++;
-				}
+				if(curHero->hasArt(part->getId(), false, false, false))
+					arts.at(combinedArt->getId()).emplace_back(part->getId());
 			}
-			artPlace->addCombinedArtInfo(arts);
 		}
+		artPlace->addCombinedArtInfo(arts);
 	}
 	else
 	{

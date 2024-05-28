@@ -16,7 +16,7 @@ class CButton;
 class CArtifactsOfHeroBase : virtual public CIntObject
 {
 protected:
-	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;
+	using ArtPlacePtr = std::shared_ptr<CArtPlace>;
 	using BpackScrollFunctor = std::function<void(int)>;
 
 public:
@@ -62,7 +62,7 @@ protected:
 		Point(381,295) //18
 	};
 
-	virtual void init(const CHeroArtPlace::ClickFunctor & lClickCallback, const CHeroArtPlace::ClickFunctor & showPopupCallback,
+	virtual void init(const CArtPlace::ClickFunctor & lClickCallback, const CArtPlace::ClickFunctor & showPopupCallback,
 		const Point & position, const BpackScrollFunctor & scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
 	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot);
