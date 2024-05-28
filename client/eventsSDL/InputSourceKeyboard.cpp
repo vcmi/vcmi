@@ -78,6 +78,13 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 	if (vstd::contains(shortcutsVector, EShortcut::MAIN_MENU_LOBBY))
 		CSH->getGlobalLobby().activateInterface();
 
+	if (vstd::contains(shortcutsVector, EShortcut::GLOBAL_FULLSCREEN))
+	{
+		Settings full = settings.write["video"]["fullscreen"];
+		full->Bool() = !full->Bool();
+		GH.onScreenResize(true);
+	}
+
 	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_TRACK_HERO))
 	{
 		Settings s = settings.write["session"];
