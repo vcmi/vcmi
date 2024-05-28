@@ -677,7 +677,6 @@ void SelectionTab::selectFileName(std::string fname)
 	}
 
 	filter(-1);
-	selectAbs(-1);
 
 	for(int i = (int)curItems.size() - 1; i >= 0; i--)
 	{
@@ -688,6 +687,8 @@ void SelectionTab::selectFileName(std::string fname)
 			return;
 		}
 	}
+
+	selectAbs(-1);
 
 	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
 		inputName->setText("NEWGAME");
