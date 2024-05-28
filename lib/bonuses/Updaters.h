@@ -13,8 +13,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-extern DLL_LINKAGE const std::map<std::string, TUpdaterPtr> bonusUpdaterMap;
-
 // observers for updating bonuses based on certain events (e.g. hero gaining level)
 
 class DLL_LINKAGE IUpdater

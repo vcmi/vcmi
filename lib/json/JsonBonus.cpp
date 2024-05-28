@@ -325,11 +325,25 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 
 static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 {
+	const std::map<std::string, std::function<TUpdaterPtr()>> bonusUpdaterMap =
+	{
+			{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>},
+			{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>},
+			{"ARMY_MOVEMENT", std::make_shared<ArmyMovementUpdater>},
+			{"BONUS_OWNER_UPDATER", std::make_shared<OwnerUpdater>}
+	};
+
 	switch(updaterJson.getType())
 	{
 	case JsonNode::JsonType::DATA_STRING:
-		return parseByMap(bonusUpdaterMap, &updaterJson, "updater type ");
-		break;
+		{
+			auto it = bonusUpdaterMap.find(updaterJson.String());
+			if (it != bonusUpdaterMap.end())
+				return it->second();
+
+			logGlobal->error("Unknown bonus updater type '%s'", updaterJson.String());
+			return nullptr;
+		}
 	case JsonNode::JsonType::DATA_STRUCT:
 		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
 		{
