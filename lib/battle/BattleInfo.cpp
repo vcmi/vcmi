@@ -930,7 +930,7 @@ uint32_t BattleInfo::nextUnitId() const
 
 void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd)
 {
-	if(forceAdd || !sta->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, value.sid).And(Selector::typeSubtype(value.type, value.subtype))))
+	if(forceAdd || !sta->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, value.sid).And(Selector::typeSubtypeValueType(value.type, value.subtype, value.valType))))
 	{
 		//no such effect or cumulative - add new
 		logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), value.Description());
@@ -942,7 +942,7 @@ void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool fo
 
 		for(const auto & stackBonus : sta->getExportedBonusList()) //TODO: optimize
 		{
-			if(stackBonus->source == value.source && stackBonus->sid == value.sid && stackBonus->type == value.type && stackBonus->subtype == value.subtype)
+			if(stackBonus->source == value.source && stackBonus->sid == value.sid && stackBonus->type == value.type && stackBonus->subtype == value.subtype && stackBonus->valType == value.valType)
 			{
 				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, value.turnsRemain);
 			}
