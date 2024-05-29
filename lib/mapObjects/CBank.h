@@ -22,6 +22,7 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	ui32 daycounter;
 	ui32 resetDuration;
 	bool coastVisitable;
+	bool regularUnitPlacement;
 
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void doVisit(const CGHeroInstance * hero) const;
