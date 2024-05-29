@@ -1866,7 +1866,12 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		//we can read one spell
 		SpellID spell = reader->readSpell();
 
-		if(spell != SpellID::NONE)
+		// workaround: VCMI uses 'PRESET' spell to indicate that spellbook has been preconfigured on map
+		// but H3 uses 'PRESET' spell (-2) to indicate that game should give standard spell to hero
+		if(spell == SpellID::NONE)
+			object->spells.insert(SpellID::PRESET); //spellbook is preconfigured to be empty
+
+		if (spell.hasValue())
 			object->spells.insert(spell);
 	}
 
