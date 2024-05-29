@@ -992,6 +992,8 @@ void CVCMIServer::multiplayerWelcomeMessage()
 	if(humanPlayer < 2) // Singleplayer
 		return;
 
+	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
+
 	std::vector<std::string> optionIds;
 	if(si->extraOptionsInfo.cheatsAllowed)
 		optionIds.push_back("vcmi.optionsTab.cheatAllowed.hover");

@@ -43,6 +43,7 @@ enum class ESerializationVersion : int32_t
 	ARTIFACT_COSTUMES, // 840 swappable artifacts set added
 
 	RELEASE_150 = ARTIFACT_COSTUMES, // for convenience
+	VOTING_SIMTURNS, // 841 - allow modification of simturns duration via vote
 
 	REMOVE_TEXT_CONTAINER_SIZE_T, // Fixed serialization of size_t from text containers
 
