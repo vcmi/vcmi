@@ -46,6 +46,7 @@ enum class ESerializationVersion : int32_t
 	VOTING_SIMTURNS, // 841 - allow modification of simturns duration via vote
 
 	REMOVE_TEXT_CONTAINER_SIZE_T, // Fixed serialization of size_t from text containers
+	BANK_UNIT_PLACEMENT, // 842
 
-	CURRENT = REMOVE_TEXT_CONTAINER_SIZE_T
+	CURRENT = BANK_UNIT_PLACEMENT
 };

@@ -33,6 +33,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	bankResetDuration = static_cast<si32>(input["resetDuration"].Float());
 	blockVisit = input["blockedVisitable"].Bool();
 	coastVisitable = input["coastVisitable"].Bool();
+	regularUnitPlacement = input["regularUnitPlacement"].Bool();
 }
 
 BankConfig CBankInstanceConstructor::generateConfig(IGameCallback * cb, const JsonNode & level, CRandomGenerator & rng) const
@@ -57,6 +58,7 @@ void CBankInstanceConstructor::randomizeObject(CBank * bank, CRandomGenerator & 
 	bank->resetDuration = bankResetDuration;
 	bank->blockVisit = blockVisit;
 	bank->coastVisitable = coastVisitable;
+	bank->regularUnitPlacement = regularUnitPlacement;
 
 	si32 totalChance = 0;
 	for(const auto & node : levels)
