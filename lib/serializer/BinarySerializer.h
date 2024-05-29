@@ -115,7 +115,7 @@ public:
 
 	std::map<const void*, ui32> savedPointers;
 
-	const Version version = Version::CURRENT;
+	Version version = Version::CURRENT;
 	bool smartPointerSerialization;
 	bool saving;
 

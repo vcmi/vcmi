@@ -173,4 +173,10 @@ void CConnection::enableSmartVectorMemberSerializatoin(CGameState * gs)
 	packReader->addStdVecItems(gs);
 }
 
+void CConnection::setSerializationVersion(ESerializationVersion version)
+{
+	deserializer->version = version;
+	serializer->version = version;
+}
+
 VCMI_LIB_NAMESPACE_END

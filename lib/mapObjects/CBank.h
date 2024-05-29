@@ -53,7 +53,7 @@ public:
 		h & coastVisitable;
 		if (h.version >= Handler::Version::BANK_UNIT_PLACEMENT)
 			h & regularUnitPlacement;
-		else
+		else if (!h.saving)
 			regularUnitPlacement = false;
 	}
 
