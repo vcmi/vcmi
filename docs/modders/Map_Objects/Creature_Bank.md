@@ -3,6 +3,10 @@ Format of rewards is same as in [Rewardable Objects](Rewardable.md)
 
 ``` javascript
 {
+	/// If true, battle setup will be like normal - Attacking player on the left, enemy on the right
+	"regularUnitPlacement" : true,
+	/// If true, bank placed on water will be visitable from coast (Shipwreck)
+	"coastVisitable" : true,
 	/// List of levels of this bank. On map loading, one of them will be randomly assigned to bank.
 	"levels": [
 		{
@@ -52,9 +56,9 @@ Format of rewards is same as in [Rewardable Objects](Rewardable.md)
 
 				/// List of spells
 				"spells" : [ { "level" : 5 } ]
-				} 
-			}
+			} 
 		}
 	]
 }
+
 ```
