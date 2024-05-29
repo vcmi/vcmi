@@ -45,6 +45,7 @@ enum class ESerializationVersion : int32_t
 	RELEASE_150 = ARTIFACT_COSTUMES, // for convenience
 
 	REMOVE_TEXT_CONTAINER_SIZE_T, // Fixed serialization of size_t from text containers
+	BANK_UNIT_PLACEMENT, // 842
 
-	CURRENT = REMOVE_TEXT_CONTAINER_SIZE_T
+	CURRENT = BANK_UNIT_PLACEMENT
 };
