@@ -471,7 +471,7 @@
 				},
 				"alliedAI" : {
 					"type" : "string",
-					"default" : "VCAI"
+					"default" : "Nullkiller"
 				},
 				"friendlyAI" : {
 					"type" : "string",
