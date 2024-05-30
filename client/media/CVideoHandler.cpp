@@ -23,6 +23,8 @@
 
 #include "../../lib/filesystem/CInputStream.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/Languages.h"
 
 #include <SDL_render.h>
 
@@ -419,11 +421,56 @@ static FFMpegFormatDescription getAudioFormatProperties(int audioFormat)
 
 int FFMpegStream::findAudioStream() const
 {
+	std::vector<int> audioStreamIndices;
+
 	for(int i = 0; i < formatContext->nb_streams; i++)
 		if(formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
-			return i;
+			audioStreamIndices.push_back(i);
 
-	return -1;
+	if (audioStreamIndices.empty())
+		return -1;
+
+	if (audioStreamIndices.size() == 1)
+		return audioStreamIndices.front();
+
+	// multiple audio streams - try to pick best one based on language settings
+	std::map<int, std::string> streamToLanguage;
+
+	// Approach 1 - check if stream has language set in metadata
+	for (auto const & index : audioStreamIndices)
+	{
+		const AVDictionaryEntry *e = av_dict_get(formatContext->streams[index]->metadata, "language", nullptr, 0);
+		if (e)
+			streamToLanguage[index]	= e->value;
+	}
+
+	// Approach 2 - no metadata found. This may be video from Chronicles which have predefined (presumably hardcoded) list of languages
+	if (streamToLanguage.empty())
+	{
+		if (audioStreamIndices.size() == 2)
+		{
+			streamToLanguage[audioStreamIndices[0]] = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).tagISO2;
+			streamToLanguage[audioStreamIndices[1]] = Languages::getLanguageOptions(Languages::ELanguages::GERMAN).tagISO2;
+		}
+
+		if (audioStreamIndices.size() == 5)
+		{
+			streamToLanguage[audioStreamIndices[0]] = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).tagISO2;
+			streamToLanguage[audioStreamIndices[1]] = Languages::getLanguageOptions(Languages::ELanguages::FRENCH).tagISO2;
+			streamToLanguage[audioStreamIndices[2]] = Languages::getLanguageOptions(Languages::ELanguages::GERMAN).tagISO2;
+			streamToLanguage[audioStreamIndices[3]] = Languages::getLanguageOptions(Languages::ELanguages::ITALIAN).tagISO2;
+			streamToLanguage[audioStreamIndices[4]] = Languages::getLanguageOptions(Languages::ELanguages::SPANISH).tagISO2;
+		}
+	}
+
+	std::string preferredLanguageName = CGI->generaltexth->getPreferredLanguage();
+	std::string preferredTag = Languages::getLanguageOptions(preferredLanguageName).tagISO2;
+
+	for (auto const & entry : streamToLanguage)
+		if (entry.second == preferredTag)
+			return entry.first;
+
+	return audioStreamIndices.front();
 }
 
 int FFMpegStream::findVideoStream() const
