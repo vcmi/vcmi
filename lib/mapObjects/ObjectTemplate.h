@@ -12,6 +12,7 @@
 #include "../GameConstants.h"
 #include "../int3.h"
 #include "../filesystem/ResourcePath.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,7 +21,7 @@ class CLegacyConfigParser;
 class JsonNode;
 class int3;
 
-class DLL_LINKAGE ObjectTemplate
+class DLL_LINKAGE ObjectTemplate : public Serializeable
 {
 	enum EBlockMapBits
 	{
@@ -122,10 +123,6 @@ public:
 	bool canBePlacedAt(TerrainId terrain) const;
 
 	ObjectTemplate();
-	//custom copy constructor is required
-	ObjectTemplate(const ObjectTemplate & other);
-
-	ObjectTemplate& operator=(const ObjectTemplate & rhs);
 
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();

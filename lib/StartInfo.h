@@ -15,6 +15,7 @@
 #include "TurnTimerInfo.h"
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
+#include "serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -107,7 +108,7 @@ enum class EStartMode : int32_t
 };
 
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
-struct DLL_LINKAGE StartInfo
+struct DLL_LINKAGE StartInfo : public Serializeable
 {
 	EStartMode mode;
 	ui8 difficulty; //0=easy; 4=impossible

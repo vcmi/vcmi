@@ -9,9 +9,11 @@
  */
 #pragma once
 #include "BattleHex.h"
+
+#include "../constants/EntityIdentifiers.h"
 #include "../filesystem/ResourcePath.h"
 #include "../networkPacks/BattleChanges.h"
-#include "../constants/EntityIdentifiers.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,7 +22,7 @@ class ObstacleChanges;
 class JsonSerializeFormat;
 class SpellID;
 
-struct DLL_LINKAGE CObstacleInstance
+struct DLL_LINKAGE CObstacleInstance : public Serializeable
 {
 	enum EObstacleType : ui8
 	{

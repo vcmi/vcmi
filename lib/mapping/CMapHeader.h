@@ -13,7 +13,8 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../constants/Enumerations.h"
 #include "../constants/VariantIdentifier.h"
-#include "../modding/CModInfo.h"
+#include "../modding/ModVerificationInfo.h"
+#include "../serializer/Serializeable.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
 #include "../MetaString.h"
@@ -202,7 +203,7 @@ enum class EMapDifficulty : uint8_t
 };
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
-class DLL_LINKAGE CMapHeader
+class DLL_LINKAGE CMapHeader: public Serializeable
 {
 	void setupEvents();
 public:

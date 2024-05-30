@@ -693,8 +693,8 @@ void CGameState::initFogOfWar()
 	for(auto & elem : teams)
 	{
 		auto & fow = elem.second.fogOfWarMap;
-		fow->resize(boost::extents[layers][map->width][map->height]);
-		std::fill(fow->data(), fow->data() + fow->num_elements(), 0);
+		fow.resize(boost::extents[layers][map->width][map->height]);
+		std::fill(fow.data(), fow.data() + fow.num_elements(), 0);
 
 		for(CGObjectInstance *obj : map->objects)
 		{
@@ -704,7 +704,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::HIDDEN, obj->tempOwner);
 			for(const int3 & tile : tiles)
 			{
-				(*elem.second.fogOfWarMap)[tile.z][tile.x][tile.y] = 1;
+				elem.second.fogOfWarMap[tile.z][tile.x][tile.y] = 1;
 			}
 		}
 	}
@@ -1326,7 +1326,7 @@ bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) 
 	if(player->isSpectator())
 		return true;
 
-	return (*getPlayerTeam(*player)->fogOfWarMap)[pos.z][pos.x][pos.y];
+	return getPlayerTeam(*player)->fogOfWarMap[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const
@@ -1957,7 +1957,6 @@ bool RumorState::update(int id, int extra)
 TeamState::TeamState()
 {
 	setNodeType(TEAM);
-	fogOfWarMap = std::make_unique<boost::multi_array<ui8, 3>>();
 }
 
 CRandomGenerator & CGameState::getRandomGenerator()

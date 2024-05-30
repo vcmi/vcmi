@@ -963,7 +963,7 @@ void FoWChange::applyGs(CGameState *gs)
 	TeamState * team = gs->getPlayerTeam(player);
 	auto & fogOfWarMap = team->fogOfWarMap;
 	for(const int3 & t : tiles)
-		(*fogOfWarMap)[t.z][t.x][t.y] = mode != ETileVisibility::HIDDEN;
+		fogOfWarMap[t.z][t.x][t.y] = mode != ETileVisibility::HIDDEN;
 
 	if (mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
@@ -986,7 +986,7 @@ void FoWChange::applyGs(CGameState *gs)
 			}
 		}
 		for(const int3 & t : tilesRevealed) //probably not the most optimal solution ever
-			(*fogOfWarMap)[t.z][t.x][t.y] = 1;
+			fogOfWarMap[t.z][t.x][t.y] = 1;
 	}
 }
 
@@ -1325,7 +1325,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	auto & fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
 	for(const int3 & t : fowRevealed)
-		(*fogOfWarMap)[t.z][t.x][t.y] = 1;
+		fogOfWarMap[t.z][t.x][t.y] = 1;
 }
 
 void NewStructures::applyGs(CGameState *gs)

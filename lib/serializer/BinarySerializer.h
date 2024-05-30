@@ -12,6 +12,7 @@
 #include "CSerializer.h"
 #include "CTypeList.h"
 #include "ESerializationVersion.h"
+#include "Serializeable.h"
 #include "../mapObjects/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -23,7 +24,7 @@ protected:
 public:
 	CSaverBase(IBinaryWriter * w): writer(w){};
 
-	inline void write(const void * data, unsigned size)
+	void write(const void * data, unsigned size)
 	{
 		writer->write(reinterpret_cast<const std::byte*>(data), size);
 	};
@@ -34,7 +35,7 @@ public:
 /// Primitives:    copy memory into underlying stream (defined in CSaverBase)
 /// Containers:    custom overloaded method that decouples class into primitives
 /// VCMI Classes:  recursively serialize them via ClassName::serialize( BinarySerializer &, int version) call
-class DLL_LINKAGE BinarySerializer : public CSaverBase
+class BinarySerializer : public CSaverBase
 {
 	template<typename Handler>
 	struct VariantVisitorSaver
@@ -85,7 +86,7 @@ class DLL_LINKAGE BinarySerializer : public CSaverBase
 	{
 	public:
 		virtual void savePtr(CSaverBase &ar, const void *data) const =0;
-		virtual ~CBasicPointerSaver(){}
+		virtual ~CBasicPointerSaver() = default;
 
 		template<typename T> static CBasicPointerSaver *getApplier(const T * t=nullptr)
 		{
@@ -113,13 +114,19 @@ class DLL_LINKAGE BinarySerializer : public CSaverBase
 public:
 	using Version = ESerializationVersion;
 
-	std::map<const void*, ui32> savedPointers;
+	std::map<std::string, uint32_t> savedStrings;
+	std::map<const Serializeable*, uint32_t> savedPointers;
 
 	const Version version = Version::CURRENT;
 	bool smartPointerSerialization;
 	bool saving;
 
-	BinarySerializer(IBinaryWriter * w);
+	bool hasFeature(Version what) const
+	{
+		return version >= what;
+	};
+
+	DLL_LINKAGE BinarySerializer(IBinaryWriter * w);
 
 	template<typename Base, typename Derived>
 	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
@@ -134,32 +141,72 @@ public:
 		return * this;
 	}
 
+	void saveEncodedInteger(int64_t value)
+	{
+		uint64_t valueUnsigned = std::abs(value);
+
+		while (valueUnsigned > 0x3f)
+		{
+			uint8_t byteValue = (valueUnsigned & 0x7f) | 0x80;
+			valueUnsigned = valueUnsigned >> 7;
+			save(byteValue);
+		}
+
+		uint8_t lastByteValue = valueUnsigned & 0x3f;
+		if (value < 0)
+			lastByteValue |= 0x40;
+
+		save(lastByteValue);
+	}
+
 	template < typename T, typename std::enable_if_t < std::is_same_v<T, bool>, int > = 0 >
 	void save(const T &data)
 	{
-		ui8 writ = static_cast<ui8>(data);
+		uint8_t writ = static_cast<uint8_t>(data);
 		save(writ);
 	}
 
-	template < class T, typename std::enable_if_t < std::is_fundamental_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
+	template < class T, typename std::enable_if_t < std::is_floating_point_v<T>, int  > = 0 >
 	void save(const T &data)
 	{
 		// save primitive - simply dump binary data to output
 		this->write(static_cast<const void *>(&data), sizeof(data));
 	}
 
+	template < class T, typename std::enable_if_t < std::is_integral_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
+	void save(const T &data)
+	{
+		if constexpr (sizeof(T) == 1)
+		{
+			// save primitive - simply dump binary data to output
+			this->write(static_cast<const void *>(&data), sizeof(data));
+		}
+		else
+		{
+			if (hasFeature(Version::COMPACT_INTEGER_SERIALIZATION))
+				saveEncodedInteger(data);
+			else
+				this->write(static_cast<const void *>(&data), sizeof(data));
+		}
+	}
+
+	void save(const Version &data)
+	{
+		this->write(static_cast<const void *>(&data), sizeof(data));
+	}
+
 	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
 	void save(const T &data)
 	{
-		si32 writ = static_cast<si32>(data);
+		int32_t writ = static_cast<int32_t>(data);
 		*this & writ;
 	}
 
 	template < typename T, typename std::enable_if_t < std::is_array_v<T>, int  > = 0 >
 	void save(const T &data)
 	{
-		ui32 size = std::size(data);
-		for(ui32 i=0; i < size; i++)
+		uint32_t size = std::size(data);
+		for(uint32_t i=0; i < size; i++)
 			*this & data[i];
 	}
 
@@ -214,7 +261,7 @@ public:
 		{
 			// We might have an object that has multiple inheritance and store it via the non-first base pointer.
 			// Therefore, all pointers need to be normalized to the actual object address.
-			const void * actualPointer = static_cast<const void*>(data);
+			const auto * actualPointer = static_cast<const Serializeable*>(data);
 			auto i = savedPointers.find(actualPointer);
 			if(i != savedPointers.end())
 			{
@@ -224,7 +271,7 @@ public:
 			}
 
 			//give id to this pointer
-			ui32 pid = (ui32)savedPointers.size();
+			uint32_t pid = savedPointers.size();
 			savedPointers[actualPointer] = pid;
 			save(pid);
 		}
@@ -271,30 +318,30 @@ public:
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void save(const std::vector<T> &data)
 	{
-		ui32 length = (ui32)data.size();
+		uint32_t length = data.size();
 		*this & length;
-		for(ui32 i=0;i<length;i++)
+		for(uint32_t i=0;i<length;i++)
 			save(data[i]);
 	}
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void save(const std::deque<T> & data)
 	{
-		ui32 length = (ui32)data.size();
+		uint32_t length = data.size();
 		*this & length;
-		for(ui32 i = 0; i < length; i++)
+		for(uint32_t i = 0; i < length; i++)
 			save(data[i]);
 	}
 	template <typename T, size_t N>
 	void save(const std::array<T, N> &data)
 	{
-		for(ui32 i=0; i < N; i++)
+		for(uint32_t i=0; i < N; i++)
 			save(data[i]);
 	}
 	template <typename T>
 	void save(const std::set<T> &data)
 	{
 		auto & d = const_cast<std::set<T> &>(data);
-		ui32 length = (ui32)d.size();
+		uint32_t length = d.size();
 		save(length);
 		for(auto i = d.begin(); i != d.end(); i++)
 			save(*i);
@@ -303,7 +350,7 @@ public:
 	void save(const std::unordered_set<T, U> &data)
 	{
 		auto & d = const_cast<std::unordered_set<T, U> &>(data);
-		ui32 length = (ui32)d.size();
+		uint32_t length = d.size();
 		*this & length;
 		for(auto i = d.begin(); i != d.end(); i++)
 			save(*i);
@@ -312,16 +359,47 @@ public:
 	void save(const std::list<T> &data)
 	{
 		auto & d = const_cast<std::list<T> &>(data);
-		ui32 length = (ui32)d.size();
+		uint32_t length = d.size();
 		*this & length;
 		for(auto i = d.begin(); i != d.end(); i++)
 			save(*i);
 	}
+
 	void save(const std::string &data)
 	{
-		save(ui32(data.length()));
-		this->write(static_cast<const void *>(data.data()), data.size());
+		if (hasFeature(Version::COMPACT_STRING_SERIALIZATION))
+		{
+			if (data.empty())
+			{
+				save(static_cast<uint32_t>(0));
+				return;
+			}
+
+			auto it = savedStrings.find(data);
+
+			if (it == savedStrings.end())
+			{
+				save(static_cast<uint32_t>(data.length()));
+				this->write(static_cast<const void *>(data.data()), data.size());
+
+				// -1, -2...
+				int32_t newStringID = -1 - savedStrings.size();
+
+				savedStrings[data] = newStringID;
+			}
+			else
+			{
+				int32_t index = it->second;
+				save(index);
+			}
+		}
+		else
+		{
+			save(static_cast<uint32_t>(data.length()));
+			this->write(static_cast<const void *>(data.data()), data.size());
+		}
 	}
+
 	template <typename T1, typename T2>
 	void save(const std::pair<T1,T2> &data)
 	{
@@ -329,9 +407,19 @@ public:
 		save(data.second);
 	}
 	template <typename T1, typename T2>
+	void save(const std::unordered_map<T1,T2> &data)
+	{
+		*this & static_cast<uint32_t>(data.size());
+		for(auto i = data.begin(); i != data.end(); i++)
+		{
+			save(i->first);
+			save(i->second);
+		}
+	}
+	template <typename T1, typename T2>
 	void save(const std::map<T1,T2> &data)
 	{
-		*this & ui32(data.size());
+		*this & static_cast<uint32_t>(data.size());
 		for(auto i = data.begin(); i != data.end(); i++)
 		{
 			save(i->first);
@@ -341,7 +429,7 @@ public:
 	template <typename T1, typename T2>
 	void save(const std::multimap<T1, T2> &data)
 	{
-		*this & ui32(data.size());
+		*this & static_cast<uint32_t>(data.size());
 		for(auto i = data.begin(); i != data.end(); i++)
 		{
 			save(i->first);
@@ -351,7 +439,7 @@ public:
 	template<typename T0, typename... TN>
 	void save(const std::variant<T0, TN...> & data)
 	{
-		si32 which = data.index();
+		int32_t which = data.index();
 		save(which);
 
 		VariantVisitorSaver<BinarySerializer> visitor(*this);
@@ -362,26 +450,26 @@ public:
 	{
 		if(data)
 		{
-			save((ui8)1);
+			save(static_cast<uint8_t>(1));
 			save(*data);
 		}
 		else
 		{
-			save((ui8)0);
+			save(static_cast<uint32_t>(0));
 		}
 	}
 
 	template <typename T>
 	void save(const boost::multi_array<T, 3> &data)
 	{
-		ui32 length = data.num_elements();
+		uint32_t length = data.num_elements();
 		*this & length;
 		auto shape = data.shape();
-		ui32 x = shape[0];
-		ui32 y = shape[1];
-		ui32 z = shape[2];
+		uint32_t x = shape[0];
+		uint32_t y = shape[1];
+		uint32_t z = shape[2];
 		*this & x & y & z;
-		for(ui32 i = 0; i < length; i++)
+		for(uint32_t i = 0; i < length; i++)
 			save(data.data()[i]);
 	}
 	template <std::size_t T>

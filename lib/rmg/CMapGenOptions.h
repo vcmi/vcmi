@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../serializer/Serializeable.h"
 #include "CRmgTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -26,7 +27,7 @@ enum class EPlayerType
 
 /// The map gen options class holds values about general map generation settings
 /// e.g. the size of the map, the count of players,...
-class DLL_LINKAGE CMapGenOptions
+class DLL_LINKAGE CMapGenOptions : public Serializeable
 {
 public:
 	/// The player settings class maps the player color, starting town and human player flag.

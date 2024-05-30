@@ -772,27 +772,6 @@ void AIGateway::showMapObjectSelectDialog(QueryID askID, const Component & icon,
 	requestActionASAP([=](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
-void AIGateway::saveGame(BinarySerializer & h)
-{
-	NET_EVENT_HANDLER;
-	nullkiller->memory->removeInvisibleObjects(myCb.get());
-
-	CAdventureAI::saveGame(h);
-	serializeInternal(h);
-}
-
-void AIGateway::loadGame(BinaryDeserializer & h)
-{
-	//NET_EVENT_HANDLER;
-
-	#if 0
-	//disabled due to issue 2890
-	registerGoals(h);
-	#endif // 0
-	CAdventureAI::loadGame(h);
-	serializeInternal(h);
-}
-
 bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 {
 	if(!obj)

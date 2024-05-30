@@ -12,6 +12,7 @@
 #include "CRewardableObject.h"
 #include "../ResourceSet.h"
 #include "../MetaString.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,7 +37,7 @@ enum class EQuestMission {
 	HOTA_REACH_DATE = 13,
 };
 
-class DLL_LINKAGE CQuest final
+class DLL_LINKAGE CQuest final : public Serializeable
 {
 public:
 
@@ -74,13 +75,13 @@ public:
 	CQuest(); //TODO: Remove constructor
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
-	virtual bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	virtual void getVisitText(IGameCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	virtual void getCompletionText(IGameCallback * cb, MetaString &text) const;
-	virtual void getRolloverText (IGameCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
-	virtual void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
-	virtual void addTextReplacements(IGameCallback * cb, MetaString &out, std::vector<Component> & components) const;
-	virtual void addKillTargetReplacements(MetaString &out) const;
+	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
+	void getVisitText(IGameCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	void getCompletionText(IGameCallback * cb, MetaString &text) const;
+	void getRolloverText (IGameCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
+	void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
+	void addTextReplacements(IGameCallback * cb, MetaString &out, std::vector<Component> & components) const;
+	void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
 
 	bool operator== (const CQuest & quest) const
@@ -114,7 +115,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 };
 
-class DLL_LINKAGE IQuestObject
+class DLL_LINKAGE IQuestObject : public virtual Serializeable
 {
 public:
 	CQuest * quest = new CQuest();

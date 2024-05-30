@@ -10,10 +10,11 @@
 #pragma once
 
 #include "IObjectInterface.h"
+
+#include "../bonuses/BonusEnum.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../filesystem/ResourcePath.h"
 #include "../int3.h"
-#include "../bonuses/BonusEnum.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -142,7 +142,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	cingconsole = new CInGameConsole();
-	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
@@ -1199,19 +1198,6 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 		//recalculate paths because hero has lost bonus influencing pathfinding
 		localState->erasePath(hero);
 	}
-}
-
-void CPlayerInterface::saveGame( BinarySerializer & h )
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	localState->serialize(h);
-}
-
-void CPlayerInterface::loadGame( BinaryDeserializer & h )
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	localState->serialize(h);
-	firstCall = -1;
 }
 
 void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )

@@ -131,8 +131,6 @@ public:
 
 	void newGame(CGameState * gameState);
 	void loadGame(CGameState * gameState);
-	void serialize(BinarySerializer & h);
-	void serialize(BinaryDeserializer & h);
 
 	void save(const std::string & fname);
 	void endGame();
@@ -140,8 +138,8 @@ public:
 	void initMapHandler();
 	void initPlayerEnvironments();
 	void initPlayerInterfaces();
-	std::string aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman); //empty means no AI -> human
-	std::string aiNameForPlayer(bool battleAI, bool alliedToHuman);
+	std::string aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman) const; //empty means no AI -> human
+	std::string aiNameForPlayer(bool battleAI, bool alliedToHuman) const;
 	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, PlayerColor color, bool battlecb = false);
 	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, PlayerColor color, bool needCallback = true);
 

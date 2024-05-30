@@ -53,7 +53,7 @@ namespace Goals
 		{
 			int3 tile = int3(0, 0, ourPos.z);
 
-			const auto & slice = (*(ts->fogOfWarMap))[ourPos.z];
+			const auto & slice = ts->fogOfWarMap[ourPos.z];
 
 			for(tile.x = ourPos.x - scanRadius; tile.x <= ourPos.x + scanRadius; tile.x++)
 			{
@@ -81,13 +81,13 @@ namespace Goals
 
 			foreach_tile_pos([&](const int3 & pos)
 			{
-				if((*(ts->fogOfWarMap))[pos.z][pos.x][pos.y])
+				if(ts->fogOfWarMap[pos.z][pos.x][pos.y])
 				{
 					bool hasInvisibleNeighbor = false;
 
 					foreach_neighbour(cbp, pos, [&](CCallback * cbp, int3 neighbour)
 					{
-						if(!(*(ts->fogOfWarMap))[neighbour.z][neighbour.x][neighbour.y])
+						if(!ts->fogOfWarMap[neighbour.z][neighbour.x][neighbour.y])
 						{
 							hasInvisibleNeighbor = true;
 						}
@@ -171,7 +171,7 @@ namespace Goals
 			{
 				foreach_neighbour(cbp, tile, [&](CCallback * cbp, int3 neighbour)
 				{
-					if((*(ts->fogOfWarMap))[neighbour.z][neighbour.x][neighbour.y])
+					if(ts->fogOfWarMap[neighbour.z][neighbour.x][neighbour.y])
 					{
 						out.push_back(neighbour);
 					}
@@ -184,7 +184,7 @@ namespace Goals
 			int ret = 0;
 			int3 npos = int3(0, 0, pos.z);
 
-			const auto & slice = (*(ts->fogOfWarMap))[pos.z];
+			const auto & slice = ts->fogOfWarMap[pos.z];
 
 			for(npos.x = pos.x - sightRadius; npos.x <= pos.x + sightRadius; npos.x++)
 			{

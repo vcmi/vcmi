@@ -10,8 +10,9 @@
 
 #include "Bonus.h"
 
-#include "../GameConstants.h"
 #include "../battle/BattleHex.h"
+#include "../serializer/Serializeable.h"
+#include "../constants/Enumerations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,7 @@ struct BonusLimitationContext
 	const BonusList & stillUndecided;
 };
 
-class DLL_LINKAGE ILimiter
+class DLL_LINKAGE ILimiter : public Serializeable
 {
 public:
 	enum class EDecision : uint8_t {ACCEPT, DISCARD, NOT_SURE};

@@ -367,7 +367,7 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 	for(int z = 0; z < mapSize.z; z++)
 		for(int x = 0; x < mapSize.x; x++)
 			for(int y = 0; y < mapSize.y; y++)
-				if(!(*fowMap)[z][x][y] || fc.mode == ETileVisibility::HIDDEN)
+				if(!fowMap[z][x][y] || fc.mode == ETileVisibility::HIDDEN)
 					hlp_tab[lastUnc++] = int3(x, y, z);
 
 	fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);

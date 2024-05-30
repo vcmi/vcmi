@@ -26,13 +26,6 @@ struct DLL_EXPORT ResourceObjective
 
 	TResources resources; //how many resoures do we need
 	Goals::TSubgoal goal; //what for (build, gather army etc...)
-
-	 //TODO: register?
-	template<typename Handler> void serializeInternal(Handler & h)
-	{
-		h & resources;
-		//h & goal; //FIXME: goal serialization is broken
-	}
 };
 
 class DLL_EXPORT IResourceManager //: public: IAbstractManager
@@ -103,11 +96,4 @@ private:
 	boost::heap::binomial_heap<ResourceObjective> queue;
 
 	void dumpToLog() const;
-
-	//TODO: register?
-	template<typename Handler> void serializeInternal(Handler & h)
-	{
-		h & saving;
-		h & queue;
-	}
 };

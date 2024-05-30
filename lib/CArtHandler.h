@@ -16,6 +16,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
+#include "serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -187,7 +188,7 @@ struct DLL_LINKAGE ArtSlotInfo
 	}
 };
 
-class DLL_LINKAGE CArtifactSet
+class DLL_LINKAGE CArtifactSet : public virtual Serializeable
 {
 public:
 	using ArtPlacementMap = std::map<CArtifactInstance*, ArtifactPosition>;

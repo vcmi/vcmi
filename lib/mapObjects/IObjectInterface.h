@@ -9,10 +9,11 @@
  */
 #pragma once
 
+#include "../GameCallbackHolder.h"
+#include "../constants/EntityIdentifiers.h"
 #include "../networkPacks/EInfoWindowMode.h"
 #include "../networkPacks/ObjProperty.h"
-#include "../constants/EntityIdentifiers.h"
-#include "../GameCallbackHolder.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,7 +30,7 @@ class int3;
 class MetaString;
 class PlayerColor;
 
-class DLL_LINKAGE IObjectInterface : public GameCallbackHolder
+class DLL_LINKAGE IObjectInterface : public GameCallbackHolder, public virtual Serializeable
 {
 public:
 	using GameCallbackHolder::GameCallbackHolder;

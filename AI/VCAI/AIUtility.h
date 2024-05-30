@@ -68,14 +68,6 @@ public:
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
 	bool validAndSet() const;
-
-
-	template<typename Handler> void serialize(Handler & h)
-	{
-		h & this->h;
-		h & hid;
-		h & name;
-	}
 };
 
 enum BattleState
@@ -100,12 +92,6 @@ struct ObjectIdRef
 	ObjectIdRef(const CGObjectInstance * obj);
 
 	bool operator<(const ObjectIdRef & rhs) const;
-
-
-	template<typename Handler> void serialize(Handler & h)
-	{
-		h & id;
-	}
 };
 
 struct TimeCheck

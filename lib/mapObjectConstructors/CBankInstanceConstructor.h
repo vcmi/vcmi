@@ -16,10 +16,11 @@
 #include "../ResourceSet.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CBank.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct BankConfig
+struct BankConfig : public Serializeable
 {
 	ui32 chance = 0; //chance for this level being chosen
 	std::vector<CStackBasicDescriptor> guards; //creature ID, amount

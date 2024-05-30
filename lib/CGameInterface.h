@@ -110,9 +110,6 @@ public:
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};
 
 	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) = 0;
-
-	virtual void saveGame(BinarySerializer & h) = 0;
-	virtual void loadGame(BinaryDeserializer & h) = 0;
 };
 
 class DLL_LINKAGE CDynLibHandler
@@ -161,9 +158,6 @@ public:
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
 	void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override;
 	void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
-
-	void saveGame(BinarySerializer & h) override;
-	void loadGame(BinaryDeserializer & h) override;
 };
 
 VCMI_LIB_NAMESPACE_END

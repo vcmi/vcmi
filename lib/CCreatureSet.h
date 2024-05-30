@@ -11,6 +11,7 @@
 
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
+#include "serializer/Serializeable.h"
 #include "GameConstants.h"
 #include "CArtHandler.h"
 #include "CArtifactInstance.h"
@@ -208,7 +209,7 @@ namespace NArmyFormation
 	static const std::vector<std::string> names{ "wide", "tight" };
 }
 
-class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
+class DLL_LINKAGE CCreatureSet : public IArmyDescriptor, public virtual Serializeable //seven combined creatures
 {
 	CCreatureSet(const CCreatureSet &) = delete;
 	CCreatureSet &operator=(const CCreatureSet&);

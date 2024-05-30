@@ -196,24 +196,31 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
-		std::string key;
-		auto sz = stringsLocalizations.size();
-		h & sz;
-		if(h.saving)
+		if (h.version >= Handler::Version::SIMPLE_TEXT_CONTAINER_SERIALIZATION)
 		{
-			for(auto s : stringsLocalizations)
-			{
-				key = s.first;
-				h & key;
-				h & s.second;
-			}
+			h & stringsLocalizations;
 		}
 		else
 		{
-			for(size_t i = 0; i < sz; ++i)
+			std::string key;
+			int64_t sz = stringsLocalizations.size();
+			h & sz;
+			if(h.saving)
 			{
-				h & key;
-				h & stringsLocalizations[key];
+				for(auto s : stringsLocalizations)
+				{
+					key = s.first;
+					h & key;
+					h & s.second;
+				}
+			}
+			else
+			{
+				for(size_t i = 0; i < sz; ++i)
+				{
+					h & key;
+					h & stringsLocalizations[key];
+				}
 			}
 		}
 	}

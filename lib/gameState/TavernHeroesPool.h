@@ -11,6 +11,8 @@
 
 #include "../GameConstants.h"
 #include "TavernSlot.h"
+#include "../serializer/Serializeable.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +23,7 @@ class CHeroClass;
 class CGameState;
 class CSimpleArmy;
 
-class DLL_LINKAGE TavernHeroesPool
+class DLL_LINKAGE TavernHeroesPool : public Serializeable
 {
 	struct TavernSlot
 	{

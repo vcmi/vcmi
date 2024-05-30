@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
+#include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -18,7 +19,7 @@ class CConnection;
 
 class ICPackVisitor;
 
-struct DLL_LINKAGE CPack
+struct DLL_LINKAGE CPack : public Serializeable
 {
 	/// Pointer to connection that pack received from
 	/// Only set & used on server

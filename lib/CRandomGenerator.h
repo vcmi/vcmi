@@ -11,6 +11,7 @@
 #pragma once
 
 #include <vstd/RNG.h>
+#include "serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,7 @@ using TRandI = std::function<int()>;
 /// The random generator randomly generates integers and real numbers("doubles") between
 /// a given range. This is a header only class and mainly a wrapper for
 /// convenient usage of the standard random API. An instance of this RNG is not thread safe.
-class DLL_LINKAGE CRandomGenerator : public vstd::RNG, boost::noncopyable
+class DLL_LINKAGE CRandomGenerator : public vstd::RNG, boost::noncopyable, public Serializeable
 {
 public:
 	/// Seeds the generator by default with the product of the current time in milliseconds and the

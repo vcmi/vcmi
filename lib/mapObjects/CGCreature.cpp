@@ -270,7 +270,7 @@ void CGCreature::initObj(CRandomGenerator & rand)
 		}
 	}
 
-	temppower = stacks[SlotID(0)]->count * static_cast<ui64>(1000);
+	temppower = stacks[SlotID(0)]->count * static_cast<int64_t>(1000);
 	refusedJoining = false;
 }
 

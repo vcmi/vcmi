@@ -66,15 +66,6 @@ public:
 	void attemptedAnsweringQuery(QueryID queryID, int answerRequestID);
 	void receivedAnswerConfirmation(int answerRequestID, int result);
 	void heroVisit(const CGObjectInstance * obj, bool started);
-
-
-	template<typename Handler> void serialize(Handler & h)
-	{
-		h & battle;
-		h & remainingQueries;
-		h & requestToQueryID;
-		h & havingTurn;
-	}
 };
 
 class DLL_EXPORT VCAI : public CAdventureAI
@@ -152,8 +143,6 @@ public:
 	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	void saveGame(BinarySerializer & h) override; //saving
-	void loadGame(BinaryDeserializer & h) override; //loading
 	void finish() override;
 
 	void availableCreaturesChanged(const CGDwelling * town) override;
@@ -273,92 +262,6 @@ public:
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void requestActionASAP(std::function<void()> whatToDo);
-
-	#if 0
-	//disabled due to issue 2890
-	template<typename Handler> void registerGoals(Handler & h)
-	{
-		//h.template registerType<Goals::AbstractGoal, Goals::BoostHero>();
-		h.template registerType<Goals::AbstractGoal, Goals::Build>();
-		h.template registerType<Goals::AbstractGoal, Goals::BuildThis>();
-		//h.template registerType<Goals::AbstractGoal, Goals::CIssueCommand>();
-		h.template registerType<Goals::AbstractGoal, Goals::ClearWayTo>();
-		h.template registerType<Goals::AbstractGoal, Goals::CollectRes>();
-		h.template registerType<Goals::AbstractGoal, Goals::Conquer>();
-		h.template registerType<Goals::AbstractGoal, Goals::DigAtTile>();
-		h.template registerType<Goals::AbstractGoal, Goals::Explore>();
-		h.template registerType<Goals::AbstractGoal, Goals::FindObj>();
-		h.template registerType<Goals::AbstractGoal, Goals::GatherArmy>();
-		h.template registerType<Goals::AbstractGoal, Goals::GatherTroops>();
-		h.template registerType<Goals::AbstractGoal, Goals::GetArtOfType>();
-		h.template registerType<Goals::AbstractGoal, Goals::VisitObj>();
-		h.template registerType<Goals::AbstractGoal, Goals::Invalid>();
-		//h.template registerType<Goals::AbstractGoal, Goals::NotLose>();
-		h.template registerType<Goals::AbstractGoal, Goals::RecruitHero>();
-		h.template registerType<Goals::AbstractGoal, Goals::VisitHero>();
-		h.template registerType<Goals::AbstractGoal, Goals::VisitTile>();
-		h.template registerType<Goals::AbstractGoal, Goals::Win>();
-	}
-	#endif
-
-	template<typename Handler> void serializeInternal(Handler & h)
-	{
-		h & knownTeleportChannels;
-		h & knownSubterraneanGates;
-		h & destinationTeleport;
-		h & townVisitsThisWeek;
-
-		#if 0
-		//disabled due to issue 2890
-		h & lockedHeroes;
-		#else
-		{
-			ui32 length = 0;
-			h & length;
-			if(!h.saving)
-			{
-				std::set<ui32> loadedPointers;
-				lockedHeroes.clear();
-				for(ui32 index = 0; index < length; index++)
-				{
-					HeroPtr ignored1;
-					h & ignored1;
-
-					ui8 flag = 0;
-					h & flag;
-
-					if(flag)
-					{
-						ui32 pid = 0xffffffff;
-						h & pid;
-
-						if(!vstd::contains(loadedPointers, pid))
-						{
-							loadedPointers.insert(pid);
-
-							ui16 typeId = 0;
-							//this is the problem requires such hack
-							//we have to explicitly ignore invalid goal class type id
-							h & typeId;
-							Goals::AbstractGoal ignored2;
-							ignored2.serialize(h);
-						}
-					}
-				}
-			}
-		}
-		#endif
-
-		h & reservedHeroesMap; //FIXME: cannot instantiate abstract class
-		h & visitableObjs;
-		h & alreadyVisited;
-		h & reservedObjs;
-		h & status;
-		h & battlename;
-		h & heroesUnableToExplore;
-
-		//myCB is restored after load by init call
-	}
 };
 
 class cannotFulfillGoalException : public std::exception
