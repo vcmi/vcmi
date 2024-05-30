@@ -328,7 +328,7 @@ public:
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 
-	void updateWidgets();
+	void update() override;
 
 	const CGarrisonSlot * getSelectedSlotID() const;
 

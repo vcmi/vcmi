@@ -14,14 +14,31 @@
 
 CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int selectionWidth)
 {
-	init(
-		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
-		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
-		position,
-		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
+	init(position, std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
 
 	for(const auto & [slot, artPlace] : artWorn)
 		artPlace->setSelectionWidth(selectionWidth);
 	for(auto artPlace : backpack)
 		artPlace->setSelectionWidth(selectionWidth);
 };
+
+void CArtifactsOfHeroMarket::clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+{
+	if(artPlace.isLocked())
+		return;
+
+	if(const auto art = getArt(artPlace.slot))
+	{
+		if(onSelectArtCallback && art->artType->isTradable())
+		{
+			unmarkSlots();
+			artPlace.selectSlot(true);
+			onSelectArtCallback(&artPlace);
+		}
+		else
+		{
+			if(onClickNotTradableCallback)
+				onClickNotTradableCallback();
+		}
+	}
+}

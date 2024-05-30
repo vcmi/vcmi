@@ -19,7 +19,39 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+DLL_LINKAGE bool ArtifactUtils::checkIfSlotValid(const CArtifactSet & artSet, const ArtifactPosition & slot)
+{
+	if(artSet.bearerType() == ArtBearer::HERO)
+	{
+		if(isSlotEquipment(slot) || isSlotBackpack(slot) || slot == ArtifactPosition::TRANSITION_POS)
+			return true;
+	}
+	else if(artSet.bearerType() == ArtBearer::ALTAR)
+	{
+		if(isSlotBackpack(slot))
+			return true;
+	}
+	else if(artSet.bearerType() == ArtBearer::COMMANDER)
+	{
+		if(vstd::contains(commanderSlots(), slot))
+			return true;
+	}
+	else if(artSet.bearerType() == ArtBearer::CREATURE)
+	{
+		if(slot == ArtifactPosition::CREATURE_SLOT)
+			return true;
+	}
+	return false;
+}
+
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid)
+{
+	if(auto targetSlot = getArtEquippedPosition(target, aid); targetSlot != ArtifactPosition::PRE_FIRST)
+		return targetSlot;
+	return getArtBackpackPosition(target, aid);
+}
+
+DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtEquippedPosition(const CArtifactSet * target, const ArtifactID & aid)
 {
 	const auto * art = aid.toArtifact();
 	for(const auto & slot : art->getPossibleSlots().at(target->bearerType()))
@@ -27,7 +59,7 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet
 		if(art->canBePutAt(target, slot))
 			return slot;
 	}
-	return getArtBackpackPosition(target, aid);
+	return ArtifactPosition::PRE_FIRST;
 }
 
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid)

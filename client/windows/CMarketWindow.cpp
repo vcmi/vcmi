@@ -62,24 +62,27 @@ CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero
 
 void CMarketWindow::updateArtifacts()
 {
-	assert(marketWidget);
-	marketWidget->update();
+	update();
 }
 
 void CMarketWindow::updateGarrisons()
 {
-	assert(marketWidget);
-	marketWidget->update();
+	update();
 }
 
 void CMarketWindow::updateResource()
 {
-	assert(marketWidget);
-	marketWidget->update();
+	update();
 }
 
 void CMarketWindow::updateHero()
 {
+	update();
+}
+
+void CMarketWindow::update()
+{
+	CWindowWithArtifacts::update();
 	assert(marketWidget);
 	marketWidget->update();
 }
@@ -96,21 +99,6 @@ bool CMarketWindow::holdsGarrison(const CArmedInstance * army)
 {
 	assert(marketWidget);
 	return marketWidget->hero == army;
-}
-
-void CMarketWindow::artifactRemoved(const ArtifactLocation & artLoc)
-{
-	marketWidget->update();
-	CWindowWithArtifacts::artifactRemoved(artLoc);
-}
-
-void CMarketWindow::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw)
-{
-	if(!getState().has_value())
-		return;
-	CWindowWithArtifacts::artifactMoved(srcLoc, destLoc, withRedraw);
-	assert(marketWidget);
-	marketWidget->update();
 }
 
 void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero)
@@ -206,7 +194,9 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	artSlotBack->moveTo(pos.topLeft() + Point(18, 339));
 	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero);
 	artSets.clear();
-	addSetAndCallbacks(artsSellingMarket->getAOHset());
+	const auto heroArts = artsSellingMarket->getAOHset();
+	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition){showArifactInfo(*heroArts, artPlace, cursorPosition);};
+	addSet(heroArts);
 	marketWidget = artsSellingMarket;
 	initWidgetInternals(EMarketMode::ARTIFACT_RESOURCE, CGI->generaltexth->zelp[600]);	
 }
@@ -246,7 +236,20 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	auto altarArtifacts = std::make_shared<CAltarArtifacts>(market, hero);
 	marketWidget = altarArtifacts;
 	artSets.clear();
-	addSetAndCallbacks(altarArtifacts->getAOHset());
+	const auto heroArts = altarArtifacts->getAOHset();
+	heroArts->clickPressedCallback = [this, heroArts](const CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		clickPressedOnArtPlace(heroArts->getHero(), artPlace.slot, true, true, false);
+	};
+	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showArtifactAssembling(*heroArts, artPlace, cursorPosition);
+	};
+	heroArts->gestureCallback = [this, heroArts](const CArtPlace & artPlace, const Point & cursorPosition)
+	{
+		showQuickBackpackWindow(heroArts->getHero(), artPlace.slot, cursorPosition);
+	};
+	addSet(heroArts);
 	initWidgetInternals(EMarketMode::ARTIFACT_EXP, CGI->generaltexth->zelp[568]);
 	updateHero();
 	quitButton->addCallback([altarArtifacts](){altarArtifacts->putBackArtifacts();});

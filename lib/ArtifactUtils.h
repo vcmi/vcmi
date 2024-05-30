@@ -25,8 +25,9 @@ class CMap;
 
 namespace ArtifactUtils
 {
-	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
+	DLL_LINKAGE bool checkIfSlotValid(const CArtifactSet & artSet, const ArtifactPosition & slot);
 	DLL_LINKAGE ArtifactPosition getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid);
+	DLL_LINKAGE ArtifactPosition getArtEquippedPosition(const CArtifactSet * target, const ArtifactID & aid);
 	DLL_LINKAGE ArtifactPosition getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid);
 	// TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE const std::vector<ArtifactPosition> & unmovableSlots();

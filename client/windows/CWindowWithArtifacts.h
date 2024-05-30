@@ -19,41 +19,34 @@
 class CWindowWithArtifacts : virtual public CWindowObject
 {
 public:
-	using CArtifactsOfHeroPtr = std::variant<
-		std::weak_ptr<CArtifactsOfHeroMarket>,
-		std::weak_ptr<CArtifactsOfHeroAltar>,
-		std::weak_ptr<CArtifactsOfHeroKingdom>,
-		std::weak_ptr<CArtifactsOfHeroMain>,
-		std::weak_ptr<CArtifactsOfHeroBackpack>,
-		std::weak_ptr<CArtifactsOfHeroQuickBackpack>>;
-	using CloseCallback = std::function<void()>;
+	using CArtifactsOfHeroPtr = std::shared_ptr<CArtifactsOfHeroBase>;
 
 	std::vector<CArtifactsOfHeroPtr> artSets;
-	CloseCallback closeCallback;
 
 	explicit CWindowWithArtifacts(const std::vector<CArtifactsOfHeroPtr> * artSets = nullptr);
-	void addSet(CArtifactsOfHeroPtr newArtSet);
-	void addSetAndCallbacks(CArtifactsOfHeroPtr newArtSet);
-	void addCloseCallback(const CloseCallback & callback);
-	const CGHeroInstance * getHeroPickedArtifact();
-	const CArtifactInstance * getPickedArtifact();
-	void clickPressedArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
-	void showPopupArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
-	void gestureArtPlaceHero(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void addSet(const std::shared_ptr<CArtifactsOfHeroBase> & newArtSet);
+	const CGHeroInstance * getHeroPickedArtifact() const;
+	const CArtifactInstance * getPickedArtifact() const;
+	void clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
+		bool allowExchange, bool altarTrading, bool closeWindow);
+	void swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, const ArtifactPosition & slot, const ArtifactLocation & dstLoc);
+	void showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const;
+	void showArifactInfo(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition) const;
+	void showQuickBackpackWindow(const CGHeroInstance * hero, const ArtifactPosition & slot, const Point & cursorPosition) const;
 	void activate() override;
 	void deactivate() override;
-	void enableArtifactsCostumeSwitcher() const;
+	void enableKeyboardShortcuts() const;
 
 	virtual void artifactRemoved(const ArtifactLocation & artLoc);
-	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw);
+	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc);
 	virtual void artifactDisassembled(const ArtifactLocation & artLoc);
 	virtual void artifactAssembled(const ArtifactLocation & artLoc);
+	virtual void update();
 
 protected:
-	void update() const;
-	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
-	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(const CArtifactsOfHeroBase & artsInst);
-	void markPossibleSlots();
-	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade) const;
-	void setCursorAnimation(const CArtifactInstance & artInst);
+	void markPossibleSlots() const;
+	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance & hero, bool isTrade) const;
+	void setCursorAnimation(const CArtifactInstance & artInst) const;
+	void putPickedArtifact(const CGHeroInstance & curHero, const ArtifactPosition & targetSlot) const;
+	void onClickPressedCommonArtifact(const CGHeroInstance & curHero, const ArtifactPosition & slot, bool closeWindow);
 };

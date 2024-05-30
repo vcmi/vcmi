@@ -32,9 +32,9 @@ CArtifactsOfHeroBase::CArtifactsOfHeroBase()
 void CArtifactsOfHeroBase::putBackPickedArtifact()
 {
 	// Artifact located in artifactsTransitionPos should be returned
-	if(getPickedArtifact())
+	if(const auto art = getPickedArtifact())
 	{
-		auto slot = ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->getTypeId());
+		auto slot = ArtifactUtils::getArtAnyPosition(curHero, art->getTypeId());
 		if(slot == ArtifactPosition::PRE_FIRST)
 		{
 			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
@@ -47,8 +47,6 @@ void CArtifactsOfHeroBase::putBackPickedArtifact()
 }
 
 void CArtifactsOfHeroBase::init(
-	const CArtPlace::ClickFunctor & onClickPressedCallback,
-	const CArtPlace::ClickFunctor & onShowPopupCallback,
 	const Point & position,
 	const BpackScrollFunctor & scrollCallback)
 {
@@ -69,14 +67,14 @@ void CArtifactsOfHeroBase::init(
 	{
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
-		artPlace.second->setClickPressedCallback(onClickPressedCallback);
-		artPlace.second->setShowPopupCallback(onShowPopupCallback);
+		artPlace.second->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace.second->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
-		artPlace->setClickPressedCallback(onClickPressedCallback);
-		artPlace->setShowPopupCallback(onShowPopupCallback);
+		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 	}
 	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(),
 		[scrollCallback](){scrollCallback(true);}, EShortcut::MOVE_LEFT);
@@ -90,20 +88,29 @@ void CArtifactsOfHeroBase::init(
 
 void CArtifactsOfHeroBase::clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
+	if(artPlace.isLocked())
+		return;
+
 	if(clickPressedCallback)
-		clickPressedCallback(*this, artPlace, cursorPosition);
+		clickPressedCallback(artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
+	if(artPlace.isLocked())
+		return;
+
 	if(showPopupCallback)
-		showPopupCallback(*this, artPlace, cursorPosition);
+		showPopupCallback(artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
+	if(artPlace.isLocked())
+		return;
+
 	if(gestureCallback)
-		gestureCallback(*this, artPlace, cursorPosition);
+		gestureCallback(artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
@@ -166,6 +173,21 @@ CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Artifa
 	}
 }
 
+CArtifactsOfHeroBase::ArtPlacePtr CArtifactsOfHeroBase::getArtPlace(const Point & cursorPosition)
+{
+	for(const auto & [slot, artPlace] : artWorn)
+	{
+		if(artPlace->pos.isInside(cursorPosition))
+			return artPlace;
+	}
+	for(const auto & artPlace : backpack)
+	{
+		if(artPlace->pos.isInside(cursorPosition))
+			return artPlace;
+	}
+	return nullptr;
+}
+
 void CArtifactsOfHeroBase::updateWornSlots()
 {
 	for(auto place : artWorn)
@@ -196,19 +218,29 @@ void CArtifactsOfHeroBase::updateSlot(const ArtifactPosition & slot)
 const CArtifactInstance * CArtifactsOfHeroBase::getPickedArtifact()
 {
 	// Returns only the picked up artifact. Not just highlighted like in the trading window.
-	if(!curHero || curHero->artifactsTransitionPos.empty())
-		return nullptr;
-	else
+	if(curHero)
 		return curHero->getArt(ArtifactPosition::TRANSITION_POS);
+	else
+		return nullptr;
 }
 
-void CArtifactsOfHeroBase::addGestureCallback(CArtPlace::ClickFunctor callback)
+void CArtifactsOfHeroBase::enableGesture()
 {
 	for(auto & artPlace : artWorn)
 	{
-		artPlace.second->setGestureCallback(callback);
+		artPlace.second->setGestureCallback(std::bind(&CArtifactsOfHeroBase::gestureArtPlace, this, _1, _2));
 		artPlace.second->addUsedEvents(GESTURE);
 	}
+}
+
+const CArtifactInstance * CArtifactsOfHeroBase::getArt(const ArtifactPosition & slot) const
+{
+	return curHero ? curHero->getArt(slot) : nullptr;
+}
+
+void CArtifactsOfHeroBase::enableKeyboardShortcuts()
+{
+	addUsedEvents(AEventsReceiver::KEYBOARD);
 }
 
 void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot)

@@ -55,14 +55,18 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	// Hero's artifacts
 	heroArts = std::make_shared<CArtifactsOfHeroMarket>(Point(-361, 46), offerTradePanel->selectionWidth);
 	heroArts->setHero(hero);
-	heroArts->selectArtCallback = [this](const CArtPlace * artPlace)
+	heroArts->onSelectArtCallback = [this](const CArtPlace * artPlace)
 	{
 		assert(artPlace);
 		selectedHeroSlot = artPlace->slot;
 		CArtifactsSelling::highlightingChanged();
 		CIntObject::redraw();
 	};
-
+	heroArts->onClickNotTradableCallback = []()
+	{
+		// This item can't be traded
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]);
+	};
 	CArtifactsSelling::updateShowcases();
 	CArtifactsSelling::deselect();
 }

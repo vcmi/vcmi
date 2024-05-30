@@ -46,7 +46,7 @@ void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 	//TODO: do not recreate window
 	if (false)
 	{
-		owner->update(hero, true);
+		owner->update();
 	}
 	else
 	{
@@ -175,20 +175,14 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[6]));
 	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[7]));
 
-	update(hero);
+	CHeroWindow::update();
 }
 
-void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
+void CHeroWindow::update()
 {
+	CWindowWithArtifacts::update();
 	auto & heroscrn = CGI->generaltexth->heroscrn;
-
-	if(!hero) //something strange... no hero? it shouldn't happen
-	{
-		logGlobal->error("Set nullptr hero? no way...");
-		return;
-	}
-
-	assert(hero == curHero);
+	assert(curHero);
 
 	name->setText(curHero->getNameTranslated());
 	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->getClassNameTranslated()).str());
@@ -219,9 +213,12 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 		if(!arts)
 		{
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
+			arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(curHero, artPlace.slot, true, false, false);};
+			arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*arts, artPlace, cursorPosition);};
+			arts->gestureCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(curHero, artPlace.slot, cursorPosition);};
 			arts->setHero(curHero);
-			addSetAndCallbacks(arts);
-			enableArtifactsCostumeSwitcher();
+			addSet(arts);
+			enableKeyboardShortcuts();
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
@@ -313,8 +310,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	morale->set(curHero);
 	luck->set(curHero);
 
-	if(redrawNeeded)
-		redraw();
+	redraw();
 }
 
 void CHeroWindow::dismissCurrent()

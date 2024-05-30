@@ -759,12 +759,18 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 151));
+	artifs[0]->clickPressedCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false);};
+	artifs[0]->showPopupCallback = [this, heroArts = artifs[0]](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*heroArts, artPlace, cursorPosition);};
+	artifs[0]->gestureCallback = [this, hero = heroInst[0]](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(hero, artPlace.slot, cursorPosition);};
 	artifs[0]->setHero(heroInst[0]);
 	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 151));
+	artifs[1]->clickPressedCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(hero, artPlace.slot, true, false, false);};
+	artifs[1]->showPopupCallback = [this, heroArts = artifs[1]](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*heroArts, artPlace, cursorPosition);};
+	artifs[1]->gestureCallback = [this, hero = heroInst[1]](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(hero, artPlace.slot, cursorPosition);};
 	artifs[1]->setHero(heroInst[1]);
 
-	addSetAndCallbacks(artifs[0]);
-	addSetAndCallbacks(artifs[1]);
+	addSet(artifs[0]);
+	addSet(artifs[1]);
 
 	for(int g=0; g<4; ++g)
 	{
@@ -925,7 +931,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		}
 	}
 
-	updateWidgets();
+	CWindowWithArtifacts::update();
 }
 
 const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const
@@ -937,7 +943,7 @@ void CExchangeWindow::updateGarrisons()
 {
 	garr->recreateSlots();
 
-	updateWidgets();
+	update();
 }
 
 bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
@@ -951,8 +957,9 @@ void CExchangeWindow::questlog(int whichHero)
 	LOCPLINT->showQuestLog();
 }
 
-void CExchangeWindow::updateWidgets()
+void CExchangeWindow::update()
 {
+	CWindowWithArtifacts::update();
 	for(size_t leftRight : {0, 1})
 	{
 		const CGHeroInstance * hero = heroInst.at(leftRight);
