@@ -252,6 +252,13 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "obrażenia: %d",
 	"vcmi.battleWindow.damageEstimation.kills" : "zginie: %d",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "zginie: %d",
+
+	"vcmi.battleWindow.damageRetaliation.will" : "Nastąpi odwet ",
+	"vcmi.battleWindow.damageRetaliation.may" : "Możliwy odwet ",
+	"vcmi.battleWindow.damageRetaliation.never" : "Nie będzie odwetu.",
+	"vcmi.battleWindow.damageRetaliation.damage" : "(%DAMAGE).",
+	"vcmi.battleWindow.damageRetaliation.damageKills" : "(%DAMAGE, %KILLS).",
+
 	"vcmi.battleWindow.killed" : "Zabici",
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s zostało zabitych poprzez celne strzały!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s został zabity poprzez celny strzał!",
