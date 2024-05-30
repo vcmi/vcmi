@@ -43,6 +43,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	// Check if it's LobbyClientConnected for our client
 	if(pack.uuid == handler.logicConnection->uuid)
 	{
+		handler.logicConnection->setSerializationVersion(pack.version);
 		handler.logicConnection->connectionID = pack.clientId;
 		if(handler.mapToStart)
 		{

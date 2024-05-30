@@ -113,5 +113,10 @@ public:
 			h & simturnsMinDurationDays;
 			h & simturnsMaxDurationDays;
 		}
+		else if (!h.saving)
+		{
+			simturnsMinDurationDays.reset();
+			simturnsMaxDurationDays.reset();
+		}
 	}
 };

@@ -32,6 +32,7 @@ enum class ESerializationVersion : int32_t
 	NONE = 0,
 
 	MINIMAL = 831,
+
 	RELEASE_143, // 832 +text container in campaigns, +starting hero in RMG options
 	HAS_EXTRA_OPTIONS, // 833 +extra options struct as part of startinfo
 	DESTROYED_OBJECTS, // 834 +list of objects destroyed by player
@@ -43,10 +44,12 @@ enum class ESerializationVersion : int32_t
 	ARTIFACT_COSTUMES, // 840 swappable artifacts set added
 
 	RELEASE_150 = ARTIFACT_COSTUMES, // for convenience
-	VOTING_SIMTURNS, // 841 - allow modification of simturns duration via vote
 
-	REMOVE_TEXT_CONTAINER_SIZE_T, // Fixed serialization of size_t from text containers
-	BANK_UNIT_PLACEMENT, // 842
+	VOTING_SIMTURNS, // 841 - allow modification of simturns duration via vote
+	REMOVE_TEXT_CONTAINER_SIZE_T, // 842 Fixed serialization of size_t from text containers
+	BANK_UNIT_PLACEMENT, // 843 Banks have unit placement flag
+
+	RELEASE_152 = BANK_UNIT_PLACEMENT,
 
 	CURRENT = BANK_UNIT_PLACEMENT
 };

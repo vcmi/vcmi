@@ -46,11 +46,16 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
+	auto compatibleVersion = std::min(pack.version, ESerializationVersion::CURRENT);
+	pack.c->setSerializationVersion(compatibleVersion);
+
 	srv.clientConnected(pack.c, pack.names, pack.uuid, pack.mode);
+
 	// Server need to pass some data to newly connected client
 	pack.clientId = pack.c->connectionID;
 	pack.mode = srv.si->mode;
 	pack.hostClientId = srv.hostClientId;
+	pack.version = compatibleVersion;
 
 	result = true;
 }
