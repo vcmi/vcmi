@@ -58,8 +58,8 @@
 * * 'I' will open Invite Players window (only for lobby games)
 * * 'R' will now replay video in campaigns
 * Added keyboard shortcuts to Adventure map:
-* * 'L' will now prompt to open Load Game screen
-* * 'M' will now prompt to go to main menu
+* * 'Ctrl+L' will now prompt to open Load Game screen
+* * 'Ctrl+M' will now prompt to go to main menu
 * * 'Ctrl+N' will now prompt to go to New Game screen
 * * 'Ctrl+Q' will now prompt to quit game
 * * Page Up, Page Down, Home and End keys will now move hero on adventure map similar to numpad equivalents
@@ -78,6 +78,7 @@
 ### AI
 * Nullkiller AI can now explore the map
 * Nullkiller AI will no longer use the map reveal cheat when allied with a human or when playing on low difficulty
+* Nullkiller AI is now used by default for allied players
 
 ### Launcher
 * When extracting data from gog.com offline installer game will extract files directly into used data directory instead of temporary directory
@@ -88,6 +89,7 @@
 ### Modding
 * Hero specialties with multiple bonuses that have TIMES_HERO_LEVEL updater now work as expected
 * Spells that apply multiple bonuses with same type and subtype but different value type now work as expected
+* Added option to toggle layout of guards in creature banks
 
 # 1.5.0 -> 1.5.1
 
