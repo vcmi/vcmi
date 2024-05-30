@@ -1,5 +1,6 @@
 #!/bin/sh
 
+sudo apt remove needrestart
 sudo apt-get update
 
 # Dependencies
