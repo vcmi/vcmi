@@ -16,6 +16,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
 #include "../CTownHandler.h"
+#include "../VCMI_Lib.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/RoadPlacer.h"
 #include "modificators/TreasurePlacer.h"

@@ -13,17 +13,18 @@
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
 #include "json/JsonNode.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 RoadTypeHandler::RoadTypeHandler()
 {
-	objects.push_back(new RoadType());
+	objects.emplace_back(new RoadType());
 
 	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
-RoadType * RoadTypeHandler::loadFromJson(
+std::shared_ptr<RoadType> RoadTypeHandler::loadFromJson(
 	const std::string & scope,
 	const JsonNode & json,
 	const std::string & identifier,
@@ -31,7 +32,7 @@ RoadType * RoadTypeHandler::loadFromJson(
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * info = new RoadType;
+	auto info = std::make_shared<RoadType>();
 
 	info->id              = RoadId(index);
 	info->identifier      = identifier;

@@ -27,6 +27,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
 #include "../spells/CSpellHandler.h"
+#include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -15,11 +15,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * info = new BattleFieldInfo(BattleField(index), identifier);
+	auto info = std::make_shared<BattleFieldInfo>(BattleField(index), identifier);
 
 	info->modScope = scope;
 	info->graphics = ImagePath::fromJson(json["graphics"]);

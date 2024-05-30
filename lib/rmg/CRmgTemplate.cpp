@@ -176,7 +176,7 @@ void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
 {
 	std::set<TerrainId> terrains;
-	for (auto terrain : VLC->terrainTypeHandler->objects)
+	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
 		if (terrain->isLand() && terrain->isPassable())
 		{

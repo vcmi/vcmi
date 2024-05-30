@@ -209,7 +209,7 @@ private:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	CCreature * loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CCreature> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 
 public:
 	std::set<CreatureID> doubledCreatures; //they get double week

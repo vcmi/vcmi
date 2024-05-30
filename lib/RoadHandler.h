@@ -51,7 +51,7 @@ public:
 class DLL_LINKAGE RoadTypeHandler : public CHandlerBase<RoadId, RoadType, RoadType, RoadTypeService>
 {
 public:
-	virtual RoadType * loadFromJson(
+	std::shared_ptr<RoadType> loadFromJson(
 		const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,

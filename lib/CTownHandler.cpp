@@ -1036,11 +1036,11 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source) const
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode & source, const std::string & identifier, size_t index)
+std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, const JsonNode & source, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * faction = new CFaction();
+	auto faction = std::make_shared<CFaction>();
 
 	faction->index = static_cast<FactionID>(index);
 	faction->modScope = scope;
@@ -1091,7 +1091,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	if (!source["town"].isNull())
 	{
 		faction->town = new CTown();
-		faction->town->faction = faction;
+		faction->town->faction = faction.get();
 		loadTown(faction->town, source["town"]);
 	}
 	else
@@ -1105,7 +1105,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto * object = loadFromJson(scope, data, name, objects.size());
+	auto object = loadFromJson(scope, data, name, objects.size());
 
 	objects.emplace_back(object);
 
@@ -1144,7 +1144,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto * object = loadFromJson(scope, data, name, index);
+	auto object = loadFromJson(scope, data, name, index);
 
 	if (objects.size() > index)
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
@@ -1260,7 +1260,7 @@ std::set<FactionID> CTownHandler::getDefaultAllowed() const
 {
 	std::set<FactionID> allowedFactions;
 
-	for(auto town : objects)
+	for(const auto & town : objects)
 		if (town->town != nullptr && !town->special)
 			allowedFactions.insert(town->getId());
 
@@ -1273,7 +1273,7 @@ std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const
 		return getDefaultAllowed();
 
 	std::set<FactionID> result;
-	for(auto town : objects)
+	for(const auto & town : objects)
 		result.insert(town->getId());
 
 	return result;

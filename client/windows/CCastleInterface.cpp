@@ -272,7 +272,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background->colorize(Town->tempOwner);
 
-	const CCreature * creature = CGI->creh->objects.at(Town->creatures.at(level).second.back());
+	const CCreature * creature = Town->creatures.at(level).second.back().toCreature();
 
 	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->getNamePluralTranslated());
 	animation = std::make_shared<CCreaturePic>(30, 44, creature, true, true);
@@ -1049,10 +1049,9 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 	}
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 
-	ui32 creatureID = town->creatures[level].second.back();
-	creature = CGI->creh->objects[creatureID];
+	CreatureID creatureID = town->creatures[level].second.back();
 
-	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), creature->getIconIndex(), 0, 8, 0);
+	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), creatureID.toEntity(VLC)->getIconIndex(), 0, 8, 0);
 
 	std::string value;
 	if(showAvailable)
@@ -1802,9 +1801,9 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 const CCreature * CFortScreen::RecruitArea::getMyCreature()
 {
 	if(!town->creatures.at(level).second.empty()) // built
-		return VLC->creh->objects[town->creatures.at(level).second.back()];
+		return town->creatures.at(level).second.back().toCreature();
 	if(!town->town->creatures.at(level).empty()) // there are creatures on this level
-		return VLC->creh->objects[town->town->creatures.at(level).front()];
+		return town->town->creatures.at(level).front().toCreature();
 	return nullptr;
 }
 
@@ -1888,7 +1887,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 		for(size_t j=0; j<spellCount; j++)
 		{
 			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()>j)
-				spells.push_back(std::make_shared<Scroll>(positions[i][j], CGI->spellh->objects[owner->town->spells[i][j]]));
+				spells.push_back(std::make_shared<Scroll>(positions[i][j], owner->town->spells[i][j].toSpell()));
 			else
 				emptyScrolls.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TPMAGES.DEF"), 1, 0, positions[i][j].x, positions[i][j].y));
 		}
@@ -1938,7 +1937,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	animBG = std::make_shared<CPicture>(ImagePath::builtin("TPSMITBK"), 64, 50);
 	animBG->needRefresh = true;
 
-	const CCreature * creature = CGI->creh->objects[creMachineID];
+	const CCreature * creature = creMachineID.toCreature();
 	anim = std::make_shared<CCreatureAnim>(64, 50, creature->animDefName);
 	anim->clipRect(113,125,200,150);
 

@@ -101,7 +101,7 @@ public:
 class DLL_LINKAGE TerrainTypeHandler : public CHandlerBase<TerrainId, TerrainType, TerrainType, TerrainTypeService>
 {
 public:
-	virtual TerrainType * loadFromJson(
+	std::shared_ptr<TerrainType> loadFromJson(
 		const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,

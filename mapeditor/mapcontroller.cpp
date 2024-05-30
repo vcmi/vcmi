@@ -137,7 +137,7 @@ void MapController::repairMap(CMap * map) const
 
 			map->allowedHeroes.insert(nih->getHeroType());
 
-			auto type = VLC->heroh->objects[nih->subID];
+			auto const & type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
 			//TODO: find a way to get proper type name
 			if(obj->ID == Obj::HERO)
@@ -187,7 +187,7 @@ void MapController::repairMap(CMap * map) const
 			if(art->ID == Obj::SPELL_SCROLL && !art->storedArtifact)
 			{
 				std::vector<SpellID> out;
-				for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+				for(auto const & spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 				{
 					//if(map->isAllowedSpell(spell->id))
 					{
@@ -239,7 +239,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 
 void MapController::initObstaclePainters(CMap * map)
 {
-	for (auto terrain : VLC->terrainTypeHandler->objects)
+	for (auto const & terrain : VLC->terrainTypeHandler->objects)
 	{
 		auto terrainId = terrain->getId();
 		_obstaclePainters[terrainId] = std::make_unique<EditorObstaclePlacer>(map);

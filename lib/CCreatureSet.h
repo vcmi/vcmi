@@ -16,6 +16,7 @@
 #include "CArtHandler.h"
 #include "CArtifactInstance.h"
 #include "CCreatureHandler.h"
+#include "VCMI_Lib.h"
 
 #include <vcmi/Entity.h>
 

@@ -114,12 +114,12 @@ RandomMapTab::RandomMapTab():
 		GH.windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
-	for(auto road : VLC->roadTypeHandler->objects)
+	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
-		addCallback(cbRoadType, [&, road](bool on)
+		addCallback(cbRoadType, [&, roadID = road->getId()](bool on)
 		{
-			mapGenOptions->setRoadEnabled(road->getId(), on);
+			mapGenOptions->setRoadEnabled(roadID, on);
 			updateMapInfoByHost();
 		});
 	}
@@ -372,7 +372,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
-	for(auto r : VLC->roadTypeHandler->objects)
+	for(const auto & r : VLC->roadTypeHandler->objects)
 	{
 		// Workaround for vcmi-extras bug
 		std::string jsonKey = r->getJsonKey();

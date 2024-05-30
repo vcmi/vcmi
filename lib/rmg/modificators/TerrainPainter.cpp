@@ -76,7 +76,7 @@ void TerrainPainter::initTerrainType()
 			{
 				//Fill with all terain types by default
 				{
-					for (auto terrain : VLC->terrainTypeHandler->objects)
+					for (const auto & terrain : VLC->terrainTypeHandler->objects)
 					{
 						if (terrain->isLand() && terrain->isPassable())
 						{

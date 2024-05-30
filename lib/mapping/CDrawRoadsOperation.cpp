@@ -15,6 +15,7 @@
 #include "../CRandomGenerator.h"
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
+#include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

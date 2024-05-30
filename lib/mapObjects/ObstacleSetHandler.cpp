@@ -14,6 +14,7 @@
 #include "../modding/IdentifierStorage.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
+#include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

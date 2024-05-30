@@ -164,7 +164,7 @@ const CCreature & BattleProjectileController::getShooter(const CStack * stack) c
 	if(creature->animation.missleFrameAngles.empty())
 	{
 		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead...", creature->getNameSingularTranslated());
-		creature = CGI->creh->objects[CreatureID::ARCHER];
+		creature = CreatureID(CreatureID::ARCHER).toCreature();
 	}
 
 	return *creature;

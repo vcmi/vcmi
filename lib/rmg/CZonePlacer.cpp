@@ -16,6 +16,7 @@
 #include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "../VCMI_Lib.h"
 #include "CMapGenOptions.h"
 #include "RmgMap.h"
 #include "Zone.h"

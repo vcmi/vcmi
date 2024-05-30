@@ -94,7 +94,7 @@ public:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	CSkill * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CSkill> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 };
 
 VCMI_LIB_NAMESPACE_END

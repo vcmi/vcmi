@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "lib/modding/ModScope.h"
+#include "lib/VCMI_Lib.h"
 
 #include "ScriptFixture.h"
 

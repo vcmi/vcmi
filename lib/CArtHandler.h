@@ -14,6 +14,7 @@
 
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
+#include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "serializer/Serializeable.h"
@@ -163,7 +164,7 @@ public:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	CArtifact * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CArtifact> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 
 private:
 	void addSlot(CArtifact * art, const std::string & slotID) const;

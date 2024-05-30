@@ -188,7 +188,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 
 const CCreature *BattleSiegeController::getTurretCreature() const
 {
-	return CGI->creh->objects[town->town->clientInfo.siegeShooter];
+	return town->town->clientInfo.siegeShooter.toCreature();
 }
 
 Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) const

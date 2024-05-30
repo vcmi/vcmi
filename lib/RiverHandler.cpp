@@ -13,17 +13,18 @@
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
 #include "json/JsonNode.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 RiverTypeHandler::RiverTypeHandler()
 {
-	objects.push_back(new RiverType());
+	objects.emplace_back(new RiverType());
 
 	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
-RiverType * RiverTypeHandler::loadFromJson(
+std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(
 	const std::string & scope,
 	const JsonNode & json,
 	const std::string & identifier,
@@ -31,7 +32,7 @@ RiverType * RiverTypeHandler::loadFromJson(
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * info = new RiverType;
+	auto info = std::make_shared<RiverType>();
 
 	info->id              = RiverId(index);
 	info->identifier      = identifier;

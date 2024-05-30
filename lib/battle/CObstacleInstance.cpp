@@ -107,7 +107,6 @@ SpellID CObstacleInstance::getTrigger() const
 
 void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
 {
-	auto obstacleInfo = getInfo();
 	auto hidden = false;
 	auto needAnimationOffsetFix = obstacleType == CObstacleInstance::USUAL;
 	int animationYOffset = 0;
@@ -117,11 +116,7 @@ void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
 
 	//We need only a subset of obstacle info for correct render
 	handler.serializeInt("position", pos);
-	handler.serializeStruct("appearSound", obstacleInfo.appearSound);
-	handler.serializeStruct("appearAnimation", obstacleInfo.appearAnimation);
-	handler.serializeStruct("animation", obstacleInfo.animation);
 	handler.serializeInt("animationYOffset", animationYOffset);
-
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("needAnimationOffsetFix", needAnimationOffsetFix);
 }

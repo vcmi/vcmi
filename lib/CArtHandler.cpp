@@ -373,7 +373,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto * object = loadFromJson(scope, data, name, objects.size());
+	auto object = loadFromJson(scope, data, name, objects.size());
 
 	object->iconIndex = object->getIndex() + 5;
 
@@ -384,7 +384,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto * object = loadFromJson(scope, data, name, index);
+	auto object = loadFromJson(scope, data, name, index);
 
 	object->iconIndex = object->getIndex();
 
@@ -400,12 +400,12 @@ const std::vector<std::string> & CArtHandler::getTypeNames() const
 	return typeNames;
 }
 
-CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
 
-	CArtifact * art = new CArtifact();
+	auto art = std::make_shared<CArtifact>();
 	if(!node["growing"].isNull())
 	{
 		for(auto bonus : node["growing"]["bonusesPerLevel"].Vector())
@@ -442,10 +442,10 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	art->price = static_cast<ui32>(node["value"].Float());
 	art->onlyOnWaterMap = node["onlyOnWaterMap"].Bool();
 
-	loadSlots(art, node);
-	loadClass(art, node);
-	loadType(art, node);
-	loadComponents(art, node);
+	loadSlots(art.get(), node);
+	loadClass(art.get(), node);
+	loadType(art.get(), node);
+	loadComponents(art.get(), node);
 
 	for(const auto & b : node["bonuses"].Vector())
 	{
@@ -663,7 +663,7 @@ std::set<ArtifactID> CArtHandler::getDefaultAllowed() const
 {
 	std::set<ArtifactID> allowedArtifacts;
 
-	for (auto artifact : objects)
+	for (const auto & artifact : objects)
 	{
 		if (!artifact->isCombined())
 			allowedArtifacts.insert(artifact->getId());

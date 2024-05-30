@@ -14,14 +14,15 @@
 #include "GameSettings.h"
 #include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
-	auto * info = new TerrainType;
+	auto info = std::make_shared<TerrainType>();
 
 	info->id = TerrainId(index);
 	info->identifier = identifier;

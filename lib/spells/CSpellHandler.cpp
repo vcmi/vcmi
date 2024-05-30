@@ -676,7 +676,7 @@ const std::vector<std::string> & CSpellHandler::getTypeNames() const
 	return typeNames;
 }
 
-CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -685,7 +685,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	SpellID id(static_cast<si32>(index));
 
-	auto * spell = new CSpell();
+	auto spell = std::make_shared<CSpell>();
 	spell->id = id;
 	spell->identifier = identifier;
 	spell->modScope = scope;

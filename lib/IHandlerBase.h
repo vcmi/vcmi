@@ -9,9 +9,6 @@
  */
 #pragma once
 
-#include "../lib/ConstTransitivePtr.h"
-#include "VCMI_Lib.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
@@ -60,13 +57,7 @@ template <class _ObjectID, class _ObjectBase, class _Object, class _ServiceBase>
 	}
 
 public:
-	virtual ~CHandlerBase()
-	{
-		for(auto & o : objects)
-		{
-			o.dellNull();
-		}
-	}
+	using ObjectPtr = std::shared_ptr<_Object>;
 
 	const Entity * getBaseByIndex(const int32_t index) const override
 	{
@@ -95,23 +86,19 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
-		auto object = loadFromJson(scope, data, name, objects.size());
-
-		objects.push_back(object);
+		objects.push_back(loadFromJson(scope, data, name, objects.size()));
 
 		for(const auto & type_name : getTypeNames())
-			registerObject(scope, type_name, name, object->getIndex());
+			registerObject(scope, type_name, name, objects.back()->getIndex());
 	}
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
-		auto object = loadFromJson(scope, data, name, index);
-
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
-		objects[index] = object;
+		objects[index] = loadFromJson(scope, data, name, index);
 
 		for(const auto & type_name : getTypeNames())
-			registerObject(scope, type_name, name, object->getIndex());
+			registerObject(scope, type_name, name, objects[index]->getIndex());
 	}
 
 	const _Object * operator[] (const _ObjectID id) const
@@ -124,25 +111,13 @@ public:
 		return getObjectImpl(index);
 	}
 
-	void updateEntity(int32_t index, const JsonNode & data)
-	{
-		if(index < 0 || index >= objects.size())
-		{
-			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
-		}
-		else
-		{
-			objects.at(index)->updateFrom(data);
-		}
-	}
-
 	size_t size() const
 	{
 		return objects.size();
 	}
 
 protected:
-	virtual _Object * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) = 0;
+	virtual ObjectPtr loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) = 0;
 	virtual const std::vector<std::string> & getTypeNames() const = 0;
 
 	template<typename ItemType>
@@ -159,7 +134,7 @@ protected:
 	}
 
 public: //todo: make private
-	std::vector<ConstTransitivePtr<_Object>> objects;
+	std::vector<ObjectPtr> objects;
 };
 
 VCMI_LIB_NAMESPACE_END

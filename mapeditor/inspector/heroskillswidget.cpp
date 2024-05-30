@@ -34,7 +34,7 @@ HeroSkillsWidget::HeroSkillsWidget(CGHeroInstance & h, QWidget *parent) :
 	ui->labelKnowledge->setText(QString::fromStdString(NPrimarySkill::names[3]));
 	
 	auto * delegate = new InspectorDelegate;
-	for(auto s : VLC->skillh->objects)
+	for(auto const & s : VLC->skillh->objects)
 		delegate->options.push_back({QString::fromStdString(s->getNameTranslated()), QVariant::fromValue(s->getId().getNum())});
 	ui->skills->setItemDelegateForColumn(0, delegate);
 	

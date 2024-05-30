@@ -446,7 +446,7 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 	int count = 0;
 	for(auto & elemh : allowedHeroes)
 	{
-		CHero * type = VLC->heroh->objects[elemh];
+		const CHero * type = elemh.toHeroType();
 		if(type->heroClass->faction == faction)
 			count++;
 	}
@@ -603,7 +603,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 
 	for(auto & elem : allowedHeroes)
 	{
-		CHero * type = VLC->heroh->objects[elem];
+		const CHero * type = elem.toHeroType();
 
 		if(type->heroClass->faction == selectedFaction)
 		{

@@ -163,7 +163,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	oi.maxPerZone = std::numeric_limits<ui32>::max();
 
 	std::vector<const CCreature *> creatures; //native creatures for this zone
-	for(auto cre : VLC->creh->objects)
+	for(auto const & cre : VLC->creh->objects)
 	{
 		if(!cre->special && cre->getFaction() == zone.getTownType())
 		{
@@ -221,12 +221,10 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto * obj = dynamic_cast<CGArtifact *>(factory->create(map.mapInstance->cb, nullptr));
 			std::vector<SpellID> out;
 			
-			for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+			for(auto spellID : VLC->spellh->getDefaultAllowed())
 			{
-				if(map.isAllowedSpell(spell->id) && spell->getLevel() == i + 1)
-				{
-					out.push_back(spell->id);
-				}
+				if(map.isAllowedSpell(spellID) && spellID.toSpell()->getLevel() == i + 1)
+					out.push_back(spellID);
 			}
 			auto * a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, zone.getRand()));
 			obj->storedArtifact = a;
@@ -354,10 +352,10 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create(map.mapInstance->cb, nullptr));
 
 			std::vector <const CSpell *> spells;
-			for(auto spell : VLC->spellh->objects)
+			for(auto spellID : VLC->spellh->getDefaultAllowed())
 			{
-				if(map.isAllowedSpell(spell->id) && spell->getLevel() == i)
-					spells.push_back(spell.get());
+				if(map.isAllowedSpell(spellID) && spellID.toSpell()->getLevel() == i)
+					spells.push_back(spellID.toSpell());
 			}
 			
 			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
@@ -387,10 +385,10 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create(map.mapInstance->cb, nullptr));
 
 			std::vector <const CSpell *> spells;
-			for(auto spell : VLC->spellh->objects)
+			for(auto spellID : VLC->spellh->getDefaultAllowed())
 			{
-				if(map.isAllowedSpell(spell->id) && spell->hasSchool(SpellSchool(i)))
-					spells.push_back(spell.get());
+				if(map.isAllowedSpell(spellID) && spellID.toSpell()->hasSchool(SpellSchool(i)))
+					spells.push_back(spellID.toSpell());
 			}
 			
 			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
@@ -419,10 +417,10 @@ void TreasurePlacer::addAllPossibleObjects()
 		auto * obj = dynamic_cast<CGPandoraBox *>(factory->create(map.mapInstance->cb, nullptr));
 
 		std::vector <const CSpell *> spells;
-		for(auto spell : VLC->spellh->objects)
+		for(auto spellID : VLC->spellh->getDefaultAllowed())
 		{
-			if(map.isAllowedSpell(spell->id))
-				spells.push_back(spell.get());
+			if(map.isAllowedSpell(spellID))
+				spells.push_back(spellID.toSpell());
 		}
 		
 		RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
