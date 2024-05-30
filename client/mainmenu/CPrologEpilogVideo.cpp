@@ -14,9 +14,9 @@
 #include "../CGameInfo.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
-#include "../gui/WindowHandler.h"
+//#include "../gui/WindowHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/FramerateManager.h"
+//#include "../gui/FramerateManager.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
 #include "../render/Canvas.h"
@@ -29,7 +29,18 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
-	videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo, true);
+	//TODO: remove hardcoded paths. Some of campaigns video actually consist from 2 parts
+	// however, currently our campaigns format expects only	a single video file
+	static const std::map<VideoPath, VideoPath> pairedVideoFiles = {
+		{ VideoPath::builtin("EVIL2AP1"),  VideoPath::builtin("EVIL2AP2") },
+		{ VideoPath::builtin("H3ABdb4"),   VideoPath::builtin("H3ABdb4b") },
+		{ VideoPath::builtin("H3x2_RNe1"), VideoPath::builtin("H3x2_RNe2") },
+	};
+
+	if (pairedVideoFiles.count(spe.prologVideo))
+		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo, pairedVideoFiles.at(spe.prologVideo), true);
+	else
+		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo, true);
 
 	//some videos are 800x600 in size while some are 800x400
 	if (videoPlayer->pos.h == 400)
