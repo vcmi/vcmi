@@ -58,6 +58,7 @@ public:
 	ui32 ammMax;
 
 	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
+	bool excludeFromRandomization = false;
 
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 

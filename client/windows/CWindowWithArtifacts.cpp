@@ -10,6 +10,11 @@
 #include "StdInc.h"
 #include "CWindowWithArtifacts.h"
 
+#include "CHeroWindow.h"
+#include "CSpellWindow.h"
+#include "CExchangeWindow.h"
+#include "CHeroBackpackWindow.h"
+
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
@@ -20,10 +25,6 @@
 
 #include "../widgets/CComponent.h"
 
-#include "../windows/CHeroWindow.h"
-#include "../windows/CSpellWindow.h"
-#include "../windows/GUIClasses.h"
-#include "../windows/CHeroBackpackWindow.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 

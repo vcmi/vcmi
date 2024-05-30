@@ -26,6 +26,7 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "modding/CModHandler.h"
+#include "ExceptionsCommon.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -670,9 +671,9 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
 		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
 		{
-			assert(cre->special);
 			if (!cre->special)
-				logMod->error("Creature %s does not have valid map object but is not marked as special!", cre->getJsonKey());
+				throw DataLoadingException("Mod " + scope + " is corrupted! Please disable or reinstall this mod. Reason: creature " + cre->getJsonKey() + " has no adventure map animation but is not marked as special!" );
+
 			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
 		}
 	});
@@ -962,6 +963,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	}
 
 	creature->special = config["special"].Bool() || config["disabled"].Bool();
+	creature->excludeFromRandomization = config["excludeFromRandomization"].Bool();
 
 	const JsonNode & sounds = config["sound"];
 	creature->sounds.attack = AudioPath::fromJson(sounds["attack"]);
@@ -1360,6 +1362,9 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	for(const auto & creature : objects)
 	{
 		if(creature->special)
+			continue;
+
+		if(creature->excludeFromRandomization)
 			continue;
 
 		if (creature->level == tier || tier == -1)

@@ -142,6 +142,9 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 
 void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 {
+	if (gh->getObjInstance(army->id) == nullptr)
+		throw std::runtime_error("Object " + army->getObjectName() + " is not on the map!");
+
 	for (TStackAndItsNewCount &ncount : newStackCounts)
 	{
 		if (ncount.second > 0)
@@ -481,12 +484,12 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	if(finishingBattle->loserHero) //remove beaten hero
 	{
-		RemoveObject ro(finishingBattle->loserHero->id, battle.battleGetArmyObject(0)->getOwner());
+		RemoveObject ro(finishingBattle->loserHero->id, finishingBattle->victor);
 		gameHandler->sendAndApply(&ro);
 	}
 	if(finishingBattle->isDraw() && finishingBattle->winnerHero) //for draw case both heroes should be removed
 	{
-		RemoveObject ro(finishingBattle->winnerHero->id, battle.battleGetArmyObject(0)->getOwner());
+		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->loser);
 		gameHandler->sendAndApply(&ro);
 	}
 
@@ -544,7 +547,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	// units will be given after casualties are taken
 	const SlotID necroSlot = raisedStack.type ? finishingBattle->winnerHero->getSlotFor(raisedStack.type) : SlotID();
 
-	if (necroSlot != SlotID())
+	if (necroSlot != SlotID() && !finishingBattle->isDraw())
 	{
 		finishingBattle->winnerHero->showNecromancyDialog(raisedStack, gameHandler->getRandomGenerator());
 		gameHandler->addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.type, raisedStack.count);

@@ -164,6 +164,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	{
 		if(ev.key.keysym.sym == SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT))
 		{
+			// FIXME: dead code? Looks like intercepted by OS/SDL and delivered as SDL_Quit instead?
 			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 			handleQuit(true);
 			return;
@@ -173,16 +174,6 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		{
 			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 			handleQuit(true);
-			return;
-		}
-
-		if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_F4)
-		{
-			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-			Settings full = settings.write["video"]["fullscreen"];
-			full->Bool() = !full->Bool();
-
-			GH.onScreenResize(false);
 			return;
 		}
 	}

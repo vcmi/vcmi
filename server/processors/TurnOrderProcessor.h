@@ -41,6 +41,9 @@ class TurnOrderProcessor : boost::noncopyable
 	std::set<PlayerColor> actingPlayers;
 	std::set<PlayerColor> actedPlayers;
 
+	std::optional<int> simturnsMinDurationDays;
+	std::optional<int> simturnsMaxDurationDays;
+
 	/// Returns date on which simturns must end unconditionally
 	int simturnsTurnsMaxLimit() const;
 
@@ -91,6 +94,12 @@ public:
 	/// Start game (or resume from save) and send PlayerStartsTurn pack to player(s)
 	void onGameStarted();
 
+	/// Permanently override duration of contactless simultaneous turns
+	void setMinSimturnsDuration(int days);
+
+	/// Permanently override duration of simultaneous turns with contact detection
+	void setMaxSimturnsDuration(int days);
+
 	template<typename Handler>
 	void serialize(Handler & h)
 	{
@@ -98,5 +107,16 @@ public:
 		h & awaitingPlayers;
 		h & actingPlayers;
 		h & actedPlayers;
+
+		if (h.version >= Handler::Version::VOTING_SIMTURNS)
+		{
+			h & simturnsMinDurationDays;
+			h & simturnsMaxDurationDays;
+		}
+		else if (!h.saving)
+		{
+			simturnsMinDurationDays.reset();
+			simturnsMaxDurationDays.reset();
+		}
 	}
 };

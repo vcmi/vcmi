@@ -202,7 +202,18 @@ public:
 
 		std::string key;
 		auto sz = stringsLocalizations.size();
-		h & sz;
+
+		if (h.version >= Handler::Version::REMOVE_TEXT_CONTAINER_SIZE_T)
+		{
+			int64_t size = sz;
+			h & size;
+			sz = size;
+		}
+		else
+		{
+			h & sz;
+		}
+
 		if(h.saving)
 		{
 			for(auto s : stringsLocalizations)

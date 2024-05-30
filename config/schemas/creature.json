@@ -25,6 +25,10 @@
 			"type" : "boolean",
 			"description" : "Internal. Object is competely disabled and may not be even loaded in-game"
 		},
+		"excludeFromRandomization" : {
+			"type" : "boolean",
+			"description" : "If set, this creature will never be picked as random monster and will not appear in Refugee Camp. Random map generator can still pick this creature"
+		},
 		"name" : {
 			"type" : "object",
 			"additionalProperties" : false,

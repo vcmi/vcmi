@@ -79,6 +79,8 @@ class CBankInstanceConstructor : public CDefaultObjectTypeHandler<CBank>
 	bool blockVisit;
 	// bank is visitable from land even when bank is on water tile
 	bool coastVisitable;
+	//If true, player units will be placed on the left and enemy on the right
+	bool regularUnitPlacement;
 protected:
 	void initTypeData(const JsonNode & input) override;
 

@@ -111,19 +111,19 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 		//trimming artifacts
 		for(auto & hero : campaignHeroReplacements)
 		{
-			const auto & checkAndRemoveArtifact = [&](const ArtifactPosition & artifactPosition)
+			const auto & checkAndRemoveArtifact = [&](const ArtifactPosition & artifactPosition) -> bool
 			{
 				if(artifactPosition == ArtifactPosition::SPELLBOOK)
-					return; // do not handle spellbook this way
+					return false; // do not handle spellbook this way
 
 				const ArtSlotInfo *info = hero.hero->getSlot(artifactPosition);
 				if(!info)
-					return;
+					return false;
 
 				// TODO: why would there be nullptr artifacts?
 				const CArtifactInstance *art = info->artifact;
 				if(!art)
-					return;
+					return false;
 
 				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
 
@@ -132,7 +132,11 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 
 				ArtifactLocation al(hero.hero->id, artifactPosition);
 				if(!takeable && !hero.hero->getSlot(al.slot)->locked)  //don't try removing locked artifacts -> it crashes #1719
+				{
 					hero.hero->getArt(al.slot)->removeFrom(*hero.hero, al.slot);
+					return true;
+				}
+				return false;
 			};
 
 			// process on copy - removal of artifact will invalidate container
@@ -140,9 +144,13 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 			for(const auto & art : artifactsWorn)
 				checkAndRemoveArtifact(art.first);
 
-			// process in reverse - removal of artifact will shift all artifacts after this one
-			for(int slotNumber = hero.hero->artifactsInBackpack.size() - 1; slotNumber >= 0; slotNumber--)
-				checkAndRemoveArtifact(ArtifactPosition::BACKPACK_START + slotNumber);
+			for (int slotNumber = 0; slotNumber < hero.hero->artifactsInBackpack.size();)
+			{
+				if (checkAndRemoveArtifact(ArtifactPosition::BACKPACK_START + slotNumber))
+					continue; // artifact was removed and backpack slots were shifted -> test this slot again
+				else
+					slotNumber++; // artifact was kept for transfer -> test next slot
+			};
 		}
 	}
 

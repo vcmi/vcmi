@@ -64,6 +64,11 @@ void MetaString::appendNumber(int64_t value)
 	numbers.push_back(value);
 }
 
+void MetaString::appendEOL()
+{
+	message.push_back(EMessage::APPEND_EOL);
+}
+
 void MetaString::replaceLocalString(EMetaText type, ui32 serial)
 {
 	message.push_back(EMessage::REPLACE_LOCAL_STRING);
@@ -155,6 +160,9 @@ DLL_LINKAGE std::string MetaString::toString() const
 			case EMessage::APPEND_NUMBER:
 				dst += std::to_string(numbers.at(nums++));
 				break;
+			case EMessage::APPEND_EOL:
+				dst += '\n';
+				break;
 			case EMessage::REPLACE_RAW_STRING:
 				boost::replace_first(dst, "%s", exactStrings.at(exSt++));
 				break;
@@ -219,6 +227,9 @@ DLL_LINKAGE std::string MetaString::buildList() const
 				break;
 			case EMessage::APPEND_NUMBER:
 				lista += std::to_string(numbers.at(nums++));
+				break;
+			case EMessage::APPEND_EOL:
+				lista += '\n';
 				break;
 			case EMessage::REPLACE_RAW_STRING:
 				lista.replace(lista.find("%s"), 2, exactStrings.at(exSt++));

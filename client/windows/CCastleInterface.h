@@ -154,7 +154,6 @@ class CCastleBuildings : public CIntObject
 	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
 	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
-	void enterMagesGuild();
 	
 	void openMagesGuild();
 	void openTownHall();
@@ -168,6 +167,9 @@ public:
 
 	void enterDwelling(int level);
 	void enterTownHall();
+	void enterMagesGuild();
+	void enterAnyMarket();
+	void enterAnyThievesGuild();
 	void enterToTheQuickRecruitmentWindow();
 
 	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);

@@ -492,7 +492,7 @@ void InterfaceObjectConfigurable::loadButtonHotkey(std::shared_ptr<CButton> butt
 		return;
 
 	button->addCallback(target->second.callback);
-	target->second.assignedToButton = true;
+	target->second.assignedButtons.push_back(button);
 }
 
 std::shared_ptr<CLabelGroup> InterfaceObjectConfigurable::buildLabelGroup(const JsonNode & config) const
@@ -821,8 +821,9 @@ void InterfaceObjectConfigurable::keyPressed(EShortcut key)
 	if (target == shortcuts.end())
 		return;
 
-	if (target->second.assignedToButton)
-		return; // will be handled by button instance
+	for (auto const & button :target->second.assignedButtons)
+		if (button->isActive())
+			return; // will be handled by button instance
 
 	if (target->second.blocked)
 		return;

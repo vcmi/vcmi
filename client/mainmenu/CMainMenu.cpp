@@ -108,9 +108,9 @@ void CMenuScreen::show(Canvas & to)
 	if(!config["video"].isNull())
 	{
 		// redraw order: background -> video -> buttons and pictures
-		background->redraw();
+		background->showAll(to);
 		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to.getInternalSurface(), true, false);
-		tabs->redraw();
+		tabs->showAll(to);
 	}
 	CIntObject::show(to);
 }
@@ -457,11 +457,11 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	playerName->setText(getPlayerName());
 	playerName->setCallback(std::bind(&CMultiMode::onNameChange, this, _1));
 
-	buttonHotseat = std::make_shared<CButton>(Point(373, 78 + 57 * 0), AnimationPath::builtin("MUBHOT.DEF"), CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
-	buttonLobby = std::make_shared<CButton>(Point(373, 78 + 57 * 1), AnimationPath::builtin("MUBONL.DEF"), CGI->generaltexth->zelp[265], std::bind(&CMultiMode::openLobby, this));
+	buttonHotseat = std::make_shared<CButton>(Point(373, 78 + 57 * 0), AnimationPath::builtin("MUBHOT.DEF"), CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this), EShortcut::MAIN_MENU_HOTSEAT);
+	buttonLobby = std::make_shared<CButton>(Point(373, 78 + 57 * 1), AnimationPath::builtin("MUBONL.DEF"), CGI->generaltexth->zelp[265], std::bind(&CMultiMode::openLobby, this), EShortcut::MAIN_MENU_LOBBY);
 
-	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 3), AnimationPath::builtin("MUBHOST.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this));
-	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 4), AnimationPath::builtin("MUBJOIN.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this));
+	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 3), AnimationPath::builtin("MUBHOST.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this), EShortcut::MAIN_MENU_HOST_GAME);
+	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 4), AnimationPath::builtin("MUBJOIN.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this), EShortcut::MAIN_MENU_JOIN_GAME);
 
 	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[288], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }

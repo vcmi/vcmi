@@ -15,6 +15,8 @@ set(Nullkiller_SRCS
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
 		Pathfinding/Rules/AIPreviousNodeRule.cpp
 		Pathfinding/ObjectGraph.cpp
+		Pathfinding/GraphPaths.cpp
+		Pathfinding/ObjectGraphCalculator.cpp
 		AIUtility.cpp
 		Analyzers/ArmyManager.cpp
 		Analyzers/HeroManager.cpp
@@ -38,10 +40,12 @@ set(Nullkiller_SRCS
 		Goals/ExchangeSwapTownHeroes.cpp
 		Goals/CompleteQuest.cpp
 		Goals/StayAtTown.cpp
+		Goals/ExploreNeighbourTile.cpp
 		Markers/ArmyUpgrade.cpp
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
 		Markers/DefendTown.cpp
+		Markers/ExplorationPoint.cpp
 		Engine/Nullkiller.cpp
 		Engine/DeepDecomposer.cpp
 		Engine/PriorityEvaluator.cpp
@@ -57,7 +61,9 @@ set(Nullkiller_SRCS
 		Behaviors/GatherArmyBehavior.cpp
 		Behaviors/ClusterBehavior.cpp
 		Behaviors/StayAtTownBehavior.cpp
+		Behaviors/ExplorationBehavior.cpp
 		Helpers/ArmyFormation.cpp
+		Helpers/ExplorationHelper.cpp
 		AIGateway.cpp
 )
 
@@ -80,6 +86,8 @@ set(Nullkiller_HEADERS
 		Pathfinding/Rules/AIMovementToDestinationRule.h
 		Pathfinding/Rules/AIPreviousNodeRule.h
 		Pathfinding/ObjectGraph.h
+		Pathfinding/GraphPaths.h
+		Pathfinding/ObjectGraphCalculator.h
 		AIUtility.h
 		pforeach.h
 		Analyzers/ArmyManager.h
@@ -107,10 +115,12 @@ set(Nullkiller_HEADERS
 		Goals/CompleteQuest.h
 		Goals/Goals.h
 		Goals/StayAtTown.h
+		Goals/ExploreNeighbourTile.h
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
 		Markers/DefendTown.h
+		Markers/ExplorationPoint.h
 		Engine/Nullkiller.h
 		Engine/DeepDecomposer.h
 		Engine/PriorityEvaluator.h
@@ -126,7 +136,9 @@ set(Nullkiller_HEADERS
 		Behaviors/GatherArmyBehavior.h
 		Behaviors/ClusterBehavior.h
 		Behaviors/StayAtTownBehavior.h
+		Behaviors/ExplorationBehavior.h
 		Helpers/ArmyFormation.h
+		Helpers/ExplorationHelper.h
 		AIGateway.h
 )
 

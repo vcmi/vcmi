@@ -55,7 +55,7 @@ class MapViewController : public IMapObjectObserver
 
 private:
 	const int defaultTileSize = 32;
-	const int zoomTileDeadArea = 5;
+	const int zoomTileDeadArea = 4;
 	Point targetTileSize = Point(32, 32);
 	bool wasInDeadZone = true;
 
@@ -97,7 +97,7 @@ public:
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);
 	void setTileSize(const Point & tileSize);
-	void modifyTileSize(int stepsChange);
+	void modifyTileSize(int stepsChange, bool useDeadZone);
 	void tick(uint32_t timePassed);
 	void afterRender();
 

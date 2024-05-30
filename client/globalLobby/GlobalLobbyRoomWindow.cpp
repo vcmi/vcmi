@@ -18,6 +18,7 @@
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -25,10 +26,8 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/ObjectLists.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/MetaString.h"
-#include "../../lib/VCMI_Lib.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/modding/CModInfo.h"
 
@@ -148,8 +147,8 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 	labelVersionTitle = std::make_shared<CLabel>( 10, 60, FONT_MEDIUM, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.preview.version").toString());
 	labelVersionValue = std::make_shared<CLabel>( 10, 80, FONT_MEDIUM, ETextAlignment::CENTERLEFT, Colors::WHITE, roomDescription.gameVersion);
 
-	buttonJoin = std::make_shared<CButton>(Point(10, 360), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onJoin(); });
-	buttonClose = std::make_shared<CButton>(Point(100, 360), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
+	buttonJoin = std::make_shared<CButton>(Point(10, 360), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onJoin(); }, EShortcut::GLOBAL_ACCEPT);
+	buttonClose = std::make_shared<CButton>(Point(100, 360), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);
 
 	MetaString joinStatusText;
 	std::string errorMessage = getJoinRoomErrorMessage(roomDescription, modVerificationList);

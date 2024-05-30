@@ -22,6 +22,25 @@ ShortcutHandler::ShortcutHandler()
 	mappedKeyboardShortcuts = loadShortcuts(config["keyboard"]);
 	mappedJoystickShortcuts = loadShortcuts(config["joystickButtons"]);
 	mappedJoystickAxes = loadShortcuts(config["joystickAxes"]);
+
+#ifndef ENABLE_GOLDMASTER
+	std::vector<EShortcut> assignedShortcuts;
+	std::vector<EShortcut> missingShortcuts;
+
+	for (auto const & entry : config["keyboard"].Struct())
+	{
+		EShortcut shortcutID = findShortcut(entry.first);
+		assert(!vstd::contains(assignedShortcuts, shortcutID));
+		assignedShortcuts.push_back(shortcutID);
+	}
+
+	for (EShortcut id = vstd::next(EShortcut::NONE, 1); id < EShortcut::AFTER_LAST; id = vstd::next(id, 1))
+		if (!vstd::contains(assignedShortcuts, id))
+			missingShortcuts.push_back(id);
+
+	if (!missingShortcuts.empty())
+		logGlobal->error("Found %d shortcuts without config entry!", missingShortcuts.size());
+#endif
 }
 
 std::multimap<std::string, EShortcut> ShortcutHandler::loadShortcuts(const JsonNode & data) const
@@ -131,22 +150,24 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"mainMenuCampaignRoe",      EShortcut::MAIN_MENU_CAMPAIGN_ROE    },
 		{"mainMenuCampaignAb",       EShortcut::MAIN_MENU_CAMPAIGN_AB     },
 		{"mainMenuCampaignCustom",   EShortcut::MAIN_MENU_CAMPAIGN_CUSTOM },
+		{"mainMenuLobby",            EShortcut::MAIN_MENU_LOBBY           },
 		{"lobbyBeginStandardGame",   EShortcut::LOBBY_BEGIN_STANDARD_GAME },
 		{"lobbyBeginCampaign",       EShortcut::LOBBY_BEGIN_CAMPAIGN      },
 		{"lobbyLoadGame",            EShortcut::LOBBY_LOAD_GAME           },
 		{"lobbySaveGame",            EShortcut::LOBBY_SAVE_GAME           },
 		{"lobbyRandomMap",           EShortcut::LOBBY_RANDOM_MAP          },
-		{"lobbyHideChat",            EShortcut::LOBBY_HIDE_CHAT           },
+		{"lobbyToggleChat",          EShortcut::LOBBY_TOGGLE_CHAT         },
 		{"lobbyAdditionalOptions",   EShortcut::LOBBY_ADDITIONAL_OPTIONS  },
 		{"lobbySelectScenario",      EShortcut::LOBBY_SELECT_SCENARIO     },
-		{"gameEndTurn",              EShortcut::GAME_END_TURN             },
-		{"gameLoadGame",             EShortcut::GAME_LOAD_GAME            },
-		{"gameSaveGame",             EShortcut::GAME_SAVE_GAME            },
-		{"gameRestartGame",          EShortcut::GAME_RESTART_GAME         },
-		{"gameMainMenu",             EShortcut::GAME_TO_MAIN_MENU         },
-		{"gameQuitGame",             EShortcut::GAME_QUIT_GAME            },
-		{"gameOpenMarketplace",      EShortcut::GAME_OPEN_MARKETPLACE     },
-		{"gameOpenThievesGuild",     EShortcut::GAME_OPEN_THIEVES_GUILD   },
+		{"gameEndTurn",              EShortcut::ADVENTURE_END_TURN        }, // compatibility ID - extra's use this string
+		{"adventureEndTurn",         EShortcut::ADVENTURE_END_TURN        },
+		{"adventureLoadGame",        EShortcut::ADVENTURE_LOAD_GAME       },
+		{"adventureSaveGame",        EShortcut::ADVENTURE_SAVE_GAME       },
+		{"adventureRestartGame",     EShortcut::ADVENTURE_RESTART_GAME    },
+		{"adventureMainMenu",        EShortcut::ADVENTURE_TO_MAIN_MENU    },
+		{"adventureQuitGame",        EShortcut::ADVENTURE_QUIT_GAME       },
+		{"adventureMarketplace",     EShortcut::ADVENTURE_MARKETPLACE     },
+		{"adventureThievesGuild",    EShortcut::ADVENTURE_THIEVES_GUILD   },
 		{"gameActivateConsole",      EShortcut::GAME_ACTIVATE_CONSOLE     },
 		{"adventureGameOptions",     EShortcut::ADVENTURE_GAME_OPTIONS    },
 		{"adventureToggleGrid",      EShortcut::ADVENTURE_TOGGLE_GRID     },
@@ -201,7 +222,6 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"battleTacticsNext",        EShortcut::BATTLE_TACTICS_NEXT       },
 		{"battleTacticsEnd",         EShortcut::BATTLE_TACTICS_END        },
 		{"battleSelectAction",       EShortcut::BATTLE_SELECT_ACTION      },
-		{"lobbyActivateInterface",   EShortcut::LOBBY_ACTIVATE_INTERFACE  },
 		{"spectateTrackHero",        EShortcut::SPECTATE_TRACK_HERO       },
 		{"spectateSkipBattle",       EShortcut::SPECTATE_SKIP_BATTLE      },
 		{"spectateSkipBattleResult", EShortcut::SPECTATE_SKIP_BATTLE_RESULT },
@@ -218,19 +238,117 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"heroLooseFormation",       EShortcut::HERO_LOOSE_FORMATION      },
 		{"heroTightFormation",       EShortcut::HERO_TIGHT_FORMATION      },
 		{"heroToggleTactics",        EShortcut::HERO_TOGGLE_TACTICS       },
-		{"heroCostume0",             EShortcut::HERO_COSTUME_0            },
-		{"heroCostume1",             EShortcut::HERO_COSTUME_1            },
-		{"heroCostume2",             EShortcut::HERO_COSTUME_2            },
-		{"heroCostume3",             EShortcut::HERO_COSTUME_3            },
-		{"heroCostume4",             EShortcut::HERO_COSTUME_4            },
-		{"heroCostume5",             EShortcut::HERO_COSTUME_5            },
-		{"heroCostume6",             EShortcut::HERO_COSTUME_6            },
-		{"heroCostume7",             EShortcut::HERO_COSTUME_7            },
-		{"heroCostume8",             EShortcut::HERO_COSTUME_8            },
-		{"heroCostume9",             EShortcut::HERO_COSTUME_9            },
+		{"heroCostumeSave0",         EShortcut::HERO_COSTUME_SAVE_0       },
+		{"heroCostumeSave1",         EShortcut::HERO_COSTUME_SAVE_1       },
+		{"heroCostumeSave2",         EShortcut::HERO_COSTUME_SAVE_2       },
+		{"heroCostumeSave3",         EShortcut::HERO_COSTUME_SAVE_3       },
+		{"heroCostumeSave4",         EShortcut::HERO_COSTUME_SAVE_4       },
+		{"heroCostumeSave5",         EShortcut::HERO_COSTUME_SAVE_5       },
+		{"heroCostumeSave6",         EShortcut::HERO_COSTUME_SAVE_6       },
+		{"heroCostumeSave7",         EShortcut::HERO_COSTUME_SAVE_7       },
+		{"heroCostumeSave8",         EShortcut::HERO_COSTUME_SAVE_8       },
+		{"heroCostumeSave9",         EShortcut::HERO_COSTUME_SAVE_9       },
+		{"heroCostumeLoad0",         EShortcut::HERO_COSTUME_LOAD_0       },
+		{"heroCostumeLoad1",         EShortcut::HERO_COSTUME_LOAD_1       },
+		{"heroCostumeLoad2",         EShortcut::HERO_COSTUME_LOAD_2       },
+		{"heroCostumeLoad3",         EShortcut::HERO_COSTUME_LOAD_3       },
+		{"heroCostumeLoad4",         EShortcut::HERO_COSTUME_LOAD_4       },
+		{"heroCostumeLoad5",         EShortcut::HERO_COSTUME_LOAD_5       },
+		{"heroCostumeLoad6",         EShortcut::HERO_COSTUME_LOAD_6       },
+		{"heroCostumeLoad7",         EShortcut::HERO_COSTUME_LOAD_7       },
+		{"heroCostumeLoad8",         EShortcut::HERO_COSTUME_LOAD_8       },
+		{"heroCostumeLoad9",         EShortcut::HERO_COSTUME_LOAD_9       },
 		{"spellbookTabAdventure",    EShortcut::SPELLBOOK_TAB_ADVENTURE   },
-		{"spellbookTabCombat",       EShortcut::SPELLBOOK_TAB_COMBAT      }
+		{"spellbookTabCombat",       EShortcut::SPELLBOOK_TAB_COMBAT      },
+		{"mainMenuHotseat",          EShortcut::MAIN_MENU_HOTSEAT         },
+		{"mainMenuHostGame",         EShortcut::MAIN_MENU_HOST_GAME       },
+		{"mainMenuJoinGame",         EShortcut::MAIN_MENU_JOIN_GAME       },
+		{"highScoresCampaigns",      EShortcut::HIGH_SCORES_CAMPAIGNS     },
+		{"highScoresScenarios",      EShortcut::HIGH_SCORES_SCENARIOS     },
+		{"highScoresReset",          EShortcut::HIGH_SCORES_RESET         },
+		{"lobbyReplayVideo",         EShortcut::LOBBY_REPLAY_VIDEO        },
+		{"lobbyExtraOptions",        EShortcut::LOBBY_EXTRA_OPTIONS       },
+		{"lobbyTurnOptions",         EShortcut::LOBBY_TURN_OPTIONS        },
+		{"lobbyInvitePlayers",       EShortcut::LOBBY_INVITE_PLAYERS      },
+		{"lobbyFlipCoin",            EShortcut::LOBBY_FLIP_COIN           },
+		{"lobbyRandomTown",          EShortcut::LOBBY_RANDOM_TOWN         },
+		{"lobbyRandomTownVs",        EShortcut::LOBBY_RANDOM_TOWN_VS      },
+		{"mapsSizeS",                EShortcut::MAPS_SIZE_S               },
+		{"mapsSizeM",                EShortcut::MAPS_SIZE_M               },
+		{"mapsSizeL",                EShortcut::MAPS_SIZE_L               },
+		{"mapsSizeXl",               EShortcut::MAPS_SIZE_XL              },
+		{"mapsSizeAll",              EShortcut::MAPS_SIZE_ALL             },
+		{"mapsSortPlayers",          EShortcut::MAPS_SORT_PLAYERS         },
+		{"mapsSortSize",             EShortcut::MAPS_SORT_SIZE            },
+		{"mapsSortFormat",           EShortcut::MAPS_SORT_FORMAT          },
+		{"mapsSortName",             EShortcut::MAPS_SORT_NAME            },
+		{"mapsSortVictory",          EShortcut::MAPS_SORT_VICTORY         },
+		{"mapsSortDefeat",           EShortcut::MAPS_SORT_DEFEAT          },
+		{"mapsSortMaps",             EShortcut::MAPS_SORT_MAPS            },
+		{"mapsSortChangedate",       EShortcut::MAPS_SORT_CHANGEDATE      },
+		{"settingsLoadGame",         EShortcut::SETTINGS_LOAD_GAME        },
+		{"settingsSaveGame",         EShortcut::SETTINGS_SAVE_GAME        },
+		{"settingsNewGame",          EShortcut::SETTINGS_NEW_GAME         },
+		{"settingsRestartGame",      EShortcut::SETTINGS_RESTART_GAME     },
+		{"settingsToMainMenu",       EShortcut::SETTINGS_TO_MAIN_MENU     },
+		{"settingsQuitGame",         EShortcut::SETTINGS_QUIT_GAME        },
+		{"adventureReplayTurn",      EShortcut::ADVENTURE_REPLAY_TURN     },
+		{"adventureNewGame",         EShortcut::ADVENTURE_NEW_GAME        },
+		{"battleOpenActiveUnit",     EShortcut::BATTLE_OPEN_ACTIVE_UNIT   },
+		{"battleOpenHoveredUnit",    EShortcut::BATTLE_OPEN_HOVERED_UNIT  },
+		{"marketDeal",               EShortcut::MARKET_DEAL               },
+		{"marketMaxAmount",          EShortcut::MARKET_MAX_AMOUNT         },
+		{"marketSacrificeAll",       EShortcut::MARKET_SACRIFICE_ALL      },
+		{"marketSacrificeBackpack",  EShortcut::MARKET_SACRIFICE_BACKPACK },
+		{"marketResourcePlayer",     EShortcut::MARKET_RESOURCE_PLAYER    },
+		{"marketArtifactResource",   EShortcut::MARKET_ARTIFACT_RESOURCE  },
+		{"marketResourceArtifact",   EShortcut::MARKET_RESOURCE_ARTIFACT  },
+		{"marketCreatureResource",   EShortcut::MARKET_CREATURE_RESOURCE  },
+		{"marketResourceResource",   EShortcut::MARKET_RESOURCE_RESOURCE  },
+		{"marketCreatureExperience", EShortcut::MARKET_CREATURE_EXPERIENCE },
+		{"marketArtifactExperience", EShortcut::MARKET_ARTIFACT_EXPERIENCE },
+		{"townOpenHall",             EShortcut::TOWN_OPEN_HALL            },
+		{"townOpenFort",             EShortcut::TOWN_OPEN_FORT            },
+		{"townOpenMarket",           EShortcut::TOWN_OPEN_MARKET          },
+		{"townOpenMageGuild",        EShortcut::TOWN_OPEN_MAGE_GUILD      },
+		{"townOpenThievesGuild",     EShortcut::TOWN_OPEN_THIEVES_GUILD   },
+		{"townOpenRecruitment",      EShortcut::TOWN_OPEN_RECRUITMENT     },
+		{"townOpenHeroExchange",     EShortcut::TOWN_OPEN_HERO_EXCHANGE   },
+		{"townOpenHero",             EShortcut::TOWN_OPEN_HERO            },
+		{"townOpenVisitingHero",     EShortcut::TOWN_OPEN_VISITING_HERO   },
+		{"townOpenGarrisonedHero",   EShortcut::TOWN_OPEN_GARRISONED_HERO },
+		{"recruitmentSwitchLevel",   EShortcut::RECRUITMENT_SWITCH_LEVEL  },
+		{"heroArmySplit",            EShortcut::HERO_ARMY_SPLIT           },
+		{"heroBackpack",             EShortcut::HERO_BACKPACK             },
+		{"exchangeArmyToLeft",       EShortcut::EXCHANGE_ARMY_TO_LEFT     },
+		{"exchangeArmyToRight",      EShortcut::EXCHANGE_ARMY_TO_RIGHT    },
+		{"exchangeArmySwap",         EShortcut::EXCHANGE_ARMY_SWAP        },
+		{"exchangeArtifactsToLeft",  EShortcut::EXCHANGE_ARTIFACTS_TO_LEFT },
+		{"exchangeArtifactsToRight", EShortcut::EXCHANGE_ARTIFACTS_TO_RIGHT },
+		{"exchangeArtifactsSwap",    EShortcut::EXCHANGE_ARTIFACTS_SWAP   },
+		{"exchangeBackpackLeft",     EShortcut::EXCHANGE_BACKPACK_LEFT    },
+		{"exchangeBackpackRight",    EShortcut::EXCHANGE_BACKPACK_RIGHT   },
+		{"exchangeEquippedToLeft",   EShortcut::EXCHANGE_EQUIPPED_TO_LEFT },
+		{"exchangeEquippedToRight",  EShortcut::EXCHANGE_EQUIPPED_TO_RIGHT},
+		{"exchangeEquippedSwap",     EShortcut::EXCHANGE_EQUIPPED_SWAP    },
+		{"exchangeBackpackToLeft",   EShortcut::EXCHANGE_BACKPACK_TO_LEFT },
+		{"exchangeBackpackToRight",  EShortcut::EXCHANGE_BACKPACK_TO_RIGHT},
+		{"exchangeBackpackSwap",     EShortcut::EXCHANGE_BACKPACK_SWAP    },
 	};
+
+#ifndef ENABLE_GOLDMASTER
+	std::vector<EShortcut> assignedShortcuts;
+	std::vector<EShortcut> missingShortcuts;
+	for (auto const & entry : shortcutNames)
+		assignedShortcuts.push_back(entry.second);
+
+	for (EShortcut id = vstd::next(EShortcut::NONE, 1); id < EShortcut::AFTER_LAST; id = vstd::next(id, 1))
+		if (!vstd::contains(assignedShortcuts, id))
+			missingShortcuts.push_back(id);
+
+	if (!missingShortcuts.empty())
+		logGlobal->error("Found %d shortcuts without assigned string name!", missingShortcuts.size());
+#endif
 
 	if (shortcutNames.count(identifier))
 		return shortcutNames.at(identifier);

@@ -53,7 +53,13 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 				bonus.sid = BonusSourceID(rewardableObject->ID);
 			}
 		}
-		assert(!rewardableObject->configuration.info.empty());
+		if (rewardableObject->configuration.info.empty())
+		{
+			if (objectInfo.getParameters()["rewards"].isNull())
+				logMod->error("Object %s has invalid configuration! No defined rewards found!", getJsonKey());
+			else
+				logMod->error("Object %s has invalid configuration! Make sure that defined appear chances are continious!", getJsonKey());
+		}
 	}
 }
 

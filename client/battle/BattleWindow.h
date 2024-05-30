@@ -56,6 +56,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 	void bConsoleDownf();
 	void bTacticNextStack();
 	void bTacticPhaseEnd();
+	void bOpenActiveUnit();
+	void bOpenHoveredUnit();
 
 	/// functions for handling actions after they were confirmed by popup window
 	void reallyFlee();
@@ -80,7 +82,6 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 public:
 	BattleWindow(BattleInterface & owner );
-	~BattleWindow();
 
 	/// Closes window once battle finished
 	void close();

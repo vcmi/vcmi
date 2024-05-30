@@ -886,9 +886,9 @@ void AdventureMapInterface::hotkeySwitchMapLevel()
 	widget->getMapView()->onMapLevelSwitched();
 }
 
-void AdventureMapInterface::hotkeyZoom(int delta)
+void AdventureMapInterface::hotkeyZoom(int delta, bool useDeadZone)
 {
-	widget->getMapView()->onMapZoomLevelChanged(delta);
+	widget->getMapView()->onMapZoomLevelChanged(delta, useDeadZone);
 }
 
 void AdventureMapInterface::onScreenResize()

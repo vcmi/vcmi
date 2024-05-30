@@ -239,9 +239,9 @@ void MapView::onViewWorldActivated(uint32_t tileSize)
 	controller->setTileSize(Point(tileSize, tileSize));
 }
 
-void MapView::onMapZoomLevelChanged(int stepsChange)
+void MapView::onMapZoomLevelChanged(int stepsChange, bool useDeadZone)
 {
-	controller->modifyTileSize(stepsChange);
+	controller->modifyTileSize(stepsChange, useDeadZone);
 }
 
 void MapView::onViewMapActivated()

@@ -18,10 +18,11 @@ class VCAI;
 
 namespace Goals
 {
-	template<typename T> class DLL_EXPORT CGoal : public AbstractGoal
+	template<typename T>
+	class DLL_EXPORT CGoal : public AbstractGoal
 	{
 	public:
-		CGoal<T>(EGoals goal = INVALID) : AbstractGoal(goal)
+		CGoal(EGoals goal = INVALID) : AbstractGoal(goal)
 		{
 			priority = 0;
 			isElementar = false;
@@ -56,7 +57,7 @@ namespace Goals
 			return f->evaluate(static_cast<T &>(*this)); //casting enforces template instantiation
 		}
 
-		CGoal<T> * clone() const override
+		CGoal * clone() const override
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
 		}

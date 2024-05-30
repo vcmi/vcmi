@@ -12,6 +12,7 @@
 #include "CTransferResources.h"
 
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
@@ -34,7 +35,7 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
 	labels.emplace_back(std::make_shared<CLabel>(445, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[169]));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this](){CTransferResources::makeDeal();});
+		CGI->generaltexth->zelp[595], [this](){CTransferResources::makeDeal();}, EShortcut::MARKET_DEAL);
 
 	// Player's resources
 	assert(bidTradePanel);

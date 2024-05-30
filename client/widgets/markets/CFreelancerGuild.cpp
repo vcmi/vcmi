@@ -12,6 +12,7 @@
 #include "CFreelancerGuild.h"
 
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
@@ -39,7 +40,7 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 	labels.emplace_back(std::make_shared<CLabel>(155, 103, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
 		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();});
+		CGI->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();}, EShortcut::MARKET_DEAL);
 	offerSlider->moveTo(pos.topLeft() + Point(232, 489));
 
 	// Hero creatures panel

@@ -1,3 +1,96 @@
+# 1.5.1 -> 1.5.2
+
+### Stability
+* Fixed crash on closing game while combat or map animations are playing
+* Fixed crash on closing game while network thread is waiting for dialog to be closed
+* Fixed random crash on starting random map with 'random' number of players
+* Fixed crash caused by thread races on loading map list
+* Failure to read data from network connection will show up as 'disconnection' and not as a crash
+* Fixed a possible crash when replaying a manually played battle with the 'unlimited battle replay' option set
+* Fixed crash when loading save made on a 64-bit system or connecting to multiplayer game with a 64-bit host on a 32-bit system (and vice versa)
+* Fixed crash when ending a battle in a draw when a hero has the Necromancy skill
+* Fixed crash when having SPELL_LIKE_ATTACK bonus with invalid spell ID
+* Fixed transfer of non-first artefacts in backpack if hero does not transfer as well
+* Game will now abort loading if a corrupt mod is detected instead of crashing without explanation later
+
+### Multiplayer
+* Contact between allied players will no longer break simturns
+* Having hero in range of object owned by another player will now be registered as contact
+* Multiplayer saves are now visible when starting a single player game
+* Added chat command '!vote' to initiate a vote to change the duration of simultaneous turns or to change turn timers
+* Added chat command '!help' to list all available chat commands
+* All multiplayer chat commands now use a leading exclamation mark
+
+### Campaigns
+* If the hero attacks an enemy player and is defeated, he will be correctly registered as defeated by the defending player.
+* Allow standard victory condition on 'To kill a hero' campaign mission in line with H3
+* Fixes Adrienne starting without Inferno spell in campaign
+
+### Interface
+* For artefacts that are part of a combined artefact, the game will now show which component of that artefact your hero has.
+* Fixed broken in 1.5.1 shortcut for artifact sets saving
+* Fixed full screen toggle (F4) not applying changes immediately
+* Retaliation preview now accounts for creatures that don't receive retaliations (Sprites, Archdevils, etc)
+* Fixed not visible retaliation preview if damage estimation string is longer than battle log line due to long creature name
+* Game will now select last save on loading screen
+* High Scores screen and Campaign Epilogue screen are now displayed with background on resolutions higher than 800x600
+* Fixed non-functioning shortcut 'P' to access Puzzle Map from adventure map
+* Added keyboard shortcuts to markets and altars. 'Space' to confirm deal and 'M' to trade maximum possible amount
+* Pressing 'Escape' in main menu will now trigger 'Back' and 'Quit' buttons
+* Added keyboard shortcuts to hero exchange window:
+* * 'F10' will now swap armies
+* * 'F11' will now swap artifacts. Additionally, 'Ctrl+F11' will swap equipped artifacts, and 'Shift+F11' will swap backpacks
+* * Added unassigned shortcuts to move armies or artifacts to left or right side
+* Added keyboard shortcuts to access buildings from town interface:
+* * 'F' will now open Fort window
+* * 'B' will now open Town Hall window
+* * 'G' will now open Mage Guild window
+* * 'M' will now open Marketplace
+* * 'R' will now open recruitment interface
+* * 'T' will now open Tavern window
+* * 'G' will now open Thieves Guild
+* * 'E' will now open hero exchange screen, if both heroes are present in town
+* * 'H' will now open hero screen. Additionally, 'Shift+H' will open garrisoned hero screen, and 'Ctrl+H' will open visiting hero screen
+* * 'Space' will now swap visiting and garrisoned heroes
+* Added keyboard shortcuts to switch between tabs in Scenario Selection window:
+* * 'E' will open Extra Options tab
+* * 'T' will open Turn Options tab
+* * 'I' will open Invite Players window (only for lobby games)
+* * 'R' will now replay video in campaigns
+* Added keyboard shortcuts to Adventure map:
+* * 'Ctrl+L' will now prompt to open Load Game screen
+* * 'Ctrl+M' will now prompt to go to main menu
+* * 'Ctrl+N' will now prompt to go to New Game screen
+* * 'Ctrl+Q' will now prompt to quit game
+* * Page Up, Page Down, Home and End keys will now move hero on adventure map similar to numpad equivalents
+* * Fixed non-functioning shortcuts '+' and '-' on numpad to zoom adventure map
+* Added keyboard shortcuts to Battle interface:
+* * 'V' now allows to view information of hovered unit
+* * 'I' now allows to view information of active unit
+
+### Mechanics
+* Game will no longer pick creatures exclusive to AB campaigns for random creatures or for Refugee Camp, in line with H3
+* If original movement rules are on, it is not possible to attack guards from visitable object directly, only from free tile
+* Fixed bug leading that allowed picking up objects while flying on top of water
+* Hero can now land when flying from guarded tile to accessible guarded tile irregardless of original movement rules switch
+* Interface will now use same arrow for U-turns in path as H3
+
+### AI
+* Nullkiller AI can now explore the map
+* Nullkiller AI will no longer use the map reveal cheat when allied with a human or when playing on low difficulty
+* Nullkiller AI is now used by default for allied players
+
+### Launcher
+* When extracting data from gog.com offline installer game will extract files directly into used data directory instead of temporary directory
+
+### Map Editor
+* Fixed victory / loss conditions widget initialization
+
+### Modding
+* Hero specialties with multiple bonuses that have TIMES_HERO_LEVEL updater now work as expected
+* Spells that apply multiple bonuses with same type and subtype but different value type now work as expected
+* Added option to toggle layout of guards in creature banks
+
 # 1.5.0 -> 1.5.1
 
 ### Stability

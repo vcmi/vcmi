@@ -33,6 +33,7 @@
 #include "../widgets/CTextInput.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/Images.h"
+#include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
@@ -143,8 +144,8 @@ InfoCard::InfoCard()
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 	pvpBox = std::make_shared<PvPBox>(Rect(17, 396, 338, 105));
 
-	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateRoomInviteInterface(); } );
-	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateInterface(); });
+	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateRoomInviteInterface(); }, EShortcut::LOBBY_INVITE_PLAYERS );
+	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateInterface(); }, EShortcut::MAIN_MENU_LOBBY );
 
 	buttonInvitePlayers->setTextOverlay  (MetaString::createFromTextID("vcmi.lobby.invite.header").toString(), EFonts::FONT_SMALL, Colors::WHITE);
 	buttonOpenGlobalLobby->setTextOverlay(MetaString::createFromTextID("vcmi.lobby.backToLobby").toString(), EFonts::FONT_SMALL, Colors::WHITE);
@@ -418,7 +419,7 @@ PvPBox::PvPBox(const Rect & rect)
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::COIN;
 		CSH->sendLobbyPack(lpa);
-	}, EShortcut::NONE);
+	}, EShortcut::LOBBY_FLIP_COIN);
 	buttonFlipCoin->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.coin.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
 	buttonRandomTown = std::make_shared<CButton>(Point(190, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.help")), [getBannedTowns](){
@@ -426,7 +427,7 @@ PvPBox::PvPBox(const Rect & rect)
 		lpa.action = LobbyPvPAction::RANDOM_TOWN;
 		lpa.bannedTowns = getBannedTowns();
 		CSH->sendLobbyPack(lpa);
-	}, EShortcut::NONE);
+	}, EShortcut::LOBBY_RANDOM_TOWN);
 	buttonRandomTown->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
 	buttonRandomTownVs = std::make_shared<CButton>(Point(190, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.help")), [getBannedTowns](){
@@ -434,7 +435,7 @@ PvPBox::PvPBox(const Rect & rect)
 		lpa.action = LobbyPvPAction::RANDOM_TOWN_VS;
 		lpa.bannedTowns = getBannedTowns();
 		CSH->sendLobbyPack(lpa);
-	}, EShortcut::NONE);
+	}, EShortcut::LOBBY_RANDOM_TOWN_VS);
 	buttonRandomTownVs->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 }
 

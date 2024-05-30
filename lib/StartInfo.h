@@ -32,11 +32,14 @@ struct DLL_LINKAGE SimturnsInfo
 	int optionalTurns = 0;
 	/// If set to true, human and 1 AI can act at the same time
 	bool allowHumanWithAI = false;
+	/// If set to true, allied players can play simultaneously even after contacting each other
+	bool ignoreAlliedContacts = true;
 
 	bool operator == (const SimturnsInfo & other) const
 	{
 		return requiredTurns == other.requiredTurns &&
 				optionalTurns == other.optionalTurns &&
+				ignoreAlliedContacts == other.ignoreAlliedContacts &&
 				allowHumanWithAI == other.allowHumanWithAI;
 	}
 
@@ -46,6 +49,10 @@ struct DLL_LINKAGE SimturnsInfo
 		h & requiredTurns;
 		h & optionalTurns;
 		h & allowHumanWithAI;
+
+		static_assert(Handler::Version::RELEASE_143 < Handler::Version::CURRENT, "Please add ignoreAlliedContacts to serialization for 1.6");
+		// disabled to allow multiplayer compatibility between 1.5.2 and 1.5.1
+		// h & ignoreAlliedContacts
 	}
 };
 

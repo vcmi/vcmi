@@ -45,7 +45,7 @@ AdventureOptions::AdventureOptions()
 	scenInfo = std::make_shared<CButton>(Point(24, 198), AnimationPath::builtin("ADVINFO.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_SCENARIO);
 	scenInfo->addCallback(AdventureOptions::showScenarioInfo);
 	
-	replay = std::make_shared<CButton>(Point(24, 257), AnimationPath::builtin("ADVTURN.DEF"), CButton::tooltip(), [&](){ close(); });
+	replay = std::make_shared<CButton>(Point(24, 257), AnimationPath::builtin("ADVTURN.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_REPLAY_TURN);
 	replay->addCallback([]{ LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.replayOpponentTurnNotImplemented")); });
 
 	exit = std::make_shared<CButton>(Point(203, 313), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(), std::bind(&AdventureOptions::close, this), EShortcut::GLOBAL_RETURN);

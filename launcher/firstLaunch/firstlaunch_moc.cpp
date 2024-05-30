@@ -316,44 +316,47 @@ void FirstLaunchView::extractGogData()
 	setEnabled(false);
 
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
-		QTemporaryDir dir;
-		if(dir.isValid()) {
-			QDir tempDir{dir.path()};
+		QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
+		tempDir.mkdir("tmp");
+		if(!tempDir.cd("tmp"))
+			return; // should not happen - but avoid deleting wrong folder in any case
 
-			QString tmpFileExe = dir.filePath("h3_gog.exe");
-			QFile(fileExe).copy(tmpFileExe);
-			QFile(fileBin).copy(dir.filePath("h3_gog-1.bin"));
+		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
+		QFile(fileExe).copy(tmpFileExe);
+		QFile(fileBin).copy(tempDir.filePath("h3_gog-1.bin"));
 
-			::extract_options o;
-			o.extract = true;
+		::extract_options o;
+		o.extract = true;
 
-			// standard settings
-			o.gog_galaxy = true;
-			o.codepage = 0U;
-			o.output_dir = dir.path().toStdString();
-			o.extract_temp = true;
-			o.extract_unknown = true;
-			o.filenames.set_expand(true);
+		// standard settings
+		o.gog_galaxy = true;
+		o.codepage = 0U;
+		o.output_dir = tempDir.path().toStdString();
+		o.extract_temp = true;
+		o.extract_unknown = true;
+		o.filenames.set_expand(true);
 
-			o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
-			
-			process_file(tmpFileExe.toStdString(), o, [this](float progress) {
-				ui->progressBarGog->setValue(progress * 100);
-				qApp->processEvents();
-			});
+		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
+		
+		process_file(tmpFileExe.toStdString(), o, [this](float progress) {
+			ui->progressBarGog->setValue(progress * 100);
+			qApp->processEvents();
+		});
 
-			ui->progressBarGog->setVisible(false);
-			ui->pushButtonGogInstall->setVisible(true);
-			setEnabled(true);
+		ui->progressBarGog->setVisible(false);
+		ui->pushButtonGogInstall->setVisible(true);
+		setEnabled(true);
 
-			QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
-			if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
-			{
-				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
-				return;
-			}
-			copyHeroesData(dir.path(), true);
+		QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
+		if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
+		{
+			QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
+			tempDir.removeRecursively();
+			return;
 		}
+		copyHeroesData(tempDir.path(), true);
+
+		tempDir.removeRecursively();
 	});
 #endif
 }

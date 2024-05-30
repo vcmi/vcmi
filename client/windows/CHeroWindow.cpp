@@ -13,7 +13,7 @@
 #include "CCreatureWindow.h"
 #include "CHeroBackpackWindow.h"
 #include "CKingdomInterface.h"
-#include "GUIClasses.h"
+#include "CExchangeWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -22,6 +22,7 @@
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
@@ -213,7 +214,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 			boost::algorithm::replace_first(helpBox, "%s", CGI->generaltexth->allTexts[43]);
 
 			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero);
-			auto split = std::make_shared<CButton>(Point(539, 519), AnimationPath::builtin("hsbtns9.def"), CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [&](){ garr->splitClick(); });
+			auto split = std::make_shared<CButton>(Point(539, 519), AnimationPath::builtin("hsbtns9.def"), CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [&](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT);
 			garr->addSplitBtn(split);
 		}
 		if(!arts)
@@ -281,9 +282,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	for(auto cew : GH.windows().findWindows<CExchangeWindow>())
 	{
-		for(int g=0; g < cew->heroInst.size(); ++g)
-			if(cew->heroInst[g] == curHero)
-				noDismiss = true;
+		if (cew->holdsGarrison(curHero))
+			noDismiss = true;
 	}
 
 	//if player only have one hero and no towns

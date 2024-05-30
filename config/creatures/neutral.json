@@ -67,6 +67,7 @@
 		"index": 132,
 		"level": 10,
 		"faction": "neutral",
+		"excludeFromRandomization" : true,
 		"abilities":
 		{
 			"dragon" : 
@@ -109,6 +110,7 @@
 		"index": 133,
 		"level": 10,
 		"faction": "neutral",
+		"excludeFromRandomization" : true,
 		"abilities":
 		{
 			"dragon" :
@@ -144,6 +146,7 @@
 		"index": 134,
 		"level": 8,
 		"faction": "neutral",
+		"excludeFromRandomization" : true,
 		"abilities":
 		{
 			"dragon" :
@@ -241,6 +244,7 @@
 		"index": 135,
 		"level": 10,
 		"faction": "neutral",
+		"excludeFromRandomization" : true,
 		"abilities":
 		{
 			"dragon" : 
@@ -283,6 +287,7 @@
 		"level": 6,
 		"extraNames": [ "enchanters" ],
 		"faction": "neutral",
+		"excludeFromRandomization" : true,
 		"abilities":
 		{
 			"noPenalty" : 
@@ -362,6 +367,7 @@
 		"level": 4,
 		"extraNames": [ "sharpshooters" ],
 		"faction": "neutral",
+		"excludeFromRandomization" : true,
 		"abilities":
 		{
 			"noPenalty" : 

@@ -82,6 +82,13 @@ std::vector<std::string> BattleConsole::getVisibleText()
 
 		auto result = CMessage::breakText(text, pos.w, FONT_SMALL);
 
+		if(result.size() > 2 && text.find('\n') != std::string::npos)
+		{
+			// Text has too many lines to fit into console, but has line breaks. Try ignore them and fit text that way
+			std::string cleanText = boost::algorithm::replace_all_copy(text, "\n", " ");
+			result = CMessage::breakText(cleanText, pos.w, FONT_SMALL);
+		}
+
 		if(result.size() > 2)
 			result.resize(2);
 		return result;

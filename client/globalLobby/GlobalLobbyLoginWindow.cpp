@@ -12,12 +12,11 @@
 #include "GlobalLobbyLoginWindow.h"
 
 #include "GlobalLobbyClient.h"
-#include "GlobalLobbyWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/WindowHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/Images.h"
@@ -47,8 +46,8 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, loginAs.toString());
 	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 90, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
 	inputUsername = std::make_shared<CTextInput>(Rect(15, 93, 260, 16), FONT_SMALL, ETextAlignment::CENTERLEFT, true);
-	buttonLogin = std::make_shared<CButton>(Point(10, 180), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); });
-	buttonClose = std::make_shared<CButton>(Point(210, 180), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
+	buttonLogin = std::make_shared<CButton>(Point(10, 180), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); }, EShortcut::GLOBAL_ACCEPT);
+	buttonClose = std::make_shared<CButton>(Point(210, 180), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);
 	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 115, 255, 60), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
 	auto buttonRegister = std::make_shared<CToggleButton>(Point(10, 40),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);

@@ -295,6 +295,14 @@
 				},
 				"message" : "core.genrltxt.252"
 			},
+			"standardVictory" : {
+				"condition" : [ "standardWin" ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.659"
+			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {

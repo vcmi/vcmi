@@ -27,6 +27,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../windows/CMessage.h"
+#include "../windows/CCreatureWindow.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
@@ -77,6 +78,8 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	addShortcut(EShortcut::BATTLE_TACTICS_NEXT, std::bind(&BattleWindow::bTacticNextStack, this));
 	addShortcut(EShortcut::BATTLE_TACTICS_END, std::bind(&BattleWindow::bTacticPhaseEnd, this));
 	addShortcut(EShortcut::BATTLE_SELECT_ACTION, std::bind(&BattleWindow::bSwitchActionf, this));
+	addShortcut(EShortcut::BATTLE_OPEN_ACTIVE_UNIT, std::bind(&BattleWindow::bOpenActiveUnit, this));
+	addShortcut(EShortcut::BATTLE_OPEN_HOVERED_UNIT, std::bind(&BattleWindow::bOpenHoveredUnit, this));
 
 	addShortcut(EShortcut::BATTLE_TOGGLE_QUEUE, [this](){ this->toggleQueueVisibility();});
 	addShortcut(EShortcut::BATTLE_TOGGLE_HEROES_STATS, [this](){ this->toggleStickyHeroWindowsVisibility();});
@@ -187,11 +190,6 @@ void BattleWindow::createTimerInfoWindows()
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 78, 135), defender);
 		}
 	}
-}
-
-BattleWindow::~BattleWindow()
-{
-	CPlayerInterface::battleInt = nullptr;
 }
 
 std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode & config) const
@@ -755,6 +753,8 @@ void BattleWindow::blockUI(bool on)
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
 
 	setShortcutBlocked(EShortcut::GLOBAL_OPTIONS, on);
+	setShortcutBlocked(EShortcut::BATTLE_OPEN_ACTIVE_UNIT, on);
+	setShortcutBlocked(EShortcut::BATTLE_OPEN_HOVERED_UNIT, on);
 	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.getBattle()->battleCanFlee());
 	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.getBattle()->battleGetSurrenderCost() < 0);
 	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || owner.tacticsMode || !canCastSpells);
@@ -767,6 +767,26 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !owner.tacticsMode);
+}
+
+void BattleWindow::bOpenActiveUnit()
+{
+	const auto * unit = owner.stacksController->getActiveStack();
+
+	if (unit)
+		GH.windows().createAndPushWindow<CStackWindow>(unit, false);;
+}
+
+void BattleWindow::bOpenHoveredUnit()
+{
+	const auto units = owner.stacksController->getHoveredStacksUnitIds();
+
+	if (!units.empty())
+	{
+		const auto * unit = owner.getBattle()->battleGetStackByID(units[0]);
+		if (unit)
+			GH.windows().createAndPushWindow<CStackWindow>(unit, false);
+	}
 }
 
 std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()

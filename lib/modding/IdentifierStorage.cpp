@@ -333,8 +333,12 @@ void CIdentifierStorage::registerObject(const std::string & scope, const std::st
 	std::pair<const std::string, ObjectData> mapping = std::make_pair(fullID, data);
 	if(!vstd::containsMapping(registeredObjects, mapping))
 	{
-		logMod->trace("registered %s as %s:%s", fullID, scope, identifier);
+		logMod->trace("registered '%s' as %s:%s", fullID, scope, identifier);
 		registeredObjects.insert(mapping);
+	}
+	else
+	{
+		logMod->trace("Duplicate object '%s' found!", fullID);
 	}
 }
 

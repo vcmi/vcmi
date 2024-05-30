@@ -18,7 +18,7 @@ git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 
 There are 2 ways to get prebuilt dependencies:
 
-- [Conan package manager](https://github.com/vcmi/vcmi/tree/develop/docs/conan.md) - recommended. Note that the link points to the cutting-edge state in `develop` branch, for the latest release check the same document in the [master branch (https://github.com/vcmi/vcmi/tree/master/docs/conan.md).
+- [Conan package manager](./Conan.md) - recommended. Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Сonan.md).
 - [legacy manually built libraries](https://github.com/vcmi/vcmi-ios-deps) - can be used if you have Xcode 11/12 or to build for simulator / armv7 device
 
 ## Configuring project

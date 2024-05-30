@@ -87,13 +87,21 @@ By default, all cheat codes apply to current player. Alternatively, it is possib
 `vcminahar ai` - give 1000000 movement points to each hero of every AI player  
 
 ## Multiplayer chat commands
-Note: These commands are not a cheats, and can be used in multiplayer by host player to control the session
 
-- `game exit/quit/end` - finish the game  
-- `game save <filename>` - save the game into the specified file  
-- `game kick red/blue/tan/green/orange/purple/teal/pink` - kick player of specified color from the game  
-- `game kick 0/1/2/3/4/5/6/7/8` - kick player of specified ID from the game (_zero indexed!_) (`0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`)  
+Following commands can be used in multiplayer only by host player to control the session:
+- `!exit` - finish the game  
+- `!save <filename>` - save the game into the specified file  
+- `!kick red/blue/tan/green/orange/purple/teal/pink` - kick player of specified color from the game  
+- `!kick 0/1/2/3/4/5/6/7/8` - kick player of specified ID from the game (_zero indexed!_) (`0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`)  
 
+Following commands can be used by any player in multiplayer:
+- `!help` - displays in-game list of available commands
+- `!cheaters` - lists players that have entered cheat at any point of the game
+- `!vote` - initiates voting to change one of the possible options:
+- - `!vote simturns allow X` - allow simultaneous turns for specified number of days, or until contact
+- - `!vote simturns force X` - force simultaneous turns for specified number of days, blocking player contacts
+- - `!vote simturns abort` - abort simultaneous turns once this turn ends
+- - `!vote timer prolong X` - prolong base timer for all players by specified number of seconds
 
 # Client Commands
 

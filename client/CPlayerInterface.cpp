@@ -51,6 +51,7 @@
 
 #include "windows/CCastleInterface.h"
 #include "windows/CCreatureWindow.h"
+#include "windows/CExchangeWindow.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CKingdomInterface.h"
 #include "windows/CMarketWindow.h"
@@ -136,7 +137,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	LOCPLINT = this;
 	playerID=Player;
 	human=true;
-	battleInt = nullptr;
+	battleInt.reset();
 	castleInt = nullptr;
 	makingTurn = false;
 	showingDialog = new ConditionalWait();
