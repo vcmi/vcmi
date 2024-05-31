@@ -25,7 +25,7 @@ struct CGPath;
 class CCreatureSet;
 class CGObjectInstance;
 struct UpgradeInfo;
-template <typename T> struct CondSh;
+class ConditionalWait;
 struct CPathsInfo;
 
 VCMI_LIB_NAMESPACE_END
@@ -72,7 +72,7 @@ public: // TODO: make private
 	std::unique_ptr<PlayerLocalState> localState;
 
 	//minor interfaces
-	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
+	ConditionalWait * showingDialog; //indicates if dialog box is displayed
 
 	bool makingTurn; //if player is already making his turn
 
@@ -198,6 +198,7 @@ public: // public interface for use by client via LOCPLINT access
 	void proposeLoadingGame();
 	void performAutosave();
 	void gamePause(bool pause);
+	void endNetwork();
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();

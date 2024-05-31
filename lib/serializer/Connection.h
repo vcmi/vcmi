@@ -9,6 +9,8 @@
  */
 #pragma once
 
+enum class ESerializationVersion : int32_t;
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class BinaryDeserializer;
@@ -57,6 +59,7 @@ public:
 	void enterLobbyConnectionMode();
 	void setCallback(IGameCallback * cb);
 	void enterGameplayConnectionMode(CGameState * gs);
+	void setSerializationVersion(ESerializationVersion version);
 };
 
 VCMI_LIB_NAMESPACE_END

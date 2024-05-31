@@ -19,14 +19,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
-{
-	{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()},
-	{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()},
-	{"ARMY_MOVEMENT", std::make_shared<ArmyMovementUpdater>()},
-	{"BONUS_OWNER_UPDATER", std::make_shared<OwnerUpdater>()}
-};
-
 std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	return b;

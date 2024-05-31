@@ -48,7 +48,8 @@ private:
 		REPLACE_LOCAL_STRING,
 		REPLACE_TEXTID_STRING,
 		REPLACE_NUMBER,
-		REPLACE_POSITIVE_NUMBER
+		REPLACE_POSITIVE_NUMBER,
+                APPEND_EOL
 	};
 
 	std::vector<EMessage> message;
@@ -81,6 +82,7 @@ public:
 	void appendName(const CreatureID & id, TQuantity count);
 	void appendNameSingular(const CreatureID & id);
 	void appendNamePlural(const CreatureID & id);
+	void appendEOL();
 
 	/// Replaces first '%s' placeholder in string with specified local string
 	void replaceLocalString(EMetaText type, ui32 serial);

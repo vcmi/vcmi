@@ -10,7 +10,6 @@
 #pragma once
 
 VCMI_LIB_NAMESPACE_BEGIN
-template <typename T> struct CondSh;
 class Point;
 class Rect;
 VCMI_LIB_NAMESPACE_END

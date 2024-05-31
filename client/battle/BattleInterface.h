@@ -12,7 +12,7 @@
 #include "BattleConstants.h"
 #include "../gui/CIntObject.h"
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
-#include "../../lib/CondSh.h"
+#include "../ConditionalWait.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -99,7 +99,7 @@ class BattleInterface
 	};
 
 	/// Conditional variables that are set depending on ongoing animations on the battlefield
-	CondSh<bool> ongoingAnimationsState;
+	ConditionalWait ongoingAnimationsState;
 
 	/// List of events that are waiting to be triggered
 	std::vector<AwaitingAnimationEvents> awaitingEvents;
@@ -186,6 +186,7 @@ public:
 	void setBattleQueueVisibility(bool visible);
 	void setStickyHeroWindowsVisibility(bool visible);
 
+	void endNetwork();
 	void executeStagedAnimations();
 	void executeAnimationStage( EAnimationEvents event);
 	void onAnimationsStarted();

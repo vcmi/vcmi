@@ -267,7 +267,11 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 		return BlockingReason::DESTINATION_BLOCKED;
 
 	case EPathNodeAction::BATTLE:
-		/// Movement after BATTLE action only possible from guarded tile to guardian tile
+		// H3 rule: do not allow direct attack on wandering monsters if hero lands on visitable object
+		if (config->options.originalFlyRules && destination.nodeObject && source.node->layer == EPathfindingLayer::AIR)
+			return BlockingReason::DESTINATION_BLOCKED;
+
+		// Movement after BATTLE action only possible from guarded tile to guardian tile
 		if(destination.guarded)
 		{
 			if (pathfinderHelper->options.ignoreGuards)
@@ -275,7 +279,6 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 			else
 				return BlockingReason::DESTINATION_GUARDED;
 		}
-
 		break;
 	}
 
@@ -301,7 +304,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 
 		if(source.guarded)
 		{
-			if(!(pathfinderConfig->options.originalFlyRules && source.node->layer == EPathfindingLayer::AIR)
+			if(source.node->layer != EPathfindingLayer::AIR // zone of control is ignored when flying
 				&& !pathfinderConfig->options.ignoreGuards
 				&&	(!destination.isGuardianTile || pathfinderHelper->getGuardiansCount(source.coord) > 1)) // Can step into tile of guard
 			{
@@ -339,11 +342,11 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 		break;
 
 	case EPathfindingLayer::WATER:
-		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord)
-			|| destination.node->accessible != EPathAccessibility::ACCESSIBLE)
-		{
+		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord))
 			return BlockingReason::DESTINATION_BLOCKED;
-		}
+
+		if (destination.node->accessible != EPathAccessibility::ACCESSIBLE)
+			return BlockingReason::DESTINATION_BLOCKED;
 
 		if(destination.guarded)
 			return BlockingReason::DESTINATION_BLOCKED;
@@ -376,38 +379,33 @@ void LayerTransitionRule::process(
 		break;
 
 	case EPathfindingLayer::SAIL:
-		//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
-		if((destination.node->accessible != EPathAccessibility::ACCESSIBLE && (destination.node->accessible != EPathAccessibility::BLOCKVIS || destination.tile->blocked))
-			|| destination.tile->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
-		{
+		// have to disembark first before visiting objects on land
+		if (destination.tile->visitable)
 			destination.blocked = true;
-		}
+
+		//can disembark only on accessible tiles or tiles guarded by nearby monster
+		if((destination.node->accessible != EPathAccessibility::ACCESSIBLE && destination.node->accessible != EPathAccessibility::GUARDED))
+			destination.blocked = true;
 
 		break;
 
 	case EPathfindingLayer::AIR:
 		if(pathfinderConfig->options.originalFlyRules)
 		{
-			if(source.node->accessible != EPathAccessibility::ACCESSIBLE &&
-				source.node->accessible != EPathAccessibility::VISITABLE &&
-				destination.node->accessible != EPathAccessibility::VISITABLE &&
-				 destination.node->accessible != EPathAccessibility::ACCESSIBLE)
+			if(source.node->accessible != EPathAccessibility::ACCESSIBLE && source.node->accessible != EPathAccessibility::VISITABLE)
 			{
-				if(destination.node->accessible == EPathAccessibility::BLOCKVIS)
+				if (destination.node->accessible == EPathAccessibility::BLOCKVIS)
 				{
-					if(source.nodeObject || (source.tile->blocked && destination.tile->blocked))
-					{
+					// Can't visit 'blockvisit' objects on coast if hero will end up on water terrain
+					if (source.tile->blocked || !destination.tile->entrableTerrain(source.tile))
 						destination.blocked = true;
-					}
 				}
-				else
-					destination.blocked = true;
 			}
 		}
-		else if(destination.node->accessible != EPathAccessibility::ACCESSIBLE)
+		else
 		{
-			/// Hero that fly can only land on accessible tiles
-			if(destination.nodeObject)
+			// Hero that fly can only land on accessible tiles
+			if(destination.node->accessible != EPathAccessibility::ACCESSIBLE && destination.nodeObject)
 				destination.blocked = true;
 		}
 

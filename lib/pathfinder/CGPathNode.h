@@ -37,6 +37,7 @@ enum class EPathAccessibility : ui8
 	NOT_SET,
 	ACCESSIBLE, //tile can be entered and passed
 	VISITABLE, //tile can be entered as the last tile in path
+	GUARDED,  //tile can be entered, but is in zone of control of nearby monster (may also contain visitable object, if any)
 	BLOCKVIS,  //visitable from neighboring tile but not passable
 	FLYABLE, //can only be accessed in air layer
 	BLOCKED //tile can be neither entered nor visited

@@ -118,7 +118,7 @@ private:
 	struct ShortcutState
 	{
 		std::function<void()> callback;
-		mutable bool assignedToButton = false;
+		mutable std::vector<std::shared_ptr<CButton>> assignedButtons;
 		bool blocked = false;
 	};
 	

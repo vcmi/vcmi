@@ -51,7 +51,6 @@ public:
 	IdentifierType as() const
 	{
 		auto * result = std::get_if<IdentifierType>(&value);
-		assert(result);
 
 		if (result)
 			return *result;

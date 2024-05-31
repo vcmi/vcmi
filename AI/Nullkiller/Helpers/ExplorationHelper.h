@@ -1,0 +1,51 @@
+/*
+* ExplorationHelper.h, part of VCMI engine
+*
+* Authors: listed in file AUTHORS in main folder
+*
+* License: GNU General Public License v2.0 or later
+* Full text of license available in license.txt file, in main folder
+*
+*/
+#pragma once
+
+#include "../AIUtility.h"
+
+#include "../../../lib/GameConstants.h"
+#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/CTownHandler.h"
+#include "../../../lib/CBuildingHandler.h"
+#include "../Goals/AbstractGoal.h"
+
+namespace NKAI
+{
+
+class ExplorationHelper
+{
+private:
+	const CGHeroInstance * hero;
+	int sightRadius;
+	float bestValue;
+	Goals::TSubgoal bestGoal;
+	int3 bestTile;
+	int bestTilesDiscovered;
+	const Nullkiller * ai;
+	CCallback * cbp;
+	const TeamState * ts;
+	int3 ourPos;
+	bool allowDeadEndCancellation;
+
+public:
+	ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * ai);
+	Goals::TSubgoal makeComposition() const;
+	bool scanSector(int scanRadius);
+	bool scanMap();
+	int howManyTilesWillBeDiscovered(const int3 & pos) const;
+
+private:
+	void scanTile(const int3 & tile);
+	bool hasReachableNeighbor(const int3 & pos) const;
+	void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out) const;
+};
+
+}

@@ -58,7 +58,7 @@ namespace PathfinderUtil
 			else if(gs->guardingCreaturePosition(pos).valid())
 			{
 				// Monster close by; blocked visit for battle
-				return EPathAccessibility::BLOCKVIS;
+				return EPathAccessibility::GUARDED;
 			}
 
 			break;

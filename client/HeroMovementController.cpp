@@ -22,7 +22,7 @@
 
 #include "../CCallback.h"
 
-#include "../lib/CondSh.h"
+#include "ConditionalWait.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
@@ -238,7 +238,7 @@ void HeroMovementController::onMoveHeroApplied()
 	assert(currentlyMovingHero);
 	const auto * hero = currentlyMovingHero;
 
-	bool canMove = LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nextNode().turns == 0 && !LOCPLINT->showingDialog->get();
+	bool canMove = LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nextNode().turns == 0 && !LOCPLINT->showingDialog->isBusy();
 	bool wantStop = stoppingMovement;
 	bool canStop = !canMove || canHeroStopAtNode(LOCPLINT->localState->getPath(hero).currNode());
 

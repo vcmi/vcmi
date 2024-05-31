@@ -10,6 +10,7 @@
 #pragma once
 
 #include "IMapRendererObserver.h"
+#include "../ConditionalWait.h"
 #include "../../lib/Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -34,6 +35,8 @@ class MapRendererPuzzleMapContext;
 /// such as its position and any animations
 class MapViewController : public IMapObjectObserver
 {
+	ConditionalWait animationWait;
+
 	std::shared_ptr<IMapRendererContext> context;
 	std::shared_ptr<MapRendererContextState> state;
 	std::shared_ptr<MapViewModel> model;
@@ -52,7 +55,7 @@ class MapViewController : public IMapObjectObserver
 
 private:
 	const int defaultTileSize = 32;
-	const int zoomTileDeadArea = 5;
+	const int zoomTileDeadArea = 4;
 	Point targetTileSize = Point(32, 32);
 	bool wasInDeadZone = true;
 
@@ -68,6 +71,9 @@ private:
 
 	// IMapObjectObserver impl
 	bool hasOngoingAnimations() override;
+	void waitForOngoingAnimations() override;
+	void endNetwork() override;
+
 	void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator) override;
@@ -91,7 +97,7 @@ public:
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);
 	void setTileSize(const Point & tileSize);
-	void modifyTileSize(int stepsChange);
+	void modifyTileSize(int stepsChange, bool useDeadZone);
 	void tick(uint32_t timePassed);
 	void afterRender();
 

@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "CGuiHandler.h"
-#include "../lib/CondSh.h"
 
 #include "CIntObject.h"
 #include "CursorHandler.h"

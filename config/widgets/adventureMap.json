@@ -234,7 +234,7 @@
 					"type": "adventureMapButton",
 					"name": "buttonEndTurn",
 					"image" : "IAM001.DEF",
-					"hotkey": "gameEndTurn",
+					"hotkey": "adventureEndTurn",
 					"help" : "core.help.302",
 					"playerColored" : true,
 					"area": { "top" : 160, "left": 0, "width" : 64, "height" : 32 }

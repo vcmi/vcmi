@@ -49,10 +49,14 @@ class AdventureMapShortcuts
 	void showSpellbook();
 	void adventureOptions();
 	void systemOptions();
+	void firstHero();
 	void nextHero();
 	void endTurn();
 	void showThievesGuild();
 	void showScenarioInfo();
+	void toMainMenu();
+	void newGame();
+	void quitGame();
 	void saveGame();
 	void loadGame();
 	void digGrail();
@@ -61,6 +65,7 @@ class AdventureMapShortcuts
 	void visitObject();
 	void openObject();
 	void showMarketplace();
+	void firstTown();
 	void nextTown();
 	void nextObject();
 	void zoom( int distance);

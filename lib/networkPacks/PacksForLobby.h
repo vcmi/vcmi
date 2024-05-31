@@ -12,6 +12,7 @@
 #include "StartInfo.h"
 #include "NetPacksBase.h"
 #include "../MetaString.h"
+#include "../serializer/ESerializationVersion.h"
 
 class CServerHandler;
 class CVCMIServer;
@@ -42,6 +43,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 	// Changed by server before announcing pack
 	int clientId = -1;
 	int hostClientId = -1;
+	ESerializationVersion version = ESerializationVersion::CURRENT;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -53,6 +55,18 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 
 		h & clientId;
 		h & hostClientId;
+
+		try
+		{
+			if (h.version >= Handler::Version::RELEASE_152)
+				h & version;
+			else
+				version = ESerializationVersion::RELEASE_150;
+		}
+		 catch (const std::runtime_error & e)
+		{
+			version = ESerializationVersion::RELEASE_150;
+		}
 	}
 };
 

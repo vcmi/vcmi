@@ -133,6 +133,7 @@ public:
 	void loadGame(CGameState * gameState);
 
 	void save(const std::string & fname);
+	void endNetwork();
 	void endGame();
 
 	void initMapHandler();

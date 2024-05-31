@@ -144,6 +144,7 @@ set(client_SRCS
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
+	windows/CExchangeWindow.cpp
 	windows/CHeroOverview.cpp
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
@@ -346,6 +347,7 @@ set(client_HEADERS
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
+	windows/CExchangeWindow.h
 	windows/CHeroOverview.h
 	windows/CHeroWindow.h
 	windows/CKingdomInterface.h
@@ -377,6 +379,7 @@ set(client_HEADERS
 	Client.h
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
+	ConditionalWait.h
 	HeroMovementController.h
 	GameChatHandler.h
 	LobbyClientNetPackVisitors.h

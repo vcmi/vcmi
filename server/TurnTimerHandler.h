@@ -45,9 +45,11 @@ public:
 	void onBattleStart(const BattleID & battle);
 	void onBattleNextStack(const BattleID & battle, const CStack & stack);
 	void onBattleEnd(const BattleID & battleID);
-	void update(int waitTime);
+	void update(int waitTimeMs);
 	void setTimerEnabled(PlayerColor player, bool enabled);
 	void setEndTurnAllowed(PlayerColor player, bool enabled);
+
+	void prolongTimers(int durationMs);
 
 	template<typename Handler>
 	void serialize(Handler & h)

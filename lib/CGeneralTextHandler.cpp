@@ -23,6 +23,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+std::recursive_mutex TextLocalizationContainer::globalTextMutex;
+
 /// Detects language and encoding of H3 text files based on matching against pregenerated footprints of H3 file
 void CGeneralTextHandler::detectInstallParameters()
 {
@@ -251,6 +253,8 @@ bool CLegacyConfigParser::endLine()
 
 void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized)
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	assert(!modContext.empty());
 	assert(!language.empty());
 
@@ -265,12 +269,16 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 
 void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer & container)
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	assert(!vstd::contains(subContainers, &container));
 	subContainers.push_back(&container);
 }
 
 void TextLocalizationContainer::removeSubContainer(const TextLocalizationContainer & container)
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	assert(vstd::contains(subContainers, &container));
 
 	subContainers.erase(std::remove(subContainers.begin(), subContainers.end(), &container), subContainers.end());
@@ -278,6 +286,8 @@ void TextLocalizationContainer::removeSubContainer(const TextLocalizationContain
 
 const std::string & TextLocalizationContainer::deserialize(const TextIdentifier & identifier) const
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	if(stringsLocalizations.count(identifier.get()) == 0)
 	{
 		for(auto containerIter = subContainers.rbegin(); containerIter != subContainers.rend(); ++containerIter)
@@ -297,6 +307,8 @@ const std::string & TextLocalizationContainer::deserialize(const TextIdentifier 
 
 void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	assert(!modContext.empty());
 	assert(!Languages::getLanguageOptions(language).identifier.empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
@@ -327,6 +339,8 @@ void TextLocalizationContainer::registerString(const std::string & modContext, c
 
 bool TextLocalizationContainer::validateTranslation(const std::string & language, const std::string & modContext, const JsonNode & config) const
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	bool allPresent = true;
 
 	for(const auto & string : stringsLocalizations)
@@ -384,11 +398,15 @@ void TextLocalizationContainer::loadTranslationOverrides(const std::string & lan
 
 bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) const
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	return stringsLocalizations.count(UID.get());
 }
 
 void TextLocalizationContainer::exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage) const
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	for (auto const & subContainer : subContainers)
 		subContainer->exportAllTexts(storage);
 
@@ -418,6 +436,8 @@ std::string TextLocalizationContainer::getModLanguage(const std::string & modCon
 
 void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 	for(auto & s : stringsLocalizations)
 	{
 		dest.Struct()[s.first].String() = s.second.baseValue;
@@ -692,6 +712,7 @@ std::string CGeneralTextHandler::getInstalledEncoding()
 
 std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(const std::string & prefix)
 {
+	std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
 	std::vector<std::string> result;
 
 	for(const auto & entry : stringsLocalizations)

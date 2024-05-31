@@ -25,6 +25,8 @@ public:
 	virtual ~IMapObjectObserver();
 
 	virtual bool hasOngoingAnimations() = 0;
+	virtual void waitForOngoingAnimations(){};
+	virtual void endNetwork(){};
 
 	/// Plays fade-in animation and adds object to map
 	virtual void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;

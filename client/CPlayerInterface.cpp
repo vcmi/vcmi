@@ -53,6 +53,7 @@
 
 #include "windows/CCastleInterface.h"
 #include "windows/CCreatureWindow.h"
+#include "windows/CExchangeWindow.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CKingdomInterface.h"
 #include "windows/CMarketWindow.h"
@@ -74,7 +75,6 @@
 #include "../lib/CStopWatch.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/CondSh.h"
 #include "../lib/GameConstants.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/StartInfo.h"
@@ -139,10 +139,10 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	LOCPLINT = this;
 	playerID=Player;
 	human=true;
-	battleInt = nullptr;
+	battleInt.reset();
 	castleInt = nullptr;
 	makingTurn = false;
-	showingDialog = new CondSh<bool>(false);
+	showingDialog = new ConditionalWait();
 	cingconsole = new CInGameConsole();
 	autosaveCount = 0;
 	isAutoFightOn = false;
@@ -1006,7 +1006,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	if (makingTurn && GH.windows().count() > 0 && LOCPLINT == this)
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
-		showingDialog->set(true);
+		showingDialog->setBusy();
 		movementController->requestMovementAbort(); // interrupt movement to show dialog
 		GH.windows().pushWindow(temp);
 	}
@@ -1029,7 +1029,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
 	movementController->requestMovementAbort();
-	LOCPLINT->showingDialog->setn(true);
+	LOCPLINT->showingDialog->setBusy();
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
 
@@ -1205,7 +1205,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 {
 	assert(h);
-	assert(!showingDialog->get());
+	assert(!showingDialog->isBusy());
 	assert(dialogs.empty());
 
 	LOG_TRACE(logGlobal);
@@ -1215,7 +1215,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 		return; //can't find hero
 
 	//It shouldn't be possible to move hero with open dialog (or dialog waiting in bg)
-	if (showingDialog->get() || !dialogs.empty())
+	if (showingDialog->isBusy() || !dialogs.empty())
 		return;
 
 	if (localState->isHeroSleeping(h))
@@ -1383,9 +1383,7 @@ void CPlayerInterface::waitWhileDialog()
 	}
 
 	auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
-	boost::unique_lock<boost::mutex> un(showingDialog->mx);
-	while(showingDialog->data)
-		showingDialog->cond.wait(un);
+	showingDialog->waitWhileBusy();
 }
 
 void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
@@ -1490,9 +1488,9 @@ void CPlayerInterface::update()
 		return;
 
 	//if there are any waiting dialogs, show them
-	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
+	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->isBusy())
 	{
-		showingDialog->set(true);
+		showingDialog->setBusy();
 		GH.windows().pushWindow(dialogs.front());
 		dialogs.pop_front();
 	}
@@ -1502,6 +1500,11 @@ void CPlayerInterface::update()
 	// Handles mouse and key input
 	GH.handleEvents();
 	GH.windows().simpleRedraw();
+}
+
+void CPlayerInterface::endNetwork()
+{
+	showingDialog->requestTermination();
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)

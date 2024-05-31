@@ -117,6 +117,8 @@ public:
 class DLL_LINKAGE TextLocalizationContainer
 {
 protected:
+	static std::recursive_mutex globalTextMutex;
+
 	struct StringState
 	{
 		/// Human-readable string that was added on registration
@@ -153,6 +155,9 @@ protected:
 	
 	std::string getModLanguage(const std::string & modContext);
 	
+	// returns true if identifier with such name was registered, even if not translated to current language
+	bool identifierExists(const TextIdentifier & UID) const;
+
 public:
 	/// validates translation of specified language for specified mod
 	/// returns true if localization is valid and complete
@@ -163,9 +168,6 @@ public:
 	/// Any entries loaded by this will have priority over texts registered normally
 	void loadTranslationOverrides(const std::string & language, const std::string & modContext, JsonNode const & file);
 
-	// returns true if identifier with such name was registered, even if not translated to current language
-	bool identifierExists(const TextIdentifier & UID) const;
-	
 	/// add selected string to internal storage
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language);
@@ -196,6 +198,8 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
+		std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+
 		if (h.version >= Handler::Version::SIMPLE_TEXT_CONTAINER_SERIALIZATION)
 		{
 			h & stringsLocalizations;
@@ -204,7 +208,18 @@ public:
 		{
 			std::string key;
 			int64_t sz = stringsLocalizations.size();
-			h & sz;
+
+			if (h.version >= Handler::Version::REMOVE_TEXT_CONTAINER_SIZE_T)
+			{
+				int64_t size = sz;
+				h & size;
+				sz = size;
+			}
+			else
+			{
+				h & sz;
+			}
+
 			if(h.saving)
 			{
 				for(auto s : stringsLocalizations)

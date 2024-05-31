@@ -37,6 +37,10 @@ In order to make functional creature you also need:
 
 	// Marks this object as special and not available by default
 	"special" : true, 
+	
+	// If set, this creature will never be picked as random monster on premade maps and will not appear in Refugee Camp
+	// Random map generator does not checks for this flag and can still pick this creature
+	"excludeFromRandomization" : false,
 
 	// Faction this creature belongs to. Examples: castle, rampart
 	"faction" : "", 

@@ -117,7 +117,7 @@ public:
 	std::map<std::string, uint32_t> savedStrings;
 	std::map<const Serializeable*, uint32_t> savedPointers;
 
-	const Version version = Version::CURRENT;
+	Version version = Version::CURRENT;
 	bool smartPointerSerialization;
 	bool saving;
 

@@ -18,7 +18,7 @@ class CButton;
 class CArtifactsOfHeroBase : virtual public CIntObject, public CKeyShortcut
 {
 protected:
-	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;
+	using ArtPlacePtr = std::shared_ptr<CArtPlace>;
 	using BpackScrollFunctor = std::function<void(int)>;
 
 public:

@@ -40,6 +40,7 @@ set(Nullkiller_SRCS
 		Goals/ExchangeSwapTownHeroes.cpp
 		Goals/CompleteQuest.cpp
 		Goals/StayAtTown.cpp
+		Goals/ExploreNeighbourTile.cpp
 		Markers/ArmyUpgrade.cpp
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
@@ -62,6 +63,7 @@ set(Nullkiller_SRCS
 		Behaviors/StayAtTownBehavior.cpp
 		Behaviors/ExplorationBehavior.cpp
 		Helpers/ArmyFormation.cpp
+		Helpers/ExplorationHelper.cpp
 		AIGateway.cpp
 )
 
@@ -113,6 +115,7 @@ set(Nullkiller_HEADERS
 		Goals/CompleteQuest.h
 		Goals/Goals.h
 		Goals/StayAtTown.h
+		Goals/ExploreNeighbourTile.h
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
@@ -135,6 +138,7 @@ set(Nullkiller_HEADERS
 		Behaviors/StayAtTownBehavior.h
 		Behaviors/ExplorationBehavior.h
 		Helpers/ArmyFormation.h
+		Helpers/ExplorationHelper.h
 		AIGateway.h
 )
 

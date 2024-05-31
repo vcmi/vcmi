@@ -20,13 +20,26 @@ VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 
+enum class ECurrentChatVote : int8_t
+{
+	NONE = -1,
+	SIMTURNS_ALLOW,
+	SIMTURNS_FORCE,
+	SIMTURNS_ABORT,
+	TIMER_PROLONG,
+};
+
 class PlayerMessageProcessor
 {
 	CGameHandler * gameHandler;
 
+	ECurrentChatVote currentVote = ECurrentChatVote::NONE;
+	int currentVoteParameter = 0;
+	std::set<PlayerColor> awaitingPlayers;
+
 	void executeCheatCode(const std::string & cheatName, PlayerColor player, ObjectInstanceID currObj, const std::vector<std::string> & arguments );
 	bool handleCheatCode(const std::string & cheatFullCommand, PlayerColor player, ObjectInstanceID currObj);
-	bool handleHostCommand(PlayerColor player, const std::string & message);
+	void handleCommand(PlayerColor player, const std::string & message);
 
 	void cheatGiveSpells(PlayerColor player, const CGHeroInstance * hero);
 	void cheatBuildTown(PlayerColor player, const CGTownInstance * town);
@@ -44,6 +57,17 @@ class PlayerMessageProcessor
 	void cheatMaxLuck(PlayerColor player, const CGHeroInstance * hero);
 	void cheatMaxMorale(PlayerColor player, const CGHeroInstance * hero);
 	void cheatFly(PlayerColor player, const CGHeroInstance * hero);
+
+	void commandExit(PlayerColor player, const std::vector<std::string> & words);
+	void commandKick(PlayerColor player, const std::vector<std::string> & words);
+	void commandSave(PlayerColor player, const std::vector<std::string> & words);
+	void commandCheaters(PlayerColor player, const std::vector<std::string> & words);
+	void commandHelp(PlayerColor player, const std::vector<std::string> & words);
+	void commandVote(PlayerColor player, const std::vector<std::string> & words);
+
+	void finishVoting();
+	void abortVoting();
+	void startVoting(PlayerColor initiator, ECurrentChatVote what, int parameter);
 
 public:
 	PlayerMessageProcessor(CGameHandler * gameHandler);

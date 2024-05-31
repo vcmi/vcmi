@@ -10,14 +10,14 @@
 #include "StdInc.h"
 #include "PlayerMessageProcessor.h"
 
+#include "TurnOrderProcessor.h"
+
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
+#include "../TurnTimerHandler.h"
 
-#include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/CPlayerState.h"
-#include "../../lib/GameConstants.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -34,22 +34,26 @@ PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
 {
 }
 
-void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
+void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string & message, ObjectInstanceID currObj)
 {
-	if (handleHostCommand(player, message))
+	if(!message.empty() && message[0] == '!')
+	{
+		broadcastMessage(player, message);
+		handleCommand(player, message);
 		return;
+	}
 
-	if (handleCheatCode(message, player, currObj))
+	if(handleCheatCode(message, player, currObj))
 	{
 		if(!gameHandler->getPlayerSettings(player)->isControlledByAI())
 		{
 			MetaString txt;
 			txt.appendLocalString(EMetaText::GENERAL_TXT, 260);
 			broadcastSystemMessage(txt);
-		}			
+		}
 
 		if(!player.isSpectator())
-			gameHandler->checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
+			gameHandler->checkVictoryLossConditionsForPlayer(player); //Player enter win code or got required art\creature
 
 		return;
 	}
@@ -57,33 +61,25 @@ void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string
 	broadcastMessage(player, message);
 }
 
-bool PlayerMessageProcessor::handleHostCommand(PlayerColor player, const std::string &message)
+void PlayerMessageProcessor::commandExit(PlayerColor player, const std::vector<std::string> & words)
 {
-	std::vector<std::string> words;
-	boost::split(words, message, boost::is_any_of(" "));
-
 	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	if(!isHost)
+		return;
 
-	if(!isHost || words.size() < 2 || words[0] != "game")
-		return false;
+	broadcastSystemMessage("game was terminated");
+	gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
+}
 
-	if(words[1] == "exit" || words[1] == "quit" || words[1] == "end")
+void PlayerMessageProcessor::commandKick(PlayerColor player, const std::vector<std::string> & words)
+{
+	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	if(!isHost)
+		return;
+
+	if(words.size() == 2)
 	{
-		broadcastSystemMessage("game was terminated");
-		gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
-
-		return true;
-	}
-	if(words.size() == 3 && words[1] == "save")
-	{
-		gameHandler->save("Saves/" + words[2]);
-		broadcastSystemMessage("game saved as " + words[2]);
-
-		return true;
-	}
-	if(words.size() == 3 && words[1] == "kick")
-	{
-		auto playername = words[2];
+		auto playername = words[1];
 		PlayerColor playerToKick(PlayerColor::CANNOT_DETERMINE);
 		if(std::all_of(playername.begin(), playername.end(), ::isdigit))
 			playerToKick = PlayerColor(std::stoi(playername));
@@ -104,27 +100,224 @@ bool PlayerMessageProcessor::handleHostCommand(PlayerColor player, const std::st
 			gameHandler->sendAndApply(&pc);
 			gameHandler->checkVictoryLossConditionsForPlayer(playerToKick);
 		}
-		return true;
 	}
-	if(words.size() == 2 && words[1] == "cheaters")
+}
+
+void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<std::string> & words)
+{
+	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	if(!isHost)
+		return;
+
+	if(words.size() == 2)
 	{
-		int playersCheated = 0;
-		for (const auto & player : gameHandler->gameState()->players)
+		gameHandler->save("Saves/" + words[1]);
+		broadcastSystemMessage("game saved as " + words[1]);
+	}
+}
+
+void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vector<std::string> & words)
+{
+	int playersCheated = 0;
+	for(const auto & player : gameHandler->gameState()->players)
+	{
+		if(player.second.cheated)
 		{
-			if(player.second.cheated)
-			{
-				broadcastSystemMessage("Player " + player.first.toString() + " is cheater!");
-				playersCheated++;
-			}
+			broadcastSystemMessage("Player " + player.first.toString() + " is cheater!");
+			playersCheated++;
+		}
+	}
+
+	if(!playersCheated)
+		broadcastSystemMessage("No cheaters registered!");
+}
+
+void PlayerMessageProcessor::commandHelp(PlayerColor player, const std::vector<std::string> & words)
+{
+	broadcastSystemMessage("Available commands to host:");
+	broadcastSystemMessage("'!exit' - immediately ends current game");
+	broadcastSystemMessage("'!kick <player>' - kick specified player from the game");
+	broadcastSystemMessage("'!save <filename>' - save game under specified filename");
+	broadcastSystemMessage("Available commands to all players:");
+	broadcastSystemMessage("'!help' - display this help");
+	broadcastSystemMessage("'!cheaters' - list players that entered cheat command during game");
+	broadcastSystemMessage("'!vote' - allows to change some game settings if all players vote for it");
+}
+
+void PlayerMessageProcessor::commandVote(PlayerColor player, const std::vector<std::string> & words)
+{
+	if(words.size() < 2)
+	{
+		broadcastSystemMessage("'!vote simturns allow X' - allow simultaneous turns for specified number of days, or until contact");
+		broadcastSystemMessage("'!vote simturns force X' - force simultaneous turns for specified number of days, blocking player contacts");
+		broadcastSystemMessage("'!vote simturns abort' - abort simultaneous turns once this turn ends");
+		broadcastSystemMessage("'!vote timer prolong X' - prolong base timer for all players by specified number of seconds");
+		return;
+	}
+
+	if(words[1] == "yes" || words[1] == "no")
+	{
+		if(currentVote == ECurrentChatVote::NONE)
+		{
+			broadcastSystemMessage("No active voting!");
+			return;
 		}
 
-		if (!playersCheated)
-			broadcastSystemMessage("No cheaters registered!");
-
-		return true;
+		if(words[1] == "yes")
+		{
+			awaitingPlayers.erase(player);
+			if(awaitingPlayers.empty())
+				finishVoting();
+			return;
+		}
+		if(words[1] == "no")
+		{
+			abortVoting();
+			return;
+		}
 	}
 
-	return false;
+	const auto & parseNumber = [](const std::string & input) -> std::optional<int>
+	{
+		try
+		{
+			return std::stol(input);
+		}
+		catch(std::logic_error &)
+		{
+			return std::nullopt;
+		}
+	};
+
+	if(words[1] == "simturns" && words.size() > 2)
+	{
+		if(words[2] == "allow" && words.size() > 3)
+		{
+			auto daysCount = parseNumber(words[3]);
+			if(daysCount && daysCount.value() > 0)
+				startVoting(player, ECurrentChatVote::SIMTURNS_ALLOW, daysCount.value());
+			return;
+		}
+
+		if(words[2] == "force" && words.size() > 3)
+		{
+			auto daysCount = parseNumber(words[3]);
+			if(daysCount && daysCount.value() > 0)
+				startVoting(player, ECurrentChatVote::SIMTURNS_FORCE, daysCount.value());
+			return;
+		}
+
+		if(words[2] == "abort")
+		{
+			startVoting(player, ECurrentChatVote::SIMTURNS_ABORT, 0);
+			return;
+		}
+	}
+
+	if(words[1] == "timer" && words.size() > 2)
+	{
+		if(words[2] == "prolong" && words.size() > 3)
+		{
+			auto secondsCount = parseNumber(words[3]);
+			if(secondsCount && secondsCount.value() > 0)
+				startVoting(player, ECurrentChatVote::TIMER_PROLONG, secondsCount.value());
+			return;
+		}
+	}
+
+	broadcastSystemMessage("Voting command not recognized!");
+}
+
+void PlayerMessageProcessor::finishVoting()
+{
+	switch(currentVote)
+	{
+		case ECurrentChatVote::SIMTURNS_ALLOW:
+			broadcastSystemMessage("Voting successful. Simultaneous turns will run for " + std::to_string(currentVoteParameter) + " more days, or until contact");
+			gameHandler->turnOrder->setMaxSimturnsDuration(currentVoteParameter);
+			break;
+		case ECurrentChatVote::SIMTURNS_FORCE:
+			broadcastSystemMessage("Voting successful. Simultaneous turns will run for " + std::to_string(currentVoteParameter) + " more days. Contacts are blocked");
+			gameHandler->turnOrder->setMinSimturnsDuration(currentVoteParameter);
+			break;
+		case ECurrentChatVote::SIMTURNS_ABORT:
+			broadcastSystemMessage("Voting successful. Simultaneous turns will end on next day");
+			gameHandler->turnOrder->setMinSimturnsDuration(0);
+			gameHandler->turnOrder->setMaxSimturnsDuration(0);
+			break;
+		case ECurrentChatVote::TIMER_PROLONG:
+			broadcastSystemMessage("Voting successful. Timer for all players has been prolonger for " + std::to_string(currentVoteParameter) + " seconds");
+			gameHandler->turnTimerHandler->prolongTimers(currentVoteParameter * 1000);
+			break;
+	}
+
+	currentVote = ECurrentChatVote::NONE;
+	currentVoteParameter = -1;
+}
+
+void PlayerMessageProcessor::abortVoting()
+{
+	broadcastSystemMessage("Player voted against change. Voting aborted");
+	currentVote = ECurrentChatVote::NONE;
+}
+
+void PlayerMessageProcessor::startVoting(PlayerColor initiator, ECurrentChatVote what, int parameter)
+{
+	currentVote = what;
+	currentVoteParameter = parameter;
+
+	switch(currentVote)
+	{
+		case ECurrentChatVote::SIMTURNS_ALLOW:
+			broadcastSystemMessage("Started voting to allow simultaneous turns for " + std::to_string(parameter) + " more days");
+			break;
+		case ECurrentChatVote::SIMTURNS_FORCE:
+			broadcastSystemMessage("Started voting to force simultaneous turns for " + std::to_string(parameter) + " more days");
+			break;
+		case ECurrentChatVote::SIMTURNS_ABORT:
+			broadcastSystemMessage("Started voting to end simultaneous turns starting from next day");
+			break;
+		case ECurrentChatVote::TIMER_PROLONG:
+			broadcastSystemMessage("Started voting to prolong timer for all players by " + std::to_string(parameter) + " seconds");
+			break;
+		default:
+			return;
+	}
+
+	broadcastSystemMessage("Type '!vote yes' to agree to this change or '!vote no' to vote against it");
+	awaitingPlayers.clear();
+
+	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
+		auto state = gameHandler->getPlayerState(player, false);
+		if(state && state->isHuman() && initiator != player)
+			awaitingPlayers.insert(player);
+	}
+
+	if(awaitingPlayers.empty())
+		finishVoting();
+}
+
+void PlayerMessageProcessor::handleCommand(PlayerColor player, const std::string & message)
+{
+	if(message.empty() || message[0] != '!')
+		return;
+
+	std::vector<std::string> words;
+	boost::split(words, message, boost::is_any_of(" "));
+
+	if(words[0] == "!exit" || words[0] == "!quit")
+		commandExit(player, words);
+	if(words[0] == "!help")
+		commandHelp(player, words);
+	if(words[0] == "!vote")
+		commandVote(player, words);
+	if(words[0] == "!kick")
+		commandKick(player, words);
+	if(words[0] == "!save")
+		commandSave(player, words);
+	if(words[0] == "!cheaters")
+		commandCheaters(player, words);
 }
 
 void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroInstance * hero)

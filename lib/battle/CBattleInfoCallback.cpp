@@ -760,37 +760,43 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 
 	DamageEstimation ret = calculateDmgRange(bai);
 
-	if(retaliationDmg && bai.defender->ableToRetaliate())
+	if(retaliationDmg == nullptr)
+		return ret;
+
+	*retaliationDmg = DamageEstimation();
+
+	if(bai.shooting) //FIXME: handle RANGED_RETALIATION
+		return ret;
+
+	if (!bai.defender->ableToRetaliate())
+		return ret;
+
+	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION))
+		return ret;
+
+	//TODO: rewrite using boost::numeric::interval
+	//TODO: rewire once more using interval-based fuzzy arithmetic
+
+	const auto & estimateRetaliation = [&](int64_t damage)
 	{
-		if(bai.shooting)
-		{
-			//FIXME: handle RANGED_RETALIATION
-			*retaliationDmg = DamageEstimation();
-		}
+		auto retaliationAttack = bai.reverse();
+		auto state = retaliationAttack.attacker->acquireState();
+		state->damage(damage);
+		retaliationAttack.attacker = state.get();
+		if (state->alive())
+			return calculateDmgRange(retaliationAttack);
 		else
-		{
-			//TODO: rewrite using boost::numeric::interval
-			//TODO: rewire once more using interval-based fuzzy arithmetic
+			return DamageEstimation();
+	};
 
-			const auto & estimateRetaliation = [&](int64_t damage)
-			{
-				auto retaliationAttack = bai.reverse();
-				auto state = retaliationAttack.attacker->acquireState();
-				state->damage(damage);
-				retaliationAttack.attacker = state.get();
-				return calculateDmgRange(retaliationAttack);
-			};
+	DamageEstimation retaliationMin = estimateRetaliation(ret.damage.min);
+	DamageEstimation retaliationMax = estimateRetaliation(ret.damage.max);
 
-			DamageEstimation retaliationMin = estimateRetaliation(ret.damage.min);
-			DamageEstimation retaliationMax = estimateRetaliation(ret.damage.max);
+	retaliationDmg->damage.min = std::min(retaliationMin.damage.min, retaliationMax.damage.min);
+	retaliationDmg->damage.max = std::max(retaliationMin.damage.max, retaliationMax.damage.max);
 
-			retaliationDmg->damage.min = std::min(retaliationMin.damage.min, retaliationMax.damage.min);
-			retaliationDmg->damage.max = std::max(retaliationMin.damage.max, retaliationMax.damage.max);
-
-			retaliationDmg->kills.min = std::min(retaliationMin.kills.min, retaliationMax.kills.min);
-			retaliationDmg->kills.max = std::max(retaliationMin.kills.max, retaliationMax.kills.max);
-		}
-	}
+	retaliationDmg->kills.min = std::min(retaliationMin.kills.min, retaliationMax.kills.min);
+	retaliationDmg->kills.max = std::max(retaliationMin.kills.max, retaliationMax.kills.max);
 
 	return ret;
 }

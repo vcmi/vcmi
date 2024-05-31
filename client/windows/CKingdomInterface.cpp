@@ -878,7 +878,7 @@ class ArtSlotsTab : public CIntObject
 {
 public:
 	std::shared_ptr<CAnimImage> background;
-	std::vector<std::shared_ptr<CHeroArtPlace>> arts;
+	std::vector<std::shared_ptr<CArtPlace>> arts;
 
 	ArtSlotsTab()
 	{
@@ -886,7 +886,7 @@ public:
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 4);
 		pos = background->pos;
 		for(int i=0; i<9; i++)
-			arts.push_back(std::make_shared<CHeroArtPlace>(Point(269+i*48, 66)));
+			arts.push_back(std::make_shared<CArtPlace>(Point(269+i*48, 66)));
 	}
 };
 
@@ -894,7 +894,7 @@ class BackpackTab : public CIntObject
 {
 public:
 	std::shared_ptr<CAnimImage> background;
-	std::vector<std::shared_ptr<CHeroArtPlace>> arts;
+	std::vector<std::shared_ptr<CArtPlace>> arts;
 	std::shared_ptr<CButton> btnLeft;
 	std::shared_ptr<CButton> btnRight;
 
@@ -906,7 +906,7 @@ public:
 		btnLeft = std::make_shared<CButton>(Point(269, 66), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), 0);
 		btnRight = std::make_shared<CButton>(Point(675, 66), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), 0);
 		for(int i=0; i<8; i++)
-			arts.push_back(std::make_shared<CHeroArtPlace>(Point(294+i*48, 66)));
+			arts.push_back(std::make_shared<CArtPlace>(Point(294+i*48, 66)));
 	}
 };
 

@@ -45,7 +45,7 @@ void CreaturePurchaseCard::initMinButton()
 
 void CreaturePurchaseCard::initCreatureSwitcherButton()
 {
-	creatureSwitcher = std::make_shared<CButton>(Point(pos.x + 18, pos.y-37), AnimationPath::builtin("iDv6432.def"), CButton::tooltip(), [&](){ switchCreatureLevel(); });
+	creatureSwitcher = std::make_shared<CButton>(Point(pos.x + 18, pos.y-37), AnimationPath::builtin("iDv6432.def"), CButton::tooltip(), [&](){ switchCreatureLevel(); }, EShortcut::RECRUITMENT_SWITCH_LEVEL);
 }
 
 void CreaturePurchaseCard::switchCreatureLevel()

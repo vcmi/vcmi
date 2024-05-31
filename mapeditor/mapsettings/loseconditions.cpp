@@ -64,7 +64,8 @@ void LoseConditions::initialize(MapController & c)
 					switch(json["condition"].Integer())
 					{
 						case EventCondition::CONTROL: {
-							if(json["objectType"].Integer() == Obj::TOWN)
+							auto objectType = MapObjectID::decode(json["objectType"].String());
+							if(objectType == Obj::TOWN)
 							{
 								ui->loseComboBox->setCurrentIndex(1);
 								assert(loseTypeWidget);
@@ -75,7 +76,7 @@ void LoseConditions::initialize(MapController & c)
 									loseTypeWidget->setCurrentIndex(idx);
 								}
 							}
-							if(json["objectType"].Integer() == Obj::HERO)
+							if(objectType == Obj::HERO)
 							{
 								ui->loseComboBox->setCurrentIndex(2);
 								assert(loseTypeWidget);

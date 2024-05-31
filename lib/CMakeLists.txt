@@ -650,7 +650,6 @@ set(lib_MAIN_HEADERS
 	CGameInterface.h
 	CGeneralTextHandler.h
 	CHeroHandler.h
-	CondSh.h
 	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h

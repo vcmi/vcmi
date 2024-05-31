@@ -52,7 +52,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/TextOperations.h"
@@ -82,6 +81,13 @@ std::vector<std::string> BattleConsole::getVisibleText()
 			continue;
 
 		auto result = CMessage::breakText(text, pos.w, FONT_SMALL);
+
+		if(result.size() > 2 && text.find('\n') != std::string::npos)
+		{
+			// Text has too many lines to fit into console, but has line breaks. Try ignore them and fit text that way
+			std::string cleanText = boost::algorithm::replace_all_copy(text, "\n", " ");
+			result = CMessage::breakText(cleanText, pos.w, FONT_SMALL);
+		}
 
 		if(result.size() > 2)
 			result.resize(2);
@@ -801,7 +807,7 @@ BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 
 void BattleResultWindow::activate()
 {
-	owner.showingDialog->set(true);
+	owner.showingDialog->setBusy();
 	CIntObject::activate();
 }
 
@@ -819,7 +825,7 @@ void BattleResultWindow::buttonPressed(int button)
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.
-	intTmp.showingDialog->setn(false);
+	intTmp.showingDialog->setFree();
 }
 
 void BattleResultWindow::bExitf()

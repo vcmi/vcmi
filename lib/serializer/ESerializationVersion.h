@@ -32,6 +32,7 @@ enum class ESerializationVersion : int32_t
 	NONE = 0,
 
 	MINIMAL = 831,
+
 	RELEASE_143, // 832 +text container in campaigns, +starting hero in RMG options
 	HAS_EXTRA_OPTIONS, // 833 +extra options struct as part of startinfo
 	DESTROYED_OBJECTS, // 834 +list of objects destroyed by player
@@ -44,10 +45,16 @@ enum class ESerializationVersion : int32_t
 
 	RELEASE_150 = ARTIFACT_COSTUMES, // for convenience
 
-	COMPACT_STRING_SERIALIZATION, // 841 - optimized serialization of previoulsy encountered strings
-	COMPACT_INTEGER_SERIALIZATION, // 842 - serialize integers in forms similar to protobuf
-	REMOVE_FOG_OF_WAR_POINTER, // 843 - fog of war is serialized as reference instead of pointer
-	SIMPLE_TEXT_CONTAINER_SERIALIZATION, // 844 - text container is serialized using common routine instead of custom approach
+	VOTING_SIMTURNS, // 841 - allow modification of simturns duration via vote
+	REMOVE_TEXT_CONTAINER_SIZE_T, // 842 Fixed serialization of size_t from text containers
+	BANK_UNIT_PLACEMENT, // 843 Banks have unit placement flag
+
+	RELEASE_152 = BANK_UNIT_PLACEMENT,
+
+	COMPACT_STRING_SERIALIZATION, // 844 - optimized serialization of previoulsy encountered strings
+	COMPACT_INTEGER_SERIALIZATION, // 845 - serialize integers in forms similar to protobuf
+	REMOVE_FOG_OF_WAR_POINTER, // 846 - fog of war is serialized as reference instead of pointer
+	SIMPLE_TEXT_CONTAINER_SERIALIZATION, // 847 - text container is serialized using common routine instead of custom approach
 
 	CURRENT = SIMPLE_TEXT_CONTAINER_SERIALIZATION
 };

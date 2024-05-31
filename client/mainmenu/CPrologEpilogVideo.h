@@ -14,6 +14,7 @@
 
 class CMultiLineLabel;
 class VideoWidget;
+class CFilledTexture;
 
 class CPrologEpilogVideo : public CWindowObject
 {
@@ -27,6 +28,7 @@ class CPrologEpilogVideo : public CWindowObject
 
 	std::shared_ptr<CMultiLineLabel> text;
 	std::shared_ptr<VideoWidget> videoPlayer;
+	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	bool voiceStopped = false;
 

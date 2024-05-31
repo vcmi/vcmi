@@ -19,6 +19,7 @@
 //#include "../gui/FramerateManager.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
+#include "../widgets/Images.h"
 #include "../render/Canvas.h"
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
@@ -27,7 +28,8 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	addUsedEvents(LCLICK | TIME);
 	pos = center(Rect(0, 0, 800, 600));
-	updateShadow();
+
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
 
 	//TODO: remove hardcoded paths. Some of campaigns video actually consist from 2 parts
 	// however, currently our campaigns format expects only	a single video file
