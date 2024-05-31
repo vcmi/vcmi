@@ -18,12 +18,11 @@
 #include "ExtraOptionsTab.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../mainmenu/CPrologEpilogVideo.h"
+#include "../media/IMusicPlayer.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -41,9 +40,9 @@
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"
-
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CBuildingHandler.h"
-
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"

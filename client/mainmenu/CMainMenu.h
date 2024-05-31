@@ -28,7 +28,7 @@ class CAnimation;
 class CButton;
 class CFilledTexture;
 class CLabel;
-
+class VideoWidget;
 
 // TODO: Find new location for these enums
 enum class ESelectionScreen : ui8 {
@@ -48,6 +48,7 @@ class CMenuScreen : public CWindowObject
 	std::shared_ptr<CTabbedInt> tabs;
 
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<VideoWidget> videoPlayer;
 	std::vector<std::shared_ptr<CPicture>> images;
 
 	std::shared_ptr<CIntObject> createTab(size_t index);
@@ -57,9 +58,8 @@ public:
 
 	CMenuScreen(const JsonNode & configNode);
 
-	void show(Canvas & to) override;
 	void activate() override;
-	void deactivate() override;
+	void show(Canvas & to) override;
 
 	void switchToTab(size_t index);
 	void switchToTab(std::string name);

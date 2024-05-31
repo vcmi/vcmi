@@ -20,11 +20,11 @@
 #include "../widgets/MiscWidgets.h"
 #include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/IScreenHandler.h"
 
 #include "../../CCallback.h"

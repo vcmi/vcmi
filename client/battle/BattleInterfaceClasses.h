@@ -14,6 +14,7 @@
 #include "../../lib/FunctionList.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
+#include "../../lib/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -42,6 +43,7 @@ class CAnimImage;
 class TransparentFilledRectangle;
 class CPlayerInterface;
 class BattleRenderer;
+class VideoWidget;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class BattleConsole : public CIntObject, public IStatusBar
@@ -185,6 +187,14 @@ public:
 	HeroInfoWindow(const InfoAboutHero & hero, Point * position);
 };
 
+struct BattleResultResources
+{
+	VideoPath prologueVideo;
+	VideoPath loopedVideo;
+	AudioPath musicName;
+	MetaString resultText;
+};
+
 /// Class which is responsible for showing the battle result window
 class BattleResultWindow : public WindowBase
 {
@@ -195,25 +205,10 @@ private:
 	std::shared_ptr<CButton> repeat;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 	std::shared_ptr<CTextBox> description;
+	std::shared_ptr<VideoWidget> videoPlayer;
 	CPlayerInterface & owner;
 
-	enum BattleResultVideo
-	{
-		NONE,
-		WIN,
-		SURRENDER,
-		RETREAT,
-		RETREAT_LOOP,
-		DEFEAT,
-		DEFEAT_LOOP,
-		DEFEAT_SIEGE,
-		DEFEAT_SIEGE_LOOP,
-		WIN_SIEGE,
-		WIN_SIEGE_LOOP,
-	};
-	BattleResultVideo currentVideo;
-
-	void playVideo(bool startLoop = false);
+	BattleResultResources getResources(const BattleResult & br);
 	
 	void buttonPressed(int button); //internal function for button callbacks
 public:
@@ -224,7 +219,6 @@ public:
 	std::function<void(int result)> resultCallback; //callback receiving which button was pressed
 
 	void activate() override;
-	void show(Canvas & to) override;
 };
 
 /// Shows the stack queue

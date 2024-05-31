@@ -17,6 +17,7 @@
 #include "../lobby/CBonusSelection.h"
 #include "../lobby/CSelectionBase.h"
 #include "../lobby/CLobbyScreen.h"
+#include "../media/IMusicPlayer.h"
 #include "../gui/CursorHandler.h"
 #include "../windows/GUIClasses.h"
 #include "../gui/CGuiHandler.h"
@@ -33,12 +34,11 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../Client.h"
 #include "../CMT.h"
@@ -92,8 +92,14 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	menuNameToEntry.push_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
-	if(config["video"].isNull())
+	if(!config["video"].isNull())
+	{
+		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
+		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]), false);
+	}
+	else
 		tabs->setRedrawParent(true);
+
 }
 
 std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
@@ -106,30 +112,14 @@ std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 
 void CMenuScreen::show(Canvas & to)
 {
-	if(!config["video"].isNull())
-	{
-		// redraw order: background -> video -> buttons and pictures
-		background->redraw();
-		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to.getInternalSurface(), true, false);
-		tabs->redraw();
-	}
-	CIntObject::show(to);
+	// TODO: avoid excessive redraws
+	CIntObject::showAll(to);
 }
 
 void CMenuScreen::activate()
 {
 	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
-	if(!config["video"].isNull())
-		CCS->videoh->open(VideoPath::fromJson(config["video"]["name"]));
 	CIntObject::activate();
-}
-
-void CMenuScreen::deactivate()
-{
-	if(!config["video"].isNull())
-		CCS->videoh->close();
-
-	CIntObject::deactivate();
 }
 
 void CMenuScreen::switchToTab(size_t index)

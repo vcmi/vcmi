@@ -14,11 +14,13 @@
 
 #include "CGameInfo.h"
 #include "mainmenu/CMainMenu.h"
+#include "media/CEmptyVideoPlayer.h"
+#include "media/CMusicHandler.h"
+#include "media/CSoundHandler.h"
+#include "media/CVideoHandler.h"
 #include "gui/CursorHandler.h"
 #include "eventsSDL/InputHandler.h"
 #include "CPlayerInterface.h"
-#include "CVideoHandler.h"
-#include "CMusicHandler.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "CServerHandler.h"
@@ -292,10 +294,8 @@ int main(int argc, char * argv[])
 	{
 		//initializing audio
 		CCS->soundh = new CSoundHandler();
-		CCS->soundh->init();
 		CCS->soundh->setVolume((ui32)settings["general"]["sound"].Float());
 		CCS->musich = new CMusicHandler();
-		CCS->musich->init();
 		CCS->musich->setVolume((ui32)settings["general"]["music"].Float());
 		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 	}
@@ -396,20 +396,13 @@ int main(int argc, char * argv[])
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	auto audioData = CCS->videoh->getAudio(VideoPath::builtin("3DOLOGO.SMK"));
-	int sound = CCS->soundh->playSound(audioData);
-	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, EVideoType::INTRO))
-	{
-		audioData = CCS->videoh->getAudio(VideoPath::builtin("NWCLOGO.SMK"));
-		sound = CCS->soundh->playSound(audioData);
-		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, EVideoType::INTRO))
-		{
-			audioData = CCS->videoh->getAudio(VideoPath::builtin("H3INTRO.SMK"));
-			sound = CCS->soundh->playSound(audioData);
-			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), 0, 1, EVideoType::INTRO);
-		}
-	}
-	CCS->soundh->stopSound(sound);
+	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK")))
+		return;
+
+	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK")))
+		return;
+
+	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"));
 }
 
 static void mainLoop()
@@ -457,9 +450,6 @@ static void mainLoop()
 		// cleanup, mostly to remove false leaks from analyzer
 		if(CCS)
 		{
-			CCS->musich->release();
-			CCS->soundh->release();
-
 			delete CCS->consoleh;
 			delete CCS->curh;
 			delete CCS->videoh;

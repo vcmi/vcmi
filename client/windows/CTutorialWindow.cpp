@@ -16,7 +16,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
-#include "../CVideoHandler.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -24,6 +23,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../render/Canvas.h"
 
 CTutorialWindow::CTutorialWindow(const TutorialMode & m)
@@ -54,7 +54,10 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 
 void CTutorialWindow::setContent()
 {
-	video = "tutorial/" + videos[page];
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	auto video = VideoPath::builtin("tutorial/" + videos[page]);
+
+	videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), video, false);
 
 	buttonLeft->block(page<1);
 	buttonRight->block(page>videos.size() - 2);
@@ -97,27 +100,4 @@ void CTutorialWindow::previous()
 	setContent();
 	deactivate();
 	activate();
-}
-
-void CTutorialWindow::show(Canvas & to)
-{
-	CCS->videoh->update(pos.x + 30, pos.y + 120, to.getInternalSurface(), true, false,
-	[&]()
-	{
-		CCS->videoh->close();
-		CCS->videoh->open(VideoPath::builtin(video));
-	});
-
-	CIntObject::show(to);
-}
-
-void CTutorialWindow::activate()
-{
-	CCS->videoh->open(VideoPath::builtin(video));
-	CIntObject::activate();
-}
-
-void CTutorialWindow::deactivate()
-{
-	CCS->videoh->close();
 }

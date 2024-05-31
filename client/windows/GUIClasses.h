@@ -39,6 +39,7 @@ class CHeroArea;
 class CAnimImage;
 class CFilledTexture;
 class IImage;
+class VideoWidget;
 
 enum class EUserEvent;
 
@@ -261,6 +262,7 @@ public:
 	std::shared_ptr<CLabel> cost;
 	std::shared_ptr<CLabel> heroesForHire;
 	std::shared_ptr<CTextBox> heroDescription;
+	std::shared_ptr<VideoWidget> videoPlayer;
 
 	std::shared_ptr<CTextBox> rumor;
 	
@@ -272,7 +274,6 @@ public:
 	void addInvite();
 
 	CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed);
-	~CTavernWindow();
 
 	void close() override;
 	void recruitb();

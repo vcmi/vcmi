@@ -14,7 +14,6 @@
 
 #include "CGameInfo.h"
 #include "CMT.h"
-#include "CMusicHandler.h"
 #include "CServerHandler.h"
 #include "HeroMovementController.h"
 #include "PlayerLocalState.h"
@@ -40,6 +39,9 @@
 #include "mainmenu/CHighScoreScreen.h"
 
 #include "mapView/mapHandler.h"
+
+#include "media/IMusicPlayer.h"
+#include "media/ISoundPlayer.h"
 
 #include "render/CAnimation.h"
 #include "render/IImage.h"

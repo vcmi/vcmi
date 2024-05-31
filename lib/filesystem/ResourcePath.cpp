@@ -113,11 +113,8 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".MP3",   EResType::SOUND},
 		{".OGG",   EResType::SOUND},
 		{".FLAC",  EResType::SOUND},
-		{".SMK",   EResType::VIDEO},
+		{".SMK",   EResType::VIDEO_LOW_QUALITY},
 		{".BIK",   EResType::VIDEO},
-		{".MJPG",  EResType::VIDEO},
-		{".MPG",   EResType::VIDEO},
-		{".AVI",   EResType::VIDEO},
 		{".WEBM",  EResType::VIDEO},
 		{".ZIP",   EResType::ARCHIVE_ZIP},
 		{".LOD",   EResType::ARCHIVE_LOD},
@@ -157,6 +154,7 @@ std::string EResTypeHelper::getEResTypeAsString(EResType type)
 		MAP_ENUM(TTF_FONT)
 		MAP_ENUM(IMAGE)
 		MAP_ENUM(VIDEO)
+		MAP_ENUM(VIDEO_LOW_QUALITY)
 		MAP_ENUM(SOUND)
 		MAP_ENUM(ARCHIVE_ZIP)
 		MAP_ENUM(ARCHIVE_LOD)

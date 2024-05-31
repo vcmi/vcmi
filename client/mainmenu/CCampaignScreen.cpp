@@ -14,18 +14,18 @@
 #include "CMainMenu.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../media/IMusicPlayer.h"
 #include "../render/Canvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../windows/CWindowObject.h"
@@ -36,7 +36,7 @@
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
-
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
@@ -100,7 +100,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	pos.h = 116;
 
 	campFile = config["file"].String();
-	video = VideoPath::fromJson(config["video"]);
+	videoPath = VideoPath::fromJson(config["video"]);
 
 	status = CCampaignScreen::ENABLED;
 
@@ -127,7 +127,6 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	{
 		addUsedEvents(LCLICK | HOVER);
 		graphicsImage = std::make_shared<CPicture>(ImagePath::fromJson(config["image"]));
-
 		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "");
 		parent->addChild(hoverLabel.get());
 	}
@@ -136,30 +135,19 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 		graphicsCompleted = std::make_shared<CPicture>(ImagePath::builtin("CAMPCHK"));
 }
 
-void CCampaignScreen::CCampaignButton::show(Canvas & to)
-{
-	if(status == CCampaignScreen::DISABLED)
-		return;
-
-	CIntObject::show(to);
-
-	// Play the campaign button video when the mouse cursor is placed over the button
-	if(isHovered())
-		CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
-}
-
 void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
 {
-	CCS->videoh->close();
 	CMainMenu::openCampaignLobby(campFile, campaignSet);
 }
 
 void CCampaignScreen::CCampaignButton::hover(bool on)
 {
-	if (on)
-		CCS->videoh->open(video);
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	if (on && !videoPath.empty())
+		videoPlayer = std::make_shared<VideoWidget>(Point(), videoPath, false);
 	else
-		CCS->videoh->close();
+		videoPlayer.reset();
 
 	if(hoverLabel)
 	{

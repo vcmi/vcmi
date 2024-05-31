@@ -20,6 +20,7 @@ VCMI_LIB_NAMESPACE_END
 class CLabel;
 class CPicture;
 class CButton;
+class VideoWidget;
 
 class CCampaignScreen : public CWindowObject
 {
@@ -34,10 +35,11 @@ private:
 		std::shared_ptr<CLabel> hoverLabel;
 		std::shared_ptr<CPicture> graphicsImage;
 		std::shared_ptr<CPicture> graphicsCompleted;
+		std::shared_ptr<VideoWidget> videoPlayer;
 		CampaignStatus status;
+		VideoPath videoPath;
 
 		std::string campFile; // the filename/resourcename of the campaign
-		VideoPath video; // the resource name of the video
 		std::string hoverText;
 
 		std::string campaignSet;
@@ -47,7 +49,6 @@ private:
 
 	public:
 		CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet);
-		void show(Canvas & to) override;
 	};
 
 	std::string campaignSet;

@@ -12,7 +12,6 @@
 #include "CInGameConsole.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameChatHandler.h"
@@ -21,6 +20,7 @@
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"

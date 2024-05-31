@@ -16,10 +16,10 @@
 #include "GlobalLobbyRoomWindow.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/Colors.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"

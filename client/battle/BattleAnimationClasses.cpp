@@ -20,10 +20,10 @@
 #include "CreatureAnimation.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../media/ISoundPlayer.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"

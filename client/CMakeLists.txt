@@ -75,6 +75,11 @@ set(client_SRCS
 	mapView/MapViewModel.cpp
 	mapView/mapHandler.cpp
 
+	media/CAudioBase.cpp
+	media/CMusicHandler.cpp
+	media/CSoundHandler.cpp
+	media/CVideoHandler.cpp
+
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
 	render/CDefFile.cpp
@@ -126,6 +131,7 @@ set(client_SRCS
 	widgets/CArtifactsOfHeroMarket.cpp
 	widgets/CArtifactsOfHeroBackpack.cpp
 	widgets/RadialMenu.cpp
+	widgets/VideoWidget.cpp
 	widgets/markets/CAltarArtifacts.cpp
 	widgets/markets/CAltarCreatures.cpp
 	widgets/markets/CArtifactsBuying.cpp
@@ -163,11 +169,9 @@ set(client_SRCS
 
 	CGameInfo.cpp
 	CMT.cpp
-	CMusicHandler.cpp
 	CPlayerInterface.cpp
 	PlayerLocalState.cpp
 	CServerHandler.cpp
-	CVideoHandler.cpp
 	Client.cpp
 	ClientCommandManager.cpp
 	GameChatHandler.cpp
@@ -260,6 +264,15 @@ set(client_HEADERS
 	mapView/MapViewModel.h
 	mapView/mapHandler.h
 
+	media/CAudioBase.h
+	media/CEmptyVideoPlayer.h
+	media/CMusicHandler.h
+	media/CSoundHandler.h
+	media/CVideoHandler.h
+	media/IMusicPlayer.h
+	media/ISoundPlayer.h
+	media/IVideoPlayer.h
+
 	render/CAnimation.h
 	render/CBitmapHandler.h
 	render/CDefFile.h
@@ -320,6 +333,7 @@ set(client_HEADERS
 	widgets/CArtifactsOfHeroMarket.h
 	widgets/CArtifactsOfHeroBackpack.h
 	widgets/RadialMenu.h
+	widgets/VideoWidget.h
 	widgets/markets/CAltarArtifacts.h
 	widgets/markets/CAltarCreatures.h
 	widgets/markets/CArtifactsBuying.h
@@ -357,11 +371,9 @@ set(client_HEADERS
 
 	CGameInfo.h
 	CMT.h
-	CMusicHandler.h
 	CPlayerInterface.h
 	PlayerLocalState.h
 	CServerHandler.h
-	CVideoHandler.h
 	Client.h
 	ClientCommandManager.h
 	ClientNetPackVisitors.h

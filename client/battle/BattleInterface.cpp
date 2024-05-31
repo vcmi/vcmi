@@ -24,11 +24,12 @@
 #include "BattleRenderer.h"
 
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
 #include "../windows/CTutorialWindow.h"
 #include "../render/Canvas.h"
 #include "../adventureMap/AdventureMapInterface.h"
@@ -113,7 +114,14 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 			onIntroSoundPlayed();
 	};
 
-	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+	std::vector<soundBase::soundID> battleIntroSounds =
+	{
+		soundBase::battle00, soundBase::battle01,
+		soundBase::battle02, soundBase::battle03, soundBase::battle04,
+		soundBase::battle05, soundBase::battle06, soundBase::battle07
+	};
+
+	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(battleIntroSounds);
 	if (battleIntroSoundChannel != -1)
 	{
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);

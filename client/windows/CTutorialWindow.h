@@ -15,6 +15,7 @@ class CFilledTexture;
 class CButton;
 class CLabel;
 class CMultiLineLabel;
+class VideoWidget;
 
 enum TutorialMode
 {
@@ -33,8 +34,8 @@ class CTutorialWindow : public CWindowObject
 
 	std::shared_ptr<CLabel> labelTitle;
 	std::shared_ptr<CMultiLineLabel> labelInformation;
+	std::shared_ptr<VideoWidget> videoPlayer;
 
-	std::string video;
 	std::vector<std::string> videos;
 
 	int page;
@@ -47,8 +48,4 @@ class CTutorialWindow : public CWindowObject
 public:
 	CTutorialWindow(const TutorialMode & m);
 	static void openWindowFirstTime(const TutorialMode & m);	
-
-	void show(Canvas & to) override;
-	void activate() override;
-	void deactivate() override;
 };

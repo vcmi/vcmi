@@ -11,9 +11,10 @@
 #include "GeneralOptionsTab.h"
 
 #include "CGameInfo.h"
-#include "CMusicHandler.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
+#include "media/IMusicPlayer.h"
+#include "media/ISoundPlayer.h"
 #include "render/IScreenHandler.h"
 #include "windows/GUIClasses.h"
 

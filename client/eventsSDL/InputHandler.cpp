@@ -22,10 +22,11 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
+#include "../media/IMusicPlayer.h"
+#include "../media/ISoundPlayer.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 

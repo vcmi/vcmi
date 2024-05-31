@@ -25,7 +25,6 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMusicHandler.h"
 
 #include "../../CCallback.h"
 
