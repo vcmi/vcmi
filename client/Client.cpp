@@ -556,6 +556,13 @@ void CClient::invalidatePaths()
 	pathCache.clear();
 }
 
+vstd::RNG & CClient::getRandomGenerator()
+{
+	// Client should use CRandomGenerator::getDefault() for UI logic
+	// Gamestate should never call this method on client!
+	throw std::runtime_error("Illegal access to random number generator from client code!");
+}
+
 std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h)
 {
 	assert(h);

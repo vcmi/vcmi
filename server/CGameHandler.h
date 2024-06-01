@@ -277,7 +277,7 @@ public:
 	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
 	void checkVictoryLossConditionsForAll();
 
-	vstd::RNG & getRandomGenerator();
+	vstd::RNG & getRandomGenerator() override;
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;

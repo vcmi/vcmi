@@ -93,6 +93,8 @@ public:
 	///useful callback methods
 	void sendAndApply(CPackForClient * pack) override;
 
+	vstd::RNG & getRandomGenerator() override;
+
 #if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(getGlobalContextPool, scripting::Pool *());
 #endif
