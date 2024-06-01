@@ -104,7 +104,7 @@ bool ExplorationHelper::scanMap()
 
 	if(!bestGoal->invalid())
 	{
-		return false;
+		return true;
 	}
 
 	allowDeadEndCancellation = false;

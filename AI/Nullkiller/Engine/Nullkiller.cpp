@@ -403,7 +403,7 @@ void Nullkiller::makeTurn()
 
 		if(selectedTasks.empty())
 		{
-			return;
+			selectedTasks.push_back(taskptr(Goals::Invalid()));
 		}
 
 		bool hasAnySuccess = false;
@@ -456,7 +456,7 @@ void Nullkiller::makeTurn()
 					scanDepth = ScanDepth::ALL_FULL;
 					useHeroChain = false;
 					hasAnySuccess = true;
-					break;;
+					break;
 				}
 
 				logAi->trace("Goal %s has too low priority. It is not worth doing it.", taskDescription);
