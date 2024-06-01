@@ -13,6 +13,7 @@
 #include "TurnOrderProcessor.h"
 #include "../CGameHandler.h"
 
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/GameSettings.h"
@@ -368,7 +369,7 @@ CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative, const PlayerColor
 	return *RandomGeneratorUtil::nextItem(possibleHeroes, getRandomGenerator(player));
 }
 
-CRandomGenerator & HeroPoolProcessor::getHeroSkillsRandomGenerator(const HeroTypeID & hero)
+vstd::RNG & HeroPoolProcessor::getHeroSkillsRandomGenerator(const HeroTypeID & hero)
 {
 	if (heroSeed.count(hero) == 0)
 	{
@@ -379,7 +380,7 @@ CRandomGenerator & HeroPoolProcessor::getHeroSkillsRandomGenerator(const HeroTyp
 	return *heroSeed.at(hero);
 }
 
-CRandomGenerator & HeroPoolProcessor::getRandomGenerator(const PlayerColor & player)
+vstd::RNG & HeroPoolProcessor::getRandomGenerator(const PlayerColor & player)
 {
 	if (playerSeed.count(player) == 0)
 	{

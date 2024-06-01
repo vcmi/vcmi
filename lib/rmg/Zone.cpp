@@ -17,6 +17,10 @@
 #include "RmgPath.h"
 #include "modificators/ObjectManager.h"
 
+#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 const std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
@@ -24,15 +28,17 @@ const std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 	return true;
 };
 
-Zone::Zone(RmgMap & map, CMapGenerator & generator, CRandomGenerator & r)
+Zone::Zone(RmgMap & map, CMapGenerator & generator, vstd::RNG & r)
 	: finished(false)
 	, townType(ETownType::NEUTRAL)
 	, terrainType(ETerrainId::GRASS)
 	, map(map)
+	, rand(std::make_unique<CRandomGenerator>(r.nextInt()))
 	, generator(generator)
 {
-	rand.setSeed(r.nextInt());
 }
+
+Zone::~Zone() = default;
 
 bool Zone::isUnderground() const
 {
@@ -401,9 +407,9 @@ void Zone::initModificators()
 	}
 }
 
-CRandomGenerator& Zone::getRand()
+vstd::RNG& Zone::getRand()
 {
-	return rand;
+	return *rand;
 }
 
 VCMI_LIB_NAMESPACE_END

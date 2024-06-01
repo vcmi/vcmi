@@ -141,19 +141,19 @@ public:
 
 	std::string seerName;
 
-	void initObj(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	std::string getPopupText(PlayerColor player) const override;
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
-	void newTurn(CRandomGenerator & rand) const override;
+	void newTurn(vstd::RNG & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 
-	virtual void init(CRandomGenerator & rand);
+	virtual void init(vstd::RNG & rand);
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
 	const CGHeroInstance *getHeroToKill(bool allowNull) const;
@@ -179,7 +179,7 @@ class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 public:
 	using CGSeerHut::CGSeerHut;
 
-	void init(CRandomGenerator & rand) override;
+	void init(vstd::RNG & rand) override;
 	
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
@@ -227,7 +227,7 @@ class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 public:
 	using CGKeys::CGKeys;
 
-	void initObj(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 

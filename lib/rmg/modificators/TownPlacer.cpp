@@ -27,6 +27,8 @@
 #include "WaterAdopter.h"
 #include "../TileInfo.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void TownPlacer::process()

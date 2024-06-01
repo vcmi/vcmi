@@ -69,7 +69,7 @@ public:
 
 class CBankInstanceConstructor : public CDefaultObjectTypeHandler<CBank>
 {
-	BankConfig generateConfig(IGameCallback * cb, const JsonNode & conf, CRandomGenerator & rng) const;
+	BankConfig generateConfig(IGameCallback * cb, const JsonNode & conf, vstd::RNG & rng) const;
 
 	JsonVector levels;
 
@@ -87,7 +87,7 @@ protected:
 
 public:
 
-	void randomizeObject(CBank * object, CRandomGenerator & rng) const override;
+	void randomizeObject(CBank * object, vstd::RNG & rng) const override;
 
 	bool hasNameTextID() const override;
 

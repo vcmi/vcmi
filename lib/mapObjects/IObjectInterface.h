@@ -17,11 +17,15 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace vstd
+{
+class RNG;
+}
+
 struct BattleResult;
 struct UpgradeInfo;
 class BoatId;
 class CGObjectInstance;
-class CRandomGenerator;
 class CStackInstance;
 class CGHeroInstance;
 class IGameCallback;
@@ -46,9 +50,9 @@ public:
 
 	virtual void onHeroVisit(const CGHeroInstance * h) const;
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
-	virtual void newTurn(CRandomGenerator & rand) const;
-	virtual void initObj(CRandomGenerator & rand); //synchr
-	virtual void pickRandomObject(CRandomGenerator & rand);
+	virtual void newTurn(vstd::RNG & rand) const;
+	virtual void initObj(vstd::RNG & rand); //synchr
+	virtual void pickRandomObject(vstd::RNG & rand);
 	virtual void setProperty(ObjProperty what, ObjPropertyID identifier);//synchr
 
 	//Called when queries created DURING HERO VISIT are resolved

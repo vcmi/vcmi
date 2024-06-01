@@ -15,9 +15,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace vstd
+{
+class RNG;
+}
+
 class ObjectTemplate;
 class CGObjectInstance;
-class CRandomGenerator;
 class IObjectInfo;
 class IGameCallback;
 
@@ -114,7 +118,7 @@ public:
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map
-	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
+	virtual void configureObject(CGObjectInstance * object, vstd::RNG & rng) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const;

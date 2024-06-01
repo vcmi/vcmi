@@ -20,9 +20,31 @@ class DLL_LINKAGE RNG
 public:
 	virtual ~RNG() = default;
 
+	/// Returns random number in range [lower, upper]
 	virtual int nextInt(int lower, int upper) = 0;
+
+	/// Returns random number in range [lower, upper]
 	virtual int64_t nextInt64(int64_t lower, int64_t upper) = 0;
+
+	/// Returns random number in range [lower, upper]
 	virtual double nextDouble(double lower, double upper) = 0;
+
+	/// Returns random number in range [0, upper]
+	virtual int nextInt(int upper) = 0;
+
+	/// Returns random number in range [0, upper]
+	virtual int64_t nextInt64(int64_t upper) = 0;
+
+	/// Returns random number in range [0, upper]
+	virtual double nextDouble(double upper) = 0;
+
+	/// Generates an integer between 0 and the maximum value it can hold.
+	/// Should be only used for seeding other generators
+	virtual int nextInt() = 0;
+
+	/// Returns integer using binomial distribution
+	/// returned value is number of successfull coin flips with chance 'coinChance' out of 'coinsCount' attempts
+	virtual int nextBinomialInt(int coinsCount, double coinChance) = 0;
 };
 
 }

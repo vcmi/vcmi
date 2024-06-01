@@ -41,7 +41,7 @@ void CGPandoraBox::init()
 	}
 }
 
-void CGPandoraBox::initObj(CRandomGenerator & rand)
+void CGPandoraBox::initObj(vstd::RNG & rand)
 {
 	init();
 	

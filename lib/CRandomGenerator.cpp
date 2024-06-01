@@ -40,6 +40,11 @@ int CRandomGenerator::nextInt(int upper)
 	return nextInt(0, upper);
 }
 
+int64_t CRandomGenerator::nextInt64(int64_t upper)
+{
+	return nextInt64(0, upper);
+}
+
 int CRandomGenerator::nextInt(int lower, int upper)
 {
 	if (lower > upper)
@@ -51,6 +56,12 @@ int CRandomGenerator::nextInt(int lower, int upper)
 int CRandomGenerator::nextInt()
 {
 	return TIntDist()(rand);
+}
+
+int CRandomGenerator::nextBinomialInt(int coinsCount, double coinChance)
+{
+	std::binomial_distribution<> distribution(coinsCount, coinChance);
+	return distribution(rand);
 }
 
 int64_t CRandomGenerator::nextInt64(int64_t lower, int64_t upper)
@@ -74,20 +85,11 @@ double CRandomGenerator::nextDouble(double lower, double upper)
 	return TRealDist(lower, upper)(rand);
 }
 
-//double CRandomGenerator::nextDouble()
-//{
-//	return TRealDist()(rand);
-//}
-
 CRandomGenerator & CRandomGenerator::getDefault()
 {
 	static thread_local CRandomGenerator defaultRand;
 	return defaultRand;
 }
 
-TGenerator & CRandomGenerator::getStdGenerator()
-{
-	return rand;
-}
 
 VCMI_LIB_NAMESPACE_END

@@ -18,7 +18,6 @@ class CGObjectInstance;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
-class CRandomGenerator;
 
 struct ObjectInfo
 {

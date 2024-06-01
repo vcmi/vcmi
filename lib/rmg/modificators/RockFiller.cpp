@@ -19,7 +19,6 @@
 #include "../CMapGenerator.h"
 #include "../Functions.h"
 #include "../../TerrainHandler.h"
-#include "../../CRandomGenerator.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../TileInfo.h"
 #include "../threadpool/MapProxy.h"

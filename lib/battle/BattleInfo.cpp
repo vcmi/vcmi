@@ -12,7 +12,6 @@
 #include "CObstacleInstance.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
-#include "../CRandomGenerator.h"
 #include "../CStack.h"
 #include "../CHeroHandler.h"
 #include "../filesystem/Filesystem.h"
@@ -21,6 +20,7 @@
 #include "../BattleFieldHandler.h"
 #include "../ObstacleHandler.h"
 
+#include <vstd/RNG.h>
 
 //TODO: remove
 #include "../IGameCallback.h"

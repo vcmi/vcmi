@@ -32,6 +32,8 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///helpers
@@ -93,7 +95,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 
 }
 
-void CGMine::newTurn(CRandomGenerator & rand) const
+void CGMine::newTurn(vstd::RNG & rand) const
 {
 	if(cb->getDate() == 1)
 		return;
@@ -104,7 +106,7 @@ void CGMine::newTurn(CRandomGenerator & rand) const
 	cb->giveResource(tempOwner, producedResource, producedQuantity);
 }
 
-void CGMine::initObj(CRandomGenerator & rand)
+void CGMine::initObj(vstd::RNG & rand)
 {
 	if(isAbandoned())
 	{
@@ -254,7 +256,7 @@ std::string CGResource::getHoverText(PlayerColor player) const
 	return VLC->generaltexth->restypes[resourceID().getNum()];
 }
 
-void CGResource::pickRandomObject(CRandomGenerator & rand)
+void CGResource::pickRandomObject(vstd::RNG & rand)
 {
 	assert(ID == Obj::RESOURCE || ID == Obj::RANDOM_RESOURCE);
 
@@ -266,7 +268,7 @@ void CGResource::pickRandomObject(CRandomGenerator & rand)
 	}
 }
 
-void CGResource::initObj(CRandomGenerator & rand)
+void CGResource::initObj(vstd::RNG & rand)
 {
 	blockVisit = true;
 
@@ -324,7 +326,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 		sii.text.replaceName(resourceID());
 	}
 	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
-	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
+	sii.soundID = soundBase::pickup01 + cb->gameState()->getRandomGenerator().nextInt(6);
 	cb->showInfoDialog(&sii);
 	cb->removeObject(this, player);
 }
@@ -392,7 +394,7 @@ ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 {
 	auto passableExits = getPassableExits(cb->gameState(), h, getAllExits(true));
 	if(!passableExits.empty())
-		return *RandomGeneratorUtil::nextItem(passableExits, CRandomGenerator::getDefault());
+		return *RandomGeneratorUtil::nextItem(passableExits, cb->gameState()->getRandomGenerator());
 
 	return ObjectInstanceID();
 }
@@ -527,7 +529,7 @@ void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer,
 	cb->moveHero(hero->id, dPos, EMovementMode::MONOLITH);
 }
 
-void CGMonolith::initObj(CRandomGenerator & rand)
+void CGMonolith::initObj(vstd::RNG & rand)
 {
 	std::vector<Obj> IDs;
 	IDs.push_back(ID);
@@ -572,7 +574,7 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 	cb->showTeleportDialog(&td);
 }
 
-void CGSubterraneanGate::initObj(CRandomGenerator & rand)
+void CGSubterraneanGate::initObj(vstd::RNG & rand)
 {
 	type = BOTH;
 }
@@ -700,7 +702,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 
 		const auto * obj = cb->getObj(exit);
 		std::set<int3> tiles = obj->getBlockedPos();
-		dPos = hero->convertFromVisitablePos(*RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault()));
+		dPos = hero->convertFromVisitablePos(*RandomGeneratorUtil::nextItem(tiles, cb->gameState()->getRandomGenerator()));
 	}
 
 	cb->moveHero(hero->id, dPos, EMovementMode::MONOLITH);
@@ -721,7 +723,7 @@ ArtifactID CGArtifact::getArtifact() const
 		return getObjTypeIndex().getNum();
 }
 
-void CGArtifact::pickRandomObject(CRandomGenerator & rand)
+void CGArtifact::pickRandomObject(vstd::RNG & rand)
 {
 	switch(ID.toEnum())
 	{
@@ -751,7 +753,7 @@ void CGArtifact::pickRandomObject(CRandomGenerator & rand)
 		ID = MapObjectID::ARTIFACT;
 }
 
-void CGArtifact::initObj(CRandomGenerator & rand)
+void CGArtifact::initObj(vstd::RNG & rand)
 {
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
@@ -933,7 +935,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 	}
 }
 
-void CGSignBottle::initObj(CRandomGenerator & rand)
+void CGSignBottle::initObj(vstd::RNG & rand)
 {
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
@@ -1008,7 +1010,7 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 	CArmedInstance::serializeJsonOptions(handler);
 }
 
-void CGGarrison::initObj(CRandomGenerator &rand)
+void CGGarrison::initObj(vstd::RNG &rand)
 {
 	if(this->subID == MapObjectSubID::decode(this->ID, "antiMagic"))
 		addAntimagicGarrisonBonus();
@@ -1025,7 +1027,7 @@ void CGGarrison::addAntimagicGarrisonBonus()
 	this->addNewBonus(bonus);
 }
 
-void CGMagi::initObj(CRandomGenerator & rand)
+void CGMagi::initObj(vstd::RNG & rand)
 {
 	if (ID == Obj::EYE_OF_MAGI)
 		blockVisit = true;
@@ -1088,7 +1090,7 @@ bool CGBoat::isCoastVisitable() const
 	return true;
 }
 
-void CGSirens::initObj(CRandomGenerator & rand)
+void CGSirens::initObj(vstd::RNG & rand)
 {
 	blockVisit = true;
 }
@@ -1235,7 +1237,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 }
 
-void CGObelisk::initObj(CRandomGenerator & rand)
+void CGObelisk::initObj(vstd::RNG & rand)
 {
 	cb->gameState()->map->obeliskCount++;
 }
@@ -1288,7 +1290,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-void CGLighthouse::initObj(CRandomGenerator & rand)
+void CGLighthouse::initObj(vstd::RNG & rand)
 {
 	if(tempOwner.isValidPlayer())
 	{

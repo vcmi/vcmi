@@ -25,7 +25,6 @@ class CArtHandler;
 class CGHeroInstance;
 class CArtifactSet;
 class CArtifactInstance;
-class CRandomGenerator;
 class CMap;
 class JsonSerializeFormat;
 

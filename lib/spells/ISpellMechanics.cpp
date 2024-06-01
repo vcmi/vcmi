@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "ISpellMechanics.h"
 
-#include "../CRandomGenerator.h"
 #include "../VCMI_Lib.h"
 
 #include "../bonuses/Bonus.h"
@@ -40,6 +39,8 @@
 #include "../CHeroHandler.h"//todo: remove
 #include "../IGameCallback.h"//todo: remove
 #include "../BattleFieldHandler.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

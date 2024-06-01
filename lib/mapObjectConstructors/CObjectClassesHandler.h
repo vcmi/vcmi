@@ -15,7 +15,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRandomGenerator;
 class AObjectTypeHandler;
 class ObjectTemplate;
 struct SObjectSounds;
