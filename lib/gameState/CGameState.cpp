@@ -1211,8 +1211,10 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
-void CGameState::updateRumor()
+RumorState CGameState::pickNewRumor()
 {
+	RumorState newRumor;
+
 	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
@@ -1222,11 +1224,11 @@ void CGameState::updateRumor()
 	int rumorId = -1;
 	int rumorExtra = -1;
 	auto & rand = getRandomGenerator();
-	rumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
+	newRumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
 
 	do
 	{
-		switch(rumor.type)
+		switch(newRumor.type)
 		{
 		case RumorState::TYPE_SPECIAL:
 		{
@@ -1264,13 +1266,13 @@ void CGameState::updateRumor()
 		}
 		case RumorState::TYPE_MAP:
 			// Makes sure that map rumors only used if there enough rumors too choose from
-			if(!map->rumors.empty() && (map->rumors.size() > 1 || !rumor.last.count(RumorState::TYPE_MAP)))
+			if(!map->rumors.empty() && (map->rumors.size() > 1 || !currentRumor.last.count(RumorState::TYPE_MAP)))
 			{
 				rumorId = rand.nextInt((int)map->rumors.size() - 1);
 				break;
 			}
 			else
-				rumor.type = RumorState::TYPE_RAND;
+				newRumor.type = RumorState::TYPE_RAND;
 			[[fallthrough]];
 
 		case RumorState::TYPE_RAND:
@@ -1280,7 +1282,9 @@ void CGameState::updateRumor()
 			break;
 		}
 	}
-	while(!rumor.update(rumorId, rumorExtra));
+	while(!newRumor.update(rumorId, rumorExtra));
+
+	return newRumor;
 }
 
 bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const
@@ -1904,23 +1908,7 @@ CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 	return nullptr;
 }
 
-bool RumorState::update(int id, int extra)
-{
-	if(vstd::contains(last, type))
-	{
-		if(last[type].first != id)
-		{
-			last[type].first = id;
-			last[type].second = extra;
-		}
-		else
-			return false;
-	}
-	else
-		last[type] = std::make_pair(id, extra);
 
-	return true;
-}
 
 TeamState::TeamState()
 {
