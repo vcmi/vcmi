@@ -24,20 +24,17 @@ class HypotheticBattle;
 class RNGStub : public vstd::RNG
 {
 public:
-	vstd::TRandI64 getInt64Range(int64_t lower, int64_t upper) override
+	int nextInt(int lower, int upper) override
 	{
-		return [=]()->int64_t
-		{
-			return (lower + upper)/2;
-		};
+		return (lower + upper) / 2;
 	}
-
-	vstd::TRand getDoubleRange(double lower, double upper) override
+	int64_t nextInt64(int64_t lower, int64_t upper) override
 	{
-		return [=]()->double
-		{
-			return (lower + upper)/2;
-		};
+		return (lower + upper) / 2;
+	}
+	double nextDouble(double lower, double upper) override
+	{
+		return (lower + upper) / 2;
 	}
 };
 

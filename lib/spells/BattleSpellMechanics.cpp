@@ -377,15 +377,13 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	std::vector <const battle::Unit *> resisted;
 
-	auto rangeGen = rng.getInt64Range(0, 99);
-
 	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
 	{
 		if(isNegativeSpell() && isMagicalEffect())
 		{
 			//magic resistance
 			const int prob = std::min(unit->magicResistance(), 100); //probability of resistance in %
-			if(rangeGen() < prob)
+			if(rng.nextInt(0, 99) < prob)
 				return true;
 		}
 		return false;

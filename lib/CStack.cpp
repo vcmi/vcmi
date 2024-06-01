@@ -212,11 +212,9 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 
 			auto resurrectedAdd = static_cast<int32_t>(baseAmount - (resurrectedCount / resurrectFactor));
 
-			auto rangeGen = rand.getInt64Range(0, 99);
-
 			for(int32_t i = 0; i < resurrectedAdd; i++)
 			{
-				if(resurrectValue > rangeGen())
+				if(resurrectValue > rand.nextInt(0, 99))
 					resurrectedCount += 1;
 			}
 
