@@ -17,7 +17,6 @@
 #include "../gameState/TavernHeroesPool.h"
 #include "../gameState/CGameStateCampaign.h"
 #include "../mapping/CMap.h"
-#include "../CRandomGenerator.h"
 #include "../TerrainHandler.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"

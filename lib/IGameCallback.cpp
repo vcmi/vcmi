@@ -14,7 +14,6 @@
 #include "spells/CSpellHandler.h"// for CSpell
 #include "CSkillHandler.h"// for CSkill
 #include "CBonusTypeHandler.h"
-#include "CRandomGenerator.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "bonuses/Limiters.h"
