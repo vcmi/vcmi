@@ -14,6 +14,8 @@
 #include "../LoadProgress.h"
 #include "../ConstTransitivePtr.h"
 
+#include "RumorState.h"
+
 namespace boost
 {
 class shared_mutex;
@@ -37,35 +39,6 @@ class CRandomGenerator;
 
 template<typename T> class CApplier;
 class CBaseForGSApply;
-
-struct DLL_LINKAGE RumorState
-{
-	enum ERumorType : ui8
-	{
-		TYPE_NONE = 0, TYPE_RAND, TYPE_SPECIAL, TYPE_MAP
-	};
-
-	enum ERumorTypeSpecial : ui8
-	{
-		RUMOR_OBELISKS = 208,
-		RUMOR_ARTIFACTS = 209,
-		RUMOR_ARMY = 210,
-		RUMOR_INCOME = 211,
-		RUMOR_GRAIL = 212
-	};
-
-	ERumorType type;
-	std::map<ERumorType, std::pair<int, int>> last;
-
-	RumorState(){type = TYPE_NONE;};
-	bool update(int id, int extra);
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & type;
-		h & last;
-	}
-};
 
 struct UpgradeInfo
 {
@@ -115,7 +88,7 @@ public:
 	std::map<PlayerColor, PlayerState> players;
 	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
-	RumorState rumor;
+	RumorState currentRumor;
 
 	static boost::shared_mutex mutex;
 
@@ -135,7 +108,7 @@ public:
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) override;
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
-	void updateRumor();
+	RumorState pickNewRumor();
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
@@ -191,7 +164,7 @@ public:
 			std::string oldStateOfRNG;
 			h & oldStateOfRNG;
 		}
-		h & rumor;
+		h & currentRumor;
 		h & campaign;
 		h & allocatedArtifacts;
 

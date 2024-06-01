@@ -908,6 +908,9 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
+	if (newWeek)
+		n.newRumor = gameState()->pickNewRumor();
+
 	if (newMonth)
 	{
 		SetAvailableArtifacts saa;

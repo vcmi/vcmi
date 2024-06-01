@@ -22,6 +22,7 @@
 #include "../ResourceSet.h"
 #include "../TurnTimerInfo.h"
 #include "../gameState/EVictoryLossCheckResult.h"
+#include "../gameState/RumorState.h"
 #include "../gameState/QuestInfo.h"
 #include "../gameState/TavernSlot.h"
 #include "../int3.h"
@@ -1169,6 +1170,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 	ui32 day = 0;
 	ui8 specialWeek = 0; //weekType
 	CreatureID creatureid; //for creature weeks
+	std::optional<RumorState> newRumor; // only on new weeks
 
 	NewTurn() = default;
 
@@ -1180,6 +1182,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 		h & day;
 		h & specialWeek;
 		h & creatureid;
+		h & newRumor;
 	}
 };
 
