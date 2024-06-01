@@ -411,15 +411,3 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 	EXPECT_EQ(unit->health.getCount(), 10);
 	EXPECT_EQ(unit->health.getResurrected(), 0);
 }
-
-TEST_F(CGameStateTest, updateEntity)
-{
-	using ::testing::SaveArg;
-	using ::testing::Eq;
-	using ::testing::_;
-
-	JsonNode actual;
-	EXPECT_CALL(services, updateEntity(Eq(Metatype::CREATURE), Eq(424242), _)).WillOnce(SaveArg<2>(&actual));
-	gameState->updateEntity(Metatype::CREATURE, 424242, JsonNode("TEST"));
-	EXPECT_EQ(actual.String(), "TEST");
-}

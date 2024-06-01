@@ -39,7 +39,7 @@ set(test_SRCS
 		map/CMapFormatTest.cpp
 		map/MapComparer.cpp
 
-		netpacks/EntitiesChangedTest.cpp
+
 		netpacks/NetPackFixture.cpp
 
 		spells/AbilityCasterTest.cpp
