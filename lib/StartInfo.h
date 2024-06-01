@@ -123,9 +123,6 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
 	TPlayerInfos playerInfos; //color indexed
 
-	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
-	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
-	ui32 mapfileChecksum; //0 if not relevant
 	std::string startTimeIso8601;
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
@@ -153,9 +150,13 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & mode;
 		h & difficulty;
 		h & playerInfos;
-		h & seedToBeUsed;
-		h & seedPostInit;
-		h & mapfileChecksum;
+		if (h.version < Handler::Version::REMOVE_LIB_RNG)
+		{
+			uint32_t oldSeeds;
+			h & oldSeeds;
+			h & oldSeeds;
+			h & oldSeeds;
+		}
 		h & startTimeIso8601;
 		h & fileURI;
 		h & simturnsInfo;
@@ -169,8 +170,10 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & campState;
 	}
 
-	StartInfo() : mode(EStartMode::INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI("")
+	StartInfo()
+		: mode(EStartMode::INVALID)
+		, difficulty(1)
+		, startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr)))
 	{
 
 	}
