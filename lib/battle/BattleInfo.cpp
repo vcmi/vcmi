@@ -662,10 +662,9 @@ int64_t BattleInfo::getActualDamage(const DamageRange & damage, int32_t attacker
 		int64_t sum = 0;
 
 		auto howManyToAv = std::min<int32_t>(10, attackerCount);
-		auto rangeGen = rng.getInt64Range(damage.min, damage.max);
 
 		for(int32_t g = 0; g < howManyToAv; ++g)
-			sum += rangeGen();
+			sum += rng.nextInt64(damage.min, damage.max);
 
 		return sum / howManyToAv;
 	}

@@ -444,7 +444,7 @@ void ConnectionsPlacer::collectNeighbourZones()
 bool ConnectionsPlacer::shouldGenerateRoad(const rmg::ZoneConnection& connection) const
 {
 	return connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE ||
-		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble() >= 0.5f);
+		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble(0, 1) >= 0.5f);
 }
 
 void ConnectionsPlacer::createBorder()

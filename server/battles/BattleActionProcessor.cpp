@@ -1341,7 +1341,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		double chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION) / 100.0f;
 		vstd::amin(chanceToTrigger, 1); //cap at 100%
 
-		if(gameHandler->getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
+		if(gameHandler->getRandomGenerator().nextDouble(0, 1) > chanceToTrigger)
 			return;
 
 		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->additionalInfo[0];
@@ -1405,7 +1405,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
 
-		if(gameHandler->getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
+		if(gameHandler->getRandomGenerator().nextDouble(0, 1) > chanceToTrigger)
 			return;
 
 		BattleStackAttacked bsa;

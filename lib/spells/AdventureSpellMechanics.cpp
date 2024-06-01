@@ -187,7 +187,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 
 	//check if spell works at all
-	if(env->getRNG()->getInt64Range(0, 99)() >= owner->getLevelPower(schoolLevel)) //power is % chance of success
+	if(env->getRNG()->nextInt(0, 99) >= owner->getLevelPower(schoolLevel)) //power is % chance of success
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
@@ -280,7 +280,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 {
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 	//check if spell works at all
-	if(env->getRNG()->getInt64Range(0, 99)() >= owner->getLevelPower(schoolLevel)) //power is % chance of success
+	if(env->getRNG()->nextInt(0, 99) >= owner->getLevelPower(schoolLevel)) //power is % chance of success
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();

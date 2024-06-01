@@ -63,7 +63,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		{
 			const auto & vector = value.Vector();
 
-			size_t index= rng.getIntRange(0, vector.size()-1)();
+			size_t index= rng.nextInt64(0, vector.size()-1);
 			return loadValue(vector[index], rng, variables, 0);
 		}
 		if(value.isStruct())
@@ -72,7 +72,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 				return loadValue(value["amount"], rng, variables, defaultValue);
 			si32 min = loadValue(value["min"], rng, variables, 0);
 			si32 max = loadValue(value["max"], rng, variables, 0);
-			return rng.getIntRange(min, max)();
+			return rng.nextInt64(min, max);
 		}
 		return defaultValue;
 	}

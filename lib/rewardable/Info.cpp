@@ -298,7 +298,7 @@ void Rewardable::Info::configureRewards(
 			{
 				const JsonNode & preset = object.getPresetVariable("dice", diceID);
 				if (preset.isNull())
-					object.initVariable("dice", diceID, rng.getIntRange(0, 99)());
+					object.initVariable("dice", diceID, rng.nextInt(0, 99));
 				else
 					object.initVariable("dice", diceID, preset.Integer());
 
