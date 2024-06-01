@@ -21,7 +21,6 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CPlayerState.h"
-#include "../CRandomGenerator.h"
 #include "../CStopWatch.h"
 #include "../GameSettings.h"
 #include "../StartInfo.h"
@@ -311,7 +310,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 				const std::string templateName = options->getMapTemplate()->getName();
 				const std::string dt = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 
-				const std::string fileName = boost::str(boost::format("%s_%s_%d.vmap") % dt % templateName );
+				const std::string fileName = boost::str(boost::format("%s_%s.vmap") % dt % templateName );
 				const auto fullPath = path / fileName;
 
 				randomMap->name.appendRawString(boost::str(boost::format(" %s") % dt));
