@@ -23,6 +23,7 @@ class SpellCastEnvironment;
 class CConnection;
 class CCommanderInstance;
 class EVictoryLossCheckResult;
+class CRandomGenerator;
 
 struct CPack;
 struct CPackForServer;
@@ -63,6 +64,7 @@ public:
 	std::unique_ptr<QueriesProcessor> queries;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
+	std::unique_ptr<CRandomGenerator> randomNumberGenerator;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -226,7 +228,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & QID;
-		h & getRandomGenerator();
+		h & randomNumberGenerator;
 		h & *battles;
 		h & *heroPool;
 		h & *playerMessages;
@@ -275,7 +277,7 @@ public:
 	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
 	void checkVictoryLossConditionsForAll();
 
-	CRandomGenerator & getRandomGenerator();
+	vstd::RNG & getRandomGenerator();
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;

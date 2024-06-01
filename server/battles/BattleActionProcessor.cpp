@@ -29,6 +29,8 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 
+#include <vstd/RNG.h>
+
 BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
 	, gameHandler(newGameHandler)
@@ -1263,8 +1265,7 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 	int singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, subtype);
 	double chanceToKill = singleCreatureKillChancePercent / 100.0;
 	vstd::amin(chanceToKill, 1); //cap at 100%
-	std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
-	int killedCreatures = distribution(gameHandler->getRandomGenerator().getStdGenerator());
+	int killedCreatures = gameHandler->getRandomGenerator().nextBinomialInt(attacker->getCount(), chanceToKill);
 
 	int maxToKill = (attacker->getCount() * singleCreatureKillChancePercent + 99) / 100;
 	vstd::amin(killedCreatures, maxToKill);

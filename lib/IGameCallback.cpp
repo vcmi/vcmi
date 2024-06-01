@@ -14,6 +14,7 @@
 #include "spells/CSpellHandler.h"// for CSpell
 #include "CSkillHandler.h"// for CSkill
 #include "CBonusTypeHandler.h"
+#include "CRandomGenerator.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "bonuses/Limiters.h"
@@ -50,6 +51,8 @@
 #include "RoadHandler.h"
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -146,7 +149,7 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 	}
 }
 
-void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand)
+void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, vstd::RNG & rand)
 {
 	for (int j = 0; j < 3 ; j++)
 		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE).toArtifact());

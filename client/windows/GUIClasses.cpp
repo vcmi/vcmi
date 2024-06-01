@@ -54,6 +54,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/GameSettings.h"
 #include "ConditionalWait.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/CSoundBase.h"
 

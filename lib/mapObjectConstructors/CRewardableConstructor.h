@@ -27,7 +27,7 @@ public:
 
 	CGObjectInstance * create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+	void configureObject(CGObjectInstance * object, vstd::RNG & rng) const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
 };

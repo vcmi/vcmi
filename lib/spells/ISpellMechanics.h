@@ -22,7 +22,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct Query;
 class IBattleState;
-class CRandomGenerator;
 class CreatureService;
 class CMap;
 class CGameInfoCallback;

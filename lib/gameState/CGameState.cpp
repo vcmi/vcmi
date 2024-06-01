@@ -21,6 +21,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CPlayerState.h"
+#include "../CRandomGenerator.h"
 #include "../CStopWatch.h"
 #include "../GameSettings.h"
 #include "../StartInfo.h"
@@ -52,6 +53,8 @@
 #include "../serializer/CMemorySerializer.h"
 #include "../serializer/CTypeList.h"
 #include "../spells/CSpellHandler.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -183,7 +186,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	assert(services);
 	assert(callback);
 	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
-	getRandomGenerator().setSeed(si->seedToBeUsed);
+	rand = std::make_unique<CRandomGenerator>(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
 	initialOpts = CMemorySerializer::deepCopy(*si).release();
 	si = nullptr;
@@ -1072,7 +1075,7 @@ BattleInfo * CGameState::getBattle(const BattleID & battle)
 	return nullptr;
 }
 
-BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
+BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 {
 	assert(tile.valid());
 
@@ -1961,12 +1964,12 @@ TeamState::TeamState()
 	setNodeType(TEAM);
 }
 
-CRandomGenerator & CGameState::getRandomGenerator()
+vstd::RNG & CGameState::getRandomGenerator()
 {
-	return rand;
+	return *rand;
 }
 
-ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts)
 {
 	std::set<ArtifactID> potentialPicks;
 
@@ -2001,7 +2004,7 @@ ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags, st
 	return pickRandomArtifact(rand, potentialPicks);
 }
 
-ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> potentialPicks)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> potentialPicks)
 {
 	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
 	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
@@ -2030,12 +2033,12 @@ ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, std::set<Arti
 	return artID;
 }
 
-ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts)
 {
 	return pickRandomArtifact(rand, 0xff, std::move(accepts));
 }
 
-ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags)
 {
 	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
 }

@@ -16,13 +16,17 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace vstd
+{
+class RNG;
+}
+
 struct SetMovePoints;
 struct GiveBonus;
 struct BlockingDialog;
 struct TeleportDialog;
 struct StackLocation;
 struct ArtifactLocation;
-class CRandomGenerator;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
@@ -61,7 +65,7 @@ public:
 	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
-	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand);
+	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
 	template<typename Saver>

@@ -29,6 +29,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CTownHandler.h"
@@ -68,7 +69,8 @@
 
 #include "../lib/spells/CSpellHandler.h"
 
-#include "vstd/CLoggerBase.h"
+#include <vstd/RNG.h>
+#include <vstd/CLoggerBase.h>
 #include <vcmi/events/EventBus.h>
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
@@ -558,7 +560,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	logGlobal->info("Gamestate initialized!");
 
 	// reset seed, so that clients can't predict any following random values
-	getRandomGenerator().resetSeed();
+	randomNumberGenerator = std::make_unique<CRandomGenerator>();
 
 	for (auto & elem : gs->players)
 		turnOrder->addPlayer(elem.first);
@@ -4378,9 +4380,9 @@ void CGameHandler::showInfoDialog(InfoWindow * iw)
 	sendAndApply(iw);
 }
 
-CRandomGenerator & CGameHandler::getRandomGenerator()
+vstd::RNG & CGameHandler::getRandomGenerator()
 {
-	return CRandomGenerator::getDefault();
+	return *randomNumberGenerator;
 }
 
 #if SCRIPTING_ENABLED

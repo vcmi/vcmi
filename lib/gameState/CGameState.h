@@ -13,7 +13,6 @@
 #include "IGameCallback.h"
 #include "LoadProgress.h"
 #include "ConstTransitivePtr.h"
-#include "../CRandomGenerator.h"
 
 namespace boost
 {
@@ -34,6 +33,7 @@ class CStackInstance;
 class CGameStateCampaign;
 class TavernHeroesPool;
 struct SThievesGuildInfo;
+class CRandomGenerator;
 
 template<typename T> class CApplier;
 class CBaseForGSApply;
@@ -126,7 +126,7 @@ public:
 	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
 	void apply(CPack *pack);
-	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
+	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & rand);
 
 	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
@@ -138,10 +138,10 @@ public:
 	void updateRumor();
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> filtered);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> filtered);
 
 	/// Returns battle in which selected player is engaged, or nullptr if none.
 	/// Can NOT be used with neutral player, use battle by ID instead
@@ -169,11 +169,11 @@ public:
 	/// This RNG should only be used inside GS or CPackForClient-derived applyGs
 	/// If this doesn't work for your code that mean you need a new netpack
 	///
-	/// Client-side must use CRandomGenerator::getDefault which is not serialized
+	/// Client-side must use vstd::RNG::getDefault which is not serialized
 	///
-	/// CGameHandler have it's own getter for CRandomGenerator::getDefault
-	/// Any server-side code outside of GH must use CRandomGenerator::getDefault
-	CRandomGenerator & getRandomGenerator();
+	/// CGameHandler have it's own getter for vstd::RNG::getDefault
+	/// Any server-side code outside of GH must use vstd::RNG::getDefault
+	vstd::RNG & getRandomGenerator();
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -234,7 +234,7 @@ private:
 
 	// ---- data -----
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
-	CRandomGenerator rand;
+	std::unique_ptr<CRandomGenerator> rand;
 	Services * services;
 
 	/// Pointer to campaign state manager. Nullptr for single scenarios

@@ -15,8 +15,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRandomGenerator;
-
 class PrisonHeroPlacer : public Modificator
 {
 public:

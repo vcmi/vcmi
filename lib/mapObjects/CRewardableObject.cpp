@@ -20,6 +20,8 @@
 #include "../networkPacks/PacksForClient.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void CRewardableObject::grantRewardWithMessage(const CGHeroInstance * contextHero, int index, bool markAsVisit) const
@@ -387,7 +389,7 @@ void CRewardableObject::setPropertyDer(ObjProperty what, ObjPropertyID identifie
 	}
 }
 
-void CRewardableObject::newTurn(CRandomGenerator & rand) const
+void CRewardableObject::newTurn(vstd::RNG & rand) const
 {
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{
@@ -404,7 +406,7 @@ void CRewardableObject::newTurn(CRandomGenerator & rand) const
 	}
 }
 
-void CRewardableObject::initObj(CRandomGenerator & rand)
+void CRewardableObject::initObj(vstd::RNG & rand)
 {
 	getObjectHandler()->configureObject(this, rand);
 }

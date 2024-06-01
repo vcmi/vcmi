@@ -44,7 +44,7 @@ CBank::CBank(IGameCallback *cb)
 //must be instantiated in .cpp file for access to complete types of all member fields
 CBank::~CBank() = default;
 
-void CBank::initObj(CRandomGenerator & rand)
+void CBank::initObj(vstd::RNG & rand)
 {
 	daycounter = 0;
 	resetDuration = 0;
@@ -117,7 +117,7 @@ void CBank::setPropertyDer (ObjProperty what, ObjPropertyID identifier)
 	}
 }
 
-void CBank::newTurn(CRandomGenerator & rand) const
+void CBank::newTurn(vstd::RNG & rand) const
 {
 	if (bankConfig == nullptr)
 	{

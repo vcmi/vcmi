@@ -46,18 +46,23 @@ public:
 
 	/// Generates an integer between 0 and upper.
 	/// requires: 0 <= upper
-	int nextInt(int upper);
+	int nextInt(int upper) override;
+	int64_t nextInt64(int64_t upper) override;
 
 	/// requires: lower <= upper
 	int nextInt(int lower, int upper) override;
 	int64_t nextInt64(int64_t lower, int64_t upper) override;
 
 	/// Generates an integer between 0 and the maximum value it can hold.
-	int nextInt();
+	int nextInt() override;
+
+	///
+	int nextBinomialInt(int coinsCount, double coinChance) override;
+
 
 	/// Generates a double between 0 and upper.
 	/// requires: 0 <= upper
-	double nextDouble(double upper);
+	double nextDouble(double upper) override;
 
 	/// requires: lower <= upper
 	double nextDouble(double lower, double upper) override;
@@ -65,9 +70,6 @@ public:
 	/// Gets a globally accessible RNG which will be constructed once per thread. For the
 	/// seed a combination of the thread ID and current time in milliseconds will be used.
 	static CRandomGenerator & getDefault();
-
-	/// Provide method so that this RNG can be used with legacy std:: API
-	TGenerator & getStdGenerator();
 
 private:
 	TGenerator rand;
