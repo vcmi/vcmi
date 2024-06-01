@@ -140,7 +140,7 @@ public:
 		{
 			struct Helper : public Serializeable
 			{
-				void serialize(Handler &h)
+				void serialize(Handler &h) const
 				{}
 			};
 			Helper helper;

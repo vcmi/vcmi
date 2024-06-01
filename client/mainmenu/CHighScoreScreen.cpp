@@ -112,10 +112,10 @@ void CHighScoreScreen::addButtons()
 	
 	buttons.clear();
 
-	buttons.push_back(std::make_shared<CButton>(Point(31, 113), AnimationPath::builtin("HISCCAM.DEF"), CButton::tooltip(), [&](){ buttonCampaignClick(); }, EShortcut::HIGH_SCORES_CAMPAIGNS));
-	buttons.push_back(std::make_shared<CButton>(Point(31, 345), AnimationPath::builtin("HISCSTA.DEF"), CButton::tooltip(), [&](){ buttonScenarioClick(); }, EShortcut::HIGH_SCORES_SCENARIOS));
-	buttons.push_back(std::make_shared<CButton>(Point(726, 113), AnimationPath::builtin("HISCRES.DEF"), CButton::tooltip(), [&](){ buttonResetClick(); }, EShortcut::HIGH_SCORES_RESET));
-	buttons.push_back(std::make_shared<CButton>(Point(726, 345), AnimationPath::builtin("HISCEXT.DEF"), CButton::tooltip(), [&](){ buttonExitClick(); }, EShortcut::GLOBAL_RETURN));
+	buttons.push_back(std::make_shared<CButton>(Point(31, 113), AnimationPath::builtin("HISCCAM.DEF"), CButton::tooltip(),  [this](){ buttonCampaignClick(); }, EShortcut::HIGH_SCORES_CAMPAIGNS));
+	buttons.push_back(std::make_shared<CButton>(Point(31, 345), AnimationPath::builtin("HISCSTA.DEF"), CButton::tooltip(),  [this](){ buttonScenarioClick(); }, EShortcut::HIGH_SCORES_SCENARIOS));
+	buttons.push_back(std::make_shared<CButton>(Point(726, 113), AnimationPath::builtin("HISCRES.DEF"), CButton::tooltip(), [this](){ buttonResetClick(); }, EShortcut::HIGH_SCORES_RESET));
+	buttons.push_back(std::make_shared<CButton>(Point(726, 345), AnimationPath::builtin("HISCEXT.DEF"), CButton::tooltip(), [this](){ buttonExitClick(); }, EShortcut::GLOBAL_RETURN));
 }
 
 void CHighScoreScreen::addHighScores()

@@ -200,7 +200,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 
 	major = json["obligatoryMajor"].Bool();
 	minor = json["obligatoryMinor"].Bool();
-	auto skill = std::make_shared<CSkill>(SecondarySkill((si32)index), identifier, major, minor);
+	auto skill = std::make_shared<CSkill>(SecondarySkill(index), identifier, major, minor);
 	skill->modScope = scope;
 
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();

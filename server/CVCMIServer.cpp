@@ -985,7 +985,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 void CVCMIServer::multiplayerWelcomeMessage()
 {
 	int humanPlayer = 0;
-	for (auto & pi : si->playerInfos)
+	for (const auto & pi : si->playerInfos)
 		if(pi.second.isControlledByHuman())
 			humanPlayer++;
 
@@ -996,9 +996,9 @@ void CVCMIServer::multiplayerWelcomeMessage()
 
 	std::vector<std::string> optionIds;
 	if(si->extraOptionsInfo.cheatsAllowed)
-		optionIds.push_back("vcmi.optionsTab.cheatAllowed.hover");
+		optionIds.emplace_back("vcmi.optionsTab.cheatAllowed.hover");
 	if(si->extraOptionsInfo.unlimitedReplay)
-		optionIds.push_back("vcmi.optionsTab.unlimitedReplay.hover");
+		optionIds.emplace_back("vcmi.optionsTab.unlimitedReplay.hover");
 
 	if(!optionIds.size()) // No settings to publish
 		return;

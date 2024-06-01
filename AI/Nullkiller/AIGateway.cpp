@@ -603,7 +603,7 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 
 		if(hPtr.validAndSet())
 		{
-			std::unique_lock<std::mutex> lockGuard(nullkiller->aiStateMutex);
+			std::unique_lock lockGuard(nullkiller->aiStateMutex);
 
 			nullkiller->heroManager->update();
 
@@ -683,7 +683,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 			sel = components.size();
 
 		{
-				std::unique_lock<std::mutex> mxLock(nullkiller->aiStateMutex);
+				std::unique_lock mxLock(nullkiller->aiStateMutex);
 
 				// TODO: Find better way to understand it is Chest of Treasures
 				if(hero.validAndSet()
@@ -804,7 +804,7 @@ void AIGateway::makeTurn()
 	auto day = cb->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
-	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+	boost::shared_lock gsLock(CGameState::mutex);
 	setThreadName("AIGateway::makeTurn");
 
 	if(nullkiller->isOpenMap())
@@ -864,7 +864,7 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 		{
 			makePossibleUpgrades(h.get());
 
-			std::unique_lock<std::mutex>  lockGuard(nullkiller->aiStateMutex);
+			std::unique_lock lockGuard(nullkiller->aiStateMutex);
 
 			if(!h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
 				moveCreaturesToHero(h->visitedTown);
@@ -1529,7 +1529,7 @@ void AIGateway::requestActionASAP(std::function<void()> whatToDo)
 	{
 		setThreadName("AIGateway::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
-		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+		boost::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
 	});
 

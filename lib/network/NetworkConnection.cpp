@@ -148,7 +148,7 @@ void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 
 		bool messageQueueEmpty = dataToSend.empty();
 		dataToSend.push_back(headerVector);
-		if (message.size() > 0)
+		if (!message.empty())
 			dataToSend.push_back(message);
 
 		if (messageQueueEmpty)
@@ -159,7 +159,7 @@ void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 	{
 		boost::system::error_code ec;
 		boost::asio::write(*socket, boost::asio::buffer(headerVector), ec );
-		if (message.size() > 0)
+		if (!message.empty())
 			boost::asio::write(*socket, boost::asio::buffer(message), ec );
 	}
 }

@@ -49,7 +49,6 @@ class CTextInput final : public CFocusable
 	using TextEditedCallback = std::function<void(const std::string &)>;
 	using TextFilterCallback = std::function<void(std::string &, const std::string &)>;
 
-private:
 	std::string currentText;
 	std::string composedText;
 	ETextAlignment originalAlignment;
@@ -66,7 +65,7 @@ private:
 	//min-max should be set via something like std::bind
 	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue);
 
-	std::string getVisibleText();
+	std::string getVisibleText() const;
 	void createLabel(bool giveFocusToInput);
 	void updateLabel();
 

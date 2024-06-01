@@ -63,7 +63,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 			else
 				version = ESerializationVersion::RELEASE_150;
 		}
-		 catch (const std::runtime_error & e)
+		 catch (const std::runtime_error &)
 		{
 			version = ESerializationVersion::RELEASE_150;
 		}

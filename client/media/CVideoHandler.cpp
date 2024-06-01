@@ -219,22 +219,21 @@ void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput
 
 void FFMpegStream::decodeNextFrame()
 {
-	AVPacket packet;
+	int rc = avcodec_receive_frame(codecContext, frame);
 
-	for(;;)
-	{
-		int rc = avcodec_receive_frame(codecContext, frame);
-		if(rc == AVERROR(EAGAIN))
-			break;
-
-		if(rc < 0)
-			throwFFmpegError(rc);
-
+	// frame extracted - data that was sent to codecContext before was sufficient
+	if (rc == 0)
 		return;
-	}
+
+	// returning AVERROR(EAGAIN) is legal - this indicates that codec requires more data from input stream to decode next frame
+	if(rc != AVERROR(EAGAIN))
+		throwFFmpegError(rc);
 
 	for(;;)
 	{
+		AVPacket packet;
+
+		// codecContext does not have enough input data - read next packet from input stream
 		int ret = av_read_frame(formatContext, &packet);
 		if(ret < 0)
 		{
@@ -248,25 +247,33 @@ void FFMpegStream::decodeNextFrame()
 			throwFFmpegError(ret);
 		}
 
-		// Is this a packet from the video stream?
+		// Is this a packet from the stream that needs decoding?
 		if(packet.stream_index == streamIndex)
 		{
-			// Decode video frame
+			// Decode read packet
+			// Note: this method may return AVERROR(EAGAIN). However this should never happen with ffmpeg API
+			// since there is guaranteed call to avcodec_receive_frame and ffmpeg API promises that *both* of these methods will never return AVERROR(EAGAIN).
 			int rc = avcodec_send_packet(codecContext, &packet);
-			if(rc < 0 && rc != AVERROR(EAGAIN))
+			if(rc < 0)
 				throwFFmpegError(rc);
 
 			rc = avcodec_receive_frame(codecContext, frame);
 			if(rc == AVERROR(EAGAIN))
 			{
+				// still need more data - read next packet
 				av_packet_unref(&packet);
 				continue;
 			}
-			if(rc < 0)
+			else if(rc < 0)
+			{
 				throwFFmpegError(rc);
-
-			av_packet_unref(&packet);
-			return;
+			}
+			else
+			{
+				// read succesful. Exit the loop
+				av_packet_unref(&packet);
+				return;
+			}
 		}
 		av_packet_unref(&packet);
 	}

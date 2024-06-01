@@ -216,7 +216,7 @@ void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, i
 
 void Nullkiller::resetAiState()
 {
-	std::unique_lock<std::mutex> lockGuard(aiStateMutex);
+	std::unique_lock lockGuard(aiStateMutex);
 
 	lockedResources = TResources();
 	scanDepth = ScanDepth::MAIN_FULL;
@@ -236,7 +236,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 {
 	boost::this_thread::interruption_point();
 
-	std::unique_lock<std::mutex> lockGuard(aiStateMutex);
+	std::unique_lock lockGuard(aiStateMutex);
 
 	auto start = std::chrono::high_resolution_clock::now();
 
