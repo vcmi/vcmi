@@ -201,7 +201,6 @@ public:
 private:
 	// ----- initialization -----
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
-	void checkMapChecksum();
 	void initGlobalBonuses();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();

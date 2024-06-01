@@ -203,8 +203,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	}
 	logGlobal->info("Map loaded!");
 
-	checkMapChecksum();
-
 	day = 0;
 
 	logGlobal->debug("Initialization:");
@@ -236,18 +234,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 
 	logGlobal->debug("\tChecking objectives");
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
-
-	auto seedAfterInit = getRandomGenerator().nextInt();
-	logGlobal->info("Seed after init is %d (before was %d)", seedAfterInit, scenarioOps->seedToBeUsed);
-	if(scenarioOps->seedPostInit > 0)
-	{
-		//RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
-		assert(scenarioOps->seedPostInit == seedAfterInit);
-	}
-	else
-	{
-		scenarioOps->seedPostInit = seedAfterInit; //store the post init "seed"
-	}
 }
 
 void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
@@ -307,7 +293,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, callback, scenarioOps->seedToBeUsed);
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, callback, getRandomGenerator().nextInt());
 		progressTracking.include(mapGenerator);
 
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
@@ -323,10 +309,9 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 				std::shared_ptr<CMapGenOptions> options = scenarioOps->mapGenOptions;
 
 				const std::string templateName = options->getMapTemplate()->getName();
-				const ui32 seed = scenarioOps->seedToBeUsed;
 				const std::string dt = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 
-				const std::string fileName = boost::str(boost::format("%s_%s_%d.vmap") % dt % templateName % seed );
+				const std::string fileName = boost::str(boost::format("%s_%s_%d.vmap") % dt % templateName );
 				const auto fullPath = path / fileName;
 
 				randomMap->name.appendRawString(boost::str(boost::format(" %s") % dt));
@@ -378,24 +363,6 @@ void CGameState::initCampaign()
 {
 	campaign = std::make_unique<CGameStateCampaign>(this);
 	map = campaign->getCurrentMap().release();
-}
-
-void CGameState::checkMapChecksum()
-{
-	logGlobal->info("\tOur checksum for the map: %d", map->checksum);
-	if(scenarioOps->mapfileChecksum)
-	{
-		logGlobal->info("\tServer checksum for %s: %d", scenarioOps->mapname, scenarioOps->mapfileChecksum);
-		if(map->checksum != scenarioOps->mapfileChecksum)
-		{
-			logGlobal->error("Wrong map checksum!!!");
-			throw std::runtime_error("Wrong checksum");
-		}
-	}
-	else
-	{
-		scenarioOps->mapfileChecksum = map->checksum;
-	}
 }
 
 void CGameState::initGlobalBonuses()

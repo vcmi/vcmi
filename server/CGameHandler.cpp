@@ -548,11 +548,8 @@ void CGameHandler::reinitScripting()
 
 void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTracking)
 {
-	if (si->seedToBeUsed == 0)
-		si->seedToBeUsed = CRandomGenerator::getDefault().nextInt();
-
-	logGlobal->info("Using random seed: %d", si->seedToBeUsed);
-	randomNumberGenerator = std::make_unique<CRandomGenerator>(si->seedToBeUsed);
+	randomNumberGenerator = std::make_unique<CRandomGenerator>();
+	logGlobal->info("Using random seed: %d", randomNumberGenerator->nextInt());
 
 	CMapService mapService;
 	gs = new CGameState();
@@ -560,9 +557,6 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	logGlobal->info("Gamestate created!");
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
-
-	// reset seed, so that clients can't predict any following random values
-	randomNumberGenerator = std::make_unique<CRandomGenerator>();
 
 	for (auto & elem : gs->players)
 		turnOrder->addPlayer(elem.first);
