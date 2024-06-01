@@ -549,9 +549,11 @@ void CGameHandler::reinitScripting()
 void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTracking)
 {
 	if (si->seedToBeUsed == 0)
-	{
 		si->seedToBeUsed = CRandomGenerator::getDefault().nextInt();
-	}
+
+	logGlobal->info("Using random seed: %d", si->seedToBeUsed);
+	randomNumberGenerator = std::make_unique<CRandomGenerator>(si->seedToBeUsed);
+
 	CMapService mapService;
 	gs = new CGameState();
 	gs->preInit(VLC, this);

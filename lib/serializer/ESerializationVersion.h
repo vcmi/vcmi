@@ -56,6 +56,7 @@ enum class ESerializationVersion : int32_t
 	REMOVE_FOG_OF_WAR_POINTER, // 846 - fog of war is serialized as reference instead of pointer
 	SIMPLE_TEXT_CONTAINER_SERIALIZATION, // 847 - text container is serialized using common routine instead of custom approach
 	MAP_FORMAT_ADDITIONAL_INFOS, // 848 - serialize new infos in map format
+	REMOVE_LIB_RNG, // 849 - removed random number generators from library classes
 
-	CURRENT = MAP_FORMAT_ADDITIONAL_INFOS
+	CURRENT = REMOVE_LIB_RNG
 };

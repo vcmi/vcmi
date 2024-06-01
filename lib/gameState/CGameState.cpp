@@ -185,8 +185,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 {
 	assert(services);
 	assert(callback);
-	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
-	rand = std::make_unique<CRandomGenerator>(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
 	initialOpts = CMemorySerializer::deepCopy(*si).release();
 	si = nullptr;
@@ -1966,7 +1964,7 @@ TeamState::TeamState()
 
 vstd::RNG & CGameState::getRandomGenerator()
 {
-	return *rand;
+	return callback->getRandomGenerator();
 }
 
 ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts)

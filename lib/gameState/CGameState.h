@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include "bonuses/CBonusSystemNode.h"
-#include "IGameCallback.h"
-#include "LoadProgress.h"
-#include "ConstTransitivePtr.h"
+#include "../bonuses/CBonusSystemNode.h"
+#include "../IGameCallback.h"
+#include "../LoadProgress.h"
+#include "../ConstTransitivePtr.h"
 
 namespace boost
 {
@@ -186,7 +186,11 @@ public:
 		h & teams;
 		h & heroesPool;
 		h & globalEffects;
-		h & rand;
+		if (h.version < Handler::Version::REMOVE_LIB_RNG)
+		{
+			std::string oldStateOfRNG;
+			h & oldStateOfRNG;
+		}
 		h & rumor;
 		h & campaign;
 		h & allocatedArtifacts;
@@ -234,7 +238,6 @@ private:
 
 	// ---- data -----
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
-	std::unique_ptr<CRandomGenerator> rand;
 	Services * services;
 
 	/// Pointer to campaign state manager. Nullptr for single scenarios
