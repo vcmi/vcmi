@@ -41,14 +41,16 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	std::array<std::shared_ptr<CButton>, 2> questlogButton;
 
 	std::shared_ptr<CGarrisonInt> garr;
-	std::shared_ptr<CButton> moveAllGarrButtonLeft;
-	std::shared_ptr<CButton> exchangeGarrButton;
-	std::shared_ptr<CButton> moveAllGarrButtonRight;
-	std::shared_ptr<CButton> moveArtifactsButtonLeft;
+	std::shared_ptr<CButton> buttonMoveUnitsFromLeftToRight;
+	std::shared_ptr<CButton> buttonMoveUnitsFromRightToLeft;
+	std::shared_ptr<CButton> buttonMoveArtifactsFromLeftToRight;
+	std::shared_ptr<CButton> buttonMoveArtifactsFromRightToLeft;
+
+	std::shared_ptr<CButton> exchangeUnitsButton;
 	std::shared_ptr<CButton> exchangeArtifactsButton;
-	std::shared_ptr<CButton> moveArtifactsButtonRight;
-	std::vector<std::shared_ptr<CButton>> moveStackLeftButtons;
-	std::vector<std::shared_ptr<CButton>> moveStackRightButtons;
+
+	std::vector<std::shared_ptr<CButton>> moveUnitFromLeftToRightButtons;
+	std::vector<std::shared_ptr<CButton>> moveUnitFromRightToLeftButtons;
 	std::shared_ptr<CButton> backpackButtonLeft;
 	std::shared_ptr<CButton> backpackButtonRight;
 	CExchangeController controller;
