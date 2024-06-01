@@ -181,7 +181,7 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomG
 	for (auto & point : points)
 	{
 		point = point + Point2D(0.5f, 0.5f);
-	};
+	}
 
 	// For 8XM8 map, only 650 out of 15971 points are in the range
 

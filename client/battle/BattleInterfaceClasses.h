@@ -72,7 +72,7 @@ private:
 	std::vector<std::string> splitText(const std::string &text);
 
 	/// select line(s) that will be visible in UI
-	std::vector<std::string> getVisibleText();
+	std::vector<std::string> getVisibleText() const;
 public:
 	BattleConsole(const BattleInterface & owner, std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size);
 

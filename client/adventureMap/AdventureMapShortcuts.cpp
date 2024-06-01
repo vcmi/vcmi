@@ -48,7 +48,7 @@ void AdventureMapShortcuts::setState(EAdventureState newState)
 	state = newState;
 }
 
-EAdventureState AdventureMapShortcuts::getState()
+EAdventureState AdventureMapShortcuts::getState() const
 {
 	return state;
 }

@@ -408,7 +408,7 @@ void CClient::handlePack(CPack * pack)
 		apply->applyOnClBefore(this, pack);
 		logNetwork->trace("\tMade first apply on cl: %s", typeid(*pack).name());
 		{
-			boost::unique_lock<boost::shared_mutex> lock(CGameState::mutex);
+			boost::unique_lock lock(CGameState::mutex);
 			gs->apply(pack);
 		}
 		logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());

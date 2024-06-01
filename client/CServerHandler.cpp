@@ -173,7 +173,7 @@ void CServerHandler::threadRunNetwork()
 	try {
 		networkHandler->run();
 	}
-	catch (const TerminationRequestedException & e)
+	catch (const TerminationRequestedException &)
 	{
 		logGlobal->info("Terminating network thread");
 		return;

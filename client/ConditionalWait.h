@@ -33,7 +33,7 @@ class ConditionalWait
 
 	void set(bool value)
 	{
-		boost::unique_lock<std::mutex> lock(mx);
+		std::unique_lock lock(mx);
 		isBusyValue = value;
 	}
 
@@ -59,15 +59,14 @@ public:
 
 	bool isBusy()
 	{
-		std::unique_lock<std::mutex> lock(mx);
+		std::unique_lock lock(mx);
 		return isBusyValue;
 	}
 
 	void waitWhileBusy()
 	{
-		std::unique_lock<std::mutex> un(mx);
-		while(isBusyValue)
-			cond.wait(un);
+		std::unique_lock un(mx);
+		cond.wait(un, [this](){ return !isBusyValue;});
 
 		if (isTerminating)
 			throw TerminationRequestedException();

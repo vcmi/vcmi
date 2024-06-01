@@ -773,7 +773,7 @@ void BattleWindow::bOpenActiveUnit()
 	const auto * unit = owner.stacksController->getActiveStack();
 
 	if (unit)
-		GH.windows().createAndPushWindow<CStackWindow>(unit, false);;
+		GH.windows().createAndPushWindow<CStackWindow>(unit, false);
 }
 
 void BattleWindow::bOpenHoveredUnit()

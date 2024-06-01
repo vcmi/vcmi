@@ -1039,11 +1039,11 @@ void CCastleBuildings::openTownHall()
 void CCastleBuildings::enterAnyThievesGuild()
 {
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
-	for(auto & town : towns)
+	for(auto & ownedTown : towns)
 	{
-		if(town->builtBuildings.count(BuildingID::TAVERN))
+		if(ownedTown->builtBuildings.count(BuildingID::TAVERN))
 		{
-			LOCPLINT->showThievesGuildWindow(town);
+			LOCPLINT->showThievesGuildWindow(ownedTown);
 			return;
 		}
 	}

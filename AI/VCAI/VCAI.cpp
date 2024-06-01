@@ -773,7 +773,7 @@ void VCAI::makeTurn()
 	auto day = cb->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
-	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+	boost::shared_lock gsLock(CGameState::mutex);
 	setThreadName("VCAI::makeTurn");
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
@@ -2479,7 +2479,7 @@ void VCAI::requestActionASAP(std::function<void()> whatToDo)
 	{
 		setThreadName("VCAI::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
-		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+		boost::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
 	});
 

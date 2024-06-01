@@ -698,7 +698,7 @@ void SelectionTab::selectNewestFile()
 {
 	time_t newestTime = 0;
 	std::string newestFile = "";
-	for(int i = (int)allItems.size() - 1; i >= 0; i--)
+	for(int i = static_cast<int>(allItems.size()) - 1; i >= 0; i--)
 		if(allItems[i]->lastWrite > newestTime)
 		{
 			newestTime = allItems[i]->lastWrite;

@@ -72,7 +72,7 @@ void BattleConsole::showAll(Canvas & to)
 		to.drawText(line2, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, visibleText[1]);
 }
 
-std::vector<std::string> BattleConsole::getVisibleText()
+std::vector<std::string> BattleConsole::getVisibleText() const
 {
 	// high priority texts that hide battle log entries
 	for(const auto & text : {consoleText, hoverText})

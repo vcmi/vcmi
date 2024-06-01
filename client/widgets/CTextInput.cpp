@@ -117,7 +117,7 @@ void CTextInput::setFilterNumber(int minValue, int maxValue)
 	onTextFiltering = std::bind(&CTextInput::numberFilter, _1, _2, minValue, maxValue);
 }
 
-std::string CTextInput::getVisibleText()
+std::string CTextInput::getVisibleText() const
 {
 	return hasFocus() ? currentText + composedText + "_" : currentText;
 }
@@ -216,7 +216,6 @@ void CTextInput::textEdited(const std::string & enteredText)
 
 	composedText = enteredText;
 	updateLabel();
-	//onTextEdited(currentText + composedText);
 }
 
 void CTextInput::filenameFilter(std::string & text, const std::string &oldText)
