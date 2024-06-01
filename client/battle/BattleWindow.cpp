@@ -763,8 +763,8 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->spellcastingModeActive() : owner.actionsController->spellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode || !onlyOnePlayerHuman || owner.actionsController->spellcastingModeActive());
-	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on && owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on || !owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on || !owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !owner.tacticsMode);
 }
