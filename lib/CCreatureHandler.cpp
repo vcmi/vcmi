@@ -646,10 +646,15 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 			registerObject(scope, type_name, extraName.String(), cre->getIndex());
 	}
 
+	if (!cre->special &&
+		!CResourceHandler::get()->existsResource(cre->animDefName) &&
+		!CResourceHandler::get()->existsResource(cre->animDefName.addPrefix("SPRITES/")))
+		throw ModLoadingException(scope, "creature " + cre->getJsonKey() + " has no combat animation but is not marked as special!" );
+
 	JsonNode advMapFile = node["graphics"]["map"];
 	JsonNode advMapMask = node["graphics"]["mapMask"];
 
-	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [cre, scope, advMapFile, advMapMask](si32 index)
+	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [cre, scope, advMapFile, advMapMask](si32 monsterIndex)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
@@ -672,7 +677,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
 		{
 			if (!cre->special)
-				throw DataLoadingException("Mod " + scope + " is corrupted! Please disable or reinstall this mod. Reason: creature " + cre->getJsonKey() + " has no adventure map animation but is not marked as special!" );
+				throw ModLoadingException(scope, "creature " + cre->getJsonKey() + " has no adventure map animation but is not marked as special!" );
 
 			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
 		}
@@ -736,7 +741,6 @@ void CCreatureHandler::loadCrExpMod()
 		maxExpPerBattle[0] = maxExpPerBattle[7];
 	}
 }
-
 
 void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 {
