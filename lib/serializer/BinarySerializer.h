@@ -85,7 +85,7 @@ class BinarySerializer : public CSaverBase
 	class CBasicPointerSaver
 	{
 	public:
-		virtual void savePtr(CSaverBase &ar, const void *data) const =0;
+		virtual void savePtr(CSaverBase &ar, const Serializeable *data) const =0;
 		virtual ~CBasicPointerSaver() = default;
 
 		template<typename T> static CBasicPointerSaver *getApplier(const T * t=nullptr)
@@ -99,10 +99,10 @@ class BinarySerializer : public CSaverBase
 	class CPointerSaver : public CBasicPointerSaver
 	{
 	public:
-		void savePtr(CSaverBase &ar, const void *data) const override
+		void savePtr(CSaverBase &ar, const Serializeable *data) const override
 		{
 			auto & s = static_cast<BinarySerializer &>(ar);
-			const T *ptr = static_cast<const T*>(data);
+			const T *ptr = dynamic_cast<const T*>(data);
 
 			//T is most derived known type, it's time to call actual serialize
 			const_cast<T*>(ptr)->serialize(s);
@@ -283,7 +283,7 @@ public:
 		if(!tid)
 			save(*data); //if type is unregistered simply write all data in a standard way
 		else
-			applier.getApplier(tid)->savePtr(*this, static_cast<const void*>(data));  //call serializer specific for our real type
+			applier.getApplier(tid)->savePtr(*this, static_cast<const Serializeable*>(data));  //call serializer specific for our real type
 	}
 
 	template < typename T, typename std::enable_if_t < is_serializeable<BinarySerializer, T>::value, int  > = 0 >
