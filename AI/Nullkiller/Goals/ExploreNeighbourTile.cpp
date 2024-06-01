@@ -26,7 +26,7 @@ bool ExploreNeighbourTile::operator==(const ExploreNeighbourTile & other) const
 
 void ExploreNeighbourTile::accept(AIGateway * ai)
 {
-	ExplorationHelper h(hero, ai->nullkiller.get());
+	ExplorationHelper h(hero, ai->nullkiller.get(), true);
 
 	for(int i = 0; i < tilesToExplore && hero->movementPointsRemaining() > 0; i++)
 	{
