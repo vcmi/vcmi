@@ -25,7 +25,6 @@ public:
 	/// Loads image using given path
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
-
 	virtual std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group) = 0;
 
 	/// temporary compatibility method. Creates IImage from existing SDL_Surface
@@ -35,6 +34,6 @@ public:
 	/// Loads animation using given path
 	virtual std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path) = 0;
 
-	/// Creates empty CAnimation
+	/// Creates empty CAnimation. Temporary compatibility method
 	virtual std::shared_ptr<CAnimation> createAnimation() = 0;
 };

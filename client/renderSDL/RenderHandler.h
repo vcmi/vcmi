@@ -15,6 +15,8 @@ class CDefFile;
 
 class RenderHandler : public IRenderHandler
 {
+	using AnimationLayoutMap = std::map<size_t, std::vector<JsonNode>>;
+
 	struct AnimationLocator
 	{
 		AnimationPath animation;
@@ -32,21 +34,22 @@ class RenderHandler : public IRenderHandler
 	};
 
 	std::map<AnimationPath, std::shared_ptr<CDefFile>> animationFiles;
-	std::map<JsonPath, std::shared_ptr<JsonNode>> jsonFiles;
+	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
 	std::map<ImagePath, std::shared_ptr<IImage>> imageFiles;
 	std::map<AnimationLocator, std::shared_ptr<IImage>> animationFrames;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
-	std::shared_ptr<JsonNode> getJsonFile(const JsonPath & path);
+	const AnimationLayoutMap & getAnimationLayout(const AnimationPath & path);
+	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config);
 public:
+	// IRenderHandler implementation
+
 	std::shared_ptr<IImage> loadImage(const ImagePath & path) override;
 	std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) override;
-
 	std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group) override;
-
-	std::shared_ptr<IImage> createImage(SDL_Surface * source) override;
 
 	std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path) override;
 
+	std::shared_ptr<IImage> createImage(SDL_Surface * source) override;
 	std::shared_ptr<CAnimation> createAnimation() override;
 };

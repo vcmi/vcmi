@@ -10,33 +10,12 @@
 #include "StdInc.h"
 #include "CAnimation.h"
 
-#include "CDefFile.h"
+#include "../gui/CGuiHandler.h"
+#include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../renderSDL/SDLImage.h"
-
-std::shared_ptr<IImage> CAnimation::getFromExtraDef(std::string filename)
-{
-	size_t pos = filename.find(':');
-	if (pos == -1)
-		return nullptr;
-	CAnimation anim(AnimationPath::builtinTODO(filename.substr(0, pos)));
-	pos++;
-	size_t frame = atoi(filename.c_str()+pos);
-	size_t group = 0;
-	pos = filename.find(':', pos);
-	if (pos != -1)
-	{
-		pos++;
-		group = frame;
-		frame = atoi(filename.c_str()+pos);
-	}
-	anim.load(frame ,group);
-	auto ret = anim.images[group][frame];
-	anim.images.clear();
-	return ret;
-}
 
 bool CAnimation::loadFrame(size_t frame, size_t group)
 {
@@ -46,8 +25,8 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 		return false;
 	}
 
-	auto image = getImage(frame, group, false);
-	if(image)
+
+	if(auto image = getImage(frame, group, false))
 	{
 		return true;
 	}
@@ -55,30 +34,38 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 	//try to get image from def
 	if(source[group][frame].getType() == JsonNode::JsonType::DATA_NULL)
 	{
-		if(defFile)
-		{
-			auto frameList = defFile->getEntries();
+		auto image = GH.renderHandler().loadImage(name, frame, group);
 
-			if(vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
-			{
-				images[group][frame] = std::make_shared<SDLImage>(defFile.get(), frame, group);
-				return true;
-			}
+		if(image)
+		{
+			images[group][frame] = image;
+			return true;
 		}
 		// still here? image is missing
 
 		printError(frame, group, "LoadFrame");
-		images[group][frame] = std::make_shared<SDLImage>(ImagePath::builtin("DEFAULT"), EImageBlitMode::ALPHA);
+		images[group][frame] = GH.renderHandler().loadImage(ImagePath::builtin("DEFAULT"), EImageBlitMode::OPAQUE);
+		return false;
 	}
-	else //load from separate file
-	{
-		auto img = getFromExtraDef(source[group][frame]["file"].String());
-		if(!img)
-			img = std::make_shared<SDLImage>(source[group][frame], EImageBlitMode::ALPHA);
 
+	if (!source[group][frame]["file"].isNull())
+	{
+		auto img = GH.renderHandler().loadImage(ImagePath::fromJson(source[group][frame]["file"]), EImageBlitMode::ALPHA);
 		images[group][frame] = img;
 		return true;
 	}
+
+	if (!source[group][frame]["animation"].isNull())
+	{
+		AnimationPath animationFile = AnimationPath::fromJson(source[group][frame]["animation"]);
+		int32_t animationGroup = source[group][frame]["sourceGroup"].Integer();
+		int32_t animationFrame = source[group][frame]["sourceFrame"].Integer();
+
+		auto img = GH.renderHandler().loadImage(animationFile, animationFrame, animationGroup);
+		images[group][frame] = img;
+		return true;
+	}
+
 	return false;
 }
 
@@ -94,45 +81,6 @@ bool CAnimation::unloadFrame(size_t frame, size_t group)
 		return true;
 	}
 	return false;
-}
-
-void CAnimation::initFromJson(const JsonNode & config)
-{
-	std::string basepath;
-	basepath = config["basepath"].String();
-
-	JsonNode base;
-	base["margins"] = config["margins"];
-	base["width"] = config["width"];
-	base["height"] = config["height"];
-
-	for(const JsonNode & group : config["sequences"].Vector())
-	{
-		size_t groupID = group["group"].Integer();//TODO: string-to-value conversion("moving" -> MOVING)
-		source[groupID].clear();
-
-		for(const JsonNode & frame : group["frames"].Vector())
-		{
-			JsonNode toAdd;
-			JsonUtils::inherit(toAdd, base);
-			toAdd["file"].String() = basepath + frame.String();
-			source[groupID].push_back(toAdd);
-		}
-	}
-
-	for(const JsonNode & node : config["images"].Vector())
-	{
-		size_t group = node["group"].Integer();
-		size_t frame = node["frame"].Integer();
-
-		if (source[group].size() <= frame)
-			source[group].resize(frame+1);
-
-		JsonNode toAdd;
-		JsonUtils::inherit(toAdd, base);
-		toAdd["file"].String() = basepath + node["file"].String();
-		source[group][frame] = toAdd;
-	}
 }
 
 void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
@@ -168,57 +116,16 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
 	logGlobal->info("Exported %d frames to %s", counter, actualPath.string());
 }
 
-void CAnimation::init()
-{
-	if(defFile)
-	{
-		const std::map<size_t, size_t> defEntries = defFile->getEntries();
-
-		for (auto & defEntry : defEntries)
-			source[defEntry.first].resize(defEntry.second);
-	}
-
-//	if (vstd::contains(graphics->imageLists, name.getName()))
-//		initFromJson(graphics->imageLists[name.getName()]);
-
-	auto jsonResource = name.toType<EResType::JSON>();
-	auto configList = CResourceHandler::get()->getResourcesWithName(jsonResource);
-
-	for(auto & loader : configList)
-	{
-		auto stream = loader->load(jsonResource);
-		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
-		stream->read(textData.get(), stream->getSize());
-
-		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), jsonResource.getName());
-
-		initFromJson(config);
-	}
-}
-
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
 {
 	logGlobal->error("%s error: Request for frame not present in CAnimation! File name: %s, Group: %d, Frame: %d", type, name.getOriginalName(), group, frame);
 }
 
-CAnimation::CAnimation(const AnimationPath & Name):
+CAnimation::CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout):
 	name(boost::starts_with(Name.getName(), "SPRITES") ? Name : Name.addPrefix("SPRITES/")),
+	source(layout),
 	preloaded(false)
 {
-	if(CResourceHandler::get()->existsResource(name))
-	{
-		try
-		{
-			defFile = std::make_shared<CDefFile>(name);
-		}
-		catch ( const std::runtime_error & e)
-		{
-			logAnim->error("Def file %s failed to load! Reason: %s", Name.getOriginalName(), e.what());
-		}
-	}
-
-	init();
-
 	if(source.empty())
 		logAnim->error("Animation %s failed to load", Name.getOriginalName());
 }
@@ -226,7 +133,6 @@ CAnimation::CAnimation(const AnimationPath & Name):
 CAnimation::CAnimation():
 	preloaded(false)
 {
-	init();
 }
 
 CAnimation::~CAnimation() = default;
@@ -250,8 +156,9 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
-		std::string temp =  name.getName()+":"+std::to_string(sourceGroup)+":"+std::to_string(sourceFrame);
-		clone["file"].String() = temp;
+		clone["animation"].String() = name.getName();
+		clone["sourceGroup"].Integer() = sourceGroup;
+		clone["sourceFrame"].Integer() = sourceFrame;
 	}
 
 	source[targetGroup].push_back(clone);

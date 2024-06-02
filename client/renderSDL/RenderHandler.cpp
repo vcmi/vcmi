@@ -15,33 +15,118 @@
 #include "../render/CAnimation.h"
 #include "../render/CDefFile.h"
 
-#include "../../lib/json/JsonNode.h"
+#include "../../lib/json/JsonUtils.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & path)
 {
-	auto it = animationFiles.find(path);
+	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
+
+	auto it = animationFiles.find(actualPath);
 
 	if (it != animationFiles.end())
 		return it->second;
 
-	auto result = std::make_shared<CDefFile>(path);
+	if (!CResourceHandler::get()->existsResource(actualPath))
+	{
+		animationFiles[actualPath] = nullptr;
+		return nullptr;
+	}
 
-	animationFiles[path] = result;
+	auto result = std::make_shared<CDefFile>(actualPath);
+
+	animationFiles[actualPath] = result;
 	return result;
 }
 
-std::shared_ptr<JsonNode> RenderHandler::getJsonFile(const JsonPath & path)
+void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config)
 {
-	auto it = jsonFiles.find(path);
+	std::string basepath;
+	basepath = config["basepath"].String();
 
-	if (it != jsonFiles.end())
+	JsonNode base;
+	base["margins"] = config["margins"];
+	base["width"] = config["width"];
+	base["height"] = config["height"];
+
+	for(const JsonNode & group : config["sequences"].Vector())
+	{
+		size_t groupID = group["group"].Integer();//TODO: string-to-value conversion("moving" -> MOVING)
+		source[groupID].clear();
+
+		for(const JsonNode & frame : group["frames"].Vector())
+		{
+			JsonNode toAdd;
+			JsonUtils::inherit(toAdd, base);
+			toAdd["file"].String() = basepath + frame.String();
+			source[groupID].push_back(toAdd);
+		}
+	}
+
+	for(const JsonNode & node : config["images"].Vector())
+	{
+		size_t group = node["group"].Integer();
+		size_t frame = node["frame"].Integer();
+
+		if (source[group].size() <= frame)
+			source[group].resize(frame+1);
+
+		JsonNode toAdd;
+		JsonUtils::inherit(toAdd, base);
+		toAdd["file"].String() = basepath + node["file"].String();
+		source[group][frame] = toAdd;
+	}
+}
+
+const RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const AnimationPath & path)
+{
+	auto it = animationLayouts.find(path);
+
+	if (it != animationLayouts.end())
 		return it->second;
 
-	auto result = std::make_shared<JsonNode>(path);
+	AnimationLayoutMap result;
 
-	jsonFiles[path] = result;
-	return result;
+	auto defFile = getAnimationFile(path);
+	if(defFile)
+	{
+		const std::map<size_t, size_t> defEntries = defFile->getEntries();
+
+		for (auto & defEntry : defEntries)
+			result[defEntry.first].resize(defEntry.second);
+	}
+
+	auto jsonResource = path.toType<EResType::JSON>();
+	JsonPath actualJsonPath = boost::starts_with(jsonResource.getName(), "SPRITES") ? jsonResource : jsonResource.addPrefix("SPRITES/");;
+	auto configList = CResourceHandler::get()->getResourcesWithName(actualJsonPath);
+
+	for(auto & loader : configList)
+	{
+		auto stream = loader->load(actualJsonPath);
+		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+		stream->read(textData.get(), stream->getSize());
+
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), path.getOriginalName());
+
+		initFromJson(result, config);
+	}
+
+	animationLayouts[path] = result;
+	return animationLayouts[path];
 }
+
+//std::shared_ptr<JsonNode> RenderHandler::getJsonFile(const JsonPath & path)
+//{
+//	auto it = jsonFiles.find(path);
+//
+//	if (it != jsonFiles.end())
+//		return it->second;
+//
+//	auto result = std::make_shared<JsonNode>(path);
+//
+//	jsonFiles[path] = result;
+//	return result;
+//}
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group)
 {
@@ -78,7 +163,13 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path)
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
-	return std::make_shared<SDLImage>(path, mode);
+	auto it = imageFiles.find(path);
+	if (it != imageFiles.end())
+		return it->second;
+
+	auto result = std::make_shared<SDLImage>(path, mode);
+	imageFiles[path] = result;
+	return result;
 }
 
 std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
@@ -88,7 +179,7 @@ std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path)
 {
-	return std::make_shared<CAnimation>(path);
+	return std::make_shared<CAnimation>(path, getAnimationLayout(path));
 }
 
 std::shared_ptr<CAnimation> RenderHandler::createAnimation()
