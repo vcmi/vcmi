@@ -35,10 +35,11 @@
 CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode)
 	: CWindowObject(PLAYER_COLORED)
 	, windowClosedCallback(onWindowClosed)
+	, mode(mode)
 {
 	assert(mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_PLAYER || mode == EMarketMode::CREATURE_RESOURCE ||
 		mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::ARTIFACT_RESOURCE || mode == EMarketMode::ARTIFACT_EXP ||
-		mode == EMarketMode::CREATURE_EXP);
+		mode == EMarketMode::CREATURE_EXP || mode == EMarketMode::ARTIFACT_CREATURE_EXP);
 	
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
@@ -55,6 +56,8 @@ CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero
 	else if(mode == EMarketMode::ARTIFACT_EXP)
 		createAltarArtifacts(market, hero);
 	else if(mode == EMarketMode::CREATURE_EXP)
+		createAltarCreatures(market, hero);
+	else if(mode == EMarketMode::ARTIFACT_CREATURE_EXP)
 		createAltarCreatures(market, hero);
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
@@ -151,13 +154,13 @@ void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMark
 	if(isButtonVisible(EMarketMode::CREATURE_EXP))
 	{
 		addButton(AnimationPath::builtin("ALTSACC.DEF"), CGI->generaltexth->zelp[572], std::bind(&CMarketWindow::createAltarCreatures, this, market, hero), EShortcut::MARKET_CREATURE_EXPERIENCE);
-		if(marketWidget->hero->getAlignment() == EAlignment::GOOD)
+		if(marketWidget->hero->getAlignment() == EAlignment::GOOD && mode != EMarketMode::ARTIFACT_CREATURE_EXP)
 			changeModeButtons.back()->block(true);
 	}
 	if(isButtonVisible(EMarketMode::ARTIFACT_EXP))
 	{
 		addButton(AnimationPath::builtin("ALTART.DEF"), CGI->generaltexth->zelp[580], std::bind(&CMarketWindow::createAltarArtifacts, this, market, hero), EShortcut::MARKET_ARTIFACT_EXPERIENCE);
-		if(marketWidget->hero->getAlignment() == EAlignment::EVIL)
+		if(marketWidget->hero->getAlignment() == EAlignment::EVIL && mode != EMarketMode::ARTIFACT_CREATURE_EXP)
 			changeModeButtons.back()->block(true);
 	}
 }

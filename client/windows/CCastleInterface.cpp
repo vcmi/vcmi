@@ -54,6 +54,7 @@
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CGMarket.h"
 
 
 static bool useCompactCreatureBox()
@@ -812,6 +813,13 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::THIEVES_GUILD:
 						enterAnyThievesGuild();
+						break;
+
+				case BuildingSubID::ALTAR_OF_SACRIFICE:
+						if(getHero())
+							GH.windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, EMarketMode::ARTIFACT_CREATURE_EXP);
+						else
+							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
 				default:
