@@ -560,19 +560,22 @@ void BattleFieldController::flipRangeLimitImagesIntoPositions(std::shared_ptr<CA
 {
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRight])->verticalFlip();
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::right])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRight])->doubleFlip();
+	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRight])->verticalFlip();
+	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRight])->horizontalFlip();
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeft])->horizontalFlip();
 
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottom])->horizontalFlip();
 
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRightHalfCorner])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner])->doubleFlip();
+	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner])->verticalFlip();
+	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner])->horizontalFlip();
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftHalfCorner])->horizontalFlip();
 
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::rightHalf])->verticalFlip();
 
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRightCorner])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner])->doubleFlip();
+	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner])->verticalFlip();
+	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner])->horizontalFlip();
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner])->horizontalFlip();
 }
 

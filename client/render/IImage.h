@@ -80,7 +80,6 @@ public:
 
 	virtual void horizontalFlip() = 0;
 	virtual void verticalFlip() = 0;
-	virtual void doubleFlip() = 0;
 
 	IImage() = default;
 	virtual ~IImage() = default;

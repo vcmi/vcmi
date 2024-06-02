@@ -35,27 +35,17 @@ private:
 
 	bool preloaded;
 
-	std::shared_ptr<CDefFile> defFile;
-
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
 	bool loadFrame(size_t frame, size_t group);
 
 	//unloadFrame, returns true if image has been unloaded ( either deleted or decreased refCount)
 	bool unloadFrame(size_t frame, size_t group);
 
-	//initialize animation from file
-	void initFromJson(const JsonNode & input);
-	void init();
-
 	//to get rid of copy-pasting error message :]
 	void printError(size_t frame, size_t group, std::string type) const;
 
-	//not a very nice method to get image from another def file
-	//TODO: remove after implementing resource manager
-	std::shared_ptr<IImage> getFromExtraDef(std::string filename);
-
 public:
-	CAnimation(const AnimationPath & Name);
+	CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout);
 	CAnimation();
 	~CAnimation();
 
