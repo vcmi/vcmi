@@ -69,8 +69,6 @@ public:
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) = 0;
 	virtual void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) = 0;
-	virtual void resetPalette(int colorID) = 0;
-	virtual void resetPalette() = 0;
 
 	virtual void setAlpha(uint8_t value) = 0;
 	virtual void setBlitMode(EImageBlitMode mode) = 0;
@@ -81,7 +79,5 @@ public:
 	virtual void horizontalFlip() = 0;
 	virtual void verticalFlip() = 0;
 
-	IImage() = default;
 	virtual ~IImage() = default;
 };
-
