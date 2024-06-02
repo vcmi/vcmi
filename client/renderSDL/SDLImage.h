@@ -26,12 +26,12 @@ struct SDL_Palette;
  */
 class SDLImage : public IImage
 {
-public:
-	
 	const static int DEFAULT_PALETTE_COLORS = 256;
 	
 	//Surface without empty borders
 	SDL_Surface * surf;
+
+	SDL_Palette * originalPalette;
 	//size of left and top borders
 	Point margins;
 	//total size including borders
@@ -45,7 +45,6 @@ public:
 	//Load from bitmap file
 	SDLImage(const ImagePath & filename, EImageBlitMode blitMode);
 
-	SDLImage(const JsonNode & conf, EImageBlitMode blitMode);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
 	SDLImage(SDL_Surface * from, EImageBlitMode blitMode);
 	~SDLImage();
@@ -67,8 +66,6 @@ public:
 
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
-	void resetPalette(int colorID) override;
-	void resetPalette() override;
 
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;
@@ -76,7 +73,4 @@ public:
 	void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
 
 	friend class SDLImageLoader;
-
-private:
-	SDL_Palette * originalPalette;
 };

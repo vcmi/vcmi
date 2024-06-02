@@ -18,8 +18,6 @@
 #include "../render/CDefFile.h"
 #include "../render/Graphics.h"
 
-#include "../../lib/json/JsonNode.h"
-
 #include <SDL_surface.h>
 
 class SDLImageLoader;
@@ -63,39 +61,6 @@ SDLImage::SDLImage(SDL_Surface * from, EImageBlitMode mode)
 	surf->refcount++;
 	fullSize.x = surf->w;
 	fullSize.y = surf->h;
-}
-
-SDLImage::SDLImage(const JsonNode & conf, EImageBlitMode mode)
-	: surf(nullptr),
-	margins(0, 0),
-	fullSize(0, 0),
-	originalPalette(nullptr)
-{
-	surf = BitmapHandler::loadBitmap(ImagePath::fromJson(conf["file"]));
-
-	if(surf == nullptr)
-		return;
-
-	savePalette();
-	setBlitMode(mode);
-
-	const JsonNode & jsonMargins = conf["margins"];
-
-	margins.x = static_cast<int>(jsonMargins["left"].Integer());
-	margins.y = static_cast<int>(jsonMargins["top"].Integer());
-
-	fullSize.x = static_cast<int>(conf["width"].Integer());
-	fullSize.y = static_cast<int>(conf["height"].Integer());
-
-	if(fullSize.x == 0)
-	{
-		fullSize.x = margins.x + surf->w + (int)jsonMargins["right"].Integer();
-	}
-
-	if(fullSize.y == 0)
-	{
-		fullSize.y = margins.y + surf->h + (int)jsonMargins["bottom"].Integer();
-	}
 }
 
 SDLImage::SDLImage(const ImagePath & filename, EImageBlitMode mode)
@@ -310,24 +275,6 @@ void SDLImage::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipM
 	}
 }
 
-void SDLImage::resetPalette()
-{
-	if(originalPalette == nullptr)
-		return;
-	
-	// Always keep the original palette not changed, copy a new palette to assign to surface
-	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, originalPalette->ncolors);
-}
-
-void SDLImage::resetPalette( int colorID )
-{
-	if(originalPalette == nullptr)
-		return;
-
-	// Always keep the original palette not changed, copy a new palette to assign to surface
-	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors + colorID, colorID, 1);
-}
-
 void SDLImage::setSpecialPalette(const IImage::SpecialPalette & specialPalette, uint32_t colorsToSkipMask)
 {
 	if(surf->format->palette)
@@ -345,11 +292,5 @@ void SDLImage::setSpecialPalette(const IImage::SpecialPalette & specialPalette, 
 SDLImage::~SDLImage()
 {
 	SDL_FreeSurface(surf);
-
-	if(originalPalette != nullptr)
-	{
-		SDL_FreePalette(originalPalette);
-		originalPalette = nullptr;
-	}
+	SDL_FreePalette(originalPalette);
 }
-
