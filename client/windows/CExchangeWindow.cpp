@@ -46,9 +46,7 @@ static bool isQuickExchangeLayoutAvailable()
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
 	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2")),
-	controller(hero1, hero2),
-	moveStackLeftButtons(),
-	moveStackRightButtons()
+	controller(hero1, hero2)
 {
 	const bool qeLayout = isQuickExchangeLayoutAvailable();
 
@@ -193,54 +191,52 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	if(qeLayout)
 	{
-		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin("quick-exchange/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
-			[this](){ this->moveUnitsShortcut(false); });
-		exchangeGarrButton       = std::make_shared<CButton>(Point(377, 118), AnimationPath::builtin("quick-exchange/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[2]),
-			[this](){ controller.swapArmy(); });
-		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 118), AnimationPath::builtin("quick-exchange/armLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
-			[this](){ this->moveUnitsShortcut(true); });
-		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), AnimationPath::builtin("quick-exchange/artRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]),
-			[this](){ this->moveArtifactsCallback(false);});
-		exchangeArtifactsButton  = std::make_shared<CButton>(Point(377, 154), AnimationPath::builtin("quick-exchange/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[4]),
-			[this](){ this->swapArtifactsCallback(); });
-		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin("quick-exchange/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]),
-			[this](){ this->moveArtifactsCallback(true);});
+		buttonMoveUnitsFromLeftToRight = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin("quick-exchange/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]), [this](){ this->moveUnitsShortcut(true); });
+		buttonMoveUnitsFromRightToLeft = std::make_shared<CButton>(Point(425, 118), AnimationPath::builtin("quick-exchange/armLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]), [this](){ this->moveUnitsShortcut(false); });
+		buttonMoveArtifactsFromLeftToRight = std::make_shared<CButton>(Point(325, 154), AnimationPath::builtin("quick-exchange/artRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]), [this](){ this->moveArtifactsCallback(true);});
+		buttonMoveArtifactsFromRightToLeft = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin("quick-exchange/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]), [this](){ this->moveArtifactsCallback(false);});
 
-		backpackButtonLeft       = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+		exchangeUnitsButton = std::make_shared<CButton>(Point(377, 118), AnimationPath::builtin("quick-exchange/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[2]), [this](){ controller.swapArmy(); });
+		exchangeArtifactsButton  = std::make_shared<CButton>(Point(377, 154), AnimationPath::builtin("quick-exchange/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[4]), [this](){ this->swapArtifactsCallback(); });
+
+		backpackButtonLeft = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			[this](){ this->backpackShortcut(true); });
-		backpackButtonRight      = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+		backpackButtonRight = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			[this](){ this->backpackShortcut(false); });
 		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 
 		auto leftHeroBlock = heroInst[0]->tempOwner != LOCPLINT->cb->getPlayerID();
 		auto rightHeroBlock = heroInst[1]->tempOwner != LOCPLINT->cb->getPlayerID();
-		moveAllGarrButtonLeft->block(leftHeroBlock);
-		exchangeGarrButton->block(leftHeroBlock || rightHeroBlock);
-		moveAllGarrButtonRight->block(rightHeroBlock);
-		moveArtifactsButtonLeft->block(leftHeroBlock);
+
+		buttonMoveUnitsFromLeftToRight->block(leftHeroBlock);
+		buttonMoveUnitsFromRightToLeft->block(rightHeroBlock);
+		buttonMoveArtifactsFromLeftToRight->block(leftHeroBlock);
+		buttonMoveArtifactsFromRightToLeft->block(rightHeroBlock);
+
+		exchangeUnitsButton->block(leftHeroBlock || rightHeroBlock);
 		exchangeArtifactsButton->block(leftHeroBlock || rightHeroBlock);
-		moveArtifactsButtonRight->block(rightHeroBlock);
+
 		backpackButtonLeft->block(leftHeroBlock);
 		backpackButtonRight->block(rightHeroBlock);
 
 		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
 		{
-			moveStackLeftButtons.push_back(
+			moveUnitFromRightToLeftButtons.push_back(
 				std::make_shared<CButton>(
 					Point(484 + 35 * i, 154),
 					AnimationPath::builtin("quick-exchange/unitLeft.DEF"),
 					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
 					std::bind(&CExchangeController::moveStack, &controller, false, SlotID(i))));
-			moveStackLeftButtons.back()->block(leftHeroBlock);
+			moveUnitFromRightToLeftButtons.back()->block(leftHeroBlock);
 
-			moveStackRightButtons.push_back(
+			moveUnitFromLeftToRightButtons.push_back(
 				std::make_shared<CButton>(
 					Point(66 + 35 * i, 154),
 					AnimationPath::builtin("quick-exchange/unitRight.DEF"),
 					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
 					std::bind(&CExchangeController::moveStack, &controller, true, SlotID(i))));
-			moveStackLeftButtons.back()->block(rightHeroBlock);
+			moveUnitFromLeftToRightButtons.back()->block(rightHeroBlock);
 		}
 	}
 

@@ -27,7 +27,7 @@ void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisi
 {
 	assert(result);
 
-	if(result && !isAiVsHuman)
+	if(result)
 		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
 }
 
@@ -37,8 +37,6 @@ CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 {
 	belligerents[0] = bi->getSideArmy(0);
 	belligerents[1] = bi->getSideArmy(1);
-
-	isAiVsHuman = bi->getSidePlayer(1).isValidPlayer() && gh->getPlayerState(bi->getSidePlayer(0))->isHuman() != gh->getPlayerState(bi->getSidePlayer(1))->isHuman();
 
 	addPlayer(bi->getSidePlayer(0));
 	addPlayer(bi->getSidePlayer(1));
@@ -89,7 +87,9 @@ CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo *
 
 void CBattleDialogQuery::onRemoval(PlayerColor color)
 {
-	if (!gh->getPlayerState(color)->isHuman())
+	// answer to this query was already processed when handling 1st player
+	// this removal call for 2nd player which can be safely ignored
+	if (resultProcessed)
 		return;
 
 	assert(answer);
@@ -108,13 +108,7 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	}
 	else
 	{
-		auto hero = bi->getSideHero(BattleSide::ATTACKER);
-		auto visitingObj = bi->getDefendedTown() ? bi->getDefendedTown() : gh->getVisitingObject(hero);
-		bool isAiVsHuman = bi->getSidePlayer(1).isValidPlayer() && gh->getPlayerState(bi->getSidePlayer(0))->isHuman() != gh->getPlayerState(bi->getSidePlayer(1))->isHuman();
-		
 		gh->battles->endBattleConfirm(bi->getBattleID());
-
-		if(visitingObj && result && isAiVsHuman)
-			visitingObj->battleFinished(hero, *result);
 	}
+	resultProcessed = true;
 }
