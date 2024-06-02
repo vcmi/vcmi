@@ -776,7 +776,7 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 		return hasBuilt(BuildingSubID::MAGIC_UNIVERSITY);
 	case EMarketMode::CREATURE_EXP:
 	case EMarketMode::ARTIFACT_EXP:
-		return false;
+		return hasBuilt(BuildingSubID::ALTAR_OF_SACRIFICE);
 	default:
 		assert(0);
 		return false;

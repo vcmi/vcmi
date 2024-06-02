@@ -106,7 +106,7 @@ bool CMarketWindow::holdsGarrison(const CArmedInstance * army)
 
 void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero)
 {
-	auto isButtonVisible = [currentMode, market, hero](EMarketMode modeButton) -> bool
+	auto isButtonVisible = [this, currentMode, market, hero](EMarketMode modeButton) -> bool
 	{
 		if(currentMode == modeButton)
 			return false;
@@ -117,7 +117,7 @@ void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMark
 		if(modeButton == EMarketMode::RESOURCE_RESOURCE || modeButton == EMarketMode::RESOURCE_PLAYER)
 		{
 			if(const auto town = dynamic_cast<const CGTownInstance*>(market))
-				return town->getOwner() == LOCPLINT->playerID;
+				return town->getOwner() == LOCPLINT->playerID && mode != EMarketMode::ARTIFACT_CREATURE_EXP;
 			else
 				return true;
 		}
