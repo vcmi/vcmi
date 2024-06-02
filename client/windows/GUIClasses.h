@@ -363,15 +363,14 @@ class CUniversityWindow : public CStatusbarWindow
 	class CItem : public CIntObject
 	{
 		std::shared_ptr<CAnimImage> icon;
-		std::shared_ptr<CAnimImage> topBar;
-		std::shared_ptr<CAnimImage> bottomBar;
+		std::shared_ptr<CPicture> topBar;
+		std::shared_ptr<CPicture> bottomBar;
 		std::shared_ptr<CLabel> name;
 		std::shared_ptr<CLabel> level;
 	public:
 		SecondarySkill ID;//id of selected skill
 		CUniversityWindow * parent;
 
-		void showAll(Canvas & to) override;
 		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
@@ -381,8 +380,6 @@ class CUniversityWindow : public CStatusbarWindow
 
 	const CGHeroInstance * hero;
 	const IMarket * market;
-
-	std::shared_ptr<CAnimation> bars;
 
 	std::vector<std::shared_ptr<CItem>> items;
 

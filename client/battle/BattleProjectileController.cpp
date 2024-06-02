@@ -15,6 +15,7 @@
 #include "BattleStacksController.h"
 #include "CreatureAnimation.h"
 
+#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 #include "../gui/CGuiHandler.h"

@@ -36,7 +36,6 @@
 #include "../widgets/VideoWidget.h"
 
 #include "../render/Canvas.h"
-#include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IImage.h"
 
@@ -892,8 +891,13 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.x += X;
 	pos.y += Y;
 
-	topBar = std::make_shared<CAnimImage>(parent->bars, 0, 0, -28, -22);
-	bottomBar = std::make_shared<CAnimImage>(parent->bars, 0, 0, -28, 48);
+	// TODO: restore
+	//bars->setCustom("UNIVRED", 0, 0);
+	//bars->setCustom("UNIVGOLD", 1, 0);
+	//bars->setCustom("UNIVGREN", 2, 0);
+
+	topBar = std::make_shared<CPicture>(ImagePath::builtin("UNIVRED"), Point(-28, -22));
+	bottomBar = std::make_shared<CPicture>(ImagePath::builtin("UNIVRED"), Point(-28, 48));
 
 	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), _ID * 3 + 3, 0);
 
@@ -932,16 +936,6 @@ int CUniversityWindow::CItem::state()
 	return 2;
 }
 
-void CUniversityWindow::CItem::showAll(Canvas & to)
-{
-	//TODO: update when state actually changes
-	auto stateIndex = state();
-	topBar->setFrame(stateIndex);
-	bottomBar->setFrame(stateIndex);
-
-	CIntObject::showAll(to);
-}
-
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
 	hero(_hero),
@@ -950,12 +944,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	bars = GH.renderHandler().createAnimation();
-	bars->setCustom("UNIVRED", 0, 0);
-	bars->setCustom("UNIVGOLD", 1, 0);
-	bars->setCustom("UNIVGREN", 2, 0);
-	bars->preload();
-	
+
 	std::string titleStr = CGI->generaltexth->allTexts[602];
 	std::string speechStr = CGI->generaltexth->allTexts[603];
 
@@ -1331,17 +1320,11 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, text));
 	}
 
-	auto PRSTRIPS = GH.renderHandler().loadAnimation(AnimationPath::builtin("PRSTRIPS"));
-	PRSTRIPS->preload();
-
 	for(int g=1; g<tgi.playerColors.size(); ++g)
-		columnBackgrounds.push_back(std::make_shared<CAnimImage>(PRSTRIPS, g-1, 0, 250 + 66*g, 7));
+		columnBackgrounds.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PRSTRIPS"), g-1, 0, 250 + 66*g, 7));
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
 		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 24, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]));
-
-	auto itgflags = GH.renderHandler().loadAnimation(AnimationPath::builtin("itgflags"));
-	itgflags->preload();
 
 	//printing flags
 	for(int g = 0; g < std::size(fields); ++g) //by lines
@@ -1366,7 +1349,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 				int rowStartY = ypos + (j ? 4 : 0);
 
 				for(size_t i=0; i < rowLength[j]; i++)
-					cells.push_back(std::make_shared<CAnimImage>(itgflags, players[i + j*4].getNum(), 0, rowStartX + (int)i*12, rowStartY));
+					cells.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("itgflags"), players[i + j*4].getNum(), 0, rowStartX + (int)i*12, rowStartY));
 			}
 		}
 	}

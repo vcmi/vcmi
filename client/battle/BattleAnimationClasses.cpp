@@ -24,6 +24,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../media/ISoundPlayer.h"
+#include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"

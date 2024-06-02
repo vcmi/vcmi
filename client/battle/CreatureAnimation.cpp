@@ -14,6 +14,7 @@
 #include "../../lib/CCreatureHandler.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
 #include "../render/IRenderHandler.h"

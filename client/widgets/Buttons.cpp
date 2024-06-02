@@ -24,7 +24,6 @@
 #include "../gui/InterfaceObjectConfigurable.h"
 #include "../media/ISoundPlayer.h"
 #include "../windows/InfoWindows.h"
-#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 
