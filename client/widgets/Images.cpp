@@ -111,18 +111,18 @@ void CPicture::colorize(PlayerColor player)
 	bg->playerColored(player);
 }
 
-CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position):
-    CIntObject(0, position.topLeft()),
-	texture(GH.renderHandler().loadImage(imageName))
+CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position)
+	: CIntObject(0, position.topLeft())
+	, texture(GH.renderHandler().loadImage(imageName))
 {
 	pos.w = position.w;
 	pos.h = position.h;
 	imageArea = Rect(Point(), texture->dimensions());
 }
 
-CFilledTexture::CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea)
+CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position, Rect imageArea)
 	: CIntObject(0, position.topLeft())
-	, texture(image)
+	, texture(GH.renderHandler().loadImage(imageName))
 	, imageArea(imageArea)
 {
 	pos.w = position.w;
@@ -191,8 +191,8 @@ CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Gr
 	init();
 }
 
-CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
-	anim(Anim),
+CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
+	anim(GH.renderHandler().loadAnimation(name)),
 	frame(Frame),
 	group(Group),
 	flags(Flags),

@@ -31,7 +31,6 @@ class CAnimImage;
 class CGStatusBar;
 class AdventureMapWidget;
 class AdventureMapShortcuts;
-class CAnimation;
 class MapView;
 class CResDataBar;
 class CHeroList;

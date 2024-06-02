@@ -28,7 +28,6 @@ class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-class CAnimation;
 class IFont;
 
 /// Handles fonts, hero images, town images, various graphics

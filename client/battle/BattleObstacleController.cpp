@@ -21,6 +21,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../media/ISoundPlayer.h"
+#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 

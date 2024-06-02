@@ -11,7 +11,6 @@
 
 #include "../gui/InterfaceObjectConfigurable.h"
 
-class CAnimation;
 class CHeroList;
 class CTownList;
 class CMinimap;
@@ -31,10 +30,6 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 	/// list of images on which player-colored palette will be applied
 	std::vector<ImagePath> playerColorerImages;
 
-	/// list of named images shared between widgets
-	std::map<ImagePath, std::shared_ptr<IImage>> images;
-	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
-
 	/// Widgets that require access from adventure map
 	std::shared_ptr<CHeroList> heroList;
 	std::shared_ptr<CTownList> townList;
@@ -47,9 +42,6 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 	Rect readTargetArea(const JsonNode & source);
 	Rect readSourceArea(const JsonNode & source, const JsonNode & sourceCommon);
 	Rect readArea(const JsonNode & source, const Rect & boundingBox);
-
-	std::shared_ptr<IImage> loadImage(const JsonNode & name);
-	std::shared_ptr<CAnimation> loadAnimation(const JsonNode & name);
 
 	std::shared_ptr<CIntObject> buildInfobox(const JsonNode & input);
 	std::shared_ptr<CIntObject> buildMapImage(const JsonNode & input);
@@ -104,7 +96,7 @@ class CAdventureMapIcon : public CIntObject
 	size_t index;
 	size_t iconsPerPlayer;
 public:
-	CAdventureMapIcon(const Point & position, std::shared_ptr<CAnimation> image, size_t index, size_t iconsPerPlayer);
+	CAdventureMapIcon(const Point & position, const AnimationPath & image, size_t index, size_t iconsPerPlayer);
 
 	void setPlayer(const PlayerColor & player);
 };

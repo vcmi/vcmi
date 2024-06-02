@@ -20,6 +20,7 @@ class CSlider;
 class CLabel;
 class CPicture;
 class IImage;
+class CAnimation;
 
 enum ESortBy
 {

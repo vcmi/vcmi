@@ -515,9 +515,6 @@ CFlagBox::CFlagBox(const Rect & rect)
 
 	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
 	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
-
-	iconsTeamFlags = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITGFLAGS.DEF"));
-	iconsTeamFlags->preload();
 }
 
 void CFlagBox::recreate()
@@ -529,7 +526,7 @@ void CFlagBox::recreate()
 	const int enemiesX = 5 + 133 + (int)labelEnemies->getWidth();
 	for(auto i = CSH->si->playerInfos.cbegin(); i != CSH->si->playerInfos.cend(); i++)
 	{
-		auto flag = std::make_shared<CAnimImage>(iconsTeamFlags, i->first.getNum(), 0);
+		auto flag = std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS.DEF"), i->first.getNum(), 0);
 		if(i->first == CSH->myFirstColor() || CSH->getPlayerTeamId(i->first) == CSH->getPlayerTeamId(CSH->myFirstColor()))
 		{
 			flag->moveTo(Point(pos.x + alliesX + (int)flagsAllies.size()*flag->pos.w, pos.y));
@@ -546,10 +543,10 @@ void CFlagBox::recreate()
 void CFlagBox::showPopupWindow(const Point & cursorPosition)
 {
 	if(SEL->getMapInfo())
-		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);
+		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>();
 }
 
-CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)
+CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
 	: CWindowObject(BORDERED | RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("DIBOXBCK"))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -577,7 +574,7 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 		int curx = 128 - 9 * team.size();
 		for(const auto & player : team)
 		{
-			iconsFlags.push_back(std::make_shared<CAnimImage>(icons, player, 0, curx, 75 + 50 * curIdx));
+			iconsFlags.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS.DEF"), player, 0, curx, 75 + 50 * curIdx));
 			curx += 18;
 		}
 		++curIdx;

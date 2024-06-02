@@ -68,8 +68,8 @@ protected:
 	Rect imageArea;
 
 public:
+	CFilledTexture(const ImagePath & imageName, Rect position, Rect imageArea);
 	CFilledTexture(const ImagePath & imageName, Rect position);
-	CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea);
 
 	void showAll(Canvas & to) override;
 };
@@ -104,7 +104,7 @@ public:
 
 	CAnimImage(const AnimationPath & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
-	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
+	CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
 	~CAnimImage();
 
 	/// size of animation
