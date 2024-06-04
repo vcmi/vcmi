@@ -1085,9 +1085,9 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 	}
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 
-	CreatureID creatureID = town->creatures[level].second.back();
+	creature = town->creatures[level].second.back();
 
-	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), creatureID.toEntity(VLC)->getIconIndex(), 0, 8, 0);
+	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), creature.toEntity(VLC)->getIconIndex(), 0, 8, 0);
 
 	std::string value;
 	if(showAvailable)
@@ -1127,16 +1127,17 @@ void CCreaInfo::update()
 
 void CCreaInfo::hover(bool on)
 {
-	std::string message = CGI->generaltexth->allTexts[588];
-	boost::algorithm::replace_first(message, "%s", creature->getNamePluralTranslated());
+	MetaString message;
+	message.appendTextID("core.genrltxt.588");
+	message.replaceNameSingular(creature);
 
 	if(on)
 	{
-		GH.statusbar()->write(message);
+		GH.statusbar()->write(message.toString());
 	}
 	else
 	{
-		GH.statusbar()->clearIfMatching(message);
+		GH.statusbar()->clearIfMatching(message.toString());
 	}
 }
 
@@ -1153,12 +1154,18 @@ void CCreaInfo::clickPressed(const Point & cursorPosition)
 std::string CCreaInfo::genGrowthText()
 {
 	GrowthInfo gi = town->getGrowthInfo(level);
-	std::string descr = boost::str(boost::format(CGI->generaltexth->allTexts[589]) % creature->getNameSingularTranslated() % gi.totalGrowth());
+	MetaString descr;
+	descr.appendTextID("core.genrltxt.589");
+	descr.replaceNameSingular(creature);
+	descr.replaceNumber(gi.totalGrowth());
 
 	for(const GrowthInfo::Entry & entry : gi.entries)
-		descr +="\n" + entry.description;
+	{
+		descr.appendEOL();
+		descr.appendRawString(entry.description);
+	}
 
-	return descr;
+	return descr.toString();
 }
 
 void CCreaInfo::showPopupWindow(const Point & cursorPosition)
@@ -1166,7 +1173,7 @@ void CCreaInfo::showPopupWindow(const Point & cursorPosition)
 	if (showAvailable)
 		GH.windows().createAndPushWindow<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
 	else
-		CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(ComponentType::CREATURE, creature->getId()));
+		CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(ComponentType::CREATURE, creature));
 }
 
 bool CCreaInfo::getShowAvailable()

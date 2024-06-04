@@ -181,7 +181,7 @@ public:
 class CCreaInfo : public CIntObject
 {
 	const CGTownInstance * town;
-	const CCreature * creature;
+	CreatureID creature;
 	int level;
 	bool showAvailable;
 
