@@ -165,6 +165,9 @@ void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & co
 void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
 {
 	std::shared_ptr<CConnection> c = findConnection(connection);
+	if (c == nullptr)
+		throw std::out_of_range("Unknown connection received in CVCMIServer::findConnection");
+
 	auto pack = c->retrievePack(message);
 	pack->c = c;
 	CVCMIServerPackVisitor visitor(*this, this->gh);
@@ -197,7 +200,7 @@ std::shared_ptr<CConnection> CVCMIServer::findConnection(const std::shared_ptr<I
 			return gameConnection;
 	}
 
-	throw std::runtime_error("Unknown connection received in CVCMIServer::findConnection");
+	return nullptr;
 }
 
 bool CVCMIServer::wasStartedByClient() const
@@ -342,6 +345,9 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 	logNetwork->error("Network error receiving a pack. Connection has been closed");
 
 	std::shared_ptr<CConnection> c = findConnection(connection);
+	if (!c)
+		return; // player have already disconnected via clientDisconnected call
+
 	vstd::erase(activeConnections, c);
 
 	if(activeConnections.empty() || hostClientId == c->connectionID)
