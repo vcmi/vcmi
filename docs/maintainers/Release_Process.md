@@ -1,15 +1,15 @@
-# Versioning
+## Versioning
 For releases VCMI uses version numbering in form "1.X.Y", where:
 - 'X' indicates major release. Different major versions are generally not compatible with each other. Save format is different, network protocol is different, mod format likely different.
 - 'Y' indicates hotfix release. Despite its name this is usually not urgent, but planned release. Different hotfixes for same major version are fully compatible with each other.
 
-# Branches
+## Branches
 Our branching strategy is very similar to GitFlow:
 - `master` branch has release commits. One commit - one release. Each release commit should be tagged with version `1.X.Y` when corresponding version is released. State of master branch represents state of latest public release.
 - `beta` branch is for stabilization of ongoing release. Beta branch is created when new major release enters stabilization stage and is used for both major release itself as well as for subsequent hotfixes. Only changes that are safe, have minimal chance of regressions and improve player experience should be targeted into this branch. Breaking changes (e.g. save format changes) are forbidden in beta.
 - `develop` branch is a main branch for ongoing development. Pull requests with new features should be targeted to this branch, `develop` version is one major release ahead of `beta`.
 
-# Release process step-by-step
+## Release process step-by-step
 
 ### Initial release setup (major releases only)
 Should be done immediately after start of stabilization stage for previous release

@@ -1,4 +1,4 @@
-# List of all Bonus range types
+## List of all Bonus range types
 
 - NO_LIMIT
 - ONLY_DISTANCE_FIGHT

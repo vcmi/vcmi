@@ -1,6 +1,6 @@
-# List of features added in VCMI
+## List of features added in VCMI
 
-## High resolutions
+### High resolutions
 
 VCMI supports resolutions higher than original game, which ran only in 800 x 600. It also allows a number of additional features:
 
@@ -10,7 +10,7 @@ VCMI supports resolutions higher than original game, which ran only in 800 x 600
 
 Assets from Heroes of Might & Magic III HD - Remake released by Ubisoft in 2015 - are **not** supported.
 
-## Extended engine limits
+### Extended engine limits
 
 Some of game features have already been extended in comparison to Shadow of Death:
 
@@ -23,9 +23,9 @@ Some of game features have already been extended in comparison to Shadow of Deat
 
 The list of implemented cheat codes and console commands is [here](Cheat_codes.md).
 
-# New mechanics (Optional)
+## New mechanics (Optional)
 
-## Stack Experience module
+### Stack Experience module
 
 VCMI natively suppoorts stack experience feature known from WoG. Any creature - old or modded - can get stack experience bonuses. However, this feature needs to be enabled as a part of WoG VCMI submod.
 
@@ -35,23 +35,23 @@ Stack experience interface has been merged with regular creature window. Among o
 - Abilities description contain information about actual values and types of bonuses received by creature - be it default ability, stack experience, artifact or other effect. These descriptions use custom text files which have not been translated.
 - [Stack Artifact](#stack-artifact-module). You can choose enabled artifact with arrow buttons. There is also additional button below to pass currently selected artifact back to hero.
 
-## Commanders module
+### Commanders module
 
 VCMI offers native support for Commanders. Commanders are part of WoG mod for VCMI and require it to be enabled. However, once this is done, any new faction can use its own Commander, too.
 
-## Mithril module
+### Mithril module
 
 VCMI natively supports Mithril resource known from WoG. However, it is not currently used by any mod.
 
-## Stack Artifact module
+### Stack Artifact module
 
 In original WoG, there is one available Stack Artifact - Warlord's Banner, which is related directly to stack experience. VCMI natively supports any number of Stack Artifacts regardless if of Stack Experience module is enabled or not. However, currently no mods make use of this feature and it hasn't been tested for many years.
 
-# List of bugs fixed in VCMI
+## List of bugs fixed in VCMI
 
 These bugs were present in original Shadow of Death game, however the team decided to fix them to bring back desired behaviour:
 
-## List of game mechanics changes
+### List of game mechanics changes
 
 Some of H3 mechanics can't be straight considered as bug, but default VCMI behaviour is different:
 
@@ -59,9 +59,7 @@ Some of H3 mechanics can't be straight considered as bug, but default VCMI behav
 - Battles. Hero that won battle, but only have temporary summoned creatures alive going to appear in tavern like if he retreated. 
 - Battles. Spells from artifacts like AOTD are autocasted on beginning of the battle, not beginning of turn.
 
-# List of extended GUI features
-
-## Adventure map
+## Adventure map features
 
 ### New Shortcuts
 
@@ -88,7 +86,7 @@ When hovering cursor over neutral stack on adventure map, you may notice additio
 
 Some windows and dialogs now display extra info and images to make game more accessible for new players. This can be turned off, if desired.
 
-## Battles
+## Battles features
 
 ### Stack Queue
 
@@ -161,15 +159,15 @@ Additional color are supported for text fields (e.g. map description). Uses HTML
 
 <span style="color:green">This is green</span>
 
-# Multiplayer
+## Multiplayer features
 
 Opening new Turn Option menu in scenario selection dialog allows detailed configuration of turn timers and simultaneous turns
 
-## Turn Timers
+### Turn Timers
 
 TODO
 
-## Simultaneous turns
+### Simultaneous turns
 
 Simultaneous turns allow multiple players to act at the same time, speeding up early game phase in multiplayer games. During this phase if different players (allies or not) attempt to interact with each other, such as capture objects owned by other players (mines, dwellings, towns) or attack their heroes, game will block such actions. Interaction with same map objects at the same time, such as attacking same wandering monster is also blocked.
 
@@ -177,8 +175,6 @@ Following options can be used to configure simultaneous turns:
 - Minimal duration (at least for): this is duration during which simultaneous turns will run unconditionally. Until specified number of days have passed, simultaneous turns will never break and game will not attempt to detect contacts.
 - Maximal duration (at most for): this is duration after which simultaneous turns will end unconditionally, even if players still have not contacted each other. However if contact detection discovers contact between two players, simultaneous turns between them might end before specified duration.
 - Simultaneous turns for AI: If this option is on, AI can act at the same time as human players. Note that AI shares settings for simultaneous turns with human players - if no simultaneous turns have been set up this option has no effect.
-
-### Contact detection
 
 While simultaneous turns are active, VCMI tracks contacts for each pair of player separately.
 
@@ -192,11 +188,11 @@ Game performs contact detection once per turn, at the very start of each in-game
 
 Once maximal duration of simultaneous turns (as specified during scenario setup) has been reached, or if all players are in contact with each other, game will return to standard turn order: red, blue, brown, green...
 
-### Differences compared to HD Mod version
+Differences compared to HD Mod version:
 
 - In VCMI, players can see actions of other players immediately (provided that they have revealed fog of war) instead of waiting for next turn
 - In VCMI, attempt to attack hero of another player during simultaneous turns will be blocked instead of reloading save from start of turn like in HD Mod
 
-# Manuals and guides
+## Manuals and guides
 
 - https://heroes.thelazy.net/index.php/Main_Page Wiki that aims to be a complete reference to Heroes of Might and Magic III. 

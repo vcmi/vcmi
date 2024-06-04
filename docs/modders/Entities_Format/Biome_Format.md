@@ -1,4 +1,4 @@
-# General description
+## General description
 
 Biome is a new entity type added in VCMI 1.5.0. It defines a set of random map obstacles which will be generated together. For each zone different obstacle sets is randomized and then only obstacles from that set will be used to fill this zone.
 
@@ -19,13 +19,13 @@ If not enough biomes are defined for [terrain type](Terrain_Format.md), map gene
 }
 ```
 
-## List of possible types
+### List of possible types
 
 Possible object types: `mountain`, `tree`, `lake`, `crater`, `rock`, `plant`, `structure`, `animal`, `other`. Use your best judgement, ie. mushrooms are classified as plants and animal bones are classified as animals.
 
 Template Ids are keys used in [Map Objects](../Map_Object_Format.md)
 
-## Algorithm
+### Algorithm
 
 Currently algorithm picks randomly:
 

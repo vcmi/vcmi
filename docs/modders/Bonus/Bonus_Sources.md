@@ -1,4 +1,4 @@
-# List of all possible bonus sources
+## List of all possible bonus sources
 
 - ARTIFACT
 - ARTIFACT_INSTANCE

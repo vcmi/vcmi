@@ -4,7 +4,7 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
 -   Modern graphics formats (targa, png - all formats supported by VCMI image loader)
 -   Does not requires any special tools - all you need is text editor and images.
 
-# Format description
+## Format description
 
 ``` javascript
 {
@@ -51,9 +51,9 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
 }
 ```
 
-# Examples
+## Examples
 
-## Replacing a button
+### Replacing a button
 
 This json file will allow replacing .def file for a button with png images. Buttons require following images:
 1. Active state. Button is active and can be pressed by player
@@ -74,7 +74,7 @@ This json file will allow replacing .def file for a button with png images. Butt
 }
 ```
 
-## Replacing simple animation
+### Replacing simple animation
 
 This json file allows defining one animation sequence, for example for adventure map objects or for town buildings.
 
@@ -98,11 +98,11 @@ This json file allows defining one animation sequence, for example for adventure
 }
 ```
 
-## Replacing creature animation
+### Replacing creature animation
 
 TODO
 
-# Creature animation groups
+## Creature animation groups
 
 Animation for creatures consist from multiple groups, with each group
 representing one specific animation. VCMI uses groups as follows:
