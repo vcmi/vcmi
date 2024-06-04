@@ -33,8 +33,6 @@ private:
 	//animation file name
 	AnimationPath name;
 
-	bool preloaded;
-
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
 	bool loadFrame(size_t frame, size_t group);
 
@@ -44,6 +42,7 @@ private:
 	//to get rid of copy-pasting error message :]
 	void printError(size_t frame, size_t group, std::string type) const;
 
+	std::shared_ptr<IImage> getImageImpl(size_t frame, size_t group=0, bool verbose=true);
 public:
 	CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout);
 	CAnimation();
@@ -56,7 +55,7 @@ public:
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
 
-	std::shared_ptr<IImage> getImage(size_t frame, size_t group=0, bool verbose=true) const;
+	std::shared_ptr<IImage> getImage(size_t frame, size_t group=0, bool verbose=true);
 
 	void exportBitmaps(const boost::filesystem::path & path) const;
 

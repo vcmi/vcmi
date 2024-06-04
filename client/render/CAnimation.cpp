@@ -25,7 +25,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 		return false;
 	}
 
-	if(auto image = getImage(frame, group, false))
+	if(auto image = getImageImpl(frame, group, false))
 	{
 		return true;
 	}
@@ -122,18 +122,13 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 
 CAnimation::CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout):
 	name(boost::starts_with(Name.getName(), "SPRITES") ? Name : Name.addPrefix("SPRITES/")),
-	source(layout),
-	preloaded(false)
+	source(layout)
 {
 	if(source.empty())
 		logAnim->error("Animation %s failed to load", Name.getOriginalName());
 }
 
-CAnimation::CAnimation():
-	preloaded(false)
-{
-}
-
+CAnimation::CAnimation() = default;
 CAnimation::~CAnimation() = default;
 
 void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup)
@@ -161,11 +156,6 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 	}
 
 	source[targetGroup].push_back(clone);
-
-	size_t index = source[targetGroup].size() - 1;
-
-	if(preloaded)
-		load(index, targetGroup);
 }
 
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
@@ -176,7 +166,14 @@ void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 	//FIXME: update image if already loaded
 }
 
-std::shared_ptr<IImage> CAnimation::getImage(size_t frame, size_t group, bool verbose) const
+std::shared_ptr<IImage> CAnimation::getImage(size_t frame, size_t group, bool verbose)
+{
+	if (!loadFrame(frame, group))
+		return nullptr;
+	return getImageImpl(frame, group, verbose);
+}
+
+std::shared_ptr<IImage> CAnimation::getImageImpl(size_t frame, size_t group, bool verbose)
 {
 	auto groupIter = images.find(group);
 	if (groupIter != images.end())
@@ -207,11 +204,7 @@ void CAnimation::unload()
 
 void CAnimation::preload()
 {
-	if(!preloaded)
-	{
-		preloaded = true;
-		load();
-	}
+	// TODO: remove
 }
 
 void CAnimation::loadGroup(size_t group)
