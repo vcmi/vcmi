@@ -26,8 +26,6 @@ struct SDL_Palette;
  */
 class SDLImageConst final : public IConstImage, public std::enable_shared_from_this<SDLImageConst>, boost::noncopyable
 {
-	static constexpr int DEFAULT_PALETTE_COLORS = 256;
-	
 	//Surface without empty borders
 	SDL_Surface * surf;
 

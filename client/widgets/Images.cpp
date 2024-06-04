@@ -180,16 +180,16 @@ CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, i
 	init();
 }
 
-CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
-	anim(Anim),
-	frame(Frame),
-	group(Group),
-	flags(Flags)
-{
-	pos.x += x;
-	pos.y += y;
-	init();
-}
+//CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
+//	anim(Anim),
+//	frame(Frame),
+//	group(Group),
+//	flags(Flags)
+//{
+//	pos.x += x;
+//	pos.y += y;
+//	init();
+//}
 
 CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
 	anim(GH.renderHandler().loadAnimation(name)),

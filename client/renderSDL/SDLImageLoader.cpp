@@ -32,8 +32,8 @@ void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_C
 	image->fullSize = FullSize;
 
 	//Prepare surface
-	SDL_Palette * p = SDL_AllocPalette(SDLImageConst::DEFAULT_PALETTE_COLORS);
-	SDL_SetPaletteColors(p, pal, 0, SDLImageConst::DEFAULT_PALETTE_COLORS);
+	SDL_Palette * p = SDL_AllocPalette(DEFAULT_PALETTE_COLORS);
+	SDL_SetPaletteColors(p, pal, 0, DEFAULT_PALETTE_COLORS);
 	SDL_SetSurfacePalette(image->surf, p);
 	SDL_FreePalette(p);
 

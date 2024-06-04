@@ -47,17 +47,16 @@ public:
 
 	//draws image on surface "where" at position
 	virtual void draw(SDL_Surface * where, const Point & pos, const Rect * src = nullptr) const = 0;
-	//virtual void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const = 0;
 
 	virtual void scaleFast(const Point & size) = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 
 	//Change palette to specific player
-	virtual void playerColored(PlayerColor player)=0;
+	virtual void playerColored(PlayerColor player) = 0;
 
 	//set special color for flag
-	virtual void setFlagColor(PlayerColor player)=0;
+	virtual void setFlagColor(PlayerColor player) = 0;
 
 	//test transparency of specific pixel
 	virtual bool isTransparent(const Point & coords) const = 0;

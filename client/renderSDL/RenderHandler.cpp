@@ -115,19 +115,6 @@ const RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(cons
 	return animationLayouts[path];
 }
 
-//std::shared_ptr<JsonNode> RenderHandler::getJsonFile(const JsonPath & path)
-//{
-//	auto it = jsonFiles.find(path);
-//
-//	if (it != jsonFiles.end())
-//		return it->second;
-//
-//	auto result = std::make_shared<JsonNode>(path);
-//
-//	jsonFiles[path] = result;
-//	return result;
-//}
-
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group)
 {
 	AnimationLocator locator{path, frame, group};
@@ -142,19 +129,6 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int
 	animationFrames[locator] = result;
 	return result->createImageReference();
 }
-
-//std::vector<std::shared_ptr<IImage>> RenderHandler::loadImageGroup(const AnimationPath & path, int group)
-//{
-//	const auto defFile = getAnimationFile(path);
-//
-//	size_t groupSize = defFile->getEntries().at(group);
-//
-//	std::vector<std::shared_ptr<IImage>> result;
-//	for (size_t i = 0; i < groupSize; ++i)
-//		loadImage(path, i, group);
-//
-//	return result;
-//}
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path)
 {
