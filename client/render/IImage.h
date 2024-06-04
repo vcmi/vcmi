@@ -46,10 +46,10 @@ public:
 	static constexpr int32_t SPECIAL_PALETTE_MASK_CREATURES = 0b11110011;
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr) const = 0;
-	virtual void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const = 0;
+	virtual void draw(SDL_Surface * where, const Point & pos, const Rect * src = nullptr) const = 0;
+	//virtual void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const = 0;
 
-	virtual std::shared_ptr<IImage> scaleFast(const Point & size) const = 0;
+	virtual void scaleFast(const Point & size) = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 
@@ -80,4 +80,16 @@ public:
 	virtual void verticalFlip() = 0;
 
 	virtual ~IImage() = default;
+};
+
+class IConstImage
+{
+public:
+	virtual Point dimensions() const = 0;
+	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
+	virtual bool isTransparent(const Point & coords) const = 0;
+
+	virtual std::shared_ptr<IImage> createImageReference() = 0;
+
+	virtual ~IConstImage() = default;
 };

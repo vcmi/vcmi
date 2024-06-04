@@ -134,13 +134,13 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int
 
 	auto it = animationFrames.find(locator);
 	if (it != animationFrames.end())
-		return it->second;
+		return it->second->createImageReference();
 
 	auto defFile = getAnimationFile(path);
-	auto result = std::make_shared<SDLImage>(defFile.get(), frame, group);
+	auto result = std::make_shared<SDLImageConst>(defFile.get(), frame, group);
 
 	animationFrames[locator] = result;
-	return result;
+	return result->createImageReference();
 }
 
 //std::vector<std::shared_ptr<IImage>> RenderHandler::loadImageGroup(const AnimationPath & path, int group)
@@ -165,16 +165,16 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageB
 {
 	auto it = imageFiles.find(path);
 	if (it != imageFiles.end())
-		return it->second;
+		return it->second->createImageReference();
 
-	auto result = std::make_shared<SDLImage>(path, mode);
+	auto result = std::make_shared<SDLImageConst>(path, mode);
 	imageFiles[path] = result;
-	return result;
+	return result->createImageReference();
 }
 
 std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 {
-	return std::make_shared<SDLImage>(source, EImageBlitMode::ALPHA);
+	return std::make_shared<SDLImageConst>(source, EImageBlitMode::ALPHA)->createImageReference();
 }
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path)

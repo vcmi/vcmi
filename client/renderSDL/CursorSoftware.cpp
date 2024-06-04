@@ -58,7 +58,7 @@ void CursorSoftware::updateTexture()
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
-	cursorImage->draw(cursorSurface);
+	cursorImage->draw(cursorSurface, Point(0,0));
 	SDL_UpdateTexture(cursorTexture, nullptr, cursorSurface->pixels, cursorSurface->pitch);
 	needUpdate = false;
 }

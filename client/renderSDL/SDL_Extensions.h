@@ -86,7 +86,6 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color & color, int depth = 1);
 	void drawBorder(SDL_Surface * sur, const Rect & r, const SDL_Color & color, int depth = 1);
-	void setPlayerColor(SDL_Surface * sur, const PlayerColor & player); //sets correct color of flags; -1 for neutral
 
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface

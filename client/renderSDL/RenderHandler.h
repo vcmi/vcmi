@@ -12,6 +12,7 @@
 #include "../render/IRenderHandler.h"
 
 class CDefFile;
+class IConstImage;
 
 class RenderHandler : public IRenderHandler
 {
@@ -35,8 +36,8 @@ class RenderHandler : public IRenderHandler
 
 	std::map<AnimationPath, std::shared_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
-	std::map<ImagePath, std::shared_ptr<IImage>> imageFiles;
-	std::map<AnimationLocator, std::shared_ptr<IImage>> animationFrames;
+	std::map<ImagePath, std::shared_ptr<IConstImage>> imageFiles;
+	std::map<AnimationLocator, std::shared_ptr<IConstImage>> animationFrames;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
 	const AnimationLayoutMap & getAnimationLayout(const AnimationPath & path);

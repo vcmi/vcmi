@@ -524,23 +524,6 @@ void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &co
 	drawBorder(sur, r.x, r.y, r.w, r.h, color, depth);
 }
 
-void CSDL_Ext::setPlayerColor(SDL_Surface * sur, const PlayerColor & player)
-{
-	if(player==PlayerColor::UNFLAGGABLE)
-		return;
-	if(sur->format->BitsPerPixel==8)
-	{
-		ColorRGBA color = (player == PlayerColor::NEUTRAL
-							? graphics->neutralColor
-							: graphics->playerColors[player.getNum()]);
-
-		SDL_Color colorSDL = toSDL(color);
-		CSDL_Ext::setColors(sur, &colorSDL, 5, 1);
-	}
-	else
-		logGlobal->warn("Warning, setPlayerColor called on not 8bpp surface!");
-}
-
 CSDL_Ext::TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
 {
 #define CASE_BPP(BytesPerPixel)							\
