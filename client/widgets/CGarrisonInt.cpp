@@ -542,42 +542,34 @@ void CGarrisonInt::addSplitBtn(std::shared_ptr<CButton> button)
 
 void CGarrisonInt::createSlots()
 {
+	availableSlots.clear();
+
 	int distance = interx + (smallIcons ? 32 : 58);
 	for(auto i : { EGarrisonType::UPPER, EGarrisonType::LOWER })
 	{
 		Point offset = garOffset * static_cast<int>(i);
-
-		std::vector<std::shared_ptr<CGarrisonSlot>> garrisonSlots;
-		garrisonSlots.resize(7);
-		if(army(i))
-		{
-			for(auto & elem : army(i)->Slots())
-			{
-				garrisonSlots[elem.first.getNum()] = std::make_shared<CGarrisonSlot>(this, offset.x + (elem.first.getNum()*distance), offset.y, elem.first, i, elem.second);
-			}
-		}
 		for(int j = 0; j < 7; j++)
 		{
-			if(!garrisonSlots[j])
-				garrisonSlots[j] = std::make_shared<CGarrisonSlot>(this, offset.x + (j*distance), offset.y, SlotID(j), i, nullptr);
+			Point position(offset.x + (j*distance), offset.y);
 
 			if(layout == ESlotsLayout::TWO_ROWS && j >= 4)
 			{
-				garrisonSlots[j]->moveBy(Point(-126, 37));
+				position += Point(-126, 37);
 			}
 			else if(layout == ESlotsLayout::REVERSED_TWO_ROWS)
 			{
 				if(j >= 3)
 				{
-					garrisonSlots[j]->moveBy(Point(-90, 49));
+					position += Point(-90, 49);
 				}
 				else
 				{
-					garrisonSlots[j]->moveBy(Point(36, 0));
+					position += Point(36, 0);
 				}
 			}
+			SlotID slot(j);
+			availableSlots.push_back(std::make_shared<CGarrisonSlot>(this, position.x, position.y, slot, i, army(i) ? army(i)->getStackPtr(slot) : nullptr));
 		}
-		vstd::concatenate(availableSlots, garrisonSlots);
 	}
 }
 
