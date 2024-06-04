@@ -149,12 +149,11 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	expValue = std::make_shared<CLabel>(68, 252);
 	manaValue = std::make_shared<CLabel>(211, 252);
 
-	auto secSkills = GH.renderHandler().loadAnimation(AnimationPath::builtin("SECSKILL"));
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
 		secSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>(r, ComponentType::SEC_SKILL));
-		secSkillImages.push_back(std::make_shared<CAnimImage>(secSkills, 0, 0, r.x, r.y));
+		secSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), 0, 0, r.x, r.y));
 
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);

@@ -15,6 +15,8 @@ class SDLImageConst;
 
 class SDLImageLoader : public IImageLoader
 {
+	static constexpr int DEFAULT_PALETTE_COLORS = 256;
+
 	SDLImageConst * image;
 	ui8 * lineStart;
 	ui8 * position;

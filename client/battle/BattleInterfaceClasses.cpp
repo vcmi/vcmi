@@ -934,9 +934,6 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 		pos.h = 49;
 		pos.x += parent->pos.w/2 - pos.w/2;
 		pos.y += queueSmallOutside ? -queueSmallOutsideYOffset : 10;
-
-		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"));
-		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
 	}
 	else
 	{
@@ -946,13 +943,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 		pos.y -= pos.h;
 
 		background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
-
-		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("TWCRPORT"));
-		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
-		//TODO: where use big icons?
-		//stateIcons = GH.renderHandler().loadAnimation("VCMI/BATTLEQUEUE/STATESBIG");
 	}
-	stateIcons->preload();
 
 	stackBoxes.resize(queueSize);
 	for (int i = 0; i < stackBoxes.size(); i++)
@@ -1021,13 +1012,13 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 
 	if(owner->embedded)
 	{
-		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 5, 2);
+		icon = std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), 0, 0, 5, 2);
 		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 7, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, 2, 48), ColorRGBA(0, 0, 0, 255), ColorRGBA(0, 255, 0, 255));
 	}
 	else
 	{
-		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 9, 1);
+		icon = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), 0, 0, 9, 1);
 		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 8, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, 15, 18), ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
 		round = std::make_shared<CLabel>(4, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
@@ -1035,7 +1026,7 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 		int icon_x = pos.w - 17;
 		int icon_y = pos.h - 18;
 
-		stateIcon = std::make_shared<CAnimImage>(owner->stateIcons, 0, 0, icon_x, icon_y);
+		stateIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"), 0, 0, icon_x, icon_y);
 		stateIcon->visible = false;
 	}
 	roundRect->disable();

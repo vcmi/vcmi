@@ -274,9 +274,6 @@ class StackQueue : public CIntObject
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
 	BattleInterface & owner;
 
-	std::shared_ptr<CAnimation> icons;
-	std::shared_ptr<CAnimation> stateIcons;
-
 	int32_t getSiegeShooterIconID();
 public:
 	const bool embedded;

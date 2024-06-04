@@ -25,7 +25,6 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 		return false;
 	}
 
-
 	if(auto image = getImage(frame, group, false))
 	{
 		return true;

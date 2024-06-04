@@ -234,9 +234,9 @@ void SDLImageConst::savePalette()
 		return;
 
 	if(originalPalette == nullptr)
-		originalPalette = SDL_AllocPalette(DEFAULT_PALETTE_COLORS);
+		originalPalette = SDL_AllocPalette(surf->format->palette->ncolors);
 
-	SDL_SetPaletteColors(originalPalette, surf->format->palette->colors, 0, DEFAULT_PALETTE_COLORS);
+	SDL_SetPaletteColors(originalPalette, surf->format->palette->colors, 0, surf->format->palette->ncolors);
 }
 
 void SDLImageIndexed::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
