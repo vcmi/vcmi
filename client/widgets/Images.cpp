@@ -100,7 +100,7 @@ void CPicture::setAlpha(uint8_t value)
 
 void CPicture::scaleTo(Point size)
 {
-	bg = bg->scaleFast(size);
+	bg->scaleFast(size);
 
 	pos.w = bg->width();
 	pos.h = bg->height();
@@ -262,12 +262,9 @@ void CAnimImage::showAll(Canvas & to)
 		if(auto img = anim->getImage(targetFrame, group))
 		{
 			if(isScaled())
-			{
-				auto scaled = img->scaleFast(scaledSize);
-				to.draw(scaled, pos.topLeft());
-			}
-			else
-				to.draw(img, pos.topLeft());
+				img->scaleFast(scaledSize);
+
+			to.draw(img, pos.topLeft());
 		}
 	}
 }

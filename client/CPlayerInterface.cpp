@@ -1143,9 +1143,9 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->getObj(obj));
 		if(t)
 		{
-			std::shared_ptr<CAnimation> a = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITPA"));
-			a->preload();
-			images.push_back(a->getImage(t->town->clientInfo.icons[t->hasFort()][false] + 2)->scaleFast(Point(35, 23)));
+			auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->town->clientInfo.icons[t->hasFort()][false] + 2, 0);
+			image->scaleFast(Point(35, 23));
+			images.push_back(image);
 		}
 	}
 

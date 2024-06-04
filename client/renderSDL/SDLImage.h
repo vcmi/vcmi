@@ -24,9 +24,9 @@ struct SDL_Palette;
 /*
  * Wrapper around SDL_Surface
  */
-class SDLImage : public IImage
+class SDLImageConst final : public IConstImage, public std::enable_shared_from_this<SDLImageConst>, boost::noncopyable
 {
-	const static int DEFAULT_PALETTE_COLORS = 256;
+	static constexpr int DEFAULT_PALETTE_COLORS = 256;
 	
 	//Surface without empty borders
 	SDL_Surface * surf;
@@ -37,40 +37,78 @@ class SDLImage : public IImage
 	//total size including borders
 	Point fullSize;
 
-	EImageBlitMode blitMode;
-
-public:
-	//Load image from def file
-	SDLImage(CDefFile *data, size_t frame, size_t group=0);
-	//Load from bitmap file
-	SDLImage(const ImagePath & filename, EImageBlitMode blitMode);
-
-	//Create using existing surface, extraRef will increase refcount on SDL_Surface
-	SDLImage(SDL_Surface * from, EImageBlitMode blitMode);
-	~SDLImage();
-
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
 
-	void draw(SDL_Surface * where, int posX=0, int posY=0, const Rect *src=nullptr) const override;
-	void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const override;
-	std::shared_ptr<IImage> scaleFast(const Point & size) const override;
+public:
+	//Load image from def file
+	SDLImageConst(CDefFile *data, size_t frame, size_t group=0);
+	//Load from bitmap file
+	SDLImageConst(const ImagePath & filename, EImageBlitMode blitMode);
+	//Create using existing surface, extraRef will increase refcount on SDL_Surface
+	SDLImageConst(SDL_Surface * from, EImageBlitMode blitMode);
+	~SDLImageConst();
+
+	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const;
+
 	void exportBitmap(const boost::filesystem::path & path) const override;
-	void playerColored(PlayerColor player) override;
-	void setFlagColor(PlayerColor player) override;
-	bool isTransparent(const Point & coords) const override;
 	Point dimensions() const override;
+	bool isTransparent(const Point & coords) const override;
+	std::shared_ptr<IImage> createImageReference() override;
+	std::shared_ptr<SDLImageConst> horizontalFlip() const;
+	std::shared_ptr<SDLImageConst> verticalFlip() const;
+	std::shared_ptr<SDLImageConst> scaleFast(const Point & size) const;
 
-	void horizontalFlip() override;
-	void verticalFlip() override;
-
-	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
-	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
-
-	void setAlpha(uint8_t value) override;
-	void setBlitMode(EImageBlitMode mode) override;
-
-	void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
+	const SDL_Palette * getPalette() const;
 
 	friend class SDLImageLoader;
+};
+
+class SDLImageBase : public IImage, boost::noncopyable
+{
+protected:
+	std::shared_ptr<SDLImageConst> image;
+
+	uint8_t alphaValue;
+	EImageBlitMode blitMode;
+
+public:
+	SDLImageBase(const std::shared_ptr<SDLImageConst> & image);
+
+	void scaleFast(const Point & size) override;
+	void exportBitmap(const boost::filesystem::path & path) const override;
+	bool isTransparent(const Point & coords) const override;
+	Point dimensions() const override;
+	void setAlpha(uint8_t value) override;
+	void setBlitMode(EImageBlitMode mode) override;
+	void horizontalFlip() override;
+	void verticalFlip() override;
+};
+
+class SDLImageIndexed final : public SDLImageBase
+{
+	SDL_Palette * currentPalette = nullptr;
+
+public:
+	SDLImageIndexed(const std::shared_ptr<SDLImageConst> & image);
+	~SDLImageIndexed();
+
+	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;
+	void setSpecialPallete(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
+	void playerColored(PlayerColor player) override;
+	void setFlagColor(PlayerColor player) override;
+	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
+	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
+};
+
+class SDLImageRGB final : public SDLImageBase
+{
+public:
+	using SDLImageBase::SDLImageBase;
+
+	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;
+	void playerColored(PlayerColor player) override;
+	void setFlagColor(PlayerColor player) override;
+	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
+	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
 };

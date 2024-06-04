@@ -27,7 +27,7 @@ class JsonNode;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
+struct SDL_Palette;
 class IFont;
 
 /// Handles fonts, hero images, town images, various graphics
@@ -60,7 +60,8 @@ public:
 	//functions
 	Graphics();
 
-	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
+	void setPlayerPalette(SDL_Palette * sur, PlayerColor player);
+	void setPlayerFlagColor(SDL_Palette * sur, PlayerColor player);
 };
 
 extern Graphics * graphics;
