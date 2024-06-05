@@ -251,7 +251,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		}
 	}
 
-	CWindowWithArtifacts::update();
+	CExchangeWindow::update();
 }
 
 void CExchangeWindow::moveArtifactsCallback(bool leftToRight)
@@ -355,6 +355,8 @@ void CExchangeWindow::questLogShortcut()
 
 void CExchangeWindow::update()
 {
+	CWindowWithArtifacts::update();
+
 	for(size_t leftRight : {0, 1})
 	{
 		const CGHeroInstance * hero = heroInst.at(leftRight);
