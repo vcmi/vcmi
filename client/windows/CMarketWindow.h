@@ -12,14 +12,14 @@
 #include "../widgets/markets/CMarketBase.h"
 #include "CWindowWithArtifacts.h"
 
-class CMarketWindow : public CStatusbarWindow, public CWindowWithArtifacts, public IGarrisonHolder
+class CMarketWindow final : public CStatusbarWindow, public CWindowWithArtifacts, public IGarrisonHolder, public IMarketHolder
 {
 public:
 	CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode);
-	void updateResource();
-	void updateArtifacts();
+	void updateResources() override;
+	void updateArtifacts() override;
 	void updateGarrisons() override;
-	void updateHero();
+	void updateExperience() override;
 	void update() override;
 	void close() override;
 	bool holdsGarrison(const CArmedInstance * army) override;

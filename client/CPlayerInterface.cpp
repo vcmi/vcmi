@@ -442,18 +442,20 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, Prim
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (which == PrimarySkill::EXPERIENCE)
 	{
-		for(auto ctw : GH.windows().findWindows<CMarketWindow>())
-			ctw->updateHero();
+		for(auto ctw : GH.windows().findWindows<IMarketHolder>())
+			ctw->updateExperience();
 	}
 	else
+	{
 		adventureInt->onHeroChanged(hero);
+	}
 }
 
 void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for (auto cuw : GH.windows().findWindows<CUniversityWindow>())
-		cuw->redraw();
+	for (auto cuw : GH.windows().findWindows<IMarketHolder>())
+		cuw->updateSecondarySkills();
 }
 
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -472,8 +474,8 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for (auto mw : GH.windows().findWindows<CMarketWindow>())
-		mw->updateResource();
+	for (auto mw : GH.windows().findWindows<IMarketHolder>())
+		mw->updateResources();
 
 	GH.windows().totalRedraw();
 }
@@ -1675,7 +1677,7 @@ void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for (auto cmw : GH.windows().findWindows<CMarketWindow>())
+	for (auto cmw : GH.windows().findWindows<IMarketHolder>())
 		cmw->updateArtifacts();
 }
 

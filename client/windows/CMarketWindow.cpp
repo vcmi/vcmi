@@ -70,12 +70,12 @@ void CMarketWindow::updateGarrisons()
 	update();
 }
 
-void CMarketWindow::updateResource()
+void CMarketWindow::updateResources()
 {
 	update();
 }
 
-void CMarketWindow::updateHero()
+void CMarketWindow::updateExperience()
 {
 	update();
 }
@@ -251,7 +251,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	};
 	addSet(heroArts);
 	initWidgetInternals(EMarketMode::ARTIFACT_EXP, CGI->generaltexth->zelp[568]);
-	updateHero();
+	updateExperience();
 	quitButton->addCallback([altarArtifacts](){altarArtifacts->putBackArtifacts();});
 }
 
@@ -262,5 +262,5 @@ void CMarketWindow::createAltarCreatures(const IMarket * market, const CGHeroIns
 	background = createBg(ImagePath::builtin("ALTARMON.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CAltarCreatures>(market, hero);
 	initWidgetInternals(EMarketMode::CREATURE_EXP, CGI->generaltexth->zelp[568]);
-	updateHero();
+	updateExperience();
 }
