@@ -54,7 +54,7 @@ public:
 	/// 0=transparent, 255=opaque
 	void setAlpha(uint8_t value);
 	void scaleTo(Point size);
-	void colorize(PlayerColor player);
+	void setPlayerColor(PlayerColor player);
 
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
@@ -79,7 +79,7 @@ class FilledTexturePlayerColored : public CFilledTexture
 public:
 	FilledTexturePlayerColored(const ImagePath & imageName, Rect position);
 
-	void playerColored(PlayerColor player);
+	void setPlayerColor(PlayerColor player);
 };
 
 /// Class for displaying one image from animation
@@ -114,7 +114,7 @@ public:
 	void setFrame(size_t Frame, size_t Group=0);
 
 	/// makes image player-colored to specific player
-	void playerColored(PlayerColor player);
+	void setPlayerColor(PlayerColor player);
 
 	/// returns true if image has player-colored effect applied
 	bool isPlayerColored() const;

@@ -34,7 +34,7 @@ public:
 	void setDatePosition(const Point & position);
 	void setResourcePosition(const GameResID & resource, const Point & position);
 
-	void colorize(PlayerColor player);
+	void setPlayerColor(PlayerColor player);
 	void showAll(Canvas & to) override;
 };
 

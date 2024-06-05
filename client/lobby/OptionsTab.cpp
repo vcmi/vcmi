@@ -523,7 +523,7 @@ void OptionsTab::SelectionWindow::recreate()
 	pos = Rect(0, 0, x, y);
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
-	backgroundTexture->playerColored(PlayerColor(1));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	updateShadow();
 
 	if(type == SelType::TOWN)

@@ -335,7 +335,7 @@ std::shared_ptr<CInfoBar> AdventureMapWidget::getInfoBar()
 	return infoBar;
 }
 
-void AdventureMapWidget::setPlayer(const PlayerColor & player)
+void AdventureMapWidget::setPlayerColor(const PlayerColor & player)
 {
 	setPlayerChildren(this, player);
 }
@@ -354,16 +354,16 @@ void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColo
 			button->setPlayerColor(player);
 
 		if(resDataBar)
-			resDataBar->colorize(player);
+			resDataBar->setPlayerColor(player);
 
 		if(icon)
-			icon->setPlayer(player);
+			icon->setPlayerColor(player);
 
 		if(container)
 			setPlayerChildren(container, player);
 
 		if (texture)
-			texture->playerColored(player);
+			texture->setPlayerColor(player);
 	}
 
 	redraw();
@@ -378,7 +378,7 @@ CAdventureMapIcon::CAdventureMapIcon(const Point & position, const AnimationPath
 	image = std::make_shared<CAnimImage>(animation, index);
 }
 
-void CAdventureMapIcon::setPlayer(const PlayerColor & player)
+void CAdventureMapIcon::setPlayerColor(const PlayerColor & player)
 {
 	image->setFrame(index + player.getNum() * iconsPerPlayer);
 }

@@ -188,7 +188,7 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 	modListTitle = std::make_shared<CLabel>( 182, 59, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.preview.mods").toString());
 
 	buttonJoin->block(!errorMessage.empty());
-	filledBackground->playerColored(PlayerColor(1));
+	filledBackground->setPlayerColor(PlayerColor(1));
 	center();
 }
 
