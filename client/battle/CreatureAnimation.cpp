@@ -202,10 +202,6 @@ CreatureAnimation::CreatureAnimation(const AnimationPath & name_, TSpeedControll
 	forward = GH.renderHandler().loadAnimation(name_);
 	reverse = GH.renderHandler().loadAnimation(name_);
 
-	//todo: optimize
-	forward->preload();
-	reverse->preload();
-
 	// if necessary, add one frame into vcmi-only group DEAD
 	if(forward->size(size_t(ECreatureAnimType::DEAD)) == 0)
 	{

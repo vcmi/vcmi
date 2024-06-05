@@ -55,13 +55,11 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 			auto animation = GH.renderHandler().createAnimation();
 			animation->setCustom(animationName.getName(), 0, 0);
 			animationsCache[animationName] = animation;
-			animation->preload();
 		}
 		else
 		{
 			auto animation = GH.renderHandler().loadAnimation(animationName);
 			animationsCache[animationName] = animation;
-			animation->preload();
 		}
 	}
 	obstacleAnimations[oi.uniqueID] = animationsCache[animationName];
@@ -87,8 +85,6 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 			continue;
 
 		auto animation = GH.renderHandler().loadAnimation(animationPath);
-		animation->preload();
-
 		auto first = animation->getImage(0, 0);
 		if(!first)
 			continue;
@@ -115,8 +111,6 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 			continue;
 
 		auto animation = GH.renderHandler().loadAnimation(oi->getAppearAnimation());
-		animation->preload();
-
 		auto first = animation->getImage(0, 0);
 		if(!first)
 			continue;

@@ -178,7 +178,6 @@ public:
 	void setAlpha(ui32 alphaValue);
 
 	CShowableAnim(int x, int y, const AnimationPath & name, ui8 flags, ui32 frameTime, size_t Group=0, uint8_t alpha = UINT8_MAX);
-	~CShowableAnim();
 
 	//set animation to group or part of group
 	bool set(size_t Group);

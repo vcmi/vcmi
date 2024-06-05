@@ -59,19 +59,6 @@ public:
 
 	void exportBitmaps(const boost::filesystem::path & path) const;
 
-	//all available frames
-	void load  ();
-	void unload();
-	void preload();
-
-	//all frames from group
-	void loadGroup  (size_t group);
-	void unloadGroup(size_t group);
-
-	//single image
-	void load  (size_t frame, size_t group=0);
-	void unload(size_t frame, size_t group=0);
-
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group=0) const;
 

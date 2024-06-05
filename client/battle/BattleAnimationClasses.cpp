@@ -926,8 +926,6 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & 
 
 bool EffectAnimation::init()
 {
-	animation->preload();
-
 	auto first = animation->getImage(0, 0, true);
 	if(!first)
 	{

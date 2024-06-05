@@ -128,18 +128,12 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	cellUnitMaxMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
 	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"));
-	attackCursors->preload();
-
 	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"));
-	spellCursors->preload();
 
 	initializeHexEdgeMaskToFrameIndex();
 
 	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"));
-	rangedFullDamageLimitImages->preload();
-
 	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"));
-	shootingRangeLimitImages->preload();
 
 	flipRangeLimitImagesIntoPositions(rangedFullDamageLimitImages);
 	flipRangeLimitImagesIntoPositions(shootingRangeLimitImages);

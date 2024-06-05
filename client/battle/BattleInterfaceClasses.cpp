@@ -393,7 +393,6 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 		animationPath = hero->type->heroClass->imageBattleMale;
 
 	animation = GH.renderHandler().loadAnimation(animationPath);
-	animation->preload();
 
 	pos.w = 64;
 	pos.h = 136;
@@ -408,7 +407,6 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	else
 		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"));
 
-	flagAnimation->preload();
 	flagAnimation->playerColored(hero->tempOwner);
 
 	switchToNextPhase();

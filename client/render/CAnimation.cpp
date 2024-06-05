@@ -187,50 +187,6 @@ std::shared_ptr<IImage> CAnimation::getImageImpl(size_t frame, size_t group, boo
 	return nullptr;
 }
 
-void CAnimation::load()
-{
-	for (auto & elem : source)
-		for (size_t image=0; image < elem.second.size(); image++)
-			loadFrame(image, elem.first);
-}
-
-void CAnimation::unload()
-{
-	for (auto & elem : source)
-		for (size_t image=0; image < elem.second.size(); image++)
-			unloadFrame(image, elem.first);
-
-}
-
-void CAnimation::preload()
-{
-	// TODO: remove
-}
-
-void CAnimation::loadGroup(size_t group)
-{
-	if (vstd::contains(source, group))
-		for (size_t image=0; image < source[group].size(); image++)
-			loadFrame(image, group);
-}
-
-void CAnimation::unloadGroup(size_t group)
-{
-	if (vstd::contains(source, group))
-		for (size_t image=0; image < source[group].size(); image++)
-			unloadFrame(image, group);
-}
-
-void CAnimation::load(size_t frame, size_t group)
-{
-	loadFrame(frame, group);
-}
-
-void CAnimation::unload(size_t frame, size_t group)
-{
-	unloadFrame(frame, group);
-}
-
 size_t CAnimation::size(size_t group) const
 {
 	auto iter = source.find(group);
@@ -270,4 +226,3 @@ void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targe
 		image->verticalFlip();
 	}
 }
-
