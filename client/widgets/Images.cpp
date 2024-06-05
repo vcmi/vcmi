@@ -140,9 +140,9 @@ void CFilledTexture::showAll(Canvas & to)
 	}
 }
 
-FilledTexturePlayerColored::FilledTexturePlayerColored(const ImagePath & imageName, Rect position)
-	: CFilledTexture(imageName, position)
+void FilledTexturePlayerIndexed::setPlayerColor(PlayerColor player)
 {
+	texture->playerColored(player);
 }
 
 void FilledTexturePlayerColored::setPlayerColor(PlayerColor player)

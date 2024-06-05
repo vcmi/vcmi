@@ -74,10 +74,20 @@ public:
 	void showAll(Canvas & to) override;
 };
 
+/// area filled with specific texture, colorized to player color if image is indexed
+class FilledTexturePlayerIndexed : public CFilledTexture
+{
+public:
+	using CFilledTexture::CFilledTexture;
+
+	void setPlayerColor(PlayerColor player);
+};
+
+/// area filled with specific texture, with applied color filter to colorize it to specific player
 class FilledTexturePlayerColored : public CFilledTexture
 {
 public:
-	FilledTexturePlayerColored(const ImagePath & imageName, Rect position);
+	using CFilledTexture::CFilledTexture;
 
 	void setPlayerColor(PlayerColor player);
 };
