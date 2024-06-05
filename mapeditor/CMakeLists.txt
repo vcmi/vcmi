@@ -221,7 +221,13 @@ enable_pch(vcmieditor)
 
 install(TARGETS vcmieditor DESTINATION ${BIN_DIR})
 
-# Install desktop file on Linux
+# Install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE)
+	foreach(iconSize 32 48 64 128 256)
+		install(FILES "icons/mapeditor.${iconSize}x${iconSize}.png"
+			DESTINATION "share/icons/hicolor/${iconSize}x${iconSize}/apps"
+			RENAME mapeditor.png
+		)
+	endforeach()
 	install(FILES "vcmieditor.desktop" DESTINATION share/applications)
 endif()
