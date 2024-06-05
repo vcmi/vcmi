@@ -150,7 +150,8 @@ class CLevelWindow : public CWindowObject
 
 public:
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
-	~CLevelWindow();
+
+	void close() override;
 };
 
 /// Town portal, castle gate window
