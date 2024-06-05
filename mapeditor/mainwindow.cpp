@@ -202,7 +202,34 @@ MainWindow::MainWindow(QWidget* parent) :
 	loadTranslation();
 
 	ui->setupUi(this);
+
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
+	ui->toolBrush->setIcon(QIcon{":/icons/brush-1.png"});
+	ui->toolBrush2->setIcon(QIcon{":/icons/brush-2.png"});
+	ui->toolBrush4->setIcon(QIcon{":/icons/brush-4.png"});
+	ui->toolLasso->setIcon(QIcon{":/icons/brush-3.png"});
+	ui->toolLine->setIcon(QIcon{":/icons/brush-7.png"});
+	ui->toolArea->setIcon(QIcon{":/icons/brush-5.png"});
+	ui->toolFill->setIcon(QIcon{":/icons/brush-6.png"});
+	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
+	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
+	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
+	ui->actionLevel->setIcon(QIcon{":/icons/toggle-underground.png"});
+	ui->actionPass->setIcon(QIcon{":/icons/toggle-pass.png"});
+	ui->actionCut->setIcon(QIcon{":/icons/edit-cut.png"});
+	ui->actionCopy->setIcon(QIcon{":/icons/edit-copy.png"});
+	ui->actionPaste->setIcon(QIcon{":/icons/edit-paste.png"});
+	ui->actionFill->setIcon(QIcon{":/icons/fill-obstacles.png"});
+	ui->actionGrid->setIcon(QIcon{":/icons/toggle-grid.png"});
+	ui->actionUndo->setIcon(QIcon{":/icons/edit-undo.png"});
+	ui->actionRedo->setIcon(QIcon{":/icons/edit-redo.png"});
+	ui->actionErase->setIcon(QIcon{":/icons/edit-clear.png"});
+	ui->actionTranslations->setIcon(QIcon{":/icons/translations.png"});
+	ui->actionLock->setIcon(QIcon{":/icons/lock-closed.png"});
+	ui->actionUnlock->setIcon(QIcon{":/icons/lock-open.png"});
+	ui->actionZoom_in->setIcon(QIcon{":/icons/zoom_plus.png"});
+	ui->actionZoom_out->setIcon(QIcon{":/icons/zoom_minus.png"});
+	ui->actionZoom_reset->setIcon(QIcon{":/icons/zoom_zero.png"});
 
 	loadUserSettings(); //For example window size
 	setTitle();
