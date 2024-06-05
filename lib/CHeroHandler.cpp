@@ -218,8 +218,7 @@ void CHeroClass::serializeJson(JsonSerializeFormat & handler)
 CHeroClass::CHeroClass():
 	faction(0),
 	affinity(0),
-	defaultTavernChance(0),
-	commander(nullptr) 
+	defaultTavernChance(0)
 {
 }
 
@@ -302,7 +301,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	VLC->identifiers()->requestIdentifier ("creature", node["commander"],
 	[=](si32 commanderID)
 	{
-		heroClass->commander = CreatureID(commanderID).toCreature();
+		heroClass->commander = CreatureID(commanderID);
 	});
 
 	heroClass->defaultTavernChance = static_cast<ui32>(node["defaultTavern"].Float());

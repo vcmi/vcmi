@@ -24,8 +24,8 @@ namespace NKAI
 
 using namespace Goals;
 
-ExplorationHelper::ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * ai)
-	:ai(ai), cbp(ai->cb.get()), hero(hero)
+ExplorationHelper::ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * ai, bool useCPathfinderAccessibility)
+	:ai(ai), cbp(ai->cb.get()), hero(hero), useCPathfinderAccessibility(useCPathfinderAccessibility)
 {
 	ts = cbp->getPlayerTeam(ai->playerID);
 	sightRadius = hero->getSightRadius();
@@ -104,7 +104,7 @@ bool ExplorationHelper::scanMap()
 
 	if(!bestGoal->invalid())
 	{
-		return false;
+		return true;
 	}
 
 	allowDeadEndCancellation = false;
@@ -222,7 +222,9 @@ bool ExplorationHelper::hasReachableNeighbor(const int3 & pos) const
 		int3 tile = pos + dir;
 		if(cbp->isInTheMap(tile))
 		{
-			auto isAccessible = ai->pathfinder->isTileAccessible(hero, tile);
+			auto isAccessible = useCPathfinderAccessibility
+				? ai->cb->getPathsInfo(hero)->getPathInfo(tile)->reachable()
+				: ai->pathfinder->isTileAccessible(hero, tile);
 
 			if(isAccessible)
 				return true;
