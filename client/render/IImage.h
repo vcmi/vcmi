@@ -75,9 +75,6 @@ public:
 	//only indexed bitmaps with 7 special colors
 	virtual void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) = 0;
 
-	virtual void horizontalFlip() = 0;
-	virtual void verticalFlip() = 0;
-
 	virtual ~IImage() = default;
 };
 
@@ -89,6 +86,10 @@ public:
 	virtual bool isTransparent(const Point & coords) const = 0;
 
 	virtual std::shared_ptr<IImage> createImageReference() = 0;
+
+	virtual std::shared_ptr<IConstImage> horizontalFlip() const = 0;
+	virtual std::shared_ptr<IConstImage> verticalFlip() const = 0;
+
 
 	virtual ~IConstImage() = default;
 };

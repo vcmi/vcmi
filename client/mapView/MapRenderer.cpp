@@ -323,8 +323,7 @@ MapRendererFow::MapRendererFow()
 	for(const int rotation : rotations)
 	{
 		fogOfWarPartialHide->duplicateImage(0, rotation, 0);
-		auto image = fogOfWarPartialHide->getImage(size, 0);
-		image->verticalFlip();
+		fogOfWarPartialHide->verticalFlip(size, 0);
 		size++;
 	}
 }

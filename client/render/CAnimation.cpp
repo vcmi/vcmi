@@ -30,42 +30,26 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 		return true;
 	}
 
+	std::shared_ptr<IImage> image;
+
 	//try to get image from def
-	if(source[group][frame].getType() == JsonNode::JsonType::DATA_NULL)
+	if(source[group][frame].isNull())
+		image = GH.renderHandler().loadImage(name, frame, group);
+	else
+		image = GH.renderHandler().loadImage(source[group][frame]);
+
+	if(image)
 	{
-		auto image = GH.renderHandler().loadImage(name, frame, group);
-
-		if(image)
-		{
-			images[group][frame] = image;
-			return true;
-		}
-		// still here? image is missing
-
+		images[group][frame] = image;
+		return true;
+	}
+	else
+	{
+		// image is missing
 		printError(frame, group, "LoadFrame");
 		images[group][frame] = GH.renderHandler().loadImage(ImagePath::builtin("DEFAULT"), EImageBlitMode::OPAQUE);
 		return false;
 	}
-
-	if (!source[group][frame]["file"].isNull())
-	{
-		auto img = GH.renderHandler().loadImage(ImagePath::fromJson(source[group][frame]["file"]), EImageBlitMode::ALPHA);
-		images[group][frame] = img;
-		return true;
-	}
-
-	if (!source[group][frame]["animation"].isNull())
-	{
-		AnimationPath animationFile = AnimationPath::fromJson(source[group][frame]["animation"]);
-		int32_t animationGroup = source[group][frame]["sourceGroup"].Integer();
-		int32_t animationFrame = source[group][frame]["sourceFrame"].Integer();
-
-		auto img = GH.renderHandler().loadImage(animationFile, animationFrame, animationGroup);
-		images[group][frame] = img;
-		return true;
-	}
-
-	return false;
 }
 
 bool CAnimation::unloadFrame(size_t frame, size_t group)
@@ -145,14 +129,13 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 		return;
 	}
 
-	//todo: clone actual loaded Image object
 	JsonNode clone(source[sourceGroup][sourceFrame]);
 
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
 		clone["animation"].String() = name.getName();
-		clone["sourceGroup"].Integer() = sourceGroup;
-		clone["sourceFrame"].Integer() = sourceFrame;
+		clone["group"].Integer() = sourceGroup;
+		clone["frame"].Integer() = sourceFrame;
 	}
 
 	source[targetGroup].push_back(clone);
@@ -197,16 +180,60 @@ size_t CAnimation::size(size_t group) const
 
 void CAnimation::horizontalFlip()
 {
-	for(auto & group : images)
-		for(auto & image : group.second)
-			image.second->horizontalFlip();
+	for(auto & group : source)
+		for(size_t i = 0; i < group.second.size(); ++i)
+			horizontalFlip(i, group.first);
 }
 
 void CAnimation::verticalFlip()
 {
-	for(auto & group : images)
-		for(auto & image : group.second)
-			image.second->verticalFlip();
+	for(auto & group : source)
+		for(size_t i = 0; i < group.second.size(); ++i)
+			verticalFlip(i, group.first);
+}
+
+void CAnimation::horizontalFlip(size_t frame, size_t group)
+{
+	try
+	{
+		images.at(group).at(frame) = nullptr;
+	}
+	catch (const std::out_of_range &)
+	{
+		// ignore - image not loaded
+	}
+
+	JsonNode & config = source.at(group).at(frame);
+	if (config.isNull())
+	{
+		config["animation"].String() = name.getName();
+		config["frame"].Integer() = frame;
+		config["group"].Integer() = group;
+	}
+
+	config["horizontalFlip"].Bool() = !config["horizontalFlip"].Bool();
+}
+
+void CAnimation::verticalFlip(size_t frame, size_t group)
+{
+	try
+	{
+		images.at(group).at(frame) = nullptr;
+	}
+	catch (const std::out_of_range &)
+	{
+		// ignore - image not loaded
+	}
+
+	JsonNode & config = source.at(group).at(frame);
+	if (config.isNull())
+	{
+		config["animation"].String() = name.getName();
+		config["frame"].Integer() = frame;
+		config["group"].Integer() = group;
+	}
+
+	config["verticalFlip"].Bool() = !config["verticalFlip"].Bool();
 }
 
 void CAnimation::playerColored(PlayerColor player)
@@ -221,8 +248,6 @@ void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targe
 	for(size_t frame = 0; frame < size(sourceGroup); ++frame)
 	{
 		duplicateImage(sourceGroup, frame, targetGroup);
-
-		auto image = getImage(frame, targetGroup);
-		image->verticalFlip();
+		verticalFlip(frame, targetGroup);
 	}
 }

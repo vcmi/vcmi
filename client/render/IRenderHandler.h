@@ -30,6 +30,7 @@ public:
 	virtual void onLibraryLoadingFinished(const Services * services) = 0;
 
 	/// Loads image using given path
+	virtual std::shared_ptr<IImage> loadImage(const JsonNode & config) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group) = 0;

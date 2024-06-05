@@ -53,8 +53,8 @@ public:
 	Point dimensions() const override;
 	bool isTransparent(const Point & coords) const override;
 	std::shared_ptr<IImage> createImageReference() override;
-	std::shared_ptr<SDLImageConst> horizontalFlip() const;
-	std::shared_ptr<SDLImageConst> verticalFlip() const;
+	std::shared_ptr<IConstImage> horizontalFlip() const override;
+	std::shared_ptr<IConstImage> verticalFlip() const override;
 	std::shared_ptr<SDLImageConst> scaleFast(const Point & size) const;
 
 	const SDL_Palette * getPalette() const;
@@ -79,8 +79,6 @@ public:
 	Point dimensions() const override;
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;
-	void horizontalFlip() override;
-	void verticalFlip() override;
 };
 
 class SDLImageIndexed final : public SDLImageBase

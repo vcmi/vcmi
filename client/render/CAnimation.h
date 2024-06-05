@@ -62,6 +62,8 @@ public:
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group=0) const;
 
+	void horizontalFlip(size_t frame, size_t group=0);
+	void verticalFlip(size_t frame, size_t group=0);
 	void horizontalFlip();
 	void verticalFlip();
 	void playerColored(PlayerColor player);

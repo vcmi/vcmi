@@ -202,7 +202,7 @@ std::shared_ptr<IImage> SDLImageConst::createImageReference()
 		return std::make_shared<SDLImageRGB>(shared_from_this());
 }
 
-std::shared_ptr<SDLImageConst> SDLImageConst::horizontalFlip() const
+std::shared_ptr<IConstImage> SDLImageConst::horizontalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
 	auto ret = std::make_shared<SDLImageConst>(flipped, EImageBlitMode::ALPHA);
@@ -214,7 +214,7 @@ std::shared_ptr<SDLImageConst> SDLImageConst::horizontalFlip() const
 	return ret;
 }
 
-std::shared_ptr<SDLImageConst> SDLImageConst::verticalFlip() const
+std::shared_ptr<IConstImage> SDLImageConst::verticalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
 	auto ret = std::make_shared<SDLImageConst>(flipped, EImageBlitMode::ALPHA);
@@ -340,16 +340,6 @@ void SDLImageBase::setAlpha(uint8_t value)
 void SDLImageBase::setBlitMode(EImageBlitMode mode)
 {
 	blitMode = mode;
-}
-
-void SDLImageBase::horizontalFlip()
-{
-	image = image->horizontalFlip();
-}
-
-void SDLImageBase::verticalFlip()
-{
-	image = image->verticalFlip();
 }
 
 void SDLImageRGB::setSpecialPallete(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask)
