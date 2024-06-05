@@ -99,7 +99,7 @@ void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButto
 	pos = image->pos;
 
 	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
+		image->setPlayerColor(LOCPLINT->playerID);
 }
 
 const JsonNode & ButtonBase::getCurrentConfig() const
@@ -134,7 +134,7 @@ void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredBu
 	pos = configurable->pos;
 
 	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
+		image->setPlayerColor(LOCPLINT->playerID);
 }
 
 void CButton::addHoverText(EButtonState state, const std::string & text)
@@ -364,7 +364,7 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 void ButtonBase::setPlayerColor(PlayerColor player)
 {
 	if (image && image->isPlayerColored())
-		image->playerColored(player);
+		image->setPlayerColor(player);
 }
 
 void CButton::showAll(Canvas & to)

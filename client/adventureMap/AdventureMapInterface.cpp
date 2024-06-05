@@ -399,7 +399,7 @@ void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 		return;
 
 	currentPlayerID = playerID;
-	widget->setPlayer(playerID);
+	widget->setPlayerColor(playerID);
 }
 
 void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
@@ -914,7 +914,7 @@ void AdventureMapInterface::onScreenResize()
 
 	widget = std::make_shared<AdventureMapWidget>(shortcuts);
 	widget->getMapView()->onViewMapActivated();
-	widget->setPlayer(currentPlayerID);
+	widget->setPlayerColor(currentPlayerID);
 	widget->updateActiveState();
 	widget->getMinimap()->update();
 	widget->getInfoBar()->showSelection();

@@ -401,7 +401,7 @@ PvPBox::PvPBox(const Rect & rect)
 	setRedrawParent(true);
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, rect.w, rect.h));
-	backgroundTexture->playerColored(PlayerColor(1));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	backgroundBorder = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, rect.w, rect.h), ColorRGBA(0, 0, 0, 64), ColorRGBA(96, 96, 96, 255), 1);
 
 	townSelector = std::make_shared<TownSelector>(Point(5, 3));

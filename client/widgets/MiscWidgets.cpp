@@ -248,7 +248,7 @@ CMinorResDataBar::CMinorResDataBar()
 	pos.y = 575;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("KRESBAR.bmp"));
-	background->colorize(LOCPLINT->playerID);
+	background->setPlayerColor(LOCPLINT->playerID);
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;

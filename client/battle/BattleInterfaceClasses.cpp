@@ -506,7 +506,7 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * posit
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
 		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
-		background->colorize(hero.owner);
+		background->setPlayerColor(hero.owner);
 	}
 
 	initializeData(hero);
@@ -574,10 +574,10 @@ StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBa
 		background = std::make_shared<CPicture>(ImagePath::builtin("CCRPOP"));
 		background->pos.y += 37;
 		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
-		background->colorize(stack->getOwner());
+		background->setPlayerColor(stack->getOwner());
 		background2 = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
 		background2->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
-		background2->colorize(stack->getOwner());
+		background2->setPlayerColor(stack->getOwner());
 	}
 
 	initializeData(stack);
@@ -681,7 +681,7 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	if (position != nullptr)
 		moveTo(*position);
 
-	background->colorize(hero.owner); //maybe add this functionality to base class?
+	background->setPlayerColor(hero.owner); //maybe add this functionality to base class?
 
 	content = std::make_shared<HeroInfoBasicPanel>(hero, nullptr, false);
 }
@@ -692,7 +692,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("CPRESULT"));
-	background->colorize(owner.playerID);
+	background->setPlayerColor(owner.playerID);
 	pos = center(background->pos);
 
 	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
@@ -1037,7 +1037,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 	if(unit)
 	{
 		boundUnitID = unit->unitId();
-		background->colorize(unit->unitOwner());
+		background->setPlayerColor(unit->unitOwner());
 		icon->visible = true;
 
 		// temporary code for mod compatibility:
@@ -1083,7 +1083,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 	else
 	{
 		boundUnitID = std::nullopt;
-		background->colorize(PlayerColor::NEUTRAL);
+		background->setPlayerColor(PlayerColor::NEUTRAL);
 		icon->visible = false;
 		icon->setFrame(0);
 		amount->setText("");

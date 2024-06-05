@@ -56,7 +56,6 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 	std::shared_ptr<CIntObject> buildStatusBar(const JsonNode & input);
 	std::shared_ptr<CIntObject> buildTexturePlayerColored(const JsonNode &);
 
-
 	void setPlayerChildren(CIntObject * widget, const PlayerColor & player);
 	void updateActiveStateChildden(CIntObject * widget);
 public:
@@ -68,7 +67,7 @@ public:
 	std::shared_ptr<MapView> getMapView();
 	std::shared_ptr<CInfoBar> getInfoBar();
 
-	void setPlayer(const PlayerColor & player);
+	void setPlayerColor(const PlayerColor & player);
 
 	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 	void updateActiveState();
@@ -98,5 +97,5 @@ class CAdventureMapIcon : public CIntObject
 public:
 	CAdventureMapIcon(const Point & position, const AnimationPath & image, size_t index, size_t iconsPerPlayer);
 
-	void setPlayer(const PlayerColor & player);
+	void setPlayerColor(const PlayerColor & player);
 };

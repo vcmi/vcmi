@@ -518,9 +518,8 @@ void OptionsTab::SelectionWindow::recreate(int sliderPos)
 	int sliderWidth = ((amountLines > MAX_LINES) ? 16 : 0);
 
 	pos = Rect(pos.x, pos.y, x + sliderWidth, y);
-
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w - sliderWidth, pos.h));
-	backgroundTexture->playerColored(PlayerColor(1));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	updateShadow();
 
 	if(type == SelType::TOWN)

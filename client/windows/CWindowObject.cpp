@@ -93,7 +93,7 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 	auto image = std::make_shared<CPicture>(imageName);
 	image->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 	if(playerColored)
-		image->colorize(LOCPLINT->playerID);
+		image->setPlayerColor(LOCPLINT->playerID);
 	return image;
 }
 

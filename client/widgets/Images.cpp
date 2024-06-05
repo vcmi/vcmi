@@ -106,7 +106,7 @@ void CPicture::scaleTo(Point size)
 	pos.h = bg->height();
 }
 
-void CPicture::colorize(PlayerColor player)
+void CPicture::setPlayerColor(PlayerColor player)
 {
 	bg->playerColored(player);
 }
@@ -145,7 +145,7 @@ FilledTexturePlayerColored::FilledTexturePlayerColored(const ImagePath & imageNa
 {
 }
 
-void FilledTexturePlayerColored::playerColored(PlayerColor player)
+void FilledTexturePlayerColored::setPlayerColor(PlayerColor player)
 {
 	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
 	std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
@@ -301,7 +301,7 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		logGlobal->error("Error: accessing unavailable frame %d:%d in CAnimation!", Group, Frame);
 }
 
-void CAnimImage::playerColored(PlayerColor currPlayer)
+void CAnimImage::setPlayerColor(PlayerColor currPlayer)
 {
 	player = currPlayer;
 	anim->getImage(frame, group)->playerColored(*player);
