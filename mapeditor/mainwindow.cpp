@@ -163,13 +163,9 @@ MainWindow::MainWindow(QWidget* parent) :
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
-	
-	for(auto & string : VCMIDirs::get().dataPaths())
-		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
-	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
-	
+
 	new QShortcut(QKeySequence("Backspace"), this, SLOT(on_actionErase_triggered()));
-	
+
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
 
@@ -206,6 +202,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	loadTranslation();
 
 	ui->setupUi(this);
+	setWindowIcon(QIcon{":/icons/menu-game.png"});
+
 	loadUserSettings(); //For example window size
 	setTitle();
 

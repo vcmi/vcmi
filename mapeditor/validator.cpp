@@ -29,7 +29,7 @@ Validator::Validator(const CMap * map, QWidget *parent) :
 	
 	setAttribute(Qt::WA_DeleteOnClose);
 
-	std::array<QString, 2> icons{"mapeditor/icons/mod-update.png", "mapeditor/icons/mod-delete.png"};
+	std::array<QString, 2> icons{":/icons/mod-update.png", ":/icons/mod-delete.png"};
 
 	for(auto & issue : Validator::validate(map))
 	{
