@@ -27,6 +27,43 @@
 #include <vcmi/SkillService.h>
 #include <vcmi/spells/Service.h>
 
+RenderHandler::ImageLocator::ImageLocator(const JsonNode & config)
+	: image(ImagePath::fromJson(config["file"]))
+	, animation(AnimationPath::fromJson(config["animation"]))
+	, frame(config["frame"].Integer())
+	, group(config["group"].Integer())
+	, verticalFlip(config["verticalFlip"].Bool())
+	, horizontalFlip(config["horizontalFlip"].Bool())
+{
+}
+
+RenderHandler::ImageLocator::ImageLocator(const ImagePath & path)
+	: image(path)
+{
+}
+
+RenderHandler::ImageLocator::ImageLocator(const AnimationPath & path, int frame, int group)
+	: animation(path)
+	, frame(frame)
+	, group(group)
+{
+}
+
+bool RenderHandler::ImageLocator::operator<(const ImageLocator & other) const
+{
+	if(image != other.image)
+		return image < other.image;
+	if(animation != other.animation)
+		return animation < other.animation;
+	if(group != other.group)
+		return group < other.group;
+	if(frame != other.frame)
+		return frame < other.frame;
+	if(verticalFlip != other.verticalFlip)
+		return verticalFlip < other.verticalFlip;
+	return horizontalFlip < other.horizontalFlip;
+}
+
 std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & path)
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
@@ -103,7 +140,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 	{
 		const std::map<size_t, size_t> defEntries = defFile->getEntries();
 
-		for (auto & defEntry : defEntries)
+		for (const auto & defEntry : defEntries)
 			result[defEntry.first].resize(defEntry.second);
 	}
 
@@ -125,32 +162,78 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 	return animationLayouts[actualPath];
 }
 
-std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group)
+std::shared_ptr<IConstImage> RenderHandler::loadImageFromSingleFile(const ImagePath & path)
 {
-	AnimationLocator locator{path, frame, group};
+	auto result = std::make_shared<SDLImageConst>(path, EImageBlitMode::COLORKEY);
+	imageFiles[ImageLocator(path)] = result;
+	return result;
+}
 
-	auto it = animationFrames.find(locator);
-	if (it != animationFrames.end())
-		return it->second->createImageReference();
-
+std::shared_ptr<IConstImage> RenderHandler::loadImageFromAnimationFileUncached(const AnimationPath & path, int frame, int group)
+{
 	const auto & layout = getAnimationLayout(path);
 	if (!layout.count(group))
-		return loadImage(ImagePath::builtin("DEFAULT"));
+		return loadImageFromSingleFile(ImagePath::builtin("DEFAULT"));
 
 	if (frame >= layout.at(group).size())
-		return loadImage(ImagePath::builtin("DEFAULT"));
+		return loadImageFromSingleFile(ImagePath::builtin("DEFAULT"));
 
 	const auto & config = layout.at(group).at(frame);
-
 	if (config.isNull())
 	{
 		auto defFile = getAnimationFile(path);
-		auto result = std::make_shared<SDLImageConst>(defFile.get(), frame, group);
-		animationFrames[locator] = result;
-		return result->createImageReference();
+		return std::make_shared<SDLImageConst>(defFile.get(), frame, group);
 	}
+	else
+	{
+		return loadImageImpl(ImageLocator(config));
+	}
+}
 
-	return loadImage(ImagePath::builtin("DEFAULT"));
+std::shared_ptr<IConstImage> RenderHandler::loadImageFromAnimationFile(const AnimationPath & path, int frame, int group)
+{
+	auto result = loadImageFromAnimationFileUncached(path, frame, group);
+	imageFiles[ImageLocator(path, frame, group)] = result;
+	return result;
+}
+
+std::shared_ptr<IConstImage> RenderHandler::loadImageImpl(const ImageLocator & locator)
+{
+	auto it = imageFiles.find(locator);
+	if (it != imageFiles.end())
+		return it->second;
+
+	std::shared_ptr<IConstImage> result;
+
+	if (!locator.image.empty())
+		result = loadImageFromSingleFile(locator.image);
+	else if (!locator.animation.empty())
+		result = loadImageFromAnimationFile(locator.animation, locator.frame, locator.group);
+
+	if (!result)
+		result = loadImageFromSingleFile(ImagePath::builtin("DEFAULT"));
+
+	if (locator.verticalFlip)
+		result = result->verticalFlip();
+
+	if (locator.horizontalFlip)
+		result = result->horizontalFlip();
+
+	imageFiles[locator] = result;
+	return result;
+}
+
+std::shared_ptr<IImage> RenderHandler::loadImage(const JsonNode & config)
+{
+	if (config.isString())
+		return loadImageImpl(ImageLocator(ImagePath::fromJson(config)))->createImageReference();
+	else
+		return loadImageImpl(ImageLocator(config))->createImageReference();
+}
+
+std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group)
+{
+	return loadImageImpl(ImageLocator(path, frame, group))->createImageReference();
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path)
@@ -160,13 +243,7 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path)
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
-	auto it = imageFiles.find(path);
-	if (it != imageFiles.end())
-		return it->second->createImageReference();
-
-	auto result = std::make_shared<SDLImageConst>(path, mode);
-	imageFiles[path] = result;
-	return result->createImageReference();
+	return loadImageImpl(ImageLocator(path))->createImageReference();
 }
 
 std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
