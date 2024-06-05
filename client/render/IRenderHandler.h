@@ -11,6 +11,10 @@
 
 #include "../../lib/filesystem/ResourcePath.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class Services;
+VCMI_LIB_NAMESPACE_END
+
 struct SDL_Surface;
 
 class IImage;
@@ -21,6 +25,9 @@ class IRenderHandler : public boost::noncopyable
 {
 public:
 	virtual ~IRenderHandler() = default;
+
+	/// Must be called once VLC loading is over to initialize icons
+	virtual void onLibraryLoadingFinished(const Services * services) = 0;
 
 	/// Loads image using given path
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path) = 0;

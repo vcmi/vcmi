@@ -18,6 +18,15 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/filesystem/Filesystem.h"
 
+#include <vcmi/ArtifactService.h>
+#include <vcmi/CreatureService.h>
+#include <vcmi/Entity.h>
+#include <vcmi/FactionService.h>
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/Services.h>
+#include <vcmi/SkillService.h>
+#include <vcmi/spells/Service.h>
+
 std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & path)
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
@@ -78,16 +87,18 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 	}
 }
 
-const RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const AnimationPath & path)
+RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const AnimationPath & path)
 {
-	auto it = animationLayouts.find(path);
+	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
+
+	auto it = animationLayouts.find(actualPath);
 
 	if (it != animationLayouts.end())
 		return it->second;
 
 	AnimationLayoutMap result;
 
-	auto defFile = getAnimationFile(path);
+	auto defFile = getAnimationFile(actualPath);
 	if(defFile)
 	{
 		const std::map<size_t, size_t> defEntries = defFile->getEntries();
@@ -96,13 +107,12 @@ const RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(cons
 			result[defEntry.first].resize(defEntry.second);
 	}
 
-	auto jsonResource = path.toType<EResType::JSON>();
-	JsonPath actualJsonPath = boost::starts_with(jsonResource.getName(), "SPRITES") ? jsonResource : jsonResource.addPrefix("SPRITES/");;
-	auto configList = CResourceHandler::get()->getResourcesWithName(actualJsonPath);
+	auto jsonResource = actualPath.toType<EResType::JSON>();
+	auto configList = CResourceHandler::get()->getResourcesWithName(jsonResource);
 
 	for(auto & loader : configList)
 	{
-		auto stream = loader->load(actualJsonPath);
+		auto stream = loader->load(jsonResource);
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
@@ -111,8 +121,8 @@ const RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(cons
 		initFromJson(result, config);
 	}
 
-	animationLayouts[path] = result;
-	return animationLayouts[path];
+	animationLayouts[actualPath] = result;
+	return animationLayouts[actualPath];
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group)
@@ -123,11 +133,24 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int
 	if (it != animationFrames.end())
 		return it->second->createImageReference();
 
-	auto defFile = getAnimationFile(path);
-	auto result = std::make_shared<SDLImageConst>(defFile.get(), frame, group);
+	const auto & layout = getAnimationLayout(path);
+	if (!layout.count(group))
+		return loadImage(ImagePath::builtin("DEFAULT"));
 
-	animationFrames[locator] = result;
-	return result->createImageReference();
+	if (frame >= layout.at(group).size())
+		return loadImage(ImagePath::builtin("DEFAULT"));
+
+	const auto & config = layout.at(group).at(frame);
+
+	if (config.isNull())
+	{
+		auto defFile = getAnimationFile(path);
+		auto result = std::make_shared<SDLImageConst>(defFile.get(), frame, group);
+		animationFrames[locator] = result;
+		return result->createImageReference();
+	}
+
+	return loadImage(ImagePath::builtin("DEFAULT"));
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path)
@@ -161,51 +184,34 @@ std::shared_ptr<CAnimation> RenderHandler::createAnimation()
 	return std::make_shared<CAnimation>();
 }
 
-//
-//void Graphics::addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName)
-//{
-//	if (!imageName.empty())
-//	{
-//		JsonNode entry;
-//		if (group != 0)
-//			entry["group"].Integer() = group;
-//		entry["frame"].Integer() = index;
-//		entry["file"].String() = imageName;
-//
-//		imageLists["SPRITES/" + listName]["images"].Vector().push_back(entry);
-//	}
-//}
-//
-//void Graphics::addImageListEntries(const EntityService * service)
-//{
-//	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3, _4);
-//
-//	auto loopCb = [&](const Entity * entity, bool & stop)
-//	{
-//		entity->registerIcons(cb);
-//	};
-//
-//	service->forEachBase(loopCb);
-//}
-//
-//void Graphics::initializeImageLists()
-//{
-//	addImageListEntries(CGI->creatures());
-//	addImageListEntries(CGI->heroTypes());
-//	addImageListEntries(CGI->artifacts());
-//	addImageListEntries(CGI->factions());
-//	addImageListEntries(CGI->spells());
-//	addImageListEntries(CGI->skills());
-//}
-//
-//std::shared_ptr<CAnimation> Graphics::getAnimation(const AnimationPath & path)
-//{
-//	if (cachedAnimations.count(path) != 0)
-//		return cachedAnimations.at(path);
-//
-//	auto newAnimation = GH.renderHandler().loadAnimation(path);
-//
-//	newAnimation->preload();
-//	cachedAnimations[path] = newAnimation;
-//	return newAnimation;
-//}
+void RenderHandler::addImageListEntries(const EntityService * service)
+{
+	service->forEachBase([this](const Entity * entity, bool & stop)
+	{
+		entity->registerIcons([this](size_t index, size_t group, const std::string & listName, const std::string & imageName)
+		{
+			if (imageName.empty())
+				return;
+
+			auto & layout = getAnimationLayout(AnimationPath::builtin("SPRITES/" + listName));
+
+			JsonNode entry;
+			entry["file"].String() = imageName;
+
+			if (index >= layout[group].size())
+				layout[group].resize(index + 1);
+
+			layout[group][index] = entry;
+		});
+	});
+}
+
+void RenderHandler::onLibraryLoadingFinished(const Services * services)
+{
+	addImageListEntries(services->creatures());
+	addImageListEntries(services->heroTypes());
+	addImageListEntries(services->artifacts());
+	addImageListEntries(services->factions());
+	addImageListEntries(services->spells());
+	addImageListEntries(services->skills());
+}
