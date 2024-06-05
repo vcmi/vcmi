@@ -232,10 +232,6 @@ void CAnimImage::setSizeFromImage(const IImage &img)
 void CAnimImage::init()
 {
 	visible = true;
-	anim->load(frame, group);
-	if (flags & CShowableAnim::BASE)
-		anim->load(0,group);
-
 	auto img = anim->getImage(frame, group);
 	if (img)
 		setSizeFromImage(*img);
@@ -287,7 +283,6 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		return;
 	if (anim->size(Group) > Frame)
 	{
-		anim->load(Frame, Group);
 		frame = Frame;
 		group = Group;
 		if(auto img = anim->getImage(frame, group))
@@ -326,7 +321,6 @@ CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags
 	yOffset(0),
 	alpha(alpha)
 {
-	anim->loadGroup(group);
 	last = anim->size(group);
 
 	auto image = anim->getImage(0, group);
@@ -339,11 +333,6 @@ CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags
 	pos.y+= y;
 
 	addUsedEvents(TIME);
-}
-
-CShowableAnim::~CShowableAnim()
-{
-	anim->unloadGroup(group);
 }
 
 void CShowableAnim::setAlpha(ui32 alphaValue)
@@ -361,9 +350,6 @@ bool CShowableAnim::set(size_t Group, size_t from, size_t to)
 	if (max < from || max == 0)
 		return false;
 
-	anim->unloadGroup(group);
-	anim->loadGroup(Group);
-
 	group = Group;
 	frame = first = from;
 	last = max;
@@ -377,9 +363,6 @@ bool CShowableAnim::set(size_t Group)
 		return false;
 	if (group != Group)
 	{
-		anim->unloadGroup(group);
-		anim->loadGroup(Group);
-
 		first = 0;
 		group = Group;
 		last = anim->size(Group);

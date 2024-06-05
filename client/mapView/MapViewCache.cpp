@@ -36,7 +36,6 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 	, terrain(new Canvas(model->getCacheDimensionsPixels()))
 	, terrainTransition(new Canvas(model->getPixelsVisibleDimensions()))
 {
-	iconsStorage->preload();
 	for(size_t i = 0; i < iconsStorage->size(); ++i)
 		iconsStorage->getImage(i)->setBlitMode(EImageBlitMode::COLORKEY);
 
