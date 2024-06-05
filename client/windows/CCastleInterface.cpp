@@ -744,6 +744,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 		case BuildingID::SPECIAL_1:
 		case BuildingID::SPECIAL_2:
 		case BuildingID::SPECIAL_3:
+		case BuildingID::SPECIAL_4:
 				switch (subID)
 				{
 				case BuildingSubID::NONE:
@@ -806,6 +807,10 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::BALLISTA_YARD:
 						enterBlacksmith(ArtifactID::BALLISTA);
+						break;
+
+				case BuildingSubID::THIEVES_GUILD:
+						enterAnyThievesGuild();
 						break;
 
 				default:
