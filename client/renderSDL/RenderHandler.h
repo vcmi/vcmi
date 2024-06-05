@@ -11,6 +11,10 @@
 
 #include "../render/IRenderHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class EntityService;
+VCMI_LIB_NAMESPACE_END
+
 class CDefFile;
 class IConstImage;
 
@@ -40,10 +44,15 @@ class RenderHandler : public IRenderHandler
 	std::map<AnimationLocator, std::shared_ptr<IConstImage>> animationFrames;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
-	const AnimationLayoutMap & getAnimationLayout(const AnimationPath & path);
+	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path);
 	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config);
+
+	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
+	void addImageListEntries(const EntityService * service);
 public:
+
 	// IRenderHandler implementation
+	void onLibraryLoadingFinished(const Services * services) override;
 
 	std::shared_ptr<IImage> loadImage(const ImagePath & path) override;
 	std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) override;
