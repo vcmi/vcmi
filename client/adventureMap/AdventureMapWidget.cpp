@@ -59,7 +59,7 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	const JsonNode config(JsonPath::builtin("config/widgets/adventureMap.json"));
 
 	for(const auto & entry : config["options"]["imagesPlayerColored"].Vector())
-		playerColorerImages.push_back(ImagePath::fromJson(entry));
+		playerColoredImages.push_back(ImagePath::fromJson(entry));
 
 	build(config);
 	addUsedEvents(KEYBOARD);
@@ -135,8 +135,12 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapImage(const JsonNode & i
 {
 	Rect targetArea = readTargetArea(input["area"]);
 	Rect sourceArea = readSourceArea(input["sourceArea"], input["area"]);
+	ImagePath path = ImagePath::fromJson(input["image"]);
 
-	return std::make_shared<CFilledTexture>(ImagePath::fromJson(input["image"]), targetArea, sourceArea);
+	if (vstd::contains(playerColoredImages, path))
+		return std::make_shared<FilledTexturePlayerIndexed>(path, targetArea, sourceArea);
+	else
+		return std::make_shared<CFilledTexture>(path, targetArea, sourceArea);
 }
 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildMapButton(const JsonNode & input)
@@ -348,7 +352,8 @@ void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColo
 		auto icon = dynamic_cast<CAdventureMapIcon *>(entry);
 		auto button = dynamic_cast<CButton *>(entry);
 		auto resDataBar = dynamic_cast<CResDataBar *>(entry);
-		auto texture = dynamic_cast<FilledTexturePlayerColored *>(entry);
+		auto textureColored = dynamic_cast<FilledTexturePlayerColored *>(entry);
+		auto textureIndexed = dynamic_cast<FilledTexturePlayerIndexed *>(entry);
 
 		if(button)
 			button->setPlayerColor(player);
@@ -362,8 +367,11 @@ void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColo
 		if(container)
 			setPlayerChildren(container, player);
 
-		if (texture)
-			texture->setPlayerColor(player);
+		if (textureColored)
+			textureColored->setPlayerColor(player);
+
+		if (textureIndexed)
+			textureIndexed->setPlayerColor(player);
 	}
 
 	redraw();
