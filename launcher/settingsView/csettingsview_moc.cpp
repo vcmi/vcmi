@@ -85,6 +85,8 @@ void CSettingsView::loadSettings()
 	ui->sliderReservedArea->hide();
 	ui->labelCursorTypeMobile->hide();
 	ui->comboBoxCursorTypeMobile->hide();
+	ui->comboBoxRelativeCursorMode->hide();
+	ui->sliderRelativeCursorSpeed->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
