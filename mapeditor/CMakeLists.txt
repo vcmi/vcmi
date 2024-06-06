@@ -127,7 +127,7 @@ set(editor_TS
 )
 if(ENABLE_TRANSLATIONS)
 	if(TARGET Qt5::Core)
-		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION translation)
+		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/${translationsDir}")
 		qt5_add_translation(editor_QM ${editor_TS})
 
 		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
