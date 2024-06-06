@@ -226,7 +226,7 @@ if(NOT WIN32 AND NOT APPLE)
 	foreach(iconSize 32 48 64 128 256)
 		install(FILES "icons/mapeditor.${iconSize}x${iconSize}.png"
 			DESTINATION "share/icons/hicolor/${iconSize}x${iconSize}/apps"
-			RENAME mapeditor.png
+			RENAME vcmieditor.png
 		)
 	endforeach()
 	install(FILES "vcmieditor.desktop" DESTINATION share/applications)

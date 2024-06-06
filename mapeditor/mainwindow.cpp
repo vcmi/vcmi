@@ -199,10 +199,11 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->toolBrush->setIcon(QIcon{":/icons/brush-1.png"});
 	ui->toolBrush2->setIcon(QIcon{":/icons/brush-2.png"});
 	ui->toolBrush4->setIcon(QIcon{":/icons/brush-4.png"});
-	ui->toolLasso->setIcon(QIcon{":/icons/brush-3.png"});
-	ui->toolLine->setIcon(QIcon{":/icons/brush-7.png"});
-	ui->toolArea->setIcon(QIcon{":/icons/brush-5.png"});
-	ui->toolFill->setIcon(QIcon{":/icons/brush-6.png"});
+	ui->toolLasso->setIcon(QIcon{":/icons/tool-lasso.png"});
+	ui->toolLine->setIcon(QIcon{":/icons/tool-line.png"});
+	ui->toolArea->setIcon(QIcon{":/icons/tool-area.png"});
+	ui->toolFill->setIcon(QIcon{":/icons/tool-fill.png"});
+	ui->toolSelect->setIcon(QIcon{":/icons/tool-select.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
