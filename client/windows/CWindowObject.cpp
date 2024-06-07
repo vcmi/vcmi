@@ -202,8 +202,8 @@ void CWindowObject::setShadow(bool on)
 
 		//create base 8x8 piece of shadow
 		SDL_Surface * shadowCorner = CSDL_Ext::copySurface(shadowCornerTempl);
-		SDL_Surface * shadowBottom = CSDL_Ext::scaleSurfaceFast(shadowBottomTempl, fullsize.x - size, size);
-		SDL_Surface * shadowRight  = CSDL_Ext::scaleSurfaceFast(shadowRightTempl,  size, fullsize.y - size);
+		SDL_Surface * shadowBottom = CSDL_Ext::scaleSurface(shadowBottomTempl, fullsize.x - size, size);
+		SDL_Surface * shadowRight  = CSDL_Ext::scaleSurface(shadowRightTempl,  size, fullsize.y - size);
 
 		blitAlphaCol(shadowBottom, 0);
 		blitAlphaRow(shadowRight, 0);

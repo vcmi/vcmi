@@ -142,7 +142,7 @@ std::shared_ptr<SDLImageConst> SDLImageConst::scaleFast(const Point & size) cons
 	float scaleX = float(size.x) / dimensions().x;
 	float scaleY = float(size.y) / dimensions().y;
 
-	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, (int)(surf->w * scaleX), (int)(surf->h * scaleY));
+	auto scaled = CSDL_Ext::scaleSurface(surf, (int)(surf->w * scaleX), (int)(surf->h * scaleY));
 
 	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
 		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);

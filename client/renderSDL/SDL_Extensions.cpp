@@ -337,15 +337,16 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRec
 			uint8_t *colory = (uint8_t*)src->pixels + srcy*src->pitch + srcx;
 			uint8_t *py = (uint8_t*)dst->pixels + dstRect->y*dst->pitch + dstRect->x*bpp;
 
-			for(int y=h; y; y--, colory+=src->pitch, py+=dst->pitch)
+			for(int y=0; y<h; ++y, colory+=src->pitch, py+=dst->pitch)
 			{
 				uint8_t *color = colory;
 				uint8_t *p = py;
 
-				for(int x = w; x; x--)
+				for(int x = 0; x < w; ++x)
 				{
 					const SDL_Color &tbc = colors[*color++]; //color to blit
-					ColorPutter<bpp, +1>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.a);
+					ColorPutter<bpp>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.a);
+					p += bpp;
 				}
 			}
 			SDL_UnlockSurface(dst);
@@ -422,7 +423,7 @@ static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
 		uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
-		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
+		ColorPutter<4>::PutColor(p, r,g,b,a);
 	}
 }
 
@@ -440,7 +441,7 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
 		uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
-		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
+		ColorPutter<4>::PutColor(p, r,g,b,a);
 	}
 }
 
@@ -453,7 +454,7 @@ void CSDL_Ext::drawLine(SDL_Surface * sur, const Point & from, const Point & des
 	if ( width == 0 && height == 0)
 	{
 		uint8_t *p = CSDL_Ext::getPxPtr(sur, from.x, from.y);
-		ColorPutter<4, 0>::PutColorAlpha(p, color1);
+		ColorPutter<4>::PutColorAlpha(p, color1);
 		return;
 	}
 
@@ -524,42 +525,18 @@ void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &co
 	drawBorder(sur, r.x, r.y, r.w, r.h, color, depth);
 }
 
-CSDL_Ext::TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
+CSDL_Ext::TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest)
 {
-#define CASE_BPP(BytesPerPixel)							\
-case BytesPerPixel:									\
-	if(incrementing > 0)								\
-		return ColorPutter<BytesPerPixel, 1>::PutColor;	\
-	else if(incrementing == 0)							\
-		return ColorPutter<BytesPerPixel, 0>::PutColor;	\
-	else												\
-		return ColorPutter<BytesPerPixel, -1>::PutColor;\
-	break;
-
 	switch(dest->format->BytesPerPixel)
 	{
-		CASE_BPP(2)
-		CASE_BPP(3)
-		CASE_BPP(4)
+		case 3:
+			return ColorPutter<3>::PutColor;
+		case 4:
+			return ColorPutter<4>::PutColor;
 	default:
 		logGlobal->error("%d bpp is not supported!", (int)dest->format->BitsPerPixel);
 		return nullptr;
 	}
-
-}
-
-CSDL_Ext::TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int incrementing)
-{
-	switch(dest->format->BytesPerPixel)
-	{
-		CASE_BPP(2)
-		CASE_BPP(3)
-		CASE_BPP(4)
-	default:
-		logGlobal->error("%d bpp is not supported!", (int)dest->format->BitsPerPixel);
-		return nullptr;
-	}
-#undef CASE_BPP
 }
 
 uint8_t * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int x, const int y)
@@ -590,11 +567,10 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 void CSDL_Ext::putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A)
 {
 	uint8_t *p = getPxPtr(ekran, x, y);
-	getPutterFor(ekran, false)(p, R, G, B);
+	getPutterFor(ekran)(p, R, G, B);
 
 	switch(ekran->format->BytesPerPixel)
 	{
-	case 2: Channels::px<2>::a.set(p, A); break;
 	case 3: Channels::px<3>::a.set(p, A); break;
 	case 4: Channels::px<4>::a.set(p, A); break;
 	}
@@ -638,126 +614,24 @@ void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
 {
 	switch(surf->format->BytesPerPixel)
 	{
-		case 2: convertToGrayscaleBpp<2>(surf, rect); break;
 		case 3: convertToGrayscaleBpp<3>(surf, rect); break;
 		case 4: convertToGrayscaleBpp<4>(surf, rect); break;
-	}
-}
-
-template<int bpp>
-void scaleSurfaceFastInternal(SDL_Surface *surf, SDL_Surface *ret)
-{
-	const float factorX = static_cast<float>(surf->w) / static_cast<float>(ret->w);
-	const float factorY = static_cast<float>(surf->h) / static_cast<float>(ret->h);
-
-	for(int y = 0; y < ret->h; y++)
-	{
-		for(int x = 0; x < ret->w; x++)
-		{
-			//coordinates we want to calculate
-			auto origX = static_cast<int>(floor(factorX * x));
-			auto origY = static_cast<int>(floor(factorY * y));
-
-			// Get pointers to source pixels
-			uint8_t *srcPtr = (uint8_t*)surf->pixels + origY * surf->pitch + origX * bpp;
-			uint8_t *destPtr = (uint8_t*)ret->pixels + y * ret->pitch + x * bpp;
-
-			memcpy(destPtr, srcPtr, bpp);
-		}
-	}
-}
-
-SDL_Surface * CSDL_Ext::scaleSurfaceFast(SDL_Surface *surf, int width, int height)
-{
-	if (!surf || !width || !height)
-		return nullptr;
-
-	//Same size? return copy - this should more be faster
-	if (width == surf->w && height == surf->h)
-		return copySurface(surf);
-
-	SDL_Surface *ret = newSurface(width, height, surf);
-
-	switch(surf->format->BytesPerPixel)
-	{
-		case 1: scaleSurfaceFastInternal<1>(surf, ret); break;
-		case 2: scaleSurfaceFastInternal<2>(surf, ret); break;
-		case 3: scaleSurfaceFastInternal<3>(surf, ret); break;
-		case 4: scaleSurfaceFastInternal<4>(surf, ret); break;
-	}
-	return ret;
-}
-
-template<int bpp>
-void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
-{
-	const float factorX = float(surf->w - 1) / float(ret->w),
-				factorY = float(surf->h - 1) / float(ret->h);
-
-	for(int y = 0; y < ret->h; y++)
-	{
-		for(int x = 0; x < ret->w; x++)
-		{
-			//coordinates we want to interpolate
-			float origX = factorX * x,
-				  origY = factorY * y;
-
-			float x1 = floor(origX), x2 = floor(origX+1),
-				  y1 = floor(origY), y2 = floor(origY+1);
-			//assert( x1 >= 0 && y1 >= 0 && x2 < surf->w && y2 < surf->h);//All pixels are in range
-
-			// Calculate weights of each source pixel
-			float w11 = ((origX - x1) * (origY - y1));
-			float w12 = ((origX - x1) * (y2 - origY));
-			float w21 = ((x2 - origX) * (origY - y1));
-			float w22 = ((x2 - origX) * (y2 - origY));
-			//assert( w11 + w12 + w21 + w22 > 0.99 && w11 + w12 + w21 + w22 < 1.01);//total weight is ~1.0
-
-			// Get pointers to source pixels
-			uint8_t *p11 = (uint8_t*)surf->pixels + int(y1) * surf->pitch + int(x1) * bpp;
-			uint8_t *p12 = p11 + bpp;
-			uint8_t *p21 = p11 + surf->pitch;
-			uint8_t *p22 = p21 + bpp;
-			// Calculate resulting channels
-#define PX(X, PTR) Channels::px<bpp>::X.get(PTR)
-			int resR = static_cast<int>(PX(r, p11) * w11 + PX(r, p12) * w12 + PX(r, p21) * w21 + PX(r, p22) * w22);
-			int resG = static_cast<int>(PX(g, p11) * w11 + PX(g, p12) * w12 + PX(g, p21) * w21 + PX(g, p22) * w22);
-			int resB = static_cast<int>(PX(b, p11) * w11 + PX(b, p12) * w12 + PX(b, p21) * w21 + PX(b, p22) * w22);
-			int resA = static_cast<int>(PX(a, p11) * w11 + PX(a, p12) * w12 + PX(a, p21) * w21 + PX(a, p22) * w22);
-			//assert(resR < 256 && resG < 256 && resB < 256 && resA < 256);
-#undef PX
-			uint8_t *dest = (uint8_t*)ret->pixels + y * ret->pitch + x * bpp;
-			Channels::px<bpp>::r.set(dest, resR);
-			Channels::px<bpp>::g.set(dest, resG);
-			Channels::px<bpp>::b.set(dest, resB);
-			Channels::px<bpp>::a.set(dest, resA);
-		}
 	}
 }
 
 // scaling via bilinear interpolation algorithm.
 // NOTE: best results are for scaling in range 50%...200%.
 // And upscaling looks awful right now - should be fixed somehow
-SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface *surf, int width, int height)
+SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 {
-	if (!surf || !width || !height)
+	if(!surf || !width || !height)
 		return nullptr;
 
-	if (surf->format->palette)
-		return scaleSurfaceFast(surf, width, height);
+	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
+	SDL_Surface * ret = newSurface(width, height, intermediate);
 
-	//Same size? return copy - this should more be faster
-	if (width == surf->w && height == surf->h)
-		return copySurface(surf);
-
-	SDL_Surface *ret = newSurface(width, height, surf);
-
-	switch(surf->format->BytesPerPixel)
-	{
-	case 2: scaleSurfaceInternal<2>(surf, ret); break;
-	case 3: scaleSurfaceInternal<3>(surf, ret); break;
-	case 4: scaleSurfaceInternal<4>(surf, ret); break;
-	}
+	SDL_SoftStretchLinear(intermediate, nullptr, ret, nullptr);
+	SDL_FreeSurface(intermediate);
 
 	return ret;
 }
@@ -851,7 +725,5 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	other = CSDL_Ext::fromSDL(rect);
 }
 
-template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<2>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<4>(int, int);
-
