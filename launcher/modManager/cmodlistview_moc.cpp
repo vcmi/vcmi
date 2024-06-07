@@ -876,6 +876,13 @@ void CModListView::installMods(QStringList archives)
 		auto mod = modModel->getMod(modName);
 		if(mod.isInstalled() && !mod.getValue("keepDisabled").toBool())
 		{
+			for (auto const & dependencyName : mod.getDependencies())
+			{
+				auto dependency = modModel->getMod(dependencyName);
+				if(dependency.isDisabled())
+					manager->enableMod(dependencyName);
+			}
+
 			if(mod.isDisabled() && manager->enableMod(modName))
 			{
 				for(QString child : modModel->getChildren(modName))
