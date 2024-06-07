@@ -40,9 +40,6 @@ class FirstLaunchView : public QWidget
 	void heroesDataMissing();
 	void heroesDataDetected();
 
-	void heroesLanguageUpdate();
-	void forceHeroesLanguage(const QString & language);
-
 	QString getHeroesInstallDir();
 	void extractGogData();
 	void copyHeroesData(const QString & path = {}, bool move = false);
@@ -83,8 +80,6 @@ private slots:
 	void on_pushButtonDataCopy_clicked();
 
 	void on_pushButtonGogInstall_clicked();
-
-	void on_comboBoxLanguage_currentIndexChanged(int index);
 
 	void on_pushButtonPresetBack_clicked();
 

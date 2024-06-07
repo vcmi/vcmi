@@ -51,8 +51,15 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 
 	Helper::enableScrollBySwiping(ui->listWidgetLanguage);
 
+#ifdef VCMI_MOBILE
+	// This directory is not accessible to players without rooting of their device
+	ui->lineEditDataSystem->hide();
+#endif
+
 #ifndef ENABLE_INNOEXTRACT
 	ui->pushButtonGogInstall->hide();
+	ui->labelDataGogTitle->hide();
+	ui->labelDataGogDescr->hide();
 #endif
 }
 
@@ -121,11 +128,6 @@ void FirstLaunchView::on_pushButtonGogInstall_clicked()
 	extractGogData();
 }
 
-void FirstLaunchView::on_comboBoxLanguage_currentIndexChanged(int index)
-{
-	forceHeroesLanguage(ui->comboBoxLanguage->itemData(index).toString());
-}
-
 void FirstLaunchView::enterSetup()
 {
 	Languages::fillLanguages(ui->listWidgetLanguage, false);
@@ -155,9 +157,6 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabHeroesData->setChecked(true);
 	ui->buttonTabModPreset->setChecked(false);
 
-#ifndef ENABLE_INNOEXTRACT
-	ui->labelDataHelp->hide();
-#endif
 	if(heroesDataUpdate())
 		return;
 
@@ -214,29 +213,29 @@ void FirstLaunchView::heroesDataMissing()
 	ui->lineEditDataSystem->setPalette(newPalette);
 	ui->lineEditDataUser->setPalette(newPalette);
 
-	ui->labelDataSearch->setVisible(true);
+	ui->labelDataManualTitle->setVisible(true);
+	ui->labelDataManualDescr->setVisible(true);
 	ui->pushButtonDataSearch->setVisible(true);
 
 #ifdef VCMI_ANDROID
 	// selecting directory with ACTION_OPEN_DOCUMENT_TREE is available only since API level 21
-	if (QtAndroid::androidSdkVersion() < 21)
-	{
-		ui->labelDataCopy->hide();
-		ui->pushButtonDataCopy->hide();
-	}
-	else
+	bool canUseDataCopy = QtAndroid::androidSdkVersion() >= 21;
+#else
+	bool canUseDataCopy = true;
 #endif
-	{
-		ui->labelDataCopy->show();
-		ui->pushButtonDataCopy->show();
-	}
+
+	ui->labelDataCopyTitle->setVisible(canUseDataCopy);
+	ui->labelDataCopyDescr->setVisible(canUseDataCopy);
+	ui->pushButtonDataCopy->setVisible(canUseDataCopy);
+
+#ifdef ENABLE_INNOEXTRACT
+	ui->pushButtonGogInstall->setVisible(true);
+	ui->labelDataGogTitle->setVisible(true);
+	ui->labelDataGogDescr->setVisible(true);
+#endif
 
 	ui->labelDataFound->setVisible(false);
 	ui->pushButtonDataNext->setEnabled(false);
-
-#ifdef ENABLE_INNOEXTRACT
-	ui->labelDataHelp->setVisible(true);
-#endif
 }
 
 void FirstLaunchView::heroesDataDetected()
@@ -249,18 +248,21 @@ void FirstLaunchView::heroesDataDetected()
 	ui->pushButtonDataSearch->setVisible(false);
 	ui->pushButtonDataCopy->setVisible(false);
 
-	ui->labelDataSearch->setVisible(false);
-	ui->labelDataCopy->setVisible(false);
-	ui->pushButtonGogInstall->setVisible(false);
+	ui->labelDataManualTitle->setVisible(false);
+	ui->labelDataManualDescr->setVisible(false);
+	ui->labelDataCopyTitle->setVisible(false);
+	ui->labelDataCopyDescr->setVisible(false);
 
 #ifdef ENABLE_INNOEXTRACT
-		ui->labelDataHelp->setVisible(false);
+	ui->pushButtonGogInstall->setVisible(false);
+	ui->labelDataGogTitle->setVisible(false);
+	ui->labelDataGogDescr->setVisible(false);
 #endif
 
 	ui->labelDataFound->setVisible(true);
 	ui->pushButtonDataNext->setEnabled(true);
 
-	heroesLanguageUpdate();
+	CGeneralTextHandler::detectInstallParameters();
 }
 
 // Tab Heroes III Data
@@ -277,24 +279,6 @@ bool FirstLaunchView::heroesDataDetect()
 	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
 
 	return heroesDataFoundROE && heroesDataFoundSOD;
-}
-
-void FirstLaunchView::heroesLanguageUpdate()
-{
-	Languages::fillLanguages(ui->comboBoxLanguage, true);
-
-	QString language = Languages::getHeroesDataLanguage();
-	bool success = !language.isEmpty();
-
-	ui->labelDataFailure->setVisible(!success);
-	ui->labelDataSuccess->setVisible(success);
-}
-
-void FirstLaunchView::forceHeroesLanguage(const QString & language)
-{
-	Settings node = settings.write["general"]["gameDataLanguage"];
-
-	node->String() = language.toStdString();
 }
 
 QString FirstLaunchView::getHeroesInstallDir()
@@ -487,14 +471,18 @@ void FirstLaunchView::modPresetUpdate()
 {
 	bool translationExists = !findTranslationModName().isEmpty();
 
-	ui->labelPresetLanguage->setVisible(translationExists);
 	ui->labelPresetLanguageDescr->setVisible(translationExists);
-	ui->checkBoxPresetLanguage->setVisible(translationExists);
+	ui->buttonPresetLanguage->setVisible(translationExists);
 
-	ui->checkBoxPresetLanguage->setEnabled(checkCanInstallTranslation());
-	ui->checkBoxPresetExtras->setEnabled(checkCanInstallExtras());
-	ui->checkBoxPresetHota->setEnabled(checkCanInstallHota());
-	ui->checkBoxPresetWog->setEnabled(checkCanInstallWog());
+	ui->buttonPresetLanguage->setVisible(checkCanInstallTranslation());
+	ui->buttonPresetExtras->setVisible(checkCanInstallExtras());
+	ui->buttonPresetHota->setVisible(checkCanInstallHota());
+	ui->buttonPresetWog->setVisible(checkCanInstallWog());
+
+	ui->labelPresetLanguageDescr->setVisible(checkCanInstallTranslation());
+	ui->labelPresetExtrasDescr->setVisible(checkCanInstallExtras());
+	ui->labelPresetHotaDescr->setVisible(checkCanInstallHota());
+	ui->labelPresetWogDescr->setVisible(checkCanInstallWog());
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
 	if (!checkCanInstallTranslation() && !checkCanInstallExtras() && !checkCanInstallHota() && !checkCanInstallWog())
@@ -565,16 +553,16 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 {
 	QStringList modsToInstall;
 
-	if (ui->checkBoxPresetLanguage->isChecked() && checkCanInstallTranslation())
+	if (ui->buttonPresetLanguage->isChecked() && checkCanInstallTranslation())
 		modsToInstall.push_back(findTranslationModName());
 
-	if (ui->checkBoxPresetExtras->isChecked() && checkCanInstallExtras())
+	if (ui->buttonPresetExtras->isChecked() && checkCanInstallExtras())
 		modsToInstall.push_back("vcmi-extras");
 
-	if (ui->checkBoxPresetWog->isChecked() && checkCanInstallWog())
+	if (ui->buttonPresetWog->isChecked() && checkCanInstallWog())
 		modsToInstall.push_back("wake-of-gods");
 
-	if (ui->checkBoxPresetHota->isChecked() && checkCanInstallHota())
+	if (ui->buttonPresetHota->isChecked() && checkCanInstallHota())
 		modsToInstall.push_back("hota");
 
 	exitSetup();
