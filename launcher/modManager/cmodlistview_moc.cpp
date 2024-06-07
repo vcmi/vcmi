@@ -603,7 +603,7 @@ void CModListView::on_installButton_clicked()
 	for(auto & name : modModel->getRequirements(modName))
 	{
 		auto mod = modModel->getMod(name);
-		if(!mod.isInstalled())
+		if(mod.isAvailable())
 			downloadFile(name + ".zip", mod.getValue("download").toString(), name, mbToBytes(mod.getValue("downloadSize").toDouble()));
 		else if(!mod.isEnabled())
 			enableModByName(name);
