@@ -47,9 +47,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-536</y>
+        <y>-616</y>
         <width>729</width>
-        <height>1242</height>
+        <height>1322</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="2,0,1,1,1">
@@ -284,6 +284,9 @@
          <property name="text">
           <string>Input - Touchscreen</string>
          </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
         </widget>
        </item>
        <item row="33" column="1" colspan="4">
@@ -381,6 +384,9 @@
          </property>
          <property name="text">
           <string>Video</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
          </property>
         </widget>
        </item>
@@ -519,6 +525,9 @@
          <property name="text">
           <string>Artificial Intelligence</string>
          </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
         </widget>
        </item>
        <item row="10" column="0">
@@ -554,6 +563,9 @@
          </property>
          <property name="text">
           <string>Network</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
          </property>
         </widget>
        </item>
@@ -642,6 +654,9 @@
          <property name="text">
           <string>Audio</string>
          </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
         </widget>
        </item>
        <item row="10" column="1" colspan="4">
@@ -666,6 +681,9 @@
          </property>
          <property name="text">
           <string>General</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
          </property>
         </widget>
        </item>
@@ -713,6 +731,9 @@
          </property>
          <property name="text">
           <string>Input - Mouse</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
          </property>
         </widget>
        </item>
@@ -813,6 +834,9 @@
          </property>
          <property name="text">
           <string>Input - Controller</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
          </property>
         </widget>
        </item>
