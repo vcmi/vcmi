@@ -116,7 +116,7 @@
 				},
 				"hapticFeedback" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"autosaveCountLimit" : {
 					"type" : "number",
