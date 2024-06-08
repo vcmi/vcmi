@@ -14,6 +14,7 @@
 #include "mainwindow_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
+#include "../helper.h"
 #include "../jsonutils.h"
 #include "../languages.h"
 #include "../launcherdirs.h"
@@ -107,14 +108,16 @@ void CSettingsView::loadSettings()
 	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
+	ui->checkBoxIgnoreSslErrors->setChecked(settings["launcher"]["ignoreSslErrors"].Bool());
+
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
-    ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
+	ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 
-    ui->checkBoxAutoSavePrefix->setChecked(settings["general"]["useSavePrefix"].Bool());
+	ui->checkBoxAutoSavePrefix->setChecked(settings["general"]["useSavePrefix"].Bool());
 
-    ui->lineEditAutoSavePrefix->setText(QString::fromStdString(settings["general"]["savePrefix"].String()));
-    ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
+	ui->lineEditAutoSavePrefix->setText(QString::fromStdString(settings["general"]["savePrefix"].String()));
+	ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
 
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 	fillValidRenderers();
@@ -282,6 +285,7 @@ CSettingsView::CSettingsView(QWidget * parent)
 	: QWidget(parent), ui(new Ui::CSettingsView)
 {
 	ui->setupUi(this);
+	Helper::enableScrollBySwiping(ui->settingsScrollArea);
 
 	loadSettings();
 }
@@ -541,21 +545,21 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 
 void CSettingsView::on_checkBoxAutoSavePrefix_stateChanged(int arg1)
 {
-    Settings node = settings.write["general"]["useSavePrefix"];
-    node->Bool() = arg1;
-    ui->lineEditAutoSavePrefix->setEnabled(arg1);
+	Settings node = settings.write["general"]["useSavePrefix"];
+	node->Bool() = arg1;
+	ui->lineEditAutoSavePrefix->setEnabled(arg1);
 }
 
 void CSettingsView::on_spinBoxAutoSaveLimit_valueChanged(int arg1)
 {
-    Settings node = settings.write["general"]["autosaveCountLimit"];
-    node->Float() = arg1;
+	Settings node = settings.write["general"]["autosaveCountLimit"];
+	node->Float() = arg1;
 }
 
 void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString &arg1)
 {
-    Settings node = settings.write["general"]["savePrefix"];
-    node->String() = arg1.toStdString();
+	Settings node = settings.write["general"]["savePrefix"];
+	node->String() = arg1.toStdString();
 }
 
 void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
@@ -564,10 +568,14 @@ void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
 	node->Float() = float(arg1) / 100; // percentage -> ratio
 }
 
-
 void CSettingsView::on_comboBoxRendererType_currentTextChanged(const QString &arg1)
 {
 	Settings node = settings.write["video"]["driver"];
 	node->String() = arg1.toStdString();
 }
 
+void CSettingsView::on_checkBoxIgnoreSslErrors_clicked(bool checked)
+{
+	Settings node = settings.write["launcher"]["ignoreSslErrors"];
+	node->Bool() = checked;
+}

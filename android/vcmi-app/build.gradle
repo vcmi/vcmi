@@ -1,18 +1,47 @@
-plugins {
-	id 'com.android.application'
-}
+apply plugin: 'com.android.application'
 
 android {
-	compileSdk 33
+	/*******************************************************
+	 * The following variables:
+	 * - androidBuildToolsVersion,
+	 * - androidCompileSdkVersion
+	 * - qt5AndroidDir - holds the path to qt android files
+	 *                   needed to build any Qt application
+	 *                   on Android.
+	 *
+	 * are defined in gradle.properties file. This file is
+	 * updated by QtCreator and androiddeployqt tools.
+	 * Changing them manually might break the compilation!
+	 *******************************************************/
+
 	ndkVersion '25.2.9519653'
+
+	// Extract native libraries from the APK
+	packagingOptions.jniLibs.useLegacyPackaging true
 
 	defaultConfig {
 		applicationId "is.xyz.vcmi"
-		minSdk 19
-		targetSdk 33
+
+		compileSdk = androidCompileSdkVersion.takeAfter("-") as Integer // has "android-" prepended
+		minSdk = qtMinSdkVersion as Integer
+		targetSdk = qtTargetSdkVersion as Integer // ANDROID_TARGET_SDK_VERSION in the CMake project
+
 		versionCode 1530
 		versionName "1.5.3"
+
 		setProperty("archivesBaseName", "vcmi")
+	}
+
+	sourceSets {
+		main {
+			// Qt requires these to be in the android project root
+			manifest.srcFile '../AndroidManifest.xml'
+			jniLibs.srcDirs = ['../libs']
+
+			java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+			aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
+			res.srcDirs = [qt5AndroidDir + '/res', 'src/main/res', '../res']
+		}
 	}
 
 	signingConfigs {
@@ -36,26 +65,17 @@ android {
 		release {
 			minifyEnabled false
 			zipAlignEnabled true
-			signingConfig signingConfigs.releaseSigning
+			applicationIdSuffix = project.findProperty('applicationIdSuffix')
+			signingConfig = signingConfigs[project.findProperty('signingConfig') ?: 'releaseSigning']
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 			manifestPlaceholders = [
-				applicationLabel: '@string/app_name',
+				applicationLabel: project.findProperty('applicationLabel') ?: 'VCMI',
 			]
 			ndk {
 				debugSymbolLevel 'full'
 			}
 		}
-		daily {
-			initWith release
-			applicationIdSuffix '.daily'
-			signingConfig signingConfigs.dailySigning
-			manifestPlaceholders = [
-				applicationLabel: 'VCMI daily',
-			]
-		}
 	}
-
-	applicationVariants.all { variant -> RenameOutput(project.archivesBaseName, variant) }
 
 	tasks.withType(JavaCompile) {
 		options.compilerArgs += ["-Xlint:deprecation"]
@@ -66,30 +86,9 @@ android {
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
 
-	buildFeatures {
-		viewBinding true
-		dataBinding true
-	}
-}
-
-def RenameOutput(final baseName, final variant) {
-	final def buildTaskId = System.getenv("GITHUB_RUN_ID")
-
-	ResolveGitInfo()
-
-	def name = baseName + "-" + ext.gitInfoVcmi
-
-	if (buildTaskId != null && !buildTaskId.isEmpty()) {
-		name = buildTaskId + "-" + name
-	}
-
-	if (!variant.buildType.name != "release") {
-		name += "-" + variant.buildType.name
-	}
-
-	variant.outputs.each { output ->
-		def oldPath = output.outputFile.getAbsolutePath()
-		output.outputFileName = name + oldPath.substring(oldPath.lastIndexOf("."))
+	// Do not compress Qt binary resources file
+	aaptOptions {
+		noCompress 'rcc'
 	}
 }
 
@@ -111,16 +110,6 @@ def CommandOutput(final cmd, final arguments, final cwd) {
 	}
 }
 
-def ResolveGitInfo() {
-	if (ext.gitInfoVcmi != "none") {
-		return
-	}
-	ext.gitInfoVcmi =
-		CommandOutput("git", ["log", "-1", "--pretty=%D", "--decorate-refs=refs/remotes/origin/*"], ".").replace("origin/", "").replace(", HEAD", "").replaceAll("[^a-zA-Z0-9\\-_]", "_") +
-		"-" +
-		CommandOutput("git", ["describe", "--match=", "--always", "--abbrev=7"], ".")
-}
-
 def SigningPropertiesPath(final basePath, final signingConfigKey) {
 	return file("${basePath}/${signingConfigKey}.properties")
 }
@@ -130,9 +119,8 @@ def SigningKeystorePath(final basePath, final keystoreFileName) {
 }
 
 def LoadSigningConfig(final signingConfigKey) {
-	final def projectRoot = "${project.projectDir}/../../CI/android"
 	final def props = new Properties()
-	final def propFile = SigningPropertiesPath(projectRoot, signingConfigKey)
+	final def propFile = SigningPropertiesPath(signingRoot, signingConfigKey)
 	
 	def signingConfig = android.signingConfigs.getAt(signingConfigKey)
 	
@@ -143,7 +131,7 @@ def LoadSigningConfig(final signingConfigKey) {
 			&& props.containsKey('STORE_FILE')
 			&& props.containsKey('KEY_ALIAS')) {
 
-			signingConfig.storeFile = SigningKeystorePath(projectRoot, props['STORE_FILE'])
+			signingConfig.storeFile = SigningKeystorePath(signingRoot, props['STORE_FILE'])
 			signingConfig.storePassword = props['STORE_PASSWORD']
 			signingConfig.keyAlias = props['KEY_ALIAS']
 			
@@ -167,9 +155,7 @@ def LoadSigningConfig(final signingConfigKey) {
 }
 
 dependencies {
-	implementation 'androidx.appcompat:appcompat:1.2.0'
-	implementation 'com.google.android.material:material:1.3.0'
-	implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-	implementation 'com.google.android.gms:play-services-base:18.2.0'
-	implementation 'com.google.android.gms:play-services-basement:18.1.0'
+	implementation fileTree(dir: '../libs', include: ['*.jar', '*.aar'])
+	implementation 'androidx.annotation:annotation:1.7.1'
+	implementation 'androidx.documentfile:documentfile:1.0.1'
 }

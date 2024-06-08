@@ -1,5 +1,5 @@
 /*
- * jsonutils.h, part of VCMI engine
+ * prepare.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,10 +9,7 @@
  */
 #pragma once
 
-class QObject;
-
-namespace Helper
+namespace launcher
 {
-void loadSettings();
-void enableScrollBySwiping(QObject * scrollTarget);
+void prepare();
 }

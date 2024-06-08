@@ -53,6 +53,9 @@ class VCMI(ConanFile):
         # static Qt for iOS is the only viable option at the moment
         self.options["qt"].shared = self.settings.os != "iOS"
 
+        if self.settings.os == "Android":
+            self.options["qt"].android_sdk = tools.get_env("ANDROID_HOME", default="")
+
         # TODO: enable for all platforms
         if self.settings.os == "Android":
             self.options["bzip2"].shared = True
@@ -63,7 +66,7 @@ class VCMI(ConanFile):
             return
 
         # we need only the following Boost parts:
-        # date_time filesystem locale program_options system thread iostreams
+        # date_time filesystem iostreams locale program_options system thread
         # some other parts are also enabled because they're dependents
         # see e.g. conan-center-index/recipes/boost/all/dependencies
         self.options["boost"].without_context = True
@@ -72,15 +75,12 @@ class VCMI(ConanFile):
         self.options["boost"].without_fiber = True
         self.options["boost"].without_graph = True
         self.options["boost"].without_graph_parallel = True
-        self.options["boost"].without_iostreams = self.settings.os == "Android" # TODO: Line have to be removed after porting the launcher to android
         self.options["boost"].without_json = True
         self.options["boost"].without_log = True
         self.options["boost"].without_math = True
         self.options["boost"].without_mpi = True
         self.options["boost"].without_nowide = True
         self.options["boost"].without_python = True
-        self.options["boost"].without_random = self.settings.os == "Android" # TODO: Line have to be removed after porting the launcher to android
-        self.options["boost"].without_regex = self.settings.os == "Android" # TODO: Line have to be removed after porting the launcher to android
         self.options["boost"].without_serialization = True
         self.options["boost"].without_stacktrace = True
         self.options["boost"].without_test = True
@@ -166,6 +166,7 @@ class VCMI(ConanFile):
         ]
         self.options["qt"].config = " ".join(_qtOptions)
         self.options["qt"].qttools = True
+        self.options["qt"].qtandroidextras = self.settings.os == "Android" # TODO: in Qt 6 it's part of Core
         self.options["qt"].with_freetype = self.settings.os == "Android"
         self.options["qt"].with_libjpeg = False
         self.options["qt"].with_md4c = False
@@ -178,6 +179,9 @@ class VCMI(ConanFile):
             self.options["qt"].opengl = "es2"
         if not is_apple_os(self) and self.settings.os != "Android" and cross_building(self):
             self.options["qt"].cross_compile = self.env["CONAN_CROSS_COMPILE"]
+        # TODO: add for all platforms after updating recipe
+        if self.settings.os == "Android":
+            self.options["qt"].essential_modules = False
         # No Qt OpenGL for cross-compiling for Windows, Conan does not support it
         if self.settings.os == "Windows" and cross_building(self):
             self.options["qt"].opengl = "no"
@@ -185,23 +189,26 @@ class VCMI(ConanFile):
         # transitive deps
         # doesn't link to overridden bzip2 & zlib, the tool isn't needed anyway
         self.options["pcre2"].build_pcre2grep = False
+        # executable not needed
+        if self.settings.os == "Android":
+            self.options["sqlite3"].build_executable = False
 
     def requirements(self):
-        # TODO: will no longer be needed after merging https://github.com/conan-io/conan-center-index/pull/13399
-        self.requires("libpng/[~1.6.38]", override=True) # freetype / Qt
-        if self.options.default_options_of_requirements:
-            self.requires("libjpeg/9e", override=True) # libtiff / Qt
-            self.requires("freetype/[~2.12.1]", override=True) # sdl_ttf / Qt
-            if self.options.with_ffmpeg:
-                self.requires("libwebp/[~1.2.4]", override=True) # sdl_image / ffmpeg
+        self.requires("freetype/[~2.12.1]", override=True) # sdl_ttf / Qt
+        self.requires("libpng/[~1.6.39]", override=True) # freetype / qt / sdl_image
 
         # client
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/[^4.4]")
 
         # launcher
-        if not self.settings.os == "Android":
+        if self.settings.os == "Android":
+            self.requires("qt/[~5.15.14]")
+        else:
             self.requires("qt/[~5.15.2]")
+        # TODO: version range doesn't work in Conan v1
+        if self.options["qt"].openssl:
+            self.requires("openssl/1.1.1s")
 
         # use Apple system libraries instead of external ones
         if self.options.with_apple_system_libs and is_apple_os(self):
@@ -234,6 +241,7 @@ class VCMI(ConanFile):
         tc.variables["USING_CONAN"] = True
         tc.variables["CONAN_INSTALL_FOLDER"] = self.install_folder
         if self.settings.os == "Android":
+            tc.variables["CMAKE_ANDROID_API"] = str(self.settings.os.api_level)
             tc.variables["ANDROID_SYSROOT_LIB_SUBDIR"] = {
                 'armv7': 'arm-linux-androideabi',
                 'armv8': 'aarch64-linux-android',

@@ -52,7 +52,7 @@
             "hidden": true,
             "cacheVariables": {
                 "ENABLE_LOBBY": "ON",
-				"ENABLE_TEST": "ON",
+                "ENABLE_TEST": "ON",
                 "ENABLE_LUA": "ON"
             }
         },
@@ -294,6 +294,15 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
+        },
+        {
+            "name": "android-daily-release",
+            "displayName": "Android daily release",
+            "description": "VCMI Android daily build",
+            "inherits": "android-conan-ninja-release",
+            "cacheVariables": {
+                "ANDROID_GRADLE_PROPERTIES": "applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily"
+            }
         }
     ],
     "buildPresets": [
@@ -412,6 +421,11 @@
             "name": "android-conan-ninja-release",
             "configurePreset": "android-conan-ninja-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "android-daily-release",
+            "configurePreset": "android-daily-release",
+            "inherits": "android-conan-ninja-release"
         }
     ],
     "testPresets": [

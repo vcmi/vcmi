@@ -12,7 +12,20 @@
 
 #include "../lib/CConfigHandler.h"
 
-void Helper::loadSettings()
+#include <QObject>
+#include <QScroller>
+
+namespace Helper
+{
+void loadSettings()
 {
 	settings.init("config/settings.json", "vcmi:settings");
+}
+
+void enableScrollBySwiping(QObject * scrollTarget)
+{
+#ifdef VCMI_MOBILE
+	QScroller::grabGesture(scrollTarget, QScroller::LeftMouseButtonGesture);
+#endif
+}
 }

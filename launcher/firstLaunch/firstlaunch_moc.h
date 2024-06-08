@@ -35,7 +35,6 @@ class FirstLaunchView : public QWidget
 	void languageSelected(const QString & languageCode);
 
 	// Tab Heroes III Data
-	bool heroesDataUpdate();
 	bool heroesDataDetect();
 
 	void heroesDataMissing();
@@ -63,6 +62,9 @@ class FirstLaunchView : public QWidget
 
 public:
 	explicit FirstLaunchView(QWidget * parent = nullptr);
+
+	// Tab Heroes III Data
+	bool heroesDataUpdate();
 
 public slots:
 
@@ -96,5 +98,4 @@ private slots:
 
 private:
 	Ui::FirstLaunchView * ui;
-
 };

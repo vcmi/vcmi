@@ -130,6 +130,12 @@ CModListView::CModListView(QWidget * parent)
 
 	setAcceptDrops(true);
 
+	ui->uninstallButton->setIcon(QIcon{":/icons/mod-delete.png"});
+	ui->enableButton->setIcon(QIcon{":/icons/mod-enabled.png"});
+	ui->disableButton->setIcon(QIcon{":/icons/mod-disabled.png"});
+	ui->updateButton->setIcon(QIcon{":/icons/mod-update.png"});
+	ui->installButton->setIcon(QIcon{":/icons/mod-download.png"});
+
 	setupModModel();
 	setupFilterModel();
 	setupModsView();
@@ -145,13 +151,14 @@ CModListView::CModListView(QWidget * parent)
 	{
 		manager->resetRepositories();
 	}
-	
-#ifdef Q_OS_IOS
+
+#ifdef VCMI_MOBILE
 	for(auto * scrollWidget : {
 		(QAbstractItemView*)ui->allModsView,
 		(QAbstractItemView*)ui->screenshotsList})
 	{
-		QScroller::grabGesture(scrollWidget, QScroller::LeftMouseButtonGesture);
+		Helper::enableScrollBySwiping(scrollWidget);
+
 		scrollWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 		scrollWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	}
@@ -393,14 +400,18 @@ void CModListView::selectMod(const QModelIndex & index)
 	}
 	else
 	{
-		auto mod = modModel->getMod(index.data(ModRoles::ModNameRole).toString());
+		const auto modName = index.data(ModRoles::ModNameRole).toString();
+		auto mod = modModel->getMod(modName);
 
 		ui->modInfoBrowser->setHtml(genModInfoText(mod));
 		ui->changelogBrowser->setHtml(genChangelogText(mod));
 
-		bool hasInvalidDeps = !findInvalidDependencies(index.data(ModRoles::ModNameRole).toString()).empty();
-		bool hasBlockingMods = !findBlockingMods(index.data(ModRoles::ModNameRole).toString()).empty();
-		bool hasDependentMods = !findDependentMods(index.data(ModRoles::ModNameRole).toString(), true).empty();
+		Helper::enableScrollBySwiping(ui->modInfoBrowser);
+		Helper::enableScrollBySwiping(ui->changelogBrowser);
+
+		bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
+		bool hasBlockingMods = !findBlockingMods(modName).empty();
+		bool hasDependentMods = !findDependentMods(modName, true).empty();
 
 		ui->disableButton->setVisible(mod.isEnabled());
 		ui->enableButton->setVisible(mod.isDisabled());

@@ -19,10 +19,22 @@
 #include "../../lib/Languages.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../helper.h"
 #include "../languages.h"
 
 #ifdef ENABLE_INNOEXTRACT
 #include "cli/extract.hpp"
+#endif
+
+#ifdef VCMI_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+
+static FirstLaunchView * thiz;
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_heroesDataUpdate(JNIEnv * env, jclass cls)
+{
+	thiz->heroesDataUpdate();
+}
 #endif
 
 FirstLaunchView::FirstLaunchView(QWidget * parent)
@@ -36,6 +48,8 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 
 	ui->lineEditDataSystem->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front())));
 	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
+
+	Helper::enableScrollBySwiping(ui->listWidgetLanguage);
 
 #ifndef ENABLE_INNOEXTRACT
 	ui->pushButtonGogInstall->hide();
@@ -94,7 +108,12 @@ void FirstLaunchView::on_pushButtonDataSearch_clicked()
 
 void FirstLaunchView::on_pushButtonDataCopy_clicked()
 {
+#ifdef VCMI_ANDROID
+	thiz = this;
+	QtAndroid::androidActivity().callMethod<void>("copyHeroesData");
+#else
 	copyHeroesData();
+#endif
 }
 
 void FirstLaunchView::on_pushButtonGogInstall_clicked()
@@ -195,11 +214,22 @@ void FirstLaunchView::heroesDataMissing()
 	ui->lineEditDataSystem->setPalette(newPalette);
 	ui->lineEditDataUser->setPalette(newPalette);
 
-	ui->pushButtonDataSearch->setVisible(true);
-	ui->pushButtonDataCopy->setVisible(true);
-
 	ui->labelDataSearch->setVisible(true);
-	ui->labelDataCopy->setVisible(true);
+	ui->pushButtonDataSearch->setVisible(true);
+
+#ifdef VCMI_ANDROID
+	// selecting directory with ACTION_OPEN_DOCUMENT_TREE is available only since API level 21
+	if (QtAndroid::androidSdkVersion() < 21)
+	{
+		ui->labelDataCopy->hide();
+		ui->pushButtonDataCopy->hide();
+	}
+	else
+#endif
+	{
+		ui->labelDataCopy->show();
+		ui->pushButtonDataCopy->show();
+	}
 
 	ui->labelDataFound->setVisible(false);
 	ui->pushButtonDataNext->setEnabled(false);
@@ -363,7 +393,7 @@ void FirstLaunchView::extractGogData()
 
 void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 {
-	QDir sourceRoot = QDir(path);
+	QDir sourceRoot{path};
 	
 	if(path.isEmpty())
 		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
@@ -387,9 +417,10 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 	QStringList dirMaps = sourceRoot.entryList({"maps"}, QDir::Filter::Dirs);
 	QStringList dirMp3 = sourceRoot.entryList({"mp3"}, QDir::Filter::Dirs);
 
+	const auto noDataMessage = tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
 	if(dirData.empty())
 	{
-		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
+		QMessageBox::critical(this, tr("Heroes III data not found!"), noDataMessage);
 		return;
 	}
 
@@ -403,7 +434,7 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 		if (roeFiles.empty())
 		{
 			// Directory structure is correct (Data/Maps/Mp3) but no .lod archives that should be present in any install
-			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
+			QMessageBox::critical(this, tr("Heroes III data not found!"), noDataMessage);
 			return;
 		}
 
