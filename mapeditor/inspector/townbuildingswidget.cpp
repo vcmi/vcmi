@@ -214,10 +214,50 @@ void TownBuildingsWidget::on_treeView_collapsed(const QModelIndex &index)
 	ui->treeView->resizeColumnToContents(0);
 }
 
+void TownBuildingsWidget::on_buildAll_clicked()
+{
+	setAllRowsColumnCheckState(Column::BUILT, Qt::Checked);
+}
+
+void TownBuildingsWidget::on_demolishAll_clicked()
+{
+	setAllRowsColumnCheckState(Column::BUILT, Qt::Unchecked);
+}
+
+void TownBuildingsWidget::on_enableAll_clicked()
+{
+	setAllRowsColumnCheckState(Column::ENABLED, Qt::Checked);
+}
+
+void TownBuildingsWidget::on_disableAll_clicked()
+{
+	setAllRowsColumnCheckState(Column::ENABLED, Qt::Unchecked);
+}
+
 
 void TownBuildingsWidget::setRowColumnCheckState(QStandardItem * item, Column column, Qt::CheckState checkState) {
 	auto sibling = item->model()->sibling(item->row(), column, item->index());
 	model.itemFromIndex(sibling)->setCheckState(checkState);
+}
+
+void TownBuildingsWidget::setAllRowsColumnCheckState(Column column, Qt::CheckState checkState)
+{
+	std::vector<QModelIndex> stack;
+	stack.push_back(QModelIndex());
+	while (!stack.empty())
+	{
+		auto parentIndex = stack.back();
+		stack.pop_back();
+		for (int i = 0; i < model.rowCount(parentIndex); ++i)
+		{
+			QModelIndex index = model.index(i, column, parentIndex);
+			if (auto* item = model.itemFromIndex(index))
+				item->setCheckState(checkState);
+			index = model.index(i, 0, parentIndex);
+			if (model.hasChildren(index))
+				stack.push_back(index);
+		}
+	}
 }
 
 void TownBuildingsWidget::onItemChanged(QStandardItem * item) {

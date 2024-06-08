@@ -42,11 +42,20 @@ private slots:
 
 	void on_treeView_collapsed(const QModelIndex &index);
 
+	void on_buildAll_clicked();
+
+	void on_demolishAll_clicked();
+
+	void on_enableAll_clicked();
+
+	void on_disableAll_clicked();
+
 	void onItemChanged(QStandardItem * item);
 
 private:
 	std::set<BuildingID> getBuildingsFromModel(int modelColumn, Qt::CheckState checkState);
 	void setRowColumnCheckState(QStandardItem * item, Column column, Qt::CheckState checkState);
+	void setAllRowsColumnCheckState(Column column, Qt::CheckState checkState);
 
 	Ui::TownBuildingsWidget *ui;
 	CGTownInstance & town;
