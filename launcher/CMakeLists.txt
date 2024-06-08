@@ -170,6 +170,7 @@ target_sources(vcmilauncher PRIVATE
 	${launcher_SRCS}
 	${launcher_HEADERS}
 	${launcher_RESOURCES}
+	${launcher_FORMS}
 )
 
 if(WIN32)
