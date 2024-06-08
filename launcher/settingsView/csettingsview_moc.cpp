@@ -71,6 +71,20 @@ void CSettingsView::setDisplayList()
 	}
 }
 
+void CSettingsView::setCheckbuttonState(QToolButton * button, bool checked)
+{
+	button->setChecked(checked);
+	updateCheckbuttonText(button);
+}
+
+void CSettingsView::updateCheckbuttonText(QToolButton * button)
+{
+	if (button->isChecked())
+		button->setText(tr("On"));
+	else
+		button->setText(tr("Off"));
+}
+
 void CSettingsView::loadSettings()
 {
 	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
@@ -97,7 +111,7 @@ void CSettingsView::loadSettings()
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
-	ui->comboBoxVSync->setCurrentIndex(settings["video"]["vsync"].Bool());
+	setCheckbuttonState(ui->buttonVSync, settings["video"]["vsync"].Bool());
 	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
@@ -109,7 +123,7 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["localPort"].Integer());
 
-	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
+	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
 
 	ui->lineEditRepositoryDefault->setText(QString::fromStdString(settings["launcher"]["defaultRepositoryURL"].String()));
 	ui->lineEditRepositoryExtra->setText(QString::fromStdString(settings["launcher"]["extraRepositoryURL"].String()));
@@ -117,16 +131,16 @@ void CSettingsView::loadSettings()
 	ui->lineEditRepositoryDefault->setEnabled(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->lineEditRepositoryExtra->setEnabled(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
-	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
-	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
+	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
+	setCheckbuttonState(ui->buttonRepositoryExtra, settings["launcher"]["extraRepositoryEnabled"].Bool());
 
-	ui->checkBoxIgnoreSslErrors->setChecked(settings["launcher"]["ignoreSslErrors"].Bool());
+	setCheckbuttonState(ui->buttonIgnoreSslErrors, settings["launcher"]["ignoreSslErrors"].Bool());
 
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
 	ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 
-	ui->checkBoxAutoSavePrefix->setChecked(settings["general"]["useSavePrefix"].Bool());
+	setCheckbuttonState(ui->buttonAutoSavePrefix, settings["general"]["useSavePrefix"].Bool());
 
 	ui->lineEditAutoSavePrefix->setText(QString::fromStdString(settings["general"]["savePrefix"].String()));
 	ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
@@ -502,18 +516,20 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	}
 }
 
-void CSettingsView::on_checkBoxRepositoryDefault_stateChanged(int arg1)
+void CSettingsView::on_buttonRepositoryDefault_stateChanged(int arg1)
 {
 	Settings node = settings.write["launcher"]["defaultRepositoryEnabled"];
 	node->Bool() = arg1;
 	ui->lineEditRepositoryDefault->setEnabled(arg1);
+	updateCheckbuttonText(ui->buttonRepositoryDefault);
 }
 
-void CSettingsView::on_checkBoxRepositoryExtra_stateChanged(int arg1)
+void CSettingsView::on_buttonRepositoryExtra_stateChanged(int arg1)
 {
 	Settings node = settings.write["launcher"]["extraRepositoryEnabled"];
 	node->Bool() = arg1;
 	ui->lineEditRepositoryExtra->setEnabled(arg1);
+	updateCheckbuttonText(ui->buttonRepositoryExtra);
 }
 
 void CSettingsView::on_lineEditRepositoryExtra_textEdited(const QString &arg1)
@@ -545,11 +561,12 @@ void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_checkBoxVSync_stateChanged(int arg1)
+void CSettingsView::on_buttonVSync_stateChanged(int arg1)
 {
 	Settings node = settings.write["video"]["vsync"];
 	node->Bool() = arg1;
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
+	updateCheckbuttonText(ui->buttonVSync);
 }
 
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1)
@@ -564,11 +581,12 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_checkBoxAutoSavePrefix_stateChanged(int arg1)
+void CSettingsView::on_buttonAutoSavePrefix_stateChanged(int arg1)
 {
 	Settings node = settings.write["general"]["useSavePrefix"];
 	node->Bool() = arg1;
 	ui->lineEditAutoSavePrefix->setEnabled(arg1);
+	updateCheckbuttonText(ui->buttonAutoSavePrefix);
 }
 
 void CSettingsView::on_spinBoxAutoSaveLimit_valueChanged(int arg1)
@@ -595,10 +613,11 @@ void CSettingsView::on_comboBoxRendererType_currentTextChanged(const QString &ar
 	node->String() = arg1.toStdString();
 }
 
-void CSettingsView::on_checkBoxIgnoreSslErrors_clicked(bool checked)
+void CSettingsView::on_buttonIgnoreSslErrors_clicked(bool checked)
 {
 	Settings node = settings.write["launcher"]["ignoreSslErrors"];
 	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonIgnoreSslErrors);
 }
 
 void CSettingsView::on_comboBoxUpscalingFilter_currentIndexChanged(int index)

@@ -47,9 +47,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-616</y>
+        <y>0</y>
         <width>729</width>
-        <height>1322</height>
+        <height>1335</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="2,0,1,1,1">
@@ -92,26 +92,6 @@
         <widget class="QLabel" name="labelCursorType">
          <property name="text">
           <string>Software Cursor</string>
-         </property>
-        </widget>
-       </item>
-       <item row="48" column="3" colspan="2">
-        <widget class="QPushButton" name="refreshRepositoriesButton">
-         <property name="text">
-          <string>Refresh now</string>
-         </property>
-        </widget>
-       </item>
-       <item row="49" column="1">
-        <widget class="QCheckBox" name="checkBoxRepositoryDefault">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -199,23 +179,6 @@
          <property name="text">
           <string/>
          </property>
-        </widget>
-       </item>
-       <item row="48" column="1" colspan="2">
-        <widget class="QComboBox" name="comboBoxAutoCheck">
-         <property name="currentIndex">
-          <number>1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>On</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="45" column="0">
@@ -462,16 +425,6 @@
          </property>
         </widget>
        </item>
-       <item row="49" column="2" colspan="3">
-        <widget class="QLineEdit" name="lineEditRepositoryDefault">
-         <property name="text">
-          <string notr="true"/>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="15" column="1" colspan="4">
         <widget class="QSpinBox" name="spinBoxFramerateLimit">
          <property name="minimum">
@@ -482,16 +435,6 @@
          </property>
          <property name="singleStep">
           <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="50" column="1">
-        <widget class="QCheckBox" name="checkBoxRepositoryExtra">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -569,13 +512,6 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="QCheckBox" name="checkBoxAutoSavePrefix">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
        <item row="26" column="1" colspan="4">
         <widget class="QSlider" name="sliderSoundVolume">
          <property name="maximum">
@@ -611,23 +547,6 @@
          <property name="text">
           <string>Framerate Limit</string>
          </property>
-        </widget>
-       </item>
-       <item row="16" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxVSync">
-         <property name="currentIndex">
-          <number>1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>On</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="7" column="0">
@@ -914,13 +833,6 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="2" colspan="3">
-        <widget class="QLineEdit" name="lineEditAutoSavePrefix">
-         <property name="placeholderText">
-          <string>empty = map name prefix</string>
-         </property>
-        </widget>
-       </item>
        <item row="26" column="0">
         <widget class="QLabel" name="labelSoundVolume">
          <property name="text">
@@ -954,19 +866,6 @@
        </item>
        <item row="1" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxLanguage"/>
-       </item>
-       <item row="47" column="1">
-        <widget class="QCheckBox" name="checkBoxIgnoreSslErrors">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
        </item>
        <item row="11" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxFullScreen">
@@ -1023,13 +922,6 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <widget class="QLabel" name="labelToleranceDistanceMouse">
          <property name="text">
           <string>Mouse Click Tolerance</string>
-         </property>
-        </widget>
-       </item>
-       <item row="50" column="2" colspan="3">
-        <widget class="QLineEdit" name="lineEditRepositoryExtra">
-         <property name="text">
-          <string notr="true"/>
          </property>
         </widget>
        </item>
@@ -1100,6 +992,154 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </property>
          <property name="tickInterval">
           <number>50</number>
+         </property>
+        </widget>
+       </item>
+       <item row="47" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonIgnoreSslErrors">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="49" column="1">
+        <widget class="QToolButton" name="buttonRepositoryDefault">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="50" column="1">
+        <widget class="QToolButton" name="buttonRepositoryExtra">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QToolButton" name="buttonAutoSavePrefix">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditAutoSavePrefix">
+         <property name="placeholderText">
+          <string>empty = map name prefix</string>
+         </property>
+        </widget>
+       </item>
+       <item row="48" column="1">
+        <widget class="QToolButton" name="buttonAutoCheck">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="48" column="2" colspan="3">
+        <widget class="QPushButton" name="refreshRepositoriesButton">
+         <property name="text">
+          <string>Refresh now</string>
+         </property>
+        </widget>
+       </item>
+       <item row="49" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditRepositoryDefault">
+         <property name="text">
+          <string notr="true"/>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="50" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditRepositoryExtra">
+         <property name="text">
+          <string notr="true"/>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonVSync">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
