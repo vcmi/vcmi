@@ -81,8 +81,12 @@ void CSettingsView::loadSettings()
 #else
 	ui->labelReservedArea->hide();
 	ui->sliderReservedArea->hide();
+	ui->labelRelativeCursorMode->hide();
 	ui->comboBoxRelativeCursorMode->hide();
 	ui->sliderRelativeCursorSpeed->hide();
+	ui->labelRelativeCursorSpeed->hide();
+	ui->comboBoxHapticFeedback->hide();
+	ui->labelHapticFeedback->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
