@@ -392,7 +392,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	else
 		animationPath = hero->type->heroClass->imageBattleMale;
 
-	animation = GH.renderHandler().loadAnimation(animationPath);
+	animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::ALPHA);
 
 	pos.w = 64;
 	pos.h = 136;
@@ -403,9 +403,9 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 		animation->verticalFlip();
 
 	if(defender)
-		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGR"));
+		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGR"), EImageBlitMode::COLORKEY);
 	else
-		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"));
+		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"), EImageBlitMode::COLORKEY);
 
 	flagAnimation->playerColored(hero->tempOwner);
 
@@ -425,7 +425,6 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * posit
 	if(initializeBackground)
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
-		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 		background->setPlayerColor(hero.owner);
 	}
 
@@ -493,10 +492,8 @@ StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBa
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("CCRPOP"));
 		background->pos.y += 37;
-		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 		background->setPlayerColor(stack->getOwner());
 		background2 = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
-		background2->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 		background2->setPlayerColor(stack->getOwner());
 	}
 

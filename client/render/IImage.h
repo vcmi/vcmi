@@ -26,13 +26,17 @@ class ColorFilter;
 /// Defines which blit method will be selected when image is used for rendering
 enum class EImageBlitMode
 {
-	/// Image can have no transparency and can be only used as background
+	/// Preferred for images that don't need any background
+	/// Indexed or RGBA: Image can have no transparency and can be only used as background
 	OPAQUE,
 
-	/// Image can have only a single color as transparency and has no semi-transparent areas
+	/// Preferred for images that may need transparency
+	/// Indexed: Image can have only a single color as transparency and has no semi-transparent areas
+	/// RGBA: full alpha transparency range, e.g. shadows
 	COLORKEY,
 
-	/// Image might have full alpha transparency range, e.g. shadows
+	/// Should be avoided if possible, use only for images that use def's with semi-transparency
+	/// Indexed or RGBA: Image might have full alpha transparency range, e.g. shadows
 	ALPHA
 };
 
@@ -85,7 +89,7 @@ public:
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 	virtual bool isTransparent(const Point & coords) const = 0;
 
-	virtual std::shared_ptr<IImage> createImageReference() = 0;
+	virtual std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) = 0;
 
 	virtual std::shared_ptr<IConstImage> horizontalFlip() const = 0;
 	virtual std::shared_ptr<IConstImage> verticalFlip() const = 0;

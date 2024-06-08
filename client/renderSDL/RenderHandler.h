@@ -58,12 +58,11 @@ public:
 	// IRenderHandler implementation
 	void onLibraryLoadingFinished(const Services * services) override;
 
-	std::shared_ptr<IImage> loadImage(const JsonNode & config) override;
-	std::shared_ptr<IImage> loadImage(const ImagePath & path) override;
+	std::shared_ptr<IImage> loadImage(const JsonNode & config, EImageBlitMode mode) override;
 	std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) override;
-	std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group) override;
+	std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode) override;
 
-	std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path) override;
+	std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) override;
 
 	std::shared_ptr<IImage> createImage(SDL_Surface * source) override;
 	std::shared_ptr<CAnimation> createAnimation() override;

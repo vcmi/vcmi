@@ -50,7 +50,7 @@ CPicture::CPicture( const ImagePath & bmpname )
 {}
 
 CPicture::CPicture( const ImagePath & bmpname, const Point & position )
-	: bg(GH.renderHandler().loadImage(bmpname))
+	: bg(GH.renderHandler().loadImage(bmpname, EImageBlitMode::COLORKEY))
 	, needRefresh(false)
 {
 	pos.x += position.x;
@@ -66,6 +66,14 @@ CPicture::CPicture( const ImagePath & bmpname, const Point & position )
 	{
 		pos.w = pos.h = 0;
 	}
+}
+
+CPicture::CPicture(const ImagePath & bmpname, const Rect &SrcRect, int x, int y)
+	: CPicture(bmpname, Point(x,y))
+{
+	srcRect = SrcRect;
+	pos.w = srcRect->w;
+	pos.h = srcRect->h;
 }
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, int y)
@@ -113,7 +121,7 @@ void CPicture::setPlayerColor(PlayerColor player)
 
 CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position)
 	: CIntObject(0, position.topLeft())
-	, texture(GH.renderHandler().loadImage(imageName))
+	, texture(GH.renderHandler().loadImage(imageName, EImageBlitMode::COLORKEY))
 {
 	pos.w = position.w;
 	pos.h = position.h;
@@ -122,7 +130,7 @@ CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position)
 
 CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position, Rect imageArea)
 	: CIntObject(0, position.topLeft())
-	, texture(GH.renderHandler().loadImage(imageName))
+	, texture(GH.renderHandler().loadImage(imageName, EImageBlitMode::COLORKEY))
 	, imageArea(imageArea)
 {
 	pos.w = position.w;
@@ -176,7 +184,7 @@ CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, i
 {
 	pos.x += x;
 	pos.y += y;
-	anim = GH.renderHandler().loadAnimation(name);
+	anim = GH.renderHandler().loadAnimation(name, EImageBlitMode::COLORKEY);
 	init();
 }
 
@@ -192,7 +200,7 @@ CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, i
 //}
 
 CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
-	anim(GH.renderHandler().loadAnimation(name)),
+	anim(GH.renderHandler().loadAnimation(name, EImageBlitMode::COLORKEY)),
 	frame(Frame),
 	group(Group),
 	flags(Flags),
@@ -268,7 +276,7 @@ void CAnimImage::showAll(Canvas & to)
 void CAnimImage::setAnimationPath(const AnimationPath & name, size_t frame)
 {
 	this->frame = frame;
-	anim = GH.renderHandler().loadAnimation(name);
+	anim = GH.renderHandler().loadAnimation(name, EImageBlitMode::COLORKEY);
 	init();
 }
 
@@ -310,7 +318,7 @@ bool CAnimImage::isPlayerColored() const
 }
 
 CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
-	anim(GH.renderHandler().loadAnimation(name)),
+	anim(GH.renderHandler().loadAnimation(name, EImageBlitMode::ALPHA)),
 	group(Group),
 	frame(0),
 	first(0),

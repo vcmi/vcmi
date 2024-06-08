@@ -104,12 +104,9 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 	for(auto & entry : terrainAnimations)
 	{
 		if (!filename.empty())
-			entry = GH.renderHandler().loadAnimation(filename);
+			entry = GH.renderHandler().loadAnimation(filename, blitMode);
 		else
 			entry = GH.renderHandler().createAnimation();
-
-		for(size_t i = 0; i < entry->size(); ++i)
-			entry->getImage(i)->setBlitMode(blitMode);
 	}
 
 	terrainAnimations[1]->verticalFlip();
@@ -249,7 +246,7 @@ uint8_t MapRendererRoad::checksum(IMapRendererContext & context, const int3 & co
 
 MapRendererBorder::MapRendererBorder()
 {
-	animation = GH.renderHandler().loadAnimation(AnimationPath::builtin("EDG"));
+	animation = GH.renderHandler().loadAnimation(AnimationPath::builtin("EDG"), EImageBlitMode::OPAQUE);
 }
 
 size_t MapRendererBorder::getIndexForTile(IMapRendererContext & context, const int3 & tile)
@@ -310,11 +307,8 @@ uint8_t MapRendererBorder::checksum(IMapRendererContext & context, const int3 & 
 
 MapRendererFow::MapRendererFow()
 {
-	fogOfWarFullHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRC"));
-	fogOfWarPartialHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"));
-
-	for(size_t i = 0; i < fogOfWarFullHide->size(); ++i)
-		fogOfWarFullHide->getImage(i)->setBlitMode(EImageBlitMode::OPAQUE);
+	fogOfWarFullHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRC"), EImageBlitMode::OPAQUE);
+	fogOfWarPartialHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"), EImageBlitMode::ALPHA);
 
 	static const std::vector<int> rotations = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
 
@@ -398,7 +392,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 	if(it != animations.end())
 		return it->second;
 
-	auto ret = GH.renderHandler().loadAnimation(filename);
+	auto ret = GH.renderHandler().loadAnimation(filename, EImageBlitMode::ALPHA);
 	animations[filename] = ret;
 
 	if(generateMovementGroups)
@@ -619,7 +613,7 @@ uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererPath::MapRendererPath()
-	: pathNodes(GH.renderHandler().loadAnimation(AnimationPath::builtin("ADAG")))
+	: pathNodes(GH.renderHandler().loadAnimation(AnimationPath::builtin("ADAG"), EImageBlitMode::ALPHA))
 {
 }
 

@@ -164,7 +164,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 std::shared_ptr<IConstImage> RenderHandler::loadImageFromSingleFile(const ImagePath & path)
 {
-	auto result = std::make_shared<SDLImageConst>(path, EImageBlitMode::COLORKEY);
+	auto result = std::make_shared<SDLImageConst>(path);
 	imageFiles[ImageLocator(path)] = result;
 	return result;
 }
@@ -223,37 +223,32 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageImpl(const ImageLocator & l
 	return result;
 }
 
-std::shared_ptr<IImage> RenderHandler::loadImage(const JsonNode & config)
+std::shared_ptr<IImage> RenderHandler::loadImage(const JsonNode & config, EImageBlitMode mode)
 {
 	if (config.isString())
-		return loadImageImpl(ImageLocator(ImagePath::fromJson(config)))->createImageReference();
+		return loadImageImpl(ImageLocator(ImagePath::fromJson(config)))->createImageReference(mode);
 	else
-		return loadImageImpl(ImageLocator(config))->createImageReference();
+		return loadImageImpl(ImageLocator(config))->createImageReference(mode);
 }
 
-std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group)
+std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
 {
-	return loadImageImpl(ImageLocator(path, frame, group))->createImageReference();
-}
-
-std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path)
-{
-	return loadImage(path, EImageBlitMode::ALPHA);
+	return loadImageImpl(ImageLocator(path, frame, group))->createImageReference(mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
-	return loadImageImpl(ImageLocator(path))->createImageReference();
+	return loadImageImpl(ImageLocator(path))->createImageReference(mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 {
-	return std::make_shared<SDLImageConst>(source, EImageBlitMode::ALPHA)->createImageReference();
+	return std::make_shared<SDLImageConst>(source)->createImageReference(EImageBlitMode::ALPHA);
 }
 
-std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path)
+std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)
 {
-	return std::make_shared<CAnimation>(path, getAnimationLayout(path));
+	return std::make_shared<CAnimation>(path, getAnimationLayout(path), mode);
 }
 
 std::shared_ptr<CAnimation> RenderHandler::createAnimation()

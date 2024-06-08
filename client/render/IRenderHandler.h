@@ -30,17 +30,16 @@ public:
 	virtual void onLibraryLoadingFinished(const Services * services) = 0;
 
 	/// Loads image using given path
-	virtual std::shared_ptr<IImage> loadImage(const JsonNode & config) = 0;
-	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path) = 0;
+	virtual std::shared_ptr<IImage> loadImage(const JsonNode & config, EImageBlitMode mode) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
-	virtual std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group) = 0;
+	virtual std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode) = 0;
 
 	/// temporary compatibility method. Creates IImage from existing SDL_Surface
 	/// Surface will be shared, caller must still free it with SDL_FreeSurface
 	virtual std::shared_ptr<IImage> createImage(SDL_Surface * source) = 0;
 
 	/// Loads animation using given path
-	virtual std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path) = 0;
+	virtual std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) = 0;
 
 	/// Creates empty CAnimation. Temporary compatibility method
 	virtual std::shared_ptr<CAnimation> createAnimation() = 0;

@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "IImage.h"
+
 #include "../../lib/GameConstants.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
@@ -17,7 +19,6 @@ class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
 class CDefFile;
-class IImage;
 class RenderHandler;
 
 /// Class for handling animation
@@ -33,6 +34,8 @@ private:
 	//animation file name
 	AnimationPath name;
 
+	EImageBlitMode mode;
+
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
 	bool loadFrame(size_t frame, size_t group);
 
@@ -44,7 +47,7 @@ private:
 
 	std::shared_ptr<IImage> getImageImpl(size_t frame, size_t group=0, bool verbose=true);
 public:
-	CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout);
+	CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout, EImageBlitMode mode);
 	CAnimation();
 	~CAnimation();
 

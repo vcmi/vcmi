@@ -31,6 +31,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
@@ -178,7 +179,7 @@ void AdventureMapInterface::dim(Canvas & to)
 		{
 			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && isBigWindow(window))
 			{
-				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck")));
+				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 				return;
 			}
 		}
