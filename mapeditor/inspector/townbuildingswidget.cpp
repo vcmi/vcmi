@@ -275,12 +275,21 @@ void TownBuildingsWidget::onItemChanged(QStandardItem * item) {
 		}
 	}
 	else if (item->checkState() == Qt::Unchecked) {
-		while (nextRow) {
+		std::vector<QStandardItem*> stack;
+		stack.push_back(nextRow);
+		while (!stack.empty()) {
+			nextRow = stack.back();
+			stack.pop_back();
 			setRowColumnCheckState(nextRow, Column(item->column()), Qt::Unchecked);
 			if (item->column() == Column::ENABLED) {
 				setRowColumnCheckState(nextRow, Column::BUILT, Qt::Unchecked);
 			}
-			nextRow = nextRow->child(0, Column::TYPE);
+			if (nextRow->hasChildren()) {
+				for (int i = 0; i < nextRow->rowCount(); ++i) {
+					stack.push_back(nextRow->child(i, Column::TYPE));
+				}
+			}
+			
 		}
 	}
 	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
