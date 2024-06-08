@@ -54,6 +54,17 @@ int MAIN_EXPORT main(int argc, char * argv[])
 	MainWindow mainWindow;
 	mainWindow.show();
 
+#ifdef VCMI_ANDROID
+	// changing language causes window to increase size over the bounds, force it back to proper value
+	// TODO: check in Qt 6 if the hack is still needed
+	auto appWindow = vcmilauncher.focusWindow();
+	auto resizeWindowToScreen = [appWindow]{
+		appWindow->resize(appWindow->screen()->availableSize());
+	};
+	QObject::connect(appWindow, &QWindow::widthChanged, resizeWindowToScreen);
+	QObject::connect(appWindow, &QWindow::heightChanged, resizeWindowToScreen);
+#endif
+
 	result = vcmilauncher.exec();
 #ifdef VCMI_IOS
 	}
