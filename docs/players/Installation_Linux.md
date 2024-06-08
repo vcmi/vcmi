@@ -2,9 +2,7 @@ VCMI requires data from original Heroes 3: Shadow of Death or Complete editions.
 
 # Step 1: Binaries installation
 
-## Ubuntu
-
-### Latest stable build from PPA (recommended)
+### Ubuntu - Latest stable build from PPA (recommended)
 
 Up-to-date releases can be found in our PPA here: <https://launchpad.net/~vcmi/+archive/ubuntu/ppa>
 
@@ -15,7 +13,7 @@ To install VCMI from PPA use:
     sudo apt install vcmi
 ```
 
-### Unstable testing build from PPA
+### Ubuntu - Unstable testing build from PPA
 
 We also provide latest, unstable builds mostly suitable for testing here: <https://launchpad.net/~vcmi/+archive/ubuntu/vcmi-latest>
 
@@ -25,7 +23,7 @@ In order to install from this PPA use:
     sudo apt update
     sudo apt install vcmi
 ```
-### From Ubuntu repository
+### Ubuntu - From Ubuntu repository
 
 VCMI stable builds available in "multiverse" repository. Learn how to enable it in [Ubuntu wiki](https://help.ubuntu.com/community/Repositories/Ubuntu).
 Once enabled, you can install VCMI using Ubuntu Store or in terminal using following commands:
@@ -35,7 +33,7 @@ Once enabled, you can install VCMI using Ubuntu Store or in terminal using follo
 ```
 Note that version available in Ubuntu is outdated. Install via PPA is preferred.
 
-## Debian
+### Debian
 
 Stable VCMI version is available in "contrib" repository. Learn how to enable it in [Debian wiki](https://wiki.debian.org/SourcesList).
 To install VCMI from repository:
@@ -43,14 +41,14 @@ To install VCMI from repository:
     sudo apt-get update
     sudo apt-get install vcmi
 ```
-## Flatpak (distribution-agnostic)
+### Flatpak (distribution-agnostic)
 
 Latest public release build can be installed via Flatpak.
 
 Depending on your distribution, you may need to install flatpak itself. You can find guide for your distribution here: <https://www.flatpak.org/setup/>
 Once you have flatpak, you can install VCMI package which can be found here: <https://flathub.org/apps/details/eu.vcmi.VCMI>
 
-## Other distributions
+### Other distributions
 
 For other distributions, VCMI can be installed from 3rd-party repositories listed below. Note that these repositories are not supported by vcmi team and may not be up to date.
 
@@ -59,15 +57,15 @@ For other distributions, VCMI can be installed from 3rd-party repositories liste
 
 If you are interested in providing builds for other distributions, please let us know.
 
-## Compiling from source
+### Compiling from source
 
 Please check following developer guide: [How to build VCMI (Linux)](../developers/Building_Linux.md)
 
-# Step 2: Installing Heroes III data files
+## Step 2: Installing Heroes III data files
 
 To install VCMI you will need Heroes III: Shadow of Death or Complete edition.
 
-## Install data using vcmibuilder script
+### Install data using vcmibuilder script
 
 Recommended for non-Flatpak installs.
 
@@ -91,7 +89,7 @@ On flatpak install, it's also possible to run the script, but any path seems to 
 flatpak run --command=vcmibuilder eu.vcmi.VCMI --data /path/to/h3/data`
 ```
 
-## Install data using gog.com offline installer
+### Install data using gog.com offline installer
 
 Download both files for the "offline backup game installers" and extract them using innoextract tool
 
@@ -105,19 +103,19 @@ innoextract --output-dir=~/Downloads/HoMM3 "setup_heroes_of_might_and_magic_3_co
 
 Once innoextract completes, start VCMI Launcher and choose to place existing files. Select the ~/Downloads/HoMM3 directory. Once placing is complete, you can delete both offline installer files as well as ~/Downloads/HoMM3.
 
-## Install manually using existing Heroes III data
+### Install manually using existing Heroes III data
 
 Copy "Data", "Maps" and "Mp3" from Heroes III to `$HOME/.local/share/vcmi/`
 Or, in case of flatpak install to `$HOME/.var/app/eu.vcmi.VCMI/data/vcmi/`
 On some distributions $XDG_DATA_HOME could differ so instead you may need to use: `$XDG_DATA_HOME/vcmi/`
 
-# Step 3: Launching game
+## Step 3: Launching game
 
 VCMI should be available via desktop environment menu or launcher (Games/Strategy/VCMI)
 
 To start the game type in console: `vcmilauncher`
 Or, to start game directly avoiding Launcher: `vcmiclient`
 
-# Reporting bugs
+## Reporting bugs
 
 Please report any issues with packages according to [Bug Reporting Guidelines](Bug_Reporting_Guidelines.md)

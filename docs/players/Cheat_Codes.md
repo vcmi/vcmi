@@ -1,10 +1,8 @@
-# Cheat Codes
+## Cheat Codes
 
 Similar to H3, VCMI provides cheat codes to make testing game more convenient.
 
 To use cheat code, press `Tab` key or click/tap on status bar to open game chat and enter code. Most cheat codes have several alternative names, including name of this cheat code in H3:SoD
-
-## List of Cheat Codes
 
 ### Spells
 
@@ -103,7 +101,7 @@ Following commands can be used by any player in multiplayer:
 - - `!vote simturns abort` - abort simultaneous turns once this turn ends
 - - `!vote timer prolong X` - prolong base timer for all players by specified number of seconds
 
-# Client Commands
+## Client Commands
 
 Client commands are set of predefined commands that are supported by VCMI, but unlike cheats they perform utility actions that do not alter state of the gameplay. As of release 1.2 client commands can work by typing them in-game like cheats, preceded by symbol / (for example `/controlai blue`)
 
