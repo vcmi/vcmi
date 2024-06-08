@@ -15,6 +15,19 @@
 #include <QObject>
 #include <QScroller>
 
+#ifdef VCMI_MOBILE
+static QScrollerProperties generateScrollerProperties()
+{
+	QScrollerProperties result;
+
+	result.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.25);
+	result.setScrollMetric(QScrollerProperties::OvershootDragDistanceFactor, 0.25);
+	result.setScrollMetric(QScrollerProperties::HorizontalOvershootPolicy, QScrollerProperties::OvershootAlwaysOff);
+
+	return result;
+}
+#endif
+
 namespace Helper
 {
 void loadSettings()
@@ -26,6 +39,8 @@ void enableScrollBySwiping(QObject * scrollTarget)
 {
 #ifdef VCMI_MOBILE
 	QScroller::grabGesture(scrollTarget, QScroller::LeftMouseButtonGesture);
+	QScroller * scroller = QScroller::scroller(scrollTarget);
+	scroller->setScrollerProperties(generateScrollerProperties());
 #endif
 }
 }
