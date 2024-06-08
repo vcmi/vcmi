@@ -77,7 +77,7 @@ TownBuildingsWidget::TownBuildingsWidget(CGTownInstance & t, QWidget *parent) :
 	ui->treeView->setModel(&model);
 	//ui->treeView->setColumnCount(3);
 	model.setHorizontalHeaderLabels(QStringList() << QStringLiteral("Type") << QStringLiteral("Enabled") << QStringLiteral("Built"));
-	
+	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 	//setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -196,12 +196,12 @@ std::set<BuildingID> TownBuildingsWidget::getBuildingsFromModel(int modelColumn,
 
 std::set<BuildingID> TownBuildingsWidget::getForbiddenBuildings()
 {
-	return getBuildingsFromModel(1, Qt::Unchecked);
+	return getBuildingsFromModel(Column::ENABLED, Qt::Unchecked);
 }
 
 std::set<BuildingID> TownBuildingsWidget::getBuiltBuildings()
 {
-	return getBuildingsFromModel(2, Qt::Checked);
+	return getBuildingsFromModel(Column::BUILT, Qt::Checked);
 }
 
 void TownBuildingsWidget::on_treeView_expanded(const QModelIndex &index)
@@ -214,6 +214,37 @@ void TownBuildingsWidget::on_treeView_collapsed(const QModelIndex &index)
 	ui->treeView->resizeColumnToContents(0);
 }
 
+
+void TownBuildingsWidget::setRowColumnCheckState(QStandardItem * item, Column column, Qt::CheckState checkState) {
+	auto sibling = item->model()->sibling(item->row(), column, item->index());
+	model.itemFromIndex(sibling)->setCheckState(checkState);
+}
+
+void TownBuildingsWidget::onItemChanged(QStandardItem * item) {
+	disconnect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
+	auto rowFirstColumnIndex = item->model()->sibling(item->row(), Column::TYPE, item->index());
+	QStandardItem * nextRow = model.itemFromIndex(rowFirstColumnIndex);
+	if (item->checkState() == Qt::Checked) {
+		while (nextRow) {
+			setRowColumnCheckState(nextRow, Column(item->column()), Qt::Checked);
+			if (item->column() == Column::BUILT) {
+				setRowColumnCheckState(nextRow, Column::ENABLED, Qt::Checked);
+			}
+			nextRow = nextRow->parent();
+
+		}
+	}
+	else if (item->checkState() == Qt::Unchecked) {
+		while (nextRow) {
+			setRowColumnCheckState(nextRow, Column(item->column()), Qt::Unchecked);
+			if (item->column() == Column::ENABLED) {
+				setRowColumnCheckState(nextRow, Column::BUILT, Qt::Unchecked);
+			}
+			nextRow = nextRow->child(0, Column::TYPE);
+		}
+	}
+	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
+}
 
 TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), QStyledItemDelegate()
 {
