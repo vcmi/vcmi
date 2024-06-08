@@ -102,7 +102,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Download &amp;&amp; refresh repositories</string>
+        <string>Reload repositories</string>
        </property>
       </widget>
      </item>
