@@ -215,7 +215,7 @@ CSpellWindow::~CSpellWindow()
 
 std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 {
-	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"));
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"), EImageBlitMode::OPAQUE);
 	Canvas canvas = Canvas(Point(800, 600));
 	// edges
 	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));

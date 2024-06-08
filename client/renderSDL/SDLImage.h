@@ -42,9 +42,9 @@ public:
 	//Load image from def file
 	SDLImageConst(CDefFile *data, size_t frame, size_t group=0);
 	//Load from bitmap file
-	SDLImageConst(const ImagePath & filename, EImageBlitMode blitMode);
+	SDLImageConst(const ImagePath & filename);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
-	SDLImageConst(SDL_Surface * from, EImageBlitMode blitMode);
+	SDLImageConst(SDL_Surface * from);
 	~SDLImageConst();
 
 	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const;
@@ -52,7 +52,7 @@ public:
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	Point dimensions() const override;
 	bool isTransparent(const Point & coords) const override;
-	std::shared_ptr<IImage> createImageReference() override;
+	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) override;
 	std::shared_ptr<IConstImage> horizontalFlip() const override;
 	std::shared_ptr<IConstImage> verticalFlip() const override;
 	std::shared_ptr<SDLImageConst> scaleFast(const Point & size) const;
@@ -71,7 +71,7 @@ protected:
 	EImageBlitMode blitMode;
 
 public:
-	SDLImageBase(const std::shared_ptr<SDLImageConst> & image);
+	SDLImageBase(const std::shared_ptr<SDLImageConst> & image, EImageBlitMode mode);
 
 	void scaleFast(const Point & size) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
@@ -86,7 +86,7 @@ class SDLImageIndexed final : public SDLImageBase
 	SDL_Palette * currentPalette = nullptr;
 
 public:
-	SDLImageIndexed(const std::shared_ptr<SDLImageConst> & image);
+	SDLImageIndexed(const std::shared_ptr<SDLImageConst> & image, EImageBlitMode mode);
 	~SDLImageIndexed();
 
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;

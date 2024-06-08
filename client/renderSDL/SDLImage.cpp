@@ -44,7 +44,7 @@ SDLImageConst::SDLImageConst(CDefFile * data, size_t frame, size_t group)
 	savePalette();
 }
 
-SDLImageConst::SDLImageConst(SDL_Surface * from, EImageBlitMode mode)
+SDLImageConst::SDLImageConst(SDL_Surface * from)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -61,7 +61,7 @@ SDLImageConst::SDLImageConst(SDL_Surface * from, EImageBlitMode mode)
 	fullSize.y = surf->h;
 }
 
-SDLImageConst::SDLImageConst(const ImagePath & filename, EImageBlitMode mode)
+SDLImageConst::SDLImageConst(const ImagePath & filename)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -111,10 +111,10 @@ void SDLImageConst::draw(SDL_Surface * where, SDL_Palette * palette, const Point
 
 	SDL_SetSurfaceAlphaMod(surf, alpha);
 
-	if (mode == EImageBlitMode::OPAQUE)
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
-	else
+	if (mode != EImageBlitMode::OPAQUE && surf->format->Amask != 0)
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
+	else
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
@@ -151,7 +151,7 @@ std::shared_ptr<SDLImageConst> SDLImageConst::scaleFast(const Point & size) cons
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	auto ret = std::make_shared<SDLImageConst>(scaled, EImageBlitMode::ALPHA);
+	auto ret = std::make_shared<SDLImageConst>(scaled);
 
 	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
 	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
@@ -194,18 +194,18 @@ Point SDLImageConst::dimensions() const
 	return fullSize;
 }
 
-std::shared_ptr<IImage> SDLImageConst::createImageReference()
+std::shared_ptr<IImage> SDLImageConst::createImageReference(EImageBlitMode mode)
 {
 	if (surf->format->palette)
-		return std::make_shared<SDLImageIndexed>(shared_from_this());
+		return std::make_shared<SDLImageIndexed>(shared_from_this(), mode);
 	else
-		return std::make_shared<SDLImageRGB>(shared_from_this());
+		return std::make_shared<SDLImageRGB>(shared_from_this(), mode);
 }
 
 std::shared_ptr<IConstImage> SDLImageConst::horizontalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
-	auto ret = std::make_shared<SDLImageConst>(flipped, EImageBlitMode::ALPHA);
+	auto ret = std::make_shared<SDLImageConst>(flipped);
 	ret->fullSize = fullSize;
 	ret->margins.x = margins.x;
 	ret->margins.y = fullSize.y - surf->h - margins.y;
@@ -217,7 +217,7 @@ std::shared_ptr<IConstImage> SDLImageConst::horizontalFlip() const
 std::shared_ptr<IConstImage> SDLImageConst::verticalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
-	auto ret = std::make_shared<SDLImageConst>(flipped, EImageBlitMode::ALPHA);
+	auto ret = std::make_shared<SDLImageConst>(flipped);
 	ret->fullSize = fullSize;
 	ret->margins.x = fullSize.x - surf->w - margins.x;
 	ret->margins.y = margins.y;
@@ -265,8 +265,8 @@ void SDLImageIndexed::adjustPalette(const ColorFilter & shifter, uint32_t colors
 	}
 }
 
-SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<SDLImageConst> & image)
-	:SDLImageBase::SDLImageBase(image)
+SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<SDLImageConst> & image, EImageBlitMode mode)
+	:SDLImageBase::SDLImageBase(image, mode)
 {
 	auto originalPalette = image->getPalette();
 
@@ -296,10 +296,10 @@ SDLImageConst::~SDLImageConst()
 	SDL_FreePalette(originalPalette);
 }
 
-SDLImageBase::SDLImageBase(const std::shared_ptr<SDLImageConst> & image)
+SDLImageBase::SDLImageBase(const std::shared_ptr<SDLImageConst> & image, EImageBlitMode mode)
 	:image(image)
 	, alphaValue(SDL_ALPHA_OPAQUE)
-	, blitMode(EImageBlitMode::ALPHA)
+	, blitMode(mode)
 {}
 
 void SDLImageRGB::draw(SDL_Surface * where, const Point & pos, const Rect * src) const

@@ -34,9 +34,9 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 
 	//try to get image from def
 	if(source[group][frame].isNull())
-		image = GH.renderHandler().loadImage(name, frame, group);
+		image = GH.renderHandler().loadImage(name, frame, group, mode);
 	else
-		image = GH.renderHandler().loadImage(source[group][frame]);
+		image = GH.renderHandler().loadImage(source[group][frame], mode);
 
 	if(image)
 	{
@@ -104,9 +104,10 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 	logGlobal->error("%s error: Request for frame not present in CAnimation! File name: %s, Group: %d, Frame: %d", type, name.getOriginalName(), group, frame);
 }
 
-CAnimation::CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout):
+CAnimation::CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout, EImageBlitMode mode):
 	name(boost::starts_with(Name.getName(), "SPRITES") ? Name : Name.addPrefix("SPRITES/")),
-	source(layout)
+	source(layout),
+	mode(mode)
 {
 	if(source.empty())
 		logAnim->error("Animation %s failed to load", Name.getOriginalName());

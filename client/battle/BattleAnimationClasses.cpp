@@ -883,7 +883,7 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, bool reversed):
 	BattleAnimation(owner),
-	animation(GH.renderHandler().loadAnimation(animationName)),
+	animation(GH.renderHandler().loadAnimation(animationName, EImageBlitMode::ALPHA)),
 	effectFlags(effects),
 	effectFinished(false),
 	reversed(reversed)

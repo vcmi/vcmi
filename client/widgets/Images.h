@@ -44,6 +44,7 @@ public:
 
 	/// wrap section of an existing Image
 	CPicture(std::shared_ptr<IImage> image, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
+	CPicture(const ImagePath & bmpname, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
 
 	/// Loads image from specified file name
 	CPicture(const ImagePath & bmpname);

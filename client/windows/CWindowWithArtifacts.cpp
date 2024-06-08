@@ -237,7 +237,7 @@ void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 	if(artInst.isScroll() && settings["general"]["enableUiEnhancements"].Bool())
 	{
 		assert(artInst.getScrollSpellID().num >= 0);
-		auto image = GH.renderHandler().loadImage(AnimationPath::builtin("spellscr"), artInst.getScrollSpellID().num, 0);
+		auto image = GH.renderHandler().loadImage(AnimationPath::builtin("spellscr"), artInst.getScrollSpellID().num, 0, EImageBlitMode::COLORKEY);
 		image->scaleFast(Point(44,34));
 
 		CCS->curh->dragAndDropCursor(image);
