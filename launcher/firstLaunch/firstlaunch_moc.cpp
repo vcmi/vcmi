@@ -159,7 +159,10 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->labelDataHelp->hide();
 #endif
 	if(heroesDataUpdate())
+	{
+		activateTabModPreset();
 		return;
+	}
 
 	QString installPath = getHeroesInstallDir();
 	if(!installPath.isEmpty())
