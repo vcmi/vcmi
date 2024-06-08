@@ -82,9 +82,6 @@ QVariant CModListModel::getValue(const CModEntry & mod, int field) const
 		case ModFields::NAME:
 			return mod.getValue("name");
 
-		case ModFields::VERSION:
-			return mod.getValue("version");
-
 		case ModFields::TYPE:
 			return modTypeName(mod.getValue("modType").toString());
 
@@ -173,7 +170,6 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", "Type"),
-		QT_TRANSLATE_NOOP("ModFields", "Version"),
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
