@@ -49,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>729</width>
-        <height>1335</height>
+        <height>1340</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="2,0,1,1,1">
@@ -114,23 +114,6 @@
          <property name="text">
           <string>Upscaling Filter</string>
          </property>
-        </widget>
-       </item>
-       <item row="32" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxHapticFeedback">
-         <property name="currentIndex">
-          <number>1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>On</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="30" column="0">
@@ -480,23 +463,6 @@
          </property>
         </widget>
        </item>
-       <item row="18" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxShowIntro">
-         <property name="currentIndex">
-          <number>1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>On</string>
-          </property>
-         </item>
-        </widget>
-       </item>
        <item row="46" column="0">
         <widget class="QLabel" name="labelNetwork">
          <property name="font">
@@ -656,23 +622,6 @@
          </property>
         </widget>
        </item>
-       <item row="30" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxRelativeCursorMode">
-         <property name="currentIndex">
-          <number>1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>On</string>
-          </property>
-         </item>
-        </widget>
-       </item>
        <item row="33" column="0">
         <widget class="QLabel" name="labelLongTouchDuration">
          <property name="text">
@@ -759,23 +708,6 @@
          </property>
         </widget>
        </item>
-       <item row="21" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxCursorType">
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>On</string>
-          </property>
-         </item>
-        </widget>
-       </item>
        <item row="13" column="0">
         <widget class="QLabel" name="labelInterfaceScaling">
          <property name="text">
@@ -845,23 +777,6 @@
          <property name="text">
           <string>Autosave prefix</string>
          </property>
-        </widget>
-       </item>
-       <item row="6" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxAutoSave">
-         <property name="currentIndex">
-          <number>1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>On</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="1" column="1" colspan="4">
@@ -1129,6 +1044,86 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
        </item>
        <item row="16" column="1" colspan="4">
         <widget class="QToolButton" name="buttonVSync">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonShowIntro">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="21" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonCursorType">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="30" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonRelativeCursorMode">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="32" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonHapticFeedback">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonAutoSave">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
            <horstretch>0</horstretch>

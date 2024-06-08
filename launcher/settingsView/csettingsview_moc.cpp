@@ -87,7 +87,7 @@ void CSettingsView::updateCheckbuttonText(QToolButton * button)
 
 void CSettingsView::loadSettings()
 {
-	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
+	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
 
 #ifdef VCMI_MOBILE
 	ui->comboBoxFullScreen->hide();
@@ -96,10 +96,10 @@ void CSettingsView::loadSettings()
 	ui->labelReservedArea->hide();
 	ui->sliderReservedArea->hide();
 	ui->labelRelativeCursorMode->hide();
-	ui->comboBoxRelativeCursorMode->hide();
+	ui->buttonRelativeCursorMode->hide();
 	ui->sliderRelativeCursorSpeed->hide();
 	ui->labelRelativeCursorSpeed->hide();
-	ui->comboBoxHapticFeedback->hide();
+	ui->buttonHapticFeedback->hide();
 	ui->labelHapticFeedback->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
@@ -135,8 +135,7 @@ void CSettingsView::loadSettings()
 	setCheckbuttonState(ui->buttonRepositoryExtra, settings["launcher"]["extraRepositoryEnabled"].Bool());
 
 	setCheckbuttonState(ui->buttonIgnoreSslErrors, settings["launcher"]["ignoreSslErrors"].Bool());
-
-	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
+	setCheckbuttonState(ui->buttonAutoSave, settings["general"]["saveFrequency"].Integer() > 0);
 
 	ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 
@@ -150,7 +149,7 @@ void CSettingsView::loadSettings()
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
-	ui->comboBoxCursorType->setCurrentIndex(cursorTypeIndex);
+	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
 
 	std::string upscalingFilter = settings["video"]["scalingMode"].String();
 	int upscalingFilterIndex = vstd::find_pos(upscalingFilterTypes, upscalingFilter);
@@ -158,9 +157,9 @@ void CSettingsView::loadSettings()
 
 	ui->sliderMusicVolume->setValue(settings["general"]["music"].Integer());
 	ui->sliderSoundVolume->setValue(settings["general"]["sound"].Integer());
-	ui->comboBoxRelativeCursorMode->setCurrentIndex(settings["general"]["userRelativePointer"].Bool());
+	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	ui->sliderRelativeCursorSpeed->setValue(settings["general"]["relativePointerSpeedMultiplier"].Integer());
-	ui->comboBoxHapticFeedback->setCurrentIndex(settings["launcher"]["hapticFeedback"].Bool());
+	setCheckbuttonState(ui->buttonHapticFeedback, settings["launcher"]["hapticFeedback"].Bool());
 	ui->sliderLongTouchDuration->setValue(settings["general"]["longTouchTimeMilliseconds"].Integer());
 	ui->slideToleranceDistanceMouse->setValue(settings["input"]["mouseToleranceDistance"].Integer());
 	ui->sliderToleranceDistanceTouch->setValue(settings["input"]["touchToleranceDistance"].Integer());
@@ -362,10 +361,11 @@ void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 	fillValidScalingRange();
 }
 
-void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
+void CSettingsView::on_buttonAutoCheck_toggled(bool value)
 {
 	Settings node = settings.write["launcher"]["autoCheckRepositories"];
-	node->Bool() = index;
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonAutoCheck);
 }
 
 void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
@@ -400,16 +400,18 @@ void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
+void CSettingsView::on_buttonShowIntro_toggled(bool value)
 {
 	Settings node = settings.write["video"]["showIntro"];
-	node->Bool() = index;
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonShowIntro);
 }
 
-void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
+void CSettingsView::on_buttonAutoSave_toggled(bool value)
 {
 	Settings node = settings.write["general"]["saveFrequency"];
-	node->Integer() = index;
+	node->Integer() = value ? 1 : 0;
+	updateCheckbuttonText(ui->buttonAutoSave);
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -439,10 +441,11 @@ void CSettingsView::showEvent(QShowEvent * event)
 	QWidget::showEvent(event);
 }
 
-void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
+void CSettingsView::on_buttonCursorType_toggled(bool value)
 {
 	Settings node = settings.write["video"]["cursor"];
-	node->String() = cursorTypesList[index];
+	node->String() = cursorTypesList[value ? 1 : 0];
+	updateCheckbuttonText(ui->buttonCursorType);
 }
 
 void CSettingsView::loadTranslation()
@@ -516,19 +519,19 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	}
 }
 
-void CSettingsView::on_buttonRepositoryDefault_stateChanged(int arg1)
+void CSettingsView::on_buttonRepositoryDefault_toggled(bool value)
 {
 	Settings node = settings.write["launcher"]["defaultRepositoryEnabled"];
-	node->Bool() = arg1;
-	ui->lineEditRepositoryDefault->setEnabled(arg1);
+	node->Bool() = value;
+	ui->lineEditRepositoryDefault->setEnabled(value);
 	updateCheckbuttonText(ui->buttonRepositoryDefault);
 }
 
-void CSettingsView::on_buttonRepositoryExtra_stateChanged(int arg1)
+void CSettingsView::on_buttonRepositoryExtra_toggled(bool value)
 {
 	Settings node = settings.write["launcher"]["extraRepositoryEnabled"];
-	node->Bool() = arg1;
-	ui->lineEditRepositoryExtra->setEnabled(arg1);
+	node->Bool() = value;
+	ui->lineEditRepositoryExtra->setEnabled(value);
 	updateCheckbuttonText(ui->buttonRepositoryExtra);
 }
 
@@ -561,10 +564,10 @@ void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_buttonVSync_stateChanged(int arg1)
+void CSettingsView::on_buttonVSync_toggled(bool value)
 {
 	Settings node = settings.write["video"]["vsync"];
-	node->Bool() = arg1;
+	node->Bool() = value;
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 	updateCheckbuttonText(ui->buttonVSync);
 }
@@ -581,11 +584,11 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_buttonAutoSavePrefix_stateChanged(int arg1)
+void CSettingsView::on_buttonAutoSavePrefix_toggled(bool value)
 {
 	Settings node = settings.write["general"]["useSavePrefix"];
-	node->Bool() = arg1;
-	ui->lineEditAutoSavePrefix->setEnabled(arg1);
+	node->Bool() = value;
+	ui->lineEditAutoSavePrefix->setEnabled(value);
 	updateCheckbuttonText(ui->buttonAutoSavePrefix);
 }
 
@@ -601,7 +604,7 @@ void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString & arg1)
 	node->String() = arg1.toStdString();
 }
 
-void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
+void CSettingsView::on_sliderReservedArea_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["reservedWidth"];
 	node->Float() = float(arg1) / 100; // percentage -> ratio
@@ -638,10 +641,11 @@ void CSettingsView::on_sliderSoundVolume_valueChanged(int value)
 	node->Integer() = value;
 }
 
-void CSettingsView::on_comboBoxRelativeCursorMode_currentIndexChanged(int index)
+void CSettingsView::on_buttonRelativeCursorMode_toggled(bool value)
 {
 	Settings node = settings.write["general"]["userRelativePointer"];
-	node->Bool() = index;
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonRelativeCursorMode);
 }
 
 void CSettingsView::on_sliderRelativeCursorSpeed_valueChanged(int value)
@@ -650,10 +654,11 @@ void CSettingsView::on_sliderRelativeCursorSpeed_valueChanged(int value)
 	node->Float() = value / 100.0;
 }
 
-void CSettingsView::on_comboBoxHapticFeedback_currentIndexChanged(int index)
+void CSettingsView::on_buttonHapticFeedback_toggled(bool value)
 {
 	Settings node = settings.write["general"]["hapticFeedback"];
-	node->Bool() = index;
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonHapticFeedback);
 }
 
 void CSettingsView::on_sliderLongTouchDuration_valueChanged(int value)
