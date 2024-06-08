@@ -43,8 +43,7 @@ private slots:
 	void on_comboBoxDisplayIndex_currentIndexChanged(int index);
 	void on_comboBoxAutoSave_currentIndexChanged(int index);
 	void on_comboBoxLanguage_currentIndexChanged(int index);
-	void on_comboBoxCursorTypeMobile_currentIndexChanged(int index);
-	void on_comboBoxCursorTypeDesktop_currentIndexChanged(int index);
+	void on_comboBoxCursorType_currentIndexChanged(int index);
 	void on_pushButtonTranslation_clicked();
 	void on_checkBoxRepositoryDefault_stateChanged(int arg1);
 	void on_checkBoxRepositoryExtra_stateChanged(int arg1);
@@ -74,6 +73,10 @@ private slots:
 	void on_sliderToleranceDistanceController_valueChanged(int value);
 	void on_lineEditGameLobbyHost_textChanged(const QString &arg1);
 	void on_spinBoxNetworkPortLobby_valueChanged(int arg1);
+
+	void on_sliderControllerSticksAcceleration_valueChanged(int value);
+
+	void on_sliderControllerSticksSensitivity_valueChanged(int value);
 
 private:
 	Ui::CSettingsView * ui;

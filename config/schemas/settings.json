@@ -247,10 +247,8 @@
 				"controllerTriggerTreshold",
 				"controllerAxisDeadZone",
 				"controllerAxisFullZone",
-				"controllerPointerSpeed",
-				"controllerPointerScale",
-				"controllerPanningSpeed",
-				"controllerPanningScale",
+				"controllerAxisSpeed",
+				"controllerAxisScale"
 			],
 			"properties" : {
 				"radialWheelGarrisonSwipe" : {
@@ -293,19 +291,11 @@
 					"type" : "number",
 					"default" : 1.0
 				},
-				"controllerPointerSpeed" : {
+				"controllerAxisSpeed" : {
 					"type" : "number",
 					"default" : 1000
 				},
-				"controllerPointerScale" : {
-					"type" : "number",
-					"default" : 2
-				},
-				"controllerPanningSpeed" : {
-					"type" : "number",
-					"default" : 1000
-				},
-				"controllerPanningScale" : {
+				"controllerAxisScale" : {
 					"type" : "number",
 					"default" : 2
 				}

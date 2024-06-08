@@ -78,13 +78,9 @@ void CSettingsView::loadSettings()
 #ifdef VCMI_MOBILE
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
-	ui->labelCursorTypeDesktop->hide();
-	ui->comboBoxCursorTypeDesktop->hide();
 #else
 	ui->labelReservedArea->hide();
 	ui->sliderReservedArea->hide();
-	ui->labelCursorTypeMobile->hide();
-	ui->comboBoxCursorTypeMobile->hide();
 	ui->comboBoxRelativeCursorMode->hide();
 	ui->sliderRelativeCursorSpeed->hide();
 	if (settings["video"]["realFullscreen"].Bool())
@@ -136,8 +132,7 @@ void CSettingsView::loadSettings()
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
-	ui->comboBoxCursorTypeDesktop->setCurrentIndex(cursorTypeIndex);
-	ui->comboBoxCursorTypeMobile->setCurrentIndex(cursorTypeIndex);
+	ui->comboBoxCursorType->setCurrentIndex(cursorTypeIndex);
 
 	std::string upscalingFilter = settings["video"]["scalingMode"].String();
 	int upscalingFilterIndex = vstd::find_pos(upscalingFilterTypes, upscalingFilter);
@@ -152,6 +147,8 @@ void CSettingsView::loadSettings()
 	ui->slideToleranceDistanceMouse->setValue(settings["input"]["mouseToleranceDistance"].Integer());
 	ui->sliderToleranceDistanceTouch->setValue(settings["input"]["touchToleranceDistance"].Integer());
 	ui->sliderToleranceDistanceController->setValue(settings["input"]["shortcutToleranceDistance"].Integer());
+	ui->sliderControllerSticksSensitivity->setValue(settings["input"]["controllerAxisSpeed"].Integer());
+	ui->sliderControllerSticksAcceleration->setValue(settings["input"]["controllerAxisScale"].Float() * 100);
 	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
 	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
 }
@@ -424,13 +421,7 @@ void CSettingsView::showEvent(QShowEvent * event)
 	QWidget::showEvent(event);
 }
 
-void CSettingsView::on_comboBoxCursorTypeDesktop_currentIndexChanged(int index)
-{
-	Settings node = settings.write["video"]["cursor"];
-	node->String() = cursorTypesList[index];
-}
-
-void CSettingsView::on_comboBoxCursorTypeMobile_currentIndexChanged(int index)
+void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["cursor"];
 	node->String() = cursorTypesList[index];
@@ -676,4 +667,16 @@ void CSettingsView::on_spinBoxNetworkPortLobby_valueChanged(int arg1)
 {
 	Settings node = settings.write["lobby"]["port"];
 	node->Integer() = arg1;
+}
+
+void CSettingsView::on_sliderControllerSticksAcceleration_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["configAxisScale"];
+	node->Integer() = value / 100.0;
+}
+
+void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["configAxisSpeed"];
+	node->Integer() = value;
 }
