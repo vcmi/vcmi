@@ -38,7 +38,7 @@
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="labelDataDirs_2">
+      <widget class="QLabel" name="labelCommunity">
        <property name="minimumSize">
         <size>
          <width>200</width>
@@ -47,7 +47,6 @@
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
@@ -80,27 +79,8 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout" columnstretch="2,4,1">
-     <item row="0" column="0">
-      <widget class="QLabel" name="labelDataDirs_3">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Build Information</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditBuildVersion">
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEditOperatingSystem">
        <property name="text">
         <string notr="true"/>
        </property>
@@ -109,10 +89,10 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="labelUserDataDir">
+     <item row="4" column="2">
+      <widget class="QPushButton" name="openGameDataDir">
        <property name="text">
-        <string>User data directory</string>
+        <string>Open</string>
        </property>
       </widget>
      </item>
@@ -123,37 +103,15 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="2">
-      <widget class="QPushButton" name="openTempDir">
-       <property name="text">
-        <string>Open</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="updatesButton">
-       <property name="text">
-        <string>Check for updates</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="lineEditUserDataDir">
-       <property name="enabled">
-        <bool>true</bool>
+     <item row="3" column="0">
+      <widget class="QLabel" name="labelDataDirs">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="text">
-        <string notr="true">/home/user/.vcmi</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelBuildVersionDesc">
-       <property name="text">
-        <string>Game version</string>
+        <string>Data Directories</string>
        </property>
       </widget>
      </item>
@@ -164,33 +122,10 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labelDataDirs">
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="updatesButton">
        <property name="text">
-        <string>Data Directories</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="lineEditGameDir">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string notr="true">/usr/share/vcmi</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QPushButton" name="openGameDataDir">
-       <property name="text">
-        <string>Open</string>
+        <string>Check for updates</string>
        </property>
       </widget>
      </item>
@@ -204,6 +139,33 @@
        </property>
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="lineEditGameDir">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string notr="true">/usr/share/vcmi</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEditBuildVersion">
+       <property name="text">
+        <string notr="true"/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QPushButton" name="openTempDir">
+       <property name="text">
+        <string>Open</string>
        </property>
       </widget>
      </item>
@@ -221,13 +183,75 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEditOperatingSystem">
+     <item row="5" column="0">
+      <widget class="QLabel" name="labelUserDataDir">
        <property name="text">
-        <string notr="true"/>
+        <string>User data directory</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelBuildVersionDesc">
+       <property name="text">
+        <string>Game version</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLineEdit" name="lineEditUserDataDir">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string notr="true">/home/user/.vcmi</string>
        </property>
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelBuildInformation">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Build Information</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="labelConfigDir">
+       <property name="text">
+        <string>Configuration files directory</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLineEdit" name="lineEditConfigDir">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string notr="true">/home/user/.vcmi</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QPushButton" name="openConfigDir">
+       <property name="text">
+        <string>Open</string>
        </property>
       </widget>
      </item>
