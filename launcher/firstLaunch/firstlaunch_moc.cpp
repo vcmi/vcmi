@@ -162,7 +162,10 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabModPreset->setChecked(false);
 
 	if(heroesDataUpdate())
+	{
+		activateTabModPreset();
 		return;
+	}
 
 	QString installPath = getHeroesInstallDir();
 	if(!installPath.isEmpty())

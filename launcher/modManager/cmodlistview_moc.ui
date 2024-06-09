@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0,0">
      <item>
       <widget class="QLineEdit" name="lineEdit">
        <property name="sizePolicy">
@@ -102,7 +102,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Download &amp;&amp; refresh repositories</string>
+        <string>Reload repositories</string>
        </property>
       </widget>
      </item>

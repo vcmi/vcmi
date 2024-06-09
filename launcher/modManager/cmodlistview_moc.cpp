@@ -102,9 +102,8 @@ void CModListView::setupModsView()
 	}
 	else //default //TODO: default high-DPI scaling
 	{
-		ui->allModsView->setColumnWidth(ModFields::NAME, 185);
+		ui->allModsView->setColumnWidth(ModFields::NAME, 220);
 		ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
-		ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 	}
 
 	ui->allModsView->resizeColumnToContents(ModFields::STATUS_ENABLED);
