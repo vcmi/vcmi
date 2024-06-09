@@ -26,7 +26,9 @@
 #include "cli/extract.hpp"
 #endif
 
-#ifdef VCMI_ANDROID
+#ifdef VCMI_IOS
+#include "ios/selectdirectory.h"
+#elif defined(VCMI_ANDROID)
 #include <QAndroidJniObject>
 #include <QtAndroid>
 
@@ -384,9 +386,16 @@ void FirstLaunchView::extractGogData()
 void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 {
 	QDir sourceRoot{path};
-	
+
+#ifdef VCMI_IOS
+	// TODO: Qt 6.5 can select directories https://codereview.qt-project.org/c/qt/qtbase/+/446449
+	SelectDirectory iosDirectorySelector;
+	if(path.isEmpty())
+		sourceRoot.setPath(iosDirectorySelector.getExistingDirectory());
+#else
 	if(path.isEmpty())
 		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+#endif
 
 	if(!sourceRoot.exists())
 		return;
