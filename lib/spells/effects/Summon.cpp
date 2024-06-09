@@ -122,6 +122,7 @@ int32_t Summon::summonedCreatureAmount(const Mechanics * m) const
 
 void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
+	using battle::HealInfo;
 	BattleUnitsChanged pack;
 	pack.battleID = m->battle()->getBattle()->getBattleID();
 
