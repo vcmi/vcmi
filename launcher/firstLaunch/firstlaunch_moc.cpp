@@ -112,13 +112,17 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 	thiz = this;
 	QtAndroid::androidActivity().callMethod<void>("copyHeroesData");
 #else
-	copyHeroesData();
+	// iOS can't display modal dialogs when called directly on button press
+	// https://bugreports.qt.io/browse/QTBUG-98651
+	QTimer::singleShot(0, this, [this]{ copyHeroesData(); });
 #endif
 }
 
 void FirstLaunchView::on_pushButtonGogInstall_clicked()
 {
-	extractGogData();
+	// iOS can't display modal dialogs when called directly on button press
+	// https://bugreports.qt.io/browse/QTBUG-98651
+	QTimer::singleShot(0, this, &FirstLaunchView::extractGogData);
 }
 
 void FirstLaunchView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -314,7 +318,6 @@ QString FirstLaunchView::getHeroesInstallDir()
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
-
 	auto fileSelection = [this](QString type, QString filter, QString startPath = {}) {
 		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
 		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
