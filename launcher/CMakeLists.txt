@@ -215,6 +215,7 @@ endif()
 
 if(APPLE_IOS)
 	target_link_libraries(vcmilauncher
+		iOS_utils
 		"-framework UniformTypeIdentifiers"
 	)
 

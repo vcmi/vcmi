@@ -46,4 +46,9 @@ const char *bundlePath() { return NSBundle.mainBundle.bundlePath.fileSystemRepre
 const char *frameworksPath() { return NSBundle.mainBundle.privateFrameworksPath.fileSystemRepresentation; }
 
 const char *bundleIdentifier() { return NSBundle.mainBundle.bundleIdentifier.UTF8String; }
+
+bool isOsVersionAtLeast(unsigned int osMajorVersion)
+{
+	return NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= osMajorVersion;
+}
 }
