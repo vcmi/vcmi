@@ -31,10 +31,8 @@ InputSourceGameController::InputSourceGameController():
 	configTriggerTreshold(settings["input"]["controllerTriggerTreshold"].Float()),
 	configAxisDeadZone(settings["input"]["controllerAxisDeadZone"].Float()),
 	configAxisFullZone(settings["input"]["controllerAxisFullZone"].Float()),
-	configPointerSpeed(settings["input"]["controllerPointerSpeed"].Float()),
-	configPointerScale(settings["input"]["controllerPointerScale"].Float()),
-	configPanningSpeed(settings["input"]["controllerPanningSpeed"].Float()),
-	configPanningScale(settings["input"]["controllerPanningScale"].Float()),
+	configAxisSpeed(settings["input"]["controllerAxisSpeed"].Float()),
+	configAxisScale(settings["input"]["controllerAxisScale"].Float()),
 	cursorAxisValueX(0),
 	cursorAxisValueY(0),
 	cursorPlanDisX(0.0),
@@ -274,12 +272,12 @@ void InputSourceGameController::handleCursorUpdate(int32_t deltaTimeMs)
 	if(vstd::isAlmostZero(cursorAxisValueX))
 		cursorPlanDisX = 0;
 	else
-		cursorPlanDisX += deltaTimeSeconds * configPointerSpeed * scaleAxis(cursorAxisValueX, configPointerScale);
+		cursorPlanDisX += deltaTimeSeconds * configAxisSpeed * scaleAxis(cursorAxisValueX, configAxisScale);
 
 	if (vstd::isAlmostZero(cursorAxisValueY))
 		cursorPlanDisY = 0;
 	else
-		cursorPlanDisY += deltaTimeSeconds * configPointerSpeed * scaleAxis(cursorAxisValueY, configPointerScale);
+		cursorPlanDisY += deltaTimeSeconds * configAxisSpeed * scaleAxis(cursorAxisValueY, configAxisScale);
 
 	int moveDisX = getMoveDis(cursorPlanDisX);
 	int moveDisY = getMoveDis(cursorPlanDisY);
@@ -308,8 +306,8 @@ void InputSourceGameController::handleScrollUpdate(int32_t deltaTimeMs)
 		return;
 	}
 	float deltaTimeSeconds = static_cast<float>(deltaTimeMs) / 1000;
-	scrollPlanDisX += deltaTimeSeconds * configPanningSpeed * scaleAxis(scrollAxisValueX, configPanningScale);
-	scrollPlanDisY += deltaTimeSeconds * configPanningSpeed * scaleAxis(scrollAxisValueY, configPanningScale);
+	scrollPlanDisX += deltaTimeSeconds * configAxisSpeed * scaleAxis(scrollAxisValueX, configAxisScale);
+	scrollPlanDisY += deltaTimeSeconds * configAxisSpeed * scaleAxis(scrollAxisValueY, configAxisScale);
 	int moveDisX = getMoveDis(scrollPlanDisX);
 	int moveDisY = getMoveDis(scrollPlanDisY);
 	if(moveDisX != 0 || moveDisY != 0)
