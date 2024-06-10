@@ -9,12 +9,12 @@
         <translation>部队设置</translation>
     </message>
     <message>
-        <location filename="../inspector/armywidget.ui" line="121"/>
+        <location filename="../inspector/armywidget.ui" line="142"/>
         <source>Wide formation</source>
         <translation>松散队形</translation>
     </message>
     <message>
-        <location filename="../inspector/armywidget.ui" line="108"/>
+        <location filename="../inspector/armywidget.ui" line="129"/>
         <source>Tight formation</source>
         <translation>紧凑队形</translation>
     </message>
@@ -122,6 +122,44 @@
         <location filename="../inspector/heroskillswidget.ui" line="166"/>
         <source>Customize skills</source>
         <translation>自定义技能</translation>
+    </message>
+</context>
+<context>
+    <name>HeroSpellWidget</name>
+    <message>
+        <location filename="../inspector/herospellwidget.ui" line="29"/>
+        <source>Spells</source>
+        <translation type="unfinished">魔法</translation>
+    </message>
+    <message>
+        <location filename="../inspector/herospellwidget.ui" line="47"/>
+        <source>Customize spells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/herospellwidget.ui" line="76"/>
+        <source>Level 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/herospellwidget.ui" line="114"/>
+        <source>Level 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/herospellwidget.ui" line="152"/>
+        <source>Level 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/herospellwidget.ui" line="190"/>
+        <source>Level 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/herospellwidget.ui" line="228"/>
+        <source>Level 5</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -301,7 +339,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1099"/>
-        <location filename="../mainwindow.cpp" line="782"/>
+        <location filename="../mainwindow.cpp" line="788"/>
         <source>View underground</source>
         <translation>查看地下</translation>
     </message>
@@ -383,9 +421,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1289"/>
-        <location filename="../mainwindow.cpp" line="1053"/>
-        <location filename="../mainwindow.cpp" line="1057"/>
-        <location filename="../mainwindow.cpp" line="1114"/>
+        <location filename="../mainwindow.cpp" line="1059"/>
+        <location filename="../mainwindow.cpp" line="1063"/>
+        <location filename="../mainwindow.cpp" line="1120"/>
         <source>Update appearance</source>
         <translation>更新外观</translation>
     </message>
@@ -516,92 +554,92 @@
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="258"/>
+        <location filename="../mainwindow.cpp" line="262"/>
         <source>Confirmation</source>
         <translation>确认</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="258"/>
+        <location filename="../mainwindow.cpp" line="262"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>未保存的改动会丢失，你确定要这么做吗？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="384"/>
+        <location filename="../mainwindow.cpp" line="388"/>
         <source>Open map</source>
         <translation>打开地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="386"/>
+        <location filename="../mainwindow.cpp" line="390"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>所有支持的地图类型(*.vmap *.h3m);;VCMI地图(*.vmap);;英雄无敌3地图(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="437"/>
+        <location filename="../mainwindow.cpp" line="441"/>
         <source>Save map</source>
         <translation>保存地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="437"/>
+        <location filename="../mainwindow.cpp" line="441"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>VCMI地图(*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="624"/>
+        <location filename="../mainwindow.cpp" line="630"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="786"/>
+        <location filename="../mainwindow.cpp" line="792"/>
         <source>View surface</source>
         <translation>查看地上</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1053"/>
+        <location filename="../mainwindow.cpp" line="1059"/>
         <source>No objects selected</source>
         <translation>未选择任何物体</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1057"/>
+        <location filename="../mainwindow.cpp" line="1063"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>此操作无法被撤销，你确定要继续么？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1114"/>
+        <location filename="../mainwindow.cpp" line="1120"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>发生错误！%1 物体未完成更新</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1154"/>
+        <location filename="../mainwindow.cpp" line="1160"/>
         <source>Save to image</source>
         <translation>保存为图片</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1173"/>
+        <location filename="../mainwindow.cpp" line="1179"/>
         <source>Select maps to convert</source>
         <translation>选择待转换的地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1175"/>
+        <location filename="../mainwindow.cpp" line="1181"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>英雄无敌3地图文件(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1179"/>
+        <location filename="../mainwindow.cpp" line="1185"/>
         <source>Choose directory to save converted maps</source>
         <translation>选择保存转换地图的目录</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1192"/>
+        <location filename="../mainwindow.cpp" line="1198"/>
         <source>Operation completed</source>
         <translation>操作完成</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1192"/>
+        <location filename="../mainwindow.cpp" line="1198"/>
         <source>Successfully converted %1 maps</source>
         <translation>成功转换 %1 地图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1196"/>
+        <location filename="../mainwindow.cpp" line="1202"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>转换地图失败，操作终止</translation>
     </message>
@@ -851,38 +889,38 @@
         <translation>高级</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="35"/>
+        <location filename="../inspector/inspector.cpp" line="36"/>
         <source>Compliant</source>
         <translation>屈服的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="36"/>
+        <location filename="../inspector/inspector.cpp" line="37"/>
         <source>Friendly</source>
         <translation>友善的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="37"/>
+        <location filename="../inspector/inspector.cpp" line="38"/>
         <source>Aggressive</source>
         <translation>好斗的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="38"/>
+        <location filename="../inspector/inspector.cpp" line="39"/>
         <source>Hostile</source>
         <translation>有敌意的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="39"/>
+        <location filename="../inspector/inspector.cpp" line="40"/>
         <source>Savage</source>
         <translation>野蛮的</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="478"/>
-        <location filename="../inspector/inspector.cpp" line="845"/>
+        <location filename="../inspector/inspector.cpp" line="843"/>
+        <location filename="../inspector/inspector.cpp" line="932"/>
         <source>neutral</source>
         <translation>中立</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="843"/>
+        <location filename="../inspector/inspector.cpp" line="841"/>
         <source>UNFLAGGABLE</source>
         <translation>没有旗帜</translation>
     </message>
@@ -1029,256 +1067,256 @@
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="33"/>
-        <location filename="../inspector/rewardswidget.ui" line="703"/>
-        <location filename="../inspector/rewardswidget.ui" line="818"/>
-        <location filename="../inspector/rewardswidget.ui" line="1407"/>
+        <location filename="../inspector/rewardswidget.ui" line="706"/>
+        <location filename="../inspector/rewardswidget.ui" line="821"/>
+        <location filename="../inspector/rewardswidget.ui" line="1410"/>
         <source>Add</source>
         <translation>添加</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="40"/>
-        <location filename="../inspector/rewardswidget.ui" line="710"/>
-        <location filename="../inspector/rewardswidget.ui" line="825"/>
-        <location filename="../inspector/rewardswidget.ui" line="1414"/>
+        <location filename="../inspector/rewardswidget.ui" line="43"/>
+        <location filename="../inspector/rewardswidget.ui" line="713"/>
+        <location filename="../inspector/rewardswidget.ui" line="828"/>
+        <location filename="../inspector/rewardswidget.ui" line="1417"/>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="61"/>
+        <location filename="../inspector/rewardswidget.ui" line="64"/>
         <source>Visit mode</source>
         <translation>访问模式</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="82"/>
+        <location filename="../inspector/rewardswidget.ui" line="85"/>
         <source>Select mode</source>
         <translation>选择模式</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="104"/>
+        <location filename="../inspector/rewardswidget.ui" line="107"/>
         <source>On select text</source>
         <translation>选择时展示的文本</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="111"/>
+        <location filename="../inspector/rewardswidget.ui" line="114"/>
         <source>Can refuse</source>
         <translation>可以拒绝</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="118"/>
+        <location filename="../inspector/rewardswidget.ui" line="121"/>
         <source>Reset parameters</source>
         <translation>重置参数</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="138"/>
+        <location filename="../inspector/rewardswidget.ui" line="141"/>
         <source>Period</source>
         <translation>周期</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="145"/>
+        <location filename="../inspector/rewardswidget.ui" line="148"/>
         <source> days</source>
         <translation> 天</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="157"/>
+        <location filename="../inspector/rewardswidget.ui" line="160"/>
         <source>Reset visitors</source>
         <translation>重置访问者</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="164"/>
+        <location filename="../inspector/rewardswidget.ui" line="167"/>
         <source>Reset rewards</source>
         <translation>重置奖励</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="176"/>
+        <location filename="../inspector/rewardswidget.ui" line="179"/>
         <source>Window type</source>
         <translation>窗口类型</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="196"/>
+        <location filename="../inspector/rewardswidget.ui" line="199"/>
         <source>Event info</source>
         <translation>事件信息</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="214"/>
+        <location filename="../inspector/rewardswidget.ui" line="217"/>
         <source>Message to be displayed on granting of this reward</source>
         <translation>给予奖励时展示的文本</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="225"/>
+        <location filename="../inspector/rewardswidget.ui" line="228"/>
         <source>Reward</source>
         <translation>奖励</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="245"/>
-        <location filename="../inspector/rewardswidget.ui" line="1032"/>
+        <location filename="../inspector/rewardswidget.ui" line="248"/>
+        <location filename="../inspector/rewardswidget.ui" line="1035"/>
         <source>Hero level</source>
         <translation>英雄等级</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="262"/>
-        <location filename="../inspector/rewardswidget.ui" line="1049"/>
+        <location filename="../inspector/rewardswidget.ui" line="265"/>
+        <location filename="../inspector/rewardswidget.ui" line="1052"/>
         <source>Hero experience</source>
         <translation>英雄经验</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="302"/>
-        <location filename="../inspector/rewardswidget.ui" line="1089"/>
+        <location filename="../inspector/rewardswidget.ui" line="305"/>
+        <location filename="../inspector/rewardswidget.ui" line="1092"/>
         <source>Spell points</source>
         <translation>魔法值</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="325"/>
-        <location filename="../inspector/rewardswidget.ui" line="345"/>
-        <location filename="../inspector/rewardswidget.ui" line="379"/>
-        <location filename="../inspector/rewardswidget.ui" line="1109"/>
+        <location filename="../inspector/rewardswidget.ui" line="328"/>
+        <location filename="../inspector/rewardswidget.ui" line="348"/>
+        <location filename="../inspector/rewardswidget.ui" line="382"/>
+        <location filename="../inspector/rewardswidget.ui" line="1112"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="338"/>
+        <location filename="../inspector/rewardswidget.ui" line="341"/>
         <source>Overflow</source>
         <translation>溢出</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="362"/>
+        <location filename="../inspector/rewardswidget.ui" line="365"/>
         <source>Movement</source>
         <translation>移动力</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="405"/>
+        <location filename="../inspector/rewardswidget.ui" line="408"/>
         <source>Remove object</source>
         <translation>移除物体</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="414"/>
-        <location filename="../inspector/rewardswidget.ui" line="1134"/>
+        <location filename="../inspector/rewardswidget.ui" line="417"/>
+        <location filename="../inspector/rewardswidget.ui" line="1137"/>
         <source>Primary skills</source>
         <translation>主属性</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="429"/>
-        <location filename="../inspector/rewardswidget.ui" line="1149"/>
+        <location filename="../inspector/rewardswidget.ui" line="432"/>
+        <location filename="../inspector/rewardswidget.ui" line="1152"/>
         <source>Attack</source>
         <translation>攻击力</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="443"/>
-        <location filename="../inspector/rewardswidget.ui" line="1159"/>
+        <location filename="../inspector/rewardswidget.ui" line="446"/>
+        <location filename="../inspector/rewardswidget.ui" line="1162"/>
         <source>Defence</source>
         <translation>防御力</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="457"/>
-        <location filename="../inspector/rewardswidget.ui" line="1169"/>
+        <location filename="../inspector/rewardswidget.ui" line="460"/>
+        <location filename="../inspector/rewardswidget.ui" line="1172"/>
         <source>Spell power</source>
         <translation>力量</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="471"/>
-        <location filename="../inspector/rewardswidget.ui" line="1179"/>
+        <location filename="../inspector/rewardswidget.ui" line="474"/>
+        <location filename="../inspector/rewardswidget.ui" line="1182"/>
         <source>Knowledge</source>
         <translation>知识</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="501"/>
-        <location filename="../inspector/rewardswidget.ui" line="1205"/>
+        <location filename="../inspector/rewardswidget.ui" line="504"/>
+        <location filename="../inspector/rewardswidget.ui" line="1208"/>
         <source>Resources</source>
         <translation>资源</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="550"/>
-        <location filename="../inspector/rewardswidget.ui" line="1254"/>
+        <location filename="../inspector/rewardswidget.ui" line="553"/>
+        <location filename="../inspector/rewardswidget.ui" line="1257"/>
         <source>Artifacts</source>
         <translation>宝物</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="582"/>
-        <location filename="../inspector/rewardswidget.ui" line="1286"/>
+        <location filename="../inspector/rewardswidget.ui" line="585"/>
+        <location filename="../inspector/rewardswidget.ui" line="1289"/>
         <source>Spells</source>
         <translation>魔法</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="614"/>
-        <location filename="../inspector/rewardswidget.ui" line="1318"/>
+        <location filename="../inspector/rewardswidget.ui" line="617"/>
+        <location filename="../inspector/rewardswidget.ui" line="1321"/>
         <source>Skills</source>
         <translation>技能</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="654"/>
-        <location filename="../inspector/rewardswidget.ui" line="1358"/>
+        <location filename="../inspector/rewardswidget.ui" line="657"/>
+        <location filename="../inspector/rewardswidget.ui" line="1361"/>
         <source>Creatures</source>
         <translation>生物</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="747"/>
+        <location filename="../inspector/rewardswidget.ui" line="750"/>
         <source>Bonuses</source>
         <translation>状态</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="764"/>
-        <location filename="../inspector/rewardswidget.ui" line="856"/>
+        <location filename="../inspector/rewardswidget.ui" line="767"/>
+        <location filename="../inspector/rewardswidget.ui" line="859"/>
         <source>Duration</source>
         <translation>持续时间</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="774"/>
-        <location filename="../inspector/rewardswidget.ui" line="861"/>
+        <location filename="../inspector/rewardswidget.ui" line="777"/>
+        <location filename="../inspector/rewardswidget.ui" line="864"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="784"/>
-        <location filename="../inspector/rewardswidget.ui" line="866"/>
+        <location filename="../inspector/rewardswidget.ui" line="787"/>
+        <location filename="../inspector/rewardswidget.ui" line="869"/>
         <source>Value</source>
         <translation>值</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="875"/>
+        <location filename="../inspector/rewardswidget.ui" line="878"/>
         <source>Cast</source>
         <translation>施法</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="881"/>
+        <location filename="../inspector/rewardswidget.ui" line="884"/>
         <source>Cast an adventure map spell</source>
         <translation>在冒险地图施放法术</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="890"/>
+        <location filename="../inspector/rewardswidget.ui" line="893"/>
         <source>Spell</source>
         <translation>魔法</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="911"/>
+        <location filename="../inspector/rewardswidget.ui" line="914"/>
         <source>Magic school level</source>
         <translation>法术等级</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="961"/>
+        <location filename="../inspector/rewardswidget.ui" line="964"/>
         <source>Limiter</source>
         <translation>限制</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="981"/>
+        <location filename="../inspector/rewardswidget.ui" line="984"/>
         <source>Day of week</source>
         <translation>每周天数</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="998"/>
+        <location filename="../inspector/rewardswidget.ui" line="1001"/>
         <source>Days passed</source>
         <translation>起始天数</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1454"/>
+        <location filename="../inspector/rewardswidget.ui" line="1457"/>
         <source>Heroes</source>
         <translation>英雄</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1486"/>
+        <location filename="../inspector/rewardswidget.ui" line="1489"/>
         <source>Hero classes</source>
         <translation>英雄类型</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1518"/>
+        <location filename="../inspector/rewardswidget.ui" line="1521"/>
         <source>Players</source>
         <translation>玩家</translation>
     </message>
@@ -1426,18 +1464,18 @@
         <translation>文本</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="156"/>
-        <location filename="../mapsettings/translations.cpp" line="160"/>
+        <location filename="../mapsettings/translations.cpp" line="157"/>
+        <location filename="../mapsettings/translations.cpp" line="161"/>
         <source>Remove translation</source>
         <translation>移除翻译</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="156"/>
+        <location filename="../mapsettings/translations.cpp" line="157"/>
         <source>Default language cannot be removed</source>
         <translation>默认语言无法被移除</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="160"/>
+        <location filename="../mapsettings/translations.cpp" line="161"/>
         <source>All existing text records for this language will be removed. Continue?</source>
         <translation>此语言的所有文本记录将被移除，确定继续吗？</translation>
     </message>
@@ -1651,151 +1689,178 @@
         <translation>双层地图</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="82"/>
+        <location filename="../windownewmap.ui" line="88"/>
         <source>Height</source>
         <translation>高度</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="114"/>
+        <location filename="../windownewmap.ui" line="126"/>
         <source>Width</source>
         <translation>宽度</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="152"/>
         <source>S (36x36)</source>
-        <translation>小(36x36)</translation>
+        <translation type="vanished">小(36x36)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="157"/>
         <source>M (72x72)</source>
-        <translation>中(72x72)</translation>
+        <translation type="vanished">中(72x72)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="162"/>
         <source>L (108x108)</source>
-        <translation>大(108x108)</translation>
+        <translation type="vanished">大(108x108)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="167"/>
+        <location filename="../windownewmap.ui" line="179"/>
         <source>XL (144x144)</source>
         <translation>特大(144x144)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="193"/>
+        <location filename="../windownewmap.ui" line="220"/>
         <source>Random map</source>
         <translation>随机地图</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="205"/>
+        <location filename="../windownewmap.ui" line="232"/>
         <source>Players</source>
         <translation>玩家</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="724"/>
+        <location filename="../windownewmap.ui" line="751"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="349"/>
+        <location filename="../windownewmap.ui" line="376"/>
         <source>Human/Computer</source>
         <translation>人类/电脑</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="221"/>
-        <location filename="../windownewmap.ui" line="289"/>
-        <location filename="../windownewmap.ui" line="443"/>
-        <location filename="../windownewmap.ui" line="584"/>
+        <location filename="../windownewmap.ui" line="164"/>
+        <source>S  (36x36)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="169"/>
+        <source>M  (72x72)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="174"/>
+        <source>L  (108x108)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="184"/>
+        <source>H  (180x180)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="189"/>
+        <source>XH (216x216)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="194"/>
+        <source>G  (252x252)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="248"/>
+        <location filename="../windownewmap.ui" line="316"/>
+        <location filename="../windownewmap.ui" line="470"/>
+        <location filename="../windownewmap.ui" line="611"/>
         <source>Random</source>
         <translation>随机</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="269"/>
+        <location filename="../windownewmap.ui" line="296"/>
         <source>Computer only</source>
         <translation>仅电脑可用</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="380"/>
+        <location filename="../windownewmap.ui" line="407"/>
         <source>Human teams</source>
         <translation>人类队伍</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="399"/>
+        <location filename="../windownewmap.ui" line="426"/>
         <source>Computer teams</source>
         <translation>电脑队伍</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="416"/>
+        <location filename="../windownewmap.ui" line="443"/>
         <source>Monster strength</source>
         <translation>怪物强度</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="465"/>
+        <location filename="../windownewmap.ui" line="492"/>
         <source>Weak</source>
         <translation>弱</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="484"/>
-        <location filename="../windownewmap.ui" line="625"/>
+        <location filename="../windownewmap.ui" line="511"/>
+        <location filename="../windownewmap.ui" line="652"/>
         <source>Normal</source>
         <translation>普通</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="503"/>
+        <location filename="../windownewmap.ui" line="530"/>
         <source>Strong</source>
         <translation>强</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="557"/>
+        <location filename="../windownewmap.ui" line="584"/>
         <source>Water content</source>
         <translation>水域</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="606"/>
+        <location filename="../windownewmap.ui" line="633"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="644"/>
+        <location filename="../windownewmap.ui" line="671"/>
         <source>Islands</source>
         <translation>岛屿</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="689"/>
+        <location filename="../windownewmap.ui" line="716"/>
         <source>Template</source>
         <translation>模版</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="737"/>
+        <location filename="../windownewmap.ui" line="764"/>
         <source>Custom seed</source>
         <translation>自定义种子</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="751"/>
+        <location filename="../windownewmap.ui" line="778"/>
         <source>Generate random map</source>
         <translation>生成随机地图</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="785"/>
+        <location filename="../windownewmap.ui" line="812"/>
         <source>Ok</source>
         <translation>确定</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="804"/>
+        <location filename="../windownewmap.ui" line="831"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="276"/>
+        <location filename="../windownewmap.cpp" line="246"/>
         <source>No template</source>
         <translation>缺少模版</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="276"/>
+        <location filename="../windownewmap.cpp" line="246"/>
         <source>No template for parameters scecified. Random map cannot be generated.</source>
         <translation>未指定任一模版作为参数，随机地图无法生成。</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="296"/>
+        <location filename="../windownewmap.cpp" line="266"/>
         <source>RMG failure</source>
         <translation>随机地图生成失败</translation>
     </message>
@@ -1803,27 +1868,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="106"/>
+        <location filename="../mainwindow.cpp" line="110"/>
         <source>Filepath of the map to open.</source>
         <translation>要打开的地图所在的文件路径。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="109"/>
+        <location filename="../mainwindow.cpp" line="113"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>将原始H3文件解压到特定目录。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="110"/>
+        <location filename="../mainwindow.cpp" line="114"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>数据文件解压后，将TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 und Un44切分为独立的PNG文件。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="111"/>
+        <location filename="../mainwindow.cpp" line="115"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>数据文件解压后，将每一张图片（Images目录）从pcx格式转化为png格式。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="112"/>
+        <location filename="../mainwindow.cpp" line="116"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation>当切分/转换完成后，原始文件将被删除。</translation>
     </message>
