@@ -26,6 +26,8 @@ set(launcher_SRCS
 if(APPLE_IOS)
 	list(APPEND launcher_SRCS
 		ios/launchGame.m
+		ios/selectdirectory.h
+		ios/selectdirectory.mm
 	)
 endif()
 
@@ -212,6 +214,11 @@ if(ENABLE_INNOEXTRACT)
 endif()
 
 if(APPLE_IOS)
+	target_link_libraries(vcmilauncher
+		iOS_utils
+		"-framework UniformTypeIdentifiers"
+	)
+
 	# TODO: remove after switching prebuilt deps to a newer Conan's Qt recipe
 	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
 		target_link_libraries(vcmilauncher "-framework IOKit")

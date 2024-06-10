@@ -26,7 +26,11 @@
 #include "cli/extract.hpp"
 #endif
 
-#ifdef VCMI_ANDROID
+#ifdef VCMI_IOS
+#include "ios/selectdirectory.h"
+
+#include "iOS_utils.h"
+#elif defined(VCMI_ANDROID)
 #include <QAndroidJniObject>
 #include <QtAndroid>
 
@@ -226,9 +230,12 @@ void FirstLaunchView::heroesDataMissing()
 
 #ifdef VCMI_ANDROID
 	// selecting directory with ACTION_OPEN_DOCUMENT_TREE is available only since API level 21
-	bool canUseDataCopy = QtAndroid::androidSdkVersion() >= 21;
+	const bool canUseDataCopy = QtAndroid::androidSdkVersion() >= 21;
+#elif defined(VCMI_IOS)
+	// selecting directory through UIDocumentPickerViewController is available only since iOS 13
+	const bool canUseDataCopy = iOS_utils::isOsVersionAtLeast(13);
 #else
-	bool canUseDataCopy = true;
+	const bool canUseDataCopy = true;
 #endif
 
 	ui->labelDataCopyTitle->setVisible(canUseDataCopy);
@@ -384,9 +391,16 @@ void FirstLaunchView::extractGogData()
 void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 {
 	QDir sourceRoot{path};
-	
+
+#ifdef VCMI_IOS
+	// TODO: Qt 6.5 can select directories https://codereview.qt-project.org/c/qt/qtbase/+/446449
+	SelectDirectory iosDirectorySelector;
+	if(path.isEmpty())
+		sourceRoot.setPath(iosDirectorySelector.getExistingDirectory());
+#else
 	if(path.isEmpty())
 		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+#endif
 
 	if(!sourceRoot.exists())
 		return;
