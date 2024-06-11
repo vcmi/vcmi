@@ -60,7 +60,7 @@
 #include "../../lib/CRandomGenerator.h"
 
 std::shared_ptr<CMainMenu> CMM;
-ISelectionScreenInfo * SEL;
+ISelectionScreenInfo * SEL = nullptr;
 
 static void do_quit()
 {
