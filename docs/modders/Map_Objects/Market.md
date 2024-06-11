@@ -1,4 +1,4 @@
-# Market schema
+## Market schema
 
 Since VCMI-1.3 it's possible to create customizable markets on adventure map.
 Markets can be added as any other object with special handler called "market".
@@ -28,7 +28,7 @@ Here is schema describing such object
 }	
 ```
 
-# Modes
+## Modes
 
 Mode parameter defines a way to exchange different entities. Multiple modes can be specified to support several types of exchange.
 Following options are supported:
@@ -73,7 +73,7 @@ Game logic prohibits using modes unavailable for faction
 "modes" : ["creature-experience", "artifact-experience"]
 ```
 
-# Offer
+## Offer
 
 This field allows to configure specific items available in the market. It can be used only for `resource-skill` mode
 

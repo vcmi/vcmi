@@ -71,7 +71,7 @@
 				},
 				"gameDataLanguage" : {
 					"type" : "string",
-					"enum" : [ "auto", "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese", "other_cp1250", "other_cp1251", "other_cp1252" ],
+					"enum" : [ "auto", "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
@@ -116,7 +116,7 @@
 				},
 				"hapticFeedback" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"autosaveCountLimit" : {
 					"type" : "number",
@@ -247,10 +247,8 @@
 				"controllerTriggerTreshold",
 				"controllerAxisDeadZone",
 				"controllerAxisFullZone",
-				"controllerPointerSpeed",
-				"controllerPointerScale",
-				"controllerPanningSpeed",
-				"controllerPanningScale",
+				"controllerAxisSpeed",
+				"controllerAxisScale"
 			],
 			"properties" : {
 				"radialWheelGarrisonSwipe" : {
@@ -293,19 +291,11 @@
 					"type" : "number",
 					"default" : 1.0
 				},
-				"controllerPointerSpeed" : {
+				"controllerAxisSpeed" : {
 					"type" : "number",
 					"default" : 1000
 				},
-				"controllerPointerScale" : {
-					"type" : "number",
-					"default" : 2
-				},
-				"controllerPanningSpeed" : {
-					"type" : "number",
-					"default" : 1000
-				},
-				"controllerPanningScale" : {
+				"controllerAxisScale" : {
 					"type" : "number",
 					"default" : 2
 				}
@@ -573,6 +563,7 @@
 				"extraRepositoryEnabled", 
 				"enableInstalledMods", 
 				"autoCheckRepositories", 
+				"ignoreSslErrors",
 				"updateOnStartup", 
 				"updateConfigUrl"
 			],
@@ -600,6 +591,10 @@
 				"enableInstalledMods" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"ignoreSslErrors" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"autoCheckRepositories" : {
 					"type" : "boolean",

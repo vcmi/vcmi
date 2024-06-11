@@ -109,7 +109,69 @@ const char* exceptionName(DWORD exc)
 #undef EXC_CASE
 }
 
+static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
+{
+	//create file where dump will be placed
+	char *mname = nullptr;
+	char buffer[MAX_PATH + 1];
+	HMODULE hModule = nullptr;
+	GetModuleFileNameA(hModule, buffer, MAX_PATH);
+	mname = strrchr(buffer, '\\');
+	if (mname != nullptr)
+		mname++;
+	else
+		mname = buffer;
 
+	strcat(mname, "_crashinfo.dmp");
+	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
+	logGlobal->error("Crash info will be put in %s", mname);
+
+	auto dumpType = MiniDumpWithDataSegs;
+
+	if(settings["general"]["extraDump"].Bool())
+	{
+		dumpType = (MINIDUMP_TYPE)(
+			MiniDumpWithFullMemory
+			| MiniDumpWithFullMemoryInfo
+			| MiniDumpWithHandleData
+			| MiniDumpWithUnloadedModules
+			| MiniDumpWithThreadInfo);
+	}
+
+	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, dumpType, meinfo, 0, 0);
+	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
+}
+
+static void onTerminate()
+{
+	logGlobal->error("Disaster happened.");
+	try
+	{
+		std::exception_ptr eptr{std::current_exception()};
+		if (eptr)
+		{
+			std::rethrow_exception(eptr);
+		}
+		else
+		{
+			logGlobal->error("...but no current exception found!");
+		}
+	}
+	catch (const std::exception& exc)
+	{
+		logGlobal->error("Reason: %s", exc.what());
+	}
+	catch (...)
+	{
+		logGlobal->error("Reason: unknown exception!");
+	}
+
+	const DWORD threadId = ::GetCurrentThreadId();
+	logGlobal->error("Thread ID: %d", threadId);
+
+	createMemoryDump(nullptr);
+	std::abort();
+}
 
 LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 {
@@ -128,35 +190,8 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	//exception info to be placed in the dump
 	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
 
-	//create file where dump will be placed
-	char *mname = nullptr;
-	char buffer[MAX_PATH + 1];
-	HMODULE hModule = nullptr;
-	GetModuleFileNameA(hModule, buffer, MAX_PATH);
-	mname = strrchr(buffer, '\\');
-	if (mname != nullptr)
-		mname++;
-	else
-		mname = buffer;
+	createMemoryDump(&meinfo);
 
-	strcat(mname, "_crashinfo.dmp");
-	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
-	logGlobal->error("Crash info will be put in %s", mname);
-	
-	auto dumpType = MiniDumpWithDataSegs;
-	
-	if(settings["general"]["extraDump"].Bool())
-	{
-		dumpType = (MINIDUMP_TYPE)(
-			MiniDumpWithFullMemory
-			| MiniDumpWithFullMemoryInfo
-			| MiniDumpWithHandleData
-			| MiniDumpWithUnloadedModules
-			| MiniDumpWithThreadInfo);
-	}
-
-	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, dumpType, &meinfo, 0, 0);
-	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 #endif
@@ -254,6 +289,7 @@ CConsoleHandler::CConsoleHandler():
 	defErrColor = csbi.wAttributes;
 #ifndef _DEBUG
 	SetUnhandledExceptionFilter(onUnhandledException);
+	std::set_terminate(onTerminate);
 #endif
 #else
 	defColor = "\x1b[0m";

@@ -14,11 +14,11 @@
 
 namespace ModStatus
 {
-static const QString iconDelete = "icons:mod-delete.png";
-static const QString iconDisabled = "icons:mod-disabled.png";
-static const QString iconDownload = "icons:mod-download.png";
-static const QString iconEnabled = "icons:mod-enabled.png";
-static const QString iconUpdate = "icons:mod-update.png";
+static const QString iconDelete = ":/icons/mod-delete.png";
+static const QString iconDisabled = ":/icons/mod-disabled.png";
+static const QString iconDownload = ":/icons/mod-download.png";
+static const QString iconEnabled = ":/icons/mod-enabled.png";
+static const QString iconUpdate = ":/icons/mod-update.png";
 }
 
 CModListModel::CModListModel(QObject * parent)
@@ -81,9 +81,6 @@ QVariant CModListModel::getValue(const CModEntry & mod, int field) const
 
 		case ModFields::NAME:
 			return mod.getValue("name");
-
-		case ModFields::VERSION:
-			return mod.getValue("version");
 
 		case ModFields::TYPE:
 			return modTypeName(mod.getValue("modType").toString());
@@ -173,7 +170,6 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", "Type"),
-		QT_TRANSLATE_NOOP("ModFields", "Version"),
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)

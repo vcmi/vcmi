@@ -1,6 +1,6 @@
 First of all, thanks for your support! If you report a bug we can fix it. But keep in mind that reporting your bugs appropriately makes our (developers') lifes easier. Here are a few guidelines that will help you write good bug reports.
 
-# Github bugtracker
+## Github bugtracker
 
 The main place for managing and reporting bugs is [our bugtracker](https://github.com/vcmi/vcmi/issues). When you are not logged in, you can only browse already reported bugs. To be able to report bugs you need to make an account there.
 

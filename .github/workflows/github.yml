@@ -88,16 +88,16 @@ jobs:
             preset: windows-mingw-conan-linux
             conan_profile: mingw32-linux.jinja
           - platform: android-32
-            os: ubuntu-22.04
+            os: macos-14
             extension: apk
-            preset: android-conan-ninja-release
+            preset: android-daily-release
             conan_profile: android-32
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: armeabi-v7a
           - platform: android-64
-            os: ubuntu-22.04
+            os: macos-14
             extension: apk
-            preset: android-conan-ninja-release
+            preset: android-daily-release
             conan_profile: android-64
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: arm64-v8a
@@ -187,6 +187,12 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
+    - uses: actions/setup-java@v4
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
     - name: Build Number
       run: |
         source '${{github.workspace}}/CI/get_package_name.sh'
@@ -215,7 +221,7 @@ jobs:
       run: |
         ctest --preset ${{matrix.preset}}
 
-    - name: Kill XProtect to work around CPack issue on macOS 
+    - name: Kill XProtect to work around CPack issue on macOS
       if: ${{ startsWith(matrix.platform, 'mac') }}
       run: |
         # Cf. https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
@@ -234,13 +240,6 @@ jobs:
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
-    - name: Create Android package
-      if: ${{ startsWith(matrix.platform, 'android') }}
-      run: |
-        cd android
-        ./gradlew assembleDaily --info
-        echo ANDROID_APK_PATH="$(ls ${{ github.workspace }}/android/vcmi-app/build/outputs/apk/daily/*.${{ matrix.extension }})" >> $GITHUB_ENV
-
     - name: Additional logs
       if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'msvc' }}
       run: |
@@ -254,7 +253,14 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
-          
+
+    - name: Find Android package
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      run: |
+        builtApkPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.${{ matrix.extension }})"
+        ANDROID_APK_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
+        mv "$builtApkPath" "$ANDROID_APK_PATH"
+        echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
     - name: Android artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}
       uses: actions/upload-artifact@v4
@@ -262,7 +268,7 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
-          
+
     - name: Symbols
       if: ${{ matrix.platform == 'msvc' }}
       uses: actions/upload-artifact@v4
@@ -283,19 +289,17 @@ jobs:
       if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' && matrix.platform != 'mingw-32' }}
       continue-on-error: true
       run: |
-        if cd '${{github.workspace}}/android/vcmi-app/build/outputs/apk/daily' ; then
-          mv '${{ env.ANDROID_APK_PATH }}' "$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
-        else
+        if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
           cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         fi
         source '${{github.workspace}}/CI/upload_package.sh'
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
-  
+
   # copy-pasted mostly
   bundle_release:
-    
+
     needs: build
     if: always() && github.ref == 'refs/heads/master'
     strategy:
@@ -303,7 +307,6 @@ jobs:
         include:
           - platform: android-32
             os: ubuntu-22.04
-            extension: aab
             preset: android-conan-ninja-release
             conan_profile: android-32
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
@@ -367,13 +370,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Android JNI android-64
-        path: ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs/
- 
+        path: ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/libs
+
     - name: Create Android package
       run: |
-        cd android
+        cd out/build/${{ matrix.preset }}/android-build
         ./gradlew bundleRelease --info
-        echo ANDROID_APK_PATH="$(ls ${{ github.workspace }}/android/vcmi-app/build/outputs/bundle/release/*.aab)" >> $GITHUB_ENV
+        echo ANDROID_APK_PATH="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/bundle/release/*.aab)" >> $GITHUB_ENV
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}

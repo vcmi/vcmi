@@ -12,10 +12,16 @@
 
 #include "../launcherdirs.h"
 
+#include "../../lib/CConfigHandler.h"
+
 CDownloadManager::CDownloadManager()
 {
 	connect(&manager, SIGNAL(finished(QNetworkReply *)),
 		SLOT(downloadFinished(QNetworkReply *)));
+	connect(&manager, &QNetworkAccessManager::sslErrors, [](QNetworkReply * reply, const QList<QSslError> & errors) {
+		if(settings["launcher"]["ignoreSslErrors"].Bool())
+			reply->ignoreSslErrors();
+	});
 }
 
 void CDownloadManager::downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal)

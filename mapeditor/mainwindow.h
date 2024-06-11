@@ -17,8 +17,8 @@ VCMI_LIB_NAMESPACE_END
 namespace Ui
 {
 	class MainWindow;
-	const QString teamName = "VCMI Team";
-	const QString appName = "VCMI Map Editor";
+	const QString teamName = "vcmi";
+	const QString appName = "mapeditor";
 }
 
 class MainWindow : public QMainWindow
