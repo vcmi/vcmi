@@ -102,7 +102,7 @@ int3 MapViewModel::getTileAtPoint(const Point & position) const
 
 Point MapViewModel::getCacheDimensionsPixels() const
 {
-	return getTilesVisibleDimensions() * getSingleTileSizeUpperLimit();
+	return getPixelsVisibleDimensions() + getSingleTileSizeUpperLimit() * 2;
 }
 
 Rect MapViewModel::getCacheTileArea(const int3 & coordinates) const

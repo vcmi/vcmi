@@ -35,14 +35,10 @@ class FirstLaunchView : public QWidget
 	void languageSelected(const QString & languageCode);
 
 	// Tab Heroes III Data
-	bool heroesDataUpdate();
 	bool heroesDataDetect();
 
 	void heroesDataMissing();
 	void heroesDataDetected();
-
-	void heroesLanguageUpdate();
-	void forceHeroesLanguage(const QString & language);
 
 	QString getHeroesInstallDir();
 	void extractGogData();
@@ -64,6 +60,9 @@ class FirstLaunchView : public QWidget
 public:
 	explicit FirstLaunchView(QWidget * parent = nullptr);
 
+	// Tab Heroes III Data
+	bool heroesDataUpdate();
+
 public slots:
 
 private slots:
@@ -82,8 +81,6 @@ private slots:
 
 	void on_pushButtonGogInstall_clicked();
 
-	void on_comboBoxLanguage_currentIndexChanged(int index);
-
 	void on_pushButtonPresetBack_clicked();
 
 	void on_pushButtonPresetNext_clicked();
@@ -96,5 +93,4 @@ private slots:
 
 private:
 	Ui::FirstLaunchView * ui;
-
 };

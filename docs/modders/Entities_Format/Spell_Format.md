@@ -1,4 +1,4 @@
-# Main format
+## Main format
 
 ``` javascript
 {
@@ -144,7 +144,7 @@
 }
 ```
 
-# Animation format
+## Animation format
 
 TODO
 
@@ -163,11 +163,11 @@ TODO
 }
 ```
 
-# Spell level base format
+## Spell level base format
 
 Json object with data common for all levels can be put here. These configuration parameters will be default for all levels. All mandatory level fields become optional if they equal "base" configuration.
 
-## Example
+### Example
 
 This will make spell affect single target on all levels except expert, where it is massive spell.
 
@@ -180,7 +180,7 @@ This will make spell affect single target on all levels except expert, where it 
 }
 ```
 
-# Spell level format
+## Spell level format
 
 TODO
 
@@ -242,15 +242,15 @@ TODO
 }
 ```
 
-# Configurable battle effects
+## Configurable battle effects
 
 **If spell have at least one special effect it become configurable spell and spell configuration processed different way**
 
-## Configurable spell
+### Configurable spell
 
 Configurable spells ignore *offensive* flag, *effects* and *cumulativeEffects*. For backward compatibility *offensive* flag define Damage effect, *effects* and *cumulativeEffects* define Timed effect.
 
-## Special effect common format
+### Special effect common format
 
 TODO
 
@@ -271,7 +271,7 @@ TODO
 }
 ```
 
-## catapult
+### Catapult
 
 TODO
 
@@ -290,7 +290,7 @@ TODO
 }
 ```
 
-## Clone
+### Clone
 
 TODO
 
@@ -306,7 +306,7 @@ Configurable version of Clone spell.
 }
 ```
 
-## Damage effect
+### Damage effect
 
 TODO
 
@@ -325,35 +325,35 @@ If effect is automatic, spell behave like offensive spell (uses power, levelPowe
 }
 ```
 
-## Dispel
+### Dispel
 
 TODO
 
-## Heal
+### Heal
 
 TODO
 
-## Obstacle
+### Obstacle
 
 TODO
 
-## Remove obstacle
+### Remove obstacle
 
 TODO
 
-## Sacrifice
+### Sacrifice
 
 TODO
 
-## Summon
+### Summon
 
 TODO
 
-## Teleport
+### Teleport
 
 TODO
 
-## Timed
+### Timed
 
 TODO
 
@@ -374,9 +374,9 @@ cumulativeEffects ignored)
 }
 ```
 
-# Additional documentation
+## Additional documentation
 
-## Targets, ranges, modifiers
+### Targets, ranges, modifiers
 
 TODO
 

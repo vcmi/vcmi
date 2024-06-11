@@ -1,14 +1,8 @@
 package eu.vcmi.vcmi;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
-import android.os.Environment;
-import android.os.Looper;
-import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 
@@ -17,9 +11,6 @@ import org.libsdl.app.SDLActivity;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.Date;
-import java.util.Locale;
-import java.text.SimpleDateFormat;
 
 import eu.vcmi.vcmi.util.Log;
 
@@ -35,7 +26,7 @@ public class NativeMethods
     }
 
     public static native void initClassloader();
-
+    public static native void heroesDataUpdate();
     public static native boolean tryToSaveTheGame();
 
     public static void setupMsg(final Messenger msg)

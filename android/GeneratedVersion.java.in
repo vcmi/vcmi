@@ -1,9 +1,0 @@
-package eu.vcmi.vcmi.util;
-
-/**
- * Generated via cmake
- */
-public class GeneratedVersion
-{
-    public static final String VCMI_VERSION = "@VCMI_VERSION@";
-}

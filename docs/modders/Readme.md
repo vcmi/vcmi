@@ -1,4 +1,4 @@
-# Creating mod
+## Creating mod
 
 To make your own mod you need to create subdirectory in **<data dir>/Mods/** with name that will be used as identifier for your mod.
 Main mod is file called **mod.json** and should be placed into main folder of your mod, e.g. **Mods/myMod/mod.json**
@@ -157,16 +157,16 @@ Example: replacing single icon
 }
 ```
 
-# Publishing mods in VCMI Repository
+## Publishing mods in VCMI Repository
 
 This will allow players to install mods directly from VCMI Launcher without visiting any 3rd-party sites.
 
-## Where files are hosted
+### Where files are hosted
 
 Mods list hosted under main VCMI organization: [vcmi-mods-repository](https://github.com/vcmi/vcmi-mods-repository).
 Each mod hosted in it's own repository under separate organization [vcmi-mods](https://github.com/vcmi-mods). This way if engine become more popular in future we can create separate teams for each mod and accept as many people as needed.
 
-## Why Git / GitHub?
+### Why Git / GitHub?
 
 It's solve a lot of problems:
 
@@ -176,13 +176,13 @@ It's solve a lot of problems:
 - Tracking of changes for repository and mods. It's not big deal now, but once we have scripting it's will be important to keep control over what code included in mods.
 - GitHub also create ZIP archives for us so mods will be stored uncompressed and version can be identified by commit hash.
 
-## On backward compatibility
+### On backward compatibility
 
 Our mod list in vcmi-mods-repository had "develop" as primary branch. Daily builds of VCMI use mod list file from this branch.
 Once VCMI get stable release there will be branching into "1.0.0", "1.1.0", etc. Launcher of released version will request mod list for particular version.
 Same way we can also create special stable branch for every mod under "vcmi-mods" organization umbrella once new stable version is released. So this way it's will be easier to maintain two versions of same mod: for stable and latest version.
 
-## Getting into vcmi-mods organization
+### Getting into vcmi-mods organization
 
 Before your mod can be accepted into official mod list you need to get it into repository under "vcmi-mods" organization umbrella. To do this contact one of mod repository maintainers. If needed you can get own team within "vcmi-mods" organization.
 Link to our mod will looks like that: https://github.com/vcmi-mods/adventure-ai-trace

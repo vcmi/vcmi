@@ -224,15 +224,17 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 	ERROR_RET_IF(obj->ID == Obj::TOWN && !canGetFullInfo(obj), "Cannot get info about town guild object!");
 	//TODO: advmap object -> check if they're visited by our hero
 
-	if(obj->ID == Obj::TOWN  ||  obj->ID == Obj::TAVERN)
+	if(obj->ID == Obj::TOWN || obj->ID == Obj::TAVERN)
 	{
 		int taverns = 0;
 		for(auto town : gs->players[*getPlayerID()].towns)
 		{
 			if(town->hasBuilt(BuildingID::TAVERN))
 				taverns++;
+			
+			if(town->hasBuilt(BuildingSubID::THIEVES_GUILD))
+				taverns += 2;
 		}
-
 		gs->obtainPlayersStats(thi, taverns);
 	}
 	else if(obj->ID == Obj::DEN_OF_THIEVES)

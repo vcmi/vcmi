@@ -19,10 +19,6 @@
   <property name="windowTitle">
    <string>VCMI Launcher</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>icons:menu-game.png</normaloff>icons:menu-game.png</iconset>
-  </property>
   <property name="iconSize">
    <size>
     <width>64</width>
@@ -55,10 +51,6 @@
         </property>
         <property name="text">
          <string>Mods</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>icons:menu-mods.png</normaloff>icons:menu-mods.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -106,10 +98,6 @@
         <property name="text">
          <string>Settings</string>
         </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>icons:menu-settings.png</normaloff>icons:menu-settings.png</iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>64</width>
@@ -155,10 +143,6 @@
         </property>
         <property name="text">
          <string>Help</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>icons:about-project.png</normaloff>icons:about-project.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -225,10 +209,6 @@
         <property name="text">
          <string>Map Editor</string>
         </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>icons:menu-editor.png</normaloff>icons:menu-editor.png</iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>32</width>
@@ -277,10 +257,6 @@
         </property>
         <property name="text">
          <string>Start game</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>icons:menu-game.png</normaloff>icons:menu-game.png</iconset>
         </property>
         <property name="iconSize">
          <size>

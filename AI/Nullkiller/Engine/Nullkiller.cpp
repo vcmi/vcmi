@@ -403,7 +403,7 @@ void Nullkiller::makeTurn()
 
 		if(selectedTasks.empty())
 		{
-			return;
+			selectedTasks.push_back(taskptr(Goals::Invalid()));
 		}
 
 		bool hasAnySuccess = false;

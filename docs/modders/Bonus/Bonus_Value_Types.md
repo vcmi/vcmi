@@ -11,7 +11,7 @@ Total value of Bonus is calculated using the following:
 
 Semantics of INDEPENDENT_MAX and INDEPENDENT_MIN are wrapped, and first means than bonus total value will be at least INDEPENDENT_MAX, and second means than bonus value will be at most INDEPENDENT_MIN.
 
-# List of all bonus value types
+## List of all bonus value types
 
 -   ADDITIVE_VALUE
 -   BASE_NUMBER

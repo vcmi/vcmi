@@ -226,11 +226,13 @@ QVariantMap CModList::copyField(QVariantMap data, QString from, QString to) cons
 
 void CModList::reloadRepositories()
 {
+	cachedMods.clear();
 }
 
 void CModList::resetRepositories()
 {
 	repositories.clear();
+	cachedMods.clear();
 }
 
 void CModList::addRepository(QVariantMap data)
@@ -238,20 +240,25 @@ void CModList::addRepository(QVariantMap data)
 	for(auto & key : data.keys())
 		data[key.toLower()] = data.take(key);
 	repositories.push_back(copyField(data, "version", "latestVersion"));
+
+	cachedMods.clear();
 }
 
 void CModList::setLocalModList(QVariantMap data)
 {
 	localModList = copyField(data, "version", "installedVersion");
+	cachedMods.clear();
 }
 
 void CModList::setModSettings(QVariant data)
 {
 	modSettings = data.toMap();
+	cachedMods.clear();
 }
 
 void CModList::modChanged(QString modID)
 {
+	cachedMods.clear();
 }
 
 static QVariant getValue(QVariant input, QString path)
@@ -270,9 +277,21 @@ static QVariant getValue(QVariant input, QString path)
 	}
 }
 
-CModEntry CModList::getMod(QString modname) const
+const CModEntry & CModList::getMod(QString modName) const
 {
-	modname = modname.toLower();
+	modName = modName.toLower();
+
+	auto it = cachedMods.find(modName);
+
+	if (it != cachedMods.end())
+		return it.value();
+
+	auto itNew = cachedMods.insert(modName, getModUncached(modName));
+	return *itNew;
+}
+
+CModEntry CModList::getModUncached(QString modname) const
+{
 	QVariantMap repo;
 	QVariantMap local = localModList[modname].toMap();
 	QVariantMap settings;

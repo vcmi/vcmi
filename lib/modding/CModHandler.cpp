@@ -418,9 +418,6 @@ bool CModHandler::validateTranslations(TModID modName) const
 
 	for(const auto & language : Languages::getLanguageList())
 	{
-		if (!language.hasTranslation)
-			continue;
-
 		if (mod.config[language.identifier].isNull())
 			continue;
 

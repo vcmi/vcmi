@@ -15,8 +15,8 @@
 namespace Ui
 {
 class MainWindow;
-const QString teamName = "VCMI Team";
-const QString appName = "VCMI Launcher";
+const QString teamName = "vcmi";
+const QString appName = "launcher";
 }
 
 class QTableWidgetItem;
@@ -30,10 +30,10 @@ class MainWindow : public QMainWindow
 #ifdef ENABLE_QT_TRANSLATIONS
 	QTranslator translator;
 #endif
-private:
 	Ui::MainWindow * ui;
+
 	void load();
-	
+
 	enum TabRows
 	{
 		MODS = 0,
@@ -42,7 +42,6 @@ private:
 		ABOUT = 3,
 	};
 
-	void changeEvent(QEvent *event) override;
 public:
 	explicit MainWindow(QWidget * parent = nullptr);
 	~MainWindow() override;
@@ -57,6 +56,9 @@ public:
 	void enterSetup();
 	void exitSetup();
 	void switchToModsTab();
+
+protected:
+	void changeEvent(QEvent * event) override;
 
 public slots:
 	void on_startGameButton_clicked();

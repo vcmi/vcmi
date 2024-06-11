@@ -25,5 +25,7 @@ const char *bundlePath();
 const char *frameworksPath();
 
 const char *bundleIdentifier();
+
+bool isOsVersionAtLeast(unsigned int osMajorVersion);
 }
 #pragma GCC visibility pop

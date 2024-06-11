@@ -1,6 +1,6 @@
-**For iOS installation look here: (Installation on iOS)[Installation_iOS.md]
+For iOS installation look here: (Installation on iOS)[Installation_iOS.md]
 
-# Step 1: Download and install VCMI
+## Step 1: Download and install VCMI
 
 - The latest release (recommended): <https://github.com/vcmi/vcmi/releases/latest>
 - Daily builds (might be unstable) 
@@ -11,7 +11,7 @@ If the app doesn't open, right-click the app bundle - select *Open* menu item - 
 
 Please report about gameplay problem on forums: [Help & Bugs](https://forum.vcmi.eu/c/international-board/help-bugs) Make sure to specify what hardware and macOS version you use.
 
-# Step 2: Installing Heroes III data files
+## Step 2: Installing Heroes III data files
 
 ### Step 2.a: Installing data files with GOG offline installer
 
