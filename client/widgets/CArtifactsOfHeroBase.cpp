@@ -85,6 +85,9 @@ void CArtifactsOfHeroBase::init(
 	leftBackpackRoll->block(true);
 	rightBackpackRoll->block(true);
 
+	backpackScroller = std::make_shared<BackpackScroller>(this, Rect(380, 30, 278, 382));
+	backpackScroller->setScrollingEnabled(false);
+
 	setRedrawParent(true);
 }
 
@@ -186,6 +189,8 @@ void CArtifactsOfHeroBase::updateBackpackSlots()
 		leftBackpackRoll->block(!scrollingPossible);
 	if(rightBackpackRoll)
 		rightBackpackRoll->block(!scrollingPossible);
+	if (backpackScroller)
+		backpackScroller->setScrollingEnabled(scrollingPossible);
 }
 
 void CArtifactsOfHeroBase::updateSlot(const ArtifactPosition & slot)
@@ -244,4 +249,18 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	{
 		artPlace->setArtifact(nullptr);
 	}
+}
+
+BackpackScroller::BackpackScroller(CArtifactsOfHeroBase * owner, const Rect & dimensions)
+	: Scrollable(0, Point(), Orientation::HORIZONTAL)
+	, owner(owner)
+{
+	pos = dimensions + pos.topLeft();
+	setPanningStep(46);
+}
+
+void BackpackScroller::scrollBy(int distance)
+{
+	if (distance != 0)
+		owner->scrollBackpack(distance < 0);
 }
