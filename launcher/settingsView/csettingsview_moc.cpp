@@ -87,8 +87,6 @@ void CSettingsView::updateCheckbuttonText(QToolButton * button)
 
 void CSettingsView::loadSettings()
 {
-	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
-
 #ifdef VCMI_MOBILE
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
@@ -111,7 +109,6 @@ void CSettingsView::loadSettings()
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
-	setCheckbuttonState(ui->buttonVSync, settings["video"]["vsync"].Bool());
 	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
@@ -123,23 +120,13 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["localPort"].Integer());
 
-	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
-
 	ui->lineEditRepositoryDefault->setText(QString::fromStdString(settings["launcher"]["defaultRepositoryURL"].String()));
 	ui->lineEditRepositoryExtra->setText(QString::fromStdString(settings["launcher"]["extraRepositoryURL"].String()));
 
 	ui->lineEditRepositoryDefault->setEnabled(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->lineEditRepositoryExtra->setEnabled(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
-	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
-	setCheckbuttonState(ui->buttonRepositoryExtra, settings["launcher"]["extraRepositoryEnabled"].Bool());
-
-	setCheckbuttonState(ui->buttonIgnoreSslErrors, settings["launcher"]["ignoreSslErrors"].Bool());
-	setCheckbuttonState(ui->buttonAutoSave, settings["general"]["saveFrequency"].Integer() > 0);
-
 	ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
-
-	setCheckbuttonState(ui->buttonAutoSavePrefix, settings["general"]["useSavePrefix"].Bool());
 
 	ui->lineEditAutoSavePrefix->setText(QString::fromStdString(settings["general"]["savePrefix"].String()));
 	ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
@@ -147,19 +134,13 @@ void CSettingsView::loadSettings()
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 	fillValidRenderers();
 
-	std::string cursorType = settings["video"]["cursor"].String();
-	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
-	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
-
 	std::string upscalingFilter = settings["video"]["scalingMode"].String();
 	int upscalingFilterIndex = vstd::find_pos(upscalingFilterTypes, upscalingFilter);
 	ui->comboBoxUpscalingFilter->setCurrentIndex(upscalingFilterIndex);
 
 	ui->sliderMusicVolume->setValue(settings["general"]["music"].Integer());
 	ui->sliderSoundVolume->setValue(settings["general"]["sound"].Integer());
-	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	ui->sliderRelativeCursorSpeed->setValue(settings["general"]["relativePointerSpeedMultiplier"].Integer());
-	setCheckbuttonState(ui->buttonHapticFeedback, settings["launcher"]["hapticFeedback"].Bool());
 	ui->sliderLongTouchDuration->setValue(settings["general"]["longTouchTimeMilliseconds"].Integer());
 	ui->slideToleranceDistanceMouse->setValue(settings["input"]["mouseToleranceDistance"].Integer());
 	ui->sliderToleranceDistanceTouch->setValue(settings["input"]["touchToleranceDistance"].Integer());
@@ -168,6 +149,28 @@ void CSettingsView::loadSettings()
 	ui->sliderControllerSticksAcceleration->setValue(settings["input"]["controllerAxisScale"].Float() * 100);
 	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
 	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
+}
+
+void CSettingsView::loadToggleButtonSettings()
+{
+	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
+	setCheckbuttonState(ui->buttonVSync, settings["video"]["vsync"].Bool());
+	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
+
+	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
+	setCheckbuttonState(ui->buttonRepositoryExtra, settings["launcher"]["extraRepositoryEnabled"].Bool());
+
+	setCheckbuttonState(ui->buttonIgnoreSslErrors, settings["launcher"]["ignoreSslErrors"].Bool());
+	setCheckbuttonState(ui->buttonAutoSave, settings["general"]["saveFrequency"].Integer() > 0);
+
+	setCheckbuttonState(ui->buttonAutoSavePrefix, settings["general"]["useSavePrefix"].Bool());
+
+	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
+	setCheckbuttonState(ui->buttonHapticFeedback, settings["launcher"]["hapticFeedback"].Bool());
+
+	std::string cursorType = settings["video"]["cursor"].String();
+	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
+	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
 }
 
 void CSettingsView::fillValidResolutions()
@@ -431,6 +434,7 @@ void CSettingsView::changeEvent(QEvent *event)
 		ui->retranslateUi(this);
 		Languages::fillLanguages(ui->comboBoxLanguage, false);
 		loadTranslation();
+		loadToggleButtonSettings();
 	}
 	QWidget::changeEvent(event);
 }
