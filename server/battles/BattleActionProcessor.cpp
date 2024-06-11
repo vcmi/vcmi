@@ -960,14 +960,14 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	// only primary target
 	if(defender->alive())
-		applyBattleEffects(battle, bat, attackerState, fireShield, defender, &healInfo, distance, false);
+		applyBattleEffects(battle, bat, attackerState, fireShield, defender, healInfo, distance, false);
 
 	//multiple-hex normal attack
 	std::set<const CStack*> attackedCreatures = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
-			applyBattleEffects(battle, bat, attackerState, fireShield, stack, &healInfo, distance, true);
+			applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
 	}
 
 	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
@@ -995,7 +995,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(battle, bat, attackerState, fireShield, stack, &healInfo, distance, true);
+				applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
 			}
 		}
 
@@ -1425,7 +1425,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 	}
 }
 
-void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, battle::HealInfo * healInfo, int distance, bool secondary) const
+void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, battle::HealInfo & healInfo, int distance, bool secondary) const
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1446,13 +1446,11 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 		CStack::prepareAttacked(bsa, gameHandler->getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
-	battle::HealInfo tmpHealInfo;
-
 	//life drain handling
 	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving())
 	{
 		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(BonusType::LIFE_DRAIN) / 100;
-		tmpHealInfo += attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
+		healInfo += attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
 	}
 
 	//soul steal handling
@@ -1466,12 +1464,11 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 			{
 				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(BonusType::SOUL_STEAL, subtype) * attackerState->getMaxHealth();
 				bool permanent = subtype == BonusCustomSubtype::soulStealPermanent;
-				tmpHealInfo += attackerState->heal(toHeal, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
+				healInfo += attackerState->heal(toHeal, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
 				break;
 			}
 		}
 	}
-	*healInfo += tmpHealInfo;
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
 	//fire shield handling

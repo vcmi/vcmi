@@ -44,17 +44,15 @@ namespace BattlePhases
 // Healed HP (also drained life) and resurrected units info
 struct HealInfo
 {
-	HealInfo()
-		: healedHealthPoints(0), resurrectedCount(0)
-	{ }
+	HealInfo() = default;
 	HealInfo(int64_t healedHP, int32_t resurrected)
 		: healedHealthPoints(healedHP), resurrectedCount(resurrected)
 	{ }
 
-	int64_t healedHealthPoints;
-	int32_t resurrectedCount;
+	int64_t healedHealthPoints = 0;
+	int32_t resurrectedCount = 0;
 
-	HealInfo& operator +=(const HealInfo& other)
+	HealInfo & operator+=(const HealInfo & other)
 	{
 		healedHealthPoints += other.healedHealthPoints;
 		resurrectedCount += other.resurrectedCount;
