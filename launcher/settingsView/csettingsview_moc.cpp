@@ -166,7 +166,7 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonAutoSavePrefix, settings["general"]["useSavePrefix"].Bool());
 
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
-	setCheckbuttonState(ui->buttonHapticFeedback, settings["launcher"]["hapticFeedback"].Bool());
+	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
