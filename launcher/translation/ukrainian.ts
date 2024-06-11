@@ -64,7 +64,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
         <source>Data Directories</source>
-        <translation>Теки даних гри</translation>
+        <translation>Теки гри</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="175"/>
@@ -79,7 +79,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="234"/>
         <source>Configuration files directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Тека файлів конфігурації</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="297"/>
@@ -294,7 +294,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="105"/>
         <source>Reload repositories</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновити репозиторії</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
@@ -630,7 +630,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="85"/>
         <source>Off</source>
-        <translation>Вимкнено</translation>
+        <translation>Ні</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="452"/>
@@ -669,62 +669,62 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="59"/>
         <source>Online Lobby port</source>
-        <translation type="unfinished"></translation>
+        <translation>Порт онлайн лобі</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="66"/>
         <source>Autocombat AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>ШІ автобою</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="73"/>
         <source>Sticks Sensitivity</source>
-        <translation type="unfinished"></translation>
+        <translation>Чутливість стиків</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="87"/>
         <source>Haptic Feedback</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="94"/>
         <source>Software Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Програмний курсор</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="108"/>
         <source>Online Lobby address</source>
-        <translation type="unfinished"></translation>
+        <translation>Адреса онлайн-лобі</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
         <source>Upscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр масштабування</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="122"/>
         <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим відносного вказівника</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
         <source>Nearest</source>
-        <translation type="unfinished"></translation>
+        <translation>Найближчий</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Лінійний</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="205"/>
         <source>Best (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>Найкращий (лінійний)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="231"/>
         <source>Input - Touchscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Введення - Сенсорний екран</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
@@ -734,62 +734,62 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="474"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Мережа</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Аудіо</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="578"/>
         <source>Relative Pointer Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Швидкість відносного вказівника</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="585"/>
         <source>Music Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Гучність музики</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="606"/>
         <source>Ignore SSL errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Ігнорувати помилки SSL</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
         <source>Input - Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Введення - Миша</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="628"/>
         <source>Long Touch Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Тривалість довгого дотику</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="635"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="658"/>
         <source>Controller Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Допуск на натискання контролера</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="665"/>
         <source>Touch Tap Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Допуск на натискання дотиком</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="704"/>
         <source>Input - Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>Введення - Контролер</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="771"/>
         <source>Sound Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Гучність звуку</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="801"/>
@@ -828,12 +828,12 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="839"/>
         <source>Mouse Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Допуск кліків миші</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="853"/>
         <source>Sticks Acceleration</source>
-        <translation type="unfinished"></translation>
+        <translation>Прискорення стиків</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="995"/>
@@ -858,7 +858,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="83"/>
         <source>On</source>
-        <translation>Увімкнено</translation>
+        <translation>Так</translation>
     </message>
     <message>
         <source>Cursor</source>
@@ -1064,12 +1064,12 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="304"/>
         <source>Use offline installer from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translation>Використати офлайн-інсталятор з gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="317"/>
         <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translation>Ви можете вручну скопіювати теки Maps, Data та Mp3 з теки оригінальної гри до теки даних VCMI, яку ви можете побачити вгорі цієї сторінки</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="336"/>
@@ -1106,23 +1106,24 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="395"/>
         <source>Installing... %p%</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановлюємо... %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="424"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Якщо на вашому пристрої вже є файли Heroes III, ви можете вибрати цю теку і VCMI автоматично скопіює наявні дані.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="466"/>
         <source>Copy existing files</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопіювати існуючі файли</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="511"/>
         <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
 Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Якщо у вас є Heroes III на gog.com, ви можете завантажити резервну копію офлайн-інсталятора з gog.com, і VCMI імпортує дані Heroes III за допомогою офлайн-інсталятора. 
+Офлайн-інсталятор складається з двох частин, .exe та .bin. Переконайтеся, що ви завантажили обидві частини.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="696"/>
@@ -1173,7 +1174,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="354"/>
         <source>Manual Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Ручне встановлення</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="367"/>
@@ -1487,13 +1488,14 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
     <message>
         <location filename="../main.cpp" line="121"/>
         <source>Error starting executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка запуску виконуваного файлу</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="122"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалося запустити %1
+Причина: %2</translation>
     </message>
 </context>
 <context>
