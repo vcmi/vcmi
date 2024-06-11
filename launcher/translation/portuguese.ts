@@ -564,7 +564,7 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="202"/>
         <source>Required mod %1 is not enabled</source>
-        <translation>O mod necessário %1 não está habilitado</translation>
+        <translation>O mod necessário %1 não está ativado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="211"/>

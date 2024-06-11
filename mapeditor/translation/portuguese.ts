@@ -1517,12 +1517,12 @@
     <message>
         <location filename="../validator.cpp" line="146"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
-        <translation>O pergaminho de feitiço %1 é proibido pelas configurações do mapa</translation>
+        <translation>O pergaminho mágico %1 é proibido pelas configurações do mapa</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="149"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation>O pergaminho de feitiço %1 não tem instância atribuída e deve ser removido</translation>
+        <translation>O pergaminho mágico %1 não tem instância atribuída e deve ser removido</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="155"/>
