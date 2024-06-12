@@ -490,7 +490,7 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 			auto exits = cb->getTeleportChannelExits(channel);
 			for(const auto & exit : exits)
 			{
-				td.exits.push_back(std::make_pair(exit, h->convertFromVisitablePos(cb->getObj(exit)->visitablePos())));
+				td.exits.push_back(std::make_pair(exit, cb->getObj(exit)->visitablePos()));
 			}
 		}
 
@@ -522,9 +522,9 @@ void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer,
 	else if(vstd::isValidIndex(exits, answer))
 		dPos = exits[answer].second;
 	else
-		dPos = hero->convertFromVisitablePos(cb->getObj(randomExit)->visitablePos());
+		dPos = cb->getObj(randomExit)->visitablePos();
 
-	cb->moveHero(hero->id, dPos, EMovementMode::MONOLITH);
+	cb->moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
 }
 
 void CGMonolith::initObj(CRandomGenerator & rand)
@@ -566,7 +566,7 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		auto exit = getRandomExit(h);
-		td.exits.push_back(std::make_pair(exit, h->convertFromVisitablePos(cb->getObj(exit)->visitablePos())));
+		td.exits.push_back(std::make_pair(exit, cb->getObj(exit)->visitablePos()));
 	}
 
 	cb->showTeleportDialog(&td);
@@ -676,7 +676,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			auto blockedPosList = cb->getObj(exit)->getBlockedPos();
 			for(const auto & bPos : blockedPosList)
-				td.exits.push_back(std::make_pair(exit, h->convertFromVisitablePos(bPos)));
+				td.exits.push_back(std::make_pair(exit, bPos));
 		}
 	}
 
@@ -700,10 +700,10 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 
 		const auto * obj = cb->getObj(exit);
 		std::set<int3> tiles = obj->getBlockedPos();
-		dPos = hero->convertFromVisitablePos(*RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault()));
+		dPos = *RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault());
 	}
 
-	cb->moveHero(hero->id, dPos, EMovementMode::MONOLITH);
+	cb->moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
 }
 
 bool CGWhirlpool::isProtected(const CGHeroInstance * h)

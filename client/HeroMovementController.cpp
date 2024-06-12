@@ -90,9 +90,7 @@ void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, Tel
 
 	for(size_t i = 0; i < exits.size(); ++i)
 	{
-		const auto * teleporter = LOCPLINT->cb->getObj(exits[i].first);
-
-		if(teleporter && teleporter->visitableAt(nextNode.coord))
+		if(exits[i].second == nextNode.coord)
 		{
 			// Remove this node from path - it will be covered by teleportation
 			//LOCPLINT->localState->removeLastNode(hero);

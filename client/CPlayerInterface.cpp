@@ -244,8 +244,15 @@ void CPlayerInterface::performAutosave()
 				int txtlen = TextOperations::getUnicodeCharactersCount(name);
 
 				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
-				std::string forbiddenChars("\\/:*?\"<>| ");
-				std::replace_if(name.begin(), name.end(), [&](char c) { return std::string::npos != forbiddenChars.find(c); }, '_' );
+				auto const & isSymbolIllegal = [&](char c) {
+					static const std::string forbiddenChars("\\/:*?\"<>| ");
+
+					bool charForbidden = forbiddenChars.find(c) != std::string::npos;
+					bool charNonprintable = static_cast<unsigned char>(c) < static_cast<unsigned char>(' ');
+
+					return charForbidden || charNonprintable;
+				};
+				std::replace_if(name.begin(), name.end(), isSymbolIllegal, '_' );
 
 				prefix = name + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
 			}
