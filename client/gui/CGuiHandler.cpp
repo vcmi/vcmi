@@ -118,9 +118,9 @@ void CGuiHandler::renderFrame()
 
 		if (settings["video"]["showfps"].Bool())
 			drawFPSCounter();
-	}
 
-	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+	}
 
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
