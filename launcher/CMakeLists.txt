@@ -112,12 +112,9 @@ endif()
 
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} ${launcher_RESOURCES} ${launcher_TS} ${launcher_ICON})
 
-# TODO: enabling AUTORCC breaks msvc build on CI
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
-if(NOT (MSVC AND "$ENV{GITHUB_ACTIONS}" STREQUAL true))
-	set(CMAKE_AUTORCC ON)
-endif()
+set(CMAKE_AUTORCC ON)
 
 if(POLICY CMP0071)
 	cmake_policy(SET CMP0071 NEW)
