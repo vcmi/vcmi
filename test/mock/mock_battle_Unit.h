@@ -93,7 +93,7 @@ public:
 	MOCK_METHOD1(load, void(const JsonNode &));
 
 	MOCK_METHOD1(damage, void(int64_t &));
-	MOCK_METHOD3(heal, void(int64_t &, EHealLevel, EHealPower));
+	MOCK_METHOD3(heal, battle::HealInfo(int64_t &, EHealLevel, EHealPower));
 };
 
 
