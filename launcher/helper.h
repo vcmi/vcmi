@@ -9,7 +9,10 @@
  */
 #pragma once
 
+class QObject;
+
 namespace Helper
 {
 void loadSettings();
+void enableScrollBySwiping(QObject * scrollTarget);
 }

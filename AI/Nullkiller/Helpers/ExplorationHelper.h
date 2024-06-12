@@ -34,9 +34,10 @@ private:
 	const TeamState * ts;
 	int3 ourPos;
 	bool allowDeadEndCancellation;
+	bool useCPathfinderAccessibility;
 
 public:
-	ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * ai);
+	ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * ai, bool useCPathfinderAccessibility = false);
 	Goals::TSubgoal makeComposition() const;
 	bool scanSector(int scanRadius);
 	bool scanMap();

@@ -402,9 +402,9 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		addNewBonus(bonus);
 	}
 
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander)
+	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && type->heroClass->commander.hasValue())
 	{
-		commander = new CCommanderInstance(type->heroClass->commander->getId());
+		commander = new CCommanderInstance(type->heroClass->commander);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}

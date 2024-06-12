@@ -42,10 +42,8 @@ class InputSourceGameController
 	const double configTriggerTreshold;
 	const double configAxisDeadZone;
 	const double configAxisFullZone;
-	const double configPointerSpeed;
-	const double configPointerScale;
-	const double configPanningSpeed;
-	const double configPanningScale;
+	const double configAxisSpeed;
+	const double configAxisScale;
 
 	void openGameController(int index);
 	int getJoystickIndex(SDL_GameController * controller);

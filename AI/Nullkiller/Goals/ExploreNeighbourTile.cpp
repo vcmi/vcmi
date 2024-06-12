@@ -26,9 +26,9 @@ bool ExploreNeighbourTile::operator==(const ExploreNeighbourTile & other) const
 
 void ExploreNeighbourTile::accept(AIGateway * ai)
 {
-	ExplorationHelper h(hero, ai->nullkiller.get());
+	ExplorationHelper h(hero, ai->nullkiller.get(), true);
 
-	for(int i = 0; i < tilesToExplore && hero->movementPointsRemaining() > 0; i++)
+	for(int i = 0; i < tilesToExplore && ai->myCb->getObj(hero->id, false) && hero->movementPointsRemaining() > 0; i++)
 	{
 		int3 pos = hero->visitablePos();
 		float value = 0;
@@ -54,7 +54,14 @@ void ExploreNeighbourTile::accept(AIGateway * ai)
 				}
 			});
 
-		if(!target.valid() || !ai->moveHeroToTile(target, hero))
+		if(!target.valid())
+		{
+			return;
+		}
+
+		auto danger = ai->nullkiller->pathfinder->getStorage()->evaluateDanger(target, hero, true);
+
+		if(danger > 0 || !ai->moveHeroToTile(target, hero))
 		{
 			return;
 		}

@@ -19,6 +19,11 @@
 #include "../minizip/ioapi.h"
 #endif
 
+// system zlib on old Androids isn't capable of using _64 functions: https://github.com/madler/zlib/pull/436
+#if defined(__ANDROID_API__) && (__ANDROID_API__ < 24)
+#define MINIZIP_NEEDS_32BIT_FUNCS 1
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CInputStream;
@@ -39,6 +44,9 @@ class DLL_LINKAGE CDefaultIOApi: public CIOApi
 {
 public:
 	zlib_filefunc64_def getApiStructure() override;
+#if MINIZIP_NEEDS_32BIT_FUNCS
+	zlib_filefunc_def getApiStructure32();
+#endif
 };
 
 ///redirects all file IO to single stream

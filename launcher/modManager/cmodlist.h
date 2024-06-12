@@ -82,8 +82,11 @@ class CModList
 	QVariantMap localModList;
 	QVariantMap modSettings;
 
+	mutable QMap<QString, CModEntry> cachedMods;
+
 	QVariantMap copyField(QVariantMap data, QString from, QString to) const;
 
+	CModEntry getModUncached(QString modname) const;
 public:
 	virtual void resetRepositories();
 	virtual void reloadRepositories();
@@ -93,7 +96,7 @@ public:
 	virtual void modChanged(QString modID);
 
 	// returns mod by name. Note: mod MUST exist
-	CModEntry getMod(QString modname) const;
+	const CModEntry & getMod(QString modname) const;
 
 	// returns list of all mods necessary to run selected one, including mod itself
 	// order is: first mods in list don't have any dependencies, last mod is modname

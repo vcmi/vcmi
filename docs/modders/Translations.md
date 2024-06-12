@@ -1,5 +1,3 @@
-# Translation system
-
 ## List of currently supported languages
 
 This is list of all languages that are currently supported by VCMI. If your languages is missing from the list and you wish to translate VCMI - please contact our team and we'll add support for your language in next release.
@@ -85,6 +83,7 @@ Translation of Map Editor is identical, except for location of translation files
 TODO: how to test translation locally
 
 ### Translation of Linux specific files
+
 #### Translation of AppStream metainfo
 
 The [AppStream](https://freedesktop.org/software/appstream/docs/chap-Metadata.html) [metainfo file](https://github.com/vcmi/vcmi/blob/develop/launcher/eu.vcmi.VCMI.metainfo.xml) is used for Linux software centers.
@@ -94,11 +93,11 @@ It can be translated using a text editor or using [jdAppStreamEdit](https://flat
 - Open `<VCMI>/launcher/eu.vcmi.VCMI.metainfo.xml`
 - Translate and save the file
   
-#### Desktop file
+##### Desktop file
 - Edit `<VCMI>/launcher/vcmilauncher.desktop` and `<VCMI>/launcher/vcmieditor.desktop`
 - Add `GenericName[xyz]` and `Comment[xyz]` with your language code and translation
 
-### Translation of Android Launcher
+##### Translation of Android Launcher
 - Copy `<VCMI>/android/vcmi-app/src/main/res/values/strings.xml` to `<VCMI>/android/vcmi-app/src/main/res/values-xyz/strings.xml` (`xyz` is your language code)
 - Translate this file
 
@@ -147,7 +146,7 @@ After you have exported translation and added mod information for your language,
 
 Use any text editor (Notepad++ is recommended for Windows) and translate all strings from this file to your language
 
-# Developers documentation
+## Developers documentation
 
 ### Adding new languages
 In order to add new language it needs to be added in multiple locations in source code:

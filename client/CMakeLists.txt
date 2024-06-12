@@ -407,6 +407,9 @@ assign_source_group(${client_SRCS} ${client_HEADERS} VCMI_client.rc)
 
 if(ANDROID)
 	add_library(vcmiclient SHARED ${client_SRCS} ${client_HEADERS})
+	set_target_properties(vcmiclient PROPERTIES
+		OUTPUT_NAME "vcmiclient_${ANDROID_ABI}" # required by Qt
+	)
 else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
@@ -529,11 +532,19 @@ if(APPLE_IOS)
 	)
 	install(TARGETS vcmiclient DESTINATION Payload COMPONENT app) # for ipa generation with cpack
 elseif(ANDROID)
-	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
-	add_custom_command(TARGET vcmiclient POST_BUILD
-		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main"
+	find_program(androidDeployQt androiddeployqt
+		PATHS "${qtBinDir}"
 	)
-	install(TARGETS vcmiclient DESTINATION ${LIB_DIR})
+	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
+
+	add_custom_target(android_deploy ALL
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "${androidQtBuildDir}"
+		COMMAND "${androidDeployQt}" --input "${CMAKE_BINARY_DIR}/androiddeployqt.json" --output "${androidQtBuildDir}" --android-platform "android-${ANDROID_TARGET_SDK_VERSION}" --verbose $<$<NOT:$<CONFIG:Debug>>:--release> ${ANDROIDDEPLOYQT_OPTIONS}
+		COMMAND_EXPAND_LISTS
+		VERBATIM
+		COMMENT "Create android package"
+	)
+	add_dependencies(android_deploy vcmiclient)
 else()
 	install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
 endif()

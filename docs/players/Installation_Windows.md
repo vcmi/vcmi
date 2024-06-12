@@ -1,8 +1,8 @@
-# Prerequisites
+## Prerequisites
 
 As of VCMI 1.2 and newer Windows 10 or newer is required since our automated system uses elements incompatible with older Windows.
 
-# Step 1: Download and install VCMI
+## Step 1: Download and install VCMI
 
 Install one of following into new folder, same as when installing new game:
 
@@ -10,7 +10,7 @@ Install one of following into new folder, same as when installing new game:
 -   Daily builds (unstable): <https://builds.vcmi.download/branch/develop/Windows/>
 -   Please report about problems on GitHub: [Bug Tracker](https://github.com/vcmi/vcmi/issues)
 
-# Step 2: Installing Heroes III data files
+## Step 2: Installing Heroes III data files
 
 **Since VCMI 1.2 you can skip this step, just run VCMI launcher and it will help you with importing H3 data. For older releases you can follow this step.**
 
@@ -19,7 +19,7 @@ Install one of following into new folder, same as when installing new game:
 
 Create this folder if it doesnt exist yet
 
-# Step 3: connect to the mod repository
+## Step 3: connect to the mod repository
 
 - If that's your first installation, connection to the mod repository will be configured automatically, you'll see mods available to install from VCMI launcher -
 - We recommend you to install VCMI extras to support various helpful UI tweaks 

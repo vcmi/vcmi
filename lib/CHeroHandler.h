@@ -121,7 +121,7 @@ public:
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
 
-	const CCreature * commander;
+	CreatureID commander;
 
 	std::vector<int> primarySkillInitial;  // initial primary skills
 	std::vector<int> primarySkillLowLevel; // probability (%) of getting point of primary skill when getting level

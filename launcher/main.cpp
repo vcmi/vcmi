@@ -10,35 +10,60 @@
 #include "StdInc.h"
 #include "main.h"
 #include "mainwindow_moc.h"
-#include "launcherdirs.h"
+#include "prepare.h"
 
 #include "../lib/VCMIDirs.h"
 
 #include <QApplication>
-#include <QProcess>
-#include <QMessageBox>
 
 // Conan workaround https://github.com/conan-io/conan-center-index/issues/13332
 #ifdef VCMI_IOS
-#if __has_include("QIOSIntegrationPlugin.h")
-#include "QIOSIntegrationPlugin.h"
-#endif
+# if __has_include("QIOSIntegrationPlugin.h")
+#  include "QIOSIntegrationPlugin.h"
+# endif
 int argcForClient;
 char ** argvForClient;
-#endif
+#elif defined(VCMI_ANDROID)
+# include <QAndroidJniObject>
+# include <QtAndroid>
+#else
+# include <QMessageBox>
+# include <QProcess>
+#endif // VCMI_IOS
 
-int main(int argc, char * argv[])
+// android must export main explicitly to make it visible in the shared library
+#ifdef VCMI_ANDROID
+# define MAIN_EXPORT ELF_VISIBILITY
+#else
+# define MAIN_EXPORT
+#endif // VCMI_ANDROID
+
+int MAIN_EXPORT main(int argc, char * argv[])
 {
 	int result;
 #ifdef VCMI_IOS
 	{
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 	QApplication vcmilauncher(argc, argv);
 
-	CLauncherDirs::prepare();
+	launcher::prepare();
 
 	MainWindow mainWindow;
 	mainWindow.show();
+
+#ifdef VCMI_ANDROID
+	// changing language causes window to increase size over the bounds, force it back to proper value
+	// TODO: check in Qt 6 if the hack is still needed
+	auto appWindow = vcmilauncher.focusWindow();
+	auto resizeWindowToScreen = [appWindow]{
+		appWindow->resize(appWindow->screen()->availableSize());
+	};
+	QObject::connect(appWindow, &QWindow::widthChanged, resizeWindowToScreen);
+	QObject::connect(appWindow, &QWindow::heightChanged, resizeWindowToScreen);
+#endif
 
 	result = vcmilauncher.exec();
 #ifdef VCMI_IOS
@@ -53,7 +78,7 @@ void startGame(const QStringList & args)
 {
 	logGlobal->warn("Starting game with the arguments: %s", args.join(" ").toStdString());
 
-#ifdef Q_OS_IOS
+#ifdef VCMI_IOS
 	static const char clientName[] = "vcmiclient";
 	argcForClient = args.size() + 1; //first argument is omitted
 	argvForClient = new char*[argcForClient];
@@ -61,11 +86,13 @@ void startGame(const QStringList & args)
 	strcpy(argvForClient[0], clientName);
 	for(int i = 1; i < argcForClient; ++i)
 	{
-        std::string s = args.at(i - 1).toStdString();
-        argvForClient[i] = new char[s.size() + 1];
-        strcpy(argvForClient[i], s.c_str());
+		std::string s = args.at(i - 1).toStdString();
+		argvForClient[i] = new char[s.size() + 1];
+		strcpy(argvForClient[i], s.c_str());
 	}
 	qApp->quit();
+#elif defined(VCMI_ANDROID)
+	QtAndroid::androidActivity().callMethod<void>("onLaunchGameBtnPressed");
 #else
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()), args);
 #endif
@@ -78,7 +105,7 @@ void startEditor(const QStringList & args)
 #endif
 }
 
-#ifndef Q_OS_IOS
+#ifndef VCMI_MOBILE
 void startExecutable(QString name, const QStringList & args)
 {
 	QProcess process;
@@ -91,11 +118,9 @@ void startExecutable(QString name, const QStringList & args)
 	else
 	{
 		QMessageBox::critical(qApp->activeWindow(),
-							  "Error starting executable",
-							  "Failed to start " + name + "\n"
-							  "Reason: " + process.errorString(),
-							  QMessageBox::Ok,
-							  QMessageBox::Ok);
+			QObject::tr("Error starting executable"),
+			QObject::tr("Failed to start %1\nReason: %2").arg(name, process.errorString())
+		);
 	}
 }
 #endif

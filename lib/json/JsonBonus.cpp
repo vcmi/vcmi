@@ -597,10 +597,9 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				auto terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
 				if(!parameters.empty())
 				{
-					VLC->identifiers()->requestIdentifier("terrain", parameters[0], [=](si32 terrain)
+					VLC->identifiers()->requestIdentifier("terrain", parameters[0], [terrainLimiter](si32 terrain)
 					{
-						//TODO: support limiters
-						//terrainLimiter->terrainType = terrain;
+						terrainLimiter->terrainType = terrain;
 					});
 				}
 				return terrainLimiter;

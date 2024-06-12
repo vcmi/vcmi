@@ -1,4 +1,4 @@
-# Requirements
+## Requirements
 
 1. C++ toolchain, either of:
     - Xcode Command Line Tools (aka CLT): `sudo xcode-select --install`
@@ -9,7 +9,7 @@
     * Ninja: `brew install ninja` or get it from <https://github.com/ninja-build/ninja/releases>
     * CCache to speed up recompilation: `brew install ccache`
 
-# Obtaining source code
+## Obtaining source code
 
 Clone <https://github.com/vcmi/vcmi> with submodules. Example for command line:
 
@@ -17,11 +17,11 @@ Clone <https://github.com/vcmi/vcmi> with submodules. Example for command line:
 git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 ```
 
-# Obtaining dependencies
+## Obtaining dependencies
 
 There're 2 ways to get dependencies automatically.
 
-## Conan package manager
+### Conan package manager
 
 Please find detailed instructions [here](./Conan.md). Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Сonan.md).
 
@@ -32,7 +32,7 @@ On the step where you need to replace **PROFILE**, choose:
 
 Note: if you wish to build 1.0 release in non-`Release` configuration, you should define `USE_CONAN_WITH_ALL_CONFIGS=1` environment variable when executing `conan install`.
 
-## Homebrew
+### Homebrew
 
 1. [Install Homebrew](https://brew.sh/)
 2. Install dependencies: `brew install boost minizip sdl2 sdl2_image sdl2_mixer sdl2_ttf tbb`
@@ -41,7 +41,7 @@ Note: if you wish to build 1.0 release in non-`Release` configuration, you shoul
     - `brew install qt@5` for Qt 5 or `brew install qt` for Qt 6
     - using [Qt Online Installer](https://www.qt.io/download) - choose **Go open source**
 
-# Preparing build environment
+## Preparing build environment
 
 This applies only to Xcode-based toolchain. If `xcrun -f clang` prints errors, then use either of the following ways:
 
@@ -49,7 +49,7 @@ This applies only to Xcode-based toolchain. If `xcrun -f clang` prints errors, t
 - use `xcode-select` utility to set Xcode or Xcode Command Line Tools path: for example, `sudo xcode-select -s /Library/Developer/CommandLineTools`
 - set `DEVELOPER_DIR` environment variable pointing to Xcode or Xcode Command Line Tools path: for example, `export DEVELOPER_DIR=/Applications/Xcode.app`
 
-# Configuring project for building
+## Configuring project for building
 
 Note that if you wish to use Qt Creator IDE, you should skip this step and configure respective variables inside the IDE.
 
@@ -72,28 +72,28 @@ Note that if you wish to use Qt Creator IDE, you should skip this step and confi
 8. If you want to speed up the recompilation, add `-D ENABLE_CCACHE=ON`
 9. Now press Return
 
-# Building project
+## Building project
 
 You must also install game files to be able to run the built version, see [Installation on macOS](players/Installation_macOS.md).
 
-## From Xcode IDE
+### From Xcode IDE
 
 Open `VCMI.xcodeproj` from the build directory, select `vcmiclient` scheme and hit Run (Cmd+R). To build Launcher, select `vcmilauncher` scheme instead.
 
-## From command line
+### From command line
 
 `cmake --build <path to build directory>`
 
 - If using Makefiles generator, you'd want to utilize all your CPU cores by appending `-- -j$(sysctl -n hw.ncpu)` to the above
 - If using Xcode generator, you can also choose which configuration to build by appending `--config <configuration name>` to the above, for example: `--config Debug`
 
-# Packaging project into DMG file
+## Packaging project into DMG file
 
 After building, run `cpack` from the build directory. If using Xcode generator, also pass `-C `<configuration name> with the same configuration that you used to build the project.
 
 If you use Conan, it's expected that you use **conan-generated** directory at step 4 of [Conan package manager](Conan.md).
 
-# Running VCMI
+## Running VCMI
 
 You can run VCMI from DMG, but it's will also work from your IDE be it Xcode or Qt Creator.
 
@@ -105,7 +105,7 @@ Alternatively you can run binaries directly from the **bin** directory:
 
 CMake include commands to copy all needed assets from source directory into the **bin** directory on each build. They'll work when you build from Xcode too.
 
-# Some useful debugging tips
+## Some useful debugging tips
 
 Anyone who might want to debug builds, but new to macOS could find following commands useful:
 
@@ -114,6 +114,6 @@ Anyone who might want to debug builds, but new to macOS could find following com
 - To view dependency paths: `otool -L /Volumes/vcmi-1.0/VCMI.app/Contents/MacOS/vcmiclient`
 - To display load commands such as `LC_RPATH`: `otool -l /Volumes/vcmi-1.0/VCMI.app/Contents/MacOS/vcmiclient`
 
-# Troubleshooting
+## Troubleshooting
 
 In case of troubles you can always consult our CI build scripts or contact the dev team via slack.

@@ -50,7 +50,7 @@ class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
 
 	std::unordered_map<ResourcePath, unz64_file_pos> listFiles(const std::string & mountPoint, const boost::filesystem::path &archive);
 public:
-	CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive, std::shared_ptr<CIOApi> api = std::shared_ptr<CIOApi>(new CDefaultIOApi()));
+	CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive, std::shared_ptr<CIOApi> api = std::make_shared<CDefaultIOApi>());
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader

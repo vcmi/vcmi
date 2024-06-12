@@ -58,11 +58,20 @@ option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" O
 # Platform-specific options
 
 if(ANDROID)
+	set(ANDROID_TARGET_SDK_VERSION "33" CACHE STRING "Android target SDK version")
+	set(ANDROIDDEPLOYQT_OPTIONS "" CACHE STRING "Additional androiddeployqt options separated by semi-colon")
+	set(ANDROID_GRADLE_PROPERTIES "" CACHE STRING "Additional Gradle properties separated by semi-colon")
+
 	set(ENABLE_STATIC_LIBS ON)
-	set(ENABLE_LAUNCHER OFF)
+	set(ENABLE_LAUNCHER ON)
 else()
 	option(ENABLE_STATIC_LIBS "Build library and all components such as AI statically" OFF)
 	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
+endif()
+
+if(APPLE_IOS)
+	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
+	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
 endif()
 
 if(APPLE_IOS OR ANDROID)
@@ -98,11 +107,6 @@ cmake_dependent_option(ENABLE_GITVERSION "Enable Version.cpp with Git commit has
 
 if (ENABLE_STATIC_LIBS AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif()
-
-if(APPLE_IOS)
-	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
-	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
 endif()
 
 if(ENABLE_COLORIZED_COMPILER_OUTPUT)
@@ -147,10 +151,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR
 
 include(VCMIUtils)
 include(VersionDefinition)
-if(ANDROID)
-	set(VCMI_VERSION "${APP_SHORT_VERSION}")
-	configure_file("android/GeneratedVersion.java.in" "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main/java/eu/vcmi/vcmi/util/GeneratedVersion.java" @ONLY)
-endif()
 
 vcmi_print_important_variables()
 
@@ -575,8 +575,12 @@ elseif(APPLE)
 	endif()
 elseif(ANDROID)
 	include(GNUInstallDirs)
-	set(LIB_DIR "jniLibs/${ANDROID_ABI}")
-	set(DATA_DIR "assets")
+	set(LIB_DIR "libs/${ANDROID_ABI}")
+
+	# required by Qt
+	set(androidPackageSourceDir "${CMAKE_SOURCE_DIR}/android")
+	set(androidQtBuildDir "${CMAKE_BINARY_DIR}/android-build")
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${androidQtBuildDir}/${LIB_DIR}")
 else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
@@ -619,6 +623,13 @@ if(APPLE_IOS OR ANDROID)
 else()
 	set(AI_LIB_DIR "${LIB_DIR}/AI")
 	set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
+endif()
+
+# common Qt paths
+if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
+	get_target_property(qmakePath Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
+	get_filename_component(qtDir "${qmakePath}/../../" ABSOLUTE)
+	set(qtBinDir "${qtDir}/bin")
 endif()
 
 #######################################
@@ -682,32 +693,15 @@ endif()
 #######################################
 
 if(ANDROID)
+	string(REPLACE ";" "\n" ANDROID_GRADLE_PROPERTIES_MULTILINE "${ANDROID_GRADLE_PROPERTIES}")
+	file(WRITE "${androidPackageSourceDir}/vcmi-app/gradle.properties" "signingRoot=${CMAKE_SOURCE_DIR}/CI/android\n${ANDROID_GRADLE_PROPERTIES_MULTILINE}")
+
 	if(ANDROID_STL MATCHES "_shared$")
 		set(stlLibName "${CMAKE_SHARED_LIBRARY_PREFIX}${ANDROID_STL}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 		install(FILES "${CMAKE_SYSROOT}/usr/lib/${ANDROID_SYSROOT_LIB_SUBDIR}/${stlLibName}"
 			DESTINATION ${LIB_DIR}
 		)
 	endif()
-
-	# zip internal assets - 'config' and 'Mods' dirs, save md5 of the zip
-	install(CODE "
-		cmake_path(ABSOLUTE_PATH CMAKE_INSTALL_PREFIX
-			OUTPUT_VARIABLE absolute_install_prefix
-		)
-		set(absolute_data_dir \"\${absolute_install_prefix}/${DATA_DIR}\")
-		file(MAKE_DIRECTORY \"\${absolute_data_dir}\")
-
-		set(internal_data_zip \"\${absolute_data_dir}/internalData.zip\")
-		execute_process(COMMAND
-			\"${CMAKE_COMMAND}\" -E tar c \"\${internal_data_zip}\" --format=zip -- config Mods
-			WORKING_DIRECTORY \"${CMAKE_SOURCE_DIR}\"
-		)
-
-		file(MD5 \"\${internal_data_zip}\" internal_data_zip_md5)
-		file(WRITE \"\${absolute_data_dir}/internalDataHash.txt\"
-			\${internal_data_zip_md5}
-		)
-	")
 else()
 	install(DIRECTORY config DESTINATION ${DATA_DIR})
 	if (ENABLE_CLIENT OR ENABLE_SERVER)

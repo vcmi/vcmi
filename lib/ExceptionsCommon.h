@@ -14,3 +14,11 @@ class DLL_LINKAGE DataLoadingException: public std::runtime_error
 public:
     using std::runtime_error::runtime_error;
 };
+
+class DLL_LINKAGE ModLoadingException: public DataLoadingException
+{
+public:
+	ModLoadingException(const std::string & modName, const std::string & reason)
+		: DataLoadingException("Mod " + modName + " is corrupted! Please disable or reinstall this mod. Reason: " + reason)
+	{}
+};

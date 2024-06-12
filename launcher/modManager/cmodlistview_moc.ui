@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0,0">
      <item>
       <widget class="QLineEdit" name="lineEdit">
        <property name="sizePolicy">
@@ -102,7 +102,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Download &amp;&amp; refresh repositories</string>
+        <string>Reload repositories</string>
        </property>
       </widget>
      </item>
@@ -423,10 +423,6 @@ hr { height: 1px; border-width: 0; }
        <property name="text">
         <string>Uninstall</string>
        </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>icons:mod-delete.png</normaloff>icons:mod-delete.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>20</width>
@@ -457,10 +453,6 @@ hr { height: 1px; border-width: 0; }
        </property>
        <property name="text">
         <string>Enable</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>icons:mod-enabled.png</normaloff>icons:mod-enabled.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -493,10 +485,6 @@ hr { height: 1px; border-width: 0; }
        <property name="text">
         <string>Disable</string>
        </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>icons:mod-disabled.png</normaloff>icons:mod-disabled.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>20</width>
@@ -528,10 +516,6 @@ hr { height: 1px; border-width: 0; }
        <property name="text">
         <string>Update</string>
        </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>icons:mod-update.png</normaloff>icons:mod-update.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>20</width>
@@ -562,10 +546,6 @@ hr { height: 1px; border-width: 0; }
        </property>
        <property name="text">
         <string>Install</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>icons:mod-download.png</normaloff>icons:mod-download.png</iconset>
        </property>
        <property name="iconSize">
         <size>

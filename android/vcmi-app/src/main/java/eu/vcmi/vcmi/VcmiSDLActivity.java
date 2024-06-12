@@ -84,9 +84,7 @@ public class VcmiSDLActivity extends SDLActivity
 
     @Override
     protected String getMainSharedObject() {
-        String library = "libvcmiclient.so";
-
-        return getContext().getApplicationInfo().nativeLibraryDir + "/" + library;
+        return String.format("%s/lib%s.so", getContext().getApplicationInfo().nativeLibraryDir, LibsLoader.CLIENT_LIB);
     }
 
     @Override
@@ -99,9 +97,6 @@ public class VcmiSDLActivity extends SDLActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        if(mBrokenLibraries)
-            return;
 
         final View outerLayout = getLayoutInflater().inflate(R.layout.activity_game, null, false);
         final ViewGroup layout = (ViewGroup) outerLayout.findViewById(R.id.game_outer_frame);

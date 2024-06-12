@@ -1,0 +1,17 @@
+{
+	"android-min-sdk-version": "@CMAKE_ANDROID_API@",
+	"android-package-source-directory": "@androidPackageSourceDir@",
+	"android-target-sdk-version": "@ANDROID_TARGET_SDK_VERSION@",
+	"application-binary": "vcmiclient",
+	"architectures": {
+		"@ANDROID_ABI@": "@ANDROID_SYSROOT_LIB_SUBDIR@"
+	},
+	"ndk": "@CMAKE_ANDROID_NDK@",
+	"ndk-host": "@ANDROID_HOST_TAG@",
+	"qt": "@qtDir@",
+	"sdk": "@androidSdkDir@",
+	"sdkBuildToolsRevision": "31.0.0",
+	"stdcpp-path": "@ANDROID_TOOLCHAIN_ROOT@/sysroot/usr/lib/",
+	"tool-prefix": "llvm",
+	"toolchain-prefix": "llvm"
+}

@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/about-project.png</file>
+        <file>icons/menu-editor.png</file>
+        <file>icons/menu-game.png</file>
+        <file>icons/menu-mods.png</file>
+        <file>icons/menu-settings.png</file>
+        <file>icons/mod-delete.png</file>
+        <file>icons/mod-disabled.png</file>
+        <file>icons/mod-download.png</file>
+        <file>icons/mod-enabled.png</file>
+        <file>icons/mod-update.png</file>
+    </qresource>
+</RCC>

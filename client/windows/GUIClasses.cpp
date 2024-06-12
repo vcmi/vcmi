@@ -434,14 +434,15 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->primarySkillNames[static_cast<int>(pskill)] + " +1");
 }
 
-
-CLevelWindow::~CLevelWindow()
+void CLevelWindow::close()
 {
 	//FIXME: call callback if there was nothing to select?
 	if (box && box->selectedIndex() != -1)
 		cb(box->selectedIndex());
 
 	LOCPLINT->showingDialog->setFree();
+
+	CWindowObject::close();
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed)

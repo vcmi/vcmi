@@ -1104,7 +1104,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		objectToVisit = t.visitableObjects.back();
 
 	if (isInTheMap(guardPos))
-		guardian = getTile(guardPos)->visitableObjects.back();
+	{
+		for (auto const & object : getTile(guardPos)->visitableObjects)
+			if (object->ID == MapObjectID::MONSTER) // exclude other objects, such as hero flying above monster
+				guardian = object;
+	}
 
 	const bool embarking = !h->boat && objectToVisit && objectToVisit->ID == Obj::BOAT;
 	const bool disembarking = h->boat
