@@ -51,8 +51,15 @@ namespace Selector
 		return seffectRange;
 	}
 
-	DLL_LINKAGE CWillLastTurns turns;
-	DLL_LINKAGE CWillLastDays days;
+	DLL_LINKAGE CWillLastTurns turns(int turns)
+	{
+		return CWillLastTurns(turns);
+	}
+
+	DLL_LINKAGE CWillLastDays days(int days)
+	{
+		return CWillLastDays(days);
+	}
 
 	CSelector DLL_LINKAGE typeSubtype(BonusType Type, BonusSubtypeID Subtype)
 	{
