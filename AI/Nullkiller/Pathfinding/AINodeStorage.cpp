@@ -1203,7 +1203,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 	std::vector<const ChainActor *> actorsVector(actorsOfInitial.begin(), actorsOfInitial.end());
 	tbb::concurrent_vector<CGPathNode *> output;
 
-	if(actorsVector.size() * initialNodes.size() > 1000)
+	if(false) //if (actorsVector.size() * initialNodes.size() > 1000)
 	{
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, actorsVector.size()), [&](const tbb::blocked_range<size_t> & r)
 			{
