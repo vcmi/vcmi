@@ -17,10 +17,10 @@ namespace NKAI
 
 struct ClusterObjectInfo
 {
-	float priority;
-	float movementCost;
-	uint64_t danger;
-	uint8_t turn;
+	float priority = 0;
+	float movementCost = 0;
+	uint64_t danger = 0;
+	uint8_t turn = 0;
 };
 
 struct ObjectInstanceIDHash

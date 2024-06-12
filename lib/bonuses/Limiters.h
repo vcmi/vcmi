@@ -117,7 +117,7 @@ class DLL_LINKAGE HasAnotherBonusLimiter : public ILimiter //applies only to nod
 public:
 	BonusType type;
 	BonusSubtypeID subtype;
-	BonusSource source;
+	BonusSource source = BonusSource::OTHER;
 	BonusSourceID sid;
 	bool isSubtypeRelevant; //check for subtype only if this is true
 	bool isSourceRelevant; //check for bonus source only if this is true
