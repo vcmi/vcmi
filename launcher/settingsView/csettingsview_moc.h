@@ -23,6 +23,7 @@ public:
 	~CSettingsView();
 
 	void loadSettings();
+	void loadToggleButtonSettings();
 	void loadTranslation();
 	void setDisplayList();
 	void changeEvent(QEvent *event) override;
