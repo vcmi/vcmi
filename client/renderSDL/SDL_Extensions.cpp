@@ -361,7 +361,6 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect
 {
 	switch(dst->format->BytesPerPixel)
 	{
-	case 2: return blit8bppAlphaTo24bppT<2>(src, srcRect, dst, dstPoint);
 	case 3: return blit8bppAlphaTo24bppT<3>(src, srcRect, dst, dstPoint);
 	case 4: return blit8bppAlphaTo24bppT<4>(src, srcRect, dst, dstPoint);
 	default:
