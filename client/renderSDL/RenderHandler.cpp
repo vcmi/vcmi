@@ -251,11 +251,6 @@ std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & p
 	return std::make_shared<CAnimation>(path, getAnimationLayout(path), mode);
 }
 
-std::shared_ptr<CAnimation> RenderHandler::createAnimation()
-{
-	return std::make_shared<CAnimation>();
-}
-
 void RenderHandler::addImageListEntries(const EntityService * service)
 {
 	service->forEachBase([this](const Entity * entity, bool & stop)

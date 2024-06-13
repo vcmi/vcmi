@@ -68,9 +68,6 @@ public:
 
 	// adjust the color of the animation, used in battle spell effects, e.g. Cloned objects
 
-	//add custom surface to the selected position.
-	void setCustom(std::string filename, size_t frame, size_t group = 0);
-
 	std::shared_ptr<QImage> getImage(size_t frame, size_t group = 0, bool verbose = true) const;
 
 	//all available frames
