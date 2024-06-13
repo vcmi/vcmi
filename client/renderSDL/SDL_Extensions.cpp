@@ -19,6 +19,8 @@
 #include "../../lib/GameConstants.h"
 
 #include <SDL_render.h>
+#include <SDL_surface.h>
+#include <SDL_version.h>
 
 Rect CSDL_Ext::fromSDL(const SDL_Rect & rect)
 {
@@ -630,7 +632,11 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
 	SDL_Surface * ret = newSurface(width, height, intermediate);
 
+#if SDL_VERSION_ATLEAST(2,0,16)
 	SDL_SoftStretchLinear(intermediate, nullptr, ret, nullptr);
+#else
+	SDL_SoftStretch(intermediate, nullptr, ret, nullptr);
+#endif
 	SDL_FreeSurface(intermediate);
 
 	return ret;
