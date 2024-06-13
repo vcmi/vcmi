@@ -48,15 +48,11 @@ private:
 	std::shared_ptr<IImage> getImageImpl(size_t frame, size_t group=0, bool verbose=true);
 public:
 	CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout, EImageBlitMode mode);
-	CAnimation();
 	~CAnimation();
 
 	//duplicates frame at [sourceGroup, sourceFrame] as last frame in targetGroup
 	//and loads it if animation is preloaded
 	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
-
-	//add custom surface to the selected position.
-	void setCustom(std::string filename, size_t frame, size_t group=0);
 
 	std::shared_ptr<IImage> getImage(size_t frame, size_t group=0, bool verbose=true);
 

@@ -40,7 +40,4 @@ public:
 
 	/// Loads animation using given path
 	virtual std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) = 0;
-
-	/// Creates empty CAnimation. Temporary compatibility method
-	virtual std::shared_ptr<CAnimation> createAnimation() = 0;
 };

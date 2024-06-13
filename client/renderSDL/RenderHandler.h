@@ -65,5 +65,4 @@ public:
 	std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) override;
 
 	std::shared_ptr<IImage> createImage(SDL_Surface * source) override;
-	std::shared_ptr<CAnimation> createAnimation() override;
 };

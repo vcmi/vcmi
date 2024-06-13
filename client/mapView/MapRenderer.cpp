@@ -105,21 +105,28 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 	{
 		if (!filename.empty())
 			entry = GH.renderHandler().loadAnimation(filename, blitMode);
-		else
-			entry = GH.renderHandler().createAnimation();
 	}
 
-	terrainAnimations[1]->verticalFlip();
-	terrainAnimations[3]->verticalFlip();
+	if (terrainAnimations[1])
+		terrainAnimations[1]->verticalFlip();
 
-	terrainAnimations[2]->horizontalFlip();
-	terrainAnimations[3]->horizontalFlip();
+	if (terrainAnimations[3])
+		terrainAnimations[3]->verticalFlip();
+
+	if (terrainAnimations[2])
+		terrainAnimations[2]->horizontalFlip();
+
+	if (terrainAnimations[3])
+		terrainAnimations[3]->horizontalFlip();
 }
 
 std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
 {
 	const auto & animation = animations[fileIndex][rotationIndex];
-	return animation->getImage(imageIndex);
+	if (animation)
+		return animation->getImage(imageIndex);
+	else
+		return nullptr;
 }
 
 MapRendererTerrain::MapRendererTerrain()
