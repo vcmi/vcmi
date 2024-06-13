@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "mapcontroller.h"
 
 #include "../lib/ArtifactUtils.h"

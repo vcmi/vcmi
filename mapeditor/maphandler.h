@@ -11,7 +11,6 @@
 #pragma once
 //code is copied from vcmiclient/mapHandler.h with minimal changes
 
-#include "StdInc.h"
 #include "../lib/int3.h"
 #include "Animation.h"
 

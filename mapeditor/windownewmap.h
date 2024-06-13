@@ -11,6 +11,8 @@
 #pragma once
 
 #include <QDialog>
+
+#include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
 
 namespace Ui
@@ -62,7 +64,7 @@ class WindowNewMap : public QDialog
 		{7, 6},
 		{8, 7}
 	};
-	
+
 	const std::map<int, std::pair<int, int>> mapSizes
 	{
 		{0, {CMapHeader::MAP_SIZE_SMALL, 	CMapHeader::MAP_SIZE_SMALL}},
