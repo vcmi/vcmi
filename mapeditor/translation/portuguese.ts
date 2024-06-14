@@ -1763,7 +1763,7 @@
     <message>
         <location filename="../windownewmap.ui" line="194"/>
         <source>G  (252x252)</source>
-        <translation>XH (216x216)</translation>
+        <translation>G (252x252)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="248"/>
