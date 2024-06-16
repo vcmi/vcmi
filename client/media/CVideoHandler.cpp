@@ -570,7 +570,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-void CVideoPlayer::getVideoAndBackgroundRects(const std::string name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect)
+void CVideoPlayer::getVideoAndBackgroundRects(const std::string name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect) const
 {
 	float scalingMuliplier = 100.0 / scaling;
 	logGlobal->error("scalingmuliplier: %f", scalingMuliplier);
@@ -617,7 +617,7 @@ void CVideoPlayer::getVideoAndBackgroundRects(const std::string name, const Poin
 	}
 }
 
-bool CVideoPlayer::getIntroRimTexture(SDL_Texture **introRimTexture)
+bool CVideoPlayer::getIntroRimTexture(SDL_Texture **introRimTexture) const
 {
 	ImagePath imageToOpen = ImagePath::builtin("INTRORIM");
 	ImagePath iname;
@@ -645,7 +645,7 @@ bool CVideoPlayer::getIntroRimTexture(SDL_Texture **introRimTexture)
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling)
+bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling) const
 {
 	CVideoInstance instance;
 	CAudioInstance audio;
