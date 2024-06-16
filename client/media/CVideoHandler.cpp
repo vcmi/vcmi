@@ -708,7 +708,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		auto timePointAfterPresent = boost::chrono::steady_clock::now();
 		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);
 
-		// logGlobal->info("Sleeping for %d", (targetFrameTime - timeSpentBusy).count());
+		logGlobal->info("Sleeping for %d", (targetFrameTime - timeSpentBusy).count());
 		if(targetFrameTime > timeSpentBusy)
 			boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
 
