@@ -1331,16 +1331,31 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 		auto doChannelProbing = [&]() -> void
 		{
 			auto currentPos = h->visitablePos();
-			auto currentExit = getObj(currentPos, true)->id;
+			auto currentTeleport = getObj(currentPos, true);
 
-			status.setChannelProbing(true);
-			for(auto exit : teleportChannelProbingList)
-				doTeleportMovement(exit, int3(-1));
-			teleportChannelProbingList.clear();
-			status.setChannelProbing(false);
+			if(currentTeleport)
+			{
+				auto currentExit = currentTeleport->id;
 
-			doTeleportMovement(currentExit, currentPos);
+				status.setChannelProbing(true);
+				for(auto exit : teleportChannelProbingList)
+					doTeleportMovement(exit, int3(-1));
+				teleportChannelProbingList.clear();
+				status.setChannelProbing(false);
+
+				doTeleportMovement(currentExit, currentPos);
+			}
+			else
+			{
+				logAi->debug("Unexpected channel probbing at " + currentPos.toString());
+
+				teleportChannelProbingList.clear();
+				status.setChannelProbing(false);
+			}
 		};
+
+		teleportChannelProbingList.clear();
+		status.setChannelProbing(false);
 
 		for(; i > 0; i--)
 		{
