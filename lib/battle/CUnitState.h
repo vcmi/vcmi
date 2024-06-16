@@ -107,7 +107,7 @@ public:
 	void reset();
 
 	void damage(int64_t & amount);
-	void heal(int64_t & amount, EHealLevel level, EHealPower power);
+	HealInfo heal(int64_t & amount, EHealLevel level, EHealPower power);
 
 	int32_t getCount() const;
 	int32_t getFirstHPleft() const;
@@ -247,7 +247,7 @@ public:
 	void load(const JsonNode & data) override;
 
 	void damage(int64_t & amount) override;
-	void heal(int64_t & amount, EHealLevel level, EHealPower power) override;
+	HealInfo heal(int64_t & amount, EHealLevel level, EHealPower power) override;
 
 	void localInit(const IUnitEnvironment * env_);
 	void serializeJson(JsonSerializeFormat & handler);

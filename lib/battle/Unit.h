@@ -41,6 +41,25 @@ namespace BattlePhases
 	};
 }
 
+// Healed HP (also drained life) and resurrected units info
+struct HealInfo
+{
+	HealInfo() = default;
+	HealInfo(int64_t healedHP, int32_t resurrected)
+		: healedHealthPoints(healedHP), resurrectedCount(resurrected)
+	{ }
+
+	int64_t healedHealthPoints = 0;
+	int32_t resurrectedCount = 0;
+
+	HealInfo & operator+=(const HealInfo & other)
+	{
+		healedHealthPoints += other.healedHealthPoints;
+		resurrectedCount += other.resurrectedCount;
+		return *this;
+	}
+};
+
 class CUnitState;
 
 class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public ACreature
@@ -138,7 +157,7 @@ public:
 	virtual void load(const JsonNode & data) = 0;
 
 	virtual void damage(int64_t & amount) = 0;
-	virtual void heal(int64_t & amount, EHealLevel level, EHealPower power) = 0;
+	virtual HealInfo heal(int64_t & amount, EHealLevel level, EHealPower power) = 0;
 };
 
 class DLL_LINKAGE UnitInfo
