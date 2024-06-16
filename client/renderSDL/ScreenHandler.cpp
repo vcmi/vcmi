@@ -89,14 +89,22 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
 
-	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
-
-	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
-	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
-
-	Point logicalResolution = availableResolution * 100.0 / scaling;
+	Point logicalResolution = availableResolution * 100.0 / getScaling();
+	logGlobal->error("logicalResolution.x: %d", logicalResolution.x);
+	logGlobal->error("logicalResolution.y: %d", logicalResolution.y);
 
 	return logicalResolution;
+}
+
+int ScreenHandler::getScaling() const
+{
+	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
+	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
+	logGlobal->error("userScaling: %d", userScaling);
+	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
+	logGlobal->error("scaling: %d", scaling);
+
+	return scaling;
 }
 
 Point ScreenHandler::getRenderResolution() const

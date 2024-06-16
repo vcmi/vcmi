@@ -403,13 +403,15 @@ int main(int argc, char * argv[])
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK")))
+	int scaling = GH.screenHandler().getScaling();
+
+	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK"), scaling))
 		return;
 
-	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK")))
+	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK"), scaling))
 		return;
 
-	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"));
+	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"), scaling);
 }
 
 static void mainLoop()

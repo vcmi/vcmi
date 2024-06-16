@@ -18,9 +18,11 @@
 #include "../CMT.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../render/CBitmapHandler.h"
 #include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/CInputStream.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -570,7 +572,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey)
+bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling)
 {
 	CVideoInstance instance;
 	CAudioInstance audio;
@@ -585,6 +587,85 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	instance.prepareOutput(scale, useOverlay);
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
+
+	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
+	float resX = settings["video"]["resolution"]["width"].Float(); // Float, since we do some floating point calculations
+	float resY = settings["video"]["resolution"]["height"].Float();
+	logGlobal->error("resX: %f", resX);
+	logGlobal->error("resY: %f", resY);
+	
+	float scalingMuliplier = 100.0 / scaling;
+	logGlobal->error("scalingmuliplier: %f", scalingMuliplier);
+
+	int originalH3ResX = 800;
+	int originalH3ResY = 600;
+	float aspectRatio_OH3 = (float) originalH3ResX/originalH3ResY;
+	float resYRatioVCMI_OH3 = resY/originalH3ResY; // 0..1
+	int correctedResX = originalH3ResX*resYRatioVCMI_OH3;
+	int correctedResY = originalH3ResY*resYRatioVCMI_OH3;
+
+	SDL_Surface *image;
+	SDL_Texture *backgroundTexture = nullptr;
+	SDL_Rect backgroundRect;
+	SDL_Rect videoRect;
+
+	int H3INTROResX = 640;
+	int H3INTROResY = 360;
+
+	if(name.getName() == "H3INTRO")
+	{
+		ImagePath imageToOpen = ImagePath::builtin("INTRORIM");
+		ImagePath iname;
+
+		if (CResourceHandler::get()->existsResource(imageToOpen))
+			iname = imageToOpen;
+		else
+			iname = imageToOpen.addPrefix("DATA/");
+
+		if (!CResourceHandler::get()->existsResource(iname))
+		{
+			logGlobal->error("Error: image %s was not found", iname.getName());
+			return false;
+		}
+
+		image = BitmapHandler::loadBitmap(iname);
+
+		if (!image) {
+			logGlobal->error("Error: failed to load image at %s: %s\n", iname.getName(), SDL_GetError());
+			return false;
+		}
+
+		int offset = 0;
+		backgroundRect = CSDL_Ext::toSDL(Rect(offset, 0, correctedResX, correctedResY));
+		backgroundTexture = SDL_CreateTextureFromSurface(mainRenderer, image);
+	}
+
+	correctedResX = aspectRatio_OH3*resY;
+	correctedResY = resY;
+
+	int offsetX = (resX-correctedResX)/2;
+	int offsetY = (resY-correctedResY)/2;
+	if(name.getName() == "H3INTRO")
+	{
+		backgroundRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*offsetX),
+												(int) (scalingMuliplier*offsetY),
+												(int) (scalingMuliplier*correctedResX),
+												(int) (scalingMuliplier*correctedResY)
+											)
+										);
+		
+		videoRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*(offsetX+position.x*correctedResX/originalH3ResX)),
+											(int) (scalingMuliplier*(offsetY+position.y*correctedResY/originalH3ResY)),
+											(int) (scalingMuliplier*H3INTROResX*correctedResX/originalH3ResX),
+											(int) (scalingMuliplier*H3INTROResY*correctedResY/originalH3ResY)));
+	} else {
+		videoRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*(offsetX+position.x)),
+											(int) (scalingMuliplier*(offsetY+position.y)),
+											(int) (scalingMuliplier*correctedResX),
+											(int) (scalingMuliplier*correctedResY)
+										)
+									);
+	}
 
 	while(instance.loadNextFrame())
 	{
@@ -609,10 +690,18 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		else
 			SDL_RenderClear(mainRenderer);
 
+		if(name.getName() == "3DOLOGO" || name.getName() == "NWCLOGO" || name.getName() == "H3INTRO"){
+			SDL_RenderClear(mainRenderer);
+			if(name.getName() == "H3INTRO")
+			{
+				SDL_RenderCopy(mainRenderer, backgroundTexture, nullptr, &backgroundRect);
+			}
+		}
+
 		if(instance.textureYUV)
-			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &rect);
+			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &videoRect);
 		else
-			SDL_RenderCopy(mainRenderer, instance.textureRGB, nullptr, &rect);
+			SDL_RenderCopy(mainRenderer, instance.textureRGB, nullptr, &videoRect);
 
 		SDL_RenderPresent(mainRenderer);
 
@@ -623,7 +712,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		auto timePointAfterPresent = boost::chrono::steady_clock::now();
 		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);
 
-		logGlobal->info("Sleeping for %d", (targetFrameTime - timeSpentBusy).count());
+		// logGlobal->info("Sleeping for %d", (targetFrameTime - timeSpentBusy).count());
 		if(targetFrameTime > timeSpentBusy)
 			boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
 
@@ -632,14 +721,19 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	return true;
 }
 
-bool CVideoPlayer::playIntroVideo(const VideoPath & name)
+bool CVideoPlayer::playIntroVideo(const VideoPath & name, int scaling)
 {
-	return openAndPlayVideoImpl(name, Point(0, 0), true, true, true);
+	logGlobal->info("CVideoPlayer::playIntroVideo(%s)", name.getName());
+	Point top_right_corner(0,0);
+	if(name.getName() == "H3INTRO") {
+		top_right_corner = Point(80, 188);
+	}
+	return openAndPlayVideoImpl(name, top_right_corner, true, true, true, scaling);
 }
 
 void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
 {
-	openAndPlayVideoImpl(name, position, false, false, false);
+	openAndPlayVideoImpl(name, position, false, false, false, 100);
 }
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool scaleToScreen)

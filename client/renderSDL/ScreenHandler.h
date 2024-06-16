@@ -35,6 +35,8 @@ class ScreenHandler final : public IScreenHandler
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;
 
+	int getScaling() const;
+
 	/// Dimensions of output window, if different from logicalResolution SDL will perform scaling
 	/// This value is what player views as window size
 	Point getPreferredWindowResolution() const;
