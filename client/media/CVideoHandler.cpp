@@ -593,25 +593,25 @@ void CVideoPlayer::getVideoAndBackgroundRects(const std::string name, const Poin
 
 	if(name == "H3INTRO")
 	{
-		backgroundRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*offsetX),
-												(int) (scalingMuliplier*offsetY),
-												(int) (scalingMuliplier*correctedResX),
-												(int) (scalingMuliplier*correctedResY)
+		backgroundRect = CSDL_Ext::toSDL(Rect(	static_cast<int> (scalingMuliplier*offsetX),
+												static_cast<int> (scalingMuliplier*offsetY),
+												static_cast<int> (scalingMuliplier*correctedResX),
+												static_cast<int> (scalingMuliplier*correctedResY)
 											)
 										);
 		
 		int H3INTROResX = 640;
 		int H3INTROResY = 360;
 
-		videoRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*(offsetX+position.x*correctedResX/originalH3ResX)),
-											(int) (scalingMuliplier*(offsetY+position.y*correctedResY/originalH3ResY)),
-											(int) (scalingMuliplier*H3INTROResX*correctedResX/originalH3ResX),
-											(int) (scalingMuliplier*H3INTROResY*correctedResY/originalH3ResY)));
+		videoRect = CSDL_Ext::toSDL(Rect(	static_cast<int> (scalingMuliplier*(offsetX+position.x*correctedResX/originalH3ResX)),
+											static_cast<int> (scalingMuliplier*(offsetY+position.y*correctedResY/originalH3ResY)),
+											static_cast<int> (scalingMuliplier*H3INTROResX*correctedResX/originalH3ResX),
+											static_cast<int> (scalingMuliplier*H3INTROResY*correctedResY/originalH3ResY)));
 	} else {
-		videoRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*(offsetX+position.x)),
-											(int) (scalingMuliplier*(offsetY+position.y)),
-											(int) (scalingMuliplier*correctedResX),
-											(int) (scalingMuliplier*correctedResY)
+		videoRect = CSDL_Ext::toSDL(Rect(	static_cast<int> (scalingMuliplier*(offsetX+position.x)),
+											static_cast<int> (scalingMuliplier*(offsetY+position.y)),
+											static_cast<int> (scalingMuliplier*correctedResX),
+											static_cast<int> (scalingMuliplier*correctedResY)
 										)
 									);
 	}
