@@ -28,8 +28,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/Languages.h"
 
-#include <SDL_render.h>
-
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
@@ -572,53 +570,8 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling)
+void CVideoPlayer::getVideoAndBackgroundRects(const std::string name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect)
 {
-	CVideoInstance instance;
-	CAudioInstance audio;
-
-	auto extractedAudio = audio.extractAudio(name);
-	int audioHandle = CCS->soundh->playSound(extractedAudio);
-
-	if (!instance.openInput(name))
-		return true;
-
-	instance.openVideo();
-	instance.prepareOutput(scale, useOverlay);
-
-	auto lastTimePoint = boost::chrono::steady_clock::now();
-	
-	SDL_Surface *image;
-	SDL_Texture *backgroundTexture = nullptr;
-	SDL_Rect backgroundRect;
-	SDL_Rect videoRect;
-
-	if(name.getName() == "H3INTRO")
-	{
-		ImagePath imageToOpen = ImagePath::builtin("INTRORIM");
-		ImagePath iname;
-
-		if (CResourceHandler::get()->existsResource(imageToOpen))
-			iname = imageToOpen;
-		else
-			iname = imageToOpen.addPrefix("DATA/");
-
-		if (!CResourceHandler::get()->existsResource(iname))
-		{
-			logGlobal->error("Error: image %s was not found", iname.getName());
-			return false;
-		}
-
-		image = BitmapHandler::loadBitmap(iname);
-
-		if (!image) {
-			logGlobal->error("Error: failed to load image at %s: %s\n", iname.getName(), SDL_GetError());
-			return false;
-		}
-
-		backgroundTexture = SDL_CreateTextureFromSurface(mainRenderer, image);
-	}
-
 	float scalingMuliplier = 100.0 / scaling;
 	logGlobal->error("scalingmuliplier: %f", scalingMuliplier);
 
@@ -638,7 +591,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	int offsetX = (resX-correctedResX)/2;
 	int offsetY = (resY-correctedResY)/2;
 
-	if(name.getName() == "H3INTRO")
+	if(name == "H3INTRO")
 	{
 		backgroundRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*offsetX),
 												(int) (scalingMuliplier*offsetY),
@@ -662,6 +615,60 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 										)
 									);
 	}
+}
+
+bool CVideoPlayer::getIntroRimTexture(SDL_Texture **introRimTexture)
+{
+	ImagePath imageToOpen = ImagePath::builtin("INTRORIM");
+	ImagePath iname;
+
+	if (CResourceHandler::get()->existsResource(imageToOpen))
+		iname = imageToOpen;
+	else
+		iname = imageToOpen.addPrefix("DATA/");
+
+	if (!CResourceHandler::get()->existsResource(iname))
+	{
+		logGlobal->error("Error: image %s was not found", iname.getName());
+		return false;
+	}
+
+	SDL_Surface *image = BitmapHandler::loadBitmap(iname);
+
+	if (!image) {
+		logGlobal->error("Error: failed to load image at %s: %s\n", iname.getName(), SDL_GetError());
+		return false;
+	}
+
+	*introRimTexture = SDL_CreateTextureFromSurface(mainRenderer, image);
+
+	return true;
+}
+
+bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling)
+{
+	CVideoInstance instance;
+	CAudioInstance audio;
+
+	auto extractedAudio = audio.extractAudio(name);
+	int audioHandle = CCS->soundh->playSound(extractedAudio);
+
+	if (!instance.openInput(name))
+		return true;
+
+	instance.openVideo();
+	instance.prepareOutput(scale, useOverlay);
+	
+	SDL_Rect videoRect;
+	SDL_Rect backgroundRect;
+
+	getVideoAndBackgroundRects(name.getName(), position, scaling, videoRect, backgroundRect);
+
+	SDL_Texture *introRimTexture = nullptr;
+	if(!getIntroRimTexture(&introRimTexture))
+		return true;
+
+	auto lastTimePoint = boost::chrono::steady_clock::now();
 
 	while(instance.loadNextFrame())
 	{
@@ -690,7 +697,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 			SDL_RenderClear(mainRenderer);
 			if(name.getName() == "H3INTRO")
 			{
-				SDL_RenderCopy(mainRenderer, backgroundTexture, nullptr, &backgroundRect);
+				SDL_RenderCopy(mainRenderer, introRimTexture, nullptr, &backgroundRect);
 			}
 		}
 

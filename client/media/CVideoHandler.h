@@ -14,6 +14,8 @@
 #include "../lib/Point.h"
 #include "IVideoPlayer.h"
 
+#include <SDL_render.h>
+
 struct SDL_Surface;
 struct SDL_Texture;
 struct AVFormatContext;
@@ -97,6 +99,8 @@ public:
 
 class CVideoPlayer final : public IVideoPlayer
 {
+	void getVideoAndBackgroundRects(const std::string name, const Point & position, const int scaling, SDL_Rect & video, SDL_Rect & RectbackgroundRect);
+	bool getIntroRimTexture(SDL_Texture **introRimTexture);
 	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling);
 	void openVideoFile(CVideoInstance & state, const VideoPath & fname);
 
