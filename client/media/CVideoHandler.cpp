@@ -587,30 +587,11 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	instance.prepareOutput(scale, useOverlay);
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
-
-	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
-	float resX = settings["video"]["resolution"]["width"].Float(); // Float, since we do some floating point calculations
-	float resY = settings["video"]["resolution"]["height"].Float();
-	logGlobal->error("resX: %f", resX);
-	logGlobal->error("resY: %f", resY);
 	
-	float scalingMuliplier = 100.0 / scaling;
-	logGlobal->error("scalingmuliplier: %f", scalingMuliplier);
-
-	int originalH3ResX = 800;
-	int originalH3ResY = 600;
-	float aspectRatio_OH3 = (float) originalH3ResX/originalH3ResY;
-	float resYRatioVCMI_OH3 = resY/originalH3ResY; // 0..1
-	int correctedResX = originalH3ResX*resYRatioVCMI_OH3;
-	int correctedResY = originalH3ResY*resYRatioVCMI_OH3;
-
 	SDL_Surface *image;
 	SDL_Texture *backgroundTexture = nullptr;
 	SDL_Rect backgroundRect;
 	SDL_Rect videoRect;
-
-	int H3INTROResX = 640;
-	int H3INTROResY = 360;
 
 	if(name.getName() == "H3INTRO")
 	{
@@ -635,16 +616,28 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 			return false;
 		}
 
-		int offset = 0;
-		backgroundRect = CSDL_Ext::toSDL(Rect(offset, 0, correctedResX, correctedResY));
 		backgroundTexture = SDL_CreateTextureFromSurface(mainRenderer, image);
 	}
 
-	correctedResX = aspectRatio_OH3*resY;
-	correctedResY = resY;
+	float scalingMuliplier = 100.0 / scaling;
+	logGlobal->error("scalingmuliplier: %f", scalingMuliplier);
+
+	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
+	float resX = settings["video"]["resolution"]["width"].Float(); // Float, since we do some floating point calculations
+	float resY = settings["video"]["resolution"]["height"].Float();
+	logGlobal->error("resX: %f", resX);
+	logGlobal->error("resY: %f", resY);
+
+	int originalH3ResX = 800;
+	int originalH3ResY = 600;
+	float aspectRatio_OH3 = (float) originalH3ResX/originalH3ResY;
+
+	float correctedResX = aspectRatio_OH3*resY;
+	float correctedResY = resY;
 
 	int offsetX = (resX-correctedResX)/2;
 	int offsetY = (resY-correctedResY)/2;
+
 	if(name.getName() == "H3INTRO")
 	{
 		backgroundRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*offsetX),
@@ -654,6 +647,9 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 											)
 										);
 		
+		int H3INTROResX = 640;
+		int H3INTROResY = 360;
+
 		videoRect = CSDL_Ext::toSDL(Rect(	(int) (scalingMuliplier*(offsetX+position.x*correctedResX/originalH3ResX)),
 											(int) (scalingMuliplier*(offsetY+position.y*correctedResY/originalH3ResY)),
 											(int) (scalingMuliplier*H3INTROResX*correctedResX/originalH3ResX),
