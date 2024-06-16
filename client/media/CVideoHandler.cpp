@@ -727,11 +727,11 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 bool CVideoPlayer::playIntroVideo(const VideoPath & name, int scaling)
 {
 	logGlobal->info("CVideoPlayer::playIntroVideo(%s)", name.getName());
-	Point top_right_corner(0,0);
+	Point topRightCorner(0,0);
 	if(name.getName() == "H3INTRO") {
-		top_right_corner = Point(80, 188);
+		topRightCorner = Point(80, 188);
 	}
-	return openAndPlayVideoImpl(name, top_right_corner, true, true, true, scaling);
+	return openAndPlayVideoImpl(name, topRightCorner, true, true, true, scaling);
 }
 
 void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
