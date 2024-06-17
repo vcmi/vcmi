@@ -602,10 +602,10 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack, 0, *targets, innerCache, state);
 				}
 
-				for(auto unit : allUnits)
+				for(const auto & unit : allUnits)
 				{
 					auto newHealth = unit->getAvailableHealth();
-					auto oldHealth = healthOfStack[unit->unitId()];
+					auto oldHealth = vstd::find_or(healthOfStack, unit->unitId(), 0); // old health value may not exist for newly summoned units
 
 					if(oldHealth != newHealth)
 					{
@@ -732,6 +732,3 @@ void BattleEvaluator::print(const std::string & text) const
 {
 	logAi->trace("%s Battle AI[%p]: %s", playerID.toString(), this, text);
 }
-
-
-
