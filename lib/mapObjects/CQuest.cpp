@@ -141,6 +141,8 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 
 void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 {
+	// FIXME: this should be part of 'reward', and not hacking into limiter state that should only limit access to such reward
+
 	for(auto & elem : mission.artifacts)
 	{
 		if(h->hasArt(elem))
@@ -164,9 +166,9 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			}
 		}
 	}
-			
+
 	cb->takeCreatures(h->id, mission.creatures);
-	cb->giveResources(h->getOwner(), mission.resources);
+	cb->giveResources(h->getOwner(), -mission.resources);
 }
 
 void CQuest::addTextReplacements(IGameCallback * cb, MetaString & text, std::vector<Component> & components) const
