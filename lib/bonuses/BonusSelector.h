@@ -81,8 +81,11 @@ public:
 
 class DLL_LINKAGE CWillLastTurns
 {
-public:
 	int turnsRequested;
+public:
+	CWillLastTurns(int turnsRequested):
+		turnsRequested(turnsRequested)
+	{}
 
 	bool operator()(const Bonus *bonus) const
 	{
@@ -90,17 +93,16 @@ public:
 			|| !Bonus::NTurns(bonus) //so do every not expriing after N-turns effect
 			|| bonus->turnsRemain > turnsRequested;
 	}
-	CWillLastTurns& operator()(const int &setVal)
-	{
-		turnsRequested = setVal;
-		return *this;
-	}
 };
 
 class DLL_LINKAGE CWillLastDays
 {
-public:
 	int daysRequested;
+
+public:
+	CWillLastDays(int daysRequested):
+		daysRequested(daysRequested)
+	{}
 
 	bool operator()(const Bonus *bonus) const
 	{
@@ -112,13 +114,7 @@ public:
 		{
 			return bonus->turnsRemain > daysRequested;
 		}
-
 		return false; // TODO: ONE_WEEK need support for turnsRemain, but for now we'll exclude all unhandled durations
-	}
-	CWillLastDays& operator()(const int &setVal)
-	{
-		daysRequested = setVal;
-		return *this;
 	}
 };
 
@@ -131,8 +127,8 @@ namespace Selector
 	extern DLL_LINKAGE const CSelectFieldEqual<BonusSource> & sourceType();
 	extern DLL_LINKAGE const CSelectFieldEqual<BonusSource> & targetSourceType();
 	extern DLL_LINKAGE const CSelectFieldEqual<BonusLimitEffect> & effectRange();
-	extern DLL_LINKAGE CWillLastTurns turns;
-	extern DLL_LINKAGE CWillLastDays days;
+	CWillLastTurns DLL_LINKAGE turns(int turns);
+	CWillLastDays DLL_LINKAGE days(int days);
 
 	CSelector DLL_LINKAGE typeSubtype(BonusType Type, BonusSubtypeID Subtype);
 	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, BonusSubtypeID subtype, const CAddInfo & info);
