@@ -17,8 +17,8 @@ namespace NKAI
 
 struct ClusterObjectInfo
 {
-	float priority = 0;
-	float movementCost = 0;
+	float priority = 0.f;
+	float movementCost = 0.f;
 	uint64_t danger = 0;
 	uint8_t turn = 0;
 };
