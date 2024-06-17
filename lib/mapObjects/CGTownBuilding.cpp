@@ -181,13 +181,14 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 			if(visitors.empty())
 			{
 				if(h->mana < h->manaLimit() * 2)
+				{
 					cb->setManaPoints (heroID, 2 * h->manaLimit());
-				//TODO: investigate line below
-				//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
-				iw.text.appendRawString(getVisitingBonusGreeting());
-				cb->showInfoDialog(&iw);
-				//extra visit penalty if hero alredy had double mana points (or even more?!)
-				town->addHeroToStructureVisitors(h, indexOnTV);
+					//TODO: investigate line below
+					//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
+					iw.text.appendRawString(getVisitingBonusGreeting());
+					cb->showInfoDialog(&iw);
+					town->addHeroToStructureVisitors(h, indexOnTV);
+				}
 			}
 			break;
 		}
