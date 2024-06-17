@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "mapcontroller.h"
 
 #include "../lib/ArtifactUtils.h"
@@ -57,6 +58,7 @@ void MapController::connectScenes()
 
 MapController::~MapController()
 {
+	main = nullptr;
 }
 
 const std::unique_ptr<CMap> & MapController::getMapUniquePtr() const
@@ -228,6 +230,8 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 
 	_map->getEditManager()->getUndoManager().setUndoCallback([this](bool allowUndo, bool allowRedo)
 		{
+			if(!main)
+				return;
 			main->enableUndo(allowUndo);
 			main->enableRedo(allowRedo);
 		}
