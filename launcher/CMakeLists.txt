@@ -26,6 +26,8 @@ set(launcher_SRCS
 if(APPLE_IOS)
 	list(APPEND launcher_SRCS
 		ios/launchGame.m
+		ios/revealdirectoryinfiles.h
+		ios/revealdirectoryinfiles.mm
 		ios/selectdirectory.h
 		ios/selectdirectory.mm
 	)
