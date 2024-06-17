@@ -606,7 +606,9 @@ void CVideoPlayer::getVideoAndBackgroundRects(const std::string name, const Poin
 		videoRect = CSDL_Ext::toSDL(Rect(	static_cast<int> (scalingMuliplier*(offsetX+position.x*correctedResX/originalH3ResX)),
 											static_cast<int> (scalingMuliplier*(offsetY+position.y*correctedResY/originalH3ResY)),
 											static_cast<int> (scalingMuliplier*H3INTROResX*correctedResX/originalH3ResX),
-											static_cast<int> (scalingMuliplier*H3INTROResY*correctedResY/originalH3ResY)));
+											static_cast<int> (scalingMuliplier*H3INTROResY*correctedResY/originalH3ResY)
+										)
+									);
 	} else {
 		videoRect = CSDL_Ext::toSDL(Rect(	static_cast<int> (scalingMuliplier*(offsetX+position.x)),
 											static_cast<int> (scalingMuliplier*(offsetY+position.y)),
