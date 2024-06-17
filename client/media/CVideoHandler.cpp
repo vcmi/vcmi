@@ -573,13 +573,10 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 void CVideoPlayer::getVideoAndBackgroundRects(const std::string & name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect) const
 {
 	float scalingMuliplier = 100.0 / scaling;
-	logGlobal->error("scalingmuliplier: %f", scalingMuliplier);
 
 	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
 	float resX = settings["video"]["resolution"]["width"].Float(); // Float, since we do some floating point calculations
 	float resY = settings["video"]["resolution"]["height"].Float();
-	logGlobal->error("resX: %f", resX);
-	logGlobal->error("resY: %f", resY);
 
 	float originalH3ResX = 800.0;
 	float originalH3ResY = 600.0;
@@ -730,7 +727,6 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 
 bool CVideoPlayer::playIntroVideo(const VideoPath & name, int scaling)
 {
-	logGlobal->info("CVideoPlayer::playIntroVideo(%s)", name.getName());
 	Point topRightCorner(0,0);
 	if(name.getName() == "H3INTRO") {
 		topRightCorner = Point(80, 188);
