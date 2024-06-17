@@ -738,6 +738,13 @@ extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveT
 	logGlobal->info("Received emergency save game request");
 	if(!LOCPLINT || !LOCPLINT->cb)
 	{
+		logGlobal->info("... but no active player interface found!");
+		return false;
+	}
+
+	if (!CSH || !CSH->logicConnection)
+	{
+		logGlobal->info("... but no active connection found!");
 		return false;
 	}
 
