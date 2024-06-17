@@ -570,7 +570,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-void CVideoPlayer::getVideoAndBackgroundRects(const std::string name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect) const
+void CVideoPlayer::getVideoAndBackgroundRects(const std::string & name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect) const
 {
 	float scalingMuliplier = 100.0 / scaling;
 	logGlobal->error("scalingmuliplier: %f", scalingMuliplier);
