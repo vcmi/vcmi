@@ -581,9 +581,9 @@ void CVideoPlayer::getVideoAndBackgroundRects(const std::string name, const Poin
 	logGlobal->error("resX: %f", resX);
 	logGlobal->error("resY: %f", resY);
 
-	int originalH3ResX = 800;
-	int originalH3ResY = 600;
-	float aspectRatio_OH3 = (float) originalH3ResX/originalH3ResY;
+	float originalH3ResX = 800.0;
+	float originalH3ResY = 600.0;
+	float aspectRatio_OH3 = originalH3ResX/originalH3ResY;
 
 	float correctedResX = aspectRatio_OH3*resY;
 	float correctedResY = resY;
