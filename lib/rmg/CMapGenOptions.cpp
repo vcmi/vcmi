@@ -284,9 +284,12 @@ void CMapGenOptions::resetPlayersMap()
 
 	while (players.size() > realPlayersCnt)
 	{
-		while (eraseLastPlayer(EPlayerType::AI));
-		while (eraseLastPlayer(EPlayerType::COMP_ONLY));
-		while (eraseLastPlayer(EPlayerType::HUMAN));
+		if (eraseLastPlayer(EPlayerType::AI))
+			continue;
+		if (eraseLastPlayer(EPlayerType::COMP_ONLY))
+			continue;
+		if (eraseLastPlayer(EPlayerType::HUMAN))
+			continue;
 	}
 
 	//First colors from the list are assigned to human players, then to CPU players
@@ -503,8 +506,9 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	if (getHumanOrCpuPlayerCount() == RANDOM_SIZE)
 	{
 		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
+		int requiredPlayers = countHumanPlayers() + countCompOnlyPlayers();
 		//ignore all non-randomized players, make sure these players will not be missing after roll
-		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers() + countCompOnlyPlayers()));
+		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(requiredPlayers));
 
 		vstd::erase_if(possiblePlayers, [maxPlayers](int i)
 		{
@@ -598,7 +602,9 @@ void CMapGenOptions::updatePlayers()
 	{
 		auto it = itrev;
 		--it;
-		if (players.size() == getHumanOrCpuPlayerCount()) break;
+		if (players.size() == getHumanOrCpuPlayerCount())
+			break;
+
 		if(it->second.getPlayerType() != EPlayerType::HUMAN)
 		{
 			players.erase(it);
