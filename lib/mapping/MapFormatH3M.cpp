@@ -1315,7 +1315,7 @@ CGObjectInstance * CMapLoaderH3M::readResource(const int3 & mapPosition, std::sh
 	if(GameResID(objectTemplate->subid) == GameResID(EGameResID::GOLD))
 	{
 		// Gold is multiplied by 100.
-		object->amount *= 100;
+		object->amount *= CGResource::GOLD_AMOUNT_MULTIPLIER;
 	}
 	reader->skipZero(4);
 	return object;

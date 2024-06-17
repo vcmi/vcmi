@@ -263,6 +263,9 @@ void CGResource::pickRandomObject(CRandomGenerator & rand)
 		ID = Obj::RESOURCE;
 		subID = rand.nextInt(EGameResID::WOOD, EGameResID::GOLD);
 		setType(ID, subID);
+
+		if (subID == EGameResID::GOLD && amount != CGResource::RANDOM_AMOUNT)
+			amount *= CGResource::GOLD_AMOUNT_MULTIPLIER;
 	}
 }
 
@@ -275,7 +278,7 @@ void CGResource::initObj(CRandomGenerator & rand)
 		switch(resourceID().toEnum())
 		{
 		case EGameResID::GOLD:
-			amount = rand.nextInt(5, 10) * 100;
+			amount = rand.nextInt(5, 10) * CGResource::GOLD_AMOUNT_MULTIPLIER;
 			break;
 		case EGameResID::WOOD: case EGameResID::ORE:
 			amount = rand.nextInt(6, 10);
