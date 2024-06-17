@@ -689,17 +689,19 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		rect.h = instance.dimensions.y;
 
 		if(useOverlay)
-			SDL_RenderFillRect(mainRenderer, &rect);
-		else
-			SDL_RenderClear(mainRenderer);
-
-		if(name.getName() == "3DOLOGO" || name.getName() == "NWCLOGO" || name.getName() == "H3INTRO"){
-			SDL_RenderClear(mainRenderer);
-			if(name.getName() == "H3INTRO")
-			{
-				SDL_RenderCopy(mainRenderer, introRimTexture, nullptr, &backgroundRect);
+		{
+			if(name.getName() == "3DOLOGO" || name.getName() == "NWCLOGO" || name.getName() == "H3INTRO"){
+				SDL_RenderClear(mainRenderer);
+				if(name.getName() == "H3INTRO")
+				{
+					SDL_RenderCopy(mainRenderer, introRimTexture, nullptr, &backgroundRect);
+				}
+			} else {
+				SDL_RenderFillRect(mainRenderer, &rect);
 			}
 		}
+		else
+			SDL_RenderClear(mainRenderer);
 
 		if(instance.textureYUV)
 			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &videoRect);
