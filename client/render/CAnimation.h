@@ -10,6 +10,7 @@
 #pragma once
 
 #include "IImage.h"
+#include "ImageLocator.h"
 
 #include "../../lib/GameConstants.h"
 #include "../../lib/filesystem/ResourcePath.h"
@@ -25,8 +26,8 @@ class RenderHandler;
 class CAnimation
 {
 private:
-	//source[group][position] - file with this frame, if string is empty - image located in def file
-	std::map<size_t, std::vector <JsonNode> > source;
+	//source[group][position] - location of this frame
+	std::map<size_t, std::vector <ImageLocator> > source;
 
 	//bitmap[group][position], store objects with loaded bitmaps
 	std::map<size_t, std::map<size_t, std::shared_ptr<IImage> > > images;
@@ -35,6 +36,9 @@ private:
 	AnimationPath name;
 
 	EImageBlitMode mode;
+
+	// current player color, if any
+	PlayerColor player = PlayerColor::CANNOT_DETERMINE;
 
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
 	bool loadFrame(size_t frame, size_t group);
@@ -47,7 +51,7 @@ private:
 
 	std::shared_ptr<IImage> getImageImpl(size_t frame, size_t group=0, bool verbose=true);
 public:
-	CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout, EImageBlitMode mode);
+	CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <ImageLocator> > layout, EImageBlitMode mode);
 	~CAnimation();
 
 	//duplicates frame at [sourceGroup, sourceFrame] as last frame in targetGroup

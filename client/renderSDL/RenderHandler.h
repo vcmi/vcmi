@@ -20,23 +20,7 @@ class IConstImage;
 
 class RenderHandler : public IRenderHandler
 {
-	using AnimationLayoutMap = std::map<size_t, std::vector<JsonNode>>;
-
-	struct ImageLocator
-	{
-		ImagePath image;
-		AnimationPath animation;
-		int frame = -1;
-		int group = -1;
-
-		bool verticalFlip = false;
-		bool horizontalFlip = false;
-
-		ImageLocator(const JsonNode & config);
-		ImageLocator(const ImagePath & path);
-		ImageLocator(const AnimationPath & path, int frame, int group);
-		bool operator < (const ImageLocator & other) const;
-	};
+	using AnimationLayoutMap = std::map<size_t, std::vector<ImageLocator>>;
 
 	std::map<AnimationPath, std::shared_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
@@ -58,7 +42,7 @@ public:
 	// IRenderHandler implementation
 	void onLibraryLoadingFinished(const Services * services) override;
 
-	std::shared_ptr<IImage> loadImage(const JsonNode & config, EImageBlitMode mode) override;
+	std::shared_ptr<IImage> loadImage(const ImageLocator & locator, EImageBlitMode mode) override;
 	std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) override;
 	std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode) override;
 

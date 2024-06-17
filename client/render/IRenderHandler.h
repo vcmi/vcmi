@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/filesystem/ResourcePath.h"
+#include "ImageLocator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Services;
@@ -30,7 +30,7 @@ public:
 	virtual void onLibraryLoadingFinished(const Services * services) = 0;
 
 	/// Loads image using given path
-	virtual std::shared_ptr<IImage> loadImage(const JsonNode & config, EImageBlitMode mode) = 0;
+	virtual std::shared_ptr<IImage> loadImage(const ImageLocator & locator, EImageBlitMode mode) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode) = 0;
 

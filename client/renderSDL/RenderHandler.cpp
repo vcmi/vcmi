@@ -27,43 +27,6 @@
 #include <vcmi/SkillService.h>
 #include <vcmi/spells/Service.h>
 
-RenderHandler::ImageLocator::ImageLocator(const JsonNode & config)
-	: image(ImagePath::fromJson(config["file"]))
-	, animation(AnimationPath::fromJson(config["animation"]))
-	, frame(config["frame"].Integer())
-	, group(config["group"].Integer())
-	, verticalFlip(config["verticalFlip"].Bool())
-	, horizontalFlip(config["horizontalFlip"].Bool())
-{
-}
-
-RenderHandler::ImageLocator::ImageLocator(const ImagePath & path)
-	: image(path)
-{
-}
-
-RenderHandler::ImageLocator::ImageLocator(const AnimationPath & path, int frame, int group)
-	: animation(path)
-	, frame(frame)
-	, group(group)
-{
-}
-
-bool RenderHandler::ImageLocator::operator<(const ImageLocator & other) const
-{
-	if(image != other.image)
-		return image < other.image;
-	if(animation != other.animation)
-		return animation < other.animation;
-	if(group != other.group)
-		return group < other.group;
-	if(frame != other.frame)
-		return frame < other.frame;
-	if(verticalFlip != other.verticalFlip)
-		return verticalFlip < other.verticalFlip;
-	return horizontalFlip < other.horizontalFlip;
-}
-
 std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & path)
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
@@ -179,14 +142,14 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageFromAnimationFileUncached(c
 		return loadImageFromSingleFile(ImagePath::builtin("DEFAULT"));
 
 	const auto & config = layout.at(group).at(frame);
-	if (config.isNull())
+	if (config.image)
 	{
-		auto defFile = getAnimationFile(path);
-		return std::make_shared<SDLImageConst>(defFile.get(), frame, group);
+		return loadImageImpl(ImageLocator(config));
 	}
 	else
 	{
-		return loadImageImpl(ImageLocator(config));
+		auto defFile = getAnimationFile(path);
+		return std::make_shared<SDLImageConst>(defFile.get(), frame, group);
 	}
 }
 
@@ -205,10 +168,10 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageImpl(const ImageLocator & l
 
 	std::shared_ptr<IConstImage> result;
 
-	if (!locator.image.empty())
-		result = loadImageFromSingleFile(locator.image);
-	else if (!locator.animation.empty())
-		result = loadImageFromAnimationFile(locator.animation, locator.frame, locator.group);
+	if (!locator.image)
+		result = loadImageFromSingleFile(*locator.image);
+	else if (locator.defFile)
+		result = loadImageFromAnimationFile(*locator.defFile, locator.defFrame, locator.defGroup);
 
 	if (!result)
 		result = loadImageFromSingleFile(ImagePath::builtin("DEFAULT"));
@@ -223,17 +186,14 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageImpl(const ImageLocator & l
 	return result;
 }
 
-std::shared_ptr<IImage> RenderHandler::loadImage(const JsonNode & config, EImageBlitMode mode)
+std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
 {
-	if (config.isString())
-		return loadImageImpl(ImageLocator(ImagePath::fromJson(config)))->createImageReference(mode);
-	else
-		return loadImageImpl(ImageLocator(config))->createImageReference(mode);
+		return loadImageImpl(locator)->createImageReference(mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
 {
-	return loadImageImpl(ImageLocator(path, frame, group))->createImageReference(mode);
+	return loadImageFromAnimationFile(path, frame, group)->createImageReference(mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)

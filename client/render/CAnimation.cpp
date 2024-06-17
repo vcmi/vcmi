@@ -26,17 +26,9 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 	}
 
 	if(auto image = getImageImpl(frame, group, false))
-	{
 		return true;
-	}
 
-	std::shared_ptr<IImage> image;
-
-	//try to get image from def
-	if(source[group][frame].isNull())
-		image = GH.renderHandler().loadImage(name, frame, group, mode);
-	else
-		image = GH.renderHandler().loadImage(source[group][frame], mode);
+	std::shared_ptr<IImage> image = GH.renderHandler().loadImage(source[group][frame], mode);
 
 	if(image)
 	{
@@ -104,7 +96,7 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 	logGlobal->error("%s error: Request for frame not present in CAnimation! File name: %s, Group: %d, Frame: %d", type, name.getOriginalName(), group, frame);
 }
 
-CAnimation::CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout, EImageBlitMode mode):
+CAnimation::CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <ImageLocator> > layout, EImageBlitMode mode):
 	name(boost::starts_with(Name.getName(), "SPRITES") ? Name : Name.addPrefix("SPRITES/")),
 	source(layout),
 	mode(mode)
@@ -129,15 +121,7 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 		return;
 	}
 
-	JsonNode clone(source[sourceGroup][sourceFrame]);
-
-	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
-	{
-		clone["animation"].String() = name.getName();
-		clone["group"].Integer() = sourceGroup;
-		clone["frame"].Integer() = sourceFrame;
-	}
-
+	ImageLocator clone(source[sourceGroup][sourceFrame]);
 	source[targetGroup].push_back(clone);
 }
 
@@ -195,15 +179,8 @@ void CAnimation::horizontalFlip(size_t frame, size_t group)
 		// ignore - image not loaded
 	}
 
-	JsonNode & config = source.at(group).at(frame);
-	if (config.isNull())
-	{
-		config["animation"].String() = name.getName();
-		config["frame"].Integer() = frame;
-		config["group"].Integer() = group;
-	}
-
-	config["horizontalFlip"].Bool() = !config["horizontalFlip"].Bool();
+	ImageLocator & locator = source.at(group).at(frame);
+	locator.horizontalFlip = !locator.horizontalFlip;
 }
 
 void CAnimation::verticalFlip(size_t frame, size_t group)
@@ -217,15 +194,8 @@ void CAnimation::verticalFlip(size_t frame, size_t group)
 		// ignore - image not loaded
 	}
 
-	JsonNode & config = source.at(group).at(frame);
-	if (config.isNull())
-	{
-		config["animation"].String() = name.getName();
-		config["frame"].Integer() = frame;
-		config["group"].Integer() = group;
-	}
-
-	config["verticalFlip"].Bool() = !config["verticalFlip"].Bool();
+	ImageLocator & locator = source.at(group).at(frame);
+	locator.verticalFlip = !locator.verticalFlip;
 }
 
 void CAnimation::playerColored(PlayerColor player)
