@@ -129,7 +129,7 @@ void AObjectTypeHandler::preInitObject(CGObjectInstance * obj) const
 	obj->ID = Obj(type);
 	obj->subID = subtype;
 	obj->typeName = typeName;
-	obj->subTypeName = subTypeName;
+	obj->subTypeName = getJsonKey();
 	obj->blockVisit = blockVisit;
 	obj->removable = removable;
 }
