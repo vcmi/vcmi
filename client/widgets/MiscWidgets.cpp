@@ -637,6 +637,9 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 
 	assert(CGI->townh->size() > faction);
 
+	if (cre->animDefName.empty())
+		throw std::runtime_error("Creature " + cre->getJsonKey() + " has no valid combat animation!");
+
 	if(Big)
 		bg = std::make_shared<CPicture>((*CGI->townh)[faction]->creatureBg130);
 	else

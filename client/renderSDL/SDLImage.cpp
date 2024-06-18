@@ -235,7 +235,10 @@ void SDLImage::setFlagColor(PlayerColor player)
 
 bool SDLImage::isTransparent(const Point & coords) const
 {
-	return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
+	if (surf)
+		return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
+	else
+		return true;
 }
 
 Point SDLImage::dimensions() const

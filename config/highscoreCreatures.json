@@ -1,6 +1,6 @@
 {
     "creatures": [
-        { "min" : 1, "max" : 4, "creature": "imp" },
+        {            "max" : 4, "creature": "imp" },
         { "min" : 5, "max" : 8, "creature": "gremlin" },
         { "min" : 9, "max" : 12, "creature": "gnoll" },
         { "min" : 13, "max" : 16, "creature": "troglodyte" },
@@ -117,6 +117,6 @@
         { "min" : 389, "max" : 391, "creature": "titan" },
         { "min" : 392, "max" : 394, "creature": "goldDragon" },
         { "min" : 395, "max" : 397, "creature": "blackDragon" },
-        { "min" : 398, "max" : 500, "creature": "archangel" }
+        { "min" : 398,              "creature": "archangel" }
     ]
 }
