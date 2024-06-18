@@ -403,16 +403,15 @@ int main(int argc, char * argv[])
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	int scaling = GH.screenHandler().getScaling();
 	Point preferredLogicalResolution = GH.screenHandler().getPreferredLogicalResolution();
 
-	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK"), scaling, preferredLogicalResolution))
+	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK"), preferredLogicalResolution))
 		return;
 
-	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK"), scaling, preferredLogicalResolution))
+	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK"), preferredLogicalResolution))
 		return;
 
-	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"), scaling, preferredLogicalResolution);
+	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"), preferredLogicalResolution);
 }
 
 static void mainLoop()

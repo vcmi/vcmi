@@ -570,10 +570,8 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-void CVideoPlayer::getVideoAndBackgroundRects(const std::string & name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect, const Point preferredLogicalResolution) const
+void CVideoPlayer::getVideoAndBackgroundRects(const std::string & name, const Point & position, SDL_Rect & videoRect, SDL_Rect & backgroundRect, const Point preferredLogicalResolution) const
 {
-	float scalingMuliplier = 100.0 / scaling;
-
 	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
 	float resX = preferredLogicalResolution.x; // Float, since we do some floating point calculations
 	float resY = preferredLogicalResolution.y;
@@ -590,27 +588,27 @@ void CVideoPlayer::getVideoAndBackgroundRects(const std::string & name, const Po
 
 	if(name == "H3INTRO")
 	{
-		backgroundRect = CSDL_Ext::toSDL(Rect(	static_cast<int> (scalingMuliplier*offsetX),
-												static_cast<int> (scalingMuliplier*offsetY),
-												static_cast<int> (scalingMuliplier*correctedResX),
-												static_cast<int> (scalingMuliplier*correctedResY)
+		backgroundRect = CSDL_Ext::toSDL(Rect(	offsetX,
+												offsetY,
+												correctedResX,
+												correctedResY
 											)
 										);
 		
 		int H3INTROResX = 640;
 		int H3INTROResY = 360;
 
-		videoRect = CSDL_Ext::toSDL(Rect(	static_cast<int> (scalingMuliplier*(offsetX+position.x*correctedResX/originalH3ResX)),
-											static_cast<int> (scalingMuliplier*(offsetY+position.y*correctedResY/originalH3ResY)),
-											static_cast<int> (scalingMuliplier*H3INTROResX*correctedResX/originalH3ResX),
-											static_cast<int> (scalingMuliplier*H3INTROResY*correctedResY/originalH3ResY)
+		videoRect = CSDL_Ext::toSDL(Rect(	offsetX+position.x*correctedResX/originalH3ResX,
+											offsetY+position.y*correctedResY/originalH3ResY,
+											H3INTROResX*correctedResX/originalH3ResX,
+											H3INTROResY*correctedResY/originalH3ResY
 										)
 									);
 	} else {
-		videoRect = CSDL_Ext::toSDL(Rect(	static_cast<int> (scalingMuliplier*(offsetX+position.x)),
-											static_cast<int> (scalingMuliplier*(offsetY+position.y)),
-											static_cast<int> (scalingMuliplier*correctedResX),
-											static_cast<int> (scalingMuliplier*correctedResY)
+		videoRect = CSDL_Ext::toSDL(Rect(	offsetX+position.x,
+											offsetY+position.y,
+											correctedResX,
+											correctedResY
 										)
 									);
 	}
@@ -644,7 +642,7 @@ bool CVideoPlayer::getIntroRimTexture(SDL_Texture **introRimTexture) const
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling, Point preferredLogicalResolution) const
+bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, Point preferredLogicalResolution) const
 {
 	CVideoInstance instance;
 	CAudioInstance audio;
@@ -661,7 +659,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	SDL_Rect videoRect;
 	SDL_Rect backgroundRect;
 
-	getVideoAndBackgroundRects(name.getName(), position, scaling, videoRect, backgroundRect, preferredLogicalResolution);
+	getVideoAndBackgroundRects(name.getName(), position, videoRect, backgroundRect, preferredLogicalResolution);
 
 	SDL_Texture *introRimTexture = nullptr;
 	if(!getIntroRimTexture(&introRimTexture))
@@ -725,18 +723,18 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	return true;
 }
 
-bool CVideoPlayer::playIntroVideo(const VideoPath & name, int scaling, Point preferredLogicalResolution)
+bool CVideoPlayer::playIntroVideo(const VideoPath & name, Point preferredLogicalResolution)
 {
 	Point topRightCorner(0,0);
 	if(name.getName() == "H3INTRO") {
 		topRightCorner = Point(80, 188);
 	}
-	return openAndPlayVideoImpl(name, topRightCorner, true, true, true, scaling, preferredLogicalResolution);
+	return openAndPlayVideoImpl(name, topRightCorner, true, true, true, preferredLogicalResolution);
 }
 
 void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution)
 {
-	openAndPlayVideoImpl(name, position, false, false, false, 100, preferredLogicalResolution);
+	openAndPlayVideoImpl(name, position, false, false, false, preferredLogicalResolution);
 }
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool scaleToScreen)

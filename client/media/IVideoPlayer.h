@@ -39,7 +39,7 @@ class IVideoPlayer : boost::noncopyable
 {
 public:
 	/// Plays video on top of the screen, returns only after playback is over, aborts on input event
-	virtual bool playIntroVideo(const VideoPath & name, int scaling, const Point preferredLogicalResolution) = 0;
+	virtual bool playIntroVideo(const VideoPath & name, const Point preferredLogicalResolution) = 0;
 
 	/// Plays video on top of the screen, returns only after playback is over
 	virtual void playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution) = 0;
