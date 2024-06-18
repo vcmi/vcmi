@@ -139,7 +139,7 @@ private:
 		uint8_t turn,
 		PotentialTargets & targets,
 		DamageCache & damageCache,
-		std::shared_ptr<HypotheticBattle> hb);
+		std::shared_ptr<HypotheticBattle> hb) const;
 
 	bool canBeHitThisTurn(const AttackPossibility & ap);
 
@@ -162,16 +162,16 @@ public:
 		uint8_t turn,
 		PotentialTargets & targets,
 		DamageCache & damageCache,
-		std::shared_ptr<HypotheticBattle> hb);
+		std::shared_ptr<HypotheticBattle> hb) const;
 
-	std::vector<const battle::Unit *> getOneTurnReachableUnits(uint8_t turn, BattleHex hex);
+	std::vector<const battle::Unit *> getOneTurnReachableUnits(uint8_t turn, BattleHex hex) const;
 	void updateReachabilityMap(std::shared_ptr<HypotheticBattle> hb);
 
 	ReachabilityData getExchangeUnits(
 		const AttackPossibility & ap,
 		uint8_t turn,
 		PotentialTargets & targets,
-		std::shared_ptr<HypotheticBattle> hb);
+		std::shared_ptr<HypotheticBattle> hb) const;
 
 	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
 
