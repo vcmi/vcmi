@@ -454,9 +454,9 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 				auto player = PlayerColor(*owner - 1);
 				auto playerSettings = map.getMapGenOptions().getPlayersSettings();
 				FactionID faction = FactionID::RANDOM;
-				if (vstd::contains(playerSettings, player))
+				if (playerSettings.size() > player)
 				{
-					faction = playerSettings[player].getStartingTown();
+					faction = std::next(playerSettings.begin(), player)->second.getStartingTown();
 				}
 				else
 				{

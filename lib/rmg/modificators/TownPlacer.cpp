@@ -54,12 +54,14 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		//set zone types to player faction, generate main town
 		logGlobal->info("Preparing playing zone");
 		int player_id = *zone.getOwner() - 1;
-		auto& playerInfo = map.getPlayer(player_id);
-		PlayerColor player(player_id);
-		if(playerInfo.canAnyonePlay())
+		const auto & playerSettings = map.getMapGenOptions().getPlayersSettings();
+		PlayerColor player;
+
+		if (playerSettings.size() > player_id)
 		{
-			player = PlayerColor(player_id);
-			zone.setTownType(map.getMapGenOptions().getPlayersSettings().find(player)->second.getStartingTown());
+			const auto & currentPlayerSettings = std::next(playerSettings.begin(), player_id);
+			player = currentPlayerSettings->first;
+			zone.setTownType(currentPlayerSettings->second.getStartingTown());
 			
 			if(zone.getTownType() == FactionID::RANDOM)
 				zone.setTownType(getRandomTownType(true));
@@ -89,11 +91,12 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		//register MAIN town of zone only
 		map.registerZone(town->getFaction());
 		
-		if(playerInfo.canAnyonePlay()) //configure info for owning player
+		if(player.isValidPlayer()) //configure info for owning player
 		{
 			logGlobal->trace("Fill player info %d", player_id);
 			
 			// Update player info
+			auto & playerInfo = map.getPlayer(player.getNum());
 			playerInfo.allowedFactions.clear();
 			playerInfo.allowedFactions.insert(zone.getTownType());
 			playerInfo.hasMainTown = true;
