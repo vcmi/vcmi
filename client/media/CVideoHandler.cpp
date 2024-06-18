@@ -570,13 +570,13 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-void CVideoPlayer::getVideoAndBackgroundRects(const std::string & name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect) const
+void CVideoPlayer::getVideoAndBackgroundRects(const std::string & name, const Point & position, const int scaling, SDL_Rect & videoRect, SDL_Rect & backgroundRect, const Point preferredLogicalResolution) const
 {
 	float scalingMuliplier = 100.0 / scaling;
 
 	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
-	float resX = settings["video"]["resolution"]["width"].Float(); // Float, since we do some floating point calculations
-	float resY = settings["video"]["resolution"]["height"].Float();
+	float resX = preferredLogicalResolution.x; // Float, since we do some floating point calculations
+	float resY = preferredLogicalResolution.y;
 
 	float originalH3ResX = 800.0;
 	float originalH3ResY = 600.0;
@@ -644,7 +644,7 @@ bool CVideoPlayer::getIntroRimTexture(SDL_Texture **introRimTexture) const
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling) const
+bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling, Point preferredLogicalResolution) const
 {
 	CVideoInstance instance;
 	CAudioInstance audio;
@@ -661,7 +661,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	SDL_Rect videoRect;
 	SDL_Rect backgroundRect;
 
-	getVideoAndBackgroundRects(name.getName(), position, scaling, videoRect, backgroundRect);
+	getVideoAndBackgroundRects(name.getName(), position, scaling, videoRect, backgroundRect, preferredLogicalResolution);
 
 	SDL_Texture *introRimTexture = nullptr;
 	if(!getIntroRimTexture(&introRimTexture))
@@ -725,18 +725,18 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	return true;
 }
 
-bool CVideoPlayer::playIntroVideo(const VideoPath & name, int scaling)
+bool CVideoPlayer::playIntroVideo(const VideoPath & name, int scaling, Point preferredLogicalResolution)
 {
 	Point topRightCorner(0,0);
 	if(name.getName() == "H3INTRO") {
 		topRightCorner = Point(80, 188);
 	}
-	return openAndPlayVideoImpl(name, topRightCorner, true, true, true, scaling);
+	return openAndPlayVideoImpl(name, topRightCorner, true, true, true, scaling, preferredLogicalResolution);
 }
 
-void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
+void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution)
 {
-	openAndPlayVideoImpl(name, position, false, false, false, 100);
+	openAndPlayVideoImpl(name, position, false, false, false, 100, preferredLogicalResolution);
 }
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool scaleToScreen)

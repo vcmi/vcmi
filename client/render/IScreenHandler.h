@@ -46,4 +46,6 @@ public:
 
 	/// Window has focus
 	virtual bool hasFocus() = 0;
+
+	virtual Point getPreferredLogicalResolution() const = 0;
 };

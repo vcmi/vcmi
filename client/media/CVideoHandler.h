@@ -99,14 +99,14 @@ public:
 
 class CVideoPlayer final : public IVideoPlayer
 {
-	void getVideoAndBackgroundRects(const std::string & name, const Point & position, const int scaling, SDL_Rect & video, SDL_Rect & RectbackgroundRect) const;
+	void getVideoAndBackgroundRects(const std::string & name, const Point & position, const int scaling, SDL_Rect & video, SDL_Rect & RectbackgroundRect, const Point preferredLogicalResolution) const;
 	bool getIntroRimTexture(SDL_Texture **introRimTexture) const;
-	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling) const;
+	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, int scaling, Point preferredLogicalResolution) const;
 	void openVideoFile(CVideoInstance & state, const VideoPath & fname);
 
 public:
-	bool playIntroVideo(const VideoPath & name, int scaling) final;
-	void playSpellbookAnimation(const VideoPath & name, const Point & position) final;
+	bool playIntroVideo(const VideoPath & name, int scaling, const Point preferredLogicalResolution) final;
+	void playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution) final;
 	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) final;
 	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) final;
 };
