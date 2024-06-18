@@ -404,14 +404,15 @@ int main(int argc, char * argv[])
 void playIntro()
 {
 	int scaling = GH.screenHandler().getScaling();
+	Point preferredLogicalResolution = GH.screenHandler().getPreferredLogicalResolution();
 
-	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK"), scaling))
+	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK"), scaling, preferredLogicalResolution))
 		return;
 
-	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK"), scaling))
+	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK"), scaling, preferredLogicalResolution))
 		return;
 
-	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"), scaling);
+	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"), scaling, preferredLogicalResolution);
 }
 
 static void mainLoop()
