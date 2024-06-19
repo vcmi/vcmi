@@ -66,7 +66,7 @@ jobs:
             pack: 1
             pack_type: RelWithDebInfo
             extension: exe
-            preset: windows-msvc-release-ccache
+            preset: windows-msvc-release
           - platform: mingw
             os: ubuntu-22.04
             test: 0
@@ -207,8 +207,15 @@ jobs:
 
     - name: Configure
       run: |
-        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC14=1; fi
-        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC14:+-DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14}
+        if [[ ${{matrix.preset}} == linux-gcc-test ]]
+        then
+            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
+        elif [[ ${{matrix.platform}} != msvc ]]
+        then
+            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
+        else
+            cmake --preset ${{ matrix.preset }}
+        fi
 
     - name: Build
       run: |
