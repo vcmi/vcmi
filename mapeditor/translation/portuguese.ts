@@ -129,37 +129,37 @@
     <message>
         <location filename="../inspector/herospellwidget.ui" line="29"/>
         <source>Spells</source>
-        <translation type="unfinished">Feitiços</translation>
+        <translation>Feitiços</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="47"/>
         <source>Customize spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Personalizar feitiços</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="76"/>
         <source>Level 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nível 1</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="114"/>
         <source>Level 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nível 2</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="152"/>
         <source>Level 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Nível 3</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="190"/>
         <source>Level 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Nível 4</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="228"/>
         <source>Level 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Nível 5</translation>
     </message>
 </context>
 <context>
@@ -1555,12 +1555,12 @@
     <message>
         <location filename="../validator.cpp" line="146"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
-        <translation>O pergaminho de feitiço %1 é proibido pelas configurações do mapa</translation>
+        <translation>O pergaminho mágico %1 é proibido pelas configurações do mapa</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="149"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation>O pergaminho de feitiço %1 não tem instância atribuída e deve ser removido</translation>
+        <translation>O pergaminho mágico %1 não tem instância atribuída e deve ser removido</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="155"/>
@@ -1738,32 +1738,32 @@
     <message>
         <location filename="../windownewmap.ui" line="164"/>
         <source>S  (36x36)</source>
-        <translation type="unfinished"></translation>
+        <translation>S  (36x36)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="169"/>
         <source>M  (72x72)</source>
-        <translation type="unfinished"></translation>
+        <translation>M  (72x72)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="174"/>
         <source>L  (108x108)</source>
-        <translation type="unfinished"></translation>
+        <translation>L  (108x108)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="184"/>
         <source>H  (180x180)</source>
-        <translation type="unfinished"></translation>
+        <translation>H  (180x180)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="189"/>
         <source>XH (216x216)</source>
-        <translation type="unfinished"></translation>
+        <translation>XH (216x216)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="194"/>
         <source>G  (252x252)</source>
-        <translation type="unfinished"></translation>
+        <translation>G (252x252)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="248"/>
