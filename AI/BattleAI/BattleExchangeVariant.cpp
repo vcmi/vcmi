@@ -621,6 +621,9 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 						if(!exchangeBattle->getForUpdate(u->unitId())->alive())
 							return false;
 
+						if (!u->getPosition().isValid())
+							return false; // e.g. tower shooters
+
 						return vstd::contains_if(reachabilityMap.at(u->getPosition()), [&attacker](const battle::Unit * other) -> bool
 							{
 								return attacker->unitId() == other->unitId();
