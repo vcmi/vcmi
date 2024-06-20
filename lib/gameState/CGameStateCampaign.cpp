@@ -28,6 +28,8 @@
 #include "../CPlayerState.h"
 #include "../serializer/CMemorySerializer.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CampaignHeroReplacement::CampaignHeroReplacement(CGHeroInstance * hero, const ObjectInstanceID & heroPlaceholderId):

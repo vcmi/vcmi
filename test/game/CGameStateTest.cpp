@@ -142,9 +142,7 @@ public:
 		StartInfo si;
 		si.mapname = "anything";//does not matter, map service mocked
 		si.difficulty = 0;
-		si.mapfileChecksum = 0;
 		si.mode = EStartMode::NEW_GAME;
-		si.seedToBeUsed = 42;
 
 		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourcePath(si.mapname));
 

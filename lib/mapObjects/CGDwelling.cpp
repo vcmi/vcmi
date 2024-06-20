@@ -27,6 +27,8 @@
 #include "../GameSettings.h"
 #include "../CConfigHandler.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
@@ -50,7 +52,7 @@ CGDwelling::CGDwelling(IGameCallback *cb):
 
 CGDwelling::~CGDwelling() = default;
 
-FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
+FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 {
 	if (ID == Obj::RANDOM_DWELLING_FACTION)
 		return FactionID(subID.getNum());
@@ -108,7 +110,7 @@ FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
 }
 
-int CGDwelling::randomizeLevel(CRandomGenerator & rand)
+int CGDwelling::randomizeLevel(vstd::RNG & rand)
 {
 	if (ID == Obj::RANDOM_DWELLING_LVL)
 		return subID.getNum();
@@ -125,7 +127,7 @@ int CGDwelling::randomizeLevel(CRandomGenerator & rand)
 	return rand.nextInt(randomizationInfo->minLevel, randomizationInfo->maxLevel) - 1;
 }
 
-void CGDwelling::pickRandomObject(CRandomGenerator & rand)
+void CGDwelling::pickRandomObject(vstd::RNG & rand)
 {
 	if (ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_LVL || ID == Obj::RANDOM_DWELLING_FACTION)
 	{
@@ -172,7 +174,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 	}
 }
 
-void CGDwelling::initObj(CRandomGenerator & rand)
+void CGDwelling::initObj(vstd::RNG & rand)
 {
 	switch(ID.toEnum())
 	{
@@ -298,7 +300,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	cb->showBlockingDialog(&bd);
 }
 
-void CGDwelling::newTurn(CRandomGenerator & rand) const
+void CGDwelling::newTurn(vstd::RNG & rand) const
 {
 	if(cb->getDate(Date::DAY_OF_WEEK) != 1) //not first day of week
 		return;

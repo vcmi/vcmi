@@ -16,12 +16,14 @@
 #include "../CConfigHandler.h"
 #include "../GameSettings.h"
 #include "../IGameCallback.h"
+#include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -189,7 +191,7 @@ CreatureID CGCreature::getCreature() const
 	return CreatureID(getObjTypeIndex().getNum());
 }
 
-void CGCreature::pickRandomObject(CRandomGenerator & rand)
+void CGCreature::pickRandomObject(vstd::RNG & rand)
 {
 	switch(ID.toEnum())
 	{
@@ -234,7 +236,7 @@ void CGCreature::pickRandomObject(CRandomGenerator & rand)
 	setType(ID, subID);
 }
 
-void CGCreature::initObj(CRandomGenerator & rand)
+void CGCreature::initObj(vstd::RNG & rand)
 {
 	blockVisit = true;
 	switch(character)
@@ -274,7 +276,7 @@ void CGCreature::initObj(CRandomGenerator & rand)
 	refusedJoining = false;
 }
 
-void CGCreature::newTurn(CRandomGenerator & rand) const
+void CGCreature::newTurn(vstd::RNG & rand) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{
@@ -457,7 +459,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			const auto & upgrades = getStack(slotID).type->upgrades;
 			if(!upgrades.empty())
 			{
-				auto it = RandomGeneratorUtil::nextItem(upgrades, CRandomGenerator::getDefault());
+				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
 				cb->changeStackType(StackLocation(this, slotID), it->toCreature());
 			}
 		}

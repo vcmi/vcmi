@@ -16,7 +16,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRandomGenerator;
+namespace vstd
+{
+class RNG;
+}
 
 enum class EPlayerType
 {
@@ -148,7 +151,7 @@ public:
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.
-	void finalize(CRandomGenerator & rand);
+	void finalize(vstd::RNG & rand);
 
 	/// Returns false if there is no template available which fits to the currently selected options.
 	bool checkOptions() const;
@@ -166,7 +169,7 @@ private:
 	PlayerColor getNextPlayerColor() const;
 	void updateCompOnlyPlayers();
 	void updatePlayers();
-	const CRmgTemplate * getPossibleTemplate(CRandomGenerator & rand) const;
+	const CRmgTemplate * getPossibleTemplate(vstd::RNG & rand) const;
 
 	si32 width;
 	si32 height;

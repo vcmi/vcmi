@@ -33,6 +33,8 @@
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 ObjectInfo::ObjectInfo():
@@ -649,7 +651,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 		if (currentValue >= minValue)
 		{
 			// 50% chance to end right here
-			if (zone.getRand().nextInt() & 1)
+			if (zone.getRand().nextInt(0, 1) == 1)
 				break;
 		}
 	}

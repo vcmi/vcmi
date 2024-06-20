@@ -26,6 +26,8 @@
 #include "WaterProxy.h"
 #include "TownPlacer.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Zone> otherZone)
@@ -444,7 +446,7 @@ void ConnectionsPlacer::collectNeighbourZones()
 bool ConnectionsPlacer::shouldGenerateRoad(const rmg::ZoneConnection& connection) const
 {
 	return connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE ||
-		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble() >= 0.5f);
+		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble(0, 1) >= 0.5f);
 }
 
 void ConnectionsPlacer::createBorder()

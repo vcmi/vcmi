@@ -17,6 +17,8 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CGTownBuilding::CGTownBuilding(IGameCallback * cb)
@@ -313,7 +315,7 @@ CTownRewardableBuilding::CTownRewardableBuilding(IGameCallback *cb)
 	: CGTownBuilding(cb)
 {}
 
-CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown, CRandomGenerator & rand)
+CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown, vstd::RNG & rand)
 	: CGTownBuilding(cgTown)
 {
 	bID = index;
@@ -322,7 +324,7 @@ CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, Build
 	initObj(rand);
 }
 
-void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
+void CTownRewardableBuilding::initObj(vstd::RNG & rand)
 {
 	assert(town && town->town);
 
@@ -339,7 +341,7 @@ void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
 	}
 }
 
-void CTownRewardableBuilding::newTurn(CRandomGenerator & rand) const
+void CTownRewardableBuilding::newTurn(vstd::RNG & rand) const
 {
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{

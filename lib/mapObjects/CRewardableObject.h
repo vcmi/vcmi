@@ -57,7 +57,7 @@ public:
 	void onHeroVisit(const CGHeroInstance *h) const override;
 
 	///possibly resets object state
-	void newTurn(CRandomGenerator & rand) const override;
+	void newTurn(vstd::RNG & rand) const override;
 
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
 	void heroLevelUpDone(const CGHeroInstance *hero) const override;
@@ -65,7 +65,7 @@ public:
 	/// applies player selection of reward
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	void initObj(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
 	
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 

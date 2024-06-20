@@ -17,7 +17,9 @@
 #include "../../VCMI_Lib.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../mapObjects/MapObjects.h" 
+#include "../../mapObjects/MapObjects.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

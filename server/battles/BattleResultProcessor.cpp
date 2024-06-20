@@ -30,6 +30,8 @@
 #include "../../lib/serializer/Cast.h"
 #include "../../lib/spells/CSpellHandler.h"
 
+#include <vstd/RNG.h>
+
 BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 //	: owner(owner)
 	: gameHandler(newGameHandler)

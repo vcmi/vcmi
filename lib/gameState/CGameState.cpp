@@ -52,6 +52,8 @@
 #include "../serializer/CTypeList.h"
 #include "../spells/CSpellHandler.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 boost::shared_mutex CGameState::mutex;
@@ -181,8 +183,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 {
 	assert(services);
 	assert(callback);
-	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
-	getRandomGenerator().setSeed(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
 	initialOpts = CMemorySerializer::deepCopy(*si).release();
 	si = nullptr;
@@ -200,8 +200,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 		return;
 	}
 	logGlobal->info("Map loaded!");
-
-	checkMapChecksum();
 
 	day = 0;
 
@@ -234,18 +232,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 
 	logGlobal->debug("\tChecking objectives");
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
-
-	auto seedAfterInit = getRandomGenerator().nextInt();
-	logGlobal->info("Seed after init is %d (before was %d)", seedAfterInit, scenarioOps->seedToBeUsed);
-	if(scenarioOps->seedPostInit > 0)
-	{
-		//RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
-		assert(scenarioOps->seedPostInit == seedAfterInit);
-	}
-	else
-	{
-		scenarioOps->seedPostInit = seedAfterInit; //store the post init "seed"
-	}
 }
 
 void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
@@ -305,7 +291,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, callback, scenarioOps->seedToBeUsed);
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, callback, getRandomGenerator().nextInt());
 		progressTracking.include(mapGenerator);
 
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
@@ -321,10 +307,9 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 				std::shared_ptr<CMapGenOptions> options = scenarioOps->mapGenOptions;
 
 				const std::string templateName = options->getMapTemplate()->getName();
-				const ui32 seed = scenarioOps->seedToBeUsed;
 				const std::string dt = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 
-				const std::string fileName = boost::str(boost::format("%s_%s_%d.vmap") % dt % templateName % seed );
+				const std::string fileName = boost::str(boost::format("%s_%s.vmap") % dt % templateName );
 				const auto fullPath = path / fileName;
 
 				randomMap->name.appendRawString(boost::str(boost::format(" %s") % dt));
@@ -376,24 +361,6 @@ void CGameState::initCampaign()
 {
 	campaign = std::make_unique<CGameStateCampaign>(this);
 	map = campaign->getCurrentMap().release();
-}
-
-void CGameState::checkMapChecksum()
-{
-	logGlobal->info("\tOur checksum for the map: %d", map->checksum);
-	if(scenarioOps->mapfileChecksum)
-	{
-		logGlobal->info("\tServer checksum for %s: %d", scenarioOps->mapname, scenarioOps->mapfileChecksum);
-		if(map->checksum != scenarioOps->mapfileChecksum)
-		{
-			logGlobal->error("Wrong map checksum!!!");
-			throw std::runtime_error("Wrong checksum");
-		}
-	}
-	else
-	{
-		scenarioOps->mapfileChecksum = map->checksum;
-	}
 }
 
 void CGameState::initGlobalBonuses()
@@ -1070,7 +1037,7 @@ BattleInfo * CGameState::getBattle(const BattleID & battle)
 	return nullptr;
 }
 
-BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
+BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 {
 	assert(tile.valid());
 
@@ -1243,8 +1210,10 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
-void CGameState::updateRumor()
+RumorState CGameState::pickNewRumor()
 {
+	RumorState newRumor;
+
 	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
@@ -1254,11 +1223,11 @@ void CGameState::updateRumor()
 	int rumorId = -1;
 	int rumorExtra = -1;
 	auto & rand = getRandomGenerator();
-	rumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
+	newRumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
 
 	do
 	{
-		switch(rumor.type)
+		switch(newRumor.type)
 		{
 		case RumorState::TYPE_SPECIAL:
 		{
@@ -1296,13 +1265,13 @@ void CGameState::updateRumor()
 		}
 		case RumorState::TYPE_MAP:
 			// Makes sure that map rumors only used if there enough rumors too choose from
-			if(!map->rumors.empty() && (map->rumors.size() > 1 || !rumor.last.count(RumorState::TYPE_MAP)))
+			if(!map->rumors.empty() && (map->rumors.size() > 1 || !currentRumor.last.count(RumorState::TYPE_MAP)))
 			{
 				rumorId = rand.nextInt((int)map->rumors.size() - 1);
 				break;
 			}
 			else
-				rumor.type = RumorState::TYPE_RAND;
+				newRumor.type = RumorState::TYPE_RAND;
 			[[fallthrough]];
 
 		case RumorState::TYPE_RAND:
@@ -1312,7 +1281,9 @@ void CGameState::updateRumor()
 			break;
 		}
 	}
-	while(!rumor.update(rumorId, rumorExtra));
+	while(!newRumor.update(rumorId, rumorExtra));
+
+	return newRumor;
 }
 
 bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const
@@ -1936,35 +1907,19 @@ CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 	return nullptr;
 }
 
-bool RumorState::update(int id, int extra)
-{
-	if(vstd::contains(last, type))
-	{
-		if(last[type].first != id)
-		{
-			last[type].first = id;
-			last[type].second = extra;
-		}
-		else
-			return false;
-	}
-	else
-		last[type] = std::make_pair(id, extra);
 
-	return true;
-}
 
 TeamState::TeamState()
 {
 	setNodeType(TEAM);
 }
 
-CRandomGenerator & CGameState::getRandomGenerator()
+vstd::RNG & CGameState::getRandomGenerator()
 {
-	return rand;
+	return callback->getRandomGenerator();
 }
 
-ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts)
 {
 	std::set<ArtifactID> potentialPicks;
 
@@ -1999,7 +1954,7 @@ ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags, st
 	return pickRandomArtifact(rand, potentialPicks);
 }
 
-ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> potentialPicks)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> potentialPicks)
 {
 	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
 	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
@@ -2028,12 +1983,12 @@ ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, std::set<Arti
 	return artID;
 }
 
-ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts)
 {
 	return pickRandomArtifact(rand, 0xff, std::move(accepts));
 }
 
-ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags)
 {
 	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
 }

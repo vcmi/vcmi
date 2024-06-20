@@ -218,6 +218,8 @@ public:
 	void showInfoDialog(InfoWindow * iw) override {};
 	void removeGUI() const;
 
+	vstd::RNG & getRandomGenerator() override;
+
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 #endif

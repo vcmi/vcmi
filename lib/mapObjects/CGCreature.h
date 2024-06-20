@@ -45,9 +45,9 @@ public:
 	std::string getPopupText(PlayerColor player) const override;
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
-	void initObj(CRandomGenerator & rand) override;
-	void pickRandomObject(CRandomGenerator & rand) override;
-	void newTurn(CRandomGenerator & rand) const override;
+	void initObj(vstd::RNG & rand) override;
+	void pickRandomObject(vstd::RNG & rand) override;
+	void newTurn(vstd::RNG & rand) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	CreatureID getCreature() const;

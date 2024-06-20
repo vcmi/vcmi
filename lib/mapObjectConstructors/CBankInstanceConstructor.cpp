@@ -13,7 +13,8 @@
 #include "../json/JsonRandom.h"
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
-#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,7 +37,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	regularUnitPlacement = input["regularUnitPlacement"].Bool();
 }
 
-BankConfig CBankInstanceConstructor::generateConfig(IGameCallback * cb, const JsonNode & level, CRandomGenerator & rng) const
+BankConfig CBankInstanceConstructor::generateConfig(IGameCallback * cb, const JsonNode & level, vstd::RNG & rng) const
 {
 	BankConfig bc;
 	JsonRandom randomizer(cb);
@@ -53,7 +54,7 @@ BankConfig CBankInstanceConstructor::generateConfig(IGameCallback * cb, const Js
 	return bc;
 }
 
-void CBankInstanceConstructor::randomizeObject(CBank * bank, CRandomGenerator & rng) const
+void CBankInstanceConstructor::randomizeObject(CBank * bank, vstd::RNG & rng) const
 {
 	bank->resetDuration = bankResetDuration;
 	bank->blockVisit = blockVisit;

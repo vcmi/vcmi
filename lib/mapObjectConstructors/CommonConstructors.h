@@ -63,7 +63,7 @@ public:
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	void initializeObject(CGTownInstance * object) const override;
-	void randomizeObject(CGTownInstance * object, CRandomGenerator & rng) const override;
+	void randomizeObject(CGTownInstance * object, vstd::RNG & rng) const override;
 	void afterLoadFinalization() override;
 
 	bool hasNameTextID() const override;
@@ -82,7 +82,7 @@ public:
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
 	void initializeObject(CGHeroInstance * object) const override;
-	void randomizeObject(CGHeroInstance * object, CRandomGenerator & rng) const override;
+	void randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const override;
 	void afterLoadFinalization() override;
 
 	bool hasNameTextID() const override;
@@ -125,7 +125,7 @@ protected:
 public:
 	CGMarket * createObject(IGameCallback * cb) const override;
 	void initializeObject(CGMarket * object) const override;
-	void randomizeObject(CGMarket * object, CRandomGenerator & rng) const override;
+	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
 
 };
 

@@ -2000,8 +2000,8 @@ void NewTurn::applyGs(CGameState *gs)
 	for(CGTownInstance* t : gs->map->towns)
 		t->builded = 0;
 
-	if(gs->getDate(Date::DAY_OF_WEEK) == 1)
-		gs->updateRumor();
+	if(newRumor)
+		gs->currentRumor = *newRumor;
 }
 
 void SetObjectProperty::applyGs(CGameState * gs) const

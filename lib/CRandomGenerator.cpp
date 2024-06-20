@@ -35,28 +35,22 @@ void CRandomGenerator::resetSeed()
 	setSeed(static_cast<int>(threadIdHash * std::time(nullptr)));
 }
 
-TRandI CRandomGenerator::getIntRange(int lower, int upper)
-{
-	if (lower <= upper)
-		return std::bind(TIntDist(lower, upper), std::ref(rand));
-	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
-}
-
-vstd::TRandI64 CRandomGenerator::getInt64Range(int64_t lower, int64_t upper)
-{
-	if(lower <= upper)
-		return std::bind(TInt64Dist(lower, upper), std::ref(rand));
-	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
-}
-
 int CRandomGenerator::nextInt(int upper)
 {
-	return getIntRange(0, upper)();
+	return nextInt(0, upper);
+}
+
+int64_t CRandomGenerator::nextInt64(int64_t upper)
+{
+	return nextInt64(0, upper);
 }
 
 int CRandomGenerator::nextInt(int lower, int upper)
 {
-	return getIntRange(lower, upper)();
+	if (lower > upper)
+		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
+
+	return TIntDist(lower, upper)(rand);
 }
 
 int CRandomGenerator::nextInt()
@@ -64,27 +58,31 @@ int CRandomGenerator::nextInt()
 	return TIntDist()(rand);
 }
 
-vstd::TRand CRandomGenerator::getDoubleRange(double lower, double upper)
+int CRandomGenerator::nextBinomialInt(int coinsCount, double coinChance)
 {
-	if(lower <= upper)
-		return std::bind(TRealDist(lower, upper), std::ref(rand));
-	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
+	std::binomial_distribution<> distribution(coinsCount, coinChance);
+	return distribution(rand);
+}
 
+int64_t CRandomGenerator::nextInt64(int64_t lower, int64_t upper)
+{
+	if (lower > upper)
+		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
+
+	return TInt64Dist(lower, upper)(rand);
 }
 
 double CRandomGenerator::nextDouble(double upper)
 {
-	return getDoubleRange(0, upper)();
+	return nextDouble(0, upper);
 }
 
 double CRandomGenerator::nextDouble(double lower, double upper)
 {
-	return getDoubleRange(lower, upper)();
-}
+	if(lower > upper)
+		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
 
-double CRandomGenerator::nextDouble()
-{
-	return TRealDist()(rand);
+	return TRealDist(lower, upper)(rand);
 }
 
 CRandomGenerator & CRandomGenerator::getDefault()
@@ -93,9 +91,5 @@ CRandomGenerator & CRandomGenerator::getDefault()
 	return defaultRand;
 }
 
-TGenerator & CRandomGenerator::getStdGenerator()
-{
-	return rand;
-}
 
 VCMI_LIB_NAMESPACE_END

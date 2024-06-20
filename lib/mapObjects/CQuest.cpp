@@ -31,7 +31,8 @@
 #include "../modding/ModUtility.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../spells/CSpellHandler.h"
-#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -439,7 +440,7 @@ void CGSeerHut::setObjToKill()
 	}
 }
 
-void CGSeerHut::init(CRandomGenerator & rand)
+void CGSeerHut::init(vstd::RNG & rand)
 {
 	auto names = VLC->generaltexth->findStringsWithPrefix("core.seerhut.names");
 
@@ -453,7 +454,7 @@ void CGSeerHut::init(CRandomGenerator & rand)
 	configuration.selectMode = Rewardable::ESelectMode::SELECT_PLAYER;
 }
 
-void CGSeerHut::initObj(CRandomGenerator & rand)
+void CGSeerHut::initObj(vstd::RNG & rand)
 {
 	init(rand);
 	
@@ -560,7 +561,7 @@ void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	}
 }
 
-void CGSeerHut::newTurn(CRandomGenerator & rand) const
+void CGSeerHut::newTurn(vstd::RNG & rand) const
 {
 	CRewardableObject::newTurn(rand);
 	if(quest->lastDay >= 0 && quest->lastDay <= cb->getDate() - 1) //time is up
@@ -748,7 +749,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
-void CGQuestGuard::init(CRandomGenerator & rand)
+void CGQuestGuard::init(vstd::RNG & rand)
 {
 	blockVisit = true;
 	quest->textOption = rand.nextInt(3, 5);
@@ -816,7 +817,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	h->showInfoDialog(txt_id);
 }
 
-void CGBorderGuard::initObj(CRandomGenerator & rand)
+void CGBorderGuard::initObj(vstd::RNG & rand)
 {
 	blockVisit = true;
 }

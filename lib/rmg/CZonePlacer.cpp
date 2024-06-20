@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "CZonePlacer.h"
 
-#include "../CRandomGenerator.h"
 #include "../CTownHandler.h"
 #include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
@@ -23,11 +22,11 @@
 #include "Functions.h"
 #include "PenroseTiling.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 //#define ZONE_PLACEMENT_LOG true
-
-class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
 	: width(0), height(0), mapSize(0),
@@ -97,7 +96,7 @@ void CZonePlacer::findPathsBetweenZones()
 	}
 }
 
-void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
+void CZonePlacer::placeOnGrid(vstd::RNG* rand)
 {
 	auto zones = map.getZones();
 	assert(zones.size());
@@ -118,7 +117,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 
 	auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
 	{
-		switch (rand->nextInt() % 4)
+		switch (rand->nextInt(0, 3) % 4)
 		{
 		case 0:
 			x = 0;
@@ -150,7 +149,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 			else
 			{
 				//Random corner
-				if (rand->nextInt() % 2)
+				if (rand->nextInt(0, 1) == 1)
 				{
 					x = 0;
 				}
@@ -158,7 +157,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 				{
 					x = gridSize - 1;
 				}
-				if (rand->nextInt() % 2)
+				if (rand->nextInt(0, 1) == 1)
 				{
 					y = 0;
 				}
@@ -176,8 +175,8 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 			else
 			{
 				//One of 4 squares in the middle
-				x = (gridSize / 2) - 1 + rand->nextInt() % 2;
-				y = (gridSize / 2) - 1 + rand->nextInt() % 2;
+				x = (gridSize / 2) - 1 + rand->nextInt(0, 1);
+				y = (gridSize / 2) - 1 + rand->nextInt(0, 1);
 			}
 			break;
 		case ETemplateZoneType::JUNCTION:
@@ -308,7 +307,7 @@ float CZonePlacer::scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, con
 	}
 }
 
-void CZonePlacer::placeZones(CRandomGenerator * rand)
+void CZonePlacer::placeZones(vstd::RNG * rand)
 {
 	logGlobal->info("Starting zone placement");
 
@@ -432,7 +431,7 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	}
 }
 
-void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand)
+void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, vstd::RNG * rand)
 {
 	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
 
@@ -824,7 +823,7 @@ float CZonePlacer::metric (const int3 &A, const int3 &B) const
 
 }
 
-void CZonePlacer::assignZones(CRandomGenerator * rand)
+void CZonePlacer::assignZones(vstd::RNG * rand)
 {
 	logGlobal->info("Starting zone colouring");
 

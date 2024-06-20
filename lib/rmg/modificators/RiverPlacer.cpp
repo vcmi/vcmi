@@ -27,6 +27,8 @@
 #include "WaterProxy.h"
 #include "RoadPlacer.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 const int RIVER_DELTA_ID = 143;

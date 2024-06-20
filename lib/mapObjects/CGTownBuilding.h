@@ -123,17 +123,17 @@ public:
 	void setProperty(ObjProperty what, ObjPropertyID identifier) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	
-	void newTurn(CRandomGenerator & rand) const override;
+	void newTurn(vstd::RNG & rand) const override;
 	
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
 	void heroLevelUpDone(const CGHeroInstance *hero) const override;
 	
-	void initObj(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
 	
 	/// applies player selection of reward
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	
-	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * town, CRandomGenerator & rand);
+	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * town, vstd::RNG & rand);
 	CTownRewardableBuilding(IGameCallback *cb);
 	
 	template <typename Handler> void serialize(Handler &h)

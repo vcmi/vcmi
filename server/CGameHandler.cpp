@@ -29,6 +29,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CTownHandler.h"
@@ -68,7 +69,8 @@
 
 #include "../lib/spells/CSpellHandler.h"
 
-#include "vstd/CLoggerBase.h"
+#include <vstd/RNG.h>
+#include <vstd/CLoggerBase.h>
 #include <vcmi/events/EventBus.h>
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
@@ -541,19 +543,15 @@ void CGameHandler::reinitScripting()
 
 void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTracking)
 {
-	if (si->seedToBeUsed == 0)
-	{
-		si->seedToBeUsed = CRandomGenerator::getDefault().nextInt();
-	}
+	randomNumberGenerator = std::make_unique<CRandomGenerator>();
+	logGlobal->info("Using random seed: %d", randomNumberGenerator->nextInt());
+
 	CMapService mapService;
 	gs = new CGameState();
 	gs->preInit(VLC, this);
 	logGlobal->info("Gamestate created!");
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
-
-	// reset seed, so that clients can't predict any following random values
-	getRandomGenerator().resetSeed();
 
 	for (auto & elem : gs->players)
 		turnOrder->addPlayer(elem.first);
@@ -904,6 +902,9 @@ void CGameHandler::onNewTurn()
 			}
 		}
 	}
+
+	if (newWeek)
+		n.newRumor = gameState()->pickNewRumor();
 
 	if (newMonth)
 	{
@@ -4371,9 +4372,9 @@ void CGameHandler::showInfoDialog(InfoWindow * iw)
 	sendAndApply(iw);
 }
 
-CRandomGenerator & CGameHandler::getRandomGenerator()
+vstd::RNG & CGameHandler::getRandomGenerator()
 {
-	return CRandomGenerator::getDefault();
+	return *randomNumberGenerator;
 }
 
 #if SCRIPTING_ENABLED

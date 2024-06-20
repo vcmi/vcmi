@@ -15,18 +15,36 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace vstd
 {
 
-using TRandI64 = std::function<int64_t()>;
-using TRand = std::function<double()>;
-
 class DLL_LINKAGE RNG
 {
 public:
-
 	virtual ~RNG() = default;
 
-	virtual TRandI64 getInt64Range(int64_t lower, int64_t upper) = 0;
+	/// Returns random number in range [lower, upper]
+	virtual int nextInt(int lower, int upper) = 0;
 
-	virtual TRand getDoubleRange(double lower, double upper) = 0;
+	/// Returns random number in range [lower, upper]
+	virtual int64_t nextInt64(int64_t lower, int64_t upper) = 0;
+
+	/// Returns random number in range [lower, upper]
+	virtual double nextDouble(double lower, double upper) = 0;
+
+	/// Returns random number in range [0, upper]
+	virtual int nextInt(int upper) = 0;
+
+	/// Returns random number in range [0, upper]
+	virtual int64_t nextInt64(int64_t upper) = 0;
+
+	/// Returns random number in range [0, upper]
+	virtual double nextDouble(double upper) = 0;
+
+	/// Generates an integer between 0 and the maximum value it can hold.
+	/// Should be only used for seeding other generators
+	virtual int nextInt() = 0;
+
+	/// Returns integer using binomial distribution
+	/// returned value is number of successfull coin flips with chance 'coinChance' out of 'coinsCount' attempts
+	virtual int nextBinomialInt(int coinsCount, double coinChance) = 0;
 };
 
 }
@@ -39,7 +57,7 @@ namespace RandomGeneratorUtil
 		if(container.empty())
 			throw std::runtime_error("Unable to select random item from empty container!");
 
-		return std::next(container.begin(), rand.getInt64Range(0, container.size() - 1)());
+		return std::next(container.begin(), rand.nextInt64(0, container.size() - 1));
 	}
 
 	template<typename Container>
@@ -48,7 +66,7 @@ namespace RandomGeneratorUtil
 		if(container.empty())
 			throw std::runtime_error("Unable to select random item from empty container!");
 
-		return std::next(container.begin(), rand.getInt64Range(0, container.size() - 1)());
+		return std::next(container.begin(), rand.nextInt64(0, container.size() - 1));
 	}
 
 	template<typename Container>
@@ -59,7 +77,7 @@ namespace RandomGeneratorUtil
 		int64_t totalWeight = std::accumulate(container.begin(), container.end(), 0);
 		assert(totalWeight > 0);
 
-		int64_t roll = rand.getInt64Range(0, totalWeight - 1)();
+		int64_t roll = rand.nextInt64(0, totalWeight - 1);
 
 		for (size_t i = 0; i < container.size(); ++i)
 		{
@@ -77,7 +95,7 @@ namespace RandomGeneratorUtil
 
 		for(int64_t i = n-1; i>0; --i)
 		{
-			std::swap(container.begin()[i],container.begin()[rand.getInt64Range(0, i)()]);
+			std::swap(container.begin()[i],container.begin()[rand.nextInt64(0, i)]);
 		}
 	}
 }

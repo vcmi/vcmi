@@ -17,7 +17,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 class CMap;
-class CRandomGenerator;
+
+namespace vstd
+{
+class RNG;
+}
 
 /// The abstract base class CMapOperation defines an operation that can be executed, undone and redone.
 class DLL_LINKAGE CMapOperation : public boost::noncopyable
@@ -63,7 +67,7 @@ private:
 class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, CRandomGenerator * gen);
+	CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, vstd::RNG * gen);
 
 	void execute() override;
 	void undo() override;
@@ -103,7 +107,7 @@ private:
 	CTerrainSelection terrainSel;
 	TerrainId terType;
 	int decorationsPercentage;
-	CRandomGenerator* gen;
+	vstd::RNG* gen;
 	std::set<int3> invalidatedTerViews;
 };
 
@@ -111,7 +115,7 @@ private:
 class CClearTerrainOperation : public CComposedOperation
 {
 public:
-	CClearTerrainOperation(CMap * map, CRandomGenerator * gen);
+	CClearTerrainOperation(CMap * map, vstd::RNG * gen);
 
 	std::string getLabel() const override;
 };

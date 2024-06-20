@@ -18,7 +18,8 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
-#include "../../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

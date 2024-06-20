@@ -100,7 +100,7 @@ void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 	obj->tempOwner = PlayerColor::NEUTRAL;
 }
 
-void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, CRandomGenerator & rng) const
+void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, vstd::RNG & rng) const
 {
 	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
 	if(templ)
@@ -159,7 +159,7 @@ void CHeroInstanceConstructor::initializeObject(CGHeroInstance * obj) const
 	obj->type = nullptr; //FIXME: set to valid value. somehow.
 }
 
-void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, CRandomGenerator & rng) const
+void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const
 {
 
 }
@@ -259,7 +259,7 @@ void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 		market->speech = VLC->generaltexth->translate(speech);
 }
 
-void MarketInstanceConstructor::randomizeObject(CGMarket * object, CRandomGenerator & rng) const
+void MarketInstanceConstructor::randomizeObject(CGMarket * object, vstd::RNG & rng) const
 {
 	JsonRandom randomizer(object->cb);
 	JsonRandom::Variables emptyVariables;

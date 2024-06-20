@@ -40,7 +40,7 @@ CGObjectInstance * CRewardableConstructor::create(IGameCallback * cb, std::share
 	return ret;
 }
 
-void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+void CRewardableConstructor::configureObject(CGObjectInstance * object, vstd::RNG & rng) const
 {
 	if(auto * rewardableObject = dynamic_cast<CRewardableObject*>(object))
 	{
