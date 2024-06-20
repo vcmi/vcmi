@@ -290,7 +290,7 @@ jobs:
       with:
         name: Android JNI ${{matrix.platform}}
         path: |
-          ${{github.workspace}}/out/build/${{matrix.preset}}/libs
+          ${{github.workspace}}/out/build/${{matrix.preset}}/android-build/libs
 
     - name: Upload build
       if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' && matrix.platform != 'mingw-32' }}
