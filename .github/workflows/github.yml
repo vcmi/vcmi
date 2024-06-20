@@ -378,6 +378,9 @@ jobs:
     - name: Build Preset
       run: |
         cmake --build --preset ${{matrix.preset}}
+      env:
+        ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     - name: Download libs x64
       uses: actions/download-artifact@v4
