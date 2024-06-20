@@ -172,22 +172,22 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 
 				cb->setMovePoints(heroID, 600, false);
 
-				iw.text.appendRawString(VLC->generaltexth->allTexts[580]);
-				cb->showInfoDialog(&iw);
+				//iw.text.appendRawString(VLC->generaltexth->allTexts[580]);
+				//cb->showInfoDialog(&iw);
 			}
 			break;
 
 		case BuildingSubID::MANA_VORTEX:
-			if(visitors.empty())
+			if(visitors.empty() && h->mana < h->manaLimit() * 2)
 			{
-				if(h->mana < h->manaLimit() * 2)
-					cb->setManaPoints (heroID, 2 * h->manaLimit());
+				cb->setManaPoints (heroID, 2 * h->manaLimit());
 				//TODO: investigate line below
 				//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
-				iw.text.appendRawString(getVisitingBonusGreeting());
-				cb->showInfoDialog(&iw);
+				//iw.text.appendRawString(getVisitingBonusGreeting());
+				//cb->showInfoDialog(&iw);
 				//extra visit penalty if hero alredy had double mana points (or even more?!)
 				town->addHeroToStructureVisitors(h, indexOnTV);
+				pendingGreeting = getVisitingBonusGreeting();
 			}
 			break;
 		}

@@ -426,6 +426,16 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 	auto newCastleInt = std::make_shared<CCastleInterface>(town);
 
 	GH.windows().pushWindow(newCastleInt);
+
+	for (auto const& bonBuilding : town->bonusingBuildings)
+	{
+		auto COPWBuilding = dynamic_cast<COPWBonus * >(bonBuilding);
+		if (COPWBuilding && !COPWBuilding->pendingGreeting.empty())
+		{
+			showInfoDialog(COPWBuilding->pendingGreeting);
+			COPWBuilding->pendingGreeting.clear();
+		}
+	}
 }
 
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)

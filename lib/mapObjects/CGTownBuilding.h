@@ -73,6 +73,7 @@ class DLL_LINKAGE COPWBonus : public CGTownBuilding
 {///used for OPW bonusing structures
 public:
 	std::set<ObjectInstanceID> visitors;
+	mutable std::string pendingGreeting;
 	void setProperty(ObjProperty what, ObjPropertyID identifier) override;
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
