@@ -353,6 +353,12 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
+    - uses: actions/setup-java@v4
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
     - name: Build Number
       run: |
         source '${{github.workspace}}/CI/get_package_name.sh'
