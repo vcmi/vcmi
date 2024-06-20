@@ -13,7 +13,7 @@ def sort_children(node, klass, key):
         # no need to sort
         return
 
-    if node.get('class') == klass:
+    if node.get("class") == klass:
         # sort child along attr
         node[:] = sorted(node, key=key)
 
@@ -26,10 +26,10 @@ def row_col_key(node):
     """Return the sorting key of an xml node
     using tag and attributes
     """
-    row = node.get('row') if node.get('row') else -1
-    col = node.get('column') if node.get('column') else -1
+    row = node.get("row") if node.get("row") else -1
+    col = node.get("column") if node.get("column") else -1
 
-    return '{:04d}{:04d}'.format(int(row), int(col))
+    return "{:04d}{:04d}".format(int(row), int(col))
 
 
 def remove_attr(node, attr, value):
@@ -63,39 +63,39 @@ def process(infile, outfile, sort_qgridlayout=True, remove_stdset=True, remove_n
 
 import argparse
 
-parser = argparse.ArgumentParser(prog='sort_ui',
+parser = argparse.ArgumentParser(prog="sort_ui",
                                  description="Qt UI file post processor")
 
-parser.add_argument('filenames',
-                    metavar='filename',
+parser.add_argument("filenames",
+                    metavar="filename",
                     type=str,
-                    nargs = '+',
-                    help='The path to the unsorted input file (*.ui). If no outfile is given, the changes will be applied in-place.')
+                    nargs = "+",
+                    help="The path to the unsorted input file (*.ui). If no outfile is given, the changes will be applied in-place.")
 
-parser.add_argument('-o',
-                    '--outfile',
-                    metavar='outfile',
+parser.add_argument("-o",
+                    "--outfile",
+                    metavar="outfile",
                     type=str,
-                    help='The path to the sorted output file.')
+                    help="The path to the sorted output file.")
 
-parser.add_argument('--no-sort-qgridlayout',
-                    action='store_false',
-                    dest='sort_qgridlayout',
-                    help='Sort children of QGridLayout by row - column (default: true)')
+parser.add_argument("--no-sort-qgridlayout",
+                    action="store_false",
+                    dest="sort_qgridlayout",
+                    help="Sort children of QGridLayout by row - column (default: true)")
 
-parser.add_argument('--no-remove-stdset',
-                    action='store_false',
-                    dest='remove_stdset',
-                    help='Do not remove any stdset="0" attribute (default: false)')
+parser.add_argument("--no-remove-stdset",
+                    action="store_false",
+                    dest="remove_stdset",
+                    help="Do not remove any stdset=\"0\" attribute (default: false)")
 
-parser.add_argument('--no-remove-native',
-                    action='store_false',
-                    dest='remove_native',
-                    help='Do not remove any native="true" attribute (default: false)')
+parser.add_argument("--no-remove-native",
+                    action="store_false",
+                    dest="remove_native",
+                    help="Do not remove any native=\"true\" attribute (default: false)")
 
-parser.add_argument('--version',
-                    action='version',
-                    version='0.0.2')
+parser.add_argument("--version",
+                    action="version",
+                    version="0.0.2")
 
 parser.set_defaults(sort_qgridlayout=True, remove_stdset=True, remove_native=True)
 
