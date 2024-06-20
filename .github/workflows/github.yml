@@ -313,7 +313,7 @@ jobs:
       matrix:
         include:
           - platform: android-32
-            os: ubuntu-22.04
+            os: macos-14
             preset: android-conan-ninja-release
             conan_profile: android-32
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
@@ -398,7 +398,7 @@ jobs:
 
   deploy-src:
     if: always() && github.ref == 'refs/heads/master'
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
