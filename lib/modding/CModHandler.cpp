@@ -226,10 +226,7 @@ void CModHandler::loadOneMod(std::string modName, const std::string & parent, co
 
 	if(CResourceHandler::get("initial")->existsResource(CModInfo::getModFile(modFullName)))
 	{
-		JsonParsingSettings settings;
-		settings.mode = JsonParsingSettings::JsonFormatMode::JSON; // TODO: remove once Android launcher with its strict parser is gone
-
-		CModInfo mod(modFullName, modSettings[modName], JsonNode(CModInfo::getModFile(modFullName), settings));
+		CModInfo mod(modFullName, modSettings[modName], JsonNode(CModInfo::getModFile(modFullName)));
 		if (!parent.empty()) // this is submod, add parent to dependencies
 			mod.dependencies.insert(parent);
 

@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CFileInputStream.h"
 
+#include "../ExceptionsCommon.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 start, si64 size)
@@ -18,7 +20,7 @@ CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 st
 	fileStream{file.c_str(), std::ios::in | std::ios::binary}
 {
 	if (fileStream.fail())
-		throw std::runtime_error("File " + file.string() + " isn't available.");
+		throw DataLoadingException("Failed to open file '" + file.string() + "'. Reason: " + strerror(errno) );
 
 	if (dataSize == 0)
 	{

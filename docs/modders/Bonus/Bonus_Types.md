@@ -349,10 +349,10 @@ Negates all natural immunities for affected stacks. (Orb of Vulnerability)
 
 ### OPENING_BATTLE_SPELL
 
-In battle, army affected by this bonus will cast spell at the very start of the battle
+In battle, army affected by this bonus will cast spell at the very start of the battle. Spell is always cast at expert level.
 
 - subtype: spell identifer
-- val: spell mastery level
+- val: duration of the spell, in rounds
 
 ### FREE_SHIP_BOARDING
 

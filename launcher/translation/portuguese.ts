@@ -79,7 +79,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="234"/>
         <source>Configuration files directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Diretório de arquivos de configuração</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="297"/>
@@ -294,7 +294,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="105"/>
         <source>Reload repositories</source>
-        <translation type="unfinished"></translation>
+        <translation>Recarregar repositórios</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
@@ -574,7 +574,7 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="204"/>
         <source>Required mod %1 is not enabled</source>
-        <translation>O mod necessário %1 não está habilitado</translation>
+        <translation>O mod necessário %1 não está ativado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodmanager.cpp" line="213"/>
@@ -664,132 +664,132 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="507"/>
         <source>Adventure Map Allies</source>
-        <translation>Aliados do mapa de aventura</translation>
+        <translation>Aliados do Mapa de Aventura</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="59"/>
         <source>Online Lobby port</source>
-        <translation type="unfinished"></translation>
+        <translation>Porta da Sala de Espera On-line</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="66"/>
         <source>Autocombat AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>IA de combate automático nas batalhas</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="73"/>
         <source>Sticks Sensitivity</source>
-        <translation type="unfinished"></translation>
+        <translation>Sensibilidade dos Analógicos</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="87"/>
         <source>Haptic Feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Resposta Tátil</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="94"/>
         <source>Software Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursor por Software</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="108"/>
         <source>Online Lobby address</source>
-        <translation type="unfinished"></translation>
+        <translation>Endereço da Sala de Espera On-line</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
         <source>Upscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro de Aumento de Escala</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="122"/>
         <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Usar Modo de Ponteiro Relativo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
         <source>Nearest</source>
-        <translation type="unfinished"></translation>
+        <translation>Mais Próximo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linear</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="205"/>
         <source>Best (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>Melhor (Linear)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="231"/>
         <source>Input - Touchscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada - Tela de Toque</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
         <source>Adventure Map Enemies</source>
-        <translation>Inimigos do mapa de aventura</translation>
+        <translation>Inimigos do Mapa de Aventura</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="474"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Linear</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Áudio</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="578"/>
         <source>Relative Pointer Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidade do Ponteiro Relativo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="585"/>
         <source>Music Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volume da Música</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="606"/>
         <source>Ignore SSL errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorar erros SSL</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
         <source>Input - Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada - Mouse</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="628"/>
         <source>Long Touch Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Duração do Toque Longo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="635"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="658"/>
         <source>Controller Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Tolerância de Clique do Controle</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="665"/>
         <source>Touch Tap Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Tolerância de Toque Tátil</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="704"/>
         <source>Input - Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada - Controle</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="771"/>
         <source>Sound Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volume do Som</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="801"/>
@@ -818,7 +818,7 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="514"/>
         <source>Framerate Limit</source>
-        <translation>Limite de taxa de quadros</translation>
+        <translation>Limite de Taxa de Quadros</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="778"/>
@@ -828,12 +828,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="839"/>
         <source>Mouse Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Tolerância de Clique do Mouse</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="853"/>
         <source>Sticks Acceleration</source>
-        <translation type="unfinished"></translation>
+        <translation>Aceleração dos Analógicos</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="995"/>
@@ -1064,12 +1064,12 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="304"/>
         <source>Use offline installer from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translation>Usar instalador offline do gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="317"/>
         <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translation>Você pode copiar manualmente os diretórios Mapas, Dados e Mp3 do diretório do jogo original para o diretório de dados do VCMI que você pode ver no topo desta página</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="336"/>
@@ -1106,23 +1106,24 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="395"/>
         <source>Installing... %p%</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalando... %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="424"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Se você já tem arquivos do Heroes III no seu dispositivo, você pode selecionar este diretório e o VCMI irá copiar os dados existentes automaticamente.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="466"/>
         <source>Copy existing files</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar arquivos existentes</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="511"/>
         <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
 Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Se você possui o Heroes III no gog.com, você pode baixar o instalador offline de backup do gog.com, e o VCMI irá importar os dados do Heroes III usando o instalador offline.
+O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baixar ambas.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="696"/>
@@ -1173,7 +1174,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="354"/>
         <source>Manual Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalação Manual</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="367"/>
@@ -1487,13 +1488,14 @@ Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III
     <message>
         <location filename="../main.cpp" line="121"/>
         <source>Error starting executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Erro ao iniciar o executável</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="122"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha ao iniciar %1
+Motivo: %2</translation>
     </message>
 </context>
 <context>

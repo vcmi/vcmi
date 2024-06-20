@@ -9,6 +9,8 @@
 * Game should now generate crash dump on uncaught c++ exception throw
 * Fixed crash when player finishes game with negative score
 * Fixed crash when opening tavern window in some localisations
+* Fixed crash on loading previously generated random map when mods that add object with same name are used
+* Game will now display an error message instead of silent crash if game data directory is not accessible
 
 ### Mechanics
 * Transport Artefact victory condition will no longer trigger if another player has completed it.
@@ -18,6 +20,7 @@
 * Fixed hero not being able to learn spells from a mod in some cases, even if they are available from the town's mage guild.
 * The game will now actually take resources from seers' huts with the Gather Resources mission instead of awarding them.
 * Heroes with double spell points will no longer trigger the Mana Vortex.
+* If turn timer runs out during pve battle game will end player turn after a battle instead of forcing retreat
 
 ### Interface
 * Fixed reversed button functions in Exchange Window
@@ -58,6 +61,7 @@
 * Fixed potential crash when Nullkiller AI has access to Town Portal spell
 * Fixed potential crash when Battle AI selects a spell to cast from a hero with summon spells.
 * Several fixes to Nullkiller AI exploration logic
+* Fixed bug leading to Battle AI doing nothing if targeted unit is unreachable
 
 ### Random Maps Generator
 * Fixed crash when player selects a random number of players and selects a different colour to play, resulting in a non-continuous list of players.
