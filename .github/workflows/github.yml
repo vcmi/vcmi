@@ -398,7 +398,7 @@ jobs:
 
   deploy-src:
     if: always() && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     defaults:
       run:
         shell: bash
