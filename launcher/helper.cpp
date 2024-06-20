@@ -33,6 +33,7 @@ namespace Helper
 void loadSettings()
 {
 	settings.init("config/settings.json", "vcmi:settings");
+	persistentStorage.init("config/persistentStorage.json", "");
 }
 
 void enableScrollBySwiping(QObject * scrollTarget)
