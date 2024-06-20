@@ -1,3 +1,79 @@
+# 1.5.2 -> 1.5.3
+
+### Stability
+* Fixed possible crash when hero class has no valid commander.
+* Fixed crash when pressing spacebar or enter during combat when hero has no tactics skill.
+* Fixed crash when receiving a commander level-up after winning a battle in a garrison owned by an enemy player.
+* Fixed possible crash when exiting a multiplayer game.
+* Game will now display an error message and exit after loading instead of crashing silently if a creature's combat animation is missing.
+* Game should now generate crash dump on uncaught c++ exception throw
+* Fixed crash when player finishes game with negative score
+* Fixed crash when opening tavern window in some localisations
+* Fixed crash on loading previously generated random map when mods that add object with same name are used
+* Game will now display an error message instead of silent crash if game data directory is not accessible
+
+### Mechanics
+* Transport Artefact victory condition will no longer trigger if another player has completed it.
+* Fixed wandering monster combat not triggering when landing in its zone of control when flying from above the monster using the Fly spell. 
+* Fixed potentially infinite movement loop when the hero has Admiral's Hat whirlpool immunity and the hero tries to enter and exit the same whirlpool.
+* If game picks gold for a random resource pile that has predetermined by map amount, its amount will be correctly multiplied by 100
+* Fixed hero not being able to learn spells from a mod in some cases, even if they are available from the town's mage guild.
+* The game will now actually take resources from seers' huts with the Gather Resources mission instead of awarding them.
+* Heroes with double spell points will no longer trigger the Mana Vortex.
+* If turn timer runs out during pve battle game will end player turn after a battle instead of forcing retreat
+
+### Interface
+* Fixed reversed button functions in Exchange Window
+* Fixed allied towns being missing from the list when using the advanced or expert Town Portal spell.
+* Fixed corrupted UI that could appear for a frame under certain conditions
+* The '*' symbol and non-printable characters can no longer be used in savegames due to Windows file system restrictions.
+* Pressing Ctrl while hovering over the adventure map will now display tile coordinates in the status bar.
+* Selection of another hero while hero is selected now requires Shift press instead of Ctrl
+* Fixed hero troops in the info box view flashing briefly during hero movement.
+* Reduced excessive memory usage on adventure map by several hundreds of megabytes (most noticeable on systems with large screen resolution)
+* Haptic feedback is now enabled by default on Android and on iOS
+* It is now possible to scroll through artifacts backpack using mouse wheel or swipe
+
+### Launcher
+* Android now uses the same Qt-based launcher as other systems
+* Fixed attempt to install a submod when installing new mod that depends on a submod of another mod
+* Fixed wrong order of activating mods in chain when installing multiple mods at once
+* Mod list no longer shows mod version column. Version is now only shown in the mod description.
+* Launcher will now skip the Heroes 3 data import step if data has been found automatically
+* Fixed inport of existing data files on iOS. This option now requires iOS 13 or later
+* Fixed import using offline installer on iOS.
+* Buttons to open data directories in the Help tab are now hidden on mobile systems if they can't be opened with file browser
+* Added the configuration files directory to the Help tab as it is located separately on Linux systems
+* Removed H3 data language selection during setup in favor of auto-detection
+* Replaced checkboxes with toggle buttons for easier of access on touchscreens.
+* Added interface for configuring several previously existing but inaccessible options in Launcher:
+    * Selection of input tolerance precision for all input types
+    * Relative cursor mode for mobile systems (was only available on Android)
+    * Haptic feedback toggle for mobile systems (was only available on Android)
+    * Sound and music volume (was only available in game)
+    * Selection of long touch interval (was only available in game)
+    * Selection of upscaling filter used by SDL 
+    * Controller input sensitivity and acceleration.
+
+### AI
+* Fixed crash when Nullkiller AI tries to explore after losing the hero in combat.
+* Fixed rare crash when Nullkiller AI tries to use portals
+* Fixed potential crash when Nullkiller AI has access to Town Portal spell
+* Fixed potential crash when Battle AI selects a spell to cast from a hero with summon spells.
+* Several fixes to Nullkiller AI exploration logic
+* Fixed bug leading to Battle AI doing nothing if targeted unit is unreachable
+
+### Random Maps Generator
+* Fixed crash when player selects a random number of players and selects a different colour to play, resulting in a non-continuous list of players.
+* Fixed rare crash when generating maps with water
+
+### Map Editor
+* Fixed crash on closing map editor
+
+### Modding
+* Added new building type 'thievesGuild' which implements HotA building in Cove.
+* Creature terrain limiter now actually accepts terrain as parameter
+
 # 1.5.1 -> 1.5.2
 
 ### Stability

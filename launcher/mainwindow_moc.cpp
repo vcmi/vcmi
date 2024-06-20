@@ -29,7 +29,7 @@ void MainWindow::load()
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
-#ifndef VCMI_IOS
+#ifndef VCMI_MOBILE
 	console = new CConsoleHandler();
 #endif
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
@@ -37,14 +37,6 @@ void MainWindow::load()
 
 	CResourceHandler::initialize();
 	CResourceHandler::load("config/filesystem.json");
-
-#ifdef Q_OS_IOS
-	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().binaryPath() / "icons"));
-#else
-	for(auto & string : VCMIDirs::get().dataPaths())
-		QDir::addSearchPath("icons", pathToQString(string / "launcher" / "icons"));
-	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
-#endif
 
 	Helper::loadSettings();
 }
@@ -85,7 +77,15 @@ MainWindow::MainWindow(QWidget * parent)
 	updateTranslation(); // load translation
 
 	ui->setupUi(this);
-	
+
+	setWindowIcon(QIcon{":/icons/menu-game.png"});
+	ui->modslistButton->setIcon(QIcon{":/icons/menu-mods.png"});
+	ui->settingsButton->setIcon(QIcon{":/icons/menu-settings.png"});
+	ui->aboutButton->setIcon(QIcon{":/icons/about-project.png"});
+	ui->startEditorButton->setIcon(QIcon{":/icons/menu-editor.png"});
+	ui->startGameButton->setIcon(QIcon{":/icons/menu-game.png"});
+
+#ifndef VCMI_MOBILE
 	//load window settings
 	QSettings s(Ui::teamName, Ui::appName);
 
@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget * parent)
 	{
 		move(position);
 	}
+#endif
 
 #ifndef ENABLE_EDITOR
 	ui->startEditorButton->hide();
@@ -172,7 +173,7 @@ void MainWindow::switchToModsTab()
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }
 
-void MainWindow::changeEvent(QEvent *event)
+void MainWindow::changeEvent(QEvent * event)
 {
 	if(event->type() == QEvent::LanguageChange)
 	{
@@ -183,10 +184,12 @@ void MainWindow::changeEvent(QEvent *event)
 
 MainWindow::~MainWindow()
 {
+#ifndef VCMI_MOBILE
 	//save window settings
 	QSettings s(Ui::teamName, Ui::appName);
 	s.setValue("MainWindow/Size", size());
 	s.setValue("MainWindow/Position", pos());
+#endif
 
 	delete ui;
 }
@@ -231,32 +234,16 @@ void MainWindow::on_aboutButton_clicked()
 void MainWindow::updateTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
-	std::string translationFile = settings["general"]["language"].String() + ".qm";
+	const std::string translationFile = settings["general"]["language"].String() + ".qm";
 	logGlobal->info("Loading translation '%s'", translationFile);
 
-	QVector<QString> searchPaths;
-
-#ifdef Q_OS_IOS
-	searchPaths.push_back(pathToQString(VCMIDirs::get().binaryPath() / "translation" / translationFile));
-#else
-	for(auto const & string : VCMIDirs::get().dataPaths())
-		searchPaths.push_back(pathToQString(string / "launcher" / "translation" / translationFile));
-	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "translation" / translationFile));
-#endif
-
-	for(auto const & string : boost::adaptors::reverse(searchPaths))
+	if (!translator.load(QString{":/translation/%1"}.arg(translationFile.c_str())))
 	{
-		logGlobal->info("Searching for translation at '%s'", string.toStdString());
-		if (translator.load(string))
-		{
-			logGlobal->info("Translation found");
-			if (!qApp->installTranslator(&translator))
-				logGlobal->error("Failed to install translator");
-			return;
-		}
+		logGlobal->error("Failed to load translation");
+		return;
 	}
 
-	logGlobal->error("Failed to find translation");
-
+	if (!qApp->installTranslator(&translator))
+		logGlobal->error("Failed to install translator");
 #endif
 }

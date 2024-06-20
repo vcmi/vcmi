@@ -1,7 +1,5 @@
 TODO: this page may be incorrect or outdated
 
-# List of Bonus Updaters
-
 Updaters come in two forms: simple and complex. Simple updaters take no
 parameters and are specified as strings. Complex updaters do take
 parameters (sometimes optional), and are specified as structs.

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>745</width>
-    <height>397</height>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -96,7 +96,7 @@
    <item>
     <widget class="QStackedWidget" name="installerTabs">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pageLanguageSelect">
       <layout class="QGridLayout" name="gridLayout_3">
@@ -119,7 +119,6 @@
         <widget class="QLabel" name="labelLanguageTitle">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -249,7 +248,6 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
         <widget class="QLabel" name="labelDataTitle">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -272,11 +270,61 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
         </spacer>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1,1">
+        <layout class="QGridLayout" name="gridLayout" columnstretch="1,2,1">
          <property name="spacing">
           <number>6</number>
          </property>
-         <item row="4" column="3">
+         <item row="2" column="2">
+          <widget class="QPushButton" name="pushButtonDataCopy">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>25</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Copy existing data</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QLabel" name="labelDataGogTitle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>50</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Use offline installer from gog.com</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" colspan="3">
+          <widget class="QLabel" name="labelDataManualDescr">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
           <widget class="QPushButton" name="pushButtonGogInstall">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -289,35 +337,25 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="3">
-          <widget class="QProgressBar" name="progressBarGog">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>0</number>
-            </property>
-            <property name="textVisible">
-             <bool>true</bool>
-            </property>
-            <property name="invertedAppearance">
-             <bool>false</bool>
-            </property>
-            <property name="format">
-             <string>Installing... %p%</string>
-            </property>
-            <property name="visible">
-              <bool>false</bool>
-            </property>
-           </widget>
+         <item row="6" column="0" colspan="2">
+          <widget class="QLabel" name="labelDataManualTitle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>50</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Manual Installation</string>
+           </property>
+          </widget>
          </item>
-         <item row="2" column="3">
+         <item row="6" column="2">
           <widget class="QPushButton" name="pushButtonDataSearch">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -330,23 +368,35 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1" colspan="3">
-          <widget class="QLineEdit" name="lineEditDataSystem">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+         <item row="8" column="2">
+          <widget class="QProgressBar" name="progressBarGog">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>50</horstretch>
+            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+             <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="readOnly">
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="textVisible">
             <bool>true</bool>
+           </property>
+           <property name="invertedAppearance">
+            <bool>false</bool>
+           </property>
+           <property name="format">
+            <string>Installing... %p%</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1" colspan="3">
+         <item row="0" column="1" colspan="2">
           <widget class="QLineEdit" name="lineEditDataUser">
            <property name="enabled">
             <bool>true</bool>
@@ -362,8 +412,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan="3">
-          <widget class="QLabel" name="labelDataHelp">
+         <item row="3" column="0" colspan="3">
+          <widget class="QLabel" name="labelDataCopyDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -371,23 +421,10 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>If you don't have a copy of Heroes III installed, VCMI can import Heroes III data using offline installer from gog.com</string>
+            <string>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</string>
            </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="3">
-          <widget class="QLabel" name="labelDataSearch">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.</string>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -404,7 +441,6 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -413,36 +449,41 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0" colspan="3">
-          <widget class="QLabel" name="labelDataCopy">
+         <item row="2" column="0" colspan="2">
+          <widget class="QLabel" name="labelDataCopyTitle">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
+             <horstretch>50</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
-            <string>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</string>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
            </property>
-           <property name="wordWrap">
+           <property name="text">
+            <string>Copy existing files</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="QLineEdit" name="lineEditDataSystem">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>50</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="readOnly">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="3" column="3">
-          <widget class="QPushButton" name="pushButtonDataCopy">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>25</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Copy existing data</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0" colspan="4">
+         <item row="9" column="0" colspan="3">
           <widget class="QLabel" name="labelDataFound">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -458,66 +499,33 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,1">
-         <property name="verticalSpacing">
-          <number>6</number>
-         </property>
-         <item row="1" column="0" colspan="2">
-          <widget class="QLabel" name="labelDataSuccess">
+         <item row="5" column="0" colspan="3">
+          <widget class="QLabel" name="labelDataGogDescr">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>Your Heroes III language has been successfully detected.</string>
+            <string>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
+Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QLabel" name="labelDataFailure">
-           <property name="text">
-            <string>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="comboBoxLanguage"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="labelDataLanguage">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Heroes III language</string>
            </property>
           </widget>
          </item>
         </layout>
        </item>
        <item>
-        <spacer name="verticalSpacer_3">
+        <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -586,7 +594,6 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
         <widget class="QLabel" name="labelPresetTitle">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -609,154 +616,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
         </spacer>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_4" columnstretch="1,10,25">
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="checkBoxPresetLanguage">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLabel" name="labelPresetHota">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Horn of the Abyss</string>
-           </property>
-           <property name="wordWrap">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLabel" name="labelPresetLanguage">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Heroes III Translation</string>
-           </property>
-           <property name="wordWrap">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QCheckBox" name="checkBoxPresetExtras">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QCheckBox" name="checkBoxPresetHota">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QCheckBox" name="checkBoxPresetWog">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLabel" name="labelPresetExtras">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Interface Improvements</string>
-           </property>
-           <property name="wordWrap">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QLabel" name="labelPresetWog">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>In The Wake of Gods</string>
-           </property>
-           <property name="wordWrap">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
+        <layout class="QGridLayout" name="gridLayout_4" columnstretch="1,0">
+         <item row="1" column="1">
           <widget class="QLabel" name="labelPresetLanguageDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -772,39 +633,42 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="3">
-          <widget class="QLabel" name="labelPresetDescription">
+         <item row="1" column="0">
+          <widget class="QToolButton" name="buttonPresetLanguage">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
+             <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
-            <string>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</string>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
            </property>
-           <property name="wordWrap">
+           <property name="text">
+            <string>Heroes III Translation</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:icons/mod-disabled.png</normaloff>
+             <normalon>:icons/mod-enabled.png</normalon>:icons/mod-disabled.png</iconset>
+           </property>
+           <property name="checkable">
             <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+           <property name="autoRaise">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
-          <widget class="QLabel" name="labelPresetExtrasDescr">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
+         <item row="3" column="1">
           <widget class="QLabel" name="labelPresetHotaDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -820,8 +684,91 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
-          <widget class="QLabel" name="labelPresetWogDecsr">
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="labelPresetDescription">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QToolButton" name="buttonPresetHota">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Horn of the Abyss</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:icons/mod-disabled.png</normaloff>
+             <normalon>:icons/mod-enabled.png</normalon>:icons/mod-disabled.png</iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+           <property name="autoRaise">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QToolButton" name="buttonPresetExtras">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Interface Improvements</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:icons/mod-disabled.png</normaloff>
+             <normalon>:icons/mod-enabled.png</normalon>:icons/mod-disabled.png</iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+           <property name="autoRaise">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLabel" name="labelPresetWogDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>100</horstretch>
@@ -833,6 +780,54 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="labelPresetExtrasDescr">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QToolButton" name="buttonPresetWog">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>In The Wake of Gods</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/icons/mod-disabled.png</normaloff>
+             <normalon>:icons/mod-enabled.png</normalon>:icons/mod-disabled.png</iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+           <property name="autoRaise">
+            <bool>false</bool>
            </property>
           </widget>
          </item>

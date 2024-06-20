@@ -12,14 +12,22 @@
 
 #include "CFileInputStream.h"
 
+#include "../ExceptionsCommon.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem::path baseDirectory, size_t depth, bool initial):
 	baseDirectory(std::move(baseDirectory)),
 	mountPoint(std::move(_mountPoint)),
-	fileList(listFiles(mountPoint, depth, initial)),
 	recursiveDepth(depth)
 {
+	try {
+		fileList = listFiles(mountPoint, depth, initial);
+	}
+	catch (const boost::filesystem::filesystem_error & e) {
+		throw DataLoadingException("Failed to load content of '" + baseDirectory.string() + "'. Reason: " + e.what());
+	}
+
 	logGlobal->trace("File system loaded, %d files found", fileList.size());
 }
 

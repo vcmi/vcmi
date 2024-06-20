@@ -22,7 +22,6 @@ enum EModFields
 	STATUS_ENABLED,
 	STATUS_UPDATE,
 	TYPE,
-	VERSION,
 	COUNT
 };
 }

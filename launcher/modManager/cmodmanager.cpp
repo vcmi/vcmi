@@ -20,6 +20,8 @@
 #include "../jsonutils.h"
 #include "../launcherdirs.h"
 
+#include <future>
+
 namespace
 {
 QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
@@ -360,7 +362,7 @@ bool CModManager::removeModDir(QString path)
 	
 	if(!checkDir.cdUp() || QString::compare("Mods", checkDir.dirName(), Qt::CaseInsensitive))
 		return false;
-#ifndef VCMI_IOS //ios applications are stored in the isolated container
+#ifndef VCMI_MOBILE // ios and android applications are stored in the isolated container
 	if(!checkDir.cdUp() || QString::compare("vcmi", checkDir.dirName(), Qt::CaseInsensitive))
 		return false;
 

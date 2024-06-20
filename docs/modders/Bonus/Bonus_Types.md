@@ -1,6 +1,6 @@
 The bonuses were grouped according to their original purpose. The bonus system allows them to propagate freely betwen the nodes, however they may not be recognized properly beyond the scope of original use.
 
-# General-purpose bonuses
+## General-purpose bonuses
 
 ### NONE
 
@@ -31,7 +31,7 @@ On each turn, hides area in fog of war around affected town for all players othe
 
 - val: radius in tiles
 
-# Player bonuses
+## Player bonuses
 
 Intended to be setup as global effect, AI cheat etc.
 
@@ -49,7 +49,7 @@ Bonus that does not account for propagation and gives extra resources per day wi
 - subtype: resource identifier
 - val: - base resource amount to be multipled times number of owned towns
 
-# Hero bonuses
+## Hero bonuses
 
 ### MOVEMENT
 
@@ -287,7 +287,7 @@ Allows creature being upgraded to another creature (Gelu, Dracon)
 - subtype: identifier of creature that can being upgraded
 - addInfo: identifier of creature to which perform an upgrade
 
-# Artifact bonuses
+## Artifact bonuses
 
 ### SPELL_DURATION
 
@@ -349,10 +349,10 @@ Negates all natural immunities for affected stacks. (Orb of Vulnerability)
 
 ### OPENING_BATTLE_SPELL
 
-In battle, army affected by this bonus will cast spell at the very start of the battle
+In battle, army affected by this bonus will cast spell at the very start of the battle. Spell is always cast at expert level.
 
 - subtype: spell identifer
-- val: spell mastery level
+- val: duration of the spell, in rounds
 
 ### FREE_SHIP_BOARDING
 
@@ -362,7 +362,7 @@ Heroes affected by this bonus will not lose all movement points when embarking o
 
 Heroes affected by this bonus won't lose army when moving through whirlpool
 
-# Creature bonuses
+## Creature bonuses
 
 ### STACK_HEALTH
 
@@ -392,7 +392,7 @@ Increases starting amount of shots that unit has in battle
 
 - val: additional shots
 
-# Creature abilities
+## Creature abilities
 
 ## Static abilities and immunities
 
@@ -898,7 +898,7 @@ Affected unit is immune to all spells of a specified spell school
 
 Affected unit can be affected by all friendly spells even it would be normally immune to such spell.
 
-# Spell effects
+## Spell effects
 
 ### POISON
 
@@ -954,7 +954,7 @@ Affected unit is considered to be hypnotized and will be controlled by enemy pla
 
 Affected unit will never retaliate to an attack (Blind, Paralyze)
 
-# Others
+## Others
 
 ### NEGATIVE_EFFECTS_IMMUNITY
 

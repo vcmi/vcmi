@@ -16,6 +16,38 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMIDirs.h"
 
+#ifdef VCMI_IOS
+#include "ios/revealdirectoryinfiles.h"
+#endif
+
+namespace
+{
+void revealDirectoryInFileBrowser(QLineEdit * dirLineEdit)
+{
+	const auto dirUrl = QUrl::fromLocalFile(QFileInfo{dirLineEdit->text()}.absoluteFilePath());
+#ifdef VCMI_IOS
+	iOS_utils::revealDirectoryInFiles(dirUrl);
+#else
+	QDesktopServices::openUrl(dirUrl);
+#endif
+}
+}
+
+
+void AboutProjectView::hideAndStretchWidget(QGridLayout * layout, QWidget * toHide, QWidget * toStretch)
+{
+	toHide->hide();
+
+	int index = layout->indexOf(toStretch);
+	int row;
+	int col;
+	int unused;
+	layout->getItemPosition(index, &row, &col, &unused, &unused);
+	layout->removeWidget(toHide);
+	layout->removeWidget(toStretch);
+	layout->addWidget(toStretch, row, col, 1, -1);
+}
+
 AboutProjectView::AboutProjectView(QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::AboutProjectView)
@@ -25,8 +57,20 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
 	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
 	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userLogsPath()));
+	ui->lineEditConfigDir->setText(pathToQString(VCMIDirs::get().userConfigPath()));
 	ui->lineEditBuildVersion->setText(QString::fromStdString(GameConstants::VCMI_VERSION));
 	ui->lineEditOperatingSystem->setText(QSysInfo::prettyProductName());
+
+#ifdef VCMI_MOBILE
+	// On mobile platforms these directories are generally not accessible from phone itself, only via USB connection from PC
+	// Remove "Open" buttons and stretch line with text into now-empty space
+	hideAndStretchWidget(ui->gridLayout, ui->openGameDataDir, ui->lineEditGameDir);
+#ifdef VCMI_ANDROID
+	hideAndStretchWidget(ui->gridLayout, ui->openUserDataDir, ui->lineEditUserDataDir);
+	hideAndStretchWidget(ui->gridLayout, ui->openTempDir, ui->lineEditTempDir);
+	hideAndStretchWidget(ui->gridLayout, ui->openConfigDir, ui->lineEditConfigDir);
+#endif
+#endif
 }
 
 void AboutProjectView::changeEvent(QEvent *event)
@@ -44,17 +88,22 @@ void AboutProjectView::on_updatesButton_clicked()
 
 void AboutProjectView::on_openGameDataDir_clicked()
 {
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditGameDir->text()).absoluteFilePath()));
+	revealDirectoryInFileBrowser(ui->lineEditGameDir);
 }
 
 void AboutProjectView::on_openUserDataDir_clicked()
 {
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditUserDataDir->text()).absoluteFilePath()));
+	revealDirectoryInFileBrowser(ui->lineEditUserDataDir);
 }
 
 void AboutProjectView::on_openTempDir_clicked()
 {
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditTempDir->text()).absoluteFilePath()));
+	revealDirectoryInFileBrowser(ui->lineEditTempDir);
+}
+
+void AboutProjectView::on_openConfigDir_clicked()
+{
+	revealDirectoryInFileBrowser(ui->lineEditConfigDir);
 }
 
 void AboutProjectView::on_pushButtonDiscord_clicked()
@@ -77,9 +126,7 @@ void AboutProjectView::on_pushButtonHomepage_clicked()
 	QDesktopServices::openUrl(QUrl("https://vcmi.eu/"));
 }
 
-
 void AboutProjectView::on_pushButtonBugreport_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://github.com/vcmi/vcmi/issues"));
 }
-

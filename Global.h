@@ -348,6 +348,15 @@ namespace vstd
 		return std::find(c.begin(),c.end(),i);
 	}
 
+	// returns existing value from map, or default value if key does not exists
+	template <typename Map>
+	const typename Map::mapped_type & find_or(const Map& m, const typename Map::key_type& key, const typename Map::mapped_type& defaultValue) {
+		auto it = m.find(key);
+		if (it == m.end())
+			return defaultValue;
+		return it->second;
+	}
+
 	//returns first key that maps to given value if present, returns success via found if provided
 	template <typename Key, typename T>
 	Key findKey(const std::map<Key, T> & map, const T & value, bool * found = nullptr)
@@ -682,20 +691,6 @@ namespace vstd
 				return true;
 		}
 		return false;
-	}
-
-	template<class M, class Key, class F>
-	typename M::mapped_type & getOrCompute(M & m, const Key & k, F f)
-	{
-		typedef typename M::mapped_type V;
-
-		std::pair<typename M::iterator, bool> r = m.insert(typename M::value_type(k, V()));
-		V & v = r.first->second;
-
-		if(r.second)
-			f(v);
-
-		return v;
 	}
 
 	//c++20 feature

@@ -7,7 +7,6 @@ if(APPLE_MACOS)
 	if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 		if(USING_CONAN)
 			# simulate macdeployqt behavior, main Qt libs are copied by conan
-			get_target_property(qmakePath Qt5::qmake IMPORTED_LOCATION)
 			execute_process(COMMAND
 				"${qmakePath}" -query QT_INSTALL_PLUGINS
 				OUTPUT_VARIABLE qtPluginsDir
@@ -25,7 +24,7 @@ if(APPLE_MACOS)
 		else()
 			# note: cross-compiled Qt 5 builds macdeployqt for target platform instead of host
 			# deploy Qt dylibs with macdeployqt
-			find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
+			find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS "${qtBinDir}")
 			if(TOOL_MACDEPLOYQT)
 				install(CODE "
 					execute_process(COMMAND

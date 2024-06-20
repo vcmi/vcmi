@@ -390,7 +390,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 	const AttackPossibility & ap,
 	uint8_t turn,
 	PotentialTargets & targets,
-	std::shared_ptr<HypotheticBattle> hb)
+	std::shared_ptr<HypotheticBattle> hb) const
 {
 	ReachabilityData result;
 
@@ -402,7 +402,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 
 	for(auto hex : hexes)
 	{
-		vstd::concatenate(allReachableUnits, turn == 0 ? reachabilityMap[hex] : getOneTurnReachableUnits(turn, hex));
+		vstd::concatenate(allReachableUnits, turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex));
 	}
 
 	vstd::removeDuplicates(allReachableUnits);
@@ -481,7 +481,7 @@ float BattleExchangeEvaluator::evaluateExchange(
 	uint8_t turn,
 	PotentialTargets & targets,
 	DamageCache & damageCache,
-	std::shared_ptr<HypotheticBattle> hb)
+	std::shared_ptr<HypotheticBattle> hb) const
 {
 	BattleScore score = calculateExchange(ap, turn, targets, damageCache, hb);
 
@@ -502,7 +502,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	uint8_t turn,
 	PotentialTargets & targets,
 	DamageCache & damageCache,
-	std::shared_ptr<HypotheticBattle> hb)
+	std::shared_ptr<HypotheticBattle> hb) const
 {
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.hex : ap.from.hex);
@@ -613,7 +613,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			}
 			else
 			{
-				auto reachable = exchangeBattle->battleGetUnitsIf([&](const battle::Unit * u) -> bool
+				auto reachable = exchangeBattle->battleGetUnitsIf([this, &exchangeBattle, &attacker](const battle::Unit * u) -> bool
 					{
 						if(u->unitSide() == attacker->unitSide())
 							return false;
@@ -621,7 +621,10 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 						if(!exchangeBattle->getForUpdate(u->unitId())->alive())
 							return false;
 
-						return vstd::contains_if(reachabilityMap[u->getPosition()], [&](const battle::Unit * other) -> bool
+						if (!u->getPosition().isValid())
+							return false; // e.g. tower shooters
+
+						return vstd::contains_if(reachabilityMap.at(u->getPosition()), [&attacker](const battle::Unit * other) -> bool
 							{
 								return attacker->unitId() == other->unitId();
 							});
@@ -732,7 +735,7 @@ void BattleExchangeEvaluator::updateReachabilityMap(std::shared_ptr<HypotheticBa
 	}
 }
 
-std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUnits(uint8_t turn, BattleHex hex)
+std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUnits(uint8_t turn, BattleHex hex) const
 {
 	std::vector<const battle::Unit *> result;
 
@@ -756,13 +759,10 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 			auto unitSpeed = unit->getMovementRange(turn);
 			auto radius = unitSpeed * (turn + 1);
 
-			ReachabilityInfo unitReachability = vstd::getOrCompute(
-				reachabilityCache,
-				unit->unitId(),
-				[&](ReachabilityInfo & data)
-				{
-					data = turnBattle.getReachability(unit);
-				});
+			auto reachabilityIter = reachabilityCache.find(unit->unitId());
+			assert(reachabilityIter != reachabilityCache.end()); // missing updateReachabilityMap call?
+
+			ReachabilityInfo unitReachability = reachabilityIter != reachabilityCache.end() ? reachabilityIter->second : turnBattle.getReachability(unit);
 
 			bool reachable = unitReachability.distances[hex] <= radius;
 

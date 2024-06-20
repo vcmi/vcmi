@@ -21,7 +21,17 @@ set(launcher_SRCS
 		launcherdirs.cpp
 		jsonutils.cpp
 		updatedialog_moc.cpp
+		prepare.cpp
 )
+if(APPLE_IOS)
+	list(APPEND launcher_SRCS
+		ios/launchGame.m
+		ios/revealdirectoryinfiles.h
+		ios/revealdirectoryinfiles.mm
+		ios/selectdirectory.h
+		ios/selectdirectory.mm
+	)
+endif()
 
 set(launcher_HEADERS
 		StdInc.h
@@ -40,7 +50,8 @@ set(launcher_HEADERS
 		jsonutils.h
 		updatedialog_moc.h
 		main.h
-		helper.cpp
+		helper.h
+		prepare.h
 )
 
 set(launcher_FORMS
@@ -53,30 +64,57 @@ set(launcher_FORMS
 		updatedialog_moc.ui
 )
 
-set(launcher_TS
-	translation/chinese.ts
-	translation/czech.ts
-	translation/english.ts
-	translation/french.ts
-	translation/german.ts
-	translation/polish.ts
-	translation/portuguese.ts	
-	translation/russian.ts
-	translation/spanish.ts
-	translation/ukrainian.ts
-	translation/vietnamese.ts
+set(launcher_RESOURCES
+	resources.qrc
 )
 
-if(APPLE_IOS)
-	list(APPEND launcher_SRCS
-		ios/main.m
-	)
+set(translationsDir "translation")
+set(launcher_TS
+	"${translationsDir}/chinese.ts"
+	"${translationsDir}/czech.ts"
+	"${translationsDir}/english.ts"
+	"${translationsDir}/french.ts"
+	"${translationsDir}/german.ts"
+	"${translationsDir}/polish.ts"
+	"${translationsDir}/portuguese.ts"
+	"${translationsDir}/russian.ts"
+	"${translationsDir}/spanish.ts"
+	"${translationsDir}/ukrainian.ts"
+	"${translationsDir}/vietnamese.ts"
+)
+if(ENABLE_TRANSLATIONS)
+	if(TARGET Qt5::Core)
+		file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${translationsDir}")
+		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION "${translationsDir}")
+		qt5_add_translation(launcher_QM ${launcher_TS})
+
+		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
+		list(APPEND launcher_RESOURCES "${translationsResource}")
+
+		set(rccQmFiles "")
+		foreach(qmFile ${launcher_QM})
+			string(APPEND rccQmFiles "<file>${qmFile}</file>\n")
+		endforeach()
+		file(WRITE "${translationsResource}"
+"<!DOCTYPE RCC>
+<RCC version=\"1.0\">
+<qresource prefix=\"/\">
+${rccQmFiles}
+</qresource>
+</RCC>"
+		)
+	endif()
 endif()
 
-assign_source_group(${launcher_SRCS} ${launcher_HEADERS} VCMI_launcher.rc)
+if(WIN32)
+	set(launcher_ICON VCMI_launcher.rc)
+endif()
 
-# Tell CMake to run moc when necessary:
+assign_source_group(${launcher_SRCS} ${launcher_HEADERS} ${launcher_RESOURCES} ${launcher_TS} ${launcher_ICON})
+
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 if(POLICY CMP0071)
 	cmake_policy(SET CMP0071 NEW)
@@ -86,37 +124,55 @@ endif()
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-if(TARGET Qt6::Core)
-	qt_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
+if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
+	add_library(vcmilauncher OBJECT ${launcher_QM})
 else()
-	qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
-	if(ENABLE_TRANSLATIONS)
-		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
-		qt5_add_translation( launcher_QM ${launcher_TS} )
-	endif()
+	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON})
 endif()
 
-
-if(WIN32)
-	set(launcher_ICON VCMI_launcher.rc)
-endif()
-
-if(ENABLE_SINGLE_APP_BUILD)
-	add_library(vcmilauncher STATIC ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
-else()
-	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
-endif()
-
-if(TARGET Qt6::Core)
-	if(ENABLE_TRANSLATIONS)
-		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+if(ENABLE_TRANSLATIONS)
+	if(TARGET Qt6::Core)
 		qt_add_translations(vcmilauncher
 			TS_FILES ${launcher_TS}
-			QM_FILES_OUTPUT_VARIABLE launcher_QM
+			RESOURCE_PREFIX "/${translationsDir}"
 			INCLUDE_DIRECTORIES
 				${CMAKE_CURRENT_BINARY_DIR})
 	endif()
 endif()
+
+if(ANDROID)
+	get_target_property(rccPath Qt${QT_VERSION_MAJOR}::rcc IMPORTED_LOCATION)
+	get_filename_component(qtDir "${rccPath}/../../" ABSOLUTE)
+	set(qtDir "${qtDir}" PARENT_SCOPE)
+ 
+	function(generate_binary_resource resourceName resourceDir)
+		file(CREATE_LINK "${resourceDir}" "${CMAKE_CURRENT_BINARY_DIR}/${resourceName}"
+			COPY_ON_ERROR
+			SYMBOLIC
+		)
+		set(qrcFile "${CMAKE_CURRENT_BINARY_DIR}/${resourceName}.qrc")
+		execute_process(COMMAND
+			"${rccPath}" --project
+			WORKING_DIRECTORY "${resourceDir}"
+			OUTPUT_VARIABLE rccOutput
+		)
+		# add parent directory
+		string(REPLACE "<file>." "<file>${resourceName}" rccOutput "${rccOutput}")
+		file(WRITE "${qrcFile}" "${rccOutput}")
+	endfunction()
+ 
+	generate_binary_resource("config" "${CMAKE_SOURCE_DIR}/config")
+	list(APPEND launcher_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/config.qrc")
+	generate_binary_resource("Mods" "${CMAKE_SOURCE_DIR}/Mods")
+	list(APPEND launcher_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/Mods.qrc")
+endif()
+
+target_sources(vcmilauncher PRIVATE
+	${launcher_SRCS}
+	${launcher_HEADERS}
+	${launcher_RESOURCES}
+	${launcher_FORMS}
+)
 
 if(WIN32)
 	set_target_properties(vcmilauncher
@@ -139,7 +195,9 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmilauncher)
 endif()
 
-if (NOT APPLE_IOS AND NOT ANDROID)
+if(ANDROID)
+	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::AndroidExtras)
+elseif(NOT APPLE_IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
@@ -155,9 +213,12 @@ if(ENABLE_INNOEXTRACT)
 endif()
 
 if(APPLE_IOS)
-	set(RESOURCES_DESTINATION ${DATA_DIR})
+	target_link_libraries(vcmilauncher
+		iOS_utils
+		"-framework UniformTypeIdentifiers"
+	)
 
-	# TODO: remove after fixing Conan's Qt recipe
+	# TODO: remove after switching prebuilt deps to a newer Conan's Qt recipe
 	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
 		target_link_libraries(vcmilauncher "-framework IOKit")
 	endif()
@@ -167,22 +228,19 @@ if(APPLE_IOS)
 		file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/QIOSIntegrationPlugin.h
 			"#include <QtPlugin>\nQ_IMPORT_PLUGIN(QIOSIntegrationPlugin)"
 		)
-		# target_include_directories(vcmilauncher PRIVATE ${CMAKE_BINARY_DIR})
 		target_link_libraries(vcmilauncher
 			Qt${QT_VERSION_MAJOR}::QIOSIntegrationPlugin
 			qt::QIOSIntegrationPlugin
 		)
 	endif()
-else()
-	set(RESOURCES_DESTINATION ${DATA_DIR}/launcher)
-
-	# Link to build directory for easier debugging
-	add_custom_command(TARGET vcmilauncher POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher
-		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
-		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation
+elseif(ANDROID)
+	set(androidSdkDir "$ENV{ANDROID_HOME}")
+	configure_file(
+		"${androidPackageSourceDir}/androiddeployqt.json.in"
+		"${CMAKE_BINARY_DIR}/androiddeployqt.json"
+		@ONLY
 	)
-
+else()
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
 
 	# Install icons and desktop file on Linux
@@ -190,9 +248,4 @@ else()
 		install(FILES "vcmilauncher.desktop" DESTINATION share/applications)
 		install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
 	endif()
-endif()
-
-install(DIRECTORY icons DESTINATION ${RESOURCES_DESTINATION})
-if(ENABLE_TRANSLATIONS)
-	install(FILES ${launcher_QM} DESTINATION ${RESOURCES_DESTINATION}/translation)
 endif()

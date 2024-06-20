@@ -491,14 +491,21 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	else if(LOCPLINT->cb->howManyHeroes(true) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
 	{
+		MetaString message;
+		message.appendTextID("core.tvrninfo.1");
+		message.replaceNumber(LOCPLINT->cb->howManyHeroes(true));
+
 		//Cannot recruit. You already have %d Heroes.
-		recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(true)));
+		recruit->addHoverText(EButtonState::NORMAL, message.toString());
 		recruit->block(true);
 	}
 	else if(LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 	{
-		//Cannot recruit. You already have %d Heroes.
-		recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(false)));
+		MetaString message;
+		message.appendTextID("core.tvrninfo.1");
+		message.replaceNumber(LOCPLINT->cb->howManyHeroes(false));
+
+		recruit->addHoverText(EButtonState::NORMAL, message.toString());
 		recruit->block(true);
 	}
 	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->visitingHero)

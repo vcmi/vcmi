@@ -102,9 +102,8 @@ void CModListView::setupModsView()
 	}
 	else //default //TODO: default high-DPI scaling
 	{
-		ui->allModsView->setColumnWidth(ModFields::NAME, 185);
+		ui->allModsView->setColumnWidth(ModFields::NAME, 220);
 		ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
-		ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 	}
 
 	ui->allModsView->resizeColumnToContents(ModFields::STATUS_ENABLED);
@@ -130,6 +129,12 @@ CModListView::CModListView(QWidget * parent)
 
 	setAcceptDrops(true);
 
+	ui->uninstallButton->setIcon(QIcon{":/icons/mod-delete.png"});
+	ui->enableButton->setIcon(QIcon{":/icons/mod-enabled.png"});
+	ui->disableButton->setIcon(QIcon{":/icons/mod-disabled.png"});
+	ui->updateButton->setIcon(QIcon{":/icons/mod-update.png"});
+	ui->installButton->setIcon(QIcon{":/icons/mod-download.png"});
+
 	setupModModel();
 	setupFilterModel();
 	setupModsView();
@@ -145,13 +150,14 @@ CModListView::CModListView(QWidget * parent)
 	{
 		manager->resetRepositories();
 	}
-	
-#ifdef Q_OS_IOS
+
+#ifdef VCMI_MOBILE
 	for(auto * scrollWidget : {
 		(QAbstractItemView*)ui->allModsView,
 		(QAbstractItemView*)ui->screenshotsList})
 	{
-		QScroller::grabGesture(scrollWidget, QScroller::LeftMouseButtonGesture);
+		Helper::enableScrollBySwiping(scrollWidget);
+
 		scrollWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 		scrollWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	}
@@ -324,9 +330,6 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	for(const auto & language : Languages::getLanguageList())
 	{
-		if (!language.hasTranslation)
-			continue;
-
 		QString languageID = QString::fromStdString(language.identifier);
 
 		if (languageID != baseLanguageID && !mod.getValue(languageID).isValid())
@@ -393,14 +396,18 @@ void CModListView::selectMod(const QModelIndex & index)
 	}
 	else
 	{
-		auto mod = modModel->getMod(index.data(ModRoles::ModNameRole).toString());
+		const auto modName = index.data(ModRoles::ModNameRole).toString();
+		auto mod = modModel->getMod(modName);
 
 		ui->modInfoBrowser->setHtml(genModInfoText(mod));
 		ui->changelogBrowser->setHtml(genChangelogText(mod));
 
-		bool hasInvalidDeps = !findInvalidDependencies(index.data(ModRoles::ModNameRole).toString()).empty();
-		bool hasBlockingMods = !findBlockingMods(index.data(ModRoles::ModNameRole).toString()).empty();
-		bool hasDependentMods = !findDependentMods(index.data(ModRoles::ModNameRole).toString(), true).empty();
+		Helper::enableScrollBySwiping(ui->modInfoBrowser);
+		Helper::enableScrollBySwiping(ui->changelogBrowser);
+
+		bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
+		bool hasBlockingMods = !findBlockingMods(modName).empty();
+		bool hasDependentMods = !findDependentMods(modName, true).empty();
 
 		ui->disableButton->setVisible(mod.isEnabled());
 		ui->enableButton->setVisible(mod.isDisabled());
@@ -603,7 +610,7 @@ void CModListView::on_installButton_clicked()
 	for(auto & name : modModel->getRequirements(modName))
 	{
 		auto mod = modModel->getMod(name);
-		if(!mod.isInstalled())
+		if(mod.isAvailable())
 			downloadFile(name + ".zip", mod.getValue("download").toString(), name, mbToBytes(mod.getValue("downloadSize").toDouble()));
 		else if(!mod.isEnabled())
 			enableModByName(name);
@@ -876,6 +883,13 @@ void CModListView::installMods(QStringList archives)
 		auto mod = modModel->getMod(modName);
 		if(mod.isInstalled() && !mod.getValue("keepDisabled").toBool())
 		{
+			for (auto const & dependencyName : mod.getDependencies())
+			{
+				auto dependency = modModel->getMod(dependencyName);
+				if(dependency.isDisabled())
+					manager->enableMod(dependencyName);
+			}
+
 			if(mod.isDisabled() && manager->enableMod(modName))
 			{
 				for(QString child : modModel->getChildren(modName))

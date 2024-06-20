@@ -19,10 +19,26 @@
 #include "../../lib/Languages.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../helper.h"
 #include "../languages.h"
 
 #ifdef ENABLE_INNOEXTRACT
 #include "cli/extract.hpp"
+#endif
+
+#ifdef VCMI_IOS
+#include "ios/selectdirectory.h"
+
+#include "iOS_utils.h"
+#elif defined(VCMI_ANDROID)
+#include <QAndroidJniObject>
+#include <QtAndroid>
+
+static FirstLaunchView * thiz;
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_heroesDataUpdate(JNIEnv * env, jclass cls)
+{
+	thiz->heroesDataUpdate();
+}
 #endif
 
 FirstLaunchView::FirstLaunchView(QWidget * parent)
@@ -37,8 +53,17 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 	ui->lineEditDataSystem->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front())));
 	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
 
+	Helper::enableScrollBySwiping(ui->listWidgetLanguage);
+
+#ifdef VCMI_MOBILE
+	// This directory is not accessible to players without rooting of their device
+	ui->lineEditDataSystem->hide();
+#endif
+
 #ifndef ENABLE_INNOEXTRACT
 	ui->pushButtonGogInstall->hide();
+	ui->labelDataGogTitle->hide();
+	ui->labelDataGogDescr->hide();
 #endif
 }
 
@@ -94,17 +119,21 @@ void FirstLaunchView::on_pushButtonDataSearch_clicked()
 
 void FirstLaunchView::on_pushButtonDataCopy_clicked()
 {
-	copyHeroesData();
+#ifdef VCMI_ANDROID
+	thiz = this;
+	QtAndroid::androidActivity().callMethod<void>("copyHeroesData");
+#else
+	// iOS can't display modal dialogs when called directly on button press
+	// https://bugreports.qt.io/browse/QTBUG-98651
+	QTimer::singleShot(0, this, [this]{ copyHeroesData(); });
+#endif
 }
 
 void FirstLaunchView::on_pushButtonGogInstall_clicked()
 {
-	extractGogData();
-}
-
-void FirstLaunchView::on_comboBoxLanguage_currentIndexChanged(int index)
-{
-	forceHeroesLanguage(ui->comboBoxLanguage->itemData(index).toString());
+	// iOS can't display modal dialogs when called directly on button press
+	// https://bugreports.qt.io/browse/QTBUG-98651
+	QTimer::singleShot(0, this, &FirstLaunchView::extractGogData);
 }
 
 void FirstLaunchView::enterSetup()
@@ -136,11 +165,11 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabHeroesData->setChecked(true);
 	ui->buttonTabModPreset->setChecked(false);
 
-#ifndef ENABLE_INNOEXTRACT
-	ui->labelDataHelp->hide();
-#endif
 	if(heroesDataUpdate())
+	{
+		activateTabModPreset();
 		return;
+	}
 
 	QString installPath = getHeroesInstallDir();
 	if(!installPath.isEmpty())
@@ -195,18 +224,32 @@ void FirstLaunchView::heroesDataMissing()
 	ui->lineEditDataSystem->setPalette(newPalette);
 	ui->lineEditDataUser->setPalette(newPalette);
 
+	ui->labelDataManualTitle->setVisible(true);
+	ui->labelDataManualDescr->setVisible(true);
 	ui->pushButtonDataSearch->setVisible(true);
-	ui->pushButtonDataCopy->setVisible(true);
 
-	ui->labelDataSearch->setVisible(true);
-	ui->labelDataCopy->setVisible(true);
+#ifdef VCMI_ANDROID
+	// selecting directory with ACTION_OPEN_DOCUMENT_TREE is available only since API level 21
+	const bool canUseDataCopy = QtAndroid::androidSdkVersion() >= 21;
+#elif defined(VCMI_IOS)
+	// selecting directory through UIDocumentPickerViewController is available only since iOS 13
+	const bool canUseDataCopy = iOS_utils::isOsVersionAtLeast(13);
+#else
+	const bool canUseDataCopy = true;
+#endif
+
+	ui->labelDataCopyTitle->setVisible(canUseDataCopy);
+	ui->labelDataCopyDescr->setVisible(canUseDataCopy);
+	ui->pushButtonDataCopy->setVisible(canUseDataCopy);
+
+#ifdef ENABLE_INNOEXTRACT
+	ui->pushButtonGogInstall->setVisible(true);
+	ui->labelDataGogTitle->setVisible(true);
+	ui->labelDataGogDescr->setVisible(true);
+#endif
 
 	ui->labelDataFound->setVisible(false);
 	ui->pushButtonDataNext->setEnabled(false);
-
-#ifdef ENABLE_INNOEXTRACT
-	ui->labelDataHelp->setVisible(true);
-#endif
 }
 
 void FirstLaunchView::heroesDataDetected()
@@ -219,18 +262,21 @@ void FirstLaunchView::heroesDataDetected()
 	ui->pushButtonDataSearch->setVisible(false);
 	ui->pushButtonDataCopy->setVisible(false);
 
-	ui->labelDataSearch->setVisible(false);
-	ui->labelDataCopy->setVisible(false);
-	ui->pushButtonGogInstall->setVisible(false);
+	ui->labelDataManualTitle->setVisible(false);
+	ui->labelDataManualDescr->setVisible(false);
+	ui->labelDataCopyTitle->setVisible(false);
+	ui->labelDataCopyDescr->setVisible(false);
 
 #ifdef ENABLE_INNOEXTRACT
-		ui->labelDataHelp->setVisible(false);
+	ui->pushButtonGogInstall->setVisible(false);
+	ui->labelDataGogTitle->setVisible(false);
+	ui->labelDataGogDescr->setVisible(false);
 #endif
 
 	ui->labelDataFound->setVisible(true);
 	ui->pushButtonDataNext->setEnabled(true);
 
-	heroesLanguageUpdate();
+	CGeneralTextHandler::detectInstallParameters();
 }
 
 // Tab Heroes III Data
@@ -247,24 +293,6 @@ bool FirstLaunchView::heroesDataDetect()
 	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
 
 	return heroesDataFoundROE && heroesDataFoundSOD;
-}
-
-void FirstLaunchView::heroesLanguageUpdate()
-{
-	Languages::fillLanguages(ui->comboBoxLanguage, true);
-
-	QString language = Languages::getHeroesDataLanguage();
-	bool success = !language.isEmpty();
-
-	ui->labelDataFailure->setVisible(!success);
-	ui->labelDataSuccess->setVisible(success);
-}
-
-void FirstLaunchView::forceHeroesLanguage(const QString & language)
-{
-	Settings node = settings.write["general"]["gameDataLanguage"];
-
-	node->String() = language.toStdString();
 }
 
 QString FirstLaunchView::getHeroesInstallDir()
@@ -284,7 +312,6 @@ QString FirstLaunchView::getHeroesInstallDir()
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
-
 	auto fileSelection = [this](QString type, QString filter, QString startPath = {}) {
 		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
 		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
@@ -363,10 +390,17 @@ void FirstLaunchView::extractGogData()
 
 void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 {
-	QDir sourceRoot = QDir(path);
-	
+	QDir sourceRoot{path};
+
+#ifdef VCMI_IOS
+	// TODO: Qt 6.5 can select directories https://codereview.qt-project.org/c/qt/qtbase/+/446449
+	SelectDirectory iosDirectorySelector;
+	if(path.isEmpty())
+		sourceRoot.setPath(iosDirectorySelector.getExistingDirectory());
+#else
 	if(path.isEmpty())
 		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+#endif
 
 	if(!sourceRoot.exists())
 		return;
@@ -387,9 +421,10 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 	QStringList dirMaps = sourceRoot.entryList({"maps"}, QDir::Filter::Dirs);
 	QStringList dirMp3 = sourceRoot.entryList({"mp3"}, QDir::Filter::Dirs);
 
+	const auto noDataMessage = tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
 	if(dirData.empty())
 	{
-		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
+		QMessageBox::critical(this, tr("Heroes III data not found!"), noDataMessage);
 		return;
 	}
 
@@ -403,7 +438,7 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 		if (roeFiles.empty())
 		{
 			// Directory structure is correct (Data/Maps/Mp3) but no .lod archives that should be present in any install
-			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
+			QMessageBox::critical(this, tr("Heroes III data not found!"), noDataMessage);
 			return;
 		}
 
@@ -456,14 +491,18 @@ void FirstLaunchView::modPresetUpdate()
 {
 	bool translationExists = !findTranslationModName().isEmpty();
 
-	ui->labelPresetLanguage->setVisible(translationExists);
 	ui->labelPresetLanguageDescr->setVisible(translationExists);
-	ui->checkBoxPresetLanguage->setVisible(translationExists);
+	ui->buttonPresetLanguage->setVisible(translationExists);
 
-	ui->checkBoxPresetLanguage->setEnabled(checkCanInstallTranslation());
-	ui->checkBoxPresetExtras->setEnabled(checkCanInstallExtras());
-	ui->checkBoxPresetHota->setEnabled(checkCanInstallHota());
-	ui->checkBoxPresetWog->setEnabled(checkCanInstallWog());
+	ui->buttonPresetLanguage->setVisible(checkCanInstallTranslation());
+	ui->buttonPresetExtras->setVisible(checkCanInstallExtras());
+	ui->buttonPresetHota->setVisible(checkCanInstallHota());
+	ui->buttonPresetWog->setVisible(checkCanInstallWog());
+
+	ui->labelPresetLanguageDescr->setVisible(checkCanInstallTranslation());
+	ui->labelPresetExtrasDescr->setVisible(checkCanInstallExtras());
+	ui->labelPresetHotaDescr->setVisible(checkCanInstallHota());
+	ui->labelPresetWogDescr->setVisible(checkCanInstallWog());
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
 	if (!checkCanInstallTranslation() && !checkCanInstallExtras() && !checkCanInstallHota() && !checkCanInstallWog())
@@ -534,16 +573,16 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 {
 	QStringList modsToInstall;
 
-	if (ui->checkBoxPresetLanguage->isChecked() && checkCanInstallTranslation())
+	if (ui->buttonPresetLanguage->isChecked() && checkCanInstallTranslation())
 		modsToInstall.push_back(findTranslationModName());
 
-	if (ui->checkBoxPresetExtras->isChecked() && checkCanInstallExtras())
+	if (ui->buttonPresetExtras->isChecked() && checkCanInstallExtras())
 		modsToInstall.push_back("vcmi-extras");
 
-	if (ui->checkBoxPresetWog->isChecked() && checkCanInstallWog())
+	if (ui->buttonPresetWog->isChecked() && checkCanInstallWog())
 		modsToInstall.push_back("wake-of-gods");
 
-	if (ui->checkBoxPresetHota->isChecked() && checkCanInstallHota())
+	if (ui->buttonPresetHota->isChecked() && checkCanInstallHota())
 		modsToInstall.push_back("hota");
 
 	exitSetup();

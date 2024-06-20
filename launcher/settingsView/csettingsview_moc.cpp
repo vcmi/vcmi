@@ -14,9 +14,9 @@
 #include "mainwindow_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
+#include "../helper.h"
 #include "../jsonutils.h"
 #include "../languages.h"
-#include "../launcherdirs.h"
 
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -34,10 +34,17 @@ QString resolutionToString(const QSize & resolution)
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
 }
 
-static const std::string cursorTypesList[] =
+static constexpr std::array cursorTypesList =
 {
 	"hardware",
 	"software"
+};
+
+static constexpr std::array upscalingFilterTypes =
+{
+	"nearest",
+	"linear",
+	"best"
 };
 
 }
@@ -64,16 +71,34 @@ void CSettingsView::setDisplayList()
 	}
 }
 
+void CSettingsView::setCheckbuttonState(QToolButton * button, bool checked)
+{
+	button->setChecked(checked);
+	updateCheckbuttonText(button);
+}
+
+void CSettingsView::updateCheckbuttonText(QToolButton * button)
+{
+	if (button->isChecked())
+		button->setText(tr("On"));
+	else
+		button->setText(tr("Off"));
+}
+
 void CSettingsView::loadSettings()
 {
-	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
-
 #ifdef VCMI_MOBILE
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
 #else
 	ui->labelReservedArea->hide();
-	ui->spinBoxReservedArea->hide();
+	ui->sliderReservedArea->hide();
+	ui->labelRelativeCursorMode->hide();
+	ui->buttonRelativeCursorMode->hide();
+	ui->sliderRelativeCursorSpeed->hide();
+	ui->labelRelativeCursorSpeed->hide();
+	ui->buttonHapticFeedback->hide();
+	ui->labelHapticFeedback->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
@@ -84,8 +109,7 @@ void CSettingsView::loadSettings()
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
-	ui->checkBoxVSync->setChecked(settings["video"]["vsync"].Bool());
-	ui->spinBoxReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
+	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
 	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
@@ -96,32 +120,59 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["localPort"].Integer());
 
-	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
-
 	ui->lineEditRepositoryDefault->setText(QString::fromStdString(settings["launcher"]["defaultRepositoryURL"].String()));
 	ui->lineEditRepositoryExtra->setText(QString::fromStdString(settings["launcher"]["extraRepositoryURL"].String()));
 
 	ui->lineEditRepositoryDefault->setEnabled(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->lineEditRepositoryExtra->setEnabled(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
-	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
-	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
+	ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 
-	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
-
-    ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
-
-    ui->checkBoxAutoSavePrefix->setChecked(settings["general"]["useSavePrefix"].Bool());
-
-    ui->lineEditAutoSavePrefix->setText(QString::fromStdString(settings["general"]["savePrefix"].String()));
-    ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
+	ui->lineEditAutoSavePrefix->setText(QString::fromStdString(settings["general"]["savePrefix"].String()));
+	ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
 
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 	fillValidRenderers();
 
+	std::string upscalingFilter = settings["video"]["scalingMode"].String();
+	int upscalingFilterIndex = vstd::find_pos(upscalingFilterTypes, upscalingFilter);
+	ui->comboBoxUpscalingFilter->setCurrentIndex(upscalingFilterIndex);
+
+	ui->sliderMusicVolume->setValue(settings["general"]["music"].Integer());
+	ui->sliderSoundVolume->setValue(settings["general"]["sound"].Integer());
+	ui->sliderRelativeCursorSpeed->setValue(settings["general"]["relativePointerSpeedMultiplier"].Integer());
+	ui->sliderLongTouchDuration->setValue(settings["general"]["longTouchTimeMilliseconds"].Integer());
+	ui->slideToleranceDistanceMouse->setValue(settings["input"]["mouseToleranceDistance"].Integer());
+	ui->sliderToleranceDistanceTouch->setValue(settings["input"]["touchToleranceDistance"].Integer());
+	ui->sliderToleranceDistanceController->setValue(settings["input"]["shortcutToleranceDistance"].Integer());
+	ui->sliderControllerSticksSensitivity->setValue(settings["input"]["controllerAxisSpeed"].Integer());
+	ui->sliderControllerSticksAcceleration->setValue(settings["input"]["controllerAxisScale"].Float() * 100);
+	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
+	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
+
+	loadToggleButtonSettings();
+}
+
+void CSettingsView::loadToggleButtonSettings()
+{
+	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
+	setCheckbuttonState(ui->buttonVSync, settings["video"]["vsync"].Bool());
+	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
+
+	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
+	setCheckbuttonState(ui->buttonRepositoryExtra, settings["launcher"]["extraRepositoryEnabled"].Bool());
+
+	setCheckbuttonState(ui->buttonIgnoreSslErrors, settings["launcher"]["ignoreSslErrors"].Bool());
+	setCheckbuttonState(ui->buttonAutoSave, settings["general"]["saveFrequency"].Integer() > 0);
+
+	setCheckbuttonState(ui->buttonAutoSavePrefix, settings["general"]["useSavePrefix"].Bool());
+
+	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
+	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
+
 	std::string cursorType = settings["video"]["cursor"].String();
-	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
-	ui->comboBoxCursorType->setCurrentIndex((int)cursorTypeIndex);
+	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
+	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
 }
 
 void CSettingsView::fillValidResolutions()
@@ -282,6 +333,7 @@ CSettingsView::CSettingsView(QWidget * parent)
 	: QWidget(parent), ui(new Ui::CSettingsView)
 {
 	ui->setupUi(this);
+	Helper::enableScrollBySwiping(ui->settingsScrollArea);
 
 	loadSettings();
 }
@@ -314,10 +366,11 @@ void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 	fillValidScalingRange();
 }
 
-void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
+void CSettingsView::on_buttonAutoCheck_toggled(bool value)
 {
 	Settings node = settings.write["launcher"]["autoCheckRepositories"];
-	node->Bool() = index;
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonAutoCheck);
 }
 
 void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
@@ -352,16 +405,18 @@ void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
+void CSettingsView::on_buttonShowIntro_toggled(bool value)
 {
 	Settings node = settings.write["video"]["showIntro"];
-	node->Bool() = index;
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonShowIntro);
 }
 
-void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
+void CSettingsView::on_buttonAutoSave_toggled(bool value)
 {
 	Settings node = settings.write["general"]["saveFrequency"];
-	node->Integer() = index;
+	node->Integer() = value ? 1 : 0;
+	updateCheckbuttonText(ui->buttonAutoSave);
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -381,6 +436,7 @@ void CSettingsView::changeEvent(QEvent *event)
 		ui->retranslateUi(this);
 		Languages::fillLanguages(ui->comboBoxLanguage, false);
 		loadTranslation();
+		loadToggleButtonSettings();
 	}
 	QWidget::changeEvent(event);
 }
@@ -391,16 +447,15 @@ void CSettingsView::showEvent(QShowEvent * event)
 	QWidget::showEvent(event);
 }
 
-void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
+void CSettingsView::on_buttonCursorType_toggled(bool value)
 {
 	Settings node = settings.write["video"]["cursor"];
-	node->String() = cursorTypesList[index];
+	node->String() = cursorTypesList[value ? 1 : 0];
+	updateCheckbuttonText(ui->buttonCursorType);
 }
 
 void CSettingsView::loadTranslation()
 {
-	Languages::fillLanguages(ui->comboBoxLanguageBase, true);
-
 	QString baseLanguage = Languages::getHeroesDataLanguage();
 
 	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
@@ -470,25 +525,20 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	}
 }
 
-void CSettingsView::on_comboBoxLanguageBase_currentIndexChanged(int index)
-{
-	Settings node = settings.write["general"]["gameDataLanguage"];
-	QString selectedLanguage = ui->comboBoxLanguageBase->itemData(index).toString();
-	node->String() = selectedLanguage.toStdString();
-}
-
-void CSettingsView::on_checkBoxRepositoryDefault_stateChanged(int arg1)
+void CSettingsView::on_buttonRepositoryDefault_toggled(bool value)
 {
 	Settings node = settings.write["launcher"]["defaultRepositoryEnabled"];
-	node->Bool() = arg1;
-	ui->lineEditRepositoryDefault->setEnabled(arg1);
+	node->Bool() = value;
+	ui->lineEditRepositoryDefault->setEnabled(value);
+	updateCheckbuttonText(ui->buttonRepositoryDefault);
 }
 
-void CSettingsView::on_checkBoxRepositoryExtra_stateChanged(int arg1)
+void CSettingsView::on_buttonRepositoryExtra_toggled(bool value)
 {
 	Settings node = settings.write["launcher"]["extraRepositoryEnabled"];
-	node->Bool() = arg1;
-	ui->lineEditRepositoryExtra->setEnabled(arg1);
+	node->Bool() = value;
+	ui->lineEditRepositoryExtra->setEnabled(value);
+	updateCheckbuttonText(ui->buttonRepositoryExtra);
 }
 
 void CSettingsView::on_lineEditRepositoryExtra_textEdited(const QString &arg1)
@@ -520,11 +570,12 @@ void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_checkBoxVSync_stateChanged(int arg1)
+void CSettingsView::on_buttonVSync_toggled(bool value)
 {
 	Settings node = settings.write["video"]["vsync"];
-	node->Bool() = arg1;
+	node->Bool() = value;
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
+	updateCheckbuttonText(ui->buttonVSync);
 }
 
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1)
@@ -539,31 +590,31 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_checkBoxAutoSavePrefix_stateChanged(int arg1)
+void CSettingsView::on_buttonAutoSavePrefix_toggled(bool value)
 {
-    Settings node = settings.write["general"]["useSavePrefix"];
-    node->Bool() = arg1;
-    ui->lineEditAutoSavePrefix->setEnabled(arg1);
+	Settings node = settings.write["general"]["useSavePrefix"];
+	node->Bool() = value;
+	ui->lineEditAutoSavePrefix->setEnabled(value);
+	updateCheckbuttonText(ui->buttonAutoSavePrefix);
 }
 
 void CSettingsView::on_spinBoxAutoSaveLimit_valueChanged(int arg1)
 {
-    Settings node = settings.write["general"]["autosaveCountLimit"];
-    node->Float() = arg1;
+	Settings node = settings.write["general"]["autosaveCountLimit"];
+	node->Float() = arg1;
 }
 
-void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString &arg1)
+void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString & arg1)
 {
-    Settings node = settings.write["general"]["savePrefix"];
-    node->String() = arg1.toStdString();
+	Settings node = settings.write["general"]["savePrefix"];
+	node->String() = arg1.toStdString();
 }
 
-void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
+void CSettingsView::on_sliderReservedArea_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["reservedWidth"];
 	node->Float() = float(arg1) / 100; // percentage -> ratio
 }
-
 
 void CSettingsView::on_comboBoxRendererType_currentTextChanged(const QString &arg1)
 {
@@ -571,3 +622,95 @@ void CSettingsView::on_comboBoxRendererType_currentTextChanged(const QString &ar
 	node->String() = arg1.toStdString();
 }
 
+void CSettingsView::on_buttonIgnoreSslErrors_clicked(bool checked)
+{
+	Settings node = settings.write["launcher"]["ignoreSslErrors"];
+	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonIgnoreSslErrors);
+}
+
+void CSettingsView::on_comboBoxUpscalingFilter_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"]["scalingMode"];
+	node->String() = upscalingFilterTypes[index];
+}
+
+void CSettingsView::on_sliderMusicVolume_valueChanged(int value)
+{
+	Settings node = settings.write["general"]["music"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_sliderSoundVolume_valueChanged(int value)
+{
+	Settings node = settings.write["general"]["sound"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_buttonRelativeCursorMode_toggled(bool value)
+{
+	Settings node = settings.write["general"]["userRelativePointer"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonRelativeCursorMode);
+}
+
+void CSettingsView::on_sliderRelativeCursorSpeed_valueChanged(int value)
+{
+	Settings node = settings.write["general"]["relativePointerSpeedMultiplier"];
+	node->Float() = value / 100.0;
+}
+
+void CSettingsView::on_buttonHapticFeedback_toggled(bool value)
+{
+	Settings node = settings.write["general"]["hapticFeedback"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonHapticFeedback);
+}
+
+void CSettingsView::on_sliderLongTouchDuration_valueChanged(int value)
+{
+	Settings node = settings.write["general"]["longTouchTimeMilliseconds"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_slideToleranceDistanceMouse_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["mouseToleranceDistance"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_sliderToleranceDistanceTouch_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["touchToleranceDistance"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_sliderToleranceDistanceController_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["shortcutToleranceDistance"];
+	node->Integer() = value;
+}
+
+void CSettingsView::on_lineEditGameLobbyHost_textChanged(const QString & arg1)
+{
+	Settings node = settings.write["lobby"]["hostname"];
+	node->String() = arg1.toStdString();
+}
+
+void CSettingsView::on_spinBoxNetworkPortLobby_valueChanged(int arg1)
+{
+	Settings node = settings.write["lobby"]["port"];
+	node->Integer() = arg1;
+}
+
+void CSettingsView::on_sliderControllerSticksAcceleration_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["configAxisScale"];
+	node->Integer() = value / 100.0;
+}
+
+void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
+{
+	Settings node = settings.write["input"]["configAxisSpeed"];
+	node->Integer() = value;
+}

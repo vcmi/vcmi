@@ -108,7 +108,7 @@ bool WindowNewMap::loadUserSettings()
 
 		ui->widthTxt->setText(QString::number(mapGenOptions.getWidth()));
 		ui->heightTxt->setText(QString::number(mapGenOptions.getHeight()));
-		for(auto & sz : mapSizes)
+		for(const auto & sz : mapSizes)
 		{
 			if(sz.second.first == mapGenOptions.getWidth() &&
 			sz.second.second == mapGenOptions.getHeight())

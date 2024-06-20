@@ -244,8 +244,15 @@ void CPlayerInterface::performAutosave()
 				int txtlen = TextOperations::getUnicodeCharactersCount(name);
 
 				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
-				std::string forbiddenChars("\\/:*?\"<>| ");
-				std::replace_if(name.begin(), name.end(), [&](char c) { return std::string::npos != forbiddenChars.find(c); }, '_' );
+				auto const & isSymbolIllegal = [&](char c) {
+					static const std::string forbiddenChars("\\/:*?\"<>| ");
+
+					bool charForbidden = forbiddenChars.find(c) != std::string::npos;
+					bool charNonprintable = static_cast<unsigned char>(c) < static_cast<unsigned char>(' ');
+
+					return charForbidden || charNonprintable;
+				};
+				std::replace_if(name.begin(), name.end(), isSymbolIllegal, '_' );
 
 				prefix = name + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
 			}
@@ -1086,18 +1093,20 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	std::vector<ObjectInstanceID> tmpObjects;
-	if(objects.size() && dynamic_cast<const CGTownInstance *>(cb->getObj(objects[0])))
-	{
-		// sorting towns (like in client)
-		std::vector <const CGTownInstance*> Towns = LOCPLINT->localState->getOwnedTowns();
-		for(auto town : Towns)
-			for(auto item : objects)
-				if(town == cb->getObj(item))
-					tmpObjects.push_back(item);
-	}
-	else // other object list than town
-		tmpObjects = objects;
+	std::vector<ObjectInstanceID> objectGuiOrdered = objects;
+
+	std::map<ObjectInstanceID, int> townOrder;
+	auto ownedTowns = localState->getOwnedTowns();
+
+	for (int i = 0; i < ownedTowns.size(); ++i)
+		townOrder[ownedTowns[i]->id] = i;
+
+	auto townComparator = [&townOrder](const ObjectInstanceID & left, const ObjectInstanceID & right){
+		uint32_t leftIndex= townOrder.count(left) ? townOrder.at(left) : std::numeric_limits<uint32_t>::max();
+		uint32_t rightIndex = townOrder.count(right) ? townOrder.at(right) : std::numeric_limits<uint32_t>::max();
+		return leftIndex < rightIndex;
+	};
+	std::stable_sort(objectGuiOrdered.begin(), objectGuiOrdered.end(), townComparator);
 
 	auto selectCallback = [=](int selection)
 	{
@@ -1113,9 +1122,9 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	const std::string localDescription = description.toString();
 
 	std::vector<int> tempList;
-	tempList.reserve(tmpObjects.size());
+	tempList.reserve(objectGuiOrdered.size());
 
-	for(auto item : tmpObjects)
+	for(auto item : objectGuiOrdered)
 		tempList.push_back(item.getNum());
 
 	CComponent localIconC(icon);
@@ -1124,7 +1133,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	localIconC.removeChild(localIcon.get(), false);
 
 	std::vector<std::shared_ptr<IImage>> images;
-	for(auto & obj : tmpObjects)
+	for(auto & obj : objectGuiOrdered)
 	{
 		if(!settings["general"]["enableUiEnhancements"].Bool())
 			break;
@@ -1139,8 +1148,8 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback, 0, images);
 	wnd->onExit = cancelCallback;
-	wnd->onPopup = [this, tmpObjects](int index) { CRClickPopup::createAndPush(cb->getObj(tmpObjects[index]), GH.getCursorPosition()); };
-	wnd->onClicked = [this, tmpObjects](int index) { adventureInt->centerOnObject(cb->getObj(tmpObjects[index])); GH.windows().totalRedraw(); };
+	wnd->onPopup = [this, objectGuiOrdered](int index) { CRClickPopup::createAndPush(cb->getObj(objectGuiOrdered[index]), GH.getCursorPosition()); };
+	wnd->onClicked = [this, objectGuiOrdered](int index) { adventureInt->centerOnObject(cb->getObj(objectGuiOrdered[index])); GH.windows().totalRedraw(); };
 	GH.windows().pushWindow(wnd);
 }
 

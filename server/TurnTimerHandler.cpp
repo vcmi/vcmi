@@ -313,10 +313,8 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 		}
 		else
 		{
-			BattleAction retreat;
-			retreat.side = side;
-			retreat.actionType = EActionType::RETREAT; //harsh punishment
-			gameHandler.battles->makePlayerBattleAction(battleID, player, retreat);
+			// battle vs neutrals - no-op, let battle run till the end
+			// once battle is over player turn will be over due to running out of timer on adventure map
 		}
 	}
 }

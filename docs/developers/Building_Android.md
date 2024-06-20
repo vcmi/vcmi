@@ -36,15 +36,8 @@ On the step where you need to replace **PROFILE**, choose:
 
 Conan must be aware of the NDK location when you execute `conan install`. There're multiple ways to achieve that as written in the [Conan docs](https://docs.conan.io/1/integrations/cross_platform/android.html):
 
-- the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically. You need to create your own Conan profile that imports our Android profile and adds 2 new lines (you can of course just copy everything from our profile into yours without including) and then pass this new profile to `conan install`:
-
-```
-include(/path/to/vcmi/CI/conan/android-64)
-[tool_requires]
-android-ndk/r25c
-```
-
-- to use an already installed NDK, you can simply pass it on the command line to `conan install`:
+- the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically. On the step where you need to replace **PROFILE**, choose _android-**X**-ndk_ where _**X**_ is either `32` or `64`.
+- to use an already installed NDK, you can simply pass it on the command line to `conan install`: (note that this will work only when consuming the pre-built binaries)
 
 ```
 conan install -c tools.android:ndk_path=/path/to/ndk ...
@@ -52,34 +45,23 @@ conan install -c tools.android:ndk_path=/path/to/ndk ...
 
 ## Build process
 
-Building for Android is a 2-step process. First, native C++ code is compiled to a shared library (unlike executable on other platforms), then Java code is compiled to an actual executable which will be loading the native shared library at runtime.
+Building for Android is a 2-step process. First, native C++ code is compiled to a shared library (unlike an executable on other platforms), then Java code is compiled to an actual executable which will be loading the native shared library at runtime.
 
-### C++ code
+This is a traditional CMake project, you can build it from command line or some IDE. You're not required to pass any custom options (except Conan toolchain file), defaults are already good. If you wish to use your own CMake presets, inherit them from our `build-with-conan` preset.
 
-This is a traditional CMake project, you can build it from command line or some IDE. You're not required to pass any custom options (except Conan toolchain file), defaults are already good. If you wish to use your own CMake presets, inherit them from our `build-with-conan` preset. Example:
+The Java code (located in the `android` directory of the repo) will be built automatically after the native code using the `androiddeployqt` tool. But you must set `JAVA_HOME` and `ANDROID_HOME` environment variables.
 
-```
-cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug -D ENABLE_CCACHE:BOOL=ON --toolchain ...
-cmake --build ../build
-```
+APK will appear in `<build dir>/android-build/vcmi-app/build/outputs/apk/debug` directory which you can then install to your device with `adb install -r /path/to/apk` (`adb` command is from Android command line tools).
 
-You can also see a more detailed walkthrough on CMake configuration at [How to build VCMI (macOS)](../developers/Building_macOS.md).
-
-### Java code
-
-After the C++ part is built, native shared libraries are copied to the appropriate location of the Java project (they will be packaged in the APK). You can either open the Java project located in `android` directory of the repo in Android studio and work with it as with any Android project or build from command line.
-
-Example how to build from command line in Bash shell, assumes that current working directory is VCMI repository:
+### Example
 
 ```sh
 # the following environment variables must be set
 export JAVA_HOME=/path/to/jdk11
 export ANDROID_HOME=/path/to/android/sdk
-``  
-cd android
-./gradlew assembleDebug
+
+cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug -D ENABLE_CCACHE:BOOL=ON --toolchain ...
+cmake --build ../build
 ```
 
-APK will appear in `android/vcmi-app/build/outputs/apk/debug` directory which you can then install to your device with `adb install -r /path/to/apk` (adb command is from Android command line tools).
-
-If you wish to build and install to your device in single action, use `installDebug` instead of `assembleDebug`.
+You can also see a more detailed walkthrough on CMake configuration at [How to build VCMI (macOS)](./Building_macOS.md).

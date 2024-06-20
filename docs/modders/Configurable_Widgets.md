@@ -1,15 +1,3 @@
-# Table of contents
-
-- [Introduction](#introduction)
-- [Tutorial](#tutorial)
-- [Documentation](#documentation)
-  - [Types](#types)
-  - [Configurable objects](#configurable-objects)
-  - [Basic widgets](#basic-widgets)
-  - [High-level widgets](#high-level-widgets)
-  - [Custom widgets](#custom-widgets)
-- [For developers](#for-developers)
-
 # Introduction
 
 VCMI has capabilities to change some UI elements in your mods beyond only replacing one image with another. Not all UI elements are possible to modify currently, but development team is expanding them.

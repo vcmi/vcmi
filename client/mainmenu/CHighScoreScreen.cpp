@@ -62,17 +62,43 @@ auto HighScoreCalculation::calculate()
 	return summary;
 }
 
+struct HighScoreCreature
+{
+	CreatureID creature;
+	int min;
+	int max;
+};
+
+static std::vector<HighScoreCreature> getHighscoreCreaturesList()
+{
+	JsonNode configCreatures(JsonPath::builtin("CONFIG/highscoreCreatures.json"));
+
+	std::vector<HighScoreCreature> ret;
+
+	for(auto & json : configCreatures["creatures"].Vector())
+	{
+		HighScoreCreature entry;
+		entry.creature = CreatureID::decode(json["creature"].String());
+		entry.max = json["max"].isNull() ? std::numeric_limits<int>::max() : json["max"].Integer();
+		entry.min = json["min"].isNull() ? std::numeric_limits<int>::min() : json["min"].Integer();
+
+		ret.push_back(entry);
+	}
+
+	return ret;
+}
+
 CreatureID HighScoreCalculation::getCreatureForPoints(int points, bool campaign)
 {
-	static const JsonNode configCreatures(JsonPath::builtin("CONFIG/highscoreCreatures.json"));
-	auto creatures = configCreatures["creatures"].Vector();
+	static const std::vector<HighScoreCreature> creatures = getHighscoreCreaturesList();
+
 	int divide = campaign ? 5 : 1;
 
 	for(auto & creature : creatures)
-		if(points / divide <= creature["max"].Integer() && points / divide >= creature["min"].Integer())
-			return CreatureID::decode(creature["creature"].String());
+		if(points / divide <= creature.max && points / divide >= creature.min)
+			return creature.creature;
 
-	return -1;
+	throw std::runtime_error("Unable to find creature for score " + std::to_string(points));
 }
 
 CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)

@@ -744,6 +744,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 		case BuildingID::SPECIAL_1:
 		case BuildingID::SPECIAL_2:
 		case BuildingID::SPECIAL_3:
+		case BuildingID::SPECIAL_4:
 				switch (subID)
 				{
 				case BuildingSubID::NONE:
@@ -806,6 +807,10 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::BALLISTA_YARD:
 						enterBlacksmith(ArtifactID::BALLISTA);
+						break;
+
+				case BuildingSubID::THIEVES_GUILD:
+						enterAnyThievesGuild();
 						break;
 
 				default:
@@ -1535,6 +1540,9 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 			const CBuilding * building = nullptr;
 			for(auto & buildingID : boxList[row][col])//we are looking for the first not built structure
 			{
+				if (town->town->buildings.count(buildingID) == 0)
+					throw std::runtime_error("Town " + Town->town->faction->getJsonKey() + " has no building with ID " + std::to_string(buildingID.getNum()));
+
 				const CBuilding * current = town->town->buildings.at(buildingID);
 				if(vstd::contains(town->builtBuildings, buildingID))
 				{
