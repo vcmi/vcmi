@@ -90,14 +90,14 @@ jobs:
           - platform: android-32
             os: macos-14
             extension: apk
-            preset: android-daily-release
+            preset: android-conan-ninja-release
             conan_profile: android-32
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: armeabi-v7a
           - platform: android-64
             os: macos-14
             extension: apk
-            preset: android-daily-release
+            preset: android-conan-ninja-release
             conan_profile: android-64
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: arm64-v8a
@@ -220,6 +220,9 @@ jobs:
     - name: Build
       run: |
         cmake --build --preset ${{matrix.preset}}
+      env:
+        ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     - name: Test
       env:
