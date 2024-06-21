@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <ui version="4.0">
  <class>AboutProjectView</class>
  <widget class="QWidget" name="AboutProjectView">
@@ -16,27 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="2" column="0">
-      <widget class="QPushButton" name="pushButtonDiscord">
-       <property name="text">
-        <string>VCMI on Discord</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="QLabel" name="labelLanguageSocial">
-       <property name="text">
-        <string>Have a question? Found a bug? Want to help? Join us!</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QPushButton" name="pushButtonGithub">
-       <property name="text">
-        <string>VCMI on Github</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="labelCommunity">
        <property name="minimumSize">
@@ -55,6 +34,20 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QLabel" name="labelLanguageSocial">
+       <property name="text">
+        <string>Have a question? Found a bug? Want to help? Join us!</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="pushButtonDiscord">
+       <property name="text">
+        <string>VCMI on Discord</string>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="0">
       <widget class="QPushButton" name="pushButtonSlack">
        <property name="text">
@@ -62,7 +55,14 @@
        </property>
       </widget>
      </item>
-    </layout>
+    <item row="4" column="0">
+      <widget class="QPushButton" name="pushButtonGithub">
+       <property name="text">
+        <string>VCMI on Github</string>
+       </property>
+      </widget>
+     </item>
+     </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -79,8 +79,33 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout" columnstretch="2,4,1">
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEditOperatingSystem">
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelBuildInformation">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Build Information</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelBuildVersionDesc">
+       <property name="text">
+        <string>Game version</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEditBuildVersion">
        <property name="text">
         <string notr="true"/>
        </property>
@@ -89,17 +114,27 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
-      <widget class="QPushButton" name="openGameDataDir">
+     <item row="1" column="2">
+      <widget class="QPushButton" name="updatesButton">
        <property name="text">
-        <string>Open</string>
+        <string>Check for updates</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="2">
-      <widget class="QPushButton" name="openUserDataDir">
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelOperatingSystem">
        <property name="text">
-        <string>Open</string>
+        <string>Operating System</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEditOperatingSystem">
+       <property name="text">
+        <string notr="true"/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -115,30 +150,10 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="labelTempDir">
+     <item row="4" column="0">
+      <widget class="QLabel" name="labelGameDir">
        <property name="text">
-        <string>Log files directory</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="updatesButton">
-       <property name="text">
-        <string>Check for updates</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QLineEdit" name="lineEditTempDir">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string notr="true">/home/user/.vcmi</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
+        <string>Game data directory</string>
        </property>
       </widget>
      </item>
@@ -152,34 +167,10 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditBuildVersion">
-       <property name="text">
-        <string notr="true"/>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="2">
-      <widget class="QPushButton" name="openTempDir">
+     <item row="4" column="2">
+      <widget class="QPushButton" name="openGameDataDir">
        <property name="text">
         <string>Open</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="labelGameDir">
-       <property name="text">
-        <string>Game data directory</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labelOperatingSystem">
-       <property name="text">
-        <string>Operating System</string>
        </property>
       </widget>
      </item>
@@ -187,13 +178,6 @@
       <widget class="QLabel" name="labelUserDataDir">
        <property name="text">
         <string>User data directory</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelBuildVersionDesc">
-       <property name="text">
-        <string>Game version</string>
        </property>
       </widget>
      </item>
@@ -210,21 +194,37 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="labelBuildInformation">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
+     <item row="5" column="2">
+      <widget class="QPushButton" name="openUserDataDir">
+       <property name="text">
+        <string>Open</string>
        </property>
-       <property name="font">
-        <font>
-         <bold>true</bold>
-        </font>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="labelTempDir">
+       <property name="text">
+        <string>Log files directory</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLineEdit" name="lineEditTempDir">
+       <property name="enabled">
+        <bool>true</bool>
        </property>
        <property name="text">
-        <string>Build Information</string>
+        <string notr="true">/home/user/.vcmi</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QPushButton" name="openTempDir">
+       <property name="text">
+        <string>Open</string>
        </property>
       </widget>
      </item>

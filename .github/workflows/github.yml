@@ -127,6 +127,13 @@ jobs:
         sudo apt install python3-jstyleson
         python3 CI/linux-qt6/validate_json.py
 
+    - name: Ensure sorted .ui files
+      if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
+      run: |
+        sudo apt install python3-lxml
+        find . -type f -name "*.ui" -print | xargs python3 CI/linux-qt6/sort_ui/sort_ui.py --no-remove-stdset --no-remove-native
+        git diff --exit-code
+
     - name: Dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:

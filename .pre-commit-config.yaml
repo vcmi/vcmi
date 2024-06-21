@@ -1,0 +1,15 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.6.0
+  hooks:
+  - id: check-yaml
+- repo: local
+  hooks:
+  - id: sort-ui
+    name: sort-ui
+    language: python
+    additional_dependencies: ["lxml"]
+    args: ["--no-remove-stdset", "--no-remove-native"]
+    # This line specifies the file pattern
+    files: '.*\.(ui)'
+    entry: "CI/linux-qt6/sort_ui/sort_ui.py"

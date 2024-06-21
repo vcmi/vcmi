@@ -25,7 +25,7 @@ To compile, the following packages (and their development counterparts) are need
 
 For Ubuntu and Debian you need to install this list of packages:
 
-`sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev libboost-iostreams-dev qtbase5-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev qttools5-dev ninja-build ccache`
+`sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev libboost-iostreams-dev qtbase5-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev qttools5-dev ninja-build ccache pre-commit`
 
 Alternatively if you have VCMI installed from repository or PPA you can use:
 
@@ -33,7 +33,7 @@ Alternatively if you have VCMI installed from repository or PPA you can use:
 
 ## On RPM-based distributions (e.g. Fedora)
 
-`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel liblzma-devel libsqlite3-devel fuzzylite-devel ccache`
+`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel liblzma-devel libsqlite3-devel fuzzylite-devel ccache python3-pre-commit`
 
 NOTE: `fuzzylite-devel` package is no longer available in recent version of Fedora, for example Fedora 38. It's not a blocker because VCMI bundles fuzzylite lib in its source code.
 
@@ -84,6 +84,10 @@ cmake -S ../vcmi
 (-j2 = compile with 2 threads, you can specify any value)
 
 That will generate vcmiclient, vcmiserver, vcmilauncher as well as .so libraries in the **build/bin/** directory.
+
+# Pre-commit hooks
+
+[pre-commit](https://pre-commit.com/) is a framework used for checking changes for errors and correcting them if possible. To enable the hooks, run `pre-commit install` in the repository before committing changes.
 
 # Package building
 
