@@ -449,7 +449,16 @@ void QuickSpellPanel::create()
 
 	for(int i = 0; i < 10; i++) {
 		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(i)].String();
-		SpellID id = SpellID::decode(spellIdentifier);
+
+		SpellID id;
+		try
+		{
+			id = SpellID::decode(spellIdentifier);
+		}
+		catch(const IdentifierResolutionException& e)
+		{
+			id = SpellID::NONE;
+		}
 
 		auto button = std::make_shared<CButton>(Point(2, 1 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
 			if(id.hasValue() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
@@ -529,7 +538,7 @@ QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
 
 	setEnabled(false);
 
-	std::vector<ConstTransitivePtr<CSpell>> spellList;
+	std::vector<std::shared_ptr<CSpell>> spellList;
 	for (auto const & s : VLC->spellh->objects)
 		if (s->isCombat() && !s->isSpecial() && !s->isCreatureAbility())
 			spellList.push_back(s);
@@ -545,7 +554,7 @@ QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
 	{
 		int y = i % 10;
 		int x = i / 10;
-		ConstTransitivePtr<CSpell> spell = spellList[i];
+		std::shared_ptr<CSpell> spell = spellList[i];
 		auto button = std::make_shared<CButton>(Point(2 + 50 * x, 1 + 37 * y), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, spell](){ 
 			setEnabled(false);
 			GH.windows().totalRedraw();

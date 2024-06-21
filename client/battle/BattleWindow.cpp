@@ -66,7 +66,15 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 	
 	auto useSpellIfPossible = [this](int slot){
 		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(slot)].String();
-		SpellID id = SpellID::decode(spellIdentifier);
+		SpellID id;
+		try
+		{
+			id = SpellID::decode(spellIdentifier);
+		}
+		catch(const IdentifierResolutionException& e)
+		{
+			return;
+		}
 		if(id.hasValue() && owner.getBattle()->battleGetMyHero() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, owner.getBattle()->battleGetMyHero()))
 		{
 			owner.castThisSpell(id);
