@@ -1874,7 +1874,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		{
 			destinationTeleport = exitId;
 			if(exitPos.valid())
-				destinationTeleportPos = h->convertFromVisitablePos(exitPos);
+				destinationTeleportPos = exitPos;
 			cb->moveHero(*h, h->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);

@@ -259,27 +259,46 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 		return BattleAction::makeDefend(stack);
 	}
 
-	std::sort(hexes.begin(), hexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
-	{
-		return reachability.distances[h1] < reachability.distances[h2];
-	});
+	std::vector<BattleHex> targetHexes = hexes;
 
-	for(auto hex : hexes)
+	for(int i = 0; i < 5; i++)
 	{
-		if(vstd::contains(avHexes, hex))
+		std::sort(targetHexes.begin(), targetHexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
+			{
+				return reachability.distances[h1] < reachability.distances[h2];
+			});
+
+		for(auto hex : targetHexes)
 		{
-			return BattleAction::makeMove(stack, hex);
+			if(vstd::contains(avHexes, hex))
+			{
+				return BattleAction::makeMove(stack, hex);
+			}
+
+			if(stack->coversPos(hex))
+			{
+				logAi->warn("Warning: already standing on neighbouring tile!");
+				//We shouldn't even be here...
+				return BattleAction::makeDefend(stack);
+			}
 		}
 
-		if(stack->coversPos(hex))
+		if(reachability.distances[targetHexes.front()] <= GameConstants::BFIELD_SIZE)
 		{
-			logAi->warn("Warning: already standing on neighbouring tile!");
-			//We shouldn't even be here...
-			return BattleAction::makeDefend(stack);
+			break;
 		}
+
+		std::vector<BattleHex> copy = targetHexes;
+
+		for(auto hex : copy)
+		{
+			vstd::concatenate(targetHexes, hex.allNeighbouringTiles());
+		}
+
+		vstd::removeDuplicates(targetHexes);
 	}
 
-	BattleHex bestNeighbor = hexes.front();
+	BattleHex bestNeighbor = targetHexes.front();
 
 	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
 	{
@@ -602,10 +621,10 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack, 0, *targets, innerCache, state);
 				}
 
-				for(auto unit : allUnits)
+				for(const auto & unit : allUnits)
 				{
 					auto newHealth = unit->getAvailableHealth();
-					auto oldHealth = healthOfStack[unit->unitId()];
+					auto oldHealth = vstd::find_or(healthOfStack, unit->unitId(), 0); // old health value may not exist for newly summoned units
 
 					if(oldHealth != newHealth)
 					{
@@ -732,6 +751,3 @@ void BattleEvaluator::print(const std::string & text) const
 {
 	logAi->trace("%s Battle AI[%p]: %s", playerID.toString(), this, text);
 }
-
-
-

@@ -25,14 +25,11 @@ class AboutProjectView : public QWidget
 
 	/// Hides a widget and expands second widgets to take place of first widget in layout
 	void hideAndStretchWidget(QGridLayout * layout, QWidget * toHide, QWidget * toStretch);
+
 public:
 	explicit AboutProjectView(QWidget * parent = nullptr);
 
-public slots:
-
 private slots:
-
-
 	void on_updatesButton_clicked();
 
 	void on_openGameDataDir_clicked();
@@ -55,5 +52,4 @@ private slots:
 
 private:
 	Ui::AboutProjectView * ui;
-
 };

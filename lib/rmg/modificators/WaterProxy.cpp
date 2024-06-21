@@ -219,6 +219,7 @@ bool WaterProxy::waterKeepConnection(const rmg::ZoneConnection & connection, boo
 	const auto & zoneA = connection.getZoneA();
 	const auto & zoneB = connection.getZoneB();
 
+	RecursiveLock lock(externalAccessMutex);
 	for(auto & lake : lakes)
 	{
 		if(lake.neighbourZones.count(zoneA) && lake.neighbourZones.count(zoneB))

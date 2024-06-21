@@ -648,7 +648,9 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 
 	if (!cre->special &&
 		!CResourceHandler::get()->existsResource(cre->animDefName) &&
-		!CResourceHandler::get()->existsResource(cre->animDefName.addPrefix("SPRITES/")))
+		!CResourceHandler::get()->existsResource(cre->animDefName.toType<EResType::JSON>()) &&
+		!CResourceHandler::get()->existsResource(cre->animDefName.addPrefix("SPRITES/")) &&
+		!CResourceHandler::get()->existsResource(cre->animDefName.addPrefix("SPRITES/").toType<EResType::JSON>()))
 		throw ModLoadingException(scope, "creature " + cre->getJsonKey() + " has no combat animation but is not marked as special!" );
 
 	JsonNode advMapFile = node["graphics"]["map"];

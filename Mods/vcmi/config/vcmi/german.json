@@ -252,6 +252,13 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d Schaden",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d werden verenden",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d werden verenden",
+	
+	"vcmi.battleWindow.damageRetaliation.will" : "Wird Vergeltung üben ",
+	"vcmi.battleWindow.damageRetaliation.may" : "Kann Vergeltung üben ",
+	"vcmi.battleWindow.damageRetaliation.never" : "Wird keine Vergeltung üben.",
+	"vcmi.battleWindow.damageRetaliation.damage" : "(%DAMAGE).",
+	"vcmi.battleWindow.damageRetaliation.damageKills" : "(%DAMAGE, %KILLS).",
+	
 	"vcmi.battleWindow.killed" : "Getötet",
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s wurden durch gezielte Schüsse getötet!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s wurde mit einem gezielten Schuss getötet!",

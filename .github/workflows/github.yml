@@ -66,7 +66,7 @@ jobs:
             pack: 1
             pack_type: RelWithDebInfo
             extension: exe
-            preset: windows-msvc-release-ccache
+            preset: windows-msvc-release
           - platform: mingw
             os: ubuntu-22.04
             test: 0
@@ -207,8 +207,15 @@ jobs:
 
     - name: Configure
       run: |
-        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC14=1; fi
-        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC14:+-DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14}
+        if [[ ${{matrix.preset}} == linux-gcc-test ]]
+        then
+            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
+        elif [[ ${{matrix.platform}} != msvc ]]
+        then
+            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
+        else
+            cmake --preset ${{ matrix.preset }}
+        fi
 
     - name: Build
       run: |
@@ -283,7 +290,7 @@ jobs:
       with:
         name: Android JNI ${{matrix.platform}}
         path: |
-          ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs
+          ${{github.workspace}}/out/build/${{matrix.preset}}/android-build/libs
 
     - name: Upload build
       if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' && matrix.platform != 'mingw-32' }}
@@ -306,7 +313,7 @@ jobs:
       matrix:
         include:
           - platform: android-32
-            os: ubuntu-22.04
+            os: macos-14
             preset: android-conan-ninja-release
             conan_profile: android-32
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
@@ -346,6 +353,12 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
+    - uses: actions/setup-java@v4
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
     - name: Build Number
       run: |
         source '${{github.workspace}}/CI/get_package_name.sh'
@@ -365,6 +378,9 @@ jobs:
     - name: Build Preset
       run: |
         cmake --build --preset ${{matrix.preset}}
+      env:
+        ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     - name: Download libs x64
       uses: actions/download-artifact@v4

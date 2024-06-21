@@ -10,10 +10,12 @@
 #pragma once
 
 #include "CArtPlace.h"
+#include "Scrollable.h"
 
 #include "../gui/Shortcut.h"
 
 class CButton;
+class BackpackScroller;
 
 class CArtifactsOfHeroBase : virtual public CIntObject, public CKeyShortcut
 {
@@ -54,6 +56,7 @@ public:
 	std::vector<ArtPlacePtr> backpack;
 	std::shared_ptr<CButton> leftBackpackRoll;
 	std::shared_ptr<CButton> rightBackpackRoll;
+	std::shared_ptr<BackpackScroller> backpackScroller;
 
 	const std::vector<Point> slotPos =
 	{
@@ -70,4 +73,14 @@ protected:
 	virtual void init(const Point & position, const BpackScrollFunctor & scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
 	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot);
+};
+
+class BackpackScroller : public Scrollable
+{
+	CArtifactsOfHeroBase * owner;
+
+	void scrollBy(int distance) override;
+
+public:
+	BackpackScroller(CArtifactsOfHeroBase * owner, const Rect & dimensions);
 };

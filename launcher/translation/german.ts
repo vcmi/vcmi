@@ -79,7 +79,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="234"/>
         <source>Configuration files directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis der Konfiguarions-Dateien</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="297"/>
@@ -294,7 +294,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="105"/>
         <source>Reload repositories</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis aktualisieren</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
@@ -669,62 +669,62 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="59"/>
         <source>Online Lobby port</source>
-        <translation type="unfinished"></translation>
+        <translation>Online-Lobby-Port</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="66"/>
         <source>Autocombat AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Autokampf-KI in Kämpfen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="73"/>
         <source>Sticks Sensitivity</source>
-        <translation type="unfinished"></translation>
+        <translation>Sticks Empfindlichkeit</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="87"/>
         <source>Haptic Feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Haptisches Feedback</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="94"/>
         <source>Software Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Software-Cursor</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="108"/>
         <source>Online Lobby address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse der Online-Lobby</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
         <source>Upscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochskalierungsfilter</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="122"/>
         <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Relativen Zeigermodus verwenden</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
         <source>Nearest</source>
-        <translation type="unfinished"></translation>
+        <translation>Nearest</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linear</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="205"/>
         <source>Best (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bester (Linear)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="231"/>
         <source>Input - Touchscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingabe - Touchscreen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
@@ -734,62 +734,62 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="474"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerk</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="578"/>
         <source>Relative Pointer Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Relative Zeigergeschwindigkeit</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="585"/>
         <source>Music Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Musik Lautstärke</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="606"/>
         <source>Ignore SSL errors</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL-Fehler ignorieren</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
         <source>Input - Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingabe - Maus</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="628"/>
         <source>Long Touch Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dauer der Berührung für &quot;lange Berührung&quot;</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="635"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="658"/>
         <source>Controller Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Toleranz bei Controller Klick</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="665"/>
         <source>Touch Tap Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Toleranz bei Berührungen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="704"/>
         <source>Input - Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingabe - Controller</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="771"/>
         <source>Sound Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Sound-Lautstärke</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="801"/>
@@ -828,12 +828,12 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="839"/>
         <source>Mouse Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Toleranz bei Mausklick</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="853"/>
         <source>Sticks Acceleration</source>
-        <translation type="unfinished"></translation>
+        <translation>Sticks Beschleunigung</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="995"/>
@@ -1064,12 +1064,12 @@ Heroes III: HD Edition wird derzeit nicht unterstützt!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="304"/>
         <source>Use offline installer from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translation>Offline-Installer von gog.com verwenden</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="317"/>
         <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translation>Es können die Verzeichnisse Maps, Data und Mp3 manuell aus dem ursprünglichen Spielverzeichnis in das VCMI-Datenverzeichnis kopiert werden, das oben auf dieser Seite gesehen werden kann</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="336"/>
@@ -1106,23 +1106,24 @@ Heroes III: HD Edition wird derzeit nicht unterstützt!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="395"/>
         <source>Installing... %p%</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation... %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="424"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn bereits Heroes III-Dateien auf Ihrem Gerät sind, kann dieses Verzeichnis auswählt werden und VCMI wird die vorhandenen Daten automatisch kopieren.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="466"/>
         <source>Copy existing files</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhandene Dateien kopieren</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="511"/>
         <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
 Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie Heroes III auf gog.com besitzen, können Sie den Backup-Offline-Installer von gog.com herunterladen, und VCMI wird die Daten von Heroes III mit dem Offline-Installer importieren. 
+Der Offline-Installer besteht aus zwei Teilen, .exe und .bin. Stellen Sie sicher, dass Sie beide Teile herunterladen.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="696"/>
@@ -1173,7 +1174,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="354"/>
         <source>Manual Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuelle Installation</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="367"/>
@@ -1487,13 +1488,14 @@ Bitte wählen Sie ein Verzeichnis mit Heroes III: Complete Edition oder Heroes I
     <message>
         <location filename="../main.cpp" line="121"/>
         <source>Error starting executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Starten der ausführbaren Datei</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="122"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Start von %1 fehlgeschlagen
+Grund: %2</translation>
     </message>
 </context>
 <context>

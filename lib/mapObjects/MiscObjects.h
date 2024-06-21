@@ -122,8 +122,9 @@ class DLL_LINKAGE CGResource : public CArmedInstance
 public:
 	using CArmedInstance::CArmedInstance;
 
-	static constexpr ui32 RANDOM_AMOUNT = 0;
-	ui32 amount = RANDOM_AMOUNT; //0 if random
+	static constexpr uint32_t RANDOM_AMOUNT = 0;
+	static constexpr uint32_t GOLD_AMOUNT_MULTIPLIER = 100;
+	uint32_t amount = RANDOM_AMOUNT; //0 if random
 	
 	MetaString message;
 

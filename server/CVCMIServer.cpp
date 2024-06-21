@@ -662,6 +662,10 @@ void CVCMIServer::updateAndPropagateLobbyState()
 			{
 				si->mapGenOptions->setPlayerTypeForStandardPlayer(pset.color, EPlayerType::HUMAN);
 			}
+			else
+			{
+				si->mapGenOptions->setPlayerTypeForStandardPlayer(pset.color, EPlayerType::AI);
+			}
 		}
 	}
 

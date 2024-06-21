@@ -1203,7 +1203,10 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 	std::vector<const ChainActor *> actorsVector(actorsOfInitial.begin(), actorsOfInitial.end());
 	tbb::concurrent_vector<CGPathNode *> output;
 
-	if(actorsVector.size() * initialNodes.size() > 1000)
+// TODO: re-enable after fixing thread races. See issue for details:
+// https://github.com/vcmi/vcmi/pull/4130
+#if 0
+	if (actorsVector.size() * initialNodes.size() > 1000)
 	{
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, actorsVector.size()), [&](const tbb::blocked_range<size_t> & r)
 			{
@@ -1216,6 +1219,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 		std::copy(output.begin(), output.end(), std::back_inserter(initialNodes));
 	}
 	else
+#endif
 	{
 		for(auto actor : actorsVector)
 		{

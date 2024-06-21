@@ -564,7 +564,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			}
 			else
 			{
-				if(GH.isKeyboardCmdDown()) //normal click behaviour (as no hero selected)
+				if(GH.isKeyboardShiftDown()) //normal click behaviour (as no hero selected)
 				{
 					if(canSelect)
 						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
@@ -643,19 +643,19 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
 		std::string text = LOCPLINT->localState->getCurrentHero() ? objAtTile->getHoverText(LOCPLINT->localState->getCurrentHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
-		if (GH.isKeyboardShiftDown())
+		if (GH.isKeyboardCmdDown())
 			text.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
 		GH.statusbar()->write(text);
 	}
 	else if(isTargetPositionVisible)
 	{
 		std::string tileTooltipText = CGI->mh->getTerrainDescr(targetPosition, false);
-		if (GH.isKeyboardShiftDown())
+		if (GH.isKeyboardCmdDown())
 			tileTooltipText.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
 		GH.statusbar()->write(tileTooltipText);
 	}
 
-	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || GH.isKeyboardCtrlDown())
+	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || GH.isKeyboardShiftDown())
 	{
 		if(objAtTile)
 		{
