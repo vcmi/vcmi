@@ -9,7 +9,6 @@
  */
 #pragma once
 
-class CAnimation;
 class IImage;
 struct SDL_Surface;
 struct SDL_Texture;

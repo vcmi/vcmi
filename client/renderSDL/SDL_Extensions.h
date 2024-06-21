@@ -73,8 +73,7 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	bool isTransparent(SDL_Surface * srf, const Point & position); //checks if surface is transparent at given position
 
 	uint8_t * getPxPtr(const SDL_Surface * const & srf, const int x, const int y);
-	TColorPutter getPutterFor(SDL_Surface * const & dest, int incrementing); //incrementing: -1, 0, 1
-	TColorPutterAlpha getPutterAlphaFor(SDL_Surface * const & dest, int incrementing); //incrementing: -1, 0, 1
+	TColorPutter getPutterFor(SDL_Surface * const & dest);
 
 	template<int bpp>
 	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
@@ -86,7 +85,6 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color & color, int depth = 1);
 	void drawBorder(SDL_Surface * sur, const Rect & r, const SDL_Color & color, int depth = 1);
-	void setPlayerColor(SDL_Surface * sur, const PlayerColor & player); //sets correct color of flags; -1 for neutral
 
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface
@@ -94,10 +92,7 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
 
-	//scale surface to required size.
-	//nearest neighbour algorithm
-	SDL_Surface * scaleSurfaceFast(SDL_Surface * surf, int width, int height);
-	// bilinear filtering. Uses fallback to scaleSurfaceFast in case of indexed surfaces
+	// bilinear filtering. Always returns rgba surface
 	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height);
 
 	template<int bpp>

@@ -20,6 +20,7 @@ class CSlider;
 class CLabel;
 class CPicture;
 class IImage;
+class CAnimation;
 
 enum ESortBy
 {
@@ -58,7 +59,7 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CPicture> pictureEmptyLine;
 		std::shared_ptr<CLabel> labelName;
 
-		ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss);
+		ListItem(Point position);
 		void updateItem(std::shared_ptr<ElementInfo> info = {}, bool selected = false);
 	};
 	std::vector<std::shared_ptr<ListItem>> listItems;

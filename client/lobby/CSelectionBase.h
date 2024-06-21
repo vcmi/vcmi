@@ -174,7 +174,6 @@ public:
 
 class CFlagBox : public CIntObject
 {
-	std::shared_ptr<CAnimation> iconsTeamFlags;
 	std::shared_ptr<CLabel> labelAllies;
 	std::shared_ptr<CLabel> labelEnemies;
 	std::vector<std::shared_ptr<CAnimImage>> flagsAllies;
@@ -192,7 +191,7 @@ public:
 		std::shared_ptr<CLabelGroup> labelGroupTeams;
 		std::vector<std::shared_ptr<CAnimImage>> iconsFlags;
 	public:
-		CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons);
+		CFlagBoxTooltipBox();
 	};
 };
 

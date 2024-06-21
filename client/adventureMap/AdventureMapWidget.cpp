@@ -20,7 +20,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
-#include "../render/CAnimation.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../widgets/Buttons.h"
@@ -60,7 +59,7 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	const JsonNode config(JsonPath::builtin("config/widgets/adventureMap.json"));
 
 	for(const auto & entry : config["options"]["imagesPlayerColored"].Vector())
-		playerColorerImages.push_back(ImagePath::fromJson(entry));
+		playerColoredImages.push_back(ImagePath::fromJson(entry));
 
 	build(config);
 	addUsedEvents(KEYBOARD);
@@ -125,26 +124,6 @@ Rect AdventureMapWidget::readArea(const JsonNode & source, const Rect & bounding
 	return Rect(topLeft + boundingBox.topLeft(), dimensions);
 }
 
-std::shared_ptr<IImage> AdventureMapWidget::loadImage(const JsonNode & name)
-{
-	ImagePath resource = ImagePath::fromJson(name);
-
-	if(images.count(resource) == 0)
-		images[resource] = GH.renderHandler().loadImage(resource);
-
-	return images[resource];
-}
-
-std::shared_ptr<CAnimation> AdventureMapWidget::loadAnimation(const JsonNode & name)
-{
-	AnimationPath resource = AnimationPath::fromJson(name);
-
-	if(animations.count(resource) == 0)
-		animations[resource] = GH.renderHandler().loadAnimation(resource);
-
-	return animations[resource];
-}
-
 std::shared_ptr<CIntObject> AdventureMapWidget::buildInfobox(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
@@ -156,8 +135,12 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapImage(const JsonNode & i
 {
 	Rect targetArea = readTargetArea(input["area"]);
 	Rect sourceArea = readSourceArea(input["sourceArea"], input["area"]);
+	ImagePath path = ImagePath::fromJson(input["image"]);
 
-	return std::make_shared<CFilledTexture>(loadImage(input["image"]), targetArea, sourceArea);
+	if (vstd::contains(playerColoredImages, path))
+		return std::make_shared<FilledTexturePlayerIndexed>(path, targetArea, sourceArea);
+	else
+		return std::make_shared<CFilledTexture>(path, targetArea, sourceArea);
 }
 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildMapButton(const JsonNode & input)
@@ -257,7 +240,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapIcon(const JsonNode & in
 	size_t index = input["index"].Integer();
 	size_t perPlayer = input["perPlayer"].Integer();
 
-	return std::make_shared<CAdventureMapIcon>(area.topLeft(), loadAnimation(input["image"]), index, perPlayer);
+	return std::make_shared<CAdventureMapIcon>(area.topLeft(), AnimationPath::fromJson(input["image"]), index, perPlayer);
 }
 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildMapTownList(const JsonNode & input)
@@ -356,7 +339,7 @@ std::shared_ptr<CInfoBar> AdventureMapWidget::getInfoBar()
 	return infoBar;
 }
 
-void AdventureMapWidget::setPlayer(const PlayerColor & player)
+void AdventureMapWidget::setPlayerColor(const PlayerColor & player)
 {
 	setPlayerChildren(this, player);
 }
@@ -369,34 +352,32 @@ void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColo
 		auto icon = dynamic_cast<CAdventureMapIcon *>(entry);
 		auto button = dynamic_cast<CButton *>(entry);
 		auto resDataBar = dynamic_cast<CResDataBar *>(entry);
-		auto texture = dynamic_cast<FilledTexturePlayerColored *>(entry);
+		auto textureColored = dynamic_cast<FilledTexturePlayerColored *>(entry);
+		auto textureIndexed = dynamic_cast<FilledTexturePlayerIndexed *>(entry);
 
 		if(button)
 			button->setPlayerColor(player);
 
 		if(resDataBar)
-			resDataBar->colorize(player);
+			resDataBar->setPlayerColor(player);
 
 		if(icon)
-			icon->setPlayer(player);
+			icon->setPlayerColor(player);
 
 		if(container)
 			setPlayerChildren(container, player);
 
-		if (texture)
-			texture->playerColored(player);
-	}
+		if (textureColored)
+			textureColored->setPlayerColor(player);
 
-	for(const auto & entry : playerColorerImages)
-	{
-		if(images.count(entry))
-			images[entry]->playerColored(player);
+		if (textureIndexed)
+			textureIndexed->setPlayerColor(player);
 	}
 
 	redraw();
 }
 
-CAdventureMapIcon::CAdventureMapIcon(const Point & position, std::shared_ptr<CAnimation> animation, size_t index, size_t iconsPerPlayer)
+CAdventureMapIcon::CAdventureMapIcon(const Point & position, const AnimationPath & animation, size_t index, size_t iconsPerPlayer)
 	: index(index)
 	, iconsPerPlayer(iconsPerPlayer)
 {
@@ -405,7 +386,7 @@ CAdventureMapIcon::CAdventureMapIcon(const Point & position, std::shared_ptr<CAn
 	image = std::make_shared<CAnimImage>(animation, index);
 }
 
-void CAdventureMapIcon::setPlayer(const PlayerColor & player)
+void CAdventureMapIcon::setPlayerColor(const PlayerColor & player)
 {
 	image->setFrame(index + player.getNum() * iconsPerPlayer);
 }

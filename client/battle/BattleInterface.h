@@ -39,7 +39,6 @@ class Canvas;
 class BattleResultWindow;
 class StackQueue;
 class CPlayerInterface;
-class CAnimation;
 struct BattleEffect;
 class IImage;
 class StackQueue;

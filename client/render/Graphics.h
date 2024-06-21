@@ -27,27 +27,18 @@ class JsonNode;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
-class CAnimation;
+struct SDL_Palette;
 class IFont;
 
 /// Handles fonts, hero images, town images, various graphics
 class Graphics
 {
-	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
-	void addImageListEntries(const EntityService * service);
-
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();
 	void loadErmuToPicture();
 	void loadFonts();
-	void initializeImageLists();
-
-	std::map<AnimationPath, std::shared_ptr<CAnimation>> cachedAnimations;
 
 public:
-	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & path);
-
 	//Fonts
 	static const int FONTS_NUMBER = 9;
 	std::array< std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
@@ -61,8 +52,6 @@ public:
 	PlayerPalette neutralColorPalette;
 	ColorRGBA neutralColor;
 
-	std::map<std::string, JsonNode> imageLists;
-
 	//towns
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
@@ -71,7 +60,8 @@ public:
 	//functions
 	Graphics();
 
-	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
+	void setPlayerPalette(SDL_Palette * sur, PlayerColor player);
+	void setPlayerFlagColor(SDL_Palette * sur, PlayerColor player);
 };
 
 extern Graphics * graphics;

@@ -47,14 +47,11 @@ CursorHandler::CursorHandler()
 
 	cursors =
 	{
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR")),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT")),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT")),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"))
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR"), EImageBlitMode::COLORKEY),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT"), EImageBlitMode::COLORKEY),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY)
 	};
-
-	for (auto & cursor : cursors)
-		cursor->preload();
 
 	set(Cursor::Map::POINTER);
 	showType = dynamic_cast<CursorSoftware *>(cursor.get()) ? Cursor::ShowType::SOFTWARE : Cursor::ShowType::HARDWARE;
@@ -104,8 +101,7 @@ void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 
 void CursorHandler::dragAndDropCursor (const AnimationPath & path, size_t index)
 {
-	auto anim = GH.renderHandler().loadAnimation(path);
-	anim->load(index);
+	auto anim = GH.renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
 	dragAndDropCursor(anim->getImage(index));
 }
 

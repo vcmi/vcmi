@@ -31,7 +31,7 @@ CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(imageName, 0, 0);
-	background->colorize(LOCPLINT->playerID);
+	background->setPlayerColor(LOCPLINT->playerID);
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
@@ -84,7 +84,7 @@ void CResDataBar::showAll(Canvas & to)
 		to.drawText(pos.topLeft() + *datePosition, FONT_SMALL, Colors::WHITE, ETextAlignment::TOPLEFT, buildDateString());
 }
 
-void CResDataBar::colorize(PlayerColor player)
+void CResDataBar::setPlayerColor(PlayerColor player)
 {
-	background->colorize(player);
+	background->setPlayerColor(player);
 }

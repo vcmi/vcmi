@@ -10,34 +10,12 @@
 #include "StdInc.h"
 #include "CAnimation.h"
 
-#include "CDefFile.h"
+#include "../gui/CGuiHandler.h"
+#include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 
-#include "Graphics.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../renderSDL/SDLImage.h"
-
-std::shared_ptr<IImage> CAnimation::getFromExtraDef(std::string filename)
-{
-	size_t pos = filename.find(':');
-	if (pos == -1)
-		return nullptr;
-	CAnimation anim(AnimationPath::builtinTODO(filename.substr(0, pos)));
-	pos++;
-	size_t frame = atoi(filename.c_str()+pos);
-	size_t group = 0;
-	pos = filename.find(':', pos);
-	if (pos != -1)
-	{
-		pos++;
-		group = frame;
-		frame = atoi(filename.c_str()+pos);
-	}
-	anim.load(frame ,group);
-	auto ret = anim.images[group][frame];
-	anim.images.clear();
-	return ret;
-}
 
 bool CAnimation::loadFrame(size_t frame, size_t group)
 {
@@ -47,40 +25,31 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 		return false;
 	}
 
-	auto image = getImage(frame, group, false);
-	if(image)
+	if(auto image = getImageImpl(frame, group, false))
 	{
 		return true;
 	}
+
+	std::shared_ptr<IImage> image;
 
 	//try to get image from def
-	if(source[group][frame].getType() == JsonNode::JsonType::DATA_NULL)
+	if(source[group][frame].isNull())
+		image = GH.renderHandler().loadImage(name, frame, group, mode);
+	else
+		image = GH.renderHandler().loadImage(source[group][frame], mode);
+
+	if(image)
 	{
-		if(defFile)
-		{
-			auto frameList = defFile->getEntries();
-
-			if(vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
-			{
-				images[group][frame] = std::make_shared<SDLImage>(defFile.get(), frame, group);
-				return true;
-			}
-		}
-		// still here? image is missing
-
-		printError(frame, group, "LoadFrame");
-		images[group][frame] = std::make_shared<SDLImage>(ImagePath::builtin("DEFAULT"), EImageBlitMode::ALPHA);
-	}
-	else //load from separate file
-	{
-		auto img = getFromExtraDef(source[group][frame]["file"].String());
-		if(!img)
-			img = std::make_shared<SDLImage>(source[group][frame], EImageBlitMode::ALPHA);
-
-		images[group][frame] = img;
+		images[group][frame] = image;
 		return true;
 	}
-	return false;
+	else
+	{
+		// image is missing
+		printError(frame, group, "LoadFrame");
+		images[group][frame] = GH.renderHandler().loadImage(ImagePath::builtin("DEFAULT"), EImageBlitMode::OPAQUE);
+		return false;
+	}
 }
 
 bool CAnimation::unloadFrame(size_t frame, size_t group)
@@ -95,45 +64,6 @@ bool CAnimation::unloadFrame(size_t frame, size_t group)
 		return true;
 	}
 	return false;
-}
-
-void CAnimation::initFromJson(const JsonNode & config)
-{
-	std::string basepath;
-	basepath = config["basepath"].String();
-
-	JsonNode base;
-	base["margins"] = config["margins"];
-	base["width"] = config["width"];
-	base["height"] = config["height"];
-
-	for(const JsonNode & group : config["sequences"].Vector())
-	{
-		size_t groupID = group["group"].Integer();//TODO: string-to-value conversion("moving" -> MOVING)
-		source[groupID].clear();
-
-		for(const JsonNode & frame : group["frames"].Vector())
-		{
-			JsonNode toAdd;
-			JsonUtils::inherit(toAdd, base);
-			toAdd["file"].String() = basepath + frame.String();
-			source[groupID].push_back(toAdd);
-		}
-	}
-
-	for(const JsonNode & node : config["images"].Vector())
-	{
-		size_t group = node["group"].Integer();
-		size_t frame = node["frame"].Integer();
-
-		if (source[group].size() <= frame)
-			source[group].resize(frame+1);
-
-		JsonNode toAdd;
-		JsonUtils::inherit(toAdd, base);
-		toAdd["file"].String() = basepath + node["file"].String();
-		source[group][frame] = toAdd;
-	}
 }
 
 void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
@@ -169,65 +99,18 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
 	logGlobal->info("Exported %d frames to %s", counter, actualPath.string());
 }
 
-void CAnimation::init()
-{
-	if(defFile)
-	{
-		const std::map<size_t, size_t> defEntries = defFile->getEntries();
-
-		for (auto & defEntry : defEntries)
-			source[defEntry.first].resize(defEntry.second);
-	}
-
-	if (vstd::contains(graphics->imageLists, name.getName()))
-		initFromJson(graphics->imageLists[name.getName()]);
-
-	auto jsonResource = name.toType<EResType::JSON>();
-	auto configList = CResourceHandler::get()->getResourcesWithName(jsonResource);
-
-	for(auto & loader : configList)
-	{
-		auto stream = loader->load(jsonResource);
-		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
-		stream->read(textData.get(), stream->getSize());
-
-		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize());
-
-		initFromJson(config);
-	}
-}
-
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
 {
 	logGlobal->error("%s error: Request for frame not present in CAnimation! File name: %s, Group: %d, Frame: %d", type, name.getOriginalName(), group, frame);
 }
 
-CAnimation::CAnimation(const AnimationPath & Name):
+CAnimation::CAnimation(const AnimationPath & Name, std::map<size_t, std::vector <JsonNode> > layout, EImageBlitMode mode):
 	name(boost::starts_with(Name.getName(), "SPRITES") ? Name : Name.addPrefix("SPRITES/")),
-	preloaded(false)
+	source(layout),
+	mode(mode)
 {
-	if(CResourceHandler::get()->existsResource(name))
-	{
-		try
-		{
-			defFile = std::make_shared<CDefFile>(name);
-		}
-		catch ( const std::runtime_error & e)
-		{
-			logAnim->error("Def file %s failed to load! Reason: %s", Name.getOriginalName(), e.what());
-		}
-	}
-
-	init();
-
 	if(source.empty())
 		logAnim->error("Animation %s failed to load", Name.getOriginalName());
-}
-
-CAnimation::CAnimation():
-	preloaded(false)
-{
-	init();
 }
 
 CAnimation::~CAnimation() = default;
@@ -246,32 +129,26 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 		return;
 	}
 
-	//todo: clone actual loaded Image object
 	JsonNode clone(source[sourceGroup][sourceFrame]);
 
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
-		std::string temp =  name.getName()+":"+std::to_string(sourceGroup)+":"+std::to_string(sourceFrame);
-		clone["file"].String() = temp;
+		clone["animation"].String() = name.getName();
+		clone["group"].Integer() = sourceGroup;
+		clone["frame"].Integer() = sourceFrame;
 	}
 
 	source[targetGroup].push_back(clone);
-
-	size_t index = source[targetGroup].size() - 1;
-
-	if(preloaded)
-		load(index, targetGroup);
 }
 
-void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
+std::shared_ptr<IImage> CAnimation::getImage(size_t frame, size_t group, bool verbose)
 {
-	if (source[group].size() <= frame)
-		source[group].resize(frame+1);
-	source[group][frame]["file"].String() = filename;
-	//FIXME: update image if already loaded
+	if (!loadFrame(frame, group))
+		return nullptr;
+	return getImageImpl(frame, group, verbose);
 }
 
-std::shared_ptr<IImage> CAnimation::getImage(size_t frame, size_t group, bool verbose) const
+std::shared_ptr<IImage> CAnimation::getImageImpl(size_t frame, size_t group, bool verbose)
 {
 	auto groupIter = images.find(group);
 	if (groupIter != images.end())
@@ -285,54 +162,6 @@ std::shared_ptr<IImage> CAnimation::getImage(size_t frame, size_t group, bool ve
 	return nullptr;
 }
 
-void CAnimation::load()
-{
-	for (auto & elem : source)
-		for (size_t image=0; image < elem.second.size(); image++)
-			loadFrame(image, elem.first);
-}
-
-void CAnimation::unload()
-{
-	for (auto & elem : source)
-		for (size_t image=0; image < elem.second.size(); image++)
-			unloadFrame(image, elem.first);
-
-}
-
-void CAnimation::preload()
-{
-	if(!preloaded)
-	{
-		preloaded = true;
-		load();
-	}
-}
-
-void CAnimation::loadGroup(size_t group)
-{
-	if (vstd::contains(source, group))
-		for (size_t image=0; image < source[group].size(); image++)
-			loadFrame(image, group);
-}
-
-void CAnimation::unloadGroup(size_t group)
-{
-	if (vstd::contains(source, group))
-		for (size_t image=0; image < source[group].size(); image++)
-			unloadFrame(image, group);
-}
-
-void CAnimation::load(size_t frame, size_t group)
-{
-	loadFrame(frame, group);
-}
-
-void CAnimation::unload(size_t frame, size_t group)
-{
-	unloadFrame(frame, group);
-}
-
 size_t CAnimation::size(size_t group) const
 {
 	auto iter = source.find(group);
@@ -343,16 +172,60 @@ size_t CAnimation::size(size_t group) const
 
 void CAnimation::horizontalFlip()
 {
-	for(auto & group : images)
-		for(auto & image : group.second)
-			image.second->horizontalFlip();
+	for(auto & group : source)
+		for(size_t i = 0; i < group.second.size(); ++i)
+			horizontalFlip(i, group.first);
 }
 
 void CAnimation::verticalFlip()
 {
-	for(auto & group : images)
-		for(auto & image : group.second)
-			image.second->verticalFlip();
+	for(auto & group : source)
+		for(size_t i = 0; i < group.second.size(); ++i)
+			verticalFlip(i, group.first);
+}
+
+void CAnimation::horizontalFlip(size_t frame, size_t group)
+{
+	try
+	{
+		images.at(group).at(frame) = nullptr;
+	}
+	catch (const std::out_of_range &)
+	{
+		// ignore - image not loaded
+	}
+
+	JsonNode & config = source.at(group).at(frame);
+	if (config.isNull())
+	{
+		config["animation"].String() = name.getName();
+		config["frame"].Integer() = frame;
+		config["group"].Integer() = group;
+	}
+
+	config["horizontalFlip"].Bool() = !config["horizontalFlip"].Bool();
+}
+
+void CAnimation::verticalFlip(size_t frame, size_t group)
+{
+	try
+	{
+		images.at(group).at(frame) = nullptr;
+	}
+	catch (const std::out_of_range &)
+	{
+		// ignore - image not loaded
+	}
+
+	JsonNode & config = source.at(group).at(frame);
+	if (config.isNull())
+	{
+		config["animation"].String() = name.getName();
+		config["frame"].Integer() = frame;
+		config["group"].Integer() = group;
+	}
+
+	config["verticalFlip"].Bool() = !config["verticalFlip"].Bool();
 }
 
 void CAnimation::playerColored(PlayerColor player)
@@ -367,9 +240,6 @@ void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targe
 	for(size_t frame = 0; frame < size(sourceGroup); ++frame)
 	{
 		duplicateImage(sourceGroup, frame, targetGroup);
-
-		auto image = getImage(frame, targetGroup);
-		image->verticalFlip();
+		verticalFlip(frame, targetGroup);
 	}
 }
-

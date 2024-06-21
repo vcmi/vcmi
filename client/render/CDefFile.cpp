@@ -18,50 +18,6 @@
 
 #include <SDL_pixels.h>
 
-// Extremely simple file cache. TODO: smarter, more general solution
-class CFileCache
-{
-	static const int cacheSize = 50; //Max number of cached files
-	struct FileData
-	{
-		AnimationPath             name;
-		size_t                 size;
-		std::unique_ptr<ui8[]> data;
-
-		std::unique_ptr<ui8[]> getCopy()
-		{
-			auto ret = std::unique_ptr<ui8[]>(new ui8[size]);
-			std::copy(data.get(), data.get() + size, ret.get());
-			return ret;
-		}
-		FileData(AnimationPath name_, size_t size_, std::unique_ptr<ui8[]> data_):
-			name{std::move(name_)},
-			size{size_},
-			data{std::move(data_)}
-		{}
-	};
-
-	std::deque<FileData> cache;
-public:
-	std::unique_ptr<ui8[]> getCachedFile(AnimationPath rid)
-	{
-		for(auto & file : cache)
-		{
-			if (file.name == rid)
-				return file.getCopy();
-		}
-		// Still here? Cache miss
-		if (cache.size() > cacheSize)
-			cache.pop_front();
-
-		auto data =  CResourceHandler::get()->load(rid)->readAll();
-
-		cache.emplace_back(std::move(rid), data.second, std::move(data.first));
-
-		return cache.back().getCopy();
-	}
-};
-
 enum class DefType : uint32_t
 {
 	SPELL = 0x40,
@@ -75,8 +31,6 @@ enum class DefType : uint32_t
 	SPRITE_FRAME = 0x48,
 	BATTLE_HERO = 0x49
 };
-
-static CFileCache animationCache;
 
 /*************************************************************************
  *  DefFile, class used for def loading                                  *
@@ -124,7 +78,7 @@ CDefFile::CDefFile(const AnimationPath & Name):
 		{0, 0, 0, 64 }  // shadow border below selection ( used in battle def's )
 	};
 
-	data = animationCache.getCachedFile(Name);
+	data = CResourceHandler::get()->load(Name)->readAll().first;
 
 	palette = std::unique_ptr<SDL_Color[]>(new SDL_Color[256]);
 	int it = 0;

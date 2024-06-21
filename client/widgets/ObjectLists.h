@@ -18,7 +18,6 @@ VCMI_LIB_NAMESPACE_END
 class CAnimImage;
 class CSlider;
 class CLabel;
-class CAnimation;
 
 /// Used as base for Tabs and List classes
 class CObjectList : public CIntObject

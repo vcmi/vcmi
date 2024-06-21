@@ -28,6 +28,7 @@
 #include "windows/CMessage.h"
 #include "windows/InfoWindows.h"
 #include "render/IScreenHandler.h"
+#include "render/IRenderHandler.h"
 #include "render/Graphics.h"
 
 #include "../lib/CConfigHandler.h"
@@ -347,6 +348,7 @@ int main(int argc, char * argv[])
 	{
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
+		GH.renderHandler().onLibraryLoadingFinished(CGI);
 
 		CCS->curh = new CursorHandler();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());

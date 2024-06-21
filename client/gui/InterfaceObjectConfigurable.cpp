@@ -333,7 +333,7 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
 
 	if ( config["playerColored"].Bool() && LOCPLINT)
-		pic->colorize(LOCPLINT->playerID);
+		pic->setPlayerColor(LOCPLINT->playerID);
 	return pic;
 }
 
@@ -571,7 +571,7 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 	if(playerColor.isValidPlayer())
 	{
 		auto result = std::make_shared<FilledTexturePlayerColored>(image, rect);
-		result->playerColored(playerColor);
+		result->setPlayerColor(playerColor);
 		return result;
 	}
 	return std::make_shared<CFilledTexture>(image, rect);

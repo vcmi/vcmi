@@ -41,8 +41,7 @@ void CMessage::init()
 {
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		dialogBorders[i] = GH.renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"));
-		dialogBorders[i]->preload();
+		dialogBorders[i] = GH.renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"), EImageBlitMode::OPAQUE);
 
 		for(int j = 0; j < dialogBorders[i]->size(0); j++)
 		{

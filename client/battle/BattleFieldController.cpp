@@ -123,23 +123,17 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	//preparing cells and hexes
 	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
-	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"));
+	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::ALPHA);
 	cellUnitMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 	cellUnitMaxMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
-	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"));
-	attackCursors->preload();
-
-	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"));
-	spellCursors->preload();
+	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY);
+	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY);
 
 	initializeHexEdgeMaskToFrameIndex();
 
-	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"));
-	rangedFullDamageLimitImages->preload();
-
-	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"));
-	shootingRangeLimitImages->preload();
+	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
+	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
 
 	flipRangeLimitImagesIntoPositions(rangedFullDamageLimitImages);
 	flipRangeLimitImagesIntoPositions(shootingRangeLimitImages);
@@ -558,22 +552,21 @@ void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distan
 
 void BattleFieldController::flipRangeLimitImagesIntoPositions(std::shared_ptr<CAnimation> images)
 {
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRight])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::right])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRight])->doubleFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeft])->horizontalFlip();
-
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottom])->horizontalFlip();
-
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRightHalfCorner])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner])->doubleFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftHalfCorner])->horizontalFlip();
-
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::rightHalf])->verticalFlip();
-
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRightCorner])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner])->doubleFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner])->horizontalFlip();
+	images->verticalFlip(hexEdgeMaskToFrameIndex[HexMasks::topRight]);
+	images->verticalFlip(hexEdgeMaskToFrameIndex[HexMasks::right]);
+	images->verticalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomRight]);
+	images->horizontalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomRight]);
+	images->horizontalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomLeft]);
+	images->horizontalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottom]);
+	images->verticalFlip(hexEdgeMaskToFrameIndex[HexMasks::topRightHalfCorner]);
+	images->verticalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner]);
+	images->horizontalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner]);
+	images->horizontalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftHalfCorner]);
+	images->verticalFlip(hexEdgeMaskToFrameIndex[HexMasks::rightHalf]);
+	images->verticalFlip(hexEdgeMaskToFrameIndex[HexMasks::topRightCorner]);
+	images->verticalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner]);
+	images->horizontalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner]);
+	images->horizontalFlip(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner]);
 }
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
