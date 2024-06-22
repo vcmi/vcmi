@@ -345,6 +345,11 @@ void FirstLaunchView::extractGogData()
 
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
+		if(tempDir.cd("tmp"))
+		{
+			tempDir.removeRecursively(); // remove if already exists (e.g. previous crash)
+			tempDir.cdUp();
+		}
 		tempDir.mkdir("tmp");
 		if(!tempDir.cd("tmp"))
 			return; // should not happen - but avoid deleting wrong folder in any case
