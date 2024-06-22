@@ -332,40 +332,12 @@ void FirstLaunchView::extractGogData()
 		return file;
 	};
 
-	auto isGogGalaxyExe = [](QString fileExe) {
-		std::ifstream is(fileExe.toStdString(), std::ios::binary);
-		if (!is)
-			return false;
-		is >> std::noskipws;
-		is.seekg(0, std::ios::end);
-		std::streampos fileSize = is.tellg();
-		is.seekg(0, std::ios::beg);
-
-		if(fileSize > 10 * 1024 * 1024)
-			return false; // avoid to load big files; galaxy exe is smaller...
-
-		std::vector<char> buffer;
-		buffer.reserve(fileSize);
-		buffer.insert(buffer.begin(), std::istream_iterator<char>(is), std::istream_iterator<char>());
-
-		std::array<char, 20> magic_id{ 0x47, 0x00, 0x4F, 0x00, 0x47, 0x00, 0x20, 0x00, 0x47, 0x00, 0x61, 0x00, 0x6C, 0x00, 0x61, 0x00, 0x78, 0x00, 0x79, 0x00 }; //GOG Galaxy
-
-		auto res = std::search(buffer.begin(), buffer.end(), magic_id.begin(), magic_id.end());
-		return res != buffer.end();
-	};
-
 	QString fileBin = fileSelection("bin", tr("GOG data") + " (*.bin)");
 	if(fileBin.isEmpty())
 		return;
 	QString fileExe = fileSelection("exe", tr("GOG installer") + " (*.exe)", QFileInfo(fileBin).absolutePath());
 	if(fileExe.isEmpty())
 		return;
-
-	if(isGogGalaxyExe(fileExe))
-	{
-		QMessageBox::critical(this, tr("Invalid file selected"), tr("You've provided GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!"));
-		return;
-	}
 
 	ui->progressBarGog->setVisible(true);
 	ui->pushButtonGogInstall->setVisible(false);
@@ -381,6 +353,33 @@ void FirstLaunchView::extractGogData()
 		QFile(fileExe).copy(tmpFileExe);
 		QFile(fileBin).copy(tempDir.filePath("h3_gog-1.bin"));
 
+		QString errorText{};
+
+		auto isGogGalaxyExe = [](QString fileExe) {
+			std::ifstream is(fileExe.toStdString(), std::ios::binary);
+			if (!is)
+				return false;
+			is >> std::noskipws;
+			is.seekg(0, std::ios::end);
+			std::streampos fileSize = is.tellg();
+			is.seekg(0, std::ios::beg);
+
+			if(fileSize > 10 * 1024 * 1024)
+				return false; // avoid to load big files; galaxy exe is smaller...
+
+			std::vector<char> buffer;
+			buffer.reserve(fileSize);
+			buffer.insert(buffer.begin(), std::istream_iterator<char>(is), std::istream_iterator<char>());
+
+			std::array<char, 20> magic_id{ 0x47, 0x00, 0x4F, 0x00, 0x47, 0x00, 0x20, 0x00, 0x47, 0x00, 0x61, 0x00, 0x6C, 0x00, 0x61, 0x00, 0x78, 0x00, 0x79, 0x00 }; //GOG Galaxy
+
+			auto res = std::search(buffer.begin(), buffer.end(), magic_id.begin(), magic_id.end());
+			return res != buffer.end();
+		};
+
+		if(isGogGalaxyExe(tmpFileExe))
+			errorText = tr("You've provided GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!");
+
 		::extract_options o;
 		o.extract = true;
 
@@ -394,13 +393,13 @@ void FirstLaunchView::extractGogData()
 
 		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
 
-		QString errorText{};
 		try
 		{
-			process_file(tmpFileExe.toStdString(), o, [this](float progress) {
-				ui->progressBarGog->setValue(progress * 100);
-				qApp->processEvents();
-			});
+			if(errorText.isEmpty())
+				process_file(tmpFileExe.toStdString(), o, [this](float progress) {
+					ui->progressBarGog->setValue(progress * 100);
+					qApp->processEvents();
+				});
 		}
 		catch(const std::ios_base::failure & e)
 		{
