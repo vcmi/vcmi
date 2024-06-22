@@ -407,6 +407,8 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			if(dstSlot != ArtifactPosition::PRE_FIRST)
 			{
 				pack.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+				if(ArtifactUtils::isSlotEquipment(dstSlot))
+					pack.artsPack0.back().askAssemble = true;
 				arts.emplace_back(art);
 				artFittingSet.putArtifact(dstSlot, const_cast<CArtifactInstance*>(art));
 			}
@@ -421,7 +423,6 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		if(finishingBattle->loserHero)
 		{
 			packHero.srcArtHolder = finishingBattle->loserHero->id;
-			packHero.askAssemble = true;
 			for(const auto & artSlot : finishingBattle->loserHero->artifactsWorn)
 			{
 				if(ArtifactUtils::isArtRemovable(artSlot))

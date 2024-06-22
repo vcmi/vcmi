@@ -196,7 +196,7 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 }
 
 DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
-	const CArtifactSet * artSet, const ArtifactID & aid)
+	const CArtifactSet * artSet, const ArtifactID & aid, const bool onlyEquiped)
 {
 	std::vector<const CArtifact*> arts;
 	const auto * art = aid.toArtifact();
@@ -210,7 +210,7 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 
 		for(const auto constituent : artifact->getConstituents()) //check if all constituents are available
 		{
-			if(!artSet->hasArt(constituent->getId(), false, false, false))
+			if(!artSet->hasArt(constituent->getId(), onlyEquiped, false, false))
 			{
 				possible = false;
 				break;

@@ -307,7 +307,7 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 			const auto dstLoc = ArtifactLocation(pack.dstArtHolder, slotToMove.dstPos);
 
 			callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
-			if(pack.askAssemble)
+			if(slotToMove.askAssemble)
 				callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::askToAssembleArtifact, dstLoc);
 			if(pack.interfaceOwner != dstOwner)
 				callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
