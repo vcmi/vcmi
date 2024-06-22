@@ -1031,17 +1031,20 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 	{
 		ArtifactPosition srcPos;
 		ArtifactPosition dstPos;
+		bool askAssemble;
 
 		LinkedSlots() = default;
-		LinkedSlots(const ArtifactPosition & srcPos, const ArtifactPosition & dstPos)
+		LinkedSlots(const ArtifactPosition & srcPos, const ArtifactPosition & dstPos, bool askAssemble = false)
 			: srcPos(srcPos)
 			, dstPos(dstPos)
+			, askAssemble(askAssemble)
 		{
 		}
 		template <typename Handler> void serialize(Handler & h)
 		{
 			h & srcPos;
 			h & dstPos;
+			h & askAssemble;
 		}
 	};
 
@@ -1056,7 +1059,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		, srcArtHolder(ObjectInstanceID::NONE)
 		, dstArtHolder(ObjectInstanceID::NONE)
 		, swap(false)
-		, askAssemble(false)
 		, srcCreature(std::nullopt)
 		, dstCreature(std::nullopt)
 	{
@@ -1066,7 +1068,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		, srcArtHolder(srcArtHolder)
 		, dstArtHolder(dstArtHolder)
 		, swap(swap)
-		, askAssemble(false)
 		, srcCreature(std::nullopt)
 		, dstCreature(std::nullopt)
 	{
@@ -1077,7 +1078,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 	std::vector<LinkedSlots> artsPack0;
 	std::vector<LinkedSlots> artsPack1;
 	bool swap;
-	bool askAssemble;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1091,7 +1091,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		h & srcCreature;
 		h & dstCreature;
 		h & swap;
-		h & askAssemble;
 	}
 };
 

@@ -12,6 +12,7 @@
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "gui/CIntObject.h"
+#include "ArtifactsUIController.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -56,11 +57,9 @@ namespace boost
 }
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public IUpdateable
+class CPlayerInterface : public CGameInterface, public IUpdateable, public ArtifactsUIController
 {
 	bool ignoreEvents;
-	size_t numOfMovedArts;
-
 	int autosaveCount;
 
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
@@ -180,7 +179,6 @@ public: // public interface for use by client via LOCPLINT access
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 
 	void showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2);
-	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<void()> onYes);
 	void waitWhileDialog();
 	void waitForAllDialogs();
 	void openTownWindow(const CGTownInstance * town); //shows townscreen

@@ -2783,7 +2783,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
 	if(src.artHolder != dst.artHolder)
-		ma.askAssemble = true;
+		ma.artsPack0.back().askAssemble = true;
 	sendAndApply(&ma);
 	return true;
 }

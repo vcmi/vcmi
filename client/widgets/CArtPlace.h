@@ -59,9 +59,3 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 };
-
-namespace ArtifactUtilsClient
-{
-	bool askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot);
-	bool askToDisassemble(const CGHeroInstance * hero, const ArtifactPosition & slot);
-}
