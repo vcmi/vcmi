@@ -1029,7 +1029,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 	return neighbours;
 }
 
-struct TowmPortalFinder
+struct TownPortalFinder
 {
 	const std::vector<CGPathNode *> & initialNodes;
 	MasteryLevel::Type townPortalSkillLevel;
@@ -1042,7 +1042,7 @@ struct TowmPortalFinder
 	SpellID spellID;
 	const CSpell * townPortal;
 
-	TowmPortalFinder(
+	TownPortalFinder(
 		const ChainActor * actor,
 		const std::vector<CGPathNode *> & initialNodes,
 		std::vector<const CGTownInstance *> targetTowns,
@@ -1148,7 +1148,7 @@ void AINodeStorage::calculateTownPortal(
 		return; // no towns no need to run loop further
 	}
 
-	TowmPortalFinder townPortalFinder(actor, initialNodes, towns, this);
+	TownPortalFinder townPortalFinder(actor, initialNodes, towns, this);
 
 	if(townPortalFinder.actorCanCastTownPortal())
 	{
