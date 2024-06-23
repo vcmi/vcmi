@@ -361,25 +361,18 @@ void FirstLaunchView::extractGogData()
 		QString errorText{};
 
 		auto isGogGalaxyExe = [](QString fileExe) {
-			std::ifstream is(fileExe.toStdString(), std::ios::binary);
-			if (!is)
-				return false;
-			is >> std::noskipws;
-			is.seekg(0, std::ios::end);
-			std::streampos fileSize = is.tellg();
-			is.seekg(0, std::ios::beg);
+			QFile file(fileExe);
+			quint64 fileSize = file.size();
 
 			if(fileSize > 10 * 1024 * 1024)
 				return false; // avoid to load big files; galaxy exe is smaller...
 
-			std::vector<char> buffer;
-			buffer.reserve(fileSize);
-			buffer.insert(buffer.begin(), std::istream_iterator<char>(is), std::istream_iterator<char>());
+			if(!file.open(QIODevice::ReadOnly))
+				return false;
+			QByteArray data = file.readAll();
 
-			std::array<char, 20> magic_id{ 0x47, 0x00, 0x4F, 0x00, 0x47, 0x00, 0x20, 0x00, 0x47, 0x00, 0x61, 0x00, 0x6C, 0x00, 0x61, 0x00, 0x78, 0x00, 0x79, 0x00 }; //GOG Galaxy
-
-			auto res = std::search(buffer.begin(), buffer.end(), magic_id.begin(), magic_id.end());
-			return res != buffer.end();
+			const QByteArray magicId{(const char*)u"GOG Galaxy", 20};
+			return data.contains(magicId);
 		};
 
 		if(isGogGalaxyExe(tmpFileExe))
