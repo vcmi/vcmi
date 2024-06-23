@@ -23,7 +23,22 @@
 #include "widgets/CComponent.h"
 #include "windows/CWindowWithArtifacts.h"
 
-bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot, std::set<ArtifactID> * ignoredArtifacts)
+bool ArtifactsUIController::askToAssemble(const ArtifactLocation & al, const bool onlyEquipped, std::set<ArtifactID> * ignoredArtifacts)
+{
+	if(auto hero = LOCPLINT->cb->getHero(al.artHolder))
+	{
+		if(hero->getArt(al.slot) == nullptr)
+		{
+			logGlobal->error("artifact location %d points to nothing", al.slot.num);
+			return false;
+		}
+		return askToAssemble(hero, al.slot, onlyEquipped, ignoredArtifacts);
+	}
+	return false;
+}
+
+bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot,
+	const bool onlyEquipped, std::set<ArtifactID> * ignoredArtifacts)
 {
 	assert(hero);
 	const auto art = hero->getArt(slot);
@@ -32,17 +47,23 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 	if(hero->tempOwner != LOCPLINT->playerID)
 		return false;
 
-	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), true);
+	if(numOfArtsAskAssembleSession != 0)
+		numOfArtsAskAssembleSession--;
+	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), onlyEquipped);
 	if(!assemblyPossibilities.empty())
 	{
 		auto askThread = new boost::thread([this, hero, art, slot, assemblyPossibilities, ignoredArtifacts]() -> void
 			{
-				boost::mutex::scoped_lock askLock(askAssembleArtifactsMutex);
+				boost::mutex::scoped_lock askLock(askAssembleArtifactMutex);
 				for(const auto combinedArt : assemblyPossibilities)
 				{
 					boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-					if(ignoredArtifacts && vstd::contains(*ignoredArtifacts, combinedArt->getId()))
-						continue;
+					if(ignoredArtifacts)
+					{
+						if(vstd::contains(*ignoredArtifacts, combinedArt->getId()))
+							continue;
+						ignoredArtifacts->emplace(combinedArt->getId());
+					}
 
 					bool assembleConfirmed = false;
 					MetaString message = MetaString::createFromTextID(art->artType->getDescriptionTextID());
@@ -53,12 +74,10 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 					LOCPLINT->showYesNoDialog(message.toString(), [&assembleConfirmed, hero, slot, combinedArt]()
 						{
 							assembleConfirmed = true;
-							LOCPLINT->cb.get()->assembleArtifacts(hero, slot, true, combinedArt->getId());
+							LOCPLINT->cb.get()->assembleArtifacts(hero->id, slot, true, combinedArt->getId());
 						}, nullptr, {std::make_shared<CComponent>(ComponentType::ARTIFACT, combinedArt->getId())});
 
 					LOCPLINT->waitWhileDialog();
-					if(ignoredArtifacts)
-						ignoredArtifacts->emplace(combinedArt->getId());
 					if(assembleConfirmed)
 						break;
 				}
@@ -89,7 +108,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 		message.appendRawString(CGI->generaltexth->allTexts[733]); // Do you wish to disassemble this artifact?
 		LOCPLINT->showYesNoDialog(message.toString(), [hero, slot]()
 			{
-				LOCPLINT->cb->assembleArtifacts(hero, slot, false, ArtifactID());
+				LOCPLINT->cb->assembleArtifacts(hero->id, slot, false, ArtifactID());
 			}, nullptr);
 		return true;
 	}
@@ -98,7 +117,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 
 void ArtifactsUIController::artifactRemoved()
 {
-	for(auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
+	for(const auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
 	LOCPLINT->waitWhileDialog();
 }
@@ -109,34 +128,34 @@ void ArtifactsUIController::artifactMoved()
 	if(numOfMovedArts != 0)
 		numOfMovedArts--;
 
-	for(auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
-		if(numOfMovedArts == 0)
+	if(numOfMovedArts == 0)
+		for(const auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		{
 			artWin->update();
-			artWin->redraw();
 		}
 	LOCPLINT->waitWhileDialog();
 }
 
-void ArtifactsUIController::bulkArtMovementStart(size_t numOfArts)
+void ArtifactsUIController::bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts)
 {
-	numOfMovedArts = numOfArts;
+	assert(totalNumOfArts >= possibleAssemblyNumOfArts);
+	numOfMovedArts = totalNumOfArts;
 	if(numOfArtsAskAssembleSession == 0)
 	{
 		// Do not start the next session until the previous one is finished
-		numOfArtsAskAssembleSession = numOfArts; // TODO this is wrong
+		numOfArtsAskAssembleSession = possibleAssemblyNumOfArts;
 		ignoredArtifacts.clear();
 	}
 }
 
 void ArtifactsUIController::artifactAssembled()
 {
-	for(auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
+	for(const auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
 }
 
 void ArtifactsUIController::artifactDisassembled()
 {
-	for(auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
+	for(const auto & artWin : GH.windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
 }

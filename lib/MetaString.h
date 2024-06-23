@@ -49,7 +49,7 @@ private:
 		REPLACE_TEXTID_STRING,
 		REPLACE_NUMBER,
 		REPLACE_POSITIVE_NUMBER,
-                APPEND_EOL
+		APPEND_EOL
 	};
 
 	std::vector<EMessage> message;

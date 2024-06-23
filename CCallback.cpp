@@ -173,9 +173,9 @@ bool CCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-void CCallback::assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
+void CCallback::assembleArtifacts(const ObjectInstanceID & heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
 {
-	AssembleArtifacts aa(hero->id, artifactSlot, assemble, assembleTo);
+	AssembleArtifacts aa(heroID, artifactSlot, assemble, assembleTo);
 	sendRequest(&aa);
 }
 

@@ -146,7 +146,7 @@ void CAltarArtifacts::updateAltarSlots()
 	for(auto & tradeSlot : tradeSlotsMapNewArts)
 	{
 		assert(tradeSlot.first->id == -1);
-		assert(altarArtifacts->getSlotByInstance(tradeSlot.second) != ArtifactPosition::PRE_FIRST);
+		assert(altarArtifacts->getArtPos(tradeSlot.second) != ArtifactPosition::PRE_FIRST);
 		tradeSlot.first->setID(tradeSlot.second->getTypeId().num);
 		tradeSlot.first->subtitle->setText(std::to_string(calcExpCost(tradeSlot.second->getTypeId())));
 	}
