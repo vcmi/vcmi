@@ -9,17 +9,16 @@
  */
 #pragma once
 
+#include "ArtifactsUIController.h"
+
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "gui/CIntObject.h"
-#include "ArtifactsUIController.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class Artifact;
-
 struct TryMoveHero;
-class CGHeroInstance;
 class CStack;
 class CCreature;
 struct CGPath;
@@ -97,7 +96,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void artifactPut(const ArtifactLocation &al) override;
 	void artifactRemoved(const ArtifactLocation &al) override;
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
-	void bulkArtMovementStart(size_t numOfArts) override;
+	void bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts) override;
 	void artifactAssembled(const ArtifactLocation &al) override;
 	void askToAssembleArtifact(const ArtifactLocation & dst) override;
 	void artifactDisassembled(const ArtifactLocation &al) override;

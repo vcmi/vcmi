@@ -10,7 +10,8 @@
  #pragma once
 
 #include "../lib/constants/EntityIdentifiers.h"
- 
+#include "../lib/networkPacks/ArtifactLocation.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
@@ -24,14 +25,16 @@ public:
 	size_t numOfArtsAskAssembleSession;
 	std::set<ArtifactID> ignoredArtifacts;
 
-	boost::mutex askAssembleArtifactsMutex;
+	boost::mutex askAssembleArtifactMutex;
 
-	bool askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot, std::set<ArtifactID> * ignoredArtifacts = nullptr);
+	bool askToAssemble(const ArtifactLocation & al, const bool onlyEquipped = false, std::set<ArtifactID> * ignoredArtifacts = nullptr);
+	bool askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot, const bool onlyEquipped = false,
+		std::set<ArtifactID> * ignoredArtifacts = nullptr);
 	bool askToDisassemble(const CGHeroInstance * hero, const ArtifactPosition & slot);
 
 	void artifactRemoved();
 	void artifactMoved();
-	void bulkArtMovementStart(size_t numOfArts);
+	void bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts);
 	void artifactAssembled();
 	void artifactDisassembled();
 };

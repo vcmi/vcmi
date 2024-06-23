@@ -188,6 +188,7 @@ void CWindowWithArtifacts::update()
 		if(auto artPlace = artSet->getArtPlace(GH.getCursorPosition()))
 			artPlace->hover(true);
 	}
+	redraw();
 }
 
 void CWindowWithArtifacts::markPossibleSlots() const

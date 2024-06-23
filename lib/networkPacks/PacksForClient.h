@@ -1058,7 +1058,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		: interfaceOwner(PlayerColor::NEUTRAL)
 		, srcArtHolder(ObjectInstanceID::NONE)
 		, dstArtHolder(ObjectInstanceID::NONE)
-		, swap(false)
 		, srcCreature(std::nullopt)
 		, dstCreature(std::nullopt)
 	{
@@ -1067,7 +1066,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		: interfaceOwner(interfaceOwner)
 		, srcArtHolder(srcArtHolder)
 		, dstArtHolder(dstArtHolder)
-		, swap(swap)
 		, srcCreature(std::nullopt)
 		, dstCreature(std::nullopt)
 	{
@@ -1077,7 +1075,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 
 	std::vector<LinkedSlots> artsPack0;
 	std::vector<LinkedSlots> artsPack1;
-	bool swap;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1090,7 +1087,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		h & dstArtHolder;
 		h & srcCreature;
 		h & dstCreature;
-		h & swap;
 	}
 };
 

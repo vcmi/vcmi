@@ -316,13 +316,25 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		}
 	};
 
+	size_t possibleAssemblyNumOfArts = 0;
+	const auto calcPossibleAssemblyNumOfArts = [&possibleAssemblyNumOfArts](const auto & slotToMove)
+	{
+		if(slotToMove.askAssemble)
+			possibleAssemblyNumOfArts++;
+	};
+	std::for_each(pack.artsPack0.cbegin(), pack.artsPack0.cend(), calcPossibleAssemblyNumOfArts);
+	std::for_each(pack.artsPack1.cbegin(), pack.artsPack1.cend(), calcPossibleAssemblyNumOfArts);
+
+
 	// Begin a session of bulk movement of arts. It is not necessary but useful for the client optimization.
-	callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
+	callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::bulkArtMovementStart,
+		pack.artsPack0.size() + pack.artsPack1.size(), possibleAssemblyNumOfArts);
 	if(pack.interfaceOwner != dstOwner)
-		callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
+		callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::bulkArtMovementStart,
+			pack.artsPack0.size() + pack.artsPack1.size(), possibleAssemblyNumOfArts);
 
 	applyMove(pack.artsPack0);
-	if(pack.swap)
+	if(!pack.artsPack1.empty())
 		applyMove(pack.artsPack1);
 }
 

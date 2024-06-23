@@ -66,7 +66,6 @@
 
 #include "../CCallback.h"
 
-#include "../lib/CArtHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -1708,17 +1707,7 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 {
-	if(auto hero = cb->getHero(al.artHolder))
-	{
-		if(hero->getArt(al.slot) == nullptr)
-		{
-			logGlobal->error("artifact location %d points to nothing", al.slot.num);
-			return;
-		}
-		askToAssemble(hero, al.slot, &ignoredArtifacts);
-		if(numOfArtsAskAssembleSession != 0)
-			numOfArtsAskAssembleSession--;
-	}
+	ArtifactsUIController::askToAssemble(al, true, &ignoredArtifacts);
 }
 
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
@@ -1741,9 +1730,9 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	ArtifactsUIController::artifactMoved();
 }
 
-void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
+void CPlayerInterface::bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts)
 {
-	ArtifactsUIController::bulkArtMovementStart(numOfArts);
+	ArtifactsUIController::bulkArtMovementStart(totalNumOfArts, possibleAssemblyNumOfArts);
 }
 
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)

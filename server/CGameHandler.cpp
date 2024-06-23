@@ -2774,7 +2774,6 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 		// Previous artifact must be swapped
 		COMPLAIN_RET_FALSE_IF(!dstArtifact->canBePutAt(srcArtSet, src.slot, true), "Cannot swap artifacts!");
 		ma.artsPack1.push_back(BulkMoveArtifacts::LinkedSlots(dstSlot, src.slot));
-		ma.swap = true;
 	}
 
 	auto hero = getHero(dst.artHolder);
