@@ -249,16 +249,29 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
         builtApkPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.${{ matrix.extension }})"
+        builtAabPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.aab)"
         ANDROID_APK_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
+        ANDROID_AAB_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
         mv "$builtApkPath" "$ANDROID_APK_PATH"
+        mv "$builtAabPath" "$ANDROID_AAB_PATH"
         echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
-    - name: Android artifacts
+        echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
+
+    - name: Android apk artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
+
+    - name: Android aab artifacts
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
+        path: |
+          ${{ env.ANDROID_AAB_PATH }}
 
     - name: Symbols
       if: ${{ matrix.platform == 'msvc' }}
