@@ -111,22 +111,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Ensure LF line endings
-      if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
-      run: |
-        find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
-        -o -path ./osx  -prune -o -type f \
-        -not -name '*.png' -and -not -name '*.vcxproj*' -and -not -name '*.props' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -print0 | \
-        { ! xargs -0 grep -l -z -P '\r\n'; }
-
-    - name: Validate JSON
-      # the Python yaml module doesn't seem to work on mac-arm
-      # also, running it on multiple presets is redundant and slightly increases already long CI built times
-      if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
-      run: |
-        sudo apt install python3-jstyleson
-        python3 CI/linux-qt6/validate_json.py
-
     - name: Dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:
@@ -437,3 +421,29 @@ jobs:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
             path: |
               ./release.tar.gz
+
+  validate-code:
+    if: always()
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+        - uses: actions/checkout@v4
+
+        - uses: actions/setup-python@v5
+          if: "${{ matrix.conan_profile != '' }}"
+          with:
+            python-version: '3.10'
+
+        - name: Ensure LF line endings
+          run: |
+            find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
+            -o -path ./osx  -prune -o -type f \
+            -not -name '*.png' -and -not -name '*.vcxproj*' -and -not -name '*.props' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -print0 | \
+            { ! xargs -0 grep -l -z -P '\r\n'; }
+
+        - name: Validate JSON
+          run: |
+            sudo apt install python3-jstyleson
+            python3 CI/linux-qt6/validate_json.py
