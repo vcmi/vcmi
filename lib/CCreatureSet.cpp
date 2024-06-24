@@ -257,7 +257,7 @@ TExpType CCreatureSet::getStackExperience(const SlotID & slot) const
 		return 0; //TODO? consider issuing a warning
 }
 
-bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable) const /*looks for two same stacks, returns slot positions */
+bool CCreatureSet::mergeableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable) const /*looks for two same stacks, returns slot positions */
 {
 	//try to match creature to our preferred stack
 	if(preferable.validSlot() &&  vstd::contains(stacks, preferable))

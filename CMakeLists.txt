@@ -1,6 +1,6 @@
 # Minimum required version greatly affect CMake behavior
 # So cmake_minimum_required must be called before the project()
-# 3.16.0 is used since it's used by our currently oldest suppored system: Ubuntu-20.04
+# 3.16.0 is used since it's used by our currently oldest supported system: Ubuntu-20.04
 cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)

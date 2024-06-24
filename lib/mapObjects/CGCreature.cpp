@@ -227,7 +227,7 @@ void CGCreature::pickRandomObject(CRandomGenerator & rand)
 	{
 		// Try to generate some debug information if sanity check failed
 		CreatureID creatureID(subID.getNum());
-		throw std::out_of_range("Failed to find handler for creature " + std::to_string(creatureID.getNum()) + ", identifer:" + creatureID.toEntity(VLC)->getJsonKey());
+		throw std::out_of_range("Failed to find handler for creature " + std::to_string(creatureID.getNum()) + ", identifier:" + creatureID.toEntity(VLC)->getJsonKey());
 	}
 
 	ID = MapObjectID::MONSTER;

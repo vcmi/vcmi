@@ -325,7 +325,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1084"/>
         <source>Save as...</source>
-        <translation>Speichern unter...</translation>
+        <translation>Speichern under...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1087"/>
@@ -386,7 +386,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1194"/>
         <source>Map title and description</source>
-        <translation>Titel und Beschreibung der Karte</translation>
+        <translation>Title und Beschreibung der Karte</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1205"/>
@@ -475,7 +475,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1396"/>
         <source>Export as...</source>
-        <translation>Exportieren als...</translation>
+        <translation>Exportieren also...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1408"/>
@@ -611,7 +611,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1160"/>
         <source>Save to image</source>
-        <translation>Als Bild speichern</translation>
+        <translation>Also Bild speichern</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1179"/>
@@ -717,7 +717,7 @@
     <message>
         <location filename="../mapview.cpp" line="625"/>
         <source>Can&apos;t place object</source>
-        <translation>Objekt kann nicht platziert werden</translation>
+        <translation>Object kann nicht platziert werden</translation>
     </message>
 </context>
 <context>
@@ -758,7 +758,7 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="68"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation>Erforderliche Mods anhand der auf der Karte platzierten Objekte festlegen. Diese Methode kann Probleme verursachen, wenn Belohnungen, Garnisonen usw. von Mods angepasst wurden</translation>
+        <translation>Erforderliche Mods anhand der auf der Karte platzierten Objekte festlegen. Diese Method kann Problem verursachen, wenn Belohnungen, Garnisonen usw. von Mods angepasst wurden</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
@@ -768,7 +768,7 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="81"/>
         <source>Set all mods having a game content as mandatory</source>
-        <translation>Alle Mods, die einen Spielinhalt haben, als notwendig festlegen</translation>
+        <translation>Alle Mods, die einen Spielinhalt haben, also notwendig festlegen</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="84"/>
@@ -1185,7 +1185,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="408"/>
         <source>Remove object</source>
-        <translation>Objekt entfernen</translation>
+        <translation>Object entfernen</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="417"/>
@@ -1394,7 +1394,7 @@
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
-        <source>Day of first occurance</source>
+        <source>Day of first occurrence</source>
         <translation>Tag des ersten Auftretens</translation>
     </message>
     <message>
@@ -1429,9 +1429,9 @@
     </message>
 </context>
 <context>
-    <name>TownBulidingsWidget</name>
+    <name>TownBuildingsWidget</name>
     <message>
-        <location filename="../inspector/townbulidingswidget.ui" line="29"/>
+        <location filename="../inspector/townbuildingswidget.ui" line="29"/>
         <source>Buildings</source>
         <translation>Gebäude</translation>
     </message>
@@ -1450,7 +1450,7 @@
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
-        <source>Suppported</source>
+        <source>Supported</source>
         <translation>Unterstützt</translation>
     </message>
     <message>
@@ -1520,7 +1520,7 @@
     <message>
         <location filename="../validator.cpp" line="101"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation>Objekt %1 ist dem nicht spielbaren Spieler %2 zugewiesen</translation>
+        <translation>Object %1 ist dem nicht spielbaren Spieler %2 zugewiesen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="108"/>
@@ -1585,7 +1585,7 @@
     <message>
         <location filename="../validator.cpp" line="177"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation>Karte enthält Objekt aus Mod &quot;%1&quot;, benötigt es aber nicht</translation>
+        <translation>Karte enthält Object aus Mod &quot;%1&quot;, benötigt es aber nicht</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
@@ -1856,7 +1856,7 @@
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="246"/>
-        <source>No template for parameters scecified. Random map cannot be generated.</source>
+        <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>Es wurde kein Template für Parameter erstellt. Zufällige Karte kann nicht generiert werden.</translation>
     </message>
     <message>
@@ -1875,17 +1875,17 @@
     <message>
         <location filename="../mainwindow.cpp" line="113"/>
         <source>Extract original H3 archives into a separate folder.</source>
-        <translation>Extrahieren Sie die Original-H3-Archive in einen separaten Ordner.</translation>
+        <translation>Extrahieren Sie die Original-H3-Archive in einen separaten Order.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="114"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation>Aus einem extrahierten Archiv zerlegt es TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 und Un44 in einzelne PNGs.</translation>
+        <translation>Aus einem extrahierten Archive zerlegt es TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 und Un44 in einzelne ONGs.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="115"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
-        <translation>Aus einem extrahierten Archiv werden einzelne Bilder (aus dem Ordner &quot;Images&quot;) von .pcx in png konvertiert.</translation>
+        <translation>Aus einem extrahierten Archive werden einzelne Bilder (aus dem Order &quot;Images&quot;) von .pcx in png konvertiert.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="116"/>

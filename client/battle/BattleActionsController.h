@@ -120,6 +120,6 @@ public:
 	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;
 	void removePossibleAction(PossiblePlayerBattleAction);
 	
-	/// inserts possible action in the beggining in order to prioritize it
+	/// inserts possible action in the beginning in order to prioritize it
 	void pushFrontPossibleAction(PossiblePlayerBattleAction);
 };

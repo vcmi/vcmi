@@ -13,7 +13,7 @@ Difficulty configuration is located in [config/difficulty.json](../config/diffic
 		{
 			//starting resources
 			"resources": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000, "mithril": 0 },
-			//bonuses will be given to player globaly
+			//bonuses will be given to player globally
 			"globalBonuses": [],
 			//bonuses will be given to player every battle
 			"battleBonuses": []
@@ -38,9 +38,9 @@ Difficulty configuration is located in [config/difficulty.json](../config/diffic
 
 It's possible to specify bonuses of two types: `globalBonuses` and `battleBonuses`.
 
-Both are arrays containing any amount of bonuses, each can be described as usual bonus. See details in [bonus documenation](Bonus_Format.md).
+Both are arrays containing any amount of bonuses, each can be described as usual bonus. See details in [bonus documentation](Bonus_Format.md).
 
-`globalBonuses` are given to player on the begining and depending on bonus configuration, it can behave diffierently.
+`globalBonuses` are given to player on the beginning and depending on bonus configuration, it can behave diffierently.
 
 `battleBonuses` are given to player during the battles, but *only for battles with neutral forces*. So it won't be provided to player for PvP battles and battles versus AI heroes/castles/garrisons. To avoid cumulative effects or unexpected behavior it's recommended to specify bonus `duration` as `ONE_BATTLE`.
 

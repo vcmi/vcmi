@@ -118,7 +118,7 @@ void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & bat
 
 void ApplyClientNetPackVisitor::visitSetResources(SetResources & pack)
 {
-	//todo: inform on actual resource set transfered
+	//todo: inform on actual resource set transferred
 	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::receivedResource);
 }
 
@@ -844,7 +844,7 @@ void ApplyFirstClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleAttack, pack.battleID, &pack);
 
-	// battleStacksAttacked should be excuted before BattleAttack.applyGs() to play animation before damaging unit
+	// battleStacksAttacked should be executed before BattleAttack.applyGs() to play animation before damaging unit
 	// so this has to be here instead of ApplyClientNetPackVisitor::visitBattleAttack()
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleStacksAttacked, pack.battleID, pack.bsa, pack.shot());
 }

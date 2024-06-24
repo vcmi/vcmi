@@ -236,7 +236,7 @@ bool CLegacyConfigParser::isNextEntryEmpty() const
 {
 	char * nextSymbol = curr;
 	while (nextSymbol < end && *nextSymbol == ' ')
-		nextSymbol++; //find next meaningfull symbol
+		nextSymbol++; //find next meaningful symbol
 
 	return nextSymbol >= end || *nextSymbol == '\n' || *nextSymbol == '\r' || *nextSymbol == '\t';
 }
@@ -482,7 +482,7 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 
 CGeneralTextHandler::CGeneralTextHandler():
 	victoryConditions(*this, "core.vcdesc"   ),
-	lossCondtions    (*this, "core.lcdesc"   ),
+	lossConditions    (*this, "core.lcdesc"   ),
 	colors           (*this, "core.plcolors" ),
 	tcommands        (*this, "core.tcommand" ),
 	hcommands        (*this, "core.hallinfo" ),

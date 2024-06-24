@@ -304,7 +304,7 @@ void EventDispatcher::dispatchTextInput(const std::string & text)
 {
 	for(auto it : textInterested)
 	{
-		it->textInputed(text);
+		it->textInputted(text);
 	}
 }
 

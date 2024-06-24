@@ -242,7 +242,7 @@ public:
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;
 	std::set<HeroTypeID> allowedHeroes;
-	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserverd for campaign
+	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserved for campaign
 
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
@@ -267,7 +267,7 @@ public:
 		h & height;
 		h & twoLevel;
 		// FIXME: we should serialize enum's according to their underlying type
-		// should be fixed when we are making breaking change to save compatiblity
+		// should be fixed when we are making breaking change to save compatibility
 		static_assert(Handler::Version::MINIMAL < Handler::Version::RELEASE_143);
 		uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
 		h & difficultyInteger;

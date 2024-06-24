@@ -221,7 +221,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 	}
 }
 
-void CInGameConsole::textInputed(const std::string & inputtedText)
+void CInGameConsole::textInputted(const std::string & inputtedText)
 {
 	if (LOCPLINT->cingconsole != this)
 		return;

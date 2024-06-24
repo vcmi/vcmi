@@ -65,10 +65,10 @@ public:
 
 	BattleHex::EDir destShiftDir() const;
 
-	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmout filled
+	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmount filled
 	static void prepareAttacked(BattleStackAttacked & bsa,
 								vstd::RNG & rand,
-								const std::shared_ptr<battle::CUnitState> & customState); //requires bsa.damageAmout filled
+								const std::shared_ptr<battle::CUnitState> & customState); //requires bsa.damageAmount filled
 
 	const CCreature * unitType() const override;
 	int32_t unitBaseAmount() const override;

@@ -33,7 +33,7 @@
 namespace NKAI
 {
 
-#define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
+#define MIN_AI_STRENGTH (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 const float MIN_CRITICAL_VALUE = 2.0f;
 
@@ -1000,7 +1000,7 @@ public:
 		evaluationContext.goldReward += 7 * bi.dailyIncome[EGameResID::GOLD] / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
-		evaluationContext.goldCost += bi.buildCostWithPrerequisits[EGameResID::GOLD];
+		evaluationContext.goldCost += bi.buildCostWithPrerequisites[EGameResID::GOLD];
 		evaluationContext.closestWayRatio = 1;
 
 		if(bi.creatureID != CreatureID::NONE)

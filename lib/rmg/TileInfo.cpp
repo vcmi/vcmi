@@ -26,7 +26,7 @@ float TileInfo::getNearestObjectDistance() const
 
 void TileInfo::setNearestObjectDistance(float value)
 {
-	nearestObjectDistance = std::max<float>(0, value); //never negative (or unitialized)
+	nearestObjectDistance = std::max<float>(0, value); //never negative (or uninitialized)
 }
 bool TileInfo::shouldBeBlocked() const
 {

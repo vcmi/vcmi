@@ -559,7 +559,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			players.back()->addToggle(teamId, std::dynamic_pointer_cast<CToggleBase>(button));
 		}
 		
-		// plId is not neccessarily player color, just an index
+		// plId is not necessarily player color, just an index
 		auto team = settingsVec.at(plId).getTeam();
 		if(team == TeamID::NO_TEAM)
 		{
@@ -577,9 +577,9 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 void RandomMapTab::saveOptions(const CMapGenOptions & options)
 {
 	JsonNode data;
-	JsonSerializer ser(nullptr, data);
+	JsonSerializer set(nullptr, data);
 
-	ser.serializeStruct("lastSettings", const_cast<CMapGenOptions & >(options));
+	set.serializeStruct("lastSettings", const_cast<CMapGenOptions & >(options));
 
 	// FIXME: Do not nest fields
 	Settings rmgSettings = persistentStorage.write["rmg"];

@@ -103,7 +103,7 @@ CGPathNode * CPathfinder::topAndPop()
 
 void CPathfinder::calculatePaths()
 {
-	//logGlobal->info("Calculating paths for hero %s (adress  %d) of player %d", hero->name, hero , hero->tempOwner);
+	//logGlobal->info("Calculating paths for hero %s (address  %d) of player %d", hero->name, hero , hero->tempOwner);
 
 	//initial tile - set cost on 0 and add to the queue
 	std::vector<CGPathNode *> initialNodes = config->nodeStorage->getInitialNodes();
@@ -175,7 +175,7 @@ void CPathfinder::calculatePaths()
 				if(!hlp->isPatrolMovementAllowed(neighbour->coord))
 					continue;
 
-				/// Check transition without tile accessability rules
+				/// Check transition without tile accessibility rules
 				if(source.node->layer != neighbour->layer && !isLayerTransitionPossible())
 					continue;
 

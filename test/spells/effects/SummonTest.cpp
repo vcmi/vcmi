@@ -164,7 +164,7 @@ public:
 	{
 	}
 
-	void setDefaultExpectaions()
+	void setDefaultExpectations()
 	{
 		EXPECT_CALL(mechanicsMock, creatures()).Times(AnyNumber());
 		EXPECT_CALL(creatureServiceMock, getById(Eq(toSummon))).WillRepeatedly(Return(&toSummonType));
@@ -221,7 +221,7 @@ protected:
 
 TEST_P(SummonApplyTest, DISABLED_SpawnsNewUnit)
 {
-	setDefaultExpectaions();
+	setDefaultExpectations();
 
 	EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(unitId));
 	EXPECT_CALL(*battleFake, addUnit(Eq(unitId), _)).WillOnce(Invoke(this, &SummonApplyTest::onUnitAdded));
@@ -242,7 +242,7 @@ TEST_P(SummonApplyTest, DISABLED_SpawnsNewUnit)
 
 TEST_P(SummonApplyTest, DISABLED_UpdatesOldUnit)
 {
-	setDefaultExpectaions();
+	setDefaultExpectations();
 
 	acquired = std::make_shared<battle::UnitFake>();
 	acquired->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHealth, BonusSourceID()));

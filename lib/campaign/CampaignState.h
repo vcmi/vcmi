@@ -87,7 +87,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	std::string encoding;
 
 	int numberOfScenarios = 0;
-	bool difficultyChoosenByPlayer = false;
+	bool difficultyChosenByPlayer = false;
 
 	void loadLegacyData(ui8 campId);
 
@@ -114,7 +114,7 @@ public:
 		h & numberOfScenarios;
 		h & name;
 		h & description;
-		h & difficultyChoosenByPlayer;
+		h & difficultyChosenByPlayer;
 		h & filename;
 		h & modName;
 		h & music;

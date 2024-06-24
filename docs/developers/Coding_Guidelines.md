@@ -759,7 +759,7 @@ The line length for c++ source code is 120 columns. If your function declaration
 
 ### Warnings
 
-Avoid use of #pragma to disable warnings. Compile at warning level 3. Avoid commiting code with new warnings.
+Avoid use of #pragma to disable warnings. Compile at warning level 3. Avoid committing code with new warnings.
 
 ### File/directory naming
 
@@ -789,9 +789,9 @@ The name of the type should be logged first, e.g. {TYPE_NAME: members...}. The m
 
 Avoid code duplication or don't repeat yourself(DRY) is the most important aspect in programming. Code duplication of any kind can lead to inconsistency and is much harder to maintain. If one part of the system gets changed you have to change the code in several places. This process is error-prone and leads often to problems. Here you can read more about the DRY principle: [<http://en.wikipedia.org/wiki/Don%27t_repeat_yourself>](http://en.wikipedia.org/wiki/Don%27t_repeat_yourself)
 
-### Do not use uncommon abbrevations
+### Do not use uncommon abbreviations
 
-Do not use uncommon abbrevations for class, method, parameter and global object names.
+Do not use uncommon abbreviations for class, method, parameter and global object names.
 
 Bad:
 

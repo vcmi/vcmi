@@ -34,7 +34,7 @@ public:
 	{
 	}
 
-	void setDefaultExpectaions()
+	void setDefaultExpectations()
 	{
 		EXPECT_CALL(mechanicsMock, spells()).Times(AnyNumber());
 
@@ -82,7 +82,7 @@ TEST_F(DispelTest, DISABLED_ApplicableToAliveUnitWithTimedEffect)
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
 	EXPECT_CALL(mechanicsMock, getSpellIndex()).Times(AtLeast(1)).WillRepeatedly(Return(neutralID.toEnum()));
 
-	setDefaultExpectaions();
+	setDefaultExpectations();
 	unitsFake.setDefaultBonusExpectations();
 
 	EffectTarget target;
@@ -110,7 +110,7 @@ TEST_F(DispelTest, DISABLED_IgnoresOwnEffects)
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtMost(1)).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, getSpellIndex()).Times(AtLeast(1)).WillRepeatedly(Return(neutralID.toEnum()));
 
-	setDefaultExpectaions();
+	setDefaultExpectations();
 	unitsFake.setDefaultBonusExpectations();
 
 	EffectTarget target;
@@ -212,7 +212,7 @@ TEST_F(DispelApplyTest, DISABLED_RemovesEffects)
 	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect *>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
-	setDefaultExpectaions();
+	setDefaultExpectations();
 	unitsFake.setDefaultBonusExpectations();
 	setupDefaultRNG();
 

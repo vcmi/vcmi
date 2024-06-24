@@ -12,7 +12,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CModHandler;
-class CModIndentifier;
+class CModIdentifier;
 class CModInfo;
 struct CModVersion;
 class JsonNode;
@@ -72,7 +72,7 @@ public:
 	std::vector<std::string> getAllMods() const;
 	std::vector<std::string> getActiveMods() const;
 
-	/// Returns human-readable string that describes erros encounter during mod loading, such as missing dependencies
+	/// Returns human-readable string that describes errors encounter during mod loading, such as missing dependencies
 	std::string getModLoadErrors() const;
 	
 	const CModInfo & getModInfo(const TModID & modId) const;

@@ -139,7 +139,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 		return;
 
 	std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(BonusType::SUMMON_GUARDIANS));
-	auto accessibility = battle.getAccesibility();
+	auto accessibility = battle.getAccessibility();
 	CreatureID creatureData = summonInfo->subtype.as<CreatureID>();
 	std::vector<BattleHex> targetHexes;
 	const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard

@@ -153,7 +153,7 @@ void CRecruitmentWindow::buy()
 		std::pair<SlotID, SlotID> toMerge;
 		bool allowMerge = CGI->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
 
-		if (allowMerge && dst->mergableStacks(toMerge))
+		if (allowMerge && dst->mergeableStacks(toMerge))
 		{
 			LOCPLINT->cb->mergeStacks( dst, dst, toMerge.first, toMerge.second);
 		}

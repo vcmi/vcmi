@@ -22,4 +22,4 @@ public:
 	std::array<int, GameConstants::BFIELD_SIZE> sufferedDamage;
 
 	ThreatMap(const CStack *Endangered);
-};*/ // These lines may be usefull but they are't used in the code.
+};*/ // These lines may be useful but they are't used in the code.

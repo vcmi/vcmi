@@ -31,7 +31,7 @@ public:
 	/// if set, only specified section of internal image will be rendered
 	std::optional<Rect> srcRect;
 
-	/// If set to true, iamge will be redrawn on each frame
+	/// If set to true, image will be redrawn on each frame
 	bool needRefresh;
 
 	std::shared_ptr<IImage> getSurface()

@@ -120,7 +120,7 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		{
 			if(isResolved(allMods.at(*it)))
 			{
-				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node childs will be resolved on the next iteration
+				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node children will be resolved on the next iteration
 				sortedValidMods.push_back(*it);
 				it = modsToResolve.erase(it);
 				continue;

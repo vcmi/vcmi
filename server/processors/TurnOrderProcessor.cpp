@@ -182,7 +182,7 @@ bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerC
 		if (!gameHandler->getStartInfo()->simturnsInfo.allowHumanWithAI)
 			return false;
 
-		// only one AI and one human can play simultaneoulsy from single connection
+		// only one AI and one human can play simultaneously from single connection
 		if (activeInfo->human == waitingInfo->human)
 			return false;
 	}

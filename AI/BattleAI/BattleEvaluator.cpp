@@ -196,7 +196,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		}
 	}
 
-	//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
+	//ThreatMap threatsToUs(stack); // These lines may be useful but they are't used in the code.
 	if(moveTarget.scorePerTurn > score)
 	{
 		score = moveTarget.score;

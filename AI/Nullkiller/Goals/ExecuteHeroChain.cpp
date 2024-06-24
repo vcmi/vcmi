@@ -234,7 +234,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			if(node->turns == 0)
 			{
 				logAi->error(
-					"Unable to complete chain. Expected hero %s to arive to %s but he is at %s",
+					"Unable to complete chain. Expected hero %s to arrive to %s but he is at %s",
 					hero->getNameTranslated(),
 					node->coord.toString(),
 					hero->visitablePos().toString());

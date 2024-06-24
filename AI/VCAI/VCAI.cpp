@@ -571,7 +571,7 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 			auto obj = myCb->getObj(sop->id, false);
 			if(obj)
 			{
-				addVisitableObj(obj); // TODO: Remove once save compatability broken. In past owned objects were removed from this set
+				addVisitableObj(obj); // TODO: Remove once save compatibility broken. In past owned objects were removed from this set
 				vstd::erase_if_present(alreadyVisited, obj);
 			}
 		}
@@ -682,7 +682,7 @@ void VCAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID cha
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits")
 																			% exits.size()));
 
-	int choosenExit = -1;
+	int chosenExit = -1;
 	if(impassable)
 	{
 		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
@@ -691,14 +691,14 @@ void VCAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID cha
 	{
 		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
 		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
-			choosenExit = vstd::find_pos(exits, neededExit);
+			chosenExit = vstd::find_pos(exits, neededExit);
 	}
 
 	for(auto exit : exits)
 	{
 		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
-			choosenExit = vstd::find_pos(exits, exit);
+			chosenExit = vstd::find_pos(exits, exit);
 			break;
 		}
 		else
@@ -716,7 +716,7 @@ void VCAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID cha
 
 	requestActionASAP([=]()
 	{
-		answerQuery(askID, choosenExit);
+		answerQuery(askID, chosenExit);
 	});
 }
 
@@ -942,7 +942,7 @@ void VCAI::mainLoop()
 		while (possibleGoals.size())
 		{
 			//allow assign goals to heroes with 0 movement, but don't realize them
-			//maybe there are beter ones left
+			//maybe there are better ones left
 
 			auto bestGoal = fh->chooseSolution(possibleGoals);
 			if (bestGoal->hero) //lock this hero to fulfill goal
@@ -1543,7 +1543,7 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 		auto it = lockedHeroes.find(h);
 		if(it != lockedHeroes.end())
 		{
-			if(it->second == goal || it->second->fulfillsMe(goal)) //FIXME this is overspecified, fulfillsMe shoudl be complete
+			if(it->second == goal || it->second->fulfillsMe(goal)) //FIXME this is overspecified, fulfillsMe should be complete
 			{
 				logAi->debug(goal->completeMessage());
 				lockedHeroes.erase(it); //goal fulfilled, free hero
@@ -1735,7 +1735,7 @@ const CGObjectInstance * VCAI::lookForArt(ArtifactID aid) const
 
 	return nullptr;
 
-	//TODO what if more than one artifact is available? return them all or some slection criteria
+	//TODO what if more than one artifact is available? return them all or some selection criteria
 }
 
 bool VCAI::isAccessible(const int3 & pos) const
@@ -2110,7 +2110,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 	if(ah->freeResources()[g.resID] >= g.value) //goal is already fulfilled. Why we need this check, anyway?
 		throw goalFulfilledException(sptr(g));
 
-	int accquiredResources = 0;
+	int acquiredResources = 0;
 	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
 	{
 		if(const auto * m = dynamic_cast<const IMarket*>(obj))
@@ -2130,8 +2130,8 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 				if (toGive) //don't try to sell 0 resources
 				{
 					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
-					accquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
-					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
+					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName());
 				}
 				if (ah->freeResources()[g.resID] >= g.value)
 					throw goalFulfilledException(sptr(g)); //we traded all we needed

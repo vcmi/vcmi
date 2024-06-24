@@ -41,8 +41,8 @@ QVariant toVariant(const CMapEvent & event)
 	result["players"] = QVariant::fromValue(event.players);
 	result["humanAffected"] = QVariant::fromValue(event.humanAffected);
 	result["computerAffected"] = QVariant::fromValue(event.computerAffected);
-	result["firstOccurence"] = QVariant::fromValue(event.firstOccurence);
-	result["nextOccurence"] = QVariant::fromValue(event.nextOccurence);
+	result["firstOccurrence"] = QVariant::fromValue(event.firstOccurrence);
+	result["nextOccurrence"] = QVariant::fromValue(event.nextOccurrence);
 	result["resources"] = toVariant(event.resources);
 	return QVariant(result);
 }
@@ -56,8 +56,8 @@ CMapEvent eventFromVariant(CMapHeader & mapHeader, const QVariant & variant)
 	result.players = v.value("players").toInt();
 	result.humanAffected = v.value("humanAffected").toInt();
 	result.computerAffected = v.value("computerAffected").toInt();
-	result.firstOccurence = v.value("firstOccurence").toInt();
-	result.nextOccurence = v.value("nextOccurence").toInt();
+	result.firstOccurrence = v.value("firstOccurrence").toInt();
+	result.nextOccurrence = v.value("nextOccurrence").toInt();
 	result.resources = resourcesFromVariant(v.value("resources"));
 	return result;
 }

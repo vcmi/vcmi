@@ -83,7 +83,7 @@ public:
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *>> townVisitsThisWeek;
 
-	//part of mainLoop, but accessible from outisde
+	//part of mainLoop, but accessible from outside
 	std::vector<Goals::TSubgoal> basicGoals;
 	Goals::TGoalVec goalsToRemove;
 	Goals::TGoalVec goalsToAdd;

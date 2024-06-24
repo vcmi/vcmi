@@ -13,7 +13,7 @@
 
 AttackerValue::AttackerValue()
 	: value(0),
-	isRetalitated(false)
+	isRetaliated(false)
 {
 }
 
@@ -57,14 +57,14 @@ float BattleExchangeVariant::trackAttack(
 
 				attackValue -= attackerDamageReduce;
 				dpsScore.ourDamageReduce += attackerDamageReduce;
-				attackerValue[unitToUpdate->unitId()].isRetalitated = true;
+				attackerValue[unitToUpdate->unitId()].isRetaliated = true;
 
 				unitToUpdate->damage(retaliationDamage);
 				defender->afterAttack(false, true);
 
 #if BATTLE_TRACE_LEVEL>=1
 				logAi->trace(
-					"%s -> %s, ap retalitation, %s, dps: %2f, score: %2f",
+					"%s -> %s, ap retaliation, %s, dps: %2f, score: %2f",
 					defender->getDescription(),
 					unitToUpdate->getDescription(),
 					ap.attack.shooting ? "shot" : "mellee",
@@ -185,7 +185,7 @@ float BattleExchangeVariant::trackAttack(
 		if(isOurAttack)
 		{
 			dpsScore.ourDamageReduce += attackerDamageReduce;
-			attackerValue[attacker->unitId()].isRetalitated = true;
+			attackerValue[attacker->unitId()].isRetaliated = true;
 		}
 		else
 		{

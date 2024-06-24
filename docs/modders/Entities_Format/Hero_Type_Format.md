@@ -44,7 +44,7 @@ In order to make functional hero you also need:
 
 			// Tooltip visible on clicking icon. Can use {} symbols to change title to yellow
 			// as well as escape sequences "\n" to add line breaks
-			"tooltip" : "{Magic Arrow}\n\nCasts powerfull magic arrows",
+			"tooltip" : "{Magic Arrow}\n\nCasts powerful magic arrows",
 
 			// Name of your specialty
 			"name" : "Magic Arrow"

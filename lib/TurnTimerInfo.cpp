@@ -22,9 +22,9 @@ bool TurnTimerInfo::isBattleEnabled() const
 	return turnTimer > 0 || baseTimer > 0 || unitTimer > 0 || battleTimer > 0;
 }
 
-void TurnTimerInfo::substractTimer(int timeMs)
+void TurnTimerInfo::subtractTimer(int timeMs)
 {
-	auto const & substractTimer = [&timeMs](int & targetTimer)
+	auto const & subtractTimer = [&timeMs](int & targetTimer)
 	{
 		if (targetTimer > timeMs)
 		{
@@ -38,10 +38,10 @@ void TurnTimerInfo::substractTimer(int timeMs)
 		}
 	};
 
-	substractTimer(unitTimer);
-	substractTimer(battleTimer);
-	substractTimer(turnTimer);
-	substractTimer(baseTimer);
+	subtractTimer(unitTimer);
+	subtractTimer(battleTimer);
+	subtractTimer(turnTimer);
+	subtractTimer(baseTimer);
 }
 
 int TurnTimerInfo::valueMs() const

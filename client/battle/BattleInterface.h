@@ -206,7 +206,7 @@ public:
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const StackAttackInfo & attackInfo); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst();
-	void newRound(); //caled when round is ended;
+	void newRound(); //called when round is ended;
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br, QueryID queryID); //called when battle is finished - battleresult window should be printed
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell

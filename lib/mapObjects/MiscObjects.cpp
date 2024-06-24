@@ -375,7 +375,7 @@ bool CGTeleport::isChannelExit(const ObjectInstanceID & id) const
 
 std::vector<ObjectInstanceID> CGTeleport::getAllEntrances(bool excludeCurrent) const
 {
-	auto ret = cb->getTeleportChannelEntraces(channel);
+	auto ret = cb->getTeleportChannelEntrances(channel);
 	if(excludeCurrent)
 		vstd::erase_if_present(ret, id);
 

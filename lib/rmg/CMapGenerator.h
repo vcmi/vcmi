@@ -67,7 +67,7 @@ public:
 	std::unique_ptr<CMap> generate();
 
 	int getNextMonlithIndex();
-	int getPrisonsRemaning() const;
+	int getPrisonsRemaining() const;
 	std::shared_ptr<CZonePlacer> getZonePlacer() const;
 	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
 	const std::vector<HeroTypeID> getAllPossibleHeroes() const;

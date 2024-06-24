@@ -269,7 +269,7 @@ void Zone::fractalize()
 	{
 		if (treasureValue > 250)
 		{
-			// A quater at max density - means more free space
+			// A quarter at max density - means more free space
 			marginFactor = (0.6f + ((std::max(0, (600 - treasureValue))) / (600.f - 250)) * 0.4f);
 
 			// Low value - dense obstacles
