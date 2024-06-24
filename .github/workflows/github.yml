@@ -234,12 +234,6 @@ jobs:
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
-    - name: Additional logs
-      if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'msvc' }}
-      run: |
-        cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/project.nsi'
-        cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/NSISOutput.log'
-
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v4
