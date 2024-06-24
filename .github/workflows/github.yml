@@ -194,6 +194,9 @@ jobs:
         if [[ ${{matrix.preset}} == linux-gcc-test ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
+        elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
+        then
+            cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily" --preset ${{ matrix.preset }}
         elif [[ ${{matrix.platform}} != msvc ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
