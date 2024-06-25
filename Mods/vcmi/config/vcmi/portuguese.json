@@ -259,7 +259,7 @@
 	"vcmi.battleWindow.damageRetaliation.damage" : "(%DAMAGE).",
 	"vcmi.battleWindow.damageRetaliation.damageKills" : "(%DAMAGE, %KILLS).",
 	
-	"vcmi.battleWindow.killed" : "Eliminados",
+	"vcmi.battleWindow.killed" : "Mortos",
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s morreram por tiros precisos!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s morreu com um tiro preciso!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s morreram por tiros precisos!",
