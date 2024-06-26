@@ -26,9 +26,15 @@ namespace
 {
 QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
 {
-	ZipArchive archive(qstringToPath(path));
-
-	filesToExtract = archive.listFiles();
+	try {
+		ZipArchive archive(qstringToPath(path));
+		filesToExtract = archive.listFiles();
+	}
+	catch (const std::runtime_error & e)
+	{
+		logGlobal->error("Failed to open zip archive. Reason: %s", e.what());
+		return "";
+	}
 
 	QString modDirName;
 
