@@ -500,7 +500,7 @@ void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 			if(relations == PlayerRelations::ENEMIES)
 			{
 				//we want to visit objects owned by oppponents
-				//addVisitableObj(obj); // TODO: Remove once save compatability broken. In past owned objects were removed from this set
+				//addVisitableObj(obj); // TODO: Remove once save compatibility broken. In past owned objects were removed from this set
 				nullkiller->memory->markObjectUnvisited(obj);
 			}
 			else if(relations == PlayerRelations::SAME_PLAYER && obj->ID == Obj::TOWN)
@@ -705,7 +705,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits") % exits.size()));
 
-	int choosenExit = -1;
+	int chosenExit = -1;
 	if(impassable)
 	{
 		nullkiller->memory->knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
@@ -714,14 +714,14 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 	{
 		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
 		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
-			choosenExit = vstd::find_pos(exits, neededExit);
+			chosenExit = vstd::find_pos(exits, neededExit);
 	}
 
 	for(auto exit : exits)
 	{
 		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
-			choosenExit = vstd::find_pos(exits, exit);
+			chosenExit = vstd::find_pos(exits, exit);
 			break;
 		}
 		else
@@ -739,7 +739,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 
 	requestActionASAP([=]()
 	{
-		answerQuery(askID, choosenExit);
+		answerQuery(askID, chosenExit);
 	});
 }
 
@@ -1452,7 +1452,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 	if(cb->getResourceAmount(GameResID(g.resID)) >= g.value) //goal is already fulfilled. Why we need this check, anyway?
 		throw goalFulfilledException(sptr(g));
 
-	int accquiredResources = 0;
+	int acquiredResources = 0;
 	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
 	{
 		if(const auto * m = dynamic_cast<const IMarket*>(obj))
@@ -1472,8 +1472,8 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				if (toGive) //don't try to sell 0 resources
 				{
 					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
-					accquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
-					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
+					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName());
 				}
 				if (cb->getResourceAmount(GameResID(g.resID)))
 					throw goalFulfilledException(sptr(g)); //we traded all we needed

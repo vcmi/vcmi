@@ -58,7 +58,7 @@ namespace rmg
 		int3 nearest(const Area & area) const;
 		
 		void clear();
-		void assign(const Tileset tiles); //do not use reference to allow assigment of cached data
+		void assign(const Tileset tiles); //do not use reference to allow assignment of cached data
 		void add(const int3 & tile);
 		void erase(const int3 & tile);
 		void unite(const Area & area);

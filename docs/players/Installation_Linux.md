@@ -95,7 +95,7 @@ Download both files for the "offline backup game installers" and extract them us
 
 You can select both downloaded files in launcher to extract automatically.
 
-Alternativly you can use the classic way:
+Alternatively you can use the classic way:
 ```
 innoextract --output-dir=~/Downloads/HoMM3 "setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe"
 ```

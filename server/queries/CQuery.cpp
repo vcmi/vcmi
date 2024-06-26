@@ -18,7 +18,7 @@
 #include "../../lib/networkPacks/PacksForServer.h"
 
 template <typename Container>
-std::string formatContainer(const Container & c, std::string delimeter = ", ", std::string opener = "(", std::string closer=")")
+std::string formatContainer(const Container & c, std::string delimiter = ", ", std::string opener = "(", std::string closer=")")
 {
 	std::string ret = opener;
 	auto itr = std::begin(c);
@@ -27,7 +27,7 @@ std::string formatContainer(const Container & c, std::string delimeter = ", ", s
 		ret += std::to_string(*itr);
 		while(++itr != std::end(c))
 		{
-			ret += delimeter;
+			ret += delimiter;
 			ret += std::to_string(*itr);
 		}
 	}

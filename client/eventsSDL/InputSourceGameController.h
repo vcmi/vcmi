@@ -39,7 +39,7 @@ class InputSourceGameController
 	double scrollPlanDisX;
 	double scrollPlanDisY;
 
-	const double configTriggerTreshold;
+	const double configTriggerThreshold;
 	const double configAxisDeadZone;
 	const double configAxisFullZone;
 	const double configAxisSpeed;

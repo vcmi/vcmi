@@ -45,7 +45,7 @@ struct BattleScore
 struct AttackerValue
 {
 	float value;
-	bool isRetalitated;
+	bool isRetaliated;
 	BattleHex position;
 
 	AttackerValue();

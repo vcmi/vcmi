@@ -426,7 +426,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 		iw.text.appendLocalString (EMetaText::GENERAL_TXT, 30); //You have captured enemy artifact
 
-		for (auto art : arts) //TODO; separate function to display loot for various ojects?
+		for (auto art : arts) //TODO; separate function to display loot for various objects?
 		{
 			if (art->artType->getId() == ArtifactID::SPELL_SCROLL)
 				iw.components.emplace_back(ComponentType::SPELL_SCROLL, art->getScrollSpellID());

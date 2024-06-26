@@ -281,7 +281,7 @@ public:
 	LegacyTextContainer qeModCommands;
 
 	LegacyHelpContainer zelp;
-	LegacyTextContainer lossCondtions;
+	LegacyTextContainer lossConditions;
 	LegacyTextContainer victoryConditions;
 
 	//objects

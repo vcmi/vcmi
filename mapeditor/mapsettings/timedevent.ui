@@ -67,12 +67,12 @@
          <item>
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>Day of first occurance</string>
+            <string>Day of first occurrence</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="eventFirstOccurance"/>
+          <widget class="QSpinBox" name="eventFirstOccurrence"/>
          </item>
         </layout>
        </item>

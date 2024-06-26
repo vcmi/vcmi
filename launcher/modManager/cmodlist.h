@@ -50,7 +50,7 @@ public:
 	bool isInstalled() const;
 	// vcmi essential files
 	bool isEssential() const;
-	// checks if verison is compatible with vcmi
+	// checks if version is compatible with vcmi
 	bool isCompatible() const;
 	// returns true if mod should be visible in Launcher
 	bool isVisible() const;

@@ -67,7 +67,7 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="76"/>
         <source>Limit maximum heroes level</source>
-        <translation>Limite máximo do nível dos heróis</translation>
+        <translation>Limit máximo do nível dos heróis</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="85"/>
@@ -606,7 +606,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1120"/>
         <source>Errors occurred. %1 objects were not updated</source>
-        <translation>Ocorreram erros. %1 objetos não foram atualizados</translation>
+        <translation>Ocorreram errors. %1 objetos não foram atualizados</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1160"/>
@@ -758,7 +758,7 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="68"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation>Defina os mods necessários com base nos objetos colocados no mapa. Este método pode causar problemas se você tiver recompensas personalizadas, guarnições, etc., dos mods.</translation>
+        <translation>Defina os mods necessários com base nos objetos colocados no mapa. Este método pode causar problems se você tiver recompensas personalizadas, guarnições, etc., dos mods.</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
@@ -1139,7 +1139,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="217"/>
         <source>Message to be displayed on granting of this reward</source>
-        <translation>Mensagem a ser exibida ao conceder esta recompensa</translation>
+        <translation>Mensagem a set exibida ao conceder esta recompensa</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="228"/>
@@ -1394,7 +1394,7 @@
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
-        <source>Day of first occurance</source>
+        <source>Day of first occurrence</source>
         <translation>Dia da primeira ocorrência</translation>
     </message>
     <message>
@@ -1429,9 +1429,9 @@
     </message>
 </context>
 <context>
-    <name>TownBulidingsWidget</name>
+    <name>TownBuildingsWidget</name>
     <message>
-        <location filename="../inspector/townbulidingswidget.ui" line="29"/>
+        <location filename="../inspector/townbuildingswidget.ui" line="29"/>
         <source>Buildings</source>
         <translation>Estruturas</translation>
     </message>
@@ -1450,7 +1450,7 @@
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
-        <source>Suppported</source>
+        <source>Supported</source>
         <translation>Suportado</translation>
     </message>
     <message>
@@ -1472,7 +1472,7 @@
     <message>
         <location filename="../mapsettings/translations.cpp" line="157"/>
         <source>Default language cannot be removed</source>
-        <translation>O idioma padrão não pode ser removido</translation>
+        <translation>O idioma padrão não pode set removido</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="161"/>
@@ -1505,7 +1505,7 @@
     <message>
         <location filename="../validator.cpp" line="77"/>
         <source>Map is allowed for one player and cannot be started</source>
-        <translation>O mapa é permitido para um jogador e não pode ser iniciado</translation>
+        <translation>O mapa é permitido para um jogador e não pode set iniciado</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="79"/>
@@ -1515,7 +1515,7 @@
     <message>
         <location filename="../validator.cpp" line="95"/>
         <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation>A instância protegida %1 não tem bandeira mas precisa ser definida como neutra ou pertencente a um dos jogadores</translation>
+        <translation>A instância protegida %1 não tem bandeira mas precisa set definida como neutra ou pertencente a um dos jogadores</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="101"/>
@@ -1530,7 +1530,7 @@
     <message>
         <location filename="../validator.cpp" line="118"/>
         <source>Prison %1 must be a NEUTRAL</source>
-        <translation>A prisão %1 deve ser NEUTRA</translation>
+        <translation>A prisão %1 deve set NEUTRA</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="124"/>
@@ -1550,7 +1550,7 @@
     <message>
         <location filename="../validator.cpp" line="135"/>
         <source>Hero %1 has an empty type and must be removed</source>
-        <translation>O herói %1 possui um tipo vazio e deve ser removido</translation>
+        <translation>O herói %1 possui um tipo vazio e deve set removido</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="146"/>
@@ -1560,7 +1560,7 @@
     <message>
         <location filename="../validator.cpp" line="149"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation>O pergaminho mágico %1 não tem instância atribuída e deve ser removido</translation>
+        <translation>O pergaminho mágico %1 não tem instância atribuída e deve set removido</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="155"/>
@@ -1663,7 +1663,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Transport artifact</source>
-        <translation>Transportar artefato</translation>
+        <translation>Transporter artefato</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
@@ -1856,8 +1856,8 @@
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="246"/>
-        <source>No template for parameters scecified. Random map cannot be generated.</source>
-        <translation>Sem modelo para os parâmetros especificados. O mapa aleatório não pode ser gerado.</translation>
+        <source>No template for parameters specified. Random map cannot be generated.</source>
+        <translation>Sem modelo para os parâmetros especificados. O mapa aleatório não pode set gerado.</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="266"/>
@@ -1880,7 +1880,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="114"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation>De um arquivo extraído, divide TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 e Un44 em PNGs individuais.</translation>
+        <translation>De um arquivo extraído, divide TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 e Un44 em ONGs individuals.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="115"/>

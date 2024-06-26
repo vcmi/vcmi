@@ -639,7 +639,7 @@ void MinimapLayer::update()
 	pixmap.reset(new QPixmap(map->width, map->height));
 	
 	QPainter painter(pixmap.get());
-	//coordinate transfomation
+	//coordinate transformation
 	for(int j = 0; j < map->height; ++j)
 	{
 		for(int i = 0; i < map->width; ++i)

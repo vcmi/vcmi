@@ -126,7 +126,7 @@ ImagePath BattleSiegeController::getBattleBackgroundName() const
 	return ImagePath::builtinTODO(prefix + "BACK.BMP");
 }
 
-bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what) const
+bool BattleSiegeController::getWallPieceExistence(EWallVisual::EWallVisual what) const
 {
 	//FIXME: use this instead of buildings test?
 	//ui8 siegeLevel = owner.curInt->cb->battleGetSiegeLevel();
@@ -179,7 +179,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( g == EWallVisual::GATE ) // gate is initially closed and has no image to display in this state
 			continue;
 
-		if ( !getWallPieceExistance(EWallVisual::EWallVisual(g)) )
+		if ( !getWallPieceExistence(EWallVisual::EWallVisual(g)) )
 			continue;
 
 		wallPieceImages[g] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
@@ -256,10 +256,10 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 
 void BattleSiegeController::showAbsoluteObstacles(Canvas & canvas)
 {
-	if (getWallPieceExistance(EWallVisual::MOAT))
+	if (getWallPieceExistence(EWallVisual::MOAT))
 		showWallPiece(canvas, EWallVisual::MOAT);
 
-	if (getWallPieceExistance(EWallVisual::MOAT_BANK))
+	if (getWallPieceExistence(EWallVisual::MOAT_BANK))
 		showWallPiece(canvas, EWallVisual::MOAT_BANK);
 }
 
@@ -292,7 +292,7 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 	{
 		auto wallPiece = EWallVisual::EWallVisual(i);
 
-		if ( !getWallPieceExistance(wallPiece))
+		if ( !getWallPieceExistence(wallPiece))
 			continue;
 
 		if ( getWallPiecePosition(wallPiece) == BattleHex::INVALID)

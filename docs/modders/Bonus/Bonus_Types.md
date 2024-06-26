@@ -1,4 +1,4 @@
-The bonuses were grouped according to their original purpose. The bonus system allows them to propagate freely betwen the nodes, however they may not be recognized properly beyond the scope of original use.
+The bonuses were grouped according to their original purpose. The bonus system allows them to propagate freely between the nodes, however they may not be recognized properly beyond the scope of original use.
 
 ## General-purpose bonuses
 
@@ -47,7 +47,7 @@ Bonus that does not account for propagation and gives specific amount of extra r
 Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns
 
 - subtype: resource identifier
-- val: - base resource amount to be multipled times number of owned towns
+- val: - base resource amount to be multiplied times number of owned towns
 
 ## Hero bonuses
 
@@ -351,7 +351,7 @@ Negates all natural immunities for affected stacks. (Orb of Vulnerability)
 
 In battle, army affected by this bonus will cast spell at the very start of the battle. Spell is always cast at expert level.
 
-- subtype: spell identifer
+- subtype: spell identifier
 - val: duration of the spell, in rounds
 
 ### FREE_SHIP_BOARDING
@@ -876,7 +876,7 @@ Affected unit receives decreased damage from spells of specific school (Golems)
 Affected unit receives increased damage from specific spell
 
 - val: increase to damage, percentage
-- subtype: spell identifer
+- subtype: spell identifier
 
 ### MIND_IMMUNITY
 

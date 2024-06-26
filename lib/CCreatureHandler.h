@@ -91,10 +91,10 @@ public:
 
 		double timeBetweenFidgets, idleAnimationTime,
 			   walkAnimationTime, attackAnimationTime;
-		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
-		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
+		int upperRightMissileOffsetX, rightMissileOffsetX, lowerRightMissileOffsetX,
+		    upperRightMissileOffsetY, rightMissileOffsetY, lowerRightMissileOffsetY;
 
-		std::vector<double> missleFrameAngles;
+		std::vector<double> missileFrameAngles;
 		int attackClimaxFrame;
 
 		AnimationPath projectileImageName;

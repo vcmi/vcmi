@@ -53,7 +53,7 @@ TEST_F(ERM_MF, ChangesDamage)
 	SCOPED_TRACE("\n" + subject->code);
 	runClientServer();
 
-	EXPECT_CALL(event, getInitalDamage()).WillOnce(Return(23450));
+	EXPECT_CALL(event, getInitialDamage()).WillOnce(Return(23450));
 	EXPECT_CALL(event, setDamage(Eq(23460))).Times(1);
 
 	eventBus.executeEvent(event);

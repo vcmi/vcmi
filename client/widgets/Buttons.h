@@ -154,7 +154,7 @@ public:
 
 	void addCallback(const std::function<void(bool)> & callback);
 
-	/// Set whether the toggle is currently enabled for user to use, this is only inplemented in ToggleButton, not for other toggles yet.
+	/// Set whether the toggle is currently enabled for user to use, this is only implemented in ToggleButton, not for other toggles yet.
 	virtual void setEnabled(bool enabled);
 };
 

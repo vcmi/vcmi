@@ -32,7 +32,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
-	// Propogate options after every CLobbyPackToServer
+	// Propagate options after every CLobbyPackToServer
 	if(pack.isForServer())
 	{
 		srv.updateAndPropagateLobbyState();

@@ -268,7 +268,7 @@ public:
 	TMapCreatureSlot getCreatureMap() const;
 	TCreatureQueue getCreatureQueue(const SlotID & exclude) const;
 
-	bool mergableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable = SlotID()) const; //looks for two same stacks, returns slot positions;
+	bool mergeableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable = SlotID()) const; //looks for two same stacks, returns slot positions;
 	bool validTypes(bool allowUnrandomized = false) const; //checks if all types of creatures are set properly
 	bool slotEmpty(const SlotID & slot) const;
 	int stacksCount() const;

@@ -34,7 +34,7 @@ CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, 
 	assert(!owner.isValidPlayer() || (base.armyObj && base.armyObj->tempOwner == owner));
 
 	auto * ret = new CStack(&base, owner, id, side, slot);
-	ret->initialPosition = getAvaliableHex(base.getCreatureID(), side, position); //TODO: what if no free tile on battlefield was found?
+	ret->initialPosition = getAvailableHex(base.getCreatureID(), side, position); //TODO: what if no free tile on battlefield was found?
 	stacks.push_back(ret);
 	return ret;
 }
@@ -265,7 +265,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			while(tilesToBlock > 0)
 			{
 				RangeGenerator obidgen(0, VLC->obstacleHandler->size() - 1, ourRand);
-				auto tileAccessibility = curB->getAccesibility();
+				auto tileAccessibility = curB->getAccessibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
 				const ObstacleInfo &obi = *Obstacle(obid).getInfo();
 
@@ -762,7 +762,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 	if(!changedStack->alive() && healthDelta > 0)
 	{
 		//checking if we resurrect a stack that is under a living stack
-		auto accessibility = getAccesibility();
+		auto accessibility = getAccessibility();
 
 		if(!accessibility.accessible(changedStack->getPosition(), changedStack))
 		{

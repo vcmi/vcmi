@@ -9,7 +9,7 @@ function MF:new(ERM)
 end
 
 function MF:D(x)
-	return self.ERM.activeEvent:getInitalDamage()
+	return self.ERM.activeEvent:getInitialDamage()
 end
 
 function MF:E(x, ...)

@@ -50,7 +50,7 @@ struct CurrentOffensivePotential
 		return ourPotential - enemyPotential;
 	}
 };
-*/ // These lines may be usefull but they are't used in the code.
+*/ // These lines may be useful but they are't used in the code.
 
 class CBattleAI : public CBattleGameInterface
 {

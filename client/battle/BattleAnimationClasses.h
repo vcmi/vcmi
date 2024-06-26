@@ -141,10 +141,10 @@ protected:
 class MovementAnimation : public StackMoveAnimation
 {
 private:
-	int moveSoundHander; // sound handler used when moving a unit
+	int moveSoundHandler; // sound handler used when moving a unit
 
 	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
-	ui32 curentMoveIndex; // index of nextHex in destTiles
+	ui32 currentMoveIndex; // index of nextHex in destTiles
 
 	double begX, begY; // starting position
 	double distanceX, distanceY; // full movement distance, may be negative if creture moves topleft

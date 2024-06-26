@@ -243,7 +243,7 @@ void WindowNewMap::on_okButton_clicked()
 		//verify map template
 		if(mapGenOptions.getPossibleTemplates().empty())
 		{
-			QMessageBox::warning(this, tr("No template"), tr("No template for parameters scecified. Random map cannot be generated."));
+			QMessageBox::warning(this, tr("No template"), tr("No template for parameters specified. Random map cannot be generated."));
 			return;
 		}
 		

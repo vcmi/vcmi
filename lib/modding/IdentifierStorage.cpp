@@ -430,7 +430,7 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
 		return true;
 	}
 
-	if (request.optional && identifiers.empty()) // failed to resolve optinal ID
+	if (request.optional && identifiers.empty()) // failed to resolve optional ID
 	{
 		return true;
 	}

@@ -690,7 +690,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	//identify clicked player
 	int clickedNameID = 0; //number of player - zero means AI, assume it initially
 	if(clicked.isControlledByHuman())
-		clickedNameID = *(clicked.connectedPlayerIDs.begin()); //if not AI - set appropiate ID
+		clickedNameID = *(clicked.connectedPlayerIDs.begin()); //if not AI - set appropriate ID
 
 	if(clickedNameID > 0 && playerToRestore.id == clickedNameID) //player to restore is about to being replaced -> put him back to the old place
 	{
@@ -752,7 +752,7 @@ void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
 	if(player.connectedPlayerIDs.empty())
 		return;
 
-	int nameID = *(player.connectedPlayerIDs.begin()); //if not AI - set appropiate ID
+	int nameID = *(player.connectedPlayerIDs.begin()); //if not AI - set appropriate ID
 
 	playerNames[nameID].name = name;
 	setPlayerConnectedId(player, nameID);

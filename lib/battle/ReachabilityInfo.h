@@ -15,7 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 // Reachability info is result of BFS calculation. It's dependent on stack (it's owner, whether it's flying),
-// startPosition and perpective.
+// startPosition and perspective.
 struct DLL_LINKAGE ReachabilityInfo
 {
 	using TDistances = std::array<uint32_t, GameConstants::BFIELD_SIZE>;

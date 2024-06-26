@@ -11,7 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-/// Namespace that provides utilites for unicode support (UTF-8)
+/// Namespace that provides utilities for unicode support (UTF-8)
 namespace TextOperations
 {
 	/// returns 32-bit UTF codepoint for UTF-8 character symbol
@@ -24,7 +24,7 @@ namespace TextOperations
 	size_t DLL_LINKAGE getUnicodeCharacterSize(char firstByte);
 
 	/// test if character is a valid UTF-8 symbol
-	/// maxSize - maximum number of bytes this symbol may consist from ( = remainer of string)
+	/// maxSize - maximum number of bytes this symbol may consist from ( = remainder of string)
 	bool DLL_LINKAGE isValidUnicodeCharacter(const char * character, size_t maxSize);
 
 	/// returns true if text contains valid ASCII-string

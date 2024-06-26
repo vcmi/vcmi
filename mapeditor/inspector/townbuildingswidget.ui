@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TownBulidingsWidget</class>
- <widget class="QDialog" name="TownBulidingsWidget">
+ <class>TownBuildingsWidget</class>
+ <widget class="QDialog" name="TownBuildingsWidget">
   <property name="windowModality">
    <enum>Qt::NonModal</enum>
   </property>

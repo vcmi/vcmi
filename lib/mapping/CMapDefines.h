@@ -39,8 +39,8 @@ public:
 	ui8 players; // affected players, bit field?
 	bool humanAffected;
 	bool computerAffected;
-	ui32 firstOccurence;
-	ui32 nextOccurence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
+	ui32 firstOccurrence;
+	ui32 nextOccurrence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
 
 	template <typename Handler>
 	void serialize(Handler & h)
@@ -51,8 +51,8 @@ public:
 		h & players;
 		h & humanAffected;
 		h & computerAffected;
-		h & firstOccurence;
-		h & nextOccurence;
+		h & firstOccurrence;
+		h & nextOccurrence;
 	}
 	
 	virtual void serializeJson(JsonSerializeFormat & handler);

@@ -142,7 +142,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void objectRemovedAfter() override;
 	void playerBlocked(int reason, bool start) override;
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
-	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
+	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active interface
 	void playerEndsTurn(PlayerColor player) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 

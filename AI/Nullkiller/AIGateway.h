@@ -95,7 +95,7 @@ public:
 	AIGateway();
 	virtual ~AIGateway();
 
-	//TODO: extract to apropriate goals
+	//TODO: extract to appropriate goals
 	void tryRealize(Goals::DigAtTile & g);
 	void tryRealize(Goals::Trade & g);
 

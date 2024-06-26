@@ -132,7 +132,7 @@ std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreatur
 {
 	JsonRandom::Variables emptyVariables;
 	JsonRandom randomizer(cb);
-	std::vector<PossibleReward<CStackBasicDescriptor>> aproximateReward;
+	std::vector<PossibleReward<CStackBasicDescriptor>> approximateReward;
 
 	for(const JsonNode & configEntry : config)
 	{
@@ -143,11 +143,11 @@ std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreatur
 		{
 			const auto * creature = stack.allowedCreatures.front();
 
-			aproximateReward.emplace_back(configEntry["chance"].Integer(), CStackBasicDescriptor(creature, (stack.minAmount + stack.maxAmount) / 2));
+			approximateReward.emplace_back(configEntry["chance"].Integer(), CStackBasicDescriptor(creature, (stack.minAmount + stack.maxAmount) / 2));
 		}
 	}
 
-	return aproximateReward;
+	return approximateReward;
 }
 
 bool CBankInfo::givesResources() const

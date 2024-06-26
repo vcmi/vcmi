@@ -187,7 +187,7 @@ void MapView::postSwipe(uint32_t msPassed)
 			std::pair<uint32_t, Point> firstAccepted;
 			uint32_t now = GH.input().getTicks();
 			for (auto & x : swipeHistory) {
-				if(now - x.first < postSwipeCatchIntervalMs) { // only the last x ms are catched
+				if(now - x.first < postSwipeCatchIntervalMs) { // only the last x ms are caught
 					if(firstAccepted.first == 0)
 						firstAccepted = x;
 					diff += x.second;

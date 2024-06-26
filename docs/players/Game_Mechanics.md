@@ -4,7 +4,7 @@
 
 VCMI supports resolutions higher than original game, which ran only in 800 x 600. It also allows a number of additional features:
 
-- High-resolution screens of any ascpect ratio are supported.
+- High-resolution screens of any aspect ratio are supported.
 - In-game GUI can be freely scaled
 - Adventure map can be freely zoomed
 
@@ -27,7 +27,7 @@ The list of implemented cheat codes and console commands is [here](Cheat_codes.m
 
 ### Stack Experience module
 
-VCMI natively suppoorts stack experience feature known from WoG. Any creature - old or modded - can get stack experience bonuses. However, this feature needs to be enabled as a part of WoG VCMI submod.
+VCMI natively supports stack experience feature known from WoG. Any creature - old or modded - can get stack experience bonuses. However, this feature needs to be enabled as a part of WoG VCMI submod.
 
 Stack experience interface has been merged with regular creature window. Among old functionalities, it includes new useful info:
 
@@ -80,7 +80,7 @@ VCMI itroduces custom Quest Log window. It can display info about Seer Hut or Qu
 
 ### Power rating
 
-When hovering cursor over neutral stack on adventure map, you may notice additional info about relative threat this stack poses to curently selected hero. This feature has been originally introduced in Heroes of Might and Magic V.
+When hovering cursor over neutral stack on adventure map, you may notice additional info about relative threat this stack poses to currently selected hero. This feature has been originally introduced in Heroes of Might and Magic V.
 
 ### Minor GUI features
 
@@ -103,7 +103,7 @@ In combat, some creatures, such as Dragon or Cerberi, may attack enemies on mult
 - [LShift] + LClick – splits a half units from the selected stack into an empty slot.
 - [LCtrl] + LClick – splits a single unit from the selected stack into an empty slot.
 - [LCtrl] + [LShift] + LClick – split single units from the selected stack into all empty hero/garrison slots
-- [Alt] + LClick – merge all splitted single units into one stack
+- [Alt] + LClick – merge all split single units into one stack
 - [Alt] + [LCtrl] + LClick - move all units of selected stack to the city's garrison or to the met hero 
 - [Alt] + [LShift] + LClick - dismiss selected stack`
 - Directly type numbers in the Split Stack window to split them in any way you wish

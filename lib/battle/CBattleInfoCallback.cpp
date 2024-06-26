@@ -903,7 +903,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 	return unit.alive() && !movementStopped;
 }
 
-AccessibilityInfo CBattleInfoCallback::getAccesibility() const
+AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 {
 	AccessibilityInfo ret;
 	ret.fill(EAccessibility::ACCESSIBLE);
@@ -929,18 +929,18 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	//gate -> should be before stacks
 	if(battleGetSiegeLevel() > 0)
 	{
-		EAccessibility accessability = EAccessibility::ACCESSIBLE;
+		EAccessibility accessibility = EAccessibility::ACCESSIBLE;
 		switch(battleGetGateState())
 		{
 		case EGateState::CLOSED:
-			accessability = EAccessibility::GATE;
+			accessibility = EAccessibility::GATE;
 			break;
 
 		case EGateState::BLOCKED:
-			accessability = EAccessibility::UNAVAILABLE;
+			accessibility = EAccessibility::UNAVAILABLE;
 			break;
 		}
-		ret[BattleHex::GATE_OUTER] = ret[BattleHex::GATE_INNER] = accessability;
+		ret[BattleHex::GATE_OUTER] = ret[BattleHex::GATE_INNER] = accessibility;
 	}
 
 	//tiles occupied by standing stacks
@@ -985,14 +985,14 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	return ret;
 }
 
-AccessibilityInfo CBattleInfoCallback::getAccesibility(const battle::Unit * stack) const
+AccessibilityInfo CBattleInfoCallback::getAccessibility(const battle::Unit * stack) const
 {
-	return getAccesibility(battle::Unit::getHexes(stack->getPosition(), stack->doubleWide(), stack->unitSide()));
+	return getAccessibility(battle::Unit::getHexes(stack->getPosition(), stack->doubleWide(), stack->unitSide()));
 }
 
-AccessibilityInfo CBattleInfoCallback::getAccesibility(const std::vector<BattleHex> & accessibleHexes) const
+AccessibilityInfo CBattleInfoCallback::getAccessibility(const std::vector<BattleHex> & accessibleHexes) const
 {
-	auto ret = getAccesibility();
+	auto ret = getAccessibility();
 	for(auto hex : accessibleHexes)
 		if(hex.isValid())
 			ret[hex] = EAccessibility::ACCESSIBLE;
@@ -1145,7 +1145,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 		return std::make_pair<const battle::Unit * , BattleHex>(nullptr, BattleHex::INVALID);
 }
 
-BattleHex CBattleInfoCallback::getAvaliableHex(const CreatureID & creID, ui8 side, int initialPos) const
+BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, ui8 side, int initialPos) const
 {
 	bool twoHex = VLC->creatures()->getById(creID)->isDoubleWide();
 
@@ -1160,7 +1160,7 @@ BattleHex CBattleInfoCallback::getAvaliableHex(const CreatureID & creID, ui8 sid
  			pos = GameConstants::BFIELD_WIDTH - 1; //top right
  	}
 
-	auto accessibility = getAccesibility();
+	auto accessibility = getAccessibility();
 
 	std::set<BattleHex> occupyable;
 	for(int i = 0; i < accessibility.size(); i++)
@@ -1215,13 +1215,13 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Pa
 	if(params.flying)
 		return getFlyingReachability(params);
 	else
-		return makeBFS(getAccesibility(params.knownAccessible), params);
+		return makeBFS(getAccessibility(params.knownAccessible), params);
 }
 
 ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters &params) const
 {
 	ReachabilityInfo ret;
-	ret.accessibility = getAccesibility(params.knownAccessible);
+	ret.accessibility = getAccessibility(params.knownAccessible);
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 	{

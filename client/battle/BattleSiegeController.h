@@ -83,7 +83,7 @@ class BattleSiegeController
 	BattleHex getWallPiecePosition(EWallVisual::EWallVisual what) const;
 
 	/// returns true if chosen wall piece should be present in current battle
-	bool getWallPieceExistance(EWallVisual::EWallVisual what) const;
+	bool getWallPieceExistence(EWallVisual::EWallVisual what) const;
 
 	void showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what);
 

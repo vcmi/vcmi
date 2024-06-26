@@ -70,4 +70,4 @@ ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
 		});
 	}
 }
-*/ // These lines may be usefull but they are't used in the code.
+*/ // These lines may be useful but they are't used in the code.

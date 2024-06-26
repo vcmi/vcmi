@@ -22,6 +22,6 @@ extern SDL_Surface *screenBuf; // points to screen (if only advmapint is present
 
 void handleQuit(bool ask = true);
 
-/// Notify user about encoutered fatal error and terminate the game
+/// Notify user about encountered fatal error and terminate the game
 /// TODO: decide on better location for this method
 [[noreturn]] void handleFatalError(const std::string & message, bool terminate);

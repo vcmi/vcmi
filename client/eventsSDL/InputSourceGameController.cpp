@@ -39,7 +39,7 @@ InputSourceGameController::InputSourceGameController():
 	scrollAxisValueY(0),
 	scrollPlanDisX(0.0),
 	scrollPlanDisY(0.0),
-	configTriggerTreshold(settings["input"]["controllerTriggerTreshold"].Float()),
+	configTriggerThreshold(settings["input"]["controllerTriggerThreshold"].Float()),
 	configAxisDeadZone(settings["input"]["controllerAxisDeadZone"].Float()),
 	configAxisFullZone(settings["input"]["controllerAxisFullZone"].Float()),
 	configAxisSpeed(settings["input"]["controllerAxisSpeed"].Float()),
@@ -142,7 +142,7 @@ double InputSourceGameController::getRealAxisValue(int value) const
 
 void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue)
 {
-	if(getRealAxisValue(axisValue) > configTriggerTreshold)
+	if(getRealAxisValue(axisValue) > configTriggerThreshold)
 	{
 		if(!pressedAxes.count(axisID))
 		{

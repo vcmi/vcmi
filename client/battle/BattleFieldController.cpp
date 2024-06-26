@@ -84,7 +84,7 @@ namespace HexMasks
 
 std::map<int, int> hexEdgeMaskToFrameIndex;
 
-// Maps HexEdgesMask to "Frame" indexes for range highligt images
+// Maps HexEdgesMask to "Frame" indexes for range highlight images
 void initializeHexEdgeMaskToFrameIndex()
 {
 	hexEdgeMaskToFrameIndex[HexMasks::empty] = 0;
@@ -548,12 +548,12 @@ std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateRangeLimitH
 	return output;
 }
 
-void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, std::vector<BattleHex> & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighligts)
+void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, std::vector<BattleHex> & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights)
 {
 		std::vector<BattleHex> rangeHexes = getRangeHexes(hoveredHex, distance);
 		rangeLimitHexes = getRangeLimitHexes(hoveredHex, rangeHexes, distance);
 		std::vector<std::vector<BattleHex::EDir>> rangeLimitNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangeHexes, rangeLimitHexes);
-		rangeLimitHexesHighligts = calculateRangeLimitHighlightImages(rangeLimitNeighbourDirections, rangeLimitImages);
+		rangeLimitHexesHighlights = calculateRangeLimitHighlightImages(rangeLimitNeighbourDirections, rangeLimitImages);
 }
 
 void BattleFieldController::flipRangeLimitImagesIntoPositions(std::shared_ptr<CAnimation> images)
@@ -581,8 +581,8 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::vector<BattleHex> rangedFullDamageLimitHexes;
 	std::vector<BattleHex> shootingRangeLimitHexes;
 
-	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighligts;
-	std::vector<std::shared_ptr<IImage>> shootingRangeLimitHexesHighligts;
+	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighlights;
+	std::vector<std::shared_ptr<IImage>> shootingRangeLimitHexesHighlights;
 
 	std::set<BattleHex> hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
@@ -598,11 +598,11 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	{
 		// calculate array with highlight images for ranged full damage limit
 		auto rangedFullDamageDistance = hoveredStack->getRangedFullDamageDistance();
-		calculateRangeLimitAndHighlightImages(rangedFullDamageDistance, rangedFullDamageLimitImages, rangedFullDamageLimitHexes, rangedFullDamageLimitHexesHighligts);
+		calculateRangeLimitAndHighlightImages(rangedFullDamageDistance, rangedFullDamageLimitImages, rangedFullDamageLimitHexes, rangedFullDamageLimitHexesHighlights);
 
 		// calculate array with highlight images for shooting range limit
 		auto shootingRangeDistance = hoveredStack->getShootingRangeDistance();
-		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighligts);
+		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
 	}
 
 	auto const & hoveredMouseHexes = hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
@@ -635,11 +635,11 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		}
 		if(hexInRangedFullDamageLimit)
 		{
-			showHighlightedHex(canvas, rangedFullDamageLimitHexesHighligts[hexIndexInRangedFullDamageLimit], hex, false);
+			showHighlightedHex(canvas, rangedFullDamageLimitHexesHighlights[hexIndexInRangedFullDamageLimit], hex, false);
 		}
 		if(hexInShootingRangeLimit)
 		{
-			showHighlightedHex(canvas, shootingRangeLimitHexesHighligts[hexIndexInShootingRangeLimit], hex, false);
+			showHighlightedHex(canvas, shootingRangeLimitHexesHighlights[hexIndexInShootingRangeLimit], hex, false);
 		}
 	}
 }
@@ -865,7 +865,7 @@ bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 
 void BattleFieldController::updateAccessibleHexes()
 {
-	auto accessibility = owner.getBattle()->getAccesibility();
+	auto accessibility = owner.getBattle()->getAccessibility();
 
 	for(int i = 0; i < accessibility.size(); i++)
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE || (accessibility[i] == EAccessibility::SIDE_COLUMN));

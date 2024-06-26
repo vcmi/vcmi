@@ -372,7 +372,7 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 		IImage::SpecialPalette SpecialPalette;
 		genSpecialPalette(SpecialPalette);
 
-		image->setSpecialPallete(SpecialPalette, IImage::SPECIAL_PALETTE_MASK_CREATURES);
+		image->setSpecialPalette(SpecialPalette, IImage::SPECIAL_PALETTE_MASK_CREATURES);
 		image->adjustPalette(shifter, IImage::SPECIAL_PALETTE_MASK_CREATURES);
 
 		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));

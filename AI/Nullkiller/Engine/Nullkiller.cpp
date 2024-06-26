@@ -399,7 +399,7 @@ void Nullkiller::makeTurn()
 
 		auto selectedTasks = buildPlan(bestTasks);
 
-		logAi->debug("Decission madel in %ld", timeElapsed(start));
+		logAi->debug("Decision madel in %ld", timeElapsed(start));
 
 		if(selectedTasks.empty())
 		{

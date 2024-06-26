@@ -136,9 +136,9 @@ std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & 
 		return nullptr;
 
 	Rect minimapRect = minimaps[id].getRenderArea();
-	double maxSideLenghtSrc = std::max(minimapRect.w, minimapRect.h);
-	double maxSideLenghtDst = std::max(rect.w, rect.h);
-	double resize = maxSideLenghtSrc / maxSideLenghtDst;
+	double maxSideLengthSrc = std::max(minimapRect.w, minimapRect.h);
+	double maxSideLengthDst = std::max(rect.w, rect.h);
+	double resize = maxSideLengthSrc / maxSideLengthDst;
 	Point newMinimapSize = Point(minimapRect.w / resize, minimapRect.h / resize);
 
 	Canvas canvasScaled = Canvas(Point(rect.w, rect.h));

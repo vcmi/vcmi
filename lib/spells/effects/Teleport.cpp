@@ -61,7 +61,7 @@ bool Teleport::applicable(Problem & problem, const Mechanics * m, const EffectTa
 	if(!targetUnit)
 		return m->adaptProblem(ESpellCastProblem::WRONG_SPELL_TARGET, problem);
 
-	if(!targetHex.isValid() || !m->battle()->getAccesibility(targetUnit).accessible(targetHex, targetUnit))
+	if(!targetHex.isValid() || !m->battle()->getAccessibility(targetUnit).accessible(targetHex, targetUnit))
 		return m->adaptProblem(ESpellCastProblem::WRONG_SPELL_TARGET, problem);
 
 	if(m->battle()->battleGetSiegeLevel() && !(isWallPassable && isMoatPassable))

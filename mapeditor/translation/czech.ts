@@ -717,7 +717,7 @@
     <message>
         <location filename="../mapview.cpp" line="625"/>
         <source>Can&apos;t place object</source>
-        <translation>Nelze umístit objekt</translation>
+        <translation>Nelze umístit object</translation>
     </message>
 </context>
 <context>
@@ -1185,7 +1185,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="408"/>
         <source>Remove object</source>
-        <translation>Odstranit objekt</translation>
+        <translation>Odstranit object</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="417"/>
@@ -1394,7 +1394,7 @@
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
-        <source>Day of first occurance</source>
+        <source>Day of first occurrence</source>
         <translation>Den prvního výskytu</translation>
     </message>
     <message>
@@ -1429,9 +1429,9 @@
     </message>
 </context>
 <context>
-    <name>TownBulidingsWidget</name>
+    <name>TownBuildingsWidget</name>
     <message>
-        <location filename="../inspector/townbulidingswidget.ui" line="29"/>
+        <location filename="../inspector/townbuildingswidget.ui" line="29"/>
         <source>Buildings</source>
         <translation>Budovy</translation>
     </message>
@@ -1450,7 +1450,7 @@
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
-        <source>Suppported</source>
+        <source>Supported</source>
         <translation>Podporovaný</translation>
     </message>
     <message>
@@ -1520,7 +1520,7 @@
     <message>
         <location filename="../validator.cpp" line="101"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation>Objekt %1 je přiřazen nehratelnému hráči %2</translation>
+        <translation>Object %1 je přiřazen nehratelnému hráči %2</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="108"/>
@@ -1585,7 +1585,7 @@
     <message>
         <location filename="../validator.cpp" line="177"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation>Mapa obsahuje objekt z modifikace &quot;%1&quot;. ale nevyžaduje ji</translation>
+        <translation>Mapa obsahuje object z modifikace &quot;%1&quot;. ale nevyžaduje ji</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
@@ -1856,7 +1856,7 @@
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="246"/>
-        <source>No template for parameters scecified. Random map cannot be generated.</source>
+        <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>Žádná šablona pro vybrané parametry. Náhodná mapa nemůže být vygenerována.</translation>
     </message>
     <message>

@@ -79,7 +79,7 @@ namespace AIPathfinding
 		if(hero->canCastThisSpell(summonBoatSpell)
 			&& hero->getSpellSchoolLevel(summonBoatSpell) >= MasteryLevel::ADVANCED)
 		{
-			// TODO: For lower school level we might need to check the existance of some boat
+			// TODO: For lower school level we might need to check the existence of some boat
 			summonableVirtualBoat.reset(new SummonBoatAction());
 		}
 	}

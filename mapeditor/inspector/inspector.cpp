@@ -20,7 +20,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/constants/StringConstants.h"
 
-#include "townbulidingswidget.h"
+#include "townbuildingswidget.h"
 #include "armywidget.h"
 #include "messagewidget.h"
 #include "rewardswidget.h"
@@ -464,7 +464,7 @@ void Inspector::updateProperties()
 		return;
 	table->setRowCount(0); //cleanup table
 	
-	addProperty("Indentifier", obj);
+	addProperty("Identifier", obj);
 	addProperty("ID", obj->ID.getNum());
 	addProperty("SubID", obj->subID);
 	addProperty("InstanceName", obj->instanceName);

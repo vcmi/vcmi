@@ -65,7 +65,7 @@ namespace JsonUtils
 	* @param node - JsonNode to check
 	* @param schemaName - name of schema to use
 	* @param dataName - some way to identify data (printed in console in case of errors)
-	* @returns true if data in node fully compilant with schema
+	* @returns true if data in node fully compliant with schema
 	*/
 	DLL_LINKAGE bool validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName);
 

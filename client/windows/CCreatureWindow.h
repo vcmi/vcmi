@@ -35,7 +35,7 @@ class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring comm
 {
 	std::shared_ptr<CIntObject> object; // passive object that will be used to determine clickable area
 	bool isMasterAbility; // refers to WoG abilities obtainable via combining master skills (for example attack + speed unlocks shoot)
-	bool isSelected; // used only for programatically created border around selected "master abilities"
+	bool isSelected; // used only for programmatically created border around selected "master abilities"
 public:
 	CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, bool isMasterAbility_, std::function<void()> callback);
 

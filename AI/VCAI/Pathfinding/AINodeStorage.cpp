@@ -309,7 +309,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 			{
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
-					"Block ineficient move %s:->%s, mask=%i, mp diff: %i",
+					"Block inefficient move %s:->%s, mask=%i, mp diff: %i",
 					source.coord.toString(),
 					destination.coord.toString(),
 					destinationNode->chainMask,

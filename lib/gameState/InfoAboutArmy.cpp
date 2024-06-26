@@ -166,7 +166,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 {
 	initFromArmy(t, detailed);
 	army = ArmyDescriptor(t->getUpperArmy(), detailed);
-	built = t->builded;
+	built = t->built;
 	fortLevel = t->fortLevel();
 	name = t->getNameTranslated();
 	tType = t->getTown();
