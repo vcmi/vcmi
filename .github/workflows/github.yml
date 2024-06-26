@@ -249,7 +249,7 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
         builtApkPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.${{ matrix.extension }})"
-        builtAabPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.aab)"
+        builtAabPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/bundle/release/*.aab)"
         ANDROID_APK_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
         ANDROID_AAB_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
         mv "$builtApkPath" "$ANDROID_APK_PATH"
