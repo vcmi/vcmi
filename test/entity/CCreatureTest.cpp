@@ -67,7 +67,6 @@ TEST_F(CCreatureTest, DISABLED_JsonUpdate)
 	config["horde"].Integer() = 123;
 	config["aiValue"].Integer() = 3388;
 
-	config["fightValue"].Integer() = 2420;
 	config["level"].Integer() = 6;
 	config["faction"].Integer() = 55;
 	config["doubleWide"].Bool() = true;
@@ -98,7 +97,6 @@ TEST_F(CCreatureTest, DISABLED_JsonUpdate)
 	EXPECT_EQ(subject->getHorde(), 123);
 	EXPECT_EQ(subject->getAIValue(), 3388);
 
-	EXPECT_EQ(subject->getFightValue(), 2420);
 	EXPECT_EQ(subject->getLevel(), 6);
 	EXPECT_EQ(subject->getFaction().getNum(), 55);
 	EXPECT_TRUE(subject->isDoubleWide());
