@@ -1540,8 +1540,11 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 			const CBuilding * building = nullptr;
 			for(auto & buildingID : boxList[row][col])//we are looking for the first not built structure
 			{
-				if (town->town->buildings.count(buildingID) == 0)
-					throw std::runtime_error("Town " + Town->town->faction->getJsonKey() + " has no building with ID " + std::to_string(buildingID.getNum()));
+				if (!buildingID.hasValue())
+				{
+					logMod->warn("Invalid building ID found in hallSlots of town '%s'", town->town->faction->getJsonKey() );
+					continue;
+				}
 
 				const CBuilding * current = town->town->buildings.at(buildingID);
 				if(vstd::contains(town->builtBuildings, buildingID))
