@@ -79,7 +79,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="234"/>
         <source>Configuration files directory</source>
-        <translation type="unfinished"></translation>
+        <translation>配置文件目录</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="297"/>
@@ -296,7 +296,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="105"/>
         <source>Reload repositories</source>
-        <translation type="unfinished"></translation>
+        <translation>重载源</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
@@ -674,62 +674,62 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="59"/>
         <source>Online Lobby port</source>
-        <translation type="unfinished"></translation>
+        <translation>在线大厅端口</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="66"/>
         <source>Autocombat AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>自动战斗AI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="73"/>
         <source>Sticks Sensitivity</source>
-        <translation type="unfinished"></translation>
+        <translation>摇杆灵敏度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="87"/>
         <source>Haptic Feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>触觉反馈</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="94"/>
         <source>Software Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>软件指针</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="108"/>
         <source>Online Lobby address</source>
-        <translation type="unfinished"></translation>
+        <translation>在线大厅地址</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
         <source>Upscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>图像放大过滤器</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="122"/>
         <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>使用相对指针模式</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
         <source>Nearest</source>
-        <translation type="unfinished"></translation>
+        <translation>最邻近</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>线性</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="205"/>
         <source>Best (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>自动（线性）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="231"/>
         <source>Input - Touchscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>输入 - 触屏</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
@@ -739,62 +739,62 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="474"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>网络</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音频</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="578"/>
         <source>Relative Pointer Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>相对指针速度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="585"/>
         <source>Music Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>音乐音量</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="606"/>
         <source>Ignore SSL errors</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略SSL错误</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
         <source>Input - Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>输入 - 鼠标</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="628"/>
         <source>Long Touch Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>长按触屏间隔</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="635"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="658"/>
         <source>Controller Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>控制器按键灵敏度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="665"/>
         <source>Touch Tap Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>触屏点击灵敏度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="704"/>
         <source>Input - Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>输入 - 控制器</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="771"/>
         <source>Sound Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>音效音量</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="801"/>
@@ -833,12 +833,12 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="839"/>
         <source>Mouse Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>鼠标点击灵敏度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="853"/>
         <source>Sticks Acceleration</source>
-        <translation type="unfinished"></translation>
+        <translation>摇杆加速度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="995"/>
@@ -1070,12 +1070,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="304"/>
         <source>Use offline installer from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translation>使用gog.com的离线安装器</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="317"/>
         <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translation>你可以从原始游戏里手动拷贝Maps, Data 和 Mp3目录到VCMI的数据目录下，数据目录可以从页面顶部找到</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="336"/>
@@ -1112,23 +1112,24 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="395"/>
         <source>Installing... %p%</source>
-        <translation type="unfinished"></translation>
+        <translation>安装中... %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="424"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果你已经在你的设备里准备好英雄无敌3文件，你可以选择这个目录，VCMI会自动复制已存在的数据。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="466"/>
         <source>Copy existing files</source>
-        <translation type="unfinished"></translation>
+        <translation>复制已存在的文件</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="511"/>
         <source>If you own Heroes III on gog.com you can download backup offline installer from gog.com, and VCMI will import Heroes III data using offline installer. 
 Offline installer consists of two parts, .exe and .bin. Make sure you download both of them.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果你已经在gog.com拥有了英雄无敌3，你可以从gog.com下载离线安装器。VCMI将会通过离线安装器导入英雄无敌3数据
+离线安装器包含两部分：exe文件和bin文件。请确保这两部分都已下载。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="696"/>
@@ -1179,7 +1180,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="354"/>
         <source>Manual Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>手动安装</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="367"/>
@@ -1482,13 +1483,14 @@ Please select directory with Heroes III: Complete Edition or Heroes III: Shadow 
     <message>
         <location filename="../main.cpp" line="121"/>
         <source>Error starting executable</source>
-        <translation type="unfinished"></translation>
+        <translation>启动可执行文件时出错</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="122"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>启动%1失败
+原因：%2</translation>
     </message>
 </context>
 <context>
