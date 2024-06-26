@@ -64,6 +64,22 @@ std::vector<CGObjectInstance*> QuestArtifactPlacer::getPossibleArtifactsToReplac
 	return artifactsToReplace;
 }
 
+CGObjectInstance * QuestArtifactPlacer::drawObjectToReplace()
+{
+	RecursiveLock lock(externalAccessMutex);
+
+	if (artifactsToReplace.empty())
+	{
+		return nullptr;
+	}
+	else
+	{
+		auto ret = *RandomGeneratorUtil::nextItem(artifactsToReplace, zone.getRand());
+		vstd::erase_if_present(artifactsToReplace, ret);
+		return ret;
+	}
+}
+
 void QuestArtifactPlacer::findZonesForQuestArts()
 {
 	const auto& distances = generator.getZonePlacer()->getDistanceMap().at(zone.getId());
@@ -87,14 +103,14 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 		for (auto zone : questArtZones)
 		{
 			auto* qap = zone->getModificator<QuestArtifactPlacer>();
-			std::vector<CGObjectInstance *> artifactsToReplace = qap->getPossibleArtifactsToReplace();
-			if (artifactsToReplace.empty())
+			
+			auto objectToReplace = qap->drawObjectToReplace();
+			if (!objectToReplace)
 				continue;
 
-			auto artifactToReplace = *RandomGeneratorUtil::nextItem(artifactsToReplace, rand);
 			logGlobal->trace("Replacing %s at %s with the quest artifact %s",
-				artifactToReplace->getObjectName(),
-				artifactToReplace->getPosition().toString(),
+				objectToReplace->getObjectName(),
+				objectToReplace->getPosition().toString(),
 				VLC->artifacts()->getById(artifactToPlace)->getNameTranslated());
 
 			//Update appearance. Terrain is irrelevant.
@@ -103,24 +119,15 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 			auto templates = handler->getTemplates();
 			//artifactToReplace->appearance = templates.front();
 			newObj->appearance  = templates.front();
-			newObj->pos = artifactToReplace->pos;
+			newObj->pos = objectToReplace->pos;
 			mapProxy->insertObject(newObj);
-
-			for (auto z : map.getZones())
-			{
-				//Every qap has its OWN collection of artifacts
-				auto * localQap = zone->getModificator<QuestArtifactPlacer>();
-				if (localQap)
-				{
-					localQap->dropReplacedArtifact(artifactToReplace);
-				}
-			}
-			mapProxy->removeObject(artifactToReplace);
+			mapProxy->removeObject(objectToReplace);
 			break;
 		}
 	}
 }
 
+// TODO: Unused?
 void QuestArtifactPlacer::dropReplacedArtifact(CGObjectInstance* obj)
 {
 	RecursiveLock lock(externalAccessMutex);
