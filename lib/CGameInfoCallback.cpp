@@ -781,12 +781,12 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 	size_t index = 0;
 	auto & heroes = gs->players[*getPlayerID()].heroes;
 
-	for (auto & hero : heroes)
+	for (auto & possibleHero : heroes)
 	{
-		if (includeGarrisoned || !(hero)->inTownGarrison)
+		if (includeGarrisoned || !(possibleHero)->inTownGarrison)
 			index++;
 
-		if (hero == hero)
+		if (possibleHero == hero)
 			return static_cast<int>(index);
 	}
 	return -1;

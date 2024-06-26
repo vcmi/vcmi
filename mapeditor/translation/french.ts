@@ -255,7 +255,7 @@
     <message>
         <location filename="../mainwindow.ui" line="256"/>
         <source>Map Objects View</source>
-        <translation>Vue des objects cartographiques</translation>
+        <translation>Vue des objets cartographiques</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="300"/>
@@ -425,7 +425,7 @@
         <location filename="../mainwindow.cpp" line="1063"/>
         <location filename="../mainwindow.cpp" line="1120"/>
         <source>Update appearance</source>
-        <translation>Mettre à jour l&apos;appearance</translation>
+        <translation>Mettre à jour l&apos;apparence</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1300"/>
@@ -501,7 +501,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1431"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
-        <translation>Vérouiller les objects sure la carte pour éviter des changements non nécessaires</translation>
+        <translation>Vérouiller les objets sur la carte pour éviter des changements non nécessaires</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1434"/>
@@ -516,7 +516,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1446"/>
         <source>Unlock all objects on the map</source>
-        <translation>Dévérouiller tous les objects de la carte</translation>
+        <translation>Dévérouiller tous les objets de la carte</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1449"/>
@@ -560,7 +560,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="262"/>
-        <source>Unsaved changes will be lost, are you sure?</source>
+        <source>Unsaved changes will be lost, are you sur?</source>
         <translation>Des modifications non sauvegardées vont être perdues. Êtes-vous sûr ?</translation>
     </message>
     <message>
@@ -596,7 +596,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1059"/>
         <source>No objects selected</source>
-        <translation>Pas d&apos;objects sélectionnés</translation>
+        <translation>Pas d&apos;objets sélectionnés</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1063"/>
@@ -606,7 +606,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1120"/>
         <source>Errors occurred. %1 objects were not updated</source>
-        <translation>Erreur rencontrée. %1 objects n&apos;ont pas étés mis à jour</translation>
+        <translation>Erreur rencontrée. %1 objets n&apos;ont pas étés mis à jour</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1160"/>
@@ -717,7 +717,7 @@
     <message>
         <location filename="../mapview.cpp" line="625"/>
         <source>Can&apos;t place object</source>
-        <translation>Impossible de placer l&apos;object</translation>
+        <translation>Impossible de placer l&apos;objet</translation>
     </message>
 </context>
 <context>
@@ -758,12 +758,12 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="68"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation>Définir les mods obligatoires basés sure les objects présents sure la carte. Cette méthode peut poser des soucis si vous avez personalisé des récompenses, garnisons, etc depuis les mods</translation>
+        <translation>Définir les mods obligatoires basés sur les objets présents sur la carte. Cette méthode peut poser des soucis si vous avez personalisé des récompenses, garnisons, etc depuis les mods</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
         <source>Map objects mods</source>
-        <translation>Object de carte des mods</translation>
+        <translation>objet de carte des mods</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="81"/>
@@ -1185,7 +1185,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="408"/>
         <source>Remove object</source>
-        <translation>Supprimer les objects</translation>
+        <translation>Supprimer les objets</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="417"/>
@@ -1500,7 +1500,7 @@
     <message>
         <location filename="../validator.cpp" line="75"/>
         <source>No players allowed to play this map</source>
-        <translation>Aucun joueur autorisé à jouer sure cette carte</translation>
+        <translation>Aucun joueur autorisé à jouer sur cette carte</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="77"/>
@@ -1510,7 +1510,7 @@
     <message>
         <location filename="../validator.cpp" line="79"/>
         <source>No human players allowed to play this map</source>
-        <translation>Aucun joueur humain n&apos;est autorisé à jouer sure cette carte</translation>
+        <translation>Aucun joueur humain n&apos;est autorisé à jouer sur cette carte</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="95"/>
@@ -1520,7 +1520,7 @@
     <message>
         <location filename="../validator.cpp" line="101"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation>L&apos;object %1 est attribué au joueur non jouable %2</translation>
+        <translation>L&apos;objet %1 est attribué au joueur non jouable %2</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="108"/>
@@ -1545,7 +1545,7 @@
     <message>
         <location filename="../validator.cpp" line="132"/>
         <source>Hero %1 has duplicate on map</source>
-        <translation>Le héros %1 a un doublon sure la carte</translation>
+        <translation>Le héros %1 a un doublon sur la carte</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="135"/>
@@ -1585,7 +1585,7 @@
     <message>
         <location filename="../validator.cpp" line="177"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation>La carte contient des objects du mod &quot;%1&quot;, mais il n&apos;est pas requis</translation>
+        <translation>La carte contient des objets du mod &quot;%1&quot;, mais il n&apos;est pas requis</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>

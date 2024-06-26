@@ -717,7 +717,7 @@
     <message>
         <location filename="../mapview.cpp" line="625"/>
         <source>Can&apos;t place object</source>
-        <translation>Nelze umístit object</translation>
+        <translation>Nelze umístit objekt</translation>
     </message>
 </context>
 <context>
@@ -1185,7 +1185,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="408"/>
         <source>Remove object</source>
-        <translation>Odstranit object</translation>
+        <translation>Odstranit objekt</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="417"/>
@@ -1520,7 +1520,7 @@
     <message>
         <location filename="../validator.cpp" line="101"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation>Object %1 je přiřazen nehratelnému hráči %2</translation>
+        <translation>Objekt %1 je přiřazen nehratelnému hráči %2</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="108"/>
@@ -1585,7 +1585,7 @@
     <message>
         <location filename="../validator.cpp" line="177"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation>Mapa obsahuje object z modifikace &quot;%1&quot;. ale nevyžaduje ji</translation>
+        <translation>Mapa obsahuje objekt z modifikace &quot;%1&quot;. ale nevyžaduje ji</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
