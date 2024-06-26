@@ -106,12 +106,12 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 
 	for(const auto & entry : info.reward.secondary)
 	{
-		int current = hero->getSecSkillLevel(entry.first);
-		if( (current != 0 && current < entry.second) ||
-			(hero->canLearnSkill() ))
-		{
-			cb->changeSecSkill(hero, entry.first, entry.second);
-		}
+		auto currentLevel = static_cast<MasteryLevel::Type>(hero->getSecSkillLevel(entry.first));
+		if(currentLevel == MasteryLevel::EXPERT)
+			continue;
+
+		if(currentLevel != MasteryLevel::NONE || hero->canLearnSkill())
+			cb->changeSecSkill(hero, entry.first, entry.second, false);
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
