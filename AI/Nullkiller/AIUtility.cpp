@@ -421,9 +421,16 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	case Obj::BOAT:
 	case Obj::SIGN:
 		return false;
+	case Obj::SHRINE_OF_MAGIC_GESTURE:
+	case Obj::SHRINE_OF_MAGIC_INCANTATION:
+		return h->hasSpellbook();
+	case Obj::SHRINE_OF_MAGIC_THOUGHT:
+		return h->hasSpellbook() && h->getSecSkillLevel(SecondarySkill::WISDOM) >= MasteryLevel::BASIC;
+	case Obj::PYRAMID:
+		return h->hasSpellbook() && h->getSecSkillLevel(SecondarySkill::WISDOM) == MasteryLevel::EXPERT;
 	}
 
-	if(obj->wasVisited(h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);
+	if(obj->wasVisited(h))
 		return false;
 
 	return true;
