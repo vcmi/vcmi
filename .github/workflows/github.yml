@@ -90,14 +90,14 @@ jobs:
           - platform: android-32
             os: macos-14
             extension: apk
-            preset: android-daily-release
+            preset: android-conan-ninja-release
             conan_profile: android-32
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: armeabi-v7a
           - platform: android-64
             os: macos-14
             extension: apk
-            preset: android-daily-release
+            preset: android-conan-ninja-release
             conan_profile: android-64
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: arm64-v8a
@@ -110,22 +110,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-
-    - name: Ensure LF line endings
-      if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
-      run: |
-        find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
-        -o -path ./osx  -prune -o -type f \
-        -not -name '*.png' -and -not -name '*.vcxproj*' -and -not -name '*.props' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -print0 | \
-        { ! xargs -0 grep -l -z -P '\r\n'; }
-
-    - name: Validate JSON
-      # the Python yaml module doesn't seem to work on mac-arm
-      # also, running it on multiple presets is redundant and slightly increases already long CI built times
-      if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
-      run: |
-        sudo apt install python3-jstyleson
-        python3 CI/linux-qt6/validate_json.py
 
     - name: Dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
@@ -210,6 +194,9 @@ jobs:
         if [[ ${{matrix.preset}} == linux-gcc-test ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
+        elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
+        then
+            cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily" --preset ${{ matrix.preset }}
         elif [[ ${{matrix.platform}} != msvc ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
@@ -220,6 +207,9 @@ jobs:
     - name: Build
       run: |
         cmake --build --preset ${{matrix.preset}}
+      env:
+        ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     - name: Test
       env:
@@ -247,12 +237,6 @@ jobs:
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
-    - name: Additional logs
-      if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'msvc' }}
-      run: |
-        cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/project.nsi'
-        cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/NSISOutput.log'
-
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v4
@@ -265,16 +249,29 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
         builtApkPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.${{ matrix.extension }})"
+        builtAabPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/bundle/release/*.aab)"
         ANDROID_APK_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
+        ANDROID_AAB_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
         mv "$builtApkPath" "$ANDROID_APK_PATH"
+        mv "$builtAabPath" "$ANDROID_AAB_PATH"
         echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
-    - name: Android artifacts
+        echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
+
+    - name: Android apk artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
+
+    - name: Android aab artifacts
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
+        path: |
+          ${{ env.ANDROID_AAB_PATH }}
 
     - name: Symbols
       if: ${{ matrix.platform == 'msvc' }}
@@ -283,14 +280,6 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
         path: |
             ${{github.workspace}}/**/*.pdb
-
-    - name: Android JNI ${{matrix.platform}}
-      if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Android JNI ${{matrix.platform}}
-        path: |
-          ${{github.workspace}}/out/build/${{matrix.preset}}/android-build/libs
 
     - name: Upload build
       if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' && matrix.platform != 'mingw-32' }}
@@ -303,107 +292,6 @@ jobs:
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
-
-  # copy-pasted mostly
-  bundle_release:
-
-    needs: build
-    if: always() && github.ref == 'refs/heads/master'
-    strategy:
-      matrix:
-        include:
-          - platform: android-32
-            os: macos-14
-            preset: android-conan-ninja-release
-            conan_profile: android-32
-            conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
-            artifact_platform: aab
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-
-    - name: Dependencies
-      run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
-      env:
-        VCMI_BUILD_PLATFORM: x64
-
-    - uses: actions/setup-python@v5
-      if: "${{ matrix.conan_profile != '' }}"
-      with:
-        python-version: '3.10'
-
-    - name: Conan setup
-      if: "${{ matrix.conan_profile != '' }}"
-      run: |
-        pip3 install 'conan<2.0'
-        conan profile new default --detect
-        conan install . \
-          --install-folder=conan-generated \
-          --no-imports \
-          --build=never \
-          --profile:build=default \
-          --profile:host=CI/conan/${{ matrix.conan_profile }} \
-          ${{ matrix.conan_options }}
-      env:
-        GENERATE_ONLY_BUILT_CONFIG: 1
-
-    - uses: actions/setup-java@v4
-      if: ${{ startsWith(matrix.platform, 'android') }}
-      with:
-        distribution: 'temurin'
-        java-version: '11'
-
-    - name: Build Number
-      run: |
-        source '${{github.workspace}}/CI/get_package_name.sh'
-        if [ '${{ matrix.artifact_platform }}' ]; then
-          VCMI_PACKAGE_FILE_NAME+="-${{ matrix.artifact_platform }}"
-        fi
-        echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
-        echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
-        echo VCMI_PACKAGE_GOLDMASTER="$VCMI_PACKAGE_GOLDMASTER" >> $GITHUB_ENV
-      env:
-        PULL_REQUEST: ${{ github.event.pull_request.number }}
-
-    - name: CMake Preset
-      run: |
-        cmake --preset ${{ matrix.preset }}
-
-    - name: Build Preset
-      run: |
-        cmake --build --preset ${{matrix.preset}}
-      env:
-        ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
-        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
-    - name: Download libs x64
-      uses: actions/download-artifact@v4
-      with:
-        name: Android JNI android-64
-        path: ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/libs
-
-    - name: Create Android package
-      run: |
-        cd out/build/${{ matrix.preset }}/android-build
-        ./gradlew bundleRelease --info
-        echo ANDROID_APK_PATH="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/bundle/release/*.aab)" >> $GITHUB_ENV
-      env:
-        ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
-        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
-    - name: Android artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
-        path: |
-          ${{ env.ANDROID_APK_PATH }}
-
 
   deploy-src:
     if: always() && github.ref == 'refs/heads/master'
@@ -434,3 +322,29 @@ jobs:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
             path: |
               ./release.tar.gz
+
+  validate-code:
+    if: always()
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+        - uses: actions/checkout@v4
+
+        - uses: actions/setup-python@v5
+          if: "${{ matrix.conan_profile != '' }}"
+          with:
+            python-version: '3.10'
+
+        - name: Ensure LF line endings
+          run: |
+            find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
+            -o -path ./osx  -prune -o -type f \
+            -not -name '*.png' -and -not -name '*.vcxproj*' -and -not -name '*.props' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -print0 | \
+            { ! xargs -0 grep -l -z -P '\r\n'; }
+
+        - name: Validate JSON
+          run: |
+            sudo apt install python3-jstyleson
+            python3 CI/linux-qt6/validate_json.py
