@@ -10,6 +10,7 @@
 			"anyOf" : [
 				{ 
 					"type" : "string",
+					"enum" : [ "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "CREATURE_NATIVE_TERRAIN", "CREATURE_FACTION", "SAME_FACTION", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
 					"description" : "parameterless limiter or boolean operator at start of array"
 				},
 				{
@@ -18,6 +19,7 @@
 					"properties" : {
 						"type" : {
 							"type" : "string",
+							"enum" : [ "CREATURE_TYPE_LIMITER", "HAS_ANOTHER_BONUS_LIMITER", "CREATURE_ALIGNMENT_LIMITER", "FACTION_LIMITER", "CREATURE_LEVEL_LIMITER", "CREATURE_TERRAIN_LIMITER", "UNIT_ON_HEXES" ],
 							"description" : "type"
 						},
 						"parameters" : {
@@ -53,31 +55,24 @@
 		},
 		"sourceType" : {
 			"type" : "string",
+			"enum" : [ "ARTIFACT", "ARTIFACT_INSTANCE", "OBJECT_TYPE", "OBJECT_INSTANCE", "CREATURE_ABILITY", "TERRAIN_NATIVE", "TERRAIN_OVERLAY", "SPELL_EFFECT", "TOWN_STRUCTURE", "HERO_BASE_SKILL", "SECONDARY_SKILL", "HERO_SPECIAL", "ARMY", "CAMPAIGN_BONUS", "STACK_EXPERIENCE", "COMMANDER", "GLOBAL", "OTHER", ],
 			"description" : "sourceType"
 		},
 		"targetSourceType" : {
 			"type" : "string",
+			"enum" : [ "ARTIFACT", "ARTIFACT_INSTANCE", "OBJECT_TYPE", "OBJECT_INSTANCE", "CREATURE_ABILITY", "TERRAIN_NATIVE", "TERRAIN_OVERLAY", "SPELL_EFFECT", "TOWN_STRUCTURE", "HERO_BASE_SKILL", "SECONDARY_SKILL", "HERO_SPECIAL", "ARMY", "CAMPAIGN_BONUS", "STACK_EXPERIENCE", "COMMANDER", "GLOBAL", "OTHER", ],
 			"description" : "targetSourceType"
 		},
 		"propagator" : {
 			"description" : "propagator",
-			"anyOf" : [
-				{
-					"type" : "string"
-				},
-				{
-					"type" : "array",
-					"items" : {
-							"type" : "string",
-							"description" : "0"
-					}
-				}
-			]
+			"type" : "string",
+			"enum" : [ "BATTLE_WIDE", "VISITED_TOWN_AND_VISITOR", "PLAYER_PROPAGATOR", "HERO", "TEAM_PROPAGATOR", "GLOBAL_EFFECT" ]
 		},
 		"updater" : {
 			"anyOf" : [
 				{
-					"type" : "string"
+					"type" : "string",
+					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "ARMY_MOVEMENT", "BONUS_OWNER_UPDATER" ]
 				},
 				{
 					"description" : "updater",
@@ -87,6 +82,7 @@
 					"properties" : {
 						"type" : {
 							"type" : "string",
+							"enum" : [ "GROWS_WITH_LEVEL", "ARMY_MOVEMENT" ],
 							"description" : "type"
 						},
 						"parameters" : {
@@ -101,7 +97,8 @@
 		"propagationUpdater" : {
 			"anyOf" : [
 				{
-					"type" : "string"
+					"type" : "string",
+					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "ARMY_MOVEMENT", "BONUS_OWNER_UPDATER" ]
 				},
 				{
 					"description" : "propagationUpdater",
@@ -111,6 +108,7 @@
 					"properties" : {
 						"type" : {
 							"type" : "string",
+							"enum" : [ "GROWS_WITH_LEVEL", "ARMY_MOVEMENT" ],
 							"description" : "type"
 						},
 						"parameters" : {
@@ -128,6 +126,7 @@
 		},
 		"effectRange" : {
 			"type" : "string",
+			"enum" : [ "NO_LIMIT", "ONLY_DISTANCE_FIGHT", "ONLY_MELEE_FIGHT" ],
 			"description" : "effectRange"
 		},
 		"val" : {
@@ -136,6 +135,7 @@
 		},
 		"valueType" : {
 			"type" : "string",
+			"enum" : ["ADDITIVE_VALUE", "BASE_NUMBER", "PERCENT_TO_ALL", "PERCENT_TO_BASE", "PERCENT_TO_SOURCE", "PERCENT_TO_TARGET_TYPE", "INDEPENDENT_MAX", "INDEPENDENT_MIN" ],
 			"description" : "valueType"
 		},
 		"addInfo" : {
@@ -156,8 +156,17 @@
 		},
 		"duration" : {
 			"anyOf" : [
-				{ "type" : "string"},
-				{ "type" : "array", "items" : {"type" : "string"} }
+				{
+					"type" : "string",
+					"enum" : ["PERMANENT", "ONE_BATTLE", "ONE_DAY", "ONE_WEEK", "N_TURNS", "N_DAYS", "UNTIL_BEING_ATTACKED", "UNTIL_ATTACK", "STACK_GETS_TURN", "COMMANDER_KILLED", "UNTIL_OWN_ATTACK" ]
+				},
+				{
+					"type" : "array", 
+					"items" : {
+						"type" : "string",
+						"enum" : ["PERMANENT", "ONE_BATTLE", "ONE_DAY", "ONE_WEEK", "N_TURNS", "N_DAYS", "UNTIL_BEING_ATTACKED", "UNTIL_ATTACK", "STACK_GETS_TURN", "COMMANDER_KILLED", "UNTIL_OWN_ATTACK" ]
+					}
+				}
 			],
 			"description" : "duration"
 		},

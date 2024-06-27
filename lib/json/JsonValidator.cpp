@@ -102,7 +102,10 @@ static std::string enumCheck(JsonValidator & validator, const JsonNode & baseSch
 		if (data == enumEntry)
 			return "";
 	}
-	return validator.makeErrorMessage("Key must have one of predefined values");
+
+	std::string errorMessage = "Key must have one of predefined values:" + schema.toCompactString();
+
+	return validator.makeErrorMessage(errorMessage);
 }
 
 static std::string constCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
