@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "ArtifactsUIController.h"
+
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "gui/CIntObject.h"
@@ -16,9 +18,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class Artifact;
-
 struct TryMoveHero;
-class CGHeroInstance;
 class CStack;
 class CCreature;
 struct CGPath;
@@ -56,11 +56,9 @@ namespace boost
 }
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public IUpdateable
+class CPlayerInterface : public CGameInterface, public IUpdateable, public ArtifactsUIController
 {
 	bool ignoreEvents;
-	size_t numOfMovedArts;
-
 	int autosaveCount;
 
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
@@ -98,7 +96,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void artifactPut(const ArtifactLocation &al) override;
 	void artifactRemoved(const ArtifactLocation &al) override;
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
-	void bulkArtMovementStart(size_t numOfArts) override;
+	void bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts) override;
 	void artifactAssembled(const ArtifactLocation &al) override;
 	void askToAssembleArtifact(const ArtifactLocation & dst) override;
 	void artifactDisassembled(const ArtifactLocation &al) override;
@@ -180,7 +178,6 @@ public: // public interface for use by client via LOCPLINT access
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 
 	void showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2);
-	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<void()> onYes);
 	void waitWhileDialog();
 	void waitForAllDialogs();
 	void openTownWindow(const CGTownInstance * town); //shows townscreen

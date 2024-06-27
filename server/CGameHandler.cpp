@@ -2774,7 +2774,6 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 		// Previous artifact must be swapped
 		COMPLAIN_RET_FALSE_IF(!dstArtifact->canBePutAt(srcArtSet, src.slot, true), "Cannot swap artifacts!");
 		ma.artsPack1.push_back(BulkMoveArtifacts::LinkedSlots(dstSlot, src.slot));
-		ma.swap = true;
 	}
 
 	auto hero = getHero(dst.artHolder);
@@ -2783,7 +2782,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
 	if(src.artHolder != dst.artHolder)
-		ma.askAssemble = true;
+		ma.artsPack0.back().askAssemble = true;
 	sendAndApply(&ma);
 	return true;
 }
@@ -2891,7 +2890,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 
 bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left)
 {
-	auto artSet = getArtSet(heroID);
+	const auto artSet = getArtSet(heroID);
 	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "scrollBackpackArtifacts: wrong hero's ID");
 
 	BulkMoveArtifacts bma(player, heroID, heroID, false);
@@ -2956,7 +2955,7 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 			{
 				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots
 					{
-						artSet->getSlotByInstance(artFittingSet.getArt(availableArts.front())),
+						artSet->getArtPos(artFittingSet.getArt(availableArts.front())),
 						artPos.first
 					});
 				artFittingSet.removeArtifact(availableArts.front());
@@ -3921,7 +3920,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 				int expToGive;
 				m->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getSlotByInstance(art)));
+				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getArtPos(art)));
 			}
 			else
 			{

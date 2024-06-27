@@ -37,10 +37,6 @@ public:
 	void deactivate() override;
 	void enableKeyboardShortcuts() const;
 
-	virtual void artifactRemoved(const ArtifactLocation & artLoc);
-	virtual void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc);
-	virtual void artifactDisassembled(const ArtifactLocation & artLoc);
-	virtual void artifactAssembled(const ArtifactLocation & artLoc);
 	virtual void update();
 
 protected:

@@ -146,7 +146,7 @@ void CAltarArtifacts::updateAltarSlots()
 	for(auto & tradeSlot : tradeSlotsMapNewArts)
 	{
 		assert(tradeSlot.first->id == -1);
-		assert(altarArtifacts->getSlotByInstance(tradeSlot.second) != ArtifactPosition::PRE_FIRST);
+		assert(altarArtifacts->getArtPos(tradeSlot.second) != ArtifactPosition::PRE_FIRST);
 		tradeSlot.first->setID(tradeSlot.second->getTypeId().num);
 		tradeSlot.first->subtitle->setText(std::to_string(calcExpCost(tradeSlot.second->getTypeId())));
 	}
@@ -221,7 +221,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	else if(altarSlot->id != -1)
 	{
 		assert(tradeSlotsMap.at(altarSlot));
-		const auto slot = altarArtifacts->getSlotByInstance(tradeSlotsMap.at(altarSlot));
+		const auto slot = altarArtifacts->getArtPos(tradeSlotsMap.at(altarSlot));
 		assert(slot != ArtifactPosition::PRE_FIRST);
 		LOCPLINT->cb->swapArtifacts(ArtifactLocation(heroArts->altarId, slot),
 			ArtifactLocation(hero->id, GH.isKeyboardCtrlDown() ? ArtifactPosition::FIRST_AVAILABLE : ArtifactPosition::TRANSITION_POS));

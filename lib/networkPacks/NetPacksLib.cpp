@@ -338,11 +338,6 @@ void EraseArtifact::visitTyped(ICPackVisitor & visitor)
 	visitor.visitEraseArtifact(*this);
 }
 
-void MoveArtifact::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitMoveArtifact(*this);
-}
-
 void BulkMoveArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBulkMoveArtifacts(*this);
@@ -1794,17 +1789,6 @@ void EraseArtifact::applyGs(CGameState *gs)
 	art->removeFrom(*artSet, al.slot);
 }
 
-void MoveArtifact::applyGs(CGameState * gs)
-{
-	auto srcHero = gs->getArtSet(src);
-	auto dstHero = gs->getArtSet(dst);
-	assert(srcHero);
-	assert(dstHero);
-	auto art = srcHero->getArt(src.slot);
-	assert(art && art->canBePutAt(dstHero, dst.slot));
-	art->move(*srcHero, src.slot, *dstHero, dst.slot);
-}
-
 void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
 	const auto bulkArtsRemove = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
@@ -1861,7 +1845,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			return art->getId() == builtArt->getId();
 		}));
 
-	const auto transformedArtSlot = hero->getSlotByInstance(transformedArt);
+	const auto transformedArtSlot = hero->getArtPos(transformedArt);
 	auto * combinedArt = new CArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 

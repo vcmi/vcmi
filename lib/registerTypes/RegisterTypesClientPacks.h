@@ -112,7 +112,6 @@ void registerTypesClientPacks(Serializer &s)
 	s.template registerType<CPackForClient, CArtifactOperationPack>();
 	s.template registerType<CArtifactOperationPack, PutArtifact>();
 	s.template registerType<CArtifactOperationPack, EraseArtifact>();
-	s.template registerType<CArtifactOperationPack, MoveArtifact>();
 	s.template registerType<CArtifactOperationPack, AssembledArtifact>();
 	s.template registerType<CArtifactOperationPack, DisassembledArtifact>();
 	s.template registerType<CArtifactOperationPack, BulkMoveArtifacts>();
