@@ -705,12 +705,12 @@ void CSettingsView::on_spinBoxNetworkPortLobby_valueChanged(int arg1)
 
 void CSettingsView::on_sliderControllerSticksAcceleration_valueChanged(int value)
 {
-	Settings node = settings.write["input"]["configAxisScale"];
+	Settings node = settings.write["input"]["controllerAxisScale"];
 	node->Integer() = value / 100.0;
 }
 
 void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
 {
-	Settings node = settings.write["input"]["configAxisSpeed"];
+	Settings node = settings.write["input"]["controllerAxisSpeed"];
 	node->Integer() = value;
 }
