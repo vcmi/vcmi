@@ -577,9 +577,9 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 void RandomMapTab::saveOptions(const CMapGenOptions & options)
 {
 	JsonNode data;
-	JsonSerializer set(nullptr, data);
+	JsonSerializer ser(nullptr, data);
 
-	set.serializeStruct("lastSettings", const_cast<CMapGenOptions & >(options));
+	ser.serializeStruct("lastSettings", const_cast<CMapGenOptions & >(options));
 
 	// FIXME: Do not nest fields
 	Settings rmgSettings = persistentStorage.write["rmg"];

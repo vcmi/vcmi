@@ -804,8 +804,8 @@ void CUnitState::save(JsonNode & data)
 {
 	//TODO: use instance resolver
 	data.clear();
-	JsonSerializer set(nullptr, data);
-	set.serializeStruct("state", *this);
+	JsonSerializer ser(nullptr, data);
+	ser.serializeStruct("state", *this);
 }
 
 void CUnitState::load(const JsonNode & data)

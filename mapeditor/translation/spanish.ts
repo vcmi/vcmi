@@ -6,7 +6,7 @@
     <message>
         <location filename="../inspector/armywidget.ui" line="23"/>
         <source>Army settings</source>
-        <translation>Configuration del Ejército</translation>
+        <translation>Configuracion del Ejército</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="142"/>
@@ -834,7 +834,7 @@
     <message>
         <location filename="../playersettings.ui" line="20"/>
         <source>Player settings</source>
-        <translation>Configuration del jugador</translation>
+        <translation>Configuracion del jugador</translation>
     </message>
     <message>
         <location filename="../playersettings.ui" line="63"/>
@@ -1530,7 +1530,7 @@
     <message>
         <location filename="../validator.cpp" line="118"/>
         <source>Prison %1 must be a NEUTRAL</source>
-        <translation>%1 prisión debe set NEUTRA</translation>
+        <translation>%1 prisión debe ser NEUTRA</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="124"/>
@@ -1663,7 +1663,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Transport artifact</source>
-        <translation type="unfinished">Transporter artefacto</translation>
+        <translation type="unfinished">Transportar artefacto</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
@@ -1791,7 +1791,7 @@
     <message>
         <location filename="../windownewmap.ui" line="443"/>
         <source>Monster strength</source>
-        <translation>Fuerza de monstrous</translation>
+        <translation>Fuerza de monstruos</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="492"/>
@@ -1875,22 +1875,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="113"/>
         <source>Extract original H3 archives into a separate folder.</source>
-        <translation>Extraer archivos originals de H3 en una carpeta separada.</translation>
+        <translation>Extraer archivos originales de H3 en una carpeta separada.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="114"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation>Desde un archivo extraído, separa TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 y Un44 en imágenes PNG individuals.</translation>
+        <translation>Desde un archivo extraído, separa TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 y Un44 en imágenes PNG individuales.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="115"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
-        <translation>Desde un archivo extraído, convierte imágenes individuals (encontradas en la carpeta Imágenes) de .pcx a png.</translation>
+        <translation>Desde un archivo extraído, convierte imágenes individuales (encontradas en la carpeta Imágenes) de .pcx a png.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="116"/>
         <source>Delete original files, for the ones split / converted.</source>
-        <translation>Eliminar archivos originals, por los que se han separado / convertido.</translation>
+        <translation>Eliminar archivos originales, por los que se han separado / convertido.</translation>
     </message>
 </context>
 </TS>
