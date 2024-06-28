@@ -133,25 +133,17 @@ void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 void MainWindow::loadTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
-	std::string translationFile = settings["general"]["language"].String() + ".qm";
+	const std::string translationFile = settings["general"]["language"].String() + ".qm";
+	logGlobal->info("Loading translation '%s'", translationFile);
 
-	QVector<QString> searchPaths;
-
-	for(auto const & string : VCMIDirs::get().dataPaths())
-		searchPaths.push_back(pathToQString(string / "mapeditor" / "translation" / translationFile));
-	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "translation" / translationFile));
-
-	for(auto const & string : boost::adaptors::reverse(searchPaths))
+	if (!translator.load(QString{":/translation/%1"}.arg(translationFile.c_str())))
 	{
-		if (translator.load(string))
-		{
-			if (!qApp->installTranslator(&translator))
-				logGlobal->error("Failed to install translator");
-			return;
-		}
+		logGlobal->error("Failed to load translation");
+		return;
 	}
 
-	logGlobal->error("Failed to find translation");
+	if (!qApp->installTranslator(&translator))
+		logGlobal->error("Failed to install translator");
 #endif
 }
 
@@ -163,13 +155,9 @@ MainWindow::MainWindow(QWidget* parent) :
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
-	
-	for(auto & string : VCMIDirs::get().dataPaths())
-		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
-	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
-	
+
 	new QShortcut(QKeySequence("Backspace"), this, SLOT(on_actionErase_triggered()));
-	
+
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
 
@@ -206,6 +194,36 @@ MainWindow::MainWindow(QWidget* parent) :
 	loadTranslation();
 
 	ui->setupUi(this);
+
+	setWindowIcon(QIcon{":/icons/menu-game.png"});
+	ui->toolBrush->setIcon(QIcon{":/icons/brush-1.png"});
+	ui->toolBrush2->setIcon(QIcon{":/icons/brush-2.png"});
+	ui->toolBrush4->setIcon(QIcon{":/icons/brush-4.png"});
+	ui->toolLasso->setIcon(QIcon{":/icons/tool-lasso.png"});
+	ui->toolLine->setIcon(QIcon{":/icons/tool-line.png"});
+	ui->toolArea->setIcon(QIcon{":/icons/tool-area.png"});
+	ui->toolFill->setIcon(QIcon{":/icons/tool-fill.png"});
+	ui->toolSelect->setIcon(QIcon{":/icons/tool-select.png"});
+	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
+	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
+	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
+	ui->actionLevel->setIcon(QIcon{":/icons/toggle-underground.png"});
+	ui->actionPass->setIcon(QIcon{":/icons/toggle-pass.png"});
+	ui->actionCut->setIcon(QIcon{":/icons/edit-cut.png"});
+	ui->actionCopy->setIcon(QIcon{":/icons/edit-copy.png"});
+	ui->actionPaste->setIcon(QIcon{":/icons/edit-paste.png"});
+	ui->actionFill->setIcon(QIcon{":/icons/fill-obstacles.png"});
+	ui->actionGrid->setIcon(QIcon{":/icons/toggle-grid.png"});
+	ui->actionUndo->setIcon(QIcon{":/icons/edit-undo.png"});
+	ui->actionRedo->setIcon(QIcon{":/icons/edit-redo.png"});
+	ui->actionErase->setIcon(QIcon{":/icons/edit-clear.png"});
+	ui->actionTranslations->setIcon(QIcon{":/icons/translations.png"});
+	ui->actionLock->setIcon(QIcon{":/icons/lock-closed.png"});
+	ui->actionUnlock->setIcon(QIcon{":/icons/lock-open.png"});
+	ui->actionZoom_in->setIcon(QIcon{":/icons/zoom_plus.png"});
+	ui->actionZoom_out->setIcon(QIcon{":/icons/zoom_minus.png"});
+	ui->actionZoom_reset->setIcon(QIcon{":/icons/zoom_zero.png"});
+
 	loadUserSettings(); //For example window size
 	setTitle();
 
