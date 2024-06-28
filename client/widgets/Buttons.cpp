@@ -67,6 +67,21 @@ void CButton::addCallback(const std::function<void()> & callback)
 	this->callback += callback;
 }
 
+void CButton::addPopupCallback(const std::function<void()> & callback)
+{
+	this->callbackPopup += callback;
+}
+
+void CButton::addHoverCallback(const std::function<void(bool)> & callback)
+{
+	this->hoverCallback += callback;
+}
+
+void CButton::addPanningCallback(const std::function<void(const Point &, const Point &, const Point &)> & callback)
+{
+	this->panningCallback += callback;
+}
+
 void ButtonBase::setTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
@@ -289,12 +304,16 @@ void CButton::clickCancel(const Point & cursorPosition)
 
 void CButton::showPopupWindow(const Point & cursorPosition)
 {
+	callbackPopup();
+
 	if(!helpBox.empty()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
 
 void CButton::hover (bool on)
 {
+	hoverCallback(on);
+
 	if(hoverable && !isBlocked())
 	{
 		if(on)
@@ -317,6 +336,11 @@ void CButton::hover (bool on)
 		else
 			GH.statusbar()->clearIfMatching(name);
 	}
+}
+
+void CButton::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	panningCallback(initialPosition, currentPosition, lastUpdateDistance);
 }
 
 ButtonBase::ButtonBase(Point position, const AnimationPath & defName, EShortcut key, bool playerColoredButton)
@@ -351,7 +375,7 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 	soundDisabled(false)
 {
 	defActions = 255-DISPOSE;
-	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD | GESTURE);
 	hoverTexts[0] = help.first;
 }
 

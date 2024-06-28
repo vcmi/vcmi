@@ -27,6 +27,7 @@ class StackQueue;
 class TurnTimerWidget;
 class HeroInfoBasicPanel;
 class StackInfoBasicPanel;
+class QuickSpellPanel;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable

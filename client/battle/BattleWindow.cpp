@@ -45,8 +45,8 @@
 #include "../../lib/CPlayerState.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
-BattleWindow::BattleWindow(BattleInterface & owner):
-	owner(owner),
+BattleWindow::BattleWindow(BattleInterface & Owner):
+	owner(Owner),
 	defaultAction(PossiblePlayerBattleAction::INVALID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -64,6 +64,33 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/BattleWindow2.json"));
 	
+	auto useSpellIfPossible = [this](int slot){
+		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(slot)].String();
+		SpellID id;
+		try
+		{
+			id = SpellID::decode(spellIdentifier);
+		}
+		catch(const IdentifierResolutionException& e)
+		{
+			return;
+		}
+		if(id.hasValue() && owner.getBattle()->battleGetMyHero() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, owner.getBattle()->battleGetMyHero()))
+		{
+			owner.castThisSpell(id);
+		}
+	};
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_0, [useSpellIfPossible](){ useSpellIfPossible(0); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_1, [useSpellIfPossible](){ useSpellIfPossible(1); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_2, [useSpellIfPossible](){ useSpellIfPossible(2); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_3, [useSpellIfPossible](){ useSpellIfPossible(3); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_4, [useSpellIfPossible](){ useSpellIfPossible(4); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_5, [useSpellIfPossible](){ useSpellIfPossible(5); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_6, [useSpellIfPossible](){ useSpellIfPossible(6); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_7, [useSpellIfPossible](){ useSpellIfPossible(7); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_8, [useSpellIfPossible](){ useSpellIfPossible(8); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_9, [useSpellIfPossible](){ useSpellIfPossible(9); });
+
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
 	addShortcut(EShortcut::BATTLE_RETREAT, std::bind(&BattleWindow::bFleef, this));
@@ -97,6 +124,31 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	createQueue();
 	createStickyHeroInfoWindows();
 	createTimerInfoWindows();
+
+	auto w = widget<CButton>("cast");
+	if(w)
+	{
+		auto hero = owner.getBattle()->battleGetMyHero();
+		if(hero && settings["general"]["enableUiEnhancements"].Bool())
+		{
+			auto createQuickSpellPanelWindow = [](std::shared_ptr<CButton> widget, BattleInterface & owner){
+				std::shared_ptr<QuickSpellPanel> window = std::make_shared<QuickSpellPanel>(widget, owner);
+				window->moveTo(Point(widget->pos.x - 2, widget->pos.y - 378));
+				GH.windows().pushWindow(window);
+			};
+			
+			w->addHoverCallback([this, createQuickSpellPanelWindow, w](bool on)
+			{
+				if(on)
+					createQuickSpellPanelWindow(w, owner);
+			});
+			w->addPanningCallback([this, createQuickSpellPanelWindow, w](const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+			{
+				if((currentPosition - initialPosition).y < -20)
+					createQuickSpellPanelWindow(w, owner);
+			});
+		}
+	}
 
 	if ( owner.tacticsMode )
 		tacticPhaseStarted();

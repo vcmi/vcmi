@@ -22,6 +22,7 @@ class CGHeroInstance;
 struct BattleResult;
 struct InfoAboutHero;
 class CStack;
+class CPlayerBattleCallback;
 
 namespace battle
 {
@@ -44,6 +45,7 @@ class TransparentFilledRectangle;
 class CPlayerInterface;
 class BattleRenderer;
 class VideoWidget;
+class QuickSpellPanel;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class BattleConsole : public CIntObject, public IStatusBar
@@ -145,6 +147,45 @@ public:
 	void heroRightClicked();
 
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
+};
+
+class QuickSpellPanelSelect : public CIntObject
+{
+private:
+	std::shared_ptr<CFilledTexture> background;
+	std::shared_ptr<TransparentFilledRectangle> rect;
+	std::vector<std::shared_ptr<CButton>> buttons;
+	QuickSpellPanel * parent;
+public:
+	QuickSpellPanelSelect(QuickSpellPanel * Parent);
+	bool wasEnabled; // was the panel opened? -> don't close window because mouse is not in area
+	int spellSlot;
+};
+
+class QuickSpellPanel : public CWindowObject
+{
+private:
+	std::shared_ptr<CFilledTexture> background;
+	std::shared_ptr<TransparentFilledRectangle> rect;
+	std::vector<std::shared_ptr<CButton>> buttons;
+	std::vector<std::shared_ptr<TransparentFilledRectangle>> buttonsDisabled;
+	std::vector<std::shared_ptr<CLabel>> labels;
+
+	std::shared_ptr<QuickSpellPanelSelect> panelSelect;
+
+	bool receiveEvent(const Point & position, int eventType) const override;
+	void clickReleased(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+
+	std::shared_ptr<CButton> initWidget;
+	BattleInterface & owner;
+public:
+	QuickSpellPanel(std::shared_ptr<CButton> initWidget, BattleInterface & owner);
+
+	void create();
+
+	void show(Canvas & to) override;
 };
 
 class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
