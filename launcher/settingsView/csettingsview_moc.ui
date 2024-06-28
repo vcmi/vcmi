@@ -48,519 +48,16 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>729</width>
-        <height>1340</height>
+        <width>730</width>
+        <height>1691</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="2,0,1,1,1">
-       <item row="52" column="0">
-        <widget class="QLabel" name="labelNetworkPortLobby">
-         <property name="text">
-          <string>Online Lobby port</string>
-         </property>
-        </widget>
-       </item>
-       <item row="44" column="0">
-        <widget class="QLabel" name="labelFriendlyAI">
-         <property name="text">
-          <string>Autocombat AI in battles</string>
-         </property>
-        </widget>
-       </item>
-       <item row="37" column="0">
-        <widget class="QLabel" name="labelControllerSticksSensitivity">
-         <property name="text">
-          <string>Sticks Sensitivity</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="labelTranslation">
-         <property name="text">
-          <string>Heroes III Translation</string>
-         </property>
-        </widget>
-       </item>
-       <item row="32" column="0">
-        <widget class="QLabel" name="labelHapticFeedback">
-         <property name="text">
-          <string>Haptic Feedback</string>
-         </property>
-        </widget>
-       </item>
-       <item row="21" column="0">
-        <widget class="QLabel" name="labelCursorType">
-         <property name="text">
-          <string>Software Cursor</string>
-         </property>
-        </widget>
-       </item>
-       <item row="20" column="0">
-        <widget class="QLabel" name="labelRendererType">
-         <property name="text">
-          <string>Renderer</string>
-         </property>
-        </widget>
-       </item>
-       <item row="51" column="0">
-        <widget class="QLabel" name="labelGameLobbyHost">
-         <property name="text">
-          <string>Online Lobby address</string>
-         </property>
-        </widget>
-       </item>
-       <item row="23" column="0">
-        <widget class="QLabel" name="labelUpscalingFilter">
-         <property name="text">
-          <string>Upscaling Filter</string>
-         </property>
-        </widget>
-       </item>
-       <item row="30" column="0">
-        <widget class="QLabel" name="labelRelativeCursorMode">
-         <property name="text">
-          <string>Use Relative Pointer Mode</string>
-         </property>
-        </widget>
-       </item>
-       <item row="19" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxDisplayIndex"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="labelLanguage">
-         <property name="text">
-          <string>VCMI Language</string>
-         </property>
-        </widget>
-       </item>
-       <item row="20" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxRendererType"/>
-       </item>
-       <item row="16" column="0">
-        <widget class="QLabel" name="labelVSync">
-         <property name="text">
-          <string>VSync</string>
-         </property>
-        </widget>
-       </item>
-       <item row="51" column="1" colspan="4">
-        <widget class="QLineEdit" name="lineEditGameLobbyHost">
-         <property name="text">
-          <string notr="true"/>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="labelAutoSave">
-         <property name="text">
-          <string>Autosave</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="4">
-        <widget class="QPushButton" name="pushButtonTranslation">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="45" column="0">
-        <widget class="QLabel" name="labelEnemyAI">
-         <property name="text">
-          <string>Enemy AI in battles</string>
-         </property>
-        </widget>
-       </item>
-       <item row="43" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxNeutralAI">
-         <property name="currentText">
-          <string notr="true">BattleAI</string>
-         </property>
-         <item>
-          <property name="text">
-           <string notr="true">BattleAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">StupidAI</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="23" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxUpscalingFilter">
-         <item>
-          <property name="text">
-           <string>Nearest</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Linear</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Best (Linear)</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="5" column="1" colspan="4">
-        <widget class="QSpinBox" name="spinBoxNetworkPort">
-         <property name="minimum">
-          <number>1024</number>
-         </property>
-         <property name="maximum">
-          <number>65535</number>
-         </property>
-         <property name="value">
-          <number>3030</number>
-         </property>
-        </widget>
-       </item>
-       <item row="29" column="0">
-        <widget class="QLabel" name="labelInputMouse_2">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Input - Touchscreen</string>
-         </property>
-         <property name="margin">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item row="33" column="1" colspan="4">
-        <widget class="QSlider" name="sliderLongTouchDuration">
-         <property name="minimum">
-          <number>500</number>
-         </property>
-         <property name="maximum">
-          <number>2000</number>
-         </property>
-         <property name="singleStep">
-          <number>250</number>
-         </property>
-         <property name="pageStep">
-          <number>250</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>250</number>
-         </property>
-        </widget>
-       </item>
-       <item row="39" column="1" colspan="4">
-        <widget class="QSlider" name="sliderToleranceDistanceController">
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>50</number>
-         </property>
-         <property name="singleStep">
-          <number>1</number>
-         </property>
-         <property name="pageStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="1" colspan="4">
-        <widget class="QSlider" name="sliderReservedArea">
-         <property name="maximum">
-          <number>25</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item row="41" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxEnemyPlayerAI">
-         <property name="currentText">
-          <string notr="true">VCAI</string>
-         </property>
-         <item>
-          <property name="text">
-           <string notr="true">VCAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">Nullkiller</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QLabel" name="labelVideo">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Video</string>
-         </property>
-         <property name="margin">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item row="28" column="1" colspan="4">
-        <widget class="QSlider" name="slideToleranceDistanceMouse">
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>50</number>
-         </property>
-         <property name="singleStep">
-          <number>1</number>
-         </property>
-         <property name="pageStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="35" column="1" colspan="4">
-        <widget class="QSlider" name="sliderToleranceDistanceTouch">
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>50</number>
-         </property>
-         <property name="singleStep">
-          <number>1</number>
-         </property>
-         <property name="pageStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="25" column="1" colspan="4">
-        <widget class="QSlider" name="sliderMusicVolume">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="1" colspan="4">
-        <widget class="QSpinBox" name="spinBoxFramerateLimit">
-         <property name="minimum">
-          <number>20</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="52" column="1" colspan="4">
-        <widget class="QSpinBox" name="spinBoxNetworkPortLobby">
-         <property name="minimum">
-          <number>1024</number>
-         </property>
-         <property name="maximum">
-          <number>65535</number>
-         </property>
-         <property name="value">
-          <number>3030</number>
-         </property>
-        </widget>
-       </item>
-       <item row="41" column="0">
-        <widget class="QLabel" name="labelEnemyPlayerAI">
-         <property name="text">
-          <string>Adventure Map Enemies</string>
-         </property>
-        </widget>
-       </item>
-       <item row="40" column="0">
-        <widget class="QLabel" name="labelArtificialIntelligence">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Artificial Intelligence</string>
-         </property>
-         <property name="margin">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="labelResolution">
-         <property name="text">
-          <string>Resolution</string>
-         </property>
-        </widget>
-       </item>
-       <item row="46" column="0">
-        <widget class="QLabel" name="labelNetwork">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Network</string>
-         </property>
-         <property name="margin">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item row="26" column="1" colspan="4">
-        <widget class="QSlider" name="sliderSoundVolume">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="18" column="0">
-        <widget class="QLabel" name="labelShowIntro">
-         <property name="text">
-          <string>Show intro</string>
-         </property>
-        </widget>
-       </item>
-       <item row="42" column="0">
-        <widget class="QLabel" name="labelAlliedPlayerAI">
-         <property name="text">
-          <string>Adventure Map Allies</string>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
-        <widget class="QLabel" name="labelFramerateLimit">
-         <property name="text">
-          <string>Framerate Limit</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="labelAutoSaveLimit">
-         <property name="text">
-          <string>Autosave limit (0 = off)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="labelNetworkPort">
-         <property name="text">
-          <string>Network port</string>
-         </property>
-        </widget>
-       </item>
-       <item row="24" column="0">
-        <widget class="QLabel" name="labelAudio">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Audio</string>
-         </property>
-         <property name="margin">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxResolution"/>
-       </item>
-       <item row="7" column="1" colspan="4">
-        <widget class="QSpinBox" name="spinBoxAutoSaveLimit"/>
-       </item>
-       <item row="49" column="0">
-        <widget class="QLabel" name="labelRepositoryDefault">
-         <property name="text">
-          <string>Default repository</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="labelGeneral">
          <property name="font">
           <font>
+           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -572,108 +69,7 @@
          </property>
         </widget>
        </item>
-       <item row="31" column="0">
-        <widget class="QLabel" name="labelRelativeCursorSpeed">
-         <property name="text">
-          <string>Relative Pointer Speed</string>
-         </property>
-        </widget>
-       </item>
-       <item row="25" column="0">
-        <widget class="QLabel" name="labelMusicVolume">
-         <property name="text">
-          <string>Music Volume</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="labelReservedArea">
-         <property name="text">
-          <string>Reserved screen area</string>
-         </property>
-        </widget>
-       </item>
-       <item row="50" column="0">
-        <widget class="QLabel" name="labelRepositoryExtra">
-         <property name="text">
-          <string>Additional repository</string>
-         </property>
-        </widget>
-       </item>
-       <item row="47" column="0">
-        <widget class="QLabel" name="labelIgnoreSslErrors">
-         <property name="text">
-          <string>Ignore SSL errors</string>
-         </property>
-        </widget>
-       </item>
-       <item row="27" column="0">
-        <widget class="QLabel" name="labelInputMouse">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Input - Mouse</string>
-         </property>
-         <property name="margin">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item row="33" column="0">
-        <widget class="QLabel" name="labelLongTouchDuration">
-         <property name="text">
-          <string>Long Touch Duration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="1" colspan="4">
-        <widget class="QSpinBox" name="spinBoxInterfaceScaling">
-         <property name="suffix">
-          <string>%</string>
-         </property>
-         <property name="minimum">
-          <number>50</number>
-         </property>
-         <property name="maximum">
-          <number>400</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="19" column="0">
-        <widget class="QLabel" name="labelDisplayIndex">
-         <property name="text">
-          <string>Display index</string>
-         </property>
-        </widget>
-       </item>
-       <item row="39" column="0">
-        <widget class="QLabel" name="labelToleranceDistanceController">
-         <property name="text">
-          <string>Controller Click Tolerance</string>
-         </property>
-        </widget>
-       </item>
-       <item row="35" column="0">
-        <widget class="QLabel" name="labelToleranceDistanceTouch">
-         <property name="text">
-          <string>Touch Tap Tolerance</string>
-         </property>
-        </widget>
-       </item>
-       <item row="43" column="0">
-        <widget class="QLabel" name="labelNeutralAI">
-         <property name="text">
-          <string>Neutral AI in battles</string>
-         </property>
-        </widget>
-       </item>
-       <item row="45" column="1" colspan="4">
+       <item row="46" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxEnemyAI">
          <property name="editable">
           <bool>false</bool>
@@ -693,36 +89,58 @@
          </item>
         </widget>
        </item>
-       <item row="36" column="0">
-        <widget class="QLabel" name="labelInputMouse_3">
-         <property name="font">
-          <font>
-           <bold>true</bold>
-          </font>
-         </property>
+       <item row="39" column="0">
+        <widget class="QLabel" name="labelControllerSticksAcceleration">
          <property name="text">
-          <string>Input - Controller</string>
-         </property>
-         <property name="margin">
-          <number>5</number>
+          <string>Sticks Acceleration</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="0">
-        <widget class="QLabel" name="labelInterfaceScaling">
+       <item row="49" column="2" colspan="3">
+        <widget class="QPushButton" name="refreshRepositoriesButton">
          <property name="text">
-          <string>Interface Scaling</string>
+          <string>Refresh now</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="labelFullScreen">
+       <item row="4" column="4">
+        <widget class="QPushButton" name="pushButtonTranslation">
          <property name="text">
-          <string>Fullscreen</string>
+          <string/>
          </property>
         </widget>
        </item>
-       <item row="42" column="1" colspan="4">
+       <item row="13" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxInterfaceScaling">
+         <property name="suffix">
+          <string>%</string>
+         </property>
+         <property name="minimum">
+          <number>50</number>
+         </property>
+         <property name="maximum">
+          <number>400</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="labelReservedArea">
+         <property name="text">
+          <string>Reserved screen area</string>
+         </property>
+        </widget>
+       </item>
+       <item row="52" column="0">
+        <widget class="QLabel" name="labelGameLobbyHost">
+         <property name="text">
+          <string>Online Lobby address</string>
+         </property>
+        </widget>
+       </item>
+       <item row="43" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxAlliedPlayerAI">
          <property name="currentText">
           <string notr="true">VCAI</string>
@@ -739,14 +157,121 @@
          </item>
         </widget>
        </item>
-       <item row="48" column="0">
-        <widget class="QLabel" name="labelAutoCheck">
+       <item row="16" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonVSync">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
-          <string>Check on startup</string>
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="31" column="1" colspan="4">
+       <item row="25" column="1" colspan="4">
+        <widget class="QSlider" name="sliderMusicVolume">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonAutoSave">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelLanguage">
+         <property name="text">
+          <string>VCMI Language</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1" colspan="4">
+        <widget class="QSlider" name="sliderReservedArea">
+         <property name="maximum">
+          <number>25</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QToolButton" name="buttonAutoSavePrefix">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="50" column="0">
+        <widget class="QLabel" name="labelRepositoryDefault">
+         <property name="text">
+          <string>Default repository</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxNetworkPort">
+         <property name="minimum">
+          <number>1024</number>
+         </property>
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+         <property name="value">
+          <number>3030</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="labelTranslation">
+         <property name="text">
+          <string>Heroes III Translation</string>
+         </property>
+        </widget>
+       </item>
+       <item row="32" column="1" colspan="4">
         <widget class="QSlider" name="sliderRelativeCursorSpeed">
          <property name="minimum">
           <number>100</number>
@@ -765,22 +290,100 @@
          </property>
         </widget>
        </item>
-       <item row="26" column="0">
-        <widget class="QLabel" name="labelSoundVolume">
+       <item row="20" column="0">
+        <widget class="QLabel" name="labelRendererType">
          <property name="text">
-          <string>Sound Volume</string>
+          <string>Renderer</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="labelAutoSavePrefix">
+       <item row="41" column="0">
+        <widget class="QLabel" name="labelArtificialIntelligence">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
-          <string>Autosave prefix</string>
+          <string>Artificial Intelligence</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxLanguage"/>
+       <item row="31" column="0">
+        <widget class="QLabel" name="labelRelativeCursorMode">
+         <property name="text">
+          <string>Use Relative Pointer Mode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="labelFullScreen">
+         <property name="text">
+          <string>Fullscreen</string>
+         </property>
+        </widget>
+       </item>
+       <item row="45" column="0">
+        <widget class="QLabel" name="labelFriendlyAI">
+         <property name="text">
+          <string>Autocombat AI in battles</string>
+         </property>
+        </widget>
+       </item>
+       <item row="19" column="0">
+        <widget class="QLabel" name="labelDisplayIndex">
+         <property name="text">
+          <string>Display index</string>
+         </property>
+        </widget>
+       </item>
+       <item row="34" column="0">
+        <widget class="QLabel" name="labelLongTouchDuration">
+         <property name="text">
+          <string>Long Touch Duration</string>
+         </property>
+        </widget>
+       </item>
+       <item row="38" column="0">
+        <widget class="QLabel" name="labelControllerSticksSensitivity">
+         <property name="text">
+          <string>Sticks Sensitivity</string>
+         </property>
+        </widget>
+       </item>
+       <item row="36" column="0">
+        <widget class="QLabel" name="labelToleranceDistanceTouch">
+         <property name="text">
+          <string>Touch Tap Tolerance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="51" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditRepositoryExtra">
+         <property name="text">
+          <string notr="true"/>
+         </property>
+        </widget>
+       </item>
+       <item row="26" column="1" colspan="4">
+        <widget class="QSlider" name="sliderSoundVolume">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>10</number>
+         </property>
+        </widget>
        </item>
        <item row="11" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxFullScreen">
@@ -813,48 +416,154 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </item>
         </widget>
        </item>
-       <item row="44" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxFriendlyAI">
-         <property name="editable">
-          <bool>false</bool>
+       <item row="50" column="1">
+        <widget class="QToolButton" name="buttonRepositoryDefault">
+         <property name="enabled">
+          <bool>true</bool>
          </property>
-         <property name="currentText">
-          <string notr="true">BattleAI</string>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">BattleAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">StupidAI</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="28" column="0">
-        <widget class="QLabel" name="labelToleranceDistanceMouse">
-         <property name="text">
-          <string>Mouse Click Tolerance</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" colspan="3">
-        <widget class="QLabel" name="labelTranslationStatus">
          <property name="text">
           <string/>
          </property>
-        </widget>
-       </item>
-       <item row="38" column="0">
-        <widget class="QLabel" name="labelControllerSticksAcceleration">
-         <property name="text">
-          <string>Sticks Acceleration</string>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
-       <item row="37" column="1" colspan="4">
+       <item row="50" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditRepositoryDefault">
+         <property name="text">
+          <string notr="true"/>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="0">
+        <widget class="QLabel" name="labelShowIntro">
+         <property name="text">
+          <string>Show intro</string>
+         </property>
+        </widget>
+       </item>
+       <item row="19" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxDisplayIndex"/>
+       </item>
+       <item row="36" column="1" colspan="4">
+        <widget class="QSlider" name="sliderToleranceDistanceTouch">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="singleStep">
+          <number>1</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="53" column="0">
+        <widget class="QLabel" name="labelNetworkPortLobby">
+         <property name="text">
+          <string>Online Lobby port</string>
+         </property>
+        </widget>
+       </item>
+       <item row="21" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonCursorType">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxAutoSaveLimit"/>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="labelVideo">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Video</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="24" column="0">
+        <widget class="QLabel" name="labelAudio">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Audio</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="51" column="1">
+        <widget class="QToolButton" name="buttonRepositoryExtra">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="38" column="1" colspan="4">
         <widget class="QSlider" name="sliderControllerSticksSensitivity">
          <property name="minimum">
           <number>500</number>
@@ -882,7 +591,462 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </property>
         </widget>
        </item>
-       <item row="38" column="1" colspan="4">
+       <item row="16" column="0">
+        <widget class="QLabel" name="labelVSync">
+         <property name="text">
+          <string>VSync</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" colspan="3">
+        <widget class="QLabel" name="labelTranslationStatus">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="23" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxUpscalingFilter">
+         <item>
+          <property name="text">
+           <string>Nearest</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Linear</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Best (Linear)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="45" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxFriendlyAI">
+         <property name="editable">
+          <bool>false</bool>
+         </property>
+         <property name="currentText">
+          <string notr="true">BattleAI</string>
+         </property>
+         <item>
+          <property name="text">
+           <string notr="true">BattleAI</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">StupidAI</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="49" column="0">
+        <widget class="QLabel" name="labelAutoCheck">
+         <property name="text">
+          <string>Check on startup</string>
+         </property>
+        </widget>
+       </item>
+       <item row="28" column="1" colspan="4">
+        <widget class="QSlider" name="slideToleranceDistanceMouse">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="singleStep">
+          <number>1</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonShowIntro">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="34" column="1" colspan="4">
+        <widget class="QSlider" name="sliderLongTouchDuration">
+         <property name="minimum">
+          <number>500</number>
+         </property>
+         <property name="maximum">
+          <number>2000</number>
+         </property>
+         <property name="singleStep">
+          <number>250</number>
+         </property>
+         <property name="pageStep">
+          <number>250</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>250</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxLanguage"/>
+       </item>
+       <item row="53" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxNetworkPortLobby">
+         <property name="minimum">
+          <number>1024</number>
+         </property>
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+         <property name="value">
+          <number>3030</number>
+         </property>
+        </widget>
+       </item>
+       <item row="46" column="0">
+        <widget class="QLabel" name="labelEnemyAI">
+         <property name="text">
+          <string>Enemy AI in battles</string>
+         </property>
+        </widget>
+       </item>
+       <item row="29" column="0">
+        <widget class="QLabel" name="labelInputMouse_2">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Input - Touchscreen</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="labelAutoSavePrefix">
+         <property name="text">
+          <string>Autosave prefix</string>
+         </property>
+        </widget>
+       </item>
+       <item row="48" column="0">
+        <widget class="QLabel" name="labelIgnoreSslErrors">
+         <property name="text">
+          <string>Ignore SSL errors</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxResolution"/>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="labelAutoSaveLimit">
+         <property name="text">
+          <string>Autosave limit (0 = off)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="52" column="1" colspan="4">
+        <widget class="QLineEdit" name="lineEditGameLobbyHost">
+         <property name="text">
+          <string notr="true"/>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="labelAutoSave">
+         <property name="text">
+          <string>Autosave</string>
+         </property>
+        </widget>
+       </item>
+       <item row="33" column="0">
+        <widget class="QLabel" name="labelHapticFeedback">
+         <property name="text">
+          <string>Haptic Feedback</string>
+         </property>
+        </widget>
+       </item>
+       <item row="33" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonHapticFeedback">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="51" column="0">
+        <widget class="QLabel" name="labelRepositoryExtra">
+         <property name="text">
+          <string>Additional repository</string>
+         </property>
+        </widget>
+       </item>
+       <item row="28" column="0">
+        <widget class="QLabel" name="labelToleranceDistanceMouse">
+         <property name="text">
+          <string>Mouse Click Tolerance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="21" column="0">
+        <widget class="QLabel" name="labelCursorType">
+         <property name="text">
+          <string>Software Cursor</string>
+         </property>
+        </widget>
+       </item>
+       <item row="32" column="0">
+        <widget class="QLabel" name="labelRelativeCursorSpeed">
+         <property name="text">
+          <string>Relative Pointer Speed</string>
+         </property>
+        </widget>
+       </item>
+       <item row="47" column="0">
+        <widget class="QLabel" name="labelNetwork">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Network</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelNetworkPort">
+         <property name="text">
+          <string>Network port</string>
+         </property>
+        </widget>
+       </item>
+       <item row="48" column="1" colspan="4">
+        <widget class="QToolButton" name="buttonIgnoreSslErrors">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="23" column="0">
+        <widget class="QLabel" name="labelUpscalingFilter">
+         <property name="text">
+          <string>Upscaling Filter</string>
+         </property>
+        </widget>
+       </item>
+       <item row="42" column="0">
+        <widget class="QLabel" name="labelEnemyPlayerAI">
+         <property name="text">
+          <string>Adventure Map Enemies</string>
+         </property>
+        </widget>
+       </item>
+       <item row="44" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxNeutralAI">
+         <property name="currentText">
+          <string notr="true">BattleAI</string>
+         </property>
+         <item>
+          <property name="text">
+           <string notr="true">BattleAI</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">StupidAI</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="44" column="0">
+        <widget class="QLabel" name="labelNeutralAI">
+         <property name="text">
+          <string>Neutral AI in battles</string>
+         </property>
+        </widget>
+       </item>
+       <item row="43" column="0">
+        <widget class="QLabel" name="labelAlliedPlayerAI">
+         <property name="text">
+          <string>Adventure Map Allies</string>
+         </property>
+        </widget>
+       </item>
+       <item row="27" column="0">
+        <widget class="QLabel" name="labelInputMouse">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Input - Mouse</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="49" column="1">
+        <widget class="QToolButton" name="buttonAutoCheck">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="20" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxRendererType"/>
+       </item>
+       <item row="15" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxFramerateLimit">
+         <property name="minimum">
+          <number>20</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="42" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxEnemyPlayerAI">
+         <property name="currentText">
+          <string notr="true">VCAI</string>
+         </property>
+         <item>
+          <property name="text">
+           <string notr="true">VCAI</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">Nullkiller</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="8" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditAutoSavePrefix">
+         <property name="placeholderText">
+          <string>empty = map name prefix</string>
+         </property>
+        </widget>
+       </item>
+       <item row="37" column="0">
+        <widget class="QLabel" name="labelInputMouse_3">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Input - Controller</string>
+         </property>
+         <property name="margin">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="labelFramerateLimit">
+         <property name="text">
+          <string>Framerate Limit</string>
+         </property>
+        </widget>
+       </item>
+       <item row="40" column="0">
+        <widget class="QLabel" name="labelToleranceDistanceController">
+         <property name="text">
+          <string>Controller Click Tolerance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="39" column="1" colspan="4">
         <widget class="QSlider" name="sliderControllerSticksAcceleration">
          <property name="minimum">
           <number>100</number>
@@ -910,187 +1074,56 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </property>
         </widget>
        </item>
-       <item row="47" column="1" colspan="4">
-        <widget class="QToolButton" name="buttonIgnoreSslErrors">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="13" column="0">
+        <widget class="QLabel" name="labelInterfaceScaling">
          <property name="text">
-          <string/>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
+          <string>Interface Scaling</string>
          </property>
         </widget>
        </item>
-       <item row="49" column="1">
-        <widget class="QToolButton" name="buttonRepositoryDefault">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="10" column="0">
+        <widget class="QLabel" name="labelResolution">
          <property name="text">
-          <string/>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
+          <string>Resolution</string>
          </property>
         </widget>
        </item>
-       <item row="50" column="1">
-        <widget class="QToolButton" name="buttonRepositoryExtra">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="26" column="0">
+        <widget class="QLabel" name="labelSoundVolume">
          <property name="text">
-          <string/>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
+          <string>Sound Volume</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="QToolButton" name="buttonAutoSavePrefix">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="40" column="1" colspan="4">
+        <widget class="QSlider" name="sliderToleranceDistanceController">
+         <property name="minimum">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string/>
+         <property name="maximum">
+          <number>50</number>
          </property>
-         <property name="checkable">
-          <bool>true</bool>
+         <property name="singleStep">
+          <number>1</number>
          </property>
-        </widget>
-       </item>
-       <item row="8" column="2" colspan="3">
-        <widget class="QLineEdit" name="lineEditAutoSavePrefix">
-         <property name="placeholderText">
-          <string>empty = map name prefix</string>
+         <property name="pageStep">
+          <number>10</number>
          </property>
-        </widget>
-       </item>
-       <item row="48" column="1">
-        <widget class="QToolButton" name="buttonAutoCheck">
-         <property name="enabled">
-          <bool>true</bool>
+         <property name="value">
+          <number>0</number>
          </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="text">
-          <string/>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
          </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
+         <property name="tickInterval">
+          <number>10</number>
          </property>
         </widget>
        </item>
-       <item row="48" column="2" colspan="3">
-        <widget class="QPushButton" name="refreshRepositoriesButton">
-         <property name="text">
-          <string>Refresh now</string>
-         </property>
-        </widget>
-       </item>
-       <item row="49" column="2" colspan="3">
-        <widget class="QLineEdit" name="lineEditRepositoryDefault">
-         <property name="text">
-          <string notr="true"/>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="50" column="2" colspan="3">
-        <widget class="QLineEdit" name="lineEditRepositoryExtra">
-         <property name="text">
-          <string notr="true"/>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="1" colspan="4">
-        <widget class="QToolButton" name="buttonVSync">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="18" column="1" colspan="4">
-        <widget class="QToolButton" name="buttonShowIntro">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="21" column="1" colspan="4">
-        <widget class="QToolButton" name="buttonCursorType">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="30" column="1" colspan="4">
+       <item row="31" column="1" colspan="4">
         <widget class="QToolButton" name="buttonRelativeCursorMode">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1106,35 +1139,24 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </property>
         </widget>
        </item>
-       <item row="32" column="1" colspan="4">
-        <widget class="QToolButton" name="buttonHapticFeedback">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="25" column="0">
+        <widget class="QLabel" name="labelMusicVolume">
          <property name="text">
-          <string/>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
+          <string>Music Volume</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="1" colspan="4">
-        <widget class="QToolButton" name="buttonAutoSave">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="30" column="0">
+        <widget class="QLabel" name="labelResetTutorialTouchscreen">
          <property name="text">
-          <string/>
+          <string>Show Tutorial again</string>
          </property>
-         <property name="checkable">
-          <bool>true</bool>
+        </widget>
+       </item>
+       <item row="30" column="1" colspan="4">
+        <widget class="QPushButton" name="pushButtonResetTutorialTouchscreen">
+         <property name="text">
+          <string>Reset</string>
          </property>
         </widget>
        </item>

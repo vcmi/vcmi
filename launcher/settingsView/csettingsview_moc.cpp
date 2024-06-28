@@ -90,6 +90,12 @@ void CSettingsView::loadSettings()
 #ifdef VCMI_MOBILE
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
+
+	if(!persistentStorage["gui"]["tutorialCompleted0"].Bool() && !persistentStorage["gui"]["tutorialCompleted1"].Bool())
+	{
+		ui->labelResetTutorialTouchscreen->hide();
+		ui->pushButtonResetTutorialTouchscreen->hide();		
+	}
 #else
 	ui->labelReservedArea->hide();
 	ui->sliderReservedArea->hide();
@@ -99,6 +105,8 @@ void CSettingsView::loadSettings()
 	ui->labelRelativeCursorSpeed->hide();
 	ui->buttonHapticFeedback->hide();
 	ui->labelHapticFeedback->hide();
+	ui->labelResetTutorialTouchscreen->hide();
+	ui->pushButtonResetTutorialTouchscreen->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
@@ -523,6 +531,16 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	{
 		mainWindow->getModView()->enableModByName(modName);
 	}
+}
+
+void CSettingsView::on_pushButtonResetTutorialTouchscreen_clicked()
+{
+	Settings node0 = persistentStorage.write["gui"]["tutorialCompleted0"];
+	node0->Bool() = false;
+	Settings node1 = persistentStorage.write["gui"]["tutorialCompleted1"];
+	node1->Bool() = false;
+
+	ui->pushButtonResetTutorialTouchscreen->hide();
 }
 
 void CSettingsView::on_buttonRepositoryDefault_toggled(bool value)

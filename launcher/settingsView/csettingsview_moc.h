@@ -49,6 +49,7 @@ private slots:
 	void on_comboBoxLanguage_currentIndexChanged(int index);
 	void on_buttonCursorType_toggled(bool value);
 	void on_pushButtonTranslation_clicked();
+	void on_pushButtonResetTutorialTouchscreen_clicked();
 	void on_buttonRepositoryDefault_toggled(bool value);
 	void on_buttonRepositoryExtra_toggled(bool value);
 	void on_lineEditRepositoryExtra_textEdited(const QString &arg1);
