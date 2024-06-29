@@ -74,7 +74,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QDateTimeEdit" name="mapCreationDateTimeEdit"/>
+    <widget class="QDateTimeEdit" name="mapCreationDateTimeEdit">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_6">
