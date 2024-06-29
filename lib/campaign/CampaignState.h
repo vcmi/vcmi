@@ -81,6 +81,10 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	CampaignRegions campaignRegions;
 	MetaString name;
 	MetaString description;
+	MetaString author;
+	MetaString authorContact;
+	MetaString campaignVersion;
+	std::time_t creationDateTime;
 	AudioPath music;
 	std::string filename;
 	std::string modName;
@@ -114,6 +118,13 @@ public:
 		h & numberOfScenarios;
 		h & name;
 		h & description;
+		if (h.version >= Handler::Version::MAP_FORMAT_ADDITIONAL_INFOS)
+		{
+			h & author;
+			h & authorContact;
+			h & campaignVersion;
+			h & creationDateTime;
+		}
 		h & difficultyChosenByPlayer;
 		h & filename;
 		h & modName;

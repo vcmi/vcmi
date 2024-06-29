@@ -137,6 +137,13 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		throw;
 	}
 	Load::Progress::finish();
+
+	map->mapInstance->creationDateTime = std::time(nullptr);
+	map->mapInstance->author = MetaString::createFromTextID("core.genrltxt.740");
+	const auto * mapTemplate = mapGenOptions.getMapTemplate();
+	if(mapTemplate)
+		map->mapInstance->mapVersion = MetaString::createFromRawString(mapTemplate->getName());
+
 	return std::move(map->mapInstance);
 }
 

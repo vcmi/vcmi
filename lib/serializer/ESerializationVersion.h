@@ -55,6 +55,7 @@ enum class ESerializationVersion : int32_t
 	COMPACT_INTEGER_SERIALIZATION, // 845 - serialize integers in forms similar to protobuf
 	REMOVE_FOG_OF_WAR_POINTER, // 846 - fog of war is serialized as reference instead of pointer
 	SIMPLE_TEXT_CONTAINER_SERIALIZATION, // 847 - text container is serialized using common routine instead of custom approach
+	MAP_FORMAT_ADDITIONAL_INFOS, // 848 - serialize new infos in map format
 
-	CURRENT = SIMPLE_TEXT_CONTAINER_SERIALIZATION
+	CURRENT = MAP_FORMAT_ADDITIONAL_INFOS
 };

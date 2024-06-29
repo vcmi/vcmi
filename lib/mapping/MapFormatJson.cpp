@@ -311,6 +311,10 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 {
 	handler.serializeStruct("name", mapHeader->name);
 	handler.serializeStruct("description", mapHeader->description);
+	handler.serializeStruct("author", mapHeader->author);
+	handler.serializeStruct("authorContact", mapHeader->authorContact);
+	handler.serializeStruct("mapVersion", mapHeader->mapVersion);
+	handler.serializeInt("creationDateTime", mapHeader->creationDateTime, 0);
 	handler.serializeInt("heroLevelLimit", mapHeader->levelLimit, 0);
 
 	//todo: support arbitrary percentage
@@ -855,7 +859,6 @@ void CMapLoaderJson::readHeader(const bool complete)
 	//todo: multilevel map load support
 	{
 		auto levels = handler.enterStruct("mapLevels");
-
 		{
 			auto surface = handler.enterStruct("surface");
 			handler.serializeInt("height", mapHeader->height);
