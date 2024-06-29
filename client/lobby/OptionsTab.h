@@ -107,6 +107,7 @@ private:
 		const int TEXT_POS_Y = 56;
 
 		const int MAX_LINES = 6;
+		const int MAX_ELEM_PER_LINES = 4;
 
 		int elementsPerLine;
 
