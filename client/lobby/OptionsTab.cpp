@@ -503,23 +503,7 @@ void OptionsTab::SelectionWindow::recreate()
 		elementsPerLine = allowedBonus.size();
 	else
 	{
-		// try to make squarish
-		if(type == SelType::TOWN)
-			elementsPerLine = std::min((int)allowedFactions.size(), MAX_ELEM_PER_LINES);
-		if(type == SelType::HERO)
-		{
-			int count = 0;
-			for(auto & elem : allowedHeroes)
-			{
-				const CHero * type = elem.toHeroType();
-				if(type->heroClass->faction == selectedFaction)
-				{
-					count++;
-				}
-			}
-			elementsPerLine = std::min(count, MAX_ELEM_PER_LINES);
-		}
-
+		elementsPerLine = MAX_ELEM_PER_LINES;
 		amountLines = calcLines((type > SelType::TOWN) ? selectedFaction : FactionID::RANDOM);
 	}
 
