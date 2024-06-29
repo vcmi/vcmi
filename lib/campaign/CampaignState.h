@@ -83,7 +83,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	MetaString description;
 	MetaString author;
 	MetaString authorContact;
-	MetaString mapVersion;
+	MetaString campaignVersion;
 	std::time_t creationDateTime;
 	AudioPath music;
 	std::string filename;
@@ -122,7 +122,7 @@ public:
 		{
 			h & author;
 			h & authorContact;
-			h & mapVersion;
+			h & campaignVersion;
 			h & creationDateTime;
 		}
 		h & difficultyChosenByPlayer;

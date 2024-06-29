@@ -41,7 +41,7 @@
 			"alignment": "right",
 			"color": "green",
 			"text": "",
-			"position": {"x": 418, "y": 40}
+			"position": {"x": 418, "y": 48}
 		},
 		{
 			"type": "boxWithBackground",

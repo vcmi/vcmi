@@ -153,7 +153,7 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.description.appendTextID(reader["description"].String());
 	ret.author.appendRawString(reader["author"].String());
 	ret.authorContact.appendRawString(reader["authorContact"].String());
-	ret.mapVersion.appendRawString(reader["mapVersion"].String());
+	ret.campaignVersion.appendRawString(reader["campaignVersion"].String());
 	ret.creationDateTime = reader["creationDateTime"].Integer();
 	ret.difficultyChosenByPlayer = reader["allowDifficultySelection"].Bool();
 	ret.music = AudioPath::fromJson(reader["music"]);
@@ -391,7 +391,7 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));
 	ret.author.appendRawString("");
 	ret.authorContact.appendRawString("");
-	ret.mapVersion.appendRawString("");
+	ret.campaignVersion.appendRawString("");
 	ret.creationDateTime = 0;
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChosenByPlayer = reader.readInt8();
