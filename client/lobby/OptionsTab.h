@@ -26,6 +26,7 @@ class CAnimImage;
 class CComponentBox;
 class CTextBox;
 class CButton;
+class CSlider;
 
 class FilledTexturePlayerColored;
 
@@ -105,7 +106,13 @@ private:
 		const int TEXT_POS_X = 29;
 		const int TEXT_POS_Y = 56;
 
+		const int MAX_LINES = 6;
+		const int MAX_ELEM_PER_LINES = 4;
+
 		int elementsPerLine;
+
+		std::shared_ptr<CSlider> slider;
+		int sliderLine;
 
 		PlayerColor color;
 		SelType type;
@@ -141,6 +148,8 @@ private:
 		int getElement(const Point & cursorPosition);
 		void setElement(int element, bool doApply);
 
+		void sliderMove(int slidPos);
+
 		bool receiveEvent(const Point & position, int eventType) const override;
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
@@ -148,7 +157,7 @@ private:
 	public:
 		void reopen();
 
-		SelectionWindow(const PlayerColor & color, SelType _type);
+		SelectionWindow(const PlayerColor & color, SelType _type, int sliderLine = 0);
 	};
 
 	/// Image with current town/hero/bonus
