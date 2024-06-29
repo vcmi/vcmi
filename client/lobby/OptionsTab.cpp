@@ -522,9 +522,9 @@ void OptionsTab::SelectionWindow::recreate()
 	int x = (elementsPerLine) * (ICON_BIG_WIDTH-1);
 	int y = (std::min(amountLines, MAX_LINES)) * (ICON_BIG_HEIGHT-1);
 
-	pos = Rect(0, 0, x + ((amountLines > MAX_LINES) ? 16 : 0), y);
+	pos = Rect(pos.x, pos.y, x + ((amountLines > MAX_LINES) ? 16 : 0), y);
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	backgroundTexture->playerColored(PlayerColor(1));
 	updateShadow();
 
@@ -540,7 +540,7 @@ void OptionsTab::SelectionWindow::recreate()
 	{
 		slider = std::make_shared<CSlider>(Point(x, 0), y, std::bind(&OptionsTab::SelectionWindow::sliderMove, this, _1), MAX_LINES, amountLines, 0, Orientation::VERTICAL, CSlider::BLUE);
 		slider->setPanningStep(ICON_BIG_HEIGHT);
-		slider->setScrollBounds(Rect(0, 0, x, y));
+		slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, x + slider->pos.w, y));
 		slider->scrollTo(sliderLine);
 	}
 
@@ -580,19 +580,23 @@ void OptionsTab::SelectionWindow::genContentFactions()
 	if(selectedFaction == FactionID::RANDOM)
 		components.push_back(std::make_shared<CPicture>(ImagePath::builtin("lobby/townBorderSmallActivated"), 6, (ICON_SMALL_HEIGHT/2)));
 
+	factions.clear();
 	for(auto & elem : allowedFactions)
 	{
 		int x = i % elementsPerLine;
-		int y = i / elementsPerLine;
+		int y = (i / elementsPerLine) - sliderLine;
 
 		PlayerSettings set = PlayerSettings();
 		set.castle = elem;
 
 		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 
-		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
-		components.push_back(std::make_shared<CPicture>(ImagePath::builtin(selectedFaction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig"), x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
-		drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedFaction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+		if(y >= 0 && y <= MAX_LINES - 1)
+		{
+			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+			components.push_back(std::make_shared<CPicture>(ImagePath::builtin(selectedFaction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig"), x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+			drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedFaction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+		}
 		factions.push_back(elem);
 
 		i++;
@@ -612,6 +616,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	if(selectedHero == HeroTypeID::RANDOM)
 		components.push_back(std::make_shared<CPicture>(ImagePath::builtin("lobby/townBorderSmallActivated"), 6, (ICON_SMALL_HEIGHT/2)));
 
+	heroes.clear();
 	for(auto & elem : allowedHeroes)
 	{
 		const CHero * type = elem.toHeroType();
@@ -620,21 +625,24 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 		{
 
 			int x = i % elementsPerLine;
-			int y = i / elementsPerLine;
+			int y = (i / elementsPerLine) - sliderLine;
 
 			PlayerSettings set = PlayerSettings();
 			set.hero = elem;
 
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 
-			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
-			drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-			ImagePath image = ImagePath::builtin("lobby/townBorderBig");
-			if(selectedHero == elem)
-				image = ImagePath::builtin("lobby/townBorderBigActivated");
-			if(unusableHeroes.count(elem))
-				image = ImagePath::builtin("lobby/townBorderBigGrayedOut");
-			components.push_back(std::make_shared<CPicture>(image, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+			if(y >= 0 && y <= MAX_LINES - 1)
+			{
+				components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+				drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+				ImagePath image = ImagePath::builtin("lobby/townBorderBig");
+				if(selectedHero == elem)
+					image = ImagePath::builtin("lobby/townBorderBigActivated");
+				if(unusableHeroes.count(elem))
+					image = ImagePath::builtin("lobby/townBorderBigGrayedOut");
+				components.push_back(std::make_shared<CPicture>(image, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+			}
 			heroes.push_back(elem);
 
 			i++;
@@ -669,7 +677,7 @@ void OptionsTab::SelectionWindow::genContentBonus()
 int OptionsTab::SelectionWindow::getElement(const Point & cursorPosition)
 {
 	int x = (cursorPosition.x - pos.x) / (ICON_BIG_WIDTH-1);
-	int y = (cursorPosition.y - pos.y) / (ICON_BIG_HEIGHT-1);
+	int y = ((cursorPosition.y - pos.y) / (ICON_BIG_HEIGHT-1)) + sliderLine;
 
 	return x + y * elementsPerLine;
 }
@@ -755,7 +763,8 @@ void OptionsTab::SelectionWindow::sliderMove(int slidPos)
 {
 	if(!slider)
 		return; // ignore spurious call when slider is being created
-	recreate();
+	if(slidPos != sliderLine)
+		recreate();
 	redraw();
 }
 
