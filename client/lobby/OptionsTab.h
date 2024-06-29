@@ -26,6 +26,7 @@ class CAnimImage;
 class CComponentBox;
 class CTextBox;
 class CButton;
+class CSlider;
 
 class FilledTexturePlayerColored;
 
@@ -105,7 +106,12 @@ private:
 		const int TEXT_POS_X = 29;
 		const int TEXT_POS_Y = 56;
 
+		const int MAX_LINES = 6;
+
 		int elementsPerLine;
+
+		std::shared_ptr<CSlider> slider;
+		int sliderLine;
 
 		PlayerColor color;
 		SelType type;
@@ -140,6 +146,8 @@ private:
 		void setSelection();
 		int getElement(const Point & cursorPosition);
 		void setElement(int element, bool doApply);
+
+		void sliderMove(int slidPos);
 
 		bool receiveEvent(const Point & position, int eventType) const override;
 		void clickReleased(const Point & cursorPosition) override;
