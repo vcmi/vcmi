@@ -442,7 +442,7 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 	double additionalItems = 1; // random
 
 	if(!faction.isValid())
-		return std::ceil(((double)allowedFactions.size() + additionalItems) / elementsPerLine);
+		return std::ceil(((double)allowedFactions.size() + additionalItems) / MAX_ELEM_PER_LINES);
 
 	int count = 0;
 	for(auto & elemh : allowedHeroes)
@@ -452,7 +452,7 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 			count++;
 	}
 
-	return std::ceil(((double)count + additionalItems) / (double)elementsPerLine);
+	return std::ceil(((double)count + additionalItems) / (double)MAX_ELEM_PER_LINES);
 }
 
 void OptionsTab::SelectionWindow::apply()
@@ -501,7 +501,7 @@ void OptionsTab::SelectionWindow::recreate()
 	{
 		// try to make squarish
 		if(type == SelType::TOWN)
-			elementsPerLine = floor(sqrt(allowedFactions.size()));
+			elementsPerLine = std::min((int)allowedFactions.size(), MAX_ELEM_PER_LINES);
 		if(type == SelType::HERO)
 		{
 			int count = 0;
@@ -513,7 +513,7 @@ void OptionsTab::SelectionWindow::recreate()
 					count++;
 				}
 			}
-			elementsPerLine = floor(sqrt(count));
+			elementsPerLine = std::min(count, MAX_ELEM_PER_LINES);
 		}
 
 		amountLines = calcLines((type > SelType::TOWN) ? selectedFaction : FactionID::RANDOM);
