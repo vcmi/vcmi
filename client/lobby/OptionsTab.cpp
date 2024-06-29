@@ -452,7 +452,7 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 			count++;
 	}
 
-	return std::ceil(std::max((double)count + additionalItems, (double)allowedFactions.size() + additionalItems) / (double)elementsPerLine);
+	return std::ceil(((double)count + additionalItems) / (double)elementsPerLine);
 }
 
 void OptionsTab::SelectionWindow::apply()
@@ -492,6 +492,8 @@ void OptionsTab::SelectionWindow::recreate()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
+	sliderLine = slider ? slider->getValue() : 0;
+
 	int amountLines = 1;
 	if(type == SelType::BONUS)
 		elementsPerLine = allowedBonus.size();
@@ -518,9 +520,9 @@ void OptionsTab::SelectionWindow::recreate()
 	}
 
 	int x = (elementsPerLine) * (ICON_BIG_WIDTH-1);
-	int y = (amountLines) * (ICON_BIG_HEIGHT-1);
+	int y = (std::min(amountLines, MAX_LINES)) * (ICON_BIG_HEIGHT-1);
 
-	pos = Rect(0, 0, x, y);
+	pos = Rect(0, 0, x + ((amountLines > MAX_LINES) ? 16 : 0), y);
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
 	backgroundTexture->playerColored(PlayerColor(1));
@@ -532,7 +534,15 @@ void OptionsTab::SelectionWindow::recreate()
 		genContentHeroes();
 	if(type == SelType::BONUS)
 		genContentBonus();
-	genContentGrid(amountLines);
+	genContentGrid(std::min(amountLines, MAX_LINES));
+
+	if(amountLines > MAX_LINES)
+	{
+		slider = std::make_shared<CSlider>(Point(x, 0), y, std::bind(&OptionsTab::SelectionWindow::sliderMove, this, _1), MAX_LINES, amountLines, 0, Orientation::VERTICAL, CSlider::BLUE);
+		slider->setPanningStep(ICON_BIG_HEIGHT);
+		slider->setScrollBounds(Rect(0, 0, x, y));
+		slider->scrollTo(sliderLine);
+	}
 
 	center();
 }
@@ -741,6 +751,14 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 		apply();
 }
 
+void OptionsTab::SelectionWindow::sliderMove(int slidPos)
+{
+	if(!slider)
+		return; // ignore spurious call when slider is being created
+	recreate();
+	redraw();
+}
+
 bool OptionsTab::SelectionWindow::receiveEvent(const Point & position, int eventType) const
 {
 	return true;  // capture click also outside of window
@@ -748,6 +766,9 @@ bool OptionsTab::SelectionWindow::receiveEvent(const Point & position, int event
 
 void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition)
 {
+	if(slider && slider->pos.isInside(cursorPosition))
+		return;
+
 	if(!pos.isInside(cursorPosition))
 	{
 		close();
@@ -761,7 +782,7 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition)
 
 void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 {
-	if(!pos.isInside(cursorPosition))
+	if(!pos.isInside(cursorPosition) || (slider && slider->pos.isInside(cursorPosition)))
 		return;
 
 	int elem = getElement(cursorPosition);
