@@ -402,8 +402,8 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
-OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType _type)
-	: CWindowObject(BORDERED), color(color)
+OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType _type, int sliderLine)
+	: CWindowObject(BORDERED), color(color), sliderLine(sliderLine)
 {
 	addUsedEvents(LCLICK | SHOW_POPUP);
 
@@ -482,7 +482,7 @@ void OptionsTab::SelectionWindow::setSelection()
 
 void OptionsTab::SelectionWindow::reopen()
 {
-	auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
+	auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type, sliderLine));
 	close();
 	if(CSH->isMyColor(color) || CSH->isHost())
 		GH.windows().pushWindow(window);
@@ -492,7 +492,7 @@ void OptionsTab::SelectionWindow::recreate()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	sliderLine = slider ? slider->getValue() : 0;
+	sliderLine = slider ? slider->getValue() : sliderLine;
 
 	int amountLines = 1;
 	if(type == SelType::BONUS)
