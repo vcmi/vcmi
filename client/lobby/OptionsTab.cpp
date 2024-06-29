@@ -482,10 +482,14 @@ void OptionsTab::SelectionWindow::setSelection()
 
 void OptionsTab::SelectionWindow::reopen()
 {
-	auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type, sliderLine));
-	close();
-	if(CSH->isMyColor(color) || CSH->isHost())
-		GH.windows().pushWindow(window);
+	if(type == SelType::HERO && SEL->getStartInfo()->playerInfos.find(color)->second.castle == FactionID::RANDOM)
+		close();
+	else{
+		auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type, sliderLine));
+		close();
+		if(CSH->isMyColor(color) || CSH->isHost())
+			GH.windows().pushWindow(window);
+	}
 }
 
 void OptionsTab::SelectionWindow::recreate()
