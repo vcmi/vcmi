@@ -29,6 +29,10 @@ void GeneralSettings::initialize(MapController & c)
 	AbstractSettings::initialize(c);
 	ui->mapNameEdit->setText(QString::fromStdString(controller->map()->name.toString()));
 	ui->mapDescriptionEdit->setPlainText(QString::fromStdString(controller->map()->description.toString()));
+	ui->authorEdit->setText(QString::fromStdString(controller->map()->author.toString()));
+	ui->authorContactEdit->setText(QString::fromStdString(controller->map()->authorContact.toString()));
+	ui->mapCreationDateTimeEdit->setDateTime(QDateTime::fromTime_t(controller->map()->creationDateTime));
+	ui->mapVersionEdit->setText(QString::fromStdString(controller->map()->mapVersion.toString()));
 	ui->heroLevelLimit->setValue(controller->map()->levelLimit);
 	ui->heroLevelLimitCheck->setChecked(controller->map()->levelLimit);
 
@@ -61,6 +65,10 @@ void GeneralSettings::update()
 {
 	controller->map()->name = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "name"),  ui->mapNameEdit->text().toStdString()));
 	controller->map()->description = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "description"), ui->mapDescriptionEdit->toPlainText().toStdString()));
+	controller->map()->author = MetaString::createFromRawString(ui->authorEdit->toPlainText().toStdString());
+	controller->map()->authorContact = MetaString::createFromRawString(ui->authorContactEdit->toPlainText().toStdString());
+	controller->map()->creationDateTime = ui->mapCreationDateTimeEdit->dateTime().toTime_t();
+	controller->map()->mapVersion = MetaString::createFromRawString(ui->mapVersionEdit->toPlainText().toStdString());
 	if(ui->heroLevelLimitCheck->isChecked())
 		controller->map()->levelLimit = ui->heroLevelLimit->value();
 	else

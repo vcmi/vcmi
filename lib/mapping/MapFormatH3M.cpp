@@ -219,6 +219,10 @@ void CMapLoaderH3M::readHeader()
 	mapHeader->twoLevel = reader->readBool();
 	mapHeader->name.appendTextID(readLocalizedString("header.name"));
 	mapHeader->description.appendTextID(readLocalizedString("header.description"));
+	mapHeader->author.appendRawString("");
+	mapHeader->authorContact.appendRawString("");
+	mapHeader->mapVersion.appendRawString("");
+	mapHeader->creationDateTime = 0;
 	mapHeader->difficulty = static_cast<EMapDifficulty>(reader->readInt8Checked(0, 4));
 
 	if(features.levelAB)

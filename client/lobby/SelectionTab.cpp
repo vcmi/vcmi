@@ -44,6 +44,7 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/TextOperations.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -391,7 +392,15 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		return;
 
 	if(!curItems[py]->isFolder)
-		GH.windows().createAndPushWindow<CMapOverview>(curItems[py]->getNameTranslated(), curItems[py]->fullFileURI, curItems[py]->date, ResourcePath(curItems[py]->fileURI), tabType);
+		GH.windows().createAndPushWindow<CMapOverview>(
+			curItems[py]->getNameTranslated(),
+			curItems[py]->fullFileURI,
+			tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date,
+			curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : ""),
+			curItems[py]->mapHeader->mapVersion.toString(),
+			ResourcePath(curItems[py]->fileURI),
+			tabType
+		);
 	else
 		CRClickPopup::createAndPush(curItems[py]->folderName);
 }
