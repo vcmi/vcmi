@@ -931,7 +931,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="156"/>
         <source>Autosave</source>
-        <translation>Salvar automaticamente</translation>
+        <translation>Salvamento automático</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="142"/>
