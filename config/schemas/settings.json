@@ -19,6 +19,13 @@
 			"additionalProperties" : false,
 			"required" : [
 				"playerName",
+				"playerName2",
+				"playerName3",
+				"playerName4",
+				"playerName5",
+				"playerName6",
+				"playerName7",
+				"playerName8",
 				"music",
 				"sound",
 				"saveRandomMaps",
@@ -47,6 +54,34 @@
 				"playerName" : {
 					"type" : "string",
 					"default" : "Player"
+				},
+				"playerName2" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"playerName3" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"playerName4" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"playerName5" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"playerName6" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"playerName7" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"playerName8" : {
+					"type" : "string",
+					"default" : ""
 				},
 				"music" : {
 					"type" : "number",

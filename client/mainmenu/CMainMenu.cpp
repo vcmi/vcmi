@@ -444,7 +444,9 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
-	playerName->setText(getPlayerName());
+	std::vector<std::string> playerNames;
+	getPlayersNames(playerNames);
+	playerName->setText(playerNames[0]);
 	playerName->setCallback(std::bind(&CMultiMode::onNameChange, this, _1));
 
 	buttonHotseat = std::make_shared<CButton>(Point(373, 78 + 57 * 0), AnimationPath::builtin("MUBHOT.DEF"), CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this), EShortcut::MAIN_MENU_HOTSEAT);
@@ -466,22 +468,37 @@ void CMultiMode::hostTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.windows().createAndPushWindow<CMultiPlayers>(getPlayerName(), savedScreenType, true, ELoadMode::MULTI);
+	std::vector<std::string> playerNames;
+	getPlayersNames(playerNames);
+	GH.windows().createAndPushWindow<CMultiPlayers>(playerNames, savedScreenType, true, ELoadMode::MULTI);
 }
 
 void CMultiMode::joinTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.windows().createAndPushWindow<CMultiPlayers>(getPlayerName(), savedScreenType, false, ELoadMode::MULTI);
+	std::vector<std::string> playerNames;
+	getPlayersNames(playerNames);
+	GH.windows().createAndPushWindow<CMultiPlayers>(playerNames, savedScreenType, false, ELoadMode::MULTI);
 }
 
-std::string CMultiMode::getPlayerName()
+void CMultiMode::getPlayersNames(std::vector<std::string> & playerNames)
 {
+	playerNames.clear();
+
 	std::string name = settings["general"]["playerName"].String();
 	if(name == "Player")
 		name = CGI->generaltexth->translate("core.genrltxt.434");
-	return name;
+	playerNames.push_back(name);
+
+	for (int i = 2; i < 9; i++)
+	{
+		std::string propName("playerName");
+		propName.append(std::to_string(i));
+		std::string playerName = settings["general"][propName].String();
+		if (!playerName.empty())
+			playerNames.push_back(playerName);
+	}
 }
 
 void CMultiMode::onNameChange(std::string newText)
@@ -490,7 +507,7 @@ void CMultiMode::onNameChange(std::string newText)
 	name->String() = newText;
 }
 
-CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode)
+CMultiPlayers::CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode)
 	: loadMode(LoadMode), screenType(ScreenType), host(Host)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -511,7 +528,10 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 	buttonCancel = std::make_shared<CButton>(Point(205, 338), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 381, 348, 18), 7, 381));
 
-	inputNames[0]->setText(firstPlayer);
+	for(int i = 0; i < playerNames.size(); i++)
+	{
+		inputNames[i]->setText(playerNames[i]);
+	}
 #ifndef VCMI_MOBILE
 	inputNames[0]->giveFocus();
 #endif
@@ -530,8 +550,17 @@ void CMultiPlayers::enterSelectionScreen()
 			names.push_back(name->getText());
 	}
 
-	Settings name = settings.write["general"]["playerName"];
-	name->String() = names[0];
+	for (int i = 0; i < 8; i++)
+	{
+		std::string propName("playerName");
+		if (i > 0)
+			propName.append(std::to_string(i+1));
+		Settings name = settings.write["general"][propName];
+		if (i < names.size())
+			name->String() = names[i];
+		else
+			name->String().clear();
+	}
 
 	CMainMenu::openLobby(screenType, host, names, loadMode);
 }
