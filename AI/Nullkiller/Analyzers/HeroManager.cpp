@@ -176,7 +176,7 @@ int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<Seconda
 
 		logAi->trace(
 			"Hero %s is proposed to learn %d with score %f",
-			hero.name,
+			hero.name(),
 			skills[i].toEnum(),
 			score);
 	}
