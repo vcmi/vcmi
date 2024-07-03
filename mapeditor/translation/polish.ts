@@ -44,7 +44,7 @@
     <message>
         <location filename="../mapsettings/eventsettings.cpp" line="101"/>
         <source>New event</source>
-        <translation>Now zdarzenie</translation>
+        <translation>Nowe zdarzenie</translation>
     </message>
 </context>
 <context>
@@ -96,7 +96,7 @@
         <location filename="../inspector/heroskillswidget.ui" line="48"/>
         <location filename="../inspector/heroskillswidget.ui" line="58"/>
         <source>TextLabel</source>
-        <translation>Text</translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="97"/>
@@ -768,7 +768,7 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="81"/>
         <source>Set all mods having a game content as mandatory</source>
-        <translation>Ustaw wszystkie modyfikacje mające now elementary gry jako obowiązkowe</translation>
+        <translation>Ustaw wszystkie modyfikacje mające nowe elementy gry jako obowiązkowe</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="84"/>
@@ -1094,7 +1094,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="107"/>
         <source>On select text</source>
-        <translation>Text wyboru</translation>
+        <translation>Tekst wyboru</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="114"/>
@@ -1461,7 +1461,7 @@
     <message>
         <location filename="../mapsettings/translations.ui" line="75"/>
         <source>Text</source>
-        <translation>Text</translation>
+        <translation>Tekst</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="157"/>

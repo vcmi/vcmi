@@ -104,7 +104,7 @@ public:
 	 * C-tor.
 	 *
 	 * @param stream - stream with compressed data
-	 * @param gzip - this is gzipp'ed file e.g. campaign or maps, false for files in load
+	 * @param gzip - this is gzipp'ed file e.g. campaign or maps, false for files in .lod
 	 * @param decompressedSize - optional parameter to hint size of decompressed data
 	 */
 	CCompressedStream(std::unique_ptr<CInputStream> stream, bool gzip, size_t decompressedSize=0);

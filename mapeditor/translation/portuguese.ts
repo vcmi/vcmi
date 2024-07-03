@@ -67,7 +67,7 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="76"/>
         <source>Limit maximum heroes level</source>
-        <translation>Limit máximo do nível dos heróis</translation>
+        <translation>Limite máximo do nível dos heróis</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="85"/>
@@ -606,7 +606,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1120"/>
         <source>Errors occurred. %1 objects were not updated</source>
-        <translation>Ocorreram errors. %1 objetos não foram atualizados</translation>
+        <translation>Ocorreram erros. %1 objetos não foram atualizados</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1160"/>
@@ -758,7 +758,7 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="68"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation>Defina os mods necessários com base nos objetos colocados no mapa. Este método pode causar problems se você tiver recompensas personalizadas, guarnições, etc., dos mods.</translation>
+        <translation>Defina os mods necessários com base nos objetos colocados no mapa. Este método pode causar problemas se você tiver recompensas personalizadas, guarnições, etc., dos mods.</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
@@ -1139,7 +1139,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="217"/>
         <source>Message to be displayed on granting of this reward</source>
-        <translation>Mensagem a set exibida ao conceder esta recompensa</translation>
+        <translation>Mensagem a ser exibida ao conceder esta recompensa</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="228"/>
@@ -1472,7 +1472,7 @@
     <message>
         <location filename="../mapsettings/translations.cpp" line="157"/>
         <source>Default language cannot be removed</source>
-        <translation>O idioma padrão não pode set removido</translation>
+        <translation>O idioma padrão não pode ser removido</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="161"/>
@@ -1505,7 +1505,7 @@
     <message>
         <location filename="../validator.cpp" line="77"/>
         <source>Map is allowed for one player and cannot be started</source>
-        <translation>O mapa é permitido para um jogador e não pode set iniciado</translation>
+        <translation>O mapa é permitido para um jogador e não pode ser iniciado</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="79"/>
