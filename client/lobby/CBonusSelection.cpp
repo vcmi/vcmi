@@ -215,7 +215,7 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		case CampaignBonusType::SPELL_SCROLL:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 716);
-			desc.replaceName(ArtifactID(bonDescs[i].info2));
+			desc.replaceName(SpellID(bonDescs[i].info2));
 			break;
 		case CampaignBonusType::PRIMARY_SKILL:
 		{
