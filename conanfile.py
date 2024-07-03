@@ -19,9 +19,9 @@ class VCMI(ConanFile):
         "sdl_image/[~2.0.5]",
         "sdl_mixer/[~2.0.4]",
         "sdl_ttf/[~2.0.18]",
+        "onetbb/[^2021.3]",
     ]
     _nullkillerAIRequires = [
-        "onetbb/[^2021.3]",
     ]
     requires = _libRequires + _clientRequires + _nullkillerAIRequires
 
