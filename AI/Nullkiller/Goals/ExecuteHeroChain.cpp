@@ -26,7 +26,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 	if(obj)
 	{
 		objid = obj->id.getNum();
-		targetName = obj->getObjectName() + tile.toString();
+		targetName = obj->typeName + tile.toString();
 	}
 	else
 	{
