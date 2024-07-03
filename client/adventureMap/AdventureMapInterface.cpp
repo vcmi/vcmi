@@ -395,8 +395,6 @@ void AdventureMapInterface::adjustActiveness()
 
 void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 {
-	LOCPLINT->localState->setSelection(nullptr);
-
 	if (playerID == currentPlayerID)
 		return;
 
