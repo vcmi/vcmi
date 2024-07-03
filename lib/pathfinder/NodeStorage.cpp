@@ -40,7 +40,7 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 		{
 			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile tile = gs->map->getTile(pos);
+				const TerrainTile & tile = gs->map->getTile(pos);
 				if(tile.terType->isWater())
 				{
 					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
