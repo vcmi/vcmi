@@ -204,6 +204,7 @@ float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const
 {
 	auto cached = knownFightingStrength.find(hero->id);
 
+	//FIXME: fallback to hero->getFightingStrength() is VERY slow on higher difficulties (no object graph? map reveal?)
 	return cached != knownFightingStrength.end() ? cached->second : hero->getFightingStrength();
 }
 
