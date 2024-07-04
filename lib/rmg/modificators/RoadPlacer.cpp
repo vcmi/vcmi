@@ -87,8 +87,8 @@ bool RoadPlacer::createRoad(const int3 & destination)
 			{
 				ret *= VISITABLE_PENALTY;
 			}
-			float dist = border.distance(dst);
-			if(dist > 1)
+			float dist = border.distanceSqr(dst);
+			if(dist > 1.0f)
 			{
 				ret /= dist;
 			}
