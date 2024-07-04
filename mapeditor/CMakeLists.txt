@@ -107,24 +107,57 @@ set(editor_FORMS
 		inspector/portraitwidget.ui
 )
 
-set(editor_TS
-	translation/chinese.ts
-	translation/czech.ts
-	translation/english.ts
-	translation/french.ts
-	translation/german.ts
-	translation/polish.ts
-	translation/portuguese.ts
-	translation/russian.ts
-	translation/spanish.ts
-	translation/ukrainian.ts
-	translation/vietnamese.ts
+set(editor_RESOURCES
+	resources.qrc
 )
 
-assign_source_group(${editor_SRCS} ${editor_HEADERS} mapeditor.rc)
+set(translationsDir "translation")
+set(editor_TS
+	"${translationsDir}/chinese.ts"
+	"${translationsDir}/czech.ts"
+	"${translationsDir}/english.ts"
+	"${translationsDir}/french.ts"
+	"${translationsDir}/german.ts"
+	"${translationsDir}/polish.ts"
+	"${translationsDir}/portuguese.ts"
+	"${translationsDir}/russian.ts"
+	"${translationsDir}/spanish.ts"
+	"${translationsDir}/ukrainian.ts"
+	"${translationsDir}/vietnamese.ts"
+)
+if(ENABLE_TRANSLATIONS)
+	if(TARGET Qt5::Core)
+		file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${translationsDir}")
+		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION "${translationsDir}")
+		qt5_add_translation(editor_QM ${editor_TS})
 
-# Tell CMake to run moc when necessary:
+		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
+		list(APPEND editor_RESOURCES "${translationsResource}")
+
+		set(rccQmFiles "")
+		foreach(qmFile ${editor_QM})
+			string(APPEND rccQmFiles "<file>${qmFile}</file>\n")
+		endforeach()
+		file(WRITE "${translationsResource}"
+"<!DOCTYPE RCC>
+<RCC version=\"1.0\">
+<qresource prefix=\"/\">
+${rccQmFiles}
+</qresource>
+</RCC>"
+		)
+	endif()
+endif()
+
+if(WIN32)
+	set(editor_ICON mapeditor.rc)
+endif()
+
+assign_source_group(${editor_SRCS} ${editor_HEADERS} ${editor_RESOURCES} ${editor_TS} ${editor_ICON})
+
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 if(POLICY CMP0071)
 	cmake_policy(SET CMP0071 NEW)
@@ -134,32 +167,27 @@ endif()
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-if(TARGET Qt6::Core)
-	qt_wrap_ui(editor_UI_HEADERS ${editor_FORMS})
+if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
+	add_library(vcmieditor OBJECT ${editor_QM})
 else()
-	qt5_wrap_ui(editor_UI_HEADERS ${editor_FORMS})
-	if(ENABLE_TRANSLATIONS)
-		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
-		qt5_add_translation( editor_QM ${editor_TS} )
-	endif()
+	add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
 endif()
 
-if(WIN32)
-	set(editor_ICON mapeditor.rc)
-endif()
-
-add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
-
-if(TARGET Qt6::Core)
-	if(ENABLE_TRANSLATIONS)
-		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+if(ENABLE_TRANSLATIONS)
+	if(TARGET Qt6::Core)
 		qt_add_translations(vcmieditor
 			TS_FILES ${editor_TS}
-			QM_FILES_OUTPUT_VARIABLE editor_QM
+			RESOURCE_PREFIX "/${translationsDir}"
 			INCLUDE_DIRECTORIES
 				${CMAKE_CURRENT_BINARY_DIR})
 	endif()
 endif()
+
+target_sources(vcmieditor PRIVATE
+	${editor_SRCS}
+	${editor_HEADERS}
+	${editor_RESOURCES}
+)
 
 if(WIN32)
 	set_target_properties(vcmieditor
@@ -189,23 +217,15 @@ target_include_directories(vcmieditor
 vcmi_set_output_dir(vcmieditor "")
 enable_pch(vcmieditor)
 
-# Copy to build directory for easier debugging
-add_custom_command(TARGET vcmieditor POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/
-	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/mapeditor/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/icons
-	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/translation
-)
-
 install(TARGETS vcmieditor DESTINATION ${BIN_DIR})
-# copy whole directory
-install(DIRECTORY icons DESTINATION ${DATA_DIR}/mapeditor)
-install(FILES ${editor_QM} DESTINATION ${DATA_DIR}/mapeditor/translation)
+
 # Install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE)
+	foreach(iconSize 32 48 64 128 256)
+		install(FILES "icons/mapeditor.${iconSize}x${iconSize}.png"
+			DESTINATION "share/icons/hicolor/${iconSize}x${iconSize}/apps"
+			RENAME vcmieditor.png
+		)
+	endforeach()
 	install(FILES "vcmieditor.desktop" DESTINATION share/applications)
-	install(FILES "icons/mapeditor.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmieditor.png)
-	install(FILES "icons/mapeditor.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmieditor.png)
-	install(FILES "icons/mapeditor.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmieditor.png)
-	install(FILES "icons/mapeditor.128x128.png" DESTINATION share/icons/hicolor/128x128/apps RENAME vcmieditor.png)
-	install(FILES "icons/mapeditor.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmieditor.png)
 endif()
