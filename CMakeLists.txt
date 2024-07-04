@@ -58,7 +58,7 @@ option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" O
 # Platform-specific options
 
 if(ANDROID)
-	set(ANDROID_TARGET_SDK_VERSION "33" CACHE STRING "Android target SDK version")
+	set(ANDROID_TARGET_SDK_VERSION "34" CACHE STRING "Android target SDK version")
 	set(ANDROIDDEPLOYQT_OPTIONS "" CACHE STRING "Additional androiddeployqt options separated by semi-colon")
 	set(ANDROID_GRADLE_PROPERTIES "" CACHE STRING "Additional Gradle properties separated by semi-colon")
 
