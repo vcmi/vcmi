@@ -176,7 +176,7 @@ int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<Seconda
 
 		logAi->trace(
 			"Hero %s is proposed to learn %d with score %f",
-			hero.name,
+			hero.name(),
 			skills[i].toEnum(),
 			score);
 	}
@@ -204,6 +204,7 @@ float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const
 {
 	auto cached = knownFightingStrength.find(hero->id);
 
+	//FIXME: fallback to hero->getFightingStrength() is VERY slow on higher difficulties (no object graph? map reveal?)
 	return cached != knownFightingStrength.end() ? cached->second : hero->getFightingStrength();
 }
 

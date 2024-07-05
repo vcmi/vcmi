@@ -1263,8 +1263,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("ARESBAR"), 3, 575, 37, 3, 84, 78);
 
 	townlist = std::make_shared<CTownList>(3, Rect(Point(743, 414), Point(48, 128)), Point(1,16), Point(0, 32), LOCPLINT->localState->getOwnedTowns().size() );
-	townlist->setScrollUpButton( std::make_shared<CButton>( Point(744, 414), AnimationPath::builtin("IAM014"), CButton::tooltipLocalized("core.help.306"), 0, EShortcut::MOVE_UP));
-	townlist->setScrollDownButton( std::make_shared<CButton>( Point(744, 526), AnimationPath::builtin("IAM015"), CButton::tooltipLocalized("core.help.307"), 0, EShortcut::MOVE_DOWN));
+	townlist->setScrollUpButton( std::make_shared<CButton>( Point(744, 414), AnimationPath::builtin("IAM014"), CButton::tooltipLocalized("core.help.306"), 0));
+	townlist->setScrollDownButton( std::make_shared<CButton>( Point(744, 526), AnimationPath::builtin("IAM015"), CButton::tooltipLocalized("core.help.307"), 0));
 
 	if(from)
 		townlist->select(from);
@@ -1399,6 +1399,12 @@ void CCastleInterface::keyPressed(EShortcut key)
 {
 	switch(key)
 	{
+	case EShortcut::MOVE_UP:
+		townlist->selectPrev();
+		break;
+	case EShortcut::MOVE_DOWN:
+		townlist->selectNext();
+		break;
 	case EShortcut::TOWN_OPEN_FORT:
 		GH.windows().createAndPushWindow<CFortScreen>(town);
 		break;
@@ -1540,8 +1546,11 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 			const CBuilding * building = nullptr;
 			for(auto & buildingID : boxList[row][col])//we are looking for the first not built structure
 			{
-				if (town->town->buildings.count(buildingID) == 0)
-					throw std::runtime_error("Town " + Town->town->faction->getJsonKey() + " has no building with ID " + std::to_string(buildingID.getNum()));
+				if (!buildingID.hasValue())
+				{
+					logMod->warn("Invalid building ID found in hallSlots of town '%s'", town->town->faction->getJsonKey() );
+					continue;
+				}
 
 				const CBuilding * current = town->town->buildings.at(buildingID);
 				if(vstd::contains(town->builtBuildings, buildingID))

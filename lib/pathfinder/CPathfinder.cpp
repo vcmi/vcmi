@@ -49,7 +49,7 @@ bool CPathfinderHelper::canMoveFromNode(const PathNodeInfo & source) const
 	return true;
 }
 
-void CPathfinderHelper::calculateNeighbourTiles(std::vector<int3> & result, const PathNodeInfo & source) const
+void CPathfinderHelper::calculateNeighbourTiles(NeighbourTilesVector & result, const PathNodeInfo & source) const
 {
 	result.clear();
 
@@ -239,9 +239,9 @@ void CPathfinder::calculatePaths()
 	logAi->trace("CPathfinder finished with %s iterations", std::to_string(counter));
 }
 
-std::vector<int3> CPathfinderHelper::getAllowedTeleportChannelExits(const TeleportChannelID & channelID) const
+TeleporterTilesVector CPathfinderHelper::getAllowedTeleportChannelExits(const TeleportChannelID & channelID) const
 {
-	std::vector<int3> allowedExits;
+	TeleporterTilesVector allowedExits;
 
 	for(const auto & objId : getTeleportChannelExits(channelID, hero->tempOwner))
 	{
@@ -262,9 +262,9 @@ std::vector<int3> CPathfinderHelper::getAllowedTeleportChannelExits(const Telepo
 	return allowedExits;
 }
 
-std::vector<int3> CPathfinderHelper::getCastleGates(const PathNodeInfo & source) const
+TeleporterTilesVector CPathfinderHelper::getCastleGates(const PathNodeInfo & source) const
 {
-	std::vector<int3> allowedExits;
+	TeleporterTilesVector allowedExits;
 
 	auto towns = getPlayerState(hero->tempOwner)->towns;
 	for(const auto & town : towns)
@@ -279,9 +279,9 @@ std::vector<int3> CPathfinderHelper::getCastleGates(const PathNodeInfo & source)
 	return allowedExits;
 }
 
-std::vector<int3> CPathfinderHelper::getTeleportExits(const PathNodeInfo & source) const
+TeleporterTilesVector CPathfinderHelper::getTeleportExits(const PathNodeInfo & source) const
 {
-	std::vector<int3> teleportationExits;
+	TeleporterTilesVector teleportationExits;
 
 	const auto * objTeleport = dynamic_cast<const CGTeleport *>(source.nodeObject);
 	if(isAllowedTeleportEntrance(objTeleport))
@@ -578,7 +578,7 @@ int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer & layer) const
 void CPathfinderHelper::getNeighbours(
 	const TerrainTile & srcTile,
 	const int3 & srcCoord,
-	std::vector<int3> & vec,
+	NeighbourTilesVector & vec,
 	const boost::logic::tribool & onLand,
 	const bool limitCoastSailing) const
 {
@@ -702,8 +702,8 @@ int CPathfinderHelper::getMovementCost(
 	constexpr auto maxCostOfOneStep = static_cast<int>(175 * M_SQRT2); // diagonal move on Swamp - 247 MP
 	if(checkLast && left > 0 && left <= maxCostOfOneStep) //it might be the last tile - if no further move possible we take all move points
 	{
-		std::vector<int3> vec;
-		vec.reserve(8); //optimization
+		NeighbourTilesVector vec;
+
 		getNeighbours(*dt, dst, vec, ct->terType->isLand(), true);
 		for(const auto & elem : vec)
 		{
