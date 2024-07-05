@@ -85,6 +85,9 @@ void BonusList::stackBonuses()
 
 int BonusList::totalValue() const
 {
+	if (bonuses.empty())
+		return 0;
+
 	struct BonusCollection
 	{
 		int base = 0;
@@ -96,63 +99,65 @@ int BonusList::totalValue() const
 		int indepMax = std::numeric_limits<int>::min();
 	};
 
-	auto percent = [](int64_t base, int64_t percent) -> int {
-		return static_cast<int>(std::clamp<int64_t>((base * (100 + percent)) / 100, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()));
+	auto percent = [](int base, int percent) -> int {
+		return (static_cast<int64_t>(base) * (100 + percent)) / 100;
 	};
-	std::array <BonusCollection, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> sources = {};
-	BonusCollection any;
+
+	BonusCollection accumulated;
 	bool hasIndepMax = false;
 	bool hasIndepMin = false;
+
+	std::array<int, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> percentToSource = {};
 
 	for(const auto & b : bonuses)
 	{
 		switch(b->valType)
 		{
-		case BonusValueType::BASE_NUMBER:
-			sources[vstd::to_underlying(b->source)].base += b->val;
-			break;
-		case BonusValueType::PERCENT_TO_ALL:
-			sources[vstd::to_underlying(b->source)].percentToAll += b->val;
-			break;
-		case BonusValueType::PERCENT_TO_BASE:
-			sources[vstd::to_underlying(b->source)].percentToBase += b->val;
-			break;
 		case BonusValueType::PERCENT_TO_SOURCE:
-			sources[vstd::to_underlying(b->source)].percentToSource += b->val;
-			break;
+			percentToSource[vstd::to_underlying(b->source)] += b->val;
+		break;
 		case BonusValueType::PERCENT_TO_TARGET_TYPE:
-			sources[vstd::to_underlying(b->targetSourceType)].percentToSource += b->val;
-			break;
-		case BonusValueType::ADDITIVE_VALUE:
-			sources[vstd::to_underlying(b->source)].additive += b->val;
-			break;
-		case BonusValueType::INDEPENDENT_MAX:
-			hasIndepMax = true;
-			vstd::amax(sources[vstd::to_underlying(b->source)].indepMax, b->val);
-			break;
-		case BonusValueType::INDEPENDENT_MIN:
-			hasIndepMin = true;
-			vstd::amin(sources[vstd::to_underlying(b->source)].indepMin, b->val);
+			percentToSource[vstd::to_underlying(b->targetSourceType)] += b->val;
 			break;
 		}
 	}
-	for(const auto & src : sources)
-	{
-		any.base += percent(src.base, src.percentToSource);
-		any.percentToBase += percent(src.percentToBase, src.percentToSource);
-		any.percentToAll += percent(src.percentToAll, src.percentToSource);
-		any.additive += percent(src.additive, src.percentToSource);
-		if(hasIndepMin)
-			vstd::amin(any.indepMin, percent(src.indepMin, src.percentToSource));
-		if(hasIndepMax)
-			vstd::amax(any.indepMax, percent(src.indepMax, src.percentToSource));
-	}
-	any.base = percent(any.base, any.percentToBase);
-	any.base += any.additive;
-	auto valFirst = percent(any.base ,any.percentToAll);
 
-	if(hasIndepMin && hasIndepMax && any.indepMin < any.indepMax)
-		any.indepMax = any.indepMin;
+	for(const auto & b : bonuses)
+	{
+		int sourceIndex = vstd::to_underlying(b->source);
+		int valModified	= percent(b->val, percentToSource[sourceIndex]);
+
+		switch(b->valType)
+		{
+		case BonusValueType::BASE_NUMBER:
+			accumulated.base += valModified;
+			break;
+		case BonusValueType::PERCENT_TO_ALL:
+			accumulated.percentToAll += valModified;
+			break;
+		case BonusValueType::PERCENT_TO_BASE:
+			accumulated.percentToBase += valModified;
+			break;
+		case BonusValueType::ADDITIVE_VALUE:
+			accumulated.additive += valModified;
+			break;
+		case BonusValueType::INDEPENDENT_MAX:
+			hasIndepMax = true;
+			vstd::amax(accumulated.indepMax, valModified);
+			break;
+		case BonusValueType::INDEPENDENT_MIN:
+			hasIndepMin = true;
+			vstd::amin(accumulated.indepMin, valModified);
+			break;
+		}
+	}
+
+	accumulated.base = percent(accumulated.base, accumulated.percentToBase);
+	accumulated.base += accumulated.additive;
+	auto valFirst = percent(accumulated.base ,accumulated.percentToAll);
+
+	if(hasIndepMin && hasIndepMax && accumulated.indepMin < accumulated.indepMax)
+		accumulated.indepMax = accumulated.indepMin;
 
 	const int notIndepBonuses = static_cast<int>(std::count_if(bonuses.cbegin(), bonuses.cend(), [](const std::shared_ptr<Bonus>& b)
 	{
@@ -160,9 +165,9 @@ int BonusList::totalValue() const
 	}));
 
 	if(notIndepBonuses)
-		return std::clamp(valFirst, any.indepMax, any.indepMin);
+		return std::clamp(valFirst, accumulated.indepMax, accumulated.indepMin);
 
-	return hasIndepMin ? any.indepMin : hasIndepMax ? any.indepMax : 0;
+	return hasIndepMin ? accumulated.indepMin : hasIndepMax ? accumulated.indepMax : 0;
 }
 
 std::shared_ptr<Bonus> BonusList::getFirst(const CSelector &select)

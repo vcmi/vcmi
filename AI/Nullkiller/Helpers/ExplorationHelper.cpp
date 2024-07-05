@@ -70,11 +70,8 @@ bool ExplorationHelper::scanMap()
 	int3 mapSize = cbp->getMapSize();
 	int perimeter = 2 * sightRadius * (mapSize.x + mapSize.y);
 
-	std::vector<int3> from;
-	std::vector<int3> to;
-
-	from.reserve(perimeter);
-	to.reserve(perimeter);
+	std::vector<int3> edgeTiles;
+	edgeTiles.reserve(perimeter);
 
 	foreach_tile_pos([&](const int3 & pos)
 		{
@@ -91,13 +88,13 @@ bool ExplorationHelper::scanMap()
 					});
 
 				if(hasInvisibleNeighbor)
-					from.push_back(pos);
+					edgeTiles.push_back(pos);
 			}
 		});
 
 	logAi->debug("Exploration scan visible area perimeter for hero %s", hero->getNameTranslated());
 
-	for(const int3 & tile : from)
+	for(const int3 & tile : edgeTiles)
 	{
 		scanTile(tile);
 	}
@@ -108,19 +105,36 @@ bool ExplorationHelper::scanMap()
 	}
 
 	allowDeadEndCancellation = false;
-
-	for(int i = 0; i < sightRadius; i++)
-	{
-		getVisibleNeighbours(from, to);
-		vstd::concatenate(from, to);
-		vstd::removeDuplicates(from);
-	}
-
 	logAi->debug("Exploration scan all possible tiles for hero %s", hero->getNameTranslated());
 
-	for(const int3 & tile : from)
+	boost::multi_array<ui8, 3> potentialTiles = *ts->fogOfWarMap;
+	std::vector<int3> tilesToExploreFrom = edgeTiles;
+
+	// WARNING: POTENTIAL BUG
+	// AI attempts to move to any tile within sight radius to reveal some new tiles
+	// however sight radius is circular, while this method assumes square radius
+	// standing on the edge of a square will NOT reveal tile in opposite corner
+	for(int i = 0; i < sightRadius; i++)
 	{
-		scanTile(tile);
+		std::vector<int3> newTilesToExploreFrom;
+
+		for(const int3 & tile : tilesToExploreFrom)
+		{
+			foreach_neighbour(cbp, tile, [&](CCallback * cbp, int3 neighbour)
+			{
+				if(potentialTiles[neighbour.z][neighbour.x][neighbour.y])
+				{
+					newTilesToExploreFrom.push_back(neighbour);
+					potentialTiles[neighbour.z][neighbour.x][neighbour.y] = false;
+				}
+			});
+		}
+		for(const int3 & tile : newTilesToExploreFrom)
+		{
+			scanTile(tile);
+		}
+
+		std::swap(tilesToExploreFrom, newTilesToExploreFrom);
 	}
 
 	return !bestGoal->invalid();
@@ -169,20 +183,6 @@ void ExplorationHelper::scanTile(const int3 & tile)
 				bestTilesDiscovered = tilesDiscovered;
 			}
 		}
-	}
-}
-
-void ExplorationHelper::getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out) const
-{
-	for(const int3 & tile : tiles)
-	{
-		foreach_neighbour(cbp, tile, [&](CCallback * cbp, int3 neighbour)
-			{
-				if((*(ts->fogOfWarMap))[neighbour.z][neighbour.x][neighbour.y])
-				{
-					out.push_back(neighbour);
-				}
-			});
 	}
 }
 

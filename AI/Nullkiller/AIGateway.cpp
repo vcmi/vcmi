@@ -649,7 +649,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto ratio = static_cast<float>(danger) / hero->getTotalStrength();
 
 				answer = topObj->id == goalObjectID; // no if we do not aim to visit this object
-				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name, ratio);
+				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name(), ratio);
 
 				if(cb->getObj(goalObjectID, false))
 				{
@@ -1574,7 +1574,7 @@ void AIGateway::requestActionASAP(std::function<void()> whatToDo)
 
 void AIGateway::lostHero(HeroPtr h)
 {
-	logAi->debug("I lost my hero %s. It's best to forget and move on.", h.name);
+	logAi->debug("I lost my hero %s. It's best to forget and move on.", h.name());
 }
 
 void AIGateway::answerQuery(QueryID queryID, int selection)
