@@ -140,7 +140,7 @@ private:
 		void genContentBonus();
 
 		void drawOutlinedText(int x, int y, ColorRGBA color, std::string text);
-		int calcLines(FactionID faction);
+		std::tuple<int, int> calcLines(FactionID faction);
 		void apply();
 		void recreate(int sliderPos = 0);
 		void setSelection();

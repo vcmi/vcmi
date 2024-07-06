@@ -437,12 +437,15 @@ OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType 
 	recreate(sliderPos);
 }
 
-int OptionsTab::SelectionWindow::calcLines(FactionID faction)
+std::tuple<int, int> OptionsTab::SelectionWindow::calcLines(FactionID faction)
 {
-	double additionalItems = 1; // random
+	int additionalItems = 1; // random
 
 	if(!faction.isValid())
-		return std::ceil(((double)allowedFactions.size() + additionalItems) / MAX_ELEM_PER_LINES);
+		return std::make_tuple(
+			std::ceil(((double)allowedFactions.size() + additionalItems) / MAX_ELEM_PER_LINES),
+			(allowedFactions.size() + additionalItems) % MAX_ELEM_PER_LINES
+		);
 
 	int count = 0;
 	for(auto & elemh : allowedHeroes)
@@ -452,7 +455,10 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 			count++;
 	}
 
-	return std::ceil(((double)count + additionalItems) / (double)MAX_ELEM_PER_LINES);
+	return std::make_tuple(
+		std::ceil(((double)count + additionalItems) / MAX_ELEM_PER_LINES),
+		(count + additionalItems) % MAX_ELEM_PER_LINES
+	);
 }
 
 void OptionsTab::SelectionWindow::apply()
@@ -501,8 +507,9 @@ void OptionsTab::SelectionWindow::recreate(int sliderPos)
 		elementsPerLine = allowedBonus.size();
 	else
 	{
-		elementsPerLine = MAX_ELEM_PER_LINES;
-		amountLines = calcLines((type > SelType::TOWN) ? selectedFaction : FactionID::RANDOM);
+		std::tie(amountLines, elementsPerLine) = calcLines((type > SelType::TOWN) ? selectedFaction : FactionID::RANDOM);
+		if(amountLines > 1)
+			elementsPerLine = MAX_ELEM_PER_LINES;
 	}
 
 	int x = (elementsPerLine) * (ICON_BIG_WIDTH-1);
