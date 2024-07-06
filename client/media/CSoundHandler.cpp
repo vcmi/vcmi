@@ -48,7 +48,10 @@ CSoundHandler::CSoundHandler():
 	{
 		Mix_ChannelFinished([](int channel)
 		{
-			CCS->soundh->soundFinishedCallback(channel);
+			if (CCS)
+			{
+				CCS->soundh->soundFinishedCallback(channel);
+			}
 		});
 	}
 }
