@@ -508,7 +508,7 @@ void OptionsTab::SelectionWindow::recreate(int sliderPos)
 	else
 	{
 		std::tie(amountLines, elementsPerLine) = calcLines((type > SelType::TOWN) ? selectedFaction : FactionID::RANDOM);
-		if(amountLines > 1)
+		if(amountLines > 1 || elementsPerLine == 0)
 			elementsPerLine = MAX_ELEM_PER_LINES;
 	}
 
