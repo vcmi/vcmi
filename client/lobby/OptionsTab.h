@@ -106,13 +106,12 @@ private:
 		const int TEXT_POS_X = 29;
 		const int TEXT_POS_Y = 56;
 
-		const int MAX_LINES = 6;
-		const int MAX_ELEM_PER_LINES = 4;
+		const int MAX_LINES = 5;
+		const int MAX_ELEM_PER_LINES = 5;
 
 		int elementsPerLine;
 
 		std::shared_ptr<CSlider> slider;
-		int sliderLine;
 
 		PlayerColor color;
 		SelType type;
@@ -143,7 +142,7 @@ private:
 		void drawOutlinedText(int x, int y, ColorRGBA color, std::string text);
 		int calcLines(FactionID faction);
 		void apply();
-		void recreate();
+		void recreate(int sliderPos = 0);
 		void setSelection();
 		int getElement(const Point & cursorPosition);
 		void setElement(int element, bool doApply);
@@ -157,7 +156,7 @@ private:
 	public:
 		void reopen();
 
-		SelectionWindow(const PlayerColor & color, SelType _type, int sliderLine = 0);
+		SelectionWindow(const PlayerColor & color, SelType _type, int sliderPos = 0);
 	};
 
 	/// Image with current town/hero/bonus
