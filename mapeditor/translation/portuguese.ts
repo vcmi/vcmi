@@ -6,17 +6,17 @@
     <message>
         <location filename="../inspector/armywidget.ui" line="23"/>
         <source>Army settings</source>
-        <translation>Configurações do Exército</translation>
+        <translation>Configurações do exército</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="142"/>
         <source>Wide formation</source>
-        <translation>Formação Aberta</translation>
+        <translation>Formação aberta</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="129"/>
         <source>Tight formation</source>
-        <translation>Formação Compacta</translation>
+        <translation>Formação compacta</translation>
     </message>
 </context>
 <context>
@@ -29,7 +29,7 @@
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="34"/>
         <source>Timed events</source>
-        <translation>Eventos Temporizados</translation>
+        <translation>Eventos temporizados</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="60"/>
@@ -44,7 +44,7 @@
     <message>
         <location filename="../mapsettings/eventsettings.cpp" line="101"/>
         <source>New event</source>
-        <translation>Novo Evento</translation>
+        <translation>Novo evento</translation>
     </message>
 </context>
 <context>
@@ -57,12 +57,12 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="32"/>
         <source>Map name</source>
-        <translation>Nome do Mapa</translation>
+        <translation>Nome do mapa</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="42"/>
         <source>Map description</source>
-        <translation>Descrição do Mapa</translation>
+        <translation>Descrição do mapa</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="76"/>
@@ -88,7 +88,7 @@
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="14"/>
         <source>Hero skills</source>
-        <translation>Habilidades do Herói</translation>
+        <translation>Habilidades do herói</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="28"/>
@@ -172,7 +172,7 @@
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="40"/>
         <source>Defeat message</source>
-        <translation>Mensagem de Derrota</translation>
+        <translation>Mensagem de derrota</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="59"/>
