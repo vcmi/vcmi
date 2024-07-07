@@ -349,6 +349,18 @@ void Nullkiller::makeTurn()
 	const int MAX_DEPTH = 10;
 	const float FAST_TASK_MINIMAL_PRIORITY = 0.7f;
 
+	float totalHeroStrength = 0;
+	int totalTownLevel = 0;
+	for (auto heroInfo : cb->getHeroesInfo())
+	{
+		totalHeroStrength += heroInfo->getTotalStrength();
+	}
+	for (auto townInfo : cb->getTownsInfo())
+	{
+		totalTownLevel += townInfo->getTownLevel();
+	}
+	logAi->info("%d Turn: %d Power: %f Townlevel: %d", cb->getPlayerID()->getNum(), cb->getDate(Date::DAY), totalHeroStrength, totalTownLevel);
+
 	resetAiState();
 
 	Goals::TGoalVec bestTasks;
@@ -438,7 +450,7 @@ void Nullkiller::makeTurn()
 					bestTask->priority);
 			}
 
-			if(bestTask->priority < MIN_PRIORITY)
+			if((settings->isUseFuzzy() && bestTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && bestTask->priority <= 0))
 			{
 				auto heroes = cb->getHeroesInfo();
 				auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
@@ -463,7 +475,8 @@ void Nullkiller::makeTurn()
 
 				continue;
 			}
-
+			if (bestTask->getHero())
+				logAi->info("Best task for %s should be %s with Prio: %f", bestTask->getHero()->getNameTranslated(), bestTask->toString(), bestTask->priority);
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
