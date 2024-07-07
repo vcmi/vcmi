@@ -411,6 +411,11 @@ void Nullkiller::makeTurn()
 
 		auto selectedTasks = buildPlan(bestTasks);
 
+		std::sort(selectedTasks.begin(), selectedTasks.end(), [](const TTask& a, const TTask& b) 
+		{
+			return a->priority > b->priority;
+		});
+
 		logAi->debug("Decision madel in %ld", timeElapsed(start));
 
 		if(selectedTasks.empty())
