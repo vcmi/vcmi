@@ -24,8 +24,6 @@ set(battleAI_HEADERS
 		BattleExchangeVariant.h
 )
 
-find_package(TBB REQUIRED)
-
 if(NOT ENABLE_STATIC_LIBS)
 	list(APPEND battleAI_SRCS main.cpp StdInc.cpp)
 endif()

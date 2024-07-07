@@ -21,9 +21,8 @@ class VCMI(ConanFile):
         "sdl_ttf/[~2.0.18]",
         "onetbb/[^2021.3]",
     ]
-    _nullkillerAIRequires = [
-    ]
-    requires = _libRequires + _clientRequires + _nullkillerAIRequires
+
+    requires = _libRequires + _clientRequires
 
     options = {
         "default_options_of_requirements": [True, False],
