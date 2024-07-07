@@ -6,5 +6,5 @@
 	"maxGoldPressure" : 0.3,
 	"useTroopsFromGarrisons" : true,
 	"openMap": true,
-	"allowObjectGraph": true
+	"allowObjectGraph": false
 }

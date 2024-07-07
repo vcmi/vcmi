@@ -1113,36 +1113,71 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	
 	double result = 0;
 
-	try
+	bool useFuzzy = ai->settings->isUseFuzzy();
+
+	if (task->hero)
 	{
-		armyLossPersentageVariable->setValue(evaluationContext.armyLossPersentage);
-		heroRoleVariable->setValue(evaluationContext.heroRole);
-		mainTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::MAIN]);
-		scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
-		goldRewardVariable->setValue(goldRewardPerTurn);
-		armyRewardVariable->setValue(evaluationContext.armyReward);
-		armyGrowthVariable->setValue(evaluationContext.armyGrowth);
-		skillRewardVariable->setValue(evaluationContext.skillReward);
-		dangerVariable->setValue(evaluationContext.danger);
-		rewardTypeVariable->setValue(rewardType);
-		closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
-		strategicalValueVariable->setValue(evaluationContext.strategicalValue);
-		goldPressureVariable->setValue(ai->buildAnalyzer->getGoldPressure());
-		goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->getFreeResources()[EGameResID::GOLD] + (float)ai->buildAnalyzer->getDailyIncome()[EGameResID::GOLD] + 1.0f));
-		turnVariable->setValue(evaluationContext.turn);
-		fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
-
-		engine->process();
-
-		result = value->getValue();
+		if (task->hero->getOwner().getNum() > 1)
+			useFuzzy = true;
 	}
-	catch(fl::Exception & fe)
+
+	if (useFuzzy)
 	{
-		logAi->error("evaluate VisitTile: %s", fe.getWhat());
+		try
+		{
+			armyLossPersentageVariable->setValue(evaluationContext.armyLossPersentage);
+			heroRoleVariable->setValue(evaluationContext.heroRole);
+			mainTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::MAIN]);
+			scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
+			goldRewardVariable->setValue(goldRewardPerTurn);
+			armyRewardVariable->setValue(evaluationContext.armyReward);
+			armyGrowthVariable->setValue(evaluationContext.armyGrowth);
+			skillRewardVariable->setValue(evaluationContext.skillReward);
+			dangerVariable->setValue(evaluationContext.danger);
+			rewardTypeVariable->setValue(rewardType);
+			closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
+			strategicalValueVariable->setValue(evaluationContext.strategicalValue);
+			goldPressureVariable->setValue(ai->buildAnalyzer->getGoldPressure());
+			goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->getFreeResources()[EGameResID::GOLD] + (float)ai->buildAnalyzer->getDailyIncome()[EGameResID::GOLD] + 1.0f));
+			turnVariable->setValue(evaluationContext.turn);
+			fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
+
+			engine->process();
+
+			result = value->getValue();
+		}
+		catch (fl::Exception& fe)
+		{
+			logAi->error("evaluate VisitTile: %s", fe.getWhat());
+		}
+	}
+	else
+	{
+		float score = evaluationContext.armyReward + evaluationContext.skillReward * 2000 + std::max((float)evaluationContext.goldReward, std::max((float)evaluationContext.armyGrowth, evaluationContext.strategicalValue * 1000));
+
+		if (task->hero)
+		{
+			score -= evaluationContext.armyLossPersentage * task->hero->getArmyCost();
+			if (evaluationContext.enemyHeroDangerRatio > 1)
+				score /= evaluationContext.enemyHeroDangerRatio;
+		}
+
+		if (score > 0)
+		{
+			result = score * evaluationContext.closestWayRatio / evaluationContext.movementCost;
+			if (task->hero)
+			{
+				if (task->hero->getArmyCost() > score
+					&& evaluationContext.strategicalValue == 0)
+					result /= task->hero->getArmyCost() / score;
+				//logAi->trace("Score %s: %f Armyreward: %f skillReward: %f GoldReward: %f Strategical: %f Armygrowth: %f", task->toString(), score, evaluationContext.armyReward, evaluationContext.skillReward, evaluationContext.goldReward, evaluationContext.strategicalValue, evaluationContext.armyGrowth);
+				logAi->trace("Score %s: %f Cost: %f Dist: %f Armygrowth: %f Prio: %f", task->toString(), score, task->hero->getArmyCost(), evaluationContext.movementCost, evaluationContext.armyGrowth, result);
+			}
+		}
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
-	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
+	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, skill: %f danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
 		(int)evaluationContext.turn,
@@ -1151,6 +1186,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		goldRewardPerTurn,
 		evaluationContext.goldCost,
 		evaluationContext.armyReward,
+		evaluationContext.skillReward,
 		evaluationContext.danger,
 		evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
 		evaluationContext.strategicalValue,

@@ -469,7 +469,9 @@ void ObjectClusterizer::clusterizeObject(
 
 				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
 
-				if(priority < MIN_PRIORITY)
+				if(ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
+					continue;
+				else if (priority <= 0)
 					continue;
 
 				ClusterMap::accessor cluster;
@@ -490,7 +492,9 @@ void ObjectClusterizer::clusterizeObject(
 
 		float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
 
-		if(priority < MIN_PRIORITY)
+		if (ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
+			continue;
+		else if (priority <= 0)
 			continue;
 
 		bool interestingObject = path.turn() <= 2 || priority > 0.5f;
