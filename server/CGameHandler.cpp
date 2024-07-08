@@ -441,6 +441,11 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 	if (hero->visitedTown)
 		giveSpells(hero->visitedTown, hero);
+
+	// Our scouting range may have changed - update it
+	if (hero->getOwner().isValidPlayer())
+		changeFogOfWar(hero->getSightCenter(), hero->getSightRadius(), hero->getOwner(), ETileVisibility::REVEALED);
+
 }
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
@@ -4293,6 +4298,9 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 
 void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode)
 {
+	if (tiles.empty())
+		return;
+
 	FoWChange fow;
 	fow.tiles = tiles;
 	fow.player = player;
