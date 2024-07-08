@@ -32,7 +32,7 @@ struct SlotInfo
 struct ArmyUpgradeInfo
 {
 	std::vector<SlotInfo> resultingArmy;
-	uint64_t upgradeValue = 0;
+	int64_t upgradeValue = 0;
 	TResources upgradeCost;
 
 	void addArmyToBuy(std::vector<SlotInfo> army);
