@@ -313,7 +313,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
-	auto fileSelection = [this](QString magic, QString filter, QString startPath = {}) {
+	auto fileSelection = [this](QByteArray magic, QString filter, QString startPath = {}) {
 		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
 		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
 #if defined(VCMI_MOBILE)
@@ -331,7 +331,7 @@ void FirstLaunchView::extractGogData()
 			return QString{};
 		}
 		QByteArray magicFile = tmpFile.read(magic.length());
-		if(!magicFile.startsWith(QByteArray{magic.toStdString().c_str()}))
+		if(!magicFile.startsWith(magic))
 		{
 			QMessageBox::critical(this, tr("Invalid file selected"), titleErr);
 			return QString{};
@@ -340,10 +340,10 @@ void FirstLaunchView::extractGogData()
 		return file;
 	};
 
-	QString fileBin = fileSelection("idska32", tr("GOG data") + " (*.bin)");
+	QString fileBin = fileSelection(QByteArray{"idska32"}, tr("GOG data") + " (*.bin)");
 	if(fileBin.isEmpty())
 		return;
-	QString fileExe = fileSelection("MZ", tr("GOG installer") + " (*.exe)", QFileInfo(fileBin).absolutePath());
+	QString fileExe = fileSelection(QByteArray{"MZ"}, tr("GOG installer") + " (*.exe)", QFileInfo(fileBin).absolutePath());
 	if(fileExe.isEmpty())
 		return;
 
