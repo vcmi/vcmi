@@ -177,13 +177,16 @@ bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerC
 	assert(activeInfo);
 	assert(waitingInfo);
 
-	if (gameHandler->hasBothPlayersAtSameConnection(active, waiting))
+	if (activeInfo->human != waitingInfo->human)
 	{
+		// only one AI and one human can play simultaneoulsy from single connection
 		if (!gameHandler->getStartInfo()->simturnsInfo.allowHumanWithAI)
 			return false;
-
-		// only one AI and one human can play simultaneoulsy from single connection
-		if (activeInfo->human == waitingInfo->human)
+	}
+	else
+	{
+		// two AI or two humans in hotseat can't play at the same time
+		if (gameHandler->hasBothPlayersAtSameConnection(active, waiting))
 			return false;
 	}
 
