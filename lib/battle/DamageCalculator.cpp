@@ -509,7 +509,7 @@ int64_t DamageCalculator::getCasualties(int64_t damageDealt) const
 	int64_t damageLeft = damageDealt - info.defender->getFirstHPleft();
 	int64_t killsLeft = damageLeft / info.defender->getMaxHealth();
 
-	return 1 + killsLeft;
+	return std::min<int32_t>(1 + killsLeft, info.defender->getCount());
 }
 
 int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelector & selector) const
