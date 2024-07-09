@@ -694,7 +694,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 
 	boost::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
 	{
-		return lhs.first > rhs.first; //Largest dispalcement first
+		return lhs.first > rhs.first; //Largest displacement first
 	});
 
 #ifdef ZONE_PLACEMENT_LOG
@@ -974,7 +974,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	{
 		moveZoneToCenterOfMass(zone.second);
 
-		//TODO: similiar for islands
+		//TODO: similar for islands
 		#define	CREATE_FULL_UNDERGROUND true //consider linking this with water amount
 		if (zone.second->isUnderground())
 		{

@@ -173,13 +173,13 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 {
 	const auto f = graphics->fonts[font];
 	Point where = destRect.topLeft();
-	const std::string delimeters = "{}";
-	auto delimitersCount = std::count_if(what.cbegin(), what.cend(), [&delimeters](char c)
+	const std::string delimiters = "{}";
+	auto delimitersCount = std::count_if(what.cbegin(), what.cend(), [&delimiters](char c)
 	{
-		return delimeters.find(c) != std::string::npos;
+		return delimiters.find(c) != std::string::npos;
 	});
 	//We should count delimiters length from string to correct centering later.
-	delimitersCount *= f->getStringWidth(delimeters)/2;
+	delimitersCount *= f->getStringWidth(delimiters)/2;
 
 	std::smatch match;
 	std::regex expr("\\{(.*?)\\|");
@@ -214,16 +214,16 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 		where.y += getBorderSize().y + destRect.h - static_cast<int>(f->getLineHeight());
 
 	size_t begin = 0;
-	size_t currDelimeter = 0;
+	size_t currDelimiter = 0;
 
 	do
 	{
-		size_t end = what.find_first_of(delimeters[currDelimeter % 2], begin);
+		size_t end = what.find_first_of(delimiters[currDelimiter % 2], begin);
 		if(begin != end)
 		{
 			std::string toPrint = what.substr(begin, end - begin);
 
-			if(currDelimeter % 2) // Enclosed in {} text - set to yellow or defined color
+			if(currDelimiter % 2) // Enclosed in {} text - set to yellow or defined color
 			{
 				std::smatch match;
    				std::regex expr("^(.*?)\\|");
@@ -249,7 +249,7 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 
 			where.x += (int)f->getStringWidth(toPrint);
 		}
-		currDelimeter++;
+		currDelimiter++;
 	} while(begin++ != std::string::npos);
 }
 

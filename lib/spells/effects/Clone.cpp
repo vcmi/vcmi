@@ -43,7 +43,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		if(clonedStack->getCount() < 1)
 			continue;
 
-		auto hex = m->battle()->getAvaliableHex(clonedStack->creatureId(), m->casterSide, clonedStack->getPosition());
+		auto hex = m->battle()->getAvailableHex(clonedStack->creatureId(), m->casterSide, clonedStack->getPosition());
 
 		if(!hex.isValid())
 		{

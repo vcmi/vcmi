@@ -195,7 +195,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 		for(const auto & crea : info.reward.creatures)
 			creatures.addToSlot(creatures.getFreeSlot(), new CStackInstance(crea.type, crea.count));
 
-		if(auto * army = dynamic_cast<const CArmedInstance*>(this)) //TODO: to fix that, CArmedInstance must be splitted on map instance part and interface part
+		if(auto * army = dynamic_cast<const CArmedInstance*>(this)) //TODO: to fix that, CArmedInstance must be split on map instance part and interface part
 			cb->giveCreatures(army, hero, creatures, false);
 	}
 	

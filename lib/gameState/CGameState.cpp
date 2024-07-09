@@ -1968,7 +1968,7 @@ ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags, st
 {
 	std::set<ArtifactID> potentialPicks;
 
-	// Select artifacts that satisfy provided criterias
+	// Select artifacts that satisfy provided criteria
 	for (auto const & artifactID : map->allowedArtifact)
 	{
 		if (!VLC->arth->legalArtifact(artifactID))

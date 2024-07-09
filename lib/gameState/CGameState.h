@@ -237,7 +237,7 @@ private:
 	CRandomGenerator rand;
 	Services * services;
 
-	/// Ponter to campaign state manager. Nullptr for single scenarios
+	/// Pointer to campaign state manager. Nullptr for single scenarios
 	std::unique_ptr<CGameStateCampaign> campaign;
 
 	friend class IGameCallback;

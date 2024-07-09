@@ -200,7 +200,7 @@ This property describes how object state should be reset. Objects without this f
 ## Appear Chance definition
 This property describes chance for reward to be selected.
 When object is initialized on map load, game will roll a "dice" - random number in range 0-99, and pick all awards that have appear chance within selected number.
-Note that object that uses appearChance MUST have continious range for every value in 0-99 range. For example, object with 3 different rewards may want to define them as
+Note that object that uses appearChance MUST have continuous range for every value in 0-99 range. For example, object with 3 different rewards may want to define them as
 - `"min" :  0, "max" : 33`
 - `"min" : 33, "max" : 66`
 - `"min" : 66, "max" : 100`
@@ -410,7 +410,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
         "type" : "MORALE", 
         "val" : 1, 
         "duration" : "ONE_BATTLE", 
-        "desription" : 94 
+        "description" : 94 
     }
 ]
 ```
@@ -483,7 +483,7 @@ canLearnSpells
 - Can be used as limiter
 - Can be used as reward, to give new creatures to a hero
 - If hero does not have enough free slots, game will show selection dialog to pick troops to keep
-- It is possible to specify probabilty to receive upgraded creature
+- It is possible to specify probability to receive upgraded creature
 ```jsonc
 "creatures" : [
     {

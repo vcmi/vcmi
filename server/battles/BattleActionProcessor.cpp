@@ -625,7 +625,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		return 0;
 
 	//initing necessary tables
-	auto accessibility = battle.getAccesibility(curStack);
+	auto accessibility = battle.getAccessibility(curStack);
 	std::set<BattleHex> passed;
 	//Ignore obstacles on starting position
 	passed.insert(curStack->getPosition());

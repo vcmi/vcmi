@@ -29,7 +29,7 @@ CApplyDamage::CApplyDamage(const Environment * env_, BattleStackAttacked * pack_
 	: pack(pack_),
 	target(std::move(target_))
 {
-	initalDamage = pack->damageAmount;
+	initialDamage = pack->damageAmount;
 }
 
 bool CApplyDamage::isEnabled() const
@@ -37,9 +37,9 @@ bool CApplyDamage::isEnabled() const
 	return true;
 }
 
-int64_t CApplyDamage::getInitalDamage() const
+int64_t CApplyDamage::getInitialDamage() const
 {
-	return initalDamage;
+	return initialDamage;
 }
 
 int64_t CApplyDamage::getDamage() const

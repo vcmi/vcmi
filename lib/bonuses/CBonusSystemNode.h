@@ -47,7 +47,7 @@ private:
 	static std::atomic<int64_t> treeChanged;
 
 	// Setting a value to cachingStr before getting any bonuses caches the result for later requests.
-	// This string needs to be unique, that's why it has to be setted in the following manner:
+	// This string needs to be unique, that's why it has to be set in the following manner:
 	// [property key]_[value] => only for selector
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
 	mutable boost::mutex sync;
@@ -85,7 +85,7 @@ public:
 	virtual ~CBonusSystemNode();
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
-	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
+	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convenience
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 

@@ -24,7 +24,7 @@ struct DLL_EXPORT ResourceObjective
 	ResourceObjective(const TResources &res, Goals::TSubgoal goal);
 	bool operator < (const ResourceObjective &ro) const;
 
-	TResources resources; //how many resoures do we need
+	TResources resources; //how many resources do we need
 	Goals::TSubgoal goal; //what for (build, gather army etc...)
 };
 
@@ -79,7 +79,7 @@ public:
 	bool notifyGoalCompleted(Goals::TSubgoal goal) override;
 
 protected: //not-const actions only for AI
-	virtual void reserveResoures(const TResources & res, Goals::TSubgoal goal = Goals::TSubgoal());
+	virtual void reserveResources(const TResources & res, Goals::TSubgoal goal = Goals::TSubgoal());
 	virtual bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
 	virtual bool tryPush(const ResourceObjective &o);
 

@@ -241,7 +241,7 @@ namespace ERM
 
 	//for #'symbol expression
 
-	enum EVOtions{VEXP, SYMBOL, CHAR, DOUBLE, INT, TCMD, STRINGC};
+	enum EVOptions{VEXP, SYMBOL, CHAR, DOUBLE, INT, TCMD, STRINGC};
 	struct TVExp;
 	typedef std::variant<boost::recursive_wrapper<TVExp>, TSymbol, char, double, int, Tcommand, TStringConstant > TVOption; //options in v-expression
 	//v-expression

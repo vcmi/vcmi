@@ -79,7 +79,7 @@ public:
 
 	/// deactivates if needed, blocks all automatic activity, allows only disposal
 	void disable();
-	/// activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
+	/// activates if needed, all activity enabled (Warning: may not be symmetric with disable if recActions was limited!)
 	void enable();
 	/// deactivates or activates UI element based on flag
 	void setEnabled(bool on);

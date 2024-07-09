@@ -151,7 +151,7 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
 	ret.name.appendTextID(reader["name"].String());
 	ret.description.appendTextID(reader["description"].String());
-	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
+	ret.difficultyChosenByPlayer = reader["allowDifficultySelection"].Bool();
 	ret.music = AudioPath::fromJson(reader["music"]);
 	ret.filename = filename;
 	ret.modName = modName;
@@ -386,9 +386,9 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));
 	if (ret.version > CampaignVersion::RoE)
-		ret.difficultyChoosenByPlayer = reader.readInt8();
+		ret.difficultyChosenByPlayer = reader.readInt8();
 	else
-		ret.difficultyChoosenByPlayer = false;
+		ret.difficultyChosenByPlayer = false;
 
 	ret.music = prologMusicName(reader.readInt8());
 	ret.filename = filename;

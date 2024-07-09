@@ -363,7 +363,7 @@ void FirstLaunchView::extractGogData()
 		o.extract_unknown = true;
 		o.filenames.set_expand(true);
 
-		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
+		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completely
 		
 		process_file(tmpFileExe.toStdString(), o, [this](float progress) {
 			ui->progressBarGog->setValue(progress * 100);

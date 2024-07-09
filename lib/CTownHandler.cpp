@@ -845,7 +845,7 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source) const
 	VLC->identifiers()->requestIdentifier("creature", source["shooter"], [&town](si32 creature)
 	{
 		auto crId = CreatureID(creature);
-		if((*VLC->creh)[crId]->animation.missleFrameAngles.empty())
+		if((*VLC->creh)[crId]->animation.missileFrameAngles.empty())
 			logMod->error("Mod '%s' error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Siege will not work properly!"
 				, town.faction->getNameTranslated()
 				, (*VLC->creh)[crId]->getNameSingularTranslated());

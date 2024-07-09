@@ -267,7 +267,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);
 
-				prerequisite.buildCostWithPrerequisits += info.buildCost;
+				prerequisite.buildCostWithPrerequisites += info.buildCost;
 				prerequisite.creatureCost = info.creatureCost;
 				prerequisite.creatureGrows = info.creatureGrows;
 				prerequisite.creatureLevel = info.creatureLevel;
@@ -340,7 +340,7 @@ void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & existingDwell
 
 void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & nextToBuild)
 {
-	townDevelopmentCost += nextToBuild.buildCostWithPrerequisits;
+	townDevelopmentCost += nextToBuild.buildCostWithPrerequisites;
 
 	if(nextToBuild.canBuild)
 	{
@@ -361,7 +361,7 @@ BuildingInfo::BuildingInfo()
 	creatureGrows = 0;
 	creatureID = CreatureID::NONE;
 	buildCost = 0;
-	buildCostWithPrerequisits = 0;
+	buildCostWithPrerequisites = 0;
 	prerequisitesCount = 0;
 	name.clear();
 	armyStrength = 0;
@@ -376,7 +376,7 @@ BuildingInfo::BuildingInfo(
 {
 	id = building->bid;
 	buildCost = building->resources;
-	buildCostWithPrerequisits = building->resources;
+	buildCostWithPrerequisites = building->resources;
 	dailyIncome = building->produce;
 	exists = town->hasBuilt(id);
 	prerequisitesCount = 1;

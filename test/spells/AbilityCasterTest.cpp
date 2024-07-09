@@ -65,7 +65,7 @@ TEST_F(AbilityCasterTest, MagicAbilityAffectedByGenericBonus)
 	EXPECT_EQ(subject->getSpellSchoolLevel(&spellMock), 2);
 }
 
-TEST_F(AbilityCasterTest, MagicAbilityIngoresSchoolBonus)
+TEST_F(AbilityCasterTest, MagicAbilityIgnoresSchoolBonus)
 {
 	EXPECT_CALL(spellMock, getLevel()).WillRepeatedly(Return(1));
 

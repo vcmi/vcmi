@@ -34,7 +34,7 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		if(nodeStorage->isMovementIneficient(source, destination))
+		if(nodeStorage->isMovementInefficient(source, destination))
 		{
 			destination.node->locked = true;
 			destination.blocked = true;

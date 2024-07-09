@@ -65,7 +65,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	{
 		buttonLogin->block(true);
 		toggleMode->setSelected(0);
-		onLoginModeChanged(0); // call it manually to disable widgets - toggleMode will not emit this call if this is currenly selected option
+		onLoginModeChanged(0); // call it manually to disable widgets - toggleMode will not emit this call if this is currently selected option
 	}
 	else
 		toggleMode->setSelected(1);

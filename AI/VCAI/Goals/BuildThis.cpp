@@ -41,7 +41,7 @@ TSubgoal BuildThis::whatToDoToAchieve()
 			{
 			case EBuildingState::ALLOWED:
 				town = candidateTown;
-				break; //TODO: look for prerequisites? this is not our reponsibility
+				break; //TODO: look for prerequisites? this is not our responsibility
 			default:
 				continue;
 			}

@@ -1348,7 +1348,7 @@ void NewStructures::applyGs(CGameState *gs)
 			t->deleteTownBonus(overrideBid);
 		}
 	}
-	t->builded = builded;
+	t->built = built;
 	t->recreateBuildingsBonuses();
 }
 
@@ -1668,7 +1668,7 @@ void RebalanceStacks::applyGs(CGameState * gs)
 					{
 						dstArt->move(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
 					}
-					//else - artifact cna be lost :/
+					//else - artifact can be lost :/
 					else
 					{
 						EraseArtifact ea;
@@ -1998,7 +1998,7 @@ void NewTurn::applyGs(CGameState *gs)
 		creatureSet.second.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
-		t->builded = 0;
+		t->built = 0;
 
 	if(gs->getDate(Date::DAY_OF_WEEK) == 1)
 		gs->updateRumor();

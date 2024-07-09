@@ -161,7 +161,7 @@ const CCreature & BattleProjectileController::getShooter(const CStack * stack) c
 	if(creature->getId() == CreatureID::ARROW_TOWERS)
 		creature = owner.siegeController->getTurretCreature();
 
-	if(creature->animation.missleFrameAngles.empty())
+	if(creature->animation.missileFrameAngles.empty())
 	{
 		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead...", creature->getNameSingularTranslated());
 		creature = CreatureID(CreatureID::ARCHER).toCreature();
@@ -277,7 +277,7 @@ int BattleProjectileController::computeProjectileFrameID( Point from, Point dest
 {
 	const CCreature & creature = getShooter(stack);
 
-	auto & angles = creature.animation.missleFrameAngles;
+	auto & angles = creature.animation.missileFrameAngles;
 	auto animation = getProjectileImage(stack);
 
 	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used

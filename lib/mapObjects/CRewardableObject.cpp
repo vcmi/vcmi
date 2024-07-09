@@ -43,7 +43,7 @@ void CRewardableObject::grantRewardWithMessage(const CGHeroInstance * contextHer
 	grantReward(index, contextHero);
 }
 
-void CRewardableObject::selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const
+void CRewardableObject::selectRewardWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const
 {
 	BlockingDialog sd(configuration.canRefuse, rewardIndices.size() > 1);
 	sd.player = contextHero->tempOwner;
@@ -53,7 +53,7 @@ void CRewardableObject::selectRewardWthMessage(const CGHeroInstance * contextHer
 
 }
 
-void CRewardableObject::grantAllRewardsWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, bool markAsVisit) const
+void CRewardableObject::grantAllRewardsWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, bool markAsVisit) const
 {
 	if (rewardIndices.empty())
 		return;
@@ -115,7 +115,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			case 1: // one reward. Just give it with message
 			{
 				if (configuration.canRefuse)
-					selectRewardWthMessage(h, rewards, configuration.info.at(rewards.front()).message);
+					selectRewardWithMessage(h, rewards, configuration.info.at(rewards.front()).message);
 				else
 					grantRewardWithMessage(h, rewards.front(), true);
 				break;
@@ -124,11 +124,11 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			{
 				switch (configuration.selectMode) {
 					case Rewardable::SELECT_PLAYER: // player must select
-						selectRewardWthMessage(h, rewards, configuration.onSelect);
+						selectRewardWithMessage(h, rewards, configuration.onSelect);
 						break;
 					case Rewardable::SELECT_FIRST: // give first available
 						if (configuration.canRefuse)
-							selectRewardWthMessage(h, { rewards.front() }, configuration.info.at(rewards.front()).message);
+							selectRewardWithMessage(h, { rewards.front() }, configuration.info.at(rewards.front()).message);
 						else
 							grantRewardWithMessage(h, rewards.front(), true);
 						break;
@@ -136,13 +136,13 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 					{
 						ui32 rewardIndex = *RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator());
 						if (configuration.canRefuse)
-							selectRewardWthMessage(h, { rewardIndex }, configuration.info.at(rewardIndex).message);
+							selectRewardWithMessage(h, { rewardIndex }, configuration.info.at(rewardIndex).message);
 						else
 							grantRewardWithMessage(h, rewardIndex, true);
 						break;
 					}
 					case Rewardable::SELECT_ALL: // grant all possible
-						grantAllRewardsWthMessage(h, rewards, true);
+						grantAllRewardsWithMessage(h, rewards, true);
 						break;
 				}
 				break;
@@ -208,7 +208,7 @@ void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) 
 	cb->setObjPropertyValue(id, ObjProperty::REWARD_SELECT, rewardID);
 	grantRewardBeforeLevelup(cb, configuration.info.at(rewardID), hero);
 	
-	// hero is not blocked by levelup dialog - grant remainer immediately
+	// hero is not blocked by levelup dialog - grant remainder immediately
 	if(!cb->isVisitCoveredByAnotherQuery(this, hero))
 	{
 		grantRewardAfterLevelup(cb, configuration.info.at(rewardID), this, hero);

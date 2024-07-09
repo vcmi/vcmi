@@ -14,20 +14,20 @@
 #include "../lib/mapObjects/CGTownInstance.h"
 
 namespace Ui {
-class TownBulidingsWidget;
+class TownBuildingsWidget;
 }
 
 std::string defaultBuildingIdConversion(BuildingID bId);
 
-class TownBulidingsWidget : public QDialog
+class TownBuildingsWidget : public QDialog
 {
 	Q_OBJECT
 
 	QStandardItem * addBuilding(const CTown & ctown, int bId, std::set<si32> & remaining);
 	
 public:
-	explicit TownBulidingsWidget(CGTownInstance &, QWidget *parent = nullptr);
-	~TownBulidingsWidget();
+	explicit TownBuildingsWidget(CGTownInstance &, QWidget *parent = nullptr);
+	~TownBuildingsWidget();
 	
 	void addBuildings(const CTown & ctown);
 	std::set<BuildingID> getForbiddenBuildings();
@@ -41,7 +41,7 @@ private slots:
 private:
 	std::set<BuildingID> getBuildingsFromModel(int modelColumn, Qt::CheckState checkState);
 	
-	Ui::TownBulidingsWidget *ui;
+	Ui::TownBuildingsWidget *ui;
 	CGTownInstance & town;
 	mutable QStandardItemModel model;
 };

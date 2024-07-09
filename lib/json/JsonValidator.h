@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-/// Class for Json validation. Mostly compilant with json-schema v6 draf
+/// Class for Json validation. Mostly compliant with json-schema v6 draf
 struct JsonValidator
 {
 	/// path from root node to current one.

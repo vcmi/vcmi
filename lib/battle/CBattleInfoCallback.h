@@ -134,12 +134,12 @@ public:
 
 	ReachabilityInfo getReachability(const battle::Unit * unit) const;
 	ReachabilityInfo getReachability(const ReachabilityInfo::Parameters & params) const;
-	AccessibilityInfo getAccesibility() const;
-	AccessibilityInfo getAccesibility(const battle::Unit * stack) const; //Hexes ocupied by stack will be marked as accessible.
-	AccessibilityInfo getAccesibility(const std::vector<BattleHex> & accessibleHexes) const; //given hexes will be marked as accessible
+	AccessibilityInfo getAccessibility() const;
+	AccessibilityInfo getAccessibility(const battle::Unit * stack) const; //Hexes occupied by stack will be marked as accessible.
+	AccessibilityInfo getAccessibility(const std::vector<BattleHex> & accessibleHexes) const; //given hexes will be marked as accessible
 	std::pair<const battle::Unit *, BattleHex> getNearestStack(const battle::Unit * closest) const;
 
-	BattleHex getAvaliableHex(const CreatureID & creID, ui8 side, int initialPos = -1) const; //find place for adding new stack
+	BattleHex getAvailableHex(const CreatureID & creID, ui8 side, int initialPos = -1) const; //find place for adding new stack
 protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters & params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;

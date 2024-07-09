@@ -142,7 +142,7 @@ protected:
 	//placement info
 	int3 pos;
 	float3 center;
-	rmg::Area dArea; //irregular area assined to zone
+	rmg::Area dArea; //irregular area assigned to zone
 	rmg::Area dAreaPossible;
 	rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
 	rmg::Area dAreaUsed;

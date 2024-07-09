@@ -74,7 +74,7 @@ TSubgoal Win::whatToDoToAchieve()
 		case EventCondition::HAVE_BUILDING:
 		{
 			// TODO build other buildings apart from Grail
-			// goal.objectType = buidingID to build
+			// goal.objectType = buildingID to build
 			// goal.object = optional, town in which building should be built
 			// Represents "Improve town" condition from H3 (but unlike H3 it consists from 2 separate conditions)
 

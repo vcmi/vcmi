@@ -372,7 +372,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// normal  - default value. Fulfill requirements, use resources, spend one day
 	// auto    - building appears when all requirements are built
 	// special - building can not be built manually
-	// grail   - building reqires grail to be built
+	// grail   - building requires grail to be built
 	"mode" : "auto",
 	
 	// Buildings which bonuses should be overridden with bonuses of the current building

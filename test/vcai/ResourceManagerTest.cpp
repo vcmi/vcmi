@@ -34,7 +34,7 @@ struct ResourceManagerTest : public Test//, public IResourceManager
 	{
 		rm = make_unique<NiceMock<ResourceManagerMock>>(&gcm, &aim);
 
-		//note: construct new goal for modfications
+		//note: construct new goal for modifications
 		invalidGoal = sptr(StrictMock<InvalidGoalMock>());
 		gatherArmy = sptr(StrictMock<GatherArmyGoalMock>());
 		buildThis = sptr(StrictMock<BuildThis>());
@@ -76,8 +76,8 @@ TEST_F(ResourceManagerTest, canAffordMaths)
 	TResources armyCost(0, 0, 0, 0, 0, 0, 54321);
 	EXPECT_FALSE(rm->canAfford(armyCost));
 
-	rm->reserveResoures(armyCost, gatherArmy);
-	EXPECT_FALSE(rm->canAfford(buildingCost)) << "Reserved value should be substracted from free resources";
+	rm->reserveResources(armyCost, gatherArmy);
+	EXPECT_FALSE(rm->canAfford(buildingCost)) << "Reserved value should be subtracted from free resources";
 }
 
 TEST_F(ResourceManagerTest, notifyGoalImplemented)
@@ -88,12 +88,12 @@ TEST_F(ResourceManagerTest, notifyGoalImplemented)
 	EXPECT_FALSE(rm->hasTasksLeft());
 
 	TResources res(0,0,0,0,0,0,12345);
-	rm->reserveResoures(res, invalidGoal);
+	rm->reserveResources(res, invalidGoal);
 	ASSERT_FALSE(rm->hasTasksLeft()) << "Can't push Invalid goal";
 	EXPECT_FALSE(rm->notifyGoalCompleted(invalidGoal));
 
 	EXPECT_FALSE(rm->notifyGoalCompleted(gatherArmy)) << "Queue should be empty";
-	rm->reserveResoures(res, gatherArmy);
+	rm->reserveResources(res, gatherArmy);
 	EXPECT_TRUE(rm->notifyGoalCompleted(gatherArmy)) << "Not implemented"; //TODO: try it with not a copy
 	EXPECT_FALSE(rm->notifyGoalCompleted(gatherArmy)); //already completed
 }
@@ -102,9 +102,9 @@ TEST_F(ResourceManagerTest, notifyFulfillsAll)
 {
 	TResources res;
 	ASSERT_TRUE(buildAny->fulfillsMe(buildThis)) << "Goal dependency implemented incorrectly"; //TODO: goal mock?
-	rm->reserveResoures(res, buildAny);
-	rm->reserveResoures(res, buildAny);
-	rm->reserveResoures(res, buildAny);
+	rm->reserveResources(res, buildAny);
+	rm->reserveResources(res, buildAny);
+	rm->reserveResources(res, buildAny);
 	ASSERT_TRUE(rm->hasTasksLeft()); //regardless if duplicates are allowed or not
 	rm->notifyGoalCompleted(buildThis);
 	ASSERT_FALSE(rm->hasTasksLeft()) << "BuildThis didn't remove Build Any!";
@@ -129,9 +129,9 @@ TEST_F(ResourceManagerTest, queueOrder)
 	buildVeryHigh->setpriority(10).setbid(5);
 
 	TResources price(0, 0, 0, 0, 0, 0, 1000);
-	rm->reserveResoures(price, buildLow);
-	rm->reserveResoures(price, buildHigh);
-	rm->reserveResoures(price, buildMed);
+	rm->reserveResources(price, buildLow);
+	rm->reserveResources(price, buildHigh);
+	rm->reserveResources(price, buildMed);
 
 	ON_CALL(gcm, getResourceAmount())
 		.WillByDefault(Return(TResources(0,0,0,0,0,0,4000,0))); //we can afford 4 top goals
@@ -139,8 +139,8 @@ TEST_F(ResourceManagerTest, queueOrder)
 	auto goal = rm->whatToDo();
 	EXPECT_EQ(goal->goalType, Goals::BUILD_STRUCTURE);
 	ASSERT_EQ(rm->whatToDo()->bid, 4);
-	rm->reserveResoures(price, buildBit);
-	rm->reserveResoures(price, buildVeryHigh);
+	rm->reserveResources(price, buildBit);
+	rm->reserveResources(price, buildVeryHigh);
 	goal = rm->whatToDo();
 	EXPECT_EQ(goal->goalType, Goals::BUILD_STRUCTURE);
 	ASSERT_EQ(goal->bid, 5);
@@ -171,7 +171,7 @@ TEST_F(ResourceManagerTest, updateGoalImplemented)
 
 	EXPECT_FALSE(rm->updateGoal(buildThis)); //try update with no objectives -> fail
 
-	rm->reserveResoures(res, buildThis);
+	rm->reserveResources(res, buildThis);
 	ASSERT_TRUE(rm->hasTasksLeft());
 	buildThis->setpriority(4.444f);
 
@@ -224,11 +224,11 @@ TEST_F(ResourceManagerTest, freeResourcesWithManyGoals)
 
 	ASSERT_EQ(rm->freeResources(), TResources(20, 10, 20, 10, 10, 10, 20000, 0));
 
-	rm->reserveResoures(TResources(0, 4, 0, 0, 0, 0, 13000), gatherArmy);
+	rm->reserveResources(TResources(0, 4, 0, 0, 0, 0, 13000), gatherArmy);
 	ASSERT_EQ(rm->freeResources(), TResources(20, 6, 20, 10, 10, 10, 7000, 0));
-	rm->reserveResoures(TResources(5, 4, 5, 4, 4, 4, 5000), buildThis);
+	rm->reserveResources(TResources(5, 4, 5, 4, 4, 4, 5000), buildThis);
 	ASSERT_EQ(rm->freeResources(), TResources(15, 2, 15, 6, 6, 6, 2000, 0));
-	rm->reserveResoures(TResources(0, 0, 0, 0, 0, 0, 2500), recruitHero);
+	rm->reserveResources(TResources(0, 0, 0, 0, 0, 0, 2500), recruitHero);
 	auto res = rm->freeResources();
 	EXPECT_EQ(res[EGameResID::GOLD], 0) << "We should have 0 gold left";
 

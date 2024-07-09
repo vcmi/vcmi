@@ -192,7 +192,7 @@ EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoin
 
 	if(sameSummoned.empty() || !summonSameUnit)
 	{
-		BattleHex hex = m->battle()->getAvaliableHex(creature, m->casterSide);
+		BattleHex hex = m->battle()->getAvailableHex(creature, m->casterSide);
 		if(!hex.isValid())
 			logGlobal->error("No free space to summon creature!");
 		else

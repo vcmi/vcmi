@@ -67,7 +67,7 @@ public:
 	/// Called when UI element gesture status changes
 	virtual void gesture(bool on, const Point & initialPosition, const Point & finalPosition) {}
 
-	virtual void textInputed(const std::string & enteredText) {}
+	virtual void textInputted(const std::string & enteredText) {}
 	virtual void textEdited(const std::string & enteredText) {}
 
 	virtual void keyPressed(EShortcut key) {}

@@ -189,7 +189,7 @@ void CTextInput::updateLabel()
 	label->setText(visibleText);
 }
 
-void CTextInput::textInputed(const std::string & enteredText)
+void CTextInput::textInputted(const std::string & enteredText)
 {
 	if(!hasFocus())
 		return;

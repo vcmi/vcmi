@@ -230,7 +230,7 @@ bool CGTownInstance::hasCapitol() const
 CGTownInstance::CGTownInstance(IGameCallback *cb):
 	CGDwelling(cb),
 	town(nullptr),
-	builded(0),
+	built(0),
 	destroyed(0),
 	identifier(0),
 	alignmentToPlayer(PlayerColor::NEUTRAL)

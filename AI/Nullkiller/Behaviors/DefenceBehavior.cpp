@@ -240,7 +240,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			if(path.turn() <= threat.turn - 2)
 			{
 #if NKAI_TRACE_LEVEL >= 1
-				logAi->trace("Defer defence of %s by %s because he has enough time to reach the town next trun",
+				logAi->trace("Defer defence of %s by %s because he has enough time to reach the town next turn",
 					town->getObjectName(),
 					path.targetHero->getObjectName());
 #endif

@@ -560,7 +560,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="262"/>
-        <source>Unsaved changes will be lost, are you sure?</source>
+        <source>Unsaved changes will be lost, are you sur?</source>
         <translation>Des modifications non sauvegardées vont être perdues. Êtes-vous sûr ?</translation>
     </message>
     <message>
@@ -763,7 +763,7 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
         <source>Map objects mods</source>
-        <translation>Object de carte des mods</translation>
+        <translation>objet de carte des mods</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="81"/>
@@ -773,7 +773,7 @@
     <message>
         <location filename="../mapsettings/modsettings.ui" line="84"/>
         <source>Full content mods</source>
-        <translation>Mods de conteniu complet</translation>
+        <translation>Mods de conteniu complete</translation>
     </message>
 </context>
 <context>
@@ -1000,7 +1000,7 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation>Ressources</translation>
+        <translation>Resources</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="338"/>
@@ -1134,7 +1134,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="199"/>
         <source>Event info</source>
-        <translation>Informations d&apos;évènements</translation>
+        <translation>Information d&apos;évènements</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="217"/>
@@ -1180,18 +1180,18 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="365"/>
         <source>Movement</source>
-        <translation>Mouvement</translation>
+        <translation>Movement</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="408"/>
         <source>Remove object</source>
-        <translation>Supprimer les objects</translation>
+        <translation>Supprimer les objets</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="417"/>
         <location filename="../inspector/rewardswidget.ui" line="1137"/>
         <source>Primary skills</source>
-        <translation>Compétances principales</translation>
+        <translation>Compétances principles</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="432"/>
@@ -1221,7 +1221,7 @@
         <location filename="../inspector/rewardswidget.ui" line="504"/>
         <location filename="../inspector/rewardswidget.ui" line="1208"/>
         <source>Resources</source>
-        <translation>Ressources</translation>
+        <translation>Resources</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="553"/>
@@ -1394,8 +1394,8 @@
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
-        <source>Day of first occurance</source>
-        <translation>Jour de la première occurence</translation>
+        <source>Day of first occurrence</source>
+        <translation>Jour de la première occurrence</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="87"/>
@@ -1410,7 +1410,7 @@
     <message>
         <location filename="../mapsettings/timedevent.ui" line="131"/>
         <source>Resources</source>
-        <translation>Ressources</translation>
+        <translation>Resources</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="190"/>
@@ -1429,9 +1429,9 @@
     </message>
 </context>
 <context>
-    <name>TownBulidingsWidget</name>
+    <name>TownBuildingsWidget</name>
     <message>
-        <location filename="../inspector/townbulidingswidget.ui" line="29"/>
+        <location filename="../inspector/townbuildingswidget.ui" line="29"/>
         <source>Buildings</source>
         <translation>Bâtiments</translation>
     </message>
@@ -1450,7 +1450,7 @@
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
-        <source>Suppported</source>
+        <source>Supported</source>
         <translation>Supporté</translation>
     </message>
     <message>
@@ -1643,7 +1643,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
         <source>Accumulate resources</source>
-        <translation>Accumuler des ressources</translation>
+        <translation>Accumuler des resources</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
@@ -1668,7 +1668,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Kill monster</source>
-        <translation>Tuer un monstre</translation>
+        <translation>Tuer un monster</translation>
     </message>
 </context>
 <context>
@@ -1802,7 +1802,7 @@
         <location filename="../windownewmap.ui" line="511"/>
         <location filename="../windownewmap.ui" line="652"/>
         <source>Normal</source>
-        <translation>Normale</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="530"/>
@@ -1856,7 +1856,7 @@
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="246"/>
-        <source>No template for parameters scecified. Random map cannot be generated.</source>
+        <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>Pas de modèles pour les paramètres spécifiés. La carte aléatoire ne peut pas être générée.</translation>
     </message>
     <message>
@@ -1880,7 +1880,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="114"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation>À partir d&apos;une archive extraite, il divise TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 et Un44 en fichiers PNG individuels.</translation>
+        <translation>À partir d&apos;une archive extraite, il divise TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 et Un44 en fichiers PNG individuals.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="115"/>
@@ -1890,7 +1890,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="116"/>
         <source>Delete original files, for the ones split / converted.</source>
-        <translation>Supprimer les fichiers d&apos;origine, pour ceux fractionnés/convertis.</translation>
+        <translation>Supprimer les fichiers d&apos;origine, pour ceux fractionnés/converts.</translation>
     </message>
 </context>
 </TS>

@@ -28,7 +28,7 @@ set(editor_SRCS
 		mapcontroller.cpp
 		validator.cpp
 		inspector/inspector.cpp
-		inspector/townbulidingswidget.cpp
+		inspector/townbuildingswidget.cpp
 		inspector/armywidget.cpp
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
@@ -69,7 +69,7 @@ set(editor_HEADERS
 		mapcontroller.h
 		validator.h
 		inspector/inspector.h
-		inspector/townbulidingswidget.h
+		inspector/townbuildingswidget.h
 		inspector/armywidget.h
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
@@ -97,7 +97,7 @@ set(editor_FORMS
 		playersettings.ui
 		playerparams.ui
 		validator.ui
-		inspector/townbulidingswidget.ui
+		inspector/townbuildingswidget.ui
 		inspector/armywidget.ui
 		inspector/messagewidget.ui
 		inspector/rewardswidget.ui

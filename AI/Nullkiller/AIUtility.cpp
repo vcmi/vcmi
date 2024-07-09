@@ -434,9 +434,9 @@ bool townHasFreeTavern(const CGTownInstance * town)
 	if(!town->hasBuilt(BuildingID::TAVERN)) return false;
 	if(!town->visitingHero) return true;
 
-	bool canMoveVisitingHeroToGarnison = !town->getUpperArmy()->stacksCount();
+	bool canMoveVisitingHeroToGarrison = !town->getUpperArmy()->stacksCount();
 
-	return canMoveVisitingHeroToGarnison;
+	return canMoveVisitingHeroToGarrison;
 }
 
 uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy)

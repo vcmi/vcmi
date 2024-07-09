@@ -165,7 +165,7 @@ class AINodeStorage : public INodeStorage
 private:
 	int3 sizes;
 
-	std::unique_ptr<boost::multi_array<EPathAccessibility, 4>> accesibility;
+	std::unique_ptr<boost::multi_array<EPathAccessibility, 4>> accessibility;
 
 	const CPlayerSpecificInfoCallback * cb;
 	const Nullkiller * ai;
@@ -214,7 +214,7 @@ public:
 		int turn,
 		int movementLeft,
 		float cost,
-		bool saveToCommited = true) const;
+		bool saveToCommitted = true) const;
 
 	inline const AIPathNode * getAINode(const CGPathNode * node) const
 	{
@@ -257,7 +257,7 @@ public:
 		const AIPathNode & candidateNode,
 		const AIPathNode & other) const;
 
-	bool isMovementIneficient(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
+	bool isMovementInefficient(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 	{
 		return hasBetterChain(source, destination);
 	}
@@ -287,12 +287,12 @@ public:
 
 	inline EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const
 	{
-		return (*this->accesibility)[tile.z][tile.x][tile.y][layer];
+		return (*this->accessibility)[tile.z][tile.x][tile.y][layer];
 	}
 
 	inline void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility tileAccessibility)
 	{
-		(*this->accesibility)[tile.z][tile.x][tile.y][layer] = tileAccessibility;
+		(*this->accessibility)[tile.z][tile.x][tile.y][layer] = tileAccessibility;
 	}
 
 	inline int getBucket(const ChainActor * actor) const

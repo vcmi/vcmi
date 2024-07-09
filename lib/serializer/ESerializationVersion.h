@@ -38,7 +38,7 @@ enum class ESerializationVersion : int32_t
 	DESTROYED_OBJECTS, // 834 +list of objects destroyed by player
 	CAMPAIGN_MAP_TRANSLATIONS, // 835 +campaigns include translations for its maps
 	JSON_FLAGS, // 836 json uses new format for flags
-	MANA_LIMIT,	// 837 change MANA_PER_KNOWLEGDE to percentage
+	MANA_LIMIT,	// 837 change MANA_PER_KNOWLEDGE to percentage
 	BONUS_META_STRING,	// 838 bonuses use MetaString instead of std::string for descriptions
 	TURN_TIMERS_STATE, // 839 current state of turn timers is serialized
 	ARTIFACT_COSTUMES, // 840 swappable artifacts set added
@@ -51,7 +51,7 @@ enum class ESerializationVersion : int32_t
 
 	RELEASE_152 = BANK_UNIT_PLACEMENT,
 
-	COMPACT_STRING_SERIALIZATION, // 844 - optimized serialization of previoulsy encountered strings
+	COMPACT_STRING_SERIALIZATION, // 844 - optimized serialization of previously encountered strings
 	COMPACT_INTEGER_SERIALIZATION, // 845 - serialize integers in forms similar to protobuf
 	REMOVE_FOG_OF_WAR_POINTER, // 846 - fog of war is serialized as reference instead of pointer
 	SIMPLE_TEXT_CONTAINER_SERIALIZATION, // 847 - text container is serialized using common routine instead of custom approach

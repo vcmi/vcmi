@@ -1394,7 +1394,7 @@
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
-        <source>Day of first occurance</source>
+        <source>Day of first occurrence</source>
         <translation>Dzień pierwszego wystąpienia</translation>
     </message>
     <message>
@@ -1429,9 +1429,9 @@
     </message>
 </context>
 <context>
-    <name>TownBulidingsWidget</name>
+    <name>TownBuildingsWidget</name>
     <message>
-        <location filename="../inspector/townbulidingswidget.ui" line="29"/>
+        <location filename="../inspector/townbuildingswidget.ui" line="29"/>
         <source>Buildings</source>
         <translation>Budynki</translation>
     </message>
@@ -1450,7 +1450,7 @@
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
-        <source>Suppported</source>
+        <source>Supported</source>
         <translation>Wspierany</translation>
     </message>
     <message>
@@ -1856,7 +1856,7 @@
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="246"/>
-        <source>No template for parameters scecified. Random map cannot be generated.</source>
+        <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>Brak szablonu dla wybranych parametrów. Mapa losowa nie może zostać wygenerowana.</translation>
     </message>
     <message>

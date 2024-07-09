@@ -234,7 +234,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 
 	int bid = getBuilding()->bid;
 
-	if (bid<30)//non-dwellings - only buiding name
+	if (bid<30)//non-dwellings - only building name
 		return town->town->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
@@ -476,7 +476,7 @@ void CHeroGSlot::setHighlight(bool on)
 
 	if(owner->garrisonedHero->hero && owner->visitingHero->hero) //two heroes in town
 	{
-		for(auto & elem : owner->garr->splitButtons) //splitting enabled when slot higlighted
+		for(auto & elem : owner->garr->splitButtons) //splitting enabled when slot highlighted
 			elem->block(!on);
 	}
 }
@@ -1364,7 +1364,7 @@ void CCastleInterface::removeBuilding(BuildingID bid)
 void CCastleInterface::recreateIcons()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();

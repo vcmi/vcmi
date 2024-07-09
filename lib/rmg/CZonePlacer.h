@@ -34,7 +34,7 @@ public:
 	explicit CZonePlacer(RmgMap & map);
 	int3 cords(const float3 & f) const;
 	float metric (const int3 &a, const int3 &b) const;
-	float getDistance(float distance) const; //additional scaling without 0 divison
+	float getDistance(float distance) const; //additional scaling without 0 division
 	~CZonePlacer() = default;
 
 	void placeZones(CRandomGenerator * rand);
@@ -54,7 +54,7 @@ private:
 private:
 	int width;
 	int height;
-	//metric coeficient
+	//metric coefficient
 	float mapSize;
 
 	float gravityConstant;

@@ -38,7 +38,7 @@ public:
 	si32 activeStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
-	bool creatureBank; //auxilary field, do not serialize
+	bool creatureBank; //auxiliary field, do not serialize
 	bool replayAllowed;
 	std::vector<CStack*> stacks;
 	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;

@@ -55,7 +55,7 @@ public:
 extern CClientState * CCS;
 
 /// CGameInfo class
-/// for allowing different functions for accessing game informations
+/// for allowing different functions for accessing game information
 class CGameInfo final : public Services
 {
 public:

@@ -78,7 +78,7 @@ To make the user-defined type serializable, it has to provide a template method 
 
 Serializer provides an operator& that is internally expanded to `<<` when serialziing or `>>` when deserializing.
 
-Serializer provides a public bool field `saving`that set to true during serialziation and to false for deserialziation.
+Serializer provides a public bool field `saving`that set to true during serialization and to false for deserialization.
 
 Typically, serializing class involves serializing all its members (given that they are serializable). Sample:
 

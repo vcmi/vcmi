@@ -66,7 +66,7 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Export file into Extracted directory
 	void handleExtractCommand(std::istringstream& singleWordBuffer);
 
-	// Print in console the current bonuses for curent army
+	// Print in console the current bonuses for current army
 	void handleBonusesCommand(std::istringstream & singleWordBuffer);
 
 	// Get what artifact is present on artifact slot with specified ID for hero with specified ID

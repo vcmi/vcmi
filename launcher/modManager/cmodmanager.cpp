@@ -112,7 +112,7 @@ void CModManager::loadMods()
 			auto json = JsonUtils::toJson(mod);
 			json["localSizeBytes"].Float() = total;
 			if(!name.is_absolute())
-				json["storedLocaly"].Bool() = true;
+				json["storedLocally"].Bool() = true;
 
 			mod = JsonUtils::toVariant(json);
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);

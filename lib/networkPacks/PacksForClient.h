@@ -660,7 +660,7 @@ struct DLL_LINKAGE NewStructures : public CPackForClient
 
 	ObjectInstanceID tid;
 	std::set<BuildingID> bid;
-	si16 builded = 0;
+	si16 built = 0;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -668,7 +668,7 @@ struct DLL_LINKAGE NewStructures : public CPackForClient
 	{
 		h & tid;
 		h & bid;
-		h & builded;
+		h & built;
 	}
 };
 

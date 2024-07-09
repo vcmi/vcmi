@@ -39,8 +39,8 @@ public:
 	ui8 players; // affected players, bit field?
 	bool humanAffected;
 	bool computerAffected;
-	ui32 firstOccurence;
-	ui32 nextOccurence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
+	ui32 firstOccurrence;
+	ui32 nextOccurrence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
 
 	template <typename Handler>
 	void serialize(Handler & h)
@@ -51,8 +51,8 @@ public:
 		h & players;
 		h & humanAffected;
 		h & computerAffected;
-		h & firstOccurence;
-		h & nextOccurence;
+		h & firstOccurrence;
+		h & nextOccurrence;
 	}
 	
 	virtual void serializeJson(JsonSerializeFormat & handler);
@@ -97,10 +97,10 @@ struct DLL_LINKAGE TerrainTile
 	bool hasFavorableWinds() const;
 
 	const TerrainType * terType;
-	ui8 terView;
 	const RiverType * riverType;
-	ui8 riverDir;
 	const RoadType * roadType;
+	ui8 terView;
+	ui8 riverDir;
 	ui8 roadDir;
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect

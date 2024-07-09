@@ -545,11 +545,11 @@ void CGameStateCampaign::initHeroes()
 		}
 		else //specific hero
 		{
-			for (auto & heroe : heroes)
+			for (auto & hero : heroes)
 			{
-				if (heroe->getHeroType().getNum() == chosenBonus->info1)
+				if (hero->getHeroType().getNum() == chosenBonus->info1)
 				{
-					giveCampaignBonusToHero(heroe);
+					giveCampaignBonusToHero(hero);
 					break;
 				}
 			}

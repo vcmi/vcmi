@@ -54,7 +54,7 @@ class DLL_LINKAGE TavernHeroesPool : public Serializeable
 public:
 	~TavernHeroesPool();
 
-	/// Returns heroes currently availabe in tavern of a specific player
+	/// Returns heroes currently available in tavern of a specific player
 	std::vector<const CGHeroInstance *> getHeroesFor(PlayerColor color) const;
 
 	/// returns heroes in pool without heroes that are available in taverns

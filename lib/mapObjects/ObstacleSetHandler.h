@@ -29,7 +29,7 @@ public:
 		INVALID = -1,
 		MOUNTAINS = 0,
 		TREES,
-		LAKES, // Inluding dry or lava lakes
+		LAKES, // Including dry or lava lakes
 		CRATERS, // Chasms, Canyons, etc.
 		ROCKS,
 		PLANTS, // Flowers, cacti, mushrooms, logs, shrubs, etc.

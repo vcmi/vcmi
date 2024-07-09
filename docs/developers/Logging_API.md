@@ -158,4 +158,4 @@ global, level=debug
 ai, level=not set, effective level=debug  
 ai.battle, level=trace, effective level=trace
 
-The same technique is applied to the console colors. If you want to have another debug color for the domain ai, you can explicitely set a color for that domain and level.
+The same technique is applied to the console colors. If you want to have another debug color for the domain ai, you can explicitly set a color for that domain and level.

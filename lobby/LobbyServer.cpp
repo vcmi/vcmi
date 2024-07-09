@@ -595,7 +595,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie);
 
 	if(clientCookieStatus == LobbyCookieStatus::INVALID)
-		return sendOperationFailed(connection, "Authentification failure");
+		return sendOperationFailed(connection, "Authentication failure");
 
 	database->updateAccountLoginTime(accountID);
 	database->setAccountOnline(accountID, true);
@@ -611,7 +611,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 		sendRecentChatHistory(connection, "global", language);
 
 	// send active game rooms list to new account
-	// and update acount list to everybody else including new account
+	// and update account list to everybody else including new account
 	broadcastActiveAccounts();
 	sendMessage(connection, prepareActiveGameRooms());
 	sendMatchesHistory(connection);

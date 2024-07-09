@@ -74,7 +74,7 @@ public:
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;
 
-	void setSpecialPallete(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
+	void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
 
 	friend class SDLImageLoader;
 
