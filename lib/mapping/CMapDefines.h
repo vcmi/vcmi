@@ -97,10 +97,10 @@ struct DLL_LINKAGE TerrainTile
 	bool hasFavorableWinds() const;
 
 	const TerrainType * terType;
-	ui8 terView;
 	const RiverType * riverType;
-	ui8 riverDir;
 	const RoadType * roadType;
+	ui8 terView;
+	ui8 riverDir;
 	ui8 roadDir;
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect
