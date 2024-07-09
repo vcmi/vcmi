@@ -79,13 +79,13 @@ public:
 		DamageEstimation dmg = cb->getBattle(battleID)->battleEstimateDamage(ourStack, s, 0, &retal);
 		// Clip damage dealt to total stack health
 		auto totalHealth = s->getTotalHealth();
-		dmg.damage.min = std::min<int64_t>(totalHealth, dmg.damage.min);
-		dmg.damage.max = std::min<int64_t>(totalHealth, dmg.damage.max);
+		vstd::amin(dmg.damage.min, totalHealth);
+		vstd::amin(dmg.damage.max, totalHealth);
 
 		auto ourHealth = s->getTotalHealth();
-		retal.damage.min = std::min<int64_t>(ourHealth, retal.damage.min);
-		retal.damage.max = std::min<int64_t>(ourHealth, retal.damage.max);
-		
+		vstd::amin(retal.damage.min, ourHealth);
+		vstd::amin(retal.damage.max, ourHealth);
+
 		adi = static_cast<int>((dmg.damage.min + dmg.damage.max) / 2);
 		adr = static_cast<int>((retal.damage.min + retal.damage.max) / 2);
 	}
