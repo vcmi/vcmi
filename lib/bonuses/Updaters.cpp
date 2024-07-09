@@ -196,7 +196,7 @@ std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bo
 		owner = PlayerColor::NEUTRAL;
 
 	std::shared_ptr<Bonus> updated =
-		std::make_shared<Bonus>(b->duration, b->type, b->source, b->val, b->sid, b->subtype, b->valType);
+		std::make_shared<Bonus>(*b);
 	updated->limiter = std::make_shared<OppositeSideLimiter>(owner);
 	return updated;
 }
