@@ -327,7 +327,7 @@ void FirstLaunchView::extractGogData()
 		QFile tmpFile(file);
 		if(!tmpFile.open(QIODevice::ReadOnly))
 		{
-			QMessageBox::critical(this, tr("File cannot opened"), titleErr);
+			QMessageBox::critical(this, tr("File cannot opened"), tmpFile.errorString());
 			return QString{};
 		}
 		QByteArray magicFile = tmpFile.read(magic.length());
