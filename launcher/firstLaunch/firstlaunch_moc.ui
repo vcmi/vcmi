@@ -149,17 +149,10 @@
        </item>
        <item row="3" column="1" colspan="2">
         <layout class="QGridLayout" name="gridLayout_5">
-         <item row="3" column="0">
+         <item row="2" column="0">
           <widget class="QPushButton" name="pushButtonGithub">
            <property name="text">
             <string>VCMI on Github</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="pushButtonSlack">
-           <property name="text">
-            <string>VCMI on Slack</string>
            </property>
           </widget>
          </item>

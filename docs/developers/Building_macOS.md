@@ -116,4 +116,4 @@ Anyone who might want to debug builds, but new to macOS could find following com
 
 ## Troubleshooting
 
-In case of troubles you can always consult our CI build scripts or contact the dev team via slack.
+In case of troubles you can always consult our CI build scripts or contact the dev team via discord.

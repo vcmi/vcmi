@@ -111,11 +111,6 @@ void AboutProjectView::on_pushButtonDiscord_clicked()
 	QDesktopServices::openUrl(QUrl("https://discord.gg/chBT42V"));
 }
 
-void AboutProjectView::on_pushButtonSlack_clicked()
-{
-	QDesktopServices::openUrl(QUrl("https://slack.vcmi.eu/"));
-}
-
 void AboutProjectView::on_pushButtonGithub_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://github.com/vcmi/vcmi"));

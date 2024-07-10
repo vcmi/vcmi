@@ -51,8 +51,6 @@ notifications:
     - noreply@vcmi.eu
     on_success: change
     on_failure: always
-  slack:
-    secure: KHXFe14FFKtw5mErWbj730+utqy7i/3AUobWfAMAGvWI5sJYlhbBU+KvvCoD2SlRQg3mQqgwVw8NBJF1Mffs7WcRmrFFFmuMqZxFLAfKBd3T0CxWpAGfnfNgDmlfV4OfEgQWk1pakEPOymhxbbmLUuCjykZDuTcioxAk0UAHDwY=
 
 before_install:
 - test $TRAVIS_BRANCH != coverity_scan -o ${TRAVIS_JOB_NUMBER##*.} = 1 || exit 0
