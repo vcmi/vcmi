@@ -58,6 +58,9 @@ We want to notify players about updates on as many social services as possible.
 
 ### Communication channels
 
+- Slack team: <https://h3vcmi.slack.com/>
+  - Owner: vmarkovtsev
+  - Administrator access: SXX, Warmonger, AVS...
 - Trello team: <https://trello.com/vcmi/>
   - Administrator access: SXX
 - Discord:
@@ -105,6 +108,7 @@ Currently we using two droplets:
  - [Forum](https://forum.vcmi.eu/)
  - [Bug tracker](https://bugs.vcmi.eu/)
  - [Wiki](https://wiki.vcmi.eu/)
+ - [Slack invite page](https://slack.vcmi.eu/)
 - Second serve downloads:
  - [Legacy download page](http://download.vcmi.eu/)
  - [Build download page](https://builds.vcmi.download/)
