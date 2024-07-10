@@ -461,7 +461,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="701"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантажується %1. %p% (%v MB з %m MB) завершено</translation>
     </message>
     <message>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
@@ -733,12 +733,12 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
         <source>Show Tutorial again</source>
-        <translation type="unfinished"></translation>
+        <translation>Повторно показати навчання</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1159"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Скинути</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="860"/>
@@ -1268,7 +1268,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдається відкрити файл</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
@@ -1317,23 +1317,24 @@ Please select directory with installed Heroes III data.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ви надали інсталятор GOG Galaxy! Цей файл не містить гри. Будь ласка, завантажте резервну копію інсталятора гри!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка потоку під час розпакування файлів!
+причина помилки: </translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Не підтримуваний інсталятор Inno Setup!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
         <source>Extracting error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка видобування!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
