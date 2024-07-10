@@ -461,7 +461,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="701"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Downloade %1. %p% (%v MB von %m MB) abgeschlossen</translation>
     </message>
     <message>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
@@ -733,12 +733,12 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
         <source>Show Tutorial again</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Tutorial erneut</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1159"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="860"/>
@@ -1268,7 +1268,7 @@ Der Offline-Installer besteht aus zwei Teilen, .exe und .bin. Stellen Sie sicher
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei kann nicht geöffnet werden</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
@@ -1317,23 +1317,24 @@ Bitte wählen Sie ein Verzeichnis mit installierten Heroes III-Daten.</translati
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde der GOG Galaxy-Installer ausgewählt! Das Spiel ist in dieser Datei nicht enthalten. Lade den Offline-Backup-Installer für das Spiel herunter!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished"></translation>
+        <translation>Stream-Fehler beim Extrahieren von Dateien!
+Fehlerursache: </translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein unterstütztes Inno Setup Installationsprogramm!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
         <source>Extracting error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Extrahieren!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
