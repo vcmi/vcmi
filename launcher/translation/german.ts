@@ -24,11 +24,6 @@
         <translation>Unsere Gemeinschaft</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="61"/>
-        <source>VCMI on Slack</source>
-        <translation>VCMI auf Slack</translation>
-    </message>
-    <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="227"/>
         <source>Build Information</source>
         <translation>Build-Informationen</translation>
@@ -1168,11 +1163,6 @@ Der Offline-Installer besteht aus zwei Teilen, .exe und .bin. Stellen Sie sicher
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="155"/>
         <source>VCMI on Github</source>
         <translation>VCMI auf Github</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
-        <source>VCMI on Slack</source>
-        <translation>VCMI auf Slack</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="169"/>

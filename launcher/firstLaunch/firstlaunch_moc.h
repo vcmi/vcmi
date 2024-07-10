@@ -87,8 +87,6 @@ private slots:
 
 	void on_pushButtonDiscord_clicked();
 
-	void on_pushButtonSlack_clicked();
-
 	void on_pushButtonGithub_clicked();
 
 private:

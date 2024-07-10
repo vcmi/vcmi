@@ -654,11 +654,6 @@ void FirstLaunchView::on_pushButtonDiscord_clicked()
 	QDesktopServices::openUrl(QUrl("https://discord.gg/chBT42V"));
 }
 
-void FirstLaunchView::on_pushButtonSlack_clicked()
-{
-	QDesktopServices::openUrl(QUrl("https://slack.vcmi.eu/"));
-}
-
 void FirstLaunchView::on_pushButtonGithub_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://github.com/vcmi/vcmi"));
