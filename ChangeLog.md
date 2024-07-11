@@ -24,8 +24,9 @@
 
 ### AI
 * Improved performance of Nullkiller AI
-* AI no longer overestimates damage when killing entire unit
-* Fixed an unsigned integer overflow that caused the AI to overestimate the total army strength after merging two armies.
+* Stupid AI no longer overestimates damage when killing entire unit
+* Fixed a bug leading to Battle AI not using spells when sieging town with Citadel or Castle built
+* Fixed an unsigned integer overflow that caused the Nullkiller AI to overestimate the total army strength after merging two armies.
 
 ### Launcher
 * Added button to reset touchscreen tutorial on mobile systems

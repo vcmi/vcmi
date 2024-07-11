@@ -15,6 +15,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 
+#include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 #include "../PlayerLocalState.h"
@@ -638,7 +639,13 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	assert(CGI->townh->size() > faction);
 
 	if (cre->animDefName.empty())
-		throw std::runtime_error("Creature " + cre->getJsonKey() + " has no valid combat animation!");
+	{
+		GH.dispatchMainThread([cre]()
+		{
+			handleFatalError("Creature " + cre->getJsonKey() + " has no valid combat animation!", false);
+		});
+		return;
+	}
 
 	if(Big)
 		bg = std::make_shared<CPicture>((*CGI->townh)[faction]->creatureBg130);
