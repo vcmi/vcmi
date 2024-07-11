@@ -238,9 +238,9 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 	si->difficulty = lastDifficulty.Integer();
 
 	logNetwork->trace("\tStarting local server");
-	serverRunner->start(getLocalPort(), connectToLobby, si);
+	uint16_t srvport = serverRunner->start(getLocalPort(), connectToLobby, si);
 	logNetwork->trace("\tConnecting to local server");
-	connectToServer(getLocalHostname(), getLocalPort());
+	connectToServer(getLocalHostname(), srvport);
 	logNetwork->trace("\tWaiting for connection");
 }
 
