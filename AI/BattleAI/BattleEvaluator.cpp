@@ -623,6 +623,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 				for(const auto & unit : allUnits)
 				{
+					if (!unit->isValidTarget())
+						continue;
+					
 					auto newHealth = unit->getAvailableHealth();
 					auto oldHealth = vstd::find_or(healthOfStack, unit->unitId(), 0); // old health value may not exist for newly summoned units
 

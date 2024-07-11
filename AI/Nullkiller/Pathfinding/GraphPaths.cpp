@@ -118,7 +118,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 					targetNode.specialAction = compositeAction;
 
-					auto targetGraphNode = graph.getNode(target);
+					const auto & targetGraphNode = graph.getNode(target);
 
 					if(targetGraphNode.objID.hasValue())
 					{

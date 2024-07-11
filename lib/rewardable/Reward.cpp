@@ -103,7 +103,13 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	}
 
 	for(const auto & entry : secondary)
-		comps.emplace_back(ComponentType::SEC_SKILL, entry.first, entry.second);
+	{
+		auto skillID = entry.first;
+		int levelsGained = entry.second;
+		int currentLevel = h ? h->getSecSkillLevel(skillID) : 0;
+		int finalLevel = std::min(static_cast<int>(MasteryLevel::EXPERT), currentLevel + levelsGained);
+		comps.emplace_back(ComponentType::SEC_SKILL, entry.first, finalLevel);
+	}
 
 	for(const auto & entry : artifacts)
 		comps.emplace_back(ComponentType::ARTIFACT, entry);

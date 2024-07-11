@@ -31,6 +31,7 @@ public:
 	void addQuestArtifact(const ArtifactID& id);
 	void removeQuestArtifact(const ArtifactID& id);
 	void rememberPotentialArtifactToReplace(CGObjectInstance* obj);
+	CGObjectInstance * drawObjectToReplace();
 	std::vector<CGObjectInstance*> getPossibleArtifactsToReplace() const;
 	void placeQuestArtifacts(CRandomGenerator & rand);
 	void dropReplacedArtifact(CGObjectInstance* obj);

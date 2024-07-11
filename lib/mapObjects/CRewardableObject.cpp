@@ -348,7 +348,12 @@ std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor pla
 
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
 	if (rewardIndices.empty() && !configuration.info.empty())
-		rewardIndices.push_back(0);
+	{
+		// Object has valid config, but current hero has no rewards that he can receive.
+		// Usually this happens if hero has already visited this object -> show reward using context without any hero
+		// since reward may be context-sensitive - e.g. Witch Hut that gives 1 skill, but always at basic level
+		return loadComponents(nullptr, {0});
+	}
 
 	if (rewardIndices.empty())
 		return {};

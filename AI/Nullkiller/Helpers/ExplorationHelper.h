@@ -46,7 +46,6 @@ public:
 private:
 	void scanTile(const int3 & tile);
 	bool hasReachableNeighbor(const int3 & pos) const;
-	void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out) const;
 };
 
 }

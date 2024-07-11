@@ -320,11 +320,9 @@ void AINodeStorage::calculateNeighbours(
 	const PathfinderConfig * pathfinderConfig,
 	const CPathfinderHelper * pathfinderHelper)
 {
-	std::vector<int3> accessibleNeighbourTiles;
+	NeighbourTilesVector accessibleNeighbourTiles;
 
 	result.clear();
-	accessibleNeighbourTiles.reserve(8);
-
 	pathfinderHelper->calculateNeighbourTiles(accessibleNeighbourTiles, source);
 
 	const AIPathNode * srcNode = getAINode(source.node);

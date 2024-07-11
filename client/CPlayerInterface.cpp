@@ -1213,13 +1213,14 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 
 void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 {
+	LOG_TRACE(logGlobal);
+	if (!LOCPLINT->makingTurn)
+		return;
+
 	assert(h);
 	assert(!showingDialog->isBusy());
 	assert(dialogs.empty());
 
-	LOG_TRACE(logGlobal);
-	if (!LOCPLINT->makingTurn)
-		return;
 	if (!h)
 		return; //can't find hero
 
