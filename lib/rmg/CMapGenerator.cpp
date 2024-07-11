@@ -7,7 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "CRandomGenerator.h"
 #include "StdInc.h"
 #include "CMapGenerator.h"
 
@@ -23,6 +22,7 @@
 #include "../CHeroHandler.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
+#include "CRandomGenerator.h"
 #include "CZonePlacer.h"
 #include "TileInfo.h"
 #include "Zone.h"

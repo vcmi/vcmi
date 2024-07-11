@@ -8,7 +8,6 @@
  *
  */
 
-#include "CRandomGenerator.h"
 #include "StdInc.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CRmgTemplateStorage.h"
@@ -20,6 +19,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
+#include "../lib/CRandomGenerator.h"
 
 #include "jsonutils.h"
 #include "windownewmap.h"

@@ -7,7 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "CRandomGenerator.h"
 #include "StdInc.h"
 #include "CGameState.h"
 
@@ -16,6 +15,7 @@
 #include "TavernHeroesPool.h"
 #include "CGameStateCampaign.h"
 #include "SThievesGuildInfo.h"
+#include "CRandomGenerator.h"
 
 #include "../ArtifactUtils.h"
 #include "../CBuildingHandler.h"

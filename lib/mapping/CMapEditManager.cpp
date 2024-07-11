@@ -7,7 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "CRandomGenerator.h"
 #include "StdInc.h"
 #include "CMapEditManager.h"
 
@@ -15,6 +14,7 @@
 #include "../VCMI_Lib.h"
 #include "CDrawRoadsOperation.h"
 #include "CMapOperation.h"
+#include "CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
