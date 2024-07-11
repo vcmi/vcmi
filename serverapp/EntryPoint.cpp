@@ -7,8 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "CConfigHandler.h"
-#include "StartInfo.h"
 #include "StdInc.h"
 
 #include "../server/CVCMIServer.h"
@@ -17,6 +15,8 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/CConfigHandler.h"
+#include "../lib/StartInfo.h"
 
 #include <boost/program_options.hpp>
 
