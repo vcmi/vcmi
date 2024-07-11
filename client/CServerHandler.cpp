@@ -237,6 +237,8 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 	auto lastDifficulty = settings["general"]["lastDifficulty"];
 	si->difficulty = lastDifficulty.Integer();
 
+	si->seedToBeUsed = settings["server"]["seed"].Integer();
+
 	logNetwork->trace("\tStarting local server");
 	serverRunner->start(getLocalPort(), connectToLobby, si);
 	logNetwork->trace("\tConnecting to local server");

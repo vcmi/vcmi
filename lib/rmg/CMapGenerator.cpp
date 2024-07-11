@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "CRandomGenerator.h"
 #include "StdInc.h"
 #include "CMapGenerator.h"
 
@@ -35,11 +36,10 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed) :
-	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
+	mapGenOptions(mapGenOptions), randomSeed(RandomSeed), rand(CRandomGenerator(RandomSeed)),
 	monolithIndex(0)
 {
 	loadConfig();
-	rand.setSeed(this->randomSeed);
 	mapGenOptions.finalize(rand);
 	map = std::make_unique<RmgMap>(mapGenOptions, cb);
 	placer = std::make_shared<CZonePlacer>(*map);

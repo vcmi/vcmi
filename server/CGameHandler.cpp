@@ -552,9 +552,6 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
 
-	// reset seed, so that clients can't predict any following random values
-	getRandomGenerator().resetSeed();
-
 	for (auto & elem : gs->players)
 		turnOrder->addPlayer(elem.first);
 

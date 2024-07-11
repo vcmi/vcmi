@@ -690,7 +690,7 @@ bool CMapGenOptions::checkOptions() const
 	}
 	else
 	{
-		CRandomGenerator gen;
+		CRandomGenerator & gen = CRandomGenerator::getDefault();
 		return getPossibleTemplate(gen) != nullptr;
 	}
 }

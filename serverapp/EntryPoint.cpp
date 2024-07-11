@@ -7,6 +7,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "CConfigHandler.h"
+#include "StartInfo.h"
 #include "StdInc.h"
 
 #include "../server/CVCMIServer.h"
@@ -91,7 +93,8 @@ int main(int argc, const char * argv[])
 			port = opts["port"].as<uint16_t>();
 
 		CVCMIServer server(port, connectToLobby, runByClient);
-
+		server.si = std::make_shared<StartInfo>();
+		server.si->seedToBeUsed = settings["server"]["seed"].Integer();
 		server.run();
 
 		// CVCMIServer destructor must be called here - before VLC cleanup

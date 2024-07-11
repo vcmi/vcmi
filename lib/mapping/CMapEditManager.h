@@ -94,7 +94,7 @@ private:
 
 	CMap * map;
 	CMapUndoManager undoManager;
-	CRandomGenerator gen;
+	CRandomGenerator & gen;
 	CTerrainSelection terrainSel;
 	CObjectSelection objectSel;
 };

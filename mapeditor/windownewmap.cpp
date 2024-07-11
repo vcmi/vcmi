@@ -8,6 +8,7 @@
  *
  */
 
+#include "CRandomGenerator.h"
 #include "StdInc.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CRmgTemplateStorage.h"
@@ -247,7 +248,7 @@ void WindowNewMap::on_okButton_clicked()
 			return;
 		}
 		
-		int seed = std::time(nullptr);
+		int seed = CRandomGenerator::getDefault().nextInt();
 		if(ui->checkSeed->isChecked() && !ui->lineSeed->text().isEmpty())
 			seed = ui->lineSeed->text().toInt();
 			

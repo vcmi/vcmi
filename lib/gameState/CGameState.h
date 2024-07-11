@@ -234,7 +234,7 @@ private:
 
 	// ---- data -----
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
-	CRandomGenerator rand;
+	CRandomGenerator & rand;
 	Services * services;
 
 	/// Pointer to campaign state manager. Nullptr for single scenarios

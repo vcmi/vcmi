@@ -245,7 +245,7 @@ void CVCMIServer::prepareToRestart()
 	}
 
 	* si = * gh->gs->initialOpts;
-	si->seedToBeUsed = si->seedPostInit = 0;
+	si->seedPostInit = 0;
 	setState(EServerState::LOBBY);
 	if (si->campState)
 	{

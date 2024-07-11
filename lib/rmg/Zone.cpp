@@ -30,8 +30,8 @@ Zone::Zone(RmgMap & map, CMapGenerator & generator, CRandomGenerator & r)
 	, terrainType(ETerrainId::GRASS)
 	, map(map)
 	, generator(generator)
+	, rand(CRandomGenerator(r.nextInt()))
 {
-	rand.setSeed(r.nextInt());
 }
 
 bool Zone::isUnderground() const

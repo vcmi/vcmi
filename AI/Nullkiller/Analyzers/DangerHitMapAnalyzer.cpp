@@ -165,7 +165,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
 			auto townHero = temporaryHeroes.emplace_back(std::make_unique<CGHeroInstance>(town->cb)).get();
-			CRandomGenerator rng;
+			CRandomGenerator & rng = CRandomGenerator::getDefault();
 			auto visitablePos = town->visitablePos();
 			
 			townHero->setOwner(ai->playerID); // lets avoid having multiple colors

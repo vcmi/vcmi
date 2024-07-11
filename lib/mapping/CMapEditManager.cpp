@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "CRandomGenerator.h"
 #include "StdInc.h"
 #include "CMapEditManager.h"
 
@@ -110,7 +111,7 @@ void CMapUndoManager::setUndoCallback(std::function<void(bool, bool)> functor)
 }
 
 CMapEditManager::CMapEditManager(CMap * map)
-	: map(map), terrainSel(map), objectSel(map)
+	: map(map), terrainSel(map), objectSel(map), gen(CRandomGenerator::getDefault())
 {
 
 }
