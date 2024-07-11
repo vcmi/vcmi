@@ -1,3 +1,50 @@
+# 1.5.3 -> 1.5.4
+
+### Stability
+* Fixed a possible crash when clicking on an adventure map when another player is taking a turn in multiplayer mode.
+* Failure to extract a mod will now display an error message instead of a silent crash.
+* Fixed crash on opening town hall screen of a town from a mod with invalid building identifier
+* Fixed crash when faerie dragons die after casting Ice Ring on themselves.
+
+### Mechanics
+* The scholar will now correctly upgrade a skill if the visiting hero has offered a skill at either the basic or advanced level.
+* Hero now reveals Fog of War when receiving new or upgraded secondary skills (such as scouting).
+* AI will now always act after all human players during simturns instead of acting after host player
+
+### Interface
+* Pressing the up and down keys on the town screen will now move to the next or previous town instead of scrolling through the list of towns.
+* Long text in scenario name and highscore screen now shortened to fit the interface
+* Game now moves cursor to tap event position when using software cursor with touch screen input
+* Right-click popup on spell scroll campaign bonus now shows spell name instead of artefact name
+* Damage estimation tooltip will no longer show damage greater than the targeted unit's health.
+
+### Random Maps Generator
+* Generator will try to place roads even further away from zone borders
+* Fixed rare crash when placing two quest artefacts in the same location at the same time
+
+### AI
+* Improved performance of Nullkiller AI
+* Stupid AI no longer overestimates damage when killing entire unit
+* Fixed a bug leading to Battle AI not using spells when sieging town with Citadel or Castle built
+* Fixed an unsigned integer overflow that caused the Nullkiller AI to overestimate the total army strength after merging two armies.
+
+### Launcher
+* Added button to reset touchscreen tutorial on mobile systems
+* Launcher will now warn if player selects Gog Galaxy installer instead of offline installer
+* Launcher will now ask for the .bin file first as it is usually listed first in the file system view
+* Extraction failure now displays error message instead of crashing
+* Launcher will now use the header signature to check the file type instead of the extension when using the gog.com installer.
+* Fixed broken controller sensitivity configuration options
+* Fixed manual file installation on Android
+
+### Map Editor
+* Icons and translations now embedded in executable file
+
+### Modding
+* Improved bonus format validation
+* Validator now reports valid values for enumeration fields
+* Fixed missing addInfo field for bonuses that use the BONUS_OWNER_UPDATER propagation updater.
+
 # 1.5.2 -> 1.5.3
 
 ### Stability
@@ -46,6 +93,7 @@
 * Added the configuration files directory to the Help tab as it is located separately on Linux systems
 * Removed H3 data language selection during setup in favor of auto-detection
 * Replaced checkboxes with toggle buttons for easier of access on touchscreens.
+* Icons and translations now embedded in executable file
 * Added interface for configuring several previously existing but inaccessible options in Launcher:
     * Selection of input tolerance precision for all input types
     * Relative cursor mode for mobile systems (was only available on Android)

@@ -2416,7 +2416,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 
 void BattleSetStackProperty::applyGs(CGameState * gs) const
 {
-	CStack * stack = gs->getBattle(battleID)->getStack(stackID);
+	CStack * stack = gs->getBattle(battleID)->getStack(stackID, false);
 	switch(which)
 	{
 		case CASTS:

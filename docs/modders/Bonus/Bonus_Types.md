@@ -252,7 +252,7 @@ Gives creature under effect of this spell additional bonus, which is hardcoded a
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 
-Increased effect of spell affecting creature, ie. Aenain makes Disrupting Ray decrease target's defense by additional 2 points:
+Modifies 'val' parameter of spell effects that give bonuses by specified value. For example, Aenain makes Disrupting Ray decrease target's defense by additional 2 points:
 
 ```jsonc
 "disruptingRay" : {
@@ -263,11 +263,11 @@ Increased effect of spell affecting creature, ie. Aenain makes Disrupting Ray de
 ```
 
 - subtype: affected spell identifier
-- additionalInfo: value to add
+- addInfo: value to modify 'val' parameter of targeted spell effects by
 
 ### SPECIAL_FIXED_VALUE_ENCHANT
 
-Spell affecting creature has fixed effect, eg. hero Melody has constant spell effect of +3:
+Changes 'val' parameter of spell effects that give bonuses to a specified value. For example, Fortune cast by Melody always modifies luck by +3:
 
 ```jsonc
 "fortune" : {
@@ -278,7 +278,7 @@ Spell affecting creature has fixed effect, eg. hero Melody has constant spell ef
 ```
 
 - subtype: affected spell identifier
-- additionalInfo = fixed value
+- addInfo: value to set 'val' parameter of targeted spell effects to
 
 ### SPECIAL_UPGRADE
 
