@@ -23,28 +23,29 @@
 ServerThreadRunner::ServerThreadRunner() = default;
 ServerThreadRunner::~ServerThreadRunner() = default;
 
-uint16_t ServerThreadRunner::start(uint16_t port, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
+uint16_t ServerThreadRunner::start(uint16_t cfgport, bool connectToLobby, std::shared_ptr<StartInfo> startingInfo)
 {
-	server = std::make_unique<CVCMIServer>(port, true);
+	// cfgport may be 0 -- the real port is returned after calling prepare()
+	server = std::make_unique<CVCMIServer>(cfgport, true);
 
 	if (startingInfo)
 	{
 		server->si = startingInfo; //Else use default
 	}
 
-	uint16_t srvport = port;
+	std::promise<uint16_t> promise;
 
-	threadRunLocalServer = boost::thread([this, connectToLobby, &srvport]{
+	threadRunLocalServer = boost::thread([this, connectToLobby, &promise]{
 		setThreadName("runServer");
-		srvport = server->prepare(connectToLobby);
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+		uint16_t port = server->prepare(connectToLobby);
+		promise.set_value(port);
 		server->run();
 	});
 
-	while(srvport == 0) {
-		logNetwork->trace("Waiting for server port...");
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-		logNetwork->debug("Server port: %d", srvport);
-	}
+	logNetwork->trace("Waiting for server port...");
+	auto srvport = promise.get_future().get();
+	logNetwork->debug("Server port: %d", srvport);
 
 	return srvport;
 }

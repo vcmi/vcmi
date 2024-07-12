@@ -21,7 +21,7 @@ NetworkServer::NetworkServer(INetworkServerListener & listener, const std::share
 
 uint16_t NetworkServer::start(uint16_t port)
 {
-	acceptor = std::make_shared<NetworkAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), port));
+	acceptor = std::make_shared<NetworkAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 	return startAsyncAccept();
 }
 
