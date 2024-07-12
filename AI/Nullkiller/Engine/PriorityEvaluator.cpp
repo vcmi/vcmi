@@ -37,7 +37,7 @@ namespace NKAI
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 const float MIN_CRITICAL_VALUE = 2.0f;
 
-EvaluationContext::EvaluationContext(const Nullkiller * ai)
+EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	: movementCost(0.0),
 	manaCost(0),
 	danger(0),
@@ -55,7 +55,8 @@ EvaluationContext::EvaluationContext(const Nullkiller * ai)
 	evaluator(ai),
 	enemyHeroDangerRatio(0),
 	armyGrowth(0),
-	armyInvolvement(0)
+	armyInvolvement(0),
+	isDefend(false)
 {
 }
 
@@ -874,6 +875,8 @@ public:
 		else
 			evaluationContext.addNonCriticalStrategicalValue(1.7f * multiplier * strategicalValue);
 
+		evaluationContext.isDefend = true;
+
 		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
 		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
 	}
@@ -1204,11 +1207,13 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		if (priorityTier == 0)
 		{
 			score += evaluationContext.conquestValue * 1000;
-			if (score == 0)
-				return score;
+			if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.movementCost > 1))
+				return 0;
 		}
 		else
 		{
+			if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend && evaluationContext.movementCost <= 1)
+				return 0;
 			score += evaluationContext.strategicalValue * 1000;
 			score += evaluationContext.goldReward;
 			score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;

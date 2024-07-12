@@ -71,6 +71,7 @@ struct DLL_EXPORT EvaluationContext
 	RewardEvaluator evaluator;
 	float enemyHeroDangerRatio;
 	float armyInvolvement;
+	bool isDefend;
 
 	EvaluationContext(const Nullkiller * ai);
 
