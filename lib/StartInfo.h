@@ -152,7 +152,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & playerInfos;
 		if (h.version < Handler::Version::REMOVE_LIB_RNG)
 		{
-			uint32_t oldSeeds;
+			uint32_t oldSeeds = 0;
 			h & oldSeeds;
 			h & oldSeeds;
 			h & oldSeeds;
