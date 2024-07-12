@@ -28,9 +28,6 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 
-	if(ai->cb->getDate(Date::DAY) == 1)
-		return tasks;
-		
 	auto heroes = cb->getHeroesInfo();
 
 	if(heroes.empty())
@@ -40,17 +37,28 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 
 	for(auto town : cb->getTownsInfo())
 	{
+		//If we can recruit a hero that comes with more army than he costs, we are better off spending our gold on them
+		if (ai->heroManager->canRecruitHero(town))
+		{
+			auto availableHeroes = ai->cb->getAvailableHeroes(town);
+			for (auto hero : availableHeroes)
+			{
+				if (hero->getArmyCost() > GameConstants::HERO_GOLD_COST)
+					return tasks;
+			}
+		}
+
+		if (ai->buildAnalyzer->isGoldPressureHigh() && !town->hasBuilt(BuildingID::CITY_HALL))
+		{
+			return tasks;
+		}
+		
 		auto townArmyAvailableToBuy = ai->armyManager->getArmyAvailableToBuyAsCCreatureSet(
 			town,
 			ai->getFreeResources());
 
 		for(const CGHeroInstance * targetHero : heroes)
 		{
-			if(ai->buildAnalyzer->isGoldPressureHigh()	&& !town->hasBuilt(BuildingID::CITY_HALL))
-			{
-				continue;
-			}
-
 			if(ai->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
 			{
 				auto reinforcement = ai->armyManager->howManyReinforcementsCanGet(
