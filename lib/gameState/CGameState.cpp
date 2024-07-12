@@ -44,6 +44,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"
 #include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
 #include "../registerTypes/RegisterTypesClientPacks.h"
@@ -413,7 +414,8 @@ void CGameState::initGlobalBonuses()
 void CGameState::initDifficulty()
 {
 	logGlobal->debug("\tLoading difficulty settings");
-	const JsonNode config = JsonUtils::assembleFromFiles("config/difficulty.json");
+	JsonNode config = JsonUtils::assembleFromFiles("config/difficulty.json");
+	config.setModScope(ModScope::scopeGame()); // FIXME: should be set to actual mod
 	
 	const JsonNode & difficultyAI(config["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
 	const JsonNode & difficultyHuman(config["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);

@@ -168,7 +168,7 @@ void PlayerLocalState::setSelection(const CArmedInstance * selection)
 
 	currentSelection = selection;
 
-	if (selection)
+	if (adventureInt && selection)
 		adventureInt->onSelectionChanged(selection);
 }
 
@@ -212,6 +212,9 @@ void PlayerLocalState::addWanderingHero(const CGHeroInstance * hero)
 	assert(hero);
 	assert(!vstd::contains(wanderingHeroes, hero));
 	wanderingHeroes.push_back(hero);
+
+	if (currentSelection == nullptr)
+		setSelection(hero);
 }
 
 void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
@@ -260,6 +263,9 @@ void PlayerLocalState::addOwnedTown(const CGTownInstance * town)
 	assert(town);
 	assert(!vstd::contains(ownedTowns, town));
 	ownedTowns.push_back(town);
+
+	if (currentSelection == nullptr)
+		setSelection(town);
 }
 
 void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)

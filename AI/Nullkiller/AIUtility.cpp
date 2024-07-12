@@ -67,7 +67,6 @@ HeroPtr::HeroPtr(const CGHeroInstance * H)
 	}
 
 	h = H;
-	name = h->getNameTranslated();
 	hid = H->id;
 //	infosCount[ai->playerID][hid]++;
 }
@@ -87,6 +86,14 @@ HeroPtr::~HeroPtr()
 bool HeroPtr::operator<(const HeroPtr & rhs) const
 {
 	return hid < rhs.hid;
+}
+
+std::string HeroPtr::name() const
+{
+	if (h)
+		return h->getNameTextID();
+	else
+		return "<NO HERO>";
 }
 
 const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const

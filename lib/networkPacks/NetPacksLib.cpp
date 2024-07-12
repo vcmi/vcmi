@@ -1231,7 +1231,7 @@ void RemoveObject::applyGs(CGameState *gs)
 
 	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[objectID.getNum()].dellNull();
-	gs->map->calculateGuardingGreaturePositions();
+	gs->map->calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
 }
 
 static int getDir(const int3 & src, const int3 & dst)
@@ -2416,7 +2416,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 
 void BattleSetStackProperty::applyGs(CGameState * gs) const
 {
-	CStack * stack = gs->getBattle(battleID)->getStack(stackID);
+	CStack * stack = gs->getBattle(battleID)->getStack(stackID, false);
 	switch(which)
 	{
 		case CASTS:

@@ -23,6 +23,8 @@ constexpr int NKAI_GRAPH_TRACE_LEVEL = 0;
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 
+#include <boost/container/small_vector.hpp>
+
 namespace NKAI
 {
 namespace AIPathfinding
@@ -85,7 +87,9 @@ struct AIPathNodeInfo
 
 struct AIPath
 {
-	std::vector<AIPathNodeInfo> nodes;
+	using NodesVector = boost::container::small_vector<AIPathNodeInfo, 16>;
+
+	NodesVector nodes;
 	uint64_t targetObjectDanger;
 	uint64_t armyLoss;
 	uint64_t targetObjectArmyLoss;

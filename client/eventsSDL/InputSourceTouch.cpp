@@ -58,6 +58,9 @@ InputSourceTouch::InputSourceTouch()
 
 void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfinger)
 {
+	if (CCS && CCS->curh && settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
+		CCS->curh->cursorMove(GH.getCursorPosition().x, GH.getCursorPosition().y);
+
 	switch(state)
 	{
 		case TouchState::RELATIVE_MODE:

@@ -24,11 +24,6 @@
         <translation>Наша спільнота</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="61"/>
-        <source>VCMI on Slack</source>
-        <translation>VCMI на Slack</translation>
-    </message>
-    <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="227"/>
         <source>Build Information</source>
         <translation>Відомості про збірку</translation>
@@ -242,7 +237,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="348"/>
         <source>Description</source>
         <translation>Опис</translation>
     </message>
@@ -302,179 +297,183 @@
         <translation>Відмінити</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="283"/>
         <source>Mod name</source>
         <translation>Назва модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
         <source>Installed version</source>
         <translation>Встановлена версія</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
         <source>Latest version</source>
         <translation>Найновіша версія</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="289"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="288"/>
         <source>Size</source>
         <translation>Розмір</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="290"/>
         <source>Download size</source>
         <translation>Розмір для завантаження</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
         <source>Authors</source>
         <translation>Автори</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="295"/>
         <source>License</source>
         <translation>Ліцензія</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="299"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="298"/>
         <source>Contact</source>
         <translation>Контакти</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="308"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="307"/>
         <source>Compatibility</source>
         <translation>Сумісність</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="309"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
         <source>Required VCMI version</source>
         <translation>Необхідна версія VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="316"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Supported VCMI version</source>
         <translation>Підтримувана версія VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="316"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>please upgrade mod</source>
         <translation>будь ласка, оновіть модифікацію</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="188"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="803"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="187"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="802"/>
         <source>mods repository index</source>
         <translation>каталог модифікацій</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
         <source>or newer</source>
         <translation>або новіше</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <source>Supported VCMI versions</source>
         <translation>Підтримувані версії VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="345"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
         <source>Languages</source>
         <translation>Мови</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="347"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Required mods</source>
         <translation>Необхідні модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="348"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="347"/>
         <source>Conflicting mods</source>
         <translation>Конфліктуючі модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>Цю модифікацію не можна встановити чи активувати, оскільки відсутні наступні залежності</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>Цю модифікацію не можна ввімкнути, оскільки наступні модифікації несумісні з цією модифікацією</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>Цю модифікацію не можна відключити, оскільки вона необхідна для запуску наступних модифікацій</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="356"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>Цю модифікацію не можна видалити або оновити, оскільки вона необхідна для запуску наступних модифікацій</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="357"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="356"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Це вкладена модифікація, і її не можна встановити або видалити окремо від батьківської модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="372"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Notes</source>
         <translation>Примітки</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="634"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="633"/>
         <source>All supported files</source>
         <translation>Усі підтримувані файли</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="634"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="633"/>
         <source>Maps</source>
         <translation>Мапи</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="634"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="633"/>
         <source>Campaigns</source>
         <translation>Кампанії</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="634"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="633"/>
         <source>Configs</source>
         <translation>Налаштування</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="634"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="633"/>
         <source>Mods</source>
         <translation>Модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="635"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="634"/>
         <source>Select files (configs, mods, maps, campaigns) to install...</source>
         <translation>Виберіть файли ( налаштування, моди, мапи, кампанії) для встановлення...</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="661"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="658"/>
         <source>Replace config file?</source>
         <translation>Замінити файл налаштувань?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="661"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="658"/>
         <source>Do you want to replace %1?</source>
         <translation>Ви дійсно хочете замінити %1?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="700"/>
-        <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation>Завантажуємо %s%. %p% (%v МБ з %m Мб) виконано</translation>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="701"/>
+        <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
+        <translation>Завантажується %1. %p% (%v MB з %m MB) завершено</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="727"/>
+        <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
+        <translation type="vanished">Завантажуємо %s%. %p% (%v МБ з %m Мб) виконано</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="726"/>
         <source>Download failed</source>
         <translation>Помилка завантаження</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="728"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="727"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -487,7 +486,7 @@ Encountered errors:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="729"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="728"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -496,34 +495,34 @@ Install successfully downloaded?</source>
 Встановити успішно завантажені?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="875"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="874"/>
         <source>Installing mod %1</source>
         <translation>Встановлення модифікації %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="944"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="943"/>
         <source>Operation failed</source>
         <translation>Операція завершилася невдало</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="945"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="944"/>
         <source>Encountered errors:
 </source>
         <translation>Виникли помилки:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="974"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="973"/>
         <source>screenshots</source>
         <translation>знімки екрану</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="980"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
         <source>Screenshot %1</source>
         <translation>Знімок екрану %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="279"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="278"/>
         <source>Mod is incompatible</source>
         <translation>Модифікація несумісна</translation>
     </message>
@@ -531,94 +530,94 @@ Install successfully downloaded?</source>
 <context>
     <name>CModManager</name>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="162"/>
+        <location filename="../modManager/cmodmanager.cpp" line="168"/>
         <source>Can not install submod</source>
         <translation>Неможливо встановити вкладену модифікацію</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="165"/>
+        <location filename="../modManager/cmodmanager.cpp" line="171"/>
         <source>Mod is already installed</source>
         <translation>Модифікація вже встановлена</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="174"/>
+        <location filename="../modManager/cmodmanager.cpp" line="180"/>
         <source>Can not uninstall submod</source>
         <translation>Неможливо видалити вкладену модифікацію</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="177"/>
+        <location filename="../modManager/cmodmanager.cpp" line="183"/>
         <source>Mod is not installed</source>
         <translation>Модифікація не встановлена</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="187"/>
+        <location filename="../modManager/cmodmanager.cpp" line="193"/>
         <source>Mod is already enabled</source>
         <translation>Модифікація вже увімкнена</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="190"/>
-        <location filename="../modManager/cmodmanager.cpp" line="233"/>
+        <location filename="../modManager/cmodmanager.cpp" line="196"/>
+        <location filename="../modManager/cmodmanager.cpp" line="239"/>
         <source>Mod must be installed first</source>
         <translation>Спочатку потрібно встановити модифікацію</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="194"/>
+        <location filename="../modManager/cmodmanager.cpp" line="200"/>
         <source>Mod is not compatible, please update VCMI and checkout latest mod revisions</source>
         <translation>Модифікація несумісна, будь ласка, оновіть VCMI та перевірте останні версії модифікацій</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="199"/>
+        <location filename="../modManager/cmodmanager.cpp" line="205"/>
         <source>Required mod %1 is missing</source>
         <translation>Необхідна модифікація %1 відсутня</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="204"/>
+        <location filename="../modManager/cmodmanager.cpp" line="210"/>
         <source>Required mod %1 is not enabled</source>
         <translation>Необхідну модифікацію %1 не ввімкнено</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="213"/>
-        <location filename="../modManager/cmodmanager.cpp" line="220"/>
+        <location filename="../modManager/cmodmanager.cpp" line="219"/>
+        <location filename="../modManager/cmodmanager.cpp" line="226"/>
         <source>This mod conflicts with %1</source>
         <translation>Ця модифікація несумісна з %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="230"/>
+        <location filename="../modManager/cmodmanager.cpp" line="236"/>
         <source>Mod is already disabled</source>
         <translation>Модифікацію вже вимкнено</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="240"/>
+        <location filename="../modManager/cmodmanager.cpp" line="246"/>
         <source>This mod is needed to run %1</source>
         <translation>Ця модифікація необхідна для запуску %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="282"/>
+        <location filename="../modManager/cmodmanager.cpp" line="288"/>
         <source>Mod archive is missing</source>
         <translation>Архів з модифікацією відсутній</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="285"/>
+        <location filename="../modManager/cmodmanager.cpp" line="291"/>
         <source>Mod with such name is already installed</source>
         <translation>Модифікацію з такою назвою вже встановлено</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="290"/>
+        <location filename="../modManager/cmodmanager.cpp" line="296"/>
         <source>Mod archive is invalid or corrupted</source>
         <translation>Архів модифікації непридатний або пошкоджений</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="316"/>
+        <location filename="../modManager/cmodmanager.cpp" line="322"/>
         <source>Failed to extract mod data</source>
         <translation>Не вдалося видобути дані модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="344"/>
+        <location filename="../modManager/cmodmanager.cpp" line="350"/>
         <source>Data with this mod was not found</source>
         <translation>Дані з цією модифікацією не знайдено</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodmanager.cpp" line="348"/>
+        <location filename="../modManager/cmodmanager.cpp" line="354"/>
         <source>Mod is located in protected directory, please remove it manually:
 </source>
         <translation>Модифікація знаходиться в захищеному каталозі, будь ласка, видаліть її вручну:
@@ -633,7 +632,7 @@ Install successfully downloaded?</source>
         <translation>Ні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="452"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="309"/>
         <source>Artificial Intelligence</source>
         <translation>Штучний інтелект</translation>
     </message>
@@ -642,97 +641,107 @@ Install successfully downloaded?</source>
         <translation type="vanished">Репозиторії модифікацій</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="714"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1080"/>
         <source>Interface Scaling</source>
         <translation>Масштабування інтерфейсу</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="672"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="930"/>
         <source>Neutral AI in battles</source>
         <translation>Нейтральний ШІ в боях</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="170"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="742"/>
         <source>Enemy AI in battles</source>
         <translation>Ворожий ШІ в боях</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="599"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
         <source>Additional repository</source>
         <translation>Додатковий репозиторій</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="507"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="937"/>
         <source>Adventure Map Allies</source>
         <translation>Союзники на мапі пригод</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="59"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="492"/>
         <source>Online Lobby port</source>
         <translation>Порт онлайн лобі</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="66"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="333"/>
         <source>Autocombat AI in battles</source>
         <translation>ШІ автобою</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="73"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="354"/>
         <source>Sticks Sensitivity</source>
         <translation>Чутливість стиків</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="87"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="803"/>
         <source>Haptic Feedback</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="94"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="840"/>
         <source>Software Cursor</source>
         <translation>Програмний курсор</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="108"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="139"/>
         <source>Online Lobby address</source>
         <translation>Адреса онлайн-лобі</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="899"/>
         <source>Upscaling Filter</source>
         <translation>Фільтр масштабування</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="122"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="319"/>
         <source>Use Relative Pointer Mode</source>
         <translation>Режим відносного вказівника</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="612"/>
         <source>Nearest</source>
         <translation>Найближчий</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="617"/>
         <source>Linear</source>
         <translation>Лінійний</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="622"/>
         <source>Best (Linear)</source>
         <translation>Найкращий (лінійний)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="231"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="755"/>
         <source>Input - Touchscreen</source>
         <translation>Введення - Сенсорний екран</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="906"/>
         <source>Adventure Map Enemies</source>
         <translation>Вороги на мапі пригод</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="474"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
+        <source>Show Tutorial again</source>
+        <translation>Повторно показати навчання</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1159"/>
+        <source>Reset</source>
+        <translation>Скинути</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="860"/>
         <source>Network</source>
         <translation>Мережа</translation>
     </message>
@@ -742,72 +751,72 @@ Install successfully downloaded?</source>
         <translation>Аудіо</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="578"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="847"/>
         <source>Relative Pointer Speed</source>
         <translation>Швидкість відносного вказівника</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="585"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1145"/>
         <source>Music Volume</source>
         <translation>Гучність музики</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="606"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="772"/>
         <source>Ignore SSL errors</source>
         <translation>Ігнорувати помилки SSL</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="950"/>
         <source>Input - Mouse</source>
         <translation>Введення - Миша</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="628"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="347"/>
         <source>Long Touch Duration</source>
         <translation>Тривалість довгого дотику</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="635"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="116"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="658"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1045"/>
         <source>Controller Click Tolerance</source>
         <translation>Допуск на натискання контролера</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="665"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="361"/>
         <source>Touch Tap Tolerance</source>
         <translation>Допуск на натискання дотиком</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="704"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1028"/>
         <source>Input - Controller</source>
         <translation>Введення - Контролер</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="771"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1094"/>
         <source>Sound Volume</source>
         <translation>Гучність звуку</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="801"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="404"/>
         <source>Windowed</source>
         <translation>У вікні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="806"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="409"/>
         <source>Borderless fullscreen</source>
         <translation>Повноекранне вікно</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="414"/>
         <source>Exclusive fullscreen</source>
         <translation>Повноекранний (ексклюзивно)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="521"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="782"/>
         <source>Autosave limit (0 = off)</source>
         <translation>Кількість автозбережень</translation>
     </message>
@@ -816,42 +825,42 @@ Install successfully downloaded?</source>
         <translation type="vanished">Дружній ШІ в боях</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="514"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
         <source>Framerate Limit</source>
         <translation>Обмеження частоти кадрів</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="778"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="765"/>
         <source>Autosave prefix</source>
         <translation>Префікс назв автозбережень</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="839"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
         <source>Mouse Click Tolerance</source>
         <translation>Допуск кліків миші</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="853"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="95"/>
         <source>Sticks Acceleration</source>
         <translation>Прискорення стиків</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="995"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1015"/>
         <source>empty = map name prefix</source>
         <translation>(використовувати назву карти)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1024"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
         <source>Refresh now</source>
         <translation>Оновити зараз</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="556"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="250"/>
         <source>Default repository</source>
         <translation>Стандартний репозиторій</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="101"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="296"/>
         <source>Renderer</source>
         <translation>Рендерер</translation>
     </message>
@@ -869,7 +878,7 @@ Install successfully downloaded?</source>
         <translation type="vanished">Мова Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="391"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -886,7 +895,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
 Повноекранний ексклюзивний режим - гра займатиме весь екран і використовуватиме вибрану роздільну здатність.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="592"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="132"/>
         <source>Reserved screen area</source>
         <translation>Зарезервована зона екрану</translation>
     </message>
@@ -899,87 +908,87 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation type="vanished">Програмний</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="80"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="270"/>
         <source>Heroes III Translation</source>
         <translation>Переклад Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="745"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="650"/>
         <source>Check on startup</source>
         <translation>Перевіряти на старті</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="721"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="326"/>
         <source>Fullscreen</source>
         <translation>Повноекранний режим</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="568"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="65"/>
         <source>General</source>
         <translation>Загальні налаштування</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="132"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="211"/>
         <source>VCMI Language</source>
         <translation>Мова VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="462"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1087"/>
         <source>Resolution</source>
         <translation>Роздільна здатність</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="156"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="796"/>
         <source>Autosave</source>
         <translation>Автозбереження</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="142"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
         <source>VSync</source>
         <translation>Вертикальна синхронізація</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="651"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="340"/>
         <source>Display index</source>
         <translation>Дісплей</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="528"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="870"/>
         <source>Network port</source>
         <translation>Мережевий порт</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="332"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="524"/>
         <source>Video</source>
         <translation>Графіка</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="500"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="454"/>
         <source>Show intro</source>
         <translation>Вступні відео</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="480"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="494"/>
         <source>Active</source>
         <translation>Активні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="485"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="499"/>
         <source>Disabled</source>
         <translation>Деактивований</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="486"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="500"/>
         <source>Enable</source>
         <translation>Активувати</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="491"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="505"/>
         <source>Not Installed</source>
         <translation>Не встановлено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="492"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="506"/>
         <source>Install</source>
         <translation>Встановити</translation>
     </message>
@@ -1156,11 +1165,6 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
         <translation>VCMI на Github</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
-        <source>VCMI on Slack</source>
-        <translation>VCMI на Slack</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="169"/>
         <source>VCMI on Discord</source>
         <translation>VCMI на Discord</translation>
@@ -1230,49 +1234,54 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
         <translation>In The Wake of Gods</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="178"/>
         <source>Heroes III installation found!</source>
         <translation>Інсталяцію Heroes III знайдено!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="178"/>
         <source>Copy data to VCMI folder?</source>
         <translation>Скопіювати дані до теки VCMI?</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="316"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="317"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
         <translation>Оберіть файл %1...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="317"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="318"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
         <translation>Ви повинні обрати файл %1!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="319"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="320"/>
         <source>GOG file (*.*)</source>
         <translation>Файл GOG (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="320"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="321"/>
         <source>File selection</source>
         <translation>Вибір файлу</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="327"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
+        <source>File cannot opened</source>
+        <translation>Не вдається відкрити файл</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
         <source>Invalid file selected</source>
         <translation>Обрано невірний файл</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="334"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="346"/>
         <source>GOG installer</source>
         <translation>Інсталятор GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="337"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="343"/>
         <source>GOG data</source>
         <translation>Дані GOG</translation>
     </message>
@@ -1281,39 +1290,61 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
         <translation type="vanished">Встановлення... Зачекайте!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="380"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
         <source>No Heroes III data!</source>
         <translation>Немає файлів даних Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="380"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Обрані файли не містять файлів з грою Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="427"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="441"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="448"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="453"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="499"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
         <source>Heroes III data not found!</source>
         <translation>Файли даних Heroes III не знайдено!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="424"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="482"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select directory with installed Heroes III data.</source>
         <translation>Не вдалося виявити файли Heroes III у вибраному каталозі.
 Будь ласка, виберіть теку зі встановленими даними Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="448"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
+        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
+        <translation>Ви надали інсталятор GOG Galaxy! Цей файл не містить гри. Будь ласка, завантажте резервну копію інсталятора гри!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
+        <source>Stream error while extracting files!
+error reason: </source>
+        <translation>Помилка потоку під час розпакування файлів!
+причина помилки: </translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
+        <source>Not a supported Inno Setup installer!</source>
+        <translation>Не підтримуваний інсталятор Inno Setup!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
+        <source>Extracting error!</source>
+        <translation>Помилка видобування!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Файли Heroes III: HD Edition не підтримуються VCMI.
 Будь ласка, виберіть теку з Heroes III: Complete Edition або Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="453"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Знайдено невідому або не підтримувану версію Heroes III.

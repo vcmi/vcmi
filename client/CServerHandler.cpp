@@ -648,14 +648,14 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	if(CMM)
 		CMM->disable();
 
-	campaignScoreCalculator = nullptr;
-
 	switch(si->mode)
 	{
 	case EStartMode::NEW_GAME:
 		client->newGame(gameState);
 		break;
 	case EStartMode::CAMPAIGN:
+		if(si->campState->conqueredScenarios().empty())
+			campaignScoreCalculator.reset();
 		client->newGame(gameState);
 		break;
 	case EStartMode::LOAD_GAME:

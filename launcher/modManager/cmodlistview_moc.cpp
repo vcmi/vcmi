@@ -70,9 +70,8 @@ void CModListView::dropEvent(QDropEvent* event)
 	if(mimeData->hasUrls())
 	{
 		const QList<QUrl> urlList = mimeData->urls();
-
 		for (const auto & url : urlList)
-			manualInstallFile(url);
+			manualInstallFile(url.toLocalFile());
 	}
 }
 
@@ -631,28 +630,31 @@ void CModListView::on_installButton_clicked()
 
 void CModListView::on_installFromFileButton_clicked()
 {
-	QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json);;" + tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Configs") + " (*.json);;" + tr("Mods") + " (*.zip)";
-	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns) to install..."), QDir::homePath(), filter);
-
-	for (const auto & file : files)
+	// iOS can't display modal dialogs when called directly on button press
+	// https://bugreports.qt.io/browse/QTBUG-98651
+	QTimer::singleShot(0, this, [this]
 	{
-		QUrl url = QUrl::fromLocalFile(file);
-		manualInstallFile(url);
-	}
+		QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json);;" + tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Configs") + " (*.json);;" + tr("Mods") + " (*.zip)";
+		QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns) to install..."), QDir::homePath(), filter);
+
+		for(const auto & file : files)
+		{
+			manualInstallFile(file);
+		}
+	});
 }
 
-void CModListView::manualInstallFile(QUrl url)
+void CModListView::manualInstallFile(QString filePath)
 {
-	QString urlStr = url.toString();
-	QString fileName = url.fileName();
-	if(urlStr.endsWith(".zip", Qt::CaseInsensitive))
+	QString fileName = QFileInfo{filePath}.fileName();
+	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
 		downloadFile(fileName.toLower()
 			// mod name currently comes from zip file -> remove suffixes from github zip download
 			.replace(QRegularExpression("-[0-9a-f]{40}"), "")
 			.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
 			.replace("-main.zip", ".zip")
-			, urlStr, "mods", 0);
-	else if(urlStr.endsWith(".json", Qt::CaseInsensitive))
+			, QUrl::fromLocalFile(filePath), "mods");
+	else if(filePath.endsWith(".json", Qt::CaseInsensitive))
 	{
 		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
 		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
@@ -663,7 +665,7 @@ void CModListView::manualInstallFile(QUrl url)
 			{
 				const auto configFilePath = configDir.filePath(configFile[0]);
 				QFile::remove(configFilePath);
-				QFile::copy(url.toLocalFile(), configFilePath);
+				QFile::copy(filePath, configFilePath);
 
 				// reload settings
 				Helper::loadSettings();
@@ -676,10 +678,15 @@ void CModListView::manualInstallFile(QUrl url)
 		}
 	}
 	else
-		downloadFile(fileName, urlStr, fileName, 0);
+		downloadFile(fileName, QUrl::fromLocalFile(filePath), fileName);
 }
 
 void CModListView::downloadFile(QString file, QString url, QString description, qint64 size)
+{
+	downloadFile(file, QUrl{url}, description, size);
+}
+
+void CModListView::downloadFile(QString file, QUrl url, QString description, qint64 size)
 {
 	if(!dlManager)
 	{
@@ -690,20 +697,17 @@ void CModListView::downloadFile(QString file, QString url, QString description, 
 
 		connect(dlManager, SIGNAL(finished(QStringList,QStringList,QStringList)),
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
-		
+
 		connect(manager.get(), SIGNAL(extractionProgress(qint64,qint64)),
 			this, SLOT(extractionProgress(qint64,qint64)));
-		
+
 		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
-		
-		QString progressBarFormat = tr("Downloading %s%. %p% (%v MB out of %m MB) finished");
-
-		progressBarFormat.replace("%s%", description);
+		const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(description);
 		ui->progressBar->setFormat(progressBarFormat);
 	}
 
-	dlManager->downloadFile(QUrl(url), file, size);
+	dlManager->downloadFile(url, file, size);
 }
 
 void CModListView::downloadProgress(qint64 current, qint64 max)

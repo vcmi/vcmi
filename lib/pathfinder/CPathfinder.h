@@ -13,11 +13,22 @@
 #include "../IGameCallback.h"
 #include "../bonuses/BonusEnum.h"
 
+#include <boost/container/static_vector.hpp>
+#include <boost/container/small_vector.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGWhirlpool;
 struct TurnInfo;
 struct PathfinderOptions;
+
+// Optimized storage - tile can have 0-8 neighbour tiles
+// static_vector uses fixed, preallocated storage (capacity) and dynamic size
+// this avoid dynamic allocations on huge number of neighbour list queries
+using NeighbourTilesVector = boost::container::static_vector<int3, 8>;
+
+// Optimized storage to minimize dynamic allocations - most of teleporters have only one exit, but some may have more (premade maps, castle gates)
+using TeleporterTilesVector = boost::container::small_vector<int3, 4>;
 
 class DLL_LINKAGE CPathfinder
 {
@@ -87,22 +98,22 @@ public:
 	bool hasBonusOfType(BonusType type) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 
-	std::vector<int3> getCastleGates(const PathNodeInfo & source) const;
+	TeleporterTilesVector getCastleGates(const PathNodeInfo & source) const;
 	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
-	std::vector<int3> getAllowedTeleportChannelExits(const TeleportChannelID & channelID) const;
+	TeleporterTilesVector getAllowedTeleportChannelExits(const TeleportChannelID & channelID) const;
 	bool addTeleportTwoWay(const CGTeleport * obj) const;
 	bool addTeleportOneWay(const CGTeleport * obj) const;
 	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
 	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
 	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
-	void calculateNeighbourTiles(std::vector<int3> & result, const PathNodeInfo & source) const;
-	std::vector<int3> getTeleportExits(const PathNodeInfo & source) const;
+	void calculateNeighbourTiles(NeighbourTilesVector & result, const PathNodeInfo & source) const;
+	TeleporterTilesVector getTeleportExits(const PathNodeInfo & source) const;
 
 	void getNeighbours(
 		const TerrainTile & srcTile,
 		const int3 & srcCoord,
-		std::vector<int3> & vec,
+		NeighbourTilesVector & vec,
 		const boost::logic::tribool & onLand,
 		const bool limitCoastSailing) const;
 
