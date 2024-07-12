@@ -279,7 +279,7 @@ SDLImageIndexed::~SDLImageIndexed()
 	SDL_FreePalette(currentPalette);
 }
 
-void SDLImageIndexed::setSpecialPallete(const IImage::SpecialPalette & specialPalette, uint32_t colorsToSkipMask)
+void SDLImageIndexed::setSpecialPalette(const IImage::SpecialPalette & specialPalette, uint32_t colorsToSkipMask)
 {
 	size_t last = std::min<size_t>(specialPalette.size(), currentPalette->ncolors);
 
@@ -342,7 +342,7 @@ void SDLImageBase::setBlitMode(EImageBlitMode mode)
 	blitMode = mode;
 }
 
-void SDLImageRGB::setSpecialPallete(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask)
+void SDLImageRGB::setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask)
 {}
 
 void SDLImageRGB::playerColored(PlayerColor player)

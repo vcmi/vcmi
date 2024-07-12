@@ -90,7 +90,7 @@ public:
 	~SDLImageIndexed();
 
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;
-	void setSpecialPallete(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
+	void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
@@ -103,6 +103,7 @@ public:
 	using SDLImageBase::SDLImageBase;
 
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;
+	void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
