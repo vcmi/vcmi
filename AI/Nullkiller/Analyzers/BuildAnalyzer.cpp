@@ -165,15 +165,8 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	if(ai->cb->getDate(Date::DAY) == 1)
-	{
-		goldPressure = 1;
-	}
-	else
-	{
-		goldPressure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
+	goldPressure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
 			+ (float)armyCost[EGameResID::GOLD] / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
-	}
 
 	logAi->trace("Gold pressure: %f", goldPressure);
 }
