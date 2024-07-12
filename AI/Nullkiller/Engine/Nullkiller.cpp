@@ -378,7 +378,6 @@ void Nullkiller::makeTurn()
 		{
 			bestTasks.clear();
 
-			decompose(bestTasks, sptr(RecruitHeroBehavior()), 1);
 			decompose(bestTasks, sptr(BuyArmyBehavior()), 1);
 			decompose(bestTasks, sptr(BuildingBehavior()), 1);
 
@@ -397,6 +396,7 @@ void Nullkiller::makeTurn()
 			}
 		}
 
+		decompose(bestTasks, sptr(RecruitHeroBehavior()), 1);
 		decompose(bestTasks, sptr(CaptureObjectsBehavior()), 1);
 		decompose(bestTasks, sptr(ClusterBehavior()), MAX_DEPTH);
 		decompose(bestTasks, sptr(DefenceBehavior()), MAX_DEPTH);
