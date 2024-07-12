@@ -475,7 +475,7 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 	if(activeUnit)
 	{
 		//its first turn and active unit hasn't taken any action yet - must be placed at the beginning of queue, no matter what
-		if(turn == 0 && activeUnit->willMove() && !activeUnit->waited())
+		if(turn == 0 && activeUnit->willMove())
 		{
 			turns.back().push_back(activeUnit);
 			if(turnsIsFull())
