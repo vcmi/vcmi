@@ -570,7 +570,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-void CVideoPlayer::getVideoAndBackgroundRects(const std::string & name, const Point & position, SDL_Rect & videoRect, SDL_Rect & backgroundRect, const Point preferredLogicalResolution) const
+void CVideoPlayer::getVideoAndBackgroundRects(std::string_view name, const Point & position, SDL_Rect & videoRect, SDL_Rect & backgroundRect, const Point preferredLogicalResolution) const
 {
 	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
 	float resX = preferredLogicalResolution.x; // Float, since we do some floating point calculations
