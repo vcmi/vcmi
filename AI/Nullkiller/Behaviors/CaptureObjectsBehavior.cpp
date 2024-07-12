@@ -68,14 +68,6 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		logAi->trace("Path found %s", path.toString());
 #endif
 
-		if(nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
-		{
-#if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.getHeroStrength());
-#endif
-			continue;
-		}
-
 		if(objToVisit && !force && !shouldVisit(nullkiller, path.targetHero, objToVisit))
 		{
 #if NKAI_TRACE_LEVEL >= 2

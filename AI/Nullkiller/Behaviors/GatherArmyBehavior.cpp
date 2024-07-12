@@ -89,14 +89,6 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 			continue;
 		}
 
-		if(path.turn() > 0 && ai->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
-		{
-#if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
-#endif
-			continue;
-		}
-
 		if(ai->arePathHeroesLocked(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
@@ -293,15 +285,6 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 		}
 
 		auto heroRole = ai->heroManager->getHeroRole(path.targetHero);
-
-		if(heroRole == HeroRole::SCOUT
-			&& ai->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
-		{
-#if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
-#endif
-			continue;
-		}
 
 		auto upgrade = ai->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
