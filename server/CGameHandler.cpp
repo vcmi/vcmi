@@ -4374,6 +4374,23 @@ void CGameHandler::setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, Ob
 	sendAndApply(&sob);
 }
 
+void CGameHandler::setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration)
+{
+	SetRewardableConfiguration srb;
+	srb.objectID = objid;
+	srb.configuration = configuration;
+	sendAndApply(&srb);
+}
+
+void CGameHandler::setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration)
+{
+	SetRewardableConfiguration srb;
+	srb.objectID = townInstanceID;
+	srb.buildingID = buildingID;
+	srb.configuration = configuration;
+	sendAndApply(&srb);
+}
+
 void CGameHandler::showInfoDialog(InfoWindow * iw)
 {
 	sendAndApply(iw);

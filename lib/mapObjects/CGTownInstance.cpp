@@ -71,9 +71,6 @@ void CGTownInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 		case ObjProperty::BONUS_VALUE_SECOND:
 			bonusValue.second = identifier.getNum();
 			break;
-		case ObjProperty::REWARD_RANDOMIZE:
-			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::REWARD_RANDOMIZE, NumericID(0));
-			break;
 	}
 }
 CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle

@@ -16,6 +16,7 @@
 #include "../IGameCallback.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -377,9 +378,6 @@ void CRewardableObject::setPropertyDer(ObjProperty what, ObjPropertyID identifie
 {
 	switch (what)
 	{
-		case ObjProperty::REWARD_RANDOMIZE:
-			initObj(cb->gameState()->getRandomGenerator());
-			break;
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = identifier.getNum();
 			break;
@@ -395,7 +393,9 @@ void CRewardableObject::newTurn(vstd::RNG & rand) const
 	{
 		if (configuration.resetParameters.rewards)
 		{
-			cb->setObjPropertyValue(id, ObjProperty::REWARD_RANDOMIZE, 0);
+			auto handler = std::dynamic_pointer_cast<const CRewardableConstructor>(getObjectHandler());
+			auto newConfiguration = handler->generateConfiguration(cb, rand, ID);
+			cb->setRewardableObjectConfiguration(id, newConfiguration);
 		}
 		if (configuration.resetParameters.visitors)
 		{

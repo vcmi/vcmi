@@ -50,6 +50,9 @@ public:
 
 	virtual void onHeroVisit(const CGHeroInstance * h) const;
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
+
+	/// Called on new turn by server. This method can not modify object state on its own
+	/// Instead all changes must be propagated via netpacks
 	virtual void newTurn(vstd::RNG & rand) const;
 	virtual void initObj(vstd::RNG & rand); //synchr
 	virtual void pickRandomObject(vstd::RNG & rand);

@@ -47,7 +47,6 @@ enum class ObjProperty : int8_t
 	BANK_CLEAR,
 
 	//object with reward
-	REWARD_RANDOMIZE,
 	REWARD_SELECT,
 	REWARD_CLEARED
 };

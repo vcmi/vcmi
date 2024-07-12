@@ -328,11 +328,16 @@ CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, Build
 void CTownRewardableBuilding::initObj(vstd::RNG & rand)
 {
 	assert(town && town->town);
+	configuration = generateConfiguration(rand);
+}
 
+Rewardable::Configuration CTownRewardableBuilding::generateConfiguration(vstd::RNG & rand) const
+{
+	Rewardable::Configuration result;
 	auto building = town->town->buildings.at(bID);
 
-	building->rewardableObjectInfo.configureObject(configuration, rand, cb);
-	for(auto & rewardInfo : configuration.info)
+	building->rewardableObjectInfo.configureObject(result, rand, cb);
+	for(auto & rewardInfo : result.info)
 	{
 		for (auto & bonus : rewardInfo.reward.bonuses)
 		{
@@ -340,16 +345,16 @@ void CTownRewardableBuilding::initObj(vstd::RNG & rand)
 			bonus.sid = BonusSourceID(building->getUniqueTypeID());
 		}
 	}
+	return result;
 }
 
 void CTownRewardableBuilding::newTurn(vstd::RNG & rand) const
 {
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{
-		if(configuration.resetParameters.rewards)
-		{
-			cb->setObjPropertyValue(town->id, ObjProperty::REWARD_RANDOMIZE, indexOnTV);
-		}
+		auto newConfiguration = generateConfiguration(rand);
+		cb->setRewardableObjectConfiguration(town->id, bID, newConfiguration);
+
 		if(configuration.resetParameters.visitors)
 		{
 			cb->setObjPropertyValue(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, indexOnTV);
@@ -366,9 +371,6 @@ void CTownRewardableBuilding::setProperty(ObjProperty what, ObjPropertyID identi
 			break;
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
 			visitors.clear();
-			break;
-		case ObjProperty::REWARD_RANDOMIZE:
-			initObj(cb->gameState()->getRandomGenerator());
 			break;
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = identifier.getNum();

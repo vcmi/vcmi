@@ -118,6 +118,8 @@ class DLL_LINKAGE CTownRewardableBuilding : public CGTownBuilding, public Reward
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
 	
 	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
+
+	Rewardable::Configuration generateConfiguration(vstd::RNG & rand) const;
 	
 public:
 	void setProperty(ObjProperty what, ObjPropertyID identifier) override;

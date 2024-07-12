@@ -12,6 +12,7 @@
 #include "PacksForClient.h"
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
+#include "SetRewardableConfiguration.h"
 #include "StackLocation.h"
 #include "PacksForLobby.h"
 #include "SetStackEffect.h"
@@ -121,6 +122,11 @@ void DaysWithoutTown::visitTyped(ICPackVisitor & visitor)
 void EntitiesChanged::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitEntitiesChanged(*this);
+}
+
+void SetRewardableConfiguration::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetRewardableConfiguration(*this);
 }
 
 void SetResources::visitTyped(ICPackVisitor & visitor)
@@ -2477,6 +2483,16 @@ void EntitiesChanged::applyGs(CGameState * gs)
 {
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);
+}
+
+void SetRewardableConfiguration::applyGs(CGameState * gs)
+{
+	auto * objectPtr = gs->getObjInstance(objectID);
+	auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
+
+	assert(rewardablePtr);
+
+	rewardablePtr->configuration = configuration;
 }
 
 const CArtifactInstance * ArtSlotInfo::getArt() const
