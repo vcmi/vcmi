@@ -33,7 +33,7 @@ enum class EWindowMode
 class ScreenHandler final : public IScreenHandler
 {
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
-	Point getPreferredLogicalResolution() const;
+	Point getPreferredLogicalResolution() const override;
 
 	int getScaling() const override;
 
