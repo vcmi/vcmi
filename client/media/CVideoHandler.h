@@ -90,11 +90,11 @@ public:
 	void openVideo();
 	bool loadNextFrame();
 
-	bool videoEnded() final;
-	Point size() final;
+	bool videoEnded() override;
+	Point size() override;
 
-	void show(const Point & position, Canvas & canvas) final;
-	void tick(uint32_t msPassed) final;
+	void show(const Point & position, Canvas & canvas) override;
+	void tick(uint32_t msPassed) override;
 };
 
 class CVideoPlayer final : public IVideoPlayer
@@ -105,10 +105,10 @@ class CVideoPlayer final : public IVideoPlayer
 	void openVideoFile(CVideoInstance & state, const VideoPath & fname);
 
 public:
-	bool playIntroVideo(const VideoPath & name, const Point preferredLogicalResolution) final;
-	void playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution) final;
-	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) final;
-	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) final;
+	bool playIntroVideo(const VideoPath & name, const Point preferredLogicalResolution) override;
+	void playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution) override;
+	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) override;
+	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) override;
 };
 
 #endif
