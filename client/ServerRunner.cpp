@@ -39,7 +39,6 @@ uint16_t ServerThreadRunner::start(uint16_t cfgport, bool connectToLobby, std::s
 
 	threadRunLocalServer = boost::thread([this, connectToLobby, &promise]{
 		setThreadName("runServer");
-		std::this_thread::sleep_for(std::chrono::seconds(5));
 		uint16_t port = server->prepare(connectToLobby);
 		promise.set_value(port);
 		server->run();
