@@ -20,6 +20,8 @@
 #include <boost/process/io.hpp>
 #endif
 
+#include <future>
+
 ServerThreadRunner::ServerThreadRunner() = default;
 ServerThreadRunner::~ServerThreadRunner() = default;
 
