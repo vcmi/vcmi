@@ -126,7 +126,7 @@ private:
 	void updateAiState(int pass, bool fast = false);
 	void decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
-	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks) const;
+	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks, int priorityTier = 1) const;
 	bool executeTask(Goals::TTask task);
 	bool areAffectedObjectsPresent(Goals::TTask task) const;
 	HeroRole getTaskRole(Goals::TTask task) const;

@@ -62,7 +62,7 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 		return false;
 	}
 
-	return cb->getStartInfo()->difficulty >= 3;
+	return true;
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
@@ -122,6 +122,9 @@ void TaskPlan::merge(TSubgoal task)
 {
 	TGoalVec blockers;
 
+	if (task->asTask()->priority <= 0)
+		return;
+
 	for(auto & item : tasks)
 	{
 		for(auto objid : item.affectedObjects)
@@ -166,11 +169,11 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 	return taskptr(*bestTask);
 }
 
-Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks) const
+Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 {
 	TaskPlan taskPlan;
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks](const tbb::blocked_range<size_t> & r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
 		{
 			auto evaluator = this->priorityEvaluators->acquire();
 
@@ -179,7 +182,7 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks) const
 				auto task = tasks[i];
 
 				if(task->asTask()->priority <= 0)
-					task->asTask()->priority = evaluator->evaluate(task);
+					task->asTask()->priority = evaluator->evaluate(task, priorityTier);
 			}
 		});
 
@@ -359,7 +362,6 @@ void Nullkiller::makeTurn()
 	{
 		totalTownLevel += townInfo->getTownLevel();
 	}
-	logAi->info("%d Turn: %d Power: %f Townlevel: %d", cb->getPlayerID()->getNum(), cb->getDate(Date::DAY), totalHeroStrength, totalTownLevel);
 
 	resetAiState();
 
@@ -376,6 +378,7 @@ void Nullkiller::makeTurn()
 		{
 			bestTasks.clear();
 
+			decompose(bestTasks, sptr(RecruitHeroBehavior()), 1);
 			decompose(bestTasks, sptr(BuyArmyBehavior()), 1);
 			decompose(bestTasks, sptr(BuildingBehavior()), 1);
 
@@ -394,7 +397,6 @@ void Nullkiller::makeTurn()
 			}
 		}
 
-		decompose(bestTasks, sptr(RecruitHeroBehavior()), 1);
 		decompose(bestTasks, sptr(CaptureObjectsBehavior()), 1);
 		decompose(bestTasks, sptr(ClusterBehavior()), MAX_DEPTH);
 		decompose(bestTasks, sptr(DefenceBehavior()), MAX_DEPTH);
@@ -408,8 +410,9 @@ void Nullkiller::makeTurn()
 		{
 			decompose(bestTasks, sptr(StartupBehavior()), 1);
 		}
-
-		auto selectedTasks = buildPlan(bestTasks);
+		auto selectedTasks = buildPlan(bestTasks, 0);
+		if (selectedTasks.empty() && !settings->isUseFuzzy())
+			selectedTasks = buildPlan(bestTasks, 1);
 
 		std::sort(selectedTasks.begin(), selectedTasks.end(), [](const TTask& a, const TTask& b) 
 		{
@@ -480,8 +483,6 @@ void Nullkiller::makeTurn()
 
 				continue;
 			}
-			if (bestTask->getHero())
-				logAi->info("Best task for %s should be %s with Prio: %f", bestTask->getHero()->getNameTranslated(), bestTask->toString(), bestTask->priority);
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
