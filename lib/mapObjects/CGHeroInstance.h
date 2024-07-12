@@ -293,7 +293,6 @@ public:
 	void boatDeserializationFix();
 	void deserializationFix();
 
-	void initObj(vstd::RNG & rand) override;
 	void pickRandomObject(vstd::RNG & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;

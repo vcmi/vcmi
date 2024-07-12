@@ -92,6 +92,14 @@ public:
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
+	// Helpers to create new object of specified type
+
+	CGObjectInstance * createNewObject(const int3 & visitablePosition, MapObjectID objectID, MapObjectSubID subID);
+	void createWanderingMonster(const int3 & visitablePosition, CreatureID creature);
+	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override;
+	void createHole(const int3 & visitablePosition, PlayerColor initiator);
+	void newObject(CGObjectInstance * object, PlayerColor initiator);
+
 	explicit CGameHandler(CVCMIServer * lobby);
 	~CGameHandler();
 
@@ -100,7 +108,6 @@ public:
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
-	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override;

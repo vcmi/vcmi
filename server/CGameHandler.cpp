@@ -50,9 +50,12 @@
 
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/networkPacks/StackLocation.h"
 #include "../lib/pathfinder/CPathfinder.h"
@@ -3684,7 +3687,7 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 	}
 
 	giveResources(playerID, -boatCost);
-	createObject(tile, playerID, Obj::BOAT, obj->getBoatType().getNum());
+	createBoat(tile, obj->getBoatType(), playerID);
 	return true;
 }
 
@@ -3809,7 +3812,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	if (h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
 		COMPLAIN_RETF("Hero cannot dig (error code %d)!", static_cast<int>(h->diggingStatus()));
 
-	createObject(h->visitablePos(), h->getOwner(), Obj::HOLE, 0 );
+	createHole(h->visitablePos(), h->getOwner());
 
 	//take MPs
 	SetMovePoints smp;
@@ -4214,7 +4217,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 		{
 			auto count = cre->getRandomAmount(std::rand);
 
-			createObject(*tile, PlayerColor::NEUTRAL, Obj::MONSTER, creatureID);
+			createWanderingMonster(*tile, creatureID);
 			auto monsterId = getTopObj(*tile)->id;
 
 			setObjPropertyValue(monsterId, ObjProperty::MONSTER_COUNT, count);
@@ -4413,13 +4416,71 @@ scripting::Pool * CGameHandler::getGlobalContextPool() const
 //}
 #endif
 
-void CGameHandler::createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype)
+
+CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition, MapObjectID objectID, MapObjectSubID subID)
 {
+	TerrainId terrainType = ETerrainId::NONE;
+
+	if (!gs->isInTheMap(visitablePosition))
+		throw std::runtime_error("Attempt to create object outside map at " + visitablePosition.toString());
+
+	const TerrainTile & t = gs->map->getTile(visitablePosition);
+	terrainType = t.terType->getId();
+
+	auto handler = VLC->objtypeh->getHandlerFor(objectID, subID);
+
+	CGObjectInstance * o = handler->create(gs->callback, nullptr);
+	handler->configureObject(o, getRandomGenerator());
+	assert(o->ID == objectID);
+
+	assert(!handler->getTemplates(terrainType).empty());
+	if (handler->getTemplates().empty())
+		throw std::runtime_error("Attempt to create object (" + std::to_string(objectID) + ", " + std::to_string(subID.getNum()) + ") with no templates!");
+
+	if (!handler->getTemplates(terrainType).empty())
+		o->appearance = handler->getTemplates(terrainType).front();
+	else
+		o->appearance = handler->getTemplates().front();
+
+
+	o->pos = visitablePosition + o->getVisitableOffset();
+	return o;
+}
+
+void CGameHandler::createWanderingMonster(const int3 & visitablePosition, CreatureID creature)
+{
+	auto createdObject = createNewObject(visitablePosition, Obj::MONSTER, creature);
+
+	auto * cre = dynamic_cast<CGCreature *>(createdObject);
+	assert(cre);
+	cre->notGrowingTeam = cre->neverFlees = false;
+	cre->character = 2;
+	cre->gainedArtifact = ArtifactID::NONE;
+	cre->identifier = -1;
+	cre->addToSlot(SlotID(0), new CStackInstance(creature, -1)); //add placeholder stack
+
+	newObject(createdObject, PlayerColor::NEUTRAL);
+}
+
+void CGameHandler::createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator)
+{
+	auto createdObject = createNewObject(visitablePosition, Obj::BOAT, type);
+	newObject(createdObject, initiator);
+}
+
+void CGameHandler::createHole(const int3 & visitablePosition, PlayerColor initiator)
+{
+	auto createdObject = createNewObject(visitablePosition, Obj::HOLE, 0);
+	newObject(createdObject, initiator);
+}
+
+void CGameHandler::newObject(CGObjectInstance * object, PlayerColor initiator)
+{
+	object->initObj(gs->getRandomGenerator());
+
 	NewObject no;
-	no.ID = type;
-	no.subID = subtype;
+	no.newObject = object;
 	no.initiator = initiator;
-	no.targetPos = visitablePosition;
 	sendAndApply(&no);
 }
 

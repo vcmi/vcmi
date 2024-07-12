@@ -787,23 +787,15 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	void applyGs(CGameState * gs);
 
 	/// Object ID to create
-	MapObjectID ID;
-	/// Object secondary ID to create
-	MapObjectSubID subID;
-	/// Position of visitable tile of created object
-	int3 targetPos;
+	CGObjectInstance * newObject;
 	/// Which player initiated creation of this object
 	PlayerColor initiator;
-
-	ObjectInstanceID createdObjectID; //used locally, filled during applyGs
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & ID;
-		subID.serializeIdentifier(h, ID);
-		h & targetPos;
+		h & newObject;
 		h & initiator;
 	}
 };

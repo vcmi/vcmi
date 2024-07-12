@@ -161,7 +161,7 @@ public:
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> & spells) override {};
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;};
-	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
+	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs = false) override {};

@@ -238,12 +238,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	}
 	else //create boat
 	{
-		NewObject no;
-		no.ID = Obj::BOAT;
-		no.subID = BoatId::NECROPOLIS;
-		no.targetPos = summonPos;
-		no.initiator = parameters.caster->getCasterOwner();
-		env->apply(&no);
+		env->createBoat(summonPos, BoatId::NECROPOLIS, parameters.caster->getCasterOwner());
 	}
 	return ESpellCastResult::OK;
 }

@@ -532,7 +532,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				if (!boat)
 				{
 					//Create a new boat for hero
-					cb->createObject(boatPos, h->getOwner(), Obj::BOAT, getBoatType().getNum());
+					cb->createBoat(boatPos, getBoatType(), h->getOwner());
 					boatId = cb->getTopObj(boatPos)->id;
 				}
 			}
@@ -612,11 +612,6 @@ void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 		setType(ID, type->heroClass->getIndex());
 
 	this->subID = oldSubID;
-}
-
-void CGHeroInstance::initObj(vstd::RNG & rand)
-{
-
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()

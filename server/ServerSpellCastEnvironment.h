@@ -37,6 +37,7 @@ public:
 	const CMap * getMap() const override;
 	const CGameInfoCallback * getCb() const override;
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) override;
+	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override;
 	void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) override;
 private:
 	CGameHandler * gh;
