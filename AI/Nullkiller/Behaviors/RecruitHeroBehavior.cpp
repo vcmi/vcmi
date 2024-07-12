@@ -45,6 +45,9 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 			minScoreToHireMain = newScore;
 		}
 	}
+	// If we don't have any heros we might want to lower our expectations.
+	if (ourHeroes.empty())
+		minScoreToHireMain = 0;
 
 	for(auto town : towns)
 	{
@@ -55,8 +58,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 			for(auto hero : availableHeroes)
 			{
 				auto score = ai->heroManager->evaluateHero(hero);
-
-				if(score > minScoreToHireMain)
+				if(score > minScoreToHireMain || hero->getArmyCost() > GameConstants::HERO_GOLD_COST)
 				{
 					tasks.push_back(Goals::sptr(Goals::RecruitHero(town, hero).setpriority(200)));
 					break;
