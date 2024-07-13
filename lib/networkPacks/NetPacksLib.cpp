@@ -33,6 +33,7 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
+#include "mapObjects/CBank.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
 #include "mapObjects/CGTownInstance.h"
@@ -127,6 +128,11 @@ void EntitiesChanged::visitTyped(ICPackVisitor & visitor)
 void SetRewardableConfiguration::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetRewardableConfiguration(*this);
+}
+
+void SetBankConfiguration::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetBankConfiguration(*this);
 }
 
 void SetResources::visitTyped(ICPackVisitor & visitor)
@@ -2446,6 +2452,16 @@ void SetRewardableConfiguration::applyGs(CGameState * gs)
 	assert(rewardablePtr);
 
 	rewardablePtr->configuration = configuration;
+}
+
+void SetBankConfiguration::applyGs(CGameState * gs)
+{
+	auto * objectPtr = gs->getObjInstance(objectID);
+	auto * bankPtr = dynamic_cast<CBank *>(objectPtr);
+
+	assert(bankPtr);
+
+	bankPtr->setConfig(configuration);
 }
 
 const CArtifactInstance * ArtSlotInfo::getArt() const

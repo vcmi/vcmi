@@ -115,8 +115,9 @@ void CMapUndoManager::setUndoCallback(std::function<void(bool, bool)> functor)
 CMapEditManager::CMapEditManager(CMap * map)
 	: map(map), terrainSel(map), objectSel(map)
 {
-
 }
+
+CMapEditManager::~CMapEditManager() = default;
 
 CMap * CMapEditManager::getMap()
 {

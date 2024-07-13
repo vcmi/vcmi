@@ -12,6 +12,7 @@
 #include "NetPacksBase.h"
 
 #include "../rewardable/Configuration.h"
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,6 +29,21 @@ struct DLL_LINKAGE SetRewardableConfiguration : public CPackForClient
 	{
 		h & objectID;
 		h & buildingID;
+		h & configuration;
+	}
+};
+
+struct DLL_LINKAGE SetBankConfiguration : public CPackForClient
+{
+	void applyGs(CGameState * gs);
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	ObjectInstanceID objectID;
+	BankConfig configuration;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & objectID;
 		h & configuration;
 	}
 };

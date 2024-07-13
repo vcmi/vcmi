@@ -122,6 +122,7 @@ void registerTypesClientPacks(Serializer &s)
 	s.template registerType<CGarrisonOperationPack, BulkSmartRebalanceStacks>();
 
 	s.template registerType<SetRewardableConfiguration, CPackForClient>();
+	s.template registerType<SetBankConfiguration, CPackForClient>();
 }
 
 VCMI_LIB_NAMESPACE_END

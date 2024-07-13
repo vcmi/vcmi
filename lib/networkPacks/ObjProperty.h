@@ -43,7 +43,6 @@ enum class ObjProperty : int8_t
 
 	//creature-bank specific
 	BANK_DAYCOUNTER,
-	BANK_RESET,
 	BANK_CLEAR,
 
 	//object with reward

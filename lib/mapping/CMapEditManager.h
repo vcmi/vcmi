@@ -68,6 +68,7 @@ class DLL_LINKAGE CMapEditManager : boost::noncopyable
 {
 public:
 	CMapEditManager(CMap * map);
+	~CMapEditManager();
 	CMap * getMap();
 
 	/// Clears the terrain. The free level is filled with water and the underground level with rock.

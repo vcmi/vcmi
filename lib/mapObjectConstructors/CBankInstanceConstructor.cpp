@@ -37,7 +37,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	regularUnitPlacement = input["regularUnitPlacement"].Bool();
 }
 
-BankConfig CBankInstanceConstructor::generateConfig(IGameCallback * cb, const JsonNode & level, vstd::RNG & rng) const
+BankConfig CBankInstanceConstructor::generateLevelConfiguration(IGameCallback * cb, const JsonNode & level, vstd::RNG & rng) const
 {
 	BankConfig bc;
 	JsonRandom randomizer(cb);
@@ -60,7 +60,11 @@ void CBankInstanceConstructor::randomizeObject(CBank * bank, vstd::RNG & rng) co
 	bank->blockVisit = blockVisit;
 	bank->coastVisitable = coastVisitable;
 	bank->regularUnitPlacement = regularUnitPlacement;
+	bank->setConfig(generateConfiguration(bank->cb, rng, bank->ID));
+}
 
+BankConfig CBankInstanceConstructor::generateConfiguration(IGameCallback * cb, vstd::RNG & rng, MapObjectID objectID) const
+{
 	si32 totalChance = 0;
 	for(const auto & node : levels)
 		totalChance += static_cast<si32>(node["chance"].Float());
@@ -74,11 +78,10 @@ void CBankInstanceConstructor::randomizeObject(CBank * bank, vstd::RNG & rng) co
 	{
 		cumulativeChance += static_cast<int>(node["chance"].Float());
 		if(selectedChance < cumulativeChance)
-		{
-			bank->setConfig(generateConfig(bank->cb, node, rng));
-			break;
-		}
+			return generateLevelConfiguration(cb, node, rng);
 	}
+
+	throw std::runtime_error("Failed to select bank configuration");
 }
 
 CBankInfo::CBankInfo(const JsonVector & Config) :
