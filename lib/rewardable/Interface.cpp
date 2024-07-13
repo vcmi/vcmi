@@ -63,16 +63,16 @@ void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo
 		const auto functor = [&props](const TerrainTile * tile)
 		{
 			int score = 0;
-			if (tile->terType->isSurface())
+			if (tile->getTerrain()->isSurface())
 				score += props.scoreSurface;
 
-			if (tile->terType->isUnderground())
+			if (tile->getTerrain()->isUnderground())
 				score += props.scoreSubterra;
 
-			if (tile->terType->isWater())
+			if (tile->getTerrain()->isWater())
 				score += props.scoreWater;
 
-			if (tile->terType->isRock())
+			if (tile->getTerrain()->isRock())
 				score += props.scoreRock;
 
 			return score > 0;

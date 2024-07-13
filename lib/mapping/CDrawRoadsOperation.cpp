@@ -344,12 +344,12 @@ std::string CDrawRiversOperation::getLabel() const
 
 void CDrawRoadsOperation::executeTile(TerrainTile & tile)
 {
-	tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getByIndex(roadType.getNum()));
+	tile.roadType = roadType;
 }
 
 void CDrawRiversOperation::executeTile(TerrainTile & tile)
 {
-	tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getByIndex(riverType.getNum()));
+	tile.riverType = riverType;
 }
 
 bool CDrawRoadsOperation::canApplyPattern(const LinePattern & pattern) const
@@ -364,22 +364,22 @@ bool CDrawRiversOperation::canApplyPattern(const LinePattern & pattern) const
 
 bool CDrawRoadsOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.roadType->getId() != Road::NO_ROAD;
+	return tile.hasRoad();
 }
 
 bool CDrawRiversOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.riverType->getId() != River::NO_RIVER;
+	return tile.hasRiver();
 }
 
 bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
 {
-	return map->getTile(pos).roadType->getId() != Road::NO_ROAD;
+	return map->getTile(pos).hasRoad();
 }
 
 bool CDrawRiversOperation::tileHasSomething(const int3& pos) const
 {
-	return map->getTile(pos).riverType->getId() != River::NO_RIVER;
+	return map->getTile(pos).hasRiver();
 }
 
 void CDrawRoadsOperation::updateTile(TerrainTile & tile, const LinePattern & pattern, const int flip)

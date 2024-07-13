@@ -437,10 +437,10 @@ void CGameState::initGrailPosition()
 				for(int y = BORDER_WIDTH; y < map->height - BORDER_WIDTH; y++)
 				{
 					const TerrainTile &t = map->getTile(int3(x, y, z));
-					if(!t.blocked
-						&& !t.visitable
-						&& t.terType->isLand()
-						&& t.terType->isPassable()
+					if(!t.blocked()
+					   && !t.visitable()
+						&& t.isLand()
+						&& t.getTerrain()->isPassable()
 						&& (int)map->grailPos.dist2dSQ(int3(x, y, z)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.emplace_back(x, y, z);
 				}
@@ -608,7 +608,7 @@ void CGameState::initHeroes()
 	{
 		assert(map->isInTheMap(hero->visitablePos()));
 		const auto & tile = map->getTile(hero->visitablePos());
-		if (tile.terType->isWater())
+		if (tile.isWater())
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
 			auto boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
@@ -1074,10 +1074,10 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
-	if (t.terType->battleFields.empty())
-		throw std::runtime_error("Failed to find battlefield for terrain " + t.terType->getJsonKey());
+	if (t.getTerrain()->battleFields.empty())
+		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
 
-	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
+	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, rand));
 }
 
 void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
@@ -1171,7 +1171,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 		return guards;
 
 	const TerrainTile &posTile = map->getTile(pos);
-	if (posTile.visitable)
+	if (posTile.visitable())
 	{
 		for (CGObjectInstance* obj : posTile.visitableObjects)
 		{
@@ -1190,7 +1190,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 			if (map->isInTheMap(pos))
 			{
 				const auto & tile = map->getTile(pos);
-				if (tile.visitable && (tile.isWater() == posTile.isWater()))
+				if (tile.visitable() && (tile.isWater() == posTile.isWater()))
 				{
 					for (CGObjectInstance* obj : tile.visitableObjects)
 					{

@@ -291,14 +291,12 @@ AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * her
 	auto prevTile = LOCPLINT->cb->getTile(posPrev);
 	auto nextTile = LOCPLINT->cb->getTile(posNext);
 
-	auto prevRoad = prevTile->roadType;
-	auto nextRoad = nextTile->roadType;
-	bool movingOnRoad = prevRoad->getId() != Road::NO_ROAD && nextRoad->getId() != Road::NO_ROAD;
+	bool movingOnRoad = prevTile->hasRoad() && nextTile->hasRoad();
 
 	if(movingOnRoad)
-		return nextTile->terType->horseSound;
+		return nextTile->getTerrain()->horseSound;
 	else
-		return nextTile->terType->horseSoundPenalty;
+		return nextTile->getTerrain()->horseSoundPenalty;
 };
 
 void HeroMovementController::updateMovementSound(const CGHeroInstance * h, int3 posPrev, int3 nextCoord, EPathNodeAction moveType)

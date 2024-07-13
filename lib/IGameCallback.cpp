@@ -72,7 +72,7 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->terType->isLand() && tinfo->terType->isPassable() && !tinfo->blocked) //land and free
+				if (tinfo->isLand() && tinfo->getTerrain()->isPassable() && !tinfo->blocked()) //land and free
 					tiles.emplace_back(xd, yd, zd);
 			}
 		}

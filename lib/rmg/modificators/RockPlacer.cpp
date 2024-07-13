@@ -60,7 +60,7 @@ void RockPlacer::postProcess()
 		//Finally mark rock tiles as occupied, spawn no obstacles there
 		rockArea = zone.area()->getSubarea([this](const int3 & t)
 		{
-			return !map.getTile(t).terType->isPassable();
+			return !map.getTile(t).getTerrain()->isPassable();
 		});
 
 		// Do not place rock on roads
@@ -96,7 +96,7 @@ void RockPlacer::init()
 
 char RockPlacer::dump(const int3 & t)
 {
-	if(!map.getTile(t).terType->isPassable())
+	if(!map.getTile(t).getTerrain()->isPassable())
 	{
 		return zone.area()->contains(t) ? 'R' : 'E';
 	}

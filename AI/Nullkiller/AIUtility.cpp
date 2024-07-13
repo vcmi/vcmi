@@ -193,7 +193,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 {
 	// TODO: Such information should be provided by pathfinder
 	// Tile must be free or with unoccupied boat
-	if(!t->blocked)
+	if(!t->blocked())
 	{
 		return true;
 	}
