@@ -115,6 +115,13 @@ void startExecutable(QString name, const QStringList & args)
 	QProcess process;
 	process.start(name, args);
 	process.waitForFinished(-1);
+
+	if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
+		QMessageBox::critical(qApp->activeWindow(),
+								QObject::tr("Error starting executable"),
+								QObject::tr("Failed to start %1\nReason: %2").arg(name, process.errorString()));
+	}
+
 	qApp->quit();
 }
 #endif
