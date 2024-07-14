@@ -74,6 +74,11 @@ public:
 	{
 		return action == other.action && spellToCast == other.spellToCast;
 	}
+
+	bool operator != (const PossiblePlayerBattleAction & other) const
+	{
+		return action != other.action || spellToCast != other.spellToCast;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

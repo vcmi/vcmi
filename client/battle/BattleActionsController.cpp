@@ -985,26 +985,23 @@ void BattleActionsController::activateStack()
 		std::list<PossiblePlayerBattleAction> actionsToSelect;
 		if(!possibleActions.empty())
 		{
-			switch(possibleActions.front().get())
+			auto primaryAction = possibleActions.front().get();
+
+			if(primaryAction == PossiblePlayerBattleAction::SHOOT || primaryAction == PossiblePlayerBattleAction::AIMED_SPELL_CREATURE
+				|| primaryAction == PossiblePlayerBattleAction::ANY_LOCATION || primaryAction == PossiblePlayerBattleAction::ATTACK_AND_RETURN)
 			{
-				case PossiblePlayerBattleAction::SHOOT:
-					actionsToSelect.push_back(possibleActions.front());
-					actionsToSelect.push_back(PossiblePlayerBattleAction::ATTACK);
-					break;
-					
-				case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-					actionsToSelect.push_back(possibleActions.front());
-					actionsToSelect.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
-					break;
-					
-				case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-					actionsToSelect.push_back(possibleActions.front());
-					actionsToSelect.push_back(PossiblePlayerBattleAction::ATTACK);
-					break;
-				case PossiblePlayerBattleAction::ANY_LOCATION:
-					actionsToSelect.push_back(possibleActions.front());
-					actionsToSelect.push_back(PossiblePlayerBattleAction::ATTACK);
-					break;
+				actionsToSelect.push_back(possibleActions.front());
+
+				auto shootActionPredicate = [](const PossiblePlayerBattleAction& action)
+				{
+					return action.get() == PossiblePlayerBattleAction::SHOOT;
+				};
+				bool hasShootSecondaryAction = std::any_of(possibleActions.begin() + 1, possibleActions.end(), shootActionPredicate);
+
+				if(hasShootSecondaryAction)
+					actionsToSelect.emplace_back(PossiblePlayerBattleAction::SHOOT);
+
+				actionsToSelect.emplace_back(PossiblePlayerBattleAction::ATTACK); //always allow melee attack as last option
 			}
 		}
 		owner.windowObject->setAlternativeActions(actionsToSelect);
@@ -1070,4 +1067,9 @@ void BattleActionsController::removePossibleAction(PossiblePlayerBattleAction ac
 void BattleActionsController::pushFrontPossibleAction(PossiblePlayerBattleAction action)
 {
 	possibleActions.insert(possibleActions.begin(), action);
+}
+
+void BattleActionsController::resetCurrentStackPossibleActions()
+{
+	possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack());
 }
