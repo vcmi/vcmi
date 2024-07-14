@@ -29,6 +29,8 @@ set(editor_SRCS
 		validator.cpp
 		inspector/inspector.cpp
 		inspector/townbuildingswidget.cpp
+		inspector/townevent.cpp
+		inspector/towneventswidget.cpp
 		inspector/townspellswidget.cpp
 		inspector/armywidget.cpp
 		inspector/messagewidget.cpp
@@ -71,6 +73,8 @@ set(editor_HEADERS
 		validator.h
 		inspector/inspector.h
 		inspector/townbuildingswidget.h
+		inspector/townevent.h
+		inspector/towneventswidget.h
 		inspector/townspellswidget.h
 		inspector/armywidget.h
 		inspector/messagewidget.h
@@ -100,6 +104,8 @@ set(editor_FORMS
 		playerparams.ui
 		validator.ui
 		inspector/townbuildingswidget.ui
+		inspector/townevent.ui
+		inspector/towneventswidget.ui
 		inspector/townspellswidget.ui
 		inspector/armywidget.ui
 		inspector/messagewidget.ui
