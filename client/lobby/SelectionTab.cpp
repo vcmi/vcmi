@@ -392,15 +392,19 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		return;
 
 	if(!curItems[py]->isFolder)
+	{
+		auto creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
+		auto author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
 		GH.windows().createAndPushWindow<CMapOverview>(
 			curItems[py]->getNameTranslated(),
 			curItems[py]->fullFileURI,
-			tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date,
-			curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : ""),
+			creationDateTime,
+			author,
 			curItems[py]->mapHeader->mapVersion.toString(),
 			ResourcePath(curItems[py]->fileURI),
 			tabType
 		);
+	}
 	else
 		CRClickPopup::createAndPush(curItems[py]->folderName);
 }
