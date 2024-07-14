@@ -57,6 +57,7 @@ JsonNode JsonParser::parse(const std::string & fileName)
 	{
 		logMod->warn("File %s is not a valid JSON file!", fileName);
 		logMod->warn(errors);
+		logMod->warn("%s", input);
 	}
 	return root;
 }
