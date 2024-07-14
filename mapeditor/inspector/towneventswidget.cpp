@@ -102,7 +102,7 @@ void TownEventsWidget::obtainData()
 	for (const auto & event : town.events)
 	{
 		auto eventName = QString::fromStdString(event.name);
-		auto itemText = QString::fromStdString("Day %1 - %2").arg(event.firstOccurrence+1, 3).arg(eventName);
+		auto itemText = tr("Day %1 - %2").arg(event.firstOccurrence+1, 3).arg(eventName);
 
 		auto * item = new QListWidgetItem(itemText);
 		item->setData(Qt::UserRole, toVariant(event));

@@ -174,7 +174,7 @@ void TownEvent::initCreatures()
 		QString creatureNames;
 		if (!ctown)
 		{
-			creatureNames.append(QString("Creature %1 / Creature %1 Upgrade").arg(i + 1));
+			creatureNames.append(tr("Creature level %1 / Creature level %1 Upgrade").arg(i + 1));
 		}
 		else
 		{
@@ -216,7 +216,7 @@ void TownEvent::on_TownEvent_finished(int result)
 	descriptor["creatures"] = creaturesToVariant();
 
 	item->setData(Qt::UserRole, descriptor);
-	auto itemText = QString::fromStdString("Day %1 - %2").arg(ui->eventFirstOccurrence->value(), 3).arg(ui->eventNameText->text());
+	auto itemText = tr("Day %1 - %2").arg(ui->eventFirstOccurrence->value(), 3).arg(ui->eventNameText->text());
 	item->setText(itemText);
 }
 

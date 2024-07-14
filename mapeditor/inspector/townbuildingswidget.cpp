@@ -76,7 +76,7 @@ TownBuildingsWidget::TownBuildingsWidget(CGTownInstance & t, QWidget *parent) :
 	ui->setupUi(this);
 	ui->treeView->setModel(&model);
 	//ui->treeView->setColumnCount(3);
-	model.setHorizontalHeaderLabels(QStringList() << QStringLiteral("Type") << QStringLiteral("Enabled") << QStringLiteral("Built"));
+	model.setHorizontalHeaderLabels(QStringList() << tr("Type") << tr("Enabled") << tr("Built"));
 	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 	//setAttribute(Qt::WA_DeleteOnClose);
 }
