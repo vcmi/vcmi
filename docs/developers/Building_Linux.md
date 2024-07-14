@@ -1,13 +1,13 @@
-# Compiling VCMI
+# Building VCMI for Linux
 
 - Current baseline requirement for building is Ubuntu 20.04
 - Supported C++ compilers for UNIX-like systems are GCC 9+ and Clang 13+
 
 Older distributions and compilers might work, but they aren't tested by Github CI (Actions)
 
-# Installing dependencies
+# Prerequisites
 
-## Prerequisites
+## Installing dependencies
 
 To compile, the following packages (and their development counterparts) are needed to build:
 
@@ -21,7 +21,7 @@ To compile, the following packages (and their development counterparts) are need
     - if you want to build scripting modules: LuaJIT
     - to speed up recompilation: Ccache
 
-## On Debian-based systems (e.g. Ubuntu)
+### On Debian-based systems (e.g. Ubuntu)
 
 For Ubuntu and Debian you need to install this list of packages:
 
@@ -31,17 +31,17 @@ Alternatively if you have VCMI installed from repository or PPA you can use:
 
 `sudo apt-get build-dep vcmi`
 
-## On RPM-based distributions (e.g. Fedora)
+### On RPM-based distributions (e.g. Fedora)
 
 `sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel liblzma-devel libsqlite3-devel fuzzylite-devel ccache`
 
 NOTE: `fuzzylite-devel` package is no longer available in recent version of Fedora, for example Fedora 38. It's not a blocker because VCMI bundles fuzzylite lib in its source code.
 
-## On Arch-based distributions
+### On Arch-based distributions
 
 On Arch-based distributions, there is a development package available for VCMI on the AUR.
 
-It can be found at: <https://aur.archlinux.org/packages/vcmi-git/>
+It can be found at https://aur.archlinux.org/packages/vcmi-git/
 
 Information about building packages from the Arch User Repository (AUR) can be found at the Arch wiki.
 
@@ -49,13 +49,13 @@ Information about building packages from the Arch User Repository (AUR) can be f
 
 We recommend the following directory structure:
 
-    .
-    ├── vcmi -> contains sources and is under git control
-    └── build -> contains build output, makefiles, object files,...
+```
+.
+├── vcmi -> contains sources and is under git control
+└── vcmi-build -> contains build output, makefiles, object files,...
+```
 
-Out-of-source builds keep the local repository clean so one doesn't have to manually exclude files generated during the build from commits.
-
-You can get latest sources with:
+You can get the latest source code with:
 
 `git clone -b develop --recursive https://github.com/vcmi/vcmi.git`
 
@@ -64,28 +64,34 @@ You can get latest sources with:
 ## Configuring Makefiles
 
 ```sh
-mkdir build && cd build
+mkdir vcmi-build
+cd vcmi-build
 cmake -S ../vcmi
 ```
 
-# Additional options that you may want to use:
+> [!NOTE]
+> The `../vcmi` is not a typo, it will place Makefiles into the build dir as the build dir is your working dir when calling CMake.
 
-## To enable debugging:
-`cmake -S ../vcmi -D CMAKE_BUILD_TYPE=Debug`
+### Additional options that you may want to use:
 
-**Notice**: The ../vcmi/ is not a typo, it will place makefile scripts into the build dir as the build dir is your working dir when calling CMake.
+| Option | Effect |
+|--------|--------|
+| -D CMAKE_BUILD_TYPE=Debug | Debug info and no optimizations |
+| -D ENABLE_CCACHE:BOOL=ON | Speeds up recompilation |
+| -D CMAKE_EXPORT_COMPILE_COMMANDS=ON | Creates `compile_commands.json` for `clangd` language server |
+| -G Ninja | Use Ninja build system instead of make, which speeds up the build and doesn't require a `-j` flag |
 
-## To use ccache:
-`cmake -S ../vcmi -D ENABLE_CCACHE:BOOL=ON`
+## Building
 
-## Trigger build
+```
+cmake --build . -j8
+```
 
-`cmake --build . -- -j2`
-(-j2 = compile with 2 threads, you can specify any value)
+(-j8 = compile with 8 threads, you can specify any value. )
 
-That will generate vcmiclient, vcmiserver, vcmilauncher as well as .so libraries in the **build/bin/** directory.
+This will generate `vcmiclient`, `vcmiserver`, `vcmilauncher` as well as .so libraries in the `build/bin/` directory.
 
-# Package building
+# Packaging
 
 ## RPM package
 
@@ -97,7 +103,8 @@ The first step is to prepare a RPM build environment. On Fedora systems you can 
 sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 ```
 
-NOTE: the stock ffmpeg from Fedora repo is no good as it has stripped lots of codecs
+> [!NOTE]
+> The stock ffmpeg from Fedora repo is no good as it lacks a lots of codecs
 
 1. Perform a git clone from a tagged branch for the right Fedora version from https://github.com/rpmfusion/vcmi; for example for Fedora 38: <pre>git clone -b f38 --single-branch https://github.com/rpmfusion/vcmi.git</pre>
 
