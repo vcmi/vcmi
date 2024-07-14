@@ -121,6 +121,10 @@ public:
 		return gameState.get();
 	}
 
+	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override
+	{
+	}
+
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode) override
 	{
 		return false;
