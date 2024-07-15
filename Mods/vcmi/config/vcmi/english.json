@@ -73,6 +73,7 @@
 	"vcmi.lobby.sortDate" : "Sorts maps by change date",
 	"vcmi.lobby.backToLobby" : "Return to lobby",
 	"vcmi.lobby.author" : "Author",
+	"vcmi.lobby.handicap" : "Handicap",
 	
 	"vcmi.lobby.login.title" : "VCMI Online Lobby",
 	"vcmi.lobby.login.username" : "Username:",

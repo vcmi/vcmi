@@ -780,7 +780,12 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, TResources handicap)
 	if(humanPlayer < 2) // Singleplayer
 		return;
 
-	announceTxt("Handicap " + color.toString() + ": \n   " + handicap.toString());
+	MetaString str;
+	str.appendTextID("vcmi.lobby.handicap");
+	str.appendRawString(" ");
+	str.appendName(color);
+	str.appendRawString(":\n" + handicap.toString());
+	announceTxt(str);
 }
 
 void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
