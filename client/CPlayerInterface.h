@@ -56,7 +56,7 @@ namespace boost
 }
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public IUpdateable, public ArtifactsUIController
+class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 	bool ignoreEvents;
 	int autosaveCount;
@@ -65,6 +65,7 @@ class CPlayerInterface : public CGameInterface, public IUpdateable, public Artif
 
 	std::unique_ptr<HeroMovementController> movementController;
 public: // TODO: make private
+	std::unique_ptr<ArtifactsUIController> artifactController;
 	std::shared_ptr<Environment> env;
 
 	std::unique_ptr<PlayerLocalState> localState;

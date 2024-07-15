@@ -20,16 +20,17 @@ VCMI_LIB_NAMESPACE_END
 
 class ArtifactsUIController
 {
-public:
 	size_t numOfMovedArts;
 	size_t numOfArtsAskAssembleSession;
 	std::set<ArtifactID> ignoredArtifacts;
 
 	boost::mutex askAssembleArtifactMutex;
 
-	bool askToAssemble(const ArtifactLocation & al, const bool onlyEquipped = false, std::set<ArtifactID> * ignoredArtifacts = nullptr);
+public:
+	ArtifactsUIController();
+	bool askToAssemble(const ArtifactLocation & al, const bool onlyEquipped = false, const bool checkIgnored = false);
 	bool askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot, const bool onlyEquipped = false,
-		std::set<ArtifactID> * ignoredArtifacts = nullptr);
+		const bool checkIgnored = false);
 	bool askToDisassemble(const CGHeroInstance * hero, const ArtifactPosition & slot);
 
 	void artifactRemoved();

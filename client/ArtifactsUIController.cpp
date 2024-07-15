@@ -23,7 +23,12 @@
 #include "widgets/CComponent.h"
 #include "windows/CWindowWithArtifacts.h"
 
-bool ArtifactsUIController::askToAssemble(const ArtifactLocation & al, const bool onlyEquipped, std::set<ArtifactID> * ignoredArtifacts)
+ArtifactsUIController::ArtifactsUIController()
+{
+	numOfMovedArts = 0;
+}
+
+bool ArtifactsUIController::askToAssemble(const ArtifactLocation & al, const bool onlyEquipped, const bool checkIgnored)
 {
 	if(auto hero = LOCPLINT->cb->getHero(al.artHolder))
 	{
@@ -32,13 +37,13 @@ bool ArtifactsUIController::askToAssemble(const ArtifactLocation & al, const boo
 			logGlobal->error("artifact location %d points to nothing", al.slot.num);
 			return false;
 		}
-		return askToAssemble(hero, al.slot, onlyEquipped, ignoredArtifacts);
+		return askToAssemble(hero, al.slot, onlyEquipped, checkIgnored);
 	}
 	return false;
 }
 
 bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot,
-	const bool onlyEquipped, std::set<ArtifactID> * ignoredArtifacts)
+	const bool onlyEquipped, const bool checkIgnored)
 {
 	assert(hero);
 	const auto art = hero->getArt(slot);
@@ -52,17 +57,17 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), onlyEquipped);
 	if(!assemblyPossibilities.empty())
 	{
-		auto askThread = new boost::thread([this, hero, art, slot, assemblyPossibilities, ignoredArtifacts]() -> void
+		auto askThread = new boost::thread([this, hero, art, slot, assemblyPossibilities, checkIgnored]() -> void
 			{
 				boost::mutex::scoped_lock askLock(askAssembleArtifactMutex);
 				for(const auto combinedArt : assemblyPossibilities)
 				{
 					boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-					if(ignoredArtifacts)
+					if(checkIgnored)
 					{
-						if(vstd::contains(*ignoredArtifacts, combinedArt->getId()))
+						if(vstd::contains(ignoredArtifacts, combinedArt->getId()))
 							continue;
-						ignoredArtifacts->emplace(combinedArt->getId());
+						ignoredArtifacts.emplace(combinedArt->getId());
 					}
 
 					bool assembleConfirmed = false;

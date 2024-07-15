@@ -117,9 +117,9 @@ void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & a
 {
 	if(artsInst.getArt(artPlace.slot))
 	{
-		if(LOCPLINT->askToDisassemble(artsInst.getHero(), artPlace.slot))
+		if(LOCPLINT->artifactController->askToDisassemble(artsInst.getHero(), artPlace.slot))
 			return;
-		if(LOCPLINT->askToAssemble(artsInst.getHero(), artPlace.slot))
+		if(LOCPLINT->artifactController->askToAssemble(artsInst.getHero(), artPlace.slot))
 			return;
 		if(artPlace.text.size())
 			artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
