@@ -352,16 +352,16 @@ void Nullkiller::makeTurn()
 	const int MAX_DEPTH = 10;
 	const float FAST_TASK_MINIMAL_PRIORITY = 0.7f;
 
-	float totalHeroStrength = 0;
-	int totalTownLevel = 0;
-	for (auto heroInfo : cb->getHeroesInfo())
-	{
-		totalHeroStrength += heroInfo->getTotalStrength();
-	}
-	for (auto townInfo : cb->getTownsInfo())
-	{
-		totalTownLevel += townInfo->getTownLevel();
-	}
+	//float totalHeroStrength = 0;
+	//int totalTownLevel = 0;
+	//for (auto heroInfo : cb->getHeroesInfo())
+	//{
+	//	totalHeroStrength += heroInfo->getTotalStrength();
+	//}
+	//for (auto townInfo : cb->getTownsInfo())
+	//{
+	//	totalTownLevel += townInfo->getTownLevel();
+	//}
 
 	resetAiState();
 
