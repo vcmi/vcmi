@@ -13,6 +13,7 @@
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
+#include "../lib/ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -81,6 +82,7 @@ public:
 	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
 	virtual void setPlayerName(PlayerColor color, const std::string & name) const = 0;
+	virtual void setPlayerHandicap(PlayerColor color, TResources handicap) const = 0;
 	virtual void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const = 0;
 	virtual void setDifficulty(int to) const = 0;
 	virtual void setTurnTimerInfo(const TurnTimerInfo &) const = 0;
@@ -191,6 +193,7 @@ public:
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
 	void setPlayer(PlayerColor color) const override;
 	void setPlayerName(PlayerColor color, const std::string & name) const override;
+	void setPlayerHandicap(PlayerColor color, TResources handicap) const override;
 	void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const override;
 	void setDifficulty(int to) const override;
 	void setTurnTimerInfo(const TurnTimerInfo &) const override;

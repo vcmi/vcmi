@@ -765,6 +765,24 @@ void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
 	setPlayerConnectedId(player, nameID);
 }
 
+void CVCMIServer::setPlayerHandicap(PlayerColor color, TResources handicap)
+{
+	if(color == PlayerColor::CANNOT_DETERMINE)
+		return;
+
+	si->playerInfos[color].handicap = handicap;
+
+	int humanPlayer = 0;
+	for (const auto & pi : si->playerInfos)
+		if(pi.second.isControlledByHuman())
+			humanPlayer++;
+
+	if(humanPlayer < 2) // Singleplayer
+		return;
+
+	announceTxt("Handicap " + color.toString() + ": \n   " + handicap.toString());
+}
+
 void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 {
 	PlayerSettings & s = si->playerInfos[player];

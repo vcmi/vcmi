@@ -16,6 +16,7 @@
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
 #include "serializer/Serializeable.h"
+#include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -78,7 +79,8 @@ struct DLL_LINKAGE PlayerSettings
 	std::string heroNameTextId;
 	PlayerColor color; //from 0 -
 	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
-	EHandicap handicap;//0-no, 1-mild, 2-severe
+	EHandicap handicapLegacy;//0-no, 1-mild, 2-severe
+	TResources handicap;
 
 	std::string name;
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
@@ -92,7 +94,10 @@ struct DLL_LINKAGE PlayerSettings
 		h & heroNameTextId;
 		h & bonus;
 		h & color;
-		h & handicap;
+		if (h.version >= Handler::Version::PLAYER_HANDICAP)
+			h & handicap;
+		else
+			h & handicapLegacy;
 		h & name;
 		h & connectedPlayerIDs;
 		h & compOnly;

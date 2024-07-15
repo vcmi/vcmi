@@ -79,6 +79,10 @@ void OptionsTab::recreate()
 		entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second, * this)));
 	}
 
+	/*TResources resources = TResources();
+	resources[EGameResID::GOLD] = 50000;
+	CSH->setPlayerHandicap((PlayerColor)0, resources);*/
+
 	OptionsTabBase::recreate();
 }
 
