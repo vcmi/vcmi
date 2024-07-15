@@ -101,10 +101,10 @@ void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 
 TerrainTile::TerrainTile():
 	terType(nullptr),
-	terView(0),
 	riverType(VLC->riverTypeHandler->getById(River::NO_RIVER)),
-	riverDir(0),
 	roadType(VLC->roadTypeHandler->getById(Road::NO_ROAD)),
+	terView(0),
+	riverDir(0),
 	roadDir(0),
 	extTileFlags(0),
 	visitable(false),

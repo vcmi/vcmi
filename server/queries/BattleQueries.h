@@ -37,10 +37,10 @@ public:
 class CBattleDialogQuery : public CDialogQuery
 {
 	bool resultProcessed = false;
-public:
-	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, std::optional<BattleResult> Br);
-
 	const IBattleInfo * bi;
 	std::optional<BattleResult> result;
+
+public:
+	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, std::optional<BattleResult> Br);
 	void onRemoval(PlayerColor color) override;
 };

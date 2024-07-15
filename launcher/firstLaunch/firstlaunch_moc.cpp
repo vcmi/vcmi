@@ -368,8 +368,8 @@ void FirstLaunchView::extractGogData()
 
 		QString errorText{};
 
-		auto isGogGalaxyExe = [](QString fileExe) {
-			QFile file(fileExe);
+		auto isGogGalaxyExe = [](QString fileToTest) {
+			QFile file(fileToTest);
 			quint64 fileSize = file.size();
 
 			if(fileSize > 10 * 1024 * 1024)
@@ -379,7 +379,7 @@ void FirstLaunchView::extractGogData()
 				return false;
 			QByteArray data = file.readAll();
 
-			const QByteArray magicId{(const char*)u"GOG Galaxy", 20};
+			const QByteArray magicId{reinterpret_cast<const char*>(u"GOG Galaxy"), 20};
 			return data.contains(magicId);
 		};
 

@@ -138,11 +138,11 @@ static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 			| MiniDumpWithThreadInfo);
 	}
 
-	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, dumpType, meinfo, 0, 0);
+	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, dumpType, meinfo, nullptr, nullptr);
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 }
 
-static void onTerminate()
+[[noreturn]] static void onTerminate()
 {
 	logGlobal->error("Disaster happened.");
 	try
