@@ -371,6 +371,7 @@ void Nullkiller::makeTurn()
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		updateAiState(i);
+		//logAi->info("Gold: %d", cb->getResourceAmount(EGameResID::GOLD));
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
@@ -385,6 +386,7 @@ void Nullkiller::makeTurn()
 
 			if(bestTask->priority >= FAST_TASK_MINIMAL_PRIORITY)
 			{
+				//logAi->info("Performing task %s with prio: %d", bestTask->toString(), bestTask->priority);
 				if(!executeTask(bestTask))
 					return;
 
@@ -406,13 +408,11 @@ void Nullkiller::makeTurn()
 		if(!isOpenMap())
 			decompose(bestTasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
-		if(cb->getDate(Date::DAY) == 1 || heroManager->getHeroRoles().empty())
-		{
-			decompose(bestTasks, sptr(StartupBehavior()), 1);
-		}
 		auto selectedTasks = buildPlan(bestTasks, 0);
 		if (selectedTasks.empty() && !settings->isUseFuzzy())
 			selectedTasks = buildPlan(bestTasks, 1);
+		if (selectedTasks.empty() && !settings->isUseFuzzy())
+			selectedTasks = buildPlan(bestTasks, 2);
 
 		std::sort(selectedTasks.begin(), selectedTasks.end(), [](const TTask& a, const TTask& b) 
 		{
@@ -483,6 +483,7 @@ void Nullkiller::makeTurn()
 
 				continue;
 			}
+			//logAi->info("Performing task %s with prio: %d", bestTask->toString(), bestTask->priority);
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
