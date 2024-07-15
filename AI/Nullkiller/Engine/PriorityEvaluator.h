@@ -70,8 +70,11 @@ struct DLL_EXPORT EvaluationContext
 	uint8_t turn;
 	RewardEvaluator evaluator;
 	float enemyHeroDangerRatio;
+	float threat;
 	float armyInvolvement;
 	bool isDefend;
+	bool isBuild;
+	bool involvesSailing;
 
 	EvaluationContext(const Nullkiller * ai);
 
@@ -94,7 +97,7 @@ public:
 	~PriorityEvaluator();
 	void initVisitTile();
 
-	float evaluate(Goals::TSubgoal task, int priorityTier = 1);
+	float evaluate(Goals::TSubgoal task, int priorityTier = 3);
 
 private:
 	const Nullkiller * ai;

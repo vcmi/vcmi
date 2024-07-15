@@ -54,9 +54,12 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	conquestValue(0),
 	evaluator(ai),
 	enemyHeroDangerRatio(0),
+	threat(0),
 	armyGrowth(0),
 	armyInvolvement(0),
-	isDefend(false)
+	isDefend(false),
+	isBuild(false),
+	involvesSailing(false)
 {
 }
 
@@ -246,7 +249,7 @@ int getDwellingArmyCost(const CGObjectInstance * target)
 			auto creature = creLevel.second.back().toCreature();
 			auto creaturesAreFree = creature->getLevel() == 1;
 			if(!creaturesAreFree)
-				cost += creature->getRecruitCost(EGameResID::GOLD) * creLevel.first;
+				cost += creature->getFullRecruitCost().marketValue() * creLevel.first;
 		}
 	}
 
@@ -686,7 +689,7 @@ int32_t getArmyCost(const CArmedInstance * army)
 
 	for(auto stack : army->Slots())
 	{
-		value += stack.second->getCreatureID().toCreature()->getRecruitCost(EGameResID::GOLD) * stack.second->count;
+		value += stack.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * stack.second->count;
 	}
 
 	return value;
@@ -823,15 +826,8 @@ void addTileDanger(EvaluationContext & evaluationContext, const int3 & tile, uin
 	if(enemyDanger.danger)
 	{
 		auto dangerRatio = enemyDanger.danger / (double)ourStrength;
-		auto enemyHero = evaluationContext.evaluator.ai->cb->getObj(enemyDanger.hero.hid, false);
-		bool isAI = enemyHero && isAnotherAi(enemyHero, *evaluationContext.evaluator.ai->cb);
-
-		if(isAI)
-		{
-			dangerRatio *= 1.5; // lets make AI bit more afraid of other AI.
-		}
-
 		vstd::amax(evaluationContext.enemyHeroDangerRatio, dangerRatio);
+		vstd::amax(evaluationContext.threat, enemyDanger.threat);
 	}
 }
 
@@ -907,6 +903,8 @@ public:
 		for(auto & node : path.nodes)
 		{
 			vstd::amax(costsPerHero[node.targetHero], node.cost);
+			if (node.layer == EPathfindingLayer::SAIL)
+				evaluationContext.involvesSailing = true;
 		}
 
 		for(auto pair : costsPerHero)
@@ -1056,8 +1054,15 @@ public:
 		evaluationContext.goldReward += 7 * bi.dailyIncome[EGameResID::GOLD] / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
-		evaluationContext.goldCost += bi.buildCostWithPrerequisites[EGameResID::GOLD];
+		int32_t cost = bi.buildCostWithPrerequisites[EGameResID::GOLD];
+		auto resourcesAvailable = evaluationContext.evaluator.ai->getFreeResources();
+		TResources missing = bi.buildCostWithPrerequisites - resourcesAvailable;
+		missing[EGameResID::GOLD] = 0;
+		missing.positive();
+		cost += missing.marketValue();
+		evaluationContext.goldCost += cost;
 		evaluationContext.closestWayRatio = 1;
+		evaluationContext.isBuild = true;
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
@@ -1204,37 +1209,105 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	else
 	{
 		float score = 0;
-		if (priorityTier == 0)
+		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
+		switch (priorityTier)
 		{
-			score += evaluationContext.conquestValue * 1000;
-			if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.movementCost > 1))
-				return 0;
+			case 0: //Take towns
+			{
+				score += evaluationContext.conquestValue * 1000;
+				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 0.5 && evaluationContext.turn > 0 && !ai->cb->getTownsInfo().empty()))
+					return 0;
+				score *= evaluationContext.closestWayRatio;
+				if (evaluationContext.threat > evaluationContext.armyInvolvement && !evaluationContext.isDefend)
+					score *= evaluationContext.armyInvolvement / evaluationContext.threat;
+				if (evaluationContext.movementCost > 0)
+					score /= evaluationContext.movementCost;
+				score *= (maxWillingToLose - evaluationContext.armyLossPersentage);
+				break;
+			}
+			case 1: //Collect unguarded stuff
+			{
+				if (evaluationContext.enemyHeroDangerRatio > 0.5 && !evaluationContext.isDefend)
+					return 0;
+				if (evaluationContext.isDefend && evaluationContext.enemyHeroDangerRatio == 0)
+					return 0;
+				if (evaluationContext.armyLossPersentage > 0)
+					return 0;
+				if (evaluationContext.involvesSailing && evaluationContext.movementCostByRole[HeroRole::MAIN] > 0)
+					return 0;
+				score += evaluationContext.strategicalValue * 1000;
+				score += evaluationContext.goldReward;
+				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
+				score += evaluationContext.armyReward;
+				score += evaluationContext.armyGrowth;
+				if (evaluationContext.isBuild)
+				{
+					score += 1000;
+					score /= evaluationContext.goldCost;
+				}
+				else
+				{
+					if (score <= 0)
+						return 0;
+					else
+						score = 1000;
+					score *= evaluationContext.closestWayRatio;
+					if (evaluationContext.threat > evaluationContext.armyInvolvement && !evaluationContext.isDefend)
+						score *= evaluationContext.armyInvolvement / evaluationContext.threat;
+					if (evaluationContext.movementCost > 0)
+						score /= evaluationContext.movementCost;
+				}
+				break;
+			}
+			case 2: //Collect guarded stuff
+			{
+				if (evaluationContext.isBuild)
+					return 0;
+				if (evaluationContext.enemyHeroDangerRatio > 0.5 && !evaluationContext.isDefend)
+					return 0;
+				score += evaluationContext.strategicalValue * 1000;
+				score += evaluationContext.goldReward;
+				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
+				score += evaluationContext.armyReward;
+				score += evaluationContext.armyGrowth;
+				score -= evaluationContext.goldCost;
+				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossPersentage;
+				if (score > 0)
+				{
+					if (evaluationContext.enemyHeroDangerRatio > 1)
+						if (evaluationContext.threat > 0)
+							score = evaluationContext.armyInvolvement / evaluationContext.threat;
+					score *= evaluationContext.closestWayRatio;
+					if (evaluationContext.threat > evaluationContext.armyInvolvement && !evaluationContext.isDefend)
+						score *= evaluationContext.armyInvolvement / evaluationContext.threat;
+					if (evaluationContext.movementCost > 0)
+						score /= evaluationContext.movementCost;
+					score *= (maxWillingToLose - evaluationContext.armyLossPersentage);
+				}
+				break;
+			}
+			case 3: //Pre-filter to see if anything is worth to be done at all
+			{
+				score += evaluationContext.conquestValue * 1000;
+				score += evaluationContext.strategicalValue * 1000;
+				score += evaluationContext.goldReward;
+				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
+				score += evaluationContext.armyReward;
+				score += evaluationContext.armyGrowth;
+				if (evaluationContext.isBuild)
+				{
+					score += 1000;
+					score /= evaluationContext.goldCost;
+				}
+				break;
+			}
 		}
-		else
-		{
-			if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend && evaluationContext.movementCost <= 1)
-				return 0;
-			score += evaluationContext.strategicalValue * 1000;
-			score += evaluationContext.goldReward;
-			score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
-			score += evaluationContext.armyReward;
-			score += evaluationContext.armyGrowth;
-			score -= evaluationContext.goldCost;
-		}
-		if (score > 0)
-		{
-			score *= evaluationContext.closestWayRatio;
-			if (evaluationContext.enemyHeroDangerRatio > 1)
-				score /= evaluationContext.enemyHeroDangerRatio;
-			if (evaluationContext.movementCost > 0)
-				score /= evaluationContext.movementCost;
-			score *= (1 - evaluationContext.armyLossPersentage);
-			result = score;
-		}
+		result = score;
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
-	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, skill: %f danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
+	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, skill: %f danger: %d, threat: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, fuzzy: %f, result %f",
+		priorityTier,
 		task->toString(),
 		evaluationContext.armyLossPersentage,
 		(int)evaluationContext.turn,
@@ -1245,10 +1318,12 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		evaluationContext.armyReward,
 		evaluationContext.skillReward,
 		evaluationContext.danger,
+		evaluationContext.threat,
 		evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
 		evaluationContext.strategicalValue,
 		evaluationContext.closestWayRatio,
 		evaluationContext.enemyHeroDangerRatio,
+		fuzzyResult,
 		result);
 #endif
 
