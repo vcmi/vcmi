@@ -4211,7 +4211,7 @@ CGObjectInstance * CGameHandler::createNewObject(const int3 & visitablePosition,
 		throw std::runtime_error("Attempt to create object outside map at " + visitablePosition.toString());
 
 	const TerrainTile & t = gs->map->getTile(visitablePosition);
-	terrainType = t.terType->getId();
+	terrainType = t.getTerrainID();
 
 	auto handler = VLC->objtypeh->getHandlerFor(objectID, subID);
 

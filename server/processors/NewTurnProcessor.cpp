@@ -423,7 +423,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 				rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 				if(rumorId == RumorState::RUMOR_GRAIL)
 				{
-					rumorExtra = gameHandler->gameState()->getTile(gameHandler->gameState()->map->grailPos)->terType->getIndex();
+					rumorExtra = gameHandler->gameState()->getTile(gameHandler->gameState()->map->grailPos)->getTerrainID().getNum();
 					break;
 				}
 
@@ -555,7 +555,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 		{
 			auto ti = std::make_unique<TurnInfo>(h, 1);
 			// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
+			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->map->getTile(h->visitablePos()).isLand(), ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
 				result.emplace_back(h->id, newMovementPoints, true);
