@@ -1034,6 +1034,17 @@ void CVCMIServer::multiplayerWelcomeMessage()
 
 	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
 
+	for (const auto & pi : si->playerInfos)
+		if(pi.second.isControlledByHuman() && !pi.second.handicap.empty())
+		{
+			MetaString str;
+			str.appendTextID("vcmi.lobby.handicap");
+			str.appendRawString(" ");
+			str.appendName(pi.first);
+			str.appendRawString(": " + pi.second.handicap.toString());
+			announceTxt(str);
+		}
+
 	std::vector<std::string> optionIds;
 	if(si->extraOptionsInfo.cheatsAllowed)
 		optionIds.emplace_back("vcmi.optionsTab.cheatAllowed.hover");
