@@ -40,7 +40,6 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		for(BuildingID prefix : prefixes)
 		{
 			BuildingID building = BuildingID(prefix + level);
-
 			if(!vstd::contains(buildings, building))
 				continue; // no such building in town
 
@@ -78,6 +77,12 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});
 	}
+
+	otherBuildings.push_back({ BuildingID::RESOURCE_SILO });
+	otherBuildings.push_back({ BuildingID::SPECIAL_1 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_2 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_3 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_4 });
 
 	for(auto & buildingSet : otherBuildings)
 	{
