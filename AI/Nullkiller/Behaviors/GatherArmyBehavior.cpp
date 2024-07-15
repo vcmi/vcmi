@@ -284,8 +284,6 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 			continue;
 		}
 
-		auto heroRole = ai->heroManager->getHeroRole(path.targetHero);
-
 		auto upgrade = ai->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
 		if(!upgrader->garrisonHero
