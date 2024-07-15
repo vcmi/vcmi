@@ -52,7 +52,7 @@ We recommend the following directory structure:
 ```
 .
 ├── vcmi -> contains sources and is under git control
-└── vcmi-build -> contains build output, makefiles, object files,...
+└── build -> contains build output, makefiles, object files,...
 ```
 
 You can get the latest source code with:
@@ -64,22 +64,16 @@ You can get the latest source code with:
 ## Configuring Makefiles
 
 ```sh
-mkdir vcmi-build
-cd vcmi-build
+mkdir build
+cd build
 cmake -S ../vcmi
 ```
 
 > [!NOTE]
 > The `../vcmi` is not a typo, it will place Makefiles into the build dir as the build dir is your working dir when calling CMake.
 
-### Additional options that you may want to use:
+See [CMake](CMake.md) for a list of options
 
-| Option | Effect |
-|--------|--------|
-| -D CMAKE_BUILD_TYPE=Debug | Debug info and no optimizations |
-| -D ENABLE_CCACHE:BOOL=ON | Speeds up recompilation |
-| -D CMAKE_EXPORT_COMPILE_COMMANDS=ON | Creates `compile_commands.json` for `clangd` language server |
-| -G Ninja | Use Ninja build system instead of make, which speeds up the build and doesn't require a `-j` flag |
 
 ## Building
 
