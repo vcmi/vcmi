@@ -124,7 +124,7 @@
 				"dwellingUpLvl7": { "animation" : "TBNCUP_6.def", "x" : 662, "y" : 23,  "border" : "TONBON2.bmp",  "area" : "TZNBON2.bmp" }
 			},
 
-			"musicTheme" : "music/NecroTown",
+			"musicTheme" : [ "music/NecroTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",

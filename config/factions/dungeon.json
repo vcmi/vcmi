@@ -119,7 +119,7 @@
 				"dwellingUpLvl7": { "animation" : "TBDNUP_6.def", "x" : 550, "y" : 0,   "z" : -1, "border" : "TODDRA2A.bmp", "area" : "TZDDRA2A.bmp" }
 			},
 
-			"musicTheme" : "music/Dungeon",
+			"musicTheme" : [ "music/Dungeon" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",
