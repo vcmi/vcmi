@@ -29,9 +29,6 @@ private:
 	
 protected:
 	
-	/// filters list of visit info and returns rewards that can be granted to current hero
-	std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero, Rewardable::EEventType event) const;
-	
 	/// function that must be called if hero got level-up during grantReward call
 	virtual void grantRewardAfterLevelup(IGameCallback * cb, const Rewardable::VisitInfo & reward, const CArmedInstance * army, const CGHeroInstance * hero) const;
 
@@ -39,6 +36,9 @@ protected:
 	virtual void grantRewardBeforeLevelup(IGameCallback * cb, const Rewardable::VisitInfo & reward, const CGHeroInstance * hero) const;
 	
 public:
+
+	/// filters list of visit info and returns rewards that can be granted to current hero
+	std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero, Rewardable::EEventType event) const;
 	
 	Rewardable::Configuration configuration;
 	

@@ -79,6 +79,15 @@ bool needToRecruitHero(const Nullkiller * ai, const CGTownInstance * startupTown
 		bool isGoldPile = dynamic_cast<const CGResource *>(obj)
 			&& dynamic_cast<const CGResource *>(obj)->resourceID() == EGameResID::GOLD;
 
+		auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
+
+		if(rewardable)
+		{
+			for(auto & info : rewardable->configuration.info)
+				if(info.reward.resources[EGameResID::GOLD] > 0)
+					isGoldPile = true;
+		}
+
 		if(isGoldPile
 			|| obj->ID == Obj::TREASURE_CHEST
 			|| obj->ID == Obj::CAMPFIRE
