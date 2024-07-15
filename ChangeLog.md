@@ -1,3 +1,13 @@
+# 1.5.4 -> 1.5.5
+
+* Fixed crash when advancing to the next scenario in campaigns when the hero not transferring has a combination artefact that can be transferred to the next scenario.
+* Fixed game not updating information such as hero path and current music on new day
+* Changed default battle queue hotkey from Q to Z to match HD Mod / HotA
+* Changed default hotkey for finishing battle with quick combat from E to Z to match HD Mod / HotA
+* Creature casting now uses both F and G keyboard hotkeys
+* Shift+left click now directly opens the hero window when two heroes are in town
+* Fixed handling of alternative actions for creatures that have more than two potential actions, such as move, shoot, and cast spells.
+
 # 1.5.3 -> 1.5.4
 
 ### Stability
