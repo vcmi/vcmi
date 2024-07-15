@@ -998,8 +998,12 @@ void BattleActionsController::activateStack()
 				};
 				bool hasShootSecondaryAction = std::any_of(possibleActions.begin() + 1, possibleActions.end(), shootActionPredicate);
 
-				if(hasShootSecondaryAction)
+				if(hasShootSecondaryAction) //casters may have shooting capabilities, for example storm elementals
 					actionsToSelect.emplace_back(PossiblePlayerBattleAction::SHOOT);
+
+				/* TODO: maybe it would also make sense to check spellcast as non-top priority action ("NO_SPELLCAST_BY_DEFAULT" bonus)?
+				 * it would require going beyond this "if" block for melee casters
+				 * F button helps, but some mod creatures may have that bonus and more than 1 castable spell */
 
 				actionsToSelect.emplace_back(PossiblePlayerBattleAction::ATTACK); //always allow melee attack as last option
 			}
