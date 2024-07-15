@@ -1509,7 +1509,7 @@ uint8_t AIPath::turn() const
 
 uint64_t AIPath::getHeroStrength() const
 {
-	return targetHero->getFightingStrength() * getHeroArmyStrengthWithCommander(targetHero, heroArmy);
+	return targetHero->getHeroStrength() * getHeroArmyStrengthWithCommander(targetHero, heroArmy);
 }
 
 uint64_t AIPath::getTotalDanger() const
@@ -1536,7 +1536,7 @@ bool AIPath::containsHero(const CGHeroInstance * hero) const
 
 uint64_t AIPath::getTotalArmyLoss() const
 {
-	return armyLoss + targetObjectArmyLoss;
+	return armyLoss > targetObjectArmyLoss ? armyLoss : targetObjectArmyLoss;
 }
 
 std::string AIPath::toString() const
