@@ -494,7 +494,11 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	if (!openInput(videoToOpen))
 		return { nullptr, 0};
 	openContext();
-	openCodec(findAudioStream());
+
+	int audioStreamIndex = findAudioStream();
+	if (audioStreamIndex == -1)
+		return { nullptr, 0};
+	openCodec(audioStreamIndex);
 
 	const auto * codecpar = getCodecParameters();
 
