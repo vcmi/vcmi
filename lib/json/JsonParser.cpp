@@ -587,7 +587,12 @@ bool JsonParser::error(const std::string & message, bool warning)
 	std::ostringstream stream;
 	std::string type(warning ? " warning: " : " error: ");
 
-	stream << "At line " << lineCount << ", position " << pos - lineStart << type << message << "\n";
+	if(!errors.empty())
+	{
+		// only add the line breaks between error messages so we don't have a trailing line break
+		stream << "\n";
+	}
+	stream << "At line " << lineCount << ", position " << pos - lineStart << type << message;
 	errors += stream.str();
 
 	return warning;

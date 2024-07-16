@@ -669,15 +669,50 @@ CTavernWindow::HeroSelector::HeroSelector(std::map<HeroTypeID, CGHeroInstance*> 
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	pos = Rect(0, 0, 16 * 48, (inviteableHeroes.size() / 16 + (inviteableHeroes.size() % 16 != 0)) * 32);
+	pos = Rect(
+		pos.x,
+		pos.y,
+		ELEM_PER_LINES * 48,
+		std::min((int)(inviteableHeroes.size() / ELEM_PER_LINES + (inviteableHeroes.size() % ELEM_PER_LINES != 0)), MAX_LINES) * 32
+	);
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
 
+	if(inviteableHeroes.size() / ELEM_PER_LINES > MAX_LINES)
+	{
+		pos.w += 16;
+		slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, std::bind(&CTavernWindow::HeroSelector::sliderMove, this, _1), MAX_LINES, std::ceil((double)inviteableHeroes.size() / ELEM_PER_LINES), 0, Orientation::VERTICAL, CSlider::BROWN);
+		slider->setPanningStep(32);
+		slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, pos.w, pos.h));
+	}
+
+	recreate();
+	center();
+}
+
+void CTavernWindow::HeroSelector::sliderMove(int slidPos)
+{
+	if(!slider)
+		return; // ignore spurious call when slider is being created
+	recreate();
+	redraw();
+}
+
+void CTavernWindow::HeroSelector::recreate()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	int sliderLine = slider ? slider->getValue() : 0;
 	int x = 0;
-	int y = 0;
+	int y = -sliderLine;
+	portraits.clear();
+	portraitAreas.clear();
 	for(auto & h : inviteableHeroes)
 	{
-		portraits.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[h.first]->imageIndex, 0, x * 48, y * 32));
-		portraitAreas.push_back(std::make_shared<LRClickableArea>(Rect(x * 48, y * 32, 48, 32), [this, h](){ close(); onChoose(inviteableHeroes[h.first]); }, [this, h](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(inviteableHeroes[h.first])); }));
+		if(y >= 0 && y <= MAX_LINES - 1)
+		{
+			portraits.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[h.first]->imageIndex, 0, x * 48, y * 32));
+			portraitAreas.push_back(std::make_shared<LRClickableArea>(Rect(x * 48, y * 32, 48, 32), [this, h](){ close(); onChoose(inviteableHeroes[h.first]); }, [this, h](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(inviteableHeroes[h.first])); }));
+		}
 
 		if(x > 0 && x % 15 == 0)
 		{
@@ -687,8 +722,6 @@ CTavernWindow::HeroSelector::HeroSelector(std::map<HeroTypeID, CGHeroInstance*> 
 		else
 			x++;
 	}
-
-	center();
 }
 
 CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boatType, const std::function<void()> & onBuy)

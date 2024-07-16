@@ -168,6 +168,7 @@ set(client_SRCS
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
 
+	ArtifactsUIController.cpp
 	CGameInfo.cpp
 	CMT.cpp
 	CPlayerInterface.cpp
@@ -371,6 +372,7 @@ set(client_HEADERS
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h
 
+	ArtifactsUIController.h
 	CGameInfo.h
 	CMT.h
 	CPlayerInterface.h

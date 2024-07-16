@@ -99,7 +99,7 @@ int BonusList::totalValue() const
 		int indepMax = std::numeric_limits<int>::min();
 	};
 
-	auto percent = [](int base, int percent) -> int {
+	auto applyPercentage = [](int base, int percent) -> int {
 		return (static_cast<int64_t>(base) * (100 + percent)) / 100;
 	};
 
@@ -125,7 +125,7 @@ int BonusList::totalValue() const
 	for(const auto & b : bonuses)
 	{
 		int sourceIndex = vstd::to_underlying(b->source);
-		int valModified	= percent(b->val, percentToSource[sourceIndex]);
+		int valModified	= applyPercentage(b->val, percentToSource[sourceIndex]);
 
 		switch(b->valType)
 		{
@@ -152,9 +152,9 @@ int BonusList::totalValue() const
 		}
 	}
 
-	accumulated.base = percent(accumulated.base, accumulated.percentToBase);
+	accumulated.base = applyPercentage(accumulated.base, accumulated.percentToBase);
 	accumulated.base += accumulated.additive;
-	auto valFirst = percent(accumulated.base ,accumulated.percentToAll);
+	auto valFirst = applyPercentage(accumulated.base ,accumulated.percentToAll);
 
 	if(hasIndepMin && hasIndepMax && accumulated.indepMin < accumulated.indepMax)
 		accumulated.indepMax = accumulated.indepMin;
@@ -167,7 +167,13 @@ int BonusList::totalValue() const
 	if(notIndepBonuses)
 		return std::clamp(valFirst, accumulated.indepMax, accumulated.indepMin);
 
-	return hasIndepMin ? accumulated.indepMin : hasIndepMax ? accumulated.indepMax : 0;
+	if (hasIndepMin)
+		return accumulated.indepMin;
+
+	if (hasIndepMax)
+		return accumulated.indepMax;
+
+	return 0;
 }
 
 std::shared_ptr<Bonus> BonusList::getFirst(const CSelector &select)
