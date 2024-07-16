@@ -122,4 +122,7 @@ public:
 	
 	/// inserts possible action in the beggining in order to prioritize it
 	void pushFrontPossibleAction(PossiblePlayerBattleAction);
+
+	/// resets possible actions to original state
+	void resetCurrentStackPossibleActions();
 };
