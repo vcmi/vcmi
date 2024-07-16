@@ -80,6 +80,7 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 			owner.castThisSpell(id);
 		}
 	};
+	addShortcut(EShortcut::BATTLE_TOGGLE_QUICKSPELL, [this](){ this->toggleStickyQuickSpellVisibility();});
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_0, [useSpellIfPossible](){ useSpellIfPossible(0); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_1, [useSpellIfPossible](){ useSpellIfPossible(1); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_2, [useSpellIfPossible](){ useSpellIfPossible(2); });
@@ -205,9 +206,47 @@ void BattleWindow::createQuickSpellWindow()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	std::shared_ptr<QuickSpellPanel> window = std::make_shared<QuickSpellPanel>(owner);
-	window->moveTo(Point(pos.x - 68, pos.y - 14));
-	GH.windows().pushWindow(window);
+	quickSpellWindow = std::make_shared<QuickSpellPanel>(owner);
+	quickSpellWindow->moveTo(Point(pos.x - 68, pos.y - 14));
+
+	if(settings["battle"]["enableQuickSpellPanel"].Bool())
+		showStickyQuickSpellWindow();
+	else
+		hideStickyQuickSpellWindow();
+}
+
+void BattleWindow::toggleStickyQuickSpellVisibility()
+{
+	if(settings["battle"]["enableQuickSpellPanel"].Bool())
+		hideStickyQuickSpellWindow();
+	else
+		showStickyQuickSpellWindow();
+}
+
+void BattleWindow::hideStickyQuickSpellWindow()
+{
+	if(settings["battle"]["enableQuickSpellPanel"].Bool() == false)
+		return;
+
+	Settings showStickyQuickSpellWindow = settings.write["battle"]["enableQuickSpellPanel"];
+	showStickyQuickSpellWindow->Bool() = false;
+
+	quickSpellWindow->disable();
+
+	GH.windows().totalRedraw();
+}
+
+void BattleWindow::showStickyQuickSpellWindow()
+{
+	if(settings["battle"]["enableQuickSpellPanel"].Bool() == true)
+		return;
+
+	Settings showStickyQuickSpellWindow = settings.write["battle"]["enableQuickSpellPanel"];
+	showStickyQuickSpellWindow->Bool() = true;
+
+	quickSpellWindow->enable();
+
+	GH.windows().totalRedraw();
 }
 
 void BattleWindow::createTimerInfoWindows()

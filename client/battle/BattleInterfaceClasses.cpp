@@ -420,7 +420,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 }
 
 QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
-	: CWindowObject(NEEDS_ANIMATED_BACKGROUND), owner(owner)
+	: CIntObject(0), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 

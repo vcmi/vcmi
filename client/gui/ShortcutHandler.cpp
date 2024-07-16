@@ -222,6 +222,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"battleTacticsNext",        EShortcut::BATTLE_TACTICS_NEXT       },
 		{"battleTacticsEnd",         EShortcut::BATTLE_TACTICS_END        },
 		{"battleSelectAction",       EShortcut::BATTLE_SELECT_ACTION      },
+		{"battleToggleQuickSpell",   EShortcut::BATTLE_TOGGLE_QUICKSPELL   },
 		{"battleSpellShortcut0",     EShortcut::BATTLE_SPELL_SHORTCUT_0   },
 		{"battleSpellShortcut1",     EShortcut::BATTLE_SPELL_SHORTCUT_1   },
 		{"battleSpellShortcut2",     EShortcut::BATTLE_SPELL_SHORTCUT_2   },

@@ -76,6 +76,7 @@ class BattleWindow : public InterfaceObjectConfigurable
 	void createQueue();
 
 	void toggleStickyHeroWindowsVisibility();
+	void toggleStickyQuickSpellVisibility();
 	void createStickyHeroInfoWindows();
 	void createQuickSpellWindow();
 	void createTimerInfoWindows();
@@ -97,6 +98,10 @@ public:
 	/// Toggle permanent hero info windows visibility (HD mod feature)
 	void hideStickyHeroWindows();
 	void showStickyHeroWindows();
+
+	/// Toggle permanent quickspell windows visibility
+	void hideStickyQuickSpellWindow();
+	void showStickyQuickSpellWindow();
 
 	/// Event handler for netpack changing hero mana points
 	void heroManaPointsChanged(const CGHeroInstance * hero);

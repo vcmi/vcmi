@@ -167,7 +167,7 @@ public:
 	int spellSlot;
 };
 
-class QuickSpellPanel : public CWindowObject
+class QuickSpellPanel : public CIntObject
 {
 private:
 	std::shared_ptr<CFilledTexture> background;
