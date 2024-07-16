@@ -28,6 +28,8 @@
 #endif
 
 #include <SDL.h>
+#include <SDL_image.h>
+
 
 // TODO: should be made into a private members of ScreenHandler
 static SDL_Window * mainWindow = nullptr;
@@ -372,12 +374,13 @@ SDL_Window * ScreenHandler::createWindow()
 		{
 			SDL_Window *win = createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
 
-			SDL_Surface *redSurface = SDL_CreateRGBSurface(0, 16, 16, 24, 0,0,0,0);
-			SDL_Rect fillRect = {0, 0, 16, 16};
-			Uint32 redColor = SDL_MapRGB(redSurface->format, 255, 0, 0);
-			SDL_FillRect(redSurface, &fillRect, redColor);
+			SDL_Surface* iconSurface = IMG_Load("vcmiclient.png");
+			if (iconSurface == NULL) {
+				fprintf(stderr, "SDL_IMG_Load Error: %s\n", SDL_GetError());
+			} else {
+				SDL_SetWindowIcon(win, iconSurface);
+			}
 
-			SDL_SetWindowIcon(win, redSurface);
 			return win;
 		}
 
