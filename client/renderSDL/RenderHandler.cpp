@@ -65,10 +65,10 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 
 		for(const JsonNode & frame : group["frames"].Vector())
 		{
-			JsonNode toAdd;
+			JsonNode toAdd = frame;
 			JsonUtils::inherit(toAdd, base);
 			toAdd["file"].String() = basepath + frame.String();
-			source[groupID].push_back(ImageLocator(toAdd));
+			source[groupID].emplace_back(toAdd);
 		}
 	}
 
@@ -80,7 +80,7 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 		if (source[group].size() <= frame)
 			source[group].resize(frame+1);
 
-		JsonNode toAdd;
+		JsonNode toAdd = node;
 		JsonUtils::inherit(toAdd, base);
 		toAdd["file"].String() = basepath + node["file"].String();
 		source[group][frame] = ImageLocator(toAdd);
