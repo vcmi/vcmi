@@ -1207,22 +1207,12 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		handler.serializeIdArray( "possibleSpells", possibleSpells);
 		handler.serializeIdArray( "obligatorySpells", obligatorySpells);
+	}
 
-		if (handler.saving) 
-		{
-			auto eventsHandler = handler.enterArray("events");
-			std::vector<CCastleEvent> temp(events.begin(), events.end());
-			eventsHandler.serializeStruct(temp);
-		}
-		else
-		{
-			auto eventsHandler = handler.enterArray("events");
-			std::vector<CCastleEvent> temp;
-			eventsHandler.serializeStruct(temp);
-			events.clear();
-			events.insert(events.begin(), temp.begin(), temp.end());
-		}
-		
+	{
+		auto eventsHandler = handler.enterArray("events");
+		eventsHandler.syncSize(events, JsonNode::JsonType::DATA_VECTOR);
+		eventsHandler.serializeStruct(events);
 	}
 }
 

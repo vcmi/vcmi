@@ -64,7 +64,7 @@ public:
 	std::vector<CGTownBuilding*> bonusingBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
-	std::list<CCastleEvent> events;
+	std::vector<CCastleEvent> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
 	//////////////////////////////////////////////////////////////////////////

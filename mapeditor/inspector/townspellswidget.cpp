@@ -50,29 +50,27 @@ void TownSpellsWidget::resetSpells()
 {
 	town.possibleSpells.clear();
 	town.obligatorySpells.clear();
-	for (auto spell : VLC->spellh->objects)
-	{
-		if (!spell->isSpecial() && !spell->isCreatureAbility())
-			town.possibleSpells.push_back(spell->id);
-	}
+	for (auto spellID : VLC->spellh->getDefaultAllowed())
+		town.possibleSpells.push_back(spellID);
 }
 
 void TownSpellsWidget::initSpellLists()
 {
 	QListWidget * possibleSpellLists[] = { ui->possibleSpellList1, ui->possibleSpellList2, ui->possibleSpellList3, ui->possibleSpellList4, ui->possibleSpellList5 };
 	QListWidget * requiredSpellLists[] = { ui->requiredSpellList1, ui->requiredSpellList2, ui->requiredSpellList3, ui->requiredSpellList4, ui->requiredSpellList5 };
-	auto spells = VLC->spellh->objects;
+	auto spells = VLC->spellh->getDefaultAllowed();
 	for (int i = 0; i < GameConstants::SPELL_LEVELS; i++)
 	{
-		std::vector<std::shared_ptr<CSpell>> spellsByLevel;
-		auto getSpellsByLevel = [i](auto spell) {
-			return spell->getLevel() == i + 1 && !spell->isSpecial() && !spell->isCreatureAbility();
+		std::vector<SpellID> spellsByLevel;
+		auto getSpellsByLevel = [i](auto spellID) {
+			return spellID.toEntity(VLC)->getLevel() == i + 1;
 		};
 		vstd::copy_if(spells, std::back_inserter(spellsByLevel), getSpellsByLevel);
 		possibleSpellLists[i]->clear();
 		requiredSpellLists[i]->clear();
-		for (auto spell : spellsByLevel)
+		for (auto spellID : spellsByLevel)
 		{
+			auto spell = spellID.toEntity(VLC);
 			auto * possibleItem = new QListWidgetItem(QString::fromStdString(spell->getNameTranslated()));
 			possibleItem->setData(Qt::UserRole, QVariant::fromValue(spell->getIndex()));
 			possibleItem->setFlags(possibleItem->flags() | Qt::ItemIsUserCheckable);
