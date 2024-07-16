@@ -394,7 +394,7 @@ void CGameState::initDifficulty()
 
 		//handicap
 		const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(state.color);
-		state.resources += ps.handicap;
+		state.resources += ps.handicap.startBonus;
 		
 		//set global bonuses
 		for(auto & jsonBonus : json["globalBonuses"].Vector())

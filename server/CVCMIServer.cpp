@@ -624,8 +624,6 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = pinfo.mainCustomHeroPortrait;
 			}
-
-			pset.handicap = PlayerSettings::NO_HANDICAP;
 		}
 
 		if(mi->isRandomMap && mapGenOpts)
@@ -765,7 +763,7 @@ void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
 	setPlayerConnectedId(player, nameID);
 }
 
-void CVCMIServer::setPlayerHandicap(PlayerColor color, TResources handicap)
+void CVCMIServer::setPlayerHandicap(PlayerColor color, PlayerSettings::Handicap handicap)
 {
 	if(color == PlayerColor::CANNOT_DETERMINE)
 		return;
@@ -786,7 +784,7 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, TResources handicap)
 	str.appendName(color);
 	str.appendRawString(":");
 
-	if(handicap.empty())
+	if(handicap.startBonus.empty() && handicap.percentIncome.empty())
 	{
 		str.appendRawString(" ");
 		str.appendTextID("core.genrltxt.523");
@@ -795,12 +793,12 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, TResources handicap)
 	}
 
 	for(auto & res : EGameResID::ALL_RESOURCES())
-		if(handicap[res] != 0)
+		if(handicap.startBonus[res] != 0 && handicap.percentIncome[res] != 0)
 		{
 			str.appendRawString(" ");
 			str.appendName(res);
 			str.appendRawString(":");
-			str.appendRawString(std::to_string(handicap[res]));
+			str.appendRawString(std::to_string(handicap.startBonus[res]) + "|" + std::to_string(handicap.percentIncome[res] == 0 ? 100 : handicap.percentIncome[res]) + "%");
 		}
 	announceTxt(str);
 }
@@ -1052,7 +1050,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
 
 	for (const auto & pi : si->playerInfos)
-		if(!pi.second.handicap.empty())
+		if(!pi.second.handicap.startBonus.empty() || !pi.second.handicap.percentIncome.empty())
 		{
 			MetaString str;
 			str.appendTextID("vcmi.lobby.handicap");
@@ -1060,12 +1058,12 @@ void CVCMIServer::multiplayerWelcomeMessage()
 			str.appendName(pi.first);
 			str.appendRawString(":");
 			for(auto & res : EGameResID::ALL_RESOURCES())
-				if(pi.second.handicap[res] != 0)
+				if(pi.second.handicap.startBonus[res] != 0 || pi.second.handicap.percentIncome[res] != 0)
 				{
 					str.appendRawString(" ");
 					str.appendName(res);
 					str.appendRawString(":");
-					str.appendRawString(std::to_string(pi.second.handicap[res]));
+					str.appendRawString(std::to_string(pi.second.handicap.startBonus[res]) + "|" + std::to_string(pi.second.handicap.percentIncome[res] == 0 ? 100 : pi.second.handicap.percentIncome[res]) + "%");
 				}
 			gh->playerMessages->broadcastSystemMessage(str);
 		}

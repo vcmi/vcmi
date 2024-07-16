@@ -80,7 +80,10 @@ struct DLL_LINKAGE PlayerSettings
 	PlayerColor color; //from 0 -
 	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
 	EHandicap handicapLegacy;//0-no, 1-mild, 2-severe
-	TResources handicap;
+	struct Handicap {
+		TResources startBonus;
+		TResources percentIncome;
+	} handicap;
 
 	std::string name;
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
@@ -95,7 +98,10 @@ struct DLL_LINKAGE PlayerSettings
 		h & bonus;
 		h & color;
 		if (h.version >= Handler::Version::PLAYER_HANDICAP)
-			h & handicap;
+		{
+			h & handicap.startBonus;
+			h & handicap.percentIncome;
+		}
 		else
 			h & handicapLegacy;
 		h & name;

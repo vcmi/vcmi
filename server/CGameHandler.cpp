@@ -1428,8 +1428,10 @@ void CGameHandler::giveResource(PlayerColor player, GameResID which, int val) //
 {
 	if (!val) return; //don't waste time on empty call
 
+	auto * playerSettings = gs->scenarioOps->getPlayersSettings(player);
+
 	TResources resources;
-	resources[which] = val;
+	resources[which] = val * (playerSettings->handicap.percentIncome[which] == 0 ? 1 : playerSettings->handicap.percentIncome[which] / 100);
 	giveResources(player, resources);
 }
 

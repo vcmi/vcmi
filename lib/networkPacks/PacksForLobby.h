@@ -284,14 +284,15 @@ struct DLL_LINKAGE LobbySetPlayerName : public CLobbyPackToServer
 struct DLL_LINKAGE LobbySetPlayerHandicap : public CLobbyPackToServer
 {
 	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
-	TResources handicap = TResources();
+	PlayerSettings::Handicap handicap = PlayerSettings::Handicap();
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & color;
-		h & handicap;
+		h & handicap.startBonus;
+		h & handicap.percentIncome;
 	}
 };
 
