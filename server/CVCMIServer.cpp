@@ -1052,7 +1052,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
 
 	for (const auto & pi : si->playerInfos)
-		if(pi.second.isControlledByHuman() && !pi.second.handicap.empty())
+		if(!pi.second.handicap.empty())
 		{
 			MetaString str;
 			str.appendTextID("vcmi.lobby.handicap");
@@ -1067,7 +1067,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 					str.appendRawString(":");
 					str.appendRawString(std::to_string(pi.second.handicap[res]));
 				}
-			announceTxt(str);
+			gh->playerMessages->broadcastSystemMessage(str);
 		}
 
 	std::vector<std::string> optionIds;

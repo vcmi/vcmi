@@ -925,6 +925,9 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 
 	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.empty() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
 	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), [this](){
+		if(!CSH->isHost())
+			return;
+
 		TResources resources = TResources();
 		resources[EGameResID::GOLD] = 50000;
 		CSH->setPlayerHandicap(s->color, resources);
