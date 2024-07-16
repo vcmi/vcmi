@@ -369,7 +369,17 @@ SDL_Window * ScreenHandler::createWindow()
 			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN_DESKTOP, false);
 
 		case EWindowMode::WINDOWED:
-			return createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
+		{
+			SDL_Window *win = createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
+
+			SDL_Surface *redSurface = SDL_CreateRGBSurface(0, 16, 16, 24, 0,0,0,0);
+			SDL_Rect fillRect = {0, 0, 16, 16};
+			Uint32 redColor = SDL_MapRGB(redSurface->format, 255, 0, 0);
+			SDL_FillRect(redSurface, &fillRect, redColor);
+
+			SDL_SetWindowIcon(win, redSurface);
+			return win;
+		}
 
 		default:
 			return nullptr;
