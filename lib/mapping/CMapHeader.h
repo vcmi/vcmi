@@ -230,6 +230,10 @@ public:
 	MetaString name;
 	MetaString description;
 	EMapDifficulty difficulty;
+	MetaString author;
+	MetaString authorContact;
+	MetaString mapVersion;
+	std::time_t creationDateTime;
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.
 	ui8 levelLimit;
@@ -263,6 +267,13 @@ public:
 		h & mods;
 		h & name;
 		h & description;
+		if (h.version >= Handler::Version::MAP_FORMAT_ADDITIONAL_INFOS)
+		{
+			h & author;
+			h & authorContact;
+			h & mapVersion;
+			h & creationDateTime;
+		}
 		h & width;
 		h & height;
 		h & twoLevel;

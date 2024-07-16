@@ -201,6 +201,7 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 {
 	auto map = std::make_unique<CMap>(nullptr);
 	map->version = EMapFormat::VCMI;
+	map->creationDateTime = std::time(nullptr);
 	map->width = options.getWidth();
 	map->height = options.getHeight();
 	map->twoLevel = options.getHasTwoLevels();
