@@ -66,7 +66,6 @@
 
 #include "../CCallback.h"
 
-#include "../lib/CArtHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -132,7 +131,9 @@ struct HeroObjectRetriever
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	localState(std::make_unique<PlayerLocalState>(*this)),
-	movementController(std::make_unique<HeroMovementController>())
+	movementController(std::make_unique<HeroMovementController>()),
+	artifactController(std::make_unique<ArtifactsUIController>())
+	
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
 	GH.defActionsDef = 0;
@@ -148,7 +149,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
 	ignoreEvents = false;
-	numOfMovedArts = 0;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -1252,35 +1252,6 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	GH.windows().pushWindow(cgw);
 }
 
-/**
- * Shows the dialog that appears when right-clicking an artifact that can be assembled
- * into a combinational one on an artifact screen. Does not require the combination of
- * artifacts to be legal.
- */
-void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<void()> onYes)
-{
-	std::string text = artifact->getDescriptionTranslated();
-	text += "\n\n";
-	std::vector<std::shared_ptr<CComponent>> scs;
-
-	if(assembledArtifact)
-	{
-		// You possess all of the components to...
-		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getNameTranslated());
-
-		// Picture of assembled artifact at bottom.
-		auto sc = std::make_shared<CComponent>(ComponentType::ARTIFACT, assembledArtifact->getId());
-		scs.push_back(sc);
-	}
-	else
-	{
-		// Do you wish to disassemble this artifact?
-		text += CGI->generaltexth->allTexts[733];
-	}
-
-	showYesNoDialog(text, onYes, nullptr, scs);
-}
-
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
 	if(pa->packType == CTypeList::getInstance().getTypeID<MoveHero>(nullptr))
@@ -1738,17 +1709,7 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 {
-	if(auto hero = cb->getHero(al.artHolder))
-	{
-		auto art = hero->getArt(al.slot);
-		if(art == nullptr)
-		{
-			logGlobal->error("artifact location %d points to nothing",
-							 al.slot.num);
-			return;
-		}
-		ArtifactUtilsClient::askToAssemble(hero, al.slot);
-	}
+	artifactController->askToAssemble(al, true, true);
 }
 
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
@@ -1761,55 +1722,33 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
-
-	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
-		artWin->artifactRemoved(al);
-
-	waitWhileDialog();
+	artifactController->artifactRemoved();
 }
 
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(dst.artHolder));
-
-	// If a bulk transfer has arrived, then redrawing only the last art movement.
-	if(numOfMovedArts != 0)
-		numOfMovedArts--;
-
-	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
-	{
-		artWin->artifactMoved(src, dst);
-		if(numOfMovedArts == 0)
-		{
-			artWin->update();
-			artWin->redraw();
-		}
-	}
-	waitWhileDialog();
+	artifactController->artifactMoved();
 }
 
-void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
+void CPlayerInterface::bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts)
 {
-	numOfMovedArts = numOfArts;
+	artifactController->bulkArtMovementStart(totalNumOfArts, possibleAssemblyNumOfArts);
 }
 
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
-
-	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
-		artWin->artifactAssembled(al);
+	artifactController->artifactAssembled();
 }
 
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
-
-	for(auto artWin : GH.windows().findWindows<CWindowWithArtifacts>())
-		artWin->artifactDisassembled(al);
+	artifactController->artifactDisassembled();
 }
 
 void CPlayerInterface::waitForAllDialogs()

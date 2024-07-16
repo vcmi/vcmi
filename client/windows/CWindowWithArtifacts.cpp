@@ -117,9 +117,9 @@ void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & a
 {
 	if(artsInst.getArt(artPlace.slot))
 	{
-		if(ArtifactUtilsClient::askToDisassemble(artsInst.getHero(), artPlace.slot))
+		if(LOCPLINT->artifactController->askToDisassemble(artsInst.getHero(), artPlace.slot))
 			return;
-		if(ArtifactUtilsClient::askToAssemble(artsInst.getHero(), artPlace.slot))
+		if(LOCPLINT->artifactController->askToAssemble(artsInst.getHero(), artPlace.slot))
 			return;
 		if(artPlace.text.size())
 			artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
@@ -166,14 +166,13 @@ void CWindowWithArtifacts::enableKeyboardShortcuts() const
 		artSet->enableKeyboardShortcuts();
 }
 
-void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)
-{
-	update();
-}
-
-void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc)
+void CWindowWithArtifacts::update()
 {
 	for(const auto & artSet : artSets)
+	{
+		artSet->updateWornSlots();
+		artSet->updateBackpackSlots();
+
 		if(const auto pickedArtInst = getPickedArtifact())
 		{
 			markPossibleSlots();
@@ -184,30 +183,12 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			artSet->unmarkSlots();
 			CCS->curh->dragAndDropCursor(nullptr);
 		}
-}
-
-void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation & artLoc)
-{
-	update();
-}
-
-void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation & artLoc)
-{
-	markPossibleSlots();
-	update();
-}
-
-void CWindowWithArtifacts::update()
-{
-	for(const auto & artSet : artSets)
-	{
-		artSet->updateWornSlots();
-		artSet->updateBackpackSlots();
 
 		// Make sure the status bar is updated so it does not display old text
 		if(auto artPlace = artSet->getArtPlace(GH.getCursorPosition()))
 			artPlace->hover(true);
 	}
+	redraw();
 }
 
 void CWindowWithArtifacts::markPossibleSlots() const
