@@ -11,7 +11,6 @@
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
-#include "../lib/ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
