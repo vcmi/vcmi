@@ -27,9 +27,7 @@
 #include <SDL2/SDL.h>
 #endif
 
-namespace
-{
-QString resolutionToString(const QSize & resolution)
+static QString resolutionToString(const QSize & resolution)
 {
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
 }
@@ -46,8 +44,6 @@ static constexpr std::array upscalingFilterTypes =
 	"linear",
 	"best"
 };
-
-}
 
 void CSettingsView::setDisplayList()
 {

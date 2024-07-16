@@ -1125,7 +1125,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	std::vector<int> tempList;
 	tempList.reserve(objectGuiOrdered.size());
 
-	for(auto item : objectGuiOrdered)
+	for(const auto & item : objectGuiOrdered)
 		tempList.push_back(item.getNum());
 
 	CComponent localIconC(icon);
@@ -1134,7 +1134,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	localIconC.removeChild(localIcon.get(), false);
 
 	std::vector<std::shared_ptr<IImage>> images;
-	for(auto & obj : objectGuiOrdered)
+	for(const auto & obj : objectGuiOrdered)
 	{
 		if(!settings["general"]["enableUiEnhancements"].Bool())
 			break;
