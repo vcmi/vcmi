@@ -24,6 +24,7 @@
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CCreatureSet.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -552,6 +553,9 @@ void CGameHandler::reinitScripting()
 void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTracking)
 {
 	randomNumberGenerator = std::make_unique<CRandomGenerator>();
+	int requestedSeed = settings["server"]["seed"].Integer();
+	if (requestedSeed != 0)
+		randomNumberGenerator->setSeed(requestedSeed);
 	logGlobal->info("Using random seed: %d", randomNumberGenerator->nextInt());
 
 	CMapService mapService;
