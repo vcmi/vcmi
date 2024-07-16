@@ -784,7 +784,24 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, TResources handicap)
 	str.appendTextID("vcmi.lobby.handicap");
 	str.appendRawString(" ");
 	str.appendName(color);
-	str.appendRawString(":\n" + handicap.toString());
+	str.appendRawString(":");
+
+	if(handicap.empty())
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.genrltxt.523");
+		announceTxt(str);
+		return;
+	}
+
+	for(auto & res : EGameResID::ALL_RESOURCES())
+		if(handicap[res] != 0)
+		{
+			str.appendRawString(" ");
+			str.appendName(res);
+			str.appendRawString(":");
+			str.appendRawString(std::to_string(handicap[res]));
+		}
 	announceTxt(str);
 }
 
@@ -1041,7 +1058,15 @@ void CVCMIServer::multiplayerWelcomeMessage()
 			str.appendTextID("vcmi.lobby.handicap");
 			str.appendRawString(" ");
 			str.appendName(pi.first);
-			str.appendRawString(": " + pi.second.handicap.toString());
+			str.appendRawString(":");
+			for(auto & res : EGameResID::ALL_RESOURCES())
+				if(pi.second.handicap[res] != 0)
+				{
+					str.appendRawString(" ");
+					str.appendName(res);
+					str.appendRawString(":");
+					str.appendRawString(std::to_string(pi.second.handicap[res]));
+				}
 			announceTxt(str);
 		}
 

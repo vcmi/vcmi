@@ -79,10 +79,6 @@ void OptionsTab::recreate()
 		entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second, * this)));
 	}
 
-	/*TResources resources = TResources();
-	resources[EGameResID::GOLD] = 50000;
-	CSH->setPlayerHandicap((PlayerColor)0, resources);*/
-
 	OptionsTabBase::recreate();
 }
 
@@ -926,6 +922,30 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		labelPlayerNameEdit->setText(name);
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.empty() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
+	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), [this](){
+		TResources resources = TResources();
+		resources[EGameResID::GOLD] = 50000;
+		CSH->setPlayerHandicap(s->color, resources);
+	}, [this](){
+		if(s->handicap.empty())
+			CRClickPopup::createAndPush(MetaString::createFromTextID("core.help.124.help").toString());
+		else
+		{
+			auto str = MetaString::createFromTextID("vcmi.lobby.handicap");
+			str.appendRawString(":\n");
+			for(auto & res : EGameResID::ALL_RESOURCES())
+				if(s->handicap[res] != 0)
+				{
+					str.appendRawString("\n");
+					str.appendName(res);
+					str.appendRawString(": ");
+					str.appendRawString(std::to_string(s->handicap[res]));
+				}
+			CRClickPopup::createAndPush(str.toString());
+		}
+	});
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{

@@ -27,6 +27,7 @@ class CComponentBox;
 class CTextBox;
 class CButton;
 class CSlider;
+class LRClickableArea;
 
 class FilledTexturePlayerColored;
 
@@ -192,6 +193,8 @@ private:
 		std::shared_ptr<SelectedBox> town;
 		std::shared_ptr<SelectedBox> hero;
 		std::shared_ptr<SelectedBox> bonus;
+		std::shared_ptr<LRClickableArea> handicap;
+		std::shared_ptr<CMultiLineLabel> labelHandicap;
 		enum {HUMAN_OR_CPU, HUMAN, CPU} whoCanPlay;
 
 		PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parentTab);
