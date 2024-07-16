@@ -465,11 +465,11 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="701"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>正在下载 %1. %p% (%v MB 共 %m MB) 已完成</translation>
     </message>
     <message>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation type="vanished">下载进度 %s%. %p% (%v MB 共 %m MB) 已完成</translation>
+        <translation type="vanished">正在下载 %s%. %p% (%v MB 共 %m MB) 已完成</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="726"/>
@@ -738,12 +738,12 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
         <source>Show Tutorial again</source>
-        <translation type="unfinished"></translation>
+        <translation>重新显示教程</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1159"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>重置</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="860"/>
@@ -1275,7 +1275,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>打开文件失败</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
@@ -1324,23 +1324,24 @@ Please select directory with installed Heroes III data.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>您提供的是GOG Galaxy安装器！这个文件不包含游戏内容，请下载离线游戏安装器！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished"></translation>
+        <translation>提取文件时遭遇文件流错误！
+错误原因： </translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>这不是一个支持的Inno Setup安装器！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
         <source>Extracting error!</source>
-        <translation type="unfinished"></translation>
+        <translation>提取错误！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
