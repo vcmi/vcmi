@@ -188,7 +188,7 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageImpl(const ImageLocator & l
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
 {
-		return loadImageImpl(locator)->createImageReference(mode);
+	return loadImageImpl(locator)->createImageReference(mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)

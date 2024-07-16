@@ -61,8 +61,6 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	void fillRect(SDL_Surface * dst, const Rect & dstrect, const SDL_Color & color);
 	void fillRectBlended(SDL_Surface * dst, const Rect & dstrect, const SDL_Color & color);
 
-	void updateRect(SDL_Surface * surface, const Rect & rect);
-
 	void putPixelWithoutRefresh(SDL_Surface * ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A = 255);
 	void putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A = 255);
 

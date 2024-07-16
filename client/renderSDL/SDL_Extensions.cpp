@@ -63,19 +63,6 @@ void CSDL_Ext::setAlpha(SDL_Surface * bg, int value)
 	SDL_SetSurfaceAlphaMod(bg, value);
 }
 
-void CSDL_Ext::updateRect(SDL_Surface *surface, const Rect & rect )
-{
-	SDL_Rect rectSDL = CSDL_Ext::toSDL(rect);
-	if(0 !=SDL_UpdateTexture(screenTexture, &rectSDL, surface->pixels, surface->pitch))
-		logGlobal->error("%sSDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
-
-	SDL_RenderClear(mainRenderer);
-	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
-		logGlobal->error("%sSDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
-	SDL_RenderPresent(mainRenderer);
-
-}
-
 SDL_Surface * CSDL_Ext::newSurface(int w, int h)
 {
 	return newSurface(w, h, screen);
