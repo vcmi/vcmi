@@ -49,3 +49,8 @@ bool ImageLocator::operator<(const ImageLocator & other) const
 		return verticalFlip < other.verticalFlip;
 	return horizontalFlip < other.horizontalFlip;
 }
+
+bool ImageLocator::empty() const
+{
+	return !image.has_value() && !defFile.has_value();
+}

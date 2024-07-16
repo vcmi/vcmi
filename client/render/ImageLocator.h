@@ -22,8 +22,10 @@ struct ImageLocator
 	bool horizontalFlip = false;
 
 	ImageLocator() = default;
-	ImageLocator(const JsonNode & config);
-	ImageLocator(const ImagePath & path);
 	ImageLocator(const AnimationPath & path, int frame, int group);
+	explicit ImageLocator(const JsonNode & config);
+	explicit ImageLocator(const ImagePath & path);
+
 	bool operator < (const ImageLocator & other) const;
+	bool empty() const;
 };

@@ -68,7 +68,7 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 			JsonNode toAdd;
 			JsonUtils::inherit(toAdd, base);
 			toAdd["file"].String() = basepath + frame.String();
-			source[groupID].push_back(toAdd);
+			source[groupID].push_back(ImageLocator(toAdd));
 		}
 	}
 
@@ -83,7 +83,7 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 		JsonNode toAdd;
 		JsonUtils::inherit(toAdd, base);
 		toAdd["file"].String() = basepath + node["file"].String();
-		source[group][frame] = toAdd;
+		source[group][frame] = ImageLocator(toAdd);
 	}
 }
 
@@ -141,10 +141,10 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageFromAnimationFileUncached(c
 	if (frame >= layout.at(group).size())
 		return loadImageFromSingleFile(ImagePath::builtin("DEFAULT"));
 
-	const auto & config = layout.at(group).at(frame);
-	if (config.image)
+	const auto & locator = layout.at(group).at(frame);
+	if (locator.image)
 	{
-		return loadImageImpl(ImageLocator(config));
+		return loadImageImpl(locator);
 	}
 	else
 	{
@@ -168,7 +168,7 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageImpl(const ImageLocator & l
 
 	std::shared_ptr<IConstImage> result;
 
-	if (!locator.image)
+	if (locator.image)
 		result = loadImageFromSingleFile(*locator.image);
 	else if (locator.defFile)
 		result = loadImageFromAnimationFile(*locator.defFile, locator.defFrame, locator.defGroup);
@@ -228,7 +228,7 @@ void RenderHandler::addImageListEntries(const EntityService * service)
 			if (index >= layout[group].size())
 				layout[group].resize(index + 1);
 
-			layout[group][index] = entry;
+			layout[group][index] = ImageLocator(entry);
 		});
 	});
 }

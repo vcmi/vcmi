@@ -28,7 +28,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 	if(auto image = getImageImpl(frame, group, false))
 		return true;
 
-	std::shared_ptr<IImage> image = GH.renderHandler().loadImage(source[group][frame], mode);
+	std::shared_ptr<IImage> image = GH.renderHandler().loadImage(getImageLocator(frame, group), mode);
 
 	if(image)
 	{
@@ -109,19 +109,7 @@ CAnimation::~CAnimation() = default;
 
 void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup)
 {
-	if(!source.count(sourceGroup))
-	{
-		logAnim->error("Group %d missing in %s", sourceGroup, name.getName());
-		return;
-	}
-
-	if(source[sourceGroup].size() <= sourceFrame)
-	{
-		logAnim->error("Frame [%d %d] missing in %s", sourceGroup, sourceFrame, name.getName());
-		return;
-	}
-
-	ImageLocator clone(source[sourceGroup][sourceFrame]);
+	ImageLocator clone(getImageLocator(sourceFrame, sourceGroup));
 	source[targetGroup].push_back(clone);
 }
 
@@ -179,8 +167,9 @@ void CAnimation::horizontalFlip(size_t frame, size_t group)
 		// ignore - image not loaded
 	}
 
-	ImageLocator & locator = source.at(group).at(frame);
+	auto locator = getImageLocator(frame, group);
 	locator.horizontalFlip = !locator.horizontalFlip;
+	source[group][frame] = locator;
 }
 
 void CAnimation::verticalFlip(size_t frame, size_t group)
@@ -194,8 +183,9 @@ void CAnimation::verticalFlip(size_t frame, size_t group)
 		// ignore - image not loaded
 	}
 
-	ImageLocator & locator = source.at(group).at(frame);
+	auto locator = getImageLocator(frame, group);
 	locator.verticalFlip = !locator.verticalFlip;
+	source[group][frame] = locator;
 }
 
 void CAnimation::playerColored(PlayerColor player)
@@ -212,4 +202,14 @@ void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targe
 		duplicateImage(sourceGroup, frame, targetGroup);
 		verticalFlip(frame, targetGroup);
 	}
+}
+
+ImageLocator CAnimation::getImageLocator(size_t frame, size_t group) const
+{
+	const ImageLocator & locator = source.at(group).at(frame);
+
+	if (!locator.empty())
+		return locator;
+
+	return ImageLocator(name, frame, group);
 }
