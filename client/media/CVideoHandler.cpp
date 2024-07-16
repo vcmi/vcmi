@@ -551,7 +551,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 		ui16 NumOfChan = 2;
 		ui32 SamplesPerSec = 22050;
 		ui32 bytesPerSec = 22050 * 2;
-		ui16 blockAlign = 2;
+		ui16 blockAlign = 1;
 		ui16 bitsPerSample = 32;
 		ui8 Subchunk2ID[4] = {'d', 'a', 't', 'a'};
 		ui32 Subchunk2Size;
