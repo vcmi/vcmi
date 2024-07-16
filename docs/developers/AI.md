@@ -30,3 +30,68 @@ BattleAI's most important classes are the following:
 - BattleEvaluator - is a top level logic layer which also adds spellcasts and movement to unreachable targets
 
 BattleAI itself handles all the rest and issues actual commands
+
+# Nullkiller AI
+
+Adventure AI responsible for moving heroes on map, gathering things, developing town. Main idea is to gather all possible tasks on map, prioritize them and select the best one for each heroes. Initially was a fork of VCAI
+
+## Parts
+Gateway - a callback for server used to invoke AI actions when server thinks it is time to do something. Through this callback AI is informed about various events like hero level up, tile revialed, blocking dialogs and so on. In order to do this Gaateway implements specific interface. The interface is exactly the same for human and AI
+Another important actor for server interaction is CCallback * cb. This one is used to retrieve gamestate information and ask server to do things like hero moving, spell casting and so on. Each AI has own instance of Gateway and it is a root object which holds all AI state. Gateway has an event method yourTurn which invokes makeTurn in another thread. The last passes control to Nullkiller engine.
+
+Nullkiller engine - place where actual AI logic is organized. It contains a main loop for gathering and prioritizing things. Its algorithm:
+* reset AI state, it avoids keeping some memory about the game in general to reduce amount of things serialized into savefile state. The only serialized things are in nullkiller->memory. This helps reducing save incompatibility. It should be mostly enough for AI to analyze data avaialble in CCallback
+* main loop, loop iteration is called a pass
+** update AI state, some state is lazy and updates once per day to avoid performance hit, some state is recalculated each loop iteration. At this stage analysers and pathfidner work
+** gathering goals, prioritizing and decomposing them
+** execute selected best goals
+
+Analyzer - a module gathering data from CCallback *. Its goal to make some statistics and avoid making any significant decissions.
+* HeroAnalyser - decides upong which hero suits better to be main (army carrier and fighter) and which is better to be a scout (gathering unguarded resources, exploring)
+* BuildAnalyzer - prepares information on what we can build in our towns, and what resources we need to do this
+* DangerHitMapAnalyser - checks if enemy hero can rich each tile, how fast and what is their army strangth
+* Pathfinder - core thing used to calculate paths including bypassing monsters, quests, using advmap spells
+* Graph - experimental thing connecting all objects into a network by paths (using common hero characteristics), does not work without maphack, allows simplified faster paths calculation. Possibly can be used for something else
+* ArmyManager - for now only helps calculating best army from two CreatureSet objects. Later may be responsible for forming ideal army for each main hero so that we know what we need to build and buy.
+* ObjectClusterizer - aggregates all objects into clusters depending on which object blocks way towards them.
+* DeepDecomposer - sometimes pathfinder may return path through some object which canno be simply bypassed but instead it requires something to be done first. DeepDecomposer allows to detalizing such paths. Examples: building a boat requires capturing shipyard, bypassing bordergate requires visiting masterkey tent. See AbstractGoal
+* FuzzyEngines - looks like some legacy from VCAI
+* PriorityEvaluator - gathers information on task rewards, evaluates their priority using Fuzzy Light library (fuzzy logic)
+
+## Goals
+Units of activity in AI. Can be AbstractGoal, Task, Marker and Behavior
+
+Task - simple thing which can be done right away in order to gain some reward. Or a composition of simple things in case if more than one action is needed to gain the reward.
+* AdventureSpellCast - town portal, water walk, air walk, summon boat
+* BuildBoat - builds a boat in a specific shipyard
+* BuildThis - builds a building in a specified town
+* BuyArmy - buys specific amount of army in AIValue in specific town
+* DigAtTile - for grail, not implemented yet
+* DismissHero - sometimes we may want to get rid of some scout
+* ExchangeSwapTownHeroes - puts specifc hero in garrison or extracts hero from garrison. Also makes possible upgrades and buys army in town (used by defence and startup behaviors)
+* ExecuteHeroChain - moves hero accross some path (or a few heroes forming a chain in order to move army to the target hero), can bypass simple obstacles like monsters, garrisons
+* ExploreNeighborTile - after AI visits initial tile for exploration - makes a few sequential explorations of nearby tiles to save some performance
+* RecruitHero - recruits specific hero in specifc town
+* SaveResources - locks some resources for later use during next day
+* StayAtTown - stay at town for the rest of the day (to regain mana)
+
+Behavior - a core game activity
+* CaptureObjectsBehavior - generally it is about visiting map objects which give reward. It can capture any object, even those which are behind monsters and so on. But due to performance considerations it is not allowed to handle monsters and quests now.
+* ClusterBehavior - uses information of ObjectClusterizer to unblock objects hidden behind various blockers. It kills guards, completes quests, captures garrisons.
+* BuildingBehavior - develops our towns
+* BuyArmyBehavior - buys army in towns
+* GatherArmyBehavior - picks army from towns and brings it to main hero by scout, or main itslef goes for it
+* RecruitHeroBehavior - recruits hero it it is either stronger than any main or there is something to gather
+* StartupBehavior - scripted behavior which helps a bit on the first day. It keeps main hero in town garrison and accumulates army from initial heroes bought in tavern
+* StayAtTownBehavior - stay at town to gain mana from mage guild
+* DefenceBehavior - defend towns by eliminating treatening heroes or hiding in town garrison
+
+AbstractGoal - some goals can not be completed because it is not clear how to do this. They express desire to do something, not exact plan. DeepDecomposer is used to refine such goals until they are turned into such plan or discarded. Some examples:
+* CaptureObject - you need to visit some object (flag a shipyard for instance) but do not know how
+* CompleteQuest - you need to bypass bordergate or borderguard or questguard but do not know how
+AbstractGoal usually comes in form of composition with some elementar task blocked by abstract objective. For instance CaptureObject(Shipyard), ExecuteHeroChain(visit x, build boat, visit enemy town). When such composition is decomposed it can turn into either a pair of herochains or into another abstract composition if path to shipyard is also blocked with something.
+Sometimes such decomposition may form a loop of abstract goals and will be discarded in such case. Generally the current architecture attempts to avoid decomposition as quite a heavy operation.
+
+Composition - a goal which can be both elementar (a set of tasks) or abstract (contains unresolved abstract goal at the end). Compositions express a chain of tasks in order to achieve some reward. They consist of sequences. Each sequence is a vector of goals. Only last sequence is actually executed or decomposed. All the rest adds value to reward evaluator.
+
+Marker - a goal used to just add value (reward) into some composition. We want to capture some shipyard not just because but in order to capture a town (or something else) later. Thus when we are capturing a shipyard we should know that later we will unlock town so we contribute towards town reward as well.
