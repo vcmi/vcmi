@@ -40,6 +40,12 @@
 				"$ref" : "objectTemplate.json"
 			}
 		},
+
+		"battleground" : {
+			"description" : "Battleground that will be used for combats in this object. Overrides terrain this object was placed on",
+			"type" : "string"
+		},
+
 		"sounds" : {
 			"type" : "object",
 			"additionalProperties" : false,

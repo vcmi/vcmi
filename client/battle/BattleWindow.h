@@ -65,7 +65,7 @@ class BattleWindow : public InterfaceObjectConfigurable
 	
 	/// management of alternative actions
 	std::list<PossiblePlayerBattleAction> alternativeActions;
-	PossiblePlayerBattleAction defaultAction;
+	PossiblePlayerBattleAction lastAlternativeAction;
 	void showAlternativeActionIcon(PossiblePlayerBattleAction);
 
 	/// flip battle queue visibility to opposite
