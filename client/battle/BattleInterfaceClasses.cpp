@@ -419,18 +419,16 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	addUsedEvents(TIME);
 }
 
-QuickSpellPanel::QuickSpellPanel(std::shared_ptr<CButton> initWidget, BattleInterface & owner)
-	: CWindowObject(NEEDS_ANIMATED_BACKGROUND), initWidget(initWidget), owner(owner)
+QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
+	: CWindowObject(NEEDS_ANIMATED_BACKGROUND), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE);
 
-	pos = Rect(0, 0, 52, 372);
+	pos = Rect(0, 0, 52, 713);
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 	rect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w + 1, pos.h + 1), ColorRGBA(0, 0, 0, 0), ColorRGBA(241, 216, 120, 255));
-
-	panelSelect = std::make_shared<QuickSpellPanelSelect>(this);
 
 	create();
 }
@@ -447,7 +445,7 @@ void QuickSpellPanel::create()
 	if(!hero)
 		return;
 
-	for(int i = 0; i < 10; i++) {
+	for(int i = 0; i < 19; i++) {
 		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(i)].String();
 
 		SpellID id;
@@ -460,24 +458,25 @@ void QuickSpellPanel::create()
 			id = SpellID::NONE;
 		}
 
-		auto button = std::make_shared<CButton>(Point(2, 1 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
+		auto button = std::make_shared<CButton>(Point(2, 6 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
 			if(id.hasValue() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 			{
-				close();
 				owner.castThisSpell(id);
 			}
 		});
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), !spellIdentifier.empty() ? id.num + 1 : 0));
 		button->addPopupCallback([this, i](){
+			auto panelSelect = std::make_shared<QuickSpellPanelSelect>(this);
 			panelSelect->spellSlot = i;
-			panelSelect->setEnabled(true);
+			panelSelect->moveTo(Point(pos.x + 54, pos.y + 5));
+			GH.windows().pushWindow(panelSelect);
 		});
 
 		if(!id.hasValue() || !id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 		{
-			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 1 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 128)));
+			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 6 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
 		}
-		labels.push_back(std::make_shared<CLabel>(7, 4 + 37 * i, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(i)));
+		labels.push_back(std::make_shared<CLabel>(7, 9 + 37 * i, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(i)));
 
 		buttons.push_back(button);
 	}
@@ -489,54 +488,12 @@ void QuickSpellPanel::show(Canvas & to)
 	CIntObject::show(to);
 }
 
-void QuickSpellPanel::clickReleased(const Point & cursorPosition)
-{
-	if(!pos.isInside(cursorPosition) && (!(panelSelect->isActive() || panelSelect->wasEnabled) || !panelSelect->pos.isInside(cursorPosition)))
-		close();
-	
-	if(initWidget->pos.isInside(cursorPosition))
-	{
-		initWidget->clickPressed(cursorPosition);
-		initWidget->clickReleased(cursorPosition);
-	}
-}
-
-void QuickSpellPanel::showPopupWindow(const Point & cursorPosition)
-{
-	if(!pos.isInside(cursorPosition) && (!(panelSelect->isActive() || panelSelect->wasEnabled) || !panelSelect->pos.isInside(cursorPosition)))
-		close();
-
-	if(initWidget->pos.isInside(cursorPosition))
-	{
-		initWidget->showPopupWindow(cursorPosition);
-	}
-}
-
-void QuickSpellPanel::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
-{
-	if(	(cursorPosition.x <= initWidget->pos.x - 20 ||
-		cursorPosition.x >= initWidget->pos.x + initWidget->pos.w + 20 ||
-		cursorPosition.y <= initWidget->pos.y - pos.h - 20 ||
-		(cursorPosition.y >= initWidget->pos.y + 5 && !initWidget->pos.isInside(cursorPosition))) &&
-		(!(panelSelect->isActive() || panelSelect->wasEnabled) || !panelSelect->pos.resize(20).isInside(cursorPosition))
-	)
-		close();
-	
-	if(initWidget->pos.isInside(cursorPosition))
-		panelSelect->wasEnabled = false;
-}
-
-bool QuickSpellPanel::receiveEvent(const Point & position, int eventType) const
-{
-	return true;  // capture click also outside of window
-}
-
 QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
-	: parent(Parent), wasEnabled(false)
+	: parent(Parent)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	setEnabled(false);
+	addUsedEvents(LCLICK);
 
 	std::vector<std::shared_ptr<CSpell>> spellList;
 	for (auto const & s : VLC->spellh->objects)
@@ -544,21 +501,20 @@ QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
 			spellList.push_back(s);
 
 	auto ceil = [](int x, int y){ return(x + y - 1) / y; };
-	int columnsNeeded = ceil(spellList.size(), 10);
+	int columnsNeeded = ceil(spellList.size(), NUM_PER_COLUMN);
 
-	pos = Rect(-20 - columnsNeeded * 50, 0, columnsNeeded * 50 + 2, 372);
+	pos = Rect(pos.x, pos.y, columnsNeeded * 50 + 2, 2 + 37 * NUM_PER_COLUMN);
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
 	rect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w + 1, pos.h + 1), ColorRGBA(0, 0, 0, 0), ColorRGBA(241, 216, 120, 255));
 
 	for(int i = 0; i < spellList.size(); i++)
 	{
-		int y = i % 10;
-		int x = i / 10;
+		int y = i % NUM_PER_COLUMN;
+		int x = i / NUM_PER_COLUMN;
 		std::shared_ptr<CSpell> spell = spellList[i];
 		auto button = std::make_shared<CButton>(Point(2 + 50 * x, 1 + 37 * y), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, spell](){ 
-			setEnabled(false);
+			close();
 			GH.windows().totalRedraw();
-			wasEnabled = true;
 			Settings configID = persistentStorage.write["quickSpell"][std::to_string(spellSlot)];
 			configID->String() = spell->identifier;
 			parent->create();
@@ -569,6 +525,17 @@ QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), spellList[i]->getId().num + 1));
 		buttons.push_back(button);
 	}
+}
+
+void QuickSpellPanelSelect::clickReleased(const Point & cursorPosition)
+{
+	if(!pos.isInside(cursorPosition))
+		close();
+}
+
+bool QuickSpellPanelSelect::receiveEvent(const Point & position, int eventType) const
+{
+	return true;  // capture click also outside of window
 }
 
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)

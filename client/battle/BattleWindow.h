@@ -41,6 +41,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 	std::shared_ptr<StackInfoBasicPanel> attackerStackWindow;
 	std::shared_ptr<StackInfoBasicPanel> defenderStackWindow;
 
+	std::shared_ptr<QuickSpellPanel> quickSpellWindow;
+
 	std::shared_ptr<TurnTimerWidget> attackerTimerWidget;
 	std::shared_ptr<TurnTimerWidget> defenderTimerWidget;
 
@@ -75,6 +77,7 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	void toggleStickyHeroWindowsVisibility();
 	void createStickyHeroInfoWindows();
+	void createQuickSpellWindow();
 	void createTimerInfoWindows();
 
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;

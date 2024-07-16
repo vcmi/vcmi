@@ -90,6 +90,15 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_7, [useSpellIfPossible](){ useSpellIfPossible(7); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_8, [useSpellIfPossible](){ useSpellIfPossible(8); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_9, [useSpellIfPossible](){ useSpellIfPossible(9); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_10, [useSpellIfPossible](){ useSpellIfPossible(10); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_11, [useSpellIfPossible](){ useSpellIfPossible(11); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_12, [useSpellIfPossible](){ useSpellIfPossible(12); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_13, [useSpellIfPossible](){ useSpellIfPossible(13); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_14, [useSpellIfPossible](){ useSpellIfPossible(14); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_15, [useSpellIfPossible](){ useSpellIfPossible(15); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_16, [useSpellIfPossible](){ useSpellIfPossible(16); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_17, [useSpellIfPossible](){ useSpellIfPossible(17); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_18, [useSpellIfPossible](){ useSpellIfPossible(18); });
 
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
@@ -123,32 +132,8 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 
 	createQueue();
 	createStickyHeroInfoWindows();
+	createQuickSpellWindow();
 	createTimerInfoWindows();
-
-	auto w = widget<CButton>("cast");
-	if(w)
-	{
-		auto hero = owner.getBattle()->battleGetMyHero();
-		if(hero && settings["general"]["enableUiEnhancements"].Bool())
-		{
-			auto createQuickSpellPanelWindow = [](std::shared_ptr<CButton> widget, BattleInterface & owner){
-				std::shared_ptr<QuickSpellPanel> window = std::make_shared<QuickSpellPanel>(widget, owner);
-				window->moveTo(Point(widget->pos.x - 2, widget->pos.y - 378));
-				GH.windows().pushWindow(window);
-			};
-			
-			w->addHoverCallback([this, createQuickSpellPanelWindow, w](bool on)
-			{
-				if(on)
-					createQuickSpellPanelWindow(w, owner);
-			});
-			w->addPanningCallback([this, createQuickSpellPanelWindow, w](const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
-			{
-				if((currentPosition - initialPosition).y < -20)
-					createQuickSpellPanelWindow(w, owner);
-			});
-		}
-	}
 
 	if ( owner.tacticsMode )
 		tacticPhaseStarted();
@@ -214,6 +199,15 @@ void BattleWindow::createStickyHeroInfoWindows()
 	}
 
 	setPositionInfoWindow();
+}
+
+void BattleWindow::createQuickSpellWindow()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	std::shared_ptr<QuickSpellPanel> window = std::make_shared<QuickSpellPanel>(owner);
+	window->moveTo(Point(pos.x - 68, pos.y - 14));
+	GH.windows().pushWindow(window);
 }
 
 void BattleWindow::createTimerInfoWindows()

@@ -149,16 +149,21 @@ public:
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
-class QuickSpellPanelSelect : public CIntObject
+class QuickSpellPanelSelect : public CWindowObject
 {
 private:
+	const int NUM_PER_COLUMN = 19;
+
 	std::shared_ptr<CFilledTexture> background;
 	std::shared_ptr<TransparentFilledRectangle> rect;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	QuickSpellPanel * parent;
 public:
 	QuickSpellPanelSelect(QuickSpellPanel * Parent);
-	bool wasEnabled; // was the panel opened? -> don't close window because mouse is not in area
+
+	bool receiveEvent(const Point & position, int eventType) const override;
+	void clickReleased(const Point & cursorPosition) override;
+
 	int spellSlot;
 };
 
@@ -171,17 +176,9 @@ private:
 	std::vector<std::shared_ptr<TransparentFilledRectangle>> buttonsDisabled;
 	std::vector<std::shared_ptr<CLabel>> labels;
 
-	std::shared_ptr<QuickSpellPanelSelect> panelSelect;
-
-	bool receiveEvent(const Point & position, int eventType) const override;
-	void clickReleased(const Point & cursorPosition) override;
-	void showPopupWindow(const Point & cursorPosition) override;
-	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
-
-	std::shared_ptr<CButton> initWidget;
 	BattleInterface & owner;
 public:
-	QuickSpellPanel(std::shared_ptr<CButton> initWidget, BattleInterface & owner);
+	QuickSpellPanel(BattleInterface & owner);
 
 	void create();
 
