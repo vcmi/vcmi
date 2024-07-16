@@ -15,21 +15,25 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 CRandomGenerator::CRandomGenerator()
 {
+	logRng->trace("CRandomGenerator constructed");
 	resetSeed();
 }
 
 CRandomGenerator::CRandomGenerator(int seed)
 {
+	logRng->trace("CRandomGenerator constructed (%d)", seed);
 	setSeed(seed);
 }
 
 void CRandomGenerator::setSeed(int seed)
 {
+	logRng->trace("CRandomGenerator::setSeed (%d)", seed);
 	rand.seed(seed);
 }
 
 void CRandomGenerator::resetSeed()
 {
+	logRng->trace("CRandomGenerator::resetSeed");
 	boost::hash<std::string> stringHash;
 	auto threadIdHash = stringHash(boost::lexical_cast<std::string>(boost::this_thread::get_id()));
 	setSeed(static_cast<int>(threadIdHash * std::time(nullptr)));
@@ -37,16 +41,20 @@ void CRandomGenerator::resetSeed()
 
 int CRandomGenerator::nextInt(int upper)
 {
+	logRng->trace("CRandomGenerator::nextInt (%d)", upper);
 	return nextInt(0, upper);
 }
 
 int64_t CRandomGenerator::nextInt64(int64_t upper)
 {
+	logRng->trace("CRandomGenerator::nextInt64 (%d)", upper);
 	return nextInt64(0, upper);
 }
 
 int CRandomGenerator::nextInt(int lower, int upper)
 {
+	logRng->trace("CRandomGenerator::nextInt64 (%d, %d)", lower, upper);
+
 	if (lower > upper)
 		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
 
@@ -55,17 +63,20 @@ int CRandomGenerator::nextInt(int lower, int upper)
 
 int CRandomGenerator::nextInt()
 {
+	logRng->trace("CRandomGenerator::nextInt64");
 	return TIntDist()(rand);
 }
 
 int CRandomGenerator::nextBinomialInt(int coinsCount, double coinChance)
 {
+	logRng->trace("CRandomGenerator::nextBinomialInt (%d, %f)", coinsCount, coinChance);
 	std::binomial_distribution<> distribution(coinsCount, coinChance);
 	return distribution(rand);
 }
 
 int64_t CRandomGenerator::nextInt64(int64_t lower, int64_t upper)
 {
+	logRng->trace("CRandomGenerator::nextInt64 (%d, %d)", lower, upper);
 	if (lower > upper)
 		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
 
@@ -74,11 +85,13 @@ int64_t CRandomGenerator::nextInt64(int64_t lower, int64_t upper)
 
 double CRandomGenerator::nextDouble(double upper)
 {
+	logRng->trace("CRandomGenerator::nextDouble (%f)", upper);
 	return nextDouble(0, upper);
 }
 
 double CRandomGenerator::nextDouble(double lower, double upper)
 {
+	logRng->trace("CRandomGenerator::nextDouble (%f, %f)", lower, upper);
 	if(lower > upper)
 		throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
 
