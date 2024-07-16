@@ -1,13 +1,15 @@
-# Compiling VCMI
+# Building Linux
+
+## Compiling VCMI
 
 - Current baseline requirement for building is Ubuntu 20.04
 - Supported C++ compilers for UNIX-like systems are GCC 9+ and Clang 13+
 
 Older distributions and compilers might work, but they aren't tested by Github CI (Actions)
 
-# Installing dependencies
+## Installing dependencies
 
-## Prerequisites
+### Prerequisites
 
 To compile, the following packages (and their development counterparts) are needed to build:
 
@@ -21,7 +23,7 @@ To compile, the following packages (and their development counterparts) are need
     - if you want to build scripting modules: LuaJIT
     - to speed up recompilation: Ccache
 
-## On Debian-based systems (e.g. Ubuntu)
+### On Debian-based systems (e.g. Ubuntu)
 
 For Ubuntu and Debian you need to install this list of packages:
 
@@ -31,13 +33,13 @@ Alternatively if you have VCMI installed from repository or PPA you can use:
 
 `sudo apt-get build-dep vcmi`
 
-## On RPM-based distributions (e.g. Fedora)
+### On RPM-based distributions (e.g. Fedora)
 
 `sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel liblzma-devel libsqlite3-devel fuzzylite-devel ccache`
 
 NOTE: `fuzzylite-devel` package is no longer available in recent version of Fedora, for example Fedora 38. It's not a blocker because VCMI bundles fuzzylite lib in its source code.
 
-## On Arch-based distributions
+### On Arch-based distributions
 
 On Arch-based distributions, there is a development package available for VCMI on the AUR.
 
@@ -45,7 +47,7 @@ It can be found at: <https://aur.archlinux.org/packages/vcmi-git/>
 
 Information about building packages from the Arch User Repository (AUR) can be found at the Arch wiki.
 
-# Getting the sources
+## Getting the sources
 
 We recommend the following directory structure:
 
@@ -59,35 +61,35 @@ You can get latest sources with:
 
 `git clone -b develop --recursive https://github.com/vcmi/vcmi.git`
 
-# Compilation
+## Compilation
 
-## Configuring Makefiles
+### Configuring Makefiles
 
 ```sh
 mkdir build && cd build
 cmake -S ../vcmi
 ```
 
-# Additional options that you may want to use:
+## Additional options that you may want to use:
 
-## To enable debugging:
+### To enable debugging:
 `cmake -S ../vcmi -D CMAKE_BUILD_TYPE=Debug`
 
 **Notice**: The ../vcmi/ is not a typo, it will place makefile scripts into the build dir as the build dir is your working dir when calling CMake.
 
-## To use ccache:
+### To use ccache:
 `cmake -S ../vcmi -D ENABLE_CCACHE:BOOL=ON`
 
-## Trigger build
+### Trigger build
 
 `cmake --build . -- -j2`
 (-j2 = compile with 2 threads, you can specify any value)
 
 That will generate vcmiclient, vcmiserver, vcmilauncher as well as .so libraries in the **build/bin/** directory.
 
-# Package building
+## Package building
 
-## RPM package
+### RPM package
 
 The first step is to prepare a RPM build environment. On Fedora systems you can follow this guide: http://fedoraproject.org/wiki/How_to_create_an_RPM_package#SPEC_file_overview
 
@@ -136,7 +138,7 @@ For other distributions that uses RPM, chances are there might be a spec file fo
 
 Available root environments and their names are listed in /etc/mock.
 
-## Debian/Ubuntu
+### Debian/Ubuntu
 
 1. Install debhelper and devscripts packages
 

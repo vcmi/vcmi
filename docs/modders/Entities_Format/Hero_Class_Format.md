@@ -1,3 +1,5 @@
+# Hero Class Format
+
 ## Required data
 
 In order to make functional hero class you also need:

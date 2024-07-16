@@ -1,4 +1,6 @@
-# Introduction
+# Campaign Format
+
+## Introduction
 
 Starting from version 1.3, VCMI supports its own campaign format.
 Campaigns have *.vcmp file format and it consists from campaign json and set of scenarios (can be both *.vmap and *.h3m)
@@ -27,7 +29,7 @@ Basic structure of this file is here, each section is described in details below
 
 `"version"` defines version of campaign file. Larger versions should have more features and flexibility, but may not be supported by older VCMI engines. See [compatibility table](#compatibility-table)
 
-# Header properties
+## Header properties
 
 In header are parameters describing campaign properties
 ```js
@@ -51,7 +53,7 @@ In header are parameters describing campaign properties
 - `"creationDateTime"` unix time of campaign creation
 - `"allowDifficultySelection"` is a boolean field (`true`/`false`) which allows or disallows to choose difficulty before scenario start
 
-# Scenario description
+## Scenario description
 
 Scenario description looks like follow:
 ```js
@@ -87,7 +89,7 @@ Scenario description looks like follow:
 - `"playerColor"` defines color id of flag which player will play for. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - "bonuses" array of possible bonus objects, format depends on `"startOptions"` parameter
 
-## Prolog/Epilog
+### Prolog/Epilog
 
 Prolog and epilog properties are optional
 ```js
@@ -99,13 +101,13 @@ Prolog and epilog properties are optional
 }
 ```
 
-## Start options and bonuses
+### Start options and bonuses
 
-### None start option
+#### None start option
 
 If `startOptions` is `none`, `bonuses` field will be ignored
 
-### Bonus start option
+#### Bonus start option
 
 If `startOptions` is `bonus`, bonus format may vary depending on its type.
 
@@ -148,7 +150,7 @@ If `startOptions` is `bonus`, bonus format may vary depending on its type.
     - `"amount"`: amount of resources
 - `"hero"` can be specified as explicit hero name and as one of keywords: `strongest`, `generated`
 
-### Crossover start option
+#### Crossover start option
 
 If `startOptions` is `crossover`, heroes from specific scenario will be moved to this scenario. Bonus format is following
 
@@ -161,7 +163,7 @@ If `startOptions` is `crossover`, heroes from specific scenario will be moved to
 - `"playerColor"` from what player color heroes shall be taken. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - `"scenario"` from which scenario heroes shall be taken. 0 means first scenario
 
-### Hero start option
+#### Hero start option
 
 If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus format is following
 ```js
@@ -174,7 +176,7 @@ If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus forma
 - `"playerColor"` from what player color heroes shall be taken. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - `"hero"` can be specified as explicit hero name and as one of keywords: `random`
 
-## Regions description
+### Regions description
 
 Predefined campaign regions are located in file `campaign_regions.json`
 
@@ -194,7 +196,7 @@ Predefined campaign regions are located in file `campaign_regions.json`
 - `"inflix"` ised to identify all images related to region. In this example, it will be pictures starting from `G3A_..., G3B_..., G3C_..."` 
 - `"color_suffix_length"` identifies suffix length for region colourful frames. 1 is used for `R, B, N, G, O, V, T, P`, value 2 is used for `Re, Bl, Br, Gr, Or, Vi, Te, Pi`
 
-# Packing campaign
+## Packing campaign
 
 After campaign scenarios and campaign description are ready, you should pack them into *.vcmp file.
 This file is basically headless gz archive.
@@ -216,7 +218,7 @@ gzip -c -n ./* >> my-campaign.vcmp
 
 If you are using Windows system, try this https://gnuwin32.sourceforge.net/packages/gzip.htm
 
-# Compatibility table
+## Compatibility table
 | Version | Min VCMI | Max VCMI | Description |
 |---------|----------|----------|-------------|
 | 1       | 1.3      |          | Initial release |

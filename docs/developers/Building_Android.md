@@ -1,3 +1,5 @@
+# Building Android
+
 The following instructions apply to **v1.2 and later**. For earlier versions the best documentation is https://github.com/vcmi/vcmi-android/blob/master/building.txt (and reading scripts in that repo), however very limited to no support will be provided from our side if you wish to go down that rabbit hole.
 
 *Note*: building has been tested only on Linux and macOS. It may or may not work on Windows out of the box.
