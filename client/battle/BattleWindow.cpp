@@ -371,6 +371,7 @@ void BattleWindow::showStickyHeroWindows()
 void BattleWindow::updateQueue()
 {
 	queue->update();
+	createQuickSpellWindow();
 }
 
 void BattleWindow::setPositionInfoWindow()
