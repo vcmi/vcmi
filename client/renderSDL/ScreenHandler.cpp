@@ -16,8 +16,11 @@
 #include "../gui/CGuiHandler.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../render/Colors.h"
 #include "CMT.h"
+#include "renderSDL/SDLImage.h"
 #include "SDL_Extensions.h"
+#include "widgets/Images.h"
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -211,10 +214,20 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 
 	initializeScreenBuffers();
 
+	setWindowIcon();
+
 	if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
 	{
 		NotificationHandler::init(mainWindow);
 	}
+}
+
+void ScreenHandler::setWindowIcon()
+{
+	auto windowIconSurface = CSDL_Ext::newSurface(22,22);
+	std::shared_ptr<IImage> image = std::make_shared<SDLImage>(ImagePath::builtin("vcmi"), EImageBlitMode::ALPHA);
+	image->draw(windowIconSurface);
+	SDL_SetWindowIcon(mainWindow, windowIconSurface);
 }
 
 void ScreenHandler::updateWindowState()
@@ -371,18 +384,7 @@ SDL_Window * ScreenHandler::createWindow()
 			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN_DESKTOP, false);
 
 		case EWindowMode::WINDOWED:
-		{
-			SDL_Window *win = createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
-
-			SDL_Surface* iconSurface = IMG_Load("vcmiclient.png");
-			if (iconSurface == NULL) {
-				fprintf(stderr, "SDL_IMG_Load Error: %s\n", SDL_GetError());
-			} else {
-				SDL_SetWindowIcon(win, iconSurface);
-			}
-
-			return win;
-		}
+			return createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
 
 		default:
 			return nullptr;
