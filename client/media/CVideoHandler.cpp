@@ -586,7 +586,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		return true;
 
 	instance.openVideo();
-	instance.prepareOutput(scale, useOverlay);
+	instance.prepareOutput(scale, true);
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
 
@@ -608,10 +608,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		rect.w = instance.dimensions.x;
 		rect.h = instance.dimensions.y;
 
-		if(useOverlay)
-			SDL_RenderFillRect(mainRenderer, &rect);
-		else
-			SDL_RenderClear(mainRenderer);
+		SDL_RenderFillRect(mainRenderer, &rect);
 
 		if(instance.textureYUV)
 			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &rect);
