@@ -12,14 +12,12 @@
 #include "ScreenHandler.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/constants/StringConstants.h"
 #include "../gui/CGuiHandler.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../render/Colors.h"
 #include "CMT.h"
-#include "renderSDL/SDLImage.h"
 #include "SDL_Extensions.h"
+#include "renderSDL/SDLImage.h"
 #include "widgets/Images.h"
 
 #ifdef VCMI_ANDROID
@@ -31,8 +29,6 @@
 #endif
 
 #include <SDL.h>
-#include <SDL_image.h>
-
 
 // TODO: should be made into a private members of ScreenHandler
 static SDL_Window * mainWindow = nullptr;
