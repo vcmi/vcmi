@@ -481,7 +481,7 @@ void QuickSpellPanel::create()
 
 		if(!id.hasValue() || !id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 		{
-			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 5 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 128)));
+			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 5 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
 		}
 		labels.push_back(std::make_shared<CLabel>(7, 8 + 37 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
 
