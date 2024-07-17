@@ -426,7 +426,7 @@ QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
 
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE);
 
-	pos = Rect(0, 0, 52, 713);
+	pos = Rect(0, 0, 52, 600);
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 	rect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w + 1, pos.h + 1), ColorRGBA(0, 0, 0, 0), ColorRGBA(241, 216, 120, 255));
 
@@ -445,7 +445,7 @@ void QuickSpellPanel::create()
 	if(!hero)
 		return;
 
-	for(int i = 0; i < 19; i++) {
+	for(int i = 0; i < 16; i++) {
 		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(i)].String();
 
 		SpellID id;
@@ -458,7 +458,7 @@ void QuickSpellPanel::create()
 			id = SpellID::NONE;
 		}
 
-		auto button = std::make_shared<CButton>(Point(2, 6 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
+		auto button = std::make_shared<CButton>(Point(2, 5 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
 			if(id.hasValue() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 			{
 				owner.castThisSpell(id);
@@ -468,15 +468,15 @@ void QuickSpellPanel::create()
 		button->addPopupCallback([this, i](){
 			auto panelSelect = std::make_shared<QuickSpellPanelSelect>(this);
 			panelSelect->spellSlot = i;
-			panelSelect->moveTo(Point(pos.x + 54, pos.y + 5));
+			panelSelect->moveTo(Point(pos.x + 54, pos.y + 4));
 			GH.windows().pushWindow(panelSelect);
 		});
 
 		if(!id.hasValue() || !id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 		{
-			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 6 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
+			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 5 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
 		}
-		labels.push_back(std::make_shared<CLabel>(7, 9 + 37 * i, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(i)));
+		labels.push_back(std::make_shared<CLabel>(7, 8 + 37 * i, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(i)));
 
 		buttons.push_back(button);
 	}
@@ -529,7 +529,7 @@ QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
 
 void QuickSpellPanelSelect::clickReleased(const Point & cursorPosition)
 {
-	if(!pos.isInside(cursorPosition))
+	if(!pos.isInside(cursorPosition) && !parent->pos.isInside(cursorPosition))
 		close();
 }
 

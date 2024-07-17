@@ -81,25 +81,22 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 		}
 	};
 	addShortcut(EShortcut::BATTLE_TOGGLE_QUICKSPELL, [this](){ this->toggleStickyQuickSpellVisibility();});
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_0, [useSpellIfPossible](){ useSpellIfPossible(0); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_1, [useSpellIfPossible](){ useSpellIfPossible(1); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_2, [useSpellIfPossible](){ useSpellIfPossible(2); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_3, [useSpellIfPossible](){ useSpellIfPossible(3); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_4, [useSpellIfPossible](){ useSpellIfPossible(4); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_5, [useSpellIfPossible](){ useSpellIfPossible(5); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_6, [useSpellIfPossible](){ useSpellIfPossible(6); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_7, [useSpellIfPossible](){ useSpellIfPossible(7); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_8, [useSpellIfPossible](){ useSpellIfPossible(8); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_9, [useSpellIfPossible](){ useSpellIfPossible(9); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_0,  [useSpellIfPossible](){ useSpellIfPossible(0);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_1,  [useSpellIfPossible](){ useSpellIfPossible(1);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_2,  [useSpellIfPossible](){ useSpellIfPossible(2);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_3,  [useSpellIfPossible](){ useSpellIfPossible(3);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_4,  [useSpellIfPossible](){ useSpellIfPossible(4);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_5,  [useSpellIfPossible](){ useSpellIfPossible(5);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_6,  [useSpellIfPossible](){ useSpellIfPossible(6);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_7,  [useSpellIfPossible](){ useSpellIfPossible(7);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_8,  [useSpellIfPossible](){ useSpellIfPossible(8);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_9,  [useSpellIfPossible](){ useSpellIfPossible(9);  });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_10, [useSpellIfPossible](){ useSpellIfPossible(10); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_11, [useSpellIfPossible](){ useSpellIfPossible(11); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_12, [useSpellIfPossible](){ useSpellIfPossible(12); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_13, [useSpellIfPossible](){ useSpellIfPossible(13); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_14, [useSpellIfPossible](){ useSpellIfPossible(14); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_15, [useSpellIfPossible](){ useSpellIfPossible(15); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_16, [useSpellIfPossible](){ useSpellIfPossible(16); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_17, [useSpellIfPossible](){ useSpellIfPossible(17); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_18, [useSpellIfPossible](){ useSpellIfPossible(18); });
 
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
@@ -207,7 +204,7 @@ void BattleWindow::createQuickSpellWindow()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	quickSpellWindow = std::make_shared<QuickSpellPanel>(owner);
-	quickSpellWindow->moveTo(Point(pos.x - 68, pos.y - 14));
+	quickSpellWindow->moveTo(Point(pos.x - 67, pos.y - 1));
 
 	if(settings["battle"]["enableQuickSpellPanel"].Bool())
 		showStickyQuickSpellWindow();

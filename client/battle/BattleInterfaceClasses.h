@@ -152,7 +152,7 @@ public:
 class QuickSpellPanelSelect : public CWindowObject
 {
 private:
-	const int NUM_PER_COLUMN = 19;
+	const int NUM_PER_COLUMN = 16;
 
 	std::shared_ptr<CFilledTexture> background;
 	std::shared_ptr<TransparentFilledRectangle> rect;
