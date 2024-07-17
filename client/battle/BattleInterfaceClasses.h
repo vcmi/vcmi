@@ -149,24 +149,6 @@ public:
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
-class QuickSpellPanelSelect : public CWindowObject
-{
-private:
-	const int NUM_PER_COLUMN = 16;
-
-	std::shared_ptr<CFilledTexture> background;
-	std::shared_ptr<TransparentFilledRectangle> rect;
-	std::vector<std::shared_ptr<CButton>> buttons;
-	QuickSpellPanel * parent;
-public:
-	QuickSpellPanelSelect(QuickSpellPanel * Parent);
-
-	bool receiveEvent(const Point & position, int eventType) const override;
-	void clickReleased(const Point & cursorPosition) override;
-
-	int spellSlot;
-};
-
 class QuickSpellPanel : public CIntObject
 {
 private:

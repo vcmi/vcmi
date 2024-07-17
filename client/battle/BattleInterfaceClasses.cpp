@@ -469,11 +469,12 @@ void QuickSpellPanel::create()
 			}
 		});
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), !spellIdentifier.empty() ? id.num + 1 : 0));
-		button->addPopupCallback([this, i](){
-			auto panelSelect = std::make_shared<QuickSpellPanelSelect>(this);
-			panelSelect->spellSlot = i;
-			panelSelect->moveTo(Point(pos.x + 54, pos.y + 4));
-			GH.windows().pushWindow(panelSelect);
+		button->addPopupCallback([this, i, hero](){
+			GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.curInt.get(), true, [this, i](SpellID spell){
+				Settings configID = persistentStorage.write["quickSpell"][std::to_string(i)];
+				configID->String() = spell.toSpell()->identifier;
+				create();
+			});
 		});
 
 		if(!id.hasValue() || !id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
@@ -490,56 +491,6 @@ void QuickSpellPanel::show(Canvas & to)
 {
 	showAll(to);
 	CIntObject::show(to);
-}
-
-QuickSpellPanelSelect::QuickSpellPanelSelect(QuickSpellPanel * Parent)
-	: parent(Parent)
-{
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-
-	addUsedEvents(LCLICK);
-
-	std::vector<std::shared_ptr<CSpell>> spellList;
-	for (auto const & s : VLC->spellh->objects)
-		if (s->isCombat() && !s->isSpecial() && !s->isCreatureAbility())
-			spellList.push_back(s);
-
-	auto ceil = [](int x, int y){ return(x + y - 1) / y; };
-	int columnsNeeded = ceil(spellList.size(), NUM_PER_COLUMN);
-
-	pos = Rect(pos.x, pos.y, columnsNeeded * 50 + 2, 2 + 37 * NUM_PER_COLUMN);
-	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
-	rect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w + 1, pos.h + 1), ColorRGBA(0, 0, 0, 0), ColorRGBA(241, 216, 120, 255));
-
-	for(int i = 0; i < spellList.size(); i++)
-	{
-		int y = i % NUM_PER_COLUMN;
-		int x = i / NUM_PER_COLUMN;
-		std::shared_ptr<CSpell> spell = spellList[i];
-		auto button = std::make_shared<CButton>(Point(2 + 50 * x, 1 + 37 * y), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, spell](){ 
-			close();
-			GH.windows().totalRedraw();
-			Settings configID = persistentStorage.write["quickSpell"][std::to_string(spellSlot)];
-			configID->String() = spell->identifier;
-			parent->create();
-		});
-		button->addPopupCallback([spell](){
-			CRClickPopup::createAndPush(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
-		});
-		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), spellList[i]->getId().num + 1));
-		buttons.push_back(button);
-	}
-}
-
-void QuickSpellPanelSelect::clickReleased(const Point & cursorPosition)
-{
-	if(!pos.isInside(cursorPosition) && !parent->pos.isInside(cursorPosition))
-		close();
-}
-
-bool QuickSpellPanelSelect::receiveEvent(const Point & position, int eventType) const
-{
-	return true;  // capture click also outside of window
 }
 
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)
