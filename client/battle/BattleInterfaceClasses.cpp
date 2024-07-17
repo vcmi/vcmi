@@ -44,6 +44,7 @@
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -470,6 +471,7 @@ void QuickSpellPanel::create()
 		});
 		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), !spellIdentifier.empty() ? id.num + 1 : 0));
 		button->addPopupCallback([this, i, hero](){
+			GH.input().hapticFeedback();
 			GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.curInt.get(), true, [this, i](SpellID spell){
 				Settings configID = persistentStorage.write["quickSpell"][std::to_string(i)];
 				configID->String() = spell.toSpell()->identifier;
@@ -479,7 +481,7 @@ void QuickSpellPanel::create()
 
 		if(!id.hasValue() || !id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 		{
-			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 5 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
+			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 5 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 128)));
 		}
 		labels.push_back(std::make_shared<CLabel>(7, 8 + 37 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
 

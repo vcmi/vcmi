@@ -226,6 +226,7 @@ void BattleWindow::hideStickyQuickSpellWindow()
 	showStickyQuickSpellWindow->Bool() = false;
 
 	quickSpellWindow->disable();
+	quickSpellWindow->isEnabled = false;
 
 	setPositionInfoWindow();
 	createTimerInfoWindows();
@@ -238,9 +239,15 @@ void BattleWindow::showStickyQuickSpellWindow()
 	showStickyQuickSpellWindow->Bool() = true;
 
 	if(GH.screenDimensions().x >= 1050)
+	{
 		quickSpellWindow->enable();
+		quickSpellWindow->isEnabled = true;
+	}
 	else
+	{
 		quickSpellWindow->disable();
+		quickSpellWindow->isEnabled = false;
+	}
 
 	setPositionInfoWindow();
 	createTimerInfoWindows();
@@ -251,7 +258,7 @@ void BattleWindow::createTimerInfoWindows()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	int xOffsetAttacker = quickSpellWindow->isActive() ? -53 : 0;
+	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
 
 	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.battleTimer != 0 || LOCPLINT->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
 	{
@@ -373,7 +380,7 @@ void BattleWindow::updateQueue()
 
 void BattleWindow::setPositionInfoWindow()
 {
-	int xOffsetAttacker = quickSpellWindow->isActive() ? -53 : 0;
+	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
 	if(defenderHeroWindow)
 	{
 		Point position = (GH.screenDimensions().x >= 1000)
