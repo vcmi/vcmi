@@ -755,7 +755,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		}
 
 		ColorRGBA firstLineColor, secondLineColor;
-		if(spellCost > owner->myHero->mana || !owner->onSpellSelect) //hero cannot cast this spell
+		if(spellCost > owner->myHero->mana && !owner->onSpellSelect) //hero cannot cast this spell
 		{
 			firstLineColor = Colors::WHITE;
 			secondLineColor = Colors::ORANGE;

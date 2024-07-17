@@ -64,39 +64,23 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/BattleWindow2.json"));
 	
-	auto useSpellIfPossible = [this](int slot){
-		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(slot)].String();
-		SpellID id;
-		try
-		{
-			id = SpellID::decode(spellIdentifier);
-		}
-		catch(const IdentifierResolutionException& e)
-		{
-			return;
-		}
-		if(id.hasValue() && owner.getBattle()->battleGetMyHero() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, owner.getBattle()->battleGetMyHero()))
-		{
-			owner.castThisSpell(id);
-		}
-	};
 	addShortcut(EShortcut::BATTLE_TOGGLE_QUICKSPELL, [this](){ this->toggleStickyQuickSpellVisibility();});
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_0,  [useSpellIfPossible](){ useSpellIfPossible(0);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_1,  [useSpellIfPossible](){ useSpellIfPossible(1);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_2,  [useSpellIfPossible](){ useSpellIfPossible(2);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_3,  [useSpellIfPossible](){ useSpellIfPossible(3);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_4,  [useSpellIfPossible](){ useSpellIfPossible(4);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_5,  [useSpellIfPossible](){ useSpellIfPossible(5);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_6,  [useSpellIfPossible](){ useSpellIfPossible(6);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_7,  [useSpellIfPossible](){ useSpellIfPossible(7);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_8,  [useSpellIfPossible](){ useSpellIfPossible(8);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_9,  [useSpellIfPossible](){ useSpellIfPossible(9);  });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_10, [useSpellIfPossible](){ useSpellIfPossible(10); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_11, [useSpellIfPossible](){ useSpellIfPossible(11); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_12, [useSpellIfPossible](){ useSpellIfPossible(12); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_13, [useSpellIfPossible](){ useSpellIfPossible(13); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_14, [useSpellIfPossible](){ useSpellIfPossible(14); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_15, [useSpellIfPossible](){ useSpellIfPossible(15); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_0,  [this](){ useSpellIfPossible(0);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_1,  [this](){ useSpellIfPossible(1);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_2,  [this](){ useSpellIfPossible(2);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_3,  [this](){ useSpellIfPossible(3);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_4,  [this](){ useSpellIfPossible(4);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_5,  [this](){ useSpellIfPossible(5);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_6,  [this](){ useSpellIfPossible(6);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_7,  [this](){ useSpellIfPossible(7);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_8,  [this](){ useSpellIfPossible(8);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_9,  [this](){ useSpellIfPossible(9);  });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_10, [this](){ useSpellIfPossible(10); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_11, [this](){ useSpellIfPossible(11); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_12, [this](){ useSpellIfPossible(12); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_13, [this](){ useSpellIfPossible(13); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_14, [this](){ useSpellIfPossible(14); });
+	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_15, [this](){ useSpellIfPossible(15); });
 
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
@@ -290,6 +274,24 @@ std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode &
 	auto background = widget<CPicture>("menuBattle");
 	return std::make_shared<BattleConsole>(owner, background, rect.topLeft(), offset, rect.dimensions() );
 }
+
+void BattleWindow::useSpellIfPossible(int slot)
+{
+	std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(slot)].String();
+	SpellID id;
+	try
+	{
+		id = SpellID::decode(spellIdentifier);
+	}
+	catch(const IdentifierResolutionException& e)
+	{
+		return;
+	}
+	if(id.hasValue() && owner.getBattle()->battleGetMyHero() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, owner.getBattle()->battleGetMyHero()))
+	{
+		owner.castThisSpell(id);
+	}
+};
 
 void BattleWindow::toggleQueueVisibility()
 {

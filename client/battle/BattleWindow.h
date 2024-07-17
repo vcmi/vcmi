@@ -71,6 +71,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 	PossiblePlayerBattleAction defaultAction;
 	void showAlternativeActionIcon(PossiblePlayerBattleAction);
 
+	void useSpellIfPossible(int slot);
+
 	/// flip battle queue visibility to opposite
 	void toggleQueueVisibility();
 	void createQueue();
