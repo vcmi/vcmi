@@ -269,7 +269,7 @@ JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 	for(auto & loader : CResourceHandler::get()->getResourcesWithName(resID))
 	{
 		auto textData = loader->load(resID)->readAll();
-		JsonNode section(reinterpret_cast<std::byte *>(textData.first.get()), textData.second);
+		JsonNode section(reinterpret_cast<std::byte *>(textData.first.get()), textData.second, resID.getName());
 		merge(result, section);
 	}
 	return result;
