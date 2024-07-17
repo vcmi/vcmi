@@ -430,7 +430,7 @@ void CHeroGSlot::clickPressed(const Point & cursorPosition)
 	{
 		setHighlight(false);
 
-		if(other->hero)
+		if(other->hero && !GH.isKeyboardShiftDown())
 			LOCPLINT->showHeroExchange(hero->id, other->hero->id);
 		else
 			LOCPLINT->openHeroWindow(hero);

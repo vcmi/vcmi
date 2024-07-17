@@ -444,7 +444,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		LOCPLINT->localState->setSelection(LOCPLINT->localState->getWanderingHero(0));
 	}
 
-	centerOnObject(LOCPLINT->localState->getCurrentArmy());
+	onSelectionChanged(LOCPLINT->localState->getCurrentArmy());
 
 	//show new day animation and sound on infobar, except for 1st day of the game
 	if (LOCPLINT->cb->getDate(Date::DAY) != 1)
