@@ -296,45 +296,45 @@ void ApplyClientNetPackVisitor::visitEraseArtifact(EraseArtifact & pack)
 	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactRemoved, pack.al);
 }
 
-void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
-{
-	auto moveArtifact = [this, &pack](PlayerColor player) -> void
-	{
-		callInterfaceIfPresent(cl, player, &IGameEventsReceiver::artifactMoved, pack.src, pack.dst);
-		if(pack.askAssemble)
-			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::askToAssembleArtifact, pack.dst);
-	};
-
-	moveArtifact(pack.interfaceOwner);
-	if(pack.interfaceOwner != cl.getOwner(pack.dst.artHolder))
-		moveArtifact(cl.getOwner(pack.dst.artHolder));
-
-	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
-}
-
 void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 {
-	auto applyMove = [this, &pack](std::vector<BulkMoveArtifacts::LinkedSlots> & artsPack) -> void
+	const auto dstOwner = cl.getOwner(pack.dstArtHolder);
+	const auto applyMove = [this, &pack, dstOwner](std::vector<BulkMoveArtifacts::LinkedSlots> & artsPack)
 	{
-		for(auto & slotToMove : artsPack)
+		for(const auto & slotToMove : artsPack)
 		{
-			auto srcLoc = ArtifactLocation(pack.srcArtHolder, slotToMove.srcPos);
-			auto dstLoc = ArtifactLocation(pack.dstArtHolder, slotToMove.dstPos);
-			MoveArtifact ma(pack.interfaceOwner, srcLoc, dstLoc, pack.askAssemble);
-			visitMoveArtifact(ma);
+			const auto srcLoc = ArtifactLocation(pack.srcArtHolder, slotToMove.srcPos);
+			const auto dstLoc = ArtifactLocation(pack.dstArtHolder, slotToMove.dstPos);
+
+			callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+			if(slotToMove.askAssemble)
+				callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::askToAssembleArtifact, dstLoc);
+			if(pack.interfaceOwner != dstOwner)
+				callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+
+			cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
 		}
 	};
 
-	auto srcOwner = cl.getOwner(pack.srcArtHolder);
-	auto dstOwner = cl.getOwner(pack.dstArtHolder);
+	size_t possibleAssemblyNumOfArts = 0;
+	const auto calcPossibleAssemblyNumOfArts = [&possibleAssemblyNumOfArts](const auto & slotToMove)
+	{
+		if(slotToMove.askAssemble)
+			possibleAssemblyNumOfArts++;
+	};
+	std::for_each(pack.artsPack0.cbegin(), pack.artsPack0.cend(), calcPossibleAssemblyNumOfArts);
+	std::for_each(pack.artsPack1.cbegin(), pack.artsPack1.cend(), calcPossibleAssemblyNumOfArts);
+
 
 	// Begin a session of bulk movement of arts. It is not necessary but useful for the client optimization.
-	callInterfaceIfPresent(cl, srcOwner, &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
-	if(srcOwner != dstOwner)
-		callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
+	callInterfaceIfPresent(cl, pack.interfaceOwner, &IGameEventsReceiver::bulkArtMovementStart,
+		pack.artsPack0.size() + pack.artsPack1.size(), possibleAssemblyNumOfArts);
+	if(pack.interfaceOwner != dstOwner)
+		callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::bulkArtMovementStart,
+			pack.artsPack0.size() + pack.artsPack1.size(), possibleAssemblyNumOfArts);
 
 	applyMove(pack.artsPack0);
-	if(pack.swap)
+	if(!pack.artsPack1.empty())
 		applyMove(pack.artsPack1);
 }
 

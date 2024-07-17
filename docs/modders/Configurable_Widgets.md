@@ -1,10 +1,12 @@
-# Introduction
+# Configurable Widgets
+
+## Introduction
 
 VCMI has capabilities to change some UI elements in your mods beyond only replacing one image with another. Not all UI elements are possible to modify currently, but development team is expanding them.
 
 Elements possible to modify are located in `config/widgets`.
 
-# Tutorial
+## Tutorial
 
 Let's take `extendedLobby` mod from `vcmi-extras` as an example for VCMI-1.4. [Example sources](https://github.com/vcmi-mods/vcmi-extras/tree/vcmi-1.4/Mods/extendedLobby).
 
@@ -16,7 +18,7 @@ For options tab it introduces UI for chess timers.
 
 In this tutorial we will recreate options tab to support chess timers UI.
 
-## Creating mod structure
+### Creating mod structure
 
 To start making mod, create following folders structure;
 ```
@@ -44,7 +46,7 @@ File `mod.json` is generic and could look like this:
 
 After that you can copy `extendedLobby/ folder to `mods/` folder and your mod will immediately appear in launcher but it does nothing for now.
 
-## Making layout for timer
+### Making layout for timer
 
 Let's copy `config/widgets/optionsTab.json` file from VCMI folder to `content/config/widgets/` folder from our mod.
 It defines UI for options tab as it designed in original game, we will keep everything related to player settings and will modify only timer area.
@@ -111,7 +113,7 @@ In order to make it work, add file `RmgTTBk.bmp` to `content/sprites/`
 
 Elements named `labelTurnDurationValue` and `sliderTurnDuration` we will keep without change - they are needed to configure classic timer.
 
-## Adding combo box
+### Adding combo box
 
 Now, let's add combo box.
 
@@ -264,7 +266,7 @@ Now specify items inside `dropDown` field
 
 Now we can press drop-down menu and even select elements.
 
-## Switching timer modes
+### Switching timer modes
 
 After view part is done, let's make behavioural part.
 Let's hide elements, related to classic timer when chess timer is selected and show them back if classic selected.
@@ -322,7 +324,7 @@ This background must be visible for chess timer and hidden for classic timer. Ju
 
 It works and can switch elements, the only missing part is chess timer configuration.
 
-## Chess timer configuration
+### Chess timer configuration
 
 We should add text input fields, to specify different timers. We will use background for them `timerField.bmp`, copy it to `content/sprites/` folder of your mod.
 
@@ -352,39 +354,39 @@ And what we want to do is to hide/show those fields when classic/chess times is 
 
 We are done! You can find more information about configurable UI elements in documentation section.
 
-# Documentation
+## Documentation
 
-## Types
+### Types
 
 All fields have format `"key": value`
 There are different basic types, which can be used as value.
 
-### Primitive types
+#### Primitive types
 
 Read JSON documentation for primitive types description: https://www.json.org/json-en.html
 
-### Text
+#### Text
 
 Load predefined text which can be localised, examples:
 `"vcmi.otherOptions.availableCreaturesAsDwellingLabel"`
 `"core.genrltxt.738"`
 
-### Position
+#### Position
 
 Point with two coordinates, example:
 `{ "x": 43, "y": -28 }`
 
-### Rect
+#### Rect
 
 Rectangle ares, example:
 `{ "x": 28, "y": 220, "w": 108, "h": 50 }`
 
-### Text alignment
+#### Text alignment
 
 Defines text alignment, can be one of values:
 `"center"`, `"left"`, `"right"`
 
-### Color
+#### Color
 
 Predefined colors:
 `"yellow"`, `"white"`, `"gold"`, `"green"`, `"orange"`, `"bright-yellow"`
@@ -392,12 +394,12 @@ Predefined colors:
 To have custom color make an array of four elements in RGBA notation:
 `[255, 128, 0, 255]`
 
-### Font
+#### Font
 
 Predefined fonts:
 `"big"`, `"medium"`, `"small"`, `"tiny"`, `"calisto"`
 
-### Hint text
+#### Hint text
 
 Hint text is a pair of strings, one is usually shown in status bar when cursor hovers element, another hint while right button pressed.
 Each of elements is a [Text](#text)
@@ -413,19 +415,19 @@ If one string specified, it will be applied for both hover and help.
 
 `"text"`
 
-### Shortcut
+#### Shortcut
 
 String value defines shortcut. Some examples of shortcuts:
 `"globalAccept", "globalCancel", "globalReturn","globalFullscreen", "globalOptions", "globalBackspace", "globalMoveFocus"`
 
 Full list is TBD
 
-### [VCMI-1.4] Player color
+#### [VCMI-1.4] Player color
 
 One of predefined values:
 `"red"`, `"blue"`, `"tan"`, `"green"`, `"orange"`, `"purple"`, `"teal"`, `"pink"`
 
-## Configurable objects
+### Configurable objects
 
 Configurable object has following structure:
 ```json
@@ -445,9 +447,9 @@ Configurable object has following structure:
 
 `library` - same as above, but custom widgets are described in separate json, this parameter should contain path to library json is specified
 
-## Basic widgets
+### Basic widgets
 
-### Label
+#### Label
 
 `"type": "label"`
 
@@ -463,7 +465,7 @@ Configurable object has following structure:
 
 `"position"`: [position](#position)
 
-### [VCMI-1.4] Multi-line label
+#### [VCMI-1.4] Multi-line label
 
 `"type": "multiLineLabel"`
 
@@ -483,7 +485,7 @@ Configurable object has following structure:
 
 `"adoptHeight": bool` //if true, text area height will be adopted automatically based on content
 
-### Label group
+#### Label group
 
 `"type": "labelGroup"`
 
@@ -503,7 +505,7 @@ Configurable object has following structure:
 
 `"text"`: [text](#text),
 
-### TextBox
+#### TextBox
 
 `"type": "textBox"`
 
@@ -519,7 +521,7 @@ Configurable object has following structure:
 
 `"rect"`: [rect](#rect)
 
-### Picture
+#### Picture
 
 `"type": "picture"`
 
@@ -533,7 +535,7 @@ Configurable object has following structure:
 
 `"playerColored", bool`, optional, if true will be colorised to current player
 
-### Image
+#### Image
 
 Use to show single frame from animation
 
@@ -549,7 +551,7 @@ Use to show single frame from animation
 
 `"frame": integer` optional, specify animation frame
 
-### Texture
+#### Texture
 
 Filling area with texture
 
@@ -561,7 +563,7 @@ Filling area with texture
 
 `"rect"`: [rect](#rect)
 
-### TransparentFilledRectangle
+#### TransparentFilledRectangle
 
 `"type": "transparentFilledRectangle"`
 
@@ -573,7 +575,7 @@ Filling area with texture
 
 `"rect"`: [rect](#rect)
 
-### Animation
+#### Animation
 
 `"type": "animation"`
 
@@ -599,7 +601,7 @@ Filling area with texture
 
 `"end": integer`, last frame
 
-### [VCMI-1.4] Text input
+#### [VCMI-1.4] Text input
 
 `"type": "textInput"`
 
@@ -625,7 +627,7 @@ Filling area with texture
 
 `"callback": string` optional, callback to be called on text changed. Input text is passed to callback function as an argument.
 
-### Button
+#### Button
 
 `"type": "button"`
 
@@ -647,7 +649,7 @@ Filling area with texture
 
 `"items": []` array of widgets to be shown as overlay (caption [label](#label), for example)
 
-### Toggle button
+#### Toggle button
 
 `"type": "toggleButton"`
 
@@ -667,7 +669,7 @@ Filling area with texture
 
 `"items": []` array of widgets to be shown as overlay (caption [label](#label), for example)
 
-### Toggle group
+#### Toggle group
 
 Group of [toggle buttons](#toggle-button), when one is selected, other will be de-selected
 
@@ -681,7 +683,7 @@ Group of [toggle buttons](#toggle-button), when one is selected, other will be d
 
 `"items": []` array of [toggle buttons](#toggle-button)
 
-### Slider
+#### Slider
 
 `"type": "slider"`
 
@@ -707,7 +709,7 @@ Group of [toggle buttons](#toggle-button), when one is selected, other will be d
 
 `"panningStep": integer`, optional
 
-### Combo box
+#### Combo box
 
 `"type": "comboBox"`
 
@@ -729,7 +731,7 @@ Group of [toggle buttons](#toggle-button), when one is selected, other will be d
 
 `"dropDown" : {}` description of [drop down](#drop-down) menu widget
 
-### Drop down
+#### Drop down
 
 Used only as special object for [combo box](#combo-box)
 
@@ -750,17 +752,17 @@ Used only as special object for [combo box](#combo-box)
 **Callbacks**
  - `sliderMove` connect to slider callback to correctly navigate over elements
 
-### Layout
+#### Layout
 
 `"type": "layout"`
 
 `"name": "string"` optional, object name
 
-## High-level widgets
+### High-level widgets
 
-## Custom widgets
+### Custom widgets
 
-# For developers
+## For developers
 
 While designing a new element, you can make it configurable to reuse all functionality described above. It will provide flexibility to further changes as well as modding capabilities.
 
@@ -798,9 +800,9 @@ MyYesNoDialog::MyYesNoDialog(const JsonNode & config):
 }
 ```
 
-## Callbacks
+### Callbacks
 
-## Custom widgets
+### Custom widgets
 
 You can build custom widgets, related to your UI element specifically. Like in example above, there is Item widget, which can be also used on JSON config.
 
@@ -832,7 +834,7 @@ After that, if your JSON file has items with type "MyItem", the new Item element
 }
 ```
 
-## Variables
+### Variables
 
 After calling `build(config)` variables defined in config JSON file become available. You can interpret them and use in callbacks or in element code
 

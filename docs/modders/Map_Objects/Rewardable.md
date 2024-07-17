@@ -1,3 +1,5 @@
+# Rewardable
+
 ## Base object definition
 Rewardable object is defined similarly to other objects, with key difference being `handler`. This field must be set to `"handler" : "configurable"` in order for vcmi to use this mode.
 ```jsonc

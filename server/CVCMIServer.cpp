@@ -118,7 +118,7 @@ public:
 	}
 };
 
-CVCMIServer::CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient)
+CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 	: currentClientId(1)
 	, currentPlayerId(1)
 	, port(port)
@@ -130,22 +130,30 @@ CVCMIServer::CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient)
 	registerTypesLobbyPacks(*applier);
 
 	networkHandler = INetworkHandler::createHandler();
-
-	if(connectToLobby)
-		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
-	else
-		startAcceptingIncomingConnections();
 }
 
 CVCMIServer::~CVCMIServer() = default;
 
-void CVCMIServer::startAcceptingIncomingConnections()
-{
-	logNetwork->info("Port %d will be used", port);
+uint16_t CVCMIServer::prepare(bool connectToLobby) {
+	if(connectToLobby) {
+		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
+		return 0;
+	} else {
+		return startAcceptingIncomingConnections();
+	}
+}
 
+uint16_t CVCMIServer::startAcceptingIncomingConnections()
+{
+	port
+		? logNetwork->info("Port %d will be used", port)
+		: logNetwork->info("Randomly assigned port will be used");
+
+	// config port may be 0 => srvport will contain the OS-assigned port value
 	networkServer = networkHandler->createServerTCP(*this);
-	networkServer->start(port);
-	logNetwork->info("Listening for connections at port %d", port);
+	auto srvport = networkServer->start(port);
+	logNetwork->info("Listening for connections at port %d", srvport);
+	return srvport;
 }
 
 void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & connection)

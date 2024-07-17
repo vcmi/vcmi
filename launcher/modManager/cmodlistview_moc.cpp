@@ -134,6 +134,8 @@ CModListView::CModListView(QWidget * parent)
 	ui->updateButton->setIcon(QIcon{":/icons/mod-update.png"});
 	ui->installButton->setIcon(QIcon{":/icons/mod-download.png"});
 
+	ui->splitter->setStyleSheet("QSplitter::handle {background: palette('window');}");
+
 	setupModModel();
 	setupFilterModel();
 	setupModsView();

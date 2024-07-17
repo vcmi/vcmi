@@ -1,3 +1,5 @@
+# Artifact Format
+
 Artifact bonuses use [Bonus Format](../Bonus_Format.md)
 
 ## Required data

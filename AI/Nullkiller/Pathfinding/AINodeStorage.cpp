@@ -25,7 +25,7 @@ namespace NKAI
 {
 
 std::shared_ptr<boost::multi_array<AIPathNode, 4>> AISharedStorage::shared;
-uint64_t AISharedStorage::version = 0;
+uint32_t AISharedStorage::version = 0;
 boost::mutex AISharedStorage::locker;
 std::set<int3> committedTiles;
 std::set<int3> committedTilesInitial;
@@ -224,7 +224,6 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 
 		AIPathNode * initialNode = allocated.value();
 
-		initialNode->inPQ = false;
 		initialNode->pq = nullptr;
 		initialNode->turns = actor->initialTurn;
 		initialNode->moveRemains = actor->initialMovement;

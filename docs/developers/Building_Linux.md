@@ -5,9 +5,9 @@
 
 Older distributions and compilers might work, but they aren't tested by Github CI (Actions)
 
-# Prerequisites
-
 ## Installing dependencies
+
+### Prerequisites
 
 To compile, the following packages (and their development counterparts) are needed to build:
 
@@ -45,7 +45,7 @@ It can be found at https://aur.archlinux.org/packages/vcmi-git/
 
 Information about building packages from the Arch User Repository (AUR) can be found at the Arch wiki.
 
-# Getting the sources
+## Getting the sources
 
 We recommend the following directory structure:
 
@@ -59,9 +59,9 @@ You can get the latest source code with:
 
 `git clone -b develop --recursive https://github.com/vcmi/vcmi.git`
 
-# Compilation
+## Compilation
 
-## Configuring Makefiles
+### Configuring Makefiles
 
 ```sh
 mkdir build
@@ -74,8 +74,7 @@ cmake -S ../vcmi
 
 See [CMake](CMake.md) for a list of options
 
-
-## Building
+### Trigger build
 
 ```
 cmake --build . -j8
@@ -85,9 +84,9 @@ cmake --build . -j8
 
 This will generate `vcmiclient`, `vcmiserver`, `vcmilauncher` as well as .so libraries in the `build/bin/` directory.
 
-# Packaging
+## Packaging
 
-## RPM package
+### RPM package
 
 The first step is to prepare a RPM build environment. On Fedora systems you can follow this guide: http://fedoraproject.org/wiki/How_to_create_an_RPM_package#SPEC_file_overview
 
@@ -137,7 +136,7 @@ For other distributions that uses RPM, chances are there might be a spec file fo
 
 Available root environments and their names are listed in /etc/mock.
 
-## Debian/Ubuntu
+### Debian/Ubuntu
 
 1. Install debhelper and devscripts packages
 

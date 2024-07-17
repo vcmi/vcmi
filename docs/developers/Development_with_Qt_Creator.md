@@ -1,4 +1,4 @@
-# Introduction to Qt Creator
+# Development with Qt Creator
 
 Qt Creator is the recommended IDE for VCMI development on Linux distributions, but it may be used on other operating systems as well. It has the following advantages compared to other IDEs:
 

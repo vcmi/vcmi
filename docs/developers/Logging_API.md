@@ -1,4 +1,6 @@
-# Features
+# Logging API
+
+## Features
 
 -   A logger belongs to a "domain", this enables us to change log level settings more selectively
 -   The log format can be customized
@@ -9,7 +11,7 @@
 -   Macros for tracing the application flow
 -   Provides stream-like and function-like logging
 
-# Class diagram
+## Class diagram
 
 ![Logging_Class_Diagram](https://github.com/IvanSavenko/vcmi/assets/1576820/31c9b14e-a055-4b07-87fe-00da43430a2b)
 
@@ -18,9 +20,9 @@ Some notes:
 -   There are two methods `configure` and `configureDefault` of the class `CBasicLogConfigurator` to initialize and setup the logging system. The latter one setups default logging and isn't dependent on VCMI's filesystem, whereas the first one setups logging based on the user's settings which can be configured in the settings.json.
 -   The methods `isDebugEnabled` and `isTraceEnabled` return true if a log record of level debug respectively trace will be logged. This can be useful if composing the log message is a expensive task and performance is important.
 
-# Usage
+## Usage
 
-## Setup settings.json
+### Setup settings.json
 
 ``` javascript
 {
@@ -51,7 +53,7 @@ Some notes:
 
 The above code is an example on how to configure logging. It sets the log level to debug globally and the log level of the domain ai to trace. In addition, it tells the console to log debug messages as well with the threshold attribute. Finally, it configures the console so that it logs network trace messages in magenta.
 
-## Configuration
+### Configuration
 
 The following code shows how the logging system can be configured:
 
@@ -82,14 +84,14 @@ Format: %d %l %n \[%t\] - %m
 
 global -\> info
 
-## How to get a logger
+### How to get a logger
 
 There exist only one logger object per domain. A logger object cannot be copied. You can get access to a logger object by using the globally defined ones like `logGlobal` or `logAi`, etc... or by getting one manually:
 ```cpp
 Logger * logger = CLogger::getLogger(CLoggerDomain("rmg"));
 ```
 
-## Logging
+### Logging
 
 Logging can be done via two ways, stream-like or function-like.
 
@@ -119,7 +121,7 @@ The following colors are available for console output:
 -   gray
 -   teal
 
-## How to trace execution
+### How to trace execution
 
 The program execution can be traced by using the macros TRACE_BEGIN, TRACE_END and their \_PARAMS counterparts. This can be important if you want to analyze the operations/internal workings of the AI or the communication of the client-server. In addition, it can help you to find bugs on a foreign VCMI installation with a custom mod configuration.
 
@@ -135,9 +137,9 @@ The program execution can be traced by using the macros TRACE_BEGIN, TRACE_END a
     }
 ```
 
-# Concepts
+## Concepts
 
-## Domain
+### Domain
 
 A domain is a specific part of the software. In VCMI there exist several domains:
 
