@@ -57,6 +57,8 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/TextOperations.h"
+#include "../../lib/json/JsonUtils.h"
+
 
 void BattleConsole::showAll(Canvas & to)
 {
@@ -437,6 +439,8 @@ void QuickSpellPanel::create()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
+	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
+
 	labels.clear();
 	buttons.clear();
 	buttonsDisabled.clear();
@@ -476,7 +480,7 @@ void QuickSpellPanel::create()
 		{
 			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 5 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
 		}
-		labels.push_back(std::make_shared<CLabel>(7, 8 + 37 * i, EFonts::FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(i)));
+		labels.push_back(std::make_shared<CLabel>(7, 8 + 37 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
 
 		buttons.push_back(button);
 	}

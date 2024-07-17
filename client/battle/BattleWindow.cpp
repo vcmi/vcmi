@@ -204,7 +204,7 @@ void BattleWindow::createQuickSpellWindow()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	quickSpellWindow = std::make_shared<QuickSpellPanel>(owner);
-	quickSpellWindow->moveTo(Point(pos.x - 67, pos.y - 1));
+	quickSpellWindow->moveTo(Point(pos.x - 67, pos.y));
 
 	if(settings["battle"]["enableQuickSpellPanel"].Bool())
 		showStickyQuickSpellWindow();
