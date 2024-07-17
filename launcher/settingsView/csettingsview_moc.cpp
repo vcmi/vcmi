@@ -27,9 +27,7 @@
 #include <SDL2/SDL.h>
 #endif
 
-namespace
-{
-QString resolutionToString(const QSize & resolution)
+static QString resolutionToString(const QSize & resolution)
 {
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
 }
@@ -46,8 +44,6 @@ static constexpr std::array upscalingFilterTypes =
 	"linear",
 	"best"
 };
-
-}
 
 void CSettingsView::setDisplayList()
 {
@@ -90,6 +86,12 @@ void CSettingsView::loadSettings()
 #ifdef VCMI_MOBILE
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
+
+	if(!persistentStorage["gui"]["tutorialCompleted0"].Bool() && !persistentStorage["gui"]["tutorialCompleted1"].Bool())
+	{
+		ui->labelResetTutorialTouchscreen->hide();
+		ui->pushButtonResetTutorialTouchscreen->hide();		
+	}
 #else
 	ui->labelReservedArea->hide();
 	ui->sliderReservedArea->hide();
@@ -99,6 +101,8 @@ void CSettingsView::loadSettings()
 	ui->labelRelativeCursorSpeed->hide();
 	ui->buttonHapticFeedback->hide();
 	ui->labelHapticFeedback->hide();
+	ui->labelResetTutorialTouchscreen->hide();
+	ui->pushButtonResetTutorialTouchscreen->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
@@ -525,6 +529,16 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	}
 }
 
+void CSettingsView::on_pushButtonResetTutorialTouchscreen_clicked()
+{
+	Settings node0 = persistentStorage.write["gui"]["tutorialCompleted0"];
+	node0->Bool() = false;
+	Settings node1 = persistentStorage.write["gui"]["tutorialCompleted1"];
+	node1->Bool() = false;
+
+	ui->pushButtonResetTutorialTouchscreen->hide();
+}
+
 void CSettingsView::on_buttonRepositoryDefault_toggled(bool value)
 {
 	Settings node = settings.write["launcher"]["defaultRepositoryEnabled"];
@@ -705,12 +719,12 @@ void CSettingsView::on_spinBoxNetworkPortLobby_valueChanged(int arg1)
 
 void CSettingsView::on_sliderControllerSticksAcceleration_valueChanged(int value)
 {
-	Settings node = settings.write["input"]["configAxisScale"];
+	Settings node = settings.write["input"]["controllerAxisScale"];
 	node->Integer() = value / 100.0;
 }
 
 void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
 {
-	Settings node = settings.write["input"]["configAxisSpeed"];
+	Settings node = settings.write["input"]["controllerAxisSpeed"];
 	node->Integer() = value;
 }

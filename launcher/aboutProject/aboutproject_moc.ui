@@ -30,7 +30,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="3" column="0">
       <widget class="QPushButton" name="pushButtonGithub">
        <property name="text">
         <string>VCMI on Github</string>
@@ -52,13 +52,6 @@
        </property>
        <property name="text">
         <string>Our Community</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QPushButton" name="pushButtonSlack">
-       <property name="text">
-        <string>VCMI on Slack</string>
        </property>
       </widget>
      </item>

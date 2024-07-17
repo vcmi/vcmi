@@ -34,13 +34,13 @@ void BuyArmy::accept(AIGateway * ai)
 	ui64 valueBought = 0;
 	//buy the stacks with largest AI value
 
-	auto upgradeSuccessfull = ai->makePossibleUpgrades(town);
+	auto upgradeSuccessful = ai->makePossibleUpgrades(town);
 
 	auto armyToBuy = ai->nullkiller->armyManager->getArmyAvailableToBuy(town->getUpperArmy(), town);
 
 	if(armyToBuy.empty())
 	{
-		if(upgradeSuccessfull)
+		if(upgradeSuccessful)
 			return;
 
 		throw cannotFulfillGoalException("No creatures to buy.");

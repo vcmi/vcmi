@@ -1,3 +1,50 @@
+# 1.5.3 -> 1.5.4
+
+### Stability
+* Fixed a possible crash when clicking on an adventure map when another player is taking a turn in multiplayer mode.
+* Failure to extract a mod will now display an error message instead of a silent crash.
+* Fixed crash on opening town hall screen of a town from a mod with invalid building identifier
+* Fixed crash when faerie dragons die after casting Ice Ring on themselves.
+
+### Mechanics
+* The scholar will now correctly upgrade a skill if the visiting hero has offered a skill at either the basic or advanced level.
+* Hero now reveals Fog of War when receiving new or upgraded secondary skills (such as scouting).
+* AI will now always act after all human players during simturns instead of acting after host player
+
+### Interface
+* Pressing the up and down keys on the town screen will now move to the next or previous town instead of scrolling through the list of towns.
+* Long text in scenario name and highscore screen now shortened to fit the interface
+* Game now moves cursor to tap event position when using software cursor with touch screen input
+* Right-click popup on spell scroll campaign bonus now shows spell name instead of artefact name
+* Damage estimation tooltip will no longer show damage greater than the targeted unit's health.
+
+### Random Maps Generator
+* Generator will try to place roads even further away from zone borders
+* Fixed rare crash when placing two quest artefacts in the same location at the same time
+
+### AI
+* Improved performance of Nullkiller AI
+* Stupid AI no longer overestimates damage when killing entire unit
+* Fixed a bug leading to Battle AI not using spells when sieging town with Citadel or Castle built
+* Fixed an unsigned integer overflow that caused the Nullkiller AI to overestimate the total army strength after merging two armies.
+
+### Launcher
+* Added button to reset touchscreen tutorial on mobile systems
+* Launcher will now warn if player selects Gog Galaxy installer instead of offline installer
+* Launcher will now ask for the .bin file first as it is usually listed first in the file system view
+* Extraction failure now displays error message instead of crashing
+* Launcher will now use the header signature to check the file type instead of the extension when using the gog.com installer.
+* Fixed broken controller sensitivity configuration options
+* Fixed manual file installation on Android
+
+### Map Editor
+* Icons and translations now embedded in executable file
+
+### Modding
+* Improved bonus format validation
+* Validator now reports valid values for enumeration fields
+* Fixed missing addInfo field for bonuses that use the BONUS_OWNER_UPDATER propagation updater.
+
 # 1.5.2 -> 1.5.3
 
 ### Stability
@@ -40,12 +87,13 @@
 * Fixed wrong order of activating mods in chain when installing multiple mods at once
 * Mod list no longer shows mod version column. Version is now only shown in the mod description.
 * Launcher will now skip the Heroes 3 data import step if data has been found automatically
-* Fixed inport of existing data files on iOS. This option now requires iOS 13 or later
+* Fixed import of existing data files on iOS. This option now requires iOS 13 or later
 * Fixed import using offline installer on iOS.
 * Buttons to open data directories in the Help tab are now hidden on mobile systems if they can't be opened with file browser
 * Added the configuration files directory to the Help tab as it is located separately on Linux systems
 * Removed H3 data language selection during setup in favor of auto-detection
 * Replaced checkboxes with toggle buttons for easier of access on touchscreens.
+* Icons and translations now embedded in executable file
 * Added interface for configuring several previously existing but inaccessible options in Launcher:
     * Selection of input tolerance precision for all input types
     * Relative cursor mode for mobile systems (was only available on Android)
@@ -321,7 +369,7 @@
 
 ### Battles
 * Added option to enable unlimited combat replays during game setup
-* Added option to instantly end battle using quick combat (shotcut: 'e')
+* Added option to instantly end battle using quick combat (shortcut: 'e')
 * Added option to replace auto-combat button action with instant end using quick combat
 * Battles against AI players can now be done using quick combat
 * Disabling battle queue will now correctly reposition hero statistics preview popup
@@ -885,7 +933,7 @@
 ### GENERAL:
 * Fixed framerate drops on hero movement with active hota mod
 * Fade-out animations will now be skipped when instant hero movement speed is used
-* Restarting loaded campaing scenario will now correctly reapply starting bonus
+* Restarting loaded campaign scenario will now correctly reapply starting bonus
 * Reverted FPS limit on mobile systems back to 60 fps
 * Fixed loading of translations for maps and campaigns
 * Fixed loading of preconfigured starting army for heroes with preconfigured spells
@@ -1051,7 +1099,7 @@
 * Battle opening sound can now be skipped with mouse click
 * Fixed movement through moat of double-hexed units
 * Fixed removal of Land Mines and Fire Walls
-* Obstacles will now corectly show up either below or above unit
+* Obstacles will now correctly show up either below or above unit
 * It is now possible to teleport a unit through destroyed walls
 * Added distinct overlay image for showing movement range of highlighted unit
 * Added overlay for displaying shooting range penalties of units
@@ -1171,7 +1219,7 @@
 * RMG will no longer place shipyards or boats at very small lakes
 * Fixed placement of shipyards in invalid locations
 * Fixed potential game hang on generation of random map
-* RMG will now generate addditional monolith pairs to create required number of zone connections
+* RMG will now generate additional monolith pairs to create required number of zone connections
 * RMG will try to place Subterranean Gates as far away from other objects (including each other) as possible
 * RMG will now try to place objects as far as possible in both zones sharing a guard, not only the first one.
 * Use only one template for an object in zone
@@ -1195,7 +1243,7 @@
 * Added option to show amount of creatures as numeric range rather than adjective
 * Added option to show map grid
 * Map swipe is no longer exclusive for phones and can be enabled on desktop platforms
-* Added more graduated settigns for hero movement speed
+* Added more graduated settings for hero movement speed
 * Map scrolling is now more graduated and scrolls with pixel-level precision
 * Hero movement speed now matches H3
 * Improved performance of adventure map rendering
@@ -1214,7 +1262,7 @@
 * Fixed white status bar on server connection screen
 * Buttons in battle window now correctly show tooltip in status bar
 * Fixed cursor image during enemy turn in combat
-* Game will no longer promt to assemble artifacts if they fall into backpack
+* Game will no longer prompt to assemble artifacts if they fall into backpack
 * It is now possible to use in-game console for vcmi commands
 * Stacks sized 1000-9999 units will not be displayed as "1k"
 * It is now possible to select destination town for Town Portal via double-click
@@ -1300,7 +1348,7 @@
 * Dragon Breath attack now correctly uses different attack animation if multiple targets are hit
 * Petrification: implemented visual effect
 * Paralyze: added visual effect
-* Blind: Stacks will no longer retailate on attack that blinds them
+* Blind: Stacks will no longer retaliate on attack that blinds them
 * Demon Summon: Added animation effect for summoning
 * Fire shield will no longer trigger on non-adjacent attacks, e.g. from Dragon Breath
 * Weakness now has correct visual effect 
@@ -1479,7 +1527,7 @@
     * treasury
 
 ### SOUND:
-* Fixed many mising or wrong pickup and visit sounds for map objects
+* Fixed many missing or wrong pickup and visit sounds for map objects
 * All map objects now have ambient sounds identical to OH3
 
 ### RANDOM MAP GENERATOR:
@@ -1532,7 +1580,7 @@
 * New console commands:
     * gosolo - AI take control over human players and vice versa
     * controlai - give control of one or all AIs to player
-    * set hideSystemMessages on/off - supress server messages in chat
+    * set hideSystemMessages on/off - suppress server messages in chat
 
 ### BATTLES:
 * Drawbridge mechanics implemented (animation still missing)
@@ -1574,7 +1622,7 @@
     * View Earth
     * Visions
     * Disguise
-* Implemented CURE spell negative dispell effect
+* Implemented CURE spell negative dispel effect
 * Added LOCATION target for spells castable on any hex with new target modifiers
 
 ### BATTLES:
@@ -1597,7 +1645,7 @@
     * VCMI can now be compiled with SDL2
     * Movies will use ffmpeg library
     * change boost::bind to std::bind 
-    * removed boost::asign 
+    * removed boost::assign 
     * Updated FuzzyLite to 5.0 
 * Multiplayer load support was implemented through command-line options
 
@@ -1646,7 +1694,7 @@
 * Zone placement
 * Zone borders and connections, fractalized paths inside zones
 * Guard generation
-* Treasue piles generation (so far only few removable objects)
+* Treasure piles generation (so far only few removable objects)
 
 ### MODS:
 * Support for submods - mod may have their own "submods" located in <modname>/Mods directory
@@ -1753,7 +1801,7 @@
 * Improved json validation. Now it support most of features from latest json schema draft.
 * Icons use path to icon instead of image indexes.
 * It is possible to edit data of another mod or H3 data via mods.
-* Mods can access only ID's from dependenies, virtual "core" mod and itself (optional for some mods compatibility)
+* Mods can access only ID's from dependencies, virtual "core" mod and itself (optional for some mods compatibility)
 * Removed no longer needed field "projectile spins"
 * Heroes: split heroes.json in manner similar to creatures\factions; string ID's for H3 heroes; h3 hero classes and artifacts can be modified via json.
 
@@ -1870,7 +1918,7 @@
 * Fixed a possible freeze when exchanging resources at marketplace
 
 ### BATTLE AI:
-* It is possible to select a battle AI module used by VCMI by typing into the console "setBattleAI <name>". The names of avaialble modules are "StupidAI" and "BattleAI". BattleAI may be a little smarter but less stable. By the default, StupidAI will be used, as in previous releases.
+* It is possible to select a battle AI module used by VCMI by typing into the console "setBattleAI <name>". The names of available modules are "StupidAI" and "BattleAI". BattleAI may be a little smarter but less stable. By the default, StupidAI will be used, as in previous releases.
 * New battle AI module: "BattleAI" that is smarter and capable of casting some offensive and enchantment spells
 
 # 0.88 -> 0.89 (Jun 01 2012)
@@ -1963,7 +2011,7 @@
     * No wall penalty
     * Enchanter
     * Bind
-    * Dispell helpful spells
+    * Dispel helpful spells
 
 # 0.85 -> 0.86 (Sep 01 2011)
 
@@ -2085,7 +2133,7 @@
     * Spell damage specialities (Deemer), fixed bonus (Ciele)
     * Secondary skill bonuses
     * Creature Upgrades (Gelu)
-    * Resorce generation
+    * Resource generation
     * Starting Skill (Adrienne)
 
 ### TOWNS:
@@ -2224,7 +2272,7 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=14
 * Clicking on the border no longer opens an empty info windows
 
 ### HERO WINDOW:
-* Improved artifact moving. Available slots are higlighted. Moved artifact is bound to mouse cursor. 
+* Improved artifact moving. Available slots are highlighted. Moved artifact is bound to mouse cursor. 
 
 ### TOWNS:
 * new special town structures supported:
@@ -2237,7 +2285,7 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=14
 ### OBJECTS:
 * External dwellings increase town growth
 * Right-click info window for castles and garrisons you do not own shows a rough amount of creatures instead of none
-* Scholar won't give unavaliable spells anymore.
+* Scholar won't give unavailable spells anymore.
 
 A lot of of various bugfixes and improvements:
 http://bugs.vcmi.eu/changelog_page.php?version_id=2
@@ -2257,7 +2305,7 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * a few fixes for shipyard window
 
 ### ADVENTURE INTERFACE:
-* Cursor shows if tile is accesible and how many turns away
+* Cursor shows if tile is accessible and how many turns away
 * moving hero with arrow keys / numpad
 * fixed Next Hero button behaviour
 * fixed Surface/Underground switch button in higher resolutions
@@ -2426,7 +2474,7 @@ http://bugs.vcmi.eu/changelog_page.php?version_id=2
 * Diplomacy secondary skill support
 * timed events won't cause resources amount to be negative
 * support for sorcery secondary skill
-* reduntant quotation marks from artifact descriptions are removed
+* redundant quotation marks from artifact descriptions are removed
 * no income at the first day
 
 ### ADVENTURE INTERFACE:
@@ -2954,7 +3002,7 @@ And a lot of minor fixes
 * [feature] picked artifacts are added to hero's backpack
 * [feature] possibility of choosing player to play
 * [bugfix] ZELP.TXT file *should* be handled correctly even it is non-english
-* [bugfix] fixed crashbug in reading defs with negativ left/right margins
+* [bugfix] fixed crashbug in reading defs with negative left/right margins
 * [bugfix] improved randomization
 * [bugfix] pathfinder can't be cheated (what caused errors)
 

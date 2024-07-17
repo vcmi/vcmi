@@ -289,7 +289,7 @@ bool MusicEntry::play()
 
 		// erase stored position:
 		// if music track will be interrupted again - new position will be written in stop() method
-		// if music track is not interrupted and will finish by timeout/end of file - it will restart from begginning as it should
+		// if music track is not interrupted and will finish by timeout/end of file - it will restart from beginning as it should
 		owner->trackPositions.erase(owner->trackPositions.find(currentName));
 
 		if(Mix_FadeInMusicPos(music, 1, 1000, timeToStart) == -1)

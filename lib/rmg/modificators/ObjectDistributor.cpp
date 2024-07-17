@@ -157,7 +157,7 @@ void ObjectDistributor::distributePrisons()
 		}
 	}
 
-	size_t allowedPrisons = prisonHeroPlacer->getPrisonsRemaning();
+	size_t allowedPrisons = prisonHeroPlacer->getPrisonsRemaining();
 	for (int i = zones.size() - 1; i >= 0; i--)
 	{
 		auto zone = zones[i].second;

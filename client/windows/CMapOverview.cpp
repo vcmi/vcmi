@@ -43,8 +43,8 @@
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/Languages.h"
 
-CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType)
-	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), tabType(tabType)
+CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, std::string author, std::string version, ResourcePath resource, ESelectionScreen tabType)
+	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), author(author), version(version), tabType(tabType)
 {
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -136,9 +136,9 @@ std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & 
 		return nullptr;
 
 	Rect minimapRect = minimaps[id].getRenderArea();
-	double maxSideLenghtSrc = std::max(minimapRect.w, minimapRect.h);
-	double maxSideLenghtDst = std::max(rect.w, rect.h);
-	double resize = maxSideLenghtSrc / maxSideLenghtDst;
+	double maxSideLengthSrc = std::max(minimapRect.w, minimapRect.h);
+	double maxSideLengthDst = std::max(rect.w, rect.h);
+	double resize = maxSideLengthSrc / maxSideLengthDst;
 	Point newMinimapSize = Point(minimapRect.w / resize, minimapRect.h / resize);
 
 	Canvas canvasScaled = Canvas(Point(rect.w, rect.h));
@@ -203,6 +203,14 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		}
 		else
 			w->setText(p.date);
+	}
+	if(auto w = widget<CLabel>("author"))
+	{
+		w->setText(p.author.empty() ? "-" : p.author);
+	}
+	if(auto w = widget<CLabel>("version"))
+	{
+		w->setText(p.version);
 	}
 	if(auto w = widget<CLabel>("noUnderground"))
 	{

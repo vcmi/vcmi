@@ -3,7 +3,7 @@
 ```jsonc
 "newRiver" :
 {
-	// Two-letters unique indentifier for this river. Used in map format
+	// Two-letters unique identifier for this river. Used in map format
 	"shortIdentifier" : "mr",
 	
 	// Human-readable name of the river

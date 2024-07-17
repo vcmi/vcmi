@@ -393,7 +393,7 @@ void MapReaderH3M::skipZero(size_t amount)
 #endif
 }
 
-void MapReaderH3M::readResourses(TResources & resources)
+void MapReaderH3M::readResources(TResources & resources)
 {
 	for(int x = 0; x < features.resourcesCount; ++x)
 		resources[x] = reader->readInt32();

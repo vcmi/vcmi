@@ -176,7 +176,7 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 		movesSkippedByDefense = 0;
 	}
 
-	logAi->trace("BattleAI decission made in %lld", timeElapsed(start));
+	logAi->trace("BattleAI decision made in %lld", timeElapsed(start));
 
 	cb->battleMakeUnitAction(battleID, result);
 }

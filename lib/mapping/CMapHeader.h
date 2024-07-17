@@ -230,6 +230,10 @@ public:
 	MetaString name;
 	MetaString description;
 	EMapDifficulty difficulty;
+	MetaString author;
+	MetaString authorContact;
+	MetaString mapVersion;
+	std::time_t creationDateTime;
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.
 	ui8 levelLimit;
@@ -242,7 +246,7 @@ public:
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;
 	std::set<HeroTypeID> allowedHeroes;
-	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserverd for campaign
+	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserved for campaign
 
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
@@ -263,11 +267,18 @@ public:
 		h & mods;
 		h & name;
 		h & description;
+		if (h.version >= Handler::Version::MAP_FORMAT_ADDITIONAL_INFOS)
+		{
+			h & author;
+			h & authorContact;
+			h & mapVersion;
+			h & creationDateTime;
+		}
 		h & width;
 		h & height;
 		h & twoLevel;
 		// FIXME: we should serialize enum's according to their underlying type
-		// should be fixed when we are making breaking change to save compatiblity
+		// should be fixed when we are making breaking change to save compatibility
 		static_assert(Handler::Version::MINIMAL < Handler::Version::RELEASE_143);
 		uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
 		h & difficultyInteger;

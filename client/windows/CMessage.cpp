@@ -176,9 +176,9 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 std::string CMessage::guessHeader(const std::string & msg)
 {
 	size_t begin = 0;
-	std::string delimeters = "{}";
-	size_t start = msg.find_first_of(delimeters[0], begin);
-	size_t end = msg.find_first_of(delimeters[1], start);
+	std::string delimiters = "{}";
+	size_t start = msg.find_first_of(delimiters[0], begin);
+	size_t end = msg.find_first_of(delimiters[1], start);
 	if(start > msg.size() || end > msg.size())
 		return "";
 	return msg.substr(begin, end);

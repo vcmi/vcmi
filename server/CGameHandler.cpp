@@ -441,6 +441,11 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 	if (hero->visitedTown)
 		giveSpells(hero->visitedTown, hero);
+
+	// Our scouting range may have changed - update it
+	if (hero->getOwner().isValidPlayer())
+		changeFogOfWar(hero->getSightCenter(), hero->getSightRadius(), hero->getOwner(), ETileVisibility::REVEALED);
+
 }
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
@@ -470,11 +475,11 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 void CGameHandler::handleReceivedPack(CPackForServer * pack)
 {
 	//prepare struct informing that action was applied
-	auto sendPackageResponse = [&](bool succesfullyApplied)
+	auto sendPackageResponse = [&](bool successfullyApplied)
 	{
 		PackageApplied applied;
 		applied.player = pack->player;
-		applied.result = succesfullyApplied;
+		applied.result = successfullyApplied;
 		applied.packType = CTypeList::getInstance().getTypeID(pack);
 		applied.requestID = pack->requestID;
 		pack->c->sendPack(&applied);
@@ -2336,7 +2341,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 
 			if(upgradeNumber >= t->town->creatures.at(level).size())
 			{
-				complain(boost::str(boost::format("Error ecountered when building dwelling (bid=%s):"
+				complain(boost::str(boost::format("Error encountered when building dwelling (bid=%s):"
 													"no creature found (upgrade number %d, level %d!")
 												% buildingID % upgradeNumber % level));
 				return;
@@ -2375,7 +2380,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	};
 
 	//Checks if all requirements will be met with expected building list "buildingsThatWillBe"
-	auto areRequirementsFullfilled = [&](const BuildingID & buildID)
+	auto areRequirementsFulfilled = [&](const BuildingID & buildID)
 	{
 		return buildingsThatWillBe.count(buildID);
 	};
@@ -2397,7 +2402,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Prepare structure (list of building ids will be filled later)
 	NewStructures ns;
 	ns.tid = tid;
-	ns.builded = force ? t->builded : (t->builded+1);
+	ns.built = force ? t->built : (t->built+1);
 
 	std::queue<const CBuilding*> buildingsToAdd;
 	buildingsToAdd.push(requestedBuilding);
@@ -2415,7 +2420,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		{
 			auto actualRequirements = t->genBuildingRequirements(autoBuilding->bid);
 
-			if(actualRequirements.test(areRequirementsFullfilled))
+			if(actualRequirements.test(areRequirementsFulfilled))
 				buildingsToAdd.push(autoBuilding);
 		}
 	}
@@ -2613,7 +2618,7 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 		{
 			//try to merge two other stacks to make place
 			std::pair<SlotID, SlotID> toMerge;
-			if (dst->mergableStacks(toMerge, i->first) && allowMerging)
+			if (dst->mergeableStacks(toMerge, i->first) && allowMerging)
 			{
 				moveStack(StackLocation(dst, toMerge.first), StackLocation(dst, toMerge.second)); //merge toMerge.first into toMerge.second
 				assert(!dst->hasStackAtSlot(toMerge.first)); //we have now a new free slot
@@ -2774,7 +2779,6 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 		// Previous artifact must be swapped
 		COMPLAIN_RET_FALSE_IF(!dstArtifact->canBePutAt(srcArtSet, src.slot, true), "Cannot swap artifacts!");
 		ma.artsPack1.push_back(BulkMoveArtifacts::LinkedSlots(dstSlot, src.slot));
-		ma.swap = true;
 	}
 
 	auto hero = getHero(dst.artHolder);
@@ -2783,7 +2787,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
 	if(src.artHolder != dst.artHolder)
-		ma.askAssemble = true;
+		ma.artsPack0.back().askAssemble = true;
 	sendAndApply(&ma);
 	return true;
 }
@@ -2891,7 +2895,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 
 bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left)
 {
-	auto artSet = getArtSet(heroID);
+	const auto artSet = getArtSet(heroID);
 	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "scrollBackpackArtifacts: wrong hero's ID");
 
 	BulkMoveArtifacts bma(player, heroID, heroID, false);
@@ -2956,7 +2960,7 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 			{
 				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots
 					{
-						artSet->getSlotByInstance(artFittingSet.getArt(availableArts.front())),
+						artSet->getArtPos(artFittingSet.getArt(availableArts.front())),
 						artPos.first
 					});
 				artFittingSet.removeArtifact(availableArts.front());
@@ -3335,7 +3339,7 @@ bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, Player
 void CGameHandler::handleTimeEvents()
 {
 	gs->map->events.sort(evntCmp);
-	while(gs->map->events.size() && gs->map->events.front().firstOccurence+1 == gs->day)
+	while(gs->map->events.size() && gs->map->events.front().firstOccurrence+1 == gs->day)
 	{
 		CMapEvent ev = gs->map->events.front();
 
@@ -3370,11 +3374,11 @@ void CGameHandler::handleTimeEvents()
 			}
 		} //PLAYERS LOOP
 
-		if (ev.nextOccurence)
+		if (ev.nextOccurrence)
 		{
 			gs->map->events.pop_front();
 
-			ev.firstOccurence += ev.nextOccurence;
+			ev.firstOccurrence += ev.nextOccurrence;
 			auto it = gs->map->events.begin();
 			while(it != gs->map->events.end() && it->earlierThanOrEqual(ev))
 				it++;
@@ -3395,7 +3399,7 @@ void CGameHandler::handleTimeEvents()
 void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 {
 	town->events.sort(evntCmp);
-	while(town->events.size() && town->events.front().firstOccurence == gs->day)
+	while(town->events.size() && town->events.front().firstOccurrence == gs->day)
 	{
 		PlayerColor player = town->tempOwner;
 		CCastleEvent ev = town->events.front();
@@ -3453,11 +3457,11 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 			sendAndApply(&iw); //show dialog
 		}
 
-		if (ev.nextOccurence)
+		if (ev.nextOccurrence)
 		{
 			town->events.pop_front();
 
-			ev.firstOccurence += ev.nextOccurence;
+			ev.firstOccurrence += ev.nextOccurrence;
 			auto it = town->events.begin();
 			while(it != town->events.end() && it->earlierThanOrEqual(ev))
 				it++;
@@ -3663,9 +3667,9 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 
 	TResources boatCost;
 	obj->getBoatCost(boatCost);
-	TResources aviable = getPlayerState(playerID)->resources;
+	TResources available = getPlayerState(playerID)->resources;
 
-	if (!aviable.canAfford(boatCost))
+	if (!available.canAfford(boatCost))
 	{
 		complain("Not enough resources to build a boat!");
 		return false;
@@ -3921,7 +3925,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 				int expToGive;
 				m->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getSlotByInstance(art)));
+				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getArtPos(art)));
 			}
 			else
 			{
@@ -4299,6 +4303,9 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 
 void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode)
 {
+	if (tiles.empty())
+		return;
+
 	FoWChange fow;
 	fow.tiles = tiles;
 	fow.player = player;

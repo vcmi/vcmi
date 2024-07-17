@@ -90,7 +90,7 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation &al){};
 	virtual void artifactDisassembled(const ArtifactLocation &al){};
 	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst){};
-	virtual void bulkArtMovementStart(size_t numOfArts) {};
+	virtual void bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts) {};
 	virtual void askToAssembleArtifact(const ArtifactLocation & dst) {};
 
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start){};
@@ -105,7 +105,7 @@ public:
 	virtual void receivedResource(){};
 	virtual void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID){};
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID){}
-	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can buid, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
+	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can build, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
 
 	virtual void showPuzzleMap(){};
 	virtual void viewWorldMap(){};

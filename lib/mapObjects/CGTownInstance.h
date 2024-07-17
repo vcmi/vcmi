@@ -52,7 +52,7 @@ public:
 
 	CTownAndVisitingHero townAndVis;
 	const CTown * town;
-	si32 builded; //how many buildings has been built this turn
+	si32 built; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
 	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
@@ -71,7 +71,7 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
-		h & builded;
+		h & built;
 		h & destroyed;
 		h & identifier;
 		h & garrisonHero;

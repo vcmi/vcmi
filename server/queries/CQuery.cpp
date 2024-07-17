@@ -17,24 +17,6 @@
 #include "../../lib/serializer/Cast.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 
-template <typename Container>
-std::string formatContainer(const Container & c, std::string delimeter = ", ", std::string opener = "(", std::string closer=")")
-{
-	std::string ret = opener;
-	auto itr = std::begin(c);
-	if(itr != std::end(c))
-	{
-		ret += std::to_string(*itr);
-		while(++itr != std::end(c))
-		{
-			ret += delimeter;
-			ret += std::to_string(*itr);
-		}
-	}
-	ret += closer;
-	return ret;
-}
-
 std::ostream & operator<<(std::ostream & out, const CQuery & query)
 {
 	return out << query.toString();

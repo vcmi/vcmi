@@ -22,7 +22,7 @@ class FramerateManager
 	Duration targetFrameTime;
 	TimePoint lastTimePoint;
 
-	/// index of last measured frome in lastFrameTimes array
+	/// index of last measured from in lastFrameTimes array
 	ui32 lastFrameIndex;
 
 	bool vsyncEnabled;

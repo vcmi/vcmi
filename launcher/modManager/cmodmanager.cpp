@@ -26,9 +26,15 @@ namespace
 {
 QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
 {
-	ZipArchive archive(qstringToPath(path));
-
-	filesToExtract = archive.listFiles();
+	try {
+		ZipArchive archive(qstringToPath(path));
+		filesToExtract = archive.listFiles();
+	}
+	catch (const std::runtime_error & e)
+	{
+		logGlobal->error("Failed to open zip archive. Reason: %s", e.what());
+		return "";
+	}
 
 	QString modDirName;
 
@@ -112,7 +118,7 @@ void CModManager::loadMods()
 			auto json = JsonUtils::toJson(mod);
 			json["localSizeBytes"].Float() = total;
 			if(!name.is_absolute())
-				json["storedLocaly"].Bool() = true;
+				json["storedLocally"].Bool() = true;
 
 			mod = JsonUtils::toVariant(json);
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);

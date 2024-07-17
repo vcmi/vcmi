@@ -37,7 +37,7 @@ public:
 	{
 	}
 
-	void setDefaultExpectaions()
+	void setDefaultExpectations()
 	{
 		EXPECT_CALL(infoMock, getLocalPlayer()).WillRepeatedly(Return(PlayerColor(3)));
 		EXPECT_CALL(serverMock, apply(Matcher<CPackForClient *>(_))).WillRepeatedly(Invoke(this, &ExamplesTest::onCommit));
@@ -83,7 +83,7 @@ protected:
 
 TEST_F(ExamplesTest, ALL)
 {
-	setDefaultExpectaions();
+	setDefaultExpectations();
 	auto sources = CResourceHandler::get()->getFilteredFiles([](const ResourceID & ident)
 	{
 		return ident.getType() == EResType::ERM && boost::algorithm::starts_with(ident.getName(), "SCRIPTS/TEST/ERM/");

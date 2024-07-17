@@ -404,7 +404,7 @@ void CTownRewardableBuilding::grantReward(ui32 rewardID, const CGHeroInstance * 
 	
 	grantRewardBeforeLevelup(cb, configuration.info.at(rewardID), hero);
 	
-	// hero is not blocked by levelup dialog - grant remainer immediately
+	// hero is not blocked by levelup dialog - grant remainder immediately
 	if(!cb->isVisitCoveredByAnotherQuery(town, hero))
 	{
 		grantRewardAfterLevelup(cb, configuration.info.at(rewardID), town, hero);

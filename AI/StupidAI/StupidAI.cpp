@@ -77,6 +77,15 @@ public:
 		// FIXME: provide distance info for Jousting bonus
 		DamageEstimation retal;
 		DamageEstimation dmg = cb->getBattle(battleID)->battleEstimateDamage(ourStack, s, 0, &retal);
+		// Clip damage dealt to total stack health
+		auto totalHealth = s->getTotalHealth();
+		vstd::amin(dmg.damage.min, totalHealth);
+		vstd::amin(dmg.damage.max, totalHealth);
+
+		auto ourHealth = s->getTotalHealth();
+		vstd::amin(retal.damage.min, ourHealth);
+		vstd::amin(retal.damage.max, ourHealth);
+
 		adi = static_cast<int>((dmg.damage.min + dmg.damage.max) / 2);
 		adr = static_cast<int>((retal.damage.min + retal.damage.max) / 2);
 	}

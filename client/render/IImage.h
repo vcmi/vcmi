@@ -76,7 +76,7 @@ public:
 	virtual void setBlitMode(EImageBlitMode mode) = 0;
 
 	//only indexed bitmaps with 7 special colors
-	virtual void setSpecialPallete(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) = 0;
+	virtual void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) = 0;
 
 	virtual void horizontalFlip() = 0;
 	virtual void verticalFlip() = 0;

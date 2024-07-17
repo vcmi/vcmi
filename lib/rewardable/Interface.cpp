@@ -106,12 +106,12 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 
 	for(const auto & entry : info.reward.secondary)
 	{
-		int current = hero->getSecSkillLevel(entry.first);
-		if( (current != 0 && current < entry.second) ||
-			(hero->canLearnSkill() ))
-		{
-			cb->changeSecSkill(hero, entry.first, entry.second);
-		}
+		auto currentLevel = static_cast<MasteryLevel::Type>(hero->getSecSkillLevel(entry.first));
+		if(currentLevel == MasteryLevel::EXPERT)
+			continue;
+
+		if(currentLevel != MasteryLevel::NONE || hero->canLearnSkill())
+			cb->changeSecSkill(hero, entry.first, entry.second, false);
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
@@ -195,7 +195,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 		for(const auto & crea : info.reward.creatures)
 			creatures.addToSlot(creatures.getFreeSlot(), new CStackInstance(crea.type, crea.count));
 
-		if(auto * army = dynamic_cast<const CArmedInstance*>(this)) //TODO: to fix that, CArmedInstance must be splitted on map instance part and interface part
+		if(auto * army = dynamic_cast<const CArmedInstance*>(this)) //TODO: to fix that, CArmedInstance must be split on map instance part and interface part
 			cb->giveCreatures(army, hero, creatures, false);
 	}
 	

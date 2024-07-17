@@ -75,8 +75,8 @@ private:
 	TFlippedAnimations riverAnimations;//[river type, rotation]
 	TFlippedCache riverImages;//[river type, view type, rotation]
 	
-	std::vector<TileObjects> tileObjects; //informations about map tiles
-	std::map<const CGObjectInstance *, std::set<int3>> tilesCache; //set of tiles beloging to object
+	std::vector<TileObjects> tileObjects; //information about map tiles
+	std::map<const CGObjectInstance *, std::set<int3>> tilesCache; //set of tiles belonging to object
 	
 	const CMap * map = nullptr;
 	

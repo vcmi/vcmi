@@ -133,13 +133,13 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	
 	waterArea.subtract(noWaterArea);
 	
-	//start filtering of narrow places and coast atrifacts
+	//start filtering of narrow places and coast artifacts
 	rmg::Area waterAdd;
 	for(int coastId = 1; coastId <= coastIdMax; ++coastId)
 	{
 		for(const auto & tile : reverseDistanceMap[coastId])
 		{
-			//collect neighbout water tiles
+			//collect neighbour water tiles
 			auto collectionLambda = [this](const int3 & t, std::set<int3> & outCollection)
 			{
 				if(waterArea.contains(t))

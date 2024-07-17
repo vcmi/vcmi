@@ -46,20 +46,20 @@ CMapEvent::CMapEvent()
 	: players(0)
 	, humanAffected(false)
 	, computerAffected(false)
-	, firstOccurence(0)
-	, nextOccurence(0)
+	, firstOccurrence(0)
+	, nextOccurrence(0)
 {
 
 }
 
 bool CMapEvent::earlierThan(const CMapEvent & other) const
 {
-	return firstOccurence < other.firstOccurence;
+	return firstOccurrence < other.firstOccurrence;
 }
 
 bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
 {
-	return firstOccurence <= other.firstOccurence;
+	return firstOccurrence <= other.firstOccurrence;
 }
 
 void CMapEvent::serializeJson(JsonSerializeFormat & handler)
@@ -69,8 +69,8 @@ void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("players", players);
 	handler.serializeInt("humanAffected", humanAffected);
 	handler.serializeInt("computerAffected", computerAffected);
-	handler.serializeInt("firstOccurence", firstOccurence);
-	handler.serializeInt("nextOccurence", nextOccurence);
+	handler.serializeInt("firstOccurrence", firstOccurrence);
+	handler.serializeInt("nextOccurrence", nextOccurrence);
 	resources.serializeJson(handler, "resources");
 }
 
@@ -101,10 +101,10 @@ void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 
 TerrainTile::TerrainTile():
 	terType(nullptr),
-	terView(0),
 	riverType(VLC->riverTypeHandler->getById(River::NO_RIVER)),
-	riverDir(0),
 	roadType(VLC->roadTypeHandler->getById(Road::NO_ROAD)),
+	terView(0),
+	riverDir(0),
 	roadDir(0),
 	extTileFlags(0),
 	visitable(false),
@@ -571,7 +571,7 @@ void CMap::removeObject(CGObjectInstance * obj)
 	removeBlockVisTiles(obj);
 	instanceNames.erase(obj->instanceName);
 
-	//update indeces
+	//update indices
 
 	auto iter = std::next(objects.begin(), obj->id.getNum());
 	iter = objects.erase(iter);
@@ -582,7 +582,7 @@ void CMap::removeObject(CGObjectInstance * obj)
 
 	obj->afterRemoveFromMap(this);
 
-	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
+	//TODO: Clean artifact instances (mostly worn by hero?) and quests related to this object
 	//This causes crash with undo/redo in editor
 }
 

@@ -338,11 +338,6 @@ void EraseArtifact::visitTyped(ICPackVisitor & visitor)
 	visitor.visitEraseArtifact(*this);
 }
 
-void MoveArtifact::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitMoveArtifact(*this);
-}
-
 void BulkMoveArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBulkMoveArtifacts(*this);
@@ -1231,7 +1226,7 @@ void RemoveObject::applyGs(CGameState *gs)
 
 	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[objectID.getNum()].dellNull();
-	gs->map->calculateGuardingGreaturePositions();
+	gs->map->calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
 }
 
 static int getDir(const int3 & src, const int3 & dst)
@@ -1348,7 +1343,7 @@ void NewStructures::applyGs(CGameState *gs)
 			t->deleteTownBonus(overrideBid);
 		}
 	}
-	t->builded = builded;
+	t->built = built;
 	t->recreateBuildingsBonuses();
 }
 
@@ -1668,7 +1663,7 @@ void RebalanceStacks::applyGs(CGameState * gs)
 					{
 						dstArt->move(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
 					}
-					//else - artifact cna be lost :/
+					//else - artifact can be lost :/
 					else
 					{
 						EraseArtifact ea;
@@ -1794,17 +1789,6 @@ void EraseArtifact::applyGs(CGameState *gs)
 	art->removeFrom(*artSet, al.slot);
 }
 
-void MoveArtifact::applyGs(CGameState * gs)
-{
-	auto srcHero = gs->getArtSet(src);
-	auto dstHero = gs->getArtSet(dst);
-	assert(srcHero);
-	assert(dstHero);
-	auto art = srcHero->getArt(src.slot);
-	assert(art && art->canBePutAt(dstHero, dst.slot));
-	art->move(*srcHero, src.slot, *dstHero, dst.slot);
-}
-
 void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
 	const auto bulkArtsRemove = [](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
@@ -1861,7 +1845,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			return art->getId() == builtArt->getId();
 		}));
 
-	const auto transformedArtSlot = hero->getSlotByInstance(transformedArt);
+	const auto transformedArtSlot = hero->getArtPos(transformedArt);
 	auto * combinedArt = new CArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 
@@ -1998,7 +1982,7 @@ void NewTurn::applyGs(CGameState *gs)
 		creatureSet.second.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
-		t->builded = 0;
+		t->built = 0;
 
 	if(gs->getDate(Date::DAY_OF_WEEK) == 1)
 		gs->updateRumor();
@@ -2416,7 +2400,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 
 void BattleSetStackProperty::applyGs(CGameState * gs) const
 {
-	CStack * stack = gs->getBattle(battleID)->getStack(stackID);
+	CStack * stack = gs->getBattle(battleID)->getStack(stackID, false);
 	switch(which)
 	{
 		case CASTS:

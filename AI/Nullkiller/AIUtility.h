@@ -87,8 +87,7 @@ struct DLL_EXPORT HeroPtr
 	ObjectInstanceID hid;
 
 public:
-	std::string name;
-
+	std::string name() const;
 
 	HeroPtr();
 	HeroPtr(const CGHeroInstance * H);

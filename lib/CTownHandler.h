@@ -64,7 +64,7 @@ public:
 		BUILD_NORMAL,  // 0 - normal, default
 		BUILD_AUTO,    // 1 - auto - building appears when all requirements are built
 		BUILD_SPECIAL, // 2 - special - building can not be built normally
-		BUILD_GRAIL    // 3 - grail - building reqires grail to be built
+		BUILD_GRAIL    // 3 - grail - building requires grail to be built
 	} mode;
 
 	enum ETowerHeight // for lookup towers and some grails
@@ -147,7 +147,7 @@ struct DLL_LINKAGE SPuzzleInfo
 {
 	ui16 number; //type of puzzle
 	si16 x, y; //position
-	ui16 whenUncovered; //determines the sequnce of discovering (the lesser it is the sooner puzzle will be discovered)
+	ui16 whenUncovered; //determines the sequence of discovering (the lesser it is the sooner puzzle will be discovered)
 	ImagePath filename; //file with graphic of this puzzle
 };
 

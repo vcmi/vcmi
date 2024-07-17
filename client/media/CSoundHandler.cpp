@@ -48,7 +48,10 @@ CSoundHandler::CSoundHandler():
 	{
 		Mix_ChannelFinished([](int channel)
 		{
-			CCS->soundh->soundFinishedCallback(channel);
+			if (CCS)
+			{
+				CCS->soundh->soundFinishedCallback(channel);
+			}
 		});
 	}
 }
@@ -147,7 +150,7 @@ uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 	SDL_AudioSpec spec;
 	uint32_t audioLen;
 	uint8_t * audioBuf;
-	uint32_t miliseconds = 0;
+	uint32_t milliseconds = 0;
 
 	if(SDL_LoadWAV_RW(SDL_RWFromMem(data.first.get(), data.second), 1, &spec, &audioBuf, &audioLen) != nullptr)
 	{
@@ -155,10 +158,10 @@ uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 		uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
 		uint32_t sampleCount = audioLen / sampleSize;
 		uint32_t sampleLen = sampleCount / spec.channels;
-		miliseconds = 1000 * sampleLen / spec.freq;
+		milliseconds = 1000 * sampleLen / spec.freq;
 	}
 
-	return miliseconds;
+	return milliseconds;
 }
 
 // Plays a sound, and return its channel so we can fade it out later
@@ -292,7 +295,7 @@ void CSoundHandler::soundFinishedCallback(int channel)
 		return;
 
 	// store callbacks from container locally - SDL might reuse this channel for another sound
-	// but do actualy execution in separate thread, to avoid potential deadlocks in case if callback requires locks of its own
+	// but do actually execution in separate thread, to avoid potential deadlocks in case if callback requires locks of its own
 	auto callback = callbacks.at(channel);
 	callbacks.erase(channel);
 

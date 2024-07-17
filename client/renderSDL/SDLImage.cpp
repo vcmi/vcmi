@@ -321,7 +321,7 @@ void SDLImage::resetPalette()
 	if(originalPalette == nullptr)
 		return;
 	
-	// Always keept the original palette not changed, copy a new palette to assign to surface
+	// Always keep the original palette not changed, copy a new palette to assign to surface
 	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, originalPalette->ncolors);
 }
 
@@ -330,11 +330,11 @@ void SDLImage::resetPalette( int colorID )
 	if(originalPalette == nullptr)
 		return;
 
-	// Always keept the original palette not changed, copy a new palette to assign to surface
+	// Always keep the original palette not changed, copy a new palette to assign to surface
 	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors + colorID, colorID, 1);
 }
 
-void SDLImage::setSpecialPallete(const IImage::SpecialPalette & specialPalette, uint32_t colorsToSkipMask)
+void SDLImage::setSpecialPalette(const IImage::SpecialPalette & specialPalette, uint32_t colorsToSkipMask)
 {
 	if(surf->format->palette)
 	{

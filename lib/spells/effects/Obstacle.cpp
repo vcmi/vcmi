@@ -101,11 +101,11 @@ void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics 
 
 	for(auto & destination : effectTarget)
 	{
-		for(const auto & trasformation : options.shape)
+		for(const auto & transformation : options.shape)
 		{
 			BattleHex hex = destination.hexValue;
 
-			for(auto direction : trasformation)
+			for(auto direction : transformation)
 				hex.moveInDirection(direction, false);
 
 			if(hex.isValid())
@@ -134,10 +134,10 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 
 		for(const auto & destination : target)
 		{
-			for(const auto & trasformation : options.shape)
+			for(const auto & transformation : options.shape)
 			{
 				BattleHex hex = destination.hexValue;
-				for(auto direction : trasformation)
+				for(auto direction : transformation)
 					hex.moveInDirection(direction, false);
 
 				if(!isHexAvailable(m->battle(), hex, requiresClearTiles))

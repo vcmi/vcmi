@@ -521,7 +521,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		}
 		
 		static const int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
-		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similiar
+		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similar
 		{
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
@@ -895,15 +895,15 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo* oi) {return v + oi->value; });
 
-			const ui32 maxPileGenerationAttemps = 2;
-			for (ui32 attempt = 0; attempt < maxPileGenerationAttemps; attempt++)
+			const ui32 maxPileGenerationAttempts = 2;
+			for (ui32 attempt = 0; attempt < maxPileGenerationAttempts; attempt++)
 			{
 				auto rmgObject = constructTreasurePile(treasurePileInfos, attempt == maxAttempts);
 
 				if (rmgObject.instances().empty())
 				{
-					// Restore once if all attemps failed
-					if (attempt == (maxPileGenerationAttemps - 1))
+					// Restore once if all attempts failed
+					if (attempt == (maxPileGenerationAttempts - 1))
 					{
 						restoreZoneLimits(treasurePileInfos);
 					}

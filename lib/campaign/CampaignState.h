@@ -81,13 +81,17 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	CampaignRegions campaignRegions;
 	MetaString name;
 	MetaString description;
+	MetaString author;
+	MetaString authorContact;
+	MetaString campaignVersion;
+	std::time_t creationDateTime;
 	AudioPath music;
 	std::string filename;
 	std::string modName;
 	std::string encoding;
 
 	int numberOfScenarios = 0;
-	bool difficultyChoosenByPlayer = false;
+	bool difficultyChosenByPlayer = false;
 
 	void loadLegacyData(ui8 campId);
 
@@ -114,7 +118,14 @@ public:
 		h & numberOfScenarios;
 		h & name;
 		h & description;
-		h & difficultyChoosenByPlayer;
+		if (h.version >= Handler::Version::MAP_FORMAT_ADDITIONAL_INFOS)
+		{
+			h & author;
+			h & authorContact;
+			h & campaignVersion;
+			h & creationDateTime;
+		}
+		h & difficultyChosenByPlayer;
 		h & filename;
 		h & modName;
 		h & music;

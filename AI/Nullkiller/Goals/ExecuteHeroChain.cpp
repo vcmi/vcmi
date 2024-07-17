@@ -26,7 +26,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 	if(obj)
 	{
 		objid = obj->id.getNum();
-		targetName = obj->getObjectName() + tile.toString();
+		targetName = obj->typeName + tile.toString();
 	}
 	else
 	{
@@ -106,7 +106,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 		if(!heroPtr.validAndSet())
 		{
-			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name);
+			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name());
 
 			return;
 		}
@@ -143,7 +143,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 					
 					if(!heroPtr.validAndSet())
 					{
-						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", heroPtr.name);
+						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", heroPtr.name());
 
 						return;
 					}
@@ -204,7 +204,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 					{
 						if(!heroPtr.validAndSet())
 						{
-							logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name);
+							logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name());
 
 							return;
 						}
@@ -234,7 +234,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			if(node->turns == 0)
 			{
 				logAi->error(
-					"Unable to complete chain. Expected hero %s to arive to %s but he is at %s",
+					"Unable to complete chain. Expected hero %s to arrive to %s but he is at %s",
 					hero->getNameTranslated(),
 					node->coord.toString(),
 					hero->visitablePos().toString());
@@ -250,7 +250,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 		{
 			if(!heroPtr.validAndSet())
 			{
-				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.name, node->coord.toString());
+				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.name(), node->coord.toString());
 
 				return;
 			}

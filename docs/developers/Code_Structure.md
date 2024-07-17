@@ -33,7 +33,7 @@ Client is responsible for:
 
 ## Rendering of graphics
 
-Rendering of graphics relies heavily on SDL. Currently we do not have any wrapper for SDL internal structures and most of rendering is about blitting surfaces using SDL_BlitSurface. We have a few function that make rendering easier or make specific parts of rendering (like printing text). They are places in client/SDL_Extensions and client/SDL_Framerate (the second one contains code responsible for keeping appropriate framerate, it should work more smart than just SDL_Delay(miliseconds)).
+Rendering of graphics relies heavily on SDL. Currently we do not have any wrapper for SDL internal structures and most of rendering is about blitting surfaces using SDL_BlitSurface. We have a few function that make rendering easier or make specific parts of rendering (like printing text). They are places in client/SDL_Extensions and client/SDL_Framerate (the second one contains code responsible for keeping appropriate framerate, it should work more smart than just SDL_Delay(milliseconds)).
 In rendering, Interface object system is quite helpful. Its base is CIntObject class that is basically a base class for our library of GUI components and other objects.
 
 # Server
@@ -111,7 +111,7 @@ VCAI module is currently developed agent-based system driven by goals and heroes
 
 ## Fuzzy logic
 
-VCMI includes [FuzzyLite](http://code.google.com/p/fuzzy-lite/) library to make use of fuzzy rule-based algorithms. They are useful to handle uncertanity and resemble human behaviour who takes decisions based on rough observations. FuzzyLite is linked as separate static library in AI/FuzzyLite.lib file.
+VCMI includes [FuzzyLite](http://code.google.com/p/fuzzy-lite/) library to make use of fuzzy rule-based algorithms. They are useful to handle uncertainty and resemble human behaviour who takes decisions based on rough observations. FuzzyLite is linked as separate static library in AI/FuzzyLite.lib file.
 
 # Utilities
 

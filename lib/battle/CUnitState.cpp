@@ -140,7 +140,7 @@ int32_t CRetaliations::total() const
 	if(noRetaliation.getHasBonus())
 		return 0;
 
-	//after dispell bonus should remain during current round
+	//after dispel bonus should remain during current round
 	int32_t val = 1 + totalProxy->totalValue();
 	vstd::amax(totalCache, val);
 	return totalCache;

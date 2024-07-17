@@ -59,7 +59,7 @@ public:
 		std::function<void(CreatureID)> callback;
 	};
 
-	// pointers to permament objects in game state
+	// pointers to permanent objects in game state
 	const CCreature * creature;
 	const CCommanderInstance * commander;
 	const CStackInstance * stackNode;
@@ -144,10 +144,10 @@ void CCommanderSkillIcon::show(Canvas &to)
 
 static ImagePath skillToFile(int skill, int level, bool selected)
 {
-	// FIXME: is this a correct hadling?
+	// FIXME: is this a correct handling?
 	// level 0 = skill not present, use image with "no" suffix
 	// level 1-5 = skill available, mapped to images indexed as 0-4
-	// selecting skill means that it will appear one level higher (as if alredy upgraded)
+	// selecting skill means that it will appear one level higher (as if already upgraded)
 	std::string file = "zvs/Lib1.res/_";
 	switch (skill)
 	{
@@ -170,17 +170,17 @@ static ImagePath skillToFile(int skill, int level, bool selected)
 			file += "MP";
 			break;
 	}
-	std::string sufix;
+	std::string suffix;
 	if (selected)
 		level++; // UI will display resulting level
 	if (level == 0)
-		sufix = "no"; //not avaliable - no number
+		suffix = "no"; //not available - no number
 	else
-		sufix = std::to_string(level-1);
+		suffix = std::to_string(level-1);
 	if (selected)
-		sufix += "="; //level-up highlight
+		suffix += "="; //level-up highlight
 
-	return ImagePath::builtin(file + sufix + ".bmp");
+	return ImagePath::builtin(file + suffix + ".bmp");
 }
 
 CStackWindow::CWindowSection::CWindowSection(CStackWindow * parent, const ImagePath & backgroundPath, int yOffset)
@@ -343,7 +343,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->getIconIndex()));
 
-			if(buttonsToCreate == 1) // single upgrade avaialbe
+			if(buttonsToCreate == 1) // single upgrade available
 				upgradeBtn->assignedKey = EShortcut::RECRUITMENT_UPGRADE;
 
 			upgrade[buttonIndex] = upgradeBtn;

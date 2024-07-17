@@ -238,6 +238,10 @@ public:
 	{
 	public:
 		std::shared_ptr<CFilledTexture> background;
+		std::shared_ptr<CSlider> slider;
+
+		const int MAX_LINES = 18;
+		const int ELEM_PER_LINES = 16;
 
 		HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose);
 
@@ -247,6 +251,9 @@ public:
 
 		std::vector<std::shared_ptr<CAnimImage>> portraits;
 		std::vector<std::shared_ptr<LRClickableArea>> portraitAreas;
+
+		void recreate();
+		void sliderMove(int slidPos);
 	};
 
 	//recruitable heroes

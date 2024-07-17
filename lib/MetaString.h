@@ -49,7 +49,7 @@ private:
 		REPLACE_TEXTID_STRING,
 		REPLACE_NUMBER,
 		REPLACE_POSITIVE_NUMBER,
-                APPEND_EOL
+		APPEND_EOL
 	};
 
 	std::vector<EMessage> message;
@@ -88,7 +88,7 @@ public:
 	void replaceLocalString(EMetaText type, ui32 serial);
 	/// Replaces first '%s' placeholder in string with specified fixed, untranslated string
 	void replaceRawString(const std::string & txt);
-	/// Repalces first '%s' placeholder with string ID that will be translated in output
+	/// Replaces first '%s' placeholder with string ID that will be translated in output
 	void replaceTextID(const std::string & value);
 	/// Replaces first '%d' placeholder in string with specified number
 	void replaceNumber(int64_t txt);

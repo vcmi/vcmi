@@ -38,6 +38,7 @@ void CMapUndoManager::redo()
 
 void CMapUndoManager::clearAll()
 {
+	//FIXME: Will crash if an object was added twice to actions
 	undoStack.clear();
 	redoStack.clear();
 	onUndoRedo();

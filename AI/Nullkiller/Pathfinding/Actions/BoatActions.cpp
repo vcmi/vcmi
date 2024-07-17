@@ -141,7 +141,8 @@ namespace AIPathfinding
 	{
 		SpellID summonBoat = SpellID::SUMMON_BOAT;
 
-		return hero->getSpellCost(summonBoat.toSpell());
+		// FIXME: this should be hero->getSpellCost, however currently queries to bonus system are too slow
+		return summonBoat.toSpell()->getCost(0);
 	}
 }
 

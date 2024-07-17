@@ -67,7 +67,6 @@ HeroPtr::HeroPtr(const CGHeroInstance * H)
 	}
 
 	h = H;
-	name = h->getNameTranslated();
 	hid = H->id;
 //	infosCount[ai->playerID][hid]++;
 }
@@ -87,6 +86,14 @@ HeroPtr::~HeroPtr()
 bool HeroPtr::operator<(const HeroPtr & rhs) const
 {
 	return hid < rhs.hid;
+}
+
+std::string HeroPtr::name() const
+{
+	if (h)
+		return h->getNameTextID();
+	else
+		return "<NO HERO>";
 }
 
 const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
@@ -423,8 +430,15 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return false;
 	}
 
-	if(obj->wasVisited(h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);
+	if(obj->wasVisited(h))
 		return false;
+
+	auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
+
+	if(rewardable && rewardable->getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -434,9 +448,9 @@ bool townHasFreeTavern(const CGTownInstance * town)
 	if(!town->hasBuilt(BuildingID::TAVERN)) return false;
 	if(!town->visitingHero) return true;
 
-	bool canMoveVisitingHeroToGarnison = !town->getUpperArmy()->stacksCount();
+	bool canMoveVisitingHeroToGarrison = !town->getUpperArmy()->stacksCount();
 
-	return canMoveVisitingHeroToGarnison;
+	return canMoveVisitingHeroToGarrison;
 }
 
 uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCreatureSet * heroArmy)

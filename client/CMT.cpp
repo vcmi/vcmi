@@ -282,7 +282,7 @@ int main(int argc, char * argv[])
 		GH.init();
 
 	CCS = new CClientState();
-	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
+	CGI = new CGameInfo(); //contains all global information about game (texts, lodHandlers, map handler etc.)
 	CSH = new CServerHandler();
 	
 	// Initialize video
@@ -525,7 +525,7 @@ void handleQuit(bool ask)
 
 void handleFatalError(const std::string & message, bool terminate)
 {
-	logGlobal->error("FATAL ERROR ENCOUTERED, VCMI WILL NOW TERMINATE");
+	logGlobal->error("FATAL ERROR ENCOUNTERED, VCMI WILL NOW TERMINATE");
 	logGlobal->error("Reason: %s", message);
 
 	std::string messageToShow = "Fatal error! " + message;

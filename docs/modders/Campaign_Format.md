@@ -35,12 +35,20 @@ In header are parameters describing campaign properties
     "regions": {...},
     "name": "Campaign name",
     "description": "Campaign description",
+    "author": "Author",
+    "authorContact": "Author contact",
+    "campaignVersion": "Campaign version",
+    "creationDateTime": "Creation date and time",
     "allowDifficultySelection": true, 
 ```
 
 - `"regions"` contains information about background and regions. See section [campaign regions](#regions-description) for more information
 - `"name"` is a human readable title of campaign
 - `"description"` is a human readable description of campaign
+- `"author"` is the author of the campaign
+- `"authorContact"` is a contact address for the author (e.g. email)
+- `"campaignVersion"` is creator defined version
+- `"creationDateTime"` unix time of campaign creation
 - `"allowDifficultySelection"` is a boolean field (`true`/`false`) which allows or disallows to choose difficulty before scenario start
 
 # Scenario description

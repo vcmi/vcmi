@@ -136,7 +136,7 @@ size_t CMenuScreen::getActiveTab() const
 	return tabs->getActive();
 }
 
-//funciton for std::string -> std::function conversion for main menu
+//function for std::string -> std::function conversion for main menu
 static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::string> menuType, const std::string & string)
 {
 	static const std::vector<std::string> commandType = {"to", "campaigns", "start", "load", "exit", "highscores"};

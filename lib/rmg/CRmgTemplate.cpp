@@ -761,7 +761,7 @@ std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions
 		const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
 		zone->setTerrainTypes(inheritTerrainType(otherZone, iteration));
 	}
-	//This implicitely excludes banned terrains
+	//This implicitly excludes banned terrains
 	return zone->getTerrainTypes();
 }
 

@@ -191,7 +191,7 @@ ZipArchive::ZipArchive(const boost::filesystem::path & from)
 #endif
 
 	if (archive == nullptr)
-		throw std::runtime_error("Failed to open file '" + from.string() + "' - unable to list files!");
+		throw std::runtime_error("Failed to open file '" + from.string());
 }
 
 ZipArchive::~ZipArchive()

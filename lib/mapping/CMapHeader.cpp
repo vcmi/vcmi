@@ -163,7 +163,7 @@ void CMapHeader::registerMapStrings()
 	
 	std::string baseLanguage;
 	std::string language;
-	//english is preferrable as base language
+	//english is preferable as base language
 	if(mapBaseLanguages.count(Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier))
 		baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
 	else

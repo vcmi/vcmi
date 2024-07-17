@@ -559,7 +559,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			players.back()->addToggle(teamId, std::dynamic_pointer_cast<CToggleBase>(button));
 		}
 		
-		// plId is not neccessarily player color, just an index
+		// plId is not necessarily player color, just an index
 		auto team = settingsVec.at(plId).getTeam();
 		if(team == TeamID::NO_TEAM)
 		{

@@ -66,7 +66,7 @@ TResources ResourceManager::estimateIncome() const
 	return ret;
 }
 
-void ResourceManager::reserveResoures(const TResources & res, Goals::TSubgoal goal)
+void ResourceManager::reserveResources(const TResources & res, Goals::TSubgoal goal)
 {
 	if (!goal->invalid())
 		tryPush(ResourceObjective(res, goal));
@@ -315,7 +315,7 @@ bool ResourceManager::removeOutdatedObjectives(std::function<bool(const Goals::T
 TResources ResourceManager::reservedResources() const
 {
 	TResources res;
-	for (auto it : queue) //substract the value of reserved goals
+	for (auto it : queue) //subtract the value of reserved goals
 		res += it.resources;
 	return res;
 }
@@ -323,7 +323,7 @@ TResources ResourceManager::reservedResources() const
 TResources ResourceManager::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();
-	myRes -= reservedResources(); //substract the value of reserved goals
+	myRes -= reservedResources(); //subtract the value of reserved goals
 
 	for (auto & val : myRes)
 		vstd::amax(val, 0); //never negative

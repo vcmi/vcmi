@@ -196,11 +196,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButton_clicked()
 {
+	hide();
 	startGame({});
 }
 
 void MainWindow::on_startEditorButton_clicked()
 {
+	hide();
 	startEditor({});
 }
 

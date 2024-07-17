@@ -196,7 +196,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		}
 	}
 
-	//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
+	//ThreatMap threatsToUs(stack); // These lines may be useful but they are't used in the code.
 	if(moveTarget.scorePerTurn > score)
 	{
 		score = moveTarget.score;
@@ -623,6 +623,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 				for(const auto & unit : allUnits)
 				{
+					if (!unit->isValidTarget())
+						continue;
+					
 					auto newHealth = unit->getAvailableHealth();
 					auto oldHealth = vstd::find_or(healthOfStack, unit->unitId(), 0); // old health value may not exist for newly summoned units
 

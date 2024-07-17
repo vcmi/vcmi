@@ -195,7 +195,7 @@ vcmieditor is independent application so potentially it can be installed just in
 
 vcmieditor haven't introduced any change into map format yet, so all maps made by vcmieditor can be easily played with any version of vcmi. At the same time, those maps can be open and read in the old map editor and vice verse - maps from old editor can be imported in the new editor. So, full compatibility is ensured here.
 
-## Mod compatibilty
+## Mod compatibility
 
 vcmieditor loads set of mods using exactly same mechanism as game uses and mod manipulations can be done using vcmilaucnher application, just enable or disable mods you want and open editor to use content from those mods. In regards on compatibility, of course you need to play maps with same set of mods as you used in the editor. Good part is that is maps don't use content from the mods (even mods were enabled), it can be played on vcmi without mods as well
 

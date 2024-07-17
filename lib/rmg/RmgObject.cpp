@@ -326,7 +326,7 @@ const rmg::Area & Object::getVisitableArea() const
 	{
 		for(const auto & i : dInstances)
 		{
-			// FIXME: Account for bjects with multiple visitable tiles
+			// FIXME: Account for objects with multiple visitable tiles
 			dVisitableCache.add(i.getVisitablePosition());
 		}
 	}

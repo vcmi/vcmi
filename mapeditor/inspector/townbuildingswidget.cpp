@@ -8,8 +8,8 @@
  *
  */
 #include "StdInc.h"
-#include "townbulidingswidget.h"
-#include "ui_townbulidingswidget.h"
+#include "townbuildingswidget.h"
+#include "ui_townbuildingswidget.h"
 #include "../lib/CGeneralTextHandler.h"
 
 std::string defaultBuildingIdConversion(BuildingID bId)
@@ -66,10 +66,10 @@ std::string defaultBuildingIdConversion(BuildingID bId)
 	}
 }
 
-TownBulidingsWidget::TownBulidingsWidget(CGTownInstance & t, QWidget *parent) :
+TownBuildingsWidget::TownBuildingsWidget(CGTownInstance & t, QWidget *parent) :
 	town(t),
 	QDialog(parent),
-	ui(new Ui::TownBulidingsWidget)
+	ui(new Ui::TownBuildingsWidget)
 {
 	ui->setupUi(this);
 	ui->treeView->setModel(&model);
@@ -79,12 +79,12 @@ TownBulidingsWidget::TownBulidingsWidget(CGTownInstance & t, QWidget *parent) :
 	//setAttribute(Qt::WA_DeleteOnClose);
 }
 
-TownBulidingsWidget::~TownBulidingsWidget()
+TownBuildingsWidget::~TownBuildingsWidget()
 {
 	delete ui;
 }
 
-QStandardItem * TownBulidingsWidget::addBuilding(const CTown & ctown, int bId, std::set<si32> & remaining)
+QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, std::set<si32> & remaining)
 {
 	BuildingID buildingId(bId);
 	const CBuilding * building = ctown.buildings.at(buildingId);
@@ -156,7 +156,7 @@ QStandardItem * TownBulidingsWidget::addBuilding(const CTown & ctown, int bId, s
 	return checks.front();
 }
 
-void TownBulidingsWidget::addBuildings(const CTown & ctown)
+void TownBuildingsWidget::addBuildings(const CTown & ctown)
 {
 	auto buildings = ctown.getAllBuildings();
 	while(!buildings.empty())
@@ -168,7 +168,7 @@ void TownBulidingsWidget::addBuildings(const CTown & ctown)
 	ui->treeView->resizeColumnToContents(2);
 }
 
-std::set<BuildingID> TownBulidingsWidget::getBuildingsFromModel(int modelColumn, Qt::CheckState checkState)
+std::set<BuildingID> TownBuildingsWidget::getBuildingsFromModel(int modelColumn, Qt::CheckState checkState)
 {
 	std::set<BuildingID> result;
 	std::vector<QModelIndex> stack;
@@ -192,22 +192,22 @@ std::set<BuildingID> TownBulidingsWidget::getBuildingsFromModel(int modelColumn,
 	return result;
 }
 
-std::set<BuildingID> TownBulidingsWidget::getForbiddenBuildings()
+std::set<BuildingID> TownBuildingsWidget::getForbiddenBuildings()
 {
 	return getBuildingsFromModel(1, Qt::Unchecked);
 }
 
-std::set<BuildingID> TownBulidingsWidget::getBuiltBuildings()
+std::set<BuildingID> TownBuildingsWidget::getBuiltBuildings()
 {
 	return getBuildingsFromModel(2, Qt::Checked);
 }
 
-void TownBulidingsWidget::on_treeView_expanded(const QModelIndex &index)
+void TownBuildingsWidget::on_treeView_expanded(const QModelIndex &index)
 {
 	ui->treeView->resizeColumnToContents(0);
 }
 
-void TownBulidingsWidget::on_treeView_collapsed(const QModelIndex &index)
+void TownBuildingsWidget::on_treeView_collapsed(const QModelIndex &index)
 {
 	ui->treeView->resizeColumnToContents(0);
 }
@@ -219,12 +219,12 @@ TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), QStyl
 
 QWidget * TownBuildingsDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	return new TownBulidingsWidget(town, parent);
+	return new TownBuildingsWidget(town, parent);
 }
 
 void TownBuildingsDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-	if(auto * ed = qobject_cast<TownBulidingsWidget *>(editor))
+	if(auto * ed = qobject_cast<TownBuildingsWidget *>(editor))
 	{
 		auto * ctown = town.town;
 		if(!ctown)
@@ -242,7 +242,7 @@ void TownBuildingsDelegate::setEditorData(QWidget *editor, const QModelIndex &in
 
 void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-	if(auto * ed = qobject_cast<TownBulidingsWidget *>(editor))
+	if(auto * ed = qobject_cast<TownBuildingsWidget *>(editor))
 	{
 		town.forbiddenBuildings = ed->getForbiddenBuildings();
 		town.builtBuildings = ed->getBuiltBuildings();

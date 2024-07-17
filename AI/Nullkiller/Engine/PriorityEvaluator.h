@@ -39,7 +39,8 @@ public:
 	int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const;
 	float getResourceRequirementStrength(int resType) const;
-	float getStrategicalValue(const CGObjectInstance * target) const;
+	float getResourceRequirementStrength(const TResources & res) const;
+	float getStrategicalValue(const CGObjectInstance * target, const CGHeroInstance * hero = nullptr) const;
 	float getTotalResourceRequirementStrength(int resType) const;
 	float evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const;
 	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;

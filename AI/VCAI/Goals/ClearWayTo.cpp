@@ -73,7 +73,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 	if(ret.empty())
 	{
 		logAi->warn("There is no known way to clear the way to tile %s", tile.toString());
-		throw goalFulfilledException(sptr(ClearWayTo(tile))); //make sure asigned hero gets unlocked
+		throw goalFulfilledException(sptr(ClearWayTo(tile))); //make sure assigned hero gets unlocked
 	}
 
 	return ret;

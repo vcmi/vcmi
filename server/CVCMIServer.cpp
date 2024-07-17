@@ -118,7 +118,7 @@ public:
 	}
 };
 
-CVCMIServer::CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient)
+CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 	: currentClientId(1)
 	, currentPlayerId(1)
 	, port(port)
@@ -130,22 +130,30 @@ CVCMIServer::CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient)
 	registerTypesLobbyPacks(*applier);
 
 	networkHandler = INetworkHandler::createHandler();
-
-	if(connectToLobby)
-		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
-	else
-		startAcceptingIncomingConnections();
 }
 
 CVCMIServer::~CVCMIServer() = default;
 
-void CVCMIServer::startAcceptingIncomingConnections()
-{
-	logNetwork->info("Port %d will be used", port);
+uint16_t CVCMIServer::prepare(bool connectToLobby) {
+	if(connectToLobby) {
+		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
+		return 0;
+	} else {
+		return startAcceptingIncomingConnections();
+	}
+}
 
+uint16_t CVCMIServer::startAcceptingIncomingConnections()
+{
+	port
+		? logNetwork->info("Port %d will be used", port)
+		: logNetwork->info("Randomly assigned port will be used");
+
+	// config port may be 0 => srvport will contain the OS-assigned port value
 	networkServer = networkHandler->createServerTCP(*this);
-	networkServer->start(port);
-	logNetwork->info("Listening for connections at port %d", port);
+	auto srvport = networkServer->start(port);
+	logNetwork->info("Listening for connections at port %d", srvport);
+	return srvport;
 }
 
 void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & connection)
@@ -690,7 +698,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	//identify clicked player
 	int clickedNameID = 0; //number of player - zero means AI, assume it initially
 	if(clicked.isControlledByHuman())
-		clickedNameID = *(clicked.connectedPlayerIDs.begin()); //if not AI - set appropiate ID
+		clickedNameID = *(clicked.connectedPlayerIDs.begin()); //if not AI - set appropriate ID
 
 	if(clickedNameID > 0 && playerToRestore.id == clickedNameID) //player to restore is about to being replaced -> put him back to the old place
 	{
@@ -752,7 +760,7 @@ void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
 	if(player.connectedPlayerIDs.empty())
 		return;
 
-	int nameID = *(player.connectedPlayerIDs.begin()); //if not AI - set appropiate ID
+	int nameID = *(player.connectedPlayerIDs.begin()); //if not AI - set appropriate ID
 
 	playerNames[nameID].name = name;
 	setPlayerConnectedId(player, nameID);

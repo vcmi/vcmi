@@ -126,7 +126,7 @@ void CampaignHeader::loadLegacyData(ui8 campId)
 
 bool CampaignHeader::playerSelectedDifficulty() const
 {
-	return difficultyChoosenByPlayer;
+	return difficultyChosenByPlayer;
 }
 
 bool CampaignHeader::formatVCMI() const

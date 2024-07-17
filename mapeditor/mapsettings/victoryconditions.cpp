@@ -15,7 +15,7 @@
 #include "../lib/constants/StringConstants.h"
 #include "../../lib/mapObjects/CGCreature.h"
 
-#include "../inspector/townbulidingswidget.h" //to convert BuildingID to string
+#include "../inspector/townbuildingswidget.h" //to convert BuildingID to string
 
 VictoryConditions::VictoryConditions(QWidget *parent) :
 	AbstractSettings(parent),

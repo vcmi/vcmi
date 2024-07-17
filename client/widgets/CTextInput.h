@@ -70,7 +70,7 @@ class CTextInput final : public CFocusable
 	void updateLabel();
 
 	void clickPressed(const Point & cursorPosition) final;
-	void textInputed(const std::string & enteredText) final;
+	void textInputted(const std::string & enteredText) final;
 	void textEdited(const std::string & enteredText) final;
 	void onFocusGot() final;
 	void onFocusLost() final;

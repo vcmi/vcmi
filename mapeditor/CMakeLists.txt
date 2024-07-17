@@ -28,7 +28,7 @@ set(editor_SRCS
 		mapcontroller.cpp
 		validator.cpp
 		inspector/inspector.cpp
-		inspector/townbulidingswidget.cpp
+		inspector/townbuildingswidget.cpp
 		inspector/armywidget.cpp
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
@@ -69,7 +69,7 @@ set(editor_HEADERS
 		mapcontroller.h
 		validator.h
 		inspector/inspector.h
-		inspector/townbulidingswidget.h
+		inspector/townbuildingswidget.h
 		inspector/armywidget.h
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
@@ -97,7 +97,7 @@ set(editor_FORMS
 		playersettings.ui
 		playerparams.ui
 		validator.ui
-		inspector/townbulidingswidget.ui
+		inspector/townbuildingswidget.ui
 		inspector/armywidget.ui
 		inspector/messagewidget.ui
 		inspector/rewardswidget.ui
@@ -155,12 +155,9 @@ endif()
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} ${editor_RESOURCES} ${editor_TS} ${editor_ICON})
 
-# TODO: enabling AUTORCC breaks msvc build on CI
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
-if(NOT (MSVC AND "$ENV{GITHUB_ACTIONS}" STREQUAL true))
-	set(CMAKE_AUTORCC ON)
-endif()
+set(CMAKE_AUTORCC ON)
 
 if(POLICY CMP0071)
 	cmake_policy(SET CMP0071 NEW)

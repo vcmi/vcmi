@@ -1,6 +1,6 @@
 # Minimum required version greatly affect CMake behavior
 # So cmake_minimum_required must be called before the project()
-# 3.16.0 is used since it's used by our currently oldest suppored system: Ubuntu-20.04
+# 3.16.0 is used since it's used by our currently oldest supported system: Ubuntu-20.04
 cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)
@@ -58,7 +58,7 @@ option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" O
 # Platform-specific options
 
 if(ANDROID)
-	set(ANDROID_TARGET_SDK_VERSION "33" CACHE STRING "Android target SDK version")
+	set(ANDROID_TARGET_SDK_VERSION "34" CACHE STRING "Android target SDK version")
 	set(ANDROIDDEPLOYQT_OPTIONS "" CACHE STRING "Additional androiddeployqt options separated by semi-colon")
 	set(ANDROID_GRADLE_PROPERTIES "" CACHE STRING "Additional Gradle properties separated by semi-colon")
 
@@ -519,7 +519,7 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	endif()
 endif()
 
-if(ENABLE_NULLKILLER_AI AND ENABLE_CLIENT)
+if(ENABLE_CLIENT)
 	find_package(TBB REQUIRED)
 endif()
 

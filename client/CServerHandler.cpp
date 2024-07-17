@@ -238,9 +238,9 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 	si->difficulty = lastDifficulty.Integer();
 
 	logNetwork->trace("\tStarting local server");
-	serverRunner->start(getLocalPort(), connectToLobby, si);
+	uint16_t srvport = serverRunner->start(getLocalPort(), connectToLobby, si);
 	logNetwork->trace("\tConnecting to local server");
-	connectToServer(getLocalHostname(), getLocalPort());
+	connectToServer(getLocalHostname(), srvport);
 	logNetwork->trace("\tWaiting for connection");
 }
 
@@ -648,14 +648,14 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	if(CMM)
 		CMM->disable();
 
-	campaignScoreCalculator = nullptr;
-
 	switch(si->mode)
 	{
 	case EStartMode::NEW_GAME:
 		client->newGame(gameState);
 		break;
 	case EStartMode::CAMPAIGN:
+		if(si->campState->conqueredScenarios().empty())
+			campaignScoreCalculator.reset();
 		client->newGame(gameState);
 		break;
 	case EStartMode::LOAD_GAME:

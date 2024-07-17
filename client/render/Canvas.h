@@ -29,14 +29,14 @@ class Canvas
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	explicit Canvas(SDL_Surface * surface);
 
-	/// copy contructor
+	/// copy constructor
 	Canvas(const Canvas & other);
 
 public:
 	Canvas & operator = (const Canvas & other) = delete;
 	Canvas & operator = (Canvas && other) = delete;
 
-	/// move contructor
+	/// move constructor
 	Canvas(Canvas && other);
 
 	/// creates canvas that only covers specified subsection of a surface

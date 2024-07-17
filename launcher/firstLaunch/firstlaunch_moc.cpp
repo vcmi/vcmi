@@ -24,6 +24,7 @@
 
 #ifdef ENABLE_INNOEXTRACT
 #include "cli/extract.hpp"
+#include "setup/version.hpp"
 #endif
 
 #ifdef VCMI_IOS
@@ -312,7 +313,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
-	auto fileSelection = [this](QString type, QString filter, QString startPath = {}) {
+	auto fileSelection = [this](QByteArray magic, QString filter, QString startPath = {}) {
 		QString titleSel = tr("Select %1 file...", "param is file extension").arg(filter);
 		QString titleErr = tr("You have to select %1 file!", "param is file extension").arg(filter);
 #if defined(VCMI_MOBILE)
@@ -322,7 +323,15 @@ void FirstLaunchView::extractGogData()
 		QString file = QFileDialog::getOpenFileName(this, titleSel, startPath.isEmpty() ? QDir::homePath() : startPath, filter);
 		if(file.isEmpty())
 			return QString{};
-		else if(!file.endsWith("." + type, Qt::CaseInsensitive))
+		
+		QFile tmpFile(file);
+		if(!tmpFile.open(QIODevice::ReadOnly))
+		{
+			QMessageBox::critical(this, tr("File cannot opened"), tmpFile.errorString());
+			return QString{};
+		}
+		QByteArray magicFile = tmpFile.read(magic.length());
+		if(!magicFile.startsWith(magic))
 		{
 			QMessageBox::critical(this, tr("Invalid file selected"), titleErr);
 			return QString{};
@@ -331,11 +340,11 @@ void FirstLaunchView::extractGogData()
 		return file;
 	};
 
-	QString fileExe = fileSelection("exe", tr("GOG installer") + " (*.exe)");
-	if(fileExe.isEmpty())
-		return;
-	QString fileBin = fileSelection("bin", tr("GOG data") + " (*.bin)", QFileInfo(fileExe).absolutePath());
+	QString fileBin = fileSelection(QByteArray{"idska32"}, tr("GOG data") + " (*.bin)");
 	if(fileBin.isEmpty())
+		return;
+	QString fileExe = fileSelection(QByteArray{"MZ"}, tr("GOG installer") + " (*.exe)", QFileInfo(fileBin).absolutePath());
+	if(fileExe.isEmpty())
 		return;
 
 	ui->progressBarGog->setVisible(true);
@@ -344,6 +353,11 @@ void FirstLaunchView::extractGogData()
 
 	QTimer::singleShot(100, this, [this, fileExe, fileBin](){ // background to make sure FileDialog is closed...
 		QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
+		if(tempDir.cd("tmp"))
+		{
+			tempDir.removeRecursively(); // remove if already exists (e.g. previous crash)
+			tempDir.cdUp();
+		}
 		tempDir.mkdir("tmp");
 		if(!tempDir.cd("tmp"))
 			return; // should not happen - but avoid deleting wrong folder in any case
@@ -351,6 +365,26 @@ void FirstLaunchView::extractGogData()
 		QString tmpFileExe = tempDir.filePath("h3_gog.exe");
 		QFile(fileExe).copy(tmpFileExe);
 		QFile(fileBin).copy(tempDir.filePath("h3_gog-1.bin"));
+
+		QString errorText{};
+
+		auto isGogGalaxyExe = [](QString fileToTest) {
+			QFile file(fileToTest);
+			quint64 fileSize = file.size();
+
+			if(fileSize > 10 * 1024 * 1024)
+				return false; // avoid to load big files; galaxy exe is smaller...
+
+			if(!file.open(QIODevice::ReadOnly))
+				return false;
+			QByteArray data = file.readAll();
+
+			const QByteArray magicId{reinterpret_cast<const char*>(u"GOG Galaxy"), 20};
+			return data.contains(magicId);
+		};
+
+		if(isGogGalaxyExe(tmpFileExe))
+			errorText = tr("You've provided GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!");
 
 		::extract_options o;
 		o.extract = true;
@@ -363,21 +397,45 @@ void FirstLaunchView::extractGogData()
 		o.extract_unknown = true;
 		o.filenames.set_expand(true);
 
-		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completly
-		
-		process_file(tmpFileExe.toStdString(), o, [this](float progress) {
-			ui->progressBarGog->setValue(progress * 100);
-			qApp->processEvents();
-		});
+		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completely
+
+		try
+		{
+			if(errorText.isEmpty())
+				process_file(tmpFileExe.toStdString(), o, [this](float progress) {
+					ui->progressBarGog->setValue(progress * 100);
+					qApp->processEvents();
+				});
+		}
+		catch(const std::ios_base::failure & e)
+		{
+			errorText = tr("Stream error while extracting files!\nerror reason: ");
+			errorText += e.what();
+		}
+		catch(const format_error & e)
+		{
+			errorText = e.what();
+		}
+		catch(const std::runtime_error & e)
+		{
+			errorText = e.what();
+		}
+		catch(const setup::version_error &)
+		{
+			errorText = tr("Not a supported Inno Setup installer!");
+		}
 
 		ui->progressBarGog->setVisible(false);
 		ui->pushButtonGogInstall->setVisible(true);
 		setEnabled(true);
 
 		QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
-		if(dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
+		if(!errorText.isEmpty() || dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
 		{
-			QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
+			if(!errorText.isEmpty())
+				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
+			else
+				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
 			tempDir.removeRecursively();
 			return;
 		}
@@ -594,11 +652,6 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 void FirstLaunchView::on_pushButtonDiscord_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://discord.gg/chBT42V"));
-}
-
-void FirstLaunchView::on_pushButtonSlack_clicked()
-{
-	QDesktopServices::openUrl(QUrl("https://slack.vcmi.eu/"));
 }
 
 void FirstLaunchView::on_pushButtonGithub_clicked()
