@@ -1,3 +1,5 @@
+# Animation Format
+
 VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def this format allows:
 
 -   Overriding individual frames from json file (e.g. icons)

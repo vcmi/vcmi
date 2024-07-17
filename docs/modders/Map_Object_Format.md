@@ -1,3 +1,5 @@
+# Map Object Format
+
 ## Description
 
 Full object consists from 3 parts:

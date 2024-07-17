@@ -1,24 +1,26 @@
-# Introduction
+# Serialization
+
+## Introduction
 
 The serializer translates between objects living in our code (like int or CGameState\*) and stream of bytes. Having objects represented as a stream of bytes is useful. Such bytes can send through the network connection (so client and server can communicate) or written to the disk (savegames).
 
 VCMI uses binary format. The primitive types are simply copied from memory, more complex structures are represented as a sequence of primitives.
 
-## Typical tasks
+### Typical tasks
 
-### Bumping a version number
+#### Bumping a version number
 
 Different major version of VCMI likely change the format of the save game. Every save game needs a version identifier, that loading can work properly. Backward compatibility isn't supported for now. The version identifier is a constant named version in Connection.h and should be updated every major VCMI version or development version if the format has been changed. Do not change this constant if it's not required as it leads to full rebuilds. Why should the version be updated? If VCMI cannot detect "invalid" save games the program behaviour is random and undefined. It mostly results in a crash. The reason can be anything from null pointer exceptions, index out of bounds exceptions(ok, they aren't available in c++, but you know what I mean:) or invalid objects loading(too much elements in a vector, etc...) This should be avoided at least for public VCMI releases.
 
-### Adding a new class
+#### Adding a new class
 
 If you want your class to be serializable (eg. being storable in a savegame) you need to define a serialize method template, as described in [#User types](#user-types)
 
 Additionally, if your class is part of one of registered object hierarchies (basically: if it derives from CGObjectInstance, IPropagator, ILimiter, CBonusSystemNode, CPack) it needs to be registered. Just add an appropriate entry in the `RegisterTypes.h` file. See polymorphic serialization for more information.
 
-# How does it work
+## How does it work
 
-## Primitive types
+### Primitive types
 
 They are simply stored in a binary form, as in memory. Compatibility is ensued through the following means:
 
@@ -27,21 +29,21 @@ They are simply stored in a binary form, as in memory. Compatibility is ensued t
 
 It's not "really" portable, yet it works properly across all platforms we currently support.
 
-## Dependant types
+### Dependant types
 
-### Pointers
+#### Pointers
 
 Storing pointers mechanics can be and almost always is customized. See [#Additional features](additional-features).
 
 In the most basic form storing pointer simply sends the object state and loading pointer allocates an object (using "new" operator) and fills its state with the stored data.
 
-### Arrays
+#### Arrays
 
 Serializing array is simply serializing all its elements.
 
-## Standard library types
+### Standard library types
 
-### STL Containers
+#### STL Containers
 
 First the container size is stored, then every single contained element.
 
@@ -56,7 +58,7 @@ Supported STL types include:
 `pair`  
 `map`
 
-### Smart pointers
+#### Smart pointers
 
 Smart pointers at the moment are treated as the raw C-style pointers. This is very bad and dangerous for shared_ptr and is expected to be fixed somewhen in the future.
 
@@ -65,14 +67,14 @@ The list of supported data types from standard library:
 `shared_ptr (partial!!!)`  
 `unique_ptr`
 
-### Boost
+#### Boost
 
 Additionally, a few types for Boost are supported as well:
 
 `variant`  
 `optional`
 
-## User types
+### User types
 
 To make the user-defined type serializable, it has to provide a template method serialize. The first argument (typed as template parameter) is a reference to serializer. The second one is version number.
 
@@ -98,7 +100,7 @@ struct DLL_LINKAGE Rumor
 };
 ```
 
-## Backwards compatibility
+### Backwards compatibility
 
 Serializer, before sending any data, stores its version number. It is passed as the parameter to the serialize method, so conditional code ensuring backwards compatibility can be added.
 
@@ -126,21 +128,21 @@ struct DLL_LINKAGE Rumor
 };
 ```
 
-## Serializer classes
+### Serializer classes
 
-### Common information
+#### Common information
 
 Serializer classes provide iostream-like interface with operator `<<` for serialization and operator `>>` for deserialization. Serializer upon creation will retrieve/store some metadata (version number, endianness), so even if no object is actually serialized, some data will be passed.
 
-### Serialization to file
+#### Serialization to file
 
 CLoadFile/CSaveFile classes allow to read data to file and store data to file. They take filename as the first parameter in constructor and, optionally, the minimum supported version number (default to the current version). If the construction fails (no file or wrong file) the exception is thrown.
 
-### Networking
+#### Networking
 
 See [Networking](Networking.md) 
 
-## Additional features
+### Additional features
 
 Here is the list of additional custom features serialzier provides. Most of them can be turned on and off.
 
@@ -149,7 +151,7 @@ Here is the list of additional custom features serialzier provides. Most of them
 - Stack instance serialization — enabled by sendStackInstanceByIds flag.
 - Smart pointer serialization — enabled by smartPointerSerialization flag.
 
-### Polymorphic serialization
+#### Polymorphic serialization
 
 Serializer is to recognize the true type of object under the pointer if classes of that hierarchy were previously registered.
 
@@ -170,7 +172,7 @@ Class hierarchies that are now registered to benefit from this feature are mostl
 
 It is crucial that classes are registered in the same order in the both serializers (storing and loading).
 
-### Vectorized list member serialization
+#### Vectorized list member serialization
 
 Both client and server store their own copies of game state and VLC (handlers with data from config). Many game logic objects are stored in the vectors and possess a unique id number that represent also their position in such vector.
 
@@ -219,7 +221,7 @@ Important: this means that the object state is not serialized.
 
 This feature makes sense only for server-client network communication.
 
-### Stack instance serialization
+#### Stack instance serialization
 
 This feature works very much like the vectorised object serialization. It is like its special case for stack instances that are not vectorised (each hero owns its map). When this option is turned on, sending CStackInstance\* will actually send an owning object (town, hero, garrison, etc) id and the stack slot position.
 
@@ -227,7 +229,7 @@ For this to work, obviously, both sides of the connection need to have exactly t
 
 This feature depends on vectorised member serialization being turned on. (Sending owning object by id.)
 
-### Smart pointer serialization
+#### Smart pointer serialization
 
 Note: name is unfortunate, this feature is not about smart pointers (like shared-ptr and unique_ptr). It is for raw C-style pointers, that happen to point to the same object.
 

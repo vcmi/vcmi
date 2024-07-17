@@ -1,3 +1,5 @@
+# Faction Format
+
 ## Required data
 
 In order to make functional town you also need:

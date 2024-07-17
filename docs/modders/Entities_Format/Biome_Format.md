@@ -1,3 +1,5 @@
+# Biome Format
+
 ## General description
 
 Biome is a new entity type added in VCMI 1.5.0. It defines a set of random map obstacles which will be generated together. For each zone different obstacle sets is randomized and then only obstacles from that set will be used to fill this zone.

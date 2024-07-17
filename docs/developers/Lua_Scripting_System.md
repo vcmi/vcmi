@@ -1,4 +1,6 @@
-# Configuration
+# Lua Scripting System
+
+## Configuration
 
 ``` javascript
 {
@@ -32,13 +34,13 @@
 }
 ```
 
-# Lua
+## Lua
 
-## API Reference
+### API Reference
 
 TODO **In near future Lua API may change drastically several times. Information here may be outdated**
 
-### Globals
+#### Globals
 
 - DATA - persistent table
 - - DATA.ERM contains ERM state, anything else is free to use.
@@ -61,7 +63,7 @@ TODO **In near future Lua API may change drastically several times. Information 
 - -TODO require(":relative.path.to.module") - loads module from same mod
 - logError(text) - backup error log function
 
-### Low level events API
+#### Low level events API
 
 ``` Lua
 
@@ -79,7 +81,7 @@ sub2 = 	PlayerGotTurn.subscribeBefore(EVENT_BUS, function(event)
 	end)
 ```
 
-### Lua standard library
+#### Lua standard library
 
 VCMI uses LuaJIT, which is Lua 5.1 API, see [upstream documentation](https://www.lua.org/manual/5.1/manual.html)
 
@@ -91,19 +93,19 @@ Following libraries are supported
 -   math
 -   bit
 
-# ERM
+## ERM
 
-## Features
+### Features
 
 -   no strict limit on function/variable numbers (technical limit 32 bit integer except 0))
 -   TODO semi compare
 -   DONE macros
 
-## Bugs
+### Bugs
 
 -   TODO Broken XOR support (clashes with \`X\` option)
 
-## Triggers
+### Triggers
 
 -   TODO **!?AE** Equip/Unequip artifact
 -   WIP **!?BA** when any battle occurs
@@ -134,22 +136,22 @@ Following libraries are supported
 -   TODO **!?TL** Real-Time Timer
 -   TODO **!?TM** timed events
 
-## Receivers
+### Receivers
 
-### VCMI
+#### VCMI
 
 -   **!!MC:S@varName@** - declare new "normal" variable (technically
     v-var with string key)
 -   TODO Identifier resolver
 -   WIP Bonus system
 
-### ERA
+#### ERA
 
 -   DONE !!if !!el !!en
 -   TODO !!br !!co
 -   TODO !!SN:X
 
-### WoG
+#### WoG
 
 - TODO !!AR Артефакт (ресурс) в определенной позиции
 - TODO !!BA Битва
@@ -199,4 +201,4 @@ Following libraries are supported
 - *!#VC Контроль переменных*
 - WIP !!VR Установка переменных
 
-## Persistence
+### Persistence
