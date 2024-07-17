@@ -77,10 +77,6 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_9,  [this](){ useSpellIfPossible(9);  });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_10, [this](){ useSpellIfPossible(10); });
 	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_11, [this](){ useSpellIfPossible(11); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_12, [this](){ useSpellIfPossible(12); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_13, [this](){ useSpellIfPossible(13); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_14, [this](){ useSpellIfPossible(14); });
-	addShortcut(EShortcut::BATTLE_SPELL_SHORTCUT_15, [this](){ useSpellIfPossible(15); });
 
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));

@@ -450,7 +450,7 @@ void QuickSpellPanel::create()
 	if(!hero)
 		return;
 
-	for(int i = 0; i < 16; i++) {
+	for(int i = 0; i < 12; i++) {
 		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(i)].String();
 
 		SpellID id;
@@ -463,7 +463,7 @@ void QuickSpellPanel::create()
 			id = SpellID::NONE;
 		}
 
-		auto button = std::make_shared<CButton>(Point(2, 5 + 37 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
+		auto button = std::make_shared<CButton>(Point(2, 7 + 50 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
 			if(id.hasValue() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 			{
 				owner.castThisSpell(id);
@@ -481,9 +481,9 @@ void QuickSpellPanel::create()
 
 		if(!id.hasValue() || !id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
 		{
-			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 5 + 37 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
+			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 7 + 50 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
 		}
-		labels.push_back(std::make_shared<CLabel>(7, 8 + 37 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
+		labels.push_back(std::make_shared<CLabel>(7, 10 + 50 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
 
 		buttons.push_back(button);
 	}
