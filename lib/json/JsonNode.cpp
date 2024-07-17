@@ -86,12 +86,12 @@ JsonNode::JsonNode(const std::string & string)
 {
 }
 
-JsonNode::JsonNode(const std::byte * data, size_t datasize, const std::string fileName)
+JsonNode::JsonNode(const std::byte * data, size_t datasize, const std::string & fileName)
 	: JsonNode(data, datasize, JsonParsingSettings(), fileName)
 {
 }
 
-JsonNode::JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string fileName)
+JsonNode::JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName)
 {
 	JsonParser parser(data, datasize, parserSettings);
 	*this = parser.parse(fileName);
