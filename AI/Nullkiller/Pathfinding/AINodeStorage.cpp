@@ -1385,6 +1385,28 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.armyLoss = node.armyLoss;
 		path.targetObjectDanger = evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
 
+		if(path.targetObjectDanger > 0)
+		{
+			if(node.theNodeBefore)
+			{
+				auto prevNode = getAINode(node.theNodeBefore);
+
+				if(node.coord == prevNode->coord && node.actor->hero == prevNode->actor->hero)
+				{
+					paths.pop_back();
+					continue;
+				}
+				else
+				{
+					path.armyLoss = prevNode->armyLoss;
+				}
+			}
+			else
+			{
+				path.armyLoss = 0;
+			}
+		}
+
 		path.targetObjectArmyLoss = evaluateArmyLoss(
 			path.targetHero,
 			getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy),
