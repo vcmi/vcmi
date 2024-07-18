@@ -579,13 +579,24 @@ void CVideoPlayer::getVideoAndBackgroundRects(std::string_view name, const Point
 	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
 	float resX = preferredLogicalResolution.x; // Float, since we do some floating point calculations
 	float resY = preferredLogicalResolution.y;
+	float aspectRatio_LogicalResolution = resX/resY;
 
 	float originalH3ResX = 800.0;
 	float originalH3ResY = 600.0;
 	float aspectRatio_OH3 = originalH3ResX/originalH3ResY;
 
-	float correctedResX = aspectRatio_OH3*resY;
-	float correctedResY = resY;
+	float correctedResX;
+	float correctedResY;
+	if(aspectRatio_LogicalResolution > aspectRatio_OH3)
+	{
+		// wider than original
+		correctedResX = aspectRatio_OH3*resY;
+		correctedResY = resY;
+	} else {
+		// narrower than original
+		correctedResX = resX;
+		correctedResY = resX/aspectRatio_OH3;
+	}
 
 	int offsetX = (resX-correctedResX)/2;
 	int offsetY = (resY-correctedResY)/2;
