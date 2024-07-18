@@ -32,7 +32,7 @@ In order to make functional town you also need:
 
 ### Music
 
--   Town theme music track (1 music file)
+-   Town theme music track (at least 1 music file)
 
 ### Buildings
 
@@ -152,8 +152,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 			}
 		}
 	},
-	// Path to town music theme, e.g. "music/castleTheme"
-	"musicTheme" : "",
+	// List of town music themes, e.g. [ "music/castleTheme" ]
+	// At least one music file is required
+	"musicTheme" : [ "" ],
 
 	// List of structures which represents visible graphical objects on town screen.
 	// See detailed description below

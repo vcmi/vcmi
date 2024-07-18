@@ -16,6 +16,7 @@
 #include "../renderSDL/SDLRWwrapper.h"
 
 #include "../../lib/CRandomGenerator.h"
+#include "../../lib/CTownHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
@@ -64,7 +65,17 @@ void CMusicHandler::loadTerrainMusicThemes()
 {
 	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		addEntryToSet("terrain_" + terrain->getJsonKey(), terrain->musicFilename);
+		for(const auto & filename : terrain->musicFilename)
+			addEntryToSet("terrain_" + terrain->getJsonKey(), filename);
+	}
+
+	for(const auto & faction : CGI->townh->objects)
+	{
+		if (!faction || !faction->hasTown())
+			continue;
+
+		for(const auto & filename : faction->town->clientInfo.musicTheme)
+			addEntryToSet("faction_" + faction->getJsonKey(), filename);
 	}
 }
 

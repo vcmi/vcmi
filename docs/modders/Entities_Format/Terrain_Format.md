@@ -50,8 +50,8 @@
 	// Color of terrain on minimap with unpassable objects. RGB triplet, 0-255 range
 	"minimapBlocked" : [ 150, 100, 50 ],
 	
-	// Music filename to play on this terrain on adventure map
-	"music" : "",
+	// List of music files to play on this terrain on adventure map. At least one file is required
+	"music" : [ "" ],
 	
 	"sounds" : {
 		// List of ambient sounds for this terrain

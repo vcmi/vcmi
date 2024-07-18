@@ -119,7 +119,7 @@
 				"dwellingUpLvl7": { "animation" : "TBCSUP_6.def", "x" : 303, "y" : 0,   "z" : -1, "border" : "TOCSANG2.bmp", "area" : "TZCSANG2.bmp" }
 			},
 
-			"musicTheme" : "music/CstleTown",
+			"musicTheme" : [ "music/CstleTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",
