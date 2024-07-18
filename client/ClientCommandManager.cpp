@@ -89,7 +89,7 @@ void ClientCommandManager::handleGoSoloCommand()
 		// unlikely it will work but just in case to be consistent
 		for(auto & color : CSH->getAllClientPlayers(CSH->logicConnection->connectionID))
 		{
-			if(CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
 				CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
@@ -102,7 +102,7 @@ void ClientCommandManager::handleGoSoloCommand()
 		
 		for(auto & color : CSH->getAllClientPlayers(CSH->logicConnection->connectionID))
 		{
-			if(CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
 				auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(color), false, false);
 				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);

@@ -67,7 +67,7 @@ struct GraphPathNode
 	GrapthPathNodeType nodeType = GrapthPathNodeType::NORMAL;
 	GraphPathNodePointer previous;
 	float cost = BAD_COST;
-	uint64_t danger = 0;
+	uint64_t linkDanger = 0;
 	const CGObjectInstance * obj = nullptr;
 	std::shared_ptr<SpecialAction> specialAction;
 
