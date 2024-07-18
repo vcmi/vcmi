@@ -99,7 +99,7 @@ public:
 
 class CVideoPlayer final : public IVideoPlayer
 {
-	void getVideoAndBackgroundRects(std::string_view name, const Point & position, SDL_Rect & video, SDL_Rect & RectbackgroundRect, const Point preferredLogicalResolution) const;
+	void getVideoAndBackgroundRects(std::string_view name, const Point & position, SDL_Rect & video, SDL_Rect & RectbackgroundRect, const Point preferredLogicalResolution, const CVideoInstance & instance) const;
 	bool getIntroRimTexture(SDL_Texture **introRimTexture) const;
 	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, Point preferredLogicalResolution) const;
 	void openVideoFile(CVideoInstance & state, const VideoPath & fname);
