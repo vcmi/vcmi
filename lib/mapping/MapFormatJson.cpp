@@ -813,7 +813,7 @@ JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 
 	auto data = loader.load(resource)->readAll();
 
-	JsonNode res(reinterpret_cast<const std::byte*>(data.first.get()), data.second);
+	JsonNode res(reinterpret_cast<const std::byte*>(data.first.get()), data.second, archiveFilename);
 
 	return res;
 }
