@@ -69,6 +69,7 @@ public:
 class CButton : public ButtonBase
 {
 	CFunctionList<void()> callback;
+	CFunctionList<void()> callbackPopup;
 
 	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
 	std::optional<ColorRGBA> borderColor; // mapping of button state to border color
@@ -90,6 +91,7 @@ public:
 
 	/// adds one more callback to on-click actions
 	void addCallback(const std::function<void()> & callback);
+	void addPopupCallback(const std::function<void()> & callback);
 
 	void addHoverText(EButtonState state, const std::string & text);
 

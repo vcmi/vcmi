@@ -98,13 +98,15 @@ public:
 	}
 };
 
-CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
+CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells, std::function<void(SpellID)> onSpellSelect):
 	CWindowObject(PLAYER_COLORED | (settings["gameTweaks"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
 	myHero(_myHero),
 	myInt(_myInt),
+	openOnBattleSpells(openOnBattleSpells),
+	onSpellSelect(onSpellSelect),
 	isBigSpellbook(settings["gameTweaks"]["enableLargeSpellbook"].Bool()),
 	spellsPerPage(24),
 	offL(-11),
@@ -293,6 +295,14 @@ void CSpellWindow::processSpells()
 	for(auto const & spell : CGI->spellh->objects)
 	{
 		bool searchTextFound = !searchBox || boost::algorithm::contains(boost::algorithm::to_lower_copy(spell->getNameTranslated()), boost::algorithm::to_lower_copy(searchBox->getText()));
+
+		if(onSpellSelect)
+		{
+			if(spell->isCombat() == openOnBattleSpells && !spell->isSpecial() && !spell->isCreatureAbility())
+				mySpells.push_back(spell.get());
+			continue;
+		}
+
 		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell.get()) && searchTextFound)
 			mySpells.push_back(spell.get());
 	}
@@ -602,6 +612,13 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 {
 	if(mySpell)
 	{
+		if(owner->onSpellSelect)
+		{
+			owner->onSpellSelect(mySpell->id);
+			owner->fexitb();
+			return;
+		}
+
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
@@ -738,7 +755,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		}
 
 		ColorRGBA firstLineColor, secondLineColor;
-		if(spellCost > owner->myHero->mana) //hero cannot cast this spell
+		if(spellCost > owner->myHero->mana && !owner->onSpellSelect) //hero cannot cast this spell
 		{
 			firstLineColor = Colors::WHITE;
 			secondLineColor = Colors::ORANGE;

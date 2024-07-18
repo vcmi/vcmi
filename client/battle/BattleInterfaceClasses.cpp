@@ -31,6 +31,7 @@
 #include "../render/IFont.h"
 #include "../render/Graphics.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
@@ -39,9 +40,11 @@
 #include "../windows/CMessage.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
+#include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -55,6 +58,8 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/TextOperations.h"
+#include "../../lib/json/JsonUtils.h"
+
 
 void BattleConsole::showAll(Canvas & to)
 {
@@ -415,6 +420,79 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	play();
 
 	addUsedEvents(TIME);
+}
+
+QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
+	: CIntObject(0), owner(owner)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE);
+
+	pos = Rect(0, 0, 52, 600);
+	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
+	rect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w + 1, pos.h + 1), ColorRGBA(0, 0, 0, 0), ColorRGBA(241, 216, 120, 255));
+
+	create();
+}
+
+void QuickSpellPanel::create()
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
+
+	labels.clear();
+	buttons.clear();
+	buttonsDisabled.clear();
+
+	auto hero = owner.getBattle()->battleGetMyHero();
+	if(!hero)
+		return;
+
+	for(int i = 0; i < 12; i++) {
+		std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(i)].String();
+
+		SpellID id;
+		try
+		{
+			id = SpellID::decode(spellIdentifier);
+		}
+		catch(const IdentifierResolutionException& e)
+		{
+			id = SpellID::NONE;
+		}
+
+		auto button = std::make_shared<CButton>(Point(2, 7 + 50 * i), AnimationPath::builtin("spellint"), CButton::tooltip(), [this, id, hero](){
+			if(id.hasValue() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
+			{
+				owner.castThisSpell(id);
+			}
+		});
+		button->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("spellint"), !spellIdentifier.empty() ? id.num + 1 : 0));
+		button->addPopupCallback([this, i, hero](){
+			GH.input().hapticFeedback();
+			GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.curInt.get(), true, [this, i](SpellID spell){
+				Settings configID = persistentStorage.write["quickSpell"][std::to_string(i)];
+				configID->String() = spell.toSpell()->identifier;
+				create();
+			});
+		});
+
+		if(!id.hasValue() || !id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, hero))
+		{
+			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 7 + 50 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
+		}
+		labels.push_back(std::make_shared<CLabel>(7, 10 + 50 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
+
+		buttons.push_back(button);
+	}
+}
+
+void QuickSpellPanel::show(Canvas & to)
+{
+	showAll(to);
+	CIntObject::show(to);
 }
 
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)
