@@ -741,7 +741,7 @@ BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 		else
 		{
 			resources.musicName = AudioPath::builtin("Music/Win Battle");
-			resources.prologueVideo = VideoPath();
+			resources.prologueVideo = VideoPath::builtin("WIN3.BIK");
 			resources.loopedVideo = VideoPath::builtin("WIN3.BIK");
 		}
 
