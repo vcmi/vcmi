@@ -140,7 +140,7 @@ void MainWindow::loadTranslation()
 
 	if(!QFile::exists(translationFileResourcePath))
 	{
-		logGlobal->warn("Translation file %s does not exist", translationFileResourcePath.toStdString());
+		logGlobal->debug("Translation file %s does not exist", translationFileResourcePath.toStdString());
 		return;
 	}
 
