@@ -22,7 +22,7 @@ android {
 	defaultConfig {
 		applicationId "is.xyz.vcmi"
 
-        compileSdk = androidCompileSdkVersion.takeAfter("-") as Integer // has "android-" prepended
+		compileSdk = androidCompileSdkVersion.takeAfter("-") as Integer // has "android-" prepended
 		minSdk = qtMinSdkVersion as Integer
 		targetSdk = qtTargetSdkVersion as Integer // ANDROID_TARGET_SDK_VERSION in the CMake project
 
