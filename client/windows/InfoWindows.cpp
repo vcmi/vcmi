@@ -35,6 +35,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "widgets/Slider.h"
 
 CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QueryID askID)
 {
@@ -170,6 +171,11 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 	GH.windows().pushWindow(temp);
 }
 
+void CInfoWindow::wheelScrolled(int distance) {
+	text->slider->wheelScrolled(distance);
+	redraw();
+}
+
 std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string & text, PlayerColor playerID, const TCompsInfo & components)
 {
 	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
@@ -252,11 +258,21 @@ CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our)
 	our->recActions = defActions;
 	inner = our;
 	addChild(our.get(), false);
+	addUsedEvents(WHEEL);
 }
 
 CRClickPopupInt::~CRClickPopupInt()
 {
 	CCS->curh->show();
+}
+
+bool CRClickPopupInt::receiveEvent(const Point &position, int eventType) const {
+	return inner->receiveEvent(position, eventType);
+}
+
+void CRClickPopupInt::wheelScrolled(int distance) {
+	inner->wheelScrolled(distance);
+	redraw();
 }
 
 Point CInfoBoxPopup::toScreen(Point p)

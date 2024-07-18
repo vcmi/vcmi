@@ -12,6 +12,8 @@
 #include "CWindowObject.h"
 #include "../gui/TextAlignment.h"
 #include "../../lib/FunctionList.h"
+#include "widgets/Slider.h"
+#include "widgets/TextControls.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -45,7 +47,7 @@ public:
 	void close() override;
 	void showAll(Canvas & to) override;
 
-	void sliderMoved(int to);
+	void wheelScrolled(int distance) override;
 
 	CInfoWindow(const std::string & Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
 	CInfoWindow();
@@ -81,6 +83,9 @@ class CRClickPopupInt : public CRClickPopup
 public:
 	CRClickPopupInt(const std::shared_ptr<CIntObject> & our);
 	~CRClickPopupInt();
+
+	bool receiveEvent(const Point &position, int eventType) const override;
+	void wheelScrolled(int distance) override;
 };
 
 /// popup on adventure map for town\hero and other objects with customized popup content

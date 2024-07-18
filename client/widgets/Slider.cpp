@@ -259,6 +259,10 @@ void CSlider::showAll(Canvas & to)
 	CIntObject::showAll(to);
 }
 
+void CSlider::wheelScrolled(int distance) {
+	Scrollable::wheelScrolled(distance);
+}
+
 void CSlider::keyPressed(EShortcut key)
 {
 	int moveDest = value;

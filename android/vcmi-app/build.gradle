@@ -22,9 +22,9 @@ android {
 	defaultConfig {
 		applicationId "is.xyz.vcmi"
 
-		compileSdk = androidCompileSdkVersion.takeAfter("-") as Integer // has "android-" prepended
-		minSdk = qtMinSdkVersion as Integer
-		targetSdk = qtTargetSdkVersion as Integer // ANDROID_TARGET_SDK_VERSION in the CMake project
+		compileSdk = 34 // has "android-" prepended
+		minSdk = 14
+		targetSdk = 34 // ANDROID_TARGET_SDK_VERSION in the CMake project
 
 		versionCode 1600
 		versionName "1.6.0"
@@ -38,9 +38,9 @@ android {
 			manifest.srcFile '../AndroidManifest.xml'
 			jniLibs.srcDirs = ['../libs']
 
-			java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+/*			java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
 			aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
-			res.srcDirs = [qt5AndroidDir + '/res', 'src/main/res', '../res']
+			res.srcDirs = [qt5AndroidDir + '/res', 'src/main/res', '../res']*/
 		}
 	}
 
@@ -119,7 +119,7 @@ def SigningKeystorePath(final basePath, final keystoreFileName) {
 }
 
 def LoadSigningConfig(final signingConfigKey) {
-	final def props = new Properties()
+	/*final def props = new Properties()
 	final def propFile = SigningPropertiesPath(signingRoot, signingConfigKey)
 	
 	def signingConfig = android.signingConfigs.getAt(signingConfigKey)
@@ -151,7 +151,7 @@ def LoadSigningConfig(final signingConfigKey) {
 	} else {
 		println("file with signing properties is missing")
 		android.signingConfigs.putAt(signingConfigKey, null)
-	}
+	}*/
 }
 
 dependencies {

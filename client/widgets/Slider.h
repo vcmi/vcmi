@@ -74,6 +74,7 @@ public:
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void showAll(Canvas & to) override;
+	void wheelScrolled(int distance) override;
 
 	using SliderMovingFunctor = std::function<void(int)>;
 
