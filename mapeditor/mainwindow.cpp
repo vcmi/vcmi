@@ -133,17 +133,33 @@ void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 void MainWindow::loadTranslation()
 {
 #ifdef ENABLE_QT_TRANSLATIONS
-	const std::string translationFile = settings["general"]["language"].String() + ".qm";
-	logGlobal->info("Loading translation '%s'", translationFile);
+	const std::string translationFile = settings["general"]["language"].String()+ ".qm";
+	QString translationFileResourcePath = QString{":/translation/%1"}.arg(translationFile.c_str());
 
-	if (!translator.load(QString{":/translation/%1"}.arg(translationFile.c_str())))
+	logGlobal->info("Loading translation %s", translationFile);
+
+	if(!QFile::exists(translationFileResourcePath))
 	{
-		logGlobal->error("Failed to load translation");
+		logGlobal->warn("Translation file %s does not exist", translationFileResourcePath.toStdString());
+		return;
+	}
+
+	if (!translator.load(translationFileResourcePath))
+	{
+		logGlobal->error("Failed to load translation file %s", translationFileResourcePath.toStdString());
+		return;
+	}
+
+	if(translationFile == "english.qm")
+	{
+		// translator doesn't need to be installed for English
 		return;
 	}
 
 	if (!qApp->installTranslator(&translator))
-		logGlobal->error("Failed to install translator");
+	{
+		logGlobal->error("Failed to install translator for translation file %s", translationFileResourcePath.toStdString());
+	}
 #endif
 }
 
