@@ -182,7 +182,7 @@ void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput
 	}
 	else
 	{
-		dimensions.x  = getCodecContext()->width;
+		dimensions.x = getCodecContext()->width;
 		dimensions.y = getCodecContext()->height;
 	}
 
@@ -688,8 +688,11 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	getVideoAndBackgroundRects(name.getName(), position, videoRect, backgroundRect, preferredLogicalResolution, instance);
 
 	SDL_Texture *introRimTexture = nullptr;
-	if(!getIntroRimTexture(&introRimTexture))
-		return true;
+	if(name.getName() == "H3INTRO")
+	{
+		if(!getIntroRimTexture(&introRimTexture))
+			return true;
+	}
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
 
