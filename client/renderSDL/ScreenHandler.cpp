@@ -224,6 +224,7 @@ void ScreenHandler::setWindowIcon()
 	auto windowIconSurface = CSDL_Ext::newSurface(image->width(), image->height());
 	image->draw(windowIconSurface);
 	SDL_SetWindowIcon(mainWindow, windowIconSurface);
+	SDL_FreeSurface(windowIconSurface);
 }
 
 void ScreenHandler::updateWindowState()
