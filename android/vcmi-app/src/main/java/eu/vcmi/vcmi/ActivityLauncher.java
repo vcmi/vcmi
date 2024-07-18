@@ -19,7 +19,7 @@ import org.libsdl.app.SDL;
 /**
  * @author F
  */
-public class ActivityLauncher extends /*org.qtproject.qt5.android.bindings.QtActivity*/Activity
+public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActivity
 {
     private static final int PICK_EXTERNAL_VCMI_DATA_TO_COPY = 1;
 
