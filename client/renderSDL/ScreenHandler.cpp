@@ -220,8 +220,8 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 
 void ScreenHandler::setWindowIcon()
 {
-	auto windowIconSurface = CSDL_Ext::newSurface(64,64);
 	std::shared_ptr<IImage> image = std::make_shared<SDLImage>(ImagePath::builtin("vcmi"), EImageBlitMode::ALPHA);
+	auto windowIconSurface = CSDL_Ext::newSurface(image->width(), image->height());
 	image->draw(windowIconSurface);
 	SDL_SetWindowIcon(mainWindow, windowIconSurface);
 }
