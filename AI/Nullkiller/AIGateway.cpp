@@ -28,6 +28,7 @@
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/CPlayerState.h"
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
@@ -1166,6 +1167,17 @@ void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, Qu
 	battlename.clear();
 
 	CAdventureAI::battleEnd(battleID, br, queryID);
+
+	// gosolo
+	if(queryID != QueryID::NONE && myCb->getPlayerState(playerID)->isHuman())
+	{
+		status.addQuery(queryID, "Confirm battle query");
+
+		requestActionASAP([=]()
+			{
+				answerQuery(queryID, 0);
+			});
+	}
 }
 
 void AIGateway::waitTillFree()
