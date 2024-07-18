@@ -55,7 +55,7 @@ JsonNode JsonParser::parse(const std::string & fileName)
 
 	if(!errors.empty())
 	{
-		logMod->warn("File %s is not a valid JSON file!", fileName);
+		logMod->warn("%s is not valid JSON!", fileName);
 		logMod->warn(errors);
 	}
 	return root;
@@ -587,7 +587,12 @@ bool JsonParser::error(const std::string & message, bool warning)
 	std::ostringstream stream;
 	std::string type(warning ? " warning: " : " error: ");
 
-	stream << "At line " << lineCount << ", position " << pos - lineStart << type << message << "\n";
+	if(!errors.empty())
+	{
+		// only add the line breaks between error messages so we don't have a trailing line break
+		stream << "\n";
+	}
+	stream << "At line " << lineCount << ", position " << pos - lineStart << type << message;
 	errors += stream.str();
 
 	return warning;

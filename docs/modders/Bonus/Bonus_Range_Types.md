@@ -1,3 +1,5 @@
+# Bonus Range Types
+
 ## List of all Bonus range types
 
 - NO_LIMIT

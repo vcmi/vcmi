@@ -494,7 +494,11 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	if (!openInput(videoToOpen))
 		return { nullptr, 0};
 	openContext();
-	openCodec(findAudioStream());
+
+	int audioStreamIndex = findAudioStream();
+	if (audioStreamIndex == -1)
+		return { nullptr, 0};
+	openCodec(audioStreamIndex);
 
 	const auto * codecpar = getCodecParameters();
 
@@ -547,7 +551,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 		ui16 NumOfChan = 2;
 		ui32 SamplesPerSec = 22050;
 		ui32 bytesPerSec = 22050 * 2;
-		ui16 blockAlign = 2;
+		ui16 blockAlign = 1;
 		ui16 bitsPerSample = 32;
 		ui8 Subchunk2ID[4] = {'d', 'a', 't', 'a'};
 		ui32 Subchunk2Size;
@@ -654,7 +658,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		return true;
 
 	instance.openVideo();
-	instance.prepareOutput(scale, useOverlay);
+	instance.prepareOutput(scale, true);
 	
 	SDL_Rect videoRect;
 	SDL_Rect backgroundRect;
@@ -714,7 +718,6 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		auto timePointAfterPresent = boost::chrono::steady_clock::now();
 		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);
 
-		logGlobal->info("Sleeping for %d", (targetFrameTime - timeSpentBusy).count());
 		if(targetFrameTime > timeSpentBusy)
 			boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
 

@@ -66,6 +66,8 @@ public:
 	/// List of all active connections
 	std::vector<std::shared_ptr<CConnection>> activeConnections;
 
+	uint16_t prepare(bool connectToLobby);
+
 	// INetworkListener impl
 	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage) override;
 	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message) override;
@@ -74,7 +76,7 @@ public:
 
 	std::shared_ptr<CGameHandler> gh;
 
-	CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient);
+	CVCMIServer(uint16_t port, bool runByClient);
 	~CVCMIServer();
 
 	void run();
@@ -83,7 +85,7 @@ public:
 	bool prepareToStartGame();
 	void prepareToRestart();
 	void startGameImmediately();
-	void startAcceptingIncomingConnections();
+	uint16_t startAcceptingIncomingConnections();
 
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 

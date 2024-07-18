@@ -123,7 +123,7 @@
 				"dwellingUpLvl7": { "animation" : "TBELUP_6.def", "x" : 43,  "y" : 0,   "z" : -2, "border" : "TOELUP_6.bmp", "area" : "TZELUP_6.bmp" }
 			},
 
-			"musicTheme" : "music/ElemTown",
+			"musicTheme" : [ "music/ElemTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",

@@ -26,7 +26,12 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 	if(obj)
 	{
 		objid = obj->id.getNum();
+
+#if NKAI_TRACE_LEVEL >= 1
+		targetName = obj->getObjectName() + tile.toString();
+#else
 		targetName = obj->typeName + tile.toString();
+#endif
 	}
 	else
 	{
@@ -260,7 +265,11 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 std::string ExecuteHeroChain::toString() const
 {
+#if NKAI_TRACE_LEVEL >= 1
+	return "ExecuteHeroChain " + targetName + " by " + chainPath.toString();
+#else
 	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTranslated();
+#endif
 }
 
 bool ExecuteHeroChain::moveHeroToTile(AIGateway * ai, const CGHeroInstance * hero, const int3 & tile)

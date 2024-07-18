@@ -1,3 +1,5 @@
+# Creature Format
+
 ## Required data
 
 In order to make functional creature you also need:

@@ -35,6 +35,7 @@
 #include "../adventureMap/AdventureMapInterface.h"
 
 #include "../../CCallback.h"
+#include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -113,6 +114,9 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 			onIntroSoundPlayed();
 	};
 
+	auto bfieldType = getBattle()->battleGetBattlefieldType();
+	const auto & battlefieldSound = bfieldType.getInfo()->musicFilename;
+
 	std::vector<soundBase::soundID> battleIntroSounds =
 	{
 		soundBase::battle00, soundBase::battle01,
@@ -120,7 +124,13 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
 
-	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(battleIntroSounds);
+	int battleIntroSoundChannel = -1;
+
+	if (!battlefieldSound.empty())
+		battleIntroSoundChannel = CCS->soundh->playSound(battlefieldSound);
+	else
+		battleIntroSoundChannel = CCS->soundh->playSoundFromSet(battleIntroSounds);
+
 	if (battleIntroSoundChannel != -1)
 	{
 		CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
@@ -144,7 +154,13 @@ void BattleInterface::onIntroSoundPlayed()
 	if (openingPlaying())
 		openingEnd();
 
-	CCS->musich->playMusicFromSet("battle", true, true);
+	auto bfieldType = getBattle()->battleGetBattlefieldType();
+	const auto & battlefieldMusic = bfieldType.getInfo()->musicFilename;
+
+	if (!battlefieldMusic.empty())
+		CCS->musich->playMusic(battlefieldMusic, true, true);
+	else
+		CCS->musich->playMusicFromSet("battle", true, true);
 }
 
 void BattleInterface::openingEnd()

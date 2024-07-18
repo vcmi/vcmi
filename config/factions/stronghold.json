@@ -117,7 +117,7 @@
 				"dwellingUpLvl7": { "animation" : "TBSTUP_6.def", "x" : 604, "y" : 0,   "border" : "TOSBEH2A.bmp", "area" : "TZSBEH2A.bmp" }
 			},
 
-			"musicTheme" : "music/Stronghold",
+			"musicTheme" : [ "music/Stronghold" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",

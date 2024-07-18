@@ -1,4 +1,6 @@
-## Cheat Codes
+# Cheat Codes
+
+## Codes
 
 Similar to H3, VCMI provides cheat codes to make testing game more convenient.
 

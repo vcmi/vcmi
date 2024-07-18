@@ -15,6 +15,7 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/CConfigHandler.h"
 
 #include <boost/program_options.hpp>
 
@@ -86,12 +87,12 @@ int main(int argc, const char * argv[])
 	{
 		bool connectToLobby = opts.count("lobby");
 		bool runByClient = opts.count("runByClient");
-		uint16_t port = 3030;
+		uint16_t port = settings["server"]["localPort"].Integer();
 		if(opts.count("port"))
 			port = opts["port"].as<uint16_t>();
 
-		CVCMIServer server(port, connectToLobby, runByClient);
-
+		CVCMIServer server(port, runByClient);
+		server.prepare(connectToLobby);
 		server.run();
 
 		// CVCMIServer destructor must be called here - before VLC cleanup

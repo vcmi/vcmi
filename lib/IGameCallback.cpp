@@ -284,6 +284,10 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 			return hero;
 		}
 	}
+	else if(auto army = getArmyInstance(loc.artHolder))
+	{
+		return army->getStackPtr(loc.creature.value());
+	}
 	else if(auto market = dynamic_cast<CGArtifactsAltar*>(getObjInstance(loc.artHolder)))
 	{
 		return market;

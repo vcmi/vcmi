@@ -95,7 +95,7 @@ static JsonNode getFromArchive(CZipLoader & archive, const std::string & archive
 
 	auto data = archive.load(resource)->readAll();
 
-	JsonNode res(reinterpret_cast<const std::byte *>(data.first.get()), data.second);
+	JsonNode res(reinterpret_cast<const std::byte *>(data.first.get()), data.second, resource.getName());
 
 	return res;
 }

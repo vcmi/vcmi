@@ -151,9 +151,13 @@
 					"$ref" : "townSiege.json"
 				},
 				"musicTheme" : {
-					"type" : "string",
-					"description" : "Path to town music theme",
-					"format" : "musicFile"
+					"type" : "array",
+					"description" : "Path to town music themes",
+					"minItems" : 1,
+					"items" : { 
+						"type" : "string",
+						"format" : "musicFile"
+					}
 				},
 				"tavernVideo" : {
 					"type" : "string",

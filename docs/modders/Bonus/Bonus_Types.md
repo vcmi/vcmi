@@ -1,3 +1,5 @@
+# Bonus Types
+
 The bonuses were grouped according to their original purpose. The bonus system allows them to propagate freely between the nodes, however they may not be recognized properly beyond the scope of original use.
 
 ## General-purpose bonuses

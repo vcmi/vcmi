@@ -176,9 +176,9 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		initAOHbackpack(requiredSlots, false);
 		auto artPlace = backpack.begin();
 		for(auto & art : filteredArts)
-			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second));
+			setSlotData(*artPlace++, curHero->getArtPos(art.second));
 		for(auto & art : filteredScrolls)
-			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second));
+			setSlotData(*artPlace++, curHero->getArtPos(art.second));
 	}
 }
 

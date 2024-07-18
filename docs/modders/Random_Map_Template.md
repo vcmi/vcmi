@@ -1,3 +1,5 @@
+# Random Map Template
+
 ## Template format
 
 ``` javascript
