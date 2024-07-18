@@ -1,4 +1,4 @@
-# Building iOS
+# Building VCMI for iOS
 
 ## Requirements
 

@@ -1,6 +1,4 @@
-# Building Linux
-
-## Compiling VCMI
+# Building VCMI for Linux
 
 - Current baseline requirement for building is Ubuntu 20.04
 - Supported C++ compilers for UNIX-like systems are GCC 9+ and Clang 13+
@@ -43,7 +41,7 @@ NOTE: `fuzzylite-devel` package is no longer available in recent version of Fedo
 
 On Arch-based distributions, there is a development package available for VCMI on the AUR.
 
-It can be found at: <https://aur.archlinux.org/packages/vcmi-git/>
+It can be found at https://aur.archlinux.org/packages/vcmi-git/
 
 Information about building packages from the Arch User Repository (AUR) can be found at the Arch wiki.
 
@@ -51,13 +49,13 @@ Information about building packages from the Arch User Repository (AUR) can be f
 
 We recommend the following directory structure:
 
-    .
-    ├── vcmi -> contains sources and is under git control
-    └── build -> contains build output, makefiles, object files,...
+```
+.
+├── vcmi -> contains sources and is under git control
+└── build -> contains build output, makefiles, object files,...
+```
 
-Out-of-source builds keep the local repository clean so one doesn't have to manually exclude files generated during the build from commits.
-
-You can get latest sources with:
+You can get the latest source code with:
 
 `git clone -b develop --recursive https://github.com/vcmi/vcmi.git`
 
@@ -66,28 +64,27 @@ You can get latest sources with:
 ### Configuring Makefiles
 
 ```sh
-mkdir build && cd build
+mkdir build
+cd build
 cmake -S ../vcmi
 ```
 
-## Additional options that you may want to use:
+> [!NOTE]
+> The `../vcmi` is not a typo, it will place Makefiles into the build dir as the build dir is your working dir when calling CMake.
 
-### To enable debugging:
-`cmake -S ../vcmi -D CMAKE_BUILD_TYPE=Debug`
-
-**Notice**: The ../vcmi/ is not a typo, it will place makefile scripts into the build dir as the build dir is your working dir when calling CMake.
-
-### To use ccache:
-`cmake -S ../vcmi -D ENABLE_CCACHE:BOOL=ON`
+See [CMake](CMake.md) for a list of options
 
 ### Trigger build
 
-`cmake --build . -- -j2`
-(-j2 = compile with 2 threads, you can specify any value)
+```
+cmake --build . -j8
+```
 
-That will generate vcmiclient, vcmiserver, vcmilauncher as well as .so libraries in the **build/bin/** directory.
+(-j8 = compile with 8 threads, you can specify any value. )
 
-## Package building
+This will generate `vcmiclient`, `vcmiserver`, `vcmilauncher` as well as .so libraries in the `build/bin/` directory.
+
+## Packaging
 
 ### RPM package
 
@@ -99,7 +96,8 @@ The first step is to prepare a RPM build environment. On Fedora systems you can 
 sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 ```
 
-NOTE: the stock ffmpeg from Fedora repo is no good as it has stripped lots of codecs
+> [!NOTE]
+> The stock ffmpeg from Fedora repo is no good as it lacks a lots of codecs
 
 1. Perform a git clone from a tagged branch for the right Fedora version from https://github.com/rpmfusion/vcmi; for example for Fedora 38: <pre>git clone -b f38 --single-branch https://github.com/rpmfusion/vcmi.git</pre>
 

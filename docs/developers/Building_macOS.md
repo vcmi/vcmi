@@ -1,4 +1,4 @@
-# Building macOS
+# Building VCMI for macOS
 
 ## Requirements
 

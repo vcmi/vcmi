@@ -1,6 +1,7 @@
-# Building Windows
+# Building VCMI for Windows
 
 ## Preparations
+
 Windows builds can be made in more than one way and with more than one tool. This guide focuses on the simplest building process using Microsoft Visual Studio 2022
 
 ## Prerequisites
