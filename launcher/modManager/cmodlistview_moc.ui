@@ -14,6 +14,9 @@
    <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0,0">
      <item>
@@ -117,17 +120,17 @@
       </sizepolicy>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="handleWidth">
       <number>12</number>
      </property>
      <widget class="QTreeView" name="allModsView">
       <property name="selectionMode">
-       <enum>QAbstractItemView::SingleSelection</enum>
+       <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
       </property>
       <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
+       <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
       </property>
       <property name="iconSize">
        <size>
@@ -136,10 +139,10 @@
        </size>
       </property>
       <property name="verticalScrollMode">
-       <enum>QAbstractItemView::ScrollPerItem</enum>
+       <enum>QAbstractItemView::ScrollMode::ScrollPerItem</enum>
       </property>
       <property name="horizontalScrollMode">
-       <enum>QAbstractItemView::ScrollPerPixel</enum>
+       <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
       </property>
       <property name="sortingEnabled">
        <bool>true</bool>
@@ -191,7 +194,9 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 hr { height: 1px; border-width: 0; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+li.unchecked::marker { content: &quot;\2610&quot;; }
+li.checked::marker { content: &quot;\2612&quot;; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Inter'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="openExternalLinks">
@@ -246,13 +251,13 @@ hr { height: 1px; border-width: 0; }
         <item row="0" column="0">
          <widget class="QListWidget" name="screenshotsList">
           <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
+           <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
           </property>
           <property name="selectionMode">
-           <enum>QAbstractItemView::NoSelection</enum>
+           <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
           </property>
           <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
           </property>
           <property name="iconSize">
            <size>
@@ -261,7 +266,7 @@ hr { height: 1px; border-width: 0; }
            </size>
           </property>
           <property name="viewMode">
-           <enum>QListView::IconMode</enum>
+           <enum>QListView::ViewMode::IconMode</enum>
           </property>
           <property name="uniformItemSizes">
            <bool>true</bool>
@@ -372,10 +377,6 @@ hr { height: 1px; border-width: 0; }
        <property name="text">
         <string>Install from file</string>
        </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>icons:mod-download.png</normaloff>icons:mod-download.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>20</width>
@@ -387,10 +388,10 @@ hr { height: 1px; border-width: 0; }
      <item>
       <spacer name="modButtonSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeType">
-        <enum>QSizePolicy::MinimumExpanding</enum>
+        <enum>QSizePolicy::Policy::MinimumExpanding</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
