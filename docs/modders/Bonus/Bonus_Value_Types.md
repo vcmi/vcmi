@@ -1,3 +1,5 @@
+# Bonus Value Types
+
 Total value of Bonus is calculated using the following:
 
 -   For each bonus source type we calculate new source value (for all bonus value types except PERCENT_TO_SOURCE and PERCENT_TO_TARGET_TYPE) using the following:

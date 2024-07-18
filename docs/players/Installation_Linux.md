@@ -1,6 +1,8 @@
+# Installation Linux
+
 VCMI requires data from original Heroes 3: Shadow of Death or Complete editions. Data from native Linux version made by LOKI will not work.
 
-# Step 1: Binaries installation
+## Step 1: Binaries installation
 
 ### Ubuntu - Latest stable build from PPA (recommended)
 

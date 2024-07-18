@@ -1,3 +1,5 @@
+# Hero Type Format
+
 ## Required data
 
 In order to make functional hero you also need:

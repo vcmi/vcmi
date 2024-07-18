@@ -28,7 +28,16 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	info->identifier = identifier;
 	info->modScope = scope;
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
-	info->musicFilename = AudioPath::fromJson(json["music"]);
+	if (json["music"].isVector())
+	{
+		for (auto const & entry : json["music"].Vector())
+			info->musicFilename.push_back(AudioPath::fromJson(entry));
+	}
+	else
+	{
+		info->musicFilename.push_back(AudioPath::fromJson(json["music"]));
+	}
+
 	info->tilesFilename = AnimationPath::fromJson(json["tiles"]);
 	info->horseSound = AudioPath::fromJson(json["horseSound"]);
 	info->horseSoundPenalty = AudioPath::fromJson(json["horseSoundPenalty"]);

@@ -1,3 +1,5 @@
+# Boat
+
 ``` javascript
 {
 	// Layer on which this boat moves. Possible values:

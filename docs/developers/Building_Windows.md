@@ -1,7 +1,10 @@
-# Preparations
+# Building VCMI for Windows
+
+## Preparations
+
 Windows builds can be made in more than one way and with more than one tool. This guide focuses on the simplest building process using Microsoft Visual Studio 2022
 
-# Prerequisites
+## Prerequisites
 
 - Windows Vista or newer.
 - [Microsoft Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -12,7 +15,7 @@ Windows builds can be made in more than one way and with more than one tool. Thi
     - To create installer: [NSIS](http://nsis.sourceforge.net/Main_Page)
     - To speed up recompilation: [CCache](https://github.com/ccache/ccache/releases)
 
-## Choose an installation directory
+### Choose an installation directory
 
 Create a directory for VCMI development, eg. `C:\VCMI` We will call this directory `%VCMI_DIR%`
 
@@ -27,13 +30,13 @@ Bad locations:
 - `C:\Users\Michał\VCMI (non-ascii character)`
 - `C:\Program Files (x86)\VCMI (write protection)`
 
-# Install VCMI dependencies
+## Install VCMI dependencies
 
 You have two options: to use pre-built libraries or build your own. We strongly recommend start with using pre-built ones.
 
-## Option A. Use pre-built Vcpkg
+### Option A. Use pre-built Vcpkg
 
-### Download and unpack archive
+#### Download and unpack archive
 
 Vcpkg Archives are available at our GitHub: https://github.com/vcmi/vcmi-deps-windows/releases
 
@@ -41,18 +44,18 @@ Vcpkg Archives are available at our GitHub: https://github.com/vcmi/vcmi-deps-wi
 EG: v1.6 assets - [vcpkg-export-x64-windows-v143.7z](https://github.com/vcmi/vcmi-deps-windows/releases/download/v1.6/vcpkg-export-x64-windows-v143.7z)  
 - Extract archive by right clicking on it and choosing "7-zip -> Extract Here".
 
-### Move dependencies to target directory
+#### Move dependencies to target directory
 Once extracted, a `vcpkg` directory will appear with `installed` and `scripts` subfolders inside.
 Move extracted `vcpkg` directory into your `%VCMI_DIR%`
 
-## Option B. Build Vcpkg on your own
+### Option B. Build Vcpkg on your own
 
 Please be aware that if you're running 32-bit Windows version, then this is impossible due to <https://github.com/microsoft/vcpkg/issues/26036>
 Be aware that building Vcpkg might take a lot of time depend on your CPU model and 10-20GB of disk space.
 
-### Create initial directory
+#### Create initial directory
 
-### Clone vcpkg
+#### Clone vcpkg
 
 1.  open SourceTree
 2.  File -\> Clone
@@ -64,7 +67,7 @@ From command line use:
 
     git clone https://github.com/microsoft/vcpkg.git %VCMI_DIR%/vcpkg
 
-### Build vcpkg and dependencies
+#### Build vcpkg and dependencies
 
 - Run 
 `%VCMI_DIR%/vcpkg/bootstrap-vcpkg.bat`
@@ -75,11 +78,11 @@ From command line use:
 
 For the list of the packages used you can also consult [vcmi-deps-windows readme](https://github.com/vcmi/vcmi-deps-windows) in case this article gets outdated a bit.
 
-# Install CCache
+## Install CCache
 
 Extract `ccache` to a folder of your choosing, add the folder to the `PATH` environment variable and log out and back in.
 
-# Build VCMI
+## Build VCMI
 
 #### From GIT GUI
 - Open SourceTree
@@ -93,13 +96,13 @@ Extract `ccache` to a folder of your choosing, add the folder to the `PATH` envi
 #### From command line  
 - `git clone --recursive https://github.com/vcmi/vcmi.git %VCMI_DIR%/source`  
 
-## Generate solution for VCMI  
+### Generate solution for VCMI  
 - Create `%VCMI_DIR%/build` folder  
 - Open a command line prompt at `%VCMI_DIR%/build`  
 - Execute `cd %VCMI_DIR%/build`    
 - Create solution (Visual Studio 2022 64-bit) `cmake %VCMI_DIR%/source -DCMAKE_TOOLCHAIN_FILE=%VCMI_DIR%/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Visual Studio 17 2022" -A x64`
 
-## Compile VCMI with Visual Studio
+### Compile VCMI with Visual Studio
 - Open `%VCMI_DIR%/build/VCMI.sln` in Visual Studio
 - Select `Release` build type in the combobox
 - If you want to use ccache:
@@ -109,7 +112,7 @@ Extract `ccache` to a folder of your choosing, add the folder to the `PATH` envi
 - Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer.
 - VCMI will be built in `%VCMI_DIR%/build/bin` folder!
 
-## Compile VCMI with MinGW via MSYS2
+### Compile VCMI with MinGW via MSYS2
 - Install MSYS2 from https://www.msys2.org/
 - Start the `MSYS MinGW x64`-shell
 - Install dependencies: `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-static`
@@ -117,7 +120,7 @@ Extract `ccache` to a folder of your choosing, add the folder to the `PATH` envi
 
 **NOTE:** This will link Qt5 statically to `VCMI_launcher.exe` and `VCMI_Mapeditor.exe`. See [PR #3421](https://github.com/vcmi/vcmi/pull/3421) for some background.
 
-# Create VCMI installer (This step is not required for just building & development)
+## Create VCMI installer (This step is not required for just building & development)
 
 Make sure NSIS is installed to default directory or have registry entry so CMake can find it.
 After you build VCMI execute following commands from `%VCMI_DIR%/build`.
@@ -125,7 +128,7 @@ After you build VCMI execute following commands from `%VCMI_DIR%/build`.
 - for release build: `cpack`
 - for debug build: `cpack -C Debug`
 
-# Troubleshooting and workarounds
+## Troubleshooting and workarounds
 
 Vcpkg might be very unstable due to limited popularity and fact of using bleeding edge packages (such as most recent Boost). Using latest version of dependencies could also expose both problems in VCMI code or library interface changes that developers not checked yet. So if you're built Vcpkg yourself and can't get it working please try to use binary package.
 

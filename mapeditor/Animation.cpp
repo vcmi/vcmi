@@ -599,7 +599,7 @@ void Animation::init()
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), resID.getName());
 
 		initFromJson(config);
 	}

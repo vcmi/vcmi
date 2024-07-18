@@ -1,3 +1,5 @@
+# Game Mechanics
+
 ## List of features added in VCMI
 
 ### High resolutions

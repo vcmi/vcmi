@@ -1,3 +1,5 @@
+# Bonus Propagators
+
 ## Available propagators
 
 -   BATTLE_WIDE: Affects both sides during battle

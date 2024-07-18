@@ -1,9 +1,11 @@
+# Building Bonuses
+
 Work-in-progress page do describe all bonuses provided by town buildings
 for future configuration.
 
 TODO: This page is outdated and may not represent VCMI 1.3 state
 
-## unique buildings
+### unique buildings
 
 Hardcoded functionalities, selectable but not configurable. In future
 should be moved to scripting.
@@ -24,7 +26,7 @@ Function of all of these objects can be enabled by this:
  "function" : "castleGates" 
 ```
 
-## trade-related
+### trade-related
 
 Hardcoded functionality for now due to complexity of these objects.
 Temporary can be handles as unique buildings. Includes:
@@ -37,7 +39,7 @@ Temporary can be handles as unique buildings. Includes:
 -   resource - skills
 -   creature - skeleton
 
-## hero visitables
+### hero visitables
 
 Buildings that give one or another bonus to visiting hero. All should be
 handled via configurable objects system.
@@ -49,76 +51,76 @@ Includes:
 -   give bonus to visitor
 -   permanent bonus to hero
 
-## generic functions
+### generic functions
 
 Generic town-specific functions that can be implemented as part of
 CBuilding class.
 
-### unlock guild level
+#### unlock guild level
 
 ``` javascript
  "guildLevels" : 1 
 ```
 
-### unlock hero recruitment
+#### unlock hero recruitment
 
 ``` javascript
  "allowsHeroPurchase" : true 
 ```
 
-### unlock ship purchase
+#### unlock ship purchase
 
 ``` javascript
  "allowsShipPurchase" : true 
 ```
 
-### unlock building purchase
+#### unlock building purchase
 
 ``` javascript
  "allowsBuildingPurchase" : true 
 ```
 
-### unlocks creatures
+#### unlocks creatures
 
 ``` javascript
  "dwelling" : { "level" : 1, "creature" : "archer" } 
 ```
 
-### creature growth bonus
+#### creature growth bonus
 
 Turn into town bonus? What about creature-specific bonuses from hordes?
 
-### gives resources
+#### gives resources
 
 ``` javascript
  "provides" : { "gold" : 500 } 
 ```
 
-### gives guild spells
+#### gives guild spells
 
 ``` javascript
  "guildSpells" : [5, 0, 0, 0, 0] 
 ```
 
-### gives thieves guild
+#### gives thieves guild
 
 ``` javascript
  "thievesGuildLevels" : 1 
 ```
 
-### gives fortifications
+#### gives fortifications
 
 ``` javascript
  "fortificationLevels" : 1 
 ```
 
-### gives war machine
+#### gives war machine
 
 ``` javascript
  "warMachine" : "ballista" 
 ```
 
-## simple bonuses
+### simple bonuses
 
 Bonuses that can be made part of CBuilding. Note that due to how bonus
 system works this bonuses won't be stackable.
@@ -149,12 +151,12 @@ Includes:
 	}
 ```
 
-## misc
+### misc
 
 Some other properties of town building that does not fall under "bonus"
 category.
 
-### unique building
+#### unique building
 
 Possible issue - with removing of fixed ID's buildings in different town
 may no longer share same ID. However Capitol must be unique across all
@@ -164,7 +166,7 @@ town. Should be fixed somehow.
  "onePerPlayer" : true 
 ```
 
-### chance to be built on start
+#### chance to be built on start
 
 ``` javascript
  "prebuiltChance" : 75 

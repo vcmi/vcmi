@@ -67,7 +67,7 @@ void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnec
 {
 	if (connection == controlConnection)
 	{
-		JsonNode json(message.data(), message.size());
+		JsonNode json(message.data(), message.size(), "<lobby network packet>");
 
 		if(json["type"].String() == "operationFailed")
 			return receiveOperationFailed(json);

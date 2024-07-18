@@ -47,7 +47,7 @@
 
 BattleWindow::BattleWindow(BattleInterface & Owner):
 	owner(Owner),
-	defaultAction(PossiblePlayerBattleAction::INVALID)
+	lastAlternativeAction(PossiblePlayerBattleAction::INVALID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.w = 800;
@@ -660,14 +660,18 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 
 void BattleWindow::setAlternativeActions(const std::list<PossiblePlayerBattleAction> & actions)
 {
+	assert(actions.size() != 1);
+
 	alternativeActions = actions;
-	defaultAction = PossiblePlayerBattleAction::INVALID;
+	lastAlternativeAction = PossiblePlayerBattleAction::INVALID;
+
 	if(alternativeActions.size() > 1)
-		defaultAction = alternativeActions.back();
-	if(!alternativeActions.empty())
+	{
+		lastAlternativeAction = alternativeActions.back();
 		showAlternativeActionIcon(alternativeActions.front());
+	}
 	else
-		showAlternativeActionIcon(defaultAction);
+		showAlternativeActionIcon(PossiblePlayerBattleAction::INVALID);
 }
 
 void BattleWindow::bAutofightf()
@@ -762,23 +766,18 @@ void BattleWindow::bSwitchActionf()
 {
 	if(alternativeActions.empty())
 		return;
-	
-	if(alternativeActions.front() == defaultAction)
-	{
-		alternativeActions.push_back(alternativeActions.front());
-		alternativeActions.pop_front();
-	}
-	
+
 	auto actions = owner.actionsController->getPossibleActions();
-	if(!actions.empty() && actions.front() == alternativeActions.front())
+
+	if(!actions.empty() && actions.front() != lastAlternativeAction)
 	{
 		owner.actionsController->removePossibleAction(alternativeActions.front());
-		showAlternativeActionIcon(defaultAction);
+		showAlternativeActionIcon(*std::next(alternativeActions.begin()));
 	}
 	else
 	{
-		owner.actionsController->pushFrontPossibleAction(alternativeActions.front());
-		showAlternativeActionIcon(alternativeActions.front());
+		owner.actionsController->resetCurrentStackPossibleActions();
+		showAlternativeActionIcon(owner.actionsController->getPossibleActions().front());
 	}
 	
 	alternativeActions.push_back(alternativeActions.front());

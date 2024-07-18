@@ -1,3 +1,5 @@
+# Map Object Format
+
 ## Description
 
 Full object consists from 3 parts:
@@ -57,6 +59,9 @@ Full object consists from 3 parts:
 
 		// How valuable this object is to AI
 		"aiValue" : 1000,
+		
+		// Battleground that will be used for combats in this object. Overrides terrain this object was placed on
+		"battleground" : "cursed_ground",
 		
 		// Sounds assigned to this object
 		"sounds" : {

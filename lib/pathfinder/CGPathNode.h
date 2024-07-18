@@ -59,18 +59,22 @@ enum class EPathNodeAction : ui8
 
 struct DLL_LINKAGE CGPathNode
 {
+	using TFibHeap = boost::heap::fibonacci_heap<CGPathNode *, boost::heap::compare<NodeComparer<CGPathNode>>>;
 	using ELayer = EPathfindingLayer;
 
+	TFibHeap::handle_type pqHandle;
+	TFibHeap * pq;
 	CGPathNode * theNodeBefore;
+
 	int3 coord; //coordinates
 	ELayer layer;
+
+	float cost; //total cost of the path to this tile measured in turns with fractions
 	int moveRemains; //remaining movement points after hero reaches the tile
 	ui8 turns; //how many turns we have to wait before reaching the tile - 0 means current turn
-
 	EPathAccessibility accessible;
 	EPathNodeAction action;
 	bool locked;
-	bool inPQ;
 
 	CGPathNode()
 		: coord(-1),
@@ -89,9 +93,14 @@ struct DLL_LINKAGE CGPathNode
 		cost = std::numeric_limits<float>::max();
 		turns = 255;
 		theNodeBefore = nullptr;
-		action = EPathNodeAction::UNKNOWN;
-		inPQ = false;
 		pq = nullptr;
+		action = EPathNodeAction::UNKNOWN;
+	}
+
+	STRONG_INLINE
+	bool inPQ() const
+	{
+		return pq != nullptr;
 	}
 
 	STRONG_INLINE
@@ -109,7 +118,7 @@ struct DLL_LINKAGE CGPathNode
 		bool getUpNode = value < cost;
 		cost = value;
 		// If the node is in the heap, update the heap.
-		if(inPQ && pq != nullptr)
+		if(inPQ())
 		{
 			if(getUpNode)
 			{
@@ -155,14 +164,6 @@ struct DLL_LINKAGE CGPathNode
 
 		return true;
 	}
-
-	using TFibHeap = boost::heap::fibonacci_heap<CGPathNode *, boost::heap::compare<NodeComparer<CGPathNode>>>;
-
-	TFibHeap::handle_type pqHandle;
-	TFibHeap* pq;
-
-private:
-	float cost; //total cost of the path to this tile measured in turns with fractions
 };
 
 struct DLL_LINKAGE CGPath

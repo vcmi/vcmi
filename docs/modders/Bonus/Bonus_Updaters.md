@@ -1,3 +1,5 @@
+# Bonus Updaters
+
 TODO: this page may be incorrect or outdated
 
 Updaters come in two forms: simple and complex. Simple updaters take no

@@ -118,7 +118,7 @@
 				"dwellingUpLvl7": { "animation" : "TBTWUP_6.def", "x" : 75,  "y" : 91,  "z" : -1, "border" : "TOTTIT2.bmp",  "area" : "TZTTIT2.bmp" }
 			},
 
-			"musicTheme" : "music/TowerTown",
+			"musicTheme" : [ "music/TowerTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",

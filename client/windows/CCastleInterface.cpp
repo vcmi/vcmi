@@ -430,7 +430,7 @@ void CHeroGSlot::clickPressed(const Point & cursorPosition)
 	{
 		setHighlight(false);
 
-		if(other->hero)
+		if(other->hero && !GH.isKeyboardShiftDown())
 			LOCPLINT->showHeroExchange(hero->id, other->hero->id);
 		else
 			LOCPLINT->openHeroWindow(hero);
@@ -1283,7 +1283,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	recreateIcons();
 	if (!from)
 		adventureInt->onAudioPaused();
-	CCS->musich->playMusic(town->town->clientInfo.musicTheme, true, false);
+	CCS->musich->playMusicFromSet("faction", town->town->faction->getJsonKey(), true, false);
 }
 
 CCastleInterface::~CCastleInterface()

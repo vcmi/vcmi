@@ -44,14 +44,17 @@ enum DayFlags : ui8
 
 struct AIPathNode : public CGPathNode
 {
+	std::shared_ptr<const SpecialAction> specialAction;
+
+	const AIPathNode * chainOther;
+	const ChainActor * actor;
+
 	uint64_t danger;
 	uint64_t armyLoss;
+	uint32_t version;
+
 	int16_t manaCost;
 	DayFlags dayFlags;
-	const AIPathNode * chainOther;
-	std::shared_ptr<const SpecialAction> specialAction;
-	const ChainActor * actor;
-	uint64_t version;
 
 	void addSpecialAction(std::shared_ptr<const SpecialAction> action);
 
@@ -152,7 +155,7 @@ class AISharedStorage
 	std::shared_ptr<boost::multi_array<AIPathNode, 4>> nodes;
 public:
 	static boost::mutex locker;
-	static uint64_t version;
+	static uint32_t version;
 
 	AISharedStorage(int3 mapSize);
 	~AISharedStorage();

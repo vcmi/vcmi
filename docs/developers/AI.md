@@ -1,3 +1,5 @@
+# AI
+
 There are two types of AI: adventure and battle.
 
 **Adventure AIs** are responsible for moving heroes across the map and developing towns  
@@ -15,7 +17,7 @@ When you call unit->getAttack() it summarizes all these bonuses and returns the 
 
 One important class is HypotheticBattle. It is used to evaluate the effects of an action without changing the actual gamestate. It is a wrapper around CPlayerSpecificCallback or another HypotheticBattle so it can provide you data, Internally it has a set of modified unit states and intercepts some calls to underlying callback and returns these internal states instead. These states in turn are wrappers around original units and contain modified bonuses (CStackWithBonuses). So if you need to emulate an attack you can call hypotheticbattle.getforupdate() and it will return the CStackWithBonuses which you can safely change.  
 
-# BattleAI  
+## BattleAI  
 
 BattleAI's most important classes are the following:
 
@@ -31,11 +33,11 @@ BattleAI's most important classes are the following:
 
 BattleAI itself handles all the rest and issues actual commands
 
-# Nullkiller AI
+## Nullkiller AI
 
 Adventure AI responsible for moving heroes on map, gathering things, developing town. Main idea is to gather all possible tasks on map, prioritize them and select the best one for each heroes. Initially was a fork of VCAI
 
-## Parts
+### Parts
 Gateway - a callback for server used to invoke AI actions when server thinks it is time to do something. Through this callback AI is informed about various events like hero level up, tile revialed, blocking dialogs and so on. In order to do this Gaateway implements specific interface. The interface is exactly the same for human and AI
 Another important actor for server interaction is CCallback * cb. This one is used to retrieve gamestate information and ask server to do things like hero moving, spell casting and so on. Each AI has own instance of Gateway and it is a root object which holds all AI state. Gateway has an event method yourTurn which invokes makeTurn in another thread. The last passes control to Nullkiller engine.
 
@@ -58,7 +60,7 @@ Analyzer - a module gathering data from CCallback *. Its goal to make some stati
 * FuzzyEngines - looks like some legacy from VCAI
 * PriorityEvaluator - gathers information on task rewards, evaluates their priority using Fuzzy Light library (fuzzy logic)
 
-## Goals
+### Goals
 Units of activity in AI. Can be AbstractGoal, Task, Marker and Behavior
 
 Task - simple thing which can be done right away in order to gain some reward. Or a composition of simple things in case if more than one action is needed to gain the reward.
