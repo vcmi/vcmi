@@ -111,7 +111,7 @@ void SDLImageConst::draw(SDL_Surface * where, SDL_Palette * palette, const Point
 
 	SDL_SetSurfaceAlphaMod(surf, alpha);
 
-	if (mode != EImageBlitMode::OPAQUE && surf->format->Amask != 0)
+	if (alpha != SDL_ALPHA_OPAQUE || (mode != EImageBlitMode::OPAQUE && surf->format->Amask != 0))
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
 	else
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
@@ -119,7 +119,7 @@ void SDLImageConst::draw(SDL_Surface * where, SDL_Palette * palette, const Point
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	if(surf->format->BitsPerPixel == 8 && alpha == SDL_ALPHA_OPAQUE && mode == EImageBlitMode::ALPHA)
+	if(surf->format->palette && alpha == SDL_ALPHA_OPAQUE && mode == EImageBlitMode::ALPHA)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift);
 	}

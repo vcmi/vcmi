@@ -318,7 +318,7 @@ bool CAnimImage::isPlayerColored() const
 }
 
 CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
-	anim(GH.renderHandler().loadAnimation(name, EImageBlitMode::ALPHA)),
+	anim(GH.renderHandler().loadAnimation(name, (Flags & PALETTE_ALPHA) ? EImageBlitMode::ALPHA : EImageBlitMode::COLORKEY)),
 	group(Group),
 	frame(0),
 	first(0),
@@ -451,7 +451,7 @@ void CShowableAnim::setDuration(int durationMs)
 }
 
 CCreatureAnim::CCreatureAnim(int x, int y, const AnimationPath & name, ui8 flags, ECreatureAnimType type):
-	CShowableAnim(x, y, name, flags, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
+	CShowableAnim(x, y, name, flags | PALETTE_ALPHA, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
 {
 	xOffset = 0;
 	yOffset = 0;
