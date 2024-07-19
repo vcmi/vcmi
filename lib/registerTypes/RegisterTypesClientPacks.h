@@ -12,6 +12,7 @@
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/SetStackEffect.h"
+#include "../networkPacks/SetRewardableConfiguration.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -119,6 +120,9 @@ void registerTypesClientPacks(Serializer &s)
 	s.template registerType<CPackForClient, PlayerMessageClient>();
 	s.template registerType<CGarrisonOperationPack, BulkRebalanceStacks>();
 	s.template registerType<CGarrisonOperationPack, BulkSmartRebalanceStacks>();
+
+	s.template registerType<SetRewardableConfiguration, CPackForClient>();
+	s.template registerType<SetBankConfiguration, CPackForClient>();
 }
 
 VCMI_LIB_NAMESPACE_END

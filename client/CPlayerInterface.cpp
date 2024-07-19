@@ -70,6 +70,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/CStack.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/CThreadHelper.h"
@@ -413,8 +414,9 @@ void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectI
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(start && visitedObj)
 	{
-		if(visitedObj->getVisitSound())
-			CCS->soundh->playSound(visitedObj->getVisitSound().value());
+		auto visitSound = visitedObj->getVisitSound(CRandomGenerator::getDefault());
+		if (visitSound)
+			CCS->soundh->playSound(visitSound.value());
 	}
 }
 
@@ -1410,10 +1412,14 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(playerID == initiator && obj->getRemovalSound())
+	if(playerID == initiator)
 	{
-		waitWhileDialog();
-		CCS->soundh->playSound(obj->getRemovalSound().value());
+		auto removalSound = obj->getRemovalSound(CRandomGenerator::getDefault());
+		if (removalSound)
+		{
+			waitWhileDialog();
+			CCS->soundh->playSound(removalSound.value());
+		}
 	}
 	CGI->mh->waitForOngoingAnimations();
 

@@ -74,7 +74,7 @@ void DwellingInstanceConstructor::initializeObject(CGDwelling * obj) const
 	}
 }
 
-void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, CRandomGenerator &rng) const
+void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, vstd::RNG &rng) const
 {
 	JsonRandom randomizer(dwelling->cb);
 

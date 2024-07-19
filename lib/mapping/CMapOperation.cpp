@@ -12,11 +12,12 @@
 #include "CMapOperation.h"
 
 #include "../VCMI_Lib.h"
-#include "../CRandomGenerator.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "CMap.h"
 #include "MapEditUtils.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -87,7 +88,7 @@ void CComposedOperation::addOperation(std::unique_ptr<CMapOperation>&& operation
 	operations.push_back(std::move(operation));
 }
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, CRandomGenerator * gen):
+CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, vstd::RNG * gen):
 	CMapOperation(map),
 	terrainSel(std::move(terrainSel)),
 	terType(terType),
@@ -560,7 +561,7 @@ CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, std::stri
 
 }
 
-CClearTerrainOperation::CClearTerrainOperation(CMap* map, CRandomGenerator* gen) : CComposedOperation(map)
+CClearTerrainOperation::CClearTerrainOperation(CMap* map, vstd::RNG* gen) : CComposedOperation(map)
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));

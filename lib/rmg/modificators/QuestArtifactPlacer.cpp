@@ -17,7 +17,9 @@
 #include "../../VCMI_Lib.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../mapObjects/MapObjects.h" 
+#include "../../mapObjects/MapObjects.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -95,7 +97,7 @@ void QuestArtifactPlacer::findZonesForQuestArts()
 	logGlobal->trace("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
 }
 
-void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
+void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 {
 	for (const auto & artifactToPlace : questArtifactsToPlace)
 	{

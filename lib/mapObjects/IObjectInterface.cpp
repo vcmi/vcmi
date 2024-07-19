@@ -38,13 +38,13 @@ void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
 void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::newTurn(CRandomGenerator & rand) const
+void IObjectInterface::newTurn(vstd::RNG & rand) const
 {}
 
-void IObjectInterface::initObj(CRandomGenerator & rand)
+void IObjectInterface::initObj(vstd::RNG & rand)
 {}
 
-void IObjectInterface::pickRandomObject(CRandomGenerator & rand)
+void IObjectInterface::pickRandomObject(vstd::RNG & rand)
 {}
 
 void IObjectInterface::setProperty(ObjProperty what, ObjPropertyID identifier)

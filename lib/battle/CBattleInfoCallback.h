@@ -23,8 +23,12 @@ class SpellCastEnvironment;
 class CSpell;
 struct CObstacleInstance;
 class IBonusBearer;
-class CRandomGenerator;
 class PossiblePlayerBattleAction;
+
+namespace vstd
+{
+class RNG;
+}
 
 namespace spells
 {
@@ -116,8 +120,8 @@ public:
 	int32_t battleGetSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const; //returns true if there are no general issues preventing from casting a spell
 
-	SpellID getRandomBeneficialSpell(CRandomGenerator & rand, const battle::Unit * caster, const battle::Unit * target) const;
-	SpellID getRandomCastedSpell(CRandomGenerator & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
+	SpellID getRandomBeneficialSpell(vstd::RNG & rand, const battle::Unit * caster, const battle::Unit * target) const;
+	SpellID getRandomCastedSpell(vstd::RNG & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
 	std::vector<PossiblePlayerBattleAction> getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data);
 	PossiblePlayerBattleAction getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const;

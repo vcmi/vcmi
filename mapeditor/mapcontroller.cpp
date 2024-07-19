@@ -26,6 +26,7 @@
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "mapview.h"
 #include "scenelayer.h"

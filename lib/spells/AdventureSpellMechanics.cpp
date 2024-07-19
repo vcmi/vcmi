@@ -17,13 +17,14 @@
 
 #include "../CGameInfoCallback.h"
 #include "../CPlayerState.h"
-#include "../CRandomGenerator.h"
 #include "../GameSettings.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../networkPacks/PacksForClient.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -187,7 +188,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 
 	//check if spell works at all
-	if(env->getRNG()->getInt64Range(0, 99)() >= owner->getLevelPower(schoolLevel)) //power is % chance of success
+	if(env->getRNG()->nextInt(0, 99) >= owner->getLevelPower(schoolLevel)) //power is % chance of success
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
@@ -237,12 +238,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	}
 	else //create boat
 	{
-		NewObject no;
-		no.ID = Obj::BOAT;
-		no.subID = BoatId::NECROPOLIS;
-		no.targetPos = summonPos;
-		no.initiator = parameters.caster->getCasterOwner();
-		env->apply(&no);
+		env->createBoat(summonPos, BoatId::NECROPOLIS, parameters.caster->getCasterOwner());
 	}
 	return ESpellCastResult::OK;
 }
@@ -280,7 +276,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 {
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 	//check if spell works at all
-	if(env->getRNG()->getInt64Range(0, 99)() >= owner->getLevelPower(schoolLevel)) //power is % chance of success
+	if(env->getRNG()->nextInt(0, 99) >= owner->getLevelPower(schoolLevel)) //power is % chance of success
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();

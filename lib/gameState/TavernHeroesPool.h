@@ -18,7 +18,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 class CTown;
-class CRandomGenerator;
 class CHeroClass;
 class CGameState;
 class CSimpleArmy;

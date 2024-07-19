@@ -313,13 +313,13 @@ void CGHeroInstance::setHeroType(HeroTypeID heroType)
 	subID = heroType;
 }
 
-void CGHeroInstance::initHero(CRandomGenerator & rand, const HeroTypeID & SUBID)
+void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
 {
 	subID = SUBID.getNum();
 	initHero(rand);
 }
 
-void CGHeroInstance::initHero(CRandomGenerator & rand)
+void CGHeroInstance::initHero(vstd::RNG & rand)
 {
 	assert(validTypes(true));
 	if(!type)
@@ -422,7 +422,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
 
-void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
+void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 {
 	if(!dst)
 		dst = this;
@@ -532,7 +532,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				if (!boat)
 				{
 					//Create a new boat for hero
-					cb->createObject(boatPos, h->getOwner(), Obj::BOAT, getBoatType().getNum());
+					cb->createBoat(boatPos, getBoatType(), h->getOwner());
 					boatId = cb->getTopObj(boatPos)->id;
 				}
 			}
@@ -589,7 +589,7 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 	wisdomCounter = 0;
 }
 
-void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
+void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 {
 	assert(ID == Obj::HERO || ID == Obj::PRISON || ID == Obj::RANDOM_HERO);
 
@@ -612,11 +612,6 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 		setType(ID, type->heroClass->getIndex());
 
 	this->subID = oldSubID;
-}
-
-void CGHeroInstance::initObj(CRandomGenerator & rand)
-{
-
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
@@ -959,7 +954,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
  * @param raisedStack Pair where the first element represents ID of the raised creature
  * and the second element the amount.
  */
-void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const
+void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack, vstd::RNG & rand) const
 {
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
@@ -1068,7 +1063,7 @@ EAlignment CGHeroInstance::getAlignment() const
 	return type->heroClass->getAlignment();
 }
 
-void CGHeroInstance::initExp(CRandomGenerator & rand)
+void CGHeroInstance::initExp(vstd::RNG & rand)
 {
 	exp = rand.nextInt(40, 89);
 }
@@ -1286,7 +1281,7 @@ ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 	return ArtBearer::HERO;
 }
 
-std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(CRandomGenerator & rand) const
+std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(vstd::RNG & rand) const
 {
 	auto getObligatorySkills = [](CSkill::Obligatory obl){
 		std::set<SecondarySkill> obligatory;
@@ -1365,7 +1360,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(CR
 	return skills;
 }
 
-PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
+PrimarySkill CGHeroInstance::nextPrimarySkill(vstd::RNG & rand) const
 {
 	assert(gainsLevel());
 	const auto isLowLevelHero = level < GameConstants::HERO_HIGH_LEVEL;
@@ -1381,7 +1376,7 @@ PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
 	return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(skillChances, rand));
 }
 
-std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerator & rand) const
+std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(vstd::RNG & rand) const
 {
 	assert(gainsLevel());
 
@@ -1469,7 +1464,7 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 	treeHasChanged();
 }
 
-void CGHeroInstance::levelUpAutomatically(CRandomGenerator & rand)
+void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)
 {
 	while(gainsLevel())
 	{

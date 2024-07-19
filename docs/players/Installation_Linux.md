@@ -43,6 +43,15 @@ To install VCMI from repository:
     sudo apt-get update
     sudo apt-get install vcmi
 ```
+
+### Fedora (40 or newer)
+
+Stable VCMI version is available in RPM Fusion repository. Learn how to enable it in [wiki](https://docs.fedoraproject.org/en-US/quick-docs/rpmfusion-setup/). To install VCMI from repository:
+
+```
+    sudo dnf update
+    sudo dnf install vcmi
+```
 ### Flatpak (distribution-agnostic)
 
 Latest public release build can be installed via Flatpak.

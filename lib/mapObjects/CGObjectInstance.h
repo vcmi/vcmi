@@ -97,9 +97,9 @@ public:
 
 	virtual bool isTile2Terrain() const { return false; }
 
-	std::optional<AudioPath> getAmbientSound() const;
-	std::optional<AudioPath> getVisitSound() const;
-	std::optional<AudioPath> getRemovalSound() const;
+	std::optional<AudioPath> getAmbientSound(vstd::RNG & rng) const;
+	std::optional<AudioPath> getVisitSound(vstd::RNG & rng) const;
+	std::optional<AudioPath> getRemovalSound(vstd::RNG & rng) const;
 
 	TObjectTypeHandler getObjectHandler() const;
 
@@ -128,8 +128,8 @@ public:
 
 	/** OVERRIDES OF IObjectInterface **/
 
-	void initObj(CRandomGenerator & rand) override;
-	void pickRandomObject(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
+	void pickRandomObject(vstd::RNG & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
 	void setProperty(ObjProperty what, ObjPropertyID identifier) final;

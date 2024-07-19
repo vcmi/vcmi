@@ -25,6 +25,7 @@ class BinaryDeserializer;
 class BinarySerializer;
 class BattleAction;
 class BattleInfo;
+struct BankConfig;
 
 template<typename T> class CApplier;
 
@@ -161,7 +162,7 @@ public:
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> & spells) override {};
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;};
-	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
+	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs = false) override {};
@@ -214,9 +215,14 @@ public:
 
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override {};
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {};
+	void setBankObjectConfiguration(ObjectInstanceID objid, const BankConfig & configuration) override {};
+	void setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration) override {};
+	void setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration) override{};
 
 	void showInfoDialog(InfoWindow * iw) override {};
 	void removeGUI() const;
+
+	vstd::RNG & getRandomGenerator() override;
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;

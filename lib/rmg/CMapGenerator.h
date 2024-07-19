@@ -11,7 +11,6 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "../CRandomGenerator.h"
 #include "CMapGenOptions.h"
 #include "../int3.h"
 #include "CRmgTemplate.h"
@@ -79,7 +78,7 @@ public:
 	int getRandomSeed() const;
 	
 private:
-	CRandomGenerator rand;
+	std::unique_ptr<vstd::RNG> rand;
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;
 	Config config;
