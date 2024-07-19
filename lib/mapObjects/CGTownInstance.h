@@ -201,11 +201,11 @@ public:
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides
-	void newTurn(CRandomGenerator & rand) const override;
+	void newTurn(vstd::RNG & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void onHeroLeave(const CGHeroInstance * h) const override;
-	void initObj(CRandomGenerator & rand) override;
-	void pickRandomObject(CRandomGenerator & rand) override;
+	void initObj(vstd::RNG & rand) override;
+	void pickRandomObject(vstd::RNG & rand) override;
 	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
 
@@ -224,14 +224,14 @@ protected:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 private:
-	FactionID randomizeFaction(CRandomGenerator & rand);
+	FactionID randomizeFaction(vstd::RNG & rand);
 	void setOwner(const PlayerColor & owner) const;
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	bool isBonusingBuildingAdded(BuildingID bid) const;
 	void initOverriddenBids();
-	void addTownBonuses(CRandomGenerator & rand);
+	void addTownBonuses(vstd::RNG & rand);
 };
 
 VCMI_LIB_NAMESPACE_END

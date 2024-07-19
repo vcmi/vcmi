@@ -658,11 +658,11 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	text.appendLocalString(EMetaText::GENERAL_TXT, 216);
 	
 	std::string extraText;
-	if(gs->rumor.type == RumorState::TYPE_NONE)
+	if(gs->currentRumor.type == RumorState::TYPE_NONE)
 		return text.toString();
 
-	auto rumor = gs->rumor.last[gs->rumor.type];
-	switch(gs->rumor.type)
+	auto rumor = gs->currentRumor.last[gs->currentRumor.type];
+	switch(gs->currentRumor.type)
 	{
 	case RumorState::TYPE_SPECIAL:
 		text.replaceLocalString(EMetaText::GENERAL_TXT, rumor.first);

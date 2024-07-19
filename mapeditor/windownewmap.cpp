@@ -17,6 +17,7 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
 

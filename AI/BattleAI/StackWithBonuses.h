@@ -21,23 +21,43 @@
 class HypotheticBattle;
 
 ///Fake random generator, used by AI to evaluate random server behavior
-class RNGStub : public vstd::RNG
+class RNGStub final : public vstd::RNG
 {
 public:
-	vstd::TRandI64 getInt64Range(int64_t lower, int64_t upper) override
+	virtual int nextInt() override
 	{
-		return [=]()->int64_t
-		{
-			return (lower + upper)/2;
-		};
+		return 0;
 	}
 
-	vstd::TRand getDoubleRange(double lower, double upper) override
+	int nextBinomialInt(int coinsCount, double coinChance) override
 	{
-		return [=]()->double
-		{
-			return (lower + upper)/2;
-		};
+		return coinsCount * coinChance;
+	}
+
+	int nextInt(int lower, int upper) override
+	{
+		return (lower + upper) / 2;
+	}
+	int64_t nextInt64(int64_t lower, int64_t upper) override
+	{
+		return (lower + upper) / 2;
+	}
+	double nextDouble(double lower, double upper) override
+	{
+		return (lower + upper) / 2;
+	}
+
+	int nextInt(int upper) override
+	{
+		return upper / 2;
+	}
+	int64_t nextInt64(int64_t upper) override
+	{
+		return upper / 2;
+	}
+	double nextDouble(double upper) override
+	{
+		return upper / 2;
 	}
 };
 

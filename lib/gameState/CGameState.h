@@ -9,11 +9,12 @@
  */
 #pragma once
 
-#include "bonuses/CBonusSystemNode.h"
-#include "IGameCallback.h"
-#include "LoadProgress.h"
-#include "ConstTransitivePtr.h"
-#include "../CRandomGenerator.h"
+#include "../bonuses/CBonusSystemNode.h"
+#include "../IGameCallback.h"
+#include "../LoadProgress.h"
+#include "../ConstTransitivePtr.h"
+
+#include "RumorState.h"
 
 namespace boost
 {
@@ -34,38 +35,10 @@ class CStackInstance;
 class CGameStateCampaign;
 class TavernHeroesPool;
 struct SThievesGuildInfo;
+class CRandomGenerator;
 
 template<typename T> class CApplier;
 class CBaseForGSApply;
-
-struct DLL_LINKAGE RumorState
-{
-	enum ERumorType : ui8
-	{
-		TYPE_NONE = 0, TYPE_RAND, TYPE_SPECIAL, TYPE_MAP
-	};
-
-	enum ERumorTypeSpecial : ui8
-	{
-		RUMOR_OBELISKS = 208,
-		RUMOR_ARTIFACTS = 209,
-		RUMOR_ARMY = 210,
-		RUMOR_INCOME = 211,
-		RUMOR_GRAIL = 212
-	};
-
-	ERumorType type;
-	std::map<ERumorType, std::pair<int, int>> last;
-
-	RumorState(){type = TYPE_NONE;};
-	bool update(int id, int extra);
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & type;
-		h & last;
-	}
-};
 
 struct UpgradeInfo
 {
@@ -115,7 +88,7 @@ public:
 	std::map<PlayerColor, PlayerState> players;
 	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
-	RumorState rumor;
+	RumorState currentRumor;
 
 	static boost::shared_mutex mutex;
 
@@ -126,7 +99,7 @@ public:
 	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
 	void apply(CPack *pack);
-	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
+	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & rand);
 
 	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
@@ -135,13 +108,13 @@ public:
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) override;
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
-	void updateRumor();
+	RumorState pickNewRumor();
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> filtered);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> filtered);
 
 	/// Returns battle in which selected player is engaged, or nullptr if none.
 	/// Can NOT be used with neutral player, use battle by ID instead
@@ -169,11 +142,11 @@ public:
 	/// This RNG should only be used inside GS or CPackForClient-derived applyGs
 	/// If this doesn't work for your code that mean you need a new netpack
 	///
-	/// Client-side must use CRandomGenerator::getDefault which is not serialized
+	/// Client-side must use vstd::RNG::getDefault which is not serialized
 	///
-	/// CGameHandler have it's own getter for CRandomGenerator::getDefault
-	/// Any server-side code outside of GH must use CRandomGenerator::getDefault
-	CRandomGenerator & getRandomGenerator();
+	/// CGameHandler have it's own getter for vstd::RNG::getDefault
+	/// Any server-side code outside of GH must use vstd::RNG::getDefault
+	vstd::RNG & getRandomGenerator();
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -186,8 +159,12 @@ public:
 		h & teams;
 		h & heroesPool;
 		h & globalEffects;
-		h & rand;
-		h & rumor;
+		if (h.version < Handler::Version::REMOVE_LIB_RNG)
+		{
+			std::string oldStateOfRNG;
+			h & oldStateOfRNG;
+		}
+		h & currentRumor;
 		h & campaign;
 		h & allocatedArtifacts;
 
@@ -197,7 +174,6 @@ public:
 private:
 	// ----- initialization -----
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
-	void checkMapChecksum();
 	void initGlobalBonuses();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
@@ -234,7 +210,6 @@ private:
 
 	// ---- data -----
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
-	CRandomGenerator rand;
 	Services * services;
 
 	/// Pointer to campaign state manager. Nullptr for single scenarios

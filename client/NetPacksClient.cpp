@@ -1048,7 +1048,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 {
 	cl.invalidatePaths();
 
-	const CGObjectInstance *obj = cl.getObj(pack.createdObjectID);
+	const CGObjectInstance *obj = pack.newObject;
 	if(CGI->mh)
 		CGI->mh->onObjectFadeIn(obj, pack.initiator);
 

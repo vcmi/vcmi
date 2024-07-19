@@ -26,6 +26,8 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
 
+#include <vstd/RNG.h>
+
 BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
 	, gameHandler(newGameHandler)

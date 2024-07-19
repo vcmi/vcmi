@@ -187,13 +187,13 @@ public:
 	bool gainsLevel() const;
 
 	/// Returns the next primary skill on level up. Can only be called if hero can gain a level up.
-	PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
+	PrimarySkill nextPrimarySkill(vstd::RNG & rand) const;
 
 	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
-	std::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
+	std::optional<SecondarySkill> nextSecondarySkill(vstd::RNG & rand) const;
 
 	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
-	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(CRandomGenerator & rand) const;
+	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(vstd::RNG & rand) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
 
@@ -225,7 +225,7 @@ public:
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const;
+	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, vstd::RNG & rand) const;
 	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -233,13 +233,13 @@ public:
 	HeroTypeID getHeroType() const;
 	void setHeroType(HeroTypeID type);
 
-	void initHero(CRandomGenerator & rand);
-	void initHero(CRandomGenerator & rand, const HeroTypeID & SUBID);
+	void initHero(vstd::RNG & rand);
+	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
 
 	ArtPlacementMap putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
 	void removeArtifact(ArtifactPosition pos) override;
-	void initExp(CRandomGenerator & rand);
-	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
+	void initExp(vstd::RNG & rand);
+	void initArmy(vstd::RNG & rand, IArmyDescriptor *dst = nullptr);
 	void pushPrimSkill(PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
@@ -293,8 +293,7 @@ public:
 	void boatDeserializationFix();
 	void deserializationFix();
 
-	void initObj(CRandomGenerator & rand) override;
-	void pickRandomObject(CRandomGenerator & rand) override;
+	void pickRandomObject(vstd::RNG & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
 
@@ -318,7 +317,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void levelUpAutomatically(CRandomGenerator & rand);
+	void levelUpAutomatically(vstd::RNG & rand);
 
 public:
 	std::string getHeroTypeName() const;

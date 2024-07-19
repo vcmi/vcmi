@@ -22,6 +22,7 @@
 #include "../ResourceSet.h"
 #include "../TurnTimerInfo.h"
 #include "../gameState/EVictoryLossCheckResult.h"
+#include "../gameState/RumorState.h"
 #include "../gameState/QuestInfo.h"
 #include "../gameState/TavernSlot.h"
 #include "../int3.h"
@@ -786,23 +787,15 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	void applyGs(CGameState * gs);
 
 	/// Object ID to create
-	MapObjectID ID;
-	/// Object secondary ID to create
-	MapObjectSubID subID;
-	/// Position of visitable tile of created object
-	int3 targetPos;
+	CGObjectInstance * newObject;
 	/// Which player initiated creation of this object
 	PlayerColor initiator;
-
-	ObjectInstanceID createdObjectID; //used locally, filled during applyGs
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & ID;
-		subID.serializeIdentifier(h, ID);
-		h & targetPos;
+		h & newObject;
 		h & initiator;
 	}
 };
@@ -1169,6 +1162,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 	ui32 day = 0;
 	ui8 specialWeek = 0; //weekType
 	CreatureID creatureid; //for creature weeks
+	std::optional<RumorState> newRumor; // only on new weeks
 
 	NewTurn() = default;
 
@@ -1180,6 +1174,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 		h & day;
 		h & specialWeek;
 		h & creatureid;
+		h & newRumor;
 	}
 };
 

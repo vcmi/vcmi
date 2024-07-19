@@ -29,6 +29,8 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 
+#include <vstd/RNG.h>
+
 BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
 	, gameHandler(newGameHandler)
@@ -1263,8 +1265,7 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 	int singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, subtype);
 	double chanceToKill = singleCreatureKillChancePercent / 100.0;
 	vstd::amin(chanceToKill, 1); //cap at 100%
-	std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
-	int killedCreatures = distribution(gameHandler->getRandomGenerator().getStdGenerator());
+	int killedCreatures = gameHandler->getRandomGenerator().nextBinomialInt(attacker->getCount(), chanceToKill);
 
 	int maxToKill = (attacker->getCount() * singleCreatureKillChancePercent + 99) / 100;
 	vstd::amin(killedCreatures, maxToKill);
@@ -1341,7 +1342,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		double chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION) / 100.0f;
 		vstd::amin(chanceToTrigger, 1); //cap at 100%
 
-		if(gameHandler->getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
+		if(gameHandler->getRandomGenerator().nextDouble(0, 1) > chanceToTrigger)
 			return;
 
 		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->additionalInfo[0];
@@ -1405,7 +1406,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
 
-		if(gameHandler->getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
+		if(gameHandler->getRandomGenerator().nextDouble(0, 1) > chanceToTrigger)
 			return;
 
 		BattleStackAttacked bsa;

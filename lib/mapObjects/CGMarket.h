@@ -29,7 +29,7 @@ public:
 	CGMarket(IGameCallback *cb);
 	///IObjectInterface
 	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
-	void initObj(CRandomGenerator & rand) override;//set skills for trade
+	void initObj(vstd::RNG & rand) override;//set skills for trade
 
 	///IMarket
 	int getMarketEfficiency() const override;
@@ -54,7 +54,7 @@ public:
 
 	std::vector<const CArtifact *> artifacts; //available artifacts
 
-	void newTurn(CRandomGenerator & rand) const override; //reset artifacts for black market every month
+	void newTurn(vstd::RNG & rand) const override; //reset artifacts for black market every month
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h)

@@ -20,7 +20,8 @@
 #include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
-#include "../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -106,7 +107,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	loadString(parameters["onEmptyMessage"], TextIdentifier(objectName, "onEmpty"));
 }
 
-Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const
+Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const
 {
 	Rewardable::LimitersList result;
 	for (const auto & input : source.Vector())
@@ -121,7 +122,7 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 	return result;
 }
 
-void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
+void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
 	JsonRandom randomizer(cb);
@@ -153,7 +154,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 	limiter.noneOf = configureSublimiters(object, rng, cb, source["noneOf"] );
 }
 
-void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
+void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
 	JsonRandom randomizer(cb);
@@ -210,14 +211,14 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 	}
 }
 
-void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::ResetInfo & resetParameters, const JsonNode & source) const
+void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, vstd::RNG & rng, Rewardable::ResetInfo & resetParameters, const JsonNode & source) const
 {
 	resetParameters.period   = static_cast<ui32>(source["period"].Float());
 	resetParameters.visitors = source["visitors"].Bool();
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
-void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const
+void Rewardable::Info::configureVariables(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const
 {
 	JsonRandom randomizer(cb);
 
@@ -277,7 +278,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
-		CRandomGenerator & rng,
+		vstd::RNG & rng,
 		IGameCallback * cb,
 		const JsonNode & source,
 		Rewardable::EEventType event,
@@ -298,7 +299,7 @@ void Rewardable::Info::configureRewards(
 			{
 				const JsonNode & preset = object.getPresetVariable("dice", diceID);
 				if (preset.isNull())
-					object.initVariable("dice", diceID, rng.getIntRange(0, 99)());
+					object.initVariable("dice", diceID, rng.nextInt(0, 99));
 				else
 					object.initVariable("dice", diceID, preset.Integer());
 
@@ -335,7 +336,7 @@ void Rewardable::Info::configureRewards(
 	}
 }
 
-void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb) const
+void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb) const
 {
 	object.info.clear();
 

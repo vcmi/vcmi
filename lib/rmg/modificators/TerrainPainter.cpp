@@ -22,6 +22,8 @@
 #include "../../TerrainHandler.h"
 #include "../../CTownHandler.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void TerrainPainter::process()

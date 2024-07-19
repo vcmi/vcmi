@@ -93,6 +93,7 @@ set(lib_MAIN_SRCS
 	gameState/CGameState.cpp
 	gameState/CGameStateCampaign.cpp
 	gameState/InfoAboutArmy.cpp
+	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
@@ -448,6 +449,7 @@ set(lib_MAIN_HEADERS
 	gameState/CGameStateCampaign.h
 	gameState/EVictoryLossCheckResult.h
 	gameState/InfoAboutArmy.h
+	gameState/RumorState.h
 	gameState/SThievesGuildInfo.h
 	gameState/TavernHeroesPool.h
 	gameState/TavernSlot.h
@@ -527,6 +529,7 @@ set(lib_MAIN_HEADERS
 	networkPacks/PacksForClientBattle.h
 	networkPacks/PacksForLobby.h
 	networkPacks/PacksForServer.h
+	networkPacks/SetRewardableConfiguration.h
 	networkPacks/SetStackEffect.h
 	networkPacks/StackLocation.h
 	networkPacks/TradeItem.h

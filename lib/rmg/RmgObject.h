@@ -16,8 +16,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace vstd
+{
+class RNG;
+}
+
 class CGObjectInstance;
-class CRandomGenerator;
 class RmgMap;
 
 namespace rmg {
@@ -39,8 +43,8 @@ public:
 		bool isRemovable() const;
 		const Area & getAccessibleArea() const;
 		Area getBorderAbove() const;
-		void setTemplate(TerrainId terrain, CRandomGenerator &); //cache invalidation
-		void setAnyTemplate(CRandomGenerator &); //cache invalidation
+		void setTemplate(TerrainId terrain, vstd::RNG &); //cache invalidation
+		void setAnyTemplate(vstd::RNG &); //cache invalidation
 		
 		int3 getTopTile() const;
 		int3 getPosition(bool isAbsolute = false) const;
@@ -49,7 +53,7 @@ public:
 		const CGObjectInstance & object() const;
 		CGObjectInstance & object();
 		
-		void finalize(RmgMap & map, CRandomGenerator &); //cache invalidation
+		void finalize(RmgMap & map, vstd::RNG &); //cache invalidation
 		void clear();
 		
 		std::function<void(CGObjectInstance *)> onCleared;
@@ -83,7 +87,7 @@ public:
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
-	void setTemplate(const TerrainId & terrain, CRandomGenerator &);
+	void setTemplate(const TerrainId & terrain, vstd::RNG &);
 	
 	const Area & getArea() const;  //lazy cache invalidation
 	const int3 getVisibleTop() const;
@@ -94,7 +98,7 @@ public:
 	void setValue(uint32_t value);
 	uint32_t getValue() const;
 	
-	void finalize(RmgMap & map, CRandomGenerator &);
+	void finalize(RmgMap & map, vstd::RNG &);
 	void clearCachedArea() const;
 	void clear();
 	

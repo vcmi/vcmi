@@ -41,7 +41,7 @@ protected:
 		int flip;
 	};
 
-	CDrawLinesOperation(CMap * map, CTerrainSelection terrainSel, CRandomGenerator * gen);
+	CDrawLinesOperation(CMap * map, CTerrainSelection terrainSel, vstd::RNG * gen);
 
 	virtual void executeTile(TerrainTile & tile) = 0;
 	virtual bool canApplyPattern(const CDrawLinesOperation::LinePattern & pattern) const = 0;
@@ -58,13 +58,13 @@ protected:
 	ValidationResult validateTile(const LinePattern & pattern, const int3 & pos);
 	
 	CTerrainSelection terrainSel;
-	CRandomGenerator * gen;
+	vstd::RNG * gen;
 };
 
 class CDrawRoadsOperation : public CDrawLinesOperation
 {
 public:
-	CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, CRandomGenerator * gen);
+	CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, vstd::RNG * gen);
 	std::string getLabel() const override;
 	
 protected:
@@ -81,7 +81,7 @@ private:
 class CDrawRiversOperation : public CDrawLinesOperation
 {
 public:
-	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId roadType, CRandomGenerator * gen);
+	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId roadType, vstd::RNG * gen);
 	std::string getLabel() const override;
 	
 protected:

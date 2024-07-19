@@ -31,6 +31,8 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 int CGTownInstance::getSightRadius() const //returns sight distance
@@ -68,9 +70,6 @@ void CGTownInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			break;
 		case ObjProperty::BONUS_VALUE_SECOND:
 			bonusValue.second = identifier.getNum();
-			break;
-		case ObjProperty::REWARD_RANDOMIZE:
-			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::REWARD_RANDOMIZE, NumericID(0));
 			break;
 	}
 }
@@ -379,7 +378,7 @@ bool CGTownInstance::isBonusingBuildingAdded(BuildingID bid) const
 	return present != bonusingBuildings.end();
 }
 
-void CGTownInstance::addTownBonuses(CRandomGenerator & rand)
+void CGTownInstance::addTownBonuses(vstd::RNG & rand)
 {
 	for(const auto & kvp : town->buildings)
 	{
@@ -461,7 +460,7 @@ void CGTownInstance::deleteTownBonus(BuildingID bid)
 	delete freeIt;
 }
 
-FactionID CGTownInstance::randomizeFaction(CRandomGenerator & rand)
+FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
 {
 	if(getOwner().isValidPlayer())
 		return cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner()).castle;
@@ -479,7 +478,7 @@ FactionID CGTownInstance::randomizeFaction(CRandomGenerator & rand)
 	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
 }
 
-void CGTownInstance::pickRandomObject(CRandomGenerator & rand)
+void CGTownInstance::pickRandomObject(vstd::RNG & rand)
 {
 	assert(ID == MapObjectID::TOWN || ID == MapObjectID::RANDOM_TOWN);
 	if (ID == MapObjectID::RANDOM_TOWN)
@@ -495,7 +494,7 @@ void CGTownInstance::pickRandomObject(CRandomGenerator & rand)
 	updateAppearance();
 }
 
-void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structures
+void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 {
 	blockVisit = true;
 
@@ -521,7 +520,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 	updateAppearance();
 }
 
-void CGTownInstance::newTurn(CRandomGenerator & rand) const
+void CGTownInstance::newTurn(vstd::RNG & rand) const
 {
 	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
 	{
