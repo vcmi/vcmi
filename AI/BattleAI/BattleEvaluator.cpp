@@ -213,7 +213,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				moveTarget.score,
 				moveTarget.scorePerTurn);
 
-			return goTowardsNearest(stack, moveTarget.positions);
+			return goTowardsNearest(stack, moveTarget.positions, *targets);
 		}
 		else
 		{
@@ -235,7 +235,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 			if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
 				return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
 			else
-				return goTowardsNearest(stack, brokenWallMoat);
+				return goTowardsNearest(stack, brokenWallMoat, *targets);
 		}
 	}
 
@@ -249,7 +249,7 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
-BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes)
+BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes, const PotentialTargets & targets)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
 	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
@@ -272,7 +272,27 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 		{
 			if(vstd::contains(avHexes, hex))
 			{
-				return BattleAction::makeMove(stack, hex);
+				auto additionalScore = 0;
+				std::optional<AttackPossibility> attackOnTheWay;
+
+				for(auto & target : targets.possibleAttacks)
+				{
+					if(!target.attack.shooting && target.from == hex && target.attackValue() > additionalScore)
+					{
+						additionalScore = target.attackValue();
+						attackOnTheWay = target;
+					}
+				}
+
+				if(attackOnTheWay)
+				{
+					activeActionMade = true;
+					return BattleAction::makeMeleeAttack(stack, attackOnTheWay->attack.defender->getPosition(), attackOnTheWay->from);
+				}
+				else
+				{
+					return BattleAction::makeMove(stack, hex);
+				}
 			}
 
 			if(stack->coversPos(hex))

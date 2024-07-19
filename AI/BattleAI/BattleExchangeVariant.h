@@ -139,7 +139,8 @@ private:
 		uint8_t turn,
 		PotentialTargets & targets,
 		DamageCache & damageCache,
-		std::shared_ptr<HypotheticBattle> hb) const;
+		std::shared_ptr<HypotheticBattle> hb,
+		std::vector<const battle::Unit *> additionalUnits = {}) const;
 
 	bool canBeHitThisTurn(const AttackPossibility & ap);
 
@@ -171,7 +172,8 @@ public:
 		const AttackPossibility & ap,
 		uint8_t turn,
 		PotentialTargets & targets,
-		std::shared_ptr<HypotheticBattle> hb) const;
+		std::shared_ptr<HypotheticBattle> hb,
+		std::vector<const battle::Unit *> additionalUnits = {}) const;
 
 	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
 
