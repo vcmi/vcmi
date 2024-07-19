@@ -25,7 +25,7 @@ class InputSourceGameController;
 
 enum class InputMode
 {
-	MOUSE,
+	KEYBOARD_AND_MOUSE,
 	TOUCH,
 	CONTROLLER
 };
