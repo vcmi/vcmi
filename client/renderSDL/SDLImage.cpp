@@ -119,9 +119,9 @@ void SDLImageConst::draw(SDL_Surface * where, SDL_Palette * palette, const Point
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	if(surf->format->palette && alpha == SDL_ALPHA_OPAQUE && mode == EImageBlitMode::ALPHA)
+	if(surf->format->palette && mode == EImageBlitMode::ALPHA)
 	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift);
+		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift, alpha);
 	}
 	else
 	{

@@ -210,8 +210,8 @@ uint32_t CSDL_Ext::getPixel(SDL_Surface *surface, const int & x, const int & y, 
 	}
 }
 
-template<int bpp>
-int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPointInput)
+template<int bpp, bool useAlpha>
+int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPointInput, uint8_t alpha)
 {
 	SDL_Rect srcRectInstance = CSDL_Ext::toSDL(srcRectInput);
 	SDL_Rect dstRectInstance = CSDL_Ext::toSDL(Rect(dstPointInput, srcRectInput.dimensions()));
@@ -334,7 +334,11 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRec
 				for(int x = 0; x < w; ++x)
 				{
 					const SDL_Color &tbc = colors[*color++]; //color to blit
-					ColorPutter<bpp>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.a);
+					if constexpr (useAlpha)
+						ColorPutter<bpp>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, int(alpha) * tbc.a / 255 );
+					else
+						ColorPutter<bpp>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.a);
+
 					p += bpp;
 				}
 			}
@@ -344,16 +348,27 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRec
 	return 0;
 }
 
-int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint)
+int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint, uint8_t alpha)
 {
-	switch(dst->format->BytesPerPixel)
+	if (alpha == SDL_ALPHA_OPAQUE)
 	{
-	case 3: return blit8bppAlphaTo24bppT<3>(src, srcRect, dst, dstPoint);
-	case 4: return blit8bppAlphaTo24bppT<4>(src, srcRect, dst, dstPoint);
-	default:
-		logGlobal->error("%d bpp is not supported!", (int)dst->format->BitsPerPixel);
-		return -1;
+		switch(dst->format->BytesPerPixel)
+		{
+		case 3: return blit8bppAlphaTo24bppT<3, false>(src, srcRect, dst, dstPoint, alpha);
+		case 4: return blit8bppAlphaTo24bppT<4, false>(src, srcRect, dst, dstPoint, alpha);
+		}
 	}
+	else
+	{
+		switch(dst->format->BytesPerPixel)
+		{
+			case 3: return blit8bppAlphaTo24bppT<3, true>(src, srcRect, dst, dstPoint, alpha);
+			case 4: return blit8bppAlphaTo24bppT<4, true>(src, srcRect, dst, dstPoint, alpha);
+		}
+	}
+
+	logGlobal->error("%d bpp is not supported!", (int)dst->format->BitsPerPixel);
+	return -1;
 }
 
 uint32_t CSDL_Ext::colorTouint32_t(const SDL_Color * color)

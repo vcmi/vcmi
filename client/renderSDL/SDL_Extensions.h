@@ -73,9 +73,9 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	uint8_t * getPxPtr(const SDL_Surface * const & srf, const int x, const int y);
 	TColorPutter getPutterFor(SDL_Surface * const & dest);
 
-	template<int bpp>
-	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
-	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
+	template<int bpp, bool useAlpha>
+	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint, uint8_t alpha); //blits 8 bpp surface with alpha channel to 24 bpp surface
+	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint, uint8_t alpha); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	uint32_t colorTouint32_t(const SDL_Color * color); //little endian only
 
 	void drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2);
