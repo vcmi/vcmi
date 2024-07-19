@@ -58,8 +58,8 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	armyGrowth(0),
 	armyInvolvement(0),
 	isDefend(false),
-	isBuild(false),
-	involvesSailing(false)
+	involvesSailing(false),
+	isTradeBuilding(false)
 {
 }
 
@@ -1182,14 +1182,13 @@ public:
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
 		int32_t cost = bi.buildCostWithPrerequisites[EGameResID::GOLD];
-		auto resourcesAvailable = evaluationContext.evaluator.ai->getFreeResources();
-		TResources missing = bi.buildCostWithPrerequisites - resourcesAvailable;
-		missing[EGameResID::GOLD] = 0;
-		missing.positive();
-		cost += missing.marketValue();
 		evaluationContext.goldCost += cost;
 		evaluationContext.closestWayRatio = 1;
-		evaluationContext.isBuild = true;
+		evaluationContext.buildingCost += bi.buildCostWithPrerequisites;
+		if (bi.id == BuildingID::MARKETPLACE || bi.dailyIncome[EGameResID::WOOD] > 0)
+			evaluationContext.isTradeBuilding = true;
+
+		logAi->trace("Building costs for %s : %s MarketValue: %d",bi.toString(), evaluationContext.buildingCost.toString(), evaluationContext.buildingCost.marketValue());
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
@@ -1278,6 +1277,7 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal
 	for(auto subgoal : parts)
 	{
 		context.goldCost += subgoal->goldCost;
+		context.buildingCost += subgoal->buildingCost;
 
 		for(auto builder : evaluationContextBuilders)
 		{
@@ -1337,6 +1337,26 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	{
 		float score = 0;
 		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
+
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, skill: %f danger: %d, threat: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, fuzzy: %f",
+			priorityTier,
+			task->toString(),
+			evaluationContext.armyLossPersentage,
+			(int)evaluationContext.turn,
+			evaluationContext.movementCostByRole[HeroRole::MAIN],
+			evaluationContext.movementCostByRole[HeroRole::SCOUT],
+			goldRewardPerTurn,
+			evaluationContext.goldCost,
+			evaluationContext.armyReward,
+			evaluationContext.skillReward,
+			evaluationContext.danger,
+			evaluationContext.threat,
+			evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
+			evaluationContext.strategicalValue,
+			evaluationContext.closestWayRatio,
+			evaluationContext.enemyHeroDangerRatio,
+			fuzzyResult);
+
 		switch (priorityTier)
 		{
 			case 0: //Take towns
@@ -1362,33 +1382,27 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.involvesSailing && evaluationContext.movementCostByRole[HeroRole::MAIN] > 0)
 					return 0;
+				if (evaluationContext.buildingCost.marketValue() > 0)
+					return 0;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
 				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
 				score += evaluationContext.armyReward;
 				score += evaluationContext.armyGrowth;
-				if (evaluationContext.isBuild)
-				{
-					score += 1000;
-					score /= evaluationContext.goldCost;
-				}
+				if (score <= 0)
+					return 0;
 				else
-				{
-					if (score <= 0)
-						return 0;
-					else
-						score = 1000;
-					score *= evaluationContext.closestWayRatio;
-					if (evaluationContext.threat > evaluationContext.armyInvolvement && !evaluationContext.isDefend)
-						score *= evaluationContext.armyInvolvement / evaluationContext.threat;
-					if (evaluationContext.movementCost > 0)
-						score /= evaluationContext.movementCost;
-				}
+					score = 1000;
+				score *= evaluationContext.closestWayRatio;
+				if (evaluationContext.threat > evaluationContext.armyInvolvement && !evaluationContext.isDefend)
+					score *= evaluationContext.armyInvolvement / evaluationContext.threat;
+				if (evaluationContext.movementCost > 0)
+					score /= evaluationContext.movementCost;
 				break;
 			}
 			case 2: //Collect guarded stuff
 			{
-				if (evaluationContext.isBuild)
+				if (evaluationContext.buildingCost.marketValue() > 0)
 					return 0;
 				if (evaluationContext.enemyHeroDangerRatio > 0.5 && !evaluationContext.isDefend)
 					return 0;
@@ -1413,7 +1427,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				}
 				break;
 			}
-			case 3: //Pre-filter to see if anything is worth to be done at all
+			case 3: //For buildings and buying army
 			{
 				score += evaluationContext.conquestValue * 1000;
 				score += evaluationContext.strategicalValue * 1000;
@@ -1421,10 +1435,30 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
 				score += evaluationContext.armyReward;
 				score += evaluationContext.armyGrowth;
-				if (evaluationContext.isBuild)
+				if (evaluationContext.buildingCost.marketValue() > 0)
 				{
+					if (!evaluationContext.isTradeBuilding && ai->getFreeResources()[EGameResID::WOOD] - evaluationContext.buildingCost[EGameResID::WOOD] < 5 && ai->buildAnalyzer->getDailyIncome()[EGameResID::WOOD] < 1)
+					{
+						logAi->trace("Should make sure to build market-place instead of %s", task->toString());
+						for (auto town : cb->getTownsInfo())
+						{
+							if (!town->hasBuiltSomeTradeBuilding())
+								return 0;
+						}
+					}
 					score += 1000;
-					score /= evaluationContext.goldCost;
+					auto resourcesAvailable = evaluationContext.evaluator.ai->getFreeResources();
+					auto income = ai->buildAnalyzer->getDailyIncome();
+					if (resourcesAvailable < evaluationContext.buildingCost)
+					{
+						TResources needed = evaluationContext.buildingCost - resourcesAvailable;
+						needed.positive();
+						int turnsTo = needed.div(income);
+						if (turnsTo == INT_MAX)
+							return 0;
+						else
+							score /= turnsTo;
+					}
 				}
 				break;
 			}

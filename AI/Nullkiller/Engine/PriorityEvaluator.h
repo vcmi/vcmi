@@ -74,8 +74,9 @@ struct DLL_EXPORT EvaluationContext
 	float threat;
 	float armyInvolvement;
 	bool isDefend;
-	bool isBuild;
+	TResources buildingCost;
 	bool involvesSailing;
+	bool isTradeBuilding;
 
 	EvaluationContext(const Nullkiller * ai);
 
