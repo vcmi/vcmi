@@ -120,6 +120,7 @@ public:
 	ScanDepth getScanDepth() const { return scanDepth; }
 	bool isOpenMap() const { return openMap; }
 	bool isObjectGraphAllowed() const { return useObjectGraph; }
+	bool handleTrading();
 
 private:
 	void resetAiState();

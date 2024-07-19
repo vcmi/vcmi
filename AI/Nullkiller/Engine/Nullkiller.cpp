@@ -352,16 +352,18 @@ void Nullkiller::makeTurn()
 	const int MAX_DEPTH = 10;
 	const float FAST_TASK_MINIMAL_PRIORITY = 0.7f;
 
-	//float totalHeroStrength = 0;
-	//int totalTownLevel = 0;
-	//for (auto heroInfo : cb->getHeroesInfo())
-	//{
-	//	totalHeroStrength += heroInfo->getTotalStrength();
-	//}
-	//for (auto townInfo : cb->getTownsInfo())
-	//{
-	//	totalTownLevel += townInfo->getTownLevel();
-	//}
+	float totalHeroStrength = 0;
+	int totalTownLevel = 0;
+	for (auto heroInfo : cb->getHeroesInfo())
+	{
+		totalHeroStrength += heroInfo->getTotalStrength();
+	}
+	for (auto townInfo : cb->getTownsInfo())
+	{
+		totalTownLevel += townInfo->getTownLevel();
+	}
+	logAi->info("Resources: %s Strength: %f Townlevel: %d", cb->getResourceAmount().toString(), totalHeroStrength, totalTownLevel);
+
 
 	resetAiState();
 
@@ -371,7 +373,6 @@ void Nullkiller::makeTurn()
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		updateAiState(i);
-		//logAi->info("Gold: %d", cb->getResourceAmount(EGameResID::GOLD));
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
@@ -386,7 +387,7 @@ void Nullkiller::makeTurn()
 
 			if(bestTask->priority >= FAST_TASK_MINIMAL_PRIORITY)
 			{
-				//logAi->info("Performing task %s with prio: %d", bestTask->toString(), bestTask->priority);
+				logAi->info("Performing task %s with prio: %d", bestTask->toString(), bestTask->priority);
 				if(!executeTask(bestTask))
 					return;
 
@@ -483,7 +484,7 @@ void Nullkiller::makeTurn()
 
 				continue;
 			}
-			//logAi->info("Performing task %s with prio: %d", bestTask->toString(), bestTask->priority);
+			logAi->info("Performing task %s with prio: %d", bestTask->toString(), bestTask->priority);
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
@@ -491,9 +492,10 @@ void Nullkiller::makeTurn()
 				else
 					return;
 			}
-
 			hasAnySuccess = true;
 		}
+
+		hasAnySuccess |= handleTrading();
 
 		if(!hasAnySuccess)
 		{
@@ -572,6 +574,99 @@ TResources Nullkiller::getFreeResources() const
 void Nullkiller::lockResources(const TResources & res)
 {
 	lockedResources += res;
+}
+
+bool Nullkiller::handleTrading()
+{
+	bool haveTraded = false;
+	bool shouldTryToTrade = true;
+	int marketId = -1;
+	for (auto town : cb->getTownsInfo())
+	{
+		if (town->hasBuiltSomeTradeBuilding())
+		{
+			marketId = town->id;
+		}
+	}
+	if (marketId == -1)
+		return false;
+	if (const CGObjectInstance* obj = cb->getObj(ObjectInstanceID(marketId), false))
+	{
+		if (const auto* m = dynamic_cast<const IMarket*>(obj))
+		{
+			while (shouldTryToTrade)
+			{
+				shouldTryToTrade = false;
+				buildAnalyzer->update();
+				TResources required = buildAnalyzer->getTotalResourcesRequired();
+				TResources income = buildAnalyzer->getDailyIncome();
+				TResources available = getFreeResources();
+
+				int mostWanted = -1;
+				int mostExpendable = -1;
+				float minRatio = std::numeric_limits<float>::max();
+				float maxRatio = std::numeric_limits<float>::min();
+
+				for (int i = 0; i < required.size(); ++i)
+				{
+					if (required[i] == 0)
+						continue;
+					float ratio = static_cast<float>(available[i]) / required[i];
+
+					if (ratio < minRatio) {
+						minRatio = ratio;
+						mostWanted = i;
+					}
+				}
+
+				for (int i = 0; i < required.size(); ++i)
+				{
+					float ratio = available[i];
+					if (required[i] > 0)
+						ratio = static_cast<float>(available[i]) / required[i];
+
+					bool okToSell = false;
+
+					if (i == 6)
+					{
+						if (income[i] > 0)
+							okToSell = true;
+					}
+					else
+					{
+						if (available[i] > required[i])
+							okToSell = true;
+					}
+
+					if (ratio > maxRatio && okToSell) {
+						maxRatio = ratio;
+						mostExpendable = i;
+					}
+				}
+
+				//logAi->info("mostExpendable: %d mostWanted: %d", mostExpendable, mostWanted);
+
+				if (mostExpendable == mostWanted || mostWanted == -1 || mostExpendable == -1)
+					return false;
+
+				int acquiredResources = 0;
+
+				int toGive;
+				int toGet;
+				m->getOffer(mostExpendable, mostWanted, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
+				//logAi->info("Offer is: I get %d of %s for %d of %s at %s", toGet, mostWanted, toGive, mostExpendable, obj->getObjectName());
+				//TODO trade only as much as needed
+				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
+				{
+					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
+					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
+					haveTraded = true;
+					shouldTryToTrade = true;
+				}
+			}
+		}
+	}
+	return haveTraded;
 }
 
 }
