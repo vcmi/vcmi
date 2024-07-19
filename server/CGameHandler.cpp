@@ -523,6 +523,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, turnOrder(std::make_unique<TurnOrderProcessor>(this))
 	, queries(std::make_unique<QueriesProcessor>())
 	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
+	, randomNumberGenerator(std::make_unique<CRandomGenerator>())
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
@@ -552,7 +553,6 @@ void CGameHandler::reinitScripting()
 
 void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTracking)
 {
-	randomNumberGenerator = std::make_unique<CRandomGenerator>();
 	int requestedSeed = settings["server"]["seed"].Integer();
 	if (requestedSeed != 0)
 		randomNumberGenerator->setSeed(requestedSeed);

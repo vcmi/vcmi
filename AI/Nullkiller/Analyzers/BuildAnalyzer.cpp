@@ -106,10 +106,17 @@ int32_t convertToGold(const TResources & res)
 		+ 125 * (res[EGameResID::GEMS] + res[EGameResID::CRYSTAL] + res[EGameResID::MERCURY] + res[EGameResID::SULFUR]);
 }
 
+TResources withoutGold(TResources other)
+{
+	other[GameResID::GOLD] = 0;
+
+	return other;
+}
+
 TResources BuildAnalyzer::getResourcesRequiredNow() const
 {
 	auto resourcesAvailable = ai->getFreeResources();
-	auto result = requiredResources - resourcesAvailable;
+	auto result = withoutGold(armyCost) + requiredResources - resourcesAvailable;
 
 	result.positive();
 
@@ -119,7 +126,7 @@ TResources BuildAnalyzer::getResourcesRequiredNow() const
 TResources BuildAnalyzer::getTotalResourcesRequired() const
 {
 	auto resourcesAvailable = ai->getFreeResources();
-	auto result = totalDevelopmentCost - resourcesAvailable;
+	auto result = totalDevelopmentCost + withoutGold(armyCost) - resourcesAvailable;
 
 	result.positive();
 
@@ -340,6 +347,7 @@ void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & existingDwell
 void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & nextToBuild)
 {
 	townDevelopmentCost += nextToBuild.buildCostWithPrerequisites;
+	townDevelopmentCost += withoutGold(nextToBuild.armyCost);
 
 	if(nextToBuild.canBuild)
 	{
