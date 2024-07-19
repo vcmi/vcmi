@@ -121,6 +121,10 @@ public:
 		return gameState.get();
 	}
 
+	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override
+	{
+	}
+
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode) override
 	{
 		return false;
@@ -142,9 +146,7 @@ public:
 		StartInfo si;
 		si.mapname = "anything";//does not matter, map service mocked
 		si.difficulty = 0;
-		si.mapfileChecksum = 0;
 		si.mode = EStartMode::NEW_GAME;
-		si.seedToBeUsed = 42;
 
 		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourcePath(si.mapname));
 

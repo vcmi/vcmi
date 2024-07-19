@@ -24,7 +24,6 @@ class CGStatusBar;
 class CTextBox;
 class CTabbedInt;
 class CAnimImage;
-class CAnimation;
 class CButton;
 class CFilledTexture;
 class CLabel;

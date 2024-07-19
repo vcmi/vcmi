@@ -120,7 +120,7 @@
 				"dwellingUpLvl7": { "animation" : "TBINUP_6.def", "x" : 420, "y" : 105, "z" : -1, "border" : "TOIDVL2.bmp",  "area" : "TZIDVL2.bmp" }
 			},
 
-			"musicTheme" : "music/InfernoTown",
+			"musicTheme" : [ "music/InfernoTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",

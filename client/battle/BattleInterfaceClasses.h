@@ -22,6 +22,7 @@ class CGHeroInstance;
 struct BattleResult;
 struct InfoAboutHero;
 class CStack;
+class CPlayerBattleCallback;
 
 namespace battle
 {
@@ -44,6 +45,7 @@ class TransparentFilledRectangle;
 class CPlayerInterface;
 class BattleRenderer;
 class VideoWidget;
+class QuickSpellPanel;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class BattleConsole : public CIntObject, public IStatusBar
@@ -145,6 +147,26 @@ public:
 	void heroRightClicked();
 
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
+};
+
+class QuickSpellPanel : public CIntObject
+{
+private:
+	std::shared_ptr<CFilledTexture> background;
+	std::shared_ptr<TransparentFilledRectangle> rect;
+	std::vector<std::shared_ptr<CButton>> buttons;
+	std::vector<std::shared_ptr<TransparentFilledRectangle>> buttonsDisabled;
+	std::vector<std::shared_ptr<CLabel>> labels;
+
+	BattleInterface & owner;
+public:
+	bool isEnabled; // isActive() is not working on multiple conditions, because of this we need a seperate flag
+
+	QuickSpellPanel(BattleInterface & owner);
+
+	void create();
+
+	void show(Canvas & to) override;
 };
 
 class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
@@ -251,9 +273,6 @@ class StackQueue : public CIntObject
 	std::shared_ptr<CFilledTexture> background;
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
 	BattleInterface & owner;
-
-	std::shared_ptr<CAnimation> icons;
-	std::shared_ptr<CAnimation> stateIcons;
 
 	int32_t getSiegeShooterIconID();
 public:

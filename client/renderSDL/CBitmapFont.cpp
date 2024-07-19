@@ -125,7 +125,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 
 	posX += character.leftOffset;
 
-	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
+	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface);
 
 	uint8_t bpp = surface->format->BytesPerPixel;
 

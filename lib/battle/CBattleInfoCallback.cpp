@@ -11,6 +11,7 @@
 #include "CBattleInfoCallback.h"
 
 #include <vcmi/scripting/Service.h>
+#include <vstd/RNG.h>
 
 #include "../CStack.h"
 #include "BattleInfo.h"
@@ -25,7 +26,6 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
-#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1602,7 +1602,7 @@ std::set<const battle::Unit *> CBattleInfoCallback::battleAdjacentUnits(const ba
 	return ret;
 }
 
-SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, const battle::Unit * caster, const battle::Unit * subject) const
+SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const battle::Unit * caster, const battle::Unit * subject) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 	//This is complete list. No spells from mods.
@@ -1748,7 +1748,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 	}
 }
 
-SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const CStack * caster) const
+SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack * caster) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 

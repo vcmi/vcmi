@@ -160,7 +160,7 @@ void GraphPaths::dumpToLog() const
 							node.previous.coord.toString(),
 							tile.first.toString(),
 							node.cost,
-							node.danger);
+							node.linkDanger);
 					}
 
 					logBuilder.addLine(node.previous.coord, tile.first);
@@ -169,14 +169,17 @@ void GraphPaths::dumpToLog() const
 		});
 }
 
-bool GraphPathNode::tryUpdate(const GraphPathNodePointer & pos, const GraphPathNode & prev, const ObjectLink & link)
+bool GraphPathNode::tryUpdate(
+	const GraphPathNodePointer & pos,
+	const GraphPathNode & prev,
+	const ObjectLink & link)
 {
 	auto newCost = prev.cost + link.cost;
 
 	if(newCost < cost)
 	{
 		previous = pos;
-		danger = prev.danger + link.danger;
+		linkDanger = link.danger;
 		cost = newCost;
 
 		return true;
@@ -199,7 +202,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 
 		std::vector<GraphPathNodePointer> tilesToPass;
 
-		uint64_t danger = node.danger;
+		uint64_t danger = node.linkDanger;
 		float cost = node.cost;
 		bool allowBattle = false;
 
@@ -212,13 +215,13 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 			if(currentTile == pathNodes.end())
 				break;
 
-			auto currentNode = currentTile->second[current.nodeType];
+			auto & currentNode = currentTile->second[current.nodeType];
 
 			if(!currentNode.previous.valid())
 				break;
 
 			allowBattle = allowBattle || currentNode.nodeType == GrapthPathNodeType::BATTLE;
-			vstd::amax(danger, currentNode.danger);
+			vstd::amax(danger, currentNode.linkDanger);
 			vstd::amax(cost, currentNode.cost);
 
 			tilesToPass.push_back(current);
@@ -239,9 +242,13 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 			if(path.targetHero != hero)
 				continue;
 
-			for(auto graphTile = tilesToPass.rbegin(); graphTile != tilesToPass.rend(); graphTile++)
+			uint64_t loss = 0;
+			uint64_t strength = getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy);
+
+			for(auto graphTile = ++tilesToPass.rbegin(); graphTile != tilesToPass.rend(); graphTile++)
 			{
 				AIPathNodeInfo n;
+				auto & node = getNode(*graphTile);
 
 				n.coord = graphTile->coord;
 				n.cost = cost;
@@ -249,7 +256,21 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 				n.danger = danger;
 				n.targetHero = hero;
 				n.parentIndex = -1;
-				n.specialAction = getNode(*graphTile).specialAction;
+				n.specialAction = node.specialAction;
+				
+				if(node.linkDanger > 0)
+				{
+					auto additionalLoss = ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, strength, node.linkDanger);
+					loss += additionalLoss;
+
+					if(strength > additionalLoss)
+						strength -= additionalLoss;
+					else
+					{
+						strength = 0;
+						break;
+					}
+				}
 
 				if(n.specialAction)
 				{
@@ -264,7 +285,12 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 				path.nodes.insert(path.nodes.begin(), n);
 			}
 
-			path.armyLoss += ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), danger);
+			if(strength == 0)
+			{
+				continue;
+			}
+
+			path.armyLoss += loss;
 			path.targetObjectDanger = ai->pathfinder->getStorage()->evaluateDanger(tile, path.targetHero, !allowBattle);
 			path.targetObjectArmyLoss = ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
@@ -287,7 +313,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 		std::vector<GraphPathNodePointer> tilesToPass;
 
-		uint64_t danger = targetNode.danger;
+		uint64_t danger = targetNode.linkDanger;
 		float cost = targetNode.cost;
 		bool allowBattle = false;
 
@@ -303,7 +329,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 			auto currentNode = currentTile->second[current.nodeType];
 
 			allowBattle = allowBattle || currentNode.nodeType == GrapthPathNodeType::BATTLE;
-			vstd::amax(danger, currentNode.danger);
+			vstd::amax(danger, currentNode.linkDanger);
 			vstd::amax(cost, currentNode.cost);
 
 			tilesToPass.push_back(current);
@@ -341,7 +367,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 			// final node
 			n.coord = tile;
 			n.cost = targetNode.cost;
-			n.danger = targetNode.danger;
+			n.danger = danger;
 			n.parentIndex = path.nodes.size();
 			path.nodes.push_back(n);
 
@@ -368,7 +394,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 				n.coord = graphTile->coord;
 				n.cost = node.cost;
 				n.turns = static_cast<ui8>(node.cost);
-				n.danger = node.danger;
+				n.danger = danger;
 				n.specialAction = node.specialAction;
 				n.parentIndex = path.nodes.size();
 

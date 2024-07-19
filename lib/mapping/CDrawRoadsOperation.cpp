@@ -12,10 +12,11 @@
 #include "CDrawRoadsOperation.h"
 #include "CMap.h"
 
-#include "../CRandomGenerator.h"
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
 #include "../VCMI_Lib.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -155,7 +156,7 @@ static bool ruleIsAny(const std::string & rule)
 #endif
 
 ///CDrawLinesOperation
-CDrawLinesOperation::CDrawLinesOperation(CMap * map, CTerrainSelection terrainSel, CRandomGenerator * gen):
+CDrawLinesOperation::CDrawLinesOperation(CMap * map, CTerrainSelection terrainSel, vstd::RNG * gen):
 	CMapOperation(map),
 	terrainSel(std::move(terrainSel)),
 	gen(gen)
@@ -163,14 +164,14 @@ CDrawLinesOperation::CDrawLinesOperation(CMap * map, CTerrainSelection terrainSe
 }
 
 ///CDrawRoadsOperation
-CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, CRandomGenerator * gen):
+CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, vstd::RNG * gen):
 	CDrawLinesOperation(map, terrainSel,gen),
 	roadType(roadType)
 {
 }
 
 ///CDrawRiversOperation
-CDrawRiversOperation::CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId riverType, CRandomGenerator * gen):
+CDrawRiversOperation::CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId riverType, vstd::RNG * gen):
 	CDrawLinesOperation(map, terrainSel, gen),
 	riverType(riverType)
 {

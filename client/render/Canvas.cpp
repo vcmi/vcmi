@@ -81,14 +81,14 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 {
 	assert(image);
 	if (image)
-		image->draw(surface, renderArea.x + pos.x, renderArea.y + pos.y);
+		image->draw(surface, pos + renderArea.topLeft());
 }
 
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const Rect & sourceRect)
 {
 	assert(image);
 	if (image)
-		image->draw(surface, renderArea.x + pos.x, renderArea.y + pos.y, &sourceRect);
+		image->draw(surface, pos + renderArea.topLeft(), &sourceRect);
 }
 
 void Canvas::draw(const Canvas & image, const Point & pos)
@@ -192,7 +192,7 @@ void Canvas::fillTexture(const std::shared_ptr<IImage>& image)
 	for (int y=0; y < surface->h; y+= imageArea.h)
 	{
 		for (int x=0; x < surface->w; x+= imageArea.w)
-			image->draw(surface, renderArea.x + x, renderArea.y + y);
+			image->draw(surface, Point(renderArea.x + x, renderArea.y + y));
 	}
 }
 

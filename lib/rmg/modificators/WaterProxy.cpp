@@ -30,6 +30,8 @@
 #include "WaterAdopter.h"
 #include "../RmgArea.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void WaterProxy::process()

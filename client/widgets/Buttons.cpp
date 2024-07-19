@@ -24,7 +24,6 @@
 #include "../gui/InterfaceObjectConfigurable.h"
 #include "../media/ISoundPlayer.h"
 #include "../windows/InfoWindows.h"
-#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 
@@ -67,6 +66,11 @@ void CButton::addCallback(const std::function<void()> & callback)
 	this->callback += callback;
 }
 
+void CButton::addPopupCallback(const std::function<void()> & callback)
+{
+	this->callbackPopup += callback;
+}
+
 void ButtonBase::setTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
@@ -95,7 +99,7 @@ void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButto
 	pos = image->pos;
 
 	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
+		image->setPlayerColor(LOCPLINT->playerID);
 }
 
 const JsonNode & ButtonBase::getCurrentConfig() const
@@ -130,7 +134,7 @@ void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredBu
 	pos = configurable->pos;
 
 	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
+		image->setPlayerColor(LOCPLINT->playerID);
 }
 
 void CButton::addHoverText(EButtonState state, const std::string & text)
@@ -289,6 +293,8 @@ void CButton::clickCancel(const Point & cursorPosition)
 
 void CButton::showPopupWindow(const Point & cursorPosition)
 {
+	callbackPopup();
+
 	if(!helpBox.empty()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
@@ -358,7 +364,7 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 void ButtonBase::setPlayerColor(PlayerColor player)
 {
 	if (image && image->isPlayerColored())
-		image->playerColored(player);
+		image->setPlayerColor(player);
 }
 
 void CButton::showAll(Canvas & to)

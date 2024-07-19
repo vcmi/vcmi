@@ -1,6 +1,8 @@
+# Installation Linux
+
 VCMI requires data from original Heroes 3: Shadow of Death or Complete editions. Data from native Linux version made by LOKI will not work.
 
-# Step 1: Binaries installation
+## Step 1: Binaries installation
 
 ### Ubuntu - Latest stable build from PPA (recommended)
 
@@ -40,6 +42,15 @@ To install VCMI from repository:
 ```
     sudo apt-get update
     sudo apt-get install vcmi
+```
+
+### Fedora (40 or newer)
+
+Stable VCMI version is available in RPM Fusion repository. Learn how to enable it in [wiki](https://docs.fedoraproject.org/en-US/quick-docs/rpmfusion-setup/). To install VCMI from repository:
+
+```
+    sudo dnf update
+    sudo dnf install vcmi
 ```
 ### Flatpak (distribution-agnostic)
 

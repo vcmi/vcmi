@@ -17,13 +17,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
 class CMapEditManager;
-class CRandomGenerator;
 class TileInfo;
 class CMapGenOptions;
 class Zone;
 class CMapGenerator;
 class MapProxy;
 class playerInfo;
+
+namespace vstd
+{
+class RNG;
+}
 
 class RmgMap
 {
@@ -79,7 +83,7 @@ public:
 	void registerZone(FactionID faction);
 	ui32 getZoneCount(FactionID faction);
 	ui32 getTotalZoneCount() const;
-	void initTiles(CMapGenerator & generator, CRandomGenerator & rand);
+	void initTiles(CMapGenerator & generator, vstd::RNG & rand);
 	void addModificators();
 
 	bool isAllowedSpell(const SpellID & sid) const;

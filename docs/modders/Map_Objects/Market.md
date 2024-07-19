@@ -1,3 +1,5 @@
+# Market
+
 ## Market schema
 
 Since VCMI-1.3 it's possible to create customizable markets on adventure map.

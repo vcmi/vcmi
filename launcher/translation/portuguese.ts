@@ -461,7 +461,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="701"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Baixando %1. %p% (%v MB de %m MB) concluído</translation>
     </message>
     <message>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
@@ -733,12 +733,12 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1152"/>
         <source>Show Tutorial again</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar o Tutorial novamente</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1159"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Redefinir</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="860"/>
@@ -940,7 +940,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="796"/>
         <source>Autosave</source>
-        <translation>Salvar automaticamente</translation>
+        <translation>Salvamento automático</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
@@ -1268,7 +1268,7 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
         <source>File cannot opened</source>
-        <translation type="unfinished"></translation>
+        <translation>O arquivo não pode ser aberto</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
@@ -1317,23 +1317,24 @@ Por favor, selecione o diretório com os dados do Heroes III instalados.</transl
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Você forneceu o instalador do GOG Galaxy! Este arquivo não contém o jogo. Por favor, faça o download do instalador offline de backup do jogo!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished"></translation>
+        <translation>Erro de fluxo ao extrair arquivos!
+Motivo do erro: </translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalador do Inno Setup não suportado!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
         <source>Extracting error!</source>
-        <translation type="unfinished"></translation>
+        <translation>Erro ao extrair!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>

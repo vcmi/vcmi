@@ -67,7 +67,7 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 		}
 		
 		auto byteArray = response->readAll();
-		JsonNode node(reinterpret_cast<const std::byte*>(byteArray.constData()), byteArray.size());
+		JsonNode node(reinterpret_cast<const std::byte*>(byteArray.constData()), byteArray.size(), "<network packet from server at updateConfigUrl>");
 		loadFromJson(node);
 	});
 }

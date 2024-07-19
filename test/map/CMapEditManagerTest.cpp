@@ -25,15 +25,16 @@ TEST(MapManager, DrawTerrain_Type)
 	try
 	{
 		auto map = std::make_unique<CMap>(nullptr);
+		CRandomGenerator rand;
 		map->width = 52;
 		map->height = 52;
 		map->initTerrain();
 		auto editManager = map->getEditManager();
-		editManager->clearTerrain();
+		editManager->clearTerrain(&rand);
 
 		// 1x1 Blow up
 		editManager->getTerrainSelection().select(int3(5, 5, 0));
-		editManager->drawTerrain(ETerrainId::GRASS, 10);
+		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
 		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
 		for(const auto & tile : squareCheck)
 		{
@@ -42,20 +43,20 @@ TEST(MapManager, DrawTerrain_Type)
 
 		// Concat to square
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
-		editManager->drawTerrain(ETerrainId::GRASS, 10);
+		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
 		EXPECT_EQ(map->getTile(int3(6, 4, 0)).terType->getId(), ETerrainId::GRASS);
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
-		editManager->drawTerrain(ETerrainId::LAVA, 10);
+		editManager->drawTerrain(ETerrainId::LAVA, 10, &rand);
 		EXPECT_EQ(map->getTile(int3(4, 4, 0)).terType->getId(), ETerrainId::GRASS);
 		EXPECT_EQ(map->getTile(int3(7, 4, 0)).terType->getId(), ETerrainId::LAVA);
 
 		// Special case water,rock
 		editManager->getTerrainSelection().selectRange(MapRect(int3(10, 10, 0), 10, 5));
-		editManager->drawTerrain(ETerrainId::GRASS, 10);
+		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
 		editManager->getTerrainSelection().selectRange(MapRect(int3(15, 17, 0), 10, 5));
-		editManager->drawTerrain(ETerrainId::GRASS, 10);
+		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
 		editManager->getTerrainSelection().select(int3(21, 16, 0));
-		editManager->drawTerrain(ETerrainId::GRASS, 10);
+		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
 		EXPECT_EQ(map->getTile(int3(20, 15, 0)).terType->getId(), ETerrainId::GRASS);
 
 		// Special case non water,rock
@@ -66,16 +67,16 @@ TEST(MapManager, DrawTerrain_Type)
 		{
 			editManager->getTerrainSelection().select(tile);
 		}
-		editManager->drawTerrain(ETerrainId::GRASS, 10);
+		editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
 		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType->getId(), ETerrainId::WATER);
 
 		// Rock case
 		editManager->getTerrainSelection().selectRange(MapRect(int3(1, 1, 1), 15, 15));
-		editManager->drawTerrain(ETerrainId::SUBTERRANEAN, 10);
+		editManager->drawTerrain(ETerrainId::SUBTERRANEAN, 10, &rand);
 		std::vector<int3> vec({ int3(6, 6, 1), int3(7, 6, 1), int3(8, 6, 1), int3(5, 7, 1), int3(6, 7, 1), int3(7, 7, 1),
 								int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
 		editManager->getTerrainSelection().setSelection(vec);
-		editManager->drawTerrain(ETerrainId::ROCK, 10);
+		editManager->drawTerrain(ETerrainId::ROCK, 10, &rand);
 		EXPECT_TRUE(!map->getTile(int3(5, 6, 1)).terType->isPassable() || !map->getTile(int3(7, 8, 1)).terType->isPassable());
 
 		//todo: add checks here and enable, also use smaller size

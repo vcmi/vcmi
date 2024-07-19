@@ -25,7 +25,7 @@ namespace NKAI
 {
 
 std::shared_ptr<boost::multi_array<AIPathNode, 4>> AISharedStorage::shared;
-uint64_t AISharedStorage::version = 0;
+uint32_t AISharedStorage::version = 0;
 boost::mutex AISharedStorage::locker;
 std::set<int3> committedTiles;
 std::set<int3> committedTilesInitial;
@@ -224,7 +224,6 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 
 		AIPathNode * initialNode = allocated.value();
 
-		initialNode->inPQ = false;
 		initialNode->pq = nullptr;
 		initialNode->turns = actor->initialTurn;
 		initialNode->moveRemains = actor->initialMovement;
@@ -1385,6 +1384,28 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
 		path.targetObjectDanger = evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
+
+		if(path.targetObjectDanger > 0)
+		{
+			if(node.theNodeBefore)
+			{
+				auto prevNode = getAINode(node.theNodeBefore);
+
+				if(node.coord == prevNode->coord && node.actor->hero == prevNode->actor->hero)
+				{
+					paths.pop_back();
+					continue;
+				}
+				else
+				{
+					path.armyLoss = prevNode->armyLoss;
+				}
+			}
+			else
+			{
+				path.armyLoss = 0;
+			}
+		}
 
 		path.targetObjectArmyLoss = evaluateArmyLoss(
 			path.targetHero,

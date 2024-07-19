@@ -16,13 +16,18 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace vstd
+{
+class RNG;
+}
+
 struct SetMovePoints;
 struct GiveBonus;
 struct BlockingDialog;
 struct TeleportDialog;
 struct StackLocation;
 struct ArtifactLocation;
-class CRandomGenerator;
+struct BankConfig;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
@@ -31,6 +36,11 @@ enum class EOpenWindowMode : uint8_t;
 namespace spells
 {
 	class Caster;
+}
+
+namespace Rewardable
+{
+	struct Configuration;
 }
 
 #if SCRIPTING_ENABLED
@@ -61,7 +71,7 @@ public:
 	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
-	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand);
+	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
 	template<typename Saver>
@@ -75,13 +85,16 @@ class DLL_LINKAGE IGameEventCallback
 {
 public:
 	virtual void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) = 0;
+	virtual void setBankObjectConfiguration(ObjectInstanceID objid, const BankConfig & configuration) = 0;
+	virtual void setRewardableObjectConfiguration(ObjectInstanceID mapObjectID, const Rewardable::Configuration & configuration) = 0;
+	virtual void setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration) = 0;
 	virtual void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) = 0;
 
 	virtual void showInfoDialog(InfoWindow * iw) = 0;
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
-	virtual void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) = 0;
+	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false)=0;
@@ -131,6 +144,9 @@ public:
 	virtual void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
 	
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
+
+	virtual vstd::RNG & getRandomGenerator() = 0;
+
 };
 
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback

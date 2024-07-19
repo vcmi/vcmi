@@ -31,15 +31,11 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, cachedLevel(0)
 	, mapRenderer(new MapRenderer())
-	, iconsStorage(GH.renderHandler().loadAnimation(AnimationPath::builtin("VwSymbol")))
+	, iconsStorage(GH.renderHandler().loadAnimation(AnimationPath::builtin("VwSymbol"), EImageBlitMode::COLORKEY))
 	, intermediate(new Canvas(Point(32, 32)))
 	, terrain(new Canvas(model->getCacheDimensionsPixels()))
 	, terrainTransition(new Canvas(model->getPixelsVisibleDimensions()))
 {
-	iconsStorage->preload();
-	for(size_t i = 0; i < iconsStorage->size(); ++i)
-		iconsStorage->getImage(i)->setBlitMode(EImageBlitMode::COLORKEY);
-
 	Point visibleSize = model->getTilesVisibleDimensions();
 	terrainChecksum.resize(boost::extents[visibleSize.x][visibleSize.y]);
 	tilesUpToDate.resize(boost::extents[visibleSize.x][visibleSize.y]);

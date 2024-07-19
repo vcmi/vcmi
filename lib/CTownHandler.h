@@ -253,7 +253,7 @@ public:
 		std::string iconSmall[2][2]; /// icon names used during loading
 		std::string iconLarge[2][2];
 		VideoPath tavernVideo;
-		AudioPath musicTheme;
+		std::vector<AudioPath> musicTheme;
 		ImagePath townBackground;
 		ImagePath guildBackground;
 		ImagePath guildWindow;

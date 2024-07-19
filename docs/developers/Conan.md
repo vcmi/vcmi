@@ -1,4 +1,4 @@
-# Using dependencies from Conan
+# Conan Dependencies
 
 [Conan](https://conan.io/) is a package manager for C/C++. We provide prebuilt binary dependencies for some platforms that are used by our CI, but they can also be consumed by users to build VCMI. However, it's not required to use only the prebuilt binaries: you can build them from source as well.
 

@@ -20,7 +20,8 @@
 #include "../../mapObjects/CGTownInstance.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
-#include "../../CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -118,7 +119,7 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 		auto actualTarget = EWallPart::INVALID;
 
 		if ( m->battle()->isWallPartAttackable(desiredTarget) &&
-				server->getRNG()->getInt64Range(0, 99)() < getCatapultHitChance(desiredTarget))
+				server->getRNG()->nextInt(0, 99) < getCatapultHitChance(desiredTarget))
 		{
 			actualTarget = desiredTarget;
 		}
@@ -172,7 +173,7 @@ int Catapult::getRandomDamage (ServerCallback * server) const
 {
 	std::array<int, 3> damageChances = { noDmg, hit, crit }; //dmgChance[i] - chance for doing i dmg when hit is successful
 	int totalChance = std::accumulate(damageChances.begin(), damageChances.end(), 0);
-	int damageRandom = server->getRNG()->getInt64Range(0, totalChance - 1)();
+	int damageRandom = server->getRNG()->nextInt(0, totalChance - 1);
 	int dealtDamage = 0;
 
 	//calculating dealt damage

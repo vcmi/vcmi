@@ -21,6 +21,8 @@
 #include "Functions.h"
 #include "../TerrainHandler.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 using namespace rmg;
@@ -111,7 +113,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 	dObject.pos = dPosition + dParent.getPosition();
 }
 
-void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
+void Object::Instance::setAnyTemplate(vstd::RNG & rng)
 {
 	auto templates = dObject.getObjectHandler()->getTemplates();
 	if(templates.empty())
@@ -122,7 +124,7 @@ void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
 	setPosition(getPosition(false));
 }
 
-void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
+void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 {
 	auto templates = dObject.getObjectHandler()->getMostSpecificTemplates(terrain);
 
@@ -366,7 +368,7 @@ void Object::setPosition(const int3 & position)
 		i.setPositionRaw(i.getPosition());
 }
 
-void Object::setTemplate(const TerrainId & terrain, CRandomGenerator & rng)
+void Object::setTemplate(const TerrainId & terrain, vstd::RNG & rng)
 {
 	for(auto& i : dInstances)
 		i.setTemplate(terrain, rng);
@@ -474,7 +476,7 @@ rmg::Area Object::Instance::getBorderAbove() const
 	return borderAbove;
 }
 
-void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
+void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
 {
 	if(!map.isOnMap(getPosition(true)))
 		throw rmgException(boost::str(boost::format("Position of object %d at %s is outside the map") % dObject.id % getPosition(true).toString()));
@@ -511,7 +513,7 @@ void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 	map.getMapProxy()->insertObject(&dObject);
 }
 
-void Object::finalize(RmgMap & map, CRandomGenerator & rng)
+void Object::finalize(RmgMap & map, vstd::RNG & rng)
 {
 	if(dInstances.empty())
 		throw rmgException("Cannot finalize object without instances");

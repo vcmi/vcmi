@@ -19,7 +19,6 @@
 #include "RiverPlacer.h"
 #include "../RmgMap.h"
 #include "../CMapGenerator.h"
-#include "../../CRandomGenerator.h"
 #include "../Functions.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapping/CMap.h"

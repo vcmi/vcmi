@@ -213,7 +213,7 @@ static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
 	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
 	jsonEntry["ageSeconds"].Integer() = gameRoom.age.count();
 	if (!gameRoom.modsJson.empty()) // not present in match history
-		jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size());
+		jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size(), "<lobby "+gameRoom.roomID+">");
 
 	for(const auto & account : gameRoom.participants)
 		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
@@ -348,7 +348,7 @@ JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & mes
 	JsonNode json;
 	try
 	{
-		JsonNode jsonTemp(message.data(), message.size());
+		JsonNode jsonTemp(message.data(), message.size(), "<lobby message>");
 		json = std::move(jsonTemp);
 	}
 	catch (const JsonFormatException & e)

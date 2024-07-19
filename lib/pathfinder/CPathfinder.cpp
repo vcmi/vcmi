@@ -82,9 +82,8 @@ CPathfinder::CPathfinder(CGameState * _gs, std::shared_ptr<PathfinderConfig> con
 
 void CPathfinder::push(CGPathNode * node)
 {
-	if(node && !node->inPQ)
+	if(node && !node->inPQ())
 	{
-		node->inPQ = true;
 		node->pq = &this->pq;
 		auto handle = pq.push(node);
 		node->pqHandle = handle;
@@ -96,7 +95,6 @@ CGPathNode * CPathfinder::topAndPop()
 	auto * node = pq.top();
 
 	pq.pop();
-	node->inPQ = false;
 	node->pq = nullptr;
 	return node;
 }

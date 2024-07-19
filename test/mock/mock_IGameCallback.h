@@ -37,11 +37,15 @@ public:
 
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) override {}
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {}
+	void setBankObjectConfiguration(ObjectInstanceID objid, const BankConfig & configuration) override {}
+	void setRewardableObjectConfiguration(ObjectInstanceID mapObjectID, const Rewardable::Configuration & configuration) override {}
+	void setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration) override {}
+
 	void showInfoDialog(InfoWindow * iw) override {}
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {}
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;}
-	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
+	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override {}
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override {}
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override {}
@@ -92,6 +96,8 @@ public:
 
 	///useful callback methods
 	void sendAndApply(CPackForClient * pack) override;
+
+	vstd::RNG & getRandomGenerator() override;
 
 #if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(getGlobalContextPool, scripting::Pool *());

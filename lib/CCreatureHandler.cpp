@@ -14,7 +14,6 @@
 #include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
-#include "CRandomGenerator.h"
 #include "CTownHandler.h"
 #include "GameSettings.h"
 #include "constants/StringConstants.h"
@@ -27,6 +26,8 @@
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "modding/CModHandler.h"
 #include "ExceptionsCommon.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1362,7 +1363,7 @@ CCreatureHandler::~CCreatureHandler()
 		p.first = nullptr;
 }
 
-CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const
+CreatureID CCreatureHandler::pickRandomMonster(vstd::RNG & rand, int tier) const
 {
 	std::vector<CreatureID> allowed;
 	for(const auto & creature : objects)

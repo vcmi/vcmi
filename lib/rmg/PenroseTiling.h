@@ -11,11 +11,15 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "../CRandomGenerator.h"
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+namespace vstd
+{
+class RNG;
+}
 
 using namespace boost::geometry;
 typedef std::array<uint32_t, 3> TIndices;
@@ -66,7 +70,7 @@ public:
 	
 	const bool P2 = false; // Tiling type
 
-	std::set<Point2D> generatePenroseTiling(size_t numZones, CRandomGenerator * rand);
+	std::set<Point2D> generatePenroseTiling(size_t numZones, vstd::RNG * rand);
 
 private:
 	void split(Triangle& p, std::vector<Point2D>& points, std::array<std::vector<uint32_t>, 5>& indices, uint32_t depth); 

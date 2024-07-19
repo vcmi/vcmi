@@ -14,6 +14,7 @@
 #include "../mapping/MapFormat.h"
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
+#include "../CRandomGenerator.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
@@ -32,15 +33,17 @@
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
-	monolithIndex(0)
+	monolithIndex(0),
+	rand(std::make_unique<CRandomGenerator>(RandomSeed))
 {
 	loadConfig();
-	rand.setSeed(this->randomSeed);
-	mapGenOptions.finalize(rand);
+	mapGenOptions.finalize(*rand);
 	map = std::make_unique<RmgMap>(mapGenOptions, cb);
 	placer = std::make_shared<CZonePlacer>(*map);
 }
@@ -116,7 +119,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	try
 	{
 		addHeaderInfo();
-		map->initTiles(*this, rand);
+		map->initTiles(*this, *rand);
 		Load::Progress::step();
 		initQuestArtsRemaining();
 		genZones();
@@ -286,7 +289,7 @@ void CMapGenerator::addPlayerInfo()
 					logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
 					assert (teamNumbers[j].size());
 				}
-				auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
+				auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], *rand);
 				player.team = TeamID(*itTeam);
 				teamNumbers[j].erase(itTeam);
 			}
@@ -306,8 +309,8 @@ void CMapGenerator::addPlayerInfo()
 
 void CMapGenerator::genZones()
 {
-	placer->placeZones(&rand);
-	placer->assignZones(&rand);
+	placer->placeZones(rand.get());
+	placer->assignZones(rand.get());
 
 	logGlobal->info("Zones generated successfully");
 }
@@ -428,9 +431,9 @@ void CMapGenerator::fillZones()
 			if (it.second->getType() != ETemplateZoneType::WATER)
 				treasureZones.push_back(it.second);
 	}
-	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
+	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, *rand);
 
-	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths()->getTiles(), rand);
+	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths()->getTiles(), *rand);
 	map->getMap(this).reindexObjects();
 
 	logGlobal->info("Zones filled successfully");

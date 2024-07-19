@@ -43,7 +43,7 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-	JsonNode json(message.data(), message.size());
+	JsonNode json(message.data(), message.size(), "<lobby network packet>");
 
 	if(json["type"].String() == "accountCreated")
 		return receiveAccountCreated(json);

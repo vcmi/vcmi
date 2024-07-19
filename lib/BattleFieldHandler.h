@@ -32,6 +32,8 @@ public:
 	std::string icon;
 	si32 iconIndex;
 	std::vector<BattleHex> impassableHexes;
+	AudioPath openingSoundFilename;
+	AudioPath musicFilename;
 
 	BattleFieldInfo() 
 		: BattleFieldInfo(BattleField::NONE, "")

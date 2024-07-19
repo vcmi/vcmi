@@ -28,6 +28,8 @@
 #include "../CPlayerState.h"
 #include "../serializer/CMemorySerializer.h"
 
+#include <vstd/RNG.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CampaignHeroReplacement::CampaignHeroReplacement(CGHeroInstance * hero, const ObjectInstanceID & heroPlaceholderId):
@@ -118,6 +120,11 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 
 				const ArtSlotInfo *info = hero.hero->getSlot(artifactPosition);
 				if(!info)
+					return false;
+
+				// FIXME: double-check how H3 handles case of transferring components of a combined artifact if entire combined artifact is not transferrable
+				// For example, what happens if hero has assembled Angelic Alliance, AA is not marked is transferrable, but Sandals can be transferred? Should artifact be disassembled?
+				if (info->locked)
 					return false;
 
 				// TODO: why would there be nullptr artifacts?

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * SDLImage.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -18,8 +18,6 @@
 #include "../render/CDefFile.h"
 #include "../render/Graphics.h"
 
-#include "../../lib/json/JsonNode.h"
-
 #include <SDL_surface.h>
 
 class SDLImageLoader;
@@ -34,7 +32,7 @@ int IImage::height() const
 	return dimensions().y;
 }
 
-SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group)
+SDLImageConst::SDLImageConst(CDefFile * data, size_t frame, size_t group)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -44,10 +42,9 @@ SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group)
 	data->loadFrame(frame, group, loader);
 
 	savePalette();
-	setBlitMode(EImageBlitMode::ALPHA);
 }
 
-SDLImage::SDLImage(SDL_Surface * from, EImageBlitMode mode)
+SDLImageConst::SDLImageConst(SDL_Surface * from)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -58,47 +55,13 @@ SDLImage::SDLImage(SDL_Surface * from, EImageBlitMode mode)
 		return;
 
 	savePalette();
-	setBlitMode(mode);
 
 	surf->refcount++;
 	fullSize.x = surf->w;
 	fullSize.y = surf->h;
 }
 
-SDLImage::SDLImage(const JsonNode & conf, EImageBlitMode mode)
-	: surf(nullptr),
-	margins(0, 0),
-	fullSize(0, 0),
-	originalPalette(nullptr)
-{
-	surf = BitmapHandler::loadBitmap(ImagePath::fromJson(conf["file"]));
-
-	if(surf == nullptr)
-		return;
-
-	savePalette();
-	setBlitMode(mode);
-
-	const JsonNode & jsonMargins = conf["margins"];
-
-	margins.x = static_cast<int>(jsonMargins["left"].Integer());
-	margins.y = static_cast<int>(jsonMargins["top"].Integer());
-
-	fullSize.x = static_cast<int>(conf["width"].Integer());
-	fullSize.y = static_cast<int>(conf["height"].Integer());
-
-	if(fullSize.x == 0)
-	{
-		fullSize.x = margins.x + surf->w + (int)jsonMargins["right"].Integer();
-	}
-
-	if(fullSize.y == 0)
-	{
-		fullSize.y = margins.y + surf->h + (int)jsonMargins["bottom"].Integer();
-	}
-}
-
-SDLImage::SDLImage(const ImagePath & filename, EImageBlitMode mode)
+SDLImageConst::SDLImageConst(const ImagePath & filename)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -114,22 +77,13 @@ SDLImage::SDLImage(const ImagePath & filename, EImageBlitMode mode)
 	else
 	{
 		savePalette();
-		setBlitMode(mode);
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
 	}
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, const Rect *src) const
-{
-	if(!surf)
-		return;
 
-	Rect destRect(posX, posY, surf->w, surf->h);
-	draw(where, &destRect, src);
-}
-
-void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) const
+void SDLImageConst::draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const
 {
 	if (!surf)
 		return;
@@ -153,16 +107,21 @@ void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) cons
 	else
 		destShift = margins;
 
-	if(dest)
-		destShift += dest->topLeft();
+	destShift += dest;
 
-	uint8_t perSurfaceAlpha;
-	if (SDL_GetSurfaceAlphaMod(surf, &perSurfaceAlpha) != 0)
-		logGlobal->error("SDL_GetSurfaceAlphaMod faied! %s", SDL_GetError());
+	SDL_SetSurfaceAlphaMod(surf, alpha);
 
-	if(surf->format->BitsPerPixel == 8 && perSurfaceAlpha == SDL_ALPHA_OPAQUE && blitMode == EImageBlitMode::ALPHA)
+	if (alpha != SDL_ALPHA_OPAQUE || (mode != EImageBlitMode::OPAQUE && surf->format->Amask != 0))
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
+	else
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
+
+	if (palette && surf->format->palette)
+		SDL_SetSurfacePalette(surf, palette);
+
+	if(surf->format->palette && mode == EImageBlitMode::ALPHA)
 	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift);
+		CSDL_Ext::blit8bppAlphaTo24bpp(surf, sourceRect, where, destShift, alpha);
 	}
 	else
 	{
@@ -170,12 +129,20 @@ void SDLImage::draw(SDL_Surface* where, const Rect * dest, const Rect* src) cons
 	}
 }
 
-std::shared_ptr<IImage> SDLImage::scaleFast(const Point & size) const
+const SDL_Palette * SDLImageConst::getPalette() const
 {
-	float scaleX = float(size.x) / width();
-	float scaleY = float(size.y) / height();
+	if (originalPalette == nullptr)
+		throw std::runtime_error("Palette not found!");
 
-	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, (int)(surf->w * scaleX), (int)(surf->h * scaleY));
+	return originalPalette;
+}
+
+std::shared_ptr<SDLImageConst> SDLImageConst::scaleFast(const Point & size) const
+{
+	float scaleX = float(size.x) / dimensions().x;
+	float scaleY = float(size.y) / dimensions().y;
+
+	auto scaled = CSDL_Ext::scaleSurface(surf, (int)(surf->w * scaleX), (int)(surf->h * scaleY));
 
 	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
 		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
@@ -184,7 +151,7 @@ std::shared_ptr<IImage> SDLImage::scaleFast(const Point & size) const
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	auto * ret = new SDLImage(scaled, EImageBlitMode::ALPHA);
+	auto ret = std::make_shared<SDLImageConst>(scaled);
 
 	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
 	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
@@ -195,45 +162,26 @@ std::shared_ptr<IImage> SDLImage::scaleFast(const Point & size) const
 	// erase our own reference
 	SDL_FreeSurface(scaled);
 
-	return std::shared_ptr<IImage>(ret);
+	return ret;
 }
 
-void SDLImage::exportBitmap(const boost::filesystem::path& path) const
+void SDLImageConst::exportBitmap(const boost::filesystem::path& path) const
 {
 	SDL_SaveBMP(surf, path.string().c_str());
 }
 
-void SDLImage::playerColored(PlayerColor player)
+void SDLImageIndexed::playerColored(PlayerColor player)
 {
-	if (!surf)
-		return;
-	graphics->blueToPlayersAdv(surf, player);
+	graphics->setPlayerPalette(currentPalette, player);
 }
 
-void SDLImage::setAlpha(uint8_t value)
-{
-	CSDL_Ext::setAlpha (surf, value);
-	if (value != 255)
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
-}
-
-void SDLImage::setBlitMode(EImageBlitMode mode)
-{
-	blitMode = mode;
-
-	if (blitMode != EImageBlitMode::OPAQUE && surf->format->Amask != 0)
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
-	else
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
-}
-
-void SDLImage::setFlagColor(PlayerColor player)
+void SDLImageIndexed::setFlagColor(PlayerColor player)
 {
 	if(player.isValidPlayer() || player==PlayerColor::NEUTRAL)
-		CSDL_Ext::setPlayerColor(surf, player);
+		graphics->setPlayerFlagColor(currentPalette, player);
 }
 
-bool SDLImage::isTransparent(const Point & coords) const
+bool SDLImageConst::isTransparent(const Point & coords) const
 {
 	if (surf)
 		return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
@@ -241,121 +189,172 @@ bool SDLImage::isTransparent(const Point & coords) const
 		return true;
 }
 
-Point SDLImage::dimensions() const
+Point SDLImageConst::dimensions() const
 {
 	return fullSize;
 }
 
-void SDLImage::horizontalFlip()
+std::shared_ptr<IImage> SDLImageConst::createImageReference(EImageBlitMode mode)
 {
-	margins.y = fullSize.y - surf->h - margins.y;
+	if (surf->format->palette)
+		return std::make_shared<SDLImageIndexed>(shared_from_this(), mode);
+	else
+		return std::make_shared<SDLImageRGB>(shared_from_this(), mode);
+}
 
-	//todo: modify in-place
+std::shared_ptr<IConstImage> SDLImageConst::horizontalFlip() const
+{
 	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
-	SDL_FreeSurface(surf);
-	surf = flipped;
+	auto ret = std::make_shared<SDLImageConst>(flipped);
+	ret->fullSize = fullSize;
+	ret->margins.x = margins.x;
+	ret->margins.y = fullSize.y - surf->h - margins.y;
+	ret->fullSize = fullSize;
+
+	return ret;
 }
 
-void SDLImage::verticalFlip()
+std::shared_ptr<IConstImage> SDLImageConst::verticalFlip() const
 {
-	margins.x = fullSize.x - surf->w - margins.x;
-
-	//todo: modify in-place
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
-	SDL_FreeSurface(surf);
-	surf = flipped;
-}
+	auto ret = std::make_shared<SDLImageConst>(flipped);
+	ret->fullSize = fullSize;
+	ret->margins.x = fullSize.x - surf->w - margins.x;
+	ret->margins.y = margins.y;
+	ret->fullSize = fullSize;
 
-void SDLImage::doubleFlip()
-{
-	horizontalFlip();
-	verticalFlip();
+	return ret;
 }
 
 // Keep the original palette, in order to do color switching operation
-void SDLImage::savePalette()
+void SDLImageConst::savePalette()
 {
 	// For some images that don't have palette, skip this
 	if(surf->format->palette == nullptr)
 		return;
 
 	if(originalPalette == nullptr)
-		originalPalette = SDL_AllocPalette(DEFAULT_PALETTE_COLORS);
+		originalPalette = SDL_AllocPalette(surf->format->palette->ncolors);
 
-	SDL_SetPaletteColors(originalPalette, surf->format->palette->colors, 0, DEFAULT_PALETTE_COLORS);
+	SDL_SetPaletteColors(originalPalette, surf->format->palette->colors, 0, surf->format->palette->ncolors);
 }
 
-void SDLImage::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
+void SDLImageIndexed::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
 {
-	if(surf->format->palette)
-	{
-		std::vector<SDL_Color> shifterColors(colorsToMove);
+	const SDL_Palette * originalPalette = image->getPalette();
 
-		for(uint32_t i=0; i<colorsToMove; ++i)
-		{
-			shifterColors[(i+distanceToMove)%colorsToMove] = originalPalette->colors[firstColorID + i];
-		}
-		CSDL_Ext::setColors(surf, shifterColors.data(), firstColorID, colorsToMove);
-	}
+	std::vector<SDL_Color> shifterColors(colorsToMove);
+
+	for(uint32_t i=0; i<colorsToMove; ++i)
+		shifterColors[(i+distanceToMove)%colorsToMove] = originalPalette->colors[firstColorID + i];
+
+	SDL_SetPaletteColors(currentPalette, shifterColors.data(), firstColorID, colorsToMove);
 }
 
-void SDLImage::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask)
+void SDLImageIndexed::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask)
 {
-	if(originalPalette == nullptr)
-		return;
-
-	SDL_Palette* palette = surf->format->palette;
+	const SDL_Palette * originalPalette = image->getPalette();
 
 	// Note: here we skip first colors in the palette that are predefined in H3 images
-	for(int i = 0; i < palette->ncolors; i++)
+	for(int i = 0; i < currentPalette->ncolors; i++)
 	{
 		if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
 			continue;
 
-		palette->colors[i] = CSDL_Ext::toSDL(shifter.shiftColor(CSDL_Ext::fromSDL(originalPalette->colors[i])));
+		currentPalette->colors[i] = CSDL_Ext::toSDL(shifter.shiftColor(CSDL_Ext::fromSDL(originalPalette->colors[i])));
 	}
 }
 
-void SDLImage::resetPalette()
+SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<SDLImageConst> & image, EImageBlitMode mode)
+	:SDLImageBase::SDLImageBase(image, mode)
 {
-	if(originalPalette == nullptr)
-		return;
-	
-	// Always keep the original palette not changed, copy a new palette to assign to surface
-	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, originalPalette->ncolors);
+	auto originalPalette = image->getPalette();
+
+	currentPalette = SDL_AllocPalette(originalPalette->ncolors);
+	SDL_SetPaletteColors(currentPalette, originalPalette->colors, 0, originalPalette->ncolors);
 }
 
-void SDLImage::resetPalette( int colorID )
+SDLImageIndexed::~SDLImageIndexed()
 {
-	if(originalPalette == nullptr)
-		return;
-
-	// Always keep the original palette not changed, copy a new palette to assign to surface
-	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors + colorID, colorID, 1);
+	SDL_FreePalette(currentPalette);
 }
 
-void SDLImage::setSpecialPalette(const IImage::SpecialPalette & specialPalette, uint32_t colorsToSkipMask)
+void SDLImageIndexed::setSpecialPalette(const IImage::SpecialPalette & specialPalette, uint32_t colorsToSkipMask)
 {
-	if(surf->format->palette)
+	size_t last = std::min<size_t>(specialPalette.size(), currentPalette->ncolors);
+
+	for (size_t i = 0; i < last; ++i)
 	{
-		size_t last = std::min<size_t>(specialPalette.size(), surf->format->palette->ncolors);
-
-		for (size_t i = 0; i < last; ++i)
-		{
-			if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
-				surf->format->palette->colors[i] = CSDL_Ext::toSDL(specialPalette[i]);
-		}
+		if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
+			currentPalette->colors[i] = CSDL_Ext::toSDL(specialPalette[i]);
 	}
 }
 
-SDLImage::~SDLImage()
+SDLImageConst::~SDLImageConst()
 {
 	SDL_FreeSurface(surf);
-
-	if(originalPalette != nullptr)
-	{
-		SDL_FreePalette(originalPalette);
-		originalPalette = nullptr;
-	}
+	SDL_FreePalette(originalPalette);
 }
+
+SDLImageBase::SDLImageBase(const std::shared_ptr<SDLImageConst> & image, EImageBlitMode mode)
+	:image(image)
+	, alphaValue(SDL_ALPHA_OPAQUE)
+	, blitMode(mode)
+{}
+
+void SDLImageRGB::draw(SDL_Surface * where, const Point & pos, const Rect * src) const
+{
+	image->draw(where, nullptr, pos, src, alphaValue, blitMode);
+}
+
+void SDLImageIndexed::draw(SDL_Surface * where, const Point & pos, const Rect * src) const
+{
+	image->draw(where, currentPalette, pos, src, alphaValue, blitMode);
+}
+
+void SDLImageBase::scaleFast(const Point & size)
+{
+	image = image->scaleFast(size);
+}
+
+void SDLImageBase::exportBitmap(const boost::filesystem::path & path) const
+{
+	image->exportBitmap(path);
+}
+
+bool SDLImageBase::isTransparent(const Point & coords) const
+{
+	return image->isTransparent(coords);
+}
+
+Point SDLImageBase::dimensions() const
+{
+	return image->dimensions();
+}
+
+void SDLImageBase::setAlpha(uint8_t value)
+{
+	alphaValue = value;
+}
+
+void SDLImageBase::setBlitMode(EImageBlitMode mode)
+{
+	blitMode = mode;
+}
+
+void SDLImageRGB::setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask)
+{}
+
+void SDLImageRGB::playerColored(PlayerColor player)
+{}
+
+void SDLImageRGB::setFlagColor(PlayerColor player)
+{}
+
+void SDLImageRGB::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
+{}
+
+void SDLImageRGB::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask)
+{}
+
 

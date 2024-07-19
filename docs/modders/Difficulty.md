@@ -1,3 +1,5 @@
+# Difficulty
+
 Since VCMI 1.4.0 there are more capabilities to configure difficulty parameters.
 It means, that modders can give different bonuses to AI or human players depending on selected difficulty
 

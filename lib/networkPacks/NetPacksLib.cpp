@@ -12,6 +12,7 @@
 #include "PacksForClient.h"
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
+#include "SetRewardableConfiguration.h"
 #include "StackLocation.h"
 #include "PacksForLobby.h"
 #include "SetStackEffect.h"
@@ -32,6 +33,7 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
+#include "mapObjects/CBank.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
 #include "mapObjects/CGTownInstance.h"
@@ -121,6 +123,16 @@ void DaysWithoutTown::visitTyped(ICPackVisitor & visitor)
 void EntitiesChanged::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitEntitiesChanged(*this);
+}
+
+void SetRewardableConfiguration::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetRewardableConfiguration(*this);
+}
+
+void SetBankConfiguration::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetBankConfiguration(*this);
 }
 
 void SetResources::visitTyped(ICPackVisitor & visitor)
@@ -1415,7 +1427,6 @@ void HeroRecruited::applyGs(CGameState * gs) const
 
 	h->setOwner(player);
 	h->pos = tile;
-	h->initObj(gs->getRandomGenerator());
 
 	if(h->id == ObjectInstanceID())
 	{
@@ -1469,59 +1480,13 @@ void GiveHero::applyGs(CGameState * gs) const
 
 void NewObject::applyGs(CGameState *gs)
 {
-	TerrainId terrainType = ETerrainId::NONE;
+	newObject->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 
-	if (!gs->isInTheMap(targetPos))
-	{
-		logGlobal->error("Attempt to create object outside map at %s!", targetPos.toString());
-		return;
-	}
-
-	const TerrainTile & t = gs->map->getTile(targetPos);
-	terrainType = t.terType->getId();
-
-	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
-
-	CGObjectInstance * o = handler->create(gs->callback, nullptr);
-	handler->configureObject(o, gs->getRandomGenerator());
-	assert(o->ID == this->ID);
-	
-	if (ID == Obj::MONSTER) //probably more options will be needed
-	{
-		//CStackInstance hlp;
-		auto * cre = dynamic_cast<CGCreature *>(o);
-		//cre->slots[0] = hlp;
-		assert(cre);
-		cre->notGrowingTeam = cre->neverFlees = false;
-		cre->character = 2;
-		cre->gainedArtifact = ArtifactID::NONE;
-		cre->identifier = -1;
-		cre->addToSlot(SlotID(0), new CStackInstance(subID.getNum(), -1)); //add placeholder stack
-	}
-
-	assert(!handler->getTemplates(terrainType).empty());
-	if (handler->getTemplates().empty())
-	{
-		logGlobal->error("Attempt to create object (%d %d) with no templates!", ID, subID.getNum());
-		return;
-	}
-
-	if (!handler->getTemplates(terrainType).empty())
-		o->appearance = handler->getTemplates(terrainType).front();
-	else
-		o->appearance = handler->getTemplates().front();
-
-	o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
-	o->pos = targetPos + o->getVisitableOffset();
-
-	gs->map->objects.emplace_back(o);
-	gs->map->addBlockVisTiles(o);
-	o->initObj(gs->getRandomGenerator());
+	gs->map->objects.emplace_back(newObject);
+	gs->map->addBlockVisTiles(newObject);
 	gs->map->calculateGuardingGreaturePositions();
 
-	createdObjectID = o->id;
-
-	logGlobal->debug("Added object id=%d; address=%x; name=%s", o->id, (intptr_t)o, o->getObjectName());
+	logGlobal->debug("Added object id=%d; address=%x; name=%s", newObject->id, (intptr_t)newObject, newObject->getObjectName());
 }
 
 void NewArtifact::applyGs(CGameState *gs)
@@ -1984,8 +1949,8 @@ void NewTurn::applyGs(CGameState *gs)
 	for(CGTownInstance* t : gs->map->towns)
 		t->built = 0;
 
-	if(gs->getDate(Date::DAY_OF_WEEK) == 1)
-		gs->updateRumor();
+	if(newRumor)
+		gs->currentRumor = *newRumor;
 }
 
 void SetObjectProperty::applyGs(CGameState * gs) const
@@ -2477,6 +2442,26 @@ void EntitiesChanged::applyGs(CGameState * gs)
 {
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);
+}
+
+void SetRewardableConfiguration::applyGs(CGameState * gs)
+{
+	auto * objectPtr = gs->getObjInstance(objectID);
+	auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
+
+	assert(rewardablePtr);
+
+	rewardablePtr->configuration = configuration;
+}
+
+void SetBankConfiguration::applyGs(CGameState * gs)
+{
+	auto * objectPtr = gs->getObjInstance(objectID);
+	auto * bankPtr = dynamic_cast<CBank *>(objectPtr);
+
+	assert(bankPtr);
+
+	bankPtr->setConfig(configuration);
 }
 
 const CArtifactInstance * ArtSlotInfo::getArt() const

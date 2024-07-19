@@ -94,6 +94,11 @@ bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, EMovem
 	return gh->moveHero(hid, dst, mode, false);
 }
 
+void ServerSpellCastEnvironment::createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator)
+{
+	return gh->createBoat(visitablePosition, type, initiator);
+}
+
 void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
 {
 	auto query = std::make_shared<CGenericQuery>(gh, color, callback);

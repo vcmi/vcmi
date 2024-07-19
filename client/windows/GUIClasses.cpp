@@ -36,7 +36,6 @@
 #include "../widgets/VideoWidget.h"
 
 #include "../render/Canvas.h"
-#include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IImage.h"
 
@@ -54,6 +53,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/GameSettings.h"
 #include "ConditionalWait.h"
+#include "../lib/CRandomGenerator.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/CSoundBase.h"
 
@@ -891,21 +891,20 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.x += X;
 	pos.y += Y;
 
-	topBar = std::make_shared<CAnimImage>(parent->bars, 0, 0, -28, -22);
-	bottomBar = std::make_shared<CAnimImage>(parent->bars, 0, 0, -28, 48);
-
 	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), _ID * 3 + 3, 0);
-
-	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->skillh->getByIndex(ID)->getNameTranslated());
-	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[0]);
 
 	pos.h = icon->pos.h;
 	pos.w = icon->pos.w;
+
+	update();
 }
 
 void CUniversityWindow::CItem::clickPressed(const Point & cursorPosition)
 {
-	if(state() == 2)
+	bool skillKnown = parent->hero->getSecSkillLevel(ID);
+	bool canLearn =	parent->hero->canLearnSkill(ID);
+
+	if (!skillKnown && canLearn)
 		GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
 }
 
@@ -914,31 +913,35 @@ void CUniversityWindow::CItem::showPopupWindow(const Point & cursorPosition)
 	CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(ComponentType::SEC_SKILL, ID, 1));
 }
 
+void CUniversityWindow::CItem::update()
+{
+	bool skillKnown = parent->hero->getSecSkillLevel(ID);
+	bool canLearn =	parent->hero->canLearnSkill(ID);
+
+	ImagePath image;
+
+	if (skillKnown)
+		image = ImagePath::builtin("UNIVGOLD");
+	else if (canLearn)
+		image = ImagePath::builtin("UNIVGREN");
+	else
+		image = ImagePath::builtin("UNIVRED");
+
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	topBar = std::make_shared<CPicture>(image, Point(-28, -22));
+	bottomBar = std::make_shared<CPicture>(image, Point(-28, 48));
+
+	// needs to be on top of background bars
+	name = std::make_shared<CLabel>(22, -13, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, ID.toEntity(VLC)->getNameTranslated());
+	level = std::make_shared<CLabel>(22, 57, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->levels[0]);
+}
+
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if(on)
-		GH.statusbar()->write(CGI->skillh->getByIndex(ID)->getNameTranslated());
+		GH.statusbar()->write(ID.toEntity(VLC)->getNameTranslated());
 	else
 		GH.statusbar()->clear();
-}
-
-int CUniversityWindow::CItem::state()
-{
-	if(parent->hero->getSecSkillLevel(SecondarySkill(ID)))//hero know this skill
-		return 1;
-	if(!parent->hero->canLearnSkill(SecondarySkill(ID)))//can't learn more skills
-		return 0;
-	return 2;
-}
-
-void CUniversityWindow::CItem::showAll(Canvas & to)
-{
-	//TODO: update when state actually changes
-	auto stateIndex = state();
-	topBar->setFrame(stateIndex);
-	bottomBar->setFrame(stateIndex);
-
-	CIntObject::showAll(to);
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed)
@@ -949,12 +952,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	bars = GH.renderHandler().createAnimation();
-	bars->setCustom("UNIVRED", 0, 0);
-	bars->setCustom("UNIVGOLD", 1, 0);
-	bars->setCustom("UNIVGREN", 2, 0);
-	bars->preload();
-	
+
 	std::string titleStr = CGI->generaltexth->allTexts[602];
 	std::string speechStr = CGI->generaltexth->allTexts[603];
 
@@ -997,11 +995,16 @@ void CUniversityWindow::close()
 	CStatusbarWindow::close();
 }
 
+void CUniversityWindow::updateSecondarySkills()
+{
+	for (auto const & item : items)
+		item->update();
+}
+
 void CUniversityWindow::makeDeal(SecondarySkill skill)
 {
 	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_SKILL, GameResID(GameResID::GOLD), skill, 1, hero);
 }
-
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkill SKILL, bool available)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS2.PCX")),
@@ -1330,17 +1333,11 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, text));
 	}
 
-	auto PRSTRIPS = GH.renderHandler().loadAnimation(AnimationPath::builtin("PRSTRIPS"));
-	PRSTRIPS->preload();
-
 	for(int g=1; g<tgi.playerColors.size(); ++g)
-		columnBackgrounds.push_back(std::make_shared<CAnimImage>(PRSTRIPS, g-1, 0, 250 + 66*g, 7));
+		columnBackgrounds.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PRSTRIPS"), g-1, 0, 250 + 66*g, 7));
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
 		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 24, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]));
-
-	auto itgflags = GH.renderHandler().loadAnimation(AnimationPath::builtin("itgflags"));
-	itgflags->preload();
 
 	//printing flags
 	for(int g = 0; g < std::size(fields); ++g) //by lines
@@ -1365,7 +1362,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 				int rowStartY = ypos + (j ? 4 : 0);
 
 				for(size_t i=0; i < rowLength[j]; i++)
-					cells.push_back(std::make_shared<CAnimImage>(itgflags, players[i + j*4].getNum(), 0, rowStartX + (int)i*12, rowStartY));
+					cells.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("itgflags"), players[i + j*4].getNum(), 0, rowStartX + (int)i*12, rowStartY));
 			}
 		}
 	}

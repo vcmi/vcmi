@@ -14,7 +14,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
-#include "../render/Graphics.h"
 #include "../render/IImage.h"
 #include "../renderSDL/RenderHandler.h"
 #include "../widgets/CComponent.h"
@@ -225,12 +224,12 @@ void CHeroOverview::genControls()
         {
             if((*CGI->heroh)[heroIdx]->haveSpellBook)
             {
-                imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("ARTIFACT")), 0, Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
+                imageSpells.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ARTIFACT"), 0, Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
             }
             i++;
         }
 
-        imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("SPELLBON")), (*CGI->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
+        imageSpells.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SPELLBON"), (*CGI->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
         labelSpellsNames.push_back(std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset + 32 + borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->spellh)[spell]->getNameTranslated()));
         i++;
     }

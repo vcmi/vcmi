@@ -165,6 +165,15 @@ public:
 	virtual void updateGarrisons() = 0;
 };
 
+class IMarketHolder
+{
+public:
+	virtual void updateResources() {};
+	virtual void updateExperience() {};
+	virtual void updateSecondarySkills() {};
+	virtual void updateArtifacts() {};
+};
+
 class ITownHolder
 {
 public:

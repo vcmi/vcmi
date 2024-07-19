@@ -78,7 +78,7 @@ GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 	buttonCreate = std::make_shared<CButton>(Point(10, 300), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onCreate(); }, EShortcut::GLOBAL_ACCEPT);
 	buttonClose = std::make_shared<CButton>(Point(210, 300), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);
 
-	filledBackground->playerColored(PlayerColor(1));
+	filledBackground->setPlayerColor(PlayerColor(1));
 
 	updateDescription();
 	center();

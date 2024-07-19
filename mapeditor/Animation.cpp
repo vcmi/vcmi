@@ -599,7 +599,7 @@ void Animation::init()
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), resID.getName());
 
 		initFromJson(config);
 	}
@@ -709,14 +709,6 @@ void Animation::duplicateImage(const size_t sourceGroup, const size_t sourceFram
 
 	if(preloaded)
 		load(index, targetGroup);
-}
-
-void Animation::setCustom(std::string filename, size_t frame, size_t group)
-{
-	if(source[group].size() <= frame)
-		source[group].resize(frame+1);
-	source[group][frame]["file"].String() = filename;
-	//FIXME: update image if already loaded
 }
 
 std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool verbose) const

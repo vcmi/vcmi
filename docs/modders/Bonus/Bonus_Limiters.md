@@ -1,3 +1,5 @@
+# Bonus Limiters
+
 ## Predefined Limiters
 
 The limiters take no parameters:

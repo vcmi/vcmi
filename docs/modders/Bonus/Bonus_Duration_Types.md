@@ -1,3 +1,5 @@
+# Bonus Duration Types
+
 Bonus may have any of these durations. They acts in disjunction.
 
 ## List of all bonus duration types

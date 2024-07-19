@@ -33,7 +33,7 @@
 	
 	"vcmi.heroOverview.startingArmy" : "Unidades Iniciais",
 	"vcmi.heroOverview.warMachine" : "Máquinas de Guerra",
-	"vcmi.heroOverview.secondarySkills" : "Habilidades Secundárias",
+	"vcmi.heroOverview.secondarySkills" : "Habilid. Secundárias",
 	"vcmi.heroOverview.spells" : "Feitiços",
 	
 	"vcmi.radialWheel.mergeSameUnit" : "Mesclar criaturas iguais",
@@ -259,7 +259,7 @@
 	"vcmi.battleWindow.damageRetaliation.damage" : "(%DAMAGE).",
 	"vcmi.battleWindow.damageRetaliation.damageKills" : "(%DAMAGE, %KILLS).",
 	
-	"vcmi.battleWindow.killed" : "Eliminados",
+	"vcmi.battleWindow.killed" : "Mortos",
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s morreram por tiros precisos!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s morreu com um tiro preciso!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s morreram por tiros precisos!",
@@ -612,7 +612,7 @@
 	"core.bonus.SPELL_LIKE_ATTACK.description" : "Ataques com ${subtype.spell}",
 	"core.bonus.SPELL_RESISTANCE_AURA.name" : "Aura de Resistência a Feitiços",
 	"core.bonus.SPELL_RESISTANCE_AURA.description" : "Pilhas próximas ganham ${val}% de resistência a magia",
-	"core.bonus.SUMMON_GUARDIANS.name" : "Invocar Guardiões",
+	"core.bonus.SUMMON_GUARDIANS.name" : "Invocar Guardas",
 	"core.bonus.SUMMON_GUARDIANS.description" : "No início da batalha, invoca ${subtype.creature} (${val}%)",
 	"core.bonus.SYNERGY_TARGET.name" : "Alvo Sinergizável",
 	"core.bonus.SYNERGY_TARGET.description" : "Esta criatura é vulnerável ao efeito de sinergia",

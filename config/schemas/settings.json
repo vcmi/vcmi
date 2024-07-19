@@ -372,7 +372,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside", "enableQuickSpellPanel" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -430,6 +430,10 @@
 				"queueSmallOutside" : {
 					"type": "boolean",
 					"default": false
+				},
+				"enableQuickSpellPanel" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},
@@ -437,7 +441,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI" ],
+			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "seed", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI" ],
 			"properties" : {
 				"localHostname" : {
 					"type" : "string",
@@ -454,6 +458,10 @@
 				"remotePort" : {
 					"type" : "number",
 					"default" : 3030
+				},
+				"seed" : {
+					"type" : "number",
+					"default" : 0
 				},
 				"playerAI" : {
 					"type" : "string",
@@ -537,7 +545,7 @@
 				},
 				"loggers" : {
 					"type" : "array",
-					"default" : [ { "domain" : "global", "level" : "trace" } ],
+					"default" : [ { "domain" : "global", "level" : "trace" }, { "domain" : "rng", "level" : "info" } ],
 					"items" : {
 						"type" : "object",
 						"additionalProperties" : false,

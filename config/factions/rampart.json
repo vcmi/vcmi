@@ -123,7 +123,7 @@
 				"dwellingUpLvl7": { "animation" : "TBRMUP_6.def", "x" : 502, "y" : 5,   "z" : -5, "border" : "TORDR2AA.bmp", "area" : "TZRDR2AA.bmp" }
 			},
 
-			"musicTheme" : "music/Rampart",
+			"musicTheme" : [ "music/Rampart" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",

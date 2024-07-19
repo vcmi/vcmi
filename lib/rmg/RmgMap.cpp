@@ -84,7 +84,7 @@ void RmgMap::foreachDiagonalNeighbour(const int3 & pos, const std::function<void
 	}
 }
 
-void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
+void RmgMap::initTiles(CMapGenerator & generator, vstd::RNG & rand)
 {
 	mapInstance->initTerrain();
 	
