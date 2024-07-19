@@ -7,11 +7,6 @@
 	"items":
 	[
 		{
-			"name": "lineCreatureInfo",
-			"type": "horizontalLine",
-			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
-		},
-		{
 			"name": "lineAnimationSpeed",
 			"type": "horizontalLine",
 			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
@@ -20,11 +15,6 @@
 			"type" : "labelTitle",
 			"text": "core.genrltxt.396", // Auto-combat options
 			"position": {"x": 380, "y": 55}
-		},
-		{
-			"type" : "labelTitle",
-			"text": "core.genrltxt.397", // Creature info
-			"position": {"x": 10, "y": 265}
 		},
 /////////////////////////////////////// Right section - Auto-combat settings (NOT IMPLEMENTED)
 		{
@@ -106,32 +96,6 @@
 		},
 /////////////////////////////////////// Left section - checkboxes
 		{
-			"name": "creatureInfoLabels",
-			"type" : "verticalLayout",
-			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 295},
-			"items":
-			[
-				{
-					"text": "core.genrltxt.402",
-				},
-				{
-					"text": "core.genrltxt.403",
-				}
-			]
-		},
-		{
-			"name": "creatureInfoCheckboxes",
-			"type" : "verticalLayout",
-			"customType" : "checkboxFake",
-			"position": {"x": 10, "y": 293},
-			"items":
-			[
-				{},
-				{}
-			]
-		},
-		{
 			"name": "generalOptionsLabels",
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
@@ -152,6 +116,9 @@
 				},
 				{
 					"text": "vcmi.battleOptions.showStickyHeroInfoWindows.hover",
+				},
+				{
+					"text": "vcmi.battleOptions.showQuickSpell.hover",
 				},
 				{
 					"text": "core.genrltxt.406",
@@ -191,6 +158,11 @@
 					"name": "showStickyHeroInfoWindowsCheckbox",
 					"help": "vcmi.battleOptions.showStickyHeroInfoWindows",
 					"callback": "showStickyHeroWindowsChanged"
+				},
+				{
+					"name": "showQuickSpellCheckbox",
+					"help": "vcmi.battleOptions.showQuickSpell",
+					"callback": "showQuickSpellChanged"
 				},
 				{
 					"name": "mouseShadowCheckbox",

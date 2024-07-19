@@ -185,6 +185,7 @@ public:
 
 	void setBattleQueueVisibility(bool visible);
 	void setStickyHeroWindowsVisibility(bool visible);
+	void setStickyQuickSpellWindowVisibility(bool visible);
 
 	void endNetwork();
 	void executeStagedAnimations();
