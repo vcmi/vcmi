@@ -499,6 +499,7 @@ void QuickSpellPanel::show(Canvas & to)
 void QuickSpellPanel::inputModiChanged(InputModi modi)
 {
 	create();
+	redraw();
 }
 
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)

@@ -68,7 +68,10 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return;
 		case SDL_MOUSEBUTTONDOWN:
 			if (enableMouse)
+			{
+				setCurrentInputModi(InputModi::MOUSE);
 				mouseHandler->handleEventMouseButtonDown(current.button);
+			}
 			return;
 		case SDL_MOUSEBUTTONUP:
 			if (enableMouse)
@@ -94,7 +97,10 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return;
 		case SDL_FINGERDOWN:
 			if (enableTouch)
+			{
+				setCurrentInputModi(InputModi::TOUCH);
 				fingerHandler->handleEventFingerDown(current.tfinger);
+			}
 			return;
 		case SDL_FINGERUP:
 			if (enableTouch)
@@ -109,7 +115,10 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return;
 		case SDL_CONTROLLERBUTTONDOWN:
 			if (enableController)
+			{
+				setCurrentInputModi(InputModi::CONTROLLER);
 				gameControllerHandler->handleEventButtonDown(current.cbutton);
+			}
 			return;
 		case SDL_CONTROLLERBUTTONUP:
 			if (enableController)
@@ -357,7 +366,8 @@ void InputHandler::stopTextInput()
 
 void InputHandler::hapticFeedback()
 {
-	fingerHandler->hapticFeedback();
+	if(currentInputModi == InputModi::TOUCH)
+		fingerHandler->hapticFeedback();
 }
 
 uint32_t InputHandler::getTicks()
