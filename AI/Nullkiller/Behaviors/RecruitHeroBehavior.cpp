@@ -83,9 +83,6 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 				}
 			}
 
-			if(treasureSourcesCount < 5 && (town->garrisonHero || town->getUpperArmy()->getArmyStrength() < 10000))
-				continue;
-
 			if(ai->cb->getHeroesInfo().size() < ai->cb->getTownsInfo().size() + 1
 				|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh()))
 			{
