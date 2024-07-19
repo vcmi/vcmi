@@ -211,7 +211,7 @@ uint32_t CSDL_Ext::getPixel(SDL_Surface *surface, const int & x, const int & y, 
 }
 
 template<int bpp, bool useAlpha>
-int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPointInput, uint8_t alpha)
+int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPointInput, [[maybe_unused]] uint8_t alpha)
 {
 	SDL_Rect srcRectInstance = CSDL_Ext::toSDL(srcRectInput);
 	SDL_Rect dstRectInstance = CSDL_Ext::toSDL(Rect(dstPointInput, srcRectInput.dimensions()));
