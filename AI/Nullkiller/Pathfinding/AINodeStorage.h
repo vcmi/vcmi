@@ -12,7 +12,7 @@
 
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
 constexpr int NKAI_GRAPH_TRACE_LEVEL = 0;
-#define NKAI_TRACE_LEVEL 0
+#define NKAI_TRACE_LEVEL 2
 
 #include "../../../lib/pathfinder/CGPathNode.h"
 #include "../../../lib/pathfinder/INodeStorage.h"
