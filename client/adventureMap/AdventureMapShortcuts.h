@@ -42,6 +42,8 @@ class AdventureMapShortcuts
 	void showQuestlog();
 	void toggleTrackHero();
 	void toggleGrid();
+	void toggleVisitable();
+	void toggleBlocked();
 	void toggleSleepWake();
 	void setHeroSleeping();
 	void setHeroAwake();
