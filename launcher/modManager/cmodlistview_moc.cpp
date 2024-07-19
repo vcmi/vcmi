@@ -962,7 +962,7 @@ void CModListView::loadScreenshots()
 {
 	if(ui->tabWidget->currentIndex() == 2)
 	{
-		if(ui->allModsView->currentIndex().row() == -1 || ui->allModsView->currentIndex().column() == -1)
+		if(!ui->allModsView->currentIndex().isValid())
 		{
 			// select the first mod, so we can access its data
 			ui->allModsView->setCurrentIndex(filterModel->index(0, 0));
