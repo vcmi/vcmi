@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_END
 class AEventsReceiver;
 enum class MouseButton;
 enum class EShortcut;
-enum class InputModus;
+enum class InputMode;
 
 /// Class that receives events from event producers and dispatches it to UI elements that are interested in this event
 class EventDispatcher
@@ -35,7 +35,7 @@ class EventDispatcher
 	EventReceiversList doubleClickInterested;
 	EventReceiversList textInterested;
 	EventReceiversList panningInterested;
-	EventReceiversList inputModusChangeInterested;
+	EventReceiversList inputModeChangeInterested;
 
 	void handleLeftButtonClick(const Point & position, int tolerance, bool isPressed);
 	void handleDoubleButtonClick(const Point & position, int tolerance);
@@ -79,5 +79,5 @@ public:
 	void dispatchTextInput(const std::string & text);
 	void dispatchTextEditing(const std::string & text);
 
-	void dispatchInputModusChanged(const InputModus & modi);
+	void dispatchInputModeChanged(const InputMode & modi);
 };

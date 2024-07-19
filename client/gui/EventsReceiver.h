@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_END
 
 class EventDispatcher;
 enum class EShortcut;
-enum class InputModus;
+enum class InputMode;
 
 /// Class that is capable of subscribing and receiving input events
 /// Acts as base class for all UI elements
@@ -76,7 +76,7 @@ public:
 
 	virtual void tick(uint32_t msPassed) {}
 
-	virtual void inputModusChanged(InputModus modi) {}
+	virtual void inputModeChanged(InputMode modi) {}
 
 public:
 	AEventsReceiver();
@@ -97,7 +97,7 @@ public:
 		TEXTINPUT = 512,
 		GESTURE = 1024,
 		DRAG = 2048,
-		INPUT_MODUS_CHANGE = 4096
+		INPUT_MODE_CHANGE = 4096
 	};
 
 	/// Returns true if element is currently hovered by mouse

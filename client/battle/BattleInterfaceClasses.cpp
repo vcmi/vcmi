@@ -427,7 +427,7 @@ QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | INPUT_MODUS_CHANGE);
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | INPUT_MODE_CHANGE);
 
 	pos = Rect(0, 0, 52, 600);
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
@@ -483,7 +483,7 @@ void QuickSpellPanel::create()
 		{
 			buttonsDisabled.push_back(std::make_shared<TransparentFilledRectangle>(Rect(2, 7 + 50 * i, 48, 36), ColorRGBA(0, 0, 0, 172)));
 		}
-		if(GH.input().getCurrentInputModus() == InputModus::MOUSE)
+		if(GH.input().getCurrentInputMode() == InputMode::MOUSE)
 			labels.push_back(std::make_shared<CLabel>(7, 10 + 50 * i, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, config["keyboard"]["battleSpellShortcut" + std::to_string(i)].String()));
 
 		buttons.push_back(button);
@@ -496,7 +496,7 @@ void QuickSpellPanel::show(Canvas & to)
 	CIntObject::show(to);
 }
 
-void QuickSpellPanel::inputModusChanged(InputModus modi)
+void QuickSpellPanel::inputModeChanged(InputMode modi)
 {
 	create();
 	redraw();

@@ -67,7 +67,7 @@ void CTutorialWindow::setContent()
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 {
-	if(GH.input().getCurrentInputModus() == InputModus::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
+	if(GH.input().getCurrentInputMode() == InputMode::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
 	{
 		if(LOCPLINT)
 			LOCPLINT->showingDialog->setBusy();
