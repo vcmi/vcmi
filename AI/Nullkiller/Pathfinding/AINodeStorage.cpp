@@ -1557,7 +1557,7 @@ bool AIPath::containsHero(const CGHeroInstance * hero) const
 
 uint64_t AIPath::getTotalArmyLoss() const
 {
-	return armyLoss > targetObjectArmyLoss ? armyLoss : targetObjectArmyLoss;
+	return armyLoss + targetObjectArmyLoss;
 }
 
 std::string AIPath::toString() const
