@@ -130,8 +130,10 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 void InputHandler::setCurrentInputModi(InputModi modi)
 {
 	if(currentInputModi != modi)
+	{
+		currentInputModi = modi;
 		GH.events().dispatchInputModiChanged(modi);
-	currentInputModi = modi;
+	}
 }
 
 InputModi InputHandler::getCurrentInputModi()
