@@ -83,6 +83,7 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 	otherBuildings.push_back({ BuildingID::SPECIAL_2 });
 	otherBuildings.push_back({ BuildingID::SPECIAL_3 });
 	otherBuildings.push_back({ BuildingID::SPECIAL_4 });
+	otherBuildings.push_back({ BuildingID::MARKETPLACE });
 
 	for(auto & buildingSet : otherBuildings)
 	{
