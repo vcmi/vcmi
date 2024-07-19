@@ -277,6 +277,36 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	return result;
 }
 
+ReachabilityInfo getReachabilityWithEnemyBypass(
+	const battle::Unit * activeStack,
+	DamageCache & damageCache,
+	std::shared_ptr<HypotheticBattle> state)
+{
+	ReachabilityInfo::Parameters params(activeStack, activeStack->getPosition());
+
+	if(!params.flying)
+	{
+		for(const auto * unit : state->battleAliveUnits())
+		{
+			if(unit->unitSide() == activeStack->unitSide())
+				continue;
+
+			auto dmg = damageCache.getOriginalDamage(activeStack, unit, state);
+			auto turnsToKill = unit->getAvailableHealth() / dmg + 1;
+
+			vstd::amin(turnsToKill, 100);
+
+			for(auto & hex : unit->getHexes())
+				if(hex.isAvailable()) //towers can have <0 pos; we don't also want to overwrite side columns
+					params.destructibleEnemyTurns[hex] = turnsToKill * unit->getMovementRange();
+		}
+
+		params.bypassEnemyStacks = true;
+	}
+
+	return state->getReachability(params);
+}
+
 MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 	const battle::Unit * activeStack,
 	PotentialTargets & targets,
@@ -285,6 +315,8 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 {
 	MoveTarget result;
 	BattleExchangeVariant ev;
+
+	logAi->trace("Find move towards unreachable. Enemies count %d", targets.unreachableEnemies.size());
 
 	if(targets.unreachableEnemies.empty())
 		return result;
@@ -296,17 +328,17 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 	updateReachabilityMap(hb);
 
-	auto dists = cb->getReachability(activeStack);
+	auto dists = getReachabilityWithEnemyBypass(activeStack, damageCache, hb);
+	auto flying = activeStack->hasBonusOfType(BonusType::FLYING);
 
 	for(const battle::Unit * enemy : targets.unreachableEnemies)
 	{
-		std::vector<const battle::Unit *> adjacentStacks = getAdjacentUnits(enemy);
-		auto closestStack = *vstd::minElementByFun(adjacentStacks, [&](const battle::Unit * u) -> int64_t
-			{
-				return dists.distToNearestNeighbour(activeStack, u) * 100000 - activeStack->getTotalHealth();
-			});
+		logAi->trace(
+			"Checking movement towards %d of %s",
+			enemy->getCount(),
+			enemy->creatureId().toCreature()->getNameSingularTranslated());
 
-		auto distance = dists.distToNearestNeighbour(activeStack, closestStack);
+		auto distance = dists.distToNearestNeighbour(activeStack, enemy);
 
 		if(distance >= GameConstants::BFIELD_SIZE)
 			continue;
@@ -315,30 +347,94 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 			continue;
 
 		auto turnsToRich = (distance - 1) / speed + 1;
-		auto hexes = closestStack->getSurroundingHexes();
-		auto enemySpeed = closestStack->getMovementRange();
+		auto hexes = enemy->getSurroundingHexes();
+		auto enemySpeed = enemy->getMovementRange();
 		auto speedRatio = speed / static_cast<float>(enemySpeed);
 		auto multiplier = speedRatio > 1 ? 1 : speedRatio;
 
 		if(enemy->canShoot())
 			multiplier *= 1.5f;
 
-		for(auto hex : hexes)
+		for(auto & hex : hexes)
 		{
 			// FIXME: provide distance info for Jousting bonus
-			auto bai = BattleAttackInfo(activeStack, closestStack, 0, cb->battleCanShoot(activeStack));
+			auto bai = BattleAttackInfo(activeStack, enemy, 0, cb->battleCanShoot(activeStack));
 			auto attack = AttackPossibility::evaluate(bai, hex, damageCache, hb);
 
 			attack.shootersBlockedDmg = 0; // we do not want to count on it, it is not for sure
 
 			auto score = calculateExchange(attack, turnsToRich, targets, damageCache, hb);
-			auto scorePerTurn = BattleScore(score.enemyDamageReduce * std::sqrt(multiplier / turnsToRich), score.ourDamageReduce);
+			auto scorePerTurn = BattleScore(score.enemyDamageReduce * multiplier / turnsToRich, score.ourDamageReduce);
+
+#if BATTLE_TRACE_LEVEL >= 1
+			logAi->trace("Multiplier: %f, turns: %d, current score %f, new score %f", multiplier, turnsToRich, result.scorePerTurn, scoreValue(scorePerTurn));
+#endif
 
 			if(result.scorePerTurn < scoreValue(scorePerTurn))
 			{
 				result.scorePerTurn = scoreValue(scorePerTurn);
 				result.score = scoreValue(score);
-				result.positions = closestStack->getAttackableHexes(activeStack);
+				result.positions.clear();
+
+#if BATTLE_TRACE_LEVEL >= 1
+				logAi->trace("New high score");
+#endif
+
+				for(BattleHex enemyHex : enemy->getAttackableHexes(activeStack))
+				{
+					while(!flying && dists.distances[enemyHex] > speed)
+					{
+						enemyHex = dists.predecessors.at(enemyHex);
+						if(dists.accessibility[enemyHex] == EAccessibility::ALIVE_STACK)
+						{
+							auto defenderToBypass = hb->battleGetUnitByPos(enemyHex);
+
+							if(defenderToBypass)
+							{
+#if BATTLE_TRACE_LEVEL >= 1
+								logAi->trace("Found target to bypass at %d", enemyHex.hex);
+#endif
+
+								auto attackHex = dists.predecessors[enemyHex];
+								auto baiBypass = BattleAttackInfo(activeStack, defenderToBypass, 0, cb->battleCanShoot(activeStack));
+								auto attackBypass = AttackPossibility::evaluate(baiBypass, attackHex, damageCache, hb);
+
+								auto adjacentStacks = getAdjacentUnits(enemy);
+
+								adjacentStacks.push_back(defenderToBypass);
+								vstd::removeDuplicates(adjacentStacks);
+
+								auto bypassScore = calculateExchange(
+									attackBypass,
+									dists.distances[attackHex],
+									targets,
+									damageCache,
+									hb,
+									adjacentStacks);
+
+								if(scoreValue(bypassScore) > result.score)
+								{
+									auto newMultiplier = multiplier * speed * turnsToRich / dists.distances[attackHex];
+
+									result.score = scoreValue(bypassScore);
+
+									scorePerTurn = BattleScore(
+										score.enemyDamageReduce  * newMultiplier,
+										score.ourDamageReduce);
+
+									result.scorePerTurn = scoreValue(scorePerTurn);
+
+#if BATTLE_TRACE_LEVEL >= 1
+									logAi->trace("New high score after bypass %f", scoreValue(scorePerTurn));
+#endif
+								}
+							}
+						}
+					}
+
+					result.positions.push_back(enemyHex);
+				}
+
 				result.cachedAttack = attack;
 				result.turnsToRich = turnsToRich;
 			}
@@ -382,7 +478,8 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 	const AttackPossibility & ap,
 	uint8_t turn,
 	PotentialTargets & targets,
-	std::shared_ptr<HypotheticBattle> hb) const
+	std::shared_ptr<HypotheticBattle> hb,
+	std::vector<const battle::Unit *> additionalUnits) const
 {
 	ReachabilityData result;
 
@@ -390,7 +487,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 
 	if(!ap.attack.shooting) hexes.push_back(ap.from);
 
-	std::vector<const battle::Unit *> allReachableUnits;
+	std::vector<const battle::Unit *> allReachableUnits = additionalUnits;
 
 	for(auto hex : hexes)
 	{
@@ -432,7 +529,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 
 	for(auto unit : allReachableUnits)
 	{
-		auto accessible = !unit->canShoot();
+		auto accessible = !unit->canShoot() || vstd::contains(additionalUnits, unit);
 
 		if(!accessible)
 		{
@@ -494,7 +591,8 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	uint8_t turn,
 	PotentialTargets & targets,
 	DamageCache & damageCache,
-	std::shared_ptr<HypotheticBattle> hb) const
+	std::shared_ptr<HypotheticBattle> hb,
+	std::vector<const battle::Unit *> additionalUnits) const
 {
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.hex : ap.from.hex);
@@ -513,7 +611,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	if(hb->battleGetUnitByID(ap.attack.defender->unitId())->alive())
 		enemyStacks.push_back(ap.attack.defender);
 
-	ReachabilityData exchangeUnits = getExchangeUnits(ap, turn, targets, hb);
+	ReachabilityData exchangeUnits = getExchangeUnits(ap, turn, targets, hb, additionalUnits);
 
 	if(exchangeUnits.units.empty())
 	{
