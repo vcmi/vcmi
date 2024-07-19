@@ -36,11 +36,11 @@ class BattleObstacleController
 	/// total time, in seconds, since start of battle. Used for animating obstacles
 	float timePassed;
 
-	/// cached animations of all obstacles in current battle
-	std::map<AnimationPath, std::shared_ptr<CAnimation>> animationsCache;
-
 	/// list of all obstacles that are currently being rendered
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
+
+	/// Current images for all present obstacles
+	std::map<si32, std::shared_ptr<IImage>> obstacleImages;
 
 	void loadObstacleImage(const CObstacleInstance & oi);
 

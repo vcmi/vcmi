@@ -70,7 +70,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	else
 		toggleMode->setSelected(1);
 
-	filledBackground->playerColored(PlayerColor(1));
+	filledBackground->setPlayerColor(PlayerColor(1));
 	inputUsername->setCallback([this](const std::string & text)
 	{
 		this->buttonLogin->block(text.empty());

@@ -30,7 +30,6 @@
 #include "../widgets/CTextInput.h"
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IImage.h"
 #include "../render/IImageLoader.h"
@@ -151,18 +150,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	leftCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnL.bmp"), 97 + offL, 77 + offT);
 	rightCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnR.bmp"), 487 + offR, 72 + offT);
 
-	spellIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("Spells"));
-
 	schoolTab = std::make_shared<CAnimImage>(AnimationPath::builtin("SpelTab"), selectedTab, 0, 524 + offR, 88);
 	schoolPicture = std::make_shared<CAnimImage>(AnimationPath::builtin("Schools"), 0, 0, 117 + offL, 74 + offT);
 
-	schoolBorders[0] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevA.def"));
-	schoolBorders[1] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevF.def"));
-	schoolBorders[2] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevW.def"));
-	schoolBorders[3] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevE.def"));
-
-	for(auto item : schoolBorders)
-		item->preload();
 	mana = std::make_shared<CLabel>(435 + (isBigSpellbook ? 159 : 0), 426 + offB, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
 
 	if(isBigSpellbook)
@@ -225,7 +215,7 @@ CSpellWindow::~CSpellWindow()
 
 std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 {
-	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"));
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"), EImageBlitMode::OPAQUE);
 	Canvas canvas = Canvas(Point(800, 600));
 	// edges
 	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
@@ -595,7 +585,7 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	image = std::make_shared<CAnimImage>(owner->spellIcons, 0, 0);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("Spells"), 0, 0);
 	image->visible = false;
 
 	name = std::make_shared<CLabel>(39, 70, FONT_TINY, ETextAlignment::CENTER);
@@ -744,14 +734,22 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 
 		{
 			OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+			static const std::array schoolBorders = {
+				AnimationPath::builtin("SplevA.def"),
+				AnimationPath::builtin("SplevF.def"),
+				AnimationPath::builtin("SplevW.def"),
+				AnimationPath::builtin("SplevE.def")
+			};
+
 			schoolBorder.reset();
 			if (owner->selectedTab >= 4)
 			{
 				if (whichSchool.getNum() != SpellSchool())
-					schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders.at(whichSchool.getNum()), schoolLevel);
+					schoolBorder = std::make_shared<CAnimImage>(schoolBorders.at(whichSchool.getNum()), schoolLevel);
 			}
 			else
-				schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders.at(owner->selectedTab), schoolLevel);
+				schoolBorder = std::make_shared<CAnimImage>(schoolBorders.at(owner->selectedTab), schoolLevel);
 		}
 
 		ColorRGBA firstLineColor, secondLineColor;

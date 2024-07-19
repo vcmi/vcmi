@@ -104,31 +104,29 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 	for(auto & entry : terrainAnimations)
 	{
 		if (!filename.empty())
-		{
-			entry = GH.renderHandler().loadAnimation(filename);
-			entry->preload();
-		}
-		else
-			entry = GH.renderHandler().createAnimation();
-
-		for(size_t i = 0; i < entry->size(); ++i)
-			entry->getImage(i)->setBlitMode(blitMode);
+			entry = GH.renderHandler().loadAnimation(filename, blitMode);
 	}
 
-	for(size_t i = 0; i < terrainAnimations[0]->size(); ++i)
-	{
-		terrainAnimations[1]->getImage(i)->verticalFlip();
-		terrainAnimations[3]->getImage(i)->verticalFlip();
+	if (terrainAnimations[1])
+		terrainAnimations[1]->verticalFlip();
 
-		terrainAnimations[2]->getImage(i)->horizontalFlip();
-		terrainAnimations[3]->getImage(i)->horizontalFlip();
-	}
+	if (terrainAnimations[3])
+		terrainAnimations[3]->verticalFlip();
+
+	if (terrainAnimations[2])
+		terrainAnimations[2]->horizontalFlip();
+
+	if (terrainAnimations[3])
+		terrainAnimations[3]->horizontalFlip();
 }
 
 std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIndex, size_t imageIndex)
 {
 	const auto & animation = animations[fileIndex][rotationIndex];
-	return animation->getImage(imageIndex);
+	if (animation)
+		return animation->getImage(imageIndex);
+	else
+		return nullptr;
 }
 
 MapRendererTerrain::MapRendererTerrain()
@@ -255,8 +253,7 @@ uint8_t MapRendererRoad::checksum(IMapRendererContext & context, const int3 & co
 
 MapRendererBorder::MapRendererBorder()
 {
-	animation = GH.renderHandler().loadAnimation(AnimationPath::builtin("EDG"));
-	animation->preload();
+	animation = GH.renderHandler().loadAnimation(AnimationPath::builtin("EDG"), EImageBlitMode::OPAQUE);
 }
 
 size_t MapRendererBorder::getIndexForTile(IMapRendererContext & context, const int3 & tile)
@@ -317,13 +314,8 @@ uint8_t MapRendererBorder::checksum(IMapRendererContext & context, const int3 & 
 
 MapRendererFow::MapRendererFow()
 {
-	fogOfWarFullHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRC"));
-	fogOfWarFullHide->preload();
-	fogOfWarPartialHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"));
-	fogOfWarPartialHide->preload();
-
-	for(size_t i = 0; i < fogOfWarFullHide->size(); ++i)
-		fogOfWarFullHide->getImage(i)->setBlitMode(EImageBlitMode::OPAQUE);
+	fogOfWarFullHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRC"), EImageBlitMode::OPAQUE);
+	fogOfWarPartialHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"), EImageBlitMode::ALPHA);
 
 	static const std::vector<int> rotations = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
 
@@ -332,8 +324,7 @@ MapRendererFow::MapRendererFow()
 	for(const int rotation : rotations)
 	{
 		fogOfWarPartialHide->duplicateImage(0, rotation, 0);
-		auto image = fogOfWarPartialHide->getImage(size, 0);
-		image->verticalFlip();
+		fogOfWarPartialHide->verticalFlip(size, 0);
 		size++;
 	}
 }
@@ -408,9 +399,8 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 	if(it != animations.end())
 		return it->second;
 
-	auto ret = GH.renderHandler().loadAnimation(filename);
+	auto ret = GH.renderHandler().loadAnimation(filename, EImageBlitMode::ALPHA);
 	animations[filename] = ret;
-	ret->preload();
 
 	if(generateMovementGroups)
 	{
@@ -630,9 +620,8 @@ uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererPath::MapRendererPath()
-	: pathNodes(GH.renderHandler().loadAnimation(AnimationPath::builtin("ADAG")))
+	: pathNodes(GH.renderHandler().loadAnimation(AnimationPath::builtin("ADAG"), EImageBlitMode::ALPHA))
 {
-	pathNodes->preload();
 }
 
 size_t MapRendererPath::selectImageReachability(bool reachableToday, size_t imageIndex)

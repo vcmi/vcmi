@@ -72,16 +72,16 @@ public:
 	CMap * getMap();
 
 	/// Clears the terrain. The free level is filled with water and the underground level with rock.
-	void clearTerrain(vstd::RNG * gen = nullptr);
+	void clearTerrain(vstd::RNG * gen);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(TerrainId terType, int decorationsPercentage, vstd::RNG * gen = nullptr);
+	void drawTerrain(TerrainId terType, int decorationsPercentage, vstd::RNG * gen);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
-	void drawRoad(RoadId roadType, vstd::RNG * gen = nullptr);
+	void drawRoad(RoadId roadType, vstd::RNG * gen);
 	
 	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
-	void drawRiver(RiverId riverType, vstd::RNG * gen = nullptr);
+	void drawRiver(RiverId riverType, vstd::RNG * gen);
 
 	void insertObject(CGObjectInstance * obj);
 	void insertObjects(std::set<CGObjectInstance *> & objects);

@@ -79,7 +79,7 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 	pos.h = 420;
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
-	filledBackground->playerColored(PlayerColor(1));
+	filledBackground->setPlayerColor(PlayerColor(1));
 	labelTitle = std::make_shared<CLabel>(
 		pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.invite.header").toString()
 	);

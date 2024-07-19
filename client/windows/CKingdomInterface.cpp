@@ -692,7 +692,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onC
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
-	title->colorize(LOCPLINT->playerID);
+	title->setPlayerColor(LOCPLINT->playerID);
 	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[0]);
 	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[1]);
 
@@ -736,7 +736,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"), 16, 0);
-	title->colorize(LOCPLINT->playerID);
+	title->setPlayerColor(LOCPLINT->playerID);
 	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[3]);
 	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[4]);
 	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[5]);

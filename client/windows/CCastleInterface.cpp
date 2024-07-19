@@ -95,7 +95,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	}
 
 	if(!str->borderName.empty())
-		border = GH.renderHandler().loadImage(str->borderName, EImageBlitMode::ALPHA);
+		border = GH.renderHandler().loadImage(str->borderName, EImageBlitMode::COLORKEY);
 
 	if(!str->areaName.empty())
 		area = GH.renderHandler().loadImage(str->areaName, EImageBlitMode::ALPHA);
@@ -272,7 +272,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	: CWindowObject(RCLICK_POPUP, ImagePath::builtin("CRTOINFO"), Point(centerX, centerY))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	background->colorize(Town->tempOwner);
+	background->setPlayerColor(Town->tempOwner);
 
 	const CCreature * creature = Town->creatures.at(level).second.back().toCreature();
 
@@ -885,9 +885,9 @@ void CCastleBuildings::enterCastleGate()
 			availableTowns.push_back(t->id.getNum());//add to the list
 			if(settings["general"]["enableUiEnhancements"].Bool())
 			{
-				std::shared_ptr<CAnimation> a = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITPA"));
-				a->preload();
-				images.push_back(a->getImage(t->town->clientInfo.icons[t->hasFort()][false] + 2)->scaleFast(Point(35, 23)));
+				auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->town->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
+				image->scaleFast(Point(35, 23));
+				images.push_back(image);
 			}
 		}
 	}
@@ -1245,7 +1245,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 	builds = std::make_shared<CCastleBuildings>(town);
 	panel = std::make_shared<CPicture>(ImagePath::builtin("TOWNSCRN"), 0, builds->pos.h);
-	panel->colorize(LOCPLINT->playerID);
+	panel->setPlayerColor(LOCPLINT->playerID);
 	pos.w = panel->pos.w;
 	pos.h = builds->pos.h + panel->pos.h;
 	center();

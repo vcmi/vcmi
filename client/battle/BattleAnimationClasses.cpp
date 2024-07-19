@@ -24,6 +24,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../media/ISoundPlayer.h"
+#include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
@@ -882,7 +883,7 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, bool reversed):
 	BattleAnimation(owner),
-	animation(GH.renderHandler().loadAnimation(animationName)),
+	animation(GH.renderHandler().loadAnimation(animationName, EImageBlitMode::ALPHA)),
 	effectFlags(effects),
 	effectFinished(false),
 	reversed(reversed)
@@ -925,8 +926,6 @@ EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & 
 
 bool EffectAnimation::init()
 {
-	animation->preload();
-
 	auto first = animation->getImage(0, 0, true);
 	if(!first)
 	{

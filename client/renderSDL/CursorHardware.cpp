@@ -49,7 +49,7 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
-	image->draw(cursorSurface);
+	image->draw(cursorSurface, Point(0,0));
 
 	auto oldCursor = cursor;
 	cursor = SDL_CreateColorCursor(cursorSurface, pivotOffset.x, pivotOffset.y);
