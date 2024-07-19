@@ -148,6 +148,26 @@ public:
 		return ret;
 	}
 
+	int div(const ResourceSet& income) {
+		int ret = 0; // Initialize to 0 because we want the maximum number of accumulations
+
+		for (size_t i = 0; i < container.size(); ++i) {
+			if (container.at(i) > 0) { // We only care about fulfilling positive needs
+				if (income[i] == 0) {
+					// If income is 0 and we need a positive amount, it's impossible to fulfill
+					return INT_MAX;
+				}
+				else {
+					// Calculate the number of times we need to accumulate income to fulfill the need
+					float divisionResult = static_cast<float>(container.at(i)) / static_cast<float>(income[i]);
+					int ceiledResult = static_cast<int>(std::ceil(divisionResult));
+					ret = std::max(ret, ceiledResult);
+				}
+			}
+		}
+		return ret;
+	}
+
 	ResourceSet & operator=(const TResource &rhs)
 	{
 		for(int & i : container)
@@ -171,14 +191,14 @@ public:
 
 // WARNING: comparison operators are used for "can afford" relation: a <= b means that foreach i a[i] <= b[i]
 // that doesn't work the other way: a > b doesn't mean that a cannot be afforded with b, it's still b can afford a
-// 		bool operator<(const ResourceSet &rhs)
-// 		{
-// 			for(int i = 0; i < size(); i++)
-// 				if(at(i) >= rhs[i])
-// 					return false;
-//
-// 			return true;
-// 		}
+ 	bool operator<(const ResourceSet &rhs)
+ 	{
+ 		for(int i = 0; i < size(); i++)
+			if (this->container.at(i) < rhs[i])
+ 				return true;
+
+ 		return false;
+ 	}
 
 	template <typename Handler> void serialize(Handler &h)
 	{
