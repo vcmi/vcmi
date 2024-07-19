@@ -37,7 +37,7 @@ InputHandler::InputHandler()
 	: enableMouse(settings["input"]["enableMouse"].Bool())
 	, enableTouch(settings["input"]["enableTouch"].Bool())
 	, enableController(settings["input"]["enableController"].Bool())
-	, currentInputMode(InputMode::MOUSE)
+	, currentInputMode(InputMode::KEYBOARD_AND_MOUSE)
 	, mouseHandler(std::make_unique<InputSourceMouse>())
 	, keyboardHandler(std::make_unique<InputSourceKeyboard>())
 	, fingerHandler(std::make_unique<InputSourceTouch>())
@@ -53,6 +53,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 	switch (current.type)
 	{
 		case SDL_KEYDOWN:
+			setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 			keyboardHandler->handleEventKeyDown(current.key);
 			return;
 		case SDL_KEYUP:
@@ -62,14 +63,14 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 		case SDL_MOUSEMOTION:
 			if (enableMouse)
 			{
-				setCurrentInputMode(InputMode::MOUSE);
+				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseMotion(current.motion);
 			}
 			return;
 		case SDL_MOUSEBUTTONDOWN:
 			if (enableMouse)
 			{
-				setCurrentInputMode(InputMode::MOUSE);
+				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseButtonDown(current.button);
 			}
 			return;
