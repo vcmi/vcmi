@@ -167,6 +167,7 @@ public:
 	void create();
 
 	void show(Canvas & to) override;
+	void inputModiChanged(InputModi modi) override;
 };
 
 class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element

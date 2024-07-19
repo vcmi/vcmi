@@ -19,6 +19,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
+#include "../eventsSDL/InputHandler.h"
 
 template<typename Functor>
 void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
@@ -40,6 +41,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::DOUBLECLICK, doubleClickInterested);
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
 	processList(AEventsReceiver::GESTURE, panningInterested);
+	processList(AEventsReceiver::INPUT_MODI_CHANGE, inputModiChangeInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -313,6 +315,14 @@ void EventDispatcher::dispatchTextEditing(const std::string & text)
 	for(auto it : textInterested)
 	{
 		it->textEdited(text);
+	}
+}
+
+void EventDispatcher::dispatchInputModiChanged(const InputModi & modi)
+{
+	for(auto it : inputModiChangeInterested)
+	{
+		it->inputModiChanged(modi);
 	}
 }
 
