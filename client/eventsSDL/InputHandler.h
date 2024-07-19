@@ -23,7 +23,7 @@ class InputSourceTouch;
 class InputSourceText;
 class InputSourceGameController;
 
-enum class InputModi
+enum class InputModus
 {
 	MOUSE,
 	TOUCH,
@@ -41,8 +41,8 @@ class InputHandler
 	const bool enableTouch;
 	const bool enableController;
 
-	InputModi currentInputModi;
-	void setCurrentInputModi(InputModi modi);
+	InputModus currentInputModus;
+	void setCurrentInputModus(InputModus modi);
 
 	std::vector<SDL_Event> acquireEvents();
 
@@ -102,5 +102,5 @@ public:
 	bool isKeyboardCtrlDown() const;
 	bool isKeyboardShiftDown() const;
 
-	InputModi getCurrentInputModi();
+	InputModus getCurrentInputModus();
 };

@@ -41,7 +41,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::DOUBLECLICK, doubleClickInterested);
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
 	processList(AEventsReceiver::GESTURE, panningInterested);
-	processList(AEventsReceiver::INPUT_MODI_CHANGE, inputModiChangeInterested);
+	processList(AEventsReceiver::INPUT_MODUS_CHANGE, inputModusChangeInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -318,11 +318,11 @@ void EventDispatcher::dispatchTextEditing(const std::string & text)
 	}
 }
 
-void EventDispatcher::dispatchInputModiChanged(const InputModi & modi)
+void EventDispatcher::dispatchInputModusChanged(const InputModus & modi)
 {
-	for(auto it : inputModiChangeInterested)
+	for(auto it : inputModusChangeInterested)
 	{
-		it->inputModiChanged(modi);
+		it->inputModusChanged(modi);
 	}
 }
 
