@@ -632,6 +632,23 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	set(qtBinDir "${qtDir}/bin")
 endif()
 
+# link with -latomic if necessary
+# on armel the build will otherwise fail with
+# /usr/bin/ld: ../bin/libvcmi.so: undefined reference to `__atomic_fetch_add_8'
+# /usr/bin/ld: ../bin/libvcmi.so: undefined reference to `__atomic_load_8'
+if(CMAKE_LIBRARY_ARCHITECTURE STREQUAL "arm-linux-gnueabi")
+	file(WRITE ${CMAKE_BINARY_DIR}/test_atomics.cpp
+	"#include <stdint.h>\nint main(void){uint64_t x=0,y=0;return (int)__atomic_fetch_add_8(&x,y,0);}\n")
+	try_compile(ATOMICS_BUILD_SUCCEEDED ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/test_atomics.cpp)
+	message(STATUS "Found __sync_add_and_fetch_8(): ${ATOMICS_BUILD_SUCCEEDED}")
+	if (NOT ATOMICS_BUILD_SUCCEEDED)
+		set(VCMI_LINK_ATOMIC ON)
+	else()
+		set(VCMI_LINK_ATOMIC OFF)
+	endif ()
+	file(REMOVE ${CMAKE_BINARY_DIR}/test_atomics.cpp)
+endif()
+
 #######################################
 #        Add subdirectories           #
 #######################################

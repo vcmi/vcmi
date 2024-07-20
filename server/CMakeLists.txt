@@ -61,6 +61,10 @@ endif()
 
 target_link_libraries(vcmiservercommon PRIVATE ${vcmiservercommon_LIBS} minizip::minizip)
 
+if (VCMI_LINK_ATOMIC)
+	target_link_options(vcmiservercommon PRIVATE "-Wl,--push-state,--no-as-needed,-latomic,--pop-state")
+endif()
+
 target_include_directories(vcmiservercommon
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
