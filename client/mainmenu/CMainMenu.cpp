@@ -485,9 +485,9 @@ const std::vector<std::string> CMultiMode::getPlayersNames()
 		playerNameStr = CGI->generaltexth->translate("core.genrltxt.434");
 	playerNames.push_back(playerNameStr);
 
-	for (JsonNode playerName : settings["general"]["multiPlayerNames"].Vector())
+	for (const auto & playerName : settings["general"]["multiPlayerNames"].Vector())
 	{
-		std::string &nameStr = playerName.String();
+		const std::string &nameStr = playerName.String();
 		if (!nameStr.empty())
 		{
 			playerNames.push_back(nameStr);
@@ -549,10 +549,10 @@ void CMultiPlayers::enterSelectionScreen()
 	Settings playerName = settings.write["general"]["playerName"];
 	Settings multiPlayerNames = settings.write["general"]["multiPlayerNames"];
 	multiPlayerNames->Vector().clear();
-	if (playerNames.size() > 0)
+	if (!playerNames.empty())
 	{
 		playerName->String() = playerNames.front();
-		for (std::vector<std::string>::iterator playerNameIt = playerNames.begin()+1; playerNameIt != playerNames.end(); playerNameIt++)
+		for (auto playerNameIt = playerNames.begin()+1; playerNameIt != playerNames.end(); playerNameIt++)
 		{
 			multiPlayerNames->Vector().push_back(JsonNode(*playerNameIt));
 		}
