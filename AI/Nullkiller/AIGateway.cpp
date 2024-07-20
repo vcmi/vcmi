@@ -1310,6 +1310,11 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
+			if(cb->getObj(exitId) && cb->getObj(exitId)->ID == Obj::WHIRLPOOL)
+			{
+				nullkiller->armyFormation->rearrangeArmyForWhirlpool(*h);
+			}
+
 			destinationTeleport = exitId;
 			if(exitPos.valid())
 				destinationTeleportPos = exitPos;
@@ -1331,6 +1336,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 				status.setChannelProbing(true);
 				for(auto exit : teleportChannelProbingList)
 					doTeleportMovement(exit, int3(-1));
+
 				teleportChannelProbingList.clear();
 				status.setChannelProbing(false);
 

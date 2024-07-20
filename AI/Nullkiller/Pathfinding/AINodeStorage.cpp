@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
+#include "Actions/WhirlpoolAction.h"
 #include "../Goals/Goals.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
@@ -255,10 +256,45 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 	{
 		commit(dstNode, srcNode, destination.action, destination.turn, destination.movementLeft, destination.cost);
 
-		if(srcNode->specialAction || srcNode->chainOther)
+		// regular pathfinder can not go directly through whirlpool
+		bool isWhirlpoolTeleport = destination.nodeObject
+			&& destination.nodeObject->ID == Obj::WHIRLPOOL;
+
+		if(srcNode->specialAction
+			|| srcNode->chainOther
+			|| isWhirlpoolTeleport)
 		{
 			// there is some action on source tile which should be performed before we can bypass it
-			destination.node->theNodeBefore = source.node;
+			dstNode->theNodeBefore = source.node;
+
+			if(isWhirlpoolTeleport)
+			{
+				if(dstNode->actor->creatureSet->Slots().size() == 1
+					&& dstNode->actor->creatureSet->Slots().begin()->second->getCount() == 1)
+				{
+					return;
+				}
+
+				auto weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](std::pair<SlotID, const CStackInstance *> pair) -> int
+					{
+						return pair.second->getCount() * pair.second->getCreatureID().toCreature()->getAIValue();
+					});
+
+				if(weakest == dstNode->actor->creatureSet->Slots().end())
+				{
+					logAi->debug("Empty army entering whirlpool detected at tile %s", dstNode->coord.toString());
+					destination.blocked = true;
+
+					return;
+				}
+
+				if(dstNode->actor->creatureSet->getFreeSlots().size())
+					dstNode->armyLoss += weakest->second->getCreatureID().toCreature()->getAIValue();
+				else
+					dstNode->armyLoss += (weakest->second->getCount() + 1) / 2 * weakest->second->getCreatureID().toCreature()->getAIValue();
+
+				dstNode->specialAction = AIPathfinding::WhirlpoolAction::instance;
+			}
 		}
 
 		if(dstNode->specialAction && dstNode->actor)
@@ -1014,8 +1050,8 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 
 		for(auto & neighbour : accessibleExits)
 		{
-			auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->actor);
-
+			std::optional<AIPathNode *> node = getOrCreateNode(neighbour, source.node->layer, srcNode->actor);
+			
 			if(!node)
 				continue;
 
