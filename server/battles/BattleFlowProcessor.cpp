@@ -389,20 +389,47 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 		attack.side = next->unitSide();
 		attack.stackNumber = next->unitId();
 
-		//TODO: select target by priority
+		// TODO: unify logic with AI?
+		// Find best target using logic similar to H3 AI
+
+		const auto & isBetterTarget = [&battle](const battle::Unit * candidate, const battle::Unit * current)
+		{
+			bool candidateInsideWalls = battle.battleIsInsideWalls(candidate->getPosition());
+			bool currentInsideWalls = battle.battleIsInsideWalls(current->getPosition());
+
+			if (candidateInsideWalls != currentInsideWalls)
+				return candidateInsideWalls > currentInsideWalls;
+
+			// also check for war machines - shooters are more dangerous than war machines, ballista or catapult
+			bool candidateCanShoot = candidate->canShoot() && candidate->unitType()->warMachine == ArtifactID::NONE;
+			bool currentCanShoot = current->canShoot() && current->unitType()->warMachine == ArtifactID::NONE;
+
+			if (candidateCanShoot != currentCanShoot)
+				return candidateCanShoot > currentCanShoot;
+
+			int64_t candidateTargetValue = static_cast<int64_t>(candidate->unitType()->getAIValue() * candidate->getCount());
+			int64_t currentTargetValue = static_cast<int64_t>(current->unitType()->getAIValue() * current->getCount());
+
+			return candidateTargetValue > currentTargetValue;
+		};
 
 		const battle::Unit * target = nullptr;
 
 		for(auto & elem : battle.battleGetAllStacks(true))
 		{
-			if(elem->unitType()->getId() != CreatureID::CATAPULT
-			   && elem->unitOwner() != next->unitOwner()
-			   && elem->isValidTarget()
-			   && battle.battleCanShoot(next, elem->getPosition()))
-			{
-				target = elem;
-				break;
-			}
+			if (elem->unitOwner() == next->unitOwner())
+				continue;
+
+			if (!elem->isValidTarget())
+				continue;
+
+			if (!battle.battleCanShoot(next, elem->getPosition()))
+				continue;
+
+			if (target && !isBetterTarget(elem, target))
+				continue;
+
+			target = elem;
 		}
 
 		if(target == nullptr)
