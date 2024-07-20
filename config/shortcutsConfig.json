@@ -40,6 +40,8 @@
 		"adventureSetHeroAwake":    "W",
 		"adventureThievesGuild":    "G",
 		"adventureToggleGrid":      "F6",
+		"adventureToggleVisitable": [],
+		"adventureToggleBlocked":   [],
 		"adventureToggleMapLevel":  "U",
 		"adventureToggleSleep":     [],
 		"adventureTrackHero":       "F5",
