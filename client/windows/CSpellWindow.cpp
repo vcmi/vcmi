@@ -288,7 +288,7 @@ void CSpellWindow::processSpells()
 
 		if(onSpellSelect)
 		{
-			if(spell->isCombat() == openOnBattleSpells && !spell->isSpecial() && !spell->isCreatureAbility())
+			if(spell->isCombat() == openOnBattleSpells && !spell->isSpecial() && !spell->isCreatureAbility() && searchTextFound)
 				mySpells.push_back(spell.get());
 			continue;
 		}

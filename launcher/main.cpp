@@ -113,6 +113,7 @@ void startExecutable(QString name, const QStringList & args)
 	// QProcess::start() causes the launcher window to freeze while the child process is running, so we hide it in
 	// MainWindow::on_startGameButton_clicked() and MainWindow::on_startEditorButton_clicked()
 	QProcess process;
+	process.setProcessChannelMode(QProcess::ForwardedChannels);
 	process.start(name, args);
 	process.waitForFinished(-1);
 

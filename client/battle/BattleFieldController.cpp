@@ -356,9 +356,6 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 	std::set<BattleHex> result;
 	auto hoveredHex = getHoveredHex();
 
-	if(!settings["battle"]["mouseShadow"].Bool())
-		return result;
-
 	const spells::Caster *caster = nullptr;
 	const CSpell *spell = nullptr;
 
@@ -549,6 +546,8 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
 	BattleHex hoveredHex = getHoveredHex();
+	std::set<BattleHex> hoveredMouseHex = hoveredHex.isValid() ? std::set<BattleHex>({ hoveredHex }) : std::set<BattleHex>();
+
 	const CStack * hoveredStack = getHoveredStack();
 	if(!hoveredStack && hoveredHex == BattleHex::INVALID)
 		return;
@@ -565,7 +564,10 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
 	}
 
-	auto const & hoveredMouseHexes = hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
+	bool useSpellRangeForMouse = hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex());
+	bool useMoveRangeForMouse = !hoveredMoveHexes.empty() || !settings["battle"]["mouseShadow"].Bool();
+
+	const auto & hoveredMouseHexes = useSpellRangeForMouse ? hoveredSpellHexes : ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
