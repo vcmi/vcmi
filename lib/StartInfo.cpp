@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "StartInfo.h"
 
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "CTownHandler.h"
 #include "CHeroHandler.h"
 #include "VCMI_Lib.h"

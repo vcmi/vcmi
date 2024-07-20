@@ -29,7 +29,7 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+#include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff
 #include "../../lib/CRandomGenerator.h"
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)

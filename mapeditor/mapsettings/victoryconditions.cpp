@@ -11,7 +11,7 @@
 #include "victoryconditions.h"
 #include "ui_victoryconditions.h"
 #include "../mapcontroller.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/constants/StringConstants.h"
 #include "../../lib/mapObjects/CGCreature.h"
 

@@ -49,7 +49,7 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/SThievesGuildInfo.h"
 #include "../lib/gameState/TavernHeroesPool.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/GameSettings.h"
 #include "ConditionalWait.h"

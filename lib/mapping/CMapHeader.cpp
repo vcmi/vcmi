@@ -14,11 +14,11 @@
 
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../json/JsonUtils.h"
 #include "../modding/CModHandler.h"
+#include "../texts/Languages.h"
 #include "../CHeroHandler.h"
-#include "../Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

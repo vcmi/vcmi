@@ -12,7 +12,7 @@
 #include "CCampaignInfoScreen.h"
 
 #include "../../CCallback.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"

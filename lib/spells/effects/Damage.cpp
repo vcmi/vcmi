@@ -14,13 +14,12 @@
 #include "../CSpellHandler.h"
 #include "../ISpellMechanics.h"
 
-#include "../../MetaString.h"
 #include "../../CStack.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../networkPacks/PacksForClientBattle.h"
-#include "../../CGeneralTextHandler.h"
-#include "../../Languages.h"
+#include "../../texts/CGeneralTextHandler.h"
+#include "../../texts/Languages.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 #include <vcmi/spells/Spell.h>

@@ -11,8 +11,8 @@
 
 #include "StartInfo.h"
 #include "NetPacksBase.h"
-#include "../MetaString.h"
 #include "../serializer/ESerializationVersion.h"
+#include "../texts/MetaString.h"
 
 class CServerHandler;
 class CVCMIServer;

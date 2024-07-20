@@ -34,7 +34,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CArtifactInstance.h"
 

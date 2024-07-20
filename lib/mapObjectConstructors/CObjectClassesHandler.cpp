@@ -16,7 +16,6 @@
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
-#include "../CGeneralTextHandler.h"
 #include "../GameSettings.h"
 #include "../CSoundBase.h"
 
@@ -38,6 +37,8 @@
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/CLegacyConfigParser.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

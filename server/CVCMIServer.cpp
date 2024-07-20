@@ -17,10 +17,10 @@
 
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
-#include "../lib/MetaString.h"
 #include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 // UUID generation
 #include <boost/uuid/uuid.hpp>

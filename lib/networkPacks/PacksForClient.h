@@ -18,7 +18,6 @@
 #include "ObjProperty.h"
 
 #include "../CCreatureSet.h"
-#include "../MetaString.h"
 #include "../ResourceSet.h"
 #include "../TurnTimerInfo.h"
 #include "../gameState/EVictoryLossCheckResult.h"

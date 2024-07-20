@@ -27,7 +27,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CCreatureSet.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"

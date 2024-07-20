@@ -27,7 +27,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGMarket.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

@@ -14,7 +14,7 @@
 #include "../../gui/CGuiHandler.h"
 #include "../../../lib/CConfigHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
-#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 

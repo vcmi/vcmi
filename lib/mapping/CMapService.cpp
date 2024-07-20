@@ -19,7 +19,7 @@
 #include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
 #include "../modding/CModInfo.h"
-#include "../Languages.h"
+#include "../texts/Languages.h"
 #include "../VCMI_Lib.h"
 
 #include "CMap.h"

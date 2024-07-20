@@ -22,8 +22,8 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
 
-#include "../../lib/MetaString.h"
 #include "../../lib/json/JsonNode.h"
+#include "../../lib/texts/MetaString.h"
 
 GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(const GlobalLobbyAccount & accountDescription)
 	: accountID(accountDescription.accountID)

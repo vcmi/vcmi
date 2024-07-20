@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CCreatureHandler.h"
 
-#include "CGeneralTextHandler.h"
 #include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
@@ -22,6 +21,8 @@
 #include "json/JsonBonus.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "modding/CModHandler.h"

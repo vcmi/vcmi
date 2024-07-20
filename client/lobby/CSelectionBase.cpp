@@ -43,12 +43,11 @@
 #include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
-#include "../../lib/MetaString.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/CMapInfo.h"

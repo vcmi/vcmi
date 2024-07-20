@@ -25,8 +25,6 @@
 #include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMap.h"
@@ -37,10 +35,11 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
-#include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/rmg/CMapGenOptions.h"
-#include "../../lib/Languages.h"
+#include "../../lib/serializer/CLoadFile.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 
 CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, std::string author, std::string version, ResourcePath resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), author(author), version(version), tabType(tabType)

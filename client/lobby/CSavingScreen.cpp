@@ -21,7 +21,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"

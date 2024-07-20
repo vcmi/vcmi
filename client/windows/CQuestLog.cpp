@@ -27,8 +27,7 @@
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/gameState/QuestInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/MetaString.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CQuest.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

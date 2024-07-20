@@ -20,7 +20,7 @@
 
 #include "../../../CCallback.h"
 
-#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
 CTradeableItem::CTradeableItem(const Rect & area, EType Type, int ID, int Serial)

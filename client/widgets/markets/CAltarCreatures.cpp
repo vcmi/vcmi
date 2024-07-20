@@ -21,10 +21,9 @@
 
 #include "../../../CCallback.h"
 
-#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/MetaString.h"
 
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)

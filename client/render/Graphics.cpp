@@ -35,7 +35,7 @@
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/CHeroHandler.h"

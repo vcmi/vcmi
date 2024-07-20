@@ -15,8 +15,8 @@
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonNode.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/Rect.h"
+#include "../../lib/texts/TextOperations.h"
 
 #include <SDL_surface.h>
 

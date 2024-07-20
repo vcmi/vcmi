@@ -23,7 +23,7 @@
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
 
-#include "../../lib/TextOperations.h"
+#include "../../lib/texts/TextOperations.h"
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"

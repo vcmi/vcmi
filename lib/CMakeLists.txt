@@ -30,13 +30,14 @@ set(lib_SRCS
 	network/NetworkHandler.cpp
 	network/NetworkServer.cpp
 
+	texts/TextOperations.cpp
+
 	vstd/DateUtils.cpp
 	vstd/StringUtils.cpp
 
 	CConfigHandler.cpp
 	CConsoleHandler.cpp
 	CThreadHelper.cpp
-	TextOperations.cpp
 	VCMIDirs.cpp
 )
 
@@ -241,6 +242,11 @@ set(lib_MAIN_SRCS
 	spells/effects/RemoveObstacle.cpp
 	spells/effects/Sacrifice.cpp
 
+	texts/CGeneralTextHandler.cpp
+	texts/CLegacyConfigParser.cpp
+	texts/MetaString.cpp
+	texts/TextLocalizationContainer.cpp
+
 	ArtifactUtils.cpp
 	BasicTypes.cpp
 	BattleFieldHandler.cpp
@@ -253,7 +259,6 @@ set(lib_MAIN_SRCS
 	CCreatureSet.cpp
 	CGameInfoCallback.cpp
 	CGameInterface.cpp
-	CGeneralTextHandler.cpp
 	CHeroHandler.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
@@ -266,7 +271,6 @@ set(lib_MAIN_SRCS
 	IHandlerBase.cpp
 	LoadProgress.cpp
 	LogicalExpression.cpp
-	MetaString.cpp
 	ObstacleHandler.cpp
 	StartInfo.cpp
 	ResourceSet.cpp
@@ -335,10 +339,11 @@ set(lib_HEADERS
 	network/NetworkInterface.h
 	network/NetworkServer.h
 
+	texts/TextOperations.h
+
 	CConfigHandler.h
 	CConsoleHandler.h
 	CThreadHelper.h
-	TextOperations.h
 	VCMIDirs.h
 )
 
@@ -639,6 +644,13 @@ set(lib_MAIN_HEADERS
 	spells/effects/RemoveObstacle.h
 	spells/effects/Sacrifice.h
 
+	texts/CGeneralTextHandler.h
+	texts/Languages.h
+	texts/CLegacyConfigParser.h
+	texts/MetaString.h
+	texts/TextIdentifier.h
+	texts/TextLocalizationContainer.h
+
 	AI_Base.h
 	ArtifactUtils.h
 	BattleFieldHandler.h
@@ -651,7 +663,6 @@ set(lib_MAIN_HEADERS
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
-	CGeneralTextHandler.h
 	CHeroHandler.h
 	ConstTransitivePtr.h
 	Color.h
@@ -674,10 +685,8 @@ set(lib_MAIN_HEADERS
 	IGameEventsReceiver.h
 	IHandlerBase.h
 	int3.h
-	Languages.h
 	LoadProgress.h
 	LogicalExpression.h
-	MetaString.h
 	ObstacleHandler.h
 	Point.h
 	Rect.h

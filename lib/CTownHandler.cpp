@@ -11,7 +11,6 @@
 #include "CTownHandler.h"
 
 #include "VCMI_Lib.h"
-#include "CGeneralTextHandler.h"
 #include "constants/StringConstants.h"
 #include "CCreatureHandler.h"
 #include "CHeroHandler.h"
@@ -28,6 +27,8 @@
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

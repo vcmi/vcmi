@@ -13,7 +13,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/MapFormat.h"
 #include "../VCMI_Lib.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CRandomGenerator.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"

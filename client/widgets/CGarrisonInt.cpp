@@ -26,12 +26,12 @@
 #include "../../CCallback.h"
 
 #include "../../lib/ArtifactUtils.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/gameState/CGameState.h"
 
 void CGarrisonSlot::setHighlight(bool on)

@@ -13,10 +13,9 @@
 
 #include "../CTownHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
-#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

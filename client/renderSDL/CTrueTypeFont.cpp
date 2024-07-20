@@ -15,9 +15,9 @@
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 
-#include "../../lib/TextOperations.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/texts/TextOperations.h"
 
 #include <SDL_ttf.h>
 

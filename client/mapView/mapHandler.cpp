@@ -17,7 +17,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

@@ -15,7 +15,7 @@
 #include "ObjectTemplate.h"
 
 #include "../gameState/CGameState.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"

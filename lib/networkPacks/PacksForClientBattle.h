@@ -11,8 +11,8 @@
 
 #include "NetPacksBase.h"
 #include "BattleChanges.h"
-#include "../MetaString.h"
 #include "../battle/BattleAction.h"
+#include "../texts/MetaString.h"
 
 class CClient;
 

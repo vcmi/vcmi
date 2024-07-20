@@ -28,7 +28,7 @@
 #include "mainmenu/CHighScoreScreen.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "ConditionalWait.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/StartInfo.h"

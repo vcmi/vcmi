@@ -11,7 +11,7 @@
 #include "CRewardableConstructor.h"
 
 #include "../mapObjects/CRewardableObject.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

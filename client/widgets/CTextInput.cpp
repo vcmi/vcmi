@@ -18,7 +18,7 @@
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
 
-#include "../../lib/TextOperations.h"
+#include "../../lib/texts/TextOperations.h"
 
 std::list<CFocusable *> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;

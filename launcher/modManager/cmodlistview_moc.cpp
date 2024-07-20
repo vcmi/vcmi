@@ -27,7 +27,7 @@
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/Languages.h"
+#include "../../lib/texts/Languages.h"
 #include "../../lib/modding/CModVersion.h"
 
 static double mbToBytes(double mb)
