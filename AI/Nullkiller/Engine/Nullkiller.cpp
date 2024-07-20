@@ -649,8 +649,6 @@ bool Nullkiller::handleTrading()
 				if (mostExpendable == mostWanted || mostWanted == -1 || mostExpendable == -1)
 					return false;
 
-				int acquiredResources = 0;
-
 				int toGive;
 				int toGet;
 				m->getOffer(mostExpendable, mostWanted, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
