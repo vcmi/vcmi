@@ -425,10 +425,13 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		if(finishingBattle->loserHero)
 		{
 			packHero.srcArtHolder = finishingBattle->loserHero->id;
-			for(const auto & artSlot : finishingBattle->loserHero->artifactsWorn)
+			for(const auto & slot : ArtifactUtils::commonWornSlots())
 			{
-				if(ArtifactUtils::isArtRemovable(artSlot))
-					addArtifactToTransfer(packHero, artSlot.first, artSlot.second.getArt());
+				if(const auto artSlot = finishingBattle->loserHero->artifactsWorn.find(slot);
+					artSlot != finishingBattle->loserHero->artifactsWorn.end() && ArtifactUtils::isArtRemovable(*artSlot))
+				{
+					addArtifactToTransfer(packHero, artSlot->first, artSlot->second.getArt());
+				}
 			}
 			for(const auto & artSlot : finishingBattle->loserHero->artifactsInBackpack)
 			{
