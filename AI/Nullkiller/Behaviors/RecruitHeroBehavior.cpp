@@ -55,6 +55,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 		{
 			auto availableHeroes = ai->cb->getAvailableHeroes(town);
 
+			//TODO: Prioritize non-main-heros too by cost of their units and whether their units fit to the current town
 			for(auto hero : availableHeroes)
 			{
 				auto score = ai->heroManager->evaluateHero(hero);
@@ -62,24 +63,6 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 				{
 					tasks.push_back(Goals::sptr(Goals::RecruitHero(town, hero).setpriority(200)));
 					break;
-				}
-			}
-
-			int treasureSourcesCount = 0;
-
-			for(auto obj : ai->objectClusterizer->getNearbyObjects())
-			{
-				if((obj->ID == Obj::RESOURCE)
-					|| obj->ID == Obj::TREASURE_CHEST
-					|| obj->ID == Obj::CAMPFIRE
-					|| isWeeklyRevisitable(ai, obj)
-					|| obj->ID ==Obj::ARTIFACT)
-				{
-					auto tile = obj->visitablePos();
-					auto closestTown = ai->dangerHitMap->getClosestTown(tile);
-
-					if(town == closestTown)
-						treasureSourcesCount++;
 				}
 			}
 
