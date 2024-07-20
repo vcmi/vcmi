@@ -157,10 +157,7 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	{
 		h & clientId;
 		h & initializedStartInfo;
-		bool sps = h.smartPointerSerialization;
-		h.smartPointerSerialization = true;
 		h & initializedGameState;
-		h.smartPointerSerialization = sps;
 	}
 };
 

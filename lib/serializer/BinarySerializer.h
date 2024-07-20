@@ -52,33 +52,33 @@ class BinarySerializer : public CSaverBase
 		}
 	};
 
-	template<typename Ser,typename T>
-	struct SaveIfStackInstance
+	template<typename Fake, typename T>
+	bool saveIfStackInstance(const T &data)
 	{
-		static bool invoke(Ser &s, const T &data)
-		{
-			return false;
-		}
-	};
+		return false;
+	}
 
-	template<typename Ser>
-	struct SaveIfStackInstance<Ser, CStackInstance *>
+	template<typename Fake>
+	bool saveIfStackInstance(const CStackInstance* const &data)
 	{
-		static bool invoke(Ser &s, const CStackInstance* const &data)
-		{
-			assert(data->armyObj);
-			SlotID slot;
+		assert(data->armyObj);
 
-			if(data->getNodeType() == CBonusSystemNode::COMMANDER)
-				slot = SlotID::COMMANDER_SLOT_PLACEHOLDER;
-			else
-				slot = data->armyObj->findStack(data);
+		SlotID slot;
 
-			assert(slot != SlotID());
-			s & data->armyObj & slot;
+		if(data->getNodeType() == CBonusSystemNode::COMMANDER)
+			slot = SlotID::COMMANDER_SLOT_PLACEHOLDER;
+		else
+			slot = data->armyObj->findStack(data);
+
+		assert(slot != SlotID());
+		save(data->armyObj->id);
+		save(slot);
+
+		if (data->armyObj->id != ObjectInstanceID::NONE)
 			return true;
-		}
-	};
+		else
+			return false;
+	}
 
 	template <typename T> class CPointerSaver;
 
@@ -252,7 +252,7 @@ public:
 
 		if(writer->sendStackInstanceByIds)
 		{
-			const bool gotSaved = SaveIfStackInstance<BinarySerializer,T>::invoke(*this, data);
+			const bool gotSaved = saveIfStackInstance<void>(data);
 			if(gotSaved)
 				return;
 		}
