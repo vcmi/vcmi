@@ -15,11 +15,11 @@ class CMultiLineLabel;
 
 class CreditsScreen : public CIntObject
 {
-	int positionCounter;
+	int timePassed;
 	std::shared_ptr<CMultiLineLabel> credits;
 
 public:
 	CreditsScreen(Rect rect);
-	void show(Canvas & to) override;
+	void tick(uint32_t msPassed) override;
 	void clickPressed(const Point & cursorPosition) override;
 };
