@@ -238,6 +238,8 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Skip Intro Music}\n\nAllow actions during the intro music that plays at the beginning of each battle.",	
 	"vcmi.battleOptions.endWithAutocombat.hover": "Ends battle",
 	"vcmi.battleOptions.endWithAutocombat.help": "{Ends battle}\n\nAuto-Combat plays battle to end instant",
+	"vcmi.battleOptions.showQuickSpell.hover": "Show Quickspell panel",
+	"vcmi.battleOptions.showQuickSpell.help": "{Show Quickspell panel}\n\nShow panel for quick selecting spells",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Revisit Object",
 	"vcmi.adventureMap.revisitObject.help" : "{Revisit Object}\n\nIf a hero currently stands on a Map Object, he can revisit the location.",

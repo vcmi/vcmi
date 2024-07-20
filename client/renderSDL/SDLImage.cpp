@@ -196,7 +196,7 @@ Point SDLImageConst::dimensions() const
 
 std::shared_ptr<IImage> SDLImageConst::createImageReference(EImageBlitMode mode)
 {
-	if (surf->format->palette)
+	if (surf && surf->format->palette)
 		return std::make_shared<SDLImageIndexed>(shared_from_this(), mode);
 	else
 		return std::make_shared<SDLImageRGB>(shared_from_this(), mode);

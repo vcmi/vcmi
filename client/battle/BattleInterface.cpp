@@ -860,3 +860,10 @@ void BattleInterface::setStickyHeroWindowsVisibility(bool visible)
 	if(visible)
 		windowObject->showStickyHeroWindows();
 }
+
+void BattleInterface::setStickyQuickSpellWindowVisibility(bool visible)
+{
+	windowObject->hideStickyQuickSpellWindow();
+	if(visible)
+		windowObject->showStickyQuickSpellWindow();
+}

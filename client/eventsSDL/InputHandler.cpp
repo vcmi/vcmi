@@ -37,6 +37,7 @@ InputHandler::InputHandler()
 	: enableMouse(settings["input"]["enableMouse"].Bool())
 	, enableTouch(settings["input"]["enableTouch"].Bool())
 	, enableController(settings["input"]["enableController"].Bool())
+	, currentInputMode(InputMode::KEYBOARD_AND_MOUSE)
 	, mouseHandler(std::make_unique<InputSourceMouse>())
 	, keyboardHandler(std::make_unique<InputSourceKeyboard>())
 	, fingerHandler(std::make_unique<InputSourceTouch>())
@@ -52,6 +53,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 	switch (current.type)
 	{
 		case SDL_KEYDOWN:
+			setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 			keyboardHandler->handleEventKeyDown(current.key);
 			return;
 		case SDL_KEYUP:
@@ -60,11 +62,17 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 #ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 		case SDL_MOUSEMOTION:
 			if (enableMouse)
+			{
+				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseMotion(current.motion);
+			}
 			return;
 		case SDL_MOUSEBUTTONDOWN:
 			if (enableMouse)
+			{
+				setCurrentInputMode(InputMode::KEYBOARD_AND_MOUSE);
 				mouseHandler->handleEventMouseButtonDown(current.button);
+			}
 			return;
 		case SDL_MOUSEBUTTONUP:
 			if (enableMouse)
@@ -83,11 +91,17 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return;
 		case SDL_FINGERMOTION:
 			if (enableTouch)
+			{
+				setCurrentInputMode(InputMode::TOUCH);
 				fingerHandler->handleEventFingerMotion(current.tfinger);
+			}
 			return;
 		case SDL_FINGERDOWN:
 			if (enableTouch)
+			{
+				setCurrentInputMode(InputMode::TOUCH);
 				fingerHandler->handleEventFingerDown(current.tfinger);
+			}
 			return;
 		case SDL_FINGERUP:
 			if (enableTouch)
@@ -95,17 +109,37 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return;
 		case SDL_CONTROLLERAXISMOTION:
 			if (enableController)
+			{
+				setCurrentInputMode(InputMode::CONTROLLER);
 				gameControllerHandler->handleEventAxisMotion(current.caxis);
+			}
 			return;
 		case SDL_CONTROLLERBUTTONDOWN:
 			if (enableController)
+			{
+				setCurrentInputMode(InputMode::CONTROLLER);
 				gameControllerHandler->handleEventButtonDown(current.cbutton);
+			}
 			return;
 		case SDL_CONTROLLERBUTTONUP:
 			if (enableController)
 				gameControllerHandler->handleEventButtonUp(current.cbutton);
 			return;
 	}
+}
+
+void InputHandler::setCurrentInputMode(InputMode modi)
+{
+	if(currentInputMode != modi)
+	{
+		currentInputMode = modi;
+		GH.events().dispatchInputModeChanged(modi);
+	}
+}
+
+InputMode InputHandler::getCurrentInputMode()
+{
+	return currentInputMode;
 }
 
 std::vector<SDL_Event> InputHandler::acquireEvents()
@@ -335,7 +369,8 @@ void InputHandler::stopTextInput()
 
 void InputHandler::hapticFeedback()
 {
-	fingerHandler->hapticFeedback();
+	if(currentInputMode == InputMode::TOUCH)
+		fingerHandler->hapticFeedback();
 }
 
 uint32_t InputHandler::getTicks()

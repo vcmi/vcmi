@@ -248,7 +248,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our)
 {
 	CCS->curh->hide();
-	defActions = SHOWALL | UPDATE;
+	defActions = 255-DISPOSE;
 	our->recActions = defActions;
 	inner = our;
 	addChild(our.get(), false);
