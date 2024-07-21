@@ -81,6 +81,12 @@ set(lib_MAIN_SRCS
 
 	constants/EntityIdentifiers.cpp
 
+	entities/building/CBuilding.cpp
+	entities/building/CBuildingHandler.cpp
+	entities/faction/CFaction.cpp
+	entities/faction/CTown.cpp
+	entities/faction/CTownHandler.cpp
+
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
 	events/ObjectVisitEnded.cpp
@@ -254,7 +260,6 @@ set(lib_MAIN_SRCS
 	CArtHandler.cpp
 	CArtifactInstance.cpp
 	CBonusTypeHandler.cpp
-	CBuildingHandler.cpp
 	CCreatureHandler.cpp
 	CCreatureSet.cpp
 	CGameInfoCallback.cpp
@@ -265,7 +270,6 @@ set(lib_MAIN_SRCS
 	CScriptingModule.cpp
 	CSkillHandler.cpp
 	CStack.cpp
-	CTownHandler.cpp
 	GameSettings.cpp
 	IGameCallback.cpp
 	IHandlerBase.cpp
@@ -439,6 +443,12 @@ set(lib_MAIN_HEADERS
 	constants/VariantIdentifier.h
 	constants/NumericConstants.h
 	constants/StringConstants.h
+
+	entities/building/CBuilding.h
+	entities/building/CBuildingHandler.h
+	entities/faction/CFaction.h
+	entities/faction/CTown.h
+	entities/faction/CTownHandler.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -658,7 +668,6 @@ set(lib_MAIN_HEADERS
 	CArtHandler.h
 	CArtifactInstance.h
 	CBonusTypeHandler.h
-	CBuildingHandler.h
 	CCreatureHandler.h
 	CCreatureSet.h
 	CGameInfoCallback.h
@@ -673,7 +682,6 @@ set(lib_MAIN_HEADERS
 	CSoundBase.h
 	CStack.h
 	CStopWatch.h
-	CTownHandler.h
 	ExceptionsCommon.h
 	ExtraOptionsInfo.h
 	FunctionList.h

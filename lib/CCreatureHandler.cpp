@@ -11,9 +11,10 @@
 #include "CCreatureHandler.h"
 
 #include "ResourceSet.h"
+#include "entities/faction/CFaction.h"
+#include "entities/faction/CTownHandler.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
-#include "CTownHandler.h"
 #include "GameSettings.h"
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"

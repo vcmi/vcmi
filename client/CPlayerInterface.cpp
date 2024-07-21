@@ -74,7 +74,6 @@
 #include "../lib/CStack.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/StartInfo.h"

@@ -41,6 +41,8 @@
 
 #include "../../CCallback.h"
 
+#include "../lib/entities/building/CBuilding.h"
+#include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/CGHeroInstance.h"

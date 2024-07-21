@@ -42,17 +42,16 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"
-#include "../../lib/CBuildingHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSoundBase.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/campaign/CampaignState.h"
+#include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 

@@ -19,7 +19,7 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
-
+#include "entities/building/CBuilding.h"
 #include "networkPacks/ArtifactLocation.h"
 #include "serializer/CLoadFile.h"
 #include "serializer/CSaveFile.h"

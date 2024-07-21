@@ -26,6 +26,7 @@
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
 #include "../../lib/bonuses/Propagators.h"
+#include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"

@@ -14,6 +14,7 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
+#include "../../entities/building/CBuilding.h"
 #include "../../mapObjects/CGTownInstance.h"
 #include "../../bonuses/Limiters.h"
 #include "../../battle/IBattleState.h"

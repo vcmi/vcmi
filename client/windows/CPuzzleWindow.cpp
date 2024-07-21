@@ -23,8 +23,9 @@
 #include "../widgets/TextControls.h"
 
 #include "../../CCallback.h"
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/StartInfo.h"
 
 CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)

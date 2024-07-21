@@ -17,10 +17,11 @@
 #include "../lib/CRandomGenerator.h"
 
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/entities/faction/CTownHandler.h"
+#include "../lib/entities/faction/CFaction.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
-#include "../lib/CTownHandler.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {

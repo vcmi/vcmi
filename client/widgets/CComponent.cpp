@@ -28,8 +28,11 @@
 #include "../CGameInfo.h"
 
 #include "../../lib/ArtifactUtils.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/networkPacks/Component.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"

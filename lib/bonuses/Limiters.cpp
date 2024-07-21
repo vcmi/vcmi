@@ -12,11 +12,12 @@
 #include "Limiters.h"
 
 #include "../VCMI_Lib.h"
+#include "../entities/faction/CFaction.h"
+#include "../entities/faction/CTownHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../CHeroHandler.h"
-#include "../CTownHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStack.h"

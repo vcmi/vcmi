@@ -13,7 +13,6 @@
 #include "../mapcontroller.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGCreature.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/CGCreature.h"
 

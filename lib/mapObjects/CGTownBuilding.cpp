@@ -16,6 +16,8 @@
 #include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
+#include "../entities/building/CBuilding.h"
+
 
 #include <vstd/RNG.h>
 
