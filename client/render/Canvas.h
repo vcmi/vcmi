@@ -32,6 +32,9 @@ class Canvas
 	/// copy constructor
 	Canvas(const Canvas & other);
 
+	Point transformPos(const Point & input);
+	Point transformSize(const Point & input);
+
 public:
 	Canvas & operator = (const Canvas & other) = delete;
 	Canvas & operator = (Canvas && other) = delete;
@@ -101,6 +104,8 @@ public:
 
 	/// fills canvas with texture
 	void fillTexture(const std::shared_ptr<IImage>& image);
+
+	int getScalingFactor() const;
 
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
 	SDL_Surface * getInternalSurface();

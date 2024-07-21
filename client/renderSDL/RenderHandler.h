@@ -16,6 +16,7 @@ class EntityService;
 VCMI_LIB_NAMESPACE_END
 
 class CDefFile;
+class SDLImageConst;
 class IConstImage;
 
 class RenderHandler : public IRenderHandler
@@ -37,6 +38,10 @@ class RenderHandler : public IRenderHandler
 	std::shared_ptr<IConstImage> loadImageFromAnimationFileUncached(const AnimationPath & path, int frame, int group);
 	std::shared_ptr<IConstImage> loadImageFromAnimationFile(const AnimationPath & path, int frame, int group);
 	std::shared_ptr<IConstImage> loadImageImpl(const ImageLocator & config);
+
+	int getScalingFactor() const;
+
+	std::shared_ptr<IConstImage> createScaledImage(std::shared_ptr<SDLImageConst> input);
 public:
 
 	// IRenderHandler implementation
