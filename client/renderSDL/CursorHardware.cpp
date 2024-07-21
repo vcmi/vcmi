@@ -45,7 +45,7 @@ void CursorHardware::setVisible(bool on)
 
 void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
 {
-	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions().x, image->dimensions().y);
+	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions());
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
