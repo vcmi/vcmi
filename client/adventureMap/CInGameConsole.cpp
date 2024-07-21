@@ -30,9 +30,8 @@
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
-#include "../../lib/MetaString.h"
+#include "../../lib/texts/TextOperations.h"
 
 CInGameConsole::CInGameConsole()
 	: CIntObject(KEYBOARD | TIME | TEXTINPUT)

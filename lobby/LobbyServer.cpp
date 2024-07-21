@@ -12,11 +12,11 @@
 
 #include "LobbyDatabase.h"
 
-#include "../lib/Languages.h"
-#include "../lib/TextOperations.h"
 #include "../lib/json/JsonFormatException.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/json/JsonUtils.h"
+#include "../lib/texts/Languages.h"
+#include "../lib/texts/TextOperations.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>

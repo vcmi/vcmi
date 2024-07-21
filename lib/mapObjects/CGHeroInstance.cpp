@@ -15,7 +15,7 @@
 #include <vcmi/spells/Spell.h>
 #include <vstd/RNG.h>
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
 #include "../CHeroHandler.h"
 #include "../TerrainHandler.h"

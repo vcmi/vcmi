@@ -16,7 +16,6 @@
 
 #include "../ISpellMechanics.h"
 
-#include "../../MetaString.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"

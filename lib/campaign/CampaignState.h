@@ -10,10 +10,9 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "../MetaString.h"
 #include "../filesystem/ResourcePath.h"
 #include "../serializer/Serializeable.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/TextLocalizationContainer.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
 

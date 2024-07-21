@@ -46,7 +46,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSoundBase.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CTownHandler.h"

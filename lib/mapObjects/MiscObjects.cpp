@@ -15,7 +15,7 @@
 #include "../bonuses/Propagators.h"
 #include "../constants/StringConstants.h"
 #include "../CConfigHandler.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../CSkillHandler.h"
 #include "../spells/CSpellHandler.h"

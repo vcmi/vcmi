@@ -13,7 +13,7 @@
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "GameConstants.h"
 #include "VCMI_Lib.h"

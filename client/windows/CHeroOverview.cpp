@@ -22,7 +22,7 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 
 #include "../../lib/GameSettings.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CSkillHandler.h"

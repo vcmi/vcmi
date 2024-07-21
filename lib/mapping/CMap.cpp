@@ -22,7 +22,7 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "CMapEditManager.h"

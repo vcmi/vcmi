@@ -29,12 +29,12 @@
 
 #include "../../CCallback.h"
 
-#include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/filesystem/Filesystem.h"
 #include "../lib/CSkillHandler.h"
-#include "../lib/TextOperations.h"
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/texts/TextOperations.h"
 
 static const std::string QUICK_EXCHANGE_BG = "quick-exchange/TRADEQE";
 

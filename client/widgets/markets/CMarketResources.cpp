@@ -21,8 +21,7 @@
 
 #include "../../../CCallback.h"
 
-#include "../../../lib/CGeneralTextHandler.h"
-#include "../../../lib/MetaString.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)

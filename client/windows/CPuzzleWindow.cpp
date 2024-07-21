@@ -23,7 +23,7 @@
 #include "../widgets/TextControls.h"
 
 #include "../../CCallback.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/StartInfo.h"
 

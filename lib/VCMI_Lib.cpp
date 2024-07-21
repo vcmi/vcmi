@@ -24,7 +24,7 @@
 #include "spells/CSpellHandler.h"
 #include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "modding/CModHandler.h"
 #include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"

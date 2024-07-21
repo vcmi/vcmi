@@ -10,10 +10,11 @@
 
 #include "StdInc.h"
 #include "TerrainHandler.h"
-#include "CGeneralTextHandler.h"
 #include "GameSettings.h"
 #include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
 #include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

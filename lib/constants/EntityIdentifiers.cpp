@@ -36,7 +36,7 @@
 #include "CSkillHandler.h"//todo: remove
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "TerrainHandler.h" //TODO: remove
 #include "RiverHandler.h"
 #include "RoadHandler.h"

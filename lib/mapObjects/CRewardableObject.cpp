@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CRewardableObject.h"
 #include "../gameState/CGameState.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CPlayerState.h"
 #include "../IGameCallback.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"

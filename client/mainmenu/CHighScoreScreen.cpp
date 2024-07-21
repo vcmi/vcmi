@@ -27,12 +27,11 @@
 #include "../render/IRenderHandler.h"
 
 #include "../CGameInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
-#include "../../lib/TextOperations.h"
-#include "../../lib/Languages.h"
 
 auto HighScoreCalculation::calculate()
 {

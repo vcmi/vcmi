@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CModInfo.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../VCMI_Lib.h"
 #include "../filesystem/Filesystem.h"
 

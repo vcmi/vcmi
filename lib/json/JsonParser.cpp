@@ -12,7 +12,7 @@
 #include "JsonParser.h"
 
 #include "../ScopeGuard.h"
-#include "../TextOperations.h"
+#include "../texts/TextOperations.h"
 #include "JsonFormatException.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

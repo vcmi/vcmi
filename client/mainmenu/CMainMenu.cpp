@@ -45,7 +45,7 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/filesystem/Filesystem.h"

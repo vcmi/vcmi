@@ -23,7 +23,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 AdventureOptions::AdventureOptions()
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("ADVOPTS"))

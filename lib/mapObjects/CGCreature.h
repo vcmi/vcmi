@@ -11,7 +11,6 @@
 
 #include "CArmedInstance.h"
 #include "../ResourceSet.h"
-#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

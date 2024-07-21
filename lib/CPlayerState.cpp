@@ -11,7 +11,7 @@
 
 #include "CPlayerState.h"
 #include "gameState/QuestInfo.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

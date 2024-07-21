@@ -26,7 +26,7 @@
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CHeroHandler.h"
 
-#include "CGeneralTextHandler.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
 #include "constants/StringConstants.h"
@@ -27,6 +26,8 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "modding/IdentifierStorage.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
 
 #include <vstd/RNG.h>
 

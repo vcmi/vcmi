@@ -23,8 +23,8 @@
 
 #include "../../lib/filesystem/CInputStream.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/Languages.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 
 #include <SDL_render.h>
 

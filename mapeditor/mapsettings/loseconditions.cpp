@@ -11,7 +11,7 @@
 #include "loseconditions.h"
 #include "ui_loseconditions.h"
 #include "../mapcontroller.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 LoseConditions::LoseConditions(QWidget *parent) :
 	AbstractSettings(parent),

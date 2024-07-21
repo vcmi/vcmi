@@ -35,7 +35,6 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -43,8 +42,9 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/TextOperations.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
