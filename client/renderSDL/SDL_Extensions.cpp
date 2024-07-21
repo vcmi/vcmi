@@ -15,6 +15,7 @@
 #include "../render/Graphics.h"
 #include "../render/Colors.h"
 #include "../CMT.h"
+#include "../xBRZ/xbrz.h"
 
 #include "../../lib/GameConstants.h"
 
@@ -630,6 +631,9 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 	if(!surf || !width || !height)
 		return nullptr;
 
+	if (surf->w * 2 == width && surf->h * 2 == height)
+		return scaleSurfaceIntegerFactor(surf, 2);
+
 	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
 	SDL_Surface * ret = newSurface(Point(width, height), intermediate);
 
@@ -638,6 +642,30 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 #else
 	SDL_SoftStretch(intermediate, nullptr, ret, nullptr);
 #endif
+	SDL_FreeSurface(intermediate);
+
+	return ret;
+}
+
+SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor)
+{
+	if(surf == nullptr || factor == 0)
+		return nullptr;
+
+	int newWidth = surf->w * factor;
+	int newHight = surf->h * factor;
+
+	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
+	SDL_Surface * ret = newSurface(Point(newWidth, newHight), intermediate);
+
+	assert(intermediate->pitch == intermediate->w * 4);
+	assert(ret->pitch == ret->w * 4);
+
+	const uint32_t * srcPixels = static_cast<const uint32_t*>(intermediate->pixels);
+	uint32_t * dstPixels = static_cast<uint32_t*>(ret->pixels);
+
+	xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, xbrz::ColorFormat::ARGB);
+
 	SDL_FreeSurface(intermediate);
 
 	return ret;
