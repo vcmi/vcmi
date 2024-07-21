@@ -19,6 +19,7 @@
 			"additionalProperties" : false,
 			"required" : [
 				"playerName",
+				"multiPlayerNames",
 				"music",
 				"sound",
 				"saveRandomMaps",
@@ -47,6 +48,10 @@
 				"playerName" : {
 					"type" : "string",
 					"default" : "Player"
+				},
+				"multiPlayerNames" : {
+					"type" : "array",
+					"default" : []
 				},
 				"music" : {
 					"type" : "number",
