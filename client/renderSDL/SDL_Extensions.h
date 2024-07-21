@@ -84,8 +84,8 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color & color, int depth = 1);
 	void drawBorder(SDL_Surface * sur, const Rect & r, const SDL_Color & color, int depth = 1);
 
-	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
-	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface
+	SDL_Surface * newSurface(const Point & dimensions, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
+	SDL_Surface * newSurface(const Point & dimensions); //creates new surface, with flags/format same as in screen surface
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value

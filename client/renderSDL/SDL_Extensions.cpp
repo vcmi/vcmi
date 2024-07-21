@@ -63,21 +63,21 @@ void CSDL_Ext::setAlpha(SDL_Surface * bg, int value)
 	SDL_SetSurfaceAlphaMod(bg, value);
 }
 
-SDL_Surface * CSDL_Ext::newSurface(int w, int h)
+SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions)
 {
-	return newSurface(w, h, screen);
+	return newSurface(dimensions, screen);
 }
 
-SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
+SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
-	SDL_Surface * ret = SDL_CreateRGBSurface(0,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	SDL_Surface * ret = SDL_CreateRGBSurface(0,dimensions.x,dimensions.y,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
 
 	if(ret == nullptr)
 	{
 		const char * error = SDL_GetError();
 
 		std::string messagePattern = "Failed to create SDL Surface of size %d x %d, %d bpp. Reason: %s";
-		std::string message = boost::str(boost::format(messagePattern) % w % h % mod->format->BitsPerPixel % error);
+		std::string message = boost::str(boost::format(messagePattern) % dimensions.x % dimensions.y % mod->format->BitsPerPixel % error);
 
 		handleFatalError(message, true);
 	}
@@ -631,7 +631,7 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 		return nullptr;
 
 	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
-	SDL_Surface * ret = newSurface(width, height, intermediate);
+	SDL_Surface * ret = newSurface(Point(width, height), intermediate);
 
 #if SDL_VERSION_ATLEAST(2,0,16)
 	SDL_SoftStretchLinear(intermediate, nullptr, ret, nullptr);

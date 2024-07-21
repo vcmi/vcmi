@@ -44,7 +44,7 @@ void CursorSoftware::createTexture(const Point & dimensions)
 	if (cursorSurface)
 		SDL_FreeSurface(cursorSurface);
 
-	cursorSurface = CSDL_Ext::newSurface(dimensions.x, dimensions.y);
+	cursorSurface = CSDL_Ext::newSurface(dimensions);
 	cursorTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
 
 	SDL_SetSurfaceBlendMode(cursorSurface, SDL_BLENDMODE_NONE);

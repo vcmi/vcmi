@@ -207,7 +207,7 @@ void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput
 	}
 	else
 	{
-		surface = CSDL_Ext::newSurface(dimensions.x, dimensions.y);
+		surface = CSDL_Ext::newSurface(dimensions);
 		sws = sws_getContext(getCodecContext()->width, getCodecContext()->height, getCodecContext()->pix_fmt,
 							 dimensions.x, dimensions.y, AV_PIX_FMT_RGB32,
 							 SWS_BICUBIC, nullptr, nullptr, nullptr);

@@ -48,7 +48,7 @@ Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 
 Canvas::Canvas(const Point & size):
 	renderArea(Point(0,0), size),
-	surface(CSDL_Ext::newSurface(size.x, size.y))
+	surface(CSDL_Ext::newSurface(size))
 {
 	CSDL_Ext::fillSurface(surface, CSDL_Ext::toSDL(Colors::TRANSPARENCY) );
 	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
