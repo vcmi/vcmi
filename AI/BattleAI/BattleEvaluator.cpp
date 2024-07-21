@@ -249,6 +249,31 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
+BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, BattleHex hex, const PotentialTargets & targets)
+{
+	auto additionalScore = 0;
+	std::optional<AttackPossibility> attackOnTheWay;
+
+	for(auto & target : targets.possibleAttacks)
+	{
+		if(!target.attack.shooting && target.from == hex && target.attackValue() > additionalScore)
+		{
+			additionalScore = target.attackValue();
+			attackOnTheWay = target;
+		}
+	}
+
+	if(attackOnTheWay)
+	{
+		activeActionMade = true;
+		return BattleAction::makeMeleeAttack(stack, attackOnTheWay->attack.defender->getPosition(), attackOnTheWay->from);
+	}
+	else
+	{
+		return BattleAction::makeMove(stack, hex);
+	}
+}
+
 BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes, const PotentialTargets & targets)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
@@ -261,69 +286,38 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 
 	std::vector<BattleHex> targetHexes = hexes;
 
-	for(int i = 0; i < 5; i++)
-	{
-		std::sort(targetHexes.begin(), targetHexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
-			{
-				return reachability.distances[h1] < reachability.distances[h2];
-			});
+	vstd::erase_if(targetHexes, [](const BattleHex & hex) { return !hex.isValid(); });
 
-		for(auto hex : targetHexes)
+	std::sort(targetHexes.begin(), targetHexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
 		{
-			if(vstd::contains(avHexes, hex))
-			{
-				auto additionalScore = 0;
-				std::optional<AttackPossibility> attackOnTheWay;
-
-				for(auto & target : targets.possibleAttacks)
-				{
-					if(!target.attack.shooting && target.from == hex && target.attackValue() > additionalScore)
-					{
-						additionalScore = target.attackValue();
-						attackOnTheWay = target;
-					}
-				}
-
-				if(attackOnTheWay)
-				{
-					activeActionMade = true;
-					return BattleAction::makeMeleeAttack(stack, attackOnTheWay->attack.defender->getPosition(), attackOnTheWay->from);
-				}
-				else
-				{
-					return BattleAction::makeMove(stack, hex);
-				}
-			}
-
-			if(stack->coversPos(hex))
-			{
-				logAi->warn("Warning: already standing on neighbouring tile!");
-				//We shouldn't even be here...
-				return BattleAction::makeDefend(stack);
-			}
-		}
-
-		if(reachability.distances[targetHexes.front()] <= GameConstants::BFIELD_SIZE)
-		{
-			break;
-		}
-
-		std::vector<BattleHex> copy = targetHexes;
-
-		for(auto hex : copy)
-			vstd::concatenate(targetHexes, hex.allNeighbouringTiles());
-
-		vstd::erase_if(targetHexes, [](const BattleHex & hex) {return !hex.isValid();});
-		vstd::removeDuplicates(targetHexes);
-	}
+			return reachability.distances[h1] < reachability.distances[h2];
+		});
 
 	BattleHex bestNeighbor = targetHexes.front();
 
 	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
 	{
+		logAi->trace("No richable hexes.");
 		return BattleAction::makeDefend(stack);
 	}
 
+	// this turn
+	for(auto hex : targetHexes)
+	{
+		if(vstd::contains(avHexes, hex))
+		{
+			return moveOrAttack(stack, hex, targets);
+		}
+
+		if(stack->coversPos(hex))
+		{
+			logAi->warn("Warning: already standing on neighbouring hex!");
+			//We shouldn't even be here...
+			return BattleAction::makeDefend(stack);
+		}
+	}
+
+	// not this turn
 	scoreEvaluator.updateReachabilityMap(hb);
 
 	if(stack->hasBonusOfType(BonusType::FLYING))
@@ -363,7 +357,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 			return scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
 		});
 
-		return BattleAction::makeMove(stack, *nearestAvailableHex);
+		return moveOrAttack(stack, *nearestAvailableHex, targets);
 	}
 	else
 	{
@@ -377,11 +371,16 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 
 			if(vstd::contains(avHexes, currentDest)
 				&& !scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, currentDest))
-				return BattleAction::makeMove(stack, currentDest);
+			{
+				return moveOrAttack(stack, currentDest, targets);
+			}
 
 			currentDest = reachability.predecessors[currentDest];
 		}
 	}
+	
+	logAi->error("We should either detect that hexes are unreachable or make a move!");
+	return BattleAction::makeDefend(stack);
 }
 
 bool BattleEvaluator::canCastSpell()
