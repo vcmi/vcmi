@@ -47,11 +47,26 @@ Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 }
 
 Canvas::Canvas(const Point & size):
-	renderArea(Point(0,0), size),
-	surface(CSDL_Ext::newSurface(size))
+	renderArea(Point(0,0), size * getScalingFactor()),
+	surface(CSDL_Ext::newSurface(size * getScalingFactor()))
 {
 	CSDL_Ext::fillSurface(surface, CSDL_Ext::toSDL(Colors::TRANSPARENCY) );
 	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+}
+
+int Canvas::getScalingFactor() const
+{
+	return 2; // TODO: get from screen handler
+}
+
+Point Canvas::transformPos(const Point & input)
+{
+	return (renderArea.topLeft() + input) * getScalingFactor();
+}
+
+Point Canvas::transformSize(const Point & input)
+{
+	return input * getScalingFactor();
 }
 
 Canvas Canvas::createFromSurface(SDL_Surface * surface)
@@ -81,19 +96,20 @@ void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos)
 {
 	assert(image);
 	if (image)
-		image->draw(surface, pos + renderArea.topLeft());
+		image->draw(surface, transformPos(pos));
 }
 
 void Canvas::draw(const std::shared_ptr<IImage>& image, const Point & pos, const Rect & sourceRect)
 {
+	Rect realSourceRect = sourceRect * getScalingFactor();
 	assert(image);
 	if (image)
-		image->draw(surface, pos + renderArea.topLeft(), &sourceRect);
+		image->draw(surface, transformPos(pos), &realSourceRect);
 }
 
 void Canvas::draw(const Canvas & image, const Point & pos)
 {
-	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, renderArea.topLeft() + pos);
+	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, transformPos(pos));
 }
 
 void Canvas::drawTransparent(const Canvas & image, const Point & pos, double transparency)
@@ -103,35 +119,36 @@ void Canvas::drawTransparent(const Canvas & image, const Point & pos, double tra
 	SDL_GetSurfaceBlendMode(image.surface, &oldMode);
 	SDL_SetSurfaceBlendMode(image.surface, SDL_BLENDMODE_BLEND);
 	SDL_SetSurfaceAlphaMod(image.surface, 255 * transparency);
-	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, renderArea.topLeft() + pos);
+	CSDL_Ext::blitSurface(image.surface, image.renderArea, surface, transformPos(pos));
 	SDL_SetSurfaceAlphaMod(image.surface, 255);
 	SDL_SetSurfaceBlendMode(image.surface, oldMode);
 }
 
 void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & targetSize)
 {
-	SDL_Rect targetRect = CSDL_Ext::toSDL(Rect(pos + renderArea.topLeft(), targetSize));
+	SDL_Rect targetRect = CSDL_Ext::toSDL(Rect(transformPos(pos), transformSize(targetSize)));
 	SDL_BlitScaled(image.surface, nullptr, surface, &targetRect);
 }
 
 void Canvas::drawPoint(const Point & dest, const ColorRGBA & color)
 {
-	CSDL_Ext::putPixelWithoutRefreshIfInSurf(surface, dest.x, dest.y, color.r, color.g, color.b, color.a);
+	Point point = transformPos(dest);
+	CSDL_Ext::putPixelWithoutRefreshIfInSurf(surface, point.x, point.y, color.r, color.g, color.b, color.a);
 }
 
 void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest)
 {
-	CSDL_Ext::drawLine(surface, renderArea.topLeft() + from, renderArea.topLeft() + dest, CSDL_Ext::toSDL(colorFrom), CSDL_Ext::toSDL(colorDest));
+	CSDL_Ext::drawLine(surface, transformPos(from), transformPos(dest), CSDL_Ext::toSDL(colorFrom), CSDL_Ext::toSDL(colorDest));
 }
 
 void Canvas::drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color)
 {
-	CSDL_Ext::drawLineDashed(surface, renderArea.topLeft() + from, renderArea.topLeft() + dest, CSDL_Ext::toSDL(color));
+	CSDL_Ext::drawLineDashed(surface, transformPos(from), transformPos(dest), CSDL_Ext::toSDL(color));
 }
 
 void Canvas::drawBorder(const Rect & target, const ColorRGBA & color, int width)
 {
-	Rect realTarget = target + renderArea.topLeft();
+	Rect realTarget = (target + renderArea.topLeft()) * getScalingFactor();
 
 	CSDL_Ext::drawBorder(surface, realTarget.x, realTarget.y, realTarget.w, realTarget.h, CSDL_Ext::toSDL(color), width);
 }
@@ -150,10 +167,10 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 {
 	switch (alignment)
 	{
-	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, renderArea.topLeft() + position);
-	case ETextAlignment::TOPCENTER:    return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, renderArea.topLeft() + position);
-	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, renderArea.topLeft() + position);
-	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, renderArea.topLeft() + position);
+	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, transformPos(position));
+	case ETextAlignment::TOPCENTER:    return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, transformPos(position));
+	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, transformPos(position));
+	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, transformPos(position));
 	}
 }
 
@@ -161,23 +178,23 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 {
 	switch (alignment)
 	{
-	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, renderArea.topLeft() + position);
-	case ETextAlignment::TOPCENTER:    return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, renderArea.topLeft() + position);
-	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, renderArea.topLeft() + position);
-	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, renderArea.topLeft() + position);
+	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, transformPos(position));
+	case ETextAlignment::TOPCENTER:    return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, transformPos(position));
+	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, transformPos(position));
+	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, transformPos(position));
 	}
 }
 
 void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 {
-	Rect realTarget = target + renderArea.topLeft();
+	Rect realTarget = (target + renderArea.topLeft()) * getScalingFactor();
 
 	CSDL_Ext::fillRect(surface, realTarget, CSDL_Ext::toSDL(color));
 }
 
 void Canvas::drawColorBlended(const Rect & target, const ColorRGBA & color)
 {
-	Rect realTarget = target + renderArea.topLeft();
+	Rect realTarget = (target + renderArea.topLeft()) * getScalingFactor();
 
 	CSDL_Ext::fillRectBlended(surface, realTarget, CSDL_Ext::toSDL(color));
 }

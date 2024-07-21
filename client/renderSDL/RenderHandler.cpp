@@ -11,6 +11,7 @@
 #include "RenderHandler.h"
 
 #include "SDLImage.h"
+#include "ImageScaled.h"
 
 #include "../render/CAnimation.h"
 #include "../render/CDefFile.h"
@@ -125,9 +126,22 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 	return animationLayouts[actualPath];
 }
 
+int RenderHandler::getScalingFactor() const
+{
+	return 2;
+}
+
+std::shared_ptr<IConstImage> RenderHandler::createScaledImage(std::shared_ptr<SDLImageConst> input)
+{
+	if (getScalingFactor() == 1)
+		return input;
+
+	return std::make_shared<ImageConstScaled>(input);
+}
+
 std::shared_ptr<IConstImage> RenderHandler::loadImageFromSingleFile(const ImagePath & path)
 {
-	auto result = std::make_shared<SDLImageConst>(path);
+	auto result = createScaledImage(std::make_shared<SDLImageConst>(path));
 	imageFiles[ImageLocator(path)] = result;
 	return result;
 }
@@ -149,7 +163,7 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageFromAnimationFileUncached(c
 	else
 	{
 		auto defFile = getAnimationFile(path);
-		return std::make_shared<SDLImageConst>(defFile.get(), frame, group);
+		return createScaledImage(std::make_shared<SDLImageConst>(defFile.get(), frame, group));
 	}
 }
 

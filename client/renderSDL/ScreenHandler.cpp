@@ -41,8 +41,10 @@ static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 
 std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 {
+	// Renderer upscaling factor. TODO: make configurable
+	static const int scalingFactor = 2;
 	// H3 resolution, any resolution smaller than that is not correctly supported
-	static const Point minResolution = {800, 600};
+	static const Point minResolution = Point(800, 600) * scalingFactor;
 	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
 	static const double minimalScaling = 50;
 
@@ -97,6 +99,16 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 	Point logicalResolution = availableResolution * 100.0 / scaling;
 
 	return logicalResolution;
+}
+
+int ScreenHandler::getScalingFactor() const
+{
+	return 2;
+}
+
+Point ScreenHandler::getLogicalResolution() const
+{
+	return Point(screen->w, screen->h) / getScalingFactor();
 }
 
 Point ScreenHandler::getRenderResolution() const

@@ -110,11 +110,16 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 		SDL_Surface * surf;
 		Rect oldRect;
 
+		int getScalingFactor() const
+		{
+			return 2;
+		}
+
 	public:
 		CClipRectGuard(SDL_Surface * surface, const Rect & rect): surf(surface)
 		{
 			CSDL_Ext::getClipRect(surf, oldRect);
-			CSDL_Ext::setClipRect(surf, rect);
+			CSDL_Ext::setClipRect(surf, rect * getScalingFactor());
 		}
 
 		~CClipRectGuard()
