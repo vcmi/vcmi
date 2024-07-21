@@ -291,10 +291,9 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 		std::vector<BattleHex> copy = targetHexes;
 
 		for(auto hex : copy)
-		{
 			vstd::concatenate(targetHexes, hex.allNeighbouringTiles());
-		}
 
+		vstd::erase_if(targetHexes, [](const BattleHex & hex) {return !hex.isValid();});
 		vstd::removeDuplicates(targetHexes);
 	}
 

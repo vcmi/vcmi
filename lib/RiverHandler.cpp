@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "RiverHandler.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "GameSettings.h"
 #include "json/JsonNode.h"
 #include "VCMI_Lib.h"

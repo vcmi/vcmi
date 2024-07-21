@@ -32,7 +32,7 @@
 #include "render/Graphics.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/VCMIDirs.h"

@@ -12,7 +12,7 @@
 #include "CGCreature.h"
 #include "CGHeroInstance.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
 #include "../GameSettings.h"
 #include "../IGameCallback.h"

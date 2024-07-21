@@ -11,9 +11,9 @@
 #pragma once
 
 #include "Limiter.h"
-#include "MetaString.h"
 #include "Reward.h"
 #include "../networkPacks/EInfoWindowMode.h"
+#include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

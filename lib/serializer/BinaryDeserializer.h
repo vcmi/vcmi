@@ -37,39 +37,44 @@ public:
 /// Effectively revesed version of BinarySerializer
 class BinaryDeserializer : public CLoaderBase
 {
-	template<typename Ser,typename T>
-	struct LoadIfStackInstance
+	template<typename Fake, typename T>
+	static bool loadIfStackInstance(T &data)
 	{
-		static bool invoke(Ser &s, T &data)
-		{
-			return false;
-		}
-	};
+		return false;
+	}
 
-	template<typename Ser>
-	struct LoadIfStackInstance<Ser, CStackInstance *>
+	template<typename Fake>
+	bool loadIfStackInstance(const CStackInstance* &data)
 	{
-		static bool invoke(Ser &s, CStackInstance* &data)
+		CArmedInstance * armyPtr = nullptr;
+		ObjectInstanceID armyID;
+		SlotID slot;
+		load(armyID);
+		load(slot);
+
+		if (armyID == ObjectInstanceID::NONE)
+			return false;
+
+		if(reader->smartVectorMembersSerialization)
 		{
-			CArmedInstance *armedObj;
-			SlotID slot;
-			s.load(armedObj);
-			s.load(slot);
-			if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
-			{
-				assert(armedObj->hasStackAtSlot(slot));
-				data = armedObj->stacks[slot];
-			}
-			else
-			{
-				auto * hero = dynamic_cast<CGHeroInstance *>(armedObj);
-				assert(hero);
-				assert(hero->commander);
-				data = hero->commander;
-			}
-			return true;
+			if(const auto *info = reader->getVectorizedTypeInfo<CArmedInstance, ObjectInstanceID>())
+				armyPtr = static_cast<CArmedInstance *>(reader->getVectorItemFromId<CArmedInstance, ObjectInstanceID>(*info, armyID));
 		}
-	};
+
+		if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
+		{
+			assert(armyPtr->hasStackAtSlot(slot));
+			data = armyPtr->stacks[slot];
+		}
+		else
+		{
+			auto * hero = dynamic_cast<CGHeroInstance *>(armyPtr);
+			assert(hero);
+			assert(hero->commander);
+			data = hero->commander;
+		}
+		return true;
+	}
 
 	template <typename T, typename Enable = void>
 	struct ClassObjectCreator
@@ -331,7 +336,7 @@ public:
 
 		if(reader->sendStackInstanceByIds)
 		{
-			bool gotLoaded = LoadIfStackInstance<BinaryDeserializer,T>::invoke(* this, data);
+			bool gotLoaded = loadIfStackInstance<void>(data);
 			if(gotLoaded)
 				return;
 		}

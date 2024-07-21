@@ -15,9 +15,9 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/Languages.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/texts/Languages.h"
 
 #include "updatedialog_moc.h"
 #include "main.h"

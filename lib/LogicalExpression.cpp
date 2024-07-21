@@ -12,7 +12,7 @@
 #include "LogicalExpression.h"
 
 #include "VCMI_Lib.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

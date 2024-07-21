@@ -19,7 +19,7 @@
 #include "../render/IImage.h"
 #include "../CGameInfo.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout)
 	: callback(callback)

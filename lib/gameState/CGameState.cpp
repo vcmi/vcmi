@@ -18,7 +18,7 @@
 
 #include "../ArtifactUtils.h"
 #include "../CBuildingHandler.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CPlayerState.h"
 #include "../CStopWatch.h"

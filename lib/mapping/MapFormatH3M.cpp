@@ -17,7 +17,7 @@
 
 #include "../ArtifactUtils.h"
 #include "../CCreatureHandler.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
@@ -25,7 +25,6 @@
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
-#include "../TextOperations.h"
 #include "../VCMI_Lib.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/CBinaryReader.h"
@@ -39,6 +38,7 @@
 #include "../networkPacks/Component.h"
 #include "../networkPacks/ArtifactLocation.h"
 #include "../spells/CSpellHandler.h"
+#include "../texts/TextOperations.h"
 
 #include <boost/crc.hpp>
 

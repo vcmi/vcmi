@@ -15,7 +15,7 @@
 #include <vcmi/Entity.h>
 #include <vcmi/ServerCallback.h>
 
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
 #include "spells/CSpellHandler.h"
 #include "networkPacks/PacksForClientBattle.h"

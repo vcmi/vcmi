@@ -13,7 +13,6 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../MetaString.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CUnitState.h"
 #include "../../battle/CBattleInfoCallback.h"

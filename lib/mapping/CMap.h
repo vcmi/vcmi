@@ -15,7 +15,6 @@
 
 #include "../ConstTransitivePtr.h"
 #include "../GameCallbackHolder.h"
-#include "../MetaString.h"
 #include "../networkPacks/TradeItem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

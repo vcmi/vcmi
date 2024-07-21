@@ -17,7 +17,7 @@
 
 #include "GameConstants.h"
 #include "CCreatureHandler.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
 #include "spells/CSpellHandler.h"
 #include "VCMI_Lib.h"

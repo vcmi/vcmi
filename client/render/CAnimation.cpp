@@ -33,6 +33,9 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 	if(image)
 	{
 		images[group][frame] = image;
+
+		if (player.isValidPlayer())
+			image->playerColored(player);
 		return true;
 	}
 	else
@@ -188,8 +191,9 @@ void CAnimation::verticalFlip(size_t frame, size_t group)
 	source[group][frame] = locator;
 }
 
-void CAnimation::playerColored(PlayerColor player)
+void CAnimation::playerColored(PlayerColor targetPlayer)
 {
+	player = targetPlayer;
 	for(auto & group : images)
 		for(auto & image : group.second)
 			image.second->playerColored(player);

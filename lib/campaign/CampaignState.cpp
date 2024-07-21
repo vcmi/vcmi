@@ -13,7 +13,7 @@
 #include "../Point.h"
 #include "../filesystem/ResourcePath.h"
 #include "../VCMI_Lib.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../mapping/CMapService.h"
 #include "../mapping/CMapInfo.h"
 #include "../mapping/CMap.h"

@@ -11,7 +11,6 @@
 #include "StdInc.h"
 
 #include "ArtifactUtils.h"
-#include "CGeneralTextHandler.h"
 #include "ExceptionsCommon.h"
 #include "GameSettings.h"
 #include "mapObjects/MapObjects.h"
@@ -20,6 +19,8 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "serializer/JsonSerializeFormat.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
 
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \

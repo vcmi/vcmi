@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "CMessage.h"
 
-#include "../../lib/TextOperations.h"
-
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -26,6 +24,8 @@
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
+
+#include "../../lib/texts/TextOperations.h"
 
 constexpr int RIGHT_CLICK_POPUP_MIN_SIZE = 100;
 constexpr int SIDE_MARGIN = 11;

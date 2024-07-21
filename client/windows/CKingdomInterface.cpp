@@ -33,7 +33,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/CSkillHandler.h"

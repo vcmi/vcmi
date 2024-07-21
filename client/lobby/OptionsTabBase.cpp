@@ -20,9 +20,9 @@
 #include "../CGameInfo.h"
 
 #include "../../lib/StartInfo.h"
-#include "../../lib/Languages.h"
-#include "../../lib/MetaString.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
+#include "../../lib/texts/MetaString.h"
 #include "../../lib/CConfigHandler.h"
 
 static std::string timeToString(int time)

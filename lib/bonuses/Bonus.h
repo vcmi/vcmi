@@ -14,7 +14,7 @@
 #include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../serializer/Serializeable.h"
-#include "../MetaString.h"
+#include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

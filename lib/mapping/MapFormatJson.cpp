@@ -36,7 +36,7 @@
 #include "../constants/StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
-#include "../Languages.h"
+#include "../texts/Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

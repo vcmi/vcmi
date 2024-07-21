@@ -26,10 +26,10 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/ObjectLists.h"
 
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/MetaString.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/modding/CModInfo.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
 
 GlobalLobbyRoomAccountCard::GlobalLobbyRoomAccountCard(const GlobalLobbyAccount & accountDescription)
 {

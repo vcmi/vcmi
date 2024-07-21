@@ -23,9 +23,9 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
 
-#include "../../lib/Languages.h"
-#include "../../lib/MetaString.h"
-#include "../../lib/TextOperations.h"
+#include "../../lib/texts/Languages.h"
+#include "../../lib/texts/MetaString.h"
+#include "../../lib/texts/TextOperations.h"
 
 GlobalLobbyWindow::GlobalLobbyWindow()
 	: CWindowObject(BORDERED)

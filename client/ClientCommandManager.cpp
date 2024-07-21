@@ -30,7 +30,7 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
 #include "../CCallback.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"

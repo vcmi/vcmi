@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CommonConstructors.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../IGameCallback.h"

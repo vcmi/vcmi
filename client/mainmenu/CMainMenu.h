@@ -95,7 +95,9 @@ public:
 	void openLobby();
 	void hostTCP();
 	void joinTCP();
-	std::string getPlayerName();
+
+	/// Get all configured player names. The first name would always be present and initialized to its default value.
+	const std::vector<std::string> getPlayersNames();
 
 	void onNameChange(std::string newText);
 };
@@ -117,7 +119,7 @@ class CMultiPlayers : public WindowBase
 	void enterSelectionScreen();
 
 public:
-	CMultiPlayers(const std::string & firstPlayer, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode);
+	CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode);
 };
 
 /// Manages the configuration of pregame GUI elements like campaign screen, main menu, loading screen,...

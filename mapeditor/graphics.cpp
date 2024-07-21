@@ -26,7 +26,7 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "BitmapHandler.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"

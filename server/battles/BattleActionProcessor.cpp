@@ -14,7 +14,7 @@
 
 #include "../CGameHandler.h"
 
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"

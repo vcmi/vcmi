@@ -16,16 +16,16 @@
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CBinaryReader.h"
-#include "../modding/IdentifierStorage.h"
 #include "../VCMI_Lib.h"
-#include "../CGeneralTextHandler.h"
-#include "../TextOperations.h"
-#include "../Languages.h"
 #include "../constants/StringConstants.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
 #include "../modding/CModHandler.h"
+#include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/Languages.h"
+#include "../texts/TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

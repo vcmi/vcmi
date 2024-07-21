@@ -12,8 +12,7 @@
 #include "Unit.h"
 
 #include "../VCMI_Lib.h"
-#include "../CGeneralTextHandler.h"
-#include "../MetaString.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"

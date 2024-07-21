@@ -12,7 +12,7 @@
 #include "AObjectTypeHandler.h"
 
 #include "IObjectInfo.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../VCMI_Lib.h"
 #include "../json/JsonUtils.h"
 #include "../modding/IdentifierStorage.h"

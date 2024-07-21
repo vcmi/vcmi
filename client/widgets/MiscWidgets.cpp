@@ -33,12 +33,12 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
-#include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/GameSettings.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 
 void CHoverableArea::hover (bool on)
 {

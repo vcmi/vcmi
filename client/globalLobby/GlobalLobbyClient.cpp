@@ -25,10 +25,10 @@
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/MetaString.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../../lib/TextOperations.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
+#include "../../lib/texts/TextOperations.h"
 
 GlobalLobbyClient::GlobalLobbyClient()
 {

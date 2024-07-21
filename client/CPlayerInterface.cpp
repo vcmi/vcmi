@@ -67,7 +67,7 @@
 #include "../CCallback.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
@@ -79,7 +79,6 @@
 #include "../lib/RoadHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/TextOperations.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/VCMIDirs.h"
 
@@ -107,6 +106,8 @@
 #include "../lib/serializer/CTypeList.h"
 
 #include "../lib/spells/CSpellHandler.h"
+
+#include "../lib/texts/TextOperations.h"
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that interface mutex is locked.

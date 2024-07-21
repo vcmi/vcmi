@@ -19,7 +19,7 @@
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/MiscObjects.h"
 #include "networkPacks/ArtifactLocation.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
 #include "GameSettings.h"

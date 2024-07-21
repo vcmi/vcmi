@@ -11,7 +11,7 @@
 #include "DwellingInstanceConstructor.h"
 
 #include "../CCreatureHandler.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../json/JsonRandom.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CGDwelling.h"

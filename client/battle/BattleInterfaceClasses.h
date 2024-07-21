@@ -13,8 +13,8 @@
 #include "../gui/CIntObject.h"
 #include "../../lib/FunctionList.h"
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/texts/MetaString.h"
 #include "../windows/CWindowObject.h"
-#include "../../lib/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -23,8 +23,8 @@
 #include "../widgets/TextControls.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/MetaString.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
 
 GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 	: CWindowObject(BORDERED)

@@ -21,7 +21,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
 
 CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)

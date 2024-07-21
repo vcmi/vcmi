@@ -18,7 +18,7 @@
 
 #include "CMT.h"
 #include "CGameInfo.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "filesystem/ResourcePath.h"

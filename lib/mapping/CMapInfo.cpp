@@ -19,14 +19,13 @@
 
 #include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
-#include "../serializer/CLoadFile.h"
-#include "../CGeneralTextHandler.h"
-#include "../TextOperations.h"
 #include "../rmg/CMapGenOptions.h"
+#include "../serializer/CLoadFile.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/TextOperations.h"
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
 #include "../CHeroHandler.h"
-#include "../Languages.h"
 #include "../CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -14,11 +14,11 @@
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
 
-#include "../../lib/Languages.h"
 #include "../../lib/Rect.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/modding/CModHandler.h"
+#include "../../lib/texts/Languages.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/vcmi_endian.h"
 #include "../../lib/VCMI_Lib.h"
 
