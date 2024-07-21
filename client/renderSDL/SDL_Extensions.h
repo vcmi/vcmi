@@ -92,6 +92,7 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 
 	// bilinear filtering. Always returns rgba surface
 	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height);
+	SDL_Surface * scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor);
 
 	template<int bpp>
 	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);
