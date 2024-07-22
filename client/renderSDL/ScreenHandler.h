@@ -35,7 +35,7 @@ class ScreenHandler final : public IScreenHandler
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const override;
 
-	int getScaling() const override;
+	int getScaling() const final;
 
 	/// Dimensions of output window, if different from logicalResolution SDL will perform scaling
 	/// This value is what player views as window size
@@ -77,22 +77,22 @@ public:
 	ScreenHandler();
 
 	/// Updates and potentially recreates target screen to match selected fullscreen status
-	void onScreenResize() override;
+	void onScreenResize() final;
 
 	/// De-initializes and destroys screen, window and SDL state
-	void close() override;
+	void close() final;
 
 	/// Fills screen with black color, erasing any existing content
-	void clearScreen() override;
+	void clearScreen() final;
 
 	/// Dimensions of render output, usually same as window size except for high-DPI screens on macOS / iOS
-	Point getRenderResolution() const override;
+	Point getRenderResolution() const final;
 
 	/// Window has focus
-	bool hasFocus() override;
+	bool hasFocus() final;
 
-	std::vector<Point> getSupportedResolutions() const override;
+	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
-	std::tuple<int, int> getSupportedScalingRange() const override;
-	Rect convertLogicalPointsToWindow(const Rect & input) const override;
+	std::tuple<int, int> getSupportedScalingRange() const final;
+	Rect convertLogicalPointsToWindow(const Rect & input) const final;
 };
