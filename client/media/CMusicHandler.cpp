@@ -15,8 +15,10 @@
 #include "../gui/CGuiHandler.h"
 #include "../renderSDL/SDLRWwrapper.h"
 
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/CRandomGenerator.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 

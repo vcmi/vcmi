@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CObstacleInstance.h"
 #include "../CHeroHandler.h"
-#include "../CTownHandler.h"
 #include "../ObstacleHandler.h"
 #include "../VCMI_Lib.h"
 

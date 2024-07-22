@@ -17,7 +17,6 @@
 #include "lib/mapping/CMap.h"
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapObjects/CGTownInstance.h"
-#include "lib/CBuildingHandler.h"
 #include "lib/texts/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
 #include "lib/CArtHandler.h"

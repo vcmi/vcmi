@@ -34,11 +34,9 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 #include "../../lib/CArtHandler.h"
-#include "../../lib/CBuildingHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 

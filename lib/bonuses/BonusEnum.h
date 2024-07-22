@@ -212,7 +212,7 @@ class JsonNode;
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
 
-enum class BonusType
+enum class BonusType : uint8_t
 {
 #define BONUS_NAME(x) x,
     BONUS_LIST
@@ -220,21 +220,27 @@ enum class BonusType
 };
 namespace BonusDuration  //when bonus is automatically removed
 {
-	using Type = std::bitset<11>;
+	// We use uint16_t directly because std::bitset<11> eats whole 8 byte word.
+	using Type = uint16_t;
+	constexpr static size_t Size = 11;
+
+	enum BonusDuration : Type {
+		PERMANENT = 1 << 0,
+		ONE_BATTLE = 1 << 1, //at the end of battle
+		ONE_DAY = 1 << 2,   //at the end of day
+		ONE_WEEK = 1 << 3, //at the end of week (bonus lasts till the end of week, thats NOT 7 days
+		N_TURNS = 1 << 4, //used during battles, after battle bonus is always removed
+		N_DAYS = 1 << 5,
+		UNTIL_BEING_ATTACKED = 1 << 6, /*removed after attack and counterattacks are performed*/
+		UNTIL_ATTACK = 1 << 7, /*removed after attack and counterattacks are performed*/
+		STACK_GETS_TURN = 1 << 8, /*removed when stack gets its turn - used for defensive stance*/
+		COMMANDER_KILLED = 1 << 9,
+		UNTIL_OWN_ATTACK = 1 << 10 /*removed after attack is performed (not counterattack)*/,
+	};
+
 	extern JsonNode toJson(const Type & duration);
-	constexpr Type PERMANENT = 1 << 0;
-	constexpr Type ONE_BATTLE = 1 << 1; //at the end of battle
-	constexpr Type ONE_DAY = 1 << 2;   //at the end of day
-	constexpr Type ONE_WEEK = 1 << 3; //at the end of week (bonus lasts till the end of week, thats NOT 7 days
-	constexpr Type N_TURNS = 1 << 4; //used during battles, after battle bonus is always removed
-	constexpr Type N_DAYS = 1 << 5;
-	constexpr Type UNTIL_BEING_ATTACKED = 1 << 6; /*removed after attack and counterattacks are performed*/
-	constexpr Type UNTIL_ATTACK = 1 << 7; /*removed after attack and counterattacks are performed*/
-	constexpr Type STACK_GETS_TURN = 1 << 8; /*removed when stack gets its turn - used for defensive stance*/
-	constexpr Type COMMANDER_KILLED = 1 << 9;
-	constexpr Type UNTIL_OWN_ATTACK = 1 << 10; /*removed after attack is performed (not counterattack)*/;
 };
-enum class BonusSource
+enum class BonusSource : uint8_t
 {
 #define BONUS_SOURCE(x) x,
     BONUS_SOURCE_LIST
@@ -242,13 +248,13 @@ enum class BonusSource
     NUM_BONUS_SOURCE /*This is a dummy value, which will be always last*/
 };
 
-enum class BonusLimitEffect
+enum class BonusLimitEffect : uint8_t
 {
     NO_LIMIT = 0,
     ONLY_DISTANCE_FIGHT=1, ONLY_MELEE_FIGHT, //used to mark bonuses for attack/defense primary skills from spells like Precision (distance only)
 };
 
-enum class BonusValueType
+enum class BonusValueType : uint8_t
 {
 #define BONUS_VALUE(x) x,
     BONUS_VALUE_LIST

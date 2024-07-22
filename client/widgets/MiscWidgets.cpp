@@ -32,8 +32,9 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/GameSettings.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"

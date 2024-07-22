@@ -81,5 +81,4 @@ BuildingID CBuildingHandler::campToERMU(int camp, FactionID townType, const std:
 	return BuildingID::NONE; //not found
 }
 
-
 VCMI_LIB_NAMESPACE_END

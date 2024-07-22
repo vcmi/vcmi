@@ -14,6 +14,8 @@
 #include "QuestInfo.h"
 
 #include "../campaign/CampaignState.h"
+#include "../entities/building/CBuilding.h"
+#include "../entities/building/CBuildingHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -21,7 +23,6 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../StartInfo.h"
-#include "../CBuildingHandler.h"
 #include "../CHeroHandler.h"
 #include "../mapping/CMap.h"
 #include "../ArtifactUtils.h"

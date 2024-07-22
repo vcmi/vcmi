@@ -20,7 +20,8 @@
 #include "../RmgMap.h"
 #include "../../VCMI_Lib.h"
 #include "../../TerrainHandler.h"
-#include "../../CTownHandler.h"
+#include "../../entities/faction/CFaction.h"
+#include "../../entities/faction/CTownHandler.h"
 
 #include <vstd/RNG.h>
 

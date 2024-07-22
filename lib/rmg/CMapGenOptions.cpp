@@ -11,11 +11,12 @@
 #include "StdInc.h"
 #include "CMapGenOptions.h"
 
+#include "../entities/faction/CTownHandler.h"
+#include "../entities/faction/CFaction.h"
 #include "../mapping/CMapHeader.h"
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"
 #include "../VCMI_Lib.h"
-#include "../CTownHandler.h"
 #include "serializer/JsonSerializeFormat.h"
 
 #include <vstd/RNG.h>

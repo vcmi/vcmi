@@ -10,6 +10,7 @@
 #include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
 #include "../Engine/Nullkiller.h"
+#include "../../../lib/entities/building/CBuilding.h"
 
 namespace NKAI
 {

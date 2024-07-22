@@ -14,12 +14,12 @@
 #include "CRmgTemplate.h"
 #include "Functions.h"
 
-#include "../VCMI_Lib.h"
-#include "../CTownHandler.h"
 #include "../TerrainHandler.h"
-#include "../serializer/JsonSerializeFormat.h"
-#include "../modding/ModScope.h"
+#include "../VCMI_Lib.h"
 #include "../constants/StringConstants.h"
+#include "../entities/faction/CTownHandler.h"
+#include "../modding/ModScope.h"
+#include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
