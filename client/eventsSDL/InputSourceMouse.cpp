@@ -16,6 +16,8 @@
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
 
+#include "../render/IScreenHandler.h"
+
 #include "../../lib/Point.h"
 #include "../../lib/CConfigHandler.h"
 
@@ -30,8 +32,8 @@ InputSourceMouse::InputSourceMouse()
 
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {
-	Point newPosition(motion.x, motion.y);
-	Point distance(-motion.xrel, -motion.yrel);
+	Point newPosition = Point(motion.x, motion.y) / GH.screenHandler().getScalingFactor();
+	Point distance= Point(-motion.xrel, -motion.yrel) / GH.screenHandler().getScalingFactor();
 
 	mouseButtonsMask = motion.state;
 
@@ -45,7 +47,7 @@ void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motio
 
 void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & button)
 {
-	Point position(button.x, button.y);
+	Point position = Point(button.x, button.y) / GH.screenHandler().getScalingFactor();
 
 	switch(button.button)
 	{
@@ -67,12 +69,12 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 
 void InputSourceMouse::handleEventMouseWheel(const SDL_MouseWheelEvent & wheel)
 {
-	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), GH.getCursorPosition());
+	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y) / GH.screenHandler().getScalingFactor(), GH.getCursorPosition());
 }
 
 void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & button)
 {
-	Point position(button.x, button.y);
+	Point position = Point(button.x, button.y) / GH.screenHandler().getScalingFactor();
 
 	switch(button.button)
 	{
