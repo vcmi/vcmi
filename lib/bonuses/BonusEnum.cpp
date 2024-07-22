@@ -60,10 +60,11 @@ namespace BonusDuration
 	JsonNode toJson(const Type & duration)
 	{
 		std::vector<std::string> durationNames;
-		for(auto durBit = 0; durBit < duration.size(); durBit++)
+		for(size_t durBit = 0; durBit < Size; durBit++)
 		{
-			if(duration[durBit])
-				durationNames.push_back(vstd::findKey(bonusDurationMap, duration & Type().set(durBit)));
+			Type value = duration & (1 << durBit);
+			if(value)
+				durationNames.push_back(vstd::findKey(bonusDurationMap, value));
 		}
 		if(durationNames.size() == 1)
 		{
