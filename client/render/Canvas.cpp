@@ -19,7 +19,8 @@
 #include <SDL_surface.h>
 #include <SDL_pixels.h>
 
-Canvas::Canvas(SDL_Surface * surface):
+Canvas::Canvas(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy):
+	scalingPolicy(scalingPolicy),
 	surface(surface),
 	renderArea(0,0, surface->w, surface->h)
 {
@@ -27,6 +28,7 @@ Canvas::Canvas(SDL_Surface * surface):
 }
 
 Canvas::Canvas(const Canvas & other):
+	scalingPolicy(other.scalingPolicy),
 	surface(other.surface),
 	renderArea(other.renderArea)
 {
@@ -34,6 +36,7 @@ Canvas::Canvas(const Canvas & other):
 }
 
 Canvas::Canvas(Canvas && other):
+	scalingPolicy(other.scalingPolicy),
 	surface(other.surface),
 	renderArea(other.renderArea)
 {
@@ -46,7 +49,8 @@ Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 	renderArea = other.renderArea.intersect(newClipRect + other.renderArea.topLeft());
 }
 
-Canvas::Canvas(const Point & size):
+Canvas::Canvas(const Point & size, CanvasScalingPolicy scalingPolicy):
+	scalingPolicy(scalingPolicy),
 	renderArea(Point(0,0), size * getScalingFactor()),
 	surface(CSDL_Ext::newSurface(size * getScalingFactor()))
 {
@@ -56,6 +60,8 @@ Canvas::Canvas(const Point & size):
 
 int Canvas::getScalingFactor() const
 {
+	if (scalingPolicy == CanvasScalingPolicy::IGNORE)
+		return 1;
 	return 2; // TODO: get from screen handler
 }
 
@@ -69,9 +75,9 @@ Point Canvas::transformSize(const Point & input)
 	return input * getScalingFactor();
 }
 
-Canvas Canvas::createFromSurface(SDL_Surface * surface)
+Canvas Canvas::createFromSurface(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy)
 {
-	return Canvas(surface);
+	return Canvas(surface, scalingPolicy);
 }
 
 void Canvas::applyTransparency(bool on)

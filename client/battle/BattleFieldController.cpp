@@ -142,7 +142,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	pos.w = background->width();
 	pos.h = background->height();
 
-	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
+	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()), CanvasScalingPolicy::AUTO);
 
 	updateAccessibleHexes();
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE);

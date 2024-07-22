@@ -17,9 +17,19 @@ struct SDL_Surface;
 class IImage;
 enum EFonts : int;
 
+enum class CanvasScalingPolicy
+{
+	AUTO,  // automatically scale canvas operations by global scaling factor
+	IGNORE // disable any scaling processing. Scaling factor will be set to 1
+
+};
+
 /// Class that represents surface for drawing on
 class Canvas
 {
+	/// Upscaler awareness. Must be first member for initialization
+	CanvasScalingPolicy scalingPolicy;
+
 	/// Target surface
 	SDL_Surface * surface;
 
@@ -27,7 +37,7 @@ class Canvas
 	Rect renderArea;
 
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
-	explicit Canvas(SDL_Surface * surface);
+	explicit Canvas(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy);
 
 	/// copy constructor
 	Canvas(const Canvas & other);
@@ -46,11 +56,11 @@ public:
 	Canvas(const Canvas & other, const Rect & clipRect);
 
 	/// constructs canvas of specified size
-	explicit Canvas(const Point & size);
+	explicit Canvas(const Point & size, CanvasScalingPolicy scalingPolicy);
 
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
-	static Canvas createFromSurface(SDL_Surface * surface);
+	static Canvas createFromSurface(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy);
 
 	~Canvas();
 
