@@ -14,8 +14,7 @@
 #include "../lib/Point.h"
 #include "IVideoPlayer.h"
 
-#include <SDL_render.h>
-
+struct SDL_Rect;
 struct SDL_Surface;
 struct SDL_Texture;
 struct AVFormatContext;
