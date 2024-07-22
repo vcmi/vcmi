@@ -20,7 +20,7 @@ public:
 		return false;
 	};
 
-	void playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution) override
+	void playSpellbookAnimation(const VideoPath & name, const Point & position) override
 	{
 	}
 

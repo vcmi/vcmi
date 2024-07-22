@@ -743,9 +743,9 @@ bool CVideoPlayer::playIntroVideo(const VideoPath & name, Point preferredLogical
 	return openAndPlayVideoImpl(name, topRightCorner, true, true, true, preferredLogicalResolution);
 }
 
-void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution)
+void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
 {
-	openAndPlayVideoImpl(name, position, true, false, false, preferredLogicalResolution);
+	openAndPlayVideoImpl(name, position, true, false, false, Point(0,0));
 }
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool scaleToScreen)

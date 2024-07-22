@@ -105,7 +105,7 @@ class CVideoPlayer final : public IVideoPlayer
 
 public:
 	bool playIntroVideo(const VideoPath & name, const Point preferredLogicalResolution) override;
-	void playSpellbookAnimation(const VideoPath & name, const Point & position, const Point preferredLogicalResolution) override;
+	void playSpellbookAnimation(const VideoPath & name, const Point & position) override;
 	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) override;
 	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) override;
 };
