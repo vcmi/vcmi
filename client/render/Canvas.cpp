@@ -155,14 +155,14 @@ void Canvas::drawLineDashed(const Point & from, const Point & dest, const ColorR
 
 void Canvas::drawBorder(const Rect & target, const ColorRGBA & color, int width)
 {
-	Rect realTarget = (target + renderArea.topLeft()) * getScalingFactor();
+	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
 
 	CSDL_Ext::drawBorder(surface, realTarget.x, realTarget.y, realTarget.w, realTarget.h, CSDL_Ext::toSDL(color), width);
 }
 
 void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 {
-	Rect realTarget = target + renderArea.topLeft();
+	Rect realTarget = target * getScalingFactor() + renderArea.topLeft();
 
 	CSDL_Ext::drawLineDashed(surface, realTarget.topLeft(),    realTarget.topRight(),    CSDL_Ext::toSDL(color));
 	CSDL_Ext::drawLineDashed(surface, realTarget.bottomLeft(), realTarget.bottomRight(), CSDL_Ext::toSDL(color));
