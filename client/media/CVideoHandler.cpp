@@ -22,7 +22,6 @@
 #include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/CInputStream.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
