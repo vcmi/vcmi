@@ -1472,79 +1472,79 @@
     </message>
 </context>
 <context>
-    <name>TownEvent</name>
+    <name>TownEventDialog</name>
     <message>
-        <location filename="../inspector/townevent.ui" line="23"/>
+        <location filename="../inspector/towneventdialog.ui" line="23"/>
         <source>Town event</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="42"/>
+        <location filename="../inspector/towneventdialog.ui" line="42"/>
         <source>General</source>
         <translation type="unfinished">Загальний</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="57"/>
+        <location filename="../inspector/towneventdialog.ui" line="57"/>
         <source>Event name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="64"/>
+        <location filename="../inspector/towneventdialog.ui" line="64"/>
         <source>Type event message text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="85"/>
+        <location filename="../inspector/towneventdialog.ui" line="85"/>
         <source>Day of first occurrence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="99"/>
+        <location filename="../inspector/towneventdialog.ui" line="99"/>
         <source>Repeat after (0 = no repeat)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="123"/>
+        <location filename="../inspector/towneventdialog.ui" line="123"/>
         <source>Affected players</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="146"/>
+        <location filename="../inspector/towneventdialog.ui" line="146"/>
         <source>affects human</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="155"/>
+        <location filename="../inspector/towneventdialog.ui" line="155"/>
         <source>affects AI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="166"/>
+        <location filename="../inspector/towneventdialog.ui" line="166"/>
         <source>Resources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="198"/>
+        <location filename="../inspector/towneventdialog.ui" line="198"/>
         <source>Buildings</source>
         <translation type="unfinished">Будівлі</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="216"/>
+        <location filename="../inspector/towneventdialog.ui" line="216"/>
         <source>Creatures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="255"/>
+        <location filename="../inspector/towneventdialog.ui" line="255"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.cpp" line="177"/>
+        <location filename="../inspector/towneventdialog.cpp" line="177"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.cpp" line="219"/>
+        <location filename="../inspector/towneventdialog.cpp" line="219"/>
         <source>Day %1 - %2</source>
         <translation type="unfinished"></translation>
     </message>

@@ -1,5 +1,5 @@
 /*
- * townevent.cpp, part of VCMI engine
+ * towneventdialog.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,14 +10,14 @@
 
 #include "../StdInc.h"
 #include "townbuildingswidget.h"
-#include "townevent.h"
-#include "ui_townevent.h"
+#include "towneventdialog.h"
+#include "ui_towneventdialog.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
 
-TownEvent::TownEvent(CGTownInstance & t, QListWidgetItem * item, QWidget * parent) :
+TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWidget * parent) :
 	QDialog(parent),
-	ui(new Ui::TownEvent),
+	ui(new Ui::TownEventDialog),
 	town(t),
 	item(item)
 {
@@ -44,12 +44,12 @@ TownEvent::TownEvent(CGTownInstance & t, QListWidgetItem * item, QWidget * paren
 	show();
 }
 
-TownEvent::~TownEvent()
+TownEventDialog::~TownEventDialog()
 {
 	delete ui;
 }
 
-void TownEvent::initPlayers()
+void TownEventDialog::initPlayers()
 {
 	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
@@ -61,7 +61,7 @@ void TownEvent::initPlayers()
 	}
 }
 
-void TownEvent::initResources()
+void TownEventDialog::initResources()
 {
 	ui->resourcesTable->setRowCount(GameConstants::RESOURCE_QUANTITY);
 	auto resourcesMap = params.value("resources").toMap();
@@ -81,7 +81,7 @@ void TownEvent::initResources()
 	}
 }
 
-void TownEvent::initBuildings()
+void TownEventDialog::initBuildings()
 {
 	auto * ctown = town.town;
 	if (!ctown)
@@ -95,10 +95,10 @@ void TownEvent::initBuildings()
 	}
 	ui->buildingsTree->resizeColumnToContents(0);
 
-	connect(&buildingsModel, &QStandardItemModel::itemChanged, this, &TownEvent::onItemChanged);
+	connect(&buildingsModel, &QStandardItemModel::itemChanged, this, &TownEventDialog::onItemChanged);
 }
 
-QStandardItem * TownEvent::addBuilding(const CTown& ctown, BuildingID buildingId, std::set<si32>& remaining)
+QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buildingId, std::set<si32>& remaining)
 {
 	auto bId = buildingId.num;
 	const CBuilding * building = ctown.buildings.at(buildingId);
@@ -165,7 +165,7 @@ QStandardItem * TownEvent::addBuilding(const CTown& ctown, BuildingID buildingId
 	return checks.front();
 }
 
-void TownEvent::initCreatures()
+void TownEventDialog::initCreatures()
 {
 	auto creatures = params.value("creatures").toList();
 	auto * ctown = town.town;
@@ -201,7 +201,7 @@ void TownEvent::initCreatures()
 	ui->creaturesTable->resizeColumnToContents(0);
 }
 
-void TownEvent::on_TownEvent_finished(int result)
+void TownEventDialog::on_TownEventDialog_finished(int result)
 {
 	QVariantMap descriptor;
 	descriptor["name"] = ui->eventNameText->text();
@@ -220,7 +220,7 @@ void TownEvent::on_TownEvent_finished(int result)
 	item->setText(itemText);
 }
 
-QVariant TownEvent::playersToVariant()
+QVariant TownEventDialog::playersToVariant()
 {
 	int players = 0;
 	for (int i = 0; i < ui->playersAffected->count(); ++i)
@@ -232,7 +232,7 @@ QVariant TownEvent::playersToVariant()
 	return QVariant::fromValue(players);
 }
 
-QVariantMap TownEvent::resourcesToVariant()
+QVariantMap TownEventDialog::resourcesToVariant()
 {
 	auto res = item->data(Qt::UserRole).toMap().value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
@@ -245,7 +245,7 @@ QVariantMap TownEvent::resourcesToVariant()
 	return res;
 }
 
-QVariantList TownEvent::buildingsToVariant()
+QVariantList TownEventDialog::buildingsToVariant()
 {
 	QVariantList buildingsList;
 	std::vector<QModelIndex> stack;
@@ -268,7 +268,7 @@ QVariantList TownEvent::buildingsToVariant()
 	return buildingsList;
 }
 
-QVariantList TownEvent::creaturesToVariant()
+QVariantList TownEventDialog::creaturesToVariant()
 {
 	QVariantList creaturesList;
 	for (int i = 0; i < 7; ++i)
@@ -279,19 +279,19 @@ QVariantList TownEvent::creaturesToVariant()
 	return creaturesList;
 }
 
-void TownEvent::on_okButton_clicked()
+void TownEventDialog::on_okButton_clicked()
 {
 	close();
 }
 
-void TownEvent::setRowColumnCheckState(QStandardItem * item, int column, Qt::CheckState checkState) {
+void TownEventDialog::setRowColumnCheckState(QStandardItem * item, int column, Qt::CheckState checkState) {
 	auto sibling = item->model()->sibling(item->row(), column, item->index());
 	buildingsModel.itemFromIndex(sibling)->setCheckState(checkState);
 }
 
-void TownEvent::onItemChanged(QStandardItem * item)
+void TownEventDialog::onItemChanged(QStandardItem * item)
 {
-	disconnect(&buildingsModel, &QStandardItemModel::itemChanged, this, &TownEvent::onItemChanged);
+	disconnect(&buildingsModel, &QStandardItemModel::itemChanged, this, &TownEventDialog::onItemChanged);
 	auto rowFirstColumnIndex = item->model()->sibling(item->row(), 0, item->index());
 	QStandardItem * nextRow = buildingsModel.itemFromIndex(rowFirstColumnIndex);
 	if (item->checkState() == Qt::Checked) {
@@ -316,5 +316,5 @@ void TownEvent::onItemChanged(QStandardItem * item)
 
 		}
 	}
-	connect(&buildingsModel, &QStandardItemModel::itemChanged, this, &TownEvent::onItemChanged);
+	connect(&buildingsModel, &QStandardItemModel::itemChanged, this, &TownEventDialog::onItemChanged);
 }

@@ -1472,79 +1472,79 @@
     </message>
 </context>
 <context>
-    <name>TownEvent</name>
+    <name>TownEventDialog</name>
     <message>
-        <location filename="../inspector/townevent.ui" line="23"/>
+        <location filename="../inspector/towneventdialog.ui" line="23"/>
         <source>Town event</source>
         <translation>Zdarzenie miasta</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="42"/>
+        <location filename="../inspector/towneventdialog.ui" line="42"/>
         <source>General</source>
         <translation>Ogólne</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="57"/>
+        <location filename="../inspector/towneventdialog.ui" line="57"/>
         <source>Event name</source>
         <translation>Nazwa zdarzenia</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="64"/>
+        <location filename="../inspector/towneventdialog.ui" line="64"/>
         <source>Type event message text</source>
         <translation>Wpisz treść komunikatu zdarzenia</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="85"/>
+        <location filename="../inspector/towneventdialog.ui" line="85"/>
         <source>Day of first occurrence</source>
         <translation>Dzień pierwszego wystąpienia</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="99"/>
+        <location filename="../inspector/towneventdialog.ui" line="99"/>
         <source>Repeat after (0 = no repeat)</source>
         <translation>Powtórz po... (0 = nigdy)</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="123"/>
+        <location filename="../inspector/towneventdialog.ui" line="123"/>
         <source>Affected players</source>
         <translation>Dotyczy graczy</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="146"/>
+        <location filename="../inspector/towneventdialog.ui" line="146"/>
         <source>affects human</source>
         <translation>dotyczy graczy ludzkich</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="155"/>
+        <location filename="../inspector/towneventdialog.ui" line="155"/>
         <source>affects AI</source>
         <translation>dotyczy graczy AI</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="166"/>
+        <location filename="../inspector/towneventdialog.ui" line="166"/>
         <source>Resources</source>
         <translation>Zasoby</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="198"/>
+        <location filename="../inspector/towneventdialog.ui" line="198"/>
         <source>Buildings</source>
         <translation>Budynki</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="216"/>
+        <location filename="../inspector/towneventdialog.ui" line="216"/>
         <source>Creatures</source>
         <translation>Stworzenia</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.ui" line="255"/>
+        <location filename="../inspector/towneventdialog.ui" line="255"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.cpp" line="177"/>
+        <location filename="../inspector/towneventdialog.cpp" line="177"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation>Stworzenie poziomu %1 / Ulepszone stworzenie poziomu %1</translation>
     </message>
     <message>
-        <location filename="../inspector/townevent.cpp" line="219"/>
+        <location filename="../inspector/towneventdialog.cpp" line="219"/>
         <source>Day %1 - %2</source>
         <translation>Dzień %1 - %2</translation>
     </message>

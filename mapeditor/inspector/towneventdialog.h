@@ -1,5 +1,5 @@
 /*
- * townevent.h, part of VCMI engine
+ * towneventdialog.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -14,21 +14,21 @@
 #include "../lib/mapObjects/CGTownInstance.h"
 
 namespace Ui {
-	class TownEvent;
+	class TownEventDialog;
 }
 
-class TownEvent : public QDialog
+class TownEventDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit TownEvent(CGTownInstance & town, QListWidgetItem * item, QWidget * parent);
-	~TownEvent();
+	explicit TownEventDialog(CGTownInstance & town, QListWidgetItem * item, QWidget * parent);
+	~TownEventDialog();
 
 
 private slots:
 	void onItemChanged(QStandardItem * item);
-	void on_TownEvent_finished(int result);
+	void on_TownEventDialog_finished(int result);
 	void on_okButton_clicked();
 	void setRowColumnCheckState(QStandardItem * item, int column, Qt::CheckState checkState);
 
@@ -45,7 +45,7 @@ private:
 
 	QStandardItem * addBuilding(const CTown & ctown, BuildingID bId, std::set<si32> & remaining);
 
-	Ui::TownEvent * ui;
+	Ui::TownEventDialog * ui;
 	CGTownInstance & town;
 	QListWidgetItem * item;
 	QMap<QString, QVariant> params;

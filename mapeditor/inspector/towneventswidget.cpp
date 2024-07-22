@@ -11,7 +11,7 @@
 #include "../StdInc.h"
 #include "towneventswidget.h"
 #include "ui_towneventswidget.h"
-#include "townevent.h"
+#include "towneventdialog.h"
 #include "mapsettings/eventsettings.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
@@ -138,7 +138,7 @@ void TownEventsWidget::on_timedEventRemove_clicked()
 
 void TownEventsWidget::on_eventsList_itemActivated(QListWidgetItem* item)
 {
-	new TownEvent(town, item, parentWidget());
+	new TownEventDialog(town, item, parentWidget());
 }
 
 void TownEventsWidget::onItemChanged(QStandardItem * item)

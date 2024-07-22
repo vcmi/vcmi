@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TownEvent</class>
- <widget class="QDialog" name="TownEvent">
+ <class>TownEventDialog</class>
+ <widget class="QDialog" name="TownEventDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
