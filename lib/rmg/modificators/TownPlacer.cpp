@@ -12,6 +12,7 @@
 #include "TownPlacer.h"
 #include "../CMapGenerator.h"
 #include "../RmgMap.h"
+#include "../../entities/faction/CTownHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/CGTownInstance.h"

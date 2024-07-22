@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CGameInfoCallback.h"
 
+#include "entities/building/CBuilding.h"
 #include "gameState/CGameState.h"
 #include "gameState/InfoAboutArmy.h"
 #include "gameState/SThievesGuildInfo.h"

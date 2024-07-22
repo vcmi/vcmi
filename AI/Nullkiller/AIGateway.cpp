@@ -12,6 +12,7 @@
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

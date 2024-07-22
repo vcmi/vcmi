@@ -15,7 +15,6 @@
 #include "TileInfo.h"
 #include "RmgPath.h"
 #include "../TerrainHandler.h"
-#include "../CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"

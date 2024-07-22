@@ -9,7 +9,8 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/CTownHandler.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CFaction.h"
 
 namespace test
 {

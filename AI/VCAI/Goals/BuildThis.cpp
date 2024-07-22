@@ -17,6 +17,7 @@
 #include "../BuildingManager.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/constants/StringConstants.h"
+#include "../../../lib/entities/building/CBuilding.h"
 
 using namespace Goals;
 

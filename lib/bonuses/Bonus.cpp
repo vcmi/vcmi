@@ -19,7 +19,6 @@
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../CHeroHandler.h"
-#include "../CTownHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
 #include "../CArtHandler.h"

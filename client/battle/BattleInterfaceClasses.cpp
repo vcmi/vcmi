@@ -53,7 +53,6 @@
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGTownInstance.h"

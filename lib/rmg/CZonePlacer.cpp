@@ -11,8 +11,9 @@
 #include "StdInc.h"
 #include "CZonePlacer.h"
 
-#include "../CTownHandler.h"
 #include "../TerrainHandler.h"
+#include "../entities/faction/CFaction.h"
+#include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../VCMI_Lib.h"

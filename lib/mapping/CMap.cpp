@@ -13,7 +13,6 @@
 #include "../CArtHandler.h"
 #include "../VCMI_Lib.h"
 #include "../CCreatureHandler.h"
-#include "../CTownHandler.h"
 #include "../CHeroHandler.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"

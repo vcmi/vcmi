@@ -12,8 +12,9 @@
 #include "IMarket.h"
 #include "CGDwelling.h"
 #include "CGTownBuilding.h"
-
-#include "../CTownHandler.h" // For CTown
+#include "../LogicalExpression.h"
+#include "../entities/faction/CFaction.h" // TODO: remove
+#include "../entities/faction/CTown.h" // TODO: remove
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -177,7 +178,7 @@ public:
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;
 
-	CBuilding::TRequired genBuildingRequirements(const BuildingID & build, bool deep = false) const;
+	LogicalExpression<BuildingID> genBuildingRequirements(const BuildingID & build, bool deep = false) const;
 
 	void mergeGarrisonOnSiege() const; // merge garrison into army of visiting hero
 	void removeCapitols(const PlayerColor & owner) const;

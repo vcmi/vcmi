@@ -12,9 +12,8 @@
 #include "playerparams.h"
 #include "ui_playerparams.h"
 #include "mapsettings/abstractsettings.h"
-#include "../lib/CTownHandler.h"
 #include "../lib/constants/StringConstants.h"
-
+#include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/mapping/CMap.h"
 
 PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) :
