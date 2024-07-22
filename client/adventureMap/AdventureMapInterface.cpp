@@ -31,6 +31,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
@@ -39,7 +40,7 @@
 #include "../../CCallback.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -178,7 +179,7 @@ void AdventureMapInterface::dim(Canvas & to)
 		{
 			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && isBigWindow(window))
 			{
-				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck")));
+				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 				return;
 			}
 		}
@@ -399,7 +400,7 @@ void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 		return;
 
 	currentPlayerID = playerID;
-	widget->setPlayer(playerID);
+	widget->setPlayerColor(playerID);
 }
 
 void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
@@ -914,7 +915,7 @@ void AdventureMapInterface::onScreenResize()
 
 	widget = std::make_shared<AdventureMapWidget>(shortcuts);
 	widget->getMapView()->onViewMapActivated();
-	widget->setPlayer(currentPlayerID);
+	widget->setPlayerColor(currentPlayerID);
 	widget->updateActiveState();
 	widget->getMinimap()->update();
 	widget->getInfoBar()->showSelection();

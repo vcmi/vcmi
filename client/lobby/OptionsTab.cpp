@@ -34,12 +34,14 @@
 #include "../windows/CHeroOverview.h"
 #include "../eventsSDL/InputHandler.h"
 
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -518,9 +520,8 @@ void OptionsTab::SelectionWindow::recreate(int sliderPos)
 	int sliderWidth = ((amountLines > MAX_LINES) ? 16 : 0);
 
 	pos = Rect(pos.x, pos.y, x + sliderWidth, y);
-
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w - sliderWidth, pos.h));
-	backgroundTexture->playerColored(PlayerColor(1));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	updateShadow();
 
 	if(type == SelType::TOWN)

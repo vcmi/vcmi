@@ -11,11 +11,13 @@
 #include "StdInc.h"
 #include "CGTownBuilding.h"
 #include "CGTownInstance.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
+#include "../entities/building/CBuilding.h"
+
 
 #include <vstd/RNG.h>
 

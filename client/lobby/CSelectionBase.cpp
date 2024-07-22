@@ -43,16 +43,17 @@
 #include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
-#include "../../lib/MetaString.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/entities/faction/CFaction.h"
+#include "../../lib/entities/faction/CTown.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -401,7 +402,7 @@ PvPBox::PvPBox(const Rect & rect)
 	setRedrawParent(true);
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, rect.w, rect.h));
-	backgroundTexture->playerColored(PlayerColor(1));
+	backgroundTexture->setPlayerColor(PlayerColor(1));
 	backgroundBorder = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, rect.w, rect.h), ColorRGBA(0, 0, 0, 64), ColorRGBA(96, 96, 96, 255), 1);
 
 	townSelector = std::make_shared<TownSelector>(Point(5, 3));
@@ -515,9 +516,6 @@ CFlagBox::CFlagBox(const Rect & rect)
 
 	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
 	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
-
-	iconsTeamFlags = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITGFLAGS.DEF"));
-	iconsTeamFlags->preload();
 }
 
 void CFlagBox::recreate()
@@ -529,7 +527,7 @@ void CFlagBox::recreate()
 	const int enemiesX = 5 + 133 + (int)labelEnemies->getWidth();
 	for(auto i = CSH->si->playerInfos.cbegin(); i != CSH->si->playerInfos.cend(); i++)
 	{
-		auto flag = std::make_shared<CAnimImage>(iconsTeamFlags, i->first.getNum(), 0);
+		auto flag = std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS.DEF"), i->first.getNum(), 0);
 		if(i->first == CSH->myFirstColor() || CSH->getPlayerTeamId(i->first) == CSH->getPlayerTeamId(CSH->myFirstColor()))
 		{
 			flag->moveTo(Point(pos.x + alliesX + (int)flagsAllies.size()*flag->pos.w, pos.y));
@@ -546,10 +544,10 @@ void CFlagBox::recreate()
 void CFlagBox::showPopupWindow(const Point & cursorPosition)
 {
 	if(SEL->getMapInfo())
-		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);
+		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>();
 }
 
-CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)
+CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
 	: CWindowObject(BORDERED | RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("DIBOXBCK"))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -577,7 +575,7 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 		int curx = 128 - 9 * team.size();
 		for(const auto & player : team)
 		{
-			iconsFlags.push_back(std::make_shared<CAnimImage>(icons, player, 0, curx, 75 + 50 * curIdx));
+			iconsFlags.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS.DEF"), player, 0, curx, 75 + 50 * curIdx));
 			curx += 18;
 		}
 		++curIdx;

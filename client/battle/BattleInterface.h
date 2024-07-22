@@ -39,7 +39,6 @@ class Canvas;
 class BattleResultWindow;
 class StackQueue;
 class CPlayerInterface;
-class CAnimation;
 struct BattleEffect;
 class IImage;
 class StackQueue;
@@ -185,6 +184,7 @@ public:
 
 	void setBattleQueueVisibility(bool visible);
 	void setStickyHeroWindowsVisibility(bool visible);
+	void setStickyQuickSpellWindowVisibility(bool visible);
 
 	void endNetwork();
 	void executeStagedAnimations();

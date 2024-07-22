@@ -17,7 +17,6 @@
 
 #include <vcmi/spells/Caster.h>
 
-#include "../CGeneralTextHandler.h"
 #include "../filesystem/Filesystem.h"
 
 #include "../constants/StringConstants.h"
@@ -28,9 +27,11 @@
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
 #include "../mapObjects/CGHeroInstance.h" //todo: remove
-#include "../serializer/CSerializer.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
+#include "../serializer/CSerializer.h"
+#include "../texts/CLegacyConfigParser.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include "ISpellMechanics.h"
 

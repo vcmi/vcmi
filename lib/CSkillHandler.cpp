@@ -14,14 +14,16 @@
 
 #include "CSkillHandler.h"
 
-#include "CGeneralTextHandler.h"
+#include "constants/StringConstants.h"
 #include "filesystem/Filesystem.h"
 #include "json/JsonBonus.h"
 #include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModUtility.h"
 #include "modding/ModScope.h"
-#include "constants/StringConstants.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
+#include "texts/TextOperations.h"
 #include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

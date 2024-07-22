@@ -19,7 +19,7 @@ class CBattleInfoCallback;
 struct BattleHex;
 class CStack;
 class PlayerColor;
-enum class BonusType;
+enum class BonusType : uint8_t;
 
 namespace battle
 {

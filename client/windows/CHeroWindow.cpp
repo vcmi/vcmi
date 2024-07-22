@@ -28,7 +28,6 @@
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
-#include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
@@ -36,7 +35,7 @@
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
@@ -131,14 +130,12 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		primSkillValues.push_back(value);
 	}
 
-	auto primSkills = GH.renderHandler().loadAnimation(AnimationPath::builtin("PSKIL42"));
-	primSkills->preload();
-	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 0, 0, 32, 111));
-	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 1, 0, 102, 111));
-	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 2, 0, 172, 111));
-	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 3, 0, 162, 230));
-	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 4, 0, 20, 230));
-	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 5, 0, 242, 111));
+	primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 0, 0, 32, 111));
+	primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 1, 0, 102, 111));
+	primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 2, 0, 172, 111));
+	primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 3, 0, 162, 230));
+	primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 4, 0, 20, 230));
+	primSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 5, 0, 242, 111));
 
 	specImage = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), 0, 0, 18, 180);
 	specArea = std::make_shared<LRClickableAreaWText>(Rect(18, 180, 136, 42), CGI->generaltexth->heroscrn[27]);
@@ -152,12 +149,11 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	expValue = std::make_shared<CLabel>(68, 252);
 	manaValue = std::make_shared<CLabel>(211, 252);
 
-	auto secSkills = GH.renderHandler().loadAnimation(AnimationPath::builtin("SECSKILL"));
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
 		secSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>(r, ComponentType::SEC_SKILL));
-		secSkillImages.push_back(std::make_shared<CAnimImage>(secSkills, 0, 0, r.x, r.y));
+		secSkillImages.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), 0, 0, r.x, r.y));
 
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);

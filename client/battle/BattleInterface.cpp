@@ -38,7 +38,7 @@
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -859,4 +859,11 @@ void BattleInterface::setStickyHeroWindowsVisibility(bool visible)
 	windowObject->hideStickyHeroWindows();
 	if(visible)
 		windowObject->showStickyHeroWindows();
+}
+
+void BattleInterface::setStickyQuickSpellWindowVisibility(bool visible)
+{
+	windowObject->hideStickyQuickSpellWindow();
+	if(visible)
+		windowObject->showStickyQuickSpellWindow();
 }

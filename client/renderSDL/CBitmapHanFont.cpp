@@ -15,8 +15,8 @@
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonNode.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/Rect.h"
+#include "../../lib/texts/TextOperations.h"
 
 #include <SDL_surface.h>
 
@@ -41,7 +41,7 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 	Rect clipRect;
 	CSDL_Ext::getClipRect(surface, clipRect);
 
-	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
+	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface);
 	uint8_t bpp = surface->format->BytesPerPixel;
 
 	// start of line, may differ from 0 due to end of surface or clipped surface

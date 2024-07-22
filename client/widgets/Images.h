@@ -44,6 +44,7 @@ public:
 
 	/// wrap section of an existing Image
 	CPicture(std::shared_ptr<IImage> image, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
+	CPicture(const ImagePath & bmpname, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
 
 	/// Loads image from specified file name
 	CPicture(const ImagePath & bmpname);
@@ -54,7 +55,7 @@ public:
 	/// 0=transparent, 255=opaque
 	void setAlpha(uint8_t value);
 	void scaleTo(Point size);
-	void colorize(PlayerColor player);
+	void setPlayerColor(PlayerColor player);
 
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
@@ -68,18 +69,28 @@ protected:
 	Rect imageArea;
 
 public:
+	CFilledTexture(const ImagePath & imageName, Rect position, Rect imageArea);
 	CFilledTexture(const ImagePath & imageName, Rect position);
-	CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea);
 
 	void showAll(Canvas & to) override;
 };
 
+/// area filled with specific texture, colorized to player color if image is indexed
+class FilledTexturePlayerIndexed : public CFilledTexture
+{
+public:
+	using CFilledTexture::CFilledTexture;
+
+	void setPlayerColor(PlayerColor player);
+};
+
+/// area filled with specific texture, with applied color filter to colorize it to specific player
 class FilledTexturePlayerColored : public CFilledTexture
 {
 public:
-	FilledTexturePlayerColored(const ImagePath & imageName, Rect position);
+	using CFilledTexture::CFilledTexture;
 
-	void playerColored(PlayerColor player);
+	void setPlayerColor(PlayerColor player);
 };
 
 /// Class for displaying one image from animation
@@ -103,8 +114,8 @@ public:
 	bool visible;
 
 	CAnimImage(const AnimationPath & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
-	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
-	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
+//	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
 	~CAnimImage();
 
 	/// size of animation
@@ -114,7 +125,7 @@ public:
 	void setFrame(size_t Frame, size_t Group=0);
 
 	/// makes image player-colored to specific player
-	void playerColored(PlayerColor player);
+	void setPlayerColor(PlayerColor player);
 
 	/// returns true if image has player-colored effect applied
 	bool isPlayerColored() const;
@@ -135,6 +146,7 @@ public:
 		BASE=1,            //base frame will be blitted before current one
 		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
+		PALETTE_ALPHA=8,   // use alpha channel for images with palette. Required for creatures in battle and map objects
 		PLAY_ONCE=32       //play animation only once and stop at last frame
 	};
 protected:
@@ -168,7 +180,6 @@ public:
 	void setAlpha(ui32 alphaValue);
 
 	CShowableAnim(int x, int y, const AnimationPath & name, ui8 flags, ui32 frameTime, size_t Group=0, uint8_t alpha = UINT8_MAX);
-	~CShowableAnim();
 
 	//set animation to group or part of group
 	bool set(size_t Group);

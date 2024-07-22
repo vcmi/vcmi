@@ -10,9 +10,7 @@
 #pragma once
 
 #include "../../lib/VCMI_Lib.h"
-#include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

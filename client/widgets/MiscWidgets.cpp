@@ -28,18 +28,18 @@
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
-#include "../render/Graphics.h"
 
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/gameState/InfoAboutArmy.h"
-#include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/GameSettings.h"
-#include "../../lib/TextOperations.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 
 void CHoverableArea::hover (bool on)
 {
@@ -249,7 +249,7 @@ CMinorResDataBar::CMinorResDataBar()
 	pos.y = 575;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("KRESBAR.bmp"));
-	background->colorize(LOCPLINT->playerID);
+	background->setPlayerColor(LOCPLINT->playerID);
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
@@ -535,7 +535,7 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 	auto creatureID = creature->getCreature();
 	int32_t creatureIconIndex = CGI->creatures()->getById(creatureID)->getIconIndex();
 
-	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(AnimationPath::builtin("TWCRPORT")), creatureIconIndex);
+	creatureImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), creatureIconIndex);
 	creatureImage->center(Point(parent->pos.x + parent->pos.w / 2, parent->pos.y + creatureImage->pos.h / 2 + 11));
 
 	bool isHeroSelected = LOCPLINT->localState->getCurrentHero() != nullptr;

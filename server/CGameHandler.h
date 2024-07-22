@@ -238,7 +238,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & QID;
-		h & randomNumberGenerator;
+		h & *randomNumberGenerator;
 		h & *battles;
 		h & *heroPool;
 		h & *playerMessages;

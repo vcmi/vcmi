@@ -238,6 +238,8 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Intro-Musik überspringen}\n\n Überspringe die kurze Musik, die zu Beginn eines jeden Kampfes gespielt wird, bevor die Action beginnt. Kann auch durch Drücken der ESC-Taste übersprungen werden.",	
 	"vcmi.battleOptions.endWithAutocombat.hover": "Kampf beenden",
 	"vcmi.battleOptions.endWithAutocombat.help": "{Kampf beenden}\n\nAutokampf spielt den Kampf sofort zu Ende",
+	"vcmi.battleOptions.showQuickSpell.hover": "Schnellzauber-Panel anzeigen",
+	"vcmi.battleOptions.showQuickSpell.help": "{Schnellzauber-Panel anzeigen}\n\nZeigt ein Panel, auf dem schnell Zauber ausgewählt werden können",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Objekt erneut besuchen",
 	"vcmi.adventureMap.revisitObject.help" : "{Objekt erneut besuchen}\n\nSteht ein Held gerade auf einem Kartenobjekt, kann er den Ort erneut aufsuchen.",

@@ -11,9 +11,11 @@
 #include "victoryconditions.h"
 #include "ui_victoryconditions.h"
 #include "../mapcontroller.h"
-#include "../lib/CGeneralTextHandler.h"
-#include "../lib/constants/StringConstants.h"
+
+#include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/mapObjects/CGCreature.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 #include "../inspector/townbuildingswidget.h" //to convert BuildingID to string
 

@@ -11,12 +11,13 @@
 #include "StdInc.h"
 #include "CArmedInstance.h"
 
-#include "../CTownHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CGeneralTextHandler.h"
-#include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
-#include "../MetaString.h"
+#include "../entities/faction/CFaction.h"
+#include "../entities/faction/CTown.h"
+#include "../entities/faction/CTownHandler.h"
+#include "../gameState/CGameState.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

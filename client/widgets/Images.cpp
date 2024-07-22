@@ -19,7 +19,6 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
-#include "../render/Graphics.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -30,7 +29,7 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+#include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff
 #include "../../lib/CRandomGenerator.h"
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
@@ -51,7 +50,7 @@ CPicture::CPicture( const ImagePath & bmpname )
 {}
 
 CPicture::CPicture( const ImagePath & bmpname, const Point & position )
-	: bg(GH.renderHandler().loadImage(bmpname))
+	: bg(GH.renderHandler().loadImage(bmpname, EImageBlitMode::COLORKEY))
 	, needRefresh(false)
 {
 	pos.x += position.x;
@@ -67,6 +66,14 @@ CPicture::CPicture( const ImagePath & bmpname, const Point & position )
 	{
 		pos.w = pos.h = 0;
 	}
+}
+
+CPicture::CPicture(const ImagePath & bmpname, const Rect &SrcRect, int x, int y)
+	: CPicture(bmpname, Point(x,y))
+{
+	srcRect = SrcRect;
+	pos.w = srcRect->w;
+	pos.h = srcRect->h;
 }
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, int y)
@@ -101,29 +108,29 @@ void CPicture::setAlpha(uint8_t value)
 
 void CPicture::scaleTo(Point size)
 {
-	bg = bg->scaleFast(size);
+	bg->scaleFast(size);
 
 	pos.w = bg->width();
 	pos.h = bg->height();
 }
 
-void CPicture::colorize(PlayerColor player)
+void CPicture::setPlayerColor(PlayerColor player)
 {
 	bg->playerColored(player);
 }
 
-CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position):
-    CIntObject(0, position.topLeft()),
-	texture(GH.renderHandler().loadImage(imageName))
+CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position)
+	: CIntObject(0, position.topLeft())
+	, texture(GH.renderHandler().loadImage(imageName, EImageBlitMode::COLORKEY))
 {
 	pos.w = position.w;
 	pos.h = position.h;
 	imageArea = Rect(Point(), texture->dimensions());
 }
 
-CFilledTexture::CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea)
+CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position, Rect imageArea)
 	: CIntObject(0, position.topLeft())
-	, texture(image)
+	, texture(GH.renderHandler().loadImage(imageName, EImageBlitMode::COLORKEY))
 	, imageArea(imageArea)
 {
 	pos.w = position.w;
@@ -141,12 +148,12 @@ void CFilledTexture::showAll(Canvas & to)
 	}
 }
 
-FilledTexturePlayerColored::FilledTexturePlayerColored(const ImagePath & imageName, Rect position)
-	: CFilledTexture(imageName, position)
+void FilledTexturePlayerIndexed::setPlayerColor(PlayerColor player)
 {
+	texture->playerColored(player);
 }
 
-void FilledTexturePlayerColored::playerColored(PlayerColor player)
+void FilledTexturePlayerColored::setPlayerColor(PlayerColor player)
 {
 	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
 	std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
@@ -177,23 +184,23 @@ CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, i
 {
 	pos.x += x;
 	pos.y += y;
-	anim = graphics->getAnimation(name);
+	anim = GH.renderHandler().loadAnimation(name, EImageBlitMode::COLORKEY);
 	init();
 }
 
-CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
-	anim(Anim),
-	frame(Frame),
-	group(Group),
-	flags(Flags)
-{
-	pos.x += x;
-	pos.y += y;
-	init();
-}
+//CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
+//	anim(Anim),
+//	frame(Frame),
+//	group(Group),
+//	flags(Flags)
+//{
+//	pos.x += x;
+//	pos.y += y;
+//	init();
+//}
 
-CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
-	anim(Anim),
+CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
+	anim(GH.renderHandler().loadAnimation(name, EImageBlitMode::COLORKEY)),
 	frame(Frame),
 	group(Group),
 	flags(Flags),
@@ -233,10 +240,6 @@ void CAnimImage::setSizeFromImage(const IImage &img)
 void CAnimImage::init()
 {
 	visible = true;
-	anim->load(frame, group);
-	if (flags & CShowableAnim::BASE)
-		anim->load(0,group);
-
 	auto img = anim->getImage(frame, group);
 	if (img)
 		setSizeFromImage(*img);
@@ -263,12 +266,9 @@ void CAnimImage::showAll(Canvas & to)
 		if(auto img = anim->getImage(targetFrame, group))
 		{
 			if(isScaled())
-			{
-				auto scaled = img->scaleFast(scaledSize);
-				to.draw(scaled, pos.topLeft());
-			}
-			else
-				to.draw(img, pos.topLeft());
+				img->scaleFast(scaledSize);
+
+			to.draw(img, pos.topLeft());
 		}
 	}
 }
@@ -276,7 +276,7 @@ void CAnimImage::showAll(Canvas & to)
 void CAnimImage::setAnimationPath(const AnimationPath & name, size_t frame)
 {
 	this->frame = frame;
-	anim = GH.renderHandler().loadAnimation(name);
+	anim = GH.renderHandler().loadAnimation(name, EImageBlitMode::COLORKEY);
 	init();
 }
 
@@ -291,7 +291,6 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		return;
 	if (anim->size(Group) > Frame)
 	{
-		anim->load(Frame, Group);
 		frame = Frame;
 		group = Group;
 		if(auto img = anim->getImage(frame, group))
@@ -305,7 +304,7 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		logGlobal->error("Error: accessing unavailable frame %d:%d in CAnimation!", Group, Frame);
 }
 
-void CAnimImage::playerColored(PlayerColor currPlayer)
+void CAnimImage::setPlayerColor(PlayerColor currPlayer)
 {
 	player = currPlayer;
 	anim->getImage(frame, group)->playerColored(*player);
@@ -319,7 +318,7 @@ bool CAnimImage::isPlayerColored() const
 }
 
 CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
-	anim(GH.renderHandler().loadAnimation(name)),
+	anim(GH.renderHandler().loadAnimation(name, (Flags & PALETTE_ALPHA) ? EImageBlitMode::ALPHA : EImageBlitMode::COLORKEY)),
 	group(Group),
 	frame(0),
 	first(0),
@@ -330,7 +329,6 @@ CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags
 	yOffset(0),
 	alpha(alpha)
 {
-	anim->loadGroup(group);
 	last = anim->size(group);
 
 	auto image = anim->getImage(0, group);
@@ -343,11 +341,6 @@ CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags
 	pos.y+= y;
 
 	addUsedEvents(TIME);
-}
-
-CShowableAnim::~CShowableAnim()
-{
-	anim->unloadGroup(group);
 }
 
 void CShowableAnim::setAlpha(ui32 alphaValue)
@@ -365,9 +358,6 @@ bool CShowableAnim::set(size_t Group, size_t from, size_t to)
 	if (max < from || max == 0)
 		return false;
 
-	anim->unloadGroup(group);
-	anim->loadGroup(Group);
-
 	group = Group;
 	frame = first = from;
 	last = max;
@@ -381,9 +371,6 @@ bool CShowableAnim::set(size_t Group)
 		return false;
 	if (group != Group)
 	{
-		anim->unloadGroup(group);
-		anim->loadGroup(Group);
-
 		first = 0;
 		group = Group;
 		last = anim->size(Group);
@@ -464,7 +451,7 @@ void CShowableAnim::setDuration(int durationMs)
 }
 
 CCreatureAnim::CCreatureAnim(int x, int y, const AnimationPath & name, ui8 flags, ECreatureAnimType type):
-	CShowableAnim(x, y, name, flags, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
+	CShowableAnim(x, y, name, flags | PALETTE_ALPHA, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
 {
 	xOffset = 0;
 	yOffset = 0;

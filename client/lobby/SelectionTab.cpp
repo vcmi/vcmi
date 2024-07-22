@@ -35,7 +35,6 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -43,8 +42,9 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/TextOperations.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -227,11 +227,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		buttonsSortBy.push_back(sortByDate);
 	}
 
-	iconsMapFormats = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCSELC.DEF"));
-	iconsVictoryCondition = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCNRVICT.DEF"));
-	iconsLossCondition = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCNRLOSS.DEF"));
 	for(int i = 0; i < positionsToShow; i++)
-		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25), iconsMapFormats, iconsVictoryCondition, iconsLossCondition));
+		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25)));
 
 	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, tabTitle);
 	slider = std::make_shared<CSlider>(Point(372, 86 + (enableUiEnhancements ? 30 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 30 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
@@ -883,11 +880,11 @@ std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, ERes
 	return ret;
 }
 
-SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss)
+SelectionTab::ListItem::ListItem(Point position)
 	: CIntObject(LCLICK, position)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pictureEmptyLine = std::make_shared<CPicture>(GH.renderHandler().loadImage(ImagePath::builtin("camcust")), Rect(25, 121, 349, 26), -8, -14);
+	pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
 	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);
 	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -898,9 +895,9 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
 	iconFolder = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconFolder.png"), -8, -12);
-	iconFormat = std::make_shared<CAnimImage>(iconsFormats, 0, 0, 59, -12);
-	iconVictoryCondition = std::make_shared<CAnimImage>(iconsVictory, 0, 0, 277, -12);
-	iconLossCondition = std::make_shared<CAnimImage>(iconsLoss, 0, 0, 310, -12);
+	iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
+	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277, -12);
+	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310, -12);
 }
 
 void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool selected)

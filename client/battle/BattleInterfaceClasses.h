@@ -13,8 +13,8 @@
 #include "../gui/CIntObject.h"
 #include "../../lib/FunctionList.h"
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/texts/MetaString.h"
 #include "../windows/CWindowObject.h"
-#include "../../lib/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -167,6 +167,7 @@ public:
 	void create();
 
 	void show(Canvas & to) override;
+	void inputModeChanged(InputMode modi) override;
 };
 
 class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
@@ -273,9 +274,6 @@ class StackQueue : public CIntObject
 	std::shared_ptr<CFilledTexture> background;
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
 	BattleInterface & owner;
-
-	std::shared_ptr<CAnimation> icons;
-	std::shared_ptr<CAnimation> stateIcons;
 
 	int32_t getSiegeShooterIconID();
 public:

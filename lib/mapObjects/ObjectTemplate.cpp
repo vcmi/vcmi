@@ -15,7 +15,7 @@
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CLegacyConfigParser.h"
 #include "../TerrainHandler.h"
 
 #include "../mapObjectConstructors/CRewardableConstructor.h"

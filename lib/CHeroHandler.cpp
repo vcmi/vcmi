@@ -10,23 +10,26 @@
 #include "StdInc.h"
 #include "CHeroHandler.h"
 
-#include "CGeneralTextHandler.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
 #include "constants/StringConstants.h"
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "GameSettings.h"
-#include "CTownHandler.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
+#include "entities/faction/CFaction.h"
+#include "entities/faction/CTown.h"
+#include "entities/faction/CTownHandler.h"
 #include "json/JsonBonus.h"
 #include "json/JsonUtils.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "modding/IdentifierStorage.h"
+#include "texts/CGeneralTextHandler.h"
+#include "texts/CLegacyConfigParser.h"
 
 #include <vstd/RNG.h>
 

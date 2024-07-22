@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CGameInfoCallback.h"
 
+#include "entities/building/CBuilding.h"
 #include "gameState/CGameState.h"
 #include "gameState/InfoAboutArmy.h"
 #include "gameState/SThievesGuildInfo.h"
@@ -19,7 +20,7 @@
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/MiscObjects.h"
 #include "networkPacks/ArtifactLocation.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
 #include "GameSettings.h"

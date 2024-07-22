@@ -26,13 +26,17 @@ class ColorFilter;
 /// Defines which blit method will be selected when image is used for rendering
 enum class EImageBlitMode
 {
-	/// Image can have no transparency and can be only used as background
+	/// Preferred for images that don't need any background
+	/// Indexed or RGBA: Image can have no transparency and can be only used as background
 	OPAQUE,
 
-	/// Image can have only a single color as transparency and has no semi-transparent areas
+	/// Preferred for images that may need transparency
+	/// Indexed: Image can have only a single color as transparency and has no semi-transparent areas
+	/// RGBA: full alpha transparency range, e.g. shadows
 	COLORKEY,
 
-	/// Image might have full alpha transparency range, e.g. shadows
+	/// Should be avoided if possible, use only for images that use def's with semi-transparency
+	/// Indexed or RGBA: Image might have full alpha transparency range, e.g. shadows
 	ALPHA
 };
 
@@ -46,18 +50,17 @@ public:
 	static constexpr int32_t SPECIAL_PALETTE_MASK_CREATURES = 0b11110011;
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, const Rect * src = nullptr) const = 0;
-	virtual void draw(SDL_Surface * where, const Rect * dest, const Rect * src) const = 0;
+	virtual void draw(SDL_Surface * where, const Point & pos, const Rect * src = nullptr) const = 0;
 
-	virtual std::shared_ptr<IImage> scaleFast(const Point & size) const = 0;
+	virtual void scaleFast(const Point & size) = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 
 	//Change palette to specific player
-	virtual void playerColored(PlayerColor player)=0;
+	virtual void playerColored(PlayerColor player) = 0;
 
 	//set special color for flag
-	virtual void setFlagColor(PlayerColor player)=0;
+	virtual void setFlagColor(PlayerColor player) = 0;
 
 	//test transparency of specific pixel
 	virtual bool isTransparent(const Point & coords) const = 0;
@@ -69,8 +72,6 @@ public:
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) = 0;
 	virtual void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) = 0;
-	virtual void resetPalette(int colorID) = 0;
-	virtual void resetPalette() = 0;
 
 	virtual void setAlpha(uint8_t value) = 0;
 	virtual void setBlitMode(EImageBlitMode mode) = 0;
@@ -78,11 +79,21 @@ public:
 	//only indexed bitmaps with 7 special colors
 	virtual void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) = 0;
 
-	virtual void horizontalFlip() = 0;
-	virtual void verticalFlip() = 0;
-	virtual void doubleFlip() = 0;
-
-	IImage() = default;
 	virtual ~IImage() = default;
 };
 
+class IConstImage
+{
+public:
+	virtual Point dimensions() const = 0;
+	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
+	virtual bool isTransparent(const Point & coords) const = 0;
+
+	virtual std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) = 0;
+
+	virtual std::shared_ptr<IConstImage> horizontalFlip() const = 0;
+	virtual std::shared_ptr<IConstImage> verticalFlip() const = 0;
+
+
+	virtual ~IConstImage() = default;
+};

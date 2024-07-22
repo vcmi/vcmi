@@ -17,16 +17,15 @@
 #include "ModIncompatibility.h"
 
 #include "../CCreatureHandler.h"
-#include "../CGeneralTextHandler.h"
 #include "../CStopWatch.h"
 #include "../GameSettings.h"
-#include "../Languages.h"
-#include "../MetaString.h"
 #include "../ScriptHandler.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
 #include "../spells/CSpellHandler.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/Languages.h"
 #include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -15,7 +15,7 @@
 
 #include "../ArtifactUtils.h"
 #include "../CSoundBase.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "CGCreature.h"
 #include "../IGameCallback.h"

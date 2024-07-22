@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../ResourceSet.h"
-#include "../MetaString.h"
+#include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

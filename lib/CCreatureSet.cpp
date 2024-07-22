@@ -18,7 +18,7 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "modding/ModScope.h"
 #include "IGameCallback.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"
 #include "IBonusTypeHandler.h"

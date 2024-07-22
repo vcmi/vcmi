@@ -82,39 +82,30 @@ namespace HexMasks
 	};
 }
 
-std::map<int, int> hexEdgeMaskToFrameIndex;
-
-// Maps HexEdgesMask to "Frame" indexes for range highlight images
-void initializeHexEdgeMaskToFrameIndex()
+static const std::map<int, int> hexEdgeMaskToFrameIndex =
 {
-	hexEdgeMaskToFrameIndex[HexMasks::empty] = 0;
-
-    hexEdgeMaskToFrameIndex[HexMasks::topLeft] = 1;
-    hexEdgeMaskToFrameIndex[HexMasks::topRight] = 2;
-    hexEdgeMaskToFrameIndex[HexMasks::right] = 3;
-    hexEdgeMaskToFrameIndex[HexMasks::bottomRight] = 4;
-    hexEdgeMaskToFrameIndex[HexMasks::bottomLeft] = 5;
-    hexEdgeMaskToFrameIndex[HexMasks::left] = 6;
-
-    hexEdgeMaskToFrameIndex[HexMasks::top] = 7;
-    hexEdgeMaskToFrameIndex[HexMasks::bottom] = 8;
-
-    hexEdgeMaskToFrameIndex[HexMasks::topRightHalfCorner] = 9;
-    hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner] = 10;
-    hexEdgeMaskToFrameIndex[HexMasks::bottomLeftHalfCorner] = 11;
-    hexEdgeMaskToFrameIndex[HexMasks::topLeftHalfCorner] = 12;
-
-    hexEdgeMaskToFrameIndex[HexMasks::rightTopAndBottom] = 13;
-    hexEdgeMaskToFrameIndex[HexMasks::leftTopAndBottom] = 14;
-	
-    hexEdgeMaskToFrameIndex[HexMasks::rightHalf] = 13;
-    hexEdgeMaskToFrameIndex[HexMasks::leftHalf] = 14;
-
-    hexEdgeMaskToFrameIndex[HexMasks::topRightCorner] = 15;
-    hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner] = 16;
-    hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner] = 17;
-    hexEdgeMaskToFrameIndex[HexMasks::topLeftCorner] = 18;
-}
+    { HexMasks::empty, 0 },
+    { HexMasks::topLeft, 1 },
+    { HexMasks::topRight, 2 },
+    { HexMasks::right, 3 },
+    { HexMasks::bottomRight, 4 },
+    { HexMasks::bottomLeft, 5 },
+    { HexMasks::left, 6 },
+    { HexMasks::top, 7 },
+    { HexMasks::bottom, 8 },
+    { HexMasks::topRightHalfCorner, 9 },
+    { HexMasks::bottomRightHalfCorner, 10 },
+    { HexMasks::bottomLeftHalfCorner, 11 },
+    { HexMasks::topLeftHalfCorner, 12 },
+    { HexMasks::rightTopAndBottom, 13 },
+    { HexMasks::leftTopAndBottom, 14 },
+    { HexMasks::rightHalf, 13 },
+    { HexMasks::leftHalf, 14 },
+    { HexMasks::topRightCorner, 15 },
+    { HexMasks::bottomRightCorner, 16 },
+    { HexMasks::bottomLeftCorner, 17 },
+    { HexMasks::topLeftCorner, 18 }
+};
 
 BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
@@ -123,26 +114,15 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	//preparing cells and hexes
 	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
-	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"));
+	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::ALPHA);
 	cellUnitMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 	cellUnitMaxMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
-	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"));
-	attackCursors->preload();
+	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY);
+	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY);
 
-	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"));
-	spellCursors->preload();
-
-	initializeHexEdgeMaskToFrameIndex();
-
-	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"));
-	rangedFullDamageLimitImages->preload();
-
-	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"));
-	shootingRangeLimitImages->preload();
-
-	flipRangeLimitImagesIntoPositions(rangedFullDamageLimitImages);
-	flipRangeLimitImagesIntoPositions(shootingRangeLimitImages);
+	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
+	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
 
 	if(!owner.siegeController)
 	{
@@ -376,9 +356,6 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 	std::set<BattleHex> result;
 	auto hoveredHex = getHoveredHex();
 
-	if(!settings["battle"]["mouseShadow"].Bool())
-		return result;
-
 	const spells::Caster *caster = nullptr;
 	const CSpell *spell = nullptr;
 
@@ -542,7 +519,7 @@ std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateRangeLimitH
 			mask.set(direction);
 
 		uint8_t imageKey = static_cast<uint8_t>(mask.to_ulong());
-		output.push_back(limitImages->getImage(hexEdgeMaskToFrameIndex[imageKey]));
+		output.push_back(limitImages->getImage(hexEdgeMaskToFrameIndex.at(imageKey)));
 	}
 
 	return output;
@@ -554,26 +531,6 @@ void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distan
 		rangeLimitHexes = getRangeLimitHexes(hoveredHex, rangeHexes, distance);
 		std::vector<std::vector<BattleHex::EDir>> rangeLimitNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangeHexes, rangeLimitHexes);
 		rangeLimitHexesHighlights = calculateRangeLimitHighlightImages(rangeLimitNeighbourDirections, rangeLimitImages);
-}
-
-void BattleFieldController::flipRangeLimitImagesIntoPositions(std::shared_ptr<CAnimation> images)
-{
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRight])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::right])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRight])->doubleFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeft])->horizontalFlip();
-
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottom])->horizontalFlip();
-
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRightHalfCorner])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner])->doubleFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftHalfCorner])->horizontalFlip();
-
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::rightHalf])->verticalFlip();
-
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRightCorner])->verticalFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner])->doubleFlip();
-	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner])->horizontalFlip();
 }
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
@@ -589,6 +546,8 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
 	BattleHex hoveredHex = getHoveredHex();
+	std::set<BattleHex> hoveredMouseHex = hoveredHex.isValid() ? std::set<BattleHex>({ hoveredHex }) : std::set<BattleHex>();
+
 	const CStack * hoveredStack = getHoveredStack();
 	if(!hoveredStack && hoveredHex == BattleHex::INVALID)
 		return;
@@ -605,7 +564,10 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
 	}
 
-	auto const & hoveredMouseHexes = hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
+	bool useSpellRangeForMouse = hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex());
+	bool useMoveRangeForMouse = !hoveredMoveHexes.empty() || !settings["battle"]["mouseShadow"].Bool();
+
+	const auto & hoveredMouseHexes = useSpellRangeForMouse ? hoveredSpellHexes : ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{

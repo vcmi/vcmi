@@ -88,6 +88,7 @@ set(client_SRCS
 	render/Colors.cpp
 	render/Graphics.cpp
 	render/IFont.cpp
+	render/ImageLocator.cpp
 
 	renderSDL/CBitmapFont.cpp
 	renderSDL/CBitmapHanFont.cpp
@@ -287,6 +288,7 @@ set(client_HEADERS
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
+	render/ImageLocator.h
 	render/IRenderHandler.h
 	render/IScreenHandler.h
 

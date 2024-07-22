@@ -1,3 +1,36 @@
+# 1.5.5 -> 1.6.0
+
+# General
+* Saved game size reduced by approximately 3 times, especially for large maps or games with a large number of mods.
+* Added option to start vcmi server on randomly selected TCP port
+* Fixed potential desynchronization between server and clients on randomization of map objects if client and server run on different operating systems
+
+# Interface
+* Implemented spell quick selection panel in combat
+* The number of units resurrected using the Life Drain ability is now written to the combat log.
+* Fixed playback of audio stream with different formats from video files in some Heroes 3 versions
+* Video playback will not be replaced by a black square when another dialogue box is on top of the video.
+* When resuming video playback, the video will now be continued instead of being restarted.
+* Reduced video decompression artefacts for video formats that store RGB rather than YUV data.
+* Fixed order of popup dialogs after battle.
+* Added additional information to map right-click popup dialog: map author, map creation date, map version
+* Added scrollbars for selection of starting town, starting hero, and tavern invite if number of objects is too large to fit into the screen
+* Fixed incorrect battle turn queue displaying incorrect turn order when all units have waited
+* Semi-transparent shadows now correctly update their transparency during fading effects, such as resource pickups
+* Game will now save all names for human player in hotseat mode
+* Added unassigned by default shortcuts for toggling visibility of visitable and blocked tiles
+
+### AI
+* Fixed bug where BattleAI attempts to move double-wide unit to an unreachable hex
+* Fixed several cases where Nullkiller AI can count same dangerous object twice, doubling expected army loss.
+* Nullkiller is now capable of visiting configurable objects from mods
+
+### Modding
+* Added support for custom music and opening sound for a battlefield
+* Added support for multiple music tracks for towns
+* Added support for multiple music tracks for terrains on adventure map
+* Fixed several cases where vcmi will report errors in json without specifying filename of invalid file
+
 # 1.5.4 -> 1.5.5
 
 * Fixed crash when advancing to the next scenario in campaigns when the hero not transferring has a combination artefact that can be transferred to the next scenario.

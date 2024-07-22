@@ -12,8 +12,6 @@
 
 #include <vcmi/spells/Magic.h>
 
-#include "../MetaString.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells

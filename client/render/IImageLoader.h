@@ -14,8 +14,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 VCMI_LIB_NAMESPACE_END
 
-class SDLImage;
-
 struct SDL_Color;
 
 class IImageLoader

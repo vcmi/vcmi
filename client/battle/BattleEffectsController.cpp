@@ -31,7 +31,7 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CStack.h"
 #include "../../lib/IGameEventsReceiver.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 BattleEffectsController::BattleEffectsController(BattleInterface & owner):
 	owner(owner)

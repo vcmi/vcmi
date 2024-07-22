@@ -30,7 +30,7 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
 #include "../CCallback.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
@@ -388,8 +388,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI));
-	anim->preload();
+	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::ALPHA);
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }
 

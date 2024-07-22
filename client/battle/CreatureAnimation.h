@@ -12,7 +12,6 @@
 #include "../../lib/FunctionList.h"
 #include "../../lib/Color.h"
 #include "../widgets/Images.h"
-#include "../render/CAnimation.h"
 #include "../render/IImage.h"
 
 class CIntObject;

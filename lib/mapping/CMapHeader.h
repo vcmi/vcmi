@@ -17,8 +17,8 @@
 #include "../serializer/Serializeable.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
-#include "../MetaString.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/MetaString.h"
+#include "../texts/TextLocalizationContainer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

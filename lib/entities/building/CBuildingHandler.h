@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "GameConstants.h"
+#include "../../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

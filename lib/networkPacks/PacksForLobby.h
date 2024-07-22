@@ -11,8 +11,8 @@
 
 #include "StartInfo.h"
 #include "NetPacksBase.h"
-#include "../MetaString.h"
 #include "../serializer/ESerializationVersion.h"
+#include "../texts/MetaString.h"
 
 class CServerHandler;
 class CVCMIServer;
@@ -157,10 +157,7 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	{
 		h & clientId;
 		h & initializedStartInfo;
-		bool sps = h.smartPointerSerialization;
-		h.smartPointerSerialization = true;
 		h & initializedGameState;
-		h.smartPointerSerialization = sps;
 	}
 };
 

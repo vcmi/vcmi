@@ -14,7 +14,7 @@
 #include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../serializer/Serializeable.h"
-#include "../MetaString.h"
+#include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -58,21 +58,22 @@ public:
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable
 {
-	BonusDuration::Type duration = BonusDuration::PERMANENT; //uses BonusDuration values
+	BonusDuration::Type duration = BonusDuration::PERMANENT; //uses BonusDuration values - 2 bytes
 	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
-
-	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
-	BonusSubtypeID subtype;
-
-	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus
-	BonusSource targetSourceType = BonusSource::OTHER;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE.
 	si32 val = 0;
+
+	BonusValueType valType = BonusValueType::ADDITIVE_VALUE; // 1 byte
+	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus - 1 byte
+	BonusSource targetSourceType = BonusSource::OTHER;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE. - 1 byte
+	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
+	BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT; // 1 byte
+	// 3 bytes padding
+
+	BonusSubtypeID subtype;
 	BonusSourceID sid; //source id: id of object/artifact/spell
-	BonusValueType valType = BonusValueType::ADDITIVE_VALUE;
 	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
 	CAddInfo additionalInfo;
-	BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT;
 
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
@@ -128,57 +129,57 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	static bool NDays(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::N_DAYS;
-		return set.any();
+		return set != 0;
 	}
 	static bool NTurns(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::N_TURNS;
-		return set.any();
+		return set != 0;
 	}
 	static bool OneDay(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::ONE_DAY;
-		return set.any();
+		return set != 0;
 	}
 	static bool OneWeek(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::ONE_WEEK;
-		return set.any();
+		return set != 0;
 	}
 	static bool OneBattle(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::ONE_BATTLE;
-		return set.any();
+		return set != 0;
 	}
 	static bool Permanent(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::PERMANENT;
-		return set.any();
+		return set != 0;
 	}
 	static bool UntilGetsTurn(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::STACK_GETS_TURN;
-		return set.any();
+		return set != 0;
 	}
 	static bool UntilAttack(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::UNTIL_ATTACK;
-		return set.any();
+		return set != 0;
 	}
 	static bool UntilBeingAttacked(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::UNTIL_BEING_ATTACKED;
-		return set.any();
+		return set != 0;
 	}
 	static bool UntilCommanderKilled(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::COMMANDER_KILLED;
-		return set.any();
+		return set != 0;
 	}
 	static bool UntilOwnAttack(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::UNTIL_OWN_ATTACK;
-		return set.any();
+		return set != 0;
 	}
 	inline bool operator == (const BonusType & cf) const
 	{

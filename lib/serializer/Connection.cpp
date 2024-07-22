@@ -84,6 +84,7 @@ void CConnection::sendPack(const CPack * pack)
 
 	connectionPtr->sendPacket(packWriter->buffer);
 	packWriter->buffer.clear();
+	serializer->savedPointers.clear();
 }
 
 CPack * CConnection::retrievePack(const std::vector<std::byte> & data)
@@ -102,6 +103,8 @@ CPack * CConnection::retrievePack(const std::vector<std::byte> & data)
 		throw std::runtime_error("Failed to retrieve pack! Not all data has been read!");
 
 	logNetwork->trace("Received CPack of type %s", typeid(*result).name());
+	deserializer->loadedPointers.clear();
+	deserializer->loadedSharedPointers.clear();
 	return result;
 }
 
@@ -132,7 +135,6 @@ void CConnection::enterLobbyConnectionMode()
 	deserializer->loadedPointers.clear();
 	serializer->savedPointers.clear();
 	disableSmartVectorMemberSerialization();
-	disableSmartPointerSerialization();
 	disableStackSendingByID();
 }
 
@@ -144,7 +146,6 @@ void CConnection::setCallback(IGameCallback * cb)
 void CConnection::enterGameplayConnectionMode(CGameState * gs)
 {
 	enableStackSendingByID();
-	disableSmartPointerSerialization();
 
 	setCallback(gs->callback);
 	enableSmartVectorMemberSerializatoin(gs);

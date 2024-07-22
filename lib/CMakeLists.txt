@@ -30,13 +30,14 @@ set(lib_SRCS
 	network/NetworkHandler.cpp
 	network/NetworkServer.cpp
 
+	texts/TextOperations.cpp
+
 	vstd/DateUtils.cpp
 	vstd/StringUtils.cpp
 
 	CConfigHandler.cpp
 	CConsoleHandler.cpp
 	CThreadHelper.cpp
-	TextOperations.cpp
 	VCMIDirs.cpp
 )
 
@@ -79,6 +80,12 @@ set(lib_MAIN_SRCS
 	campaign/CampaignState.cpp
 
 	constants/EntityIdentifiers.cpp
+
+	entities/building/CBuilding.cpp
+	entities/building/CBuildingHandler.cpp
+	entities/faction/CFaction.cpp
+	entities/faction/CTown.cpp
+	entities/faction/CTownHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -241,6 +248,11 @@ set(lib_MAIN_SRCS
 	spells/effects/RemoveObstacle.cpp
 	spells/effects/Sacrifice.cpp
 
+	texts/CGeneralTextHandler.cpp
+	texts/CLegacyConfigParser.cpp
+	texts/MetaString.cpp
+	texts/TextLocalizationContainer.cpp
+
 	ArtifactUtils.cpp
 	BasicTypes.cpp
 	BattleFieldHandler.cpp
@@ -248,25 +260,21 @@ set(lib_MAIN_SRCS
 	CArtHandler.cpp
 	CArtifactInstance.cpp
 	CBonusTypeHandler.cpp
-	CBuildingHandler.cpp
 	CCreatureHandler.cpp
 	CCreatureSet.cpp
 	CGameInfoCallback.cpp
 	CGameInterface.cpp
-	CGeneralTextHandler.cpp
 	CHeroHandler.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
 	CScriptingModule.cpp
 	CSkillHandler.cpp
 	CStack.cpp
-	CTownHandler.cpp
 	GameSettings.cpp
 	IGameCallback.cpp
 	IHandlerBase.cpp
 	LoadProgress.cpp
 	LogicalExpression.cpp
-	MetaString.cpp
 	ObstacleHandler.cpp
 	StartInfo.cpp
 	ResourceSet.cpp
@@ -335,10 +343,11 @@ set(lib_HEADERS
 	network/NetworkInterface.h
 	network/NetworkServer.h
 
+	texts/TextOperations.h
+
 	CConfigHandler.h
 	CConsoleHandler.h
 	CThreadHelper.h
-	TextOperations.h
 	VCMIDirs.h
 )
 
@@ -434,6 +443,12 @@ set(lib_MAIN_HEADERS
 	constants/VariantIdentifier.h
 	constants/NumericConstants.h
 	constants/StringConstants.h
+
+	entities/building/CBuilding.h
+	entities/building/CBuildingHandler.h
+	entities/faction/CFaction.h
+	entities/faction/CTown.h
+	entities/faction/CTownHandler.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -639,6 +654,13 @@ set(lib_MAIN_HEADERS
 	spells/effects/RemoveObstacle.h
 	spells/effects/Sacrifice.h
 
+	texts/CGeneralTextHandler.h
+	texts/Languages.h
+	texts/CLegacyConfigParser.h
+	texts/MetaString.h
+	texts/TextIdentifier.h
+	texts/TextLocalizationContainer.h
+
 	AI_Base.h
 	ArtifactUtils.h
 	BattleFieldHandler.h
@@ -646,12 +668,10 @@ set(lib_MAIN_HEADERS
 	CArtHandler.h
 	CArtifactInstance.h
 	CBonusTypeHandler.h
-	CBuildingHandler.h
 	CCreatureHandler.h
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
-	CGeneralTextHandler.h
 	CHeroHandler.h
 	ConstTransitivePtr.h
 	Color.h
@@ -662,7 +682,6 @@ set(lib_MAIN_HEADERS
 	CSoundBase.h
 	CStack.h
 	CStopWatch.h
-	CTownHandler.h
 	ExceptionsCommon.h
 	ExtraOptionsInfo.h
 	FunctionList.h
@@ -674,10 +693,8 @@ set(lib_MAIN_HEADERS
 	IGameEventsReceiver.h
 	IHandlerBase.h
 	int3.h
-	Languages.h
 	LoadProgress.h
 	LogicalExpression.h
-	MetaString.h
 	ObstacleHandler.h
 	Point.h
 	Rect.h

@@ -13,7 +13,7 @@
 #include "../eventsSDL/InputHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../ConditionalWait.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 
@@ -67,7 +67,7 @@ void CTutorialWindow::setContent()
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 {
-	if(GH.input().hasTouchInputDevice() && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
+	if(GH.input().getCurrentInputMode() == InputMode::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
 	{
 		if(LOCPLINT)
 			LOCPLINT->showingDialog->setBusy();

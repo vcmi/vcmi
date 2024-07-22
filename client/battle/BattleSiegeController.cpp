@@ -182,7 +182,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( !getWallPieceExistence(EWallVisual::EWallVisual(g)) )
 			continue;
 
-		wallPieceImages[g] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
+		wallPieceImages[g] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED), EImageBlitMode::COLORKEY);
 	}
 }
 
@@ -248,7 +248,7 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 		wallPieceImages[EWallVisual::GATE] = nullptr;
 
 	if (stateId != EWallState::NONE)
-		wallPieceImages[EWallVisual::GATE] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE,  stateId));
+		wallPieceImages[EWallVisual::GATE] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE,  stateId), EImageBlitMode::COLORKEY);
 
 	if (playSound)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
@@ -357,7 +357,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 
 		auto wallState = EWallState(owner.getBattle()->battleGetWallState(attackInfo.attackedPart));
 
-		wallPieceImages[wallId] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
+		wallPieceImages[wallId] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState), EImageBlitMode::COLORKEY);
 	}
 }
 

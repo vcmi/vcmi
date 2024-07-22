@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "TextOperations.h"
 
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "Languages.h"
 #include "CConfigHandler.h"
 

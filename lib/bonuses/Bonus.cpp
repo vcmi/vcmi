@@ -19,8 +19,7 @@
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../CHeroHandler.h"
-#include "../CTownHandler.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
 #include "../CArtHandler.h"
 #include "../TerrainHandler.h"
@@ -119,7 +118,7 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 	if(descriptionHelper.empty())
 	{
 		// still no description - try to generate one based on duration
-		if ((duration & BonusDuration::ONE_BATTLE).any())
+		if ((duration & BonusDuration::ONE_BATTLE) != 0)
 		{
 			if (val > 0)
 				descriptionHelper.appendTextID("core.arraytxt.110"); //+%d Temporary until next battle"
@@ -248,7 +247,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);
 	out << "\tSubtype: " << bonus.subtype.toString() << "\n";
-	printField(duration.to_ulong());
+	printField(duration);
 	printField(source);
 	out << "\tSource ID: " << bonus.sid.toString() << "\n";
 	if(bonus.additionalInfo != CAddInfo::NONE)

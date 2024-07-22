@@ -18,9 +18,8 @@
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/mapObjects/CRewardableObject.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/ResourceSet.h"
-#include "../lib/MetaString.h"
 
 #define DECLARE_OBJ_TYPE(x) void initialize(x*);
 #define DECLARE_OBJ_PROPERTY_METHODS(x) \

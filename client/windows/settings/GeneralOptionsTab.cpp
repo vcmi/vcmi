@@ -26,7 +26,7 @@
 #include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 
 static void setIntSetting(std::string group, std::string field, int value)

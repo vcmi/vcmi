@@ -72,8 +72,6 @@ namespace TextOperations
 	DLL_LINKAGE std::string getCurrentFormattedTimeLocal(std::chrono::seconds timeOffset = {});
 };
 
-
-
 template<typename Arithmetic>
 inline std::string TextOperations::formatMetric(Arithmetic number, int maxDigits)
 {

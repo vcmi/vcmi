@@ -15,7 +15,7 @@
 #include <vcmi/spells/Spell.h>
 #include <vstd/RNG.h>
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
 #include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
@@ -27,10 +27,10 @@
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../CCreatureHandler.h"
-#include "../CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
+#include "../entities/faction/CTownHandler.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
 #include "../pathfinder/TurnInfo.h"

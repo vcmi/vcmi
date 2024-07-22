@@ -15,7 +15,7 @@
 #include "Limiter.h"
 #include "Reward.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"

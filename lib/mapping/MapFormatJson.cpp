@@ -18,11 +18,11 @@
 #include "MapFormat.h"
 #include "../ArtifactUtils.h"
 #include "../CHeroHandler.h"
-#include "../CTownHandler.h"
 #include "../VCMI_Lib.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
+#include "../entities/faction/CTownHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -36,7 +36,7 @@
 #include "../constants/StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
-#include "../Languages.h"
+#include "../texts/Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

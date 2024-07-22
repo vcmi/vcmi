@@ -25,8 +25,8 @@
 #include "../widgets/TextControls.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/MetaString.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
 
 GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	: CWindowObject(BORDERED)
@@ -70,7 +70,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	else
 		toggleMode->setSelected(1);
 
-	filledBackground->playerColored(PlayerColor(1));
+	filledBackground->setPlayerColor(PlayerColor(1));
 	inputUsername->setCallback([this](const std::string & text)
 	{
 		this->buttonLogin->block(text.empty());

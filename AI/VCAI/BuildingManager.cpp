@@ -13,6 +13,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
+#include "../../lib/entities/building/CBuilding.h"
 
 bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays)
 {

@@ -12,7 +12,7 @@
 #include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../../../lib/constants/StringConstants.h"
-
+#include "../../../lib/entities/building/CBuilding.h"
 
 namespace NKAI
 {

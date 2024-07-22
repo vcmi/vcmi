@@ -16,7 +16,7 @@
 #include "../CHeroHandler.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../BattleFieldHandler.h"
 #include "../ObstacleHandler.h"
 

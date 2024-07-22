@@ -34,15 +34,15 @@
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
 #include "CSkillHandler.h"//todo: remove
+#include "entities/faction/CFaction.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
-#include "CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
 #include "TerrainHandler.h" //TODO: remove
 #include "RiverHandler.h"
 #include "RoadHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
-#include "CTownHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -123,6 +123,25 @@ namespace GameConstants
 #else
 	const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING "." + std::string{GIT_SHA1};
 #endif
+}
+
+BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID buildingID ):
+	BuildingTypeUniqueID(factionID.getNum() * 0x10000 + buildingID.getNum())
+{
+	assert(factionID.getNum() >= 0);
+	assert(factionID.getNum() < 0x10000);
+	assert(buildingID.getNum() >= 0);
+	assert(buildingID.getNum() < 0x10000);
+}
+
+BuildingID BuildingTypeUniqueID::getBuilding() const
+{
+	return BuildingID(getNum() % 0x10000);
+}
+
+FactionID BuildingTypeUniqueID::getFaction() const
+{
+	return FactionID(getNum() / 0x10000);
 }
 
 int32_t IdentifierBase::resolveIdentifier(const std::string & entityType, const std::string identifier)

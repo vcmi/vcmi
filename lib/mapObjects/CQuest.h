@@ -11,8 +11,8 @@
 
 #include "CRewardableObject.h"
 #include "../ResourceSet.h"
-#include "../MetaString.h"
 #include "../serializer/Serializeable.h"
+#include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

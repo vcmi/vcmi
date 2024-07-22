@@ -22,10 +22,12 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/CArtifactInstance.h"
-#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/entities/building/CBuilding.h"
+#include "../../../lib/entities/faction/CTownHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 
 CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)

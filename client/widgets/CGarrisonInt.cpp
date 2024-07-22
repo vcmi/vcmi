@@ -17,7 +17,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
-#include "../render/Graphics.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CWindowWithArtifacts.h"
 #include "../windows/GUIClasses.h"
@@ -27,12 +26,12 @@
 #include "../../CCallback.h"
 
 #include "../../lib/ArtifactUtils.h"
-#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
-#include "../../lib/TextOperations.h"
 #include "../../lib/gameState/CGameState.h"
 
 void CGarrisonSlot::setHighlight(bool on)
@@ -437,10 +436,10 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 
 	AnimationPath imgName = AnimationPath::builtin(owner->smallIcons ? "cprsmall" : "TWCRPORT");
 
-	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 0);
+	creatureImage = std::make_shared<CAnimImage>(imgName, 0);
 	creatureImage->disable();
 
-	selectionImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 1);
+	selectionImage = std::make_shared<CAnimImage>(imgName, 1);
 	selectionImage->disable();
 	selectionImage->center(creatureImage->pos.center());
 

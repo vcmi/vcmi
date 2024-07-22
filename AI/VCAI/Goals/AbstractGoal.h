@@ -10,9 +10,7 @@
 #pragma once
 
 #include "../../../lib/VCMI_Lib.h"
-#include "../../../lib/CBuildingHandler.h"
 #include "../../../lib/CCreatureHandler.h"
-#include "../../../lib/CTownHandler.h"
 #include "../AIUtility.h"
 
 struct HeroPtr;

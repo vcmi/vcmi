@@ -23,17 +23,15 @@
 
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
-#include "../lib/CBuildingHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CCreatureSet.h"
-#include "../lib/CGeneralTextHandler.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/GameSettings.h"
@@ -45,20 +43,29 @@
 #include "../lib/int3.h"
 
 #include "../lib/battle/BattleInfo.h"
+
+#include "../lib/entities/building/CBuilding.h"
+#include "../lib/entities/faction/CTownHandler.h"
+
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/filesystem/Filesystem.h"
+
 #include "../lib/gameState/CGameState.h"
 
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
+
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+
 #include "../lib/modding/ModIncompatibility.h"
+
 #include "../lib/networkPacks/StackLocation.h"
+
 #include "../lib/pathfinder/CPathfinder.h"
 #include "../lib/pathfinder/PathfinderOptions.h"
 #include "../lib/pathfinder/TurnInfo.h"
@@ -523,6 +530,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, turnOrder(std::make_unique<TurnOrderProcessor>(this))
 	, queries(std::make_unique<QueriesProcessor>())
 	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
+	, randomNumberGenerator(std::make_unique<CRandomGenerator>())
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
@@ -552,7 +560,6 @@ void CGameHandler::reinitScripting()
 
 void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTracking)
 {
-	randomNumberGenerator = std::make_unique<CRandomGenerator>();
 	int requestedSeed = settings["server"]["seed"].Integer();
 	if (requestedSeed != 0)
 		randomNumberGenerator->setSeed(requestedSeed);

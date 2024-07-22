@@ -10,305 +10,30 @@
 #include "StdInc.h"
 #include "CTownHandler.h"
 
-#include "VCMI_Lib.h"
-#include "CGeneralTextHandler.h"
-#include "constants/StringConstants.h"
-#include "CCreatureHandler.h"
-#include "CHeroHandler.h"
-#include "CArtHandler.h"
-#include "GameSettings.h"
-#include "TerrainHandler.h"
-#include "spells/CSpellHandler.h"
-#include "filesystem/Filesystem.h"
-#include "bonuses/Bonus.h"
-#include "bonuses/Propagators.h"
-#include "json/JsonBonus.h"
-#include "ResourceSet.h"
-#include "mapObjectConstructors/AObjectTypeHandler.h"
-#include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "modding/IdentifierStorage.h"
-#include "modding/ModScope.h"
+#include "CTown.h"
+#include "CFaction.h"
+#include "../building/CBuilding.h"
+
+#include "../../CCreatureHandler.h"
+#include "../../CHeroHandler.h"
+#include "../../GameSettings.h"
+#include "../../TerrainHandler.h"
+#include "../../VCMI_Lib.h"
+
+#include "../../bonuses/Propagators.h"
+#include "../../constants/StringConstants.h"
+#include "../../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../modding/IdentifierStorage.h"
+#include "../../modding/ModScope.h"
+#include "../../spells/CSpellHandler.h"
+#include "../../texts/CGeneralTextHandler.h"
+#include "../../texts/CLegacyConfigParser.h"
+#include "../../json/JsonBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
-
-const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
-{
-	{ "normal", CBuilding::BUILD_NORMAL },
-	{ "auto", CBuilding::BUILD_AUTO },
-	{ "special", CBuilding::BUILD_SPECIAL },
-	{ "grail", CBuilding::BUILD_GRAIL }
-};
-
-const std::map<std::string, CBuilding::ETowerHeight> CBuilding::TOWER_TYPES =
-{
-	{ "low", CBuilding::HEIGHT_LOW },
-	{ "average", CBuilding::HEIGHT_AVERAGE },
-	{ "high", CBuilding::HEIGHT_HIGH },
-	{ "skyship", CBuilding::HEIGHT_SKYSHIP }
-};
-
-BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID buildingID ):
-	BuildingTypeUniqueID(factionID.getNum() * 0x10000 + buildingID.getNum())
-{
-	assert(factionID.getNum() >= 0);
-	assert(factionID.getNum() < 0x10000);
-	assert(buildingID.getNum() >= 0);
-	assert(buildingID.getNum() < 0x10000);
-}
-
-BuildingID BuildingTypeUniqueID::getBuilding() const
-{
-	return BuildingID(getNum() % 0x10000);
-}
-
-FactionID BuildingTypeUniqueID::getFaction() const
-{
-	return FactionID(getNum() / 0x10000);
-}
-
-const BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
-{
-	return BuildingTypeUniqueID(town->faction->getId(), bid);
-}
-
-std::string CBuilding::getJsonKey() const
-{
-	return modScope + ':' + identifier;
-}
-
-std::string CBuilding::getNameTranslated() const
-{
-	return VLC->generaltexth->translate(getNameTextID());
-}
-
-std::string CBuilding::getDescriptionTranslated() const
-{
-	return VLC->generaltexth->translate(getDescriptionTextID());
-}
-
-std::string CBuilding::getBaseTextID() const
-{
-	return TextIdentifier("building", modScope, town->faction->identifier, identifier).get();
-}
-
-std::string CBuilding::getNameTextID() const
-{
-	return TextIdentifier(getBaseTextID(), "name").get();
-}
-
-std::string CBuilding::getDescriptionTextID() const
-{
-	return TextIdentifier(getBaseTextID(), "description").get();
-}
-
-BuildingID CBuilding::getBase() const
-{
-	const CBuilding * build = this;
-	while (build->upgrade != BuildingID::NONE)
-	{
-		build = build->town->buildings.at(build->upgrade);
-	}
-
-	return build->bid;
-}
-
-si32 CBuilding::getDistance(const BuildingID & buildID) const
-{
-	const CBuilding * build = town->buildings.at(buildID);
-	int distance = 0;
-	while (build->upgrade != BuildingID::NONE && build != this)
-	{
-		build = build->town->buildings.at(build->upgrade);
-		distance++;
-	}
-	if (build == this)
-		return distance;
-	return -1;
-}
-
-void CBuilding::addNewBonus(const std::shared_ptr<Bonus> & b, BonusList & bonusList) const
-{
-	bonusList.push_back(b);
-}
-
-CFaction::~CFaction()
-{
-	if (town)
-	{
-		delete town;
-		town = nullptr;
-	}
-}
-
-int32_t CFaction::getIndex() const
-{
-	return index.getNum();
-}
-
-int32_t CFaction::getIconIndex() const
-{
-	return index.getNum(); //???
-}
-
-std::string CFaction::getJsonKey() const
-{
-	return modScope + ':' + identifier;
-}
-
-void CFaction::registerIcons(const IconRegistar & cb) const
-{
-	if(town)
-	{
-		auto & info = town->clientInfo;
-		cb(info.icons[0][0], 0, "ITPT", info.iconLarge[0][0]);
-		cb(info.icons[0][1], 0, "ITPT", info.iconLarge[0][1]);
-		cb(info.icons[1][0], 0, "ITPT", info.iconLarge[1][0]);
-		cb(info.icons[1][1], 0, "ITPT", info.iconLarge[1][1]);
-
-		cb(info.icons[0][0] + 2, 0, "ITPA", info.iconSmall[0][0]);
-		cb(info.icons[0][1] + 2, 0, "ITPA", info.iconSmall[0][1]);
-		cb(info.icons[1][0] + 2, 0, "ITPA", info.iconSmall[1][0]);
-		cb(info.icons[1][1] + 2, 0, "ITPA", info.iconSmall[1][1]);
-
-		cb(index.getNum(), 1, "CPRSMALL", info.towerIconSmall);
-		cb(index.getNum(), 1, "TWCRPORT", info.towerIconLarge);
-
-	}
-}
-
-std::string CFaction::getNameTranslated() const
-{
-	return VLC->generaltexth->translate(getNameTextID());
-}
-
-std::string CFaction::getNameTextID() const
-{
-	return TextIdentifier("faction", modScope, identifier, "name").get();
-}
-
-std::string CFaction::getDescriptionTranslated() const
-{
-	return VLC->generaltexth->translate(getDescriptionTextID());
-}
-
-std::string CFaction::getDescriptionTextID() const
-{
-	return TextIdentifier("faction", modScope, identifier, "description").get();
-}
-
-FactionID CFaction::getId() const
-{
-	return FactionID(index);
-}
-
-FactionID CFaction::getFaction() const
-{
-	return FactionID(index);
-}
-
-bool CFaction::hasTown() const
-{
-	return town != nullptr;
-}
-
-EAlignment CFaction::getAlignment() const
-{
-	return alignment;
-}
-
-BoatId CFaction::getBoatType() const
-{
-	return boatType;
-}
-
-TerrainId CFaction::getNativeTerrain() const
-{
-	return nativeTerrain;
-}
-
-void CFaction::updateFrom(const JsonNode & data)
-{
-
-}
-
-void CFaction::serializeJson(JsonSerializeFormat & handler)
-{
-
-}
-
-
-CTown::CTown()
-	: faction(nullptr), mageLevel(0), primaryRes(0), moatAbility(SpellID::NONE), defaultTavernChance(0)
-{
-}
-
-CTown::~CTown()
-{
-	for(auto & build : buildings)
-		build.second.dellNull();
-
-	for(auto & str : clientInfo.structures)
-		str.dellNull();
-}
-
-std::string CTown::getRandomNameTextID(size_t index) const
-{
-	return TextIdentifier("faction", faction->modScope, faction->identifier, "randomName", index).get();
-}
-
-size_t CTown::getRandomNamesCount() const
-{
-	return namesCount;
-}
-
-std::string CTown::getBuildingScope() const
-{
-	if(faction == nullptr)
-		//no faction == random faction
-		return "building";
-	else
-		return "building." + faction->getJsonKey();
-}
-
-std::set<si32> CTown::getAllBuildings() const
-{
-	std::set<si32> res;
-
-	for(const auto & b : buildings)
-	{
-		res.insert(b.first.num);
-	}
-
-	return res;
-}
-
-const CBuilding * CTown::getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const
-{
-	for(const auto & kvp : buildings)
-	{
-		if(kvp.second->subId == subID)
-			return buildings.at(kvp.first);
-	}
-	return nullptr;
-}
-
-BuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
-{
-	const auto * building = getSpecialBuilding(subID);
-	return building == nullptr ? BuildingID::NONE : building->bid.num;
-}
-
-std::string CTown::getGreeting(BuildingSubID::EBuildingSubID subID) const
-{
-	return CTownHandler::getMappedValue<const std::string, BuildingSubID::EBuildingSubID>(subID, std::string(), specialMessages, false);
-}
-
-void CTown::setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const
-{
-	specialMessages.insert(std::pair<BuildingSubID::EBuildingSubID, const std::string>(subID, message));
-}
 
 CTownHandler::CTownHandler():
 	randomTown(new CTown()),
@@ -513,27 +238,6 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 	hlp.town = building->town;
 	hlp.json = source;
 	bidsToLoad.push_back(hlp);
-}
-
-template<typename R, typename K>
-R CTownHandler::getMappedValue(const K key, const R defval, const std::map<K, R> & map, bool required)
-{
-	auto it = map.find(key);
-
-	if(it != map.end())
-		return it->second;
-
-	if(required)
-		logMod->warn("Warning: Property: '%s' is unknown. Correct the typo or update VCMI.", key);
-	return defval;
-}
-
-template<typename R>
-R CTownHandler::getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required)
-{
-	if(!node.isNull() && node.getType() == JsonNode::JsonType::DATA_STRING)
-		return getMappedValue<R, std::string>(node.String(), defval, map, required);
-	return defval;
 }
 
 void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
@@ -1286,7 +990,6 @@ std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const
 		result.insert(town->getId());
 
 	return result;
-
 }
 
 const std::vector<std::string> & CTownHandler::getTypeNames() const
@@ -1294,6 +997,5 @@ const std::vector<std::string> & CTownHandler::getTypeNames() const
 	static const std::vector<std::string> typeNames = { "faction", "town" };
 	return typeNames;
 }
-
 
 VCMI_LIB_NAMESPACE_END

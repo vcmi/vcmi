@@ -12,7 +12,7 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../AIGateway.h"
 #include "../../../lib/VCMI_Lib.h"
-#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 
 namespace NKAI
 {

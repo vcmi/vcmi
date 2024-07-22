@@ -10,15 +10,15 @@
 #include "StdInc.h"
 #include "CommonConstructors.h"
 
-#include "../CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
-#include "../CTownHandler.h"
 #include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
 
+#include "../entities/faction/CTownHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"

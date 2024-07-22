@@ -20,7 +20,6 @@ class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
 class CSkillHandler;
-class CBuildingHandler;
 class CObjectHandler;
 class CObjectClassesHandler;
 class CTownHandler;
