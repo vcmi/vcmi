@@ -46,7 +46,8 @@ Canvas::Canvas(Canvas && other):
 Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 	Canvas(other)
 {
-	renderArea = other.renderArea.intersect(newClipRect + other.renderArea.topLeft());
+	Rect scaledClipRect( transformPos(newClipRect.topLeft()), transformPos(newClipRect.dimensions()));
+	renderArea = other.renderArea.intersect(scaledClipRect + other.renderArea.topLeft());
 }
 
 Canvas::Canvas(const Point & size, CanvasScalingPolicy scalingPolicy):
@@ -67,7 +68,7 @@ int Canvas::getScalingFactor() const
 
 Point Canvas::transformPos(const Point & input)
 {
-	return (renderArea.topLeft() + input) * getScalingFactor();
+	return renderArea.topLeft() + input * getScalingFactor();
 }
 
 Point Canvas::transformSize(const Point & input)
