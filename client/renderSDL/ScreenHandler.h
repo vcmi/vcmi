@@ -69,8 +69,6 @@ class ScreenHandler final : public IScreenHandler
 
 	/// Performs validation of settings and updates them to valid values if necessary
 	void validateSettings();
-
-	int getScalingFactor() const;
 public:
 
 	/// Creates and initializes screen, window and SDL state
@@ -92,6 +90,8 @@ public:
 	bool hasFocus() final;
 
 	Point getLogicalResolution() const final;
+
+	int getScalingFactor() const final;
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
