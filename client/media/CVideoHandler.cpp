@@ -642,26 +642,7 @@ void CVideoPlayer::getVideoAndBackgroundRects(std::string_view name, const Point
 
 bool CVideoPlayer::getIntroRimTexture(SDL_Texture **introRimTexture) const
 {
-	ImagePath imageToOpen = ImagePath::builtin("INTRORIM");
-	ImagePath iname;
-
-	if (CResourceHandler::get()->existsResource(imageToOpen))
-		iname = imageToOpen;
-	else
-		iname = imageToOpen.addPrefix("DATA/");
-
-	if (!CResourceHandler::get()->existsResource(iname))
-	{
-		logGlobal->error("Error: image %s was not found", iname.getName());
-		return false;
-	}
-
-	SDL_Surface *image = BitmapHandler::loadBitmap(iname);
-
-	if (!image) {
-		logGlobal->error("Error: failed to load image at %s: %s\n", iname.getName(), SDL_GetError());
-		return false;
-	}
+	SDL_Surface *image = BitmapHandler::loadBitmap(ImagePath::builtin("INTRORIM"));
 
 	*introRimTexture = SDL_CreateTextureFromSurface(mainRenderer, image);
 
