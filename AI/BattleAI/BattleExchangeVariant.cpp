@@ -230,6 +230,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 		auto hbWaited = std::make_shared<HypotheticBattle>(env.get(), hb);
 
+		hbWaited->resetActiveUnit();
 		hbWaited->getForUpdate(activeStack->unitId())->waiting = true;
 		hbWaited->getForUpdate(activeStack->unitId())->waitedThisTurn = true;
 
