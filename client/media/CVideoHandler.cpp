@@ -19,6 +19,7 @@
 #include "../eventsSDL/InputHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/filesystem/CInputStream.h"
@@ -207,9 +208,9 @@ void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput
 	}
 	else
 	{
-		surface = CSDL_Ext::newSurface(dimensions);
+		surface = CSDL_Ext::newSurface(dimensions * GH.screenHandler().getScalingFactor());
 		sws = sws_getContext(getCodecContext()->width, getCodecContext()->height, getCodecContext()->pix_fmt,
-							 dimensions.x, dimensions.y, AV_PIX_FMT_RGB32,
+							 surface->w, surface->h, AV_PIX_FMT_RGB32,
 							 SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 
@@ -362,7 +363,7 @@ void CVideoInstance::show(const Point & position, Canvas & canvas)
 	if(sws == nullptr)
 		throw std::runtime_error("No video to show!");
 
-	CSDL_Ext::blitSurface(surface, canvas.getInternalSurface(), position);
+	CSDL_Ext::blitSurface(surface, canvas.getInternalSurface(), position * GH.screenHandler().getScalingFactor());
 }
 
 double FFMpegStream::getCurrentFrameEndTime() const
