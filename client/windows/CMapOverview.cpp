@@ -60,7 +60,7 @@ CMapOverview::CMapOverview(const std::string & mapName, const std::string & file
 
 Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const
 {
-	Canvas canvas = Canvas(Point(map->width, map->height));
+	Canvas canvas = Canvas(Point(map->width, map->height), CanvasScalingPolicy::IGNORE);
 
 	for (int y = 0; y < map->height; ++y)
 		for (int x = 0; x < map->width; ++x)
@@ -139,7 +139,7 @@ std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & 
 	double resize = maxSideLengthSrc / maxSideLengthDst;
 	Point newMinimapSize = Point(minimapRect.w / resize, minimapRect.h / resize);
 
-	Canvas canvasScaled = Canvas(Point(rect.w, rect.h));
+	Canvas canvasScaled = Canvas(Point(rect.w, rect.h), CanvasScalingPolicy::AUTO);
 	canvasScaled.drawScaled(minimaps[id], Point((rect.w - newMinimapSize.x) / 2, (rect.h - newMinimapSize.y) / 2), newMinimapSize);
 	std::shared_ptr<IImage> img = GH.renderHandler().createImage(canvasScaled.getInternalSurface());
 
