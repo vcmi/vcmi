@@ -1247,7 +1247,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const battle:
 	if (!defender)
 		return at; // can't attack thin air
 
-	bool reverse = isToReverse(attacker, defender);
+	bool reverse = isToReverse(attacker, defender, attackOriginHex, destinationTile);
 	if(reverse && attacker->doubleWide())
 	{
 		attackOriginHex = attacker->occupiedHex(attackOriginHex); //the other hex stack stands on
@@ -1303,8 +1303,8 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const battle:
 
 				// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
 				// then dragon breath should target tile on the opposite side of targeted creature
-				if (BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
-					nextHex = secondHex.cloneInDirection(direction, false);
+				/*if(BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
+					nextHex = secondHex.cloneInDirection(direction, false);*/
 			}
 
 			if (nextHex.isValid())
@@ -1410,10 +1410,13 @@ static bool isHexInFront(BattleHex hex, BattleHex testHex, BattleSide::Type side
 }
 
 //TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battle::Unit * defender) const
+bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerHex, BattleHex defenderHex) const
 {
-	BattleHex attackerHex = attacker->getPosition();
-	BattleHex defenderHex = defender->getPosition();
+	if(!defenderHex.isValid())
+		defenderHex = defender->getPosition();
+
+	if(!attackerHex.isValid())
+		attackerHex = attacker->getPosition();
 
 	if (attackerHex < 0 ) //turret
 		return false;
