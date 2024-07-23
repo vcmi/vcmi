@@ -923,31 +923,38 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
-	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.startBonus.empty() && s->handicap.percentIncome.empty() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
 	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), [this](){
 		if(!CSH->isHost())
 			return;
 
 		TResources resourcesStart = TResources();
 		resourcesStart[EGameResID::GOLD] = 50000;
-		TResources resourcesPercent = TResources(); //reset 100 % to 0!!!
+		int resourcesPercent = 120;
 
 		CSH->setPlayerHandicap(s->color, PlayerSettings::Handicap{resourcesStart, resourcesPercent});
 	}, [this](){
-		if(s->handicap.startBonus.empty() && s->handicap.percentIncome.empty())
+		if(s->handicap.startBonus.empty() && s->handicap.percentIncome == 100)
 			CRClickPopup::createAndPush(MetaString::createFromTextID("core.help.124.help").toString());
 		else
 		{
 			auto str = MetaString::createFromTextID("vcmi.lobby.handicap");
 			str.appendRawString(":\n");
 			for(auto & res : EGameResID::ALL_RESOURCES())
-				if(s->handicap.startBonus[res] != 0 || s->handicap.percentIncome[res] != 0)
+				if(s->handicap.startBonus[res] != 0)
 				{
 					str.appendRawString("\n");
 					str.appendName(res);
 					str.appendRawString(": ");
-					str.appendRawString(std::to_string(s->handicap.startBonus[res]) + "|" + std::to_string(s->handicap.percentIncome[res] == 0 ? 100 : s->handicap.percentIncome[res]) + "%");
+					str.appendRawString(std::to_string(s->handicap.startBonus[res]));
 				}
+			if(s->handicap.percentIncome != 100)
+			{
+				str.appendRawString("\n");
+				str.appendTextID("core.jktext.32");
+				str.appendRawString(": ");
+				str.appendRawString(std::to_string(s->handicap.percentIncome) + "%");
+			}
 			CRClickPopup::createAndPush(str.toString());
 		}
 	});

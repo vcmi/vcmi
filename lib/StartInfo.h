@@ -82,7 +82,7 @@ struct DLL_LINKAGE PlayerSettings
 	EHandicap handicapLegacy;//0-no, 1-mild, 2-severe
 	struct Handicap {
 		TResources startBonus;
-		TResources percentIncome;
+		int percentIncome;
 	} handicap;
 
 	std::string name;

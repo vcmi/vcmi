@@ -784,7 +784,7 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, PlayerSettings::Handicap 
 	str.appendName(color);
 	str.appendRawString(":");
 
-	if(handicap.startBonus.empty() && handicap.percentIncome.empty())
+	if(handicap.startBonus.empty() && handicap.percentIncome == 100)
 	{
 		str.appendRawString(" ");
 		str.appendTextID("core.genrltxt.523");
@@ -793,13 +793,20 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, PlayerSettings::Handicap 
 	}
 
 	for(auto & res : EGameResID::ALL_RESOURCES())
-		if(handicap.startBonus[res] != 0 && handicap.percentIncome[res] != 0)
+		if(handicap.startBonus[res] != 0)
 		{
 			str.appendRawString(" ");
 			str.appendName(res);
 			str.appendRawString(":");
-			str.appendRawString(std::to_string(handicap.startBonus[res]) + "|" + std::to_string(handicap.percentIncome[res] == 0 ? 100 : handicap.percentIncome[res]) + "%");
+			str.appendRawString(std::to_string(handicap.startBonus[res]));
 		}
+	if(handicap.percentIncome != 100)
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.jktext.32");
+		str.appendRawString(":");
+		str.appendRawString(std::to_string(handicap.percentIncome) + "%");
+	}
 	announceTxt(str);
 }
 
@@ -1050,7 +1057,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
 
 	for (const auto & pi : si->playerInfos)
-		if(!pi.second.handicap.startBonus.empty() || !pi.second.handicap.percentIncome.empty())
+		if(!pi.second.handicap.startBonus.empty() || pi.second.handicap.percentIncome != 100)
 		{
 			MetaString str;
 			str.appendTextID("vcmi.lobby.handicap");
@@ -1058,13 +1065,20 @@ void CVCMIServer::multiplayerWelcomeMessage()
 			str.appendName(pi.first);
 			str.appendRawString(":");
 			for(auto & res : EGameResID::ALL_RESOURCES())
-				if(pi.second.handicap.startBonus[res] != 0 || pi.second.handicap.percentIncome[res] != 0)
+				if(pi.second.handicap.startBonus[res] != 0)
 				{
 					str.appendRawString(" ");
 					str.appendName(res);
 					str.appendRawString(":");
-					str.appendRawString(std::to_string(pi.second.handicap.startBonus[res]) + "|" + std::to_string(pi.second.handicap.percentIncome[res] == 0 ? 100 : pi.second.handicap.percentIncome[res]) + "%");
+					str.appendRawString(std::to_string(pi.second.handicap.startBonus[res]));
 				}
+			if(pi.second.handicap.percentIncome != 100)
+			{
+				str.appendRawString(" ");
+				str.appendTextID("core.jktext.32");
+				str.appendRawString(":");
+				str.appendRawString(std::to_string(pi.second.handicap.percentIncome) + "%");
+			}
 			gh->playerMessages->broadcastSystemMessage(str);
 		}
 
