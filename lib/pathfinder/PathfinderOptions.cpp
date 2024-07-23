@@ -34,6 +34,7 @@ PathfinderOptions::PathfinderOptions()
 	, turnLimit(std::numeric_limits<uint8_t>::max())
 	, canUseCast(false)
 	, allowLayerTransitioningAfterBattle(false)
+	, forceUseTeleportWhirlpool(false)
 {
 }
 

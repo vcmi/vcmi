@@ -196,6 +196,26 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 					}
 				}
 
+				auto findWhirlpool = [&ai](const int3 & pos) -> ObjectInstanceID
+				{
+					auto objs = ai->myCb->getVisitableObjs(pos);
+					auto whirlpool = std::find_if(objs.begin(), objs.end(), [](const CGObjectInstance * o)->bool
+						{
+							return o->ID == Obj::WHIRLPOOL;
+						});
+
+					return whirlpool != objs.end() ? dynamic_cast<const CGWhirlpool *>(*whirlpool)->id : ObjectInstanceID(-1);
+				};
+
+				auto sourceWhirlpool = findWhirlpool(hero->visitablePos());
+				auto targetWhirlpool = findWhirlpool(node->coord);
+				
+				if(i != chainPath.nodes.size() - 1 && sourceWhirlpool.hasValue() && sourceWhirlpool == targetWhirlpool)
+				{
+					logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
+					continue;
+				}
+
 				if(hero->movementPointsRemaining())
 				{
 					try
