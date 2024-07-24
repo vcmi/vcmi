@@ -166,6 +166,7 @@ private:
 		std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
 
 		std::vector<std::shared_ptr<CLabel>> labels;
+		std::vector<std::shared_ptr<CAnimImage>> anim;
 		std::vector<std::shared_ptr<TransparentFilledRectangle>> textinputbackgrounds;
 		std::map<PlayerColor, std::map<EGameResID, std::shared_ptr<CTextInput>>> textinputs;
 		std::vector<std::shared_ptr<CButton>> buttons;

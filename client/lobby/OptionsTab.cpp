@@ -801,29 +801,42 @@ OptionsTab::HandicapWindow::HandicapWindow()
 
 	addUsedEvents(LCLICK);
 
-	pos = Rect(0, 0, 600, 400);
+	pos = Rect(0, 0, 590, 100 + SEL->getStartInfo()->playerInfos.size() * 30);
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
 	backgroundTexture->playerColored(PlayerColor(1));
+
+	labels.push_back(std::make_shared<CLabel>(pos.w / 2 + 8, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.handicap")));
+
+	auto columns = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, EGameResID::NONE};
 
 	int i = 0;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
 	{
 		PlayerColor player = pInfo.first;
-		for(int j = 0; j < EGameResID::COUNT; j++)
+		anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS"), player.getNum(), 0, 7, 57 + i * 30));
+		for(int j = 0; j < columns.size(); j++)
 		{
-			EGameResID resource = static_cast<EGameResID>(j);
-			bool isIncome = j == EGameResID::COUNT - 1;
+			EGameResID resource = columns[j];
+			bool isIncome = resource == EGameResID::NONE;
 
 			const PlayerSettings &ps = SEL->getStartInfo()->getIthPlayersSettings(player);
 
-			auto area = Rect(20 + j * 70, 20 + i * 20, 50, 16);
+			if(i == 0)
+			{
+				if(isIncome)
+					labels.push_back(std::make_shared<CLabel>(30 + j * 70, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.jktext.32")));
+				else
+					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 45 + j * 70, 35));
+			}
+
+			auto area = Rect(30 + j * 70, 60 + i * 30, 50, 16);
 			textinputbackgrounds.push_back(std::make_shared<TransparentFilledRectangle>(area.resize(3), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64)));
 			textinputs[player][resource] = std::make_shared<CTextInput>(area, FONT_SMALL, ETextAlignment::CENTERLEFT, true);
 			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : ps.handicap.startBonus[resource]));
 			textinputs[player][resource]->setCallback([this, player, resource, isIncome](const std::string & s){
 				std::string tmp = s;
-				bool negative = s.find("-") != std::string::npos && !isIncome;
+				bool negative = std::count_if( s.begin(), s.end(), []( char c ){ return c == '-'; }) == 1 && !isIncome;
 				tmp.erase(std::remove_if(tmp.begin(), tmp.end(), [](char c) { return !isdigit(c); }), tmp.end());
 				tmp = tmp.substr(0, isIncome ? 3 : 5);
 				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
@@ -834,14 +847,14 @@ OptionsTab::HandicapWindow::HandicapWindow()
 		i++;
 	}
 	
-	buttons.push_back(std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){
+	buttons.push_back(std::make_shared<CButton>(Point(pos.w / 2 - 32, 60 + SEL->getStartInfo()->playerInfos.size() * 30), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){
 		for (const auto& player : textinputs)
 		{
 			TResources resources = TResources();
 			int income = 100;
 			for (const auto& resource : player.second)
 			{
-				bool isIncome = resource.first.getNum() == EGameResID::COUNT - 1;
+				bool isIncome = resource.first == EGameResID::NONE;
 				if(isIncome)
 					income = std::stoi(resource.second->getText());
 				else
