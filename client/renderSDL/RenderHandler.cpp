@@ -131,22 +131,22 @@ int RenderHandler::getScalingFactor() const
 	return 2;
 }
 
-std::shared_ptr<IConstImage> RenderHandler::createScaledImage(std::shared_ptr<SDLImageConst> input)
+std::shared_ptr<ISharedImage> RenderHandler::createScaledImage(std::shared_ptr<SDLImageShared> input)
 {
 	if (getScalingFactor() == 1)
 		return input;
 
-	return std::make_shared<ImageConstScaled>(input);
+	return std::make_shared<ImageSharedScaled>(input);
 }
 
-std::shared_ptr<IConstImage> RenderHandler::loadImageFromSingleFile(const ImagePath & path)
+std::shared_ptr<ISharedImage> RenderHandler::loadImageFromSingleFile(const ImagePath & path)
 {
-	auto result = createScaledImage(std::make_shared<SDLImageConst>(path));
+	auto result = createScaledImage(std::make_shared<SDLImageShared>(path));
 	imageFiles[ImageLocator(path)] = result;
 	return result;
 }
 
-std::shared_ptr<IConstImage> RenderHandler::loadImageFromAnimationFileUncached(const AnimationPath & path, int frame, int group)
+std::shared_ptr<ISharedImage> RenderHandler::loadImageFromAnimationFileUncached(const AnimationPath & path, int frame, int group)
 {
 	const auto & layout = getAnimationLayout(path);
 	if (!layout.count(group))
@@ -163,24 +163,24 @@ std::shared_ptr<IConstImage> RenderHandler::loadImageFromAnimationFileUncached(c
 	else
 	{
 		auto defFile = getAnimationFile(path);
-		return createScaledImage(std::make_shared<SDLImageConst>(defFile.get(), frame, group));
+		return createScaledImage(std::make_shared<SDLImageShared>(defFile.get(), frame, group));
 	}
 }
 
-std::shared_ptr<IConstImage> RenderHandler::loadImageFromAnimationFile(const AnimationPath & path, int frame, int group)
+std::shared_ptr<ISharedImage> RenderHandler::loadImageFromAnimationFile(const AnimationPath & path, int frame, int group)
 {
 	auto result = loadImageFromAnimationFileUncached(path, frame, group);
 	imageFiles[ImageLocator(path, frame, group)] = result;
 	return result;
 }
 
-std::shared_ptr<IConstImage> RenderHandler::loadImageImpl(const ImageLocator & locator)
+std::shared_ptr<ISharedImage> RenderHandler::loadImageImpl(const ImageLocator & locator)
 {
 	auto it = imageFiles.find(locator);
 	if (it != imageFiles.end())
 		return it->second;
 
-	std::shared_ptr<IConstImage> result;
+	std::shared_ptr<ISharedImage> result;
 
 	if (locator.image)
 		result = loadImageFromSingleFile(*locator.image);
@@ -217,7 +217,7 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageB
 
 std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 {
-	return std::make_shared<SDLImageConst>(source)->createImageReference(EImageBlitMode::ALPHA);
+	return std::make_shared<SDLImageShared>(source)->createImageReference(EImageBlitMode::ALPHA);
 }
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)

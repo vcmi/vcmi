@@ -32,7 +32,7 @@ int IImage::height() const
 	return dimensions().y;
 }
 
-SDLImageConst::SDLImageConst(CDefFile * data, size_t frame, size_t group)
+SDLImageShared::SDLImageShared(CDefFile * data, size_t frame, size_t group)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -44,7 +44,7 @@ SDLImageConst::SDLImageConst(CDefFile * data, size_t frame, size_t group)
 	savePalette();
 }
 
-SDLImageConst::SDLImageConst(SDL_Surface * from)
+SDLImageShared::SDLImageShared(SDL_Surface * from)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -61,7 +61,7 @@ SDLImageConst::SDLImageConst(SDL_Surface * from)
 	fullSize.y = surf->h;
 }
 
-SDLImageConst::SDLImageConst(const ImagePath & filename)
+SDLImageShared::SDLImageShared(const ImagePath & filename)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -83,7 +83,7 @@ SDLImageConst::SDLImageConst(const ImagePath & filename)
 }
 
 
-void SDLImageConst::draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const
+void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const
 {
 	if (!surf)
 		return;
@@ -129,7 +129,7 @@ void SDLImageConst::draw(SDL_Surface * where, SDL_Palette * palette, const Point
 	}
 }
 
-const SDL_Palette * SDLImageConst::getPalette() const
+const SDL_Palette * SDLImageShared::getPalette() const
 {
 	if (originalPalette == nullptr)
 		throw std::runtime_error("Palette not found!");
@@ -137,7 +137,7 @@ const SDL_Palette * SDLImageConst::getPalette() const
 	return originalPalette;
 }
 
-std::shared_ptr<SDLImageConst> SDLImageConst::scaleFast(const Point & size) const
+std::shared_ptr<SDLImageShared> SDLImageShared::scaleFast(const Point & size) const
 {
 	float scaleX = float(size.x) / dimensions().x;
 	float scaleY = float(size.y) / dimensions().y;
@@ -151,7 +151,7 @@ std::shared_ptr<SDLImageConst> SDLImageConst::scaleFast(const Point & size) cons
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	auto ret = std::make_shared<SDLImageConst>(scaled);
+	auto ret = std::make_shared<SDLImageShared>(scaled);
 
 	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
 	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
@@ -165,7 +165,7 @@ std::shared_ptr<SDLImageConst> SDLImageConst::scaleFast(const Point & size) cons
 	return ret;
 }
 
-void SDLImageConst::exportBitmap(const boost::filesystem::path& path) const
+void SDLImageShared::exportBitmap(const boost::filesystem::path& path) const
 {
 	SDL_SaveBMP(surf, path.string().c_str());
 }
@@ -181,7 +181,7 @@ void SDLImageIndexed::setFlagColor(PlayerColor player)
 		graphics->setPlayerFlagColor(currentPalette, player);
 }
 
-bool SDLImageConst::isTransparent(const Point & coords) const
+bool SDLImageShared::isTransparent(const Point & coords) const
 {
 	if (surf)
 		return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
@@ -189,12 +189,12 @@ bool SDLImageConst::isTransparent(const Point & coords) const
 		return true;
 }
 
-Point SDLImageConst::dimensions() const
+Point SDLImageShared::dimensions() const
 {
 	return fullSize;
 }
 
-std::shared_ptr<IImage> SDLImageConst::createImageReference(EImageBlitMode mode)
+std::shared_ptr<IImage> SDLImageShared::createImageReference(EImageBlitMode mode)
 {
 	if (surf && surf->format->palette)
 		return std::make_shared<SDLImageIndexed>(shared_from_this(), mode);
@@ -202,10 +202,10 @@ std::shared_ptr<IImage> SDLImageConst::createImageReference(EImageBlitMode mode)
 		return std::make_shared<SDLImageRGB>(shared_from_this(), mode);
 }
 
-std::shared_ptr<IConstImage> SDLImageConst::horizontalFlip() const
+std::shared_ptr<ISharedImage> SDLImageShared::horizontalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
-	auto ret = std::make_shared<SDLImageConst>(flipped);
+	auto ret = std::make_shared<SDLImageShared>(flipped);
 	ret->fullSize = fullSize;
 	ret->margins.x = margins.x;
 	ret->margins.y = fullSize.y - surf->h - margins.y;
@@ -214,10 +214,10 @@ std::shared_ptr<IConstImage> SDLImageConst::horizontalFlip() const
 	return ret;
 }
 
-std::shared_ptr<IConstImage> SDLImageConst::verticalFlip() const
+std::shared_ptr<ISharedImage> SDLImageShared::verticalFlip() const
 {
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
-	auto ret = std::make_shared<SDLImageConst>(flipped);
+	auto ret = std::make_shared<SDLImageShared>(flipped);
 	ret->fullSize = fullSize;
 	ret->margins.x = fullSize.x - surf->w - margins.x;
 	ret->margins.y = margins.y;
@@ -227,7 +227,7 @@ std::shared_ptr<IConstImage> SDLImageConst::verticalFlip() const
 }
 
 // Keep the original palette, in order to do color switching operation
-void SDLImageConst::savePalette()
+void SDLImageShared::savePalette()
 {
 	// For some images that don't have palette, skip this
 	if(surf->format->palette == nullptr)
@@ -265,7 +265,7 @@ void SDLImageIndexed::adjustPalette(const ColorFilter & shifter, uint32_t colors
 	}
 }
 
-SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<SDLImageConst> & image, EImageBlitMode mode)
+SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<SDLImageShared> & image, EImageBlitMode mode)
 	:SDLImageBase::SDLImageBase(image, mode)
 {
 	auto originalPalette = image->getPalette();
@@ -290,13 +290,13 @@ void SDLImageIndexed::setSpecialPalette(const IImage::SpecialPalette & specialPa
 	}
 }
 
-SDLImageConst::~SDLImageConst()
+SDLImageShared::~SDLImageShared()
 {
 	SDL_FreeSurface(surf);
 	SDL_FreePalette(originalPalette);
 }
 
-SDLImageBase::SDLImageBase(const std::shared_ptr<SDLImageConst> & image, EImageBlitMode mode)
+SDLImageBase::SDLImageBase(const std::shared_ptr<SDLImageShared> & image, EImageBlitMode mode)
 	:image(image)
 	, alphaValue(SDL_ALPHA_OPAQUE)
 	, blitMode(mode)

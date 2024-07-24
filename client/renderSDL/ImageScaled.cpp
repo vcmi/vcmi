@@ -17,60 +17,60 @@
 
 #include <SDL_surface.h>
 
-ImageConstScaled::ImageConstScaled(std::shared_ptr<SDLImageConst> sourceImage)
+ImageSharedScaled::ImageSharedScaled(std::shared_ptr<SDLImageShared> sourceImage)
 	:sourceImage(sourceImage)
 {
 	scaledImage = sourceImage->scaleFast(sourceImage->dimensions() * getScalingFactor());
 }
 
-int ImageConstScaled::getScalingFactor() const
+int ImageSharedScaled::getScalingFactor() const
 {
 	return 2;
 }
 
-void ImageConstScaled::draw(SDL_Surface *where, const Point &dest, const Rect *src, uint8_t alpha, EImageBlitMode mode) const
+void ImageSharedScaled::draw(SDL_Surface *where, const Point &dest, const Rect *src, uint8_t alpha, EImageBlitMode mode) const
 {
 	scaledImage->draw(where, nullptr, dest, src, alpha, mode);
 }
 
-void ImageConstScaled::exportBitmap(const boost::filesystem::path &path) const
+void ImageSharedScaled::exportBitmap(const boost::filesystem::path &path) const
 {
 	sourceImage->exportBitmap(path);
 }
 
-Point ImageConstScaled::dimensions() const
+Point ImageSharedScaled::dimensions() const
 {
 	return sourceImage->dimensions();
 }
 
-bool ImageConstScaled::isTransparent(const Point &coords) const
+bool ImageSharedScaled::isTransparent(const Point &coords) const
 {
 	return sourceImage->isTransparent(coords);
 }
 
-std::shared_ptr<IImage> ImageConstScaled::createImageReference(EImageBlitMode mode)
+std::shared_ptr<IImage> ImageSharedScaled::createImageReference(EImageBlitMode mode)
 {
 	return std::make_shared<ImageScaled>(shared_from_this(), mode);
 }
 
-std::shared_ptr<IConstImage> ImageConstScaled::horizontalFlip() const
+std::shared_ptr<ISharedImage> ImageSharedScaled::horizontalFlip() const
 {
-	return std::make_shared<ImageConstScaled>(std::dynamic_pointer_cast<SDLImageConst>(sourceImage->horizontalFlip()));
+	return std::make_shared<ImageSharedScaled>(std::dynamic_pointer_cast<SDLImageShared>(sourceImage->horizontalFlip()));
 }
 
-std::shared_ptr<IConstImage> ImageConstScaled::verticalFlip() const
+std::shared_ptr<ISharedImage> ImageSharedScaled::verticalFlip() const
 {
-	return std::make_shared<ImageConstScaled>(std::dynamic_pointer_cast<SDLImageConst>(sourceImage->verticalFlip()));
+	return std::make_shared<ImageSharedScaled>(std::dynamic_pointer_cast<SDLImageShared>(sourceImage->verticalFlip()));
 }
 
-std::shared_ptr<ImageConstScaled> ImageConstScaled::scaleFast(const Point &size) const
+std::shared_ptr<ImageSharedScaled> ImageSharedScaled::scaleFast(const Point &size) const
 {
-	return std::make_shared<ImageConstScaled>(sourceImage->scaleFast(size));
+	return std::make_shared<ImageSharedScaled>(sourceImage->scaleFast(size));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-ImageScaled::ImageScaled(const std::shared_ptr<ImageConstScaled> &image, EImageBlitMode mode)
+ImageScaled::ImageScaled(const std::shared_ptr<ImageSharedScaled> &image, EImageBlitMode mode)
 	:image(image)
 	, alphaValue(SDL_ALPHA_OPAQUE)
 	, blitMode(mode)
