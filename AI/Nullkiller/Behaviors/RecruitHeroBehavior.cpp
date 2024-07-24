@@ -13,6 +13,7 @@
 #include "../AIUtility.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../lib/CHeroHandler.h"
 
 namespace NKAI
 {
@@ -49,28 +50,45 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 	if (ourHeroes.empty())
 		minScoreToHireMain = 0;
 
+	const CGHeroInstance* bestHeroToHire = nullptr;
+	const CGTownInstance* bestTownToHireFrom = nullptr;
+	float bestScore = 0;
+	bool haveCapitol = false;
+	
 	for(auto town : towns)
 	{
 		if(ai->heroManager->canRecruitHero(town))
 		{
 			auto availableHeroes = ai->cb->getAvailableHeroes(town);
 
-			//TODO: Prioritize non-main-heros too by cost of their units and whether their units fit to the current town
 			for(auto hero : availableHeroes)
 			{
 				auto score = ai->heroManager->evaluateHero(hero);
-				if(score > minScoreToHireMain || hero->getArmyCost() > GameConstants::HERO_GOLD_COST)
+				if(score > minScoreToHireMain)
 				{
-					tasks.push_back(Goals::sptr(Goals::RecruitHero(town, hero).setpriority(200)));
-					break;
+					score *= score / minScoreToHireMain;
+				}
+				score *= hero->getArmyCost();
+				if (hero->type->heroClass->faction == town->getFaction())
+					score *= 1.5;
+				score *= town->getTownLevel();
+				if (score > bestScore)
+				{
+					bestScore = score;
+					bestHeroToHire = hero;
+					bestTownToHireFrom = town;
 				}
 			}
-
-			if(ai->cb->getHeroesInfo().size() < ai->cb->getTownsInfo().size() + 1
-				|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh()))
-			{
-				tasks.push_back(Goals::sptr(Goals::RecruitHero(town).setpriority(3)));
-			}
+		}
+		if (town->hasCapitol())
+			haveCapitol = true;
+	}
+	if (bestHeroToHire && bestTownToHireFrom)
+	{
+		if (ai->cb->getHeroesInfo().size() < ai->cb->getTownsInfo().size() + 1
+			|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh() && haveCapitol))
+		{
+			tasks.push_back(Goals::sptr(Goals::RecruitHero(bestTownToHireFrom, bestHeroToHire).setpriority((float)3 / ourHeroes.size())));
 		}
 	}
 
