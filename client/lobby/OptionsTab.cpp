@@ -29,6 +29,7 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../windows/CHeroOverview.h"
@@ -800,21 +801,37 @@ OptionsTab::HandicapWindow::HandicapWindow()
 
 	addUsedEvents(LCLICK);
 
-	pos = Rect(0, 0, 400, 400);
+	pos = Rect(0, 0, 600, 400);
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
 	backgroundTexture->playerColored(PlayerColor(1));
 
-	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+	int i = 0;
+	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
 	{
-		PlayerColor player = static_cast<PlayerColor>(i);
-		for(int j = 0; j < EGameResID::MITHRIL; j++)
+		PlayerColor player = pInfo.first;
+		for(int j = 0; j < EGameResID::COUNT; j++)
 		{
 			EGameResID resource = static_cast<EGameResID>(j);
+			bool isIncome = j == EGameResID::COUNT - 1;
 
-			textinputs[player][resource] = std::make_shared<CTextInput>(Rect(20 + j * 70, 20 + i * 20, 50, 16), EFonts::FONT_SMALL, ETextAlignment::CENTERLEFT, false);
-			textinputs[player][resource]->setText("test");
+			const PlayerSettings &ps = SEL->getStartInfo()->getIthPlayersSettings(player);
+
+			auto area = Rect(20 + j * 70, 20 + i * 20, 50, 16);
+			textinputbackgrounds.push_back(std::make_shared<TransparentFilledRectangle>(area.resize(3), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64)));
+			textinputs[player][resource] = std::make_shared<CTextInput>(area, FONT_SMALL, ETextAlignment::CENTERLEFT, true);
+			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : ps.handicap.startBonus[resource]));
+			textinputs[player][resource]->setCallback([this, player, resource, isIncome](const std::string & s){
+				std::string tmp = s;
+				bool negative = s.find("-") != std::string::npos && !isIncome;
+				tmp.erase(std::remove_if(tmp.begin(), tmp.end(), [](char c) { return !isdigit(c); }), tmp.end());
+				tmp = tmp.substr(0, isIncome ? 3 : 5);
+				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
+			});
+			if(isIncome)
+				labels.push_back(std::make_shared<CLabel>(area.topRight().x, area.center().y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "%"));
 		}
+		i++;
 	}
 	
 	buttons.push_back(std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){
@@ -828,7 +845,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 	center();
 
 	TResources resourcesStart = TResources();
-	resourcesStart[EGameResID::GOLD] = 50000;
+	resourcesStart[EGameResID::GOLD] = -500000;
 	int resourcesPercent = 120;
 	//CSH->setPlayerHandicap(s->color, PlayerSettings::Handicap{resourcesStart, resourcesPercent});
 	CSH->setPlayerHandicap((PlayerColor)0, PlayerSettings::Handicap{resourcesStart, resourcesPercent});

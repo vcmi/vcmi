@@ -30,6 +30,7 @@ class CSlider;
 class LRClickableArea;
 
 class FilledTexturePlayerColored;
+class TransparentFilledRectangle;
 
 /// The options tab which is shown at the map selection phase.
 class OptionsTab : public OptionsTabBase
@@ -165,6 +166,7 @@ private:
 		std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
 
 		std::vector<std::shared_ptr<CLabel>> labels;
+		std::vector<std::shared_ptr<TransparentFilledRectangle>> textinputbackgrounds;
 		std::map<PlayerColor, std::map<EGameResID, std::shared_ptr<CTextInput>>> textinputs;
 		std::vector<std::shared_ptr<CButton>> buttons;
 
