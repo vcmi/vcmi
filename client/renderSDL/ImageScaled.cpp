@@ -28,7 +28,7 @@ int ImageSharedScaled::getScalingFactor() const
 	return 2;
 }
 
-void ImageSharedScaled::draw(SDL_Surface *where, const Point &dest, const Rect *src, uint8_t alpha, EImageBlitMode mode) const
+void ImageSharedScaled::draw(SDL_Surface *where, SDL_Palette * palette, const Point &dest, const Rect *src, uint8_t alpha, EImageBlitMode mode) const
 {
 	scaledImage->draw(where, nullptr, dest, src, alpha, mode);
 }
