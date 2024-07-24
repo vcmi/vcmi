@@ -835,20 +835,32 @@ OptionsTab::HandicapWindow::HandicapWindow()
 	}
 	
 	buttons.push_back(std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){
-		//for (const auto& player : textinputs)
-		//	for (const auto& resource : player.second)
-	    //		continue;//todo
+		for (const auto& player : textinputs)
+		{
+			TResources resources = TResources();
+			int income = 100;
+			for (const auto& resource : player.second)
+			{
+				bool isIncome = resource.first.getNum() == EGameResID::COUNT - 1;
+				if(isIncome)
+					income = std::stoi(resource.second->getText());
+				else
+					resources[resource.first] = std::stoi(resource.second->getText());
+			}
+			CSH->setPlayerHandicap(player.first, PlayerSettings::Handicap{resources, income});
+		}
+	    		
 		close();
 	}, EShortcut::GLOBAL_RETURN));
 
 	updateShadow();
 	center();
 
-	TResources resourcesStart = TResources();
+	/*TResources resourcesStart = TResources();
 	resourcesStart[EGameResID::GOLD] = -500000;
 	int resourcesPercent = 120;
 	//CSH->setPlayerHandicap(s->color, PlayerSettings::Handicap{resourcesStart, resourcesPercent});
-	CSH->setPlayerHandicap((PlayerColor)0, PlayerSettings::Handicap{resourcesStart, resourcesPercent});
+	CSH->setPlayerHandicap((PlayerColor)0, PlayerSettings::Handicap{resourcesStart, resourcesPercent});*/
 }
 
 bool OptionsTab::HandicapWindow::receiveEvent(const Point & position, int eventType) const
