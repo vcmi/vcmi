@@ -21,6 +21,7 @@ class ColorRGBA;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
+struct SDL_Palette;
 class ColorFilter;
 
 /// Defines which blit method will be selected when image is used for rendering
@@ -88,6 +89,7 @@ public:
 	virtual Point dimensions() const = 0;
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 	virtual bool isTransparent(const Point & coords) const = 0;
+	virtual void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const = 0;
 
 	virtual std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) = 0;
 

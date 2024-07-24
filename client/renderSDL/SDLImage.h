@@ -47,7 +47,7 @@ public:
 	SDLImageShared(SDL_Surface * from);
 	~SDLImageShared();
 
-	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const;
+	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const override;
 
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	Point dimensions() const override;
