@@ -74,11 +74,11 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 
 	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
 	{
-		otherBuildings.push_back({BuildingID::CITADEL, BuildingID::CASTLE});
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});
 	}
 
+	otherBuildings.push_back({ BuildingID::CITADEL, BuildingID::CASTLE });
 	otherBuildings.push_back({ BuildingID::RESOURCE_SILO });
 	otherBuildings.push_back({ BuildingID::SPECIAL_1 });
 	otherBuildings.push_back({ BuildingID::SPECIAL_2 });
