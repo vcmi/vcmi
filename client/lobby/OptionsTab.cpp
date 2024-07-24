@@ -868,12 +868,6 @@ OptionsTab::HandicapWindow::HandicapWindow()
 
 	updateShadow();
 	center();
-
-	/*TResources resourcesStart = TResources();
-	resourcesStart[EGameResID::GOLD] = -500000;
-	int resourcesPercent = 120;
-	//CSH->setPlayerHandicap(s->color, PlayerSettings::Handicap{resourcesStart, resourcesPercent});
-	CSH->setPlayerHandicap((PlayerColor)0, PlayerSettings::Handicap{resourcesStart, resourcesPercent});*/
 }
 
 bool OptionsTab::HandicapWindow::receiveEvent(const Point & position, int eventType) const
