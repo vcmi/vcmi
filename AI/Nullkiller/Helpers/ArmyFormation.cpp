@@ -14,27 +14,37 @@
 namespace NKAI
 {
 
-void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGHeroInstance * attacker)
+void ArmyFormation::rearrangeArmyForWhirlpool(const CGHeroInstance * hero)
 {
-	auto freeSlots = attacker->getFreeSlotsQueue();
+	addSingleCreatureStacks(hero);
+}
+
+void ArmyFormation::addSingleCreatureStacks(const CGHeroInstance * hero)
+{
+	auto freeSlots = hero->getFreeSlotsQueue();
 
 	while(!freeSlots.empty())
 	{
-		auto weakestCreature = vstd::minElementByFun(attacker->Slots(), [](const std::pair<SlotID, CStackInstance *> & slot) -> int
+		auto weakestCreature = vstd::minElementByFun(hero->Slots(), [](const std::pair<SlotID, CStackInstance *> & slot) -> int
 			{
 				return slot.second->getCount() == 1
 					? std::numeric_limits<int>::max()
 					: slot.second->getCreatureID().toCreature()->getAIValue();
 			});
 
-		if(weakestCreature == attacker->Slots().end() || weakestCreature->second->getCount() == 1)
+		if(weakestCreature == hero->Slots().end() || weakestCreature->second->getCount() == 1)
 		{
 			break;
 		}
 
-		cb->splitStack(attacker, attacker, weakestCreature->first, freeSlots.front(), 1);
+		cb->splitStack(hero, hero, weakestCreature->first, freeSlots.front(), 1);
 		freeSlots.pop();
 	}
+}
+
+void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGHeroInstance * attacker)
+{
+	addSingleCreatureStacks(attacker);
 
 	if(town->fortLevel() > CGTownInstance::FORT)
 	{

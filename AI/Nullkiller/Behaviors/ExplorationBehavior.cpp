@@ -47,10 +47,13 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * ai) const
 			}
 		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 		case Obj::MONOLITH_TWO_WAY:
-		case Obj::SUBTERRANEAN_GATE: 
+		case Obj::SUBTERRANEAN_GATE:
+		case Obj::WHIRLPOOL:
 			{
-				auto tObj = dynamic_cast<const CGTeleport*>(obj);
-				for (auto exit : cb->getTeleportChannelExits(tObj->channel))
+				auto tObj = dynamic_cast<const CGTeleport *>(obj);
+				if(TeleportChannel::IMPASSABLE == ai->memory->knownTeleportChannels[tObj->channel]->passability)
+					break;
+				for(auto exit : ai->memory->knownTeleportChannels[tObj->channel]->exits)
 				{
 					if (exit != tObj->id)
 					{
