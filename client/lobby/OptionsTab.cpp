@@ -793,6 +793,58 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 	setElement(elem, false);
 }
 
+OptionsTab::HandicapWindow::HandicapWindow()
+	: CWindowObject(BORDERED)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	addUsedEvents(LCLICK);
+
+	pos = Rect(0, 0, 400, 400);
+
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
+	backgroundTexture->playerColored(PlayerColor(1));
+
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+	{
+		PlayerColor player = static_cast<PlayerColor>(i);
+		for(int j = 0; j < EGameResID::MITHRIL; j++)
+		{
+			EGameResID resource = static_cast<EGameResID>(j);
+
+			textinputs[player][resource] = std::make_shared<CTextInput>(Rect(20 + j * 70, 20 + i * 20, 50, 16), EFonts::FONT_SMALL, ETextAlignment::CENTERLEFT, false);
+			textinputs[player][resource]->setText("test");
+		}
+	}
+	
+	buttons.push_back(std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){
+		//for (const auto& player : textinputs)
+		//	for (const auto& resource : player.second)
+	    //		continue;//todo
+		close();
+	}, EShortcut::GLOBAL_RETURN));
+
+	updateShadow();
+	center();
+
+	TResources resourcesStart = TResources();
+	resourcesStart[EGameResID::GOLD] = 50000;
+	int resourcesPercent = 120;
+	//CSH->setPlayerHandicap(s->color, PlayerSettings::Handicap{resourcesStart, resourcesPercent});
+	CSH->setPlayerHandicap((PlayerColor)0, PlayerSettings::Handicap{resourcesStart, resourcesPercent});
+}
+
+bool OptionsTab::HandicapWindow::receiveEvent(const Point & position, int eventType) const
+{
+	return true;  // capture click also outside of window
+}
+
+void OptionsTab::HandicapWindow::clickReleased(const Point & cursorPosition)
+{
+	if(!pos.isInside(cursorPosition))
+		close();
+}
+
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & playerSettings, SelType type)
 	: Scrollable(LCLICK | SHOW_POPUP, position, Orientation::HORIZONTAL)
 	, CPlayerSettingsHelper(playerSettings, type)
@@ -923,16 +975,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
-	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
 	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), [this](){
 		if(!CSH->isHost())
 			return;
-
-		TResources resourcesStart = TResources();
-		resourcesStart[EGameResID::GOLD] = 50000;
-		int resourcesPercent = 120;
-
-		CSH->setPlayerHandicap(s->color, PlayerSettings::Handicap{resourcesStart, resourcesPercent});
+		
+		GH.windows().createAndPushWindow<HandicapWindow>();
 	}, [this](){
 		if(s->handicap.startBonus.empty() && s->handicap.percentIncome == 100)
 			CRClickPopup::createAndPush(MetaString::createFromTextID("core.help.124.help").toString());

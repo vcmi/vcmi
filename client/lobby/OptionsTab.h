@@ -160,6 +160,20 @@ private:
 		SelectionWindow(const PlayerColor & color, SelType _type, int sliderPos = 0);
 	};
 
+	class HandicapWindow : public CWindowObject
+	{
+		std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
+
+		std::vector<std::shared_ptr<CLabel>> labels;
+		std::map<PlayerColor, std::map<EGameResID, std::shared_ptr<CTextInput>>> textinputs;
+		std::vector<std::shared_ptr<CButton>> buttons;
+
+		bool receiveEvent(const Point & position, int eventType) const override;
+		void clickReleased(const Point & cursorPosition) override;
+	public:
+		HandicapWindow();
+	};
+
 	/// Image with current town/hero/bonus
 	struct SelectedBox : public Scrollable, public CPlayerSettingsHelper
 	{
