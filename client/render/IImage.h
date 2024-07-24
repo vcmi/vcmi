@@ -82,7 +82,7 @@ public:
 	virtual ~IImage() = default;
 };
 
-class IConstImage
+class ISharedImage
 {
 public:
 	virtual Point dimensions() const = 0;
@@ -91,9 +91,9 @@ public:
 
 	virtual std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) = 0;
 
-	virtual std::shared_ptr<IConstImage> horizontalFlip() const = 0;
-	virtual std::shared_ptr<IConstImage> verticalFlip() const = 0;
+	virtual std::shared_ptr<ISharedImage> horizontalFlip() const = 0;
+	virtual std::shared_ptr<ISharedImage> verticalFlip() const = 0;
 
 
-	virtual ~IConstImage() = default;
+	virtual ~ISharedImage() = default;
 };

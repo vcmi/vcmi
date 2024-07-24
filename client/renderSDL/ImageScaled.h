@@ -13,16 +13,16 @@
 
 struct SDL_Palette;
 
-class SDLImageConst;
+class SDLImageShared;
 
-class ImageConstScaled final : public IConstImage, public std::enable_shared_from_this<ImageConstScaled>, boost::noncopyable
+class ImageSharedScaled final : public ISharedImage, public std::enable_shared_from_this<ImageSharedScaled>, boost::noncopyable
 {
-	std::shared_ptr<SDLImageConst> sourceImage;
-	std::shared_ptr<SDLImageConst> scaledImage;
+	std::shared_ptr<SDLImageShared> sourceImage;
+	std::shared_ptr<SDLImageShared> scaledImage;
 
 	int getScalingFactor() const;
 public:
-	ImageConstScaled(std::shared_ptr<SDLImageConst> sourceImage);
+	ImageSharedScaled(std::shared_ptr<SDLImageShared> sourceImage);
 
 	void draw(SDL_Surface * where, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const;
 
@@ -30,21 +30,21 @@ public:
 	Point dimensions() const override;
 	bool isTransparent(const Point & coords) const override;
 	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) override;
-	std::shared_ptr<IConstImage> horizontalFlip() const override;
-	std::shared_ptr<IConstImage> verticalFlip() const override;
-	std::shared_ptr<ImageConstScaled> scaleFast(const Point & size) const;
+	std::shared_ptr<ISharedImage> horizontalFlip() const override;
+	std::shared_ptr<ISharedImage> verticalFlip() const override;
+	std::shared_ptr<ImageSharedScaled> scaleFast(const Point & size) const;
 };
 
 class ImageScaled final : public IImage
 {
 private:
-	std::shared_ptr<ImageConstScaled> image;
+	std::shared_ptr<ImageSharedScaled> image;
 
 	uint8_t alphaValue;
 	EImageBlitMode blitMode;
 
 public:
-	ImageScaled(const std::shared_ptr<ImageConstScaled> & image, EImageBlitMode mode);
+	ImageScaled(const std::shared_ptr<ImageSharedScaled> & image, EImageBlitMode mode);
 
 	void scaleFast(const Point & size) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;

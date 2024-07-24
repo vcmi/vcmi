@@ -11,13 +11,13 @@
 
 #include "../render/IImageLoader.h"
 
-class SDLImageConst;
+class SDLImageShared;
 
 class SDLImageLoader : public IImageLoader
 {
 	static constexpr int DEFAULT_PALETTE_COLORS = 256;
 
-	SDLImageConst * image;
+	SDLImageShared * image;
 	ui8 * lineStart;
 	ui8 * position;
 public:
@@ -29,7 +29,7 @@ public:
 	//init image with these sizes and palette
 	void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal);
 
-	SDLImageLoader(SDLImageConst * Img);
+	SDLImageLoader(SDLImageShared * Img);
 	~SDLImageLoader();
 };
 
