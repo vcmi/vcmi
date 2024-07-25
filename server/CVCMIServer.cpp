@@ -624,6 +624,8 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = pinfo.mainCustomHeroPortrait;
 			}
+
+			pset.handicapLegacy = PlayerSettings::NO_HANDICAP;
 		}
 
 		if(mi->isRandomMap && mapGenOpts)

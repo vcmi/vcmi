@@ -176,7 +176,7 @@ public:
 				pset.heroPortrait = HeroTypeID(pinfo.mainCustomHeroPortrait);
 			}
 
-			pset.handicap = PlayerSettings::NO_HANDICAP;
+			pset.handicapLegacy = PlayerSettings::NO_HANDICAP;
 		}
 
 
