@@ -78,7 +78,7 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint, uint8_t alpha); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	uint32_t colorTouint32_t(const SDL_Color * color); //little endian only
 
-	void drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2);
+	void drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2, int width);
 	void drawLineDashed(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color);
 
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color & color, int depth = 1);

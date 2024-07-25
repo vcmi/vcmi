@@ -449,32 +449,35 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 	}
 }
 
-void CSDL_Ext::drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2)
+void CSDL_Ext::drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2, int thickness)
 {
 	//FIXME: duplicated code with drawLineDashed
-	int width  = std::abs(from.x - dest.x);
+	int width = std::abs(from.x - dest.x);
 	int height = std::abs(from.y - dest.y);
 
-	if ( width == 0 && height == 0)
+	if(width == 0 && height == 0)
 	{
-		uint8_t *p = CSDL_Ext::getPxPtr(sur, from.x, from.y);
+		uint8_t * p = CSDL_Ext::getPxPtr(sur, from.x, from.y);
 		ColorPutter<4>::PutColorAlpha(p, color1);
 		return;
 	}
 
-	if (width > height)
+	for(int i = 0; i < thickness; ++i)
 	{
-		if ( from.x < dest.x)
-			drawLineX(sur, from.x, from.y, dest.x, dest.y, color1, color2);
+		if(width > height)
+		{
+			if(from.x < dest.x)
+				drawLineX(sur, from.x, from.y + i, dest.x, dest.y + i, color1, color2);
+			else
+				drawLineX(sur, dest.x, dest.y + i, from.x, from.y + i, color2, color1);
+		}
 		else
-			drawLineX(sur, dest.x, dest.y, from.x, from.y, color2, color1);
-	}
-	else
-	{
-		if ( from.y < dest.y)
-			drawLineY(sur, from.x, from.y, dest.x, dest.y, color1, color2);
-		else
-			drawLineY(sur, dest.x, dest.y, from.x, from.y, color2, color1);
+		{
+			if(from.y < dest.y)
+				drawLineY(sur, from.x + i, from.y, dest.x + i, dest.y, color1, color2);
+			else
+				drawLineY(sur, dest.x + i, dest.y, from.x + i, from.y, color2, color1);
+		}
 	}
 }
 

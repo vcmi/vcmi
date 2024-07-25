@@ -91,9 +91,6 @@ public:
 	/// renders continuous, 1-pixel wide line with color gradient
 	void drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest);
 
-	/// renders dashed, 1-pixel wide line with specified color
-	void drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color);
-
 	/// renders rectangular, solid-color border in specified location
 	void drawBorder(const Rect & target, const ColorRGBA & color, int width = 1);
 
