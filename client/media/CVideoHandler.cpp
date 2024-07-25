@@ -183,8 +183,7 @@ void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput
 	}
 	else
 	{
-		dimensions.x  = getCodecContext()->width;
-		dimensions.y = getCodecContext()->height;
+		dimensions = Point(getCodecContext()->width, getCodecContext()->height) * GH.screenHandler().getScalingFactor();
 	}
 
 	// Allocate a place to put our YUV image on that screen
@@ -208,9 +207,9 @@ void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput
 	}
 	else
 	{
-		surface = CSDL_Ext::newSurface(dimensions * GH.screenHandler().getScalingFactor());
+		surface = CSDL_Ext::newSurface(dimensions);
 		sws = sws_getContext(getCodecContext()->width, getCodecContext()->height, getCodecContext()->pix_fmt,
-							 surface->w, surface->h, AV_PIX_FMT_RGB32,
+							 dimensions.x, dimensions.y, AV_PIX_FMT_RGB32,
 							 SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 
@@ -640,7 +639,7 @@ bool CVideoPlayer::playIntroVideo(const VideoPath & name)
 
 void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
 {
-	openAndPlayVideoImpl(name, position, false, false, false);
+	openAndPlayVideoImpl(name, position * GH.screenHandler().getScalingFactor(), false, false, false);
 }
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool scaleToScreen)
