@@ -137,6 +137,14 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	const int base = creature->getGrowth();
 	int castleBonus = 0;
 
+	if(tempOwner.isValidPlayer())
+	{
+		auto * playerSettings = cb->getPlayerSettings(tempOwner);
+		ret.percent = playerSettings->handicap.percentGrowth;
+	}
+	else
+		ret.percent = 100;
+
 	ret.entries.emplace_back(VLC->generaltexth->allTexts[590], base); // \n\nBasic growth %d"
 
 	if (hasBuilt(BuildingID::CASTLE))
@@ -1261,7 +1269,7 @@ int GrowthInfo::totalGrowth() const
 	for(const Entry &entry : entries)
 		ret += entry.count;
 
-	return ret;
+	return ret * percent / 100;
 }
 
 void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const

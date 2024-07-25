@@ -83,6 +83,7 @@ struct DLL_LINKAGE PlayerSettings
 	struct Handicap {
 		TResources startBonus;
 		int percentIncome;
+		int percentGrowth;
 	} handicap;
 
 	std::string name;
@@ -101,6 +102,7 @@ struct DLL_LINKAGE PlayerSettings
 		{
 			h & handicap.startBonus;
 			h & handicap.percentIncome;
+			h & handicap.percentGrowth;
 		}
 		else
 			h & handicapLegacy;

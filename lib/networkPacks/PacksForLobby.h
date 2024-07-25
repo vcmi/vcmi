@@ -293,6 +293,7 @@ struct DLL_LINKAGE LobbySetPlayerHandicap : public CLobbyPackToServer
 		h & color;
 		h & handicap.startBonus;
 		h & handicap.percentIncome;
+		h & handicap.percentGrowth;
 	}
 };
 

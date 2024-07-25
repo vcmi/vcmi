@@ -801,14 +801,19 @@ OptionsTab::HandicapWindow::HandicapWindow()
 
 	addUsedEvents(LCLICK);
 
-	pos = Rect(0, 0, 590, 100 + SEL->getStartInfo()->playerInfos.size() * 30);
+	pos = Rect(0, 0, 650, 100 + SEL->getStartInfo()->playerInfos.size() * 30);
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
 	backgroundTexture->setPlayerColor(PlayerColor(1));
 
 	labels.push_back(std::make_shared<CLabel>(pos.w / 2 + 8, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.handicap")));
 
-	auto columns = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, EGameResID::NONE};
+	enum Columns : int32_t
+	{
+		INCOME = 1000,
+		GROWTH = 2000,
+	};
+	auto columns = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, Columns::INCOME, Columns::GROWTH};
 
 	int i = 0;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
@@ -817,8 +822,9 @@ OptionsTab::HandicapWindow::HandicapWindow()
 		anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS"), player.getNum(), 0, 7, 57 + i * 30));
 		for(int j = 0; j < columns.size(); j++)
 		{
+			bool isIncome = int(columns[j]) == Columns::INCOME;
+			bool isGrowth = int(columns[j]) == Columns::GROWTH;
 			EGameResID resource = columns[j];
-			bool isIncome = resource == EGameResID::NONE;
 
 			const PlayerSettings &ps = SEL->getStartInfo()->getIthPlayersSettings(player);
 
@@ -826,6 +832,8 @@ OptionsTab::HandicapWindow::HandicapWindow()
 			{
 				if(isIncome)
 					labels.push_back(std::make_shared<CLabel>(30 + j * 70, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.jktext.32")));
+				else if(isGrowth)
+					labels.push_back(std::make_shared<CLabel>(30 + j * 70, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.194")));
 				else
 					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 45 + j * 70, 35));
 			}
@@ -833,15 +841,15 @@ OptionsTab::HandicapWindow::HandicapWindow()
 			auto area = Rect(30 + j * 70, 60 + i * 30, 50, 16);
 			textinputbackgrounds.push_back(std::make_shared<TransparentFilledRectangle>(area.resize(3), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64)));
 			textinputs[player][resource] = std::make_shared<CTextInput>(area, FONT_SMALL, ETextAlignment::CENTERLEFT, true);
-			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : ps.handicap.startBonus[resource]));
-			textinputs[player][resource]->setCallback([this, player, resource, isIncome](const std::string & s){
+			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : (isGrowth ? ps.handicap.percentGrowth : ps.handicap.startBonus[resource])));
+			textinputs[player][resource]->setCallback([this, player, resource, isIncome, isGrowth](const std::string & s){
 				std::string tmp = s;
-				bool negative = std::count_if( s.begin(), s.end(), []( char c ){ return c == '-'; }) == 1 && !isIncome;
+				bool negative = std::count_if( s.begin(), s.end(), []( char c ){ return c == '-'; }) == 1 && !isIncome && !isGrowth;
 				tmp.erase(std::remove_if(tmp.begin(), tmp.end(), [](char c) { return !isdigit(c); }), tmp.end());
-				tmp = tmp.substr(0, isIncome ? 3 : 5);
+				tmp = tmp.substr(0, isIncome || isGrowth ? 3 : 5);
 				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
 			});
-			if(isIncome)
+			if(isIncome || isGrowth)
 				labels.push_back(std::make_shared<CLabel>(area.topRight().x, area.center().y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "%"));
 		}
 		i++;
@@ -852,15 +860,19 @@ OptionsTab::HandicapWindow::HandicapWindow()
 		{
 			TResources resources = TResources();
 			int income = 100;
+			int growth = 100;
 			for (const auto& resource : player.second)
 			{
-				bool isIncome = resource.first == EGameResID::NONE;
+				bool isIncome = int(resource.first) == Columns::INCOME;
+				bool isGrowth = int(resource.first) == Columns::GROWTH;
 				if(isIncome)
 					income = std::stoi(resource.second->getText());
+				else if(isGrowth)
+					growth = std::stoi(resource.second->getText());
 				else
 					resources[resource.first] = std::stoi(resource.second->getText());
 			}
-			CSH->setPlayerHandicap(player.first, PlayerSettings::Handicap{resources, income});
+			CSH->setPlayerHandicap(player.first, PlayerSettings::Handicap{resources, income, growth});
 		}
 	    		
 		close();
@@ -1011,14 +1023,14 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
-	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100 ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
 	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), [](){
 		if(!CSH->isHost())
 			return;
 		
 		GH.windows().createAndPushWindow<HandicapWindow>();
 	}, [this](){
-		if(s->handicap.startBonus.empty() && s->handicap.percentIncome == 100)
+		if(s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100)
 			CRClickPopup::createAndPush(MetaString::createFromTextID("core.help.124.help").toString());
 		else
 		{
@@ -1038,6 +1050,13 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 				str.appendTextID("core.jktext.32");
 				str.appendRawString(": ");
 				str.appendRawString(std::to_string(s->handicap.percentIncome) + "%");
+			}
+			if(s->handicap.percentGrowth != 100)
+			{
+				str.appendRawString("\n");
+				str.appendTextID("core.genrltxt.194");
+				str.appendRawString(": ");
+				str.appendRawString(std::to_string(s->handicap.percentGrowth) + "%");
 			}
 			CRClickPopup::createAndPush(str.toString());
 		}

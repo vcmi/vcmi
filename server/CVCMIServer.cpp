@@ -786,7 +786,7 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, PlayerSettings::Handicap 
 	str.appendName(color);
 	str.appendRawString(":");
 
-	if(handicap.startBonus.empty() && handicap.percentIncome == 100)
+	if(handicap.startBonus.empty() && handicap.percentIncome == 100 && handicap.percentGrowth == 100)
 	{
 		str.appendRawString(" ");
 		str.appendTextID("core.genrltxt.523");
@@ -808,6 +808,13 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, PlayerSettings::Handicap 
 		str.appendTextID("core.jktext.32");
 		str.appendRawString(":");
 		str.appendRawString(std::to_string(handicap.percentIncome) + "%");
+	}
+	if(handicap.percentGrowth != 100)
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.genrltxt.194");
+		str.appendRawString(":");
+		str.appendRawString(std::to_string(handicap.percentGrowth) + "%");
 	}
 	announceTxt(str);
 }
@@ -1059,7 +1066,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
 
 	for (const auto & pi : si->playerInfos)
-		if(!pi.second.handicap.startBonus.empty() || pi.second.handicap.percentIncome != 100)
+		if(!pi.second.handicap.startBonus.empty() || pi.second.handicap.percentIncome != 100 || pi.second.handicap.percentGrowth != 100)
 		{
 			MetaString str;
 			str.appendTextID("vcmi.lobby.handicap");
@@ -1080,6 +1087,13 @@ void CVCMIServer::multiplayerWelcomeMessage()
 				str.appendTextID("core.jktext.32");
 				str.appendRawString(":");
 				str.appendRawString(std::to_string(pi.second.handicap.percentIncome) + "%");
+			}
+			if(pi.second.handicap.percentGrowth != 100)
+			{
+				str.appendRawString(" ");
+				str.appendTextID("core.genrltxt.194");
+				str.appendRawString(":");
+				str.appendRawString(std::to_string(pi.second.handicap.percentGrowth) + "%");
 			}
 			gh->playerMessages->broadcastSystemMessage(str);
 		}
