@@ -34,14 +34,19 @@ class RenderHandler : public IRenderHandler
 	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 	void addImageListEntries(const EntityService * service);
 
-	std::shared_ptr<ISharedImage> loadImageFromSingleFile(const ImagePath & path);
-	std::shared_ptr<ISharedImage> loadImageFromAnimationFileUncached(const AnimationPath & path, int frame, int group);
-	std::shared_ptr<ISharedImage> loadImageFromAnimationFile(const AnimationPath & path, int frame, int group);
 	std::shared_ptr<ISharedImage> loadImageImpl(const ImageLocator & config);
+
+	std::shared_ptr<ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);
+	std::shared_ptr<ISharedImage> loadImageFromFile(const ImageLocator & locator);
+
+	std::shared_ptr<ISharedImage> transformImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image);
+	std::shared_ptr<ISharedImage> scaleImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image);
+
+	ImageLocator getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group);
 
 	int getScalingFactor() const;
 
-	std::shared_ptr<ISharedImage> createScaledImage(std::shared_ptr<SDLImageShared> input);
+	std::shared_ptr<IImage> createImageReference(const ImageLocator & locator, std::shared_ptr<ISharedImage> input, EImageBlitMode mode);
 public:
 
 	// IRenderHandler implementation

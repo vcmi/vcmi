@@ -47,7 +47,7 @@ public:
 	SDLImageShared(SDL_Surface * from);
 	~SDLImageShared();
 
-	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const override;
+	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
 
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	Point dimensions() const override;
@@ -55,9 +55,7 @@ public:
 	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) override;
 	std::shared_ptr<ISharedImage> horizontalFlip() const override;
 	std::shared_ptr<ISharedImage> verticalFlip() const override;
-	std::shared_ptr<SDLImageShared> scaleFast(const Point & size) const;
-
-	const SDL_Palette * getPalette() const;
+	std::shared_ptr<ISharedImage> scaleFast(const Point & size, SDL_Palette * palette) const override;
 
 	friend class SDLImageLoader;
 };
@@ -65,36 +63,46 @@ public:
 class SDLImageBase : public IImage, boost::noncopyable
 {
 protected:
-	std::shared_ptr<SDLImageShared> image;
+	std::shared_ptr<ISharedImage> image;
 
 	uint8_t alphaValue;
 	EImageBlitMode blitMode;
 
 public:
-	SDLImageBase(const std::shared_ptr<SDLImageShared> & image, EImageBlitMode mode);
+	SDLImageBase(const std::shared_ptr<ISharedImage> & image, EImageBlitMode mode);
 
-	void scaleFast(const Point & size) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	bool isTransparent(const Point & coords) const override;
 	Point dimensions() const override;
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;
+	std::shared_ptr<ISharedImage> getSharedImage() const override;
 };
 
 class SDLImageIndexed final : public SDLImageBase
 {
 	SDL_Palette * currentPalette = nullptr;
+	SDL_Palette * originalPalette = nullptr;
 
+	bool bodyEnabled = true;
+	bool shadowEnabled = false;
+	bool overlayEnabled = false;
+
+	void setShadowTransparency(float factor);
 public:
-	SDLImageIndexed(const std::shared_ptr<SDLImageShared> & image, EImageBlitMode mode);
+	SDLImageIndexed(const std::shared_ptr<ISharedImage> & image, SDL_Palette * palette, EImageBlitMode mode);
 	~SDLImageIndexed();
 
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;
-	void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
+	void setOverlayColor(const ColorRGBA & color) override;
 	void playerColored(PlayerColor player) override;
-	void setFlagColor(PlayerColor player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
+	void scaleFast(const Point & size) override;
+
+	void setShadowEnabled(bool on) override;
+	void setBodyEnabled(bool on) override;
+	void setOverlayEnabled(bool on) override;
 };
 
 class SDLImageRGB final : public SDLImageBase
@@ -103,9 +111,13 @@ public:
 	using SDLImageBase::SDLImageBase;
 
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;
-	void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
+	void setOverlayColor(const ColorRGBA & color) override;
 	void playerColored(PlayerColor player) override;
-	void setFlagColor(PlayerColor player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
+	void scaleFast(const Point & size) override;
+
+	void setShadowEnabled(bool on) override;
+	void setBodyEnabled(bool on) override;
+	void setOverlayEnabled(bool on) override;
 };
