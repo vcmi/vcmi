@@ -13,88 +13,49 @@
 #include "SDLImage.h"
 #include "SDL_Extensions.h"
 
+#include "../gui/CGuiHandler.h"
+#include "../render/IScreenHandler.h"
+#include "../render/Colors.h"
+
 #include "../../lib/constants/EntityIdentifiers.h"
 
 #include <SDL_surface.h>
 
-ImageSharedScaled::ImageSharedScaled(std::shared_ptr<SDLImageShared> sourceImage)
-	:sourceImage(sourceImage)
-{
-	scaledImage = sourceImage->scaleFast(sourceImage->dimensions() * getScalingFactor());
-}
-
-int ImageSharedScaled::getScalingFactor() const
-{
-	return 2;
-}
-
-void ImageSharedScaled::draw(SDL_Surface *where, SDL_Palette * palette, const Point &dest, const Rect *src, uint8_t alpha, EImageBlitMode mode) const
-{
-	scaledImage->draw(where, nullptr, dest, src, alpha, mode);
-}
-
-void ImageSharedScaled::exportBitmap(const boost::filesystem::path &path) const
-{
-	sourceImage->exportBitmap(path);
-}
-
-Point ImageSharedScaled::dimensions() const
-{
-	return sourceImage->dimensions();
-}
-
-bool ImageSharedScaled::isTransparent(const Point &coords) const
-{
-	return sourceImage->isTransparent(coords);
-}
-
-std::shared_ptr<IImage> ImageSharedScaled::createImageReference(EImageBlitMode mode)
-{
-	return std::make_shared<ImageScaled>(shared_from_this(), mode);
-}
-
-std::shared_ptr<ISharedImage> ImageSharedScaled::horizontalFlip() const
-{
-	return std::make_shared<ImageSharedScaled>(std::dynamic_pointer_cast<SDLImageShared>(sourceImage->horizontalFlip()));
-}
-
-std::shared_ptr<ISharedImage> ImageSharedScaled::verticalFlip() const
-{
-	return std::make_shared<ImageSharedScaled>(std::dynamic_pointer_cast<SDLImageShared>(sourceImage->verticalFlip()));
-}
-
-std::shared_ptr<ImageSharedScaled> ImageSharedScaled::scaleFast(const Point &size) const
-{
-	return std::make_shared<ImageSharedScaled>(sourceImage->scaleFast(size));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-ImageScaled::ImageScaled(const std::shared_ptr<ImageSharedScaled> &image, EImageBlitMode mode)
-	:image(image)
+ImageScaled::ImageScaled(const ImageLocator & inputLocator, const std::shared_ptr<ISharedImage> & source, EImageBlitMode mode)
+	: source(source)
+	, locator(inputLocator)
+	, colorMultiplier(Colors::WHITE_TRUE)
 	, alphaValue(SDL_ALPHA_OPAQUE)
 	, blitMode(mode)
 {
+	locator.scalingFactor = GH.screenHandler().getScalingFactor();
+	setBodyEnabled(true);
+}
+
+std::shared_ptr<ISharedImage> ImageScaled::getSharedImage() const
+{
+	return body;
 }
 
 void ImageScaled::scaleFast(const Point &size)
 {
-	image = image->scaleFast(size);
+	if (body)
+		body = body->scaleFast(size, nullptr); // FIXME: adjust for scaling
 }
 
 void ImageScaled::exportBitmap(const boost::filesystem::path &path) const
 {
-	image->exportBitmap(path);
+	source->exportBitmap(path);
 }
 
 bool ImageScaled::isTransparent(const Point &coords) const
 {
-	return image->isTransparent(coords);
+	return source->isTransparent(coords);
 }
 
 Point ImageScaled::dimensions() const
 {
-	return image->dimensions();
+	return source->dimensions();
 }
 
 void ImageScaled::setAlpha(uint8_t value)
@@ -109,25 +70,75 @@ void ImageScaled::setBlitMode(EImageBlitMode mode)
 
 void ImageScaled::draw(SDL_Surface *where, const Point &pos, const Rect *src) const
 {
-	image->draw(where, pos, src, alphaValue, blitMode);
+	if (shadow)
+		shadow->draw(where, nullptr, pos, src, Colors::WHITE_TRUE, alphaValue, blitMode);
+	if (body)
+		body->draw(where, nullptr, pos, src, Colors::WHITE_TRUE, alphaValue, blitMode);
+	if (overlay)
+		overlay->draw(where, nullptr, pos, src, colorMultiplier, colorMultiplier.a * alphaValue / 255, blitMode);
 }
 
-void ImageScaled::setSpecialPalette(const SpecialPalette &SpecialPalette, uint32_t colorsToSkipMask)
+void ImageScaled::setOverlayColor(const ColorRGBA & color)
 {
+	colorMultiplier = color;
 }
 
 void ImageScaled::playerColored(PlayerColor player)
 {
-}
-
-void ImageScaled::setFlagColor(PlayerColor player)
-{
+	playerColor = player;
+	if (body)
+		setBodyEnabled(true); // regenerate
 }
 
 void ImageScaled::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove)
 {
+	// TODO: implement
 }
 
 void ImageScaled::adjustPalette(const ColorFilter &shifter, uint32_t colorsToSkipMask)
 {
+	// TODO: implement
+}
+
+void ImageScaled::setShadowEnabled(bool on)
+{
+	if (on)
+	{
+		locator.layerBody = false;
+		locator.layerShadow = true;
+		locator.layerOverlay = false;
+		locator.playerColored = PlayerColor::CANNOT_DETERMINE;
+		shadow = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+	}
+	else
+		shadow = nullptr;
+}
+
+void ImageScaled::setBodyEnabled(bool on)
+{
+	if (on)
+	{
+		locator.layerBody = true;
+		locator.layerShadow = false;
+		locator.layerOverlay = false;
+		locator.playerColored = playerColor;
+		body = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+	}
+	else
+		body = nullptr;
+}
+
+
+void ImageScaled::setOverlayEnabled(bool on)
+{
+	if (on)
+	{
+		locator.layerBody = false;
+		locator.layerShadow = false;
+		locator.layerOverlay = true;
+		locator.playerColored = PlayerColor::CANNOT_DETERMINE;
+		overlay = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
+	}
+	else
+		overlay = nullptr;
 }

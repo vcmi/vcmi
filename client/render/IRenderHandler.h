@@ -19,7 +19,7 @@ struct SDL_Surface;
 
 class IImage;
 class CAnimation;
-enum class EImageBlitMode;
+enum class EImageBlitMode : uint8_t;
 
 class IRenderHandler : public boost::noncopyable
 {

@@ -12,40 +12,40 @@
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 
+#include "../../lib/Color.h"
+#include "../../lib/constants/EntityIdentifiers.h"
+
 struct SDL_Palette;
 
 class SDLImageShared;
 
-class ImageSharedScaled final : public ISharedImage, public std::enable_shared_from_this<ImageSharedScaled>, boost::noncopyable
-{
-	std::shared_ptr<SDLImageShared> sourceImage;
-	std::shared_ptr<SDLImageShared> scaledImage;
-
-	int getScalingFactor() const;
-public:
-	ImageSharedScaled(std::shared_ptr<SDLImageShared> sourceImage);
-
-	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, uint8_t alpha, EImageBlitMode mode) const override;
-
-	void exportBitmap(const boost::filesystem::path & path) const override;
-	Point dimensions() const override;
-	bool isTransparent(const Point & coords) const override;
-	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) override;
-	std::shared_ptr<ISharedImage> horizontalFlip() const override;
-	std::shared_ptr<ISharedImage> verticalFlip() const override;
-	std::shared_ptr<ImageSharedScaled> scaleFast(const Point & size) const;
-};
-
+// Upscaled image with several mechanisms to emulate H3 palette effects
 class ImageScaled final : public IImage
 {
 private:
-	std::shared_ptr<ImageSharedScaled> image;
+
+	/// Original unscaled image
+	std::shared_ptr<ISharedImage> source;
+
+	/// Upscaled shadow of our image, may be null
+	std::shared_ptr<ISharedImage> shadow;
+
+	/// Upscaled main part of our image, may be null
+	std::shared_ptr<ISharedImage> body;
+
+	/// Upscaled overlay (player color, selection highlight) of our image, may be null
+	std::shared_ptr<ISharedImage> overlay;
+
+	ImageLocator locator;
+
+	ColorRGBA colorMultiplier;
+	PlayerColor playerColor = PlayerColor::CANNOT_DETERMINE;
 
 	uint8_t alphaValue;
 	EImageBlitMode blitMode;
 
 public:
-	ImageScaled(const std::shared_ptr<ImageSharedScaled> & image, EImageBlitMode mode);
+	ImageScaled(const ImageLocator & locator, const std::shared_ptr<ISharedImage> & source, EImageBlitMode mode);
 
 	void scaleFast(const Point & size) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
@@ -54,9 +54,13 @@ public:
 	void setAlpha(uint8_t value) override;
 	void setBlitMode(EImageBlitMode mode) override;
 	void draw(SDL_Surface * where, const Point & pos, const Rect * src) const override;
-	void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) override;
+	void setOverlayColor(const ColorRGBA & color) override;
 	void playerColored(PlayerColor player) override;
-	void setFlagColor(PlayerColor player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
+
+	void setShadowEnabled(bool on) override;
+	void setBodyEnabled(bool on) override;
+	void setOverlayEnabled(bool on) override;
+	std::shared_ptr<ISharedImage> getSharedImage() const override;
 };

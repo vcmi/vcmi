@@ -21,6 +21,7 @@
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/Colors.h"
+#include "../render/Graphics.h"
 
 #include "../../CCallback.h"
 
@@ -477,23 +478,20 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 		return;
 
 	image->setAlpha(transparency);
-	image->setFlagColor(object->tempOwner);
+	image->setShadowEnabled(true);
+	image->setOverlayEnabled(object->getOwner().isValidPlayer() || object->getOwner() == PlayerColor::NEUTRAL);
+
+	if (object->getOwner().isValidPlayer())
+		image->setOverlayColor(graphics->playerColors[object->getOwner().getNum()]);
+
+	if (object->getOwner() == PlayerColor::NEUTRAL)
+		image->setOverlayColor(graphics->neutralColor);
 
 	Point offsetPixels = context.objectImageOffset(object->id, coordinates);
 
 	if ( offsetPixels.x < image->dimensions().x && offsetPixels.y < image->dimensions().y)
 	{
 		Point imagePos = image->dimensions() - offsetPixels - Point(32, 32);
-
-		//if (transparency == 255)
-		//{
-		//	Canvas intermediate(Point(32,32));
-		//	intermediate.enableTransparency(true);
-		//	image->setBlitMode(EImageBlitMode::OPAQUE);
-		//	intermediate.draw(image, Point(0, 0), Rect(imagePos, Point(32,32)));
-		//	target.draw(intermediate, Point(0,0));
-		//	return;
-		//}
 		target.draw(image, Point(0, 0), Rect(imagePos, Point(32,32)));
 	}
 }

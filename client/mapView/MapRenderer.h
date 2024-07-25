@@ -23,7 +23,7 @@ class CAnimation;
 class IImage;
 class Canvas;
 class IMapRendererContext;
-enum class EImageBlitMode;
+enum class EImageBlitMode : uint8_t;
 
 class MapTileStorage
 {

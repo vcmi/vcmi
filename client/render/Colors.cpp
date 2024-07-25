@@ -15,6 +15,7 @@
 
 const ColorRGBA Colors::YELLOW = { 229, 215, 123, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE = { 255, 243, 222, ColorRGBA::ALPHA_OPAQUE };
+const ColorRGBA Colors::WHITE_TRUE = { 255, 255, 255, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::METALLIC_GOLD = { 173, 142, 66, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::GREEN = { 0, 255, 0, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::CYAN = { 0, 255, 255, ColorRGBA::ALPHA_OPAQUE };

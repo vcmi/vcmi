@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/constants/EntityIdentifiers.h"
 
 struct ImageLocator
 {
@@ -20,6 +21,11 @@ struct ImageLocator
 
 	bool verticalFlip = false;
 	bool horizontalFlip = false;
+	int8_t scalingFactor = 1;
+	PlayerColor playerColored = PlayerColor::CANNOT_DETERMINE;
+	bool layerShadow = false;
+	bool layerBody = true;
+	bool layerOverlay = false;
 
 	ImageLocator() = default;
 	ImageLocator(const AnimationPath & path, int frame, int group);
@@ -28,4 +34,8 @@ struct ImageLocator
 
 	bool operator < (const ImageLocator & other) const;
 	bool empty() const;
+
+	ImageLocator copyFile() const;
+	ImageLocator copyFileTransform() const;
+	ImageLocator copyFileTransformScale() const;
 };
