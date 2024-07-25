@@ -50,7 +50,8 @@ public:
 	//draws image on surface "where" at position
 	virtual void draw(SDL_Surface * where, const Point & pos, const Rect * src = nullptr) const = 0;
 
-	virtual void scaleFast(const Point & size) = 0;
+	virtual void scaleTo(const Point & size) = 0;
+	virtual void scaleInteger(int factor) = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 
@@ -97,7 +98,8 @@ public:
 
 	virtual std::shared_ptr<ISharedImage> horizontalFlip() const = 0;
 	virtual std::shared_ptr<ISharedImage> verticalFlip() const = 0;
-	virtual std::shared_ptr<ISharedImage> scaleFast(const Point & size, SDL_Palette * palette) const = 0;
+	virtual std::shared_ptr<ISharedImage> scaleInteger(int factor, SDL_Palette * palette) const = 0;
+	virtual std::shared_ptr<ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const = 0;
 
 
 	virtual ~ISharedImage() = default;

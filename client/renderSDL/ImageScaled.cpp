@@ -37,10 +37,15 @@ std::shared_ptr<ISharedImage> ImageScaled::getSharedImage() const
 	return body;
 }
 
-void ImageScaled::scaleFast(const Point &size)
+void ImageScaled::scaleInteger(int factor)
+{
+	assert(0);
+}
+
+void ImageScaled::scaleTo(const Point & size)
 {
 	if (body)
-		body = body->scaleFast(size, nullptr); // FIXME: adjust for scaling
+		body = body->scaleTo(size, nullptr); // FIXME: adjust for scaling
 }
 
 void ImageScaled::exportBitmap(const boost::filesystem::path &path) const

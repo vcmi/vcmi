@@ -38,6 +38,8 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
 
+	void optimizeSurface();
+
 public:
 	//Load image from def file
 	SDLImageShared(CDefFile *data, size_t frame, size_t group=0);
@@ -55,7 +57,8 @@ public:
 	std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) override;
 	std::shared_ptr<ISharedImage> horizontalFlip() const override;
 	std::shared_ptr<ISharedImage> verticalFlip() const override;
-	std::shared_ptr<ISharedImage> scaleFast(const Point & size, SDL_Palette * palette) const override;
+	std::shared_ptr<ISharedImage> scaleInteger(int factor, SDL_Palette * palette) const override;
+	std::shared_ptr<ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const override;
 
 	friend class SDLImageLoader;
 };
@@ -98,7 +101,8 @@ public:
 	void playerColored(PlayerColor player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
-	void scaleFast(const Point & size) override;
+	void scaleInteger(int factor) override;
+	void scaleTo(const Point & size) override;
 
 	void setShadowEnabled(bool on) override;
 	void setBodyEnabled(bool on) override;
@@ -115,7 +119,8 @@ public:
 	void playerColored(PlayerColor player) override;
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;
-	void scaleFast(const Point & size) override;
+	void scaleInteger(int factor) override;
+	void scaleTo(const Point & size) override;
 
 	void setShadowEnabled(bool on) override;
 	void setBodyEnabled(bool on) override;

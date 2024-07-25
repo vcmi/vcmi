@@ -237,7 +237,7 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 	if (locator.layerBody && locator.playerColored != PlayerColor::CANNOT_DETERMINE)
 		handle->playerColored(locator.playerColored);
 
-	handle->scaleFast(handle->dimensions() * locator.scalingFactor);
+	handle->scaleInteger(locator.scalingFactor);
 
 	// TODO: try to optimize image size (possibly even before scaling?) - trim image borders if they are completely transparent
 	auto result = handle->getSharedImage();
