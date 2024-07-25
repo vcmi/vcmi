@@ -157,11 +157,7 @@ else()
 endif()
 
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Nullkiller PUBLIC vcmi fuzzylite::fuzzylite TBB::tbb)
+target_link_libraries(Nullkiller PUBLIC vcmi fuzzylite::fuzzylite)
 
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)
-
-if(APPLE_IOS AND NOT USING_CONAN)
-	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
-endif()
