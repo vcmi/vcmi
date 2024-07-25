@@ -215,6 +215,10 @@ TResources CGTownInstance::dailyIncome() const
 			ret += p.second->produce;
 		}
 	}
+
+	auto playerSettings = cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner());
+	for(TResources::nziterator it(ret); it.valid(); it++)
+		ret[it->resType] = ret[it->resType] * playerSettings.handicap.percentIncome / 100;
 	return ret;
 }
 

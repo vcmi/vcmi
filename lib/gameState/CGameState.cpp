@@ -1618,7 +1618,7 @@ struct statsHLP
 	}
 
 	// get total gold income
-	static int getIncome(const PlayerState * ps)
+	static int getIncome(const PlayerState * ps, int percentIncome)
 	{
 		int totalIncome = 0;
 		const CGObjectInstance * heroOrTown = nullptr;
@@ -1626,7 +1626,7 @@ struct statsHLP
 		//Heroes can produce gold as well - skill, specialty or arts
 		for(const auto & h : ps->heroes)
 		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD))));
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD)))) * percentIncome / 100;
 
 			if(!heroOrTown)
 				heroOrTown = h;
@@ -1661,7 +1661,7 @@ struct statsHLP
 				assert(mine);
 
 				if (mine->producedResource == EGameResID::GOLD)
-					totalIncome += mine->producedQuantity;
+					totalIncome += mine->getProducedQuantity();
 			}
 		}
 
@@ -1751,7 +1751,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 5) //income
 	{
-		FILL_FIELD(income, statsHLP::getIncome(&g->second))
+		FILL_FIELD(income, statsHLP::getIncome(&g->second, scenarioOps->getIthPlayersSettings(g->second.color).handicap.percentIncome))
 	}
 	if(level >= 2) //best hero's stats
 	{
