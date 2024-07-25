@@ -124,6 +124,8 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
 	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
 
+	cellShade->setShadowEnabled(true);
+
 	if(!owner.siegeController)
 	{
 		auto bfieldType = owner.getBattle()->battleGetBattlefieldType();
