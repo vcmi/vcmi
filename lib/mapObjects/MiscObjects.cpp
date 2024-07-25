@@ -199,6 +199,9 @@ ui32 CGMine::defaultResProduction() const
 ui32 CGMine::getProducedQuantity() const
 {
 	auto * playerSettings = cb->getPlayerSettings(getOwner());
+	auto ret = producedQuantity * playerSettings->handicap.percentIncome / 100;
+	if(ret == 0 && producedQuantity > 0) // create at least 1 resource
+		ret = 1;
 	return producedQuantity * playerSettings->handicap.percentIncome / 100;
 }
 

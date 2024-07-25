@@ -1269,7 +1269,10 @@ int GrowthInfo::totalGrowth() const
 	for(const Entry &entry : entries)
 		ret += entry.count;
 
-	return ret * percent / 100;
+	auto retCalc = ret * percent / 100;
+	if(retCalc == 0 && ret > 0) //generate at least one
+		retCalc = 1;
+	return retCalc;
 }
 
 void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
