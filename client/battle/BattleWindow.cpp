@@ -218,7 +218,7 @@ void BattleWindow::showStickyQuickSpellWindow()
 	Settings showStickyQuickSpellWindow = settings.write["battle"]["enableQuickSpellPanel"];
 	showStickyQuickSpellWindow->Bool() = true;
 
-	if(GH.screenDimensions().x >= 1050)
+	if(GH.screenDimensions().x >= 1050 && owner.getBattle()->battleGetMyHero()->hasSpellbook())
 	{
 		quickSpellWindow->enable();
 		quickSpellWindow->isEnabled = true;
@@ -838,7 +838,7 @@ void BattleWindow::blockUI(bool on)
 		ESpellCastProblem spellcastingProblem = owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO);
 
 		//if magic is blocked, we leave button active, so the message can be displayed after button click
-		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
+		canCastSpells = (spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED) && hero->hasSpellbook();
 	}
 
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
