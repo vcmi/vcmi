@@ -1408,6 +1408,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case 2: //Collect guarded stuff
 			{
+				if (evaluationContext.enemyHeroDangerRatio > 0.5 && !evaluationContext.isDefend)
+					return 0;
 				if (evaluationContext.buildingCost.marketValue() > 0)
 					return 0;
 				score += evaluationContext.strategicalValue * 1000;
@@ -1430,6 +1432,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case 3: //For buildings and buying army
 			{
+				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
+					return 0;
 				score += evaluationContext.conquestValue * 1000;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
