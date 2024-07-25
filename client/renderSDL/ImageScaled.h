@@ -47,7 +47,8 @@ private:
 public:
 	ImageScaled(const ImageLocator & locator, const std::shared_ptr<ISharedImage> & source, EImageBlitMode mode);
 
-	void scaleFast(const Point & size) override;
+	void scaleInteger(int factor) override;
+	void scaleTo(const Point & size) override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	bool isTransparent(const Point & coords) const override;
 	Point dimensions() const override;

@@ -18,7 +18,9 @@
 #include "../render/CBitmapHandler.h"
 #include "../render/CDefFile.h"
 #include "../render/Graphics.h"
+#include "../xBRZ/xbrz.h"
 
+#include <tbb/parallel_for.h>
 #include <SDL_surface.h>
 
 class SDLImageLoader;
@@ -187,7 +189,131 @@ void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Poin
 		SDL_SetSurfacePalette(surf, originalPalette);
 }
 
-std::shared_ptr<ISharedImage> SDLImageShared::scaleFast(const Point & size, SDL_Palette * palette) const
+void SDLImageShared::optimizeSurface()
+{
+	if (!surf)
+		return;
+
+	int left = surf->w;
+	int top = surf->h;
+	int right = 0;
+	int bottom = 0;
+
+	// locate fully-transparent area around image
+	// H3 hadles this on format level, but mods or images scaled in runtime do not
+	if (surf->format->palette)
+	{
+		for (int y = 0; y < surf->h; ++y)
+		{
+			const uint8_t * row = (uint8_t *)surf->pixels + y * surf->pitch;
+			for (int x = 0; x < surf->w; ++x)
+			{
+				if (row[x] != 0)
+				{
+					// opaque or can be opaque (e.g. disabled shadow)
+					top = std::min(top, y);
+					left = std::min(left, x);
+					right = std::max(right, x);
+					bottom = std::max(bottom, y);
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int y = 0; y < surf->h; ++y)
+		{
+			for (int x = 0; x < surf->w; ++x)
+			{
+				ColorRGBA color;
+				SDL_GetRGBA(CSDL_Ext::getPixel(surf, x, y), surf->format, &color.r, &color.g, &color.b, &color.a);
+
+				if (color.a != SDL_ALPHA_TRANSPARENT)
+				{
+					 // opaque
+					top = std::min(top, y);
+					left = std::min(left, x);
+					right = std::max(right, x);
+					bottom = std::max(bottom, y);
+				}
+			}
+		}
+	}
+
+	if (left == surf->w)
+	{
+		// empty image - simply delete it
+		SDL_FreeSurface(surf);
+		surf = nullptr;
+		return;
+	}
+
+	if (left != 0 || top != 0 || right != surf->w - 1 || bottom != surf->h - 1)
+	{
+		// non-zero border found
+		Rect newDimensions(left, top, right - left + 1, bottom - top + 1);
+		SDL_Rect rectSDL = CSDL_Ext::toSDL(newDimensions);
+		auto newSurface = CSDL_Ext::newSurface(newDimensions.dimensions(), surf);
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
+		SDL_BlitSurface(surf, &rectSDL, newSurface, nullptr);
+
+		SDL_FreeSurface(surf);
+		surf = newSurface;
+
+		margins.x += left;
+		margins.y += top;
+	}
+}
+
+std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palette * palette) const
+{
+	if (factor <= 0)
+		throw std::runtime_error("Unable to scale by integer value of " + std::to_string(factor));
+
+	if (palette && surf->format->palette)
+		SDL_SetSurfacePalette(surf, palette);
+
+	/// Convert current surface to ARGB format suitable for xBRZ
+	/// TODO: skip its creation if this is format matches current surface (even if unlikely)
+	SDL_Surface * intermediate = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
+	SDL_Surface * scaled = CSDL_Ext::newSurface(Point(surf->w * factor, surf->h * factor), intermediate);
+
+	assert(intermediate->pitch == intermediate->w * 4);
+	assert(scaled->pitch == scaled->w * 4);
+
+	const uint32_t * srcPixels = static_cast<const uint32_t*>(intermediate->pixels);
+	uint32_t * dstPixels = static_cast<uint32_t*>(scaled->pixels);
+
+	// avoid excessive granulation - xBRZ prefers at least 8-16 lines per task
+	// TODO: compare performance and size of images, recheck values for potentially better parameters
+	const int granulation = std::clamp(surf->h / 64 * 8, 8, 64);
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [&](const tbb::blocked_range<size_t> & r)
+	{
+		xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, xbrz::ColorFormat::ARGB, {}, r.begin(), r.end());
+	});
+
+	SDL_FreeSurface(intermediate);
+
+	auto ret = std::make_shared<SDLImageShared>(scaled);
+
+	ret->fullSize.x = fullSize.x * factor;
+	ret->fullSize.y = fullSize.y * factor;
+
+	ret->margins.x = margins.x * factor;
+	ret->margins.y = margins.y * factor;
+	ret->optimizeSurface();
+
+	// erase our own reference
+	SDL_FreeSurface(scaled);
+
+	if (surf->format->palette)
+		SDL_SetSurfacePalette(surf, originalPalette);
+
+	return ret;
+}
+
+std::shared_ptr<ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
 {
 	float scaleX = float(size.x) / dimensions().x;
 	float scaleY = float(size.y) / dimensions().y;
@@ -413,14 +539,24 @@ void SDLImageIndexed::draw(SDL_Surface * where, const Point & pos, const Rect * 
 	image->draw(where, currentPalette, pos, src, Colors::WHITE_TRUE, alphaValue, blitMode);
 }
 
-void SDLImageIndexed::scaleFast(const Point & size)
+void SDLImageIndexed::scaleTo(const Point & size)
 {
-	image = image->scaleFast(size, currentPalette);
+	image = image->scaleTo(size, currentPalette);
 }
 
-void SDLImageRGB::scaleFast(const Point & size)
+void SDLImageRGB::scaleTo(const Point & size)
 {
-	image = image->scaleFast(size, nullptr);
+	image = image->scaleTo(size, nullptr);
+}
+
+void SDLImageIndexed::scaleInteger(int factor)
+{
+	image = image->scaleInteger(factor, currentPalette);
+}
+
+void SDLImageRGB::scaleInteger(int factor)
+{
+	image = image->scaleInteger(factor, nullptr);
 }
 
 void SDLImageBase::exportBitmap(const boost::filesystem::path & path) const
