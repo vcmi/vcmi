@@ -45,6 +45,27 @@ It can be found at https://aur.archlinux.org/packages/vcmi-git/
 
 Information about building packages from the Arch User Repository (AUR) can be found at the Arch wiki.
 
+### On NixOS or Nix
+
+On NixOS or any system with nix available, [it is recommended](https://nixos.wiki/wiki/C) to use nix-shell. Create a shell.nix file with the following content:
+
+```nix
+with import <nixpkgs> {};
+stdenv.mkDerivation {
+  name = "build";
+  nativeBuildInputs = [ cmake ];
+  buildInputs = [
+    cmake clang clang-tools llvm ccache ninja
+    boost zlib minizip xz
+    SDL2 SDL2_ttf SDL2_net SDL2_image SDL2_sound SDL2_mixer SDL2_gfx
+    ffmpeg tbb vulkan-headers libxkbcommon
+    qt6.full luajit
+  ];
+}
+```
+
+And put it into build directory. Then run `nix-shell` before running any build commands.
+
 ## Getting the sources
 
 We recommend the following directory structure:
