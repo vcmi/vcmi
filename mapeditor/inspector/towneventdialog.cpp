@@ -21,14 +21,17 @@ TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWi
 	town(t),
 	townEventListItem(item)
 {
+	static const int FIRST_DAY_FOR_EVENT = 1;
+	static const int LAST_DAY_FOR_EVENT = 999;
+	static const int MAXIMUM_REPEAT_AFTER = 999;
 	ui->setupUi(this);
 
 	ui->buildingsTree->setModel(&buildingsModel);
 
 	params = townEventListItem->data(Qt::UserRole).toMap();
-	ui->eventFirstOccurrence->setMinimum(1);
-	ui->eventFirstOccurrence->setMaximum(999);
-	ui->eventRepeatAfter->setMaximum(999);
+	ui->eventFirstOccurrence->setMinimum(FIRST_DAY_FOR_EVENT);
+	ui->eventFirstOccurrence->setMaximum(LAST_DAY_FOR_EVENT);
+	ui->eventRepeatAfter->setMaximum(MAXIMUM_REPEAT_AFTER);
 	ui->eventNameText->setText(params.value("name").toString());
 	ui->eventMessageText->setPlainText(params.value("message").toString());
 	ui->eventAffectsCpu->setChecked(params.value("computerAffected").toBool());
@@ -61,6 +64,10 @@ void TownEventDialog::initPlayers()
 
 void TownEventDialog::initResources()
 {
+	static const int MAXIUMUM_GOLD_CHANGE = 999999;
+	static const int MAXIUMUM_RESOURCE_CHANGE = 999;
+	static const int GOLD_STEP = 100;
+	static const int RESOURCE_STEP = 1;
 	ui->resourcesTable->setRowCount(GameConstants::RESOURCE_QUANTITY);
 	auto resourcesMap = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
@@ -70,9 +77,9 @@ void TownEventDialog::initResources()
 		ui->resourcesTable->setItem(i, 0, new QTableWidgetItem(name));
 
 		QSpinBox * edit = new QSpinBox(ui->resourcesTable);
-		edit->setMaximum(i == GameResID::GOLD ? 999999 : 999);
-		edit->setMinimum(i == GameResID::GOLD ? -999999 : -999);
-		edit->setSingleStep(i == GameResID::GOLD ? 100 : 1);
+		edit->setMaximum(i == GameResID::GOLD ? MAXIUMUM_GOLD_CHANGE : MAXIUMUM_RESOURCE_CHANGE);
+		edit->setMinimum(i == GameResID::GOLD ? -MAXIUMUM_GOLD_CHANGE : -MAXIUMUM_RESOURCE_CHANGE);
+		edit->setSingleStep(i == GameResID::GOLD ? GOLD_STEP : RESOURCE_STEP);
 		edit->setValue(val);
 
 		ui->resourcesTable->setCellWidget(i, 1, edit);
@@ -147,9 +154,10 @@ QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buil
 
 void TownEventDialog::initCreatures()
 {
+	static const int MAXIUMUM_CREATURES_CHANGE = 999999;
 	auto creatures = params.value("creatures").toList();
 	auto * ctown = town.town;
-	for (int i = 0; i < 7; ++i)
+	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; ++i)
 	{
 		QString creatureNames;
 		if (!ctown)
@@ -174,7 +182,7 @@ void TownEventDialog::initCreatures()
 		auto creatureNumber = creatures.size() > i ? creatures.at(i).toInt() : 0;
 		QSpinBox* edit = new QSpinBox(ui->creaturesTable);
 		edit->setValue(creatureNumber);
-		edit->setMaximum(999999);
+		edit->setMaximum(MAXIUMUM_CREATURES_CHANGE);
 		ui->creaturesTable->setCellWidget(i, 1, edit);
 
 	}
@@ -235,7 +243,7 @@ QVariantList TownEventDialog::buildingsToVariant()
 QVariantList TownEventDialog::creaturesToVariant()
 {
 	QVariantList creaturesList;
-	for (int i = 0; i < 7; ++i)
+	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; ++i)
 	{
 		auto * item = static_cast<QSpinBox *>(ui->creaturesTable->cellWidget(i, 1));
 		creaturesList.push_back(item->value());
