@@ -161,11 +161,6 @@ CServerHandler::CServerHandler()
 	registerTypesLobbyPacks(*applier);
 }
 
-void CServerHandler::setHighScoreCalc(const std::shared_ptr<HighScoreCalculation> &newHighScoreCalc)
-{
-	campaignScoreCalculator = newHighScoreCalc;
-}
-
 void CServerHandler::threadRunNetwork()
 {
 	logGlobal->info("Starting network thread");
@@ -655,7 +650,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		break;
 	case EStartMode::CAMPAIGN:
 		if(si->campState->conqueredScenarios().empty())
-			campaignScoreCalculator.reset();
+			si->campState->highscoreParameters.clear();
 		client->newGame(gameState);
 		break;
 	case EStartMode::LOAD_GAME:
@@ -756,19 +751,16 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	if (!cs)
 		ourCampaign = si->campState;
 
-	if(campaignScoreCalculator == nullptr)
-	{
-		campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
-		campaignScoreCalculator->isCampaign = true;
-		campaignScoreCalculator->parameters.clear();
-	}
 	param.campaignName = cs->getNameTranslated();
-	campaignScoreCalculator->parameters.push_back(param);
+	cs->highscoreParameters.push_back(param);
+	auto campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
+	campaignScoreCalculator->isCampaign = true;
+	campaignScoreCalculator->parameters = cs->highscoreParameters;
 
 	endGameplay();
 
 	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
-	auto finisher = [this, ourCampaign]()
+	auto finisher = [this, ourCampaign, campaignScoreCalculator]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{

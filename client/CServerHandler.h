@@ -105,7 +105,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<IServerRunner> serverRunner;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
-	std::shared_ptr<HighScoreCalculation> campaignScoreCalculator;
 
 	boost::thread threadNetwork;
 
@@ -219,7 +218,6 @@ public:
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);
-	void setHighScoreCalc(const std::shared_ptr<HighScoreCalculation> &newHighScoreCalc);
 };
 
 extern CServerHandler * CSH;

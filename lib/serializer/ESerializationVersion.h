@@ -57,6 +57,7 @@ enum class ESerializationVersion : int32_t
 	SIMPLE_TEXT_CONTAINER_SERIALIZATION, // 847 - text container is serialized using common routine instead of custom approach
 	MAP_FORMAT_ADDITIONAL_INFOS, // 848 - serialize new infos in map format
 	REMOVE_LIB_RNG, // 849 - removed random number generators from library classes
+	HIGHSCORE_PARAMETERS, // 850 - saves parameter for campaign
 
-	CURRENT = REMOVE_LIB_RNG
+	CURRENT = HIGHSCORE_PARAMETERS
 };

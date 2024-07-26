@@ -32,6 +32,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/gameState/HighScore.h"
 
 auto HighScoreCalculation::calculate()
 {
