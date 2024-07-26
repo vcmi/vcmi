@@ -36,6 +36,9 @@ private:
 
 	CGTownInstance & town;
 
+	std::array<QListWidget *, 5> possibleSpellLists;
+	std::array<QListWidget *, 5> requiredSpellLists;
+
 	void resetSpells();
 	void initSpellLists();
 };

@@ -47,7 +47,7 @@ private:
 
 	Ui::TownEventDialog * ui;
 	CGTownInstance & town;
-	QListWidgetItem * item;
+	QListWidgetItem * townEventListItem;
 	QMap<QString, QVariant> params;
-	mutable QStandardItemModel buildingsModel;
+	QStandardItemModel buildingsModel;
 };

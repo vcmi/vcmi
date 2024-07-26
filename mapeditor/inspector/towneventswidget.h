@@ -30,7 +30,6 @@ public:
 	void obtainData();
 	void commitChanges(MapController & controller);
 private slots:
-	void onItemChanged(QStandardItem * item);
 	void on_timedEventAdd_clicked();
 	void on_timedEventRemove_clicked();
 	void on_eventsList_itemActivated(QListWidgetItem * item);

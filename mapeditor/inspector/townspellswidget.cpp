@@ -20,8 +20,21 @@ TownSpellsWidget::TownSpellsWidget(CGTownInstance & town, QWidget * parent) :
 	town(town)
 {
 	ui->setupUi(this);
-	BuildingID mageGuilds[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
-	for (int i = 0; i < GameConstants::SPELL_LEVELS; i++)
+
+	possibleSpellLists[0] = ui->possibleSpellList1;
+	possibleSpellLists[1] = ui->possibleSpellList2;
+	possibleSpellLists[2] = ui->possibleSpellList3;
+	possibleSpellLists[3] = ui->possibleSpellList4;
+	possibleSpellLists[4] = ui->possibleSpellList5;
+
+	requiredSpellLists[0] = ui->requiredSpellList1;
+	requiredSpellLists[1] = ui->requiredSpellList2;
+	requiredSpellLists[2] = ui->requiredSpellList3;
+	requiredSpellLists[3] = ui->requiredSpellList4;
+	requiredSpellLists[4] = ui->requiredSpellList5;
+
+	std::array<BuildingID, 5> mageGuilds = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
+	for (int i = 0; i < mageGuilds.size(); i++)
 	{
 		ui->tabWidget->setTabEnabled(i, vstd::contains(town.getTown()->buildings, mageGuilds[i]));
 	}
@@ -56,8 +69,6 @@ void TownSpellsWidget::resetSpells()
 
 void TownSpellsWidget::initSpellLists()
 {
-	QListWidget * possibleSpellLists[] = { ui->possibleSpellList1, ui->possibleSpellList2, ui->possibleSpellList3, ui->possibleSpellList4, ui->possibleSpellList5 };
-	QListWidget * requiredSpellLists[] = { ui->requiredSpellList1, ui->requiredSpellList2, ui->requiredSpellList3, ui->requiredSpellList4, ui->requiredSpellList5 };
 	auto spells = VLC->spellh->getDefaultAllowed();
 	for (int i = 0; i < GameConstants::SPELL_LEVELS; i++)
 	{
@@ -93,33 +104,26 @@ void TownSpellsWidget::commitChanges()
 		resetSpells();
 		return;
 	}
+
+	auto updateTownSpellList = [](auto uiSpellLists, auto & townSpellList) {
+		for (QListWidget * spellList : uiSpellLists)
+		{
+			for (int i = 0; i < spellList->count(); ++i)
+			{
+				QListWidgetItem * item = spellList->item(i);
+				if (item->checkState() == Qt::Checked)
+				{
+					townSpellList.push_back(item->data(Qt::UserRole).toInt());
+				}
+			}
+		}
+	};
+
 	town.possibleSpells.clear();
 	town.obligatorySpells.clear();
 	town.possibleSpells.push_back(SpellID::PRESET);
-	QListWidget * possibleSpellLists[] = { ui->possibleSpellList1, ui->possibleSpellList2, ui->possibleSpellList3, ui->possibleSpellList4, ui->possibleSpellList5 };
-	QListWidget * requiredSpellLists[] = { ui->requiredSpellList1, ui->requiredSpellList2, ui->requiredSpellList3, ui->requiredSpellList4, ui->requiredSpellList5 };
-	for (auto spellList : possibleSpellLists)
-	{
-		for (int i = 0; i < spellList->count(); i++)
-		{
-			auto * item = spellList->item(i);
-			if (item->checkState() == Qt::Checked)
-			{
-				town.possibleSpells.push_back(item->data(Qt::UserRole).toInt());
-			}
-		}
-	}
-	for (auto spellList : requiredSpellLists)
-	{
-		for (int i = 0; i < spellList->count(); i++)
-		{
-			auto * item = spellList->item(i);
-			if (item->checkState() == Qt::Checked)
-			{
-				town.obligatorySpells.push_back(item->data(Qt::UserRole).toInt());
-			}
-		}
-	}
+	updateTownSpellList(possibleSpellLists, town.possibleSpells);
+	updateTownSpellList(requiredSpellLists, town.obligatorySpells);
 }
 
 void TownSpellsWidget::on_customizeSpells_toggled(bool checked)

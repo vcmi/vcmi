@@ -132,18 +132,15 @@ void TownEventsWidget::on_timedEventAdd_clicked()
 
 void TownEventsWidget::on_timedEventRemove_clicked()
 {
-	if (auto* item = ui->eventsList->currentItem())
-		ui->eventsList->takeItem(ui->eventsList->row(item));
+	delete ui->eventsList->takeItem(ui->eventsList->currentRow());
 }
 
 void TownEventsWidget::on_eventsList_itemActivated(QListWidgetItem* item)
 {
-	new TownEventDialog(town, item, parentWidget());
+	TownEventDialog dlg{ town, item, parentWidget() };
+	dlg.exec();
 }
 
-void TownEventsWidget::onItemChanged(QStandardItem * item)
-{
-}
 
 TownEventsDelegate::TownEventsDelegate(CGTownInstance & town, MapController & c) : town(town), controller(c), QStyledItemDelegate()
 {

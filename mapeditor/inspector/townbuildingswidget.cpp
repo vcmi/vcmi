@@ -68,6 +68,56 @@ std::string defaultBuildingIdConversion(BuildingID bId)
 	}
 }
 
+QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStandardItemModel & model)
+{
+	QStandardItem * parent = nullptr;
+	std::vector<QModelIndex> stack(1);
+	while (!parent && !stack.empty())
+	{
+		auto pindex = stack.back();
+		stack.pop_back();
+		auto rowCount = model.rowCount(pindex);
+		for (int i = 0; i < rowCount; ++i)
+		{
+			QModelIndex index = model.index(i, 0, pindex);
+			if (building->upgrade.getNum() == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
+			{
+				parent = model.itemFromIndex(index);
+				break;
+			}
+			if (model.hasChildren(index))
+				stack.push_back(index);
+		}
+	}
+	return parent;
+}
+
+std::set<QVariant> getBuildingVariantsFromModel(QStandardItemModel & model, int modelColumn, Qt::CheckState checkState)
+{
+	std::set<QVariant> result;
+	std::vector<QModelIndex> stack(1);
+	while (!stack.empty())
+	{
+		auto pindex = stack.back();
+		stack.pop_back();
+		auto rowCount = model.rowCount(pindex);
+		for (int i = 0; i < rowCount; ++i)
+		{
+			QModelIndex index = model.index(i, modelColumn, pindex);
+			if (auto * item = model.itemFromIndex(index))
+				if (item->checkState() == checkState)
+					result.emplace(item->data(Qt::UserRole));
+			index = model.index(i, 0, pindex);
+			if (model.hasChildren(index))
+				stack.push_back(index);
+		}
+	}
+
+	return result;
+}
+
+
+
 TownBuildingsWidget::TownBuildingsWidget(CGTownInstance & t, QWidget *parent) :
 	town(t),
 	QDialog(parent),
@@ -96,7 +146,7 @@ QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, s
 		return nullptr;
 	}
 	
-	QString name = tr(building->getNameTranslated().c_str());
+	QString name = QString::fromStdString(building->getNameTranslated());
 	
 	if(name.isEmpty())
 		name = QString::fromStdString(defaultBuildingIdConversion(buildingId));
@@ -122,25 +172,7 @@ QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, s
 	}
 	else
 	{
-		QStandardItem * parent = nullptr;
-		std::vector<QModelIndex> stack;
-		stack.push_back(QModelIndex());
-		while(!parent && !stack.empty())
-		{
-			auto pindex = stack.back();
-			stack.pop_back();
-			for(int i = 0; i < model.rowCount(pindex); ++i)
-			{
-				QModelIndex index = model.index(i, 0, pindex);
-				if(building->upgrade.getNum() == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
-				{
-					parent = model.itemFromIndex(index);
-					break;
-				}
-				if(model.hasChildren(index))
-					stack.push_back(index);
-			}
-		}
+		QStandardItem * parent = getBuildingParentFromTreeModel(building, model);
 		
 		if(!parent)
 			parent = addBuilding(ctown, building->upgrade.getNum(), remaining);
@@ -172,25 +204,12 @@ void TownBuildingsWidget::addBuildings(const CTown & ctown)
 
 std::set<BuildingID> TownBuildingsWidget::getBuildingsFromModel(int modelColumn, Qt::CheckState checkState)
 {
+	auto buildingVariants = getBuildingVariantsFromModel(model, modelColumn, checkState);
 	std::set<BuildingID> result;
-	std::vector<QModelIndex> stack;
-	stack.push_back(QModelIndex());
-	while(!stack.empty())
+	for (auto buildingId : buildingVariants)
 	{
-		auto pindex = stack.back();
-		stack.pop_back();
-		for(int i = 0; i < model.rowCount(pindex); ++i)
-		{
-			QModelIndex index = model.index(i, modelColumn, pindex);
-			if(auto * item = model.itemFromIndex(index))
-				if(item->checkState() == checkState)
-					result.emplace(item->data(Qt::UserRole).toInt());
-			index = model.index(i, 0, pindex); //children are linked to first column of the model
-			if(model.hasChildren(index))
-				stack.push_back(index);
-		}
+		result.insert(buildingId.toInt());
 	}
-	
 	return result;
 }
 
@@ -242,13 +261,13 @@ void TownBuildingsWidget::setRowColumnCheckState(QStandardItem * item, Column co
 
 void TownBuildingsWidget::setAllRowsColumnCheckState(Column column, Qt::CheckState checkState)
 {
-	std::vector<QModelIndex> stack;
-	stack.push_back(QModelIndex());
+	std::vector<QModelIndex> stack(1);
 	while (!stack.empty())
 	{
 		auto parentIndex = stack.back();
 		stack.pop_back();
-		for (int i = 0; i < model.rowCount(parentIndex); ++i)
+		auto rowCount = model.rowCount(parentIndex);
+		for (int i = 0; i < rowCount; ++i)
 		{
 			QModelIndex index = model.index(i, column, parentIndex);
 			if (auto* item = model.itemFromIndex(index))

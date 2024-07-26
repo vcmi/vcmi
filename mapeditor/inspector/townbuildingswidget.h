@@ -19,6 +19,10 @@ class TownBuildingsWidget;
 
 std::string defaultBuildingIdConversion(BuildingID bId);
 
+QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStandardItemModel & model);
+
+std::set<QVariant> getBuildingVariantsFromModel(QStandardItemModel & model, int modelColumn, Qt::CheckState checkState);
+
 class TownBuildingsWidget : public QDialog
 {
 	Q_OBJECT

@@ -19,13 +19,13 @@ TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWi
 	QDialog(parent),
 	ui(new Ui::TownEventDialog),
 	town(t),
-	item(item)
+	townEventListItem(item)
 {
 	ui->setupUi(this);
 
 	ui->buildingsTree->setModel(&buildingsModel);
 
-	params = item->data(Qt::UserRole).toMap();
+	params = townEventListItem->data(Qt::UserRole).toMap();
 	ui->eventFirstOccurrence->setMinimum(1);
 	ui->eventFirstOccurrence->setMaximum(999);
 	ui->eventRepeatAfter->setMaximum(999);
@@ -40,8 +40,6 @@ TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWi
 	initResources();
 	initBuildings();
 	initCreatures();
-
-	show();
 }
 
 TownEventDialog::~TownEventDialog()
@@ -108,7 +106,7 @@ QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buil
 		return nullptr;
 	}
 
-	QString name = tr(building->getNameTranslated().c_str());
+	QString name = QString::fromStdString(building->getNameTranslated());
 
 	if (name.isEmpty())
 		name = QString::fromStdString(defaultBuildingIdConversion(buildingId));
@@ -129,25 +127,7 @@ QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buil
 	}
 	else
 	{
-		QStandardItem * parent = nullptr;
-		std::vector<QModelIndex> stack;
-		stack.push_back(QModelIndex());
-		while (!parent && !stack.empty())
-		{
-			auto pindex = stack.back();
-			stack.pop_back();
-			for (int i = 0; i < buildingsModel.rowCount(pindex); ++i)
-			{
-				QModelIndex index = buildingsModel.index(i, 0, pindex);
-				if (building->upgrade.getNum() == buildingsModel.itemFromIndex(index)->data(Qt::UserRole).toInt())
-				{
-					parent = buildingsModel.itemFromIndex(index);
-					break;
-				}
-				if (buildingsModel.hasChildren(index))
-					stack.push_back(index);
-			}
-		}
+		QStandardItem * parent = getBuildingParentFromTreeModel(building, buildingsModel);
 
 		if (!parent)
 			parent = addBuilding(ctown, building->upgrade.getNum(), remaining);
@@ -215,9 +195,9 @@ void TownEventDialog::on_TownEventDialog_finished(int result)
 	descriptor["buildings"] = buildingsToVariant();
 	descriptor["creatures"] = creaturesToVariant();
 
-	item->setData(Qt::UserRole, descriptor);
+	townEventListItem->setData(Qt::UserRole, descriptor);
 	auto itemText = tr("Day %1 - %2").arg(ui->eventFirstOccurrence->value(), 3).arg(ui->eventNameText->text());
-	item->setText(itemText);
+	townEventListItem->setText(itemText);
 }
 
 QVariant TownEventDialog::playersToVariant()
@@ -234,7 +214,7 @@ QVariant TownEventDialog::playersToVariant()
 
 QVariantMap TownEventDialog::resourcesToVariant()
 {
-	auto res = item->data(Qt::UserRole).toMap().value("resources").toMap();
+	auto res = townEventListItem->data(Qt::UserRole).toMap().value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		auto * itemType = ui->resourcesTable->item(i, 0);
@@ -247,24 +227,8 @@ QVariantMap TownEventDialog::resourcesToVariant()
 
 QVariantList TownEventDialog::buildingsToVariant()
 {
-	QVariantList buildingsList;
-	std::vector<QModelIndex> stack;
-	stack.push_back(QModelIndex());
-	while (!stack.empty())
-	{
-		auto pindex = stack.back();
-		stack.pop_back();
-		for (int i = 0; i < buildingsModel.rowCount(pindex); ++i)
-		{
-			QModelIndex index = buildingsModel.index(i, 1, pindex);
-			if (auto * item = buildingsModel.itemFromIndex(index))
-				if (item->checkState() == Qt::Checked)
-					buildingsList.push_back(item->data(Qt::UserRole));
-			index = buildingsModel.index(i, 0, pindex);
-			if (buildingsModel.hasChildren(index))
-				stack.push_back(index);
-		}
-	}
+	auto buildings = getBuildingVariantsFromModel(buildingsModel, 1, Qt::Checked);
+	QVariantList buildingsList(buildings.begin(), buildings.end());
 	return buildingsList;
 }
 
