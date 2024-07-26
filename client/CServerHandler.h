@@ -28,6 +28,8 @@ struct CPack;
 struct CPackForLobby;
 struct CPackForClient;
 
+class HighScoreParameter;
+
 template<typename T> class CApplier;
 
 VCMI_LIB_NAMESPACE_END
@@ -39,7 +41,6 @@ class GameChatHandler;
 class IServerRunner;
 
 class HighScoreCalculation;
-class HighScoreParameter;
 
 enum class ESelectionScreen : ui8;
 enum class ELoadMode : ui8;
