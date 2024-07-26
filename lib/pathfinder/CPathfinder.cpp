@@ -466,7 +466,7 @@ bool CPathfinderHelper::addTeleportOneWayRandom(const CGTeleport * obj) const
 
 bool CPathfinderHelper::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
-	return options.useTeleportWhirlpool && hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION) && obj;
+	return options.useTeleportWhirlpool && (whirlpoolProtection || options.forceUseTeleportWhirlpool) && obj;
 }
 
 int CPathfinderHelper::movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const
@@ -505,6 +505,8 @@ CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Her
 	turnsInfo.reserve(16);
 	updateTurnInfo();
 	initializePatrol();
+
+	whirlpoolProtection = Hero->hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION);
 
 	SpellID flySpell = SpellID::FLY;
 	canCastFly = Hero->canCastThisSpell(flySpell.toSpell());

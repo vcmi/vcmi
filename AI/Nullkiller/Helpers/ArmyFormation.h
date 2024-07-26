@@ -31,6 +31,10 @@ public:
 	ArmyFormation(std::shared_ptr<CCallback> CB, const Nullkiller * ai): cb(CB) {}
 
 	void rearrangeArmyForSiege(const CGTownInstance * town, const CGHeroInstance * attacker);
+
+	void rearrangeArmyForWhirlpool(const CGHeroInstance * hero);
+
+	void addSingleCreatureStacks(const CGHeroInstance * hero);
 };
 
 }

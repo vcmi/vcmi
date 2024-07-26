@@ -48,6 +48,8 @@ namespace AIPathfinding
 	{
 		options.canUseCast = true;
 		options.allowLayerTransitioningAfterBattle = true;
+		options.useTeleportWhirlpool = true;
+		options.forceUseTeleportWhirlpool = true;
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;
