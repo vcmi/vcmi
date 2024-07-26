@@ -760,7 +760,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	endGameplay();
 
 	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
-	auto finisher = [this, ourCampaign, campaignScoreCalculator]()
+	auto finisher = [ourCampaign, campaignScoreCalculator]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{
