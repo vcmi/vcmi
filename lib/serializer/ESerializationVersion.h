@@ -58,6 +58,7 @@ enum class ESerializationVersion : int32_t
 	MAP_FORMAT_ADDITIONAL_INFOS, // 848 - serialize new infos in map format
 	REMOVE_LIB_RNG, // 849 - removed random number generators from library classes
 	HIGHSCORE_PARAMETERS, // 850 - saves parameter for campaign
+	STATISTICS, // 851 - removed random number generators from library classes
 
-	CURRENT = HIGHSCORE_PARAMETERS
+	CURRENT = STATISTICS
 };

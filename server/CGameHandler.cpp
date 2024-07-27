@@ -669,6 +669,22 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 		heroPool->onNewWeek(which);
 }
 
+void CGameHandler::addStatistics()
+{
+	for (auto & elem : gs->players)
+	{
+		if (elem.first == PlayerColor::NEUTRAL || !elem.first.isValidPlayer())
+			continue;
+
+		StatisticDataSetEntry data;
+
+		data.day = getDate(Date::DAY);
+		data.player = elem.first;
+
+		gameState()->statistic.add(data);
+	}
+}
+
 void CGameHandler::onNewTurn()
 {
 	logGlobal->trace("Turn %d", gs->day+1);
@@ -1002,6 +1018,8 @@ void CGameHandler::onNewTurn()
 	}
 
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
+
+	addStatistics();
 }
 
 void CGameHandler::start(bool resume)

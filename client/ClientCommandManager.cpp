@@ -355,6 +355,22 @@ void ClientCommandManager::handleGetScriptsCommand()
 #endif
 }
 
+void ClientCommandManager::handleGetStatistic()
+{
+	printCommandMessage("Command accepted.\t");
+
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "statistic";
+	boost::filesystem::create_directories(outPath);
+
+	const boost::filesystem::path filePath = outPath / (vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".csv");
+	std::ofstream file(filePath.c_str());
+	std::string csv = CSH->client->gameState()->statistic.toCsv();
+	file << csv;
+
+	printCommandMessage("Writing statistic done :)\n");
+	printCommandMessage("Statistic files can be found in " + outPath.string() + " directory\n");
+}
+
 void ClientCommandManager::handleGetTextCommand()
 {
 	printCommandMessage("Command accepted.\t");
@@ -596,6 +612,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(message=="get scripts")
 		handleGetScriptsCommand();
+
+	else if(message=="get statistic")
+		handleGetStatistic();
 
 	else if(message=="get txt")
 		handleGetTextCommand();

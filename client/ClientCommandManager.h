@@ -57,6 +57,9 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Dumps all scripts in Extracted/Scripts
 	void handleGetScriptsCommand();
 
+	// Dumps statistic in file
+	void handleGetStatistic();
+
 	// Dumps all .txt files from DATA into Extracted/DATA
 	void handleGetTextCommand();
 
