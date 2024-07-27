@@ -553,12 +553,12 @@ bool AdventureMapShortcuts::optionSpellcasting()
 
 bool AdventureMapShortcuts::optionInMapView()
 {
-	return state == EAdventureState::MAKING_TURN;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
 }
 
 bool AdventureMapShortcuts::optionInWorldView()
 {
-	return state == EAdventureState::WORLD_VIEW;
+	return state == EAdventureState::WORLD_VIEW || state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
 }
 
 bool AdventureMapShortcuts::optionSidePanelActive()
