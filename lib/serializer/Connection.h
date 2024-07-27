@@ -38,8 +38,6 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 
 	void disableStackSendingByID();
 	void enableStackSendingByID();
-	void disableSmartPointerSerialization();
-	void enableSmartPointerSerialization();
 	void disableSmartVectorMemberSerialization();
 	void enableSmartVectorMemberSerializatoin(CGameState * gs);
 

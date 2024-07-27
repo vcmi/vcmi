@@ -118,8 +118,9 @@ public:
 	std::map<const Serializeable*, uint32_t> savedPointers;
 
 	Version version = Version::CURRENT;
-	bool smartPointerSerialization;
-	bool saving;
+	static constexpr bool trackSerializedPointers = true;
+	static constexpr bool saving = true;
+	bool loadingGamestate = false;
 
 	bool hasFeature(Version what) const
 	{
@@ -257,7 +258,7 @@ public:
 				return;
 		}
 
-		if(smartPointerSerialization)
+		if(trackSerializedPointers)
 		{
 			// We might have an object that has multiple inheritance and store it via the non-first base pointer.
 			// Therefore, all pointers need to be normalized to the actual object address.
