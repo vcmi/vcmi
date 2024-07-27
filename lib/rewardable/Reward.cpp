@@ -115,8 +115,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 		comps.emplace_back(ComponentType::ARTIFACT, entry);
 
 	for(const auto & entry : spells)
-		if (!h || h->canLearnSpell(entry.toEntity(VLC), true))
-			comps.emplace_back(ComponentType::SPELL, entry);
+		comps.emplace_back(ComponentType::SPELL, entry);
 
 	for(const auto & entry : creatures)
 		comps.emplace_back(ComponentType::CREATURE, entry.type->getId(), entry.count);
