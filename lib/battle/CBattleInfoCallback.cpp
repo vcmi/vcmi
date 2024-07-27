@@ -134,6 +134,8 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 			return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 		if(hero->hasBonusOfType(BonusType::BLOCK_ALL_MAGIC))
 			return ESpellCastProblem::MAGIC_IS_BLOCKED;
+		if(!hero->hasSpellbook())
+			return ESpellCastProblem::NO_SPELLBOOK;
 	}
 		break;
 	default:
