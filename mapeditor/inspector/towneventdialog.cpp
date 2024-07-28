@@ -12,6 +12,9 @@
 #include "townbuildingswidget.h"
 #include "towneventdialog.h"
 #include "ui_towneventdialog.h"
+#include "mapeditorroles.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
 
@@ -28,7 +31,7 @@ TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWi
 
 	ui->buildingsTree->setModel(&buildingsModel);
 
-	params = townEventListItem->data(Qt::UserRole).toMap();
+	params = townEventListItem->data(MapEditorRoles::TownEventRole).toMap();
 	ui->eventFirstOccurrence->setMinimum(FIRST_DAY_FOR_EVENT);
 	ui->eventFirstOccurrence->setMaximum(LAST_DAY_FOR_EVENT);
 	ui->eventRepeatAfter->setMaximum(MAXIMUM_REPEAT_AFTER);
@@ -56,7 +59,7 @@ void TownEventDialog::initPlayers()
 	{
 		bool isAffected = (1 << i) & params.value("players").toInt();
 		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		item->setData(MapEditorRoles::PlayerIDRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
 		ui->playersAffected->addItem(item);
 	}
@@ -121,12 +124,12 @@ QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buil
 	QList<QStandardItem *> checks;
 
 	checks << new QStandardItem(name);
-	checks.back()->setData(bId, Qt::UserRole);
+	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 
 	checks << new QStandardItem;
 	checks.back()->setCheckable(true);
 	checks.back()->setCheckState(params["buildings"].toList().contains(bId) ? Qt::Checked : Qt::Unchecked);
-	checks.back()->setData(bId, Qt::UserRole);
+	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 
 	if (building->getBase() == buildingId)
 	{
@@ -203,7 +206,7 @@ void TownEventDialog::on_TownEventDialog_finished(int result)
 	descriptor["buildings"] = buildingsToVariant();
 	descriptor["creatures"] = creaturesToVariant();
 
-	townEventListItem->setData(Qt::UserRole, descriptor);
+	townEventListItem->setData(MapEditorRoles::TownEventRole, descriptor);
 	auto itemText = tr("Day %1 - %2").arg(ui->eventFirstOccurrence->value(), 3).arg(ui->eventNameText->text());
 	townEventListItem->setText(itemText);
 }
@@ -222,7 +225,7 @@ QVariant TownEventDialog::playersToVariant()
 
 QVariantMap TownEventDialog::resourcesToVariant()
 {
-	auto res = townEventListItem->data(Qt::UserRole).toMap().value("resources").toMap();
+	auto res = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		auto * itemType = ui->resourcesTable->item(i, 0);

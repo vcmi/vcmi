@@ -11,6 +11,7 @@
 #include "townspellswidget.h"
 #include "ui_townspellswidget.h"
 #include "inspector.h"
+#include "mapeditorroles.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/spells/CSpellHandler.h"
 
@@ -83,13 +84,13 @@ void TownSpellsWidget::initSpellLists()
 		{
 			auto spell = spellID.toEntity(VLC);
 			auto * possibleItem = new QListWidgetItem(QString::fromStdString(spell->getNameTranslated()));
-			possibleItem->setData(Qt::UserRole, QVariant::fromValue(spell->getIndex()));
+			possibleItem->setData(MapEditorRoles::SpellIDRole, QVariant::fromValue(spell->getIndex()));
 			possibleItem->setFlags(possibleItem->flags() | Qt::ItemIsUserCheckable);
 			possibleItem->setCheckState(vstd::contains(town.possibleSpells, spell->getId()) ? Qt::Checked : Qt::Unchecked);
 			possibleSpellLists[i]->addItem(possibleItem);
 
 			auto * requiredItem = new QListWidgetItem(QString::fromStdString(spell->getNameTranslated()));
-			requiredItem->setData(Qt::UserRole, QVariant::fromValue(spell->getIndex()));
+			requiredItem->setData(MapEditorRoles::SpellIDRole, QVariant::fromValue(spell->getIndex()));
 			requiredItem->setFlags(requiredItem->flags() | Qt::ItemIsUserCheckable);
 			requiredItem->setCheckState(vstd::contains(town.obligatorySpells, spell->getId()) ? Qt::Checked : Qt::Unchecked);
 			requiredSpellLists[i]->addItem(requiredItem);
@@ -113,7 +114,7 @@ void TownSpellsWidget::commitChanges()
 				QListWidgetItem * item = spellList->item(i);
 				if (item->checkState() == Qt::Checked)
 				{
-					townSpellList.push_back(item->data(Qt::UserRole).toInt());
+					townSpellList.push_back(item->data(MapEditorRoles::SpellIDRole).toInt());
 				}
 			}
 		}

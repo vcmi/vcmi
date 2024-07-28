@@ -85,6 +85,7 @@ set(editor_HEADERS
 		inspector/PickObjectDelegate.h
 		inspector/portraitwidget.h
 		resourceExtractor/ResourceConverter.h
+		mapeditorroles.h
 )
 
 set(editor_FORMS

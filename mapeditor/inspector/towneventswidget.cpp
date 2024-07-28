@@ -12,6 +12,7 @@
 #include "towneventswidget.h"
 #include "ui_towneventswidget.h"
 #include "towneventdialog.h"
+#include "mapeditorroles.h"
 #include "mapsettings/eventsettings.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
@@ -105,7 +106,7 @@ void TownEventsWidget::obtainData()
 		auto itemText = tr("Day %1 - %2").arg(event.firstOccurrence+1, 3).arg(eventName);
 
 		auto * item = new QListWidgetItem(itemText);
-		item->setData(Qt::UserRole, toVariant(event));
+		item->setData(MapEditorRoles::TownEventRole, toVariant(event));
 		ui->eventsList->addItem(item);
 	}
 }
@@ -116,7 +117,7 @@ void TownEventsWidget::commitChanges(MapController& controller)
 	for (int i = 0; i < ui->eventsList->count(); ++i)
 	{
 		const auto * item = ui->eventsList->item(i);
-		town.events.push_back(eventFromVariant(*controller.map(), town, item->data(Qt::UserRole)));
+		town.events.push_back(eventFromVariant(*controller.map(), town, item->data(MapEditorRoles::TownEventRole)));
 	}
 }
 
@@ -125,7 +126,7 @@ void TownEventsWidget::on_timedEventAdd_clicked()
 	CCastleEvent event;
 	event.name = tr("New event").toStdString();
 	auto* item = new QListWidgetItem(QString::fromStdString(event.name));
-	item->setData(Qt::UserRole, toVariant(event));
+	item->setData(MapEditorRoles::TownEventRole, toVariant(event));
 	ui->eventsList->addItem(item);
 	on_eventsList_itemActivated(item);
 }

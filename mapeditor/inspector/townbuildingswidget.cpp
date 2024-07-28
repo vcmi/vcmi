@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "townbuildingswidget.h"
 #include "ui_townbuildingswidget.h"
+#include "mapeditorroles.h"
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -80,7 +81,7 @@ QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStan
 		for (int i = 0; i < rowCount; ++i)
 		{
 			QModelIndex index = model.index(i, 0, pindex);
-			if (building->upgrade.getNum() == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
+			if (building->upgrade.getNum() == model.itemFromIndex(index)->data(MapEditorRoles::BuildingIDRole).toInt())
 			{
 				parent = model.itemFromIndex(index);
 				break;
@@ -106,7 +107,7 @@ std::set<QVariant> getBuildingVariantsFromModel(QStandardItemModel & model, int 
 			QModelIndex index = model.index(i, modelColumn, pindex);
 			if (auto * item = model.itemFromIndex(index))
 				if (item->checkState() == checkState)
-					result.emplace(item->data(Qt::UserRole));
+					result.emplace(item->data(MapEditorRoles::BuildingIDRole));
 			index = model.index(i, 0, pindex);
 			if (model.hasChildren(index))
 				stack.push_back(index);
@@ -154,17 +155,17 @@ QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, s
 	QList<QStandardItem *> checks;
 	
 	checks << new QStandardItem(name);
-	checks.back()->setData(bId, Qt::UserRole);
+	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 	
 	checks << new QStandardItem;
 	checks.back()->setCheckable(true);
 	checks.back()->setCheckState(town.forbiddenBuildings.count(buildingId) ? Qt::Unchecked : Qt::Checked);
-	checks.back()->setData(bId, Qt::UserRole);
+	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 	
 	checks << new QStandardItem;
 	checks.back()->setCheckable(true);
 	checks.back()->setCheckState(town.builtBuildings.count(buildingId) ? Qt::Checked : Qt::Unchecked);
-	checks.back()->setData(bId, Qt::UserRole);
+	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 	
 	if(building->getBase() == buildingId)
 	{
