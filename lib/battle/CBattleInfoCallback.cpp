@@ -1235,19 +1235,40 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 	return ret;
 }
 
-AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const
+AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
+	const battle::Unit * attacker,
+	BattleHex destinationTile,
+	BattleHex attackerPos) const
+{
+	const auto * defender = battleGetUnitByPos(destinationTile, true);
+
+	if(!defender)
+		return AttackableTiles(); // can't attack thin air
+
+	return getPotentiallyAttackableHexes(
+		attacker,
+		defender,
+		destinationTile,
+		attackerPos,
+		defender->getPosition());
+}
+
+AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
+	const battle::Unit* attacker,
+	const battle::Unit * defender,
+	BattleHex destinationTile,
+	BattleHex attackerPos,
+	BattleHex defenderPos) const
 {
 	//does not return hex attacked directly
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
 	BattleHex attackOriginHex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
-
-	const auto * defender = battleGetUnitByPos(destinationTile, true);
-	if (!defender)
-		return at; // can't attack thin air
-
-	bool reverse = isToReverse(attacker, defender, attackOriginHex, destinationTile);
+	
+	defenderPos = (defenderPos != BattleHex::INVALID) ? defenderPos : defender->getPosition(); //real or hypothetical (cursor) position
+	
+	bool reverse = isToReverse(attacker, defender, attackerPos, defenderPos);
 	if(reverse && attacker->doubleWide())
 	{
 		attackOriginHex = attacker->occupiedHex(attackOriginHex); //the other hex stack stands on
@@ -1291,20 +1312,27 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const battle:
 	else if(attacker->hasBonusOfType(BonusType::TWO_HEX_ATTACK_BREATH))
 	{
 		auto direction = BattleHex::mutualPosition(attackOriginHex, destinationTile);
+		
+		if(direction == BattleHex::NONE
+			&& defender->doubleWide()
+			&& attacker->doubleWide()
+			&& defenderPos == destinationTile)
+		{
+			direction = BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos));
+		}
+
 		if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
 		{
 			BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
 
 			if ( defender->doubleWide() )
 			{
-				auto secondHex = destinationTile == defender->getPosition() ?
-					defender->occupiedHex():
-					defender->getPosition();
+				auto secondHex = destinationTile == defenderPos ? defender->occupiedHex(defenderPos) : defenderPos;
 
 				// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
 				// then dragon breath should target tile on the opposite side of targeted creature
-				/*if(BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
-					nextHex = secondHex.cloneInDirection(direction, false);*/
+				if(BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
+					nextHex = secondHex.cloneInDirection(direction, false);
 			}
 
 			if (nextHex.isValid())
@@ -1335,17 +1363,29 @@ AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const battle::
 	return at;
 }
 
-std::vector<const battle::Unit*> CBattleInfoCallback::getAttackedBattleUnits(const battle::Unit* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos) const
+std::vector<const battle::Unit*> CBattleInfoCallback::getAttackedBattleUnits(
+	const battle::Unit * attacker,
+	const  battle::Unit * defender,
+	BattleHex destinationTile,
+	bool rangedAttack,
+	BattleHex attackerPos,
+	BattleHex defenderPos) const
 {
 	std::vector<const battle::Unit*> units;
 	RETURN_IF_NOT_BATTLE(units);
+
+	if(attackerPos == BattleHex::INVALID)
+		attackerPos = attacker->getPosition();
+
+	if(defenderPos == BattleHex::INVALID)
+		defenderPos = defender->getPosition();
 
 	AttackableTiles at;
 
 	if (rangedAttack)
 		at = getPotentiallyShootableHexes(attacker, destinationTile, attackerPos);
 	else
-		at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+		at = getPotentiallyAttackableHexes(attacker, defender, destinationTile, attackerPos, defenderPos);
 
 	units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
@@ -1371,7 +1411,7 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	RETURN_IF_NOT_BATTLE(attackedCres);
 
 	AttackableTiles at;
-
+	
 	if(rangedAttack)
 		at = getPotentiallyShootableHexes(attacker, destinationTile, attackerPos);
 	else
@@ -1424,15 +1464,22 @@ bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battl
 	if(isHexInFront(attackerHex, defenderHex, static_cast<BattleSide::Type>(attacker->unitSide())))
 		return false;
 
+	auto defenderOtherHex = defenderHex;
+	auto attackerOtherHex = defenderHex;
+
 	if (defender->doubleWide())
 	{
-		if(isHexInFront(attackerHex, defender->occupiedHex(), static_cast<BattleSide::Type>(attacker->unitSide())))
+		defenderOtherHex = battle::Unit::occupiedHex(defenderHex, true, defender->unitSide());
+
+		if(isHexInFront(attackerHex, defenderOtherHex, static_cast<BattleSide::Type>(attacker->unitSide())))
 			return false;
 	}
 
 	if (attacker->doubleWide())
 	{
-		if(isHexInFront(attacker->occupiedHex(), defenderHex, static_cast<BattleSide::Type>(attacker->unitSide())))
+		attackerOtherHex = battle::Unit::occupiedHex(attackerHex, true, attacker->unitSide());
+
+		if(isHexInFront(attackerOtherHex, defenderHex, static_cast<BattleSide::Type>(attacker->unitSide())))
 			return false;
 	}
 
@@ -1440,7 +1487,7 @@ bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battl
 	// but this is how H3 handles it which is important, e.g. for direction of dragon breath attacks
 	if (attacker->doubleWide() && defender->doubleWide())
 	{
-		if(isHexInFront(attacker->occupiedHex(), defender->occupiedHex(), static_cast<BattleSide::Type>(attacker->unitSide())))
+		if(isHexInFront(attackerOtherHex, defenderOtherHex, static_cast<BattleSide::Type>(attacker->unitSide())))
 			return false;
 	}
 	return true;

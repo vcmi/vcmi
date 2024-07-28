@@ -268,11 +268,11 @@ AttackPossibility AttackPossibility::evaluate(
 		std::vector<const battle::Unit *> affectedUnits;
 
 		if (attackInfo.shooting)
-			defenderUnits = state->getAttackedBattleUnits(attacker, defHex, true, BattleHex::INVALID);
+			defenderUnits = state->getAttackedBattleUnits(attacker, defender, defHex, true, hex, defender->getPosition());
 		else
 		{
-			defenderUnits = state->getAttackedBattleUnits(attacker, defHex, false, hex);
-			retaliatedUnits = state->getAttackedBattleUnits(defender, hex, false, defender->getPosition());
+			defenderUnits = state->getAttackedBattleUnits(attacker, defender, defHex, false, hex, defender->getPosition());
+			retaliatedUnits = state->getAttackedBattleUnits(defender, attacker, hex, false, defender->getPosition(), hex);
 
 			// attacker can not melle-attack itself but still can hit that place where it was before moving
 			vstd::erase_if(defenderUnits, [attacker](const battle::Unit * u) -> bool { return u->unitId() == attacker->unitId(); });
