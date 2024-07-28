@@ -849,6 +849,14 @@ OptionsTab::HandicapWindow::HandicapWindow()
 				tmp = tmp.substr(0, isIncome || isGrowth ? 3 : 5);
 				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
 			});
+			textinputs[player][resource]->setPopupCallback([isIncome, isGrowth](){
+				if(isIncome)
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.income"));
+				else if(isGrowth)
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.growth"));
+				else
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.resource"));
+			});
 			if(isIncome || isGrowth)
 				labels.push_back(std::make_shared<CLabel>(area.topRight().x, area.center().y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "%"));
 		}
