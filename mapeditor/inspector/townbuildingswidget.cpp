@@ -93,9 +93,9 @@ QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStan
 	return parent;
 }
 
-std::set<QVariant> getBuildingVariantsFromModel(QStandardItemModel & model, int modelColumn, Qt::CheckState checkState)
+std::list<QVariant> getBuildingVariantsFromModel(QStandardItemModel & model, int modelColumn, Qt::CheckState checkState)
 {
-	std::set<QVariant> result;
+	std::list<QVariant> result;
 	std::vector<QModelIndex> stack(1);
 	while (!stack.empty())
 	{
@@ -107,7 +107,7 @@ std::set<QVariant> getBuildingVariantsFromModel(QStandardItemModel & model, int 
 			QModelIndex index = model.index(i, modelColumn, pindex);
 			if (auto * item = model.itemFromIndex(index))
 				if (item->checkState() == checkState)
-					result.emplace(item->data(MapEditorRoles::BuildingIDRole));
+					result.push_back(item->data(MapEditorRoles::BuildingIDRole));
 			index = model.index(i, 0, pindex);
 			if (model.hasChildren(index))
 				stack.push_back(index);

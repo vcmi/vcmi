@@ -239,7 +239,11 @@ QVariantMap TownEventDialog::resourcesToVariant()
 QVariantList TownEventDialog::buildingsToVariant()
 {
 	auto buildings = getBuildingVariantsFromModel(buildingsModel, 1, Qt::Checked);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 	QVariantList buildingsList(buildings.begin(), buildings.end());
+#else
+	QVariantList buildingsList = QVariantList::fromStdList(buildings);
+#endif
 	return buildingsList;
 }
 
