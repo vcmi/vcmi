@@ -241,8 +241,9 @@ void CClient::endGame()
 #endif
 
 	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
-	for(auto & i : playerint)
-		i.second->finish();
+	for (auto it = playerint.begin(); it != playerint.end(); ++it) {
+    it->second->finish();
+}
 
 	GH.curInt = nullptr;
 	{
