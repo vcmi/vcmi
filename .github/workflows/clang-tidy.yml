@@ -57,7 +57,7 @@ jobs:
 
     - name: Prepare compile_commands.json
       run: |
-        cmake -B build -DENABLE_CCACHE:BOOL=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON --preset
+        cmake -B build -DENABLE_CCACHE:BOOL=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON --preset linux-clang-test
 
     - name: Create results directory
       run: |
