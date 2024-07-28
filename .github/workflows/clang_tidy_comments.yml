@@ -1,0 +1,100 @@
+name: Clang-Tidy comments
+
+on:
+  workflow_run:
+    workflows: [ Clang-Tidy ]
+    types: [ completed ]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  comment:
+    name: Clang-Tidy comments
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Download analysis results
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+          });
+          const matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "clang-tidy-result"
+          })[0];
+          const download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: "zip",
+          });
+          const fs = require("fs");
+          fs.writeFileSync("${{ github.workspace }}/clang-tidy-result.zip", Buffer.from(download.data));
+          
+    - name: Extract analysis results
+      run: |
+        mkdir clang-tidy-result
+        unzip -j clang-tidy-result.zip -d clang-tidy-result
+
+    - name: Set environment variables
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const assert = require("node:assert").strict;
+          const fs = require("fs");
+          function exportVar(varName, fileName, regEx) {
+              const val = fs.readFileSync("${{ github.workspace }}/clang-tidy-result/" + fileName, {
+                  encoding: "ascii"
+              }).trimEnd();
+              assert.ok(regEx.test(val), "Invalid value format for " + varName);
+              core.exportVariable(varName, val);
+          }
+          exportVar("PR_ID", "pr-id.txt", /^[0-9]+$/);
+          exportVar("PR_HEAD_REPO", "pr-head-repo.txt", /^[-./0-9A-Z_a-z]+$/);
+          exportVar("PR_HEAD_SHA", "pr-head-sha.txt", /^[0-9A-Fa-f]+$/);
+
+    - uses: actions/checkout@v4
+      with:
+        repository: ${{ env.PR_HEAD_REPO }}
+        ref: ${{ env.PR_HEAD_SHA }}
+        persist-credentials: false
+
+    - name: Redownload analysis results
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+          });
+          const matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "clang-tidy-result"
+          })[0];
+          const download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: "zip",
+          });
+          const fs = require("fs");
+          fs.writeFileSync("${{ github.workspace }}/clang-tidy-result.zip", Buffer.from(download.data));
+
+    - name: Extract analysis results
+      run: |
+        mkdir clang-tidy-result
+        unzip -j clang-tidy-result.zip -d clang-tidy-result
+
+    - uses: platisd/clang-tidy-pr-comments@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        clang_tidy_fixes: clang-tidy-result/fixes.yml
+        pull_request_id: ${{ env.PR_ID }}
