@@ -1,0 +1,80 @@
+name: Clang-Tidy
+
+on:
+  pull_request:
+    branches: [ develop ]
+    paths: [ '**.cpp', '**.h' ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  tidy:
+    name: Clang-Tidy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    steps:
+
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: 0
+
+    - name: Fetch base branch
+      run: |
+        git remote add upstream "https://github.com/${{ github.event.pull_request.base.repo.full_name }}"
+        git fetch --no-tags --no-recurse-submodules upstream "${{ github.event.pull_request.base.ref }}"
+
+    - name: Dependencies
+      run: source '${{github.workspace}}/CI/linux-qt6/before_install.sh'
+      env:
+        VCMI_BUILD_PLATFORM: x64
+
+    # ensure the ccache for each PR is separate so they don't interfere with each other
+    # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
+    - name: ccache for PRs
+      uses: hendrikmuhs/ccache-action@v1.2
+      if: ${{ github.event.number != '' }}
+      with:
+        key: ${{ matrix.preset }}-PR-${{ github.event.number }}
+        restore-keys: |
+          ${{ matrix.preset }}-PR-${{ github.event.number }}
+          ${{ matrix.preset }}-no-PR
+        # actual cache takes up less space, at most ~1 GB
+        max-size: "5G"
+        verbose: 2
+
+    - name: Setup clang-tidy
+      run: |
+        sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-15 100
+        sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-15.py 100
+
+    - name: Prepare compile_commands.json
+      run: |
+        cmake -B build -DENABLE_CCACHE:BOOL=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON --preset
+
+    - name: Create results directory
+      run: |
+        mkdir clang-tidy-result
+
+    - name: Analyze
+      run: |
+        git diff -U0 "$(git merge-base HEAD "upstream/${{ github.event.pull_request.base.ref }}")" | clang-tidy-diff -p1 -path build -export-fixes clang-tidy-result/fixes.yml
+
+    - name: Save PR metadata
+      run: |
+        echo "${{ github.event.number }}" > clang-tidy-result/pr-id.txt
+        echo "${{ github.event.pull_request.head.repo.full_name }}" > clang-tidy-result/pr-head-repo.txt
+        echo "${{ github.event.pull_request.head.sha }}" > clang-tidy-result/pr-head-sha.txt
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: clang-tidy-result
+        path: clang-tidy-result/
+        if-no-files-found: error
