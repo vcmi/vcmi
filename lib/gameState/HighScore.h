@@ -19,7 +19,7 @@ public:
 	int townAmount;
 	bool usedCheat;
 	bool hasGrail;
-	bool allDefeated;
+	bool allEnemiesDefeated;
 	std::string campaignName;
 	std::string scenarioName;
 	std::string playerName;
@@ -31,7 +31,7 @@ public:
 		h & townAmount;
 		h & usedCheat;
 		h & hasGrail;
-		h & allDefeated;
+		h & allEnemiesDefeated;
 		h & campaignName;
 		h & scenarioName;
 		h & playerName;

@@ -681,12 +681,12 @@ HighScoreParameter CServerHandler::prepareHighScores(PlayerColor player, bool vi
 	for(const CGTownInstance * t : playerState->towns)
 		if(t->builtBuildings.count(BuildingID::GRAIL))
 			param.hasGrail = true;
-	param.allDefeated = true;
+	param.allEnemiesDefeated = true;
 	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)
 	{
 		auto ps = gs->getPlayerState(otherPlayer, false);
 		if(ps && otherPlayer != player && !ps->checkVanquished())
-			param.allDefeated = false;
+			param.allEnemiesDefeated = false;
 	}
 	param.scenarioName = gs->getMapHeader()->name.toString();
 	param.playerName = gs->getStartInfo()->playerInfos.find(player)->second.name;
