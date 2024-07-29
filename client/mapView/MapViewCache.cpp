@@ -18,9 +18,12 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
+#include "../render/Graphics.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../widgets/TextControls.h"
 
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/int3.h"
@@ -30,6 +33,7 @@ MapViewCache::~MapViewCache() = default;
 MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, cachedLevel(0)
+	, overlayWasVisible(false)
 	, mapRenderer(new MapRenderer())
 	, iconsStorage(GH.renderHandler().loadAnimation(AnimationPath::builtin("VwSymbol"), EImageBlitMode::COLORKEY))
 	, intermediate(new Canvas(Point(32, 32)))
@@ -137,7 +141,9 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
 	bool mapMoved = (cachedPosition != model->getMapViewCenter());
-	bool lazyUpdate = !mapMoved && !fullRedraw && vstd::isAlmostZero(context->viewTransitionProgress());
+	bool overlayVisible = context->showImageOverlay() || context->showTextOverlay();
+	bool overlayVisibilityChanged = overlayVisible != overlayWasVisible;
+	bool lazyUpdate = !overlayVisibilityChanged && !mapMoved && !fullRedraw && vstd::isAlmostZero(context->viewTransitionProgress());
 
 	Rect dimensions = model->getTilesTotalRect();
 
@@ -161,20 +167,51 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
-	if(context->showOverlay())
+	if(context->showImageOverlay())
 	{
 		for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 		{
 			for(int x = dimensions.left(); x < dimensions.right(); ++x)
 			{
 				int3 tile(x, y, model->getLevel());
-				Rect targetRect = model->getTargetTileArea(tile);
 				auto overlay = getOverlayImageForTile(context, tile);
 
 				if(overlay)
 				{
+					Rect targetRect = model->getTargetTileArea(tile);
 					Point position = targetRect.center() - overlay->dimensions() / 2;
 					target.draw(overlay, position);
+				}
+			}
+		}
+	}
+
+	if(context->showTextOverlay())
+	{
+		for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
+		{
+			for(int x = dimensions.left(); x < dimensions.right(); ++x)
+			{
+				int3 tile(x, y, model->getLevel());
+				auto overlay = context->overlayText(tile);
+
+				if(!overlay.empty())
+				{
+					Rect targetRect = model->getTargetTileArea(tile);
+					Point position = targetRect.center();
+					if (x % 2 == 0)
+						position.y += targetRect.h / 4;
+					else
+						position.y -= targetRect.h / 4;
+
+					const auto font = graphics->fonts[EFonts::FONT_TINY];
+
+					Point dimensions(font->getStringWidth(overlay), font->getLineHeight());
+					Rect textRect = Rect(position - dimensions / 2, dimensions).resize(2);
+
+					target.drawColor(textRect, context->overlayTextColor(tile));
+					target.drawBorder(textRect, Colors::BRIGHT_YELLOW);
+					target.drawText(position, EFonts::FONT_TINY, Colors::BLACK, ETextAlignment::CENTER, overlay);
 				}
 			}
 		}
@@ -184,6 +221,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		target.drawTransparent(*terrainTransition, Point(0, 0), 1.0 - context->viewTransitionProgress());
 
 	cachedPosition = model->getMapViewCenter();
+	overlayWasVisible = overlayVisible;
 }
 
 void MapViewCache::createTransitionSnapshot(const std::shared_ptr<IMapRendererContext> & context)
