@@ -801,7 +801,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 
 	addUsedEvents(LCLICK);
 
-	pos = Rect(0, 0, 650, 100 + SEL->getStartInfo()->playerInfos.size() * 30);
+	pos = Rect(0, 0, 660, 100 + SEL->getStartInfo()->playerInfos.size() * 30);
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
 	backgroundTexture->setPlayerColor(PlayerColor(1));
@@ -828,17 +828,20 @@ OptionsTab::HandicapWindow::HandicapWindow()
 
 			const PlayerSettings &ps = SEL->getStartInfo()->getIthPlayersSettings(player);
 
+			int xPos = 30 + j * 70;
+			xPos += j > 0 ? 10 : 0; // Gold field is larger
+
 			if(i == 0)
 			{
 				if(isIncome)
-					labels.push_back(std::make_shared<CLabel>(30 + j * 70, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.jktext.32")));
+					labels.push_back(std::make_shared<CLabel>(xPos, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.jktext.32")));
 				else if(isGrowth)
-					labels.push_back(std::make_shared<CLabel>(30 + j * 70, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.194")));
+					labels.push_back(std::make_shared<CLabel>(xPos, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.194")));
 				else
-					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 45 + j * 70, 35));
+					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
 			}
 
-			auto area = Rect(30 + j * 70, 60 + i * 30, 50, 16);
+			auto area = Rect(xPos, 60 + i * 30, j == 0 ? 60 : 50, 16);
 			textinputbackgrounds.push_back(std::make_shared<TransparentFilledRectangle>(area.resize(3), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64)));
 			textinputs[player][resource] = std::make_shared<CTextInput>(area, FONT_SMALL, ETextAlignment::CENTERLEFT, true);
 			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : (isGrowth ? ps.handicap.percentGrowth : ps.handicap.startBonus[resource])));
@@ -847,7 +850,8 @@ OptionsTab::HandicapWindow::HandicapWindow()
 				std::string tmp = s;
 				bool negative = std::count_if( s.begin(), s.end(), []( char c ){ return c == '-'; }) == 1 && !isIncome && !isGrowth;
 				tmp.erase(std::remove_if(tmp.begin(), tmp.end(), [](char c) { return !isdigit(c); }), tmp.end());
-				tmp = tmp.substr(0, isIncome || isGrowth ? 3 : 5);
+				int maxLength = isIncome || isGrowth ? 3 : (resource == EGameResID::GOLD ? 6 : 5);
+				tmp = tmp.substr(0, maxLength);
 				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
 			});
 			textinputs[player][resource]->setPopupCallback([isIncome, isGrowth](){
