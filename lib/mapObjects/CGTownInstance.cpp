@@ -140,10 +140,10 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	if(tempOwner.isValidPlayer())
 	{
 		auto * playerSettings = cb->getPlayerSettings(tempOwner);
-		ret.percent = playerSettings->handicap.percentGrowth;
+		ret.handicapPercentage = playerSettings->handicap.percentGrowth;
 	}
 	else
-		ret.percent = 100;
+		ret.handicapPercentage = 100;
 
 	ret.entries.emplace_back(VLC->generaltexth->allTexts[590], base); // \n\nBasic growth %d"
 
@@ -226,7 +226,8 @@ TResources CGTownInstance::dailyIncome() const
 
 	auto playerSettings = cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner());
 	for(TResources::nziterator it(ret); it.valid(); it++)
-		ret[it->resType] = ret[it->resType] * playerSettings.handicap.percentIncome / 100;
+		// always round up income - we don't want to always produce zero if handicap in use
+		ret[it->resType] = (ret[it->resType] * playerSettings.handicap.percentIncome + 99) / 100;
 	return ret;
 }
 
@@ -1269,10 +1270,8 @@ int GrowthInfo::totalGrowth() const
 	for(const Entry &entry : entries)
 		ret += entry.count;
 
-	auto retCalc = ret * percent / 100;
-	if(retCalc == 0 && ret > 0) //generate at least one
-		retCalc = 1;
-	return retCalc;
+	// always round up income - we don't want buildings to always produce zero if handicap in use
+	return (ret * handicapPercentage + 99) / 100;
 }
 
 void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const

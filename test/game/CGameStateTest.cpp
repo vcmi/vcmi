@@ -175,8 +175,6 @@ public:
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = HeroTypeID(pinfo.mainCustomHeroPortrait);
 			}
-
-			pset.handicapLegacy = PlayerSettings::NO_HANDICAP;
 		}
 
 

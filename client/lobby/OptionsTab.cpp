@@ -843,6 +843,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 			textinputs[player][resource] = std::make_shared<CTextInput>(area, FONT_SMALL, ETextAlignment::CENTERLEFT, true);
 			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : (isGrowth ? ps.handicap.percentGrowth : ps.handicap.startBonus[resource])));
 			textinputs[player][resource]->setCallback([this, player, resource, isIncome, isGrowth](const std::string & s){
+				// text input processing: add/remove sign when pressing "-"; remove non digits; cut length; fill empty field with 0
 				std::string tmp = s;
 				bool negative = std::count_if( s.begin(), s.end(), []( char c ){ return c == '-'; }) == 1 && !isIncome && !isGrowth;
 				tmp.erase(std::remove_if(tmp.begin(), tmp.end(), [](char c) { return !isdigit(c); }), tmp.end());
@@ -850,6 +851,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
 			});
 			textinputs[player][resource]->setPopupCallback([isIncome, isGrowth](){
+				// Help for the textinputs
 				if(isIncome)
 					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.income"));
 				else if(isGrowth)
@@ -880,7 +882,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 				else
 					resources[resource.first] = std::stoi(resource.second->getText());
 			}
-			CSH->setPlayerHandicap(player.first, PlayerSettings::Handicap{resources, income, growth});
+			CSH->setPlayerHandicap(player.first, Handicap{resources, income, growth});
 		}
 	    		
 		close();
@@ -897,7 +899,7 @@ bool OptionsTab::HandicapWindow::receiveEvent(const Point & position, int eventT
 
 void OptionsTab::HandicapWindow::clickReleased(const Point & cursorPosition)
 {
-	if(!pos.isInside(cursorPosition))
+	if(!pos.isInside(cursorPosition)) // make it possible to close window by touching/clicking outside of window
 		close();
 }
 
@@ -1031,14 +1033,16 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
-	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100 ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString());
+	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
+	std::string labelHandicapText = hasHandicap() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
 	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), [](){
 		if(!CSH->isHost())
 			return;
 		
 		GH.windows().createAndPushWindow<HandicapWindow>();
-	}, [this](){
-		if(s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100)
+	}, [this, hasHandicap](){
+		if(hasHandicap())
 			CRClickPopup::createAndPush(MetaString::createFromTextID("core.help.124.help").toString());
 		else
 		{

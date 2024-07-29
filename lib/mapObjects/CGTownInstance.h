@@ -41,7 +41,7 @@ struct DLL_LINKAGE GrowthInfo
 
 	std::vector<Entry> entries;
 	int totalGrowth() const;
-	int percent;
+	int handicapPercentage;
 };
 
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader

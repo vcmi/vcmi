@@ -497,7 +497,7 @@ void CServerHandler::setPlayerName(PlayerColor color, const std::string & name) 
 	sendLobbyPack(lspn);
 }
 
-void CServerHandler::setPlayerHandicap(PlayerColor color, PlayerSettings::Handicap handicap) const
+void CServerHandler::setPlayerHandicap(PlayerColor color, Handicap handicap) const
 {
 	LobbySetPlayerHandicap lsph;
 	lsph.color = color;

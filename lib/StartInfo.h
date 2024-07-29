@@ -66,6 +66,20 @@ enum class PlayerStartingBonus : int8_t
 	RESOURCE =  2
 };
 
+struct DLL_LINKAGE Handicap {
+	TResources startBonus = TResources();
+	int percentIncome = 100;
+	int percentGrowth = 100;
+
+	template <typename Handler>
+	void serialize(Handler &h)
+	{
+		h & startBonus;
+		h & percentIncome;
+		h & percentGrowth;
+	}
+};
+
 /// Struct which describes the name, the color, the starting bonus of a player
 struct DLL_LINKAGE PlayerSettings
 {
@@ -78,13 +92,8 @@ struct DLL_LINKAGE PlayerSettings
 
 	std::string heroNameTextId;
 	PlayerColor color; //from 0 -
-	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
-	EHandicap handicapLegacy;//0-no, 1-mild, 2-severe
-	struct Handicap {
-		TResources startBonus;
-		int percentIncome;
-		int percentGrowth;
-	} handicap;
+
+	Handicap handicap;
 
 	std::string name;
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
@@ -99,13 +108,13 @@ struct DLL_LINKAGE PlayerSettings
 		h & bonus;
 		h & color;
 		if (h.version >= Handler::Version::PLAYER_HANDICAP)
-		{
-			h & handicap.startBonus;
-			h & handicap.percentIncome;
-			h & handicap.percentGrowth;
-		}
+			h & handicap;
 		else
+		{
+			enum EHandicap {NO_HANDICAP, MILD, SEVERE};
+			EHandicap handicapLegacy;
 			h & handicapLegacy;
+		}
 		h & name;
 		h & connectedPlayerIDs;
 		h & compOnly;

@@ -624,8 +624,6 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = pinfo.mainCustomHeroPortrait;
 			}
-
-			pset.handicapLegacy = PlayerSettings::NO_HANDICAP;
 		}
 
 		if(mi->isRandomMap && mapGenOpts)
@@ -765,7 +763,7 @@ void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
 	setPlayerConnectedId(player, nameID);
 }
 
-void CVCMIServer::setPlayerHandicap(PlayerColor color, PlayerSettings::Handicap handicap)
+void CVCMIServer::setPlayerHandicap(PlayerColor color, Handicap handicap)
 {
 	if(color == PlayerColor::CANNOT_DETERMINE)
 		return;

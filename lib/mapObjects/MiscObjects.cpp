@@ -199,10 +199,8 @@ ui32 CGMine::defaultResProduction() const
 ui32 CGMine::getProducedQuantity() const
 {
 	auto * playerSettings = cb->getPlayerSettings(getOwner());
-	auto ret = producedQuantity * playerSettings->handicap.percentIncome / 100;
-	if(ret == 0 && producedQuantity > 0) // create at least 1 resource
-		ret = 1;
-	return ret;
+	// always round up income - we don't want mines to always produce zero if handicap in use
+	return (producedQuantity * playerSettings->handicap.percentIncome + 99) / 100;
 }
 
 void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
