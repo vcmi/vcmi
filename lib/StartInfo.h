@@ -112,7 +112,7 @@ struct DLL_LINKAGE PlayerSettings
 		else
 		{
 			enum EHandicap {NO_HANDICAP, MILD, SEVERE};
-			EHandicap handicapLegacy;
+			EHandicap handicapLegacy = NO_HANDICAP;
 			h & handicapLegacy;
 		}
 		h & name;
