@@ -76,6 +76,11 @@ void ConnectionsPlacer::process()
 
 	diningPhilosophers([this](const rmg::ZoneConnection& c)
 	{
+		forcePortalConnection(c);
+	});
+
+	diningPhilosophers([this](const rmg::ZoneConnection& c)
+	{
 		selfSideDirectConnection(c);
 	});
 
@@ -113,6 +118,16 @@ void ConnectionsPlacer::addConnection(const rmg::ZoneConnection& connection)
 void ConnectionsPlacer::otherSideConnection(const rmg::ZoneConnection & connection)
 {
 	dCompleted.push_back(connection);
+}
+
+void ConnectionsPlacer::forcePortalConnection(const rmg::ZoneConnection & connection)
+{
+	// This should always succeed
+	if (connection.getConnectionType() == rmg::EConnectionType::FORCE_PORTAL)
+	{
+		placeMonolithConnection(connection);
+		dCompleted.push_back(connection);
+	}
 }
 
 void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & connection)
@@ -410,23 +425,32 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	//4. place monoliths/portals
 	if(!success)
 	{
-		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-		auto * teleport1 = factory->create(map.mapInstance->cb, nullptr);
-		auto * teleport2 = factory->create(map.mapInstance->cb, nullptr);
-
-		RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
-		RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
-		zone.getModificator<ObjectManager>()->addRequiredObject(obj1);
-		otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
-		
-		assert(otherZone->getModificator<ConnectionsPlacer>());
-		otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-		
-		success = true;
+		placeMonolithConnection(connection);
 	}
-	
-	if(success)
+	else
+	{
 		dCompleted.push_back(connection);
+	}
+}
+
+void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & connection)
+{
+	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
+	auto & otherZone = map.getZones().at(otherZoneId);
+
+	bool allowRoad = shouldGenerateRoad(connection);
+
+	auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
+	auto * teleport1 = factory->create(map.mapInstance->cb, nullptr);
+	auto * teleport2 = factory->create(map.mapInstance->cb, nullptr);
+
+	RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
+	RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
+	zone.getModificator<ObjectManager>()->addRequiredObject(obj1);
+	otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
+	
+	assert(otherZone->getModificator<ConnectionsPlacer>());
+	otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 }
 
 void ConnectionsPlacer::collectNeighbourZones()
