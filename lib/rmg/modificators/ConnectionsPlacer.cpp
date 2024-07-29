@@ -55,6 +55,18 @@ void ConnectionsPlacer::process()
 	{
 		for (auto& c : dConnections)
 		{
+			if (c.getZoneA() == c.getZoneB())
+			{
+				// Zone can always be connected to itself, but only by monolith pair
+				RecursiveLock lock(externalAccessMutex);
+				if (!vstd::contains(dCompleted, c))
+				{
+					placeMonolithConnection(c);
+					// FIXME: Two pair of monoliths are added instead of 1
+						continue;
+				}
+			}
+
 			auto otherZone = map.getZones().at(c.getZoneB());
 			auto* cp = otherZone->getModificator<ConnectionsPlacer>();
 
@@ -126,7 +138,6 @@ void ConnectionsPlacer::forcePortalConnection(const rmg::ZoneConnection & connec
 	if (connection.getConnectionType() == rmg::EConnectionType::FORCE_PORTAL)
 	{
 		placeMonolithConnection(connection);
-		dCompleted.push_back(connection);
 	}
 }
 
@@ -427,10 +438,6 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	{
 		placeMonolithConnection(connection);
 	}
-	else
-	{
-		dCompleted.push_back(connection);
-	}
 }
 
 void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & connection)
@@ -448,6 +455,8 @@ void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & conn
 	RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
 	zone.getModificator<ObjectManager>()->addRequiredObject(obj1);
 	otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
+
+	dCompleted.push_back(connection);
 	
 	assert(otherZone->getModificator<ConnectionsPlacer>());
 	otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
