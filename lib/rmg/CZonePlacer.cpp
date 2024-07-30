@@ -80,12 +80,21 @@ void CZonePlacer::findPathsBetweenZones()
 
 			for (auto & connection : connectedZoneIds)
 			{
-				if (connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
+				switch (connection.getConnectionType())
 				{
 					//Do not consider virtual connections for graph distance
-					continue;
+					case rmg::EConnectionType::REPULSIVE:
+					case rmg::EConnectionType::FORCE_PORTAL:
+						continue;
 				}
 				auto neighbor = connection.getOtherZoneId(current);
+
+				if (current == neighbor)
+				{
+					//Do not consider self-connections
+					continue;
+				}
+
 				if (!visited[neighbor])
 				{
 					visited[neighbor] = true;
@@ -552,8 +561,16 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 
 		for (const auto & connection : zone.second->getConnections())
 		{
-			if (connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
+			switch (connection.getConnectionType())
 			{
+				//Do not consider virtual connections for graph distance
+				case rmg::EConnectionType::REPULSIVE:
+				case rmg::EConnectionType::FORCE_PORTAL:
+					continue;
+			}
+			if (connection.getZoneA() == connection.getZoneB())
+			{
+				//Do not consider self-connections
 				continue;
 			}
 
@@ -710,11 +727,19 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		std::set<TRmgTemplateZoneId> connectedZones;
 		for (const auto& connection : firstZone->getConnections())
 		{
-			//FIXME: Should we also exclude fictive connections?
-			if (connection.getConnectionType() != rmg::EConnectionType::REPULSIVE)
+			switch (connection.getConnectionType())
 			{
-				connectedZones.insert(connection.getOtherZoneId(firstZone->getId()));
+				//Do not consider virtual connections for graph distance
+				case rmg::EConnectionType::REPULSIVE:
+				case rmg::EConnectionType::FORCE_PORTAL:
+					continue;
 			}
+			if (connection.getZoneA() == connection.getZoneB())
+			{
+				//Do not consider self-connections
+				continue;
+			}
+			connectedZones.insert(connection.getOtherZoneId(firstZone->getId()));
 		}
 
 		auto level = firstZone->getCenter().z;
