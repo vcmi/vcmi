@@ -62,8 +62,7 @@ void ConnectionsPlacer::process()
 				if (!vstd::contains(dCompleted, c))
 				{
 					placeMonolithConnection(c);
-					// FIXME: Two pair of monoliths are added instead of 1
-						continue;
+					continue;
 				}
 			}
 
