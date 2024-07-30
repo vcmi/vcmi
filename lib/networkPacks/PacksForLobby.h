@@ -155,9 +155,13 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 
 	template <typename Handler> void serialize(Handler &h)
 	{
+		if (!h.saving)
+			h.loadingGamestate = true;
 		h & clientId;
 		h & initializedStartInfo;
 		h & initializedGameState;
+		if (!h.saving)
+			h.loadingGamestate = false;
 	}
 };
 
