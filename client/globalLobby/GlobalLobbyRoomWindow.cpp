@@ -58,7 +58,7 @@ GlobalLobbyRoomModCard::GlobalLobbyRoomModCard(const GlobalLobbyRoomModInfo & mo
 
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, modInfo.modName);
 	labelVersion = std::make_shared<CLabel>(195, 30, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, modInfo.version);
-	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
+	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, modInfo.status == ModVerificationStatus::FULL_MATCH ? Colors::YELLOW : Colors::RED, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
 }
 
 static const std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
@@ -134,6 +134,13 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 
 		modVerificationList.push_back(modInfo);
 	}
+	std::sort(modVerificationList.begin(), modVerificationList.end(), [](const GlobalLobbyRoomModInfo &a, const GlobalLobbyRoomModInfo &b)
+	{ 
+		if(a.status == b.status)
+			return a.modName < b.modName;
+
+		return a.status < b.status; 
+	});
 
 	MetaString subtitleText;
 	subtitleText.appendTextID("vcmi.lobby.preview.subtitle");
