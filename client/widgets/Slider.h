@@ -52,14 +52,14 @@ public:
 	void clearScrollBounds();
 
 	/// Value modifiers
-	void scrollTo(int value);
+	void scrollTo(int value, bool callCallbacks = true);
 	void scrollBy(int amount) override;
 	void scrollToMin();
 	void scrollToMax();
 
 	/// Amount modifier
 	void setAmount(int to);
-	virtual void setValue(int to);
+	virtual void setValue(int to, bool callCallbacks = true);
 
 	/// Accessors
 	int getAmount() const;
@@ -95,7 +95,7 @@ class SliderNonlinear : public CSlider
 
 	using CSlider::setAmount; // make private
 public:
-	void setValue(int to) override;
+	void setValue(int to, bool callCallbacks) override;
 	int getValue() const override;
 
 	SliderNonlinear(Point position, int length, const std::function<void(int)> & Moved, const std::vector<int> & values, int Value, Orientation orientation, EStyle style);
