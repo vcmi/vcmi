@@ -345,7 +345,8 @@ std::shared_ptr<CLabel> InterfaceObjectConfigurable::buildLabel(const JsonNode &
 	auto color = readColor(config["color"]);
 	auto text = readText(config["text"]);
 	auto position = readPosition(config["position"]);
-	return std::make_shared<CLabel>(position.x, position.y, font, alignment, color, text);
+	auto maxWidth = config["maxWidth"].Integer();
+	return std::make_shared<CLabel>(position.x, position.y, font, alignment, color, text, maxWidth);
 }
 
 std::shared_ptr<CMultiLineLabel> InterfaceObjectConfigurable::buildMultiLineLabel(const JsonNode & config) const

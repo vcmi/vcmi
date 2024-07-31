@@ -43,7 +43,8 @@
 		{
 			"name" : "accountNameLabel",
 			"type": "labelTitleMain",
-			"position": {"x": 15, "y": 10}
+			"position": {"x": 15, "y": 10},
+			"maxWidth": 230
 		},
 
 		{
