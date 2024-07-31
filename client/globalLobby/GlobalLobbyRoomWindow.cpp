@@ -58,7 +58,12 @@ GlobalLobbyRoomModCard::GlobalLobbyRoomModCard(const GlobalLobbyRoomModInfo & mo
 
 	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, modInfo.modName);
 	labelVersion = std::make_shared<CLabel>(195, 30, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, modInfo.version);
-	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, modInfo.status == ModVerificationStatus::FULL_MATCH ? Colors::YELLOW : Colors::RED, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
+	auto statusColor = Colors::RED;
+	if(modInfo.status == ModVerificationStatus::FULL_MATCH)
+		statusColor = ColorRGBA(128, 128, 128);
+	else if(modInfo.status == ModVerificationStatus::VERSION_MISMATCH)
+		statusColor = Colors::YELLOW;
+	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, statusColor, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
 }
 
 static const std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
