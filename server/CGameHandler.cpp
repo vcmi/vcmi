@@ -676,10 +676,7 @@ void CGameHandler::addStatistics()
 		if (elem.first == PlayerColor::NEUTRAL || !elem.first.isValidPlayer())
 			continue;
 
-		StatisticDataSetEntry data;
-
-		data.day = getDate(Date::DAY);
-		data.player = elem.first;
+		auto data = StatisticDataSet::createEntry(&elem.second, gs);
 
 		gameState()->statistic.add(data);
 	}

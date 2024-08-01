@@ -10,18 +10,30 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+struct PlayerState;
+class CGameState;
 
 struct DLL_LINKAGE StatisticDataSetEntry
 {
     int day;
     PlayerColor player;
+	TeamID team;
+	TResources resources;
+	int heroesCount;
+	int townCount;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & day;
 		h & player;
+		h & team;
+		h & resources;
+		h & heroesCount;
+		h & townCount;
 	}
 };
 
@@ -31,6 +43,7 @@ class DLL_LINKAGE StatisticDataSet
 
 public:
     void add(StatisticDataSetEntry entry);
+	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
     std::string toCsv();
 
 	template <typename Handler> void serialize(Handler &h)

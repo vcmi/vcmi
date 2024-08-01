@@ -62,6 +62,7 @@ class PlayerMessageProcessor
 	void commandKick(PlayerColor player, const std::vector<std::string> & words);
 	void commandSave(PlayerColor player, const std::vector<std::string> & words);
 	void commandCheaters(PlayerColor player, const std::vector<std::string> & words);
+	void commandStatistic(PlayerColor player, const std::vector<std::string> & words);
 	void commandHelp(PlayerColor player, const std::vector<std::string> & words);
 	void commandVote(PlayerColor player, const std::vector<std::string> & words);
 
