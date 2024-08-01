@@ -283,6 +283,9 @@
 
 	"vcmi.adventureMap.revisitObject.hover" : "Revisit Object",
 	"vcmi.adventureMap.revisitObject.help" : "{Revisit Object}\n\nIf a hero currently stands on a Map Object, he can revisit the location.",
+	"vcmi.adventureMap.miniHillFort.notAvailableUpgrade.message" : "This building cannot upgrade creatures of level 5 and higher.",
+	"vcmi.adventureMap.miniHillFort.statusBar.info" : "Upgrade creatures levels 1 - 5 at double the normal price",
+	"vcmi.adventureMap.HillFort.statusBar.info" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town",
 
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to start battle immediately",
 	"vcmi.battleWindow.damageEstimation.melee" : "Attack %CREATURE (%DAMAGE).",
