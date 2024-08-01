@@ -1538,62 +1538,6 @@ bool CGameState::checkForStandardLoss(const PlayerColor & player) const
 	return pState.checkVanquished();
 }
 
-struct statsHLP
-{
-	using TStat = std::pair<PlayerColor, si64>;
-	//converts [<player's color, value>] to vec[place] -> platers
-	static std::vector< std::vector< PlayerColor > > getRank( std::vector<TStat> stats )
-	{
-		std::sort(stats.begin(), stats.end(), statsHLP());
-
-		//put first element
-		std::vector< std::vector<PlayerColor> > ret;
-		std::vector<PlayerColor> tmp;
-		tmp.push_back( stats[0].first );
-		ret.push_back( tmp );
-
-		//the rest of elements
-		for(int g=1; g<stats.size(); ++g)
-		{
-			if(stats[g].second == stats[g-1].second)
-			{
-				(ret.end()-1)->push_back( stats[g].first );
-			}
-			else
-			{
-				//create next occupied rank
-				std::vector<PlayerColor> tmp;
-				tmp.push_back(stats[g].first);
-				ret.push_back(tmp);
-			}
-		}
-
-		return ret;
-	}
-
-	bool operator()(const TStat & a, const TStat & b) const
-	{
-		return a.second > b.second;
-	}
-
-	static const CGHeroInstance * findBestHero(CGameState * gs, const PlayerColor & color)
-	{
-		std::vector<ConstTransitivePtr<CGHeroInstance> > &h = gs->players[color].heroes;
-		if(h.empty())
-			return nullptr;
-		//best hero will be that with highest exp
-		int best = 0;
-		for(int b=1; b<h.size(); ++b)
-		{
-			if(h[b]->exp > h[best]->exp)
-			{
-				best = b;
-			}
-		}
-		return h[best];
-	}
-};
-
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 {
 	auto playerInactive = [&](const PlayerColor & color) 
@@ -1613,7 +1557,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			stat.second = VAL_GETTER; \
 			stats.push_back(stat); \
 		} \
-		tgi.FIELD = statsHLP::getRank(stats); \
+		tgi.FIELD = Statistic::getRank(stats); \
 	}
 
 	for(auto & elem : players)
@@ -1635,7 +1579,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		{
 			if(playerInactive(player.second.color))
 				continue;
-			const CGHeroInstance * best = statsHLP::findBestHero(this, player.second.color);
+			const CGHeroInstance * best = Statistic::findBestHero(this, player.second.color);
 			InfoAboutHero iah;
 			iah.initFromHero(best, (level >= 2) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC);
 			iah.army.clear();

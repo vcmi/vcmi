@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct PlayerState;
 class CGameState;
+class CGHeroInstance;
 
 struct DLL_LINKAGE StatisticDataSetEntry
 {
@@ -67,10 +68,14 @@ public:
 class DLL_LINKAGE Statistic
 {
 public:
+	using TStat = std::pair<PlayerColor, si64>;
+
     static int getNumberOfArts(const PlayerState * ps);
 	static si64 getArmyStrength(const PlayerState * ps);
 	static int getIncome(const CGameState * gs, const PlayerState * ps);
 	static double getMapVisitedRatio(const CGameState * gs, PlayerColor player);
+	static const CGHeroInstance * findBestHero(CGameState * gs, const PlayerColor & color);
+	static std::vector<std::vector<PlayerColor>> getRank(std::vector<TStat> stats);
 };
 
 VCMI_LIB_NAMESPACE_END
