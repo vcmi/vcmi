@@ -69,7 +69,7 @@ class DLL_LINKAGE Statistic
 public:
     static int getNumberOfArts(const PlayerState * ps);
 	static si64 getArmyStrength(const PlayerState * ps);
-	static int getIncome(const PlayerState * ps);
+	static int getIncome(const CGameState * gs, const PlayerState * ps);
 	static double getMapVisitedRatio(const CGameState * gs, PlayerColor player);
 };
 

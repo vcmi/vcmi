@@ -13,6 +13,7 @@
 #include "../constants/StringConstants.h"
 #include "CGameState.h"
 #include "TerrainHandler.h"
+#include "StartInfo.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CGObjectInstance.h"
@@ -40,7 +41,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numberTowns = ps->towns.size();
 	data.numberArtifacts = Statistic::getNumberOfArts(ps);
 	data.armyStrength = Statistic::getArmyStrength(ps);
-	data.income = Statistic::getIncome(ps);
+	data.income = Statistic::getIncome(gs, ps);
 	data.mapVisitedRatio = Statistic::getMapVisitedRatio(gs, ps->color);
 
 	return data;
@@ -113,15 +114,16 @@ si64 Statistic::getArmyStrength(const PlayerState * ps)
 }
 
 // get total gold income
-int Statistic::getIncome(const PlayerState * ps)
+int Statistic::getIncome(const CGameState * gs, const PlayerState * ps)
 {
+	int percentIncome = gs->getStartInfo()->getIthPlayersSettings(ps->color).handicap.percentIncome;
 	int totalIncome = 0;
 	const CGObjectInstance * heroOrTown = nullptr;
 
 	//Heroes can produce gold as well - skill, specialty or arts
 	for(const auto & h : ps->heroes)
 	{
-		totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD))));
+		totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD)))) * percentIncome / 100;
 
 		if(!heroOrTown)
 			heroOrTown = h;
@@ -156,7 +158,7 @@ int Statistic::getIncome(const PlayerState * ps)
 			assert(mine);
 
 			if (mine->producedResource == EGameResID::GOLD)
-				totalIncome += mine->producedQuantity;
+				totalIncome += mine->getProducedQuantity();
 		}
 	}
 
@@ -169,12 +171,12 @@ double Statistic::getMapVisitedRatio(const CGameState * gs, PlayerColor player)
 	double numTiles = 0.0;
 
 	for(int layer = 0; layer < (gs->map->twoLevel ? 2 : 1); layer++)
-		for (int y = 0; y < gs->map->height; ++y)
-			for (int x = 0; x < gs->map->width; ++x)
+		for(int y = 0; y < gs->map->height; ++y)
+			for(int x = 0; x < gs->map->width; ++x)
 			{
 				TerrainTile tile = gs->map->getTile(int3(x, y, layer));
 
-				if (tile.blocked && (!tile.visitable))
+				if(tile.blocked && (!tile.visitable))
 					continue;
 
 				if(gs->isVisible(int3(x, y, layer), player))
@@ -182,7 +184,7 @@ double Statistic::getMapVisitedRatio(const CGameState * gs, PlayerColor player)
 				numTiles++;
 			}
 	
-	return visible / (numTiles);
+	return visible / numTiles;
 }
 
 VCMI_LIB_NAMESPACE_END

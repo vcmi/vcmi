@@ -1676,7 +1676,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 5) //income
 	{
-		FILL_FIELD(income, Statistic::getIncome(&g->second))
+		FILL_FIELD(income, Statistic::getIncome(gs, &g->second))
 	}
 	if(level >= 2) //best hero's stats
 	{
