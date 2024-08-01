@@ -317,7 +317,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 		if(mine)
 		{
-			dailyIncome[mine->producedResource.getNum()] += mine->producedQuantity;
+			dailyIncome[mine->producedResource.getNum()] += mine->getProducedQuantity();
 		}
 	}
 

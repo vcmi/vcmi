@@ -492,6 +492,14 @@ void CServerHandler::setPlayerName(PlayerColor color, const std::string & name) 
 	sendLobbyPack(lspn);
 }
 
+void CServerHandler::setPlayerHandicap(PlayerColor color, Handicap handicap) const
+{
+	LobbySetPlayerHandicap lsph;
+	lsph.color = color;
+	lsph.handicap = handicap;
+	sendLobbyPack(lsph);
+}
+
 void CServerHandler::setPlayerOption(ui8 what, int32_t value, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;

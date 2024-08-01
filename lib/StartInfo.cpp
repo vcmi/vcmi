@@ -25,7 +25,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerSettings::PlayerSettings()
-	: bonus(PlayerStartingBonus::RANDOM), color(0), handicap(NO_HANDICAP), compOnly(false)
+	: bonus(PlayerStartingBonus::RANDOM), color(0), compOnly(false)
 {
 }
 

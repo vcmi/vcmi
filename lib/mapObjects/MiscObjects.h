@@ -181,6 +181,7 @@ public:
 		h & abandonedMineResources;
 	}
 	ui32 defaultResProduction() const;
+	ui32 getProducedQuantity() const;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
