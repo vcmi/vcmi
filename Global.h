@@ -102,6 +102,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define STRONG_INLINE inline
 #endif
 
+// Required for building boost::stacktrace on macOS.
+// See https://github.com/boostorg/stacktrace/issues/88
+#if defined(VCMI_APPLE)
+#define _GNU_SOURCE
+#endif
+
 #define _USE_MATH_DEFINES
 
 #include <algorithm>
