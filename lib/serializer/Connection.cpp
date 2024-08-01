@@ -151,18 +151,6 @@ void CConnection::enterGameplayConnectionMode(CGameState * gs)
 	enableSmartVectorMemberSerializatoin(gs);
 }
 
-void CConnection::disableSmartPointerSerialization()
-{
-	deserializer->smartPointerSerialization = false;
-	serializer->smartPointerSerialization = false;
-}
-
-void CConnection::enableSmartPointerSerialization()
-{
-	deserializer->smartPointerSerialization = true;
-	serializer->smartPointerSerialization = true;
-}
-
 void CConnection::disableSmartVectorMemberSerialization()
 {
 	packReader->smartVectorMembersSerialization = false;

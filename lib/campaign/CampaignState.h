@@ -15,6 +15,7 @@
 #include "../texts/TextLocalizationContainer.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
+#include "../gameState/HighScore.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -318,6 +319,8 @@ public:
 
 	std::string campaignSet;
 
+	std::vector<HighScoreParameter> highscoreParameters;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<Campaign&>(*this);
@@ -330,6 +333,8 @@ public:
 		h & campaignSet;
 		if (h.version >= Handler::Version::CAMPAIGN_MAP_TRANSLATIONS)
 			h & mapTranslations;
+		if (h.version >= Handler::Version::HIGHSCORE_PARAMETERS)
+			h & highscoreParameters;
 	}
 };
 

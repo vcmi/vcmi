@@ -28,6 +28,8 @@ struct CPack;
 struct CPackForLobby;
 struct CPackForClient;
 
+class HighScoreParameter;
+
 template<typename T> class CApplier;
 
 VCMI_LIB_NAMESPACE_END
@@ -39,7 +41,6 @@ class GameChatHandler;
 class IServerRunner;
 
 class HighScoreCalculation;
-class HighScoreParameter;
 
 enum class ESelectionScreen : ui8;
 enum class ELoadMode : ui8;
@@ -106,7 +107,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<IServerRunner> serverRunner;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
-	std::shared_ptr<HighScoreCalculation> campaignScoreCalculator;
 
 	boost::thread threadNetwork;
 
@@ -221,7 +221,6 @@ public:
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);
-	void setHighScoreCalc(const std::shared_ptr<HighScoreCalculation> &newHighScoreCalc);
 };
 
 extern CServerHandler * CSH;

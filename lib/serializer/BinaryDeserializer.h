@@ -165,8 +165,9 @@ public:
 	std::map<uint32_t, Serializeable*> loadedPointers;
 	std::map<const Serializeable*, std::shared_ptr<Serializeable>> loadedSharedPointers;
 	IGameCallback * cb = nullptr;
-	bool smartPointerSerialization;
-	bool saving;
+	static constexpr bool trackSerializedPointers = true;
+	static constexpr bool saving = false;
+	bool loadingGamestate = false;
 
 	bool hasFeature(Version what) const
 	{
@@ -342,7 +343,7 @@ public:
 		}
 
 		uint32_t pid = 0xffffffff; //pointer id (or maybe rather pointee id)
-		if(smartPointerSerialization)
+		if(trackSerializedPointers)
 		{
 			load( pid ); //get the id
 			auto i = loadedPointers.find(pid); //lookup
@@ -383,7 +384,7 @@ public:
 	template <typename T>
 	void ptrAllocated(T *ptr, uint32_t pid)
 	{
-		if(smartPointerSerialization && pid != 0xffffffff)
+		if(trackSerializedPointers && pid != 0xffffffff)
 			loadedPointers[pid] = const_cast<Serializeable*>(dynamic_cast<const Serializeable*>(ptr)); //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 

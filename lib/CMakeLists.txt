@@ -463,6 +463,7 @@ set(lib_MAIN_HEADERS
 	gameState/CGameState.h
 	gameState/CGameStateCampaign.h
 	gameState/EVictoryLossCheckResult.h
+	gameState/HighScore.h
 	gameState/InfoAboutArmy.h
 	gameState/RumorState.h
 	gameState/SThievesGuildInfo.h
