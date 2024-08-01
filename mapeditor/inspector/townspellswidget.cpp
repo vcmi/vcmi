@@ -22,17 +22,8 @@ TownSpellsWidget::TownSpellsWidget(CGTownInstance & town, QWidget * parent) :
 {
 	ui->setupUi(this);
 
-	possibleSpellLists[0] = ui->possibleSpellList1;
-	possibleSpellLists[1] = ui->possibleSpellList2;
-	possibleSpellLists[2] = ui->possibleSpellList3;
-	possibleSpellLists[3] = ui->possibleSpellList4;
-	possibleSpellLists[4] = ui->possibleSpellList5;
-
-	requiredSpellLists[0] = ui->requiredSpellList1;
-	requiredSpellLists[1] = ui->requiredSpellList2;
-	requiredSpellLists[2] = ui->requiredSpellList3;
-	requiredSpellLists[3] = ui->requiredSpellList4;
-	requiredSpellLists[4] = ui->requiredSpellList5;
+	possibleSpellLists = { ui->possibleSpellList1, ui->possibleSpellList2, ui->possibleSpellList3, ui->possibleSpellList4, ui->possibleSpellList5 };
+	requiredSpellLists = { ui->requiredSpellList1, ui->requiredSpellList2, ui->requiredSpellList3, ui->requiredSpellList4, ui->requiredSpellList5 };
 
 	std::array<BuildingID, 5> mageGuilds = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
 	for (int i = 0; i < mageGuilds.size(); i++)

@@ -73,7 +73,7 @@ QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStan
 {
 	QStandardItem * parent = nullptr;
 	std::vector<QModelIndex> stack(1);
-	while (!parent && !stack.empty())
+	do
 	{
 		auto pindex = stack.back();
 		stack.pop_back();
@@ -89,15 +89,15 @@ QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStan
 			if (model.hasChildren(index))
 				stack.push_back(index);
 		}
-	}
+	} while(!parent && !stack.empty());
 	return parent;
 }
 
-std::list<QVariant> getBuildingVariantsFromModel(QStandardItemModel & model, int modelColumn, Qt::CheckState checkState)
+QVariantList getBuildingVariantsFromModel(QStandardItemModel & model, int modelColumn, Qt::CheckState checkState)
 {
-	std::list<QVariant> result;
+	QVariantList result;
 	std::vector<QModelIndex> stack(1);
-	while (!stack.empty())
+	do
 	{
 		auto pindex = stack.back();
 		stack.pop_back();
@@ -105,14 +105,14 @@ std::list<QVariant> getBuildingVariantsFromModel(QStandardItemModel & model, int
 		for (int i = 0; i < rowCount; ++i)
 		{
 			QModelIndex index = model.index(i, modelColumn, pindex);
-			if (auto * item = model.itemFromIndex(index))
-				if (item->checkState() == checkState)
-					result.push_back(item->data(MapEditorRoles::BuildingIDRole));
+			auto * item = model.itemFromIndex(index);
+			if(item && item->checkState() == checkState)
+				result.push_back(item->data(MapEditorRoles::BuildingIDRole));
 			index = model.index(i, 0, pindex);
 			if (model.hasChildren(index))
 				stack.push_back(index);
 		}
-	}
+	} while(!stack.empty());
 
 	return result;
 }
@@ -263,7 +263,7 @@ void TownBuildingsWidget::setRowColumnCheckState(QStandardItem * item, Column co
 void TownBuildingsWidget::setAllRowsColumnCheckState(Column column, Qt::CheckState checkState)
 {
 	std::vector<QModelIndex> stack(1);
-	while (!stack.empty())
+	do
 	{
 		auto parentIndex = stack.back();
 		stack.pop_back();
@@ -277,7 +277,7 @@ void TownBuildingsWidget::setAllRowsColumnCheckState(Column column, Qt::CheckSta
 			if (model.hasChildren(index))
 				stack.push_back(index);
 		}
-	}
+	} while(!stack.empty());
 }
 
 void TownBuildingsWidget::onItemChanged(QStandardItem * item) {
@@ -297,7 +297,8 @@ void TownBuildingsWidget::onItemChanged(QStandardItem * item) {
 	else if (item->checkState() == Qt::Unchecked) {
 		std::vector<QStandardItem*> stack;
 		stack.push_back(nextRow);
-		while (!stack.empty()) {
+		do
+		{
 			nextRow = stack.back();
 			stack.pop_back();
 			setRowColumnCheckState(nextRow, Column(item->column()), Qt::Unchecked);
@@ -310,7 +311,7 @@ void TownBuildingsWidget::onItemChanged(QStandardItem * item) {
 				}
 			}
 			
-		}
+		} while(!stack.empty());
 	}
 	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 }

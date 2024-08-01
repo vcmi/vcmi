@@ -206,6 +206,9 @@
          <height>421</height>
         </rect>
        </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
        <attribute name="headerVisible">
         <bool>false</bool>
        </attribute>

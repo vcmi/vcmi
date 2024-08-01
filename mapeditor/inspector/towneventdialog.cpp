@@ -18,15 +18,23 @@
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
 
+static const int FIRST_DAY_FOR_EVENT = 1;
+static const int LAST_DAY_FOR_EVENT = 999;
+static const int MAXIMUM_EVENT_REPEAT_AFTER = 999;
+
+static const int MAXIMUM_GOLD_CHANGE = 999999;
+static const int MAXIMUM_RESOURCE_CHANGE = 999;
+static const int GOLD_STEP = 100;
+static const int RESOURCE_STEP = 1;
+
+static const int MAXIMUM_CREATURES_CHANGE = 999999;
+
 TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWidget * parent) :
 	QDialog(parent),
 	ui(new Ui::TownEventDialog),
 	town(t),
 	townEventListItem(item)
 {
-	static const int FIRST_DAY_FOR_EVENT = 1;
-	static const int LAST_DAY_FOR_EVENT = 999;
-	static const int MAXIMUM_REPEAT_AFTER = 999;
 	ui->setupUi(this);
 
 	ui->buildingsTree->setModel(&buildingsModel);
@@ -34,7 +42,7 @@ TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWi
 	params = townEventListItem->data(MapEditorRoles::TownEventRole).toMap();
 	ui->eventFirstOccurrence->setMinimum(FIRST_DAY_FOR_EVENT);
 	ui->eventFirstOccurrence->setMaximum(LAST_DAY_FOR_EVENT);
-	ui->eventRepeatAfter->setMaximum(MAXIMUM_REPEAT_AFTER);
+	ui->eventRepeatAfter->setMaximum(MAXIMUM_EVENT_REPEAT_AFTER);
 	ui->eventNameText->setText(params.value("name").toString());
 	ui->eventMessageText->setPlainText(params.value("message").toString());
 	ui->eventAffectsCpu->setChecked(params.value("computerAffected").toBool());
@@ -67,21 +75,20 @@ void TownEventDialog::initPlayers()
 
 void TownEventDialog::initResources()
 {
-	static const int MAXIUMUM_GOLD_CHANGE = 999999;
-	static const int MAXIUMUM_RESOURCE_CHANGE = 999;
-	static const int GOLD_STEP = 100;
-	static const int RESOURCE_STEP = 1;
 	ui->resourcesTable->setRowCount(GameConstants::RESOURCE_QUANTITY);
 	auto resourcesMap = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		auto name = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
-		int val = resourcesMap.value(name).toInt();
-		ui->resourcesTable->setItem(i, 0, new QTableWidgetItem(name));
+		auto * item = new QTableWidgetItem();
+		item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+		item->setText(name);
+		ui->resourcesTable->setItem(i, 0, item);
 
+		int val = resourcesMap.value(name).toInt();
 		QSpinBox * edit = new QSpinBox(ui->resourcesTable);
-		edit->setMaximum(i == GameResID::GOLD ? MAXIUMUM_GOLD_CHANGE : MAXIUMUM_RESOURCE_CHANGE);
-		edit->setMinimum(i == GameResID::GOLD ? -MAXIUMUM_GOLD_CHANGE : -MAXIUMUM_RESOURCE_CHANGE);
+		edit->setMaximum(i == GameResID::GOLD ? MAXIMUM_GOLD_CHANGE : MAXIMUM_RESOURCE_CHANGE);
+		edit->setMinimum(i == GameResID::GOLD ? -MAXIMUM_GOLD_CHANGE : -MAXIMUM_RESOURCE_CHANGE);
 		edit->setSingleStep(i == GameResID::GOLD ? GOLD_STEP : RESOURCE_STEP);
 		edit->setValue(val);
 
@@ -110,11 +117,6 @@ QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buil
 {
 	auto bId = buildingId.num;
 	const CBuilding * building = ctown.buildings.at(buildingId);
-	if (!building)
-	{
-		remaining.erase(bId);
-		return nullptr;
-	}
 
 	QString name = QString::fromStdString(building->getNameTranslated());
 
@@ -142,12 +144,6 @@ QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buil
 		if (!parent)
 			parent = addBuilding(ctown, building->upgrade.getNum(), remaining);
 
-		if (!parent)
-		{
-			remaining.erase(bId);
-			return nullptr;
-		}
-
 		parent->appendRow(checks);
 	}
 
@@ -157,7 +153,6 @@ QStandardItem * TownEventDialog::addBuilding(const CTown& ctown, BuildingID buil
 
 void TownEventDialog::initCreatures()
 {
-	static const int MAXIUMUM_CREATURES_CHANGE = 999999;
 	auto creatures = params.value("creatures").toList();
 	auto * ctown = town.town;
 	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; ++i)
@@ -185,7 +180,7 @@ void TownEventDialog::initCreatures()
 		auto creatureNumber = creatures.size() > i ? creatures.at(i).toInt() : 0;
 		QSpinBox* edit = new QSpinBox(ui->creaturesTable);
 		edit->setValue(creatureNumber);
-		edit->setMaximum(MAXIUMUM_CREATURES_CHANGE);
+		edit->setMaximum(MAXIMUM_CREATURES_CHANGE);
 		ui->creaturesTable->setCellWidget(i, 1, edit);
 
 	}
@@ -238,13 +233,7 @@ QVariantMap TownEventDialog::resourcesToVariant()
 
 QVariantList TownEventDialog::buildingsToVariant()
 {
-	auto buildings = getBuildingVariantsFromModel(buildingsModel, 1, Qt::Checked);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-	QVariantList buildingsList(buildings.begin(), buildings.end());
-#else
-	QVariantList buildingsList = QVariantList::fromStdList(buildings);
-#endif
-	return buildingsList;
+	return getBuildingVariantsFromModel(buildingsModel, 1, Qt::Checked);
 }
 
 QVariantList TownEventDialog::creaturesToVariant()
@@ -283,7 +272,8 @@ void TownEventDialog::onItemChanged(QStandardItem * item)
 	else if (item->checkState() == Qt::Unchecked) {
 		std::vector<QStandardItem *> stack;
 		stack.push_back(nextRow);
-		while (!stack.empty()) {
+		do
+		{
 			nextRow = stack.back();
 			stack.pop_back();
 			setRowColumnCheckState(nextRow, item->column(), Qt::Unchecked);
@@ -293,7 +283,7 @@ void TownEventDialog::onItemChanged(QStandardItem * item)
 				}
 			}
 
-		}
+		} while(!stack.empty());
 	}
 	connect(&buildingsModel, &QStandardItemModel::itemChanged, this, &TownEventDialog::onItemChanged);
 }
