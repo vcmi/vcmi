@@ -1267,7 +1267,7 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 	vstd::amin(chanceToKill, 1); //cap at 100%
 	int killedCreatures = gameHandler->getRandomGenerator().nextBinomialInt(attacker->getCount(), chanceToKill);
 
-	int maxToKill = (attacker->getCount() * singleCreatureKillChancePercent + 99) / 100;
+	int maxToKill = vstd::divideAndCeil(attacker->getCount() * singleCreatureKillChancePercent, 100);
 	vstd::amin(killedCreatures, maxToKill);
 
 	killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
