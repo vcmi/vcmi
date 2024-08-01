@@ -22,24 +22,30 @@ struct DLL_LINKAGE StatisticDataSetEntry
     int day;
     PlayerColor player;
 	TeamID team;
+	bool isHuman;
+	EPlayerStatus status;
 	TResources resources;
 	int numberHeroes;
 	int numberTowns;
 	int numberArtifacts;
 	si64 armyStrength;
 	int income;
+	double mapVisitedRatio;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & day;
 		h & player;
 		h & team;
+		h & isHuman;
+		h & status;
 		h & resources;
 		h & numberHeroes;
 		h & numberTowns;
 		h & numberArtifacts;
 		h & armyStrength;
 		h & income;
+		h & mapVisitedRatio;
 	}
 };
 
@@ -64,6 +70,7 @@ public:
     static int getNumberOfArts(const PlayerState * ps);
 	static si64 getArmyStrength(const PlayerState * ps);
 	static int getIncome(const PlayerState * ps);
+	static double getMapVisitedRatio(const CGameState * gs, PlayerColor player);
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -12,6 +12,7 @@
 #include "../CPlayerState.h"
 #include "../constants/StringConstants.h"
 #include "CGameState.h"
+#include "TerrainHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CGObjectInstance.h"
@@ -32,12 +33,15 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.day = gs->getDate(Date::DAY);
 	data.player = ps->color;
 	data.team = ps->team;
+	data.isHuman = ps->isHuman();
+	data.status = ps->status;
 	data.resources = ps->resources;
 	data.numberHeroes = ps->heroes.size();
 	data.numberTowns = ps->towns.size();
 	data.numberArtifacts = Statistic::getNumberOfArts(ps);
 	data.armyStrength = Statistic::getArmyStrength(ps);
 	data.income = Statistic::getIncome(ps);
+	data.mapVisitedRatio = Statistic::getMapVisitedRatio(gs, ps->color);
 
 	return data;
 }
@@ -48,14 +52,34 @@ std::string StatisticDataSet::toCsv()
 
 	auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
 
-	ss << "Day" << ";" << "Player" << ";" << "Team" << ";" << "NumberHeroes" << ";" << "NumberTowns" << ";" << "NumberArtifacts" << ";" << "ArmyStrength" << ";" << "Income";
+	ss << "Day" << ";";
+	ss << "Player" << ";";
+	ss << "Team" << ";";
+	ss << "IsHuman" << ";";
+	ss << "Status" << ";";
+	ss << "NumberHeroes" << ";";
+	ss << "NumberTowns" << ";";
+	ss << "NumberArtifacts" << ";";
+	ss << "ArmyStrength" << ";";
+	ss << "Income" << ";";
+	ss << "MapVisitedRatio";
 	for(auto & resource : resources)
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
 	ss << "\r\n";
 
 	for(auto & entry : data)
 	{
-		ss << entry.day << ";" << GameConstants::PLAYER_COLOR_NAMES[entry.player] << ";" << entry.team.getNum() <<  ";" << entry.numberHeroes <<  ";" << entry.numberTowns <<  ";" << entry.numberArtifacts <<  ";" << entry.armyStrength <<  ";" << entry.income;
+		ss << entry.day << ";";
+		ss << GameConstants::PLAYER_COLOR_NAMES[entry.player] << ";";
+		ss << entry.team.getNum() << ";";
+		ss << entry.isHuman << ";";
+		ss << (int)entry.status << ";";
+		ss << entry.numberHeroes << ";";
+		ss << entry.numberTowns <<  ";";
+		ss << entry.numberArtifacts << ";";
+		ss << entry.armyStrength << ";";
+		ss << entry.income << ";";
+		ss << entry.mapVisitedRatio;
 		for(auto & resource : resources)
 			ss << ";" << entry.resources[resource];
 		ss << "\r\n";
@@ -137,6 +161,28 @@ int Statistic::getIncome(const PlayerState * ps)
 	}
 
 	return totalIncome;
+}
+
+double Statistic::getMapVisitedRatio(const CGameState * gs, PlayerColor player)
+{
+	double visible = 0.0;
+	double numTiles = 0.0;
+
+	for(int layer = 0; layer < (gs->map->twoLevel ? 2 : 1); layer++)
+		for (int y = 0; y < gs->map->height; ++y)
+			for (int x = 0; x < gs->map->width; ++x)
+			{
+				TerrainTile tile = gs->map->getTile(int3(x, y, layer));
+
+				if (tile.blocked && (!tile.visitable))
+					continue;
+
+				if(gs->isVisible(int3(x, y, layer), player))
+					visible++;
+				numTiles++;
+			}
+	
+	return visible / (numTiles);
 }
 
 VCMI_LIB_NAMESPACE_END
