@@ -49,7 +49,7 @@ QVariant toVariant(const std::vector<si32> & creatures)
 std::set<BuildingID> buildingsFromVariant(const QVariant& v)
 {
 	std::set<BuildingID> result;
-	for (auto r : v.toList()) {
+	for (const auto & r : v.toList()) {
 		result.insert(BuildingID(r.toInt()));
 	}
 	return result;
@@ -58,7 +58,7 @@ std::set<BuildingID> buildingsFromVariant(const QVariant& v)
 std::vector<si32> creaturesFromVariant(const QVariant& v)
 {
 	std::vector<si32> result;
-	for (auto r : v.toList()) {
+	for (const auto & r : v.toList()) {
 		result.push_back(r.toInt());
 	}
 	return result;
@@ -81,7 +81,7 @@ QVariant toVariant(const CCastleEvent& event)
 	return QVariant(result);
 }
 
-CCastleEvent eventFromVariant(CMapHeader& map, CGTownInstance& town, const QVariant& variant)
+CCastleEvent eventFromVariant(CMapHeader& map, const CGTownInstance& town, const QVariant& variant)
 {
 	CCastleEvent result;
 	auto v = variant.toMap();
@@ -143,13 +143,13 @@ void TownEventsWidget::on_eventsList_itemActivated(QListWidgetItem* item)
 }
 
 
-TownEventsDelegate::TownEventsDelegate(CGTownInstance & town, MapController & c) : town(town), controller(c), QStyledItemDelegate()
+TownEventsDelegate::TownEventsDelegate(CGTownInstance & town, MapController & c) : QStyledItemDelegate(), town(town), controller(c)
 {
 }
 
 QWidget* TownEventsDelegate::createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
 {
-	return new TownEventsWidget(town, parent);;
+	return new TownEventsWidget(town, parent);
 }
 
 void TownEventsDelegate::setEditorData(QWidget * editor, const QModelIndex & index) const

@@ -98,11 +98,11 @@ void TownSpellsWidget::commitChanges()
 	}
 
 	auto updateTownSpellList = [](auto uiSpellLists, auto & townSpellList) {
-		for (QListWidget * spellList : uiSpellLists)
+		for (const QListWidget * spellList : uiSpellLists)
 		{
 			for (int i = 0; i < spellList->count(); ++i)
 			{
-				QListWidgetItem * item = spellList->item(i);
+				const auto * item = spellList->item(i);
 				if (item->checkState() == Qt::Checked)
 				{
 					townSpellList.push_back(item->data(MapEditorRoles::SpellIDRole).toInt());
@@ -132,7 +132,7 @@ void TownSpellsWidget::on_customizeSpells_toggled(bool checked)
 	initSpellLists();
 }
 
-TownSpellsDelegate::TownSpellsDelegate(CGTownInstance & town) : town(town), QStyledItemDelegate()
+TownSpellsDelegate::TownSpellsDelegate(CGTownInstance & town) : QStyledItemDelegate(), town(town)
 {
 }
 

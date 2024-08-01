@@ -69,7 +69,7 @@ std::string defaultBuildingIdConversion(BuildingID bId)
 	}
 }
 
-QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStandardItemModel & model)
+QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, const QStandardItemModel & model)
 {
 	QStandardItem * parent = nullptr;
 	std::vector<QModelIndex> stack(1);
@@ -93,7 +93,7 @@ QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStan
 	return parent;
 }
 
-QVariantList getBuildingVariantsFromModel(QStandardItemModel & model, int modelColumn, Qt::CheckState checkState)
+QVariantList getBuildingVariantsFromModel(const QStandardItemModel & model, int modelColumn, Qt::CheckState checkState)
 {
 	QVariantList result;
 	std::vector<QModelIndex> stack(1);
@@ -207,7 +207,7 @@ std::set<BuildingID> TownBuildingsWidget::getBuildingsFromModel(int modelColumn,
 {
 	auto buildingVariants = getBuildingVariantsFromModel(model, modelColumn, checkState);
 	std::set<BuildingID> result;
-	for (auto buildingId : buildingVariants)
+	for (const auto & buildingId : buildingVariants)
 	{
 		result.insert(buildingId.toInt());
 	}
@@ -255,7 +255,7 @@ void TownBuildingsWidget::on_disableAll_clicked()
 }
 
 
-void TownBuildingsWidget::setRowColumnCheckState(QStandardItem * item, Column column, Qt::CheckState checkState) {
+void TownBuildingsWidget::setRowColumnCheckState(const QStandardItem * item, Column column, Qt::CheckState checkState) {
 	auto sibling = item->model()->sibling(item->row(), column, item->index());
 	model.itemFromIndex(sibling)->setCheckState(checkState);
 }
@@ -280,7 +280,7 @@ void TownBuildingsWidget::setAllRowsColumnCheckState(Column column, Qt::CheckSta
 	} while(!stack.empty());
 }
 
-void TownBuildingsWidget::onItemChanged(QStandardItem * item) {
+void TownBuildingsWidget::onItemChanged(const QStandardItem * item) {
 	disconnect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 	auto rowFirstColumnIndex = item->model()->sibling(item->row(), Column::TYPE, item->index());
 	QStandardItem * nextRow = model.itemFromIndex(rowFirstColumnIndex);

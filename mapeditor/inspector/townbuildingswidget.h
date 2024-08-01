@@ -19,9 +19,9 @@ class TownBuildingsWidget;
 
 std::string defaultBuildingIdConversion(BuildingID bId);
 
-QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, QStandardItemModel & model);
+QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, const QStandardItemModel & model);
 
-QVariantList getBuildingVariantsFromModel(QStandardItemModel & model, int modelColumn, Qt::CheckState checkState);
+QVariantList getBuildingVariantsFromModel(const QStandardItemModel & model, int modelColumn, Qt::CheckState checkState);
 
 class TownBuildingsWidget : public QDialog
 {
@@ -54,11 +54,11 @@ private slots:
 
 	void on_disableAll_clicked();
 
-	void onItemChanged(QStandardItem * item);
+	void onItemChanged(const QStandardItem * item);
 
 private:
 	std::set<BuildingID> getBuildingsFromModel(int modelColumn, Qt::CheckState checkState);
-	void setRowColumnCheckState(QStandardItem * item, Column column, Qt::CheckState checkState);
+	void setRowColumnCheckState(const QStandardItem * item, Column column, Qt::CheckState checkState);
 	void setAllRowsColumnCheckState(Column column, Qt::CheckState checkState);
 
 	Ui::TownBuildingsWidget *ui;

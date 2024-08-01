@@ -86,7 +86,7 @@ void TownEventDialog::initResources()
 		ui->resourcesTable->setItem(i, 0, item);
 
 		int val = resourcesMap.value(name).toInt();
-		QSpinBox * edit = new QSpinBox(ui->resourcesTable);
+		auto * edit = new QSpinBox(ui->resourcesTable);
 		edit->setMaximum(i == GameResID::GOLD ? MAXIMUM_GOLD_CHANGE : MAXIMUM_RESOURCE_CHANGE);
 		edit->setMinimum(i == GameResID::GOLD ? -MAXIMUM_GOLD_CHANGE : -MAXIMUM_RESOURCE_CHANGE);
 		edit->setSingleStep(i == GameResID::GOLD ? GOLD_STEP : RESOURCE_STEP);
@@ -178,7 +178,7 @@ void TownEventDialog::initCreatures()
 		ui->creaturesTable->setItem(i, 0, item);
 
 		auto creatureNumber = creatures.size() > i ? creatures.at(i).toInt() : 0;
-		QSpinBox* edit = new QSpinBox(ui->creaturesTable);
+		auto * edit = new QSpinBox(ui->creaturesTable);
 		edit->setValue(creatureNumber);
 		edit->setMaximum(MAXIMUM_CREATURES_CHANGE);
 		ui->creaturesTable->setCellWidget(i, 1, edit);
@@ -252,12 +252,12 @@ void TownEventDialog::on_okButton_clicked()
 	close();
 }
 
-void TownEventDialog::setRowColumnCheckState(QStandardItem * item, int column, Qt::CheckState checkState) {
+void TownEventDialog::setRowColumnCheckState(const QStandardItem * item, int column, Qt::CheckState checkState) {
 	auto sibling = item->model()->sibling(item->row(), column, item->index());
 	buildingsModel.itemFromIndex(sibling)->setCheckState(checkState);
 }
 
-void TownEventDialog::onItemChanged(QStandardItem * item)
+void TownEventDialog::onItemChanged(const QStandardItem * item)
 {
 	disconnect(&buildingsModel, &QStandardItemModel::itemChanged, this, &TownEventDialog::onItemChanged);
 	auto rowFirstColumnIndex = item->model()->sibling(item->row(), 0, item->index());

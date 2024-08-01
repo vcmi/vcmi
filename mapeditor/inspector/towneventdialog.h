@@ -27,10 +27,10 @@ public:
 
 
 private slots:
-	void onItemChanged(QStandardItem * item);
+	void onItemChanged(const QStandardItem * item);
 	void on_TownEventDialog_finished(int result);
 	void on_okButton_clicked();
-	void setRowColumnCheckState(QStandardItem * item, int column, Qt::CheckState checkState);
+	void setRowColumnCheckState(const QStandardItem * item, int column, Qt::CheckState checkState);
 
 private:
 	void initPlayers();
