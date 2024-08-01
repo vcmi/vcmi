@@ -1200,7 +1200,7 @@ void CHillFortWindow::updateGarrisons()
 			newState = State::ALREADY_UPGRADED;
 
 		if(!totalSum.canBeAfforded(myRes))
-			newState = State::UNAFORDABLE;
+			newState = State::UNAFFORDABLE;
 	}
 
 	currState[slotsCount] = newState;
@@ -1217,7 +1217,7 @@ void CHillFortWindow::updateGarrisons()
 			slotLabels[i][j]->setText("");
 		}
 		//if can upgrade or can not afford, draw cost
-		if(currState[i] == State::UNAFORDABLE || currState[i] == State::MAKE_UPGRADE)
+		if(currState[i] == State::UNAFFORDABLE || currState[i] == State::MAKE_UPGRADE)
 		{
 			if(costs[i].nonZero())
 			{
@@ -1269,7 +1269,7 @@ void CHillFortWindow::makeDeal(SlotID slot)
 		case State::ALREADY_UPGRADED:
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
-		case State::UNAFORDABLE:
+		case State::UNAFFORDABLE:
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case State::UNAVAILABLE:
@@ -1324,7 +1324,7 @@ CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 	}
 
 	if(!(info.cost[0] * hero->getStackCount(slot)).canBeAfforded(myRes))
-		return State::UNAFORDABLE;
+		return State::UNAFFORDABLE;
 
 	return State::MAKE_UPGRADE;
 }

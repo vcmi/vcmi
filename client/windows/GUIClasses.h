@@ -445,7 +445,7 @@ class CHillFortWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 private:
 
-	enum class State { UNAFORDABLE, ALREADY_UPGRADED, MAKE_UPGRADE, EMPTY, UNAVAILABLE };
+	enum class State { UNAFFORDABLE, ALREADY_UPGRADED, MAKE_UPGRADE, EMPTY, UNAVAILABLE };
 	static constexpr std::size_t slotsCount = 7;
 	//todo: mithril support
 	static constexpr std::size_t resCount = 7;
