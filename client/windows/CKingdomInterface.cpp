@@ -37,6 +37,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
@@ -586,15 +587,16 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 			minesCount[mine->producedResource]++;
 
 			if (mine->producedResource == EGameResID::GOLD)
-				totalIncome += mine->producedQuantity;
+				totalIncome += mine->getProducedQuantity();
 		}
 	}
 
 	//Heroes can produce gold as well - skill, specialty or arts
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
+	auto * playerSettings = LOCPLINT->cb->getPlayerSettings(LOCPLINT->playerID);
 	for(auto & hero : heroes)
 	{
-		totalIncome += hero->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD))));
+		totalIncome += hero->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD)))) * playerSettings->handicap.percentIncome / 100;
 	}
 
 	//Add town income of all towns
@@ -605,8 +607,8 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	}
 
 	//if player has some modded boosts we want to show that as well
-	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD)));
-	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size();
+	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * playerSettings->handicap.percentIncome / 100;
+	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size() * playerSettings->handicap.percentIncome / 100;
 
 	for(int i=0; i<7; i++)
 	{

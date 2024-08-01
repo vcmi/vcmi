@@ -387,10 +387,14 @@ void CGameState::initDifficulty()
 	const JsonNode & difficultyAI(config["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
 	const JsonNode & difficultyHuman(config["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
 	
-	auto setDifficulty = [](PlayerState & state, const JsonNode & json)
+	auto setDifficulty = [this](PlayerState & state, const JsonNode & json)
 	{
 		//set starting resources
 		state.resources = TResources(json["resources"]);
+
+		//handicap
+		const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(state.color);
+		state.resources += ps.handicap.startBonus;
 		
 		//set global bonuses
 		for(auto & jsonBonus : json["globalBonuses"].Vector())
