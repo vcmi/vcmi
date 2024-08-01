@@ -460,8 +460,9 @@ std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells()
 		if(spellIds[i] != SpellID::NONE)
 			continue;
 
-		for(auto & availableSpell : CGI->spellh->objects)
+		for(const auto & availableSpellID : CGI->spellh->getDefaultAllowed())
 		{
+			const auto * availableSpell = availableSpellID->toSpell();
 			if(!availableSpell->isAdventure() && !availableSpell->isCreatureAbility() && hero->canCastThisSpell(availableSpell.get()) && !vstd::contains(spellIds, availableSpell->getId()))
 			{
 				spellIds[i] = availableSpell->getId();
