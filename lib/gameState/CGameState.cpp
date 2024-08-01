@@ -1588,81 +1588,6 @@ struct statsHLP
 		}
 		return h[best];
 	}
-
-	//calculates total number of artifacts that belong to given player
-	static int getNumberOfArts(const PlayerState * ps)
-	{
-		int ret = 0;
-		for(auto h : ps->heroes)
-		{
-			ret += (int)h->artifactsInBackpack.size() + (int)h->artifactsWorn.size();
-		}
-		return ret;
-	}
-
-	// get total strength of player army
-	static si64 getArmyStrength(const PlayerState * ps)
-	{
-		si64 str = 0;
-
-		for(auto h : ps->heroes)
-		{
-			if(!h->inTownGarrison)		//original h3 behavior
-				str += h->getArmyStrength();
-		}
-		return str;
-	}
-
-	// get total gold income
-	static int getIncome(const PlayerState * ps)
-	{
-		int totalIncome = 0;
-		const CGObjectInstance * heroOrTown = nullptr;
-
-		//Heroes can produce gold as well - skill, specialty or arts
-		for(const auto & h : ps->heroes)
-		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD))));
-
-			if(!heroOrTown)
-				heroOrTown = h;
-		}
-
-		//Add town income of all towns
-		for(const auto & t : ps->towns)
-		{
-			totalIncome += t->dailyIncome()[EGameResID::GOLD];
-
-			if(!heroOrTown)
-				heroOrTown = t;
-		}
-
-		/// FIXME: Dirty dirty hack
-		/// Stats helper need some access to gamestate.
-		std::vector<const CGObjectInstance *> ownedObjects;
-		for(const CGObjectInstance * obj : heroOrTown->cb->gameState()->map->objects)
-		{
-			if(obj && obj->tempOwner == ps->color)
-				ownedObjects.push_back(obj);
-		}
-		/// This is code from CPlayerSpecificInfoCallback::getMyObjects
-		/// I'm really need to find out about callback interface design...
-
-		for(const auto * object : ownedObjects)
-		{
-			//Mines
-			if ( object->ID == Obj::MINE )
-			{
-				const auto * mine = dynamic_cast<const CGMine *>(object);
-				assert(mine);
-
-				if (mine->producedResource == EGameResID::GOLD)
-					totalIncome += mine->producedQuantity;
-			}
-		}
-
-		return totalIncome;
-	}
 };
 
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
@@ -1739,15 +1664,15 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 4) //artifacts
 	{
-		FILL_FIELD(artifacts, statsHLP::getNumberOfArts(&g->second))
+		FILL_FIELD(artifacts, Statistic::getNumberOfArts(&g->second))
 	}
 	if(level >= 4) //army strength
 	{
-		FILL_FIELD(army, statsHLP::getArmyStrength(&g->second))
+		FILL_FIELD(army, Statistic::getArmyStrength(&g->second))
 	}
 	if(level >= 5) //income
 	{
-		FILL_FIELD(income, statsHLP::getIncome(&g->second))
+		FILL_FIELD(income, Statistic::getIncome(&g->second))
 	}
 	if(level >= 2) //best hero's stats
 	{
