@@ -326,8 +326,10 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 		if (!tryMakeAutomaticAction(battle, next))
 		{
-			setActiveStack(battle, next);
-			break;
+			if(next->alive()) {
+				setActiveStack(battle, next);
+				break;
+			}
 		}
 	}
 }
@@ -757,8 +759,11 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				});
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
 				parameters.setSpellLevel(bonus->val);
-				parameters.massive = true;
-				parameters.smart = true;
+				//todo: not hardcode
+				if (spellID != SpellID::ARMAGEDDON) {
+					parameters.massive = true;
+					parameters.smart = true;
+				}
 				//todo: recheck effect level
 				if(parameters.castIfPossible(gameHandler->spellEnv, spells::Target(1, spells::Destination())))
 				{
