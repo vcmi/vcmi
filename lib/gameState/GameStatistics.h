@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct PlayerState;
 class CGameState;
 class CGHeroInstance;
+class CGMine;
 
 struct DLL_LINKAGE StatisticDataSetEntry
 {
@@ -32,6 +33,9 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	si64 armyStrength;
 	int income;
 	double mapVisitedRatio;
+	int obeliskVisited;
+	double mightMagicRatio;
+	std::map<EGameResID, int> numMines;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -47,6 +51,9 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & armyStrength;
 		h & income;
 		h & mapVisitedRatio;
+		h & obeliskVisited;
+		h & mightMagicRatio;
+		h & numMines;
 	}
 };
 
@@ -67,15 +74,19 @@ public:
 
 class DLL_LINKAGE Statistic
 {
+	static std::vector<const CGMine *> getMines(const CGameState * gs, const PlayerState * ps);
 public:
 	using TStat = std::pair<PlayerColor, si64>;
 
-    static int getNumberOfArts(const PlayerState * ps);
-	static si64 getArmyStrength(const PlayerState * ps);
+	static int getNumberOfArts(const PlayerState * ps);
+	static si64 getArmyStrength(const PlayerState * ps, bool withTownGarrison = false);
 	static int getIncome(const CGameState * gs, const PlayerState * ps);
 	static double getMapVisitedRatio(const CGameState * gs, PlayerColor player);
 	static const CGHeroInstance * findBestHero(CGameState * gs, const PlayerColor & color);
 	static std::vector<std::vector<PlayerColor>> getRank(std::vector<TStat> stats);
+	static int getObeliskVisited(const CGameState * gs, const TeamID & t);
+	static double getMightMagicRatio(const PlayerState * ps);
+	static std::map<EGameResID, int> getNumMines(const CGameState * gs, const PlayerState * ps);
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -13,6 +13,7 @@
 #include "../constants/StringConstants.h"
 #include "CGameState.h"
 #include "TerrainHandler.h"
+#include "CHeroHandler.h"
 #include "StartInfo.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -40,9 +41,12 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numberHeroes = ps->heroes.size();
 	data.numberTowns = ps->towns.size();
 	data.numberArtifacts = Statistic::getNumberOfArts(ps);
-	data.armyStrength = Statistic::getArmyStrength(ps);
+	data.armyStrength = Statistic::getArmyStrength(ps, true);
 	data.income = Statistic::getIncome(gs, ps);
 	data.mapVisitedRatio = Statistic::getMapVisitedRatio(gs, ps->color);
+	data.obeliskVisited = Statistic::getObeliskVisited(gs, ps->team);
+	data.mightMagicRatio = Statistic::getMightMagicRatio(ps);
+	data.numMines = Statistic::getNumMines(gs, ps);
 
 	return data;
 }
@@ -63,9 +67,13 @@ std::string StatisticDataSet::toCsv()
 	ss << "NumberArtifacts" << ";";
 	ss << "ArmyStrength" << ";";
 	ss << "Income" << ";";
-	ss << "MapVisitedRatio";
+	ss << "MapVisitedRatio" << ";";
+	ss << "ObeliskVisited" << ";";
+	ss << "MightMagicRatio";
 	for(auto & resource : resources)
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
+	for(auto & resource : resources)
+		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "Mines";
 	ss << "\r\n";
 
 	for(auto & entry : data)
@@ -80,13 +88,47 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.numberArtifacts << ";";
 		ss << entry.armyStrength << ";";
 		ss << entry.income << ";";
-		ss << entry.mapVisitedRatio;
+		ss << entry.mapVisitedRatio << ";";
+		ss << entry.obeliskVisited << ";";
+		ss << entry.mightMagicRatio;
 		for(auto & resource : resources)
 			ss << ";" << entry.resources[resource];
+		for(auto & resource : resources)
+			ss << ";" << entry.numMines[resource];
 		ss << "\r\n";
 	}
 
 	return ss.str();
+}
+
+std::vector<const CGMine *> Statistic::getMines(const CGameState * gs, const PlayerState * ps)
+{
+	std::vector<const CGMine *> tmp;
+
+	/// FIXME: Dirty dirty hack
+	/// Stats helper need some access to gamestate.
+	std::vector<const CGObjectInstance *> ownedObjects;
+	for(const CGObjectInstance * obj : gs->map->objects)
+	{
+		if(obj && obj->tempOwner == ps->color)
+			ownedObjects.push_back(obj);
+	}
+	/// This is code from CPlayerSpecificInfoCallback::getMyObjects
+	/// I'm really need to find out about callback interface design...
+
+	for(const auto * object : ownedObjects)
+	{
+		//Mines
+		if ( object->ID == Obj::MINE )
+		{
+			const auto * mine = dynamic_cast<const CGMine *>(object);
+			assert(mine);
+
+			tmp.push_back(mine);
+		}
+	}
+
+	return tmp;
 }
 
 //calculates total number of artifacts that belong to given player
@@ -101,13 +143,13 @@ int Statistic::getNumberOfArts(const PlayerState * ps)
 }
 
 // get total strength of player army
-si64 Statistic::getArmyStrength(const PlayerState * ps)
+si64 Statistic::getArmyStrength(const PlayerState * ps, bool withTownGarrison)
 {
 	si64 str = 0;
 
 	for(auto h : ps->heroes)
 	{
-		if(!h->inTownGarrison)		//original h3 behavior
+		if(!h->inTownGarrison || withTownGarrison)		//original h3 behavior
 			str += h->getArmyStrength();
 	}
 	return str;
@@ -138,28 +180,10 @@ int Statistic::getIncome(const CGameState * gs, const PlayerState * ps)
 			heroOrTown = t;
 	}
 
-	/// FIXME: Dirty dirty hack
-	/// Stats helper need some access to gamestate.
-	std::vector<const CGObjectInstance *> ownedObjects;
-	for(const CGObjectInstance * obj : heroOrTown->cb->gameState()->map->objects)
+	for(const CGMine * mine : getMines(gs, ps))
 	{
-		if(obj && obj->tempOwner == ps->color)
-			ownedObjects.push_back(obj);
-	}
-	/// This is code from CPlayerSpecificInfoCallback::getMyObjects
-	/// I'm really need to find out about callback interface design...
-
-	for(const auto * object : ownedObjects)
-	{
-		//Mines
-		if ( object->ID == Obj::MINE )
-		{
-			const auto * mine = dynamic_cast<const CGMine *>(object);
-			assert(mine);
-
-			if (mine->producedResource == EGameResID::GOLD)
-				totalIncome += mine->getProducedQuantity();
-		}
+		if (mine->producedResource == EGameResID::GOLD)
+			totalIncome += mine->getProducedQuantity();
 	}
 
 	return totalIncome;
@@ -231,6 +255,38 @@ std::vector<std::vector<PlayerColor>> Statistic::getRank(std::vector<TStat> stat
 	}
 
 	return ret;
+}
+
+int Statistic::getObeliskVisited(const CGameState * gs, const TeamID & t)
+{
+	if(gs->map->obelisksVisited.count(t))
+		return gs->map->obelisksVisited.at(t);
+	else
+		return 0;
+}
+
+double Statistic::getMightMagicRatio(const PlayerState * ps)
+{
+	double numMight = 0;
+
+	for(auto h : ps->heroes)
+		if(h->type->heroClass->affinity == CHeroClass::EClassAffinity::MIGHT)
+			numMight++;
+
+	return numMight / ps->heroes.size();
+}
+
+std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const PlayerState * ps)
+{
+	std::map<EGameResID, int> tmp;
+
+	for(auto & res : EGameResID::ALL_RESOURCES())
+		tmp[res] = 0;
+
+	for(const CGMine * mine : getMines(gs, ps))
+		tmp[mine->producedResource]++;
+	
+	return tmp;
 }
 
 VCMI_LIB_NAMESPACE_END
