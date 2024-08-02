@@ -682,6 +682,15 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
+	for (auto & player : gs->players)
+	{
+		if (player.second.status != EPlayerStatus::INGAME)
+			continue;
+
+		if (player.second.heroes.empty() && player.second.towns.empty())
+			throw std::runtime_error("Invalid player in player state! Player " + std::to_string(player.first.getNum()) + ", map name: " + gs->map->name.toString() + ", map description: " + gs->map->description.toString());
+	}
+
 	if (newWeek && !firstTurn)
 	{
 		n.specialWeek = NewTurn::NORMAL;
