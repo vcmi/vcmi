@@ -40,8 +40,6 @@ class GlobalLobbyClient;
 class GameChatHandler;
 class IServerRunner;
 
-class HighScoreCalculation;
-
 enum class ESelectionScreen : ui8;
 enum class ELoadMode : ui8;
 
