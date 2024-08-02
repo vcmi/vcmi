@@ -55,10 +55,10 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numMines = Statistic::getNumMines(gs, ps);
 	data.score = scenarioHighScores.calculate().total;
 	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color)->level;
-	data.numBattlesNeutral = gs->statistic.values.numBattlesNeutral.at(ps->color);
-	data.numBattlesPlayer = gs->statistic.values.numBattlesPlayer.at(ps->color);
-	data.numWinBattlesNeutral = gs->statistic.values.numWinBattlesNeutral.at(ps->color);
-	data.numWinBattlesPlayer = gs->statistic.values.numWinBattlesPlayer.at(ps->color);
+	data.numBattlesNeutral = gs->statistic.values.numBattlesNeutral.count(ps->color) ? gs->statistic.values.numBattlesNeutral.at(ps->color) : 0;
+	data.numBattlesPlayer = gs->statistic.values.numBattlesPlayer.count(ps->color) ? gs->statistic.values.numBattlesPlayer.at(ps->color) : 0;
+	data.numWinBattlesNeutral = gs->statistic.values.numWinBattlesNeutral.count(ps->color) ? gs->statistic.values.numWinBattlesNeutral.at(ps->color) : 0;
+	data.numWinBattlesPlayer = gs->statistic.values.numWinBattlesPlayer.count(ps->color) ? gs->statistic.values.numWinBattlesPlayer.at(ps->color) : 0;
 
 	return data;
 }
