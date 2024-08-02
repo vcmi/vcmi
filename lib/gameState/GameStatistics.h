@@ -21,6 +21,8 @@ class CGMine;
 
 struct DLL_LINKAGE StatisticDataSetEntry
 {
+	std::string map;
+	time_t timestamp;
     int day;
     PlayerColor player;
 	TeamID team;
@@ -42,9 +44,13 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	int numBattlesPlayer;
 	int numWinBattlesNeutral;
 	int numWinBattlesPlayer;
+	int numHeroSurrendered;
+	int numHeroEscaped;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
+		h & map;
+		h & timestamp;
 		h & day;
 		h & player;
 		h & team;
@@ -66,6 +72,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & numBattlesPlayer;
 		h & numWinBattlesNeutral;
 		h & numWinBattlesPlayer;
+		h & numHeroSurrendered;
+		h & numHeroEscaped;
 	}
 };
 
@@ -84,6 +92,8 @@ public:
 		std::map<PlayerColor, int> numBattlesPlayer;
 		std::map<PlayerColor, int> numWinBattlesNeutral;
 		std::map<PlayerColor, int> numWinBattlesPlayer;
+		std::map<PlayerColor, int> numHeroSurrendered;
+		std::map<PlayerColor, int> numHeroEscaped;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
@@ -91,6 +101,8 @@ public:
 			h & numBattlesPlayer;
 			h & numWinBattlesNeutral;
 			h & numWinBattlesPlayer;
+			h & numHeroSurrendered;
+			h & numHeroEscaped;
 		}
 	};
 	ValueStorage values;

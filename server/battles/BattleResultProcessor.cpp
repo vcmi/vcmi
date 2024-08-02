@@ -572,10 +572,16 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	gameHandler->checkVictoryLossConditions(playerColors);
 
 	if (result.result == EBattleResult::SURRENDER)
+	{
+		gameHandler->gameState()->statistic.values.numHeroSurrendered[finishingBattle->loser]++;
 		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, finishingBattle->loserHero);
+	}
 
 	if (result.result == EBattleResult::ESCAPE)
+	{
+		gameHandler->gameState()->statistic.values.numHeroEscaped[finishingBattle->loser]++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, finishingBattle->loserHero);
+	}
 
 	if (result.winner != 2 && finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty()
 		&& (!finishingBattle->winnerHero->commander || !finishingBattle->winnerHero->commander->alive))

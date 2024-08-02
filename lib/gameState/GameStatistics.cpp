@@ -38,6 +38,8 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	scenarioHighScores.parameters.push_back(param);
 	scenarioHighScores.isCampaign = false;
 
+	data.map = gs->map->name.toString();
+	data.timestamp = std::time(0);
 	data.day = gs->getDate(Date::DAY);
 	data.player = ps->color;
 	data.team = ps->team;
@@ -54,11 +56,13 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.mightMagicRatio = Statistic::getMightMagicRatio(ps);
 	data.numMines = Statistic::getNumMines(gs, ps);
 	data.score = scenarioHighScores.calculate().total;
-	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color)->level;
+	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color) ? Statistic::findBestHero(gs, ps->color)->level : 0;
 	data.numBattlesNeutral = gs->statistic.values.numBattlesNeutral.count(ps->color) ? gs->statistic.values.numBattlesNeutral.at(ps->color) : 0;
 	data.numBattlesPlayer = gs->statistic.values.numBattlesPlayer.count(ps->color) ? gs->statistic.values.numBattlesPlayer.at(ps->color) : 0;
 	data.numWinBattlesNeutral = gs->statistic.values.numWinBattlesNeutral.count(ps->color) ? gs->statistic.values.numWinBattlesNeutral.at(ps->color) : 0;
 	data.numWinBattlesPlayer = gs->statistic.values.numWinBattlesPlayer.count(ps->color) ? gs->statistic.values.numWinBattlesPlayer.at(ps->color) : 0;
+	data.numHeroSurrendered = gs->statistic.values.numHeroSurrendered.count(ps->color) ? gs->statistic.values.numHeroSurrendered.at(ps->color) : 0;
+	data.numHeroEscaped = gs->statistic.values.numHeroEscaped.count(ps->color) ? gs->statistic.values.numHeroEscaped.at(ps->color) : 0;
 
 	return data;
 }
@@ -69,6 +73,8 @@ std::string StatisticDataSet::toCsv()
 
 	auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
 
+	ss << "Map" << ";";
+	ss << "Timestamp" << ";";
 	ss << "Day" << ";";
 	ss << "Player" << ";";
 	ss << "Team" << ";";
@@ -87,7 +93,9 @@ std::string StatisticDataSet::toCsv()
 	ss << "NumBattlesNeutral" << ";";
 	ss << "NumBattlesPlayer" << ";";
 	ss << "NumWinBattlesNeutral" << ";";
-	ss << "NumWinBattlesPlayer";
+	ss << "NumWinBattlesPlayer" << ";";
+	ss << "NumHeroSurrendered" << ";";
+	ss << "NumHeroEscaped";
 	for(auto & resource : resources)
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
 	for(auto & resource : resources)
@@ -96,6 +104,8 @@ std::string StatisticDataSet::toCsv()
 
 	for(auto & entry : data)
 	{
+		ss << entry.map << ";";
+		ss << vstd::getFormattedDateTime(entry.timestamp, "%Y-%m-%dT%H-%M-%S") << ";";
 		ss << entry.day << ";";
 		ss << GameConstants::PLAYER_COLOR_NAMES[entry.player] << ";";
 		ss << entry.team.getNum() << ";";
@@ -114,7 +124,9 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.numBattlesNeutral << ";";
 		ss << entry.numBattlesPlayer << ";";
 		ss << entry.numWinBattlesNeutral << ";";
-		ss << entry.numWinBattlesPlayer;
+		ss << entry.numWinBattlesPlayer << ";";
+		ss << entry.numHeroSurrendered << ";";
+		ss << entry.numHeroEscaped;
 		for(auto & resource : resources)
 			ss << ";" << entry.resources[resource];
 		for(auto & resource : resources)
