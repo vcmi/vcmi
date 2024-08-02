@@ -497,6 +497,22 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		gameHandler->sendAndApply(&ro);
 	}
 
+	// add statistic
+	if(battle.sideToPlayer(0) == PlayerColor::NEUTRAL || battle.sideToPlayer(1) == PlayerColor::NEUTRAL)
+	{
+		gameHandler->gameState()->statistic.values.numBattlesNeutral[battle.sideToPlayer(0)]++;
+		gameHandler->gameState()->statistic.values.numBattlesNeutral[battle.sideToPlayer(1)]++;
+		if(!finishingBattle->isDraw())
+			gameHandler->gameState()->statistic.values.numWinBattlesNeutral[battle.sideToPlayer(finishingBattle->winnerSide)]++;
+	}
+	else
+	{
+		gameHandler->gameState()->statistic.values.numBattlesPlayer[battle.sideToPlayer(0)]++;
+		gameHandler->gameState()->statistic.values.numBattlesPlayer[battle.sideToPlayer(1)]++;
+		if(!finishingBattle->isDraw())
+			gameHandler->gameState()->statistic.values.numWinBattlesPlayer[battle.sideToPlayer(finishingBattle->winnerSide)]++;
+	}
+
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();
 	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(BattleSide::ATTACKER));

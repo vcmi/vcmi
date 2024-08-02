@@ -54,6 +54,11 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.mightMagicRatio = Statistic::getMightMagicRatio(ps);
 	data.numMines = Statistic::getNumMines(gs, ps);
 	data.score = scenarioHighScores.calculate().total;
+	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color)->level;
+	data.numBattlesNeutral = gs->statistic.values.numBattlesNeutral.at(ps->color);
+	data.numBattlesPlayer = gs->statistic.values.numBattlesPlayer.at(ps->color);
+	data.numWinBattlesNeutral = gs->statistic.values.numWinBattlesNeutral.at(ps->color);
+	data.numWinBattlesPlayer = gs->statistic.values.numWinBattlesPlayer.at(ps->color);
 
 	return data;
 }
@@ -77,7 +82,12 @@ std::string StatisticDataSet::toCsv()
 	ss << "MapVisitedRatio" << ";";
 	ss << "ObeliskVisited" << ";";
 	ss << "MightMagicRatio" << ";";
-	ss << "Score";
+	ss << "Score" << ";";
+	ss << "MaxHeroLevel" << ";";
+	ss << "NumBattlesNeutral" << ";";
+	ss << "NumBattlesPlayer" << ";";
+	ss << "NumWinBattlesNeutral" << ";";
+	ss << "NumWinBattlesPlayer";
 	for(auto & resource : resources)
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
 	for(auto & resource : resources)
@@ -99,7 +109,12 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.mapVisitedRatio << ";";
 		ss << entry.obeliskVisited << ";";
 		ss << entry.mightMagicRatio << ";";
-		ss << entry.score;
+		ss << entry.score << ";";
+		ss << entry.maxHeroLevel << ";";
+		ss << entry.numBattlesNeutral << ";";
+		ss << entry.numBattlesPlayer << ";";
+		ss << entry.numWinBattlesNeutral << ";";
+		ss << entry.numWinBattlesPlayer;
 		for(auto & resource : resources)
 			ss << ";" << entry.resources[resource];
 		for(auto & resource : resources)
@@ -220,9 +235,9 @@ double Statistic::getMapVisitedRatio(const CGameState * gs, PlayerColor player)
 	return visible / numTiles;
 }
 
-const CGHeroInstance * Statistic::findBestHero(CGameState * gs, const PlayerColor & color)
+const CGHeroInstance * Statistic::findBestHero(const CGameState * gs, const PlayerColor & color)
 {
-	std::vector<ConstTransitivePtr<CGHeroInstance> > &h = gs->players[color].heroes;
+	auto &h = gs->players.at(color).heroes;
 	if(h.empty())
 		return nullptr;
 	//best hero will be that with highest exp

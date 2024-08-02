@@ -37,6 +37,11 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	double mightMagicRatio;
 	std::map<EGameResID, int> numMines;
 	int score;
+	int maxHeroLevel;
+	int numBattlesNeutral;
+	int numBattlesPlayer;
+	int numWinBattlesNeutral;
+	int numWinBattlesPlayer;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -56,6 +61,11 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & mightMagicRatio;
 		h & numMines;
 		h & score;
+		h & maxHeroLevel;
+		h & numBattlesNeutral;
+		h & numBattlesPlayer;
+		h & numWinBattlesNeutral;
+		h & numWinBattlesPlayer;
 	}
 };
 
@@ -68,9 +78,27 @@ public:
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
     std::string toCsv();
 
+	struct ValueStorage
+	{
+		std::map<PlayerColor, int> numBattlesNeutral;
+		std::map<PlayerColor, int> numBattlesPlayer;
+		std::map<PlayerColor, int> numWinBattlesNeutral;
+		std::map<PlayerColor, int> numWinBattlesPlayer;
+
+		template <typename Handler> void serialize(Handler &h)
+		{
+			h & numBattlesNeutral;
+			h & numBattlesPlayer;
+			h & numWinBattlesNeutral;
+			h & numWinBattlesPlayer;
+		}
+	};
+	ValueStorage values;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & data;
+		h & values;
 	}
 };
 
@@ -84,7 +112,7 @@ public:
 	static si64 getArmyStrength(const PlayerState * ps, bool withTownGarrison = false);
 	static int getIncome(const CGameState * gs, const PlayerState * ps);
 	static double getMapVisitedRatio(const CGameState * gs, PlayerColor player);
-	static const CGHeroInstance * findBestHero(CGameState * gs, const PlayerColor & color);
+	static const CGHeroInstance * findBestHero(const CGameState * gs, const PlayerColor & color);
 	static std::vector<std::vector<PlayerColor>> getRank(std::vector<TStat> stats);
 	static int getObeliskVisited(const CGameState * gs, const TeamID & t);
 	static double getMightMagicRatio(const PlayerState * ps);
