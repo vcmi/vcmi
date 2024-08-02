@@ -128,8 +128,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 	bool isServerLocal() const;
 
-	HighScoreParameter prepareHighScores(PlayerColor player, bool victory);
-
 public:
 	/// High-level connection overlay that is capable of (de)serializing network data
 	std::shared_ptr<CConnection> logicConnection;

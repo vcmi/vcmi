@@ -9,7 +9,11 @@
  */
 #pragma once
 
+#include "../GameConstants.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
+
+class CGameState;
 
 class DLL_LINKAGE HighScoreParameter
 {
@@ -36,6 +40,29 @@ public:
 		h & scenarioName;
 		h & playerName;
 	}
+};
+class DLL_LINKAGE HighScore
+{
+public:
+	static HighScoreParameter prepareHighScores(const CGameState * gs, PlayerColor player, bool victory);
+};
+
+class DLL_LINKAGE HighScoreCalculation
+{
+public:
+	struct Result
+	{
+		int basic = 0;
+		int total = 0;
+		int sumDays = 0;
+		bool cheater = false;
+	};
+
+	std::vector<HighScoreParameter> parameters;
+	bool isCampaign = false;
+
+	Result calculate();
+	static CreatureID getCreatureForPoints(int points, bool campaign);
 };
 
 VCMI_LIB_NAMESPACE_END

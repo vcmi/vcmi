@@ -15,6 +15,7 @@
 #include "TerrainHandler.h"
 #include "CHeroHandler.h"
 #include "StartInfo.h"
+#include "HighScore.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CGObjectInstance.h"
@@ -32,6 +33,11 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 {
 	StatisticDataSetEntry data;
 
+	HighScoreParameter param = HighScore::prepareHighScores(gs, ps->color, false);
+	HighScoreCalculation scenarioHighScores;
+	scenarioHighScores.parameters.push_back(param);
+	scenarioHighScores.isCampaign = false;
+
 	data.day = gs->getDate(Date::DAY);
 	data.player = ps->color;
 	data.team = ps->team;
@@ -39,7 +45,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.status = ps->status;
 	data.resources = ps->resources;
 	data.numberHeroes = ps->heroes.size();
-	data.numberTowns = ps->towns.size();
+	data.numberTowns = gs->howManyTowns(ps->color);
 	data.numberArtifacts = Statistic::getNumberOfArts(ps);
 	data.armyStrength = Statistic::getArmyStrength(ps, true);
 	data.income = Statistic::getIncome(gs, ps);
@@ -47,6 +53,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.obeliskVisited = Statistic::getObeliskVisited(gs, ps->team);
 	data.mightMagicRatio = Statistic::getMightMagicRatio(ps);
 	data.numMines = Statistic::getNumMines(gs, ps);
+	data.score = scenarioHighScores.calculate().total;
 
 	return data;
 }
@@ -69,7 +76,8 @@ std::string StatisticDataSet::toCsv()
 	ss << "Income" << ";";
 	ss << "MapVisitedRatio" << ";";
 	ss << "ObeliskVisited" << ";";
-	ss << "MightMagicRatio";
+	ss << "MightMagicRatio" << ";";
+	ss << "Score";
 	for(auto & resource : resources)
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
 	for(auto & resource : resources)
@@ -90,7 +98,8 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.income << ";";
 		ss << entry.mapVisitedRatio << ";";
 		ss << entry.obeliskVisited << ";";
-		ss << entry.mightMagicRatio;
+		ss << entry.mightMagicRatio << ";";
+		ss << entry.score;
 		for(auto & resource : resources)
 			ss << ";" << entry.resources[resource];
 		for(auto & resource : resources)

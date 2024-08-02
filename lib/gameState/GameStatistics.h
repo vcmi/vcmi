@@ -36,6 +36,7 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	int obeliskVisited;
 	double mightMagicRatio;
 	std::map<EGameResID, int> numMines;
+	int score;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -54,6 +55,7 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & obeliskVisited;
 		h & mightMagicRatio;
 		h & numMines;
+		h & score;
 	}
 };
 
