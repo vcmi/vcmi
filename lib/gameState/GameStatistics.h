@@ -38,6 +38,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	int income;
 	float mapExploredRatio;
 	float obeliskVisitedRatio;
+	float townBuiltRatio;
+	bool hasGrail;
 	std::map<EGameResID, int> numMines;
 	int score;
 	int maxHeroLevel;
@@ -47,6 +49,9 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	int numWinBattlesPlayer;
 	int numHeroSurrendered;
 	int numHeroEscaped;
+	TResources spentResourcesForArmy;
+	TResources spentResourcesForBuildings;
+	TResources tradeVolume;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -67,6 +72,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & income;
 		h & mapExploredRatio;
 		h & obeliskVisitedRatio;
+		h & townBuiltRatio;
+		h & hasGrail;
 		h & numMines;
 		h & score;
 		h & maxHeroLevel;
@@ -76,6 +83,9 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & numWinBattlesPlayer;
 		h & numHeroSurrendered;
 		h & numHeroEscaped;
+		h & spentResourcesForArmy;
+		h & spentResourcesForBuildings;
+		h & tradeVolume;
 	}
 };
 
@@ -88,7 +98,7 @@ public:
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
     std::string toCsv();
 
-	struct ValueStorage
+	struct ValueStorage // holds some actual values needed for stats
 	{
 		std::map<PlayerColor, int> numBattlesNeutral;
 		std::map<PlayerColor, int> numBattlesPlayer;
@@ -96,6 +106,9 @@ public:
 		std::map<PlayerColor, int> numWinBattlesPlayer;
 		std::map<PlayerColor, int> numHeroSurrendered;
 		std::map<PlayerColor, int> numHeroEscaped;
+		std::map<PlayerColor, TResources> spentResourcesForArmy;
+		std::map<PlayerColor, TResources> spentResourcesForBuildings;
+		std::map<PlayerColor, TResources> tradeVolume;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
@@ -130,6 +143,7 @@ public:
 	static int getObeliskVisited(const CGameState * gs, const TeamID & t);
 	static float getObeliskVisitedRatio(const CGameState * gs, const TeamID & t);
 	static std::map<EGameResID, int> getNumMines(const CGameState * gs, const PlayerState * ps);
+	static float getTownBuiltRatio(const PlayerState * ps);
 };
 
 VCMI_LIB_NAMESPACE_END

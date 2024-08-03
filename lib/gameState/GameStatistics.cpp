@@ -21,6 +21,8 @@
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
+#include "../entities/building/CBuilding.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -55,6 +57,8 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.income = Statistic::getIncome(gs, ps);
 	data.mapExploredRatio = Statistic::getMapExploredRatio(gs, ps->color);
 	data.obeliskVisitedRatio = Statistic::getObeliskVisitedRatio(gs, ps->team);
+	data.townBuiltRatio = Statistic::getTownBuiltRatio(ps);
+	data.hasGrail = param.hasGrail;
 	data.numMines = Statistic::getNumMines(gs, ps);
 	data.score = scenarioHighScores.calculate().total;
 	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color) ? Statistic::findBestHero(gs, ps->color)->level : 0;
@@ -64,6 +68,9 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numWinBattlesPlayer = gs->statistic.values.numWinBattlesPlayer.count(ps->color) ? gs->statistic.values.numWinBattlesPlayer.at(ps->color) : 0;
 	data.numHeroSurrendered = gs->statistic.values.numHeroSurrendered.count(ps->color) ? gs->statistic.values.numHeroSurrendered.at(ps->color) : 0;
 	data.numHeroEscaped = gs->statistic.values.numHeroEscaped.count(ps->color) ? gs->statistic.values.numHeroEscaped.at(ps->color) : 0;
+	data.spentResourcesForArmy = gs->statistic.values.spentResourcesForArmy.count(ps->color) ? gs->statistic.values.spentResourcesForArmy.at(ps->color) : TResources();
+	data.spentResourcesForBuildings = gs->statistic.values.spentResourcesForBuildings.count(ps->color) ? gs->statistic.values.spentResourcesForBuildings.at(ps->color) : TResources();
+	data.tradeVolume = gs->statistic.values.tradeVolume.count(ps->color) ? gs->statistic.values.tradeVolume.at(ps->color) : TResources();
 
 	return data;
 }
@@ -90,6 +97,8 @@ std::string StatisticDataSet::toCsv()
 	ss << "Income" << ";";
 	ss << "MapExploredRatio" << ";";
 	ss << "ObeliskVisitedRatio" << ";";
+	ss << "TownBuiltRatio" << ";";
+	ss << "HasGrail" << ";";
 	ss << "Score" << ";";
 	ss << "MaxHeroLevel" << ";";
 	ss << "NumBattlesNeutral" << ";";
@@ -102,6 +111,12 @@ std::string StatisticDataSet::toCsv()
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
 	for(auto & resource : resources)
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "Mines";
+	for(auto & resource : resources)
+		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForArmy";
+	for(auto & resource : resources)
+		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForBuildings";
+	for(auto & resource : resources)
+		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "TradeVolume";
 	ss << "\r\n";
 
 	for(auto & entry : data)
@@ -122,6 +137,8 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.income << ";";
 		ss << entry.mapExploredRatio << ";";
 		ss << entry.obeliskVisitedRatio << ";";
+		ss << entry.townBuiltRatio << ";";
+		ss << entry.hasGrail << ";";
 		ss << entry.score << ";";
 		ss << entry.maxHeroLevel << ";";
 		ss << entry.numBattlesNeutral << ";";
@@ -134,6 +151,12 @@ std::string StatisticDataSet::toCsv()
 			ss << ";" << entry.resources[resource];
 		for(auto & resource : resources)
 			ss << ";" << entry.numMines[resource];
+		for(auto & resource : resources)
+			ss << ";" << entry.spentResourcesForArmy[resource];
+		for(auto & resource : resources)
+			ss << ";" << entry.spentResourcesForBuildings[resource];
+		for(auto & resource : resources)
+			ss << ";" << entry.tradeVolume[resource];
 		ss << "\r\n";
 	}
 
@@ -333,6 +356,25 @@ std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const Pl
 		tmp[mine->producedResource]++;
 	
 	return tmp;
+}
+
+float Statistic::getTownBuiltRatio(const PlayerState * ps)
+{
+	float built = 0.0;
+	float total = 0.0;
+
+	for(const auto & t : ps->towns)
+	{
+		built += t->builtBuildings.size();
+		for(const auto & b : t->town->buildings)
+			if(!t->forbiddenBuildings.count(b.first))
+				total += 1;
+	}
+
+	if(total < 1)
+		return 0;
+	
+	return built / total;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -2463,7 +2463,10 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 
 	//Take cost
 	if(!force)
+	{
 		giveResources(t->tempOwner, -requestedBuilding->resources);
+		gs->statistic.values.spentResourcesForBuildings[t->tempOwner] += requestedBuilding->resources;
+	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window
 	sendAndApply(&ns);
@@ -2565,7 +2568,9 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	}
 
 	//recruit
-	giveResources(army->tempOwner, -(c->getFullRecruitCost() * cram));
+	TResources cost = (c->getFullRecruitCost() * cram);
+	giveResources(army->tempOwner, -cost);
+	gs->statistic.values.spentResourcesForArmy[army->tempOwner] += cost;
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
@@ -2618,6 +2623,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 
 	//take resources
 	giveResources(player, -totalCost);
+	gs->statistic.values.spentResourcesForArmy[player] += totalCost;
 
 	//upgrade creature
 	changeStackType(StackLocation(obj, pos), upgID.toCreature());
@@ -3241,6 +3247,9 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 
 	giveResource(player, toSell, -b1 * amountToBoy);
 	giveResource(player, toBuy, b2 * amountToBoy);
+
+	gs->statistic.values.tradeVolume[player][toSell] += -b1 * amountToBoy;
+	gs->statistic.values.tradeVolume[player][toBuy] += b2 * amountToBoy;
 
 	return true;
 }
