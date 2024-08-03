@@ -90,6 +90,7 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
 
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
 	image->disable();
+	moveSelectionForeground();
 }
 
 const CArtifactInstance * CArtPlace::getArt() const
