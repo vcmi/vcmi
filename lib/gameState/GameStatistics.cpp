@@ -105,7 +105,7 @@ std::string StatisticDataSet::toCsv()
 	for(auto & entry : data)
 	{
 		ss << entry.map << ";";
-		ss << vstd::getFormattedDateTime(entry.timestamp, "%Y-%m-%dT%H-%M-%S") << ";";
+		ss << vstd::getFormattedDateTime(entry.timestamp, "%Y-%m-%dT%H:%M:%S") << ";";
 		ss << entry.day << ";";
 		ss << GameConstants::PLAYER_COLOR_NAMES[entry.player] << ";";
 		ss << entry.team.getNum() << ";";
