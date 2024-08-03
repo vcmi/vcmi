@@ -494,7 +494,7 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	else
 		destStack = battle.battleGetUnitByPos(target.at(0).hexValue);
 
-	if(stack == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype == BonusSubtypeID())
+	if(stack == nullptr || destStack == nullptr || !healerAbility || !healerAbility->subtype.hasValue())
 	{
 		gameHandler->complain("There is either no healer, no destination, or healer cannot heal :P");
 	}
@@ -971,7 +971,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	}
 
 	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
-	if(bonus && ranged) //TODO: make it work in melee?
+	if(bonus && ranged && bonus->subtype.hasValue()) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
 		bat.flags |= BattleAttack::SPELL_LIKE;
