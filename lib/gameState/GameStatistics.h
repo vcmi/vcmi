@@ -34,9 +34,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	int numberArtifacts;
 	si64 armyStrength;
 	int income;
-	double mapVisitedRatio;
-	int obeliskVisited;
-	double mightMagicRatio;
+	float mapExploredRatio;
+	float obeliskVisitedRatio;
 	std::map<EGameResID, int> numMines;
 	int score;
 	int maxHeroLevel;
@@ -62,9 +61,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & numberArtifacts;
 		h & armyStrength;
 		h & income;
-		h & mapVisitedRatio;
-		h & obeliskVisited;
-		h & mightMagicRatio;
+		h & mapExploredRatio;
+		h & obeliskVisitedRatio;
 		h & numMines;
 		h & score;
 		h & maxHeroLevel;
@@ -118,16 +116,14 @@ class DLL_LINKAGE Statistic
 {
 	static std::vector<const CGMine *> getMines(const CGameState * gs, const PlayerState * ps);
 public:
-	using TStat = std::pair<PlayerColor, si64>;
-
 	static int getNumberOfArts(const PlayerState * ps);
 	static si64 getArmyStrength(const PlayerState * ps, bool withTownGarrison = false);
 	static int getIncome(const CGameState * gs, const PlayerState * ps);
-	static double getMapVisitedRatio(const CGameState * gs, PlayerColor player);
+	static float getMapExploredRatio(const CGameState * gs, PlayerColor player);
 	static const CGHeroInstance * findBestHero(const CGameState * gs, const PlayerColor & color);
-	static std::vector<std::vector<PlayerColor>> getRank(std::vector<TStat> stats);
+	static std::vector<std::vector<PlayerColor>> getRank(std::vector<std::pair<PlayerColor, si64>> stats);
 	static int getObeliskVisited(const CGameState * gs, const TeamID & t);
-	static double getMightMagicRatio(const PlayerState * ps);
+	static float getObeliskVisitedRatio(const CGameState * gs, const TeamID & t);
 	static std::map<EGameResID, int> getNumMines(const CGameState * gs, const PlayerState * ps);
 };
 

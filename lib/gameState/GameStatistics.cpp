@@ -51,9 +51,8 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numberArtifacts = Statistic::getNumberOfArts(ps);
 	data.armyStrength = Statistic::getArmyStrength(ps, true);
 	data.income = Statistic::getIncome(gs, ps);
-	data.mapVisitedRatio = Statistic::getMapVisitedRatio(gs, ps->color);
-	data.obeliskVisited = Statistic::getObeliskVisited(gs, ps->team);
-	data.mightMagicRatio = Statistic::getMightMagicRatio(ps);
+	data.mapExploredRatio = Statistic::getMapExploredRatio(gs, ps->color);
+	data.obeliskVisitedRatio = Statistic::getObeliskVisitedRatio(gs, ps->team);
 	data.numMines = Statistic::getNumMines(gs, ps);
 	data.score = scenarioHighScores.calculate().total;
 	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color) ? Statistic::findBestHero(gs, ps->color)->level : 0;
@@ -85,9 +84,8 @@ std::string StatisticDataSet::toCsv()
 	ss << "NumberArtifacts" << ";";
 	ss << "ArmyStrength" << ";";
 	ss << "Income" << ";";
-	ss << "MapVisitedRatio" << ";";
-	ss << "ObeliskVisited" << ";";
-	ss << "MightMagicRatio" << ";";
+	ss << "MapExploredRatio" << ";";
+	ss << "ObeliskVisitedRatio" << ";";
 	ss << "Score" << ";";
 	ss << "MaxHeroLevel" << ";";
 	ss << "NumBattlesNeutral" << ";";
@@ -116,9 +114,8 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.numberArtifacts << ";";
 		ss << entry.armyStrength << ";";
 		ss << entry.income << ";";
-		ss << entry.mapVisitedRatio << ";";
-		ss << entry.obeliskVisited << ";";
-		ss << entry.mightMagicRatio << ";";
+		ss << entry.mapExploredRatio << ";";
+		ss << entry.obeliskVisitedRatio << ";";
 		ss << entry.score << ";";
 		ss << entry.maxHeroLevel << ";";
 		ss << entry.numBattlesNeutral << ";";
@@ -225,10 +222,10 @@ int Statistic::getIncome(const CGameState * gs, const PlayerState * ps)
 	return totalIncome;
 }
 
-double Statistic::getMapVisitedRatio(const CGameState * gs, PlayerColor player)
+float Statistic::getMapExploredRatio(const CGameState * gs, PlayerColor player)
 {
-	double visible = 0.0;
-	double numTiles = 0.0;
+	float visible = 0.0;
+	float numTiles = 0.0;
 
 	for(int layer = 0; layer < (gs->map->twoLevel ? 2 : 1); layer++)
 		for(int y = 0; y < gs->map->height; ++y)
@@ -264,9 +261,9 @@ const CGHeroInstance * Statistic::findBestHero(const CGameState * gs, const Play
 	return h[best];
 }
 
-std::vector<std::vector<PlayerColor>> Statistic::getRank(std::vector<TStat> stats)
+std::vector<std::vector<PlayerColor>> Statistic::getRank(std::vector<std::pair<PlayerColor, si64>> stats)
 {
-	std::sort(stats.begin(), stats.end(), [](const TStat & a, const TStat & b) { return a.second > b.second; });
+	std::sort(stats.begin(), stats.end(), [](const std::pair<PlayerColor, si64> & a, const std::pair<PlayerColor, si64> & b) { return a.second > b.second; });
 
 	//put first element
 	std::vector< std::vector<PlayerColor> > ret;
@@ -301,15 +298,11 @@ int Statistic::getObeliskVisited(const CGameState * gs, const TeamID & t)
 		return 0;
 }
 
-double Statistic::getMightMagicRatio(const PlayerState * ps)
+float Statistic::getObeliskVisitedRatio(const CGameState * gs, const TeamID & t)
 {
-	double numMight = 0;
-
-	for(auto h : ps->heroes)
-		if(h->type->heroClass->affinity == CHeroClass::EClassAffinity::MIGHT)
-			numMight++;
-
-	return numMight / ps->heroes.size();
+	if(!gs->map->obeliskCount)
+		return 0;
+	return (float)getObeliskVisited(gs, t) / (float)gs->map->obeliskCount;
 }
 
 std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const PlayerState * ps)
