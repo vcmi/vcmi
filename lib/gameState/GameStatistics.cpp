@@ -71,6 +71,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.spentResourcesForArmy = gs->statistic.values.spentResourcesForArmy.count(ps->color) ? gs->statistic.values.spentResourcesForArmy.at(ps->color) : TResources();
 	data.spentResourcesForBuildings = gs->statistic.values.spentResourcesForBuildings.count(ps->color) ? gs->statistic.values.spentResourcesForBuildings.at(ps->color) : TResources();
 	data.tradeVolume = gs->statistic.values.tradeVolume.count(ps->color) ? gs->statistic.values.tradeVolume.at(ps->color) : TResources();
+	data.movementPointsUsed = gs->statistic.values.movementPointsUsed.count(ps->color) ? gs->statistic.values.movementPointsUsed.at(ps->color) : 0;
 
 	return data;
 }
@@ -106,7 +107,8 @@ std::string StatisticDataSet::toCsv()
 	ss << "NumWinBattlesNeutral" << ";";
 	ss << "NumWinBattlesPlayer" << ";";
 	ss << "NumHeroSurrendered" << ";";
-	ss << "NumHeroEscaped";
+	ss << "NumHeroEscaped" << ";";
+	ss << "MovementPointsUsed";
 	for(auto & resource : resources)
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
 	for(auto & resource : resources)
@@ -146,7 +148,8 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.numWinBattlesNeutral << ";";
 		ss << entry.numWinBattlesPlayer << ";";
 		ss << entry.numHeroSurrendered << ";";
-		ss << entry.numHeroEscaped;
+		ss << entry.numHeroEscaped << ";";
+		ss << entry.movementPointsUsed;
 		for(auto & resource : resources)
 			ss << ";" << entry.resources[resource];
 		for(auto & resource : resources)

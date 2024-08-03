@@ -52,6 +52,7 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	TResources spentResourcesForArmy;
 	TResources spentResourcesForBuildings;
 	TResources tradeVolume;
+	si64 movementPointsUsed;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -86,6 +87,7 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & spentResourcesForArmy;
 		h & spentResourcesForBuildings;
 		h & tradeVolume;
+		h & movementPointsUsed;
 	}
 };
 
@@ -109,6 +111,7 @@ public:
 		std::map<PlayerColor, TResources> spentResourcesForArmy;
 		std::map<PlayerColor, TResources> spentResourcesForBuildings;
 		std::map<PlayerColor, TResources> tradeVolume;
+		std::map<PlayerColor, si64> movementPointsUsed;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
@@ -118,6 +121,10 @@ public:
 			h & numWinBattlesPlayer;
 			h & numHeroSurrendered;
 			h & numHeroEscaped;
+			h & spentResourcesForArmy;
+			h & spentResourcesForBuildings;
+			h & tradeVolume;
+			h & movementPointsUsed;
 		}
 	};
 	ValueStorage values;
