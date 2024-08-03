@@ -1,4 +1,4 @@
-# 1.5.5 -> 1.6.0
+# 1.5.5 -> 1.6.0 (in development)
 
 # General
 * Saved game size reduced by approximately 3 times, especially for large maps or games with a large number of mods.
