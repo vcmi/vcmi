@@ -12,7 +12,9 @@
 
 #include "SDL_PixelAccess.h"
 
+#include "../gui/CGuiHandler.h"
 #include "../render/Graphics.h"
+#include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../CMT.h"
 #include "../xBRZ/xbrz.h"
@@ -770,6 +772,11 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	SDL_GetClipRect(src, &rect);
 
 	other = CSDL_Ext::fromSDL(rect);
+}
+
+int CSDL_Ext::CClipRectGuard::getScalingFactor() const
+{
+	return GH.screenHandler().getScalingFactor();
 }
 
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);

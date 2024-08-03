@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "Canvas.h"
 
+#include "../gui/CGuiHandler.h"
+#include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "Colors.h"
 #include "IImage.h"
@@ -63,7 +65,7 @@ int Canvas::getScalingFactor() const
 {
 	if (scalingPolicy == CanvasScalingPolicy::IGNORE)
 		return 1;
-	return 2; // TODO: get from screen handler
+	return GH.screenHandler().getScalingFactor();
 }
 
 Point Canvas::transformPos(const Point & input)

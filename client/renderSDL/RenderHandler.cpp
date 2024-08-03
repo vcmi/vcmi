@@ -13,10 +13,13 @@
 #include "SDLImage.h"
 #include "ImageScaled.h"
 
+#include "../gui/CGuiHandler.h"
+
 #include "../render/CAnimation.h"
 #include "../render/CDefFile.h"
 #include "../render/Colors.h"
 #include "../render/ColorFilter.h"
+#include "../render/IScreenHandler.h"
 
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -130,7 +133,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 int RenderHandler::getScalingFactor() const
 {
-	return 2;
+	return GH.screenHandler().getScalingFactor();
 }
 
 std::shared_ptr<IImage> RenderHandler::createImageReference(const ImageLocator & locator, std::shared_ptr<ISharedImage> input, EImageBlitMode mode)

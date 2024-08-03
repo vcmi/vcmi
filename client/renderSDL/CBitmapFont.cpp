@@ -252,8 +252,11 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 
 	posX += character.leftOffset * scalingFactor;
 
+	auto sdlColor = CSDL_Ext::toSDL(color);
+
 	if (atlasImage->format->palette)
-		atlasImage->format->palette->colors[255] = CSDL_Ext::toSDL(color);
+		SDL_SetPaletteColors(atlasImage->format->palette, &sdlColor, 255, 1);
+//		atlasImage->format->palette->colors[255] = CSDL_Ext::toSDL(color);
 	else
 		SDL_SetSurfaceColorMod(atlasImage, color.r, color.g, color.b);
 
