@@ -155,9 +155,13 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 
 	template <typename Handler> void serialize(Handler &h)
 	{
+		if (!h.saving)
+			h.loadingGamestate = true;
 		h & clientId;
 		h & initializedStartInfo;
 		h & initializedGameState;
+		if (!h.saving)
+			h.loadingGamestate = false;
 	}
 };
 
@@ -278,6 +282,20 @@ struct DLL_LINKAGE LobbySetPlayerName : public CLobbyPackToServer
 	{
 		h & color;
 		h & name;
+	}
+};
+
+struct DLL_LINKAGE LobbySetPlayerHandicap : public CLobbyPackToServer
+{
+	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
+	Handicap handicap = Handicap();
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & color;
+		h & handicap;
 	}
 };
 

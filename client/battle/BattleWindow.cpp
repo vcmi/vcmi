@@ -218,7 +218,7 @@ void BattleWindow::showStickyQuickSpellWindow()
 	Settings showStickyQuickSpellWindow = settings.write["battle"]["enableQuickSpellPanel"];
 	showStickyQuickSpellWindow->Bool() = true;
 
-	if(GH.screenDimensions().x >= 1050)
+	if(GH.screenDimensions().x >= 1050 && owner.getBattle()->battleGetMyHero()->hasSpellbook())
 	{
 		quickSpellWindow->enable();
 		quickSpellWindow->isEnabled = true;

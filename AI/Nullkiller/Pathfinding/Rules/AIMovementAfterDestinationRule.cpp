@@ -11,9 +11,11 @@
 #include "AIMovementAfterDestinationRule.h"
 #include "../Actions/BattleAction.h"
 #include "../Actions/QuestAction.h"
+#include "../Actions/WhirlpoolAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
 #include "../../../../lib/pathfinder/PathfinderOptions.h"
+#include "../../../../lib/pathfinder/CPathfinder.h"
 
 namespace NKAI
 {

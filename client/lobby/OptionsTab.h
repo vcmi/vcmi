@@ -27,8 +27,10 @@ class CComponentBox;
 class CTextBox;
 class CButton;
 class CSlider;
+class LRClickableArea;
 
 class FilledTexturePlayerColored;
+class TransparentFilledRectangle;
 
 /// The options tab which is shown at the map selection phase.
 class OptionsTab : public OptionsTabBase
@@ -49,6 +51,22 @@ public:
 		TOWN,
 		HERO,
 		BONUS
+	};
+
+	class HandicapWindow : public CWindowObject
+	{
+		std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
+
+		std::vector<std::shared_ptr<CLabel>> labels;
+		std::vector<std::shared_ptr<CAnimImage>> anim;
+		std::vector<std::shared_ptr<TransparentFilledRectangle>> textinputbackgrounds;
+		std::map<PlayerColor, std::map<EGameResID, std::shared_ptr<CTextInput>>> textinputs;
+		std::vector<std::shared_ptr<CButton>> buttons;
+
+		bool receiveEvent(const Point & position, int eventType) const override;
+		void clickReleased(const Point & cursorPosition) override;
+	public:
+		HandicapWindow();
 	};
 
 private:
@@ -192,6 +210,8 @@ private:
 		std::shared_ptr<SelectedBox> town;
 		std::shared_ptr<SelectedBox> hero;
 		std::shared_ptr<SelectedBox> bonus;
+		std::shared_ptr<LRClickableArea> handicap;
+		std::shared_ptr<CMultiLineLabel> labelHandicap;
 		enum {HUMAN_OR_CPU, HUMAN, CPU} whoCanPlay;
 
 		PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parentTab);

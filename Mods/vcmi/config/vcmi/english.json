@@ -73,7 +73,11 @@
 	"vcmi.lobby.sortDate" : "Sorts maps by change date",
 	"vcmi.lobby.backToLobby" : "Return to lobby",
 	"vcmi.lobby.author" : "Author",
-	
+	"vcmi.lobby.handicap" : "Handicap",
+	"vcmi.lobby.handicap.resource" : "Gives players appropriate resources to start with in addition to the normal starting resources. Negative values are allowed, but are limited to 0 in total (the player never starts with negative resources).",
+	"vcmi.lobby.handicap.income" : "Changes the player's various incomes by the percentage. Is rounded up.",
+	"vcmi.lobby.handicap.growth" : "Changes the growth rate of creatures in the towns owned by the player. Is rounded up.",
+		
 	"vcmi.lobby.login.title" : "VCMI Online Lobby",
 	"vcmi.lobby.login.username" : "Username:",
 	"vcmi.lobby.login.connecting" : "Connecting...",

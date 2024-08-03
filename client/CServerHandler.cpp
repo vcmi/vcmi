@@ -161,11 +161,6 @@ CServerHandler::CServerHandler()
 	registerTypesLobbyPacks(*applier);
 }
 
-void CServerHandler::setHighScoreCalc(const std::shared_ptr<HighScoreCalculation> &newHighScoreCalc)
-{
-	campaignScoreCalculator = newHighScoreCalc;
-}
-
 void CServerHandler::threadRunNetwork()
 {
 	logGlobal->info("Starting network thread");
@@ -497,6 +492,14 @@ void CServerHandler::setPlayerName(PlayerColor color, const std::string & name) 
 	sendLobbyPack(lspn);
 }
 
+void CServerHandler::setPlayerHandicap(PlayerColor color, Handicap handicap) const
+{
+	LobbySetPlayerHandicap lsph;
+	lsph.color = color;
+	lsph.handicap = handicap;
+	sendLobbyPack(lsph);
+}
+
 void CServerHandler::setPlayerOption(ui8 what, int32_t value, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;
@@ -655,7 +658,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		break;
 	case EStartMode::CAMPAIGN:
 		if(si->campState->conqueredScenarios().empty())
-			campaignScoreCalculator.reset();
+			si->campState->highscoreParameters.clear();
 		client->newGame(gameState);
 		break;
 	case EStartMode::LOAD_GAME:
@@ -686,12 +689,12 @@ HighScoreParameter CServerHandler::prepareHighScores(PlayerColor player, bool vi
 	for(const CGTownInstance * t : playerState->towns)
 		if(t->builtBuildings.count(BuildingID::GRAIL))
 			param.hasGrail = true;
-	param.allDefeated = true;
+	param.allEnemiesDefeated = true;
 	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)
 	{
 		auto ps = gs->getPlayerState(otherPlayer, false);
 		if(ps && otherPlayer != player && !ps->checkVanquished())
-			param.allDefeated = false;
+			param.allEnemiesDefeated = false;
 	}
 	param.scenarioName = gs->getMapHeader()->name.toString();
 	param.playerName = gs->getStartInfo()->playerInfos.find(player)->second.name;
@@ -756,19 +759,16 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	if (!cs)
 		ourCampaign = si->campState;
 
-	if(campaignScoreCalculator == nullptr)
-	{
-		campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
-		campaignScoreCalculator->isCampaign = true;
-		campaignScoreCalculator->parameters.clear();
-	}
 	param.campaignName = cs->getNameTranslated();
-	campaignScoreCalculator->parameters.push_back(param);
+	cs->highscoreParameters.push_back(param);
+	auto campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
+	campaignScoreCalculator->isCampaign = true;
+	campaignScoreCalculator->parameters = cs->highscoreParameters;
 
 	endGameplay();
 
 	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
-	auto finisher = [this, ourCampaign]()
+	auto finisher = [ourCampaign, campaignScoreCalculator]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{

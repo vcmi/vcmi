@@ -15,8 +15,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 BinarySerializer::BinarySerializer(IBinaryWriter * w): CSaverBase(w)
 {
-	saving=true;
-	smartPointerSerialization = true;
 	registerTypes(*this);
 }
 

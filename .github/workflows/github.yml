@@ -146,7 +146,13 @@ jobs:
         HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
       if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
       run: |
-        wget --progress=dot:giga https://github.com/vcmi-mods/vcmi-test-data/releases/download/v1.0/h3_assets.zip
+        if [[ ${{github.repository_owner}} == vcmi ]]
+        then
+            data_url="https://github.com/vcmi-mods/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
+        else
+            data_url="https://github.com/${{github.repository_owner}}/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
+        fi
+        wget --progress=dot:giga "$data_url" -O h3_assets.zip
         7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
         mkdir -p ~/.local/share/vcmi/
         mv h3_assets/* ~/.local/share/vcmi/

@@ -80,6 +80,7 @@ public:
 	void appendName(const SpellID& id);
 	void appendName(const PlayerColor& id);
 	void appendName(const CreatureID & id, TQuantity count);
+	void appendName(const GameResID& id);
 	void appendNameSingular(const CreatureID & id);
 	void appendNamePlural(const CreatureID & id);
 	void appendEOL();

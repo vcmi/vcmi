@@ -73,6 +73,10 @@
 	"vcmi.lobby.sortDate" : "Ordnet Karten nach Änderungsdatum",
 	"vcmi.lobby.backToLobby" : "Zur Lobby zurückkehren",
 	"vcmi.lobby.author" : "Author",
+	"vcmi.lobby.handicap" : "Handicap",
+	"vcmi.lobby.handicap.resource" : "Gibt den Spielern entsprechende Ressourcen zum Start zusätzlich zu den normalen Startressourcen. Negative Werte sind erlaubt, werden aber insgesamt auf 0 begrenzt (der Spieler beginnt nie mit negativen Ressourcen).",
+	"vcmi.lobby.handicap.income" : "Verändert die verschiedenen Einkommen des Spielers um den Prozentsatz. Wird aufgerundet.",
+	"vcmi.lobby.handicap.growth" : "Verändert die Wachstumsrate der Kreaturen in den Städten, die der Spieler besitzt. Wird aufgerundet.",
 	
 	"vcmi.lobby.login.title" : "VCMI Online Lobby",
 	"vcmi.lobby.login.username" : "Benutzername:",

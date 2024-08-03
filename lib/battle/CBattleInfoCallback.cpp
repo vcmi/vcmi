@@ -50,6 +50,12 @@ static bool sameSideOfWall(BattleHex pos1, BattleHex pos2)
 	return stackLeft == destLeft;
 }
 
+static bool isInsideWalls(BattleHex pos)
+{
+	const int wallInStackLine = lineToWallHex(pos.getY());
+	return wallInStackLine < pos;
+}
+
 // parts of wall
 static const std::pair<int, EWallPart> wallParts[] =
 {
@@ -128,6 +134,8 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 			return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 		if(hero->hasBonusOfType(BonusType::BLOCK_ALL_MAGIC))
 			return ESpellCastProblem::MAGIC_IS_BLOCKED;
+		if(!hero->hasSpellbook())
+			return ESpellCastProblem::NO_SPELLBOOK;
 	}
 		break;
 	default:
@@ -156,6 +164,11 @@ std::pair< std::vector<BattleHex>, int > CBattleInfoCallback::getPath(BattleHex 
 	}
 
 	return std::make_pair(path, reachability.distances[dest]);
+}
+
+bool CBattleInfoCallback::battleIsInsideWalls(BattleHex from) const
+{
+	return isInsideWalls(from);
 }
 
 bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const
