@@ -1,11 +1,11 @@
 # 1.5.5 -> 1.6.0 (in development)
 
-# General
+### General
 * Saved game size reduced by approximately 3 times, especially for large maps or games with a large number of mods.
 * Added option to start vcmi server on randomly selected TCP port
 * Fixed potential desynchronization between server and clients on randomization of map objects if client and server run on different operating systems
 
-# Interface
+### Interface
 * Implemented spell quick selection panel in combat
 * The number of units resurrected using the Life Drain ability is now written to the combat log.
 * Fixed playback of audio stream with different formats from video files in some Heroes 3 versions
