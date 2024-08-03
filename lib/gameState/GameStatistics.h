@@ -32,7 +32,9 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	int numberHeroes;
 	int numberTowns;
 	int numberArtifacts;
+	int numberDwellings;
 	si64 armyStrength;
+	si64 totalExperience;
 	int income;
 	float mapExploredRatio;
 	float obeliskVisitedRatio;
@@ -59,7 +61,9 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & numberHeroes;
 		h & numberTowns;
 		h & numberArtifacts;
+		h & numberDwellings;
 		h & armyStrength;
+		h & totalExperience;
 		h & income;
 		h & mapExploredRatio;
 		h & obeliskVisitedRatio;
@@ -118,6 +122,7 @@ class DLL_LINKAGE Statistic
 public:
 	static int getNumberOfArts(const PlayerState * ps);
 	static si64 getArmyStrength(const PlayerState * ps, bool withTownGarrison = false);
+	static si64 getTotalExperience(const PlayerState * ps);
 	static int getIncome(const CGameState * gs, const PlayerState * ps);
 	static float getMapExploredRatio(const CGameState * gs, PlayerColor player);
 	static const CGHeroInstance * findBestHero(const CGameState * gs, const PlayerColor & color);

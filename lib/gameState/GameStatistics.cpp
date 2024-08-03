@@ -49,7 +49,9 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numberHeroes = ps->heroes.size();
 	data.numberTowns = gs->howManyTowns(ps->color);
 	data.numberArtifacts = Statistic::getNumberOfArts(ps);
+	data.numberDwellings = gs->getPlayerState(ps->color)->dwellings.size();
 	data.armyStrength = Statistic::getArmyStrength(ps, true);
+	data.totalExperience = Statistic::getTotalExperience(ps);
 	data.income = Statistic::getIncome(gs, ps);
 	data.mapExploredRatio = Statistic::getMapExploredRatio(gs, ps->color);
 	data.obeliskVisitedRatio = Statistic::getObeliskVisitedRatio(gs, ps->team);
@@ -82,7 +84,9 @@ std::string StatisticDataSet::toCsv()
 	ss << "NumberHeroes" << ";";
 	ss << "NumberTowns" << ";";
 	ss << "NumberArtifacts" << ";";
+	ss << "NumberDwellings" << ";";
 	ss << "ArmyStrength" << ";";
+	ss << "TotalExperience" << ";";
 	ss << "Income" << ";";
 	ss << "MapExploredRatio" << ";";
 	ss << "ObeliskVisitedRatio" << ";";
@@ -112,7 +116,9 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.numberHeroes << ";";
 		ss << entry.numberTowns <<  ";";
 		ss << entry.numberArtifacts << ";";
+		ss << entry.numberDwellings << ";";
 		ss << entry.armyStrength << ";";
+		ss << entry.totalExperience << ";";
 		ss << entry.income << ";";
 		ss << entry.mapExploredRatio << ";";
 		ss << entry.obeliskVisitedRatio << ";";
@@ -186,6 +192,17 @@ si64 Statistic::getArmyStrength(const PlayerState * ps, bool withTownGarrison)
 			str += h->getArmyStrength();
 	}
 	return str;
+}
+
+// get total experience of all heroes
+si64 Statistic::getTotalExperience(const PlayerState * ps)
+{
+	si64 tmp = 0;
+
+	for(auto h : ps->heroes)
+		tmp += h->exp;
+	
+	return tmp;
 }
 
 // get total gold income
