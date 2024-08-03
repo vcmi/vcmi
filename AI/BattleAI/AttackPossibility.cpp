@@ -317,41 +317,42 @@ AttackPossibility AttackPossibility::evaluate(
 				auto defenderState = defenderStates.at(u->unitId());
 
 				int64_t damageDealt;
-				int64_t damageReceived;
 				float defenderDamageReduce;
 				float attackerDamageReduce;
 
 				DamageEstimation retaliation;
 				auto attackDmg = state->battleEstimateDamage(ap.attack, &retaliation);
 
-				vstd::amin(attackDmg.damage.min, defenderState->getAvailableHealth());
-				vstd::amin(attackDmg.damage.max, defenderState->getAvailableHealth());
-
-				vstd::amin(retaliation.damage.min, ap.attackerState->getAvailableHealth());
-				vstd::amin(retaliation.damage.max, ap.attackerState->getAvailableHealth());
-
 				damageDealt = averageDmg(attackDmg.damage);
+				vstd::amin(damageDealt, defenderState->getAvailableHealth());
+
 				defenderDamageReduce = calculateDamageReduce(attacker, u, damageDealt, damageCache, state);
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
 				//FIXME: use ranged retaliation
-				damageReceived = 0;
 				attackerDamageReduce = 0;
 
 				if (!attackInfo.shooting && u->unitId() == defender->unitId() && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
 					for(auto retaliated : retaliatedUnits)
 					{
-						damageReceived = averageDmg(retaliation.damage);
-						
 						if(retaliated->unitId() == attacker->unitId())
 						{
+							int64_t damageReceived = averageDmg(retaliation.damage);
+
+							vstd::amin(damageReceived, ap.attackerState->getAvailableHealth());
+
 							attackerDamageReduce = calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
 							ap.attackerState->damage(damageReceived);
 						}
 						else
 						{
-							if(state->battleMatchOwner(defender, u))
+							auto retaliationCollateral = state->battleEstimateDamage(defender, retaliated, 0);
+							int64_t damageReceived = averageDmg(retaliationCollateral.damage);
+
+							vstd::amin(damageReceived, retaliated->getAvailableHealth());
+
+							if(defender->unitSide() == retaliated->unitSide())
 								defenderDamageReduce += calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
 							else
 								ap.collateralDamageReduce += calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
