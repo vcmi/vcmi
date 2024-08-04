@@ -817,7 +817,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::ALTAR_OF_SACRIFICE:
 						if(getHero())
-							GH.windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, EMarketMode::ARTIFACT_CREATURE_EXP);
+							GH.windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, getHero()->getAlignment() != EAlignment::EVIL ? EMarketMode::ARTIFACT_EXP : EMarketMode::CREATURE_EXP);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;

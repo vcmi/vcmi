@@ -43,8 +43,6 @@ private:
 	const Point quitButtonPos = Point(516, 520);
 	std::shared_ptr<CMarketBase> marketWidget;
 
-	EMarketMode mode;
-
 	// This is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
 	std::shared_ptr<CPicture> artSlotBack;
 };
