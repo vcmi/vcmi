@@ -1,28 +1,29 @@
 # 1.5.5 -> 1.5.6
 
-# Stability
+### Stability
 * Fixed possible crash on transferring hero to next campaign scenario if hero has combined artifact some components of which can be transferred
 * Fixed possible crash on transferring hero to next campaign scenario that has creature with faction limiter in his army
 * Fixed possible crash on application shutdown due to incorrect destruction order of UI entities
 
-# Multiplayer
+### Multiplayer
 * Mod compatibility issues when joining a lobby room now use color coding to make them less easy to miss.
 * Incompatible mods are now placed before compatible mods when joining lobby room.
 * Fixed text overflow in online lobby interface
 * Fixed jittering simultaneous turns slider after moving it twice over short period
+* Fixed non-functioning slider in invite to game room dialog
 
-# Interface
+### Interface
 * Fixed some shortcuts that were not active during the enemy's turn, such as Thieves' Guild.
 * Game now correctly uses melee damage calculation when forcing a melee attack with a shooter.
 * Game will now close all open dialogs on start of our turn, to avoid bugs like locked right-click popups
 
-# Map Objects
+### Map Objects
 * Spells the hero can't learn are no longer hidden when received from a rewardable object, such as the Pandora Box
 * Spells that cannot be learned are now displayed with gray text in the name of the spell.
 * Configurable objects with scouted state such as Witch Hut in HotA now correctly show their reward on right click after vising them but refusing to accept reward
 * Right-click tooltip on map dwelling now always shows produced creatures. Player that owns the dwelling can also see number of creatures available for recruit
 
-# Modding
+### Modding
 * Fixed possible crash on invalid SPELL_LIKE_ATTACK bonus
 * Added compatibility check when loading maps with old names for boats
 
