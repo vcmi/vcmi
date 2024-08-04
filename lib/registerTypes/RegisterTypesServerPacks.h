@@ -27,6 +27,7 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, ArrangeStacks>();
 	s.template registerType<CPackForServer, DisbandCreature>();
 	s.template registerType<CPackForServer, BuildStructure>();
+	s.template registerType<CPackForServer, TriggerTownSpecialBuildingAction>();
 	s.template registerType<CPackForServer, RecruitCreatures>();
 	s.template registerType<CPackForServer, UpgradeCreature>();
 	s.template registerType<CPackForServer, GarrisonHeroSwap>();

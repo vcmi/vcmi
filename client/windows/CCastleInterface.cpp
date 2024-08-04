@@ -814,6 +814,10 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						enterAnyThievesGuild();
 						break;
 
+				case BuildingSubID::BANK:
+						enterBank();
+						break;
+
 				default:
 						enterBuilding(building);
 						break;
@@ -1052,6 +1056,15 @@ void CCastleBuildings::enterAnyThievesGuild()
 		}
 	}
 	LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
+}
+
+void CCastleBuildings::enterBank()
+{
+	//town
+	LOCPLINT->cb->triggerTownSpecialBuildingAction(town, BuildingSubID::BANK);
+
+	LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
+	//LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, components);
 }
 
 void CCastleBuildings::enterAnyMarket()
