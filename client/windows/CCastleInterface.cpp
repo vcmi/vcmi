@@ -1060,11 +1060,9 @@ void CCastleBuildings::enterAnyThievesGuild()
 
 void CCastleBuildings::enterBank()
 {
-	//town
-	LOCPLINT->cb->triggerTownSpecialBuildingAction(town, BuildingSubID::BANK);
-
-	LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
-	//LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, components);
+	std::vector<std::shared_ptr<CComponent>> components;
+	components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID::GOLD, 2500));
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"), [this](){ LOCPLINT->cb->triggerTownSpecialBuildingAction(town, BuildingSubID::BANK); }, nullptr, components);
 }
 
 void CCastleBuildings::enterAnyMarket()

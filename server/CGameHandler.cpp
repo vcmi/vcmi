@@ -2477,16 +2477,17 @@ bool CGameHandler::triggerTownSpecialBuildingAction(ObjectInstanceID tid, Buildi
 	for (auto building : t->town->buildings)
 		if(vstd::contains(t->builtBuildings, building.first) && building.second->subId == sid)
 			hasBuilding = true;
-	
+
 	if(!hasBuilding)
 		return false;
-
 
 	if(sid == BuildingSubID::EBuildingSubID::BANK)
 	{
 		TResources res;
 		res[EGameResID::GOLD] = 2500;
 		giveResources(t->getOwner(), res);
+
+		setObjPropertyValue(t->id, ObjProperty::BONUS_VALUE_SECOND, 2500);
 	}
 
 	return true;
