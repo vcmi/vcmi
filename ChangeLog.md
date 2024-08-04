@@ -10,6 +10,7 @@
 * Incompatible mods are now placed before compatible mods when joining lobby room.
 * Fixed text overflow in online lobby interface
 * Fixed jittering simultaneous turns slider after moving it twice over short period
+* Fixed non-functioning slider in invite to game room dialog
 
 ### Interface
 * Fixed some shortcuts that were not active during the enemy's turn, such as Thieves' Guild.
