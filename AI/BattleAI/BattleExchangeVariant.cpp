@@ -249,6 +249,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	updateReachabilityMap(hb);
 
 	if(result.bestAttack.attack.shooting
+		&& !result.bestAttack.defenderDead
 		&& !activeStack->waited()
 		&& hb->battleHasShootingPenalty(activeStack, result.bestAttack.dest))
 	{
@@ -259,8 +260,9 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	for(auto & ap : targets.possibleAttacks)
 	{
 		float score = evaluateExchange(ap, 0, targets, damageCache, hb);
+		bool sameScoreButWaited = vstd::isAlmostEqual(score, result.score) && result.wait;
 
-		if(score > result.score || (vstd::isAlmostEqual(score, result.score) && result.wait))
+		if(score > result.score || sameScoreButWaited)
 		{
 			result.score = score;
 			result.bestAttack = ap;
@@ -729,7 +731,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 {
 	std::vector<const battle::Unit *> result;
 
-	for(int i = 0; i < turnOrder.size(); i++, turn++)
+	for(int i = 0; i < turnOrder.size(); i++)
 	{
 		auto & turnQueue = turnOrder[i];
 		HypotheticBattle turnBattle(env.get(), cb);

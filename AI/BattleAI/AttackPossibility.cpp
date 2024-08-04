@@ -383,6 +383,11 @@ AttackPossibility AttackPossibility::evaluate(
 				}
 
 				defenderState->damage(damageDealt);
+
+				if(u->unitId() == defender->unitId())
+				{
+					ap.defenderDead = !defenderState->alive();
+				}
 			}
 		}
 
