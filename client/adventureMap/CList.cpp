@@ -18,10 +18,12 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/RadialMenu.h"
 #include "../windows/InfoWindows.h"
+#include "../windows/CCastleInterface.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
@@ -31,6 +33,8 @@
 #include "../../lib/GameSettings.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+
+#include "../../CCallback.h"
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
@@ -230,7 +234,7 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
 
 	update();
 
-	addUsedEvents(GESTURE);
+	addUsedEvents(GESTURE | KEYBOARD);
 }
 
 void CHeroList::CHeroItem::update()
@@ -299,6 +303,72 @@ void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const
 	};
 
 	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
+}
+
+bool CHeroList::CHeroItem::captureThisKey(EShortcut key)
+{
+
+	switch(key)
+	{
+	case EShortcut::LIST_HERO_UP:
+	case EShortcut::LIST_HERO_DOWN:
+	case EShortcut::LIST_HERO_TOP:
+	case EShortcut::LIST_HERO_BOTTOM:
+	case EShortcut::LIST_HERO_DELETE:
+		return hero && pos.isInside(GH.getCursorPosition());
+	}
+	return false;
+}
+
+void CHeroList::CHeroItem::keyPressed(EShortcut key)
+{
+	if(!hero)
+		return;
+
+	if(!pos.isInside(GH.getCursorPosition()))
+		return;
+
+	auto & heroes = LOCPLINT->localState->getWanderingHeroes();
+
+	if(key == EShortcut::LIST_HERO_DELETE)
+	{
+		CFunctionList<void()> ony = [=](){ };
+		ony += [=](){ LOCPLINT->cb->dismissHero(hero); };
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+		return;
+	}
+
+	if(heroes.size() < 2)
+		return;
+
+	size_t heroPos = vstd::find_pos(heroes, hero);
+	const CGHeroInstance * heroUpper = (heroPos < 1) ? nullptr : heroes.at(heroPos - 1);
+	const CGHeroInstance * heroLower = (heroPos > heroes.size() - 2) ? nullptr : heroes.at(heroPos + 1);
+
+	switch(key)
+	{
+	case EShortcut::LIST_HERO_UP:
+		if(heroUpper)
+			LOCPLINT->localState->swapWanderingHero(heroPos, heroPos - 1);
+		break;
+
+	case EShortcut::LIST_HERO_DOWN:
+		if(heroLower)
+			LOCPLINT->localState->swapWanderingHero(heroPos, heroPos + 1);
+		break;
+
+	case EShortcut::LIST_HERO_TOP:
+		if(heroUpper)
+			for (size_t i = heroPos; i > 0; i--)
+				LOCPLINT->localState->swapWanderingHero(i, i - 1);
+		break;
+
+	case EShortcut::LIST_HERO_BOTTOM:
+		if(heroLower)
+			for (int i = heroPos; i < heroes.size() - 1; i++)
+				LOCPLINT->localState->swapWanderingHero(i, i + 1);
+		break;
+	}
 }
 
 std::shared_ptr<CIntObject> CHeroList::createItem(size_t index)
@@ -370,7 +440,7 @@ CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
 	pos = picture->pos;
 	update();
 
-	addUsedEvents(GESTURE);
+	addUsedEvents(GESTURE | KEYBOARD);
 }
 
 std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
@@ -419,22 +489,89 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	int townUpperPos = (townIndex < 1) ? -1 : townIndex - 1;
 	int townLowerPos = (townIndex > towns.size() - 2) ? -1 : townIndex + 1;
 
+	auto updateList = [](){
+		for (auto ki : GH.windows().findWindows<CCastleInterface>())
+			ki->townChange(); //update list
+	};
+
 	std::vector<RadialMenuConfig> menuElements = {
-		{ RadialMenuConfig::ITEM_ALT_NN, townUpperPos > -1, "altUpTop", "vcmi.radialWheel.moveTop", [townIndex]()
+		{ RadialMenuConfig::ITEM_ALT_NN, townUpperPos > -1, "altUpTop", "vcmi.radialWheel.moveTop", [updateList, townIndex]()
 		{
 			for (int i = townIndex; i > 0; i--)
 				LOCPLINT->localState->swapOwnedTowns(i, i - 1);
+			updateList();
 		} },
-		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.moveUp", [townIndex, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(townIndex, townUpperPos); } },
-		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.moveDown", [townIndex, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(townIndex, townLowerPos); } },
-		{ RadialMenuConfig::ITEM_ALT_SS, townLowerPos > -1, "altDownBottom", "vcmi.radialWheel.moveBottom", [townIndex, towns]()
+		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.moveUp", [updateList, townIndex, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(townIndex, townUpperPos); updateList(); } },
+		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.moveDown", [updateList, townIndex, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(townIndex, townLowerPos); updateList(); } },
+		{ RadialMenuConfig::ITEM_ALT_SS, townLowerPos > -1, "altDownBottom", "vcmi.radialWheel.moveBottom", [updateList, townIndex, towns]()
 		{
 			for (int i = townIndex; i < towns.size() - 1; i++)
 				LOCPLINT->localState->swapOwnedTowns(i, i + 1);
+			updateList();
 		} },
 	};
 
 	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
+}
+
+bool CTownList::CTownItem::captureThisKey(EShortcut key)
+{
+
+	switch(key)
+	{
+	case EShortcut::LIST_TOWN_UP:
+	case EShortcut::LIST_TOWN_DOWN:
+	case EShortcut::LIST_TOWN_TOP:
+	case EShortcut::LIST_TOWN_BOTTOM:
+		return town && pos.isInside(GH.getCursorPosition());
+	}
+	return false;
+}
+
+void CTownList::CTownItem::keyPressed(EShortcut key)
+{
+	if(!pos.isInside(GH.getCursorPosition()))
+		return;
+
+	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();
+	size_t townIndex = vstd::find_pos(towns, town);
+
+	if(townIndex + 1 > towns.size() || !towns.at(townIndex))
+		return;
+
+	if(towns.size() < 2)
+		return;
+
+	int townUpperPos = (townIndex < 1) ? -1 : townIndex - 1;
+	int townLowerPos = (townIndex > towns.size() - 2) ? -1 : townIndex + 1;
+
+	switch(key)
+	{
+	case EShortcut::LIST_TOWN_UP:
+		if(townUpperPos > -1)
+			LOCPLINT->localState->swapOwnedTowns(townIndex, townUpperPos);
+		break;
+
+	case EShortcut::LIST_TOWN_DOWN:
+		if(townLowerPos > -1)
+			LOCPLINT->localState->swapOwnedTowns(townIndex, townLowerPos);
+		break;
+
+	case EShortcut::LIST_TOWN_TOP:
+		if(townUpperPos > -1)
+			for (int i = townIndex; i > 0; i--)
+				LOCPLINT->localState->swapOwnedTowns(i, i - 1);
+		break;
+
+	case EShortcut::LIST_TOWN_BOTTOM:
+		if(townLowerPos > -1)
+			for (int i = townIndex; i < towns.size() - 1; i++)
+				LOCPLINT->localState->swapOwnedTowns(i, i + 1);
+		break;
+	}
+
+	for (auto ki : GH.windows().findWindows<CCastleInterface>())
+		ki->townChange(); //update list
 }
 
 std::string CTownList::CTownItem::getHoverText()
