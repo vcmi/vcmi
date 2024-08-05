@@ -106,7 +106,16 @@ void QuickRecruitmentWindow::purchaseUnits()
 	{
 		if(selected->slider->getValue())
 		{
-			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, selected->creatureOnTheCard->getLevel()-1); };
+			int level = 0;
+			int i = 0;
+			for(auto c : town->town->creatures)
+			{
+				for(auto c2 : c)
+					if(c2 == selected->creatureOnTheCard->getId())
+						level = i;
+				i++;
+			}
+			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level); };
 			CreatureID crid =  selected->creatureOnTheCard->getId();
 			SlotID dstslot = town -> getSlotFor(crid);
 			if(!dstslot.validSlot())
