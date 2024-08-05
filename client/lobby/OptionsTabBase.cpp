@@ -340,10 +340,10 @@ void OptionsTabBase::recreate(bool campaign)
 
 	//Simultaneous turns
 	if(auto turnSlider = widget<CSlider>("simturnsDurationMin"))
-		turnSlider->setValue(SEL->getStartInfo()->simturnsInfo.requiredTurns);
+		turnSlider->setValue(SEL->getStartInfo()->simturnsInfo.requiredTurns, false);
 
 	if(auto turnSlider = widget<CSlider>("simturnsDurationMax"))
-		turnSlider->setValue(SEL->getStartInfo()->simturnsInfo.optionalTurns);
+		turnSlider->setValue(SEL->getStartInfo()->simturnsInfo.optionalTurns, false);
 
 	if(auto w = widget<CLabel>("labelSimturnsDurationValueMin"))
 		w->setText(generateSimturnsDurationText(SEL->getStartInfo()->simturnsInfo.requiredTurns));
@@ -388,7 +388,7 @@ void OptionsTabBase::recreate(bool campaign)
 				auto & tpreset = variables["timerPresets"].Vector()[idx];
 				if(tpreset.Vector().at(1).Integer() == turnTimerRemote.turnTimer / 1000)
 				{
-					turnSlider->scrollTo(idx);
+					turnSlider->scrollTo(idx, false);
 					if(auto w = widget<CLabel>("labelTurnDurationValue"))
 						w->setText(CGI->generaltexth->turnDurations[idx]);
 				}

@@ -30,7 +30,7 @@ CTextInput::CTextInput(const Rect & Pos)
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 
-	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
+	addUsedEvents(LCLICK | SHOW_POPUP | KEYBOARD | TEXTINPUT);
 }
 
 void CTextInput::createLabel(bool giveFocusToInput)
@@ -106,6 +106,11 @@ void CTextInput::setCallback(const TextEditedCallback & cb)
 	onTextEdited = cb;
 }
 
+void CTextInput::setPopupCallback(const std::function<void()> & cb)
+{
+	callbackPopup = cb;
+}
+
 void CTextInput::setFilterFilename()
 {
 	assert(!onTextFiltering);
@@ -120,6 +125,12 @@ void CTextInput::setFilterNumber(int minValue, int maxValue)
 std::string CTextInput::getVisibleText() const
 {
 	return hasFocus() ? currentText + composedText + "_" : currentText;
+}
+
+void CTextInput::showPopupWindow(const Point & cursorPosition)
+{
+	if(callbackPopup)
+		callbackPopup();
 }
 
 void CTextInput::clickPressed(const Point & cursorPosition)

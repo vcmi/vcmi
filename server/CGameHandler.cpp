@@ -694,6 +694,15 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
+	for (auto & player : gs->players)
+	{
+		if (player.second.status != EPlayerStatus::INGAME)
+			continue;
+
+		if (player.second.heroes.empty() && player.second.towns.empty())
+			throw std::runtime_error("Invalid player in player state! Player " + std::to_string(player.first.getNum()) + ", map name: " + gs->map->name.toString() + ", map description: " + gs->map->description.toString());
+	}
+
 	if (newWeek && !firstTurn)
 	{
 		n.specialWeek = NewTurn::NORMAL;
@@ -760,6 +769,8 @@ void CGameHandler::onNewTurn()
 			continue;
 
 		assert(elem.first.isValidPlayer());//illegal player number!
+			
+		auto playerSettings = gameState()->scenarioOps->getIthPlayersSettings(elem.first);
 
 		std::pair<PlayerColor, si32> playerGold(elem.first, elem.second.resources[EGameResID::GOLD]);
 		hadGold.insert(playerGold);
@@ -773,8 +784,8 @@ void CGameHandler::onNewTurn()
 		{
 			for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
 			{
-				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
-				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * elem.second.towns.size();
+				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k)) * playerSettings.handicap.percentIncome / 100;
+				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * elem.second.towns.size() * playerSettings.handicap.percentIncome / 100;
 			}
 
 			if(newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
@@ -806,7 +817,7 @@ void CGameHandler::onNewTurn()
 					}
 				}
 				if(hasCrystalGenCreature)
-					n.res[elem.first][EGameResID::CRYSTAL] += 3;
+					n.res[elem.first][EGameResID::CRYSTAL] += 3 * playerSettings.handicap.percentIncome / 100;
 			}
 		}
 
@@ -828,7 +839,7 @@ void CGameHandler::onNewTurn()
 			{
 				for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
 				{
-					n.res[elem.first][k] += h->valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+					n.res[elem.first][k] += h->valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k)) * playerSettings.handicap.percentIncome / 100;
 				}
 			}
 		}

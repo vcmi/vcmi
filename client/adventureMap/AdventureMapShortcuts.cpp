@@ -532,7 +532,7 @@ bool AdventureMapShortcuts::optionCanVisitObject()
 	auto * hero = LOCPLINT->localState->getCurrentHero();
 	auto objects = LOCPLINT->cb->getVisitableObjs(hero->visitablePos());
 
-	assert(vstd::contains(objects,hero));
+	//assert(vstd::contains(objects,hero));
 	return objects.size() > 1; // there is object other than our hero
 }
 
@@ -577,16 +577,15 @@ bool AdventureMapShortcuts::optionInWorldView()
 
 bool AdventureMapShortcuts::optionSidePanelActive()
 {
-return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
+return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
 }
 
 bool AdventureMapShortcuts::optionMapScrollingActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
 }
 
 bool AdventureMapShortcuts::optionMapViewActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL
-		|| state == EAdventureState::OTHER_HUMAN_PLAYER_TURN;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL;
 }

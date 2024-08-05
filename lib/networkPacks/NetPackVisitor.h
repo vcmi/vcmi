@@ -168,6 +168,7 @@ public:
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) {}
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) {}
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
+	virtual void visitLobbySetPlayerHandicap(LobbySetPlayerHandicap & pack) {}
 	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) {}
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) {}
 	virtual void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) {}

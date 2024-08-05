@@ -437,6 +437,13 @@ PvPBox::PvPBox(const Rect & rect)
 		CSH->sendLobbyPack(lpa);
 	}, EShortcut::LOBBY_RANDOM_TOWN_VS);
 	buttonRandomTownVs->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, Colors::WHITE);
+
+	buttonHandicap = std::make_shared<CButton>(Point(190, 81), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.handicap")), [](){
+		if(!CSH->isHost())
+			return;
+		GH.windows().createAndPushWindow<OptionsTab::HandicapWindow>();
+	}, EShortcut::LOBBY_HANDICAP);
+	buttonHandicap->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.handicap"), EFonts::FONT_SMALL, Colors::WHITE);
 }
 
 TownSelector::TownSelector(const Point & loc)

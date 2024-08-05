@@ -29,6 +29,7 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../windows/CHeroOverview.h"
@@ -793,6 +794,119 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 	setElement(elem, false);
 }
 
+OptionsTab::HandicapWindow::HandicapWindow()
+	: CWindowObject(BORDERED)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	addUsedEvents(LCLICK);
+
+	pos = Rect(0, 0, 660, 100 + SEL->getStartInfo()->playerInfos.size() * 30);
+
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
+	backgroundTexture->setPlayerColor(PlayerColor(1));
+
+	labels.push_back(std::make_shared<CLabel>(pos.w / 2 + 8, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.handicap")));
+
+	enum Columns : int32_t
+	{
+		INCOME = 1000,
+		GROWTH = 2000,
+	};
+	auto columns = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, Columns::INCOME, Columns::GROWTH};
+
+	int i = 0;
+	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
+	{
+		PlayerColor player = pInfo.first;
+		anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS"), player.getNum(), 0, 7, 57 + i * 30));
+		for(int j = 0; j < columns.size(); j++)
+		{
+			bool isIncome = int(columns[j]) == Columns::INCOME;
+			bool isGrowth = int(columns[j]) == Columns::GROWTH;
+			EGameResID resource = columns[j];
+
+			const PlayerSettings &ps = SEL->getStartInfo()->getIthPlayersSettings(player);
+
+			int xPos = 30 + j * 70;
+			xPos += j > 0 ? 10 : 0; // Gold field is larger
+
+			if(i == 0)
+			{
+				if(isIncome)
+					labels.push_back(std::make_shared<CLabel>(xPos, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.jktext.32")));
+				else if(isGrowth)
+					labels.push_back(std::make_shared<CLabel>(xPos, 35, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.194")));
+				else
+					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
+			}
+
+			auto area = Rect(xPos, 60 + i * 30, j == 0 ? 60 : 50, 16);
+			textinputbackgrounds.push_back(std::make_shared<TransparentFilledRectangle>(area.resize(3), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64)));
+			textinputs[player][resource] = std::make_shared<CTextInput>(area, FONT_SMALL, ETextAlignment::CENTERLEFT, true);
+			textinputs[player][resource]->setText(std::to_string(isIncome ? ps.handicap.percentIncome : (isGrowth ? ps.handicap.percentGrowth : ps.handicap.startBonus[resource])));
+			textinputs[player][resource]->setCallback([this, player, resource, isIncome, isGrowth](const std::string & s){
+				// text input processing: add/remove sign when pressing "-"; remove non digits; cut length; fill empty field with 0
+				std::string tmp = s;
+				bool negative = std::count_if( s.begin(), s.end(), []( char c ){ return c == '-'; }) == 1 && !isIncome && !isGrowth;
+				tmp.erase(std::remove_if(tmp.begin(), tmp.end(), [](char c) { return !isdigit(c); }), tmp.end());
+				int maxLength = isIncome || isGrowth ? 3 : (resource == EGameResID::GOLD ? 6 : 5);
+				tmp = tmp.substr(0, maxLength);
+				textinputs[player][resource]->setText(tmp.length() == 0 ? "0" : (negative ? "-" : "") + std::to_string(stoi(tmp)));
+			});
+			textinputs[player][resource]->setPopupCallback([isIncome, isGrowth](){
+				// Help for the textinputs
+				if(isIncome)
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.income"));
+				else if(isGrowth)
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.growth"));
+				else
+					CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.lobby.handicap.resource"));
+			});
+			if(isIncome || isGrowth)
+				labels.push_back(std::make_shared<CLabel>(area.topRight().x, area.center().y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "%"));
+		}
+		i++;
+	}
+	
+	buttons.push_back(std::make_shared<CButton>(Point(pos.w / 2 - 32, 60 + SEL->getStartInfo()->playerInfos.size() * 30), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){
+		for (const auto& player : textinputs)
+		{
+			TResources resources = TResources();
+			int income = 100;
+			int growth = 100;
+			for (const auto& resource : player.second)
+			{
+				bool isIncome = int(resource.first) == Columns::INCOME;
+				bool isGrowth = int(resource.first) == Columns::GROWTH;
+				if(isIncome)
+					income = std::stoi(resource.second->getText());
+				else if(isGrowth)
+					growth = std::stoi(resource.second->getText());
+				else
+					resources[resource.first] = std::stoi(resource.second->getText());
+			}
+			CSH->setPlayerHandicap(player.first, Handicap{resources, income, growth});
+		}
+	    		
+		close();
+	}, EShortcut::GLOBAL_RETURN));
+
+	updateShadow();
+	center();
+}
+
+bool OptionsTab::HandicapWindow::receiveEvent(const Point & position, int eventType) const
+{
+	return true;  // capture click also outside of window
+}
+
+void OptionsTab::HandicapWindow::clickReleased(const Point & cursorPosition)
+{
+	if(!pos.isInside(cursorPosition)) // make it possible to close window by touching/clicking outside of window
+		close();
+}
+
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & playerSettings, SelType type)
 	: Scrollable(LCLICK | SHOW_POPUP, position, Orientation::HORIZONTAL)
 	, CPlayerSettingsHelper(playerSettings, type)
@@ -922,6 +1036,47 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		labelPlayerNameEdit->setText(name);
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+
+	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
+	std::string labelHandicapText = hasHandicap() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
+	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), [](){
+		if(!CSH->isHost())
+			return;
+		
+		GH.windows().createAndPushWindow<HandicapWindow>();
+	}, [this, hasHandicap](){
+		if(hasHandicap())
+			CRClickPopup::createAndPush(MetaString::createFromTextID("core.help.124.help").toString());
+		else
+		{
+			auto str = MetaString::createFromTextID("vcmi.lobby.handicap");
+			str.appendRawString(":\n");
+			for(auto & res : EGameResID::ALL_RESOURCES())
+				if(s->handicap.startBonus[res] != 0)
+				{
+					str.appendRawString("\n");
+					str.appendName(res);
+					str.appendRawString(": ");
+					str.appendRawString(std::to_string(s->handicap.startBonus[res]));
+				}
+			if(s->handicap.percentIncome != 100)
+			{
+				str.appendRawString("\n");
+				str.appendTextID("core.jktext.32");
+				str.appendRawString(": ");
+				str.appendRawString(std::to_string(s->handicap.percentIncome) + "%");
+			}
+			if(s->handicap.percentGrowth != 100)
+			{
+				str.appendRawString("\n");
+				str.appendTextID("core.genrltxt.194");
+				str.appendRawString(": ");
+				str.appendRawString(std::to_string(s->handicap.percentGrowth) + "%");
+			}
+			CRClickPopup::createAndPush(str.toString());
+		}
+	});
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{

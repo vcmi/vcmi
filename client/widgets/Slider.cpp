@@ -70,7 +70,7 @@ int CSlider::getValue() const
 	return value;
 }
 
-void CSlider::setValue(int to)
+void CSlider::setValue(int to, bool callCallbacks)
 {
 	scrollTo(value);
 }
@@ -113,7 +113,7 @@ void CSlider::updateSliderPos()
 	}
 }
 
-void CSlider::scrollTo(int to)
+void CSlider::scrollTo(int to, bool callCallbacks)
 {
 	vstd::amax(to, 0);
 	vstd::amin(to, positions);
@@ -125,7 +125,8 @@ void CSlider::scrollTo(int to)
 
 	updateSliderPos();
 
-	moved(getValue());
+	if (callCallbacks)
+		moved(getValue());
 }
 
 void CSlider::clickPressed(const Point & cursorPosition)
@@ -321,7 +322,7 @@ int SliderNonlinear::getValue() const
 	return scaledValues.at(CSlider::getValue());
 }
 
-void SliderNonlinear::setValue(int to)
+void SliderNonlinear::setValue(int to, bool callCallbacks)
 {
 	size_t nearest = 0;
 
@@ -334,5 +335,5 @@ void SliderNonlinear::setValue(int to)
 			nearest = i;
 	}
 
-	scrollTo(nearest);
+	scrollTo(nearest, callCallbacks);
 }

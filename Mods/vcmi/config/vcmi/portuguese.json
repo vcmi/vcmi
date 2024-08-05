@@ -63,7 +63,7 @@
 	"vcmi.mainMenu.serverClosing" : "Fechando...",
 	"vcmi.mainMenu.hostTCP" : "Hospedar jogo TCP/IP",
 	"vcmi.mainMenu.joinTCP" : "Entrar em jogo TCP/IP",
-	
+
 	"vcmi.lobby.filepath" : "Caminho do arquivo",
 	"vcmi.lobby.creationDate" : "Data de criação",
 	"vcmi.lobby.scenarioName" : "Nome do cenário",
@@ -237,6 +237,8 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Pula a Música de Introdução}\n\nPermite ações durante a música de introdução que toca no início de cada batalha.",
 	"vcmi.battleOptions.endWithAutocombat.hover": "Terminar a batalha",
 	"vcmi.battleOptions.endWithAutocombat.help": "{Termina a batalha}\n\nO Combate Automático reproduz a batalha até o final instantâneo.",
+	"vcmi.battleOptions.showQuickSpell.hover": "Mostrar Painel de Feitiço Rápido",
+	"vcmi.battleOptions.showQuickSpell.help": "{Mostrar Painel de Feitiço Rápido}\n\nMostra um painel para seleção rápida de feitiços",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Revisitar Objeto",
 	"vcmi.adventureMap.revisitObject.help" : "{Revisitar Objeto}\n\nSe um herói estiver atualmente em um Objeto do Mapa, ele pode revisitar o local.",

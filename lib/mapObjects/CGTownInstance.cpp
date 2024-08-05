@@ -137,6 +137,14 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	const int base = creature->getGrowth();
 	int castleBonus = 0;
 
+	if(tempOwner.isValidPlayer())
+	{
+		auto * playerSettings = cb->getPlayerSettings(tempOwner);
+		ret.handicapPercentage = playerSettings->handicap.percentGrowth;
+	}
+	else
+		ret.handicapPercentage = 100;
+
 	ret.entries.emplace_back(VLC->generaltexth->allTexts[590], base); // \n\nBasic growth %d"
 
 	if (hasBuilt(BuildingID::CASTLE))
@@ -215,6 +223,11 @@ TResources CGTownInstance::dailyIncome() const
 			ret += p.second->produce;
 		}
 	}
+
+	auto playerSettings = cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner());
+	for(TResources::nziterator it(ret); it.valid(); it++)
+		// always round up income - we don't want to always produce zero if handicap in use
+		ret[it->resType] = (ret[it->resType] * playerSettings.handicap.percentIncome + 99) / 100;
 	return ret;
 }
 
@@ -1257,7 +1270,8 @@ int GrowthInfo::totalGrowth() const
 	for(const Entry &entry : entries)
 		ret += entry.count;
 
-	return ret;
+	// always round up income - we don't want buildings to always produce zero if handicap in use
+	return (ret * handicapPercentage + 99) / 100;
 }
 
 void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const

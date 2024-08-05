@@ -463,7 +463,9 @@ Configurable object has following structure:
 
 `"text"`: [text](#text),
 
-`"position"`: [position](#position)
+`"position"`: [position](#position),
+
+`"maxWidth"`: int` optional, trim longer text
 
 #### [VCMI-1.4] Multi-line label
 
