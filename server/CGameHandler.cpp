@@ -599,12 +599,12 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 		return;
 	}
 
-	if (forced || town->creatures.at(GameConstants::CREATURES_PER_TOWN).second.empty())//we need to change creature
+	if (forced || town->creatures.at(town->town->creatures.size()).second.empty())//we need to change creature
 		{
 			SetAvailableCreatures ssi;
 			ssi.tid = town->id;
 			ssi.creatures = town->creatures;
-			ssi.creatures[GameConstants::CREATURES_PER_TOWN].second.clear();//remove old one
+			ssi.creatures[town->town->creatures.size()].second.clear();//remove old one
 
 			const std::vector<ConstTransitivePtr<CGDwelling> > &dwellings = p->dwellings;
 			if (dwellings.empty())//no dwellings - just remove
@@ -620,13 +620,13 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 			if (clear)
 			{
-				ssi.creatures[GameConstants::CREATURES_PER_TOWN].first = std::max(1, (VLC->creh->objects.at(creatureId)->getGrowth())/2);
+				ssi.creatures[town->town->creatures.size()].first = std::max(1, (VLC->creh->objects.at(creatureId)->getGrowth())/2);
 			}
 			else
 			{
-				ssi.creatures[GameConstants::CREATURES_PER_TOWN].first = VLC->creh->objects.at(creatureId)->getGrowth();
+				ssi.creatures[town->town->creatures.size()].first = VLC->creh->objects.at(creatureId)->getGrowth();
 			}
-			ssi.creatures[GameConstants::CREATURES_PER_TOWN].second.push_back(creatureId);
+			ssi.creatures[town->town->creatures.size()].second.push_back(creatureId);
 			sendAndApply(&ssi);
 		}
 }
@@ -864,7 +864,7 @@ void CGameHandler::onNewTurn()
 			}
 			auto & sac = n.cres.at(t->id);
 
-			for (int k=0; k < GameConstants::CREATURES_PER_TOWN; k++) //creature growths
+			for (int k=0; k < t->town->creatures.size(); k++) //creature growths
 			{
 				if (!t->creatures.at(k).second.empty()) // there are creatures at this level
 				{

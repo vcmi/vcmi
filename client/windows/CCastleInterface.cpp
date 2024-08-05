@@ -163,7 +163,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	}
 	else
 	{
-		int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
+		int level = ( bid - BuildingID::DWELL_FIRST ) % bld->town->creatures.size();
 		GH.windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 	}
 }
@@ -1740,7 +1740,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
-	if(fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
+	if(fortSize > town->town->creatures.size() && town->creatures.back().second.empty())
 		fortSize--;
 
 	const CBuilding * fortBuilding = town->town->buildings.at(BuildingID(town->fortLevel()+6));
@@ -1758,18 +1758,18 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 
 	if(fortSize == GameConstants::CREATURES_PER_TOWN)
 	{
-		positions.push_back(Point(206,421));
+		positions.push_back(Point(10, 421));
+		positions.push_back(Point(404,421));
 	}
 	else
 	{
-		positions.push_back(Point(10, 421));
-		positions.push_back(Point(404,421));
+		positions.push_back(Point(206,421));
 	}
 
 	for(ui32 i=0; i<fortSize; i++)
 	{
 		BuildingID buildingID;
-		if(fortSize == GameConstants::CREATURES_PER_TOWN)
+		if(fortSize == town->town->creatures.size())
 		{
 			BuildingID dwelling = BuildingID::DWELL_UP_FIRST+i;
 
@@ -1798,13 +1798,13 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 ImagePath CFortScreen::getBgName(const CGTownInstance * town)
 {
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
-	if(fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
+	if(fortSize > town->town->creatures.size() && town->creatures.back().second.empty())
 		fortSize--;
 
 	if(fortSize == GameConstants::CREATURES_PER_TOWN)
-		return ImagePath::builtin("TPCASTL7");
-	else
 		return ImagePath::builtin("TPCASTL8");
+	else
+		return ImagePath::builtin("TPCASTL7");
 }
 
 void CFortScreen::creaturesChangedEventHandler()

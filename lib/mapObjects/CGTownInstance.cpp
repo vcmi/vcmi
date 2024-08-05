@@ -514,16 +514,16 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 	blockVisit = true;
 
 	if(townEnvisagesBuilding(BuildingSubID::PORTAL_OF_SUMMONING)) //Dungeon for example
-		creatures.resize(GameConstants::CREATURES_PER_TOWN + 1);
+		creatures.resize(town->creatures.size() + 1);
 	else
-		creatures.resize(GameConstants::CREATURES_PER_TOWN);
+		creatures.resize(town->creatures.size());
 
-	for (int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
+	for (int level = 0; level < town->creatures.size(); level++)
 	{
 		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST + level);
 		int upgradeNum = 0;
 
-		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(GameConstants::CREATURES_PER_TOWN))
+		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(town->creatures.size()))
 		{
 			if (hasBuilt(buildID) && town->creatures.at(level).size() > upgradeNum)
 				creatures[level].second.push_back(town->creatures[level][upgradeNum]);

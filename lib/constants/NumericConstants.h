@@ -22,7 +22,7 @@ namespace GameConstants
 
 	constexpr int ALL_PLAYERS = 255; //bitfield
 
-	constexpr int CREATURES_PER_TOWN = 7; //without upgrades
+	constexpr int CREATURES_PER_TOWN = 8; //without upgrades
 	constexpr int SPELL_LEVELS = 5;
 	constexpr int SPELL_SCHOOL_LEVELS = 4;
 	constexpr int DEFAULT_SCHOOLS = 4;
