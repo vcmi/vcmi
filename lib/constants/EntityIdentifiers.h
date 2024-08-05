@@ -314,8 +314,28 @@ public:
 
 	};
 
-	const std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
-	const std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
+	static Type getDwelling(int level, bool up = false)
+	{
+		const std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
+		const std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
+
+		return up ? dwellingsUp[level] : dwellings[level];
+	}
+
+	static int getLevel(BuildingIDBase level)
+	{
+		const std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
+		const std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
+
+		auto it = std::find(dwellings.begin(), dwellings.end(), level);
+		if (it != dwellings.end())
+			return std::distance(dwellings.begin(), it);
+		it = std::find(dwellingsUp.begin(), dwellingsUp.end(), level);
+		if (it != dwellingsUp.end())
+			return std::distance(dwellingsUp.begin(), it);
+
+		return -1;
+	}
 
 	bool IsSpecialOrGrail() const
 	{

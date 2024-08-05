@@ -31,16 +31,16 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		}
 	}
 
-	BuildingID prefixes[] = {BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_FIRST};
+	bool prefixes[] = {true, false};
 
 	for(int level = 0; level < developmentInfo.town->town->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();
 
-		for(BuildingID prefix : prefixes)
+		for(bool prefix : prefixes)
 		{
-			BuildingID building = BuildingID(prefix + level);
+			BuildingID building = BuildingID(BuildingID::getDwelling(level, prefix));
 
 			if(!vstd::contains(buildings, building))
 				continue; // no such building in town
@@ -209,10 +209,10 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	int creatureLevel = -1;
 	int creatureUpgrade = 0;
 
-	if(BuildingID::DWELL_FIRST <= toBuild && toBuild <= BuildingID::DWELL_UP_LAST)
+	if(BuildingID::getLevel(toBuild) != -1)
 	{
-		creatureLevel = (toBuild - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
-		creatureUpgrade = (toBuild - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+		creatureLevel = BuildingID::getLevel(toBuild) % GameConstants::CREATURES_PER_TOWN;
+		creatureUpgrade = BuildingID::getLevel(toBuild) / GameConstants::CREATURES_PER_TOWN;
 	}
 	else if(toBuild == BuildingID::HORDE_1 || toBuild == BuildingID::HORDE_1_UPGR)
 	{
@@ -262,7 +262,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 			auto otherDwelling = [](const BuildingID & id) -> bool
 			{
-				return BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_UP_LAST;
+				return BuildingID::getLevel(id) != -1;
 			};
 
 			if(vstd::contains_if(missingBuildings, otherDwelling))
@@ -405,7 +405,7 @@ BuildingInfo::BuildingInfo(
 		}
 		else
 		{
-			if(BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_UP_LAST)
+			if(BuildingID::getLevel(id) != -1)
 			{
 				creatureGrows = creature->getGrowth();
 

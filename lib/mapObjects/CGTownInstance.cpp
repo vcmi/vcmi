@@ -520,7 +520,7 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 
 	for (int level = 0; level < town->creatures.size(); level++)
 	{
-		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST + level);
+		BuildingID buildID = BuildingID(BuildingID::getDwelling(level));
 		int upgradeNum = 0;
 
 		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(town->creatures.size()))

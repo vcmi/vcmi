@@ -56,7 +56,7 @@ BuildingID CBuildingHandler::campToERMU(int camp, FactionID townType, const std:
 				{
 					if (hordeLvlsPerTType[townType.getNum()][0] == i)
 					{
-						BuildingID dwellingID(BuildingID::DWELL_UP_FIRST + hordeLvlsPerTType[townType.getNum()][0]);
+						BuildingID dwellingID(BuildingID::getDwelling(hordeLvlsPerTType[townType.getNum()][0], true));
 
 						if(vstd::contains(builtBuildings, dwellingID)) //if upgraded dwelling is built
 							return BuildingID::HORDE_1_UPGR;
@@ -67,7 +67,7 @@ BuildingID CBuildingHandler::campToERMU(int camp, FactionID townType, const std:
 					{
 						if(hordeLvlsPerTType[townType.getNum()].size() > 1)
 						{
-							BuildingID dwellingID(BuildingID::DWELL_UP_FIRST + hordeLvlsPerTType[townType.getNum()][1]);
+							BuildingID dwellingID(BuildingID::getDwelling(hordeLvlsPerTType[townType.getNum()][1], true));
 
 							if(vstd::contains(builtBuildings, dwellingID)) //if upgraded dwelling is built
 								return BuildingID::HORDE_2_UPGR;

@@ -2360,10 +2360,10 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Performs stuff that has to be done before new building is built
 	auto processBeforeBuiltStructure = [t, this](const BuildingID buildingID)
 	{
-		if(buildingID >= BuildingID::DWELL_FIRST) //dwelling
+		if(BuildingID::getLevel(buildingID) > -1) //dwelling
 		{
-			int level = (buildingID - BuildingID::DWELL_FIRST) % t->town->creatures.size();
-			int upgradeNumber = (buildingID - BuildingID::DWELL_FIRST) / t->town->creatures.size();
+			int level = BuildingID::getLevel(buildingID) % t->town->creatures.size();
+			int upgradeNumber = BuildingID::getLevel(buildingID) / t->town->creatures.size();
 
 			if(upgradeNumber >= t->town->creatures.at(level).size())
 			{

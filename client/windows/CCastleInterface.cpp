@@ -163,7 +163,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	}
 	else
 	{
-		int level = ( bid - BuildingID::DWELL_FIRST ) % bld->town->creatures.size();
+		int level = BuildingID::getLevel(bid) % bld->town->creatures.size();
 		GH.windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 	}
 }
@@ -688,7 +688,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 	if (building >= BuildingID::DWELL_FIRST)
 	{
-		enterDwelling((building-BuildingID::DWELL_FIRST)%town->town->creatures.size());
+		enterDwelling((BuildingID::getLevel(building))%town->town->creatures.size());
 	}
 	else
 	{
@@ -1771,12 +1771,12 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		BuildingID buildingID;
 		if(fortSize == town->town->creatures.size())
 		{
-			BuildingID dwelling = BuildingID::DWELL_UP_FIRST+i;
+			BuildingID dwelling = BuildingID::getDwelling(i, true);
 
 			if(vstd::contains(town->builtBuildings, dwelling))
-				buildingID = BuildingID(BuildingID::DWELL_UP_FIRST+i);
+				buildingID = BuildingID(BuildingID::getDwelling(i, true));
 			else
-				buildingID = BuildingID(BuildingID::DWELL_FIRST+i);
+				buildingID = BuildingID(BuildingID::getDwelling(i));
 		}
 		else
 		{
@@ -1878,7 +1878,7 @@ const CCreature * CFortScreen::RecruitArea::getMyCreature()
 
 const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 {
-	BuildingID myID = BuildingID(BuildingID::DWELL_FIRST + level);
+	BuildingID myID = BuildingID(BuildingID::getDwelling(level));
 
 	if (level == town->town->creatures.size())
 		return town->town->getSpecialBuilding(BuildingSubID::PORTAL_OF_SUMMONING);
