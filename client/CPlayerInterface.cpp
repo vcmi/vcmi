@@ -171,40 +171,39 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	adventureInt.reset(new AdventureMapInterface());
 }
 
+void CPlayerInterface::closeAllDialogs()
+{
+	// remove all active dialogs that do not expect query answer
+	for (;;)
+	{
+		auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
+		auto infoWindow = GH.windows().topWindow<CInfoWindow>();
+
+		if(adventureWindow != nullptr)
+			break;
+
+		if(infoWindow && infoWindow->ID != QueryID::NONE)
+			break;
+
+		if (infoWindow)
+			infoWindow->close();
+		else
+			GH.windows().popWindows(1);
+	}
+
+	if(castleInt)
+		castleInt->close();
+
+	castleInt = nullptr;
+}
+
 void CPlayerInterface::playerEndsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (player == playerID)
 	{
 		makingTurn = false;
-
-		// remove all active dialogs that do not expect query answer
-		for (;;)
-		{
-			auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
-			auto infoWindow = GH.windows().topWindow<CInfoWindow>();
-
-			if(adventureWindow != nullptr)
-				break;
-
-			if(infoWindow && infoWindow->ID != QueryID::NONE)
-				break;
-
-			if (infoWindow)
-				infoWindow->close();
-			else
-				GH.windows().popWindows(1);
-		}
-
-		if(castleInt)
-			castleInt->close();
-
-		castleInt = nullptr;
-
-		// remove all pending dialogs that do not expect query answer
-		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
-			return window->ID == QueryID::NONE;
-		});
+		closeAllDialogs();
 	}
 }
 
@@ -286,6 +285,7 @@ void CPlayerInterface::gamePause(bool pause)
 
 void CPlayerInterface::yourTurn(QueryID queryID)
 {
+	closeAllDialogs();
 	CTutorialWindow::openWindowFirstTime(TutorialMode::TOUCH_ADVENTUREMAP);
 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1477,7 +1477,7 @@ void CPlayerInterface::update()
 		return;
 
 	//if there are any waiting dialogs, show them
-	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->isBusy())
+	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
 	{
 		showingDialog->setBusy();
 		GH.windows().pushWindow(dialogs.front());

@@ -293,7 +293,10 @@ std::string CComponent::getSubtitle() const
 			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getNameTranslated();
 		case ComponentType::SPELL_SCROLL:
 		case ComponentType::SPELL:
-			return CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
+			if (data.value < 0)
+				return "{#A9A9A9|" + CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated() + "}";
+			else
+				return CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
 		case ComponentType::NONE:
 		case ComponentType::MORALE:
 		case ComponentType::LUCK:

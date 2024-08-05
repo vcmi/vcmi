@@ -348,15 +348,19 @@ void CGDwelling::newTurn(vstd::RNG & rand) const
 
 std::vector<Component> CGDwelling::getPopupComponents(PlayerColor player) const
 {
-	if (getOwner() != player)
-		return {};
+	bool visitedByOwner = getOwner() == player;
 
 	std::vector<Component> result;
 
 	if (ID == Obj::CREATURE_GENERATOR1 && !creatures.empty())
 	{
 		for (auto const & creature : creatures.front().second)
-			result.emplace_back(ComponentType::CREATURE, creature, creatures.front().first);
+		{
+			if (visitedByOwner)
+				result.emplace_back(ComponentType::CREATURE, creature, creatures.front().first);
+			else
+				result.emplace_back(ComponentType::CREATURE, creature);
+		}
 	}
 
 	if (ID == Obj::CREATURE_GENERATOR4)
@@ -364,7 +368,12 @@ std::vector<Component> CGDwelling::getPopupComponents(PlayerColor player) const
 		for (auto const & creatureLevel : creatures)
 		{
 			if (!creatureLevel.second.empty())
-				result.emplace_back(ComponentType::CREATURE, creatureLevel.second.back(), creatureLevel.first);
+			{
+				if (visitedByOwner)
+					result.emplace_back(ComponentType::CREATURE, creatureLevel.second.back(), creatureLevel.first);
+				else
+					result.emplace_back(ComponentType::CREATURE, creatureLevel.second.back());
+			}
 		}
 	}
 	return result;
@@ -426,7 +435,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		if(count) //there are available creatures
 		{
 
-			if (VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
+			if (VLC->settings()->getBoolean(EGameSettings::DWELLINGS_MERGE_ON_RECRUIT))
 			{
 				SlotID testSlot = h->getSlotFor(crid);
 				if(!testSlot.validSlot()) //no available slot - try merging army of visiting hero

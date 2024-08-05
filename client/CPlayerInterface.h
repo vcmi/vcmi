@@ -197,6 +197,7 @@ public: // public interface for use by client via LOCPLINT access
 	void performAutosave();
 	void gamePause(bool pause);
 	void endNetwork();
+	void closeAllDialogs();
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();

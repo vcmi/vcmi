@@ -19,6 +19,7 @@
 #include "../eventsSDL/InputHandler.h"
 
 #include "../CGameInfo.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../render/Colors.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
@@ -145,7 +146,13 @@ CGuiHandler::CGuiHandler()
 {
 }
 
-CGuiHandler::~CGuiHandler() = default;
+CGuiHandler::~CGuiHandler()
+{
+	// enforce deletion order on shutdown
+	// all UI elements including adventure map must be destroyed before Gui Handler
+	// proper solution would be removal of adventureInt global
+	adventureInt.reset();
+}
 
 ShortcutHandler & CGuiHandler::shortcuts()
 {

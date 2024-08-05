@@ -207,7 +207,7 @@ GlobalLobbyAccountCard::GlobalLobbyAccountCard(GlobalLobbyWindow * window, const
 	: GlobalLobbyChannelCardBase(window, Point(130, 40), "player", accountDescription.accountID, accountDescription.displayName)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName);
+	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName, 120);
 	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
 }
 
@@ -238,8 +238,8 @@ GlobalLobbyRoomCard::GlobalLobbyRoomCard(GlobalLobbyWindow * window, const Globa
 	else
 		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
 
-	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, roomDescription.hostAccountDisplayName);
-	labelDescription = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, roomDescription.description);
+	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, roomDescription.hostAccountDisplayName, 180);
+	labelDescription = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, roomDescription.description, 160);
 	labelRoomSize = std::make_shared<CLabel>(212, 10, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, roomSizeText.toString());
 	labelRoomStatus = std::make_shared<CLabel>(225, 30, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, roomStatusText.toString());
 	iconRoomSize = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconPlayer"), Point(214, 5));
