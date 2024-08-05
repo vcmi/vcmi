@@ -33,7 +33,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 
 	BuildingID prefixes[] = {BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_FIRST};
 
-	for(int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
+	for(int level = 0; level < developmentInfo.town->town->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();

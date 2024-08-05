@@ -128,7 +128,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 {
 	GrowthInfo ret;
 
-	if (level<0 || level >=GameConstants::CREATURES_PER_TOWN)
+	if (level<0 || level >=town->creatures.size())
 		return ret;
 	if (creatures[level].second.empty())
 		return ret; //no dwelling
@@ -591,7 +591,7 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 			}
 			if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
 			{
-				int i = rand.nextInt(std::min(GameConstants::CREATURES_PER_TOWN, cb->getDate(Date::MONTH) << 1) - 1);
+				int i = rand.nextInt(std::min((int)town->creatures.size(), cb->getDate(Date::MONTH) << 1) - 1);
 				if (!town->creatures[i].empty())
 				{
 					CreatureID c = town->creatures[i][0];

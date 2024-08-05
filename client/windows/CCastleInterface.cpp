@@ -237,7 +237,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 		return town->town->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
-		auto & availableCreatures = town->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second;
+		auto & availableCreatures = town->creatures[(bid-30)%town->town->creatures.size()].second;
 		if(availableCreatures.size())
 		{
 			int creaID = availableCreatures.back();//taking last of available creatures
@@ -688,7 +688,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 	if (building >= BuildingID::DWELL_FIRST)
 	{
-		enterDwelling((building-BuildingID::DWELL_FIRST)%GameConstants::CREATURES_PER_TOWN);
+		enterDwelling((building-BuildingID::DWELL_FIRST)%town->town->creatures.size());
 	}
 	else
 	{
@@ -800,10 +800,10 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				case BuildingSubID::PORTAL_OF_SUMMONING:
-						if (town->creatures[GameConstants::CREATURES_PER_TOWN].second.empty())//No creatures
+						if (town->creatures[town->town->creatures.size()].second.empty())//No creatures
 							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30]);
 						else
-							enterDwelling(GameConstants::CREATURES_PER_TOWN);
+							enterDwelling(town->town->creatures.size());
 						break;
 
 				case BuildingSubID::BALLISTA_YARD:
@@ -917,8 +917,8 @@ void CCastleBuildings::enterDwelling(int level)
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 {
 	const auto beginIt = town->creatures.cbegin();
-	const auto afterLastIt = town->creatures.size() > GameConstants::CREATURES_PER_TOWN
-		? std::next(beginIt, GameConstants::CREATURES_PER_TOWN)
+	const auto afterLastIt = town->creatures.size() > town->town->creatures.size()
+		? std::next(beginIt, town->town->creatures.size())
 		: town->creatures.cend();
 	const auto hasSomeoneToRecruit = std::any_of(beginIt, afterLastIt,
 		[](const auto & creatureInfo) { return creatureInfo.first > 0; });
@@ -1880,7 +1880,7 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 {
 	BuildingID myID = BuildingID(BuildingID::DWELL_FIRST + level);
 
-	if (level == GameConstants::CREATURES_PER_TOWN)
+	if (level == town->town->creatures.size())
 		return town->town->getSpecialBuilding(BuildingSubID::PORTAL_OF_SUMMONING);
 
 	if (!town->town->buildings.count(myID))
@@ -1891,7 +1891,7 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 	{
 		if (town->hasBuilt(myID))
 			build = town->town->buildings.at(myID);
-		myID.advance(GameConstants::CREATURES_PER_TOWN);
+		myID.advance(town->town->creatures.size());
 	}
 	return build;
 }

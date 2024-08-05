@@ -760,7 +760,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		auto addBonusForTier = [&](int tier, std::shared_ptr<Bonus> b) {
 			assert(vstd::iswithin(tier, 1, 7));
 			//bonuses from level 7 are given to high-level creatures too
-			auto max = tier == GameConstants::CREATURES_PER_TOWN ? std::numeric_limits<int>::max() : tier + 1;
+			auto max = tier == 7 ? std::numeric_limits<int>::max() : tier + 1;
 			auto limiter = std::make_shared<CreatureLevelLimiter>(tier, max);
 			b->addLimiter(limiter);
 			globalEffects.addNewBonus(b);

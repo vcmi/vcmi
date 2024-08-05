@@ -51,7 +51,7 @@ void QuickRecruitmentWindow::setCreaturePurchaseCards()
 {
 	int availableAmount = getAvailableCreatures();
 	Point position = Point((pos.w - 100*availableAmount - 8*(availableAmount-1))/2,64);
-	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
+	for (int i = 0; i < town->town->creatures.size(); i++)
 	{
 		if(!town->town->creatures.at(i).empty() && !town->creatures.at(i).second.empty() && town->creatures[i].first)
 		{
@@ -120,7 +120,7 @@ void QuickRecruitmentWindow::purchaseUnits()
 int QuickRecruitmentWindow::getAvailableCreatures()
 {
 	int creaturesAmount = 0;
-	for (int i=0; i< GameConstants::CREATURES_PER_TOWN; i++)
+	for (int i=0; i< town->town->creatures.size(); i++)
 		if(!town->town->creatures.at(i).empty() && !town->creatures.at(i).second.empty() && town->creatures[i].first)
 			creaturesAmount++;
 	return creaturesAmount;

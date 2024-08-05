@@ -2362,8 +2362,8 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	{
 		if(buildingID >= BuildingID::DWELL_FIRST) //dwelling
 		{
-			int level = (buildingID - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
-			int upgradeNumber = (buildingID - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+			int level = (buildingID - BuildingID::DWELL_FIRST) % t->town->creatures.size();
+			int upgradeNumber = (buildingID - BuildingID::DWELL_FIRST) / t->town->creatures.size();
 
 			if(upgradeNumber >= t->town->creatures.at(level).size())
 			{

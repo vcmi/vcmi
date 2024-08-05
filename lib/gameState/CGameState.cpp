@@ -864,7 +864,7 @@ void CGameState::initTowns()
 		//town events
 		for(CCastleEvent &ev : vti->events)
 		{
-			for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
+			for (int i = 0; i<vti->getTown()->creatures.size(); i++)
 				if (vstd::contains(ev.buildings,hordes[i])) //if we have horde for this level
 				{
 					ev.buildings.erase(hordes[i]);
