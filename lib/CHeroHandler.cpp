@@ -18,6 +18,7 @@
 #include "GameSettings.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"
+#include "MinimalPrimarySkill.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "entities/faction/CFaction.h"
@@ -230,8 +231,7 @@ void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass *
 {
 	const auto & skillName = NPrimarySkill::names[pSkill.getNum()];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
-	//minimal value is 0 for attack and defense and 1 for spell power and knowledge
-	auto primarySkillLegalMinimum = (pSkill == PrimarySkill::ATTACK || pSkill == PrimarySkill::DEFENSE) ? 0 : 1;
+	int primarySkillLegalMinimum = getPrimarySkillMinimum(pSkill);
 
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{

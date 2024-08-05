@@ -13,6 +13,7 @@
 #include "VCMI_Lib.h"
 #include "GameConstants.h"
 #include "GameSettings.h"
+#include "MinimalPrimarySkill.h"
 #include "bonuses/BonusList.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"
@@ -86,7 +87,7 @@ int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
 	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
 	auto ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
-	auto minSkillValue = (id == PrimarySkill::SPELL_POWER || id == PrimarySkill::KNOWLEDGE) ? 1 : 0;
+	auto minSkillValue = getPrimarySkillMinimum(id);
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }
 
