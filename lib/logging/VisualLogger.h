@@ -19,6 +19,7 @@ class IMapOverlayLogVisualizer
 {
 public:
 	virtual void drawLine(int3 start, int3 end) = 0;
+	virtual void drawText(int3 tile, std::vector<std::string> texts) = 0;
 };
 
 class IBattleOverlayLogVisualizer
@@ -31,6 +32,7 @@ class IVisualLogBuilder
 {
 public:
 	virtual void addLine(int3 start, int3 end) = 0;
+	virtual void addText(int3 tile, std::string text) = 0;
 	virtual void addText(BattleHex tile, std::string text) = 0;
 };
 
@@ -67,12 +69,14 @@ private:
 	private:
 		std::vector<Line<int3>> & mapLines;
 		std::vector<Text<BattleHex>> & battleTexts;
+		std::vector<Text<int3>> & mapTexts;
 
 	public:
 		VisualLogBuilder(
 			std::vector<Line<int3>> & mapLines,
+			std::vector<Text<int3>> & mapTexts,
 			std::vector<Text<BattleHex>> & battleTexts)
-			:mapLines(mapLines), battleTexts(battleTexts)
+			:mapLines(mapLines), mapTexts(mapTexts), battleTexts(battleTexts)
 		{
 		}
 
@@ -85,10 +89,16 @@ private:
 		{
 			battleTexts.emplace_back(tile, text);
 		}
+
+		void addText(int3 tile, std::string text) override
+		{
+			mapTexts.emplace_back(tile, text);
+		}
 	};
 
 private:
 	std::map<std::string, std::vector<Line<int3>>> mapLines;
+	std::map<std::string, std::vector<Text<int3>>> mapTexts;
 	std::map<std::string, std::vector<Text<BattleHex>>> battleTexts;
 	std::mutex mutex;
 	std::string keyToShow;

@@ -32,6 +32,10 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/logging/VisualLogger.h"
+#include "../client/render/Canvas.h"
+#include "../client/render/Colors.h"
+#include "../client/render/EFont.h"
+#include "../client/gui/TextAlignment.h"
 
 BasicMapView::~BasicMapView() = default;
 
@@ -91,6 +95,24 @@ public:
 		if(viewPort.isInside(pStart) && viewPort.isInside(pEnd))
 		{
 			target.drawLine(pStart, pEnd, ColorRGBA(255, 255, 0), ColorRGBA(255, 0, 0));
+		}
+	}
+
+	virtual void drawText(int3 tile, std::vector<std::string> texts) override
+	{
+		const Point offset = Point(5, 5);
+
+		auto level = model->getLevel();
+
+		if(tile.z != level)
+			return;
+
+		auto pStart = offset + model->getTargetTileArea(tile).topLeft();
+		auto viewPort = target.getRenderArea();
+
+		if(viewPort.isInside(pStart))
+		{
+			target.drawText(pStart, EFonts::FONT_TINY, Colors::RED, ETextAlignment::TOPCENTER, texts);
 		}
 	}
 };
