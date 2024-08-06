@@ -1049,16 +1049,29 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 			continue;
 
 		const int costToNeighbour = ret.distances[curHex.hex] + 1;
+
 		for(BattleHex neighbour : BattleHex::neighbouringTilesCache[curHex.hex])
 		{
 			if(neighbour.isValid())
 			{
+				auto additionalCost = 0;
+
+				if(params.bypassEnemyStacks)
+				{
+					auto enemyToBypass = params.destructibleEnemyTurns.find(neighbour);
+
+					if(enemyToBypass != params.destructibleEnemyTurns.end())
+					{
+						additionalCost = enemyToBypass->second;
+					}
+				}
+
 				const int costFoundSoFar = ret.distances[neighbour.hex];
 
-				if(accessibleCache[neighbour.hex] && costToNeighbour < costFoundSoFar)
+				if(accessibleCache[neighbour.hex] && costToNeighbour + additionalCost < costFoundSoFar)
 				{
 					hexq.push(neighbour);
-					ret.distances[neighbour.hex] = costToNeighbour;
+					ret.distances[neighbour.hex] = costToNeighbour + additionalCost;
 					ret.predecessors[neighbour.hex] = curHex;
 				}
 			}
@@ -1228,7 +1241,13 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Pa
 	if(params.flying)
 		return getFlyingReachability(params);
 	else
-		return makeBFS(getAccessibility(params.knownAccessible), params);
+	{
+		auto accessibility = getAccessibility(params.knownAccessible);
+
+		accessibility.destructibleEnemyTurns = params.destructibleEnemyTurns;
+
+		return makeBFS(accessibility, params);
+	}
 }
 
 ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters &params) const
