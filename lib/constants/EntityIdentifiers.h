@@ -298,7 +298,7 @@ public:
 		HORDE_2_UPGR,   GRAIL,         EXTRA_TOWN_HALL,   EXTRA_CITY_HALL, EXTRA_CAPITOL,
 		DWELL_FIRST=30, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LAST=36,
 		DWELL_UP_FIRST=37,  DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP,
-		DWELL_LVL_6_UP, DWELL_UP_LAST=43, DWELL_LVL_8, DWELL_LVL_8_UP,
+		DWELL_LVL_6_UP, DWELL_UP_LAST=43, DWELL_LVL_8=50, DWELL_LVL_8_UP=57,
 
 		DWELL_LVL_1 = DWELL_FIRST,
 		DWELL_LVL_7 = DWELL_LAST,
@@ -314,26 +314,41 @@ public:
 
 	};
 
-	static Type getDwelling(int level, bool up = false)
+private:
+	static std::vector<std::vector<Type>> getDwellings()
 	{
-		const std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
-		const std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
-
-		return up ? dwellingsUp[level] : dwellings[level];
+		std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
+		std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
+		return {dwellings, dwellingsUp};
 	}
 
-	static int getLevel(BuildingIDBase level)
+public:
+	static Type getDwellingFromLevel(int level, bool up = false)
 	{
-		const std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
-		const std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
+		return getDwellings()[up ? 1 : 0][level];
+	}
 
-		auto it = std::find(dwellings.begin(), dwellings.end(), level);
-		if (it != dwellings.end())
-			return std::distance(dwellings.begin(), it);
-		it = std::find(dwellingsUp.begin(), dwellingsUp.end(), level);
-		if (it != dwellingsUp.end())
-			return std::distance(dwellingsUp.begin(), it);
+	static int getLevelFromDwelling(BuildingIDBase dwelling)
+	{
+		for(int i = 0; i < 2; i++)
+		{
+			auto tmp = getDwellings()[i];
+			auto it = std::find(tmp.begin(), tmp.end(), dwelling);
+			if (it != tmp.end())
+				return std::distance(tmp.begin(), it);
+		}
+		return -1;
+	}
 
+	static int getUpgradedFromDwelling(BuildingIDBase dwelling)
+	{
+		for(int i = 0; i < 2; i++)
+		{
+			auto tmp = getDwellings()[i];
+			auto it = std::find(tmp.begin(), tmp.end(), dwelling);
+			if (it != tmp.end())
+				return i;
+		}
 		return -1;
 	}
 
