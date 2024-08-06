@@ -102,6 +102,8 @@ public:
 	void showAll(Canvas & to) override;
 	//request complete redraw of this object
 	void redraw() override;
+	// Move child object to foreground
+	void moveChildForeground(const CIntObject * childToMove);
 
 	/// returns true if this element is a popup window
 	/// called only for windows
