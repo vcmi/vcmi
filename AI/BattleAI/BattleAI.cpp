@@ -26,6 +26,7 @@
 #include "../../lib/CStack.h" // TODO: remove
                               // Eventually only IBattleInfoCallback and battle::Unit should be used,
                               // CUnitState should be private and CStack should be removed completely
+#include "../../lib/logging/VisualLogger.h"
 
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
@@ -47,6 +48,17 @@ CBattleAI::~CBattleAI()
 	}
 }
 
+void logHexNumbers()
+{
+#if BATTLE_TRACE_LEVEL >= 1
+	logVisual->updateWithLock("hexes", [](IVisualLogBuilder & b)
+		{
+			for(BattleHex hex = BattleHex(0); hex < GameConstants::BFIELD_SIZE; hex = BattleHex(hex + 1))
+				b.addText(hex, std::to_string(hex.hex));
+		});
+#endif
+}
+
 void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
 	env = ENV;
@@ -57,6 +69,8 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	CB->waitTillRealize = false;
 	CB->unlockGsWhenWaiting = false;
 	movesSkippedByDefense = 0;
+
+	logHexNumbers();
 }
 
 void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences)

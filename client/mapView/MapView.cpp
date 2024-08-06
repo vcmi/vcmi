@@ -58,7 +58,7 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	pos.h = dimensions.y;
 }
 
-class VisualLoggerRenderer : public ILogVisualizer
+class VisualLoggerRenderer : public IMapOverlayLogVisualizer
 {
 private:
 	Canvas & target;
