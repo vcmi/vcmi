@@ -1466,6 +1466,11 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 							score /= turnsTo;
 					}
 				}
+				else
+				{
+					if (evaluationContext.enemyHeroDangerRatio > 0.5 && !evaluationContext.isDefend)
+						return 0;
+				}
 				break;
 			}
 		}
