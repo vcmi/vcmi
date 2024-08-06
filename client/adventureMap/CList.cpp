@@ -332,9 +332,7 @@ void CHeroList::CHeroItem::keyPressed(EShortcut key)
 
 	if(key == EShortcut::LIST_HERO_DELETE)
 	{
-		CFunctionList<void()> ony = [=](){ };
-		ony += [=](){ LOCPLINT->cb->dismissHero(hero); };
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], [=](){ LOCPLINT->cb->dismissHero(hero); }, nullptr);
 		return;
 	}
 
