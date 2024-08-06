@@ -200,7 +200,7 @@ ui32 CGMine::getProducedQuantity() const
 {
 	auto * playerSettings = cb->getPlayerSettings(getOwner());
 	// always round up income - we don't want mines to always produce zero if handicap in use
-	return (producedQuantity * playerSettings->handicap.percentIncome + 99) / 100;
+	return vstd::divideAndCeil(producedQuantity * playerSettings->handicap.percentIncome, 100);
 }
 
 void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const

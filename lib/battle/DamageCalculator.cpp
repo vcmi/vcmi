@@ -145,7 +145,8 @@ int DamageCalculator::getActorAttackIgnored() const
 
 	if(multAttackReductionPercent > 0)
 	{
-		int reduction = (getActorAttackBase() * multAttackReductionPercent + 49) / 100; //using ints so 1.5 for 5 attack is rounded down as in HotA / h3assist etc. (keep in mind h3assist 1.2 shows wrong value for 15 attack points and unupg. nix)
+		//using ints so 1.5 for 5 attack is rounded down as in HotA / h3assist etc. (keep in mind h3assist 1.2 shows wrong value for 15 attack points and unupg. nix)
+		int reduction = vstd::divideAndRound( getActorAttackBase() * multAttackReductionPercent, 100);
 		return -std::min(reduction, getActorAttackBase());
 	}
 	return 0;
