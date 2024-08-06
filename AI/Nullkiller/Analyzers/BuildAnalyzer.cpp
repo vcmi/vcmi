@@ -209,7 +209,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	int creatureLevel = -1;
 	int creatureUpgrade = 0;
 
-	if(BuildingID::getLevelFromDwelling(toBuild) != -1)
+	if(BuildingID::DWELL_FIRST <= toBuild && toBuild <= BuildingID::DWELL_UP_LAST)
 	{
 		creatureLevel = BuildingID::getLevelFromDwelling(toBuild);
 		creatureUpgrade = BuildingID::getUpgradedFromDwelling(toBuild);
@@ -262,7 +262,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 			auto otherDwelling = [](const BuildingID & id) -> bool
 			{
-				return BuildingID::getLevelFromDwelling(id) != -1;
+				return BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_UP_LAST;
 			};
 
 			if(vstd::contains_if(missingBuildings, otherDwelling))
@@ -405,7 +405,7 @@ BuildingInfo::BuildingInfo(
 		}
 		else
 		{
-			if(BuildingID::getLevelFromDwelling(id) != -1)
+			if(BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_UP_LAST)
 			{
 				creatureGrows = creature->getGrowth();
 
