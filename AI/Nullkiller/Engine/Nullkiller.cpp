@@ -129,7 +129,7 @@ void TaskPlan::merge(TSubgoal task)
 	{
 		for(auto objid : item.affectedObjects)
 		{
-			if(task == item.task || task->asTask()->isObjectAffected(objid) || task->asTask()->getHero() == item.task->asTask()->getHero())
+			if(task == item.task || task->asTask()->isObjectAffected(objid) || (task->asTask()->getHero() != nullptr && task->asTask()->getHero() == item.task->asTask()->getHero()))
 			{
 				if(item.task->asTask()->priority >= task->asTask()->priority)
 					return;
