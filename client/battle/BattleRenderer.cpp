@@ -16,12 +16,8 @@
 #include "BattleWindow.h"
 #include "BattleSiegeController.h"
 #include "BattleStacksController.h"
-#include "BattleFieldController.h"
 #include "BattleObstacleController.h"
-#include "logging/VisualLogger.h"
-#include "../client/render/Canvas.h"
-#include "../client/render/Colors.h"
-#include "../client/gui/TextAlignment.h"
+#include "BattleOverlayLogVisualizer.h"
 
 void BattleRenderer::collectObjects()
 {
@@ -73,30 +69,11 @@ void BattleRenderer::insert(EBattleFieldLayer layer, BattleHex tile, BattleRende
 	objects.push_back({functor, layer, tile});
 }
 
-class VisualLoggerBattleRenderer : public IBattleOverlayLogVisualizer
-{
-private:
-	Canvas & target;
-	BattleInterface & owner;
-
-public:
-	VisualLoggerBattleRenderer(Canvas & target, BattleInterface & owner) : target(target), owner(owner)
-	{
-	}
-
-	virtual void drawText(BattleHex hex, std::vector<std::string> texts) override
-	{
-		const Point offset = owner.fieldController->hexPositionLocal(hex).topLeft() + Point(20, 20);
-
-		target.drawText(offset, EFonts::FONT_TINY, Colors::RED, ETextAlignment::TOPCENTER, texts);
-	}
-};
-
 void BattleRenderer::execute(BattleRenderer::RendererRef targetCanvas)
 {
 	collectObjects();
 	sortObjects();
 	renderObjects(targetCanvas);
 
-	logVisual->visualize(VisualLoggerBattleRenderer(targetCanvas, owner));
+	logVisual->visualize(BattleOverlayLogVisualizer(targetCanvas, owner));
 }
