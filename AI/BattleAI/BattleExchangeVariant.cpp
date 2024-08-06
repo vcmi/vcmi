@@ -42,7 +42,7 @@ float BattleExchangeVariant::trackAttack(
 	for(auto affectedUnit : affectedUnits)
 	{
 		auto unitToUpdate = hb->getForUpdate(affectedUnit->unitId());
-		auto damageDealt = unitToUpdate->getTotalHealth() - affectedUnit->getTotalHealth();
+		auto damageDealt = unitToUpdate->getAvailableHealth() - affectedUnit->getAvailableHealth();
 
 		if(damageDealt > 0)
 		{
@@ -58,7 +58,7 @@ float BattleExchangeVariant::trackAttack(
 #if BATTLE_TRACE_LEVEL>=1
 				logAi->trace(
 					"%s -> %s, ap retaliation, %s, dps: %lld",
-					ap.attack.defender->getDescription(),
+					hb->getForUpdate(ap.attack.defender->unitId())->getDescription(),
 					ap.attack.attacker->getDescription(),
 					ap.attack.shooting ? "shot" : "mellee",
 					damageDealt);
@@ -456,14 +456,14 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 		for(auto unit : turnOrder[turn])
 		{
 			if(vstd::contains(allReachableUnits, unit))
-				result.units.push_back(unit);
+				result.units[turn].push_back(unit);
 		}
-	}
 
-	vstd::erase_if(result.units, [&](const battle::Unit * u) -> bool
-		{
-			return !hb->battleGetUnitByID(u->unitId())->alive();
-		});
+		vstd::erase_if(result.units[turn], [&](const battle::Unit * u) -> bool
+			{
+				return !hb->battleGetUnitByID(u->unitId())->alive();
+			});
+	}
 
 	return result;
 }
@@ -523,22 +523,25 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	auto exchangeBattle = std::make_shared<HypotheticBattle>(env.get(), hb);
 	BattleExchangeVariant v;
 
-	for(auto unit : exchangeUnits.units)
+	for(int turn = 0; turn < exchangeUnits.units.size(); turn++)
 	{
-		if(unit->isTurret())
-			continue;
-
-		bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, unit, true);
-		auto & attackerQueue = isOur ? ourStacks : enemyStacks;
-		auto u = exchangeBattle->getForUpdate(unit->unitId());
-
-		if(u->alive() && !vstd::contains(attackerQueue, unit))
+		for(auto unit : exchangeUnits.units.at(turn))
 		{
-			attackerQueue.push_back(unit);
+			if(unit->isTurret())
+				continue;
+
+			bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, unit, true);
+			auto & attackerQueue = isOur ? ourStacks : enemyStacks;
+			auto u = exchangeBattle->getForUpdate(unit->unitId());
+
+			if(u->alive() && !vstd::contains(attackerQueue, unit))
+			{
+				attackerQueue.push_back(unit);
 
 #if BATTLE_TRACE_LEVEL
-			logAi->trace("Exchanging: %s", u->getDescription());
+				logAi->trace("Exchanging: %s", u->getDescription());
 #endif
+			}
 		}
 	}
 
@@ -552,122 +555,127 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 
 	bool canUseAp = true;
 
-	for(auto activeUnit : exchangeUnits.units)
+	for(int turn = 0; turn < exchangeUnits.units.size(); turn++)
 	{
-		bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, activeUnit, true);
-		battle::Units & attackerQueue = isOur ? ourStacks : enemyStacks;
-		battle::Units & oppositeQueue = isOur ? enemyStacks : ourStacks;
-
-		auto attacker = exchangeBattle->getForUpdate(activeUnit->unitId());
-
-		if(!attacker->alive())
+		for(auto activeUnit : exchangeUnits.units.at(turn))
 		{
+			bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, activeUnit, true);
+			battle::Units & attackerQueue = isOur ? ourStacks : enemyStacks;
+			battle::Units & oppositeQueue = isOur ? enemyStacks : ourStacks;
+
+			auto attacker = exchangeBattle->getForUpdate(activeUnit->unitId());
+
+			if(!attacker->alive())
+			{
 #if BATTLE_TRACE_LEVEL>=1
-			logAi->trace(	"Attacker is dead");
+				logAi->trace("Attacker is dead");
 #endif
 
-			continue;
-		}
-
-		auto targetUnit = ap.attack.defender;
-
-		if(!isOur || !exchangeBattle->battleGetUnitByID(targetUnit->unitId())->alive())
-		{
-			auto estimateAttack = [&](const battle::Unit * u) -> float
-			{
-				auto stackWithBonuses = exchangeBattle->getForUpdate(u->unitId());
-				auto score = v.trackAttack(
-					attacker,
-					stackWithBonuses,
-					exchangeBattle->battleCanShoot(stackWithBonuses.get()),
-					isOur,
-					damageCache,
-					hb,
-					true);
-
-#if BATTLE_TRACE_LEVEL>=1
-				logAi->trace("Best target selector %s->%s score = %2f", attacker->getDescription(), stackWithBonuses->getDescription(), score);
-#endif
-
-				return score;
-			};
-
-			auto unitsInOppositeQueueExceptInaccessible = oppositeQueue;
-
-			vstd::erase_if(unitsInOppositeQueueExceptInaccessible, [&](const battle::Unit * u)->bool
-				{
-					return vstd::contains(exchangeUnits.shooters, u);
-				});
-
-			if(!unitsInOppositeQueueExceptInaccessible.empty())
-			{
-				targetUnit = *vstd::maxElementByFun(unitsInOppositeQueueExceptInaccessible, estimateAttack);
+				continue;
 			}
-			else
+
+			auto targetUnit = ap.attack.defender;
+
+			if(!isOur || !exchangeBattle->battleGetUnitByID(targetUnit->unitId())->alive())
 			{
-				auto reachable = exchangeBattle->battleGetUnitsIf([this, &exchangeBattle, &attacker](const battle::Unit * u) -> bool
+				auto estimateAttack = [&](const battle::Unit * u) -> float
+				{
+					auto stackWithBonuses = exchangeBattle->getForUpdate(u->unitId());
+					auto score = v.trackAttack(
+						attacker,
+						stackWithBonuses,
+						exchangeBattle->battleCanShoot(stackWithBonuses.get()),
+						isOur,
+						damageCache,
+						hb,
+						true);
+
+#if BATTLE_TRACE_LEVEL>=1
+					logAi->trace("Best target selector %s->%s score = %2f", attacker->getDescription(), stackWithBonuses->getDescription(), score);
+#endif
+
+					return score;
+				};
+
+				auto unitsInOppositeQueueExceptInaccessible = oppositeQueue;
+
+				vstd::erase_if(unitsInOppositeQueueExceptInaccessible, [&](const battle::Unit * u)->bool
 					{
-						if(u->unitSide() == attacker->unitSide())
-							return false;
-
-						if(!exchangeBattle->getForUpdate(u->unitId())->alive())
-							return false;
-
-						if (!u->getPosition().isValid())
-							return false; // e.g. tower shooters
-
-						return vstd::contains_if(reachabilityMap.at(u->getPosition()), [&attacker](const battle::Unit * other) -> bool
-							{
-								return attacker->unitId() == other->unitId();
-							});
+						return vstd::contains(exchangeUnits.shooters, u);
 					});
 
-				if(!reachable.empty())
+				if(!unitsInOppositeQueueExceptInaccessible.empty())
 				{
-					targetUnit = *vstd::maxElementByFun(reachable, estimateAttack);
+					targetUnit = *vstd::maxElementByFun(unitsInOppositeQueueExceptInaccessible, estimateAttack);
 				}
 				else
 				{
+					auto reachable = exchangeBattle->battleGetUnitsIf([this, &exchangeBattle, &attacker](const battle::Unit * u) -> bool
+						{
+							if(u->unitSide() == attacker->unitSide())
+								return false;
+
+							if(!exchangeBattle->getForUpdate(u->unitId())->alive())
+								return false;
+
+							if(!u->getPosition().isValid())
+								return false; // e.g. tower shooters
+
+							return vstd::contains_if(reachabilityMap.at(u->getPosition()), [&attacker](const battle::Unit * other) -> bool
+								{
+									return attacker->unitId() == other->unitId();
+								});
+						});
+
+					if(!reachable.empty())
+					{
+						targetUnit = *vstd::maxElementByFun(reachable, estimateAttack);
+					}
+					else
+					{
 #if BATTLE_TRACE_LEVEL>=1
-					logAi->trace("Battle queue is empty and no reachable enemy.");
+						logAi->trace("Battle queue is empty and no reachable enemy.");
 #endif
 
-					continue;
+						continue;
+					}
 				}
 			}
-		}
 
-		auto defender = exchangeBattle->getForUpdate(targetUnit->unitId());
-		auto shooting = exchangeBattle->battleCanShoot(attacker.get());
-		const int totalAttacks = attacker->getTotalAttacks(shooting);
+			auto defender = exchangeBattle->getForUpdate(targetUnit->unitId());
+			auto shooting = exchangeBattle->battleCanShoot(attacker.get());
+			const int totalAttacks = attacker->getTotalAttacks(shooting);
 
-		if(canUseAp && activeUnit->unitId() == ap.attack.attacker->unitId()
-			&& targetUnit->unitId() == ap.attack.defender->unitId())
-		{
-			v.trackAttack(ap, exchangeBattle, damageCache);
-		}
-		else
-		{
-			for(int i = 0; i < totalAttacks; i++)
+			if(canUseAp && activeUnit->unitId() == ap.attack.attacker->unitId()
+				&& targetUnit->unitId() == ap.attack.defender->unitId())
 			{
-				v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle);
-
-				if(!attacker->alive() || !defender->alive())
-					break;
+				v.trackAttack(ap, exchangeBattle, damageCache);
 			}
+			else
+			{
+				for(int i = 0; i < totalAttacks; i++)
+				{
+					v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle);
+
+					if(!attacker->alive() || !defender->alive())
+						break;
+				}
+			}
+
+			canUseAp = false;
+
+			vstd::erase_if(attackerQueue, [&](const battle::Unit * u) -> bool
+				{
+					return !exchangeBattle->battleGetUnitByID(u->unitId())->alive();
+				});
+
+			vstd::erase_if(oppositeQueue, [&](const battle::Unit * u) -> bool
+				{
+					return !exchangeBattle->battleGetUnitByID(u->unitId())->alive();
+				});
 		}
 
-		canUseAp = false;
-
-		vstd::erase_if(attackerQueue, [&](const battle::Unit * u) -> bool
-			{
-				return !exchangeBattle->battleGetUnitByID(u->unitId())->alive();
-			});
-
-		vstd::erase_if(oppositeQueue, [&](const battle::Unit * u) -> bool
-			{
-				return !exchangeBattle->battleGetUnitByID(u->unitId())->alive();
-			});
+		exchangeBattle->nextRound();
 	}
 
 	// avoid blocking path for stronger stack by weaker stack

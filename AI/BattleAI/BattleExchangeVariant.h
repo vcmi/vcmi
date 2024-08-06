@@ -113,7 +113,7 @@ private:
 
 struct ReachabilityData
 {
-	std::vector<const battle::Unit *> units;
+	std::map<int, std::vector<const battle::Unit *>> units;
 
 	// shooters which are within mellee attack and mellee units
 	std::vector<const battle::Unit *> melleeAccessible;
