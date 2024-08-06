@@ -48,7 +48,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 			}
 		}
 
-		if (ai->buildAnalyzer->isGoldPressureHigh() && !town->hasBuilt(BuildingID::CITY_HALL))
+		if (ai->buildAnalyzer->isGoldPressureHigh() && !town->hasBuilt(BuildingID::CITY_HALL) && cb->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
 		{
 			return tasks;
 		}
