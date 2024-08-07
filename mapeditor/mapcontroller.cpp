@@ -613,16 +613,49 @@ ModCompatibilityInfo MapController::modAssessmentAll()
 ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 {
 	ModCompatibilityInfo result;
+
+	auto extractEntityMod = [&result](const auto & entity) 
+	{
+		auto modName = QString::fromStdString(entity->getJsonKey()).split(":").at(0).toStdString();
+		if(modName != "core")
+			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+	};
+
 	for(auto obj : map.objects)
 	{
-		if(obj->ID == Obj::HERO)
-			continue; //stub! 
-		
 		auto handler = obj->getObjectHandler();
 		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
 		if(modName != "core")
 			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+
+		if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
+		{
+			auto town = dynamic_cast<CGTownInstance *>(obj.get());
+			for(const auto & spellID : town->possibleSpells)
+			{
+				if(spellID == SpellID::PRESET)
+					continue;
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+
+			for(const auto & spellID : town->obligatorySpells)
+			{
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+		}
+
+		if(obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO)
+		{
+			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
+			for(const auto & spellID : hero->getSpellsInSpellbook())
+			{
+				if(spellID == SpellID::PRESET || spellID == SpellID::SPELLBOOK_PRESET)
+					continue;
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+		}
 	}
-	//TODO: terrains?
+
+	//TODO: terrains, artifacts?
 	return result;
 }
