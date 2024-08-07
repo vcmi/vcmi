@@ -500,17 +500,17 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	// add statistic
 	if(battle.sideToPlayer(0) == PlayerColor::NEUTRAL || battle.sideToPlayer(1) == PlayerColor::NEUTRAL)
 	{
-		gameHandler->gameState()->statistic.values.numBattlesNeutral[battle.sideToPlayer(0)]++;
-		gameHandler->gameState()->statistic.values.numBattlesNeutral[battle.sideToPlayer(1)]++;
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(0)].numBattlesNeutral++;
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(1)].numBattlesNeutral++;
 		if(!finishingBattle->isDraw())
-			gameHandler->gameState()->statistic.values.numWinBattlesNeutral[battle.sideToPlayer(finishingBattle->winnerSide)]++;
+			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
 	}
 	else
 	{
-		gameHandler->gameState()->statistic.values.numBattlesPlayer[battle.sideToPlayer(0)]++;
-		gameHandler->gameState()->statistic.values.numBattlesPlayer[battle.sideToPlayer(1)]++;
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(0)].numBattlesPlayer++;
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(1)].numBattlesPlayer++;
 		if(!finishingBattle->isDraw())
-			gameHandler->gameState()->statistic.values.numWinBattlesPlayer[battle.sideToPlayer(finishingBattle->winnerSide)]++;
+			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
 	}
 
 	BattleResultAccepted raccepted;
@@ -573,13 +573,13 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 
 	if (result.result == EBattleResult::SURRENDER)
 	{
-		gameHandler->gameState()->statistic.values.numHeroSurrendered[finishingBattle->loser]++;
+		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
 		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, finishingBattle->loserHero);
 	}
 
 	if (result.result == EBattleResult::ESCAPE)
 	{
-		gameHandler->gameState()->statistic.values.numHeroEscaped[finishingBattle->loser]++;
+		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, finishingBattle->loserHero);
 	}
 

@@ -1351,7 +1351,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 		turnTimerHandler->setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
-		gs->statistic.values.movementPointsUsed[asker] += tmh.movePoints;
+		gs->statistic.accumulatedValues[asker].movementPointsUsed += tmh.movePoints;
 		return true;
 	}
 }
@@ -2466,7 +2466,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	if(!force)
 	{
 		giveResources(t->tempOwner, -requestedBuilding->resources);
-		gs->statistic.values.spentResourcesForBuildings[t->tempOwner] += requestedBuilding->resources;
+		gs->statistic.accumulatedValues[t->tempOwner].spentResourcesForBuildings += requestedBuilding->resources;
 	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window
@@ -2571,7 +2571,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	//recruit
 	TResources cost = (c->getFullRecruitCost() * cram);
 	giveResources(army->tempOwner, -cost);
-	gs->statistic.values.spentResourcesForArmy[army->tempOwner] += cost;
+	gs->statistic.accumulatedValues[army->tempOwner].spentResourcesForArmy += cost;
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
@@ -2624,7 +2624,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 
 	//take resources
 	giveResources(player, -totalCost);
-	gs->statistic.values.spentResourcesForArmy[player] += totalCost;
+	gs->statistic.accumulatedValues[player].spentResourcesForArmy += totalCost;
 
 	//upgrade creature
 	changeStackType(StackLocation(obj, pos), upgID.toCreature());
@@ -3249,8 +3249,8 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 	giveResource(player, toSell, -b1 * amountToBoy);
 	giveResource(player, toBuy, b2 * amountToBoy);
 
-	gs->statistic.values.tradeVolume[player][toSell] += -b1 * amountToBoy;
-	gs->statistic.values.tradeVolume[player][toBuy] += b2 * amountToBoy;
+	gs->statistic.accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBoy;
+	gs->statistic.accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBoy;
 
 	return true;
 }

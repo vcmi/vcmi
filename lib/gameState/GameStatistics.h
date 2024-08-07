@@ -100,18 +100,18 @@ public:
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
     std::string toCsv();
 
-	struct ValueStorage // holds some actual values needed for stats
+	struct PlayerAccumulatedValueStorage // holds some actual values needed for stats
 	{
-		std::map<PlayerColor, int> numBattlesNeutral;
-		std::map<PlayerColor, int> numBattlesPlayer;
-		std::map<PlayerColor, int> numWinBattlesNeutral;
-		std::map<PlayerColor, int> numWinBattlesPlayer;
-		std::map<PlayerColor, int> numHeroSurrendered;
-		std::map<PlayerColor, int> numHeroEscaped;
-		std::map<PlayerColor, TResources> spentResourcesForArmy;
-		std::map<PlayerColor, TResources> spentResourcesForBuildings;
-		std::map<PlayerColor, TResources> tradeVolume;
-		std::map<PlayerColor, si64> movementPointsUsed;
+		int numBattlesNeutral;
+		int numBattlesPlayer;
+		int numWinBattlesNeutral;
+		int numWinBattlesPlayer;
+		int numHeroSurrendered;
+		int numHeroEscaped;
+		TResources spentResourcesForArmy;
+		TResources spentResourcesForBuildings;
+		TResources tradeVolume;
+		si64 movementPointsUsed;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
@@ -127,12 +127,12 @@ public:
 			h & movementPointsUsed;
 		}
 	};
-	ValueStorage values;
+	std::map<PlayerColor, PlayerAccumulatedValueStorage> accumulatedValues;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & data;
-		h & values;
+		h & accumulatedValues;
 	}
 };
 

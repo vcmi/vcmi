@@ -62,16 +62,16 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numMines = Statistic::getNumMines(gs, ps);
 	data.score = scenarioHighScores.calculate().total;
 	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color) ? Statistic::findBestHero(gs, ps->color)->level : 0;
-	data.numBattlesNeutral = gs->statistic.values.numBattlesNeutral.count(ps->color) ? gs->statistic.values.numBattlesNeutral.at(ps->color) : 0;
-	data.numBattlesPlayer = gs->statistic.values.numBattlesPlayer.count(ps->color) ? gs->statistic.values.numBattlesPlayer.at(ps->color) : 0;
-	data.numWinBattlesNeutral = gs->statistic.values.numWinBattlesNeutral.count(ps->color) ? gs->statistic.values.numWinBattlesNeutral.at(ps->color) : 0;
-	data.numWinBattlesPlayer = gs->statistic.values.numWinBattlesPlayer.count(ps->color) ? gs->statistic.values.numWinBattlesPlayer.at(ps->color) : 0;
-	data.numHeroSurrendered = gs->statistic.values.numHeroSurrendered.count(ps->color) ? gs->statistic.values.numHeroSurrendered.at(ps->color) : 0;
-	data.numHeroEscaped = gs->statistic.values.numHeroEscaped.count(ps->color) ? gs->statistic.values.numHeroEscaped.at(ps->color) : 0;
-	data.spentResourcesForArmy = gs->statistic.values.spentResourcesForArmy.count(ps->color) ? gs->statistic.values.spentResourcesForArmy.at(ps->color) : TResources();
-	data.spentResourcesForBuildings = gs->statistic.values.spentResourcesForBuildings.count(ps->color) ? gs->statistic.values.spentResourcesForBuildings.at(ps->color) : TResources();
-	data.tradeVolume = gs->statistic.values.tradeVolume.count(ps->color) ? gs->statistic.values.tradeVolume.at(ps->color) : TResources();
-	data.movementPointsUsed = gs->statistic.values.movementPointsUsed.count(ps->color) ? gs->statistic.values.movementPointsUsed.at(ps->color) : 0;
+	data.numBattlesNeutral = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numBattlesNeutral : 0;
+	data.numBattlesPlayer = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numBattlesPlayer : 0;
+	data.numWinBattlesNeutral = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numWinBattlesNeutral : 0;
+	data.numWinBattlesPlayer = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numWinBattlesPlayer : 0;
+	data.numHeroSurrendered = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numHeroSurrendered : 0;
+	data.numHeroEscaped = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numHeroEscaped : 0;
+	data.spentResourcesForArmy = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).spentResourcesForArmy : TResources();
+	data.spentResourcesForBuildings = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).spentResourcesForBuildings : TResources();
+	data.tradeVolume = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).tradeVolume : TResources();
+	data.movementPointsUsed = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).movementPointsUsed : 0;
 
 	return data;
 }
@@ -236,31 +236,18 @@ int Statistic::getIncome(const CGameState * gs, const PlayerState * ps)
 {
 	int percentIncome = gs->getStartInfo()->getIthPlayersSettings(ps->color).handicap.percentIncome;
 	int totalIncome = 0;
-	const CGObjectInstance * heroOrTown = nullptr;
 
 	//Heroes can produce gold as well - skill, specialty or arts
 	for(const auto & h : ps->heroes)
-	{
 		totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD)))) * percentIncome / 100;
-
-		if(!heroOrTown)
-			heroOrTown = h;
-	}
 
 	//Add town income of all towns
 	for(const auto & t : ps->towns)
-	{
 		totalIncome += t->dailyIncome()[EGameResID::GOLD];
 
-		if(!heroOrTown)
-			heroOrTown = t;
-	}
-
 	for(const CGMine * mine : getMines(gs, ps))
-	{
-		if (mine->producedResource == EGameResID::GOLD)
+		if(mine->producedResource == EGameResID::GOLD)
 			totalIncome += mine->getProducedQuantity();
-	}
 
 	return totalIncome;
 }
