@@ -15,7 +15,7 @@ class CEmptyVideoPlayer final : public IVideoPlayer
 {
 public:
 	/// Plays video on top of the screen, returns only after playback is over
-	bool playIntroVideo(const VideoPath & name) override
+	bool playIntroVideo(const VideoPath & name, const Point preferredLogicalResolution) override
 	{
 		return false;
 	};

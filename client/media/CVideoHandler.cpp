@@ -18,6 +18,7 @@
 #include "../CMT.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../render/CBitmapHandler.h"
 #include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
 
@@ -182,7 +183,7 @@ void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput
 	}
 	else
 	{
-		dimensions.x  = getCodecContext()->width;
+		dimensions.x = getCodecContext()->width;
 		dimensions.y = getCodecContext()->height;
 	}
 
@@ -574,7 +575,82 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey)
+void CVideoPlayer::getVideoAndBackgroundRects(std::string_view name, const Point & position, SDL_Rect & videoRect, SDL_Rect & backgroundRect, const Point preferredLogicalResolution, const CVideoInstance & instance) const
+{
+	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
+	float resX = preferredLogicalResolution.x; // Float, since we do some floating point calculations
+	float resY = preferredLogicalResolution.y;
+	float aspectRatio_LogicalResolution = resX/resY;
+
+	float originalH3ResX = 800.0;
+	float originalH3ResY = 600.0;
+	float aspectRatio_OH3 = originalH3ResX/originalH3ResY;
+
+	float correctedResX;
+	float correctedResY;
+	if(aspectRatio_LogicalResolution > aspectRatio_OH3)
+	{
+		// wider than original
+		correctedResX = aspectRatio_OH3*resY;
+		correctedResY = resY;
+	} else {
+		// narrower than original
+		correctedResX = resX;
+		correctedResY = resX/aspectRatio_OH3;
+	}
+
+	int offsetX = (resX-correctedResX)/2;
+	int offsetY = (resY-correctedResY)/2;
+
+	if(name == "H3INTRO")
+	{
+		backgroundRect = CSDL_Ext::toSDL(Rect(
+												offsetX,
+												offsetY,
+												correctedResX,
+												correctedResY
+											)
+										);
+		
+		int H3INTROResX = 640;
+		int H3INTROResY = 360;
+
+		videoRect = CSDL_Ext::toSDL(Rect(
+											offsetX+position.x*correctedResX/originalH3ResX,
+											offsetY+position.y*correctedResY/originalH3ResY,
+											H3INTROResX*correctedResX/originalH3ResX,
+											H3INTROResY*correctedResY/originalH3ResY
+										)
+									);
+	} else if(name == "3DOLOGO" || name == "NWCLOGO") {
+		videoRect = CSDL_Ext::toSDL(Rect(
+											offsetX+position.x,
+											offsetY+position.y,
+											correctedResX,
+											correctedResY
+										)
+									);
+	} else {
+		videoRect = CSDL_Ext::toSDL(Rect(
+											position.x,
+											position.y,
+											instance.dimensions.x,
+											instance.dimensions.y
+										)
+									);
+	}
+}
+
+bool CVideoPlayer::getIntroRimTexture(SDL_Texture **introRimTexture) const
+{
+	SDL_Surface *image = BitmapHandler::loadBitmap(ImagePath::builtin("INTRORIM"));
+
+	*introRimTexture = SDL_CreateTextureFromSurface(mainRenderer, image);
+
+	return true;
+}
+
+bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, Point preferredLogicalResolution) const
 {
 	CVideoInstance instance;
 	CAudioInstance audio;
@@ -586,7 +662,19 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		return true;
 
 	instance.openVideo();
-	instance.prepareOutput(scale, true);
+
+	SDL_Rect videoRect;
+	SDL_Rect backgroundRect;
+
+	instance.prepareOutput(scale, useOverlay);
+	getVideoAndBackgroundRects(name.getName(), position, videoRect, backgroundRect, preferredLogicalResolution, instance);
+
+	SDL_Texture *introRimTexture = nullptr;
+	if(name.getName() == "H3INTRO")
+	{
+		if(!getIntroRimTexture(&introRimTexture))
+			return true;
+	}
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
 
@@ -608,12 +696,25 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		rect.w = instance.dimensions.x;
 		rect.h = instance.dimensions.y;
 
-		SDL_RenderFillRect(mainRenderer, &rect);
+		if(useOverlay)
+		{
+			if(name.getName() == "3DOLOGO" || name.getName() == "NWCLOGO" || name.getName() == "H3INTRO"){
+				SDL_RenderClear(mainRenderer);
+				if(name.getName() == "H3INTRO")
+				{
+					SDL_RenderCopy(mainRenderer, introRimTexture, nullptr, &backgroundRect);
+				}
+			} else {
+				SDL_RenderFillRect(mainRenderer, &rect);
+			}
+		}
+		else
+			SDL_RenderClear(mainRenderer);
 
 		if(instance.textureYUV)
-			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &rect);
+			SDL_RenderCopy(mainRenderer, instance.textureYUV, nullptr, &videoRect);
 		else
-			SDL_RenderCopy(mainRenderer, instance.textureRGB, nullptr, &rect);
+			SDL_RenderCopy(mainRenderer, instance.textureRGB, nullptr, &videoRect);
 
 		SDL_RenderPresent(mainRenderer);
 
@@ -632,14 +733,18 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	return true;
 }
 
-bool CVideoPlayer::playIntroVideo(const VideoPath & name)
+bool CVideoPlayer::playIntroVideo(const VideoPath & name, Point preferredLogicalResolution)
 {
-	return openAndPlayVideoImpl(name, Point(0, 0), true, true, true);
+	Point topRightCorner(0,0);
+	if(name.getName() == "H3INTRO") {
+		topRightCorner = Point(80, 188);
+	}
+	return openAndPlayVideoImpl(name, topRightCorner, true, true, true, preferredLogicalResolution);
 }
 
 void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
 {
-	openAndPlayVideoImpl(name, position, false, false, false);
+	openAndPlayVideoImpl(name, position, true, false, false, Point(0,0));
 }
 
 std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool scaleToScreen)

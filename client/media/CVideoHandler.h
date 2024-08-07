@@ -14,6 +14,7 @@
 #include "../lib/Point.h"
 #include "IVideoPlayer.h"
 
+struct SDL_Rect;
 struct SDL_Surface;
 struct SDL_Texture;
 struct AVFormatContext;
@@ -97,11 +98,13 @@ public:
 
 class CVideoPlayer final : public IVideoPlayer
 {
-	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey);
+	void getVideoAndBackgroundRects(std::string_view name, const Point & position, SDL_Rect & video, SDL_Rect & RectbackgroundRect, const Point preferredLogicalResolution, const CVideoInstance & instance) const;
+	bool getIntroRimTexture(SDL_Texture **introRimTexture) const;
+	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey, Point preferredLogicalResolution) const;
 	void openVideoFile(CVideoInstance & state, const VideoPath & fname);
 
 public:
-	bool playIntroVideo(const VideoPath & name) final;
+	bool playIntroVideo(const VideoPath & name, const Point preferredLogicalResolution) final;
 	void playSpellbookAnimation(const VideoPath & name, const Point & position) final;
 	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) final;
 	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) final;
