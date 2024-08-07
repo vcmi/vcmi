@@ -29,6 +29,7 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/Buttons.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IImage.h"
@@ -130,9 +131,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
+	Rect r(90, isBigSpellbook ? 480 : 420, isBigSpellbook ? 160 : 110, 16);
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
-		Rect r(90, isBigSpellbook ? 480 : 420, isBigSpellbook ? 160 : 110, 16);
 		const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
 		const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
 		const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
@@ -141,6 +142,13 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
 		searchBox->setCallback(std::bind(&CSpellWindow::searchInput, this));
+	}
+
+	if(onSpellSelect)
+	{
+		Point boxPos = r.bottomLeft() + Point(-2, 5);
+		showAllSpells = std::make_shared<CToggleButton>(boxPos, AnimationPath::builtin("sysopchk.def"), CButton::tooltip(CGI->generaltexth->translate("core.help.458.hover"), CGI->generaltexth->translate("core.help.458.hover")), [this](bool state){ searchInput(); });
+		showAllSpellsDescription = std::make_shared<CLabel>(boxPos.x + 40, boxPos.y + 12, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, CGI->generaltexth->translate("core.help.458.hover"));
 	}
 
 	processSpells();
@@ -288,7 +296,7 @@ void CSpellWindow::processSpells()
 
 		if(onSpellSelect)
 		{
-			if(spell->isCombat() == openOnBattleSpells && !spell->isSpecial() && !spell->isCreatureAbility() && searchTextFound)
+			if(spell->isCombat() == openOnBattleSpells && !spell->isSpecial() && !spell->isCreatureAbility() && searchTextFound && (showAllSpells->isSelected() || myHero->canCastThisSpell(spell.get())))
 				mySpells.push_back(spell.get());
 			continue;
 		}
@@ -358,6 +366,9 @@ void CSpellWindow::fexitb()
 {
 	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
 	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbookLastPageAdvmap) = currentPage;
+
+	if(onSpellSelect)
+		onSpellSelect(SpellID::NONE);
 
 	close();
 }
@@ -605,7 +616,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		if(owner->onSpellSelect)
 		{
 			owner->onSpellSelect(mySpell->id);
-			owner->fexitb();
+			owner->close();
 			return;
 		}
 
