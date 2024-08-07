@@ -227,7 +227,7 @@ TResources CGTownInstance::dailyIncome() const
 	auto playerSettings = cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner());
 	for(TResources::nziterator it(ret); it.valid(); it++)
 		// always round up income - we don't want to always produce zero if handicap in use
-		ret[it->resType] = (ret[it->resType] * playerSettings.handicap.percentIncome + 99) / 100;
+		ret[it->resType] = vstd::divideAndCeil(ret[it->resType] * playerSettings.handicap.percentIncome, 100);
 	return ret;
 }
 
@@ -1271,7 +1271,7 @@ int GrowthInfo::totalGrowth() const
 		ret += entry.count;
 
 	// always round up income - we don't want buildings to always produce zero if handicap in use
-	return (ret * handicapPercentage + 99) / 100;
+	return vstd::divideAndCeil(ret * handicapPercentage, 100);
 }
 
 void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const

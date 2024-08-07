@@ -714,3 +714,8 @@ void SelectableSlot::setSelectionWidth(int width)
 	selection = std::make_shared<TransparentFilledRectangle>( selection->pos - pos.topLeft(), Colors::TRANSPARENCY, Colors::YELLOW, width);
 	selectSlot(selected);
 }
+
+void SelectableSlot::moveSelectionForeground()
+{
+	moveChildForeground(selection.get());
+}

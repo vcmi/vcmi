@@ -258,6 +258,15 @@ void CIntObject::redraw()
 	}
 }
 
+void CIntObject::moveChildForeground(const CIntObject * childToMove)
+{
+	for(auto child = children.begin(); child != children.end(); child++)
+		if(*child == childToMove && child != children.end())
+		{
+			std::rotate(child, child + 1, children.end());
+		}
+}
+
 bool CIntObject::receiveEvent(const Point & position, int eventType) const
 {
 	return pos.isInside(position);

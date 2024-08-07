@@ -99,7 +99,7 @@
 				"type":
 				{
 					"type" : "string",
-					"enum" : ["wide", "fictive", "repulsive"]
+					"enum" : ["wide", "fictive", "repulsive", "forcePortal"]
 				}
 			}
 		},

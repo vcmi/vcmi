@@ -218,7 +218,9 @@ void BattleWindow::showStickyQuickSpellWindow()
 	Settings showStickyQuickSpellWindow = settings.write["battle"]["enableQuickSpellPanel"];
 	showStickyQuickSpellWindow->Bool() = true;
 
-	if(GH.screenDimensions().x >= 1050 && owner.getBattle()->battleGetMyHero()->hasSpellbook())
+	auto hero = owner.getBattle()->battleGetMyHero();
+
+	if(GH.screenDimensions().x >= 1050 && hero != nullptr && hero->hasSpellbook())
 	{
 		quickSpellWindow->enable();
 		quickSpellWindow->isEnabled = true;
@@ -273,16 +275,13 @@ std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode &
 
 void BattleWindow::useSpellIfPossible(int slot)
 {
-	std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(slot)].String();
 	SpellID id;
-	try
-	{
-		id = SpellID::decode(spellIdentifier);
-	}
-	catch(const IdentifierResolutionException& e)
-	{
+	bool fromSettings;
+	std::tie(id, fromSettings) = quickSpellWindow->getSpells()[slot];
+
+	if(id == SpellID::NONE)
 		return;
-	}
+
 	if(id.hasValue() && owner.getBattle()->battleGetMyHero() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, owner.getBattle()->battleGetMyHero()))
 	{
 		owner.castThisSpell(id);
