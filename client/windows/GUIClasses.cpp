@@ -1130,10 +1130,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 
 	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);
 
-	if(object->typeName == "miniHillFort")
-		statusbar->write(VLC->generaltexth->translate("vcmi.adventureMap.miniHillFort.statusBar.info"));
-	else if(object->typeName == "hillFort")
-		statusbar->write(VLC->generaltexth->translate("vcmi.adventureMap.HillFort.statusBar.info"));
+	statusbar->write(dynamic_cast<const HillFort *>(fort)->getDescriptionToolTip());
 
 	updateGarrisons();
 }
@@ -1273,7 +1270,7 @@ void CHillFortWindow::makeDeal(SlotID slot)
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case State::UNAVAILABLE:
-			LOCPLINT->showInfoDialog(VLC->generaltexth->translate("vcmi.adventureMap.miniHillFort.notAvailableUpgrade.message"), 
+			LOCPLINT->showInfoDialog(dynamic_cast<const HillFort*>(fort)->getUnavailableUpgradeMessage(),
 									 std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case State::MAKE_UPGRADE:
@@ -1314,10 +1311,10 @@ CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 
 	UpgradeInfo info;
 	LOCPLINT->cb->fillUpgradeInfo(hero, slot, info);
-	if (!info.newID.size())
+	if (info.newID.empty())
 	{
-		// new Hill Fort allows upgrades level 5 and below
-		if (hero->getStack(slot).type->getLevel() >= 5 && hero->getCreature(slot)->hasUpgrades())
+		// Hill Fort may limit level of upgradeable creatures, e.g. mini Hill Fort from HOTA
+		if (hero->getCreature(slot)->hasUpgrades())
 			return State::UNAVAILABLE;
 
 		return State::ALREADY_UPGRADED;

@@ -280,9 +280,6 @@
 
 	"vcmi.adventureMap.revisitObject.hover" : "Odwiedź obiekt ponownie",
 	"vcmi.adventureMap.revisitObject.help" : "{Odwiedź obiekt ponownie}\n\nJeżeli bohater aktualnie stoi na polu odwiedzającym obiekt za pomocą tego przycisku może go odwiedzić ponownie.",
-	"vcmi.adventureMap.miniHillFort.notAvailableUpgrade.message" : "Ten budynek nie ma możliwości ulepszenia jednostek poziomu 5 i wyższych.",
-	"vcmi.adventureMap.miniHillFort.statusBar.info" : "Ulepsza jednostki poziomu 1 - 5 za podwójną cenę",
-	"vcmi.adventureMap.HillFort.statusBar.info" : "Ulepsza jednostki. Koszt ulepszenia dla poziomów 1 - 4 są bardziej korzystne niż w mieście",
 
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Naciśnij dowolny klawisz by rozpocząć bitwę natychmiastowo",
 	"vcmi.battleWindow.damageEstimation.melee" : "Atakuj %CREATURE (%DAMAGE).",
@@ -516,7 +513,7 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Zamknięte do %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Zamknięte do %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Zamknięte do %s.",
-
+	"mapObject.core.hillFort.object.description" : "Ulepsza jednostki. Koszt ulepszenia dla poziomów 1 - 4 są bardziej korzystne niż w mieście",
 	"core.bonus.ADDITIONAL_ATTACK.name": "Podwójne Uderzenie",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Atakuje dwa razy",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Dodatkowy odwet",

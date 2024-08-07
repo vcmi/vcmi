@@ -451,6 +451,8 @@ class DLL_LINKAGE HillFort : public CGObjectInstance, public ICreatureUpgrader
 	friend class HillFortInstanceConstructor;
 
 	std::vector<int> upgradeCostPercentage;
+	std::string descriptionToolTip;
+	std::string unavailableUpgradeMessage;
 
 protected:
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -459,10 +461,22 @@ protected:
 public:
 	using CGObjectInstance::CGObjectInstance;
 
+	const std::string & getDescriptionToolTip() const
+	{
+		return descriptionToolTip;
+	}
+
+	const std::string & getUnavailableUpgradeMessage() const
+	{
+		return unavailableUpgradeMessage;
+	}
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & upgradeCostPercentage;
+		h & descriptionToolTip;
+		h & unavailableUpgradeMessage;
 	}
 };
 

@@ -283,9 +283,6 @@
 
 	"vcmi.adventureMap.revisitObject.hover" : "Revisit Object",
 	"vcmi.adventureMap.revisitObject.help" : "{Revisit Object}\n\nIf a hero currently stands on a Map Object, he can revisit the location.",
-	"vcmi.adventureMap.miniHillFort.notAvailableUpgrade.message" : "This building cannot upgrade creatures of level 5 and higher.",
-	"vcmi.adventureMap.miniHillFort.statusBar.info" : "Upgrade creatures levels 1 - 5 at double the normal price",
-	"vcmi.adventureMap.HillFort.statusBar.info" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town",
 
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to start battle immediately",
 	"vcmi.battleWindow.damageEstimation.melee" : "Attack %CREATURE (%DAMAGE).",
@@ -519,7 +516,9 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Closed till %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Closed till %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Closed till %s.",
-
+	
+	"mapObject.core.hillFort.object.description" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Additional retaliations",
