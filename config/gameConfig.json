@@ -298,10 +298,7 @@
 			// if heroes are invitable in tavern
 			"tavernInvite"            : false,
 			// minimai primary skills for heroes
-			"minimalAttack": 0,
-			"minimalDefence": 0,
-			"minimalKnowledge": 1,
-			"minimalSpellPower": 1
+			"minimalPrimarySkills": [ 0, 0, 1, 1]
 		},
 
 		"towns":
