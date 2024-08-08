@@ -447,16 +447,16 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
 				sendArtifacts(packCommander);
 			}
-		}
-		auto armyObj = battle.battleGetArmyObject(battle.otherSide(battleResult->winner));
-		for(const auto & armySlot : armyObj->stacks)
-		{
-			BulkMoveArtifacts packsArmy(finishingBattle->winnerHero->getOwner(), finishingBattle->loserHero->id, finishingBattle->winnerHero->id, false);
-			packsArmy.srcArtHolder = armyObj->id;
-			packsArmy.srcCreature = armySlot.first;
-			for(const auto & artSlot : armySlot.second->artifactsWorn)
-				addArtifactToTransfer(packsArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
-			sendArtifacts(packsArmy);
+			auto armyObj = battle.battleGetArmyObject(battle.otherSide(battleResult->winner));
+			for(const auto & armySlot : armyObj->stacks)
+			{
+				BulkMoveArtifacts packsArmy(finishingBattle->winnerHero->getOwner(), finishingBattle->loserHero->id, finishingBattle->winnerHero->id, false);
+				packsArmy.srcArtHolder = armyObj->id;
+				packsArmy.srcCreature = armySlot.first;
+				for(const auto & artSlot : armySlot.second->artifactsWorn)
+					addArtifactToTransfer(packsArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
+				sendArtifacts(packsArmy);
+			}
 		}
 		// Display loot
 		if(!arts.empty())
