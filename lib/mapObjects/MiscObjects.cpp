@@ -215,7 +215,7 @@ void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &resu
 	}
 }
 
-void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -348,7 +348,7 @@ void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		collectRes(hero->getOwner());
 }
 
-void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -915,7 +915,7 @@ void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		pick(hero);
 }
 
-void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
