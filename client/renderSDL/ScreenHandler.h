@@ -67,6 +67,8 @@ class ScreenHandler final : public IScreenHandler
 	/// Initializes or reiniitalizes all screen state
 	void recreateWindowAndScreenBuffers();
 
+	void setWindowIcon();
+
 	/// Performs validation of settings and updates them to valid values if necessary
 	void validateSettings();
 public:
