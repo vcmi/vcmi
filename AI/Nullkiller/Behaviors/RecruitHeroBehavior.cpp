@@ -13,6 +13,7 @@
 #include "../AIUtility.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../lib/CHeroHandler.h"
 
 namespace NKAI
 {
@@ -45,7 +46,15 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 			minScoreToHireMain = newScore;
 		}
 	}
+	// If we don't have any heros we might want to lower our expectations.
+	if (ourHeroes.empty())
+		minScoreToHireMain = 0;
 
+	const CGHeroInstance* bestHeroToHire = nullptr;
+	const CGTownInstance* bestTownToHireFrom = nullptr;
+	float bestScore = 0;
+	bool haveCapitol = false;
+	
 	for(auto town : towns)
 	{
 		if(ai->heroManager->canRecruitHero(town))
@@ -55,40 +64,31 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 			for(auto hero : availableHeroes)
 			{
 				auto score = ai->heroManager->evaluateHero(hero);
-
 				if(score > minScoreToHireMain)
 				{
-					tasks.push_back(Goals::sptr(Goals::RecruitHero(town, hero).setpriority(200)));
-					break;
+					score *= score / minScoreToHireMain;
 				}
-			}
-
-			int treasureSourcesCount = 0;
-
-			for(auto obj : ai->objectClusterizer->getNearbyObjects())
-			{
-				if((obj->ID == Obj::RESOURCE)
-					|| obj->ID == Obj::TREASURE_CHEST
-					|| obj->ID == Obj::CAMPFIRE
-					|| isWeeklyRevisitable(ai, obj)
-					|| obj->ID ==Obj::ARTIFACT)
+				score *= hero->getArmyCost();
+				if (hero->type->heroClass->faction == town->getFaction())
+					score *= 1.5;
+				score *= town->getTownLevel();
+				if (score > bestScore)
 				{
-					auto tile = obj->visitablePos();
-					auto closestTown = ai->dangerHitMap->getClosestTown(tile);
-
-					if(town == closestTown)
-						treasureSourcesCount++;
+					bestScore = score;
+					bestHeroToHire = hero;
+					bestTownToHireFrom = town;
 				}
 			}
-
-			if(treasureSourcesCount < 5 && (town->garrisonHero || town->getUpperArmy()->getArmyStrength() < 10000))
-				continue;
-
-			if(ai->cb->getHeroesInfo().size() < ai->cb->getTownsInfo().size() + 1
-				|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh()))
-			{
-				tasks.push_back(Goals::sptr(Goals::RecruitHero(town).setpriority(3)));
-			}
+		}
+		if (town->hasCapitol())
+			haveCapitol = true;
+	}
+	if (bestHeroToHire && bestTownToHireFrom)
+	{
+		if (ai->cb->getHeroesInfo().size() < ai->cb->getTownsInfo().size() + 1
+			|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh() && haveCapitol))
+		{
+			tasks.push_back(Goals::sptr(Goals::RecruitHero(bestTownToHireFrom, bestHeroToHire).setpriority((float)3 / ourHeroes.size())));
 		}
 	}
 

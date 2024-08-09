@@ -149,7 +149,7 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
 {
-	const ui64 heroStrength = h->getFightingStrength() * heroArmy->getArmyStrength();
+	const ui64 heroStrength = h->getHeroStrength() * heroArmy->getArmyStrength();
 
 	if(dangerStrength)
 	{

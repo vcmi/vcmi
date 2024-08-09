@@ -391,7 +391,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 	vstd::erase_if(possibleSpells, [](const CSpell *s)
 	{
-		return spellType(s) != SpellTypes::BATTLE || s->getTargetType() == spells::AimType::LOCATION;
+		return spellType(s) != SpellTypes::BATTLE;
 	});
 
 	LOGFL("I know how %d of them works.", possibleSpells.size());
@@ -402,9 +402,6 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	{
 		spells::BattleCast temp(cb->getBattle(battleID).get(), hero, spells::Mode::HERO, spell);
 
-		if(spell->getTargetType() == spells::AimType::LOCATION)
-			continue;
-		
 		const bool FAST = true;
 
 		for(auto & target : temp.findPotentialTargets(FAST))
@@ -573,7 +570,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				auto & ps = possibleCasts[i];
 
 #if BATTLE_TRACE_LEVEL >= 1
-				logAi->trace("Evaluating %s", ps.spell->getNameTranslated());
+				logAi->trace("Evaluating %s to %d", ps.spell->getNameTranslated(), ps.dest.at(0).hexValue.hex );
 #endif
 
 				auto state = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
@@ -581,7 +578,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps.spell);
 				cast.castEval(state->getServerCallback(), ps.dest);
 
-				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return true; });
+				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(); });
 
 				auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 					{
@@ -620,6 +617,60 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack, 0, *targets, innerCache, state);
 				}
 
+				//! Some units may be dead alltogether. So if they existed before but not now, we know they were killed by the spell
+				for (const auto& unit : all)
+				{
+					if (!unit->isValidTarget())
+						continue;
+					bool isDead = true;
+					for (const auto& remainingUnit : allUnits)
+					{
+						if (remainingUnit->unitId() == unit->unitId())
+							isDead = false;
+					}
+					if (isDead)
+					{
+						auto newHealth = 0;
+						auto oldHealth = vstd::find_or(healthOfStack, unit->unitId(), 0);
+						if (oldHealth != newHealth)
+						{
+							auto damage = std::abs(oldHealth - newHealth);
+							auto originalDefender = cb->getBattle(battleID)->battleGetUnitByID(unit->unitId());
+
+							auto dpsReduce = AttackPossibility::calculateDamageReduce(
+								nullptr,
+								originalDefender && originalDefender->alive() ? originalDefender : unit,
+								damage,
+								innerCache,
+								state);
+
+							auto ourUnit = unit->unitSide() == side ? 1 : -1;
+							auto goodEffect = newHealth > oldHealth ? 1 : -1;
+
+							if (ourUnit * goodEffect == 1)
+							{
+								if (ourUnit && goodEffect && (unit->isClone() || unit->isGhost()))
+									continue;
+
+								ps.value += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
+							}
+							else
+								ps.value -= dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
+
+#if BATTLE_TRACE_LEVEL >= 1
+							logAi->trace(
+								"Spell %s to %d affects %s (%d), dps: %2f oldHealth: %d newHealth: %d",
+								ps.spell->getNameTranslated(),
+								ps.dest.at(0).hexValue.hex,
+								unit->creatureId().toCreature()->getNameSingularTranslated(),
+								unit->getCount(),
+								dpsReduce,
+								oldHealth,
+								newHealth);
+#endif
+						}
+					}
+				}
 				for(const auto & unit : allUnits)
 				{
 					if (!unit->isValidTarget())
@@ -655,10 +706,14 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 #if BATTLE_TRACE_LEVEL >= 1
 						logAi->trace(
-							"Spell affects %s (%d), dps: %2f",
+							"Spell %s to %d affects %s (%d), dps: %2f oldHealth: %d newHealth: %d", 
+							ps.spell->getNameTranslated(),
+							ps.dest.at(0).hexValue.hex,
 							unit->creatureId().toCreature()->getNameSingularTranslated(),
 							unit->getCount(),
-							dpsReduce);
+							dpsReduce,
+							oldHealth,
+							newHealth);
 #endif
 					}
 				}

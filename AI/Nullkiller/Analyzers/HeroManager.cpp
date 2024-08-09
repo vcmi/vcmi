@@ -109,7 +109,7 @@ void HeroManager::update()
 	for(auto & hero : myHeroes)
 	{
 		scores[hero] = evaluateFightingStrength(hero);
-		knownFightingStrength[hero->id] = hero->getFightingStrength();
+		knownFightingStrength[hero->id] = hero->getHeroStrength();
 	}
 
 	auto scoreSort = [&](const CGHeroInstance * h1, const CGHeroInstance * h2) -> bool
@@ -205,7 +205,7 @@ float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const
 	auto cached = knownFightingStrength.find(hero->id);
 
 	//FIXME: fallback to hero->getFightingStrength() is VERY slow on higher difficulties (no object graph? map reveal?)
-	return cached != knownFightingStrength.end() ? cached->second : hero->getFightingStrength();
+	return cached != knownFightingStrength.end() ? cached->second : hero->getHeroStrength();
 }
 
 float HeroManager::getMagicStrength(const CGHeroInstance * hero) const
@@ -298,7 +298,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit) co
 			continue;
 		}
 
-		if(!weakestHero || weakestHero->getFightingStrength() > existingHero->getFightingStrength())
+		if(!weakestHero || weakestHero->getHeroStrength() > existingHero->getHeroStrength())
 		{
 			weakestHero = existingHero;
 		}

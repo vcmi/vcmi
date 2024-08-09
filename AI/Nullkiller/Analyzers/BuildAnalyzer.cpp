@@ -41,7 +41,6 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		for(BuildingID prefix : prefixes)
 		{
 			BuildingID building = BuildingID(prefix + level);
-
 			if(!vstd::contains(buildings, building))
 				continue; // no such building in town
 
@@ -75,10 +74,17 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 
 	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
 	{
-		otherBuildings.push_back({BuildingID::CITADEL, BuildingID::CASTLE});
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});
 	}
+
+	otherBuildings.push_back({ BuildingID::CITADEL, BuildingID::CASTLE });
+	otherBuildings.push_back({ BuildingID::RESOURCE_SILO });
+	otherBuildings.push_back({ BuildingID::SPECIAL_1 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_2 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_3 });
+	otherBuildings.push_back({ BuildingID::SPECIAL_4 });
+	otherBuildings.push_back({ BuildingID::MARKETPLACE });
 
 	for(auto & buildingSet : otherBuildings)
 	{
@@ -173,15 +179,8 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	if(ai->cb->getDate(Date::DAY) == 1)
-	{
-		goldPressure = 1;
-	}
-	else
-	{
-		goldPressure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
+	goldPressure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
 			+ (float)armyCost[EGameResID::GOLD] / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
-	}
 
 	logAi->trace("Gold pressure: %f", goldPressure);
 }

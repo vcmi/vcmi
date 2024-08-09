@@ -71,6 +71,7 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 			{
 				objectDanger += evaluateDanger(hero->visitedTown.get());
 			}
+			objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
 		}
 
 		if(objectDanger)

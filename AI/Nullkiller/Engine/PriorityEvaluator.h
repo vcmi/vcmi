@@ -41,6 +41,7 @@ public:
 	float getResourceRequirementStrength(int resType) const;
 	float getResourceRequirementStrength(const TResources & res) const;
 	float getStrategicalValue(const CGObjectInstance * target, const CGHeroInstance * hero = nullptr) const;
+	float getConquestValue(const CGObjectInstance* target) const;
 	float getTotalResourceRequirementStrength(int resType) const;
 	float evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const;
 	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
@@ -65,10 +66,17 @@ struct DLL_EXPORT EvaluationContext
 	int32_t goldCost;
 	float skillReward;
 	float strategicalValue;
+	float conquestValue;
 	HeroRole heroRole;
 	uint8_t turn;
 	RewardEvaluator evaluator;
 	float enemyHeroDangerRatio;
+	float threat;
+	float armyInvolvement;
+	bool isDefend;
+	TResources buildingCost;
+	bool involvesSailing;
+	bool isTradeBuilding;
 
 	EvaluationContext(const Nullkiller * ai);
 
@@ -91,7 +99,7 @@ public:
 	~PriorityEvaluator();
 	void initVisitTile();
 
-	float evaluate(Goals::TSubgoal task);
+	float evaluate(Goals::TSubgoal task, int priorityTier = 3);
 
 private:
 	const Nullkiller * ai;

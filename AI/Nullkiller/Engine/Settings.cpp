@@ -30,7 +30,8 @@ namespace NKAI
 		maxpass(10),
 		allowObjectGraph(true),
 		useTroopsFromGarrisons(false),
-		openMap(true)
+		openMap(true),
+		useFuzzy(false)
 	{
 		JsonNode node = JsonUtils::assembleFromFiles("config/ai/nkai/nkai-settings");
 
@@ -67,6 +68,11 @@ namespace NKAI
 		if(!node.Struct()["openMap"].isNull())
 		{
 			openMap = node.Struct()["openMap"].Bool();
+		}
+
+		if (!node.Struct()["useFuzzy"].isNull())
+		{
+			useFuzzy = node.Struct()["useFuzzy"].Bool();
 		}
 
 		if(!node.Struct()["useTroopsFromGarrisons"].isNull())

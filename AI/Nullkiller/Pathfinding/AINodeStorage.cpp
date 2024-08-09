@@ -1566,7 +1566,7 @@ uint8_t AIPath::turn() const
 
 uint64_t AIPath::getHeroStrength() const
 {
-	return targetHero->getFightingStrength() * getHeroArmyStrengthWithCommander(targetHero, heroArmy);
+	return targetHero->getHeroStrength() * getHeroArmyStrengthWithCommander(targetHero, heroArmy);
 }
 
 uint64_t AIPath::getTotalDanger() const

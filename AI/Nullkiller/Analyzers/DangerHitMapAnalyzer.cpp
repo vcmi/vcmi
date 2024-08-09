@@ -96,6 +96,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 				newThreat.hero = path.targetHero;
 				newThreat.turn = path.turn();
+				newThreat.threat = path.getHeroStrength() * (1 - path.movementCost() / 2.0);
 				newThreat.danger = path.getHeroStrength();
 
 				if(newThreat.value() > node.maximumDanger.value())
