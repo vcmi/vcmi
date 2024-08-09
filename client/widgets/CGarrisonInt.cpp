@@ -534,7 +534,6 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 void CGarrisonInt::addSplitBtn(std::shared_ptr<CButton> button)
 {
 	addChild(button.get());
-	button->recActions &= ~DISPOSE;
 	splitButtons.push_back(button);
 	button->block(getSelection() == nullptr);
 }

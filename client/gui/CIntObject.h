@@ -73,7 +73,7 @@ public:
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
-	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32, ALL_ACTIONS=255-DISPOSE};
+	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, SHARE_POS=16, ALL_ACTIONS=31};
 	ui8 recActions; //which calls we allow to receive from parent
 
 	/// deactivates if needed, blocks all automatic activity, allows only disposal

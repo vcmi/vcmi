@@ -108,7 +108,6 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 
 	if(curTab != tab)
 	{
-		tab->recActions = 255 - DISPOSE;
 		tab->activate();
 		curTab = tab;
 	}

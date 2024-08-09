@@ -1521,7 +1521,6 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	if(titleWidget)
 	{
 		addChild(titleWidget.get());
-		titleWidget->recActions = 255-DISPOSE;
 		titleWidget->pos.x = pos.w/2 + pos.x - titleWidget->pos.w/2;
 		titleWidget->pos.y =75 + pos.y - titleWidget->pos.h/2;
 	}

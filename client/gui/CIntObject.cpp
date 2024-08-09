@@ -37,12 +37,7 @@ CIntObject::~CIntObject()
 		deactivate();
 
 	while(!children.empty())
-	{
-		if(children.front()->recActions & DISPOSE)
-			delete children.front();
-		else
-			removeChild(children.front());
-	}
+		removeChild(children.front());
 
 	if(parent_m)
 		parent_m->removeChild(this);
@@ -111,8 +106,6 @@ void CIntObject::disable()
 {
 	if(isActive())
 		deactivate();
-
-	recActions = DISPOSE;
 }
 
 void CIntObject::enable()
