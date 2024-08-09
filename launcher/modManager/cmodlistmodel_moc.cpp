@@ -18,6 +18,7 @@ static const QString iconDelete = ":/icons/mod-delete.png";
 static const QString iconDisabled = ":/icons/mod-disabled.png";
 static const QString iconDownload = ":/icons/mod-download.png";
 static const QString iconEnabled = ":/icons/mod-enabled.png";
+static const QString iconInstallFromFile = ":/icons/mod-install-from-file.png";
 static const QString iconUpdate = ":/icons/mod-update.png";
 }
 

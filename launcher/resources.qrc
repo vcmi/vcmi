@@ -9,6 +9,7 @@
         <file>icons/mod-disabled.png</file>
         <file>icons/mod-download.png</file>
         <file>icons/mod-enabled.png</file>
+        <file>icons/mod-install-from-file.png</file>
         <file>icons/mod-update.png</file>
     </qresource>
 </RCC>

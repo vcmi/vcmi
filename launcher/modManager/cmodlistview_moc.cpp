@@ -133,6 +133,7 @@ CModListView::CModListView(QWidget * parent)
 	ui->disableButton->setIcon(QIcon{":/icons/mod-disabled.png"});
 	ui->updateButton->setIcon(QIcon{":/icons/mod-update.png"});
 	ui->installButton->setIcon(QIcon{":/icons/mod-download.png"});
+	ui->installFromFileButton->setIcon(QIcon{":/icons/mod-install-from-file.png"});
 
 	ui->splitter->setStyleSheet("QSplitter::handle {background: palette('window');}");
 
