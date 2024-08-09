@@ -36,48 +36,10 @@ enum class DefType : uint32_t
  *  DefFile, class used for def loading                                  *
  *************************************************************************/
 
-static bool colorsSimilar (const SDL_Color & lhs, const SDL_Color & rhs)
-{
-	// it seems that H3 does not requires exact match to replace colors -> (255, 103, 255) gets interpreted as shadow
-	// exact logic is not clear and requires extensive testing with image editing
-	// potential reason is that H3 uses 16-bit color format (565 RGB bits), meaning that 3 least significant bits are lost in red and blue component
-	static const int threshold = 8;
-
-	int diffR = static_cast<int>(lhs.r) - rhs.r;
-	int diffG = static_cast<int>(lhs.g) - rhs.g;
-	int diffB = static_cast<int>(lhs.b) - rhs.b;
-	int diffA = static_cast<int>(lhs.a) - rhs.a;
-
-	return std::abs(diffR) < threshold && std::abs(diffG) < threshold && std::abs(diffB) < threshold && std::abs(diffA) < threshold;
-}
-
 CDefFile::CDefFile(const AnimationPath & Name):
 	data(nullptr),
 	palette(nullptr)
 {
-	//First 8 colors in def palette used for transparency
-	static const SDL_Color sourcePalette[8] = {
-		{0,   255, 255, SDL_ALPHA_OPAQUE},
-		{255, 150, 255, SDL_ALPHA_OPAQUE},
-		{255, 100, 255, SDL_ALPHA_OPAQUE},
-		{255, 50,  255, SDL_ALPHA_OPAQUE},
-		{255, 0,   255, SDL_ALPHA_OPAQUE},
-		{255, 255, 0,   SDL_ALPHA_OPAQUE},
-		{180, 0,   255, SDL_ALPHA_OPAQUE},
-		{0,   255, 0,   SDL_ALPHA_OPAQUE}
-	};
-
-	static const SDL_Color targetPalette[8] = {
-		{0, 0, 0, 0  }, // transparency                  ( used in most images )
-		{0, 0, 0, 64 }, // shadow border                 ( used in battle, adventure map def's )
-		{0, 0, 0, 64 }, // shadow border                 ( used in fog-of-war def's )
-		{0, 0, 0, 128}, // shadow body                   ( used in fog-of-war def's )
-		{0, 0, 0, 128}, // shadow body                   ( used in battle, adventure map def's )
-		{0, 0, 0, 0  }, // selection / owner flag        ( used in battle, adventure map def's )
-		{0, 0, 0, 128}, // shadow body   below selection ( used in battle def's )
-		{0, 0, 0, 64 }  // shadow border below selection ( used in battle def's )
-	};
-
 	data = CResourceHandler::get()->load(Name)->readAll().first;
 
 	palette = std::unique_ptr<SDL_Color[]>(new SDL_Color[256]);
@@ -97,18 +59,6 @@ CDefFile::CDefFile(const AnimationPath & Name):
 		palette[i].g = data[it++];
 		palette[i].b = data[it++];
 		palette[i].a = SDL_ALPHA_OPAQUE;
-	}
-
-	// these colors seems to be used unconditionally
-	palette[0] = targetPalette[0];
-	palette[1] = targetPalette[1];
-	palette[4] = targetPalette[4];
-
-	// rest of special colors are used only if their RGB values are close to H3
-	for (uint32_t i = 0; i < 8; ++i)
-	{
-		if (colorsSimilar(sourcePalette[i], palette[i]))
-			palette[i] = targetPalette[i];
 	}
 
 	for (ui32 i=0; i<totalBlocks; i++)

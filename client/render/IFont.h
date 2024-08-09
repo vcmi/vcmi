@@ -22,6 +22,8 @@ protected:
 	/// Internal function to render font, see renderTextLeft
 	virtual void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const = 0;
 
+	int getScalingFactor() const;
+
 public:
 	virtual ~IFont()
 	{}

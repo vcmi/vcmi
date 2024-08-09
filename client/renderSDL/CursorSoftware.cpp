@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "CursorSoftware.h"
 
+#include "../gui/CGuiHandler.h"
+#include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"
 #include "../CMT.h"
@@ -30,8 +32,8 @@ void CursorSoftware::render()
 	SDL_Rect destRect;
 	destRect.x = renderPos.x;
 	destRect.y = renderPos.y;
-	destRect.w = 40;
-	destRect.h = 40;
+	destRect.w = cursorSurface->w;
+	destRect.h = cursorSurface->h;
 
 	SDL_RenderCopy(mainRenderer, cursorTexture, nullptr, &destRect);
 }
@@ -44,7 +46,7 @@ void CursorSoftware::createTexture(const Point & dimensions)
 	if (cursorSurface)
 		SDL_FreeSurface(cursorSurface);
 
-	cursorSurface = CSDL_Ext::newSurface(dimensions.x, dimensions.y);
+	cursorSurface = CSDL_Ext::newSurface(dimensions);
 	cursorTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, dimensions.x, dimensions.y);
 
 	SDL_SetSurfaceBlendMode(cursorSurface, SDL_BLENDMODE_NONE);
@@ -53,8 +55,13 @@ void CursorSoftware::createTexture(const Point & dimensions)
 
 void CursorSoftware::updateTexture()
 {
-	if (!cursorSurface ||  Point(cursorSurface->w, cursorSurface->h) != cursorImage->dimensions())
-		createTexture(cursorImage->dimensions());
+	if (!cursorSurface)
+		createTexture(cursorImage->dimensions() * GH.screenHandler().getScalingFactor());
+
+	Point currentSize = Point(cursorSurface->w, cursorSurface->h);
+
+	if (currentSize != cursorImage->dimensions() * GH.screenHandler().getScalingFactor())
+		createTexture(cursorImage->dimensions() * GH.screenHandler().getScalingFactor());
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 

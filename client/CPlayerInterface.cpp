@@ -1146,7 +1146,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 		if(t)
 		{
 			auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->town->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
-			image->scaleFast(Point(35, 23));
+			image->scaleTo(Point(35, 23));
 			images.push_back(image);
 		}
 	}

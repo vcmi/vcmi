@@ -17,9 +17,19 @@ struct SDL_Surface;
 class IImage;
 enum EFonts : int;
 
+enum class CanvasScalingPolicy
+{
+	AUTO,  // automatically scale canvas operations by global scaling factor
+	IGNORE // disable any scaling processing. Scaling factor will be set to 1
+
+};
+
 /// Class that represents surface for drawing on
 class Canvas
 {
+	/// Upscaler awareness. Must be first member for initialization
+	CanvasScalingPolicy scalingPolicy;
+
 	/// Target surface
 	SDL_Surface * surface;
 
@@ -27,10 +37,13 @@ class Canvas
 	Rect renderArea;
 
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
-	explicit Canvas(SDL_Surface * surface);
+	explicit Canvas(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy);
 
 	/// copy constructor
 	Canvas(const Canvas & other);
+
+	Point transformPos(const Point & input);
+	Point transformSize(const Point & input);
 
 public:
 	Canvas & operator = (const Canvas & other) = delete;
@@ -43,11 +56,11 @@ public:
 	Canvas(const Canvas & other, const Rect & clipRect);
 
 	/// constructs canvas of specified size
-	explicit Canvas(const Point & size);
+	explicit Canvas(const Point & size, CanvasScalingPolicy scalingPolicy);
 
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
-	static Canvas createFromSurface(SDL_Surface * surface);
+	static Canvas createFromSurface(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy);
 
 	~Canvas();
 
@@ -78,9 +91,6 @@ public:
 	/// renders continuous, 1-pixel wide line with color gradient
 	void drawLine(const Point & from, const Point & dest, const ColorRGBA & colorFrom, const ColorRGBA & colorDest);
 
-	/// renders dashed, 1-pixel wide line with specified color
-	void drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color);
-
 	/// renders rectangular, solid-color border in specified location
 	void drawBorder(const Rect & target, const ColorRGBA & color, int width = 1);
 
@@ -101,6 +111,8 @@ public:
 
 	/// fills canvas with texture
 	void fillTexture(const std::shared_ptr<IImage>& image);
+
+	int getScalingFactor() const;
 
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
 	SDL_Surface * getInternalSurface();

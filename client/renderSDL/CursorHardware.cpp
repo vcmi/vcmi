@@ -12,7 +12,7 @@
 #include "CursorHardware.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../renderSDL/ScreenHandler.h"
+#include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"
 #include "SDL_Extensions.h"
@@ -45,7 +45,7 @@ void CursorHardware::setVisible(bool on)
 
 void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
 {
-	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions().x, image->dimensions().y);
+	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions() * GH.screenHandler().getScalingFactor());
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 

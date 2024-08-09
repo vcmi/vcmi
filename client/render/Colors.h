@@ -23,6 +23,9 @@ public:
 	/** the standard h3 white color */
 	static const ColorRGBA WHITE;
 
+	/** actual 100% white color */
+	static const ColorRGBA WHITE_TRUE;
+
 	/** the metallic gold color used mostly as a border around buttons */
 	static const ColorRGBA METALLIC_GOLD;
 

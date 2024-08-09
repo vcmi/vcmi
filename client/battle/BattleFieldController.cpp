@@ -124,6 +124,8 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
 	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
 
+	cellShade->setShadowEnabled(true);
+
 	if(!owner.siegeController)
 	{
 		auto bfieldType = owner.getBattle()->battleGetBattlefieldType();
@@ -142,7 +144,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	pos.w = background->width();
 	pos.h = background->height();
 
-	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
+	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()), CanvasScalingPolicy::AUTO);
 
 	updateAccessibleHexes();
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE);

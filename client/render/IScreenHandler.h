@@ -41,6 +41,11 @@ public:
 	/// Dimensions of render output
 	virtual Point getRenderResolution() const = 0;
 
+	/// Dimensions of logical output. Can be different if scaling is used
+	virtual Point getLogicalResolution() const = 0;
+
+	virtual int getScalingFactor() const = 0;
+
 	/// Window has focus
 	virtual bool hasFocus() = 0;
 };

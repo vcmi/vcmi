@@ -89,6 +89,10 @@ public:
 	/// Window has focus
 	bool hasFocus() final;
 
+	Point getLogicalResolution() const final;
+
+	int getScalingFactor() const final;
+
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
 	std::tuple<int, int> getSupportedScalingRange() const final;

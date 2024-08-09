@@ -119,6 +119,13 @@ public:
 		return Rect(x-p.x,y-p.y,w,h);
 	}
 
+	template<typename T>
+	Rect operator*(const T &mul) const
+	{
+		return Rect(x*mul, y*mul, w*mul, h*mul);
+	}
+
+
 	Rect& operator=(const Rect &p)
 	{
 		x = p.x;
