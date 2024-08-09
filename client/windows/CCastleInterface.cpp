@@ -1063,7 +1063,7 @@ void CCastleBuildings::enterBank()
 	std::vector<std::shared_ptr<CComponent>> components;
 	if(town->bonusValue.second > 0)
 	{
-		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID(GameResID::GOLD), "-500/" + CGI->generaltexth->translate("core.genrltxt.64")));
+		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE_PER_DAY, GameResID(GameResID::GOLD), -500));
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.townStructure.bank.payBack"), components);
 	}
 	else{

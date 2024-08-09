@@ -2473,12 +2473,7 @@ bool CGameHandler::triggerTownSpecialBuildingAction(ObjectInstanceID tid, Buildi
 {
 	const CGTownInstance * t = getTown(tid);
 
-	bool hasBuilding = false;
-	for (auto building : t->town->buildings)
-		if(vstd::contains(t->builtBuildings, building.first) && building.second->subId == sid)
-			hasBuilding = true;
-
-	if(!hasBuilding)
+	if(t->town->getBuildingType(sid) == BuildingID::NONE)
 		return false;
 
 	if(sid == BuildingSubID::EBuildingSubID::BANK)
