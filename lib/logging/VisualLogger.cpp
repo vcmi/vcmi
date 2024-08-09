@@ -20,19 +20,49 @@ void VisualLogger::updateWithLock(std::string channel, std::function<void(IVisua
 	std::lock_guard<std::mutex> lock(mutex);
 
 	mapLines[channel].clear();
+	mapTexts[channel].clear();
+	battleTexts[channel].clear();
 
-	VisualLogBuilder builder(mapLines[channel]);
+	VisualLogBuilder builder(mapLines[channel], mapTexts[channel], battleTexts[channel]);
 	
 	func(builder);
 }
 
-void VisualLogger::visualize(ILogVisualizer & visulizer)
+void VisualLogger::visualize(IMapOverlayLogVisualizer & visulizer)
 {
 	std::lock_guard<std::mutex> lock(mutex);
 
 	for(auto line : mapLines[keyToShow])
 	{
 		visulizer.drawLine(line.start, line.end);
+	}
+
+	std::map<int3, std::vector<std::string>> textMap;
+
+	for(auto line : mapTexts[keyToShow])
+	{
+		textMap[line.tile].push_back(line.text);
+	}
+
+	for(auto & pair : textMap)
+	{
+		visulizer.drawText(pair.first, pair.second);
+	}
+}
+
+void VisualLogger::visualize(IBattleOverlayLogVisualizer & visulizer)
+{
+	std::lock_guard<std::mutex> lock(mutex);
+	std::map<BattleHex, std::vector<std::string>> textMap;
+
+	for(auto line : battleTexts[keyToShow])
+	{
+		textMap[line.tile].push_back(line.text);
+	}
+
+	for(auto & pair : textMap)
+	{
+		visulizer.drawText(pair.first, pair.second);
 	}
 }
 
