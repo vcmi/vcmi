@@ -795,10 +795,11 @@ void CGameState::initTowns()
 	for (auto & vti : map->towns)
 	{
 		assert(vti->town);
+		assert(vti->town->creatures.size() <= GameConstants::CREATURES_PER_TOWN); 
 
-		constexpr std::array basicDwellings = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
-		constexpr std::array upgradedDwellings = { BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP, BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP };
-		constexpr std::array hordes = { BuildingID::HORDE_PLACEHOLDER1, BuildingID::HORDE_PLACEHOLDER2, BuildingID::HORDE_PLACEHOLDER3, BuildingID::HORDE_PLACEHOLDER4, BuildingID::HORDE_PLACEHOLDER5, BuildingID::HORDE_PLACEHOLDER6, BuildingID::HORDE_PLACEHOLDER7 };
+		constexpr std::array basicDwellings = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7, BuildingID::DWELL_LVL_8 };
+		constexpr std::array upgradedDwellings = { BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP, BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP, BuildingID::DWELL_LVL_8_UP };
+		constexpr std::array hordes = { BuildingID::HORDE_PLACEHOLDER1, BuildingID::HORDE_PLACEHOLDER2, BuildingID::HORDE_PLACEHOLDER3, BuildingID::HORDE_PLACEHOLDER4, BuildingID::HORDE_PLACEHOLDER5, BuildingID::HORDE_PLACEHOLDER6, BuildingID::HORDE_PLACEHOLDER7, BuildingID::HORDE_PLACEHOLDER8 };
 
 		//init buildings
 		if(vstd::contains(vti->builtBuildings, BuildingID::DEFAULT)) //give standard set of buildings
@@ -823,7 +824,7 @@ void CGameState::initTowns()
 		vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
 
 		//init hordes
-		for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
+		for (int i = 0; i < vti->town->creatures.size(); i++)
 		{
 			if (vstd::contains(vti->builtBuildings, hordes[i])) //if we have horde for this level
 			{
@@ -863,7 +864,7 @@ void CGameState::initTowns()
 		//town events
 		for(CCastleEvent &ev : vti->events)
 		{
-			for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
+			for (int i = 0; i<vti->getTown()->creatures.size(); i++)
 				if (vstd::contains(ev.buildings,hordes[i])) //if we have horde for this level
 				{
 					ev.buildings.erase(hordes[i]);
