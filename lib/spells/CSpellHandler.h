@@ -67,12 +67,6 @@ public:
 
 		///resource name
 		AnimationPath resourceName;
-
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & minimumAngle;
-			h & resourceName;
-		}
 	};
 
 	struct AnimationItem
@@ -83,14 +77,6 @@ public:
 		int pause;
 
 		AnimationItem();
-
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & resourceName;
-			h & effectName;
-			h & verticalPosition;
-			h & pause;
-		}
 	};
 
 	using TAnimation = AnimationItem;
@@ -110,14 +96,6 @@ public:
 		///displayed "between" caster and (first) target. Ignored if spell was cast with no target selection.
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
-
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & projectile;
-			h & hit;
-			h & cast;
-			h & affect;
-		}
 
 		AnimationPath selectProjectile(const double angle) const;
 	} animationInfo;
@@ -139,20 +117,6 @@ public:
 		std::vector<std::shared_ptr<Bonus>> cumulativeEffects; //deprecated
 
 		JsonNode battleEffects;
-
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & cost;
-			h & power;
-			h & AIValue;
-			h & smartTarget;
-			h & range;
-			h & effects;
-			h & cumulativeEffects;
-			h & clearTarget;
-			h & clearAffected;
-			h & battleEffects;
-		}
 	};
 
 	/** \brief Low level accessor. Don`t use it if absolutely necessary
