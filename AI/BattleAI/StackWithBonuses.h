@@ -164,6 +164,11 @@ public:
 
 	int64_t getTreeVersion() const;
 
+	void resetActiveUnit()
+	{
+		activeUnitId = -1;
+	}
+
 #if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
 #endif

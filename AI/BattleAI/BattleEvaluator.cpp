@@ -189,7 +189,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 					else
 					{
 						activeActionMade = true;
-						return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.from);
+						return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defenderPos, bestAttack.from);
 					}
 				}
 			}

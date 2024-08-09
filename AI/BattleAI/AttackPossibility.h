@@ -49,6 +49,7 @@ public:
 	float attackerDamageReduce = 0; //usually by counter-attack
 	float collateralDamageReduce = 0; // friendly fire (usually by two-hex attacks)
 	int64_t shootersBlockedDmg = 0;
+	bool defenderDead = false;
 
 	AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack_);
 

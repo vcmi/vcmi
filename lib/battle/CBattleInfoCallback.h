@@ -131,11 +131,30 @@ public:
 	bool isInTacticRange(BattleHex dest) const;
 	si8 battleGetTacticDist() const; //returns tactic distance for calling player or 0 if this player is not in tactic phase (for ALL_KNOWING actual distance for tactic side)
 
-	AttackableTiles getPotentiallyAttackableHexes(const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const; //TODO: apply rotation to two-hex attacker
+	AttackableTiles getPotentiallyAttackableHexes(
+		const  battle::Unit* attacker,
+		const  battle::Unit* defender,
+		BattleHex destinationTile,
+		BattleHex attackerPos,
+		BattleHex defenderPos) const; //TODO: apply rotation to two-hex attacker
+
+	AttackableTiles getPotentiallyAttackableHexes(
+		const  battle::Unit * attacker,
+		BattleHex destinationTile,
+		BattleHex attackerPos) const;
+
 	AttackableTiles getPotentiallyShootableHexes(const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const;
-	std::vector<const battle::Unit *> getAttackedBattleUnits(const battle::Unit* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+
+	std::vector<const battle::Unit *> getAttackedBattleUnits(
+		const battle::Unit* attacker,
+		const  battle::Unit * defender,
+		BattleHex destinationTile,
+		bool rangedAttack,
+		BattleHex attackerPos = BattleHex::INVALID,
+		BattleHex defenderPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+	
 	std::set<const CStack*> getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
-	bool isToReverse(const battle::Unit * attacker, const battle::Unit * defender) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
+	bool isToReverse(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerHex = BattleHex::INVALID, BattleHex defenderHex = BattleHex::INVALID) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
 
 	ReachabilityInfo getReachability(const battle::Unit * unit) const;
 	ReachabilityInfo getReachability(const ReachabilityInfo::Parameters & params) const;
