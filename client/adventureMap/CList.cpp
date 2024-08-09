@@ -305,27 +305,12 @@ void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const
 	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
 }
 
-bool CHeroList::CHeroItem::captureThisKey(EShortcut key)
-{
-
-	switch(key)
-	{
-	case EShortcut::LIST_HERO_UP:
-	case EShortcut::LIST_HERO_DOWN:
-	case EShortcut::LIST_HERO_TOP:
-	case EShortcut::LIST_HERO_BOTTOM:
-	case EShortcut::LIST_HERO_DELETE:
-		return hero && pos.isInside(GH.getCursorPosition());
-	}
-	return false;
-}
-
 void CHeroList::CHeroItem::keyPressed(EShortcut key)
 {
 	if(!hero)
 		return;
 
-	if(!pos.isInside(GH.getCursorPosition()))
+	if(parent->selected != this->shared_from_this())
 		return;
 
 	auto & heroes = LOCPLINT->localState->getWanderingHeroes();
@@ -512,23 +497,9 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
 }
 
-bool CTownList::CTownItem::captureThisKey(EShortcut key)
-{
-
-	switch(key)
-	{
-	case EShortcut::LIST_TOWN_UP:
-	case EShortcut::LIST_TOWN_DOWN:
-	case EShortcut::LIST_TOWN_TOP:
-	case EShortcut::LIST_TOWN_BOTTOM:
-		return town && pos.isInside(GH.getCursorPosition());
-	}
-	return false;
-}
-
 void CTownList::CTownItem::keyPressed(EShortcut key)
 {
-	if(!pos.isInside(GH.getCursorPosition()))
+	if(parent->selected != this->shared_from_this())
 		return;
 
 	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();

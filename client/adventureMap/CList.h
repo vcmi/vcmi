@@ -29,9 +29,10 @@ class CList : public Scrollable
 protected:
 	class CListItem : public CIntObject, public std::enable_shared_from_this<CListItem>
 	{
-		CList * parent;
 		std::shared_ptr<CIntObject> selection;
 	public:
+		CList * parent;
+
 		CListItem(CList * parent);
 		~CListItem();
 
@@ -55,9 +56,6 @@ protected:
 
 private:
 	const size_t size;
-
-	//for selection\deselection
-	std::shared_ptr<CListItem> selected;
 	void select(std::shared_ptr<CListItem> which);
 	friend class CListItem;
 
@@ -81,6 +79,9 @@ protected:
 	void update();
 
 public:
+	//for selection\deselection
+	std::shared_ptr<CListItem> selected;
+
 	/// functions that will be called when selection changes
 	CFunctionList<void()> onSelect;
 
@@ -128,7 +129,6 @@ class CHeroList	: public CList
 		void open() override;
 		void showTooltip() override;
 		void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
-		bool captureThisKey(EShortcut key) override;
 		void keyPressed(EShortcut key) override;
 		std::string getHoverText() override;
 	};
@@ -164,7 +164,6 @@ class CTownList	: public CList
 		void open() override;
 		void showTooltip() override;
 		void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
-		bool captureThisKey(EShortcut key) override;
 		void keyPressed(EShortcut key) override;
 		std::string getHoverText() override;
 	};
