@@ -277,6 +277,7 @@ set(lib_MAIN_SRCS
 	IHandlerBase.cpp
 	LoadProgress.cpp
 	LogicalExpression.cpp
+	MimialPrimarySkill.cpp
 	ObstacleHandler.cpp
 	StartInfo.cpp
 	ResourceSet.cpp
@@ -699,6 +700,7 @@ set(lib_MAIN_HEADERS
 	int3.h
 	LoadProgress.h
 	LogicalExpression.h
+	MinimalPrimarySkill.h
 	ObstacleHandler.h
 	Point.h
 	Rect.h

@@ -107,7 +107,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	if (canLearnSkills && !hero->canLearnSkill())
 		return false;
 
-	if(manaPercentage > 100 * hero->mana / hero->manaLimit())
+	if (hero->manaLimit() != 0 && manaPercentage > 100 * hero->mana / hero->manaLimit())
 		return false;
 
 	for(size_t i=0; i<primary.size(); i++)

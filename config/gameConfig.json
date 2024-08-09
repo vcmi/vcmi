@@ -296,7 +296,9 @@
 			// number of artifacts that can fit in a backpack. -1 is unlimited.
 			"backpackSize"		: -1,
 			// if heroes are invitable in tavern
-			"tavernInvite"            : false
+			"tavernInvite"            : false,
+			// minimai primary skills for heroes
+			"minimalPrimarySkills": [ 0, 0, 1, 1]
 		},
 
 		"towns":
