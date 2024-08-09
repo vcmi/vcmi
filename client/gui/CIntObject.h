@@ -220,5 +220,8 @@ public:
 	~ObjectConstruction();
 };
 
+/// If used, all UI widgets created inside this scope will be added to children of 'this'
 #define OBJECT_CONSTRUCTION ObjectConstruction obj__i(this)
+
+/// If used, all UI widgets created inside this scope will be added to children of provided object
 #define OBJECT_CONSTRUCTION_TARGETED(obj) ObjectConstruction obj__i(obj)
