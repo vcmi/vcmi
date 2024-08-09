@@ -37,7 +37,7 @@ GlobalLobbyRoomAccountCard::GlobalLobbyRoomAccountCard(const GlobalLobbyAccount 
 	pos.w = 130;
 	pos.h = 40;
 	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
-	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName);
+	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, accountDescription.displayName, 120);
 	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, accountDescription.status);
 }
 
@@ -56,9 +56,14 @@ GlobalLobbyRoomModCard::GlobalLobbyRoomModCard(const GlobalLobbyRoomModInfo & mo
 	pos.h = 40;
 	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
 
-	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, modInfo.modName);
+	labelName = std::make_shared<CLabel>(5, 10, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, modInfo.modName, 190);
 	labelVersion = std::make_shared<CLabel>(195, 30, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::YELLOW, modInfo.version);
-	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
+	auto statusColor = Colors::RED;
+	if(modInfo.status == ModVerificationStatus::FULL_MATCH)
+		statusColor = ColorRGBA(128, 128, 128);
+	else if(modInfo.status == ModVerificationStatus::VERSION_MISMATCH)
+		statusColor = Colors::YELLOW;
+	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, statusColor, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
 }
 
 static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
@@ -134,6 +139,13 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 
 		modVerificationList.push_back(modInfo);
 	}
+	std::sort(modVerificationList.begin(), modVerificationList.end(), [](const GlobalLobbyRoomModInfo &a, const GlobalLobbyRoomModInfo &b)
+	{ 
+		if(a.status == b.status)
+			return a.modName < b.modName;
+
+		return a.status < b.status; 
+	});
 
 	MetaString subtitleText;
 	subtitleText.appendTextID("vcmi.lobby.preview.subtitle");
@@ -142,7 +154,7 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.preview.title").toString());
-	labelSubtitle = std::make_shared<CLabel>( pos.w / 2, 40, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, subtitleText.toString());
+	labelSubtitle = std::make_shared<CLabel>( pos.w / 2, 40, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, subtitleText.toString(), 400);
 
 	labelVersionTitle = std::make_shared<CLabel>( 10, 60, FONT_MEDIUM, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.preview.version").toString());
 	labelVersionValue = std::make_shared<CLabel>( 10, 80, FONT_MEDIUM, ETextAlignment::CENTERLEFT, Colors::WHITE, roomDescription.gameVersion);

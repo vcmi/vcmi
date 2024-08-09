@@ -38,7 +38,7 @@
 		{ "a" : "zoneA", "b" : "zoneB", "guard" : 5000, "road" : "false" },
 		{ "a" : "zoneA", "b" : "zoneC", "guard" : 5000, "road" : "random" },
 		{ "a" : "zoneB", "b" : "zoneC", "type" : "wide" }
-		//"type" can be "guarded" (default), "wide", "fictive" or "repulsive"
+		//"type" can be "guarded" (default), "wide", "fictive", "repulsive" or "forcePortal"
 		//"wide" connections have no border, or guard. "fictive" and "repulsive" connections are virtual -
 		//they do not create actual path, but only attract or repulse zones, respectively
 	]

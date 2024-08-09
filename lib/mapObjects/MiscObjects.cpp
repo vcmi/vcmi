@@ -200,7 +200,7 @@ ui32 CGMine::getProducedQuantity() const
 {
 	auto * playerSettings = cb->getPlayerSettings(getOwner());
 	// always round up income - we don't want mines to always produce zero if handicap in use
-	return (producedQuantity * playerSettings->handicap.percentIncome + 99) / 100;
+	return vstd::divideAndCeil(producedQuantity * playerSettings->handicap.percentIncome, 100);
 }
 
 void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
@@ -215,7 +215,7 @@ void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &resu
 	}
 }
 
-void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -348,7 +348,7 @@ void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		collectRes(hero->getOwner());
 }
 
-void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -915,7 +915,7 @@ void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		pick(hero);
 }
 
-void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);

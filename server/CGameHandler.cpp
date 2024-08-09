@@ -669,6 +669,19 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 		heroPool->onNewWeek(which);
 }
 
+void CGameHandler::addStatistics()
+{
+	for (auto & elem : gs->players)
+	{
+		if (elem.first == PlayerColor::NEUTRAL || !elem.first.isValidPlayer())
+			continue;
+
+		auto data = StatisticDataSet::createEntry(&elem.second, gs);
+
+		gameState()->statistic.add(data);
+	}
+}
+
 void CGameHandler::onNewTurn()
 {
 	logGlobal->trace("Turn %d", gs->day+1);
@@ -692,6 +705,15 @@ void CGameHandler::onNewTurn()
 				giveExperience(getHero(obj->id), 0);
 			}
 		}
+	}
+
+	for (auto & player : gs->players)
+	{
+		if (player.second.status != EPlayerStatus::INGAME)
+			continue;
+
+		if (player.second.heroes.empty() && player.second.towns.empty())
+			throw std::runtime_error("Invalid player in player state! Player " + std::to_string(player.first.getNum()) + ", map name: " + gs->map->name.toString() + ", map description: " + gs->map->description.toString());
 	}
 
 	if (newWeek && !firstTurn)
@@ -1004,6 +1026,8 @@ void CGameHandler::onNewTurn()
 	}
 
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
+
+	addStatistics();
 }
 
 void CGameHandler::start(bool resume)
@@ -1336,6 +1360,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 		turnTimerHandler->setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
+		gs->statistic.accumulatedValues[asker].movementPointsUsed += tmh.movePoints;
 		return true;
 	}
 }
@@ -2448,7 +2473,10 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 
 	//Take cost
 	if(!force)
+	{
 		giveResources(t->tempOwner, -requestedBuilding->resources);
+		gs->statistic.accumulatedValues[t->tempOwner].spentResourcesForBuildings += requestedBuilding->resources;
+	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window
 	sendAndApply(&ns);
@@ -2569,7 +2597,9 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	}
 
 	//recruit
-	giveResources(army->tempOwner, -(c->getFullRecruitCost() * cram));
+	TResources cost = (c->getFullRecruitCost() * cram);
+	giveResources(army->tempOwner, -cost);
+	gs->statistic.accumulatedValues[army->tempOwner].spentResourcesForArmy += cost;
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
@@ -2622,6 +2652,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 
 	//take resources
 	giveResources(player, -totalCost);
+	gs->statistic.accumulatedValues[player].spentResourcesForArmy += totalCost;
 
 	//upgrade creature
 	changeStackType(StackLocation(obj, pos), upgID.toCreature());
@@ -3246,6 +3277,9 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 	giveResource(player, toSell, -b1 * amountToBoy);
 	giveResource(player, toBuy, b2 * amountToBoy);
 
+	gs->statistic.accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBoy;
+	gs->statistic.accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBoy;
+
 	return true;
 }
 
@@ -3434,7 +3468,7 @@ void CGameHandler::handleTimeEvents()
 
 void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 {
-	town->events.sort(evntCmp);
+	std::sort(town->events.begin(), town->events.end(), evntCmp);
 	while(town->events.size() && town->events.front().firstOccurrence == gs->day)
 	{
 		PlayerColor player = town->tempOwner;
@@ -3495,7 +3529,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 		if (ev.nextOccurrence)
 		{
-			town->events.pop_front();
+			town->events.erase(town->events.begin());
 
 			ev.firstOccurrence += ev.nextOccurrence;
 			auto it = town->events.begin();
@@ -3505,7 +3539,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 		}
 		else
 		{
-			town->events.pop_front();
+			town->events.erase(town->events.begin());
 		}
 	}
 

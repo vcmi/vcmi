@@ -54,7 +54,7 @@ private:
 	void newTurn(vstd::RNG & rand) const override;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
 	void updateGuards() const;

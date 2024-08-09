@@ -755,15 +755,15 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * 
 {
 	RETURN_IF_NOT_BATTLE({});
 	auto reachability = battleGetDistances(attacker, attacker->getPosition());
-	int getMovementRange = attackerPosition.isValid() ? reachability[attackerPosition] : 0;
-	return battleEstimateDamage(attacker, defender, getMovementRange, retaliationDmg);
+	int movementRange = attackerPosition.isValid() ? reachability[attackerPosition] : 0;
+	return battleEstimateDamage(attacker, defender, movementRange, retaliationDmg);
 }
 
-DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int getMovementRange, DamageEstimation * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementRange, DamageEstimation * retaliationDmg) const
 {
 	RETURN_IF_NOT_BATTLE({});
 	const bool shooting = battleCanShoot(attacker, defender->getPosition());
-	const BattleAttackInfo bai(attacker, defender, getMovementRange, shooting);
+	const BattleAttackInfo bai(attacker, defender, movementRange, shooting);
 	return battleEstimateDamage(bai, retaliationDmg);
 }
 

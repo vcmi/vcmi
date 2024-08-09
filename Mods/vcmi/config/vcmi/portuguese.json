@@ -72,6 +72,11 @@
 	"vcmi.lobby.noUnderground" : "sem subterrâneo",
 	"vcmi.lobby.sortDate" : "Classifica mapas por data de alteração",
 	"vcmi.lobby.backToLobby" : "Voltar para a sala de espera",
+	"vcmi.lobby.author" : "Autor",
+	"vcmi.lobby.handicap" : "Desvant.",
+	"vcmi.lobby.handicap.resource" : "Fornece aos jogadores recursos apropriados para começar, além dos recursos iniciais normais. Valores negativos são permitidos, mas são limitados a 0 no total (o jogador nunca começa com recursos negativos).",
+	"vcmi.lobby.handicap.income" : "Altera as várias rendas do jogador em porcentagem. Arredondado para cima.",
+	"vcmi.lobby.handicap.growth" : "Altera a taxa de produção das criaturas nas cidades possuídas pelo jogador. Arredondado para cima.",
 	
 	"vcmi.lobby.login.title" : "Sala de Espera Online do VCMI",
 	"vcmi.lobby.login.username" : "Nome de usuário:",

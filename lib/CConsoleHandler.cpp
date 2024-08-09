@@ -13,6 +13,8 @@
 
 #include "CThreadHelper.h"
 
+#include <boost/stacktrace.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::mutex CConsoleHandler::smx;
@@ -142,6 +144,30 @@ static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 }
 
+LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
+{
+	logGlobal->error("Disaster happened.");
+
+	PEXCEPTION_RECORD einfo = exception->ExceptionRecord;
+	logGlobal->error("Reason: 0x%x - %s at %04x:%x", einfo->ExceptionCode, exceptionName(einfo->ExceptionCode), exception->ContextRecord->SegCs, (void*)einfo->ExceptionAddress);
+
+	if (einfo->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+	{
+		logGlobal->error("Attempt to %s 0x%8x", (einfo->ExceptionInformation[0] == 1 ? "write to" : "read from"), (void*)einfo->ExceptionInformation[1]);
+	}
+	const DWORD threadId = ::GetCurrentThreadId();
+	logGlobal->error("Thread ID: %d", threadId);
+
+	//exception info to be placed in the dump
+	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
+
+	createMemoryDump(&meinfo);
+
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
+#endif
+
 [[noreturn]] static void onTerminate()
 {
 	logGlobal->error("Disaster happened.");
@@ -166,36 +192,19 @@ static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
 		logGlobal->error("Reason: unknown exception!");
 	}
 
+	logGlobal->error("Call stack information:");
+	std::stringstream stream;
+	stream << boost::stacktrace::stacktrace();
+	logGlobal->error("%s", stream.str());
+
+#ifdef VCMI_WINDOWS
 	const DWORD threadId = ::GetCurrentThreadId();
 	logGlobal->error("Thread ID: %d", threadId);
 
 	createMemoryDump(nullptr);
+#endif
 	std::abort();
 }
-
-LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
-{
-	logGlobal->error("Disaster happened.");
-
-	PEXCEPTION_RECORD einfo = exception->ExceptionRecord;
-	logGlobal->error("Reason: 0x%x - %s at %04x:%x", einfo->ExceptionCode, exceptionName(einfo->ExceptionCode), exception->ContextRecord->SegCs, (void*)einfo->ExceptionAddress);
-
-	if (einfo->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
-	{
-		logGlobal->error("Attempt to %s 0x%8x", (einfo->ExceptionInformation[0] == 1 ? "write to" : "read from"), (void*)einfo->ExceptionInformation[1]);
-	}
-	const DWORD threadId = ::GetCurrentThreadId();
-	logGlobal->error("Thread ID: %d", threadId);
-
-	//exception info to be placed in the dump
-	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
-
-	createMemoryDump(&meinfo);
-
-	return EXCEPTION_EXECUTE_HANDLER;
-}
-#endif
-
 
 void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 {
@@ -289,10 +298,13 @@ CConsoleHandler::CConsoleHandler():
 	defErrColor = csbi.wAttributes;
 #ifndef _DEBUG
 	SetUnhandledExceptionFilter(onUnhandledException);
-	std::set_terminate(onTerminate);
 #endif
 #else
 	defColor = "\x1b[0m";
+#endif
+
+#ifndef _DEBUG
+	std::set_terminate(onTerminate);
 #endif
 }
 CConsoleHandler::~CConsoleHandler()

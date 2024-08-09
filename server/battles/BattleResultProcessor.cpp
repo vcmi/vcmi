@@ -447,16 +447,16 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
 				sendArtifacts(packCommander);
 			}
-		}
-		auto armyObj = battle.battleGetArmyObject(battle.otherSide(battleResult->winner));
-		for(const auto & armySlot : armyObj->stacks)
-		{
-			BulkMoveArtifacts packsArmy(finishingBattle->winnerHero->getOwner(), finishingBattle->loserHero->id, finishingBattle->winnerHero->id, false);
-			packsArmy.srcArtHolder = armyObj->id;
-			packsArmy.srcCreature = armySlot.first;
-			for(const auto & artSlot : armySlot.second->artifactsWorn)
-				addArtifactToTransfer(packsArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
-			sendArtifacts(packsArmy);
+			auto armyObj = battle.battleGetArmyObject(battle.otherSide(battleResult->winner));
+			for(const auto & armySlot : armyObj->stacks)
+			{
+				BulkMoveArtifacts packsArmy(finishingBattle->winnerHero->getOwner(), finishingBattle->loserHero->id, finishingBattle->winnerHero->id, false);
+				packsArmy.srcArtHolder = armyObj->id;
+				packsArmy.srcCreature = armySlot.first;
+				for(const auto & artSlot : armySlot.second->artifactsWorn)
+					addArtifactToTransfer(packsArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
+				sendArtifacts(packsArmy);
+			}
 		}
 		// Display loot
 		if(!arts.empty())
@@ -495,6 +495,22 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	{
 		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->loser);
 		gameHandler->sendAndApply(&ro);
+	}
+
+	// add statistic
+	if(battle.sideToPlayer(0) == PlayerColor::NEUTRAL || battle.sideToPlayer(1) == PlayerColor::NEUTRAL)
+	{
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(0)].numBattlesNeutral++;
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(1)].numBattlesNeutral++;
+		if(!finishingBattle->isDraw())
+			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
+	}
+	else
+	{
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(0)].numBattlesPlayer++;
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(1)].numBattlesPlayer++;
+		if(!finishingBattle->isDraw())
+			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
 	}
 
 	BattleResultAccepted raccepted;
@@ -556,10 +572,16 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	gameHandler->checkVictoryLossConditions(playerColors);
 
 	if (result.result == EBattleResult::SURRENDER)
+	{
+		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
 		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, finishingBattle->loserHero);
+	}
 
 	if (result.result == EBattleResult::ESCAPE)
+	{
+		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, finishingBattle->loserHero);
+	}
 
 	if (result.winner != 2 && finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty()
 		&& (!finishingBattle->winnerHero->commander || !finishingBattle->winnerHero->commander->alive))

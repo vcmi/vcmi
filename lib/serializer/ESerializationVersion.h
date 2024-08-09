@@ -59,6 +59,7 @@ enum class ESerializationVersion : int32_t
 	REMOVE_LIB_RNG, // 849 - removed random number generators from library classes
 	HIGHSCORE_PARAMETERS, // 850 - saves parameter for campaign
   PLAYER_HANDICAP, // 851 - player handicap selection at game start
+	STATISTICS, // 852 - removed random number generators from library classes
 
-	CURRENT = PLAYER_HANDICAP
+	CURRENT = STATISTICS
 };

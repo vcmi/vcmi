@@ -19,6 +19,10 @@ class TownBuildingsWidget;
 
 std::string defaultBuildingIdConversion(BuildingID bId);
 
+QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, const QStandardItemModel & model);
+
+QVariantList getBuildingVariantsFromModel(const QStandardItemModel & model, int modelColumn, Qt::CheckState checkState);
+
 class TownBuildingsWidget : public QDialog
 {
 	Q_OBJECT
@@ -26,9 +30,13 @@ class TownBuildingsWidget : public QDialog
 	QStandardItem * addBuilding(const CTown & ctown, int bId, std::set<si32> & remaining);
 	
 public:
+	enum Column
+	{
+		TYPE, ENABLED, BUILT
+	};
 	explicit TownBuildingsWidget(CGTownInstance &, QWidget *parent = nullptr);
 	~TownBuildingsWidget();
-	
+
 	void addBuildings(const CTown & ctown);
 	std::set<BuildingID> getForbiddenBuildings();
 	std::set<BuildingID> getBuiltBuildings();
@@ -38,9 +46,21 @@ private slots:
 
 	void on_treeView_collapsed(const QModelIndex &index);
 
+	void on_buildAll_clicked();
+
+	void on_demolishAll_clicked();
+
+	void on_enableAll_clicked();
+
+	void on_disableAll_clicked();
+
+	void onItemChanged(const QStandardItem * item);
+
 private:
 	std::set<BuildingID> getBuildingsFromModel(int modelColumn, Qt::CheckState checkState);
-	
+	void setRowColumnCheckState(const QStandardItem * item, Column column, Qt::CheckState checkState);
+	void setAllRowsColumnCheckState(Column column, Qt::CheckState checkState);
+
 	Ui::TownBuildingsWidget *ui;
 	CGTownInstance & town;
 	mutable QStandardItemModel model;
