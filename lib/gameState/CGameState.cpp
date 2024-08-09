@@ -875,7 +875,7 @@ void CGameState::initTowns()
 		}
 		//init spells
 		vti->spells.resize(GameConstants::SPELL_LEVELS);
-
+		vti->possibleSpells -= SpellID::PRESET;
 		for(ui32 z=0; z<vti->obligatorySpells.size();z++)
 		{
 			const auto * s = vti->obligatorySpells[z].toSpell();

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "townbuildingswidget.h"
 #include "ui_townbuildingswidget.h"
+#include "mapeditorroles.h"
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -68,6 +69,56 @@ std::string defaultBuildingIdConversion(BuildingID bId)
 	}
 }
 
+QStandardItem * getBuildingParentFromTreeModel(const CBuilding * building, const QStandardItemModel & model)
+{
+	QStandardItem * parent = nullptr;
+	std::vector<QModelIndex> stack(1);
+	do
+	{
+		auto pindex = stack.back();
+		stack.pop_back();
+		auto rowCount = model.rowCount(pindex);
+		for (int i = 0; i < rowCount; ++i)
+		{
+			QModelIndex index = model.index(i, 0, pindex);
+			if (building->upgrade.getNum() == model.itemFromIndex(index)->data(MapEditorRoles::BuildingIDRole).toInt())
+			{
+				parent = model.itemFromIndex(index);
+				break;
+			}
+			if (model.hasChildren(index))
+				stack.push_back(index);
+		}
+	} while(!parent && !stack.empty());
+	return parent;
+}
+
+QVariantList getBuildingVariantsFromModel(const QStandardItemModel & model, int modelColumn, Qt::CheckState checkState)
+{
+	QVariantList result;
+	std::vector<QModelIndex> stack(1);
+	do
+	{
+		auto pindex = stack.back();
+		stack.pop_back();
+		auto rowCount = model.rowCount(pindex);
+		for (int i = 0; i < rowCount; ++i)
+		{
+			QModelIndex index = model.index(i, modelColumn, pindex);
+			auto * item = model.itemFromIndex(index);
+			if(item && item->checkState() == checkState)
+				result.push_back(item->data(MapEditorRoles::BuildingIDRole));
+			index = model.index(i, 0, pindex);
+			if (model.hasChildren(index))
+				stack.push_back(index);
+		}
+	} while(!stack.empty());
+
+	return result;
+}
+
+
+
 TownBuildingsWidget::TownBuildingsWidget(CGTownInstance & t, QWidget *parent) :
 	town(t),
 	QDialog(parent),
@@ -76,8 +127,8 @@ TownBuildingsWidget::TownBuildingsWidget(CGTownInstance & t, QWidget *parent) :
 	ui->setupUi(this);
 	ui->treeView->setModel(&model);
 	//ui->treeView->setColumnCount(3);
-	model.setHorizontalHeaderLabels(QStringList() << QStringLiteral("Type") << QStringLiteral("Enabled") << QStringLiteral("Built"));
-	
+	model.setHorizontalHeaderLabels(QStringList() << tr("Type") << tr("Enabled") << tr("Built"));
+	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 	//setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -96,7 +147,7 @@ QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, s
 		return nullptr;
 	}
 	
-	QString name = tr(building->getNameTranslated().c_str());
+	QString name = QString::fromStdString(building->getNameTranslated());
 	
 	if(name.isEmpty())
 		name = QString::fromStdString(defaultBuildingIdConversion(buildingId));
@@ -104,17 +155,17 @@ QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, s
 	QList<QStandardItem *> checks;
 	
 	checks << new QStandardItem(name);
-	checks.back()->setData(bId, Qt::UserRole);
+	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 	
 	checks << new QStandardItem;
 	checks.back()->setCheckable(true);
 	checks.back()->setCheckState(town.forbiddenBuildings.count(buildingId) ? Qt::Unchecked : Qt::Checked);
-	checks.back()->setData(bId, Qt::UserRole);
+	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 	
 	checks << new QStandardItem;
 	checks.back()->setCheckable(true);
 	checks.back()->setCheckState(town.builtBuildings.count(buildingId) ? Qt::Checked : Qt::Unchecked);
-	checks.back()->setData(bId, Qt::UserRole);
+	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 	
 	if(building->getBase() == buildingId)
 	{
@@ -122,25 +173,7 @@ QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, s
 	}
 	else
 	{
-		QStandardItem * parent = nullptr;
-		std::vector<QModelIndex> stack;
-		stack.push_back(QModelIndex());
-		while(!parent && !stack.empty())
-		{
-			auto pindex = stack.back();
-			stack.pop_back();
-			for(int i = 0; i < model.rowCount(pindex); ++i)
-			{
-				QModelIndex index = model.index(i, 0, pindex);
-				if(building->upgrade.getNum() == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
-				{
-					parent = model.itemFromIndex(index);
-					break;
-				}
-				if(model.hasChildren(index))
-					stack.push_back(index);
-			}
-		}
+		QStandardItem * parent = getBuildingParentFromTreeModel(building, model);
 		
 		if(!parent)
 			parent = addBuilding(ctown, building->upgrade.getNum(), remaining);
@@ -172,36 +205,23 @@ void TownBuildingsWidget::addBuildings(const CTown & ctown)
 
 std::set<BuildingID> TownBuildingsWidget::getBuildingsFromModel(int modelColumn, Qt::CheckState checkState)
 {
+	auto buildingVariants = getBuildingVariantsFromModel(model, modelColumn, checkState);
 	std::set<BuildingID> result;
-	std::vector<QModelIndex> stack;
-	stack.push_back(QModelIndex());
-	while(!stack.empty())
+	for (const auto & buildingId : buildingVariants)
 	{
-		auto pindex = stack.back();
-		stack.pop_back();
-		for(int i = 0; i < model.rowCount(pindex); ++i)
-		{
-			QModelIndex index = model.index(i, modelColumn, pindex);
-			if(auto * item = model.itemFromIndex(index))
-				if(item->checkState() == checkState)
-					result.emplace(item->data(Qt::UserRole).toInt());
-			index = model.index(i, 0, pindex); //children are linked to first column of the model
-			if(model.hasChildren(index))
-				stack.push_back(index);
-		}
+		result.insert(buildingId.toInt());
 	}
-	
 	return result;
 }
 
 std::set<BuildingID> TownBuildingsWidget::getForbiddenBuildings()
 {
-	return getBuildingsFromModel(1, Qt::Unchecked);
+	return getBuildingsFromModel(Column::ENABLED, Qt::Unchecked);
 }
 
 std::set<BuildingID> TownBuildingsWidget::getBuiltBuildings()
 {
-	return getBuildingsFromModel(2, Qt::Checked);
+	return getBuildingsFromModel(Column::BUILT, Qt::Checked);
 }
 
 void TownBuildingsWidget::on_treeView_expanded(const QModelIndex &index)
@@ -214,6 +234,87 @@ void TownBuildingsWidget::on_treeView_collapsed(const QModelIndex &index)
 	ui->treeView->resizeColumnToContents(0);
 }
 
+void TownBuildingsWidget::on_buildAll_clicked()
+{
+	setAllRowsColumnCheckState(Column::BUILT, Qt::Checked);
+}
+
+void TownBuildingsWidget::on_demolishAll_clicked()
+{
+	setAllRowsColumnCheckState(Column::BUILT, Qt::Unchecked);
+}
+
+void TownBuildingsWidget::on_enableAll_clicked()
+{
+	setAllRowsColumnCheckState(Column::ENABLED, Qt::Checked);
+}
+
+void TownBuildingsWidget::on_disableAll_clicked()
+{
+	setAllRowsColumnCheckState(Column::ENABLED, Qt::Unchecked);
+}
+
+
+void TownBuildingsWidget::setRowColumnCheckState(const QStandardItem * item, Column column, Qt::CheckState checkState) {
+	auto sibling = item->model()->sibling(item->row(), column, item->index());
+	model.itemFromIndex(sibling)->setCheckState(checkState);
+}
+
+void TownBuildingsWidget::setAllRowsColumnCheckState(Column column, Qt::CheckState checkState)
+{
+	std::vector<QModelIndex> stack(1);
+	do
+	{
+		auto parentIndex = stack.back();
+		stack.pop_back();
+		auto rowCount = model.rowCount(parentIndex);
+		for (int i = 0; i < rowCount; ++i)
+		{
+			QModelIndex index = model.index(i, column, parentIndex);
+			if (auto* item = model.itemFromIndex(index))
+				item->setCheckState(checkState);
+			index = model.index(i, 0, parentIndex);
+			if (model.hasChildren(index))
+				stack.push_back(index);
+		}
+	} while(!stack.empty());
+}
+
+void TownBuildingsWidget::onItemChanged(const QStandardItem * item) {
+	disconnect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
+	auto rowFirstColumnIndex = item->model()->sibling(item->row(), Column::TYPE, item->index());
+	QStandardItem * nextRow = model.itemFromIndex(rowFirstColumnIndex);
+	if (item->checkState() == Qt::Checked) {
+		while (nextRow) {
+			setRowColumnCheckState(nextRow, Column(item->column()), Qt::Checked);
+			if (item->column() == Column::BUILT) {
+				setRowColumnCheckState(nextRow, Column::ENABLED, Qt::Checked);
+			}
+			nextRow = nextRow->parent();
+
+		}
+	}
+	else if (item->checkState() == Qt::Unchecked) {
+		std::vector<QStandardItem*> stack;
+		stack.push_back(nextRow);
+		do
+		{
+			nextRow = stack.back();
+			stack.pop_back();
+			setRowColumnCheckState(nextRow, Column(item->column()), Qt::Unchecked);
+			if (item->column() == Column::ENABLED) {
+				setRowColumnCheckState(nextRow, Column::BUILT, Qt::Unchecked);
+			}
+			if (nextRow->hasChildren()) {
+				for (int i = 0; i < nextRow->rowCount(); ++i) {
+					stack.push_back(nextRow->child(i, Column::TYPE));
+				}
+			}
+			
+		} while(!stack.empty());
+	}
+	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
+}
 
 TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), QStyledItemDelegate()
 {

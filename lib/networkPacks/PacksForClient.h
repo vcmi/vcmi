@@ -561,7 +561,7 @@ struct DLL_LINKAGE UpdateMapEvents : public CPackForClient
 struct DLL_LINKAGE UpdateCastleEvents : public CPackForClient
 {
 	ObjectInstanceID town;
-	std::list<CCastleEvent> events;
+	std::vector<CCastleEvent> events;
 
 	void applyGs(CGameState * gs) const;
 	void visitTyped(ICPackVisitor & visitor) override;

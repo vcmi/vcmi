@@ -3424,7 +3424,7 @@ void CGameHandler::handleTimeEvents()
 
 void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 {
-	town->events.sort(evntCmp);
+	std::sort(town->events.begin(), town->events.end(), evntCmp);
 	while(town->events.size() && town->events.front().firstOccurrence == gs->day)
 	{
 		PlayerColor player = town->tempOwner;
@@ -3485,7 +3485,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 		if (ev.nextOccurrence)
 		{
-			town->events.pop_front();
+			town->events.erase(town->events.begin());
 
 			ev.firstOccurrence += ev.nextOccurrence;
 			auto it = town->events.begin();
@@ -3495,7 +3495,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 		}
 		else
 		{
-			town->events.pop_front();
+			town->events.erase(town->events.begin());
 		}
 	}
 

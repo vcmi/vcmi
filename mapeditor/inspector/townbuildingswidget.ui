@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
+    <width>580</width>
     <height>280</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>480</width>
+    <width>580</width>
     <height>280</height>
    </size>
   </property>
@@ -44,6 +44,38 @@
       <bool>true</bool>
      </attribute>
     </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QPushButton" name="buildAll">
+       <property name="text">
+        <string>Build all</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="demolishAll">
+       <property name="text">
+        <string>Demolish all</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="enableAll">
+       <property name="text">
+        <string>Enable all</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="disableAll">
+       <property name="text">
+        <string>Disable all</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

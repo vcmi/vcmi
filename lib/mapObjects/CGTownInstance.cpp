@@ -1221,6 +1221,12 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		handler.serializeIdArray( "possibleSpells", possibleSpells);
 		handler.serializeIdArray( "obligatorySpells", obligatorySpells);
 	}
+
+	{
+		auto eventsHandler = handler.enterArray("events");
+		eventsHandler.syncSize(events, JsonNode::JsonType::DATA_VECTOR);
+		eventsHandler.serializeStruct(events);
+	}
 }
 
 FactionID CGTownInstance::getFaction() const
