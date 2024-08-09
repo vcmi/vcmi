@@ -61,7 +61,7 @@ public:
 	//Called when queries created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the query
 	virtual void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const;
-	virtual void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const;
+	virtual void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const;
 	virtual void garrisonDialogClosed(const CGHeroInstance *hero) const;
 	virtual void heroLevelUpDone(const CGHeroInstance *hero) const;
 

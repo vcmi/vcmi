@@ -223,7 +223,7 @@ public:
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 private:
 	FactionID randomizeFaction(vstd::RNG & rand);

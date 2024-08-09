@@ -133,7 +133,7 @@ public:
 	void initObj(vstd::RNG & rand) override;
 	
 	/// applies player selection of reward
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	
 	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * town, vstd::RNG & rand);
 	CTownRewardableBuilding(IGameCallback *cb);
