@@ -356,7 +356,6 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 	hoverable(false),
 	soundDisabled(false)
 {
-	defActions = 255-DISPOSE;
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 	hoverTexts[0] = help.first;
 }

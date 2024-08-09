@@ -37,7 +37,6 @@ CList::CListItem::CListItem(CList * Parent)
 	parent(Parent),
 	selection()
 {
-	defActions = 255-DISPOSE;
 }
 
 CList::CListItem::~CListItem() = default;

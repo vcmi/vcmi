@@ -625,7 +625,6 @@ MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
 	small(Small)
 {
 	pos = r + pos.topLeft();
-	defActions = 255-DISPOSE;
 }
 
 CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool Animated)

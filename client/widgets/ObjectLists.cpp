@@ -33,7 +33,6 @@ std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
 	if(!item)
 		item = std::make_shared<CIntObject>();
 
-	item->recActions = defActions;
 	addChild(item.get());
 	if (isActive())
 		item->activate();
@@ -45,7 +44,6 @@ CTabbedInt::CTabbedInt(CreateFunc create, Point position, size_t ActiveID)
 	activeTab(nullptr),
 	activeID(ActiveID)
 {
-	defActions &= ~DISPOSE;
 	pos += position;
 	reset();
 }

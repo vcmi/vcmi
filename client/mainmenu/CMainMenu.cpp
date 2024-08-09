@@ -289,7 +289,6 @@ CMainMenu::CMainMenu()
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
 
-	GH.defActionsDef = 63;
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);

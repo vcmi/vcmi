@@ -339,7 +339,6 @@ Rect CMultiLineLabel::getTextLocation()
 CLabelGroup::CLabelGroup(EFonts Font, ETextAlignment Align, const ColorRGBA & Color)
 	: font(Font), align(Align), color(Color)
 {
-	defActions = 255 - DISPOSE;
 }
 
 void CLabelGroup::add(int x, int y, const std::string & text)

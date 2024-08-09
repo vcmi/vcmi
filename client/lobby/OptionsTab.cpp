@@ -993,7 +993,6 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	, name(S.name)
 {
 	OBJ_CONSTRUCTION;
-	defActions |= SHARE_POS;
 
 	int serial = 0;
 	for(PlayerColor g = PlayerColor(0); g < s->color; ++g)

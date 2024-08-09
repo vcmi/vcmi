@@ -442,7 +442,6 @@ void CComponentBox::placeComponents(bool selectable)
 	for(auto & comp : components)
 	{
 		addChild(comp.get());
-		comp->recActions = defActions; //FIXME: for some reason, received component might have recActions set to 0
 		comp->moveTo(Point(pos.x, pos.y));
 	}
 

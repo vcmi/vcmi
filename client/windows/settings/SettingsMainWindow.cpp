@@ -144,7 +144,6 @@ void SettingsMainWindow::mainMenuButtonCallback()
 		{
 			close();
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("main");
 		},
 		0

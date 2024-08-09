@@ -58,14 +58,11 @@ SSetCaptureState::SSetCaptureState(bool allow, ui8 actions)
 {
 	previousCapture = GH.captureChildren;
 	GH.captureChildren = false;
-	prevActions = GH.defActionsDef;
-	GH.defActionsDef = actions;
 }
 
 SSetCaptureState::~SSetCaptureState()
 {
 	GH.captureChildren = previousCapture;
-	GH.defActionsDef = prevActions;
 }
 
 void CGuiHandler::init()
@@ -139,8 +136,7 @@ void CGuiHandler::renderFrame()
 }
 
 CGuiHandler::CGuiHandler()
-	: defActionsDef(0)
-	, captureChildren(false)
+	: captureChildren(false)
 	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 {
