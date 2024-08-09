@@ -112,24 +112,3 @@ public:
 };
 
 extern CGuiHandler GH; //global gui handler
-
-struct SObjectConstruction
-{
-	CIntObject *myObj;
-	SObjectConstruction(CIntObject *obj);
-	~SObjectConstruction();
-};
-
-struct SSetCaptureState
-{
-	bool previousCapture;
-	SSetCaptureState(bool allow, ui8 actions);
-	~SSetCaptureState();
-};
-
-#define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)
-#define OBJ_CONSTRUCTION_TARGETED(obj) SObjectConstruction obj__i(obj)
-#define OBJECT_CONSTRUCTION_CAPTURING(actions) SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
-#define OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(actions) SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
-
-#define OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE SSetCaptureState obj__i1(true, 255 - DISPOSE); SObjectConstruction obj__i(this)
