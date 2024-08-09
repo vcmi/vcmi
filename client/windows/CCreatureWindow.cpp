@@ -187,7 +187,7 @@ CStackWindow::CWindowSection::CWindowSection(CStackWindow * parent, const ImageP
 	: parent(parent)
 {
 	pos.y += yOffset;
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if(!backgroundPath.empty())
 	{
 		background = std::make_shared<CPicture>(backgroundPath);
@@ -202,7 +202,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 	static const Point firstPos(6, 2); // position of 1st spell box
 	static const Point offset(54, 0);  // offset of each spell box from previous
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	const CStack * battleStack = parent->info->stack;
 
@@ -241,7 +241,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t lineIndex)
 	: CWindowSection(owner, ImagePath::builtin("stackWindow/bonus-effects"), 0)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	static const std::array<Point, 2> offset =
 	{
@@ -267,7 +267,7 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, std::optional<size_t> preferredSize):
 	CWindowSection(owner, {}, yOffset)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	// size of single image for an item
 	static const int itemHeight = 59;
@@ -289,7 +289,7 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 	: CWindowSection(owner, ImagePath::builtin("stackWindow/button-panel"), yOffset)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	if(parent->info->dismissInfo && parent->info->dismissInfo->callback)
 	{
@@ -378,7 +378,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, int yOffset)
 	: CWindowSection(owner, ImagePath::builtin("stackWindow/commander-bg"), yOffset)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	auto getSkillPos = [](int index)
 	{
@@ -489,7 +489,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool showExp, bool showArt)
 	: CWindowSection(owner, getBackgroundName(showExp, showArt), yOffset)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	statNames =
 	{
@@ -752,7 +752,7 @@ CStackWindow::~CStackWindow()
 
 void CStackWindow::init()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	if(!info->stackNode)
 		info->stackNode = new CStackInstance(info->creature, 1, true);// FIXME: free data
@@ -798,7 +798,7 @@ void CStackWindow::initBonusesList()
 
 void CStackWindow::initSections()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	bool showArt = CGI->settings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
 	bool showExp = (CGI->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) || info->commander != nullptr) && info->stackNode;
@@ -920,7 +920,7 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 		return skillToFile(skillIndex, info->commander->secondarySkills[skillIndex], selected);
 	};
 
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	int oldSelection = selectedSkill; // update selection
 	selectedSkill = newSkill;
 

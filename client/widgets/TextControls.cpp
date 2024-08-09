@@ -343,7 +343,7 @@ CLabelGroup::CLabelGroup(EFonts Font, ETextAlignment Align, const ColorRGBA & Co
 
 void CLabelGroup::add(int x, int y, const std::string & text)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 	labels.push_back(std::make_shared<CLabel>(x, y, font, align, color, text));
 }
 
@@ -356,7 +356,7 @@ CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts 
 	sliderStyle(SliderStyle),
 	slider(nullptr)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 	label = std::make_shared<CMultiLineLabel>(rect, Font, Align, Color);
 
 	setRedrawParent(true);
@@ -421,7 +421,7 @@ void CTextBox::setText(const std::string & text)
 		assert(label->pos.w > 0);
 		label->setText(text);
 
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+		OBJECT_CONSTRUCTION;
 		slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
 			label->pos.h, label->textSize.y, 0, Orientation::VERTICAL, CSlider::EStyle(sliderStyle));
 		slider->setScrollStep((int)graphics->fonts[label->font]->getLineHeight());
@@ -504,7 +504,7 @@ CGStatusBar::CGStatusBar(int x, int y, const ImagePath & name, int maxw)
 {
 	addUsedEvents(LCLICK);
 
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	auto backgroundImage = std::make_shared<CPicture>(name);
 	background = backgroundImage;

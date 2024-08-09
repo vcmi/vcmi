@@ -70,7 +70,7 @@ void CList::CListItem::hover(bool on)
 
 void CList::CListItem::onSelect(bool on)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	selection.reset();
 	if(on)
 		selection = genSelection();
@@ -95,7 +95,7 @@ void CList::showAll(Canvas & to)
 
 void CList::createList(Point firstItemPosition, Point itemPositionDelta, size_t listAmount)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	listBox = std::make_shared<CListBox>(std::bind(&CList::createItem, this, _1), firstItemPosition, itemPositionDelta, size, listAmount);
 }
 
@@ -206,7 +206,7 @@ void CList::selectPrev()
 
 CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	movement = std::make_shared<CAnimImage>(AnimationPath::builtin("IMOBIL"), 0, 0, 0, 1);
 	portrait = std::make_shared<CPicture>(ImagePath::builtin("HPSXXX"), movement->pos.w + 1, 0);
 	mana = std::make_shared<CAnimImage>(AnimationPath::builtin("IMANA"), 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
@@ -219,7 +219,7 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
 	: CListItem(parent),
 	hero(Hero)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	movement = std::make_shared<CAnimImage>(AnimationPath::builtin("IMOBIL"), 0, 0, 0, 1);
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), hero->getIconIndex(), 0, movement->pos.w + 1);
 	mana = std::make_shared<CAnimImage>(AnimationPath::builtin("IMANA"), 0, 0, movement->pos.w + portrait->pos.w + 2, 1);
@@ -364,7 +364,7 @@ CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
 	CListItem(parent),
 	town(Town)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), 0);
 	pos = picture->pos;
 	update();

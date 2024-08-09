@@ -39,30 +39,19 @@ CGuiHandler GH;
 
 static thread_local bool inGuiThread = false;
 
-SObjectConstruction::SObjectConstruction(CIntObject *obj)
+ObjectConstruction::ObjectConstruction(CIntObject *obj)
 :myObj(obj)
 {
 	GH.createdObj.push_front(obj);
 	GH.captureChildren = true;
 }
 
-SObjectConstruction::~SObjectConstruction()
+ObjectConstruction::~ObjectConstruction()
 {
 	assert(GH.createdObj.size());
 	assert(GH.createdObj.front() == myObj);
 	GH.createdObj.pop_front();
 	GH.captureChildren = GH.createdObj.size();
-}
-
-SSetCaptureState::SSetCaptureState(bool allow, ui8 actions)
-{
-	previousCapture = GH.captureChildren;
-	GH.captureChildren = false;
-}
-
-SSetCaptureState::~SSetCaptureState()
-{
-	GH.captureChildren = previousCapture;
 }
 
 void CGuiHandler::init()

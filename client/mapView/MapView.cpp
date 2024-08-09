@@ -52,7 +52,7 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	, tilesCache(new MapViewCache(model))
 	, controller(new MapViewController(model, tilesCache))
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos += offset;
 	pos.w = dimensions.x;
 	pos.h = dimensions.y;
@@ -141,7 +141,7 @@ void MapView::show(Canvas & to)
 MapView::MapView(const Point & offset, const Point & dimensions)
 	: BasicMapView(offset, dimensions)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	actions = std::make_shared<MapViewActions>(*this, model);
 	actions->setContext(controller->getContext());
 

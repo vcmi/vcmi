@@ -81,7 +81,7 @@ CWindowObject::~CWindowObject()
 
 std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, bool playerColored)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	if(imageName.empty())
 		return nullptr;
@@ -95,7 +95,7 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 
 void CWindowObject::setBackground(const ImagePath & filename)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = createBg(filename, options & PLAYER_COLORED);
 
@@ -206,7 +206,7 @@ void CWindowObject::setShadow(bool on)
 
 		//generate "shadow" object with these 3 pieces in it
 		{
-			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+			OBJECT_CONSTRUCTION;
 
 			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
 			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));

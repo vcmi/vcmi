@@ -30,7 +30,7 @@
 GlobalLobbyWindow::GlobalLobbyWindow()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	widget = std::make_shared<GlobalLobbyWidget>(this);
 	pos = widget->pos;
 	center();

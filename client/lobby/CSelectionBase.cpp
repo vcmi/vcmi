@@ -81,7 +81,7 @@ PlayerInfo ISelectionScreenInfo::getPlayerInfo(PlayerColor color)
 CSelectionBase::CSelectionBase(ESelectionScreen type)
 	: CWindowObject(BORDERED | SHADOW_DISABLED), ISelectionScreenInfo(type)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.w = 762;
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)
@@ -130,7 +130,7 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 InfoCard::InfoCard()
 	: showChat(true)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 	pos.x += 393;
 	pos.y += 6;
@@ -252,7 +252,7 @@ void InfoCard::changeSelection()
 	const std::array<std::string, 5> difficultyPercent = {"80%", "100%", "130%", "160%", "200%"};
 	labelDifficultyPercent->setText(difficultyPercent[SEL->getCurrentDifficulty()]);
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	// FIXME: We recreate them each time because CLabelGroup don't use smart pointers
 	labelGroupPlayers = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	if(!showChat)
@@ -356,7 +356,7 @@ void InfoCard::setChat(bool activateChat)
 CChatBox::CChatBox(const Rect & rect)
 	: CIntObject(KEYBOARD | TEXTINPUT)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
@@ -397,7 +397,7 @@ void CChatBox::addNewMessage(const std::string & text)
 
 PvPBox::PvPBox(const Rect & rect)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
@@ -448,7 +448,7 @@ PvPBox::PvPBox(const Rect & rect)
 
 TownSelector::TownSelector(const Point & loc)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	pos += loc;
 	setRedrawParent(true);
 
@@ -473,7 +473,7 @@ TownSelector::TownSelector(const Point & loc)
 
 void TownSelector::updateListItems()
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	int line = slider ? slider->getValue() : 0;
 	int x_offset = slider ? 0 : 8;
 	
@@ -519,7 +519,7 @@ CFlagBox::CFlagBox(const Rect & rect)
 	pos += rect.topLeft();
 	pos.w = rect.w;
 	pos.h = rect.h;
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
 	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
@@ -529,7 +529,7 @@ void CFlagBox::recreate()
 {
 	flagsAllies.clear();
 	flagsEnemies.clear();
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	const int alliesX = 5 + (int)labelAllies->getWidth();
 	const int enemiesX = 5 + 133 + (int)labelEnemies->getWidth();
 	for(auto i = CSH->si->playerInfos.cbegin(); i != CSH->si->playerInfos.cend(); i++)
@@ -557,7 +557,7 @@ void CFlagBox::showPopupWindow(const Point & cursorPosition)
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
 	: CWindowObject(BORDERED | RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("DIBOXBCK"))
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
 	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);

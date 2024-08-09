@@ -73,7 +73,7 @@ static void do_quit()
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	: CWindowObject(BORDERED), config(configNode)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(ImagePath::fromJson(config["background"]));
 	if(config["scalable"].Bool())
@@ -245,7 +245,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 
 CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 	pos = parent->pos;
 
@@ -290,7 +290,7 @@ CMainMenu::CMainMenu()
 	pos.h = GH.screenDimensions().y;
 
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 }
 
@@ -434,7 +434,7 @@ std::shared_ptr<CPicture> CMainMenu::createPicture(const JsonNode & config)
 CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("MUPOPUP.bmp"));
 	pos = background->center(); //center, window has size of bg graphic
@@ -505,7 +505,7 @@ void CMultiMode::onNameChange(std::string newText)
 CMultiPlayers::CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode)
 	: loadMode(LoadMode), screenType(ScreenType), host(Host)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin("MUHOTSEA.bmp"));
 	pos = background->center(); //center, window has size of bg graphic
 
@@ -570,7 +570,7 @@ void CMultiPlayers::enterSelectionScreen()
 
 CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin("MUDIALOG.bmp")); // address background
 	pos = background->center(); //center, window has size of bg graphic (x,y = 396,278 w=232 h=212)
 
@@ -631,7 +631,7 @@ void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 CLoadingScreen::CLoadingScreen()
 	: CWindowObject(BORDERED, getBackground())
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	
 	addUsedEvents(TIME);
 	

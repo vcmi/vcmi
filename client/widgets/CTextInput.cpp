@@ -35,7 +35,7 @@ CTextInput::CTextInput(const Rect & Pos)
 
 void CTextInput::createLabel(bool giveFocusToInput)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	label = std::make_shared<CLabel>();
 	label->pos = pos;
 	label->alignment = originalAlignment;
@@ -59,7 +59,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, ETextAlignment alignment, 
 CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName)
 	: CTextInput(Pos)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	if (!bgName.empty())
 		background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
 	else
@@ -71,7 +71,7 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath
 CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 	: CTextInput(Pos)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(srf, Pos);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;

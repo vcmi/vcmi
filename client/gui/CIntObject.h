@@ -212,23 +212,13 @@ class EmptyStatusBar : public IStatusBar
 	virtual void setEnteredText(const std::string & text){};
 };
 
-struct SObjectConstruction
+class ObjectConstruction
 {
 	CIntObject *myObj;
-	SObjectConstruction(CIntObject *obj);
-	~SObjectConstruction();
+public:
+	ObjectConstruction(CIntObject *obj);
+	~ObjectConstruction();
 };
 
-struct SSetCaptureState
-{
-	bool previousCapture;
-	SSetCaptureState(bool allow, ui8 actions);
-	~SSetCaptureState();
-};
-
-#define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)
-#define OBJ_CONSTRUCTION_TARGETED(obj) SObjectConstruction obj__i(obj)
-#define OBJECT_CONSTRUCTION_CAPTURING(actions) SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
-#define OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(actions) SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
-
-#define OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE SSetCaptureState obj__i1(true, ALL_ACTIONS); SObjectConstruction obj__i(this)
+#define OBJECT_CONSTRUCTION ObjectConstruction obj__i(this)
+#define OBJECT_CONSTRUCTION_TARGETED(obj) ObjectConstruction obj__i(obj)

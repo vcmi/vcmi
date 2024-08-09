@@ -58,7 +58,7 @@ CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
 
 void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts fnt, const std::string & ValText)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(SHOW_POPUP);
 
@@ -323,7 +323,7 @@ std::string CComponent::getSubtitle() const
 
 void CComponent::setSurface(const AnimationPath & defName, int imgPos)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
@@ -434,7 +434,7 @@ int CComponentBox::getDistance(CComponent *left, CComponent *right)
 
 void CComponentBox::placeComponents(bool selectable)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if (components.empty())
 		return;
 
