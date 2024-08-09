@@ -217,6 +217,16 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 	return true;
 }
 
+bool CCallback::triggerTownSpecialBuildingAction(const CGTownInstance *town, BuildingSubID::EBuildingSubID subBuildingID)
+{
+	if(town->tempOwner!=player)
+		return false;
+
+	TriggerTownSpecialBuildingAction pack(town->id, subBuildingID);
+	sendRequest(&pack);
+	return true;
+}
+
 void CBattleCallback::battleMakeSpellAction(const BattleID & battleID, const BattleAction & action)
 {
 	assert(action.actionType == EActionType::HERO_SPELL);

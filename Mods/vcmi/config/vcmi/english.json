@@ -304,6 +304,9 @@
 	"vcmi.townHall.greetingCustomUntil"     : " until next battle.",
 	"vcmi.townHall.greetingInTownMagicWell" : "%s has restored your spell points to maximum.",
 
+	"vcmi.townStructure.bank.borrow" : "You enter the bank. A banker sees you and says: \"We have made a special offer for you. You can take a loan of 2500 gold from us for 5 days. You will have to repay 500 gold every day.\"",
+	"vcmi.townStructure.bank.payBack" : "You enter the bank. A banker sees you and says: \"You have already got your loan. Pay it back before taking a new one.\"",
+
 	"vcmi.logicalExpressions.anyOf"  : "Any of the following:",
 	"vcmi.logicalExpressions.allOf"  : "All of the following:",
 	"vcmi.logicalExpressions.noneOf" : "None of the following:",

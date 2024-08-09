@@ -128,6 +128,7 @@ public:
 	virtual void visitBulkSmartSplitStack(BulkSmartSplitStack & pack) {}
 	virtual void visitDisbandCreature(DisbandCreature & pack) {}
 	virtual void visitBuildStructure(BuildStructure & pack) {}
+	virtual void visitTriggerTownSpecialBuildingAction(TriggerTownSpecialBuildingAction & pack) {}
 	virtual void visitRazeStructure(RazeStructure & pack) {}
 	virtual void visitRecruitCreatures(RecruitCreatures & pack) {}
 	virtual void visitUpgradeCreature(UpgradeCreature & pack) {}

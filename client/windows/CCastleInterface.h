@@ -170,6 +170,7 @@ public:
 	void enterMagesGuild();
 	void enterAnyMarket();
 	void enterAnyThievesGuild();
+	void enterBank();
 	void enterToTheQuickRecruitmentWindow();
 
 	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);

@@ -280,6 +280,27 @@ struct DLL_LINKAGE BuildStructure : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE TriggerTownSpecialBuildingAction : public CPackForServer
+{
+	TriggerTownSpecialBuildingAction() = default;
+	TriggerTownSpecialBuildingAction(const ObjectInstanceID & TID, const BuildingSubID::EBuildingSubID SID)
+		: tid(TID)
+		, sid(SID)
+	{
+	}
+	ObjectInstanceID tid;
+	BuildingSubID::EBuildingSubID sid;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & tid;
+		h & sid;
+	}
+};
+
 struct DLL_LINKAGE RazeStructure : public BuildStructure
 {
 	void visitTyped(ICPackVisitor & visitor) override;

@@ -619,6 +619,14 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 	
 	for(const auto * rewardableBuilding : getBonusingBuildings(BuildingSubID::CUSTOM_VISITING_REWARD))
 		rewardableBuilding->newTurn(rand);
+		
+	if(hasBuilt(BuildingSubID::BANK) && bonusValue.second > 0)
+	{
+		TResources res;
+		res[EGameResID::GOLD] = -500;
+		cb->giveResources(getOwner(), res);
+		cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, bonusValue.second - 500);
+	}
 }
 /*
 int3 CGTownInstance::getSightCenter() const

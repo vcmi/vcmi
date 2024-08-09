@@ -139,6 +139,14 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
+void ApplyGhNetPackVisitor::visitTriggerTownSpecialBuildingAction(TriggerTownSpecialBuildingAction & pack)
+{
+	gh.throwIfWrongOwner(&pack, pack.tid);
+	gh.throwIfPlayerNotActive(&pack);
+
+	result = gh.triggerTownSpecialBuildingAction(pack.tid, pack.sid);
+}
+
 void ApplyGhNetPackVisitor::visitRecruitCreatures(RecruitCreatures & pack)
 {
 	gh.throwIfWrongPlayer(&pack);
