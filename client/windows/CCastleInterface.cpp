@@ -1771,12 +1771,12 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		BuildingID buildingID;
 		if(fortSize == town->town->creatures.size())
 		{
-			BuildingID dwelling = BuildingID::getDwellingFromLevel(i, true);
+			BuildingID dwelling = BuildingID::getDwellingFromLevel(i, 1);
 
 			if(vstd::contains(town->builtBuildings, dwelling))
-				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, true));
+				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, 1));
 			else
-				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i));
+				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, 0));
 		}
 		else
 		{
@@ -1878,7 +1878,7 @@ const CCreature * CFortScreen::RecruitArea::getMyCreature()
 
 const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 {
-	BuildingID myID = BuildingID(BuildingID::getDwellingFromLevel(level));
+	BuildingID myID = BuildingID(BuildingID::getDwellingFromLevel(level, 0));
 
 	if (level == town->town->creatures.size())
 		return town->town->getSpecialBuilding(BuildingSubID::PORTAL_OF_SUMMONING);

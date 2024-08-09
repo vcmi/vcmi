@@ -31,16 +31,14 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		}
 	}
 
-	bool prefixes[] = {true, false};
-
 	for(int level = 0; level < developmentInfo.town->town->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();
 
-		for(bool prefix : prefixes)
+		for(int upgradeIndex : {1, 0})
 		{
-			BuildingID building = BuildingID(BuildingID::getDwellingFromLevel(level, prefix));
+			BuildingID building = BuildingID(BuildingID::getDwellingFromLevel(level, upgradeIndex));
 
 			if(!vstd::contains(buildings, building))
 				continue; // no such building in town

@@ -323,9 +323,9 @@ private:
 	}
 
 public:
-	static Type getDwellingFromLevel(int level, bool up = false)
+	static Type getDwellingFromLevel(int level, int upgradeIndex)
 	{
-		return getDwellings()[up ? 1 : 0][level];
+		return getDwellings()[upgradeIndex][level];
 	}
 
 	static int getLevelFromDwelling(BuildingIDBase dwelling)
