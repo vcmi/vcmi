@@ -128,6 +128,8 @@ class CHeroList	: public CList
 		void open() override;
 		void showTooltip() override;
 		void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+		bool captureThisKey(EShortcut key) override;
+		void keyPressed(EShortcut key) override;
 		std::string getHoverText() override;
 	};
 
@@ -162,6 +164,8 @@ class CTownList	: public CList
 		void open() override;
 		void showTooltip() override;
 		void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+		bool captureThisKey(EShortcut key) override;
+		void keyPressed(EShortcut key) override;
 		std::string getHoverText() override;
 	};
 
