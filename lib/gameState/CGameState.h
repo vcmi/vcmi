@@ -15,6 +15,7 @@
 #include "../ConstTransitivePtr.h"
 
 #include "RumorState.h"
+#include "GameStatistics.h"
 
 namespace boost
 {
@@ -89,6 +90,8 @@ public:
 	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
 	RumorState currentRumor;
+
+	StatisticDataSet statistic;
 
 	static boost::shared_mutex mutex;
 
@@ -167,6 +170,8 @@ public:
 		h & currentRumor;
 		h & campaign;
 		h & allocatedArtifacts;
+		if (h.version >= Handler::Version::STATISTICS)
+			h & statistic;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}

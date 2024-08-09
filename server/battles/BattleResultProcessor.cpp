@@ -497,6 +497,22 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		gameHandler->sendAndApply(&ro);
 	}
 
+	// add statistic
+	if(battle.sideToPlayer(0) == PlayerColor::NEUTRAL || battle.sideToPlayer(1) == PlayerColor::NEUTRAL)
+	{
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(0)].numBattlesNeutral++;
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(1)].numBattlesNeutral++;
+		if(!finishingBattle->isDraw())
+			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
+	}
+	else
+	{
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(0)].numBattlesPlayer++;
+		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(1)].numBattlesPlayer++;
+		if(!finishingBattle->isDraw())
+			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
+	}
+
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();
 	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(BattleSide::ATTACKER));
@@ -556,10 +572,16 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	gameHandler->checkVictoryLossConditions(playerColors);
 
 	if (result.result == EBattleResult::SURRENDER)
+	{
+		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
 		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, finishingBattle->loserHero);
+	}
 
 	if (result.result == EBattleResult::ESCAPE)
+	{
+		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, finishingBattle->loserHero);
+	}
 
 	if (result.winner != 2 && finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty()
 		&& (!finishingBattle->winnerHero->commander || !finishingBattle->winnerHero->commander->alive))
