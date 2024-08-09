@@ -56,7 +56,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 	addUsedEvents(LCLICK | SHOW_POPUP);
 	EFonts font = (size < SIZE_MEDIUM)? FONT_SMALL: FONT_MEDIUM;
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos+=position;
 
 	image = std::make_shared<CAnimImage>(data->getImageName(size), data->getImageIndex());
@@ -462,7 +462,7 @@ void InfoBoxCustom::prepareMessage(std::string & text, std::shared_ptr<CComponen
 CKingdomInterface::CKingdomInterface()
 	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(OVERVIEW_BACKGROUND))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	ui32 footerPos = OVERVIEW_SIZE * 116;
 
 	tabArea = std::make_shared<CTabbedInt>(std::bind(&CKingdomInterface::createMainTab, this, _1), Point(4,4));
@@ -691,7 +691,7 @@ bool CKingdomInterface::holdsGarrison(const CArmedInstance * army)
 
 CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onCreateHeroItemCallback)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
 	title->setPlayerColor(LOCPLINT->playerID);
 	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[0]);
@@ -735,7 +735,7 @@ bool CKingdHeroList::holdsGarrison(const CArmedInstance * army)
 
 CKingdTownList::CKingdTownList(size_t maxSize)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"), 16, 0);
 	title->setPlayerColor(LOCPLINT->playerID);
 	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[3]);
@@ -791,7 +791,7 @@ std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 CTownItem::CTownItem(const CGTownInstance * Town)
 	: town(Town)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 6);
 	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 
@@ -883,7 +883,7 @@ public:
 
 	ArtSlotsTab()
 	{
-		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 4);
 		pos = background->pos;
 		for(int i=0; i<9; i++)
@@ -901,7 +901,7 @@ public:
 
 	BackpackTab()
 	{
-		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 5);
 		pos = background->pos;
 		btnLeft = std::make_shared<CButton>(Point(269, 66), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), 0);
@@ -914,7 +914,7 @@ public:
 CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	: hero(Hero)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	artTabs.resize(3);
 	auto arts1 = std::make_shared<ArtSlotsTab>();

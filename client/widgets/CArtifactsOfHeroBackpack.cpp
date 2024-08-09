@@ -73,7 +73,7 @@ size_t CArtifactsOfHeroBackpack::getSlotsNum()
 
 void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	backpack.resize(slots);
 	size_t artPlaceIdx = 0;

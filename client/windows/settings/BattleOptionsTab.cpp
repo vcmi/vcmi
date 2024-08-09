@@ -20,7 +20,7 @@
 
 BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
 	const JsonNode config(JsonPath::builtin("config/widgets/settings/battleOptionsTab.json"));

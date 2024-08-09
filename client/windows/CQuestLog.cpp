@@ -73,7 +73,7 @@ CQuestMinimap::CQuestMinimap(const Rect & position)
 
 void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	icons.clear();
 
 	int3 tile;
@@ -122,7 +122,7 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	hideComplete(false),
 	quests(Quests)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
@@ -140,7 +140,7 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 
 void CQuestLog::recreateLabelList()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	labels.clear();
 
 	bool completeMissing = true;
@@ -292,7 +292,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 				break;
 		}*/
 
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 
 		std::vector<std::shared_ptr<CComponent>> comps;
 		for(auto & component : components)

@@ -39,33 +39,17 @@ CGuiHandler GH;
 
 static thread_local bool inGuiThread = false;
 
-SObjectConstruction::SObjectConstruction(CIntObject *obj)
-:myObj(obj)
+ObjectConstruction::ObjectConstruction(CIntObject *obj)
 {
 	GH.createdObj.push_front(obj);
 	GH.captureChildren = true;
 }
 
-SObjectConstruction::~SObjectConstruction()
+ObjectConstruction::~ObjectConstruction()
 {
-	assert(GH.createdObj.size());
-	assert(GH.createdObj.front() == myObj);
+	assert(!GH.createdObj.empty());
 	GH.createdObj.pop_front();
-	GH.captureChildren = GH.createdObj.size();
-}
-
-SSetCaptureState::SSetCaptureState(bool allow, ui8 actions)
-{
-	previousCapture = GH.captureChildren;
-	GH.captureChildren = false;
-	prevActions = GH.defActionsDef;
-	GH.defActionsDef = actions;
-}
-
-SSetCaptureState::~SSetCaptureState()
-{
-	GH.captureChildren = previousCapture;
-	GH.defActionsDef = prevActions;
+	GH.captureChildren = !GH.createdObj.empty();
 }
 
 void CGuiHandler::init()
@@ -139,8 +123,7 @@ void CGuiHandler::renderFrame()
 }
 
 CGuiHandler::CGuiHandler()
-	: defActionsDef(0)
-	, captureChildren(false)
+	: captureChildren(false)
 	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 {

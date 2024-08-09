@@ -28,12 +28,11 @@ void CObjectList::deleteItem(std::shared_ptr<CIntObject> item)
 
 std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	std::shared_ptr<CIntObject> item = createObject(index);
 	if(!item)
 		item = std::make_shared<CIntObject>();
 
-	item->recActions = defActions;
 	addChild(item.get());
 	if (isActive())
 		item->activate();
@@ -45,7 +44,6 @@ CTabbedInt::CTabbedInt(CreateFunc create, Point position, size_t ActiveID)
 	activeTab(nullptr),
 	activeID(ActiveID)
 {
-	defActions &= ~DISPOSE;
 	pos += position;
 	reset();
 }
@@ -92,7 +90,7 @@ CListBox::CListBox(CreateFunc create, Point Pos, Point ItemOffset, size_t Visibl
 
 	if(Slider & 1)
 	{
-		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 		slider = std::make_shared<CSlider>(
 			SliderPos.topLeft(),
 			SliderPos.w,

@@ -325,7 +325,6 @@ void AdventureMapShortcuts::toMainMenu()
 		[]()
 		{
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("main");
 		},
 		0
@@ -339,7 +338,6 @@ void AdventureMapShortcuts::newGame()
 		[]()
 		{
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("new");
 		},
 		nullptr

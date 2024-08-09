@@ -94,7 +94,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 		: InterfaceObjectConfigurable(),
 		  onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
 	addConditional("touchscreen", GH.input().hasTouchInputDevice());

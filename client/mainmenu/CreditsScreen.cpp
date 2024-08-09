@@ -27,7 +27,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	pos.w = rect.w;
 	pos.h = rect.h;
 	setRedrawParent(true);
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(TIME);
 

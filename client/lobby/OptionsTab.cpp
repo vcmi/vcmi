@@ -71,7 +71,7 @@ void OptionsTab::recreate()
 		selectionWindow->reopen();
 	}
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
 	{
 		if(pInfo.second.isControlledByHuman())
@@ -333,7 +333,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 OptionsTab::CPlayerOptionTooltipBox::CPlayerOptionTooltipBox(CPlayerSettingsHelper & helper)
 	: CWindowObject(BORDERED | RCLICK_POPUP), CPlayerSettingsHelper(helper)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	switch(selectionType)
 	{
@@ -503,7 +503,7 @@ void OptionsTab::SelectionWindow::reopen()
 
 void OptionsTab::SelectionWindow::recreate(int sliderPos)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	int amountLines = 1;
 	if(type == SelType::BONUS)
@@ -797,7 +797,7 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 OptionsTab::HandicapWindow::HandicapWindow()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(LCLICK);
 
@@ -911,7 +911,7 @@ OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & playerSett
 	: Scrollable(LCLICK | SHOW_POPUP, position, Orientation::HORIZONTAL)
 	, CPlayerSettingsHelper(playerSettings, type)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	image = std::make_shared<CAnimImage>(getImageName(), getImageIndex());
 	subtitle = std::make_shared<CLabel>(24, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName(), 71);
@@ -992,8 +992,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	, parentTab(parent)
 	, name(S.name)
 {
-	OBJ_CONSTRUCTION;
-	defActions |= SHARE_POS;
+	OBJECT_CONSTRUCTION;
 
 	int serial = 0;
 	for(PlayerColor g = PlayerColor(0); g < s->color; ++g)

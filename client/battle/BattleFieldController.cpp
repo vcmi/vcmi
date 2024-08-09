@@ -110,7 +110,7 @@ static const std::map<int, int> hexEdgeMaskToFrameIndex =
 BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	//preparing cells and hexes
 	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
@@ -156,7 +156,7 @@ void BattleFieldController::activate()
 
 void BattleFieldController::createHeroes()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	// create heroes as part of our constructor for correct positioning inside battlefield
 	if(owner.attackingHeroInstance)

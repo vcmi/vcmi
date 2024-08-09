@@ -80,7 +80,7 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
 	, ourArt(art)
 	, locked(false)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	imageIndex = 0;
 	if(locked)

@@ -122,7 +122,7 @@ void CMarketBase::highlightingChanged()
 
 CExperienceAltar::CExperienceAltar()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	// Experience needed to reach next level
 	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
@@ -144,7 +144,7 @@ void CExperienceAltar::update()
 
 CCreaturesSelling::CCreaturesSelling()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	assert(hero);
 	CreaturesPanel::slotsData slots;
@@ -171,7 +171,7 @@ void CCreaturesSelling::updateSubtitles() const
 CResourcesBuying::CResourcesBuying(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
 	const TradePanelBase::UpdateSlotsFunctor & updSlotsCallback)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	offerTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, updSlotsCallback);
 	offerTradePanel->moveTo(pos.topLeft() + Point(327, 182));
@@ -180,7 +180,7 @@ CResourcesBuying::CResourcesBuying(const CTradeableItem::ClickPressedFunctor & c
 
 CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor & clickPressedCallback)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	bidTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, std::bind(&CResourcesSelling::updateSubtitles, this));
 	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
@@ -194,7 +194,7 @@ void CResourcesSelling::updateSubtitles() const
 
 CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	offerSlider = std::make_shared<CSlider>(Point(230, 489), 137, movingCallback, 0, 0, 0, Orientation::HORIZONTAL);
 	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596],
@@ -224,7 +224,7 @@ void CMarketSlider::onOfferSliderMoved(int newVal)
 CMarketTraderText::CMarketTraderText(const Point & pos, const EFonts & font, const ColorRGBA & color)
 	: madeTransaction(false)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	traderText = std::make_shared<CTextBox>("", Rect(pos, traderTextDimensions), 0, font, ETextAlignment::CENTER, color);
 }

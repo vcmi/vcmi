@@ -158,7 +158,7 @@ BattleConsole::BattleConsole(const BattleInterface & owner, std::shared_ptr<CPic
 	, scrollPosition(-1)
 	, enteringText(false)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos += objectPos;
 	pos.w = size.x;
 	pos.h = size.y;
@@ -227,7 +227,7 @@ void BattleConsole::clear()
 BattleConsoleWindow::BattleConsoleWindow(const std::string & text)
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos.w = 429;
 	pos.h = 434;
@@ -422,7 +422,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
 	: CIntObject(0), owner(owner)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | INPUT_MODE_CHANGE);
 
@@ -479,7 +479,7 @@ std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells()
 
 void QuickSpellPanel::create()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
 
@@ -542,7 +542,7 @@ void QuickSpellPanel::inputModeChanged(InputMode modi)
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)
 	: CIntObject(0)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if (position != nullptr)
 		moveTo(*position);
 
@@ -557,7 +557,7 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * posit
 
 void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	auto attack = hero.details->primskills[0];
 	auto defense = hero.details->primskills[1];
 	auto power = hero.details->primskills[2];
@@ -610,7 +610,7 @@ void HeroInfoBasicPanel::show(Canvas & to)
 StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBackground)
 	: CIntObject(0)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	if(initializeBackground)
 	{
@@ -626,7 +626,7 @@ StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBa
 
 void StackInfoBasicPanel::initializeData(const CStack * stack)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), stack->creatureId() + 2, 0, 10, 6));
 	labels.push_back(std::make_shared<CLabel>(10 + 58, 6 + 64, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, TextOperations::formatMetric(stack->getCount(), 4)));
@@ -718,7 +718,7 @@ void StackInfoBasicPanel::show(Canvas & to)
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("CHRPOP"))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if (position != nullptr)
 		moveTo(*position);
 
@@ -730,7 +730,7 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay)
 	: owner(_owner)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("CPRESULT"));
 	background->setPlayerColor(owner.playerID);
@@ -961,7 +961,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	: embedded(Embedded),
 	owner(owner)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	uint32_t queueSize = QUEUE_SIZE_BIG;
 
@@ -1045,7 +1045,7 @@ std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 StackQueue::StackBox::StackBox(StackQueue * owner):
 	CIntObject(SHOW_POPUP | HOVER), owner(owner)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin(owner->embedded ? "StackQueueSmall" : "StackQueueLarge"));
 
 	pos.w = background->pos.w;

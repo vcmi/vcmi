@@ -61,7 +61,7 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 	owner(owner_),
 	hero(hero_)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos += pos_;
 
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), hero->getIconIndex());
@@ -74,7 +74,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	curHero = hero;
 
 	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), LOCPLINT->playerID.getNum(), 0, 606, 8);
@@ -197,7 +197,7 @@ void CHeroWindow::update()
 	portraitImage->setFrame(curHero->getIconIndex());
 
 	{
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 		if(!garr)
 		{
 			std::string helpBox = heroscrn[32];

@@ -29,7 +29,7 @@ CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 	pos.x += position.x;
 	pos.y += position.y;
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(imageName, 0, 0);
 	background->setPlayerColor(LOCPLINT->playerID);
 

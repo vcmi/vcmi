@@ -688,7 +688,6 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 		scenarioHighScores.isCampaign = false;
 
 		endGameplay();
-		GH.defActionsDef = 63;
 		CMM->menu->switchToTab("main");
 		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores);
 	}
@@ -919,7 +918,6 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	if(client)
 	{
 		endGameplay();
-		GH.defActionsDef = 63;
 		CMM->menu->switchToTab("main");
 		showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}

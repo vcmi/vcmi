@@ -447,7 +447,7 @@ void TeamAlignmentsWidget::checkTeamCount()
 TeamAlignments::TeamAlignments(RandomMapTab & randomMapTab)
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	widget = std::make_shared<TeamAlignmentsWidget>(randomMapTab);
 	pos = widget->pos;
@@ -501,7 +501,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	
 	center(pos);
 	
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 	
 	// Window should have X * X columns, where X is max players allowed for current settings
 	// For random player count, X is 8
@@ -529,7 +529,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		players.push_back(std::make_shared<CToggleGroup>([&, totalPlayers, plId](int sel)
 		{
 			variables["player_id"].Integer() = plId;
-			OBJ_CONSTRUCTION_TARGETED(players[plId].get());
+			OBJECT_CONSTRUCTION_TARGETED(players[plId].get());
 			for(int teamId = 0; teamId < totalPlayers; ++teamId)
 			{
 				auto button = std::dynamic_pointer_cast<CToggleButton>(players[plId]->buttons[teamId]);
@@ -549,7 +549,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			}
 		}));
 		
-		OBJ_CONSTRUCTION_TARGETED(players.back().get());
+		OBJECT_CONSTRUCTION_TARGETED(players.back().get());
 
 		for(int teamId = 0; teamId < totalPlayers; ++teamId)
 		{

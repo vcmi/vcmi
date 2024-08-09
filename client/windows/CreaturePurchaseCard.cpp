@@ -50,7 +50,7 @@ void CreaturePurchaseCard::initCreatureSwitcherButton()
 
 void CreaturePurchaseCard::switchCreatureLevel()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(ACTIVATE + DEACTIVATE + UPDATE + SHOWALL + SHARE_POS);
+	OBJECT_CONSTRUCTION;
 	auto index = vstd::find_pos(upgradesID, creatureOnTheCard->getId());
 	auto nextCreatureId = vstd::circularAt(upgradesID, ++index);
 	creatureOnTheCard = nextCreatureId.toCreature();

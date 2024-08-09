@@ -151,7 +151,7 @@ QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd, Rec
 	: CWindowObject(PLAYER_COLORED | BORDERED),
 	town(townd)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(ACTIVATE + DEACTIVATE + UPDATE + SHOWALL);
+	OBJECT_CONSTRUCTION;
 
 	initWindow(startupPosition);
 	setButtons();

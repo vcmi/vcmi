@@ -429,7 +429,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 	creature(creature_ ? creature_->type : nullptr),
 	upg(Upg)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	pos.x += x;
 	pos.y += y;
@@ -534,7 +534,6 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 void CGarrisonInt::addSplitBtn(std::shared_ptr<CButton> button)
 {
 	addChild(button.get());
-	button->recActions &= ~DISPOSE;
 	splitButtons.push_back(button);
 	button->block(getSelection() == nullptr);
 }
@@ -715,7 +714,7 @@ CGarrisonInt::CGarrisonInt(const Point & position, int inx, const Point & garsOf
 	, removableUnits(_removableUnits)
 	, layout(_layout)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	setArmy(s1, EGarrisonType::UPPER);
 	setArmy(s2, EGarrisonType::LOWER);

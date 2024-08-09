@@ -137,7 +137,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
-	GH.defActionsDef = 0;
 	LOCPLINT = this;
 	playerID=Player;
 	human=true;
@@ -1776,7 +1775,6 @@ void CPlayerInterface::proposeLoadingGame()
 		[]()
 		{
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("load");
 		},
 		nullptr

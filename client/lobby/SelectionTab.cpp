@@ -154,7 +154,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 SelectionTab::SelectionTab(ESelectionScreen Type)
 	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), currentMapSizeFilter(0), showRandom(false)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 		
 	generalSortingBy = getSortBySelectionScreen(tabType);
 	sortingBy = _format;
@@ -883,7 +883,7 @@ std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, ERes
 SelectionTab::ListItem::ListItem(Point position)
 	: CIntObject(LCLICK, position)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
 	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);

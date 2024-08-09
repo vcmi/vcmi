@@ -33,7 +33,7 @@
 
 SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : InterfaceObjectConfigurable()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	const JsonNode config(JsonPath::builtin("config/widgets/settings/settingsMainContainer.json"));
 	addCallback("activateSettingsTab", [this](int tabId) { openTab(tabId); });
@@ -144,7 +144,6 @@ void SettingsMainWindow::mainMenuButtonCallback()
 		{
 			close();
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("main");
 		},
 		0

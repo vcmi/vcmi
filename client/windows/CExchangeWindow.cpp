@@ -49,7 +49,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 {
 	const bool qeLayout = isQuickExchangeLayoutAvailable();
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	addUsedEvents(KEYBOARD);
 
 	heroInst[0] = LOCPLINT->cb->getHero(hero1);

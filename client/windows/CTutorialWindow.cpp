@@ -29,7 +29,7 @@
 CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 	: CWindowObject(BORDERED, ImagePath::builtin("DIBOXBCK")), mode { m }, page { 0 }
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos = Rect(pos.x, pos.y, 380, 400); //video: 320x240
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
@@ -54,7 +54,7 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 
 void CTutorialWindow::setContent()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	auto video = VideoPath::builtin("tutorial/" + videos[page]);
 
 	videoPlayer = std::make_shared<VideoWidget>(Point(30, 120), video, false);
