@@ -106,6 +106,8 @@ void CIntObject::disable()
 {
 	if(isActive())
 		deactivate();
+
+	recActions = NO_ACTIONS;
 }
 
 void CIntObject::enable()
@@ -116,7 +118,7 @@ void CIntObject::enable()
 		redraw();
 	}
 
-	recActions = 255;
+	recActions = ALL_ACTIONS;
 }
 
 void CIntObject::setEnabled(bool on)

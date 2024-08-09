@@ -73,7 +73,7 @@ public:
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
-	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, SHARE_POS=16, ALL_ACTIONS=31};
+	enum {NO_ACTIONS = 0, ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, SHARE_POS=16, ALL_ACTIONS=31};
 	ui8 recActions; //which calls we allow to receive from parent
 
 	/// deactivates if needed, blocks all automatic activity, allows only disposal
@@ -214,7 +214,6 @@ class EmptyStatusBar : public IStatusBar
 
 class ObjectConstruction
 {
-	CIntObject *myObj;
 public:
 	ObjectConstruction(CIntObject *obj);
 	~ObjectConstruction();

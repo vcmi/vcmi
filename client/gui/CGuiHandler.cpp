@@ -40,7 +40,6 @@ CGuiHandler GH;
 static thread_local bool inGuiThread = false;
 
 ObjectConstruction::ObjectConstruction(CIntObject *obj)
-:myObj(obj)
 {
 	GH.createdObj.push_front(obj);
 	GH.captureChildren = true;
@@ -48,10 +47,9 @@ ObjectConstruction::ObjectConstruction(CIntObject *obj)
 
 ObjectConstruction::~ObjectConstruction()
 {
-	assert(GH.createdObj.size());
-	assert(GH.createdObj.front() == myObj);
+	assert(!GH.createdObj.empty());
 	GH.createdObj.pop_front();
-	GH.captureChildren = GH.createdObj.size();
+	GH.captureChildren = !GH.createdObj.empty();
 }
 
 void CGuiHandler::init()
