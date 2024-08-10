@@ -390,14 +390,28 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 	if(!curItems[py]->isFolder)
 	{
-		auto creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
-		auto author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
+		std::string creationDateTime;
+		std::string author;
+		std::string mapVersion;
+		if(tabType != ESelectionScreen::campaignList)
+		{
+			author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
+			mapVersion = curItems[py]->mapHeader->mapVersion.toString();
+			creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
+		}
+		else
+		{
+			author = curItems[py]->campaign->getAuthor() + (!curItems[py]->campaign->getAuthorContact().empty() ? (" <" + curItems[py]->campaign->getAuthorContact() + ">") : "");
+			mapVersion = curItems[py]->campaign->getCampaignVersion();
+			creationDateTime = curItems[py]->campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(curItems[py]->campaign->getCreationDateTime()) : curItems[py]->date;
+		}
+
 		GH.windows().createAndPushWindow<CMapOverview>(
 			curItems[py]->getNameTranslated(),
 			curItems[py]->fullFileURI,
 			creationDateTime,
 			author,
-			curItems[py]->mapHeader->mapVersion.toString(),
+			mapVersion,
 			ResourcePath(curItems[py]->fileURI),
 			tabType
 		);

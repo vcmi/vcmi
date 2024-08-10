@@ -156,7 +156,7 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
 	ret.name.appendTextID(readLocalizedString(ret, reader["name"].String(), filename, modName, "name"));
-	ret.description.appendTextID(readLocalizedString(ret, reader["description"].String(), filename, modName, "name"));
+	ret.description.appendTextID(readLocalizedString(ret, reader["description"].String(), filename, modName, "description"));
 	ret.author.appendRawString(reader["author"].String());
 	ret.authorContact.appendRawString(reader["authorContact"].String());
 	ret.campaignVersion.appendRawString(reader["campaignVersion"].String());
@@ -594,13 +594,14 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 
 std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputStream> file, const std::string & filename, bool headerOnly)
 {
-	std::vector<ui8> magic(2);
+	std::array<ui8, 2> magic;
 	file->read(magic.data(), magic.size());
 	file->seek(0);
 
 	std::vector< std::vector<ui8> > ret;
 
-	if (magic == std::vector<ui8>{0x50, 0x4B}) // VCMP (ZIP)
+	static const std::array<ui8, 2> zipHeaderMagic{0x50, 0x4B};
+	if (magic == zipHeaderMagic) // ZIP archive - assume VCMP format
 	{
 		CInputStream * buffer(file.get());
 		std::shared_ptr<CIOApi> ioApi(new CProxyROIOApi(buffer));
@@ -629,7 +630,7 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 
 		return ret;
 	}
-	else // H3M
+	else // H3C
 	{
 		CCompressedStream stream(std::move(file), true);
 
