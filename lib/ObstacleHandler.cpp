@@ -31,6 +31,11 @@ std::string ObstacleInfo::getJsonKey() const
 	return identifier;
 }
 
+std::string ObstacleInfo::getModScope() const
+{
+	return "core";
+}
+
 std::string ObstacleInfo::getNameTranslated() const
 {
 	return identifier;

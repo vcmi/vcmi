@@ -53,6 +53,11 @@ std::string CHero::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CHero::getModScope() const
+{
+	return modScope;
+}
+
 HeroTypeID CHero::getId() const
 {
 	return ID;
@@ -187,6 +192,11 @@ int32_t CHeroClass::getIconIndex() const
 std::string CHeroClass::getJsonKey() const
 {
 	return modScope + ':' + identifier;
+}
+
+std::string CHeroClass::getModScope() const
+{
+	return modScope;
 }
 
 HeroClassID CHeroClass::getId() const

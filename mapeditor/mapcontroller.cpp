@@ -616,17 +616,17 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 
 	auto extractEntityMod = [&result](const auto & entity) 
 	{
-		auto modName = QString::fromStdString(entity->getJsonKey()).split(":").at(0).toStdString();
-		if(modName != "core")
-			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+		auto modScope = entity->getModScope();
+		if(modScope != "core")
+			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
 	};
 
 	for(auto obj : map.objects)
 	{
 		auto handler = obj->getObjectHandler();
-		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
-		if(modName != "core")
-			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+		auto modScope = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
+		if(modScope != "core")
+			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
 
 		if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
 		{

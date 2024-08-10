@@ -61,6 +61,11 @@ std::string CCreature::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CCreature::getModScope() const
+{
+	return modScope;
+}
+
 void CCreature::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "CPRSMALL", smallIconName);

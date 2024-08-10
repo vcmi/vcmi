@@ -64,6 +64,11 @@ std::string CSkill::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CSkill::getModScope() const
+{
+	return modScope;
+}
+
 std::string CSkill::getDescriptionTextID(int level) const
 {
 	TextIdentifier id("skill", modScope, identifier, "description", NSecondarySkill::levels[level]);

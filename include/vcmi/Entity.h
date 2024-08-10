@@ -40,6 +40,7 @@ public:
 	virtual int32_t getIndex() const = 0;
 	virtual int32_t getIconIndex() const = 0;
 	virtual std::string getJsonKey() const = 0;
+	virtual std::string getModScope() const = 0;
 	virtual std::string getNameTranslated() const = 0;
 	virtual std::string getNameTextID() const = 0;
 
