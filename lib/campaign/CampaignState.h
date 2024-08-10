@@ -33,6 +33,8 @@ class IGameCallback;
 class DLL_LINKAGE CampaignRegions
 {
 	std::string campPrefix;
+	std::vector<std::string> campSuffix = {};
+	std::string campBackground = "";
 	int colorSuffixLength;
 
 	struct DLL_LINKAGE RegionDescription
@@ -67,6 +69,11 @@ public:
 		h & campPrefix;
 		h & colorSuffixLength;
 		h & regions;
+		if (h.version >= Handler::Version::CAMPAIGN_REGIONS)
+		{
+			h & campSuffix;
+			h & campBackground;
+		}
 	}
 
 	static CampaignRegions fromJson(const JsonNode & node);

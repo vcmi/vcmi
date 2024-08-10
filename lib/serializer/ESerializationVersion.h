@@ -58,7 +58,8 @@ enum class ESerializationVersion : int32_t
 	MAP_FORMAT_ADDITIONAL_INFOS, // 848 - serialize new infos in map format
 	REMOVE_LIB_RNG, // 849 - removed random number generators from library classes
 	HIGHSCORE_PARAMETERS, // 850 - saves parameter for campaign
-  PLAYER_HANDICAP, // 851 - player handicap selection at game start
+	PLAYER_HANDICAP, // 851 - player handicap selection at game start
+	CAMPAIGN_REGIONS, // 852 - configurable campaign regions
 
 	CURRENT = PLAYER_HANDICAP
 };
