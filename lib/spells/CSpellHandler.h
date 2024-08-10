@@ -110,7 +110,7 @@ public:
 		bool smartTarget = true;
 		bool clearTarget = false;
 		bool clearAffected = false;
-		std::string range = "0";
+		std::vector<int> range = { 0 };
 
 		//TODO: remove these two when AI will understand special effects
 		std::vector<std::shared_ptr<Bonus>> effects; //deprecated
@@ -305,6 +305,8 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spe
 
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSpell, spells::Service>
 {
+	std::vector<int> spellRangeInHexes(std::string rng) const;
+
 public:
 	///IHandler base
 	std::vector<JsonNode> loadLegacyData() override;
