@@ -18,7 +18,6 @@
 #include "GameSettings.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"
-#include "MinimalPrimarySkill.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "entities/faction/CFaction.h"
@@ -231,7 +230,7 @@ void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass *
 {
 	const auto & skillName = NPrimarySkill::names[pSkill.getNum()];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
-	int primarySkillLegalMinimum = getPrimarySkillMinimum(pSkill);
+	int primarySkillLegalMinimum = VLC->settings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[pSkill.getNum()];
 
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{
