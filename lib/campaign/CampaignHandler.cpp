@@ -608,6 +608,9 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 		auto data = loader.load(resource)->readAll();
 		ret.push_back(std::vector<ui8>(data.first.get(), data.first.get() + data.second));
 
+		if(headerOnly)
+			return ret;
+
 		// load scenarios
 		JsonNode header(reinterpret_cast<const std::byte*>(data.first.get()), data.second, VCMP_HEADER_FILE_NAME);
 		for(auto scenario : header["scenarios"].Vector())
