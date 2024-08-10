@@ -16,6 +16,7 @@
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CBinaryReader.h"
+#include "../filesystem/CZipLoader.h"
 #include "../VCMI_Lib.h"
 #include "../constants/StringConstants.h"
 #include "../mapping/CMapHeader.h"
@@ -588,32 +589,65 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 
 std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputStream> file, const std::string & filename, bool headerOnly)
 {
-	CCompressedStream stream(std::move(file), true);
+	std::vector<ui8> magic(2);
+	file->read(magic.data(), magic.size());
+	file->seek(0);
 
 	std::vector< std::vector<ui8> > ret;
 
-	try
+	if (magic == std::vector<ui8>{0x50, 0x4B}) // VCMP (ZIP)
 	{
-		do
-		{
-			std::vector<ui8> block(stream.getSize());
-			stream.read(block.data(), block.size());
-			ret.push_back(block);
-			ret.back().shrink_to_fit();
-		}
-		while (!headerOnly && stream.getNextBlock());
-	}
-	catch (const DecompressionException & e)
-	{
-		// Some campaigns in French version from gog.com have trailing garbage bytes
-		// For example, slayer.h3c consist from 5 parts: header + 4 maps
-		// However file also contains ~100 "extra" bytes after those 5 parts are decompressed that do not represent gzip stream
-		// leading to exception "Incorrect header check"
-		// Since H3 handles these files correctly, simply log this as warning and proceed
-		logGlobal->warn("Failed to read file %s. Encountered error during decompression: %s", filename, e.what());
-	}
+		CInputStream * buffer(file.get());
+		std::shared_ptr<CIOApi> ioApi(new CProxyROIOApi(buffer));
+		CZipLoader loader("", "_", ioApi);
 
-	return ret;
+		// load header
+		JsonPath resource = JsonPath::builtin(VCMP_HEADER_FILE_NAME);
+		if(!loader.existsResource(resource))
+			throw std::runtime_error(resource.getName() + " not found in " + filename);
+		auto data = loader.load(resource)->readAll();
+		ret.push_back(std::vector<ui8>(data.first.get(), data.first.get() + data.second));
+
+		// load scenarios
+		JsonNode header(reinterpret_cast<const std::byte*>(data.first.get()), data.second, VCMP_HEADER_FILE_NAME);
+		for(auto scenario : header["scenarios"].Vector())
+		{
+			ResourcePath resource = ResourcePath(scenario["map"].String(), EResType::MAP);
+			if(!loader.existsResource(resource))
+				throw std::runtime_error(resource.getName() + " not found in " + filename);
+			auto data = loader.load(resource)->readAll();
+			ret.push_back(std::vector<ui8>(data.first.get(), data.first.get() + data.second));
+		}
+
+		return ret;
+	}
+	else // H3M
+	{
+		CCompressedStream stream(std::move(file), true);
+
+		try
+		{
+			do
+			{
+				std::vector<ui8> block(stream.getSize());
+				stream.read(block.data(), block.size());
+				ret.push_back(block);
+				ret.back().shrink_to_fit();
+			}
+			while (!headerOnly && stream.getNextBlock());
+		}
+		catch (const DecompressionException & e)
+		{
+			// Some campaigns in French version from gog.com have trailing garbage bytes
+			// For example, slayer.h3c consist from 5 parts: header + 4 maps
+			// However file also contains ~100 "extra" bytes after those 5 parts are decompressed that do not represent gzip stream
+			// leading to exception "Incorrect header check"
+			// Since H3 handles these files correctly, simply log this as warning and proceed
+			logGlobal->warn("Failed to read file %s. Encountered error during decompression: %s", filename, e.what());
+		}
+
+		return ret;
+	}
 }
 
 VideoPath CampaignHandler::prologVideoName(ui8 index)
