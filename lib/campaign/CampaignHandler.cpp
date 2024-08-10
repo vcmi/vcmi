@@ -127,14 +127,19 @@ static std::string convertMapName(std::string input)
 
 std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier)
 {
-	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
-
 	std::string input = TextOperations::toUnicode(reader.readBaseString(), encoding);
 
-	if (input.empty())
+	return readLocalizedString(target, input, filename, modName, identifier);
+}
+
+std::string CampaignHandler::readLocalizedString(CampaignHeader & target, std::string text, std::string filename, std::string modName, std::string identifier)
+{
+	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
+
+	if (text.empty())
 		return "";
 
-	target.getTexts().registerString(modName, stringID, input);
+	target.getTexts().registerString(modName, stringID, text);
 	return stringID.get();
 }
 
@@ -150,8 +155,8 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.version = CampaignVersion::VCMI;
 	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
-	ret.name.appendTextID(reader["name"].String());
-	ret.description.appendTextID(reader["description"].String());
+	ret.name.appendTextID(readLocalizedString(ret, reader["name"].String(), filename, modName, "name"));
+	ret.description.appendTextID(readLocalizedString(ret, reader["description"].String(), filename, modName, "name"));
 	ret.author.appendRawString(reader["author"].String());
 	ret.authorContact.appendRawString(reader["authorContact"].String());
 	ret.campaignVersion.appendRawString(reader["campaignVersion"].String());
