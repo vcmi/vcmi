@@ -24,5 +24,5 @@ private:
 public:
 	BattleOverlayLogVisualizer(BattleRenderer::RendererRef & target, BattleInterface & owner);
 
-	void drawText(BattleHex hex, std::vector<std::string> texts) override;
+	void drawText(BattleHex hex, int lineNumber, std::string text) override;
 };

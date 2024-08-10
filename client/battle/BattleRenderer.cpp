@@ -75,5 +75,6 @@ void BattleRenderer::execute(BattleRenderer::RendererRef targetCanvas)
 	sortObjects();
 	renderObjects(targetCanvas);
 
-	logVisual->visualize(BattleOverlayLogVisualizer(targetCanvas, owner));
+	BattleOverlayLogVisualizer r(targetCanvas, owner);
+	logVisual->visualize(r);
 }

@@ -36,7 +36,10 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 					b.addText(pos, std::to_string(treat.danger));
 
 					if(treat.hero.validAndSet())
+					{
+						b.addText(pos, std::to_string(treat.turn));
 						b.addText(pos, treat.hero->getNameTranslated());
+					}
 				});
 		});
 
@@ -48,7 +51,10 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 					b.addText(pos, std::to_string(treat.danger));
 
 					if(treat.hero.validAndSet())
+					{
+						b.addText(pos, std::to_string(treat.turn));
 						b.addText(pos, treat.hero->getNameTranslated());
+					}
 				});
 		});
 #endif

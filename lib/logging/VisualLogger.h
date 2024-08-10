@@ -12,6 +12,7 @@
 #include "../int3.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../battle/BattleHex.h"
+#include "../Color.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,21 +20,23 @@ class IMapOverlayLogVisualizer
 {
 public:
 	virtual void drawLine(int3 start, int3 end) = 0;
-	virtual void drawText(int3 tile, std::vector<std::string> texts) = 0;
+	virtual void drawText(int3 tile, int lineNumber, std::string text, std::optional<ColorRGBA> background) = 0;
 };
 
 class IBattleOverlayLogVisualizer
 {
 public:
-	virtual void drawText(BattleHex tile, std::vector<std::string> texts) = 0;
+	virtual void drawText(BattleHex tile, int lineNumber, std::string text) = 0;
 };
 
-class IVisualLogBuilder
+class DLL_LINKAGE IVisualLogBuilder
 {
 public:
 	virtual void addLine(int3 start, int3 end) = 0;
-	virtual void addText(int3 tile, std::string text) = 0;
+	virtual void addText(int3 tile, std::string text, std::optional<ColorRGBA> color = {}) = 0;
 	virtual void addText(BattleHex tile, std::string text) = 0;
+
+	void addText(int3 tile, std::string text, PlayerColor background);
 };
 
 /// The logger is used to show screen overlay
@@ -57,9 +60,10 @@ private:
 	{
 		T tile;
 		std::string text;
+		std::optional<ColorRGBA> background;
 
-		Text(T tile, std::string text)
-			:tile(tile), text(text)
+		Text(T tile, std::string text, std::optional<ColorRGBA> background)
+			:tile(tile), text(text), background(background)
 		{
 		}
 	};
@@ -87,12 +91,12 @@ private:
 
 		void addText(BattleHex tile, std::string text) override
 		{
-			battleTexts.emplace_back(tile, text);
+			battleTexts.emplace_back(tile, text, std::optional<ColorRGBA>());
 		}
 
-		void addText(int3 tile, std::string text) override
+		void addText(int3 tile, std::string text, std::optional<ColorRGBA> background) override
 		{
-			mapTexts.emplace_back(tile, text);
+			mapTexts.emplace_back(tile, text, background);
 		}
 	};
 

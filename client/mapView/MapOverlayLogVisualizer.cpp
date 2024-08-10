@@ -16,6 +16,8 @@
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../render/EFont.h"
+#include "../render/IFont.h"
+#include "../render/Graphics.h"
 #include "../gui/TextAlignment.h"
 
 
@@ -49,9 +51,13 @@ void MapOverlayLogVisualizer::drawLine(int3 start, int3 end)
 	}
 }
 
-void MapOverlayLogVisualizer::drawText(int3 tile, std::vector<std::string> texts)
+void MapOverlayLogVisualizer::drawText(
+	int3 tile,
+	int lineNumber,
+	std::string text,
+	std::optional<ColorRGBA> background)
 {
-	const Point offset = Point(5, 5);
+	const Point offset = Point(6, 6);
 
 	auto level = model->getLevel();
 
@@ -61,8 +67,28 @@ void MapOverlayLogVisualizer::drawText(int3 tile, std::vector<std::string> texts
 	auto pStart = offset + model->getTargetTileArea(tile).topLeft();
 	auto viewPort = target.getRenderArea();
 
+	ColorRGBA color = Colors::YELLOW;
+	
+	if(background)
+	{
+		color = ((background->b + background->r + background->g) < 300)
+			? Colors::WHITE
+			: Colors::BLACK;
+	}
+
 	if(viewPort.isInside(pStart))
 	{
-		target.drawText(pStart, EFonts::FONT_TINY, Colors::YELLOW, ETextAlignment::TOPCENTER, texts);
+		int w = graphics->fonts[EFonts::FONT_TINY]->getStringWidth(text);
+		int h = graphics->fonts[EFonts::FONT_TINY]->getLineHeight();
+
+		pStart.y += h * lineNumber;
+
+		if(background)
+		{
+			target.drawColor(Rect(pStart, Point(w + 4, h)), *background);
+			pStart.x += 2;
+		}
+
+		target.drawText(pStart, EFonts::FONT_TINY, color, ETextAlignment::TOPLEFT, text);
 	}
 }

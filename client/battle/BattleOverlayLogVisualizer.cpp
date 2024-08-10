@@ -16,7 +16,9 @@
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../render/EFont.h"
+#include "../render/IFont.h"
 #include "../gui/TextAlignment.h"
+#include "../render/Graphics.h"
 
 BattleOverlayLogVisualizer::BattleOverlayLogVisualizer(
 	BattleRenderer::RendererRef & target,
@@ -25,9 +27,12 @@ BattleOverlayLogVisualizer::BattleOverlayLogVisualizer(
 {
 }
 
-void BattleOverlayLogVisualizer::drawText(BattleHex hex, std::vector<std::string> texts)
+void BattleOverlayLogVisualizer::drawText(BattleHex hex, int lineNumber, std::string text)
 {
-	const Point offset = owner.fieldController->hexPositionLocal(hex).topLeft() + Point(20, 20);
+	Point offset = owner.fieldController->hexPositionLocal(hex).topLeft() + Point(20, 20);
+	int h = graphics->fonts[EFonts::FONT_TINY]->getLineHeight();
 
-	target.drawText(offset, EFonts::FONT_TINY, Colors::RED, ETextAlignment::TOPCENTER, texts);
+	offset.y += h * lineNumber;
+
+	target.drawText(offset, EFonts::FONT_TINY, Colors::YELLOW, ETextAlignment::TOPCENTER, text);
 }

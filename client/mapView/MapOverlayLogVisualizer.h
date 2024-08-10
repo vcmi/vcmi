@@ -29,5 +29,5 @@ private:
 public:
 	MapOverlayLogVisualizer(Canvas & target, std::shared_ptr<MapViewModel> model);
 	void drawLine(int3 start, int3 end) override;
-	void drawText(int3 tile, std::vector<std::string> texts) override;
+	void drawText(int3 tile, int lineNumber, std::string text, std::optional<ColorRGBA> color) override;
 };

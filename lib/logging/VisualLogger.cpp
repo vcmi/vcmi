@@ -37,16 +37,19 @@ void VisualLogger::visualize(IMapOverlayLogVisualizer & visulizer)
 		visulizer.drawLine(line.start, line.end);
 	}
 
-	std::map<int3, std::vector<std::string>> textMap;
+	std::map<int3, std::vector<Text<int3>>> textMap;
 
 	for(auto line : mapTexts[keyToShow])
 	{
-		textMap[line.tile].push_back(line.text);
+		textMap[line.tile].push_back(line);
 	}
 
 	for(auto & pair : textMap)
 	{
-		visulizer.drawText(pair.first, pair.second);
+		for(int i = 0; i < pair.second.size(); i++)
+		{
+			visulizer.drawText(pair.first, i, pair.second[i].text, pair.second[i].background);
+		}
 	}
 }
 
@@ -62,13 +65,51 @@ void VisualLogger::visualize(IBattleOverlayLogVisualizer & visulizer)
 
 	for(auto & pair : textMap)
 	{
-		visulizer.drawText(pair.first, pair.second);
+		for(int i = 0; i < pair.second.size(); i++)
+		{
+			visulizer.drawText(pair.first, i, pair.second[i]);
+		}
 	}
 }
 
 void VisualLogger::setKey(std::string key)
 {
 	keyToShow = key;
+}
+
+void IVisualLogBuilder::addText(int3 tile, std::string text, PlayerColor background)
+{
+	std::optional<ColorRGBA> rgbColor;
+
+	switch(background)
+	{
+	case 0:
+		rgbColor = ColorRGBA(255, 0, 0);
+		break;
+	case 1:
+		rgbColor = ColorRGBA(0, 0, 255);
+		break;
+	case 2:
+		rgbColor = ColorRGBA(128, 128, 128);
+		break;
+	case 3:
+		rgbColor = ColorRGBA(0, 255, 0);
+		break;
+	case 4:
+		rgbColor = ColorRGBA(255, 128, 0);
+		break;
+	case 5:
+		rgbColor = ColorRGBA(128, 0, 128);
+		break;
+	case 6:
+		rgbColor = ColorRGBA(0, 255, 255);
+		break;
+	case 7:
+		rgbColor = ColorRGBA(255, 128, 255);
+		break;
+	}
+
+	addText(tile, text, rgbColor);
 }
 
 VCMI_LIB_NAMESPACE_END
