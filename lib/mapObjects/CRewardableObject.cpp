@@ -181,7 +181,7 @@ void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 	grantRewardAfterLevelup(cb, configuration.info.at(selectedReward), this, hero);
 }
 
-void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer == 0)
 	{

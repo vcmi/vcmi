@@ -63,7 +63,7 @@ public:
 	void heroLevelUpDone(const CGHeroInstance *hero) const override;
 
 	/// applies player selection of reward
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	void initObj(vstd::RNG & rand) override;
 	

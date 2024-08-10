@@ -15,6 +15,9 @@ namespace Ui {
 class EventSettings;
 }
 
+QVariant toVariant(const TResources & resources);
+TResources resourcesFromVariant(const QVariant & v);
+
 class EventSettings : public AbstractSettings
 {
 	Q_OBJECT
