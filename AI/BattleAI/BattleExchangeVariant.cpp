@@ -30,99 +30,88 @@ float BattleExchangeVariant::trackAttack(
 {
 	auto attacker = hb->getForUpdate(ap.attack.attacker->unitId());
 
-	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
-	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
-	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
-
-	float attackValue = 0;
+	float attackValue = ap.attackValue();
 	auto affectedUnits = ap.affectedUnits;
+
+	dpsScore.ourDamageReduce += ap.attackerDamageReduce + ap.collateralDamageReduce;
+	dpsScore.enemyDamageReduce += ap.defenderDamageReduce + ap.shootersBlockedDmg;
+	attackerValue[attacker->unitId()].value = attackValue;
 
 	affectedUnits.push_back(ap.attackerState);
 
 	for(auto affectedUnit : affectedUnits)
 	{
 		auto unitToUpdate = hb->getForUpdate(affectedUnit->unitId());
+		auto damageDealt = unitToUpdate->getTotalHealth() - affectedUnit->getTotalHealth();
+
+		if(damageDealt > 0)
+		{
+			unitToUpdate->damage(damageDealt);
+		}
 
 		if(unitToUpdate->unitSide() == attacker->unitSide())
 		{
 			if(unitToUpdate->unitId() == attacker->unitId())
 			{
-				auto defender = hb->getForUpdate(ap.attack.defender->unitId());
-
-				if(!defender->alive() || counterAttacksBlocked || ap.attack.shooting || !defender->ableToRetaliate())
-					continue;
-
-				auto retaliationDamage = damageCache.getDamage(defender.get(), unitToUpdate.get(), hb);
-				auto attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), unitToUpdate.get(), retaliationDamage, damageCache, hb);
-
-				attackValue -= attackerDamageReduce;
-				dpsScore.ourDamageReduce += attackerDamageReduce;
-				attackerValue[unitToUpdate->unitId()].isRetaliated = true;
-
-				unitToUpdate->damage(retaliationDamage);
-				defender->afterAttack(false, true);
+				unitToUpdate->afterAttack(ap.attack.shooting, false);
 
 #if BATTLE_TRACE_LEVEL>=1
 				logAi->trace(
-					"%s -> %s, ap retaliation, %s, dps: %2f, score: %2f",
-					defender->getDescription(),
-					unitToUpdate->getDescription(),
+					"%s -> %s, ap retaliation, %s, dps: %lld",
+					ap.attack.defender->getDescription(),
+					ap.attack.attacker->getDescription(),
 					ap.attack.shooting ? "shot" : "mellee",
-					retaliationDamage,
-					attackerDamageReduce);
+					damageDealt);
 #endif
 			}
 			else
 			{
-				auto collateralDamage = damageCache.getDamage(attacker.get(), unitToUpdate.get(), hb);
-				auto collateralDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), unitToUpdate.get(), collateralDamage, damageCache, hb);
-
-				attackValue -= collateralDamageReduce;
-				dpsScore.ourDamageReduce += collateralDamageReduce;
-
-				unitToUpdate->damage(collateralDamage);
-
 #if BATTLE_TRACE_LEVEL>=1
 				logAi->trace(
-					"%s -> %s, ap collateral, %s, dps: %2f, score: %2f",
-					attacker->getDescription(),
+					"%s, ap collateral, dps: %lld",
 					unitToUpdate->getDescription(),
-					ap.attack.shooting ? "shot" : "mellee",
-					collateralDamage,
-					collateralDamageReduce);
+					damageDealt);
 #endif
 			}
 		}
 		else
 		{
-			int64_t attackDamage = damageCache.getDamage(attacker.get(), unitToUpdate.get(), hb);
-			float defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), unitToUpdate.get(), attackDamage, damageCache, hb);
-
-			attackValue += defenderDamageReduce;
-			dpsScore.enemyDamageReduce += defenderDamageReduce;
-			attackerValue[attacker->unitId()].value += defenderDamageReduce;
-
-			unitToUpdate->damage(attackDamage);
+			if(unitToUpdate->unitId() == ap.attack.defender->unitId())
+			{
+				if(unitToUpdate->ableToRetaliate() && !affectedUnit->ableToRetaliate())
+				{
+					unitToUpdate->afterAttack(ap.attack.shooting, true);
+				}
 
 #if BATTLE_TRACE_LEVEL>=1
-			logAi->trace(
-				"%s -> %s, ap attack, %s, dps: %2f, score: %2f",
-				attacker->getDescription(),
-				unitToUpdate->getDescription(),
-				ap.attack.shooting ? "shot" : "mellee",
-				attackDamage,
-				defenderDamageReduce);
+				logAi->trace(
+					"%s -> %s, ap attack, %s, dps: %lld",
+					attacker->getDescription(),
+					ap.attack.defender->getDescription(),
+					ap.attack.shooting ? "shot" : "mellee",
+					damageDealt);
 #endif
+			}
+			else
+			{
+#if BATTLE_TRACE_LEVEL>=1
+				logAi->trace(
+					"%s, ap enemy collateral, dps: %lld",
+					unitToUpdate->getDescription(),
+					damageDealt);
+#endif
+			}
 		}
 	}
 
 #if BATTLE_TRACE_LEVEL >= 1
-	logAi->trace("ap shooters blocking: %lld", ap.shootersBlockedDmg);
+	logAi->trace(
+		"ap score: our: %2f, enemy: %2f, collateral: %2f, blocked: %2f",
+		ap.attackerDamageReduce,
+		ap.defenderDamageReduce,
+		ap.collateralDamageReduce,
+		ap.shootersBlockedDmg);
 #endif
-
-	attackValue += ap.shootersBlockedDmg;
-	dpsScore.enemyDamageReduce += ap.shootersBlockedDmg;
-	attacker->afterAttack(ap.attack.shooting, false);
 
 	return attackValue;
 }
@@ -230,6 +219,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 		auto hbWaited = std::make_shared<HypotheticBattle>(env.get(), hb);
 
+		hbWaited->resetActiveUnit();
 		hbWaited->getForUpdate(activeStack->unitId())->waiting = true;
 		hbWaited->getForUpdate(activeStack->unitId())->waitedThisTurn = true;
 
@@ -259,6 +249,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	updateReachabilityMap(hb);
 
 	if(result.bestAttack.attack.shooting
+		&& !result.bestAttack.defenderDead
 		&& !activeStack->waited()
 		&& hb->battleHasShootingPenalty(activeStack, result.bestAttack.dest))
 	{
@@ -269,8 +260,9 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	for(auto & ap : targets.possibleAttacks)
 	{
 		float score = evaluateExchange(ap, 0, targets, damageCache, hb);
+		bool sameScoreButWaited = vstd::isAlmostEqual(score, result.score) && result.wait;
 
-		if(score > result.score || (vstd::isAlmostEqual(score, result.score) && result.wait))
+		if(score > result.score || sameScoreButWaited)
 		{
 			result.score = score;
 			result.bestAttack = ap;
@@ -739,7 +731,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 {
 	std::vector<const battle::Unit *> result;
 
-	for(int i = 0; i < turnOrder.size(); i++, turn++)
+	for(int i = 0; i < turnOrder.size(); i++)
 	{
 		auto & turnQueue = turnOrder[i];
 		HypotheticBattle turnBattle(env.get(), cb);
