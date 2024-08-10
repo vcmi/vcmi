@@ -29,6 +29,7 @@
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/serializer/Connection.h"
+#include "../lib/VCMIDirs.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
 	:gameHandler(gameHandler)
@@ -133,12 +134,30 @@ void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vect
 		broadcastSystemMessage("No cheaters registered!");
 }
 
+void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vector<std::string> & words)
+{
+	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	if(!isHost)
+		return;
+
+	const boost::filesystem::path outPath = VCMIDirs::get().userCachePath() / "statistic";
+	boost::filesystem::create_directories(outPath);
+
+	const boost::filesystem::path filePath = outPath / (vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".csv");
+	std::ofstream file(filePath.c_str());
+	std::string csv = gameHandler->gameState()->statistic.toCsv();
+	file << csv;
+
+	broadcastSystemMessage("Statistic files can be found in " + outPath.string() + " directory\n");
+}
+
 void PlayerMessageProcessor::commandHelp(PlayerColor player, const std::vector<std::string> & words)
 {
 	broadcastSystemMessage("Available commands to host:");
 	broadcastSystemMessage("'!exit' - immediately ends current game");
 	broadcastSystemMessage("'!kick <player>' - kick specified player from the game");
 	broadcastSystemMessage("'!save <filename>' - save game under specified filename");
+	broadcastSystemMessage("'!statistic' - save game statistics as csv file");
 	broadcastSystemMessage("Available commands to all players:");
 	broadcastSystemMessage("'!help' - display this help");
 	broadcastSystemMessage("'!cheaters' - list players that entered cheat command during game");
@@ -319,6 +338,8 @@ void PlayerMessageProcessor::handleCommand(PlayerColor player, const std::string
 		commandSave(player, words);
 	if(words[0] == "!cheaters")
 		commandCheaters(player, words);
+	if(words[0] == "!statistic")
+		commandStatistic(player, words);
 }
 
 void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroInstance * hero)

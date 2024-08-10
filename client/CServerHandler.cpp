@@ -35,6 +35,7 @@
 #include "../lib/TurnTimerInfo.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/gameState/HighScore.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -672,39 +673,9 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	setState(EClientState::GAMEPLAY);
 }
 
-HighScoreParameter CServerHandler::prepareHighScores(PlayerColor player, bool victory)
-{
-	const auto * gs = client->gameState();
-	const auto * playerState = gs->getPlayerState(player);
-
-	HighScoreParameter param;
-	param.difficulty = gs->getStartInfo()->difficulty;
-	param.day = gs->getDate();
-	param.townAmount = gs->howManyTowns(player);
-	param.usedCheat = gs->getPlayerState(player)->cheated;
-	param.hasGrail = false;
-	for(const CGHeroInstance * h : playerState->heroes)
-		if(h->hasArt(ArtifactID::GRAIL))
-			param.hasGrail = true;
-	for(const CGTownInstance * t : playerState->towns)
-		if(t->builtBuildings.count(BuildingID::GRAIL))
-			param.hasGrail = true;
-	param.allEnemiesDefeated = true;
-	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)
-	{
-		auto ps = gs->getPlayerState(otherPlayer, false);
-		if(ps && otherPlayer != player && !ps->checkVanquished())
-			param.allEnemiesDefeated = false;
-	}
-	param.scenarioName = gs->getMapHeader()->name.toString();
-	param.playerName = gs->getStartInfo()->playerInfos.find(player)->second.name;
-
-	return param;
-}
-
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory)
 {
-	HighScoreParameter param = prepareHighScores(player, victory);
+	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
 
 	if(victory && client->gameState()->getStartInfo()->campState)
 	{

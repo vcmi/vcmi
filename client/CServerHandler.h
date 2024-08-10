@@ -40,8 +40,6 @@ class GlobalLobbyClient;
 class GameChatHandler;
 class IServerRunner;
 
-class HighScoreCalculation;
-
 enum class ESelectionScreen : ui8;
 enum class ELoadMode : ui8;
 
@@ -127,8 +125,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	ui16 serverPort;
 
 	bool isServerLocal() const;
-
-	HighScoreParameter prepareHighScores(PlayerColor player, bool victory);
 
 public:
 	/// High-level connection overlay that is capable of (de)serializing network data

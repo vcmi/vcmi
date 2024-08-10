@@ -875,7 +875,7 @@ void CGameState::initTowns()
 		}
 		//init spells
 		vti->spells.resize(GameConstants::SPELL_LEVELS);
-
+		vti->possibleSpells -= SpellID::PRESET;
 		for(ui32 z=0; z<vti->obligatorySpells.size();z++)
 		{
 			const auto * s = vti->obligatorySpells[z].toSpell();
@@ -1538,137 +1538,6 @@ bool CGameState::checkForStandardLoss(const PlayerColor & player) const
 	return pState.checkVanquished();
 }
 
-struct statsHLP
-{
-	using TStat = std::pair<PlayerColor, si64>;
-	//converts [<player's color, value>] to vec[place] -> platers
-	static std::vector< std::vector< PlayerColor > > getRank( std::vector<TStat> stats )
-	{
-		std::sort(stats.begin(), stats.end(), statsHLP());
-
-		//put first element
-		std::vector< std::vector<PlayerColor> > ret;
-		std::vector<PlayerColor> tmp;
-		tmp.push_back( stats[0].first );
-		ret.push_back( tmp );
-
-		//the rest of elements
-		for(int g=1; g<stats.size(); ++g)
-		{
-			if(stats[g].second == stats[g-1].second)
-			{
-				(ret.end()-1)->push_back( stats[g].first );
-			}
-			else
-			{
-				//create next occupied rank
-				std::vector<PlayerColor> tmp;
-				tmp.push_back(stats[g].first);
-				ret.push_back(tmp);
-			}
-		}
-
-		return ret;
-	}
-
-	bool operator()(const TStat & a, const TStat & b) const
-	{
-		return a.second > b.second;
-	}
-
-	static const CGHeroInstance * findBestHero(CGameState * gs, const PlayerColor & color)
-	{
-		std::vector<ConstTransitivePtr<CGHeroInstance> > &h = gs->players[color].heroes;
-		if(h.empty())
-			return nullptr;
-		//best hero will be that with highest exp
-		int best = 0;
-		for(int b=1; b<h.size(); ++b)
-		{
-			if(h[b]->exp > h[best]->exp)
-			{
-				best = b;
-			}
-		}
-		return h[best];
-	}
-
-	//calculates total number of artifacts that belong to given player
-	static int getNumberOfArts(const PlayerState * ps)
-	{
-		int ret = 0;
-		for(auto h : ps->heroes)
-		{
-			ret += (int)h->artifactsInBackpack.size() + (int)h->artifactsWorn.size();
-		}
-		return ret;
-	}
-
-	// get total strength of player army
-	static si64 getArmyStrength(const PlayerState * ps)
-	{
-		si64 str = 0;
-
-		for(auto h : ps->heroes)
-		{
-			if(!h->inTownGarrison)		//original h3 behavior
-				str += h->getArmyStrength();
-		}
-		return str;
-	}
-
-	// get total gold income
-	static int getIncome(const PlayerState * ps, int percentIncome)
-	{
-		int totalIncome = 0;
-		const CGObjectInstance * heroOrTown = nullptr;
-
-		//Heroes can produce gold as well - skill, specialty or arts
-		for(const auto & h : ps->heroes)
-		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD)))) * percentIncome / 100;
-
-			if(!heroOrTown)
-				heroOrTown = h;
-		}
-
-		//Add town income of all towns
-		for(const auto & t : ps->towns)
-		{
-			totalIncome += t->dailyIncome()[EGameResID::GOLD];
-
-			if(!heroOrTown)
-				heroOrTown = t;
-		}
-
-		/// FIXME: Dirty dirty hack
-		/// Stats helper need some access to gamestate.
-		std::vector<const CGObjectInstance *> ownedObjects;
-		for(const CGObjectInstance * obj : heroOrTown->cb->gameState()->map->objects)
-		{
-			if(obj && obj->tempOwner == ps->color)
-				ownedObjects.push_back(obj);
-		}
-		/// This is code from CPlayerSpecificInfoCallback::getMyObjects
-		/// I'm really need to find out about callback interface design...
-
-		for(const auto * object : ownedObjects)
-		{
-			//Mines
-			if ( object->ID == Obj::MINE )
-			{
-				const auto * mine = dynamic_cast<const CGMine *>(object);
-				assert(mine);
-
-				if (mine->producedResource == EGameResID::GOLD)
-					totalIncome += mine->getProducedQuantity();
-			}
-		}
-
-		return totalIncome;
-	}
-};
-
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 {
 	auto playerInactive = [&](const PlayerColor & color) 
@@ -1688,7 +1557,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			stat.second = VAL_GETTER; \
 			stats.push_back(stat); \
 		} \
-		tgi.FIELD = statsHLP::getRank(stats); \
+		tgi.FIELD = Statistic::getRank(stats); \
 	}
 
 	for(auto & elem : players)
@@ -1710,7 +1579,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		{
 			if(playerInactive(player.second.color))
 				continue;
-			const CGHeroInstance * best = statsHLP::findBestHero(this, player.second.color);
+			const CGHeroInstance * best = Statistic::findBestHero(this, player.second.color);
 			InfoAboutHero iah;
 			iah.initFromHero(best, (level >= 2) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC);
 			iah.army.clear();
@@ -1731,27 +1600,19 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 3) //obelisks found
 	{
-		auto getObeliskVisited = [&](const TeamID & t)
-		{
-			if(map->obelisksVisited.count(t))
-				return map->obelisksVisited[t];
-			else
-				return ui8(0);
-		};
-
-		FILL_FIELD(obelisks, getObeliskVisited(gs->getPlayerTeam(g->second.color)->id))
+		FILL_FIELD(obelisks, Statistic::getObeliskVisited(gs, gs->getPlayerTeam(g->second.color)->id))
 	}
 	if(level >= 4) //artifacts
 	{
-		FILL_FIELD(artifacts, statsHLP::getNumberOfArts(&g->second))
+		FILL_FIELD(artifacts, Statistic::getNumberOfArts(&g->second))
 	}
 	if(level >= 4) //army strength
 	{
-		FILL_FIELD(army, statsHLP::getArmyStrength(&g->second))
+		FILL_FIELD(army, Statistic::getArmyStrength(&g->second))
 	}
 	if(level >= 5) //income
 	{
-		FILL_FIELD(income, statsHLP::getIncome(&g->second, scenarioOps->getIthPlayersSettings(g->second.color).handicap.percentIncome))
+		FILL_FIELD(income, Statistic::getIncome(gs, &g->second))
 	}
 	if(level >= 2) //best hero's stats
 	{

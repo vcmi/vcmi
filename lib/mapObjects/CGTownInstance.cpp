@@ -281,7 +281,7 @@ void CGTownInstance::setOwner(const PlayerColor & player) const
 	cb->setOwner(this, player);
 }
 
-void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	for (auto building : bonusingBuildings)
 		building->blockingDialogAnswered(hero, answer);
@@ -1220,6 +1220,12 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		handler.serializeIdArray( "possibleSpells", possibleSpells);
 		handler.serializeIdArray( "obligatorySpells", obligatorySpells);
+	}
+
+	{
+		auto eventsHandler = handler.enterArray("events");
+		eventsHandler.syncSize(events, JsonNode::JsonType::DATA_VECTOR);
+		eventsHandler.serializeStruct(events);
 	}
 }
 

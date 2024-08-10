@@ -21,16 +21,6 @@ class CFilledTexture;
 
 class TransparentFilledRectangle;
 
-class HighScoreCalculation
-{
-public:
-	std::vector<HighScoreParameter> parameters;
-	bool isCampaign = false;
-
-	auto calculate();
-	static CreatureID getCreatureForPoints(int points, bool campaign);
-};
-
 class CHighScoreScreen : public CWindowObject
 {
 public:
