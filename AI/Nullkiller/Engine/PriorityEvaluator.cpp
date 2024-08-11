@@ -1210,7 +1210,7 @@ public:
 				evaluationContext.armyReward += potentialUpgradeValue / (float)bi.prerequisitesCount;
 			}
 			int sameTownBonus = 0;
-			for (auto town : cb->getTownsInfo())
+			for (auto town : evaluationContext.evaluator.ai->cb->getTownsInfo())
 			{
 				if (buildThis.town->getFaction() == town->getFaction())
 					sameTownBonus+=town->getTownLevel();
@@ -1225,7 +1225,7 @@ public:
 		else if(bi.id >= BuildingID::MAGES_GUILD_1 && bi.id <= BuildingID::MAGES_GUILD_5)
 		{
 			evaluationContext.skillReward += 2 * (bi.id - BuildingID::MAGES_GUILD_1);
-			for (auto hero : cb->getHeroesInfo())
+			for (auto hero : evaluationContext.evaluator.ai->cb->getHeroesInfo())
 			{
 				evaluationContext.armyInvolvement += hero->getArmyCost();
 			}
