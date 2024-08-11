@@ -2497,6 +2497,25 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	return true;
 }
 
+bool CGameHandler::triggerTownSpecialBuildingAction(ObjectInstanceID tid, BuildingSubID::EBuildingSubID sid)
+{
+	const CGTownInstance * t = getTown(tid);
+
+	if(t->town->getBuildingType(sid) == BuildingID::NONE)
+		return false;
+
+	if(sid == BuildingSubID::EBuildingSubID::BANK)
+	{
+		TResources res;
+		res[EGameResID::GOLD] = 2500;
+		giveResources(t->getOwner(), res);
+
+		setObjPropertyValue(t->id, ObjProperty::BONUS_VALUE_SECOND, 2500);
+	}
+
+	return true;
+}
+
 bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 {
 ///incomplete, simply erases target building

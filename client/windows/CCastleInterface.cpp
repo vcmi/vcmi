@@ -814,6 +814,10 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						enterAnyThievesGuild();
 						break;
 
+				case BuildingSubID::BANK:
+						enterBank();
+						break;
+
 				default:
 						enterBuilding(building);
 						break;
@@ -1052,6 +1056,21 @@ void CCastleBuildings::enterAnyThievesGuild()
 		}
 	}
 	LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
+}
+
+void CCastleBuildings::enterBank()
+{
+	std::vector<std::shared_ptr<CComponent>> components;
+	if(town->bonusValue.second > 0)
+	{
+		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE_PER_DAY, GameResID(GameResID::GOLD), -500));
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.townStructure.bank.payBack"), components);
+	}
+	else{
+	
+		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID(GameResID::GOLD), 2500));
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.townStructure.bank.borrow"), [this](){ LOCPLINT->cb->triggerTownSpecialBuildingAction(town, BuildingSubID::BANK); }, nullptr, components);
+	}
 }
 
 void CCastleBuildings::enterAnyMarket()
