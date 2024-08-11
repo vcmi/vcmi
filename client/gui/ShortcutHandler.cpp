@@ -281,6 +281,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"highScoresCampaigns",      EShortcut::HIGH_SCORES_CAMPAIGNS     },
 		{"highScoresScenarios",      EShortcut::HIGH_SCORES_SCENARIOS     },
 		{"highScoresReset",          EShortcut::HIGH_SCORES_RESET         },
+		{"highScoresStatistic",      EShortcut::HIGH_SCORES_STATISTIC     },
 		{"lobbyReplayVideo",         EShortcut::LOBBY_REPLAY_VIDEO        },
 		{"lobbyExtraOptions",        EShortcut::LOBBY_EXTRA_OPTIONS       },
 		{"lobbyTurnOptions",         EShortcut::LOBBY_TURN_OPTIONS        },

@@ -16,8 +16,8 @@ class FilledTexturePlayerColored;
 class CStatisticScreen : public CWindowObject
 {
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
+
+	std::vector<std::shared_ptr<CIntObject>> layout;
 public:
 	CStatisticScreen(StatisticDataSet statistic);
-	
-	void clickPressed(const Point & cursorPosition) override;
 };
