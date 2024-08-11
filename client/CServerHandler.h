@@ -13,6 +13,7 @@
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
+#include "../lib/gameState/GameStatistics.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -39,8 +40,6 @@ class CBaseForLobbyApply;
 class GlobalLobbyClient;
 class GameChatHandler;
 class IServerRunner;
-
-class StatisticDataSet;
 
 enum class ESelectionScreen : ui8;
 enum class ELoadMode : ui8;
