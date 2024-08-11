@@ -25,8 +25,8 @@
 #include "../../lib/gameState/GameStatistics.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-CStatisticScreen::CStatisticScreen(StatisticDataSet statistic)
-	: CWindowObject(BORDERED)
+CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
+	: CWindowObject(BORDERED), statistic(stat)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos = center(Rect(0, 0, 800, 600));

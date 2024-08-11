@@ -18,6 +18,8 @@ class CStatisticScreen : public CWindowObject
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 
 	std::vector<std::shared_ptr<CIntObject>> layout;
+
+	StatisticDataSet statistic;
 public:
-	CStatisticScreen(StatisticDataSet statistic);
+	CStatisticScreen(StatisticDataSet stat);
 };
