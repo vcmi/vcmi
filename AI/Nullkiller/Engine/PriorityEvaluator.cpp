@@ -57,6 +57,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	threat(0),
 	armyGrowth(0),
 	armyInvolvement(0),
+	defenseValue(0),
 	isDefend(false),
 	involvesSailing(false),
 	isTradeBuilding(false)
@@ -999,6 +1000,7 @@ public:
 		else
 			evaluationContext.addNonCriticalStrategicalValue(1.7f * multiplier * strategicalValue);
 
+		evaluationContext.defenseValue = town->fortLevel();
 		evaluationContext.isDefend = true;
 
 		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
@@ -1207,6 +1209,13 @@ public:
 				evaluationContext.addNonCriticalStrategicalValue(potentialUpgradeValue / 10000.0f / (float)bi.prerequisitesCount);
 				evaluationContext.armyReward += potentialUpgradeValue / (float)bi.prerequisitesCount;
 			}
+			int sameTownBonus = 0;
+			for (auto town : cb->getTownsInfo())
+			{
+				if (buildThis.town->getFaction() == town->getFaction())
+					sameTownBonus+=town->getTownLevel();
+			}
+			evaluationContext.armyReward *= sameTownBonus;
 		}
 		else if(bi.id == BuildingID::CITADEL || bi.id == BuildingID::CASTLE)
 		{
@@ -1216,6 +1225,10 @@ public:
 		else if(bi.id >= BuildingID::MAGES_GUILD_1 && bi.id <= BuildingID::MAGES_GUILD_5)
 		{
 			evaluationContext.skillReward += 2 * (bi.id - BuildingID::MAGES_GUILD_1);
+			for (auto hero : cb->getHeroesInfo())
+			{
+				evaluationContext.armyInvolvement += hero->getArmyCost();
+			}
 		}
 		
 		if(evaluationContext.goldReward)
@@ -1365,9 +1378,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			case 0: //Take towns
 			{
 				//score += evaluationContext.conquestValue * 1000;
-				if(evaluationContext.conquestValue > 0 || (evaluationContext.isDefend && evaluationContext.turn <= 1 && evaluationContext.threat > evaluationContext.armyInvolvement))
+				if(evaluationContext.conquestValue > 0 || (evaluationContext.defenseValue >= CGTownInstance::EFortLevel::CITADEL && evaluationContext.turn <= 1 && evaluationContext.threat > evaluationContext.armyInvolvement))
 					score = 1000;
-				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 0.5 && evaluationContext.turn > 0 && !ai->cb->getTownsInfo().empty()))
+				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.turn > 0 && !ai->cb->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
@@ -1378,7 +1391,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case 1: //Collect unguarded stuff
 			{
-				if (evaluationContext.enemyHeroDangerRatio > 0.5 && !evaluationContext.isDefend)
+				if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend)
 					return 0;
 				if (evaluationContext.isDefend && evaluationContext.enemyHeroDangerRatio == 0)
 					return 0;
@@ -1408,7 +1421,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case 2: //Collect guarded stuff
 			{
-				if (evaluationContext.enemyHeroDangerRatio > 0.5 && !evaluationContext.isDefend)
+				if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend)
 					return 0;
 				if (evaluationContext.buildingCost.marketValue() > 0)
 					return 0;
@@ -1445,7 +1458,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					if (!evaluationContext.isTradeBuilding && ai->getFreeResources()[EGameResID::WOOD] - evaluationContext.buildingCost[EGameResID::WOOD] < 5 && ai->buildAnalyzer->getDailyIncome()[EGameResID::WOOD] < 1)
 					{
 						logAi->trace("Should make sure to build market-place instead of %s", task->toString());
-						for (auto town : cb->getTownsInfo())
+						for (auto town : ai->cb->getTownsInfo())
 						{
 							if (!town->hasBuiltSomeTradeBuilding())
 								return 0;
@@ -1468,7 +1481,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				}
 				else
 				{
-					if (evaluationContext.enemyHeroDangerRatio > 0.5 && !evaluationContext.isDefend)
+					if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend && evaluationContext.conquestValue == 0)
 						return 0;
 				}
 				break;

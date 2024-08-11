@@ -73,6 +73,7 @@ struct DLL_EXPORT EvaluationContext
 	float enemyHeroDangerRatio;
 	float threat;
 	float armyInvolvement;
+	int defenseValue;
 	bool isDefend;
 	TResources buildingCost;
 	bool involvesSailing;
