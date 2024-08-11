@@ -207,8 +207,11 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
 	}
 
-	statisticButton = std::make_shared<CButton>(Point(736, 0), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistic")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTIC);
-	texts.push_back(std::make_shared<CMultiLineLabel>(Rect(0, 0, 726, 32), FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistic") + ":"));
+	if (settings["general"]["enableUiEnhancements"].Bool())
+	{
+		statisticButton = std::make_shared<CButton>(Point(736, 0), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistic")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTIC);
+		texts.push_back(std::make_shared<CMultiLineLabel>(Rect(0, 0, 726, 32), FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistic") + ":"));
+	}
 }
 
 int CHighScoreInputScreen::addEntry(std::string text) {
