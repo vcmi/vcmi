@@ -10,6 +10,7 @@
 #pragma once
 #include "../windows/CWindowObject.h"
 #include "../../lib/gameState/HighScore.h"
+#include "../../lib/gameState/GameStatistics.h"
 
 class CButton;
 class CLabel;
@@ -20,8 +21,6 @@ class VideoWidgetBase;
 class CFilledTexture;
 
 class TransparentFilledRectangle;
-
-class StatisticDataSet;
 
 class CHighScoreScreen : public CWindowObject
 {
@@ -79,6 +78,7 @@ class CHighScoreInputScreen : public CWindowObject
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	std::shared_ptr<CButton> statisticButton;
+	StatisticDataSet stat;
 
 	bool won;
 	HighScoreCalculation calc;

@@ -162,6 +162,8 @@
 	"vcmi.systemOptions.otherGroup" : "Andere Einstellungen", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Stadt-Bildschirm",
 
+	"vcmi.statisticWindow.statistic" : "Statistik",
+
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Vollbild (randlos)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Randloses Vollbild}\n\nWenn diese Option ausgewählt ist, wird VCMI im randlosen Vollbildmodus ausgeführt. In diesem Modus wird das Spiel immer dieselbe Auflösung wie der Desktop verwenden und die gewählte Auflösung ignorieren.",
 	"vcmi.systemOptions.fullscreenExclusive.hover"  : "Vollbild (exklusiv)",

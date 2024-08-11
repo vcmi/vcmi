@@ -11,6 +11,7 @@
 #include "StdInc.h"
 
 #include "CHighScoreScreen.h"
+#include "CStatisticScreen.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
@@ -172,7 +173,7 @@ void CHighScoreScreen::buttonExitClick()
 }
 
 CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc, StatisticDataSet statistic)
-	: CWindowObject(BORDERED), won(won), calc(calc)
+	: CWindowObject(BORDERED), won(won), calc(calc), stat(statistic)
 {
 	addUsedEvents(LCLICK | KEYBOARD);
 
@@ -206,8 +207,8 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
 	}
 
-	statisticButton = std::make_shared<CButton>(Point(736, 0), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip("bla"), [](){});
-	texts.push_back(std::make_shared<CMultiLineLabel>(Rect(0, 0, 726, 32), FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, "Statistik:"));
+	statisticButton = std::make_shared<CButton>(Point(736, 0), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistic")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); });
+	texts.push_back(std::make_shared<CMultiLineLabel>(Rect(0, 0, 726, 32), FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistic") + ":"));
 }
 
 int CHighScoreInputScreen::addEntry(std::string text) {

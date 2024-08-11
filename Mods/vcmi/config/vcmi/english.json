@@ -162,6 +162,8 @@
 	"vcmi.systemOptions.otherGroup" : "Other Settings", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Town Screen",
 
+	"vcmi.statisticWindow.statistic" : "Statistic",
+
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Fullscreen (borderless)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Borderless Fullscreen}\n\nIf selected, VCMI will run in borderless fullscreen mode. In this mode, game will always use same resolution as desktop, ignoring selected resolution.",
 	"vcmi.systemOptions.fullscreenExclusive.hover"  : "Fullscreen (exclusive)",
