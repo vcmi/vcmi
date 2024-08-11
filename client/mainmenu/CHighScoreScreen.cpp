@@ -33,6 +33,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/gameState/HighScore.h"
+#include "../../lib/gameState/GameStatistics.h"
 
 CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 	: CWindowObject(BORDERED), highscorepage(highscorepage), highlighted(highlighted)
@@ -170,7 +171,7 @@ void CHighScoreScreen::buttonExitClick()
 	close();
 }
 
-CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc)
+CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc, StatisticDataSet statistic)
 	: CWindowObject(BORDERED), won(won), calc(calc)
 {
 	addUsedEvents(LCLICK | KEYBOARD);
@@ -204,6 +205,9 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), VideoPath::builtin("LOSEGAME.SMK"), true, [this](){close();});
 		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
 	}
+
+	statisticButton = std::make_shared<CButton>(Point(736, 0), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip("bla"), [](){});
+	texts.push_back(std::make_shared<CMultiLineLabel>(Rect(0, 0, 726, 32), FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, "Statistik:"));
 }
 
 int CHighScoreInputScreen::addEntry(std::string text) {
@@ -253,6 +257,9 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 {
+	if(statisticButton->pos.isInside(cursorPosition))
+		return;
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	if(!won)

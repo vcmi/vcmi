@@ -21,6 +21,8 @@ class CFilledTexture;
 
 class TransparentFilledRectangle;
 
+class StatisticDataSet;
+
 class CHighScoreScreen : public CWindowObject
 {
 public:
@@ -76,10 +78,12 @@ class CHighScoreInputScreen : public CWindowObject
 	std::shared_ptr<VideoWidgetBase> videoPlayer;
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
+	std::shared_ptr<CButton> statisticButton;
+
 	bool won;
 	HighScoreCalculation calc;
 public:
-	CHighScoreInputScreen(bool won, HighScoreCalculation calc);
+	CHighScoreInputScreen(bool won, HighScoreCalculation calc, StatisticDataSet statistic);
 
 	int addEntry(std::string text);
 

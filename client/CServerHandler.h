@@ -40,6 +40,8 @@ class GlobalLobbyClient;
 class GameChatHandler;
 class IServerRunner;
 
+class StatisticDataSet;
+
 enum class ESelectionScreen : ui8;
 enum class ELoadMode : ui8;
 
@@ -204,11 +206,11 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
-	void showHighScoresAndEndGameplay(PlayerColor player, bool victory);
+	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, StatisticDataSet statistic);
 	void endNetwork();
 	void endGameplay();
 	void restartGameplay();
-	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});
+	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, StatisticDataSet statistic);
 	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle

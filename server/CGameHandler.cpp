@@ -3774,6 +3774,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		PlayerEndsGame peg;
 		peg.player = player;
 		peg.victoryLossCheckResult = victoryLossCheckResult;
+		peg.statistic = gameState()->statistic;
 		sendAndApply(&peg);
 
 		turnOrder->onPlayerEndsGame(player);
