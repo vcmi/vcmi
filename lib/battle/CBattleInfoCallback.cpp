@@ -110,9 +110,9 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 	}
 	const PlayerColor player = caster->getCasterOwner();
 	const auto side = playerToSide(player);
-	if(!side)
+	if(side == BattleSide::NONE)
 		return ESpellCastProblem::INVALID;
-	if(!battleDoWeKnowAbout(side.value()))
+	if(!battleDoWeKnowAbout(side))
 	{
 		logGlobal->warn("You can't check if enemy can cast given spell!");
 		return ESpellCastProblem::INVALID;
@@ -125,7 +125,7 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 	{
 	case spells::Mode::HERO:
 	{
-		if(battleCastSpells(side.value()) > 0)
+		if(battleCastSpells(side) > 0)
 			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
 
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(caster);
@@ -373,7 +373,7 @@ battle::Units CBattleInfoCallback::battleAliveUnits() const
 	});
 }
 
-battle::Units CBattleInfoCallback::battleAliveUnits(ui8 side) const
+battle::Units CBattleInfoCallback::battleAliveUnits(BattleSide side) const
 {
 	return battleGetUnitsIf([=](const battle::Unit * unit)
 	{
@@ -385,7 +385,7 @@ using namespace battle;
 
 //T is battle::Unit descendant
 template <typename T>
-const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, int8_t & sideThatLastMoved, int phase)
+const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, BattleSide & sideThatLastMoved, int phase)
 {
 	const T * returnedUnit = nullptr;
 	size_t currentUnitIndex = 0;
@@ -414,13 +414,13 @@ const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, int8_t &
 			}
 			else if(currentUnitInitiative == returnedUnitInitiative)
 			{
-				if(sideThatLastMoved == -1 && turn <= 0 && currentUnit->unitSide() == BattleSide::ATTACKER
+				if(sideThatLastMoved == BattleSide::NONE && turn <= 0 && currentUnit->unitSide() == BattleSide::ATTACKER
 					&& !(returnedUnit->unitSide() == currentUnit->unitSide() && returnedUnit->unitSlot() < currentUnit->unitSlot())) // Turn 0 attacker priority
 				{
 					returnedUnit = currentUnit;
 					currentUnitIndex = i;
 				}
-				else if(sideThatLastMoved != -1 && currentUnit->unitSide() != sideThatLastMoved
+				else if(sideThatLastMoved != BattleSide::NONE && currentUnit->unitSide() != sideThatLastMoved
 					&& !(returnedUnit->unitSide() == currentUnit->unitSide() && returnedUnit->unitSlot() < currentUnit->unitSlot())) // Alternate equal speeds units
 				{
 					returnedUnit = currentUnit;
@@ -435,7 +435,7 @@ const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, int8_t &
 				returnedUnit = currentUnit;
 				currentUnitIndex = i;
 			}
-			else if(currentUnitInitiative == returnedUnitInitiative && sideThatLastMoved != -1 && currentUnit->unitSide() != sideThatLastMoved
+			else if(currentUnitInitiative == returnedUnitInitiative && sideThatLastMoved != BattleSide::NONE && currentUnit->unitSide() != sideThatLastMoved
 				&& !(returnedUnit->unitSide() == currentUnit->unitSide() && returnedUnit->unitSlot() < currentUnit->unitSlot())) // Alternate equal speeds units
 			{
 				returnedUnit = currentUnit;
@@ -455,7 +455,7 @@ const T * takeOneUnit(std::vector<const T*> & allUnits, const int turn, int8_t &
 	return returnedUnit;
 }
 
-void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns, const size_t maxUnits, const int maxTurns, const int turn, int8_t sideThatLastMoved) const
+void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns, const size_t maxUnits, const int maxTurns, const int turn, BattleSide sideThatLastMoved) const
 {
 	RETURN_IF_NOT_BATTLE();
 
@@ -497,7 +497,7 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 
 		//its first or current turn, turn priority for active stack side
 		//TODO: what if active stack mind-controlled?
-		if(turn <= 0 && sideThatLastMoved < 0)
+		if(turn <= 0 && sideThatLastMoved == BattleSide::NONE)
 			sideThatLastMoved = activeUnit->unitSide();
 	}
 
@@ -557,7 +557,7 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 		}
 	}
 
-	if(sideThatLastMoved < 0)
+	if(sideThatLastMoved == BattleSide::NONE)
 		sideThatLastMoved = BattleSide::ATTACKER;
 
 	if(!turnsIsFull() && (maxTurns == 0 || turns.size() < maxTurns))
@@ -884,7 +884,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 				spellEnv.apply(&bocp);
 			};
 			const auto side = unit.unitSide();
-			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
+			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, side);
 			const auto * hero = battleGetFightingHero(spellObstacle->casterSide);
 			auto caster = spells::ObstacleCasterProxy(getBattle()->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
 
@@ -1095,7 +1095,7 @@ bool CBattleInfoCallback::isInObstacle(
 	return false;
 }
 
-std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const
+std::set<BattleHex> CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective) const
 {
 	std::set<BattleHex> ret;
 	RETURN_IF_NOT_BATTLE(ret);
@@ -1158,7 +1158,7 @@ std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(
 		return std::make_pair<const battle::Unit * , BattleHex>(nullptr, BattleHex::INVALID);
 }
 
-BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, ui8 side, int initialPos) const
+BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos) const
 {
 	bool twoHex = VLC->creatures()->getById(creID)->isDoubleWide();
 
@@ -1205,8 +1205,13 @@ bool CBattleInfoCallback::isInTacticRange(BattleHex dest) const
 	auto side = battleGetTacticsSide();
 	auto dist = battleGetTacticDist();
 
-	return ((!side && dest.getX() > 0 && dest.getX() <= dist)
-			|| (side && dest.getX() < GameConstants::BFIELD_WIDTH - 1 && dest.getX() >= GameConstants::BFIELD_WIDTH - dist - 1));
+	if (side == BattleSide::ATTACKER && dest.getX() > 0 && dest.getX() <= dist)
+		return true;
+
+	if (side == BattleSide::DEFENDER && dest.getX() < GameConstants::BFIELD_WIDTH - 1 && dest.getX() >= GameConstants::BFIELD_WIDTH - dist - 1)
+		return true;
+
+	return false;
 }
 
 ReachabilityInfo CBattleInfoCallback::getReachability(const battle::Unit * unit) const
@@ -1449,7 +1454,7 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	return attackedCres;
 }
 
-static bool isHexInFront(BattleHex hex, BattleHex testHex, BattleSide::Type side )
+static bool isHexInFront(BattleHex hex, BattleHex testHex, BattleSide side )
 {
 	static const std::set<BattleHex::EDir> rightDirs { BattleHex::BOTTOM_RIGHT, BattleHex::TOP_RIGHT, BattleHex::RIGHT };
 	static const std::set<BattleHex::EDir> leftDirs  { BattleHex::BOTTOM_LEFT, BattleHex::TOP_LEFT, BattleHex::LEFT };
@@ -1474,7 +1479,7 @@ bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battl
 	if (attackerHex < 0 ) //turret
 		return false;
 
-	if(isHexInFront(attackerHex, defenderHex, static_cast<BattleSide::Type>(attacker->unitSide())))
+	if(isHexInFront(attackerHex, defenderHex, attacker->unitSide()))
 		return false;
 
 	auto defenderOtherHex = defenderHex;
@@ -1484,7 +1489,7 @@ bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battl
 	{
 		defenderOtherHex = battle::Unit::occupiedHex(defenderHex, true, defender->unitSide());
 
-		if(isHexInFront(attackerHex, defenderOtherHex, static_cast<BattleSide::Type>(attacker->unitSide())))
+		if(isHexInFront(attackerHex, defenderOtherHex, attacker->unitSide()))
 			return false;
 	}
 
@@ -1492,7 +1497,7 @@ bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battl
 	{
 		attackerOtherHex = battle::Unit::occupiedHex(attackerHex, true, attacker->unitSide());
 
-		if(isHexInFront(attackerOtherHex, defenderHex, static_cast<BattleSide::Type>(attacker->unitSide())))
+		if(isHexInFront(attackerOtherHex, defenderHex, attacker->unitSide()))
 			return false;
 	}
 
@@ -1500,7 +1505,7 @@ bool CBattleInfoCallback::isToReverse(const battle::Unit * attacker, const battl
 	// but this is how H3 handles it which is important, e.g. for direction of dragon breath attacks
 	if (attacker->doubleWide() && defender->doubleWide())
 	{
-		if(isHexInFront(attackerOtherHex, defenderOtherHex, static_cast<BattleSide::Type>(attacker->unitSide())))
+		if(isHexInFront(attackerOtherHex, defenderOtherHex, attacker->unitSide()))
 			return false;
 	}
 	return true;
@@ -1759,7 +1764,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 		case SpellID::PROTECTION_FROM_FIRE:
 		case SpellID::PROTECTION_FROM_WATER:
 		{
-			const ui8 enemySide = 1 - subject->unitSide();
+			const BattleSide enemySide = otherSide(subject->unitSide());
 			//todo: only if enemy has spellbook
 			if (!battleHasHero(enemySide)) //only if there is enemy hero
 				continue;
@@ -1850,10 +1855,9 @@ int CBattleInfoCallback::battleGetSurrenderCost(const PlayerColor & Player) cons
 	if(!battleCanSurrender(Player))
 		return -1;
 
-	const auto sideOpt = playerToSide(Player);
-	if(!sideOpt)
+	const BattleSide side = playerToSide(Player);
+	if(side == BattleSide::NONE)
 		return -1;
-	const auto side = sideOpt.value();
 
 	int ret = 0;
 	double discount = 0;
@@ -1869,7 +1873,7 @@ int CBattleInfoCallback::battleGetSurrenderCost(const PlayerColor & Player) cons
 	return ret;
 }
 
-si8 CBattleInfoCallback::battleMinSpellLevel(ui8 side) const
+si8 CBattleInfoCallback::battleMinSpellLevel(BattleSide side) const
 {
 	const IBonusBearer * node = nullptr;
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
@@ -1887,7 +1891,7 @@ si8 CBattleInfoCallback::battleMinSpellLevel(ui8 side) const
 	return 0;
 }
 
-si8 CBattleInfoCallback::battleMaxSpellLevel(ui8 side) const
+si8 CBattleInfoCallback::battleMaxSpellLevel(BattleSide side) const
 {
 	const IBonusBearer *node = nullptr;
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
@@ -1906,21 +1910,21 @@ si8 CBattleInfoCallback::battleMaxSpellLevel(ui8 side) const
 	return GameConstants::SPELL_LEVELS;
 }
 
-std::optional<int> CBattleInfoCallback::battleIsFinished() const
+std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 {
 	auto units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		return unit->alive() && !unit->isTurret() && !unit->hasBonusOfType(BonusType::SIEGE_WEAPON);
 	});
 
-	std::array<bool, 2> hasUnit = {false, false}; //index is BattleSide
+	BattleSideArray<bool> hasUnit = {false, false}; //index is BattleSide
 
 	for(auto & unit : units)
 	{
 		//todo: move SIEGE_WEAPON check to Unit state
 		hasUnit.at(unit->unitSide()) = true;
 
-		if(hasUnit[0] && hasUnit[1])
+		if(hasUnit[BattleSide::ATTACKER] && hasUnit[BattleSide::DEFENDER])
 			return std::nullopt;
 	}
 	
@@ -1934,12 +1938,12 @@ std::optional<int> CBattleInfoCallback::battleIsFinished() const
 		}
 	}
 
-	if(!hasUnit[0] && !hasUnit[1])
-		return 2;
-	if(!hasUnit[1])
-		return 0;
+	if(!hasUnit[BattleSide::ATTACKER] && !hasUnit[BattleSide::DEFENDER])
+		return BattleSide::NONE;
+	if(!hasUnit[BattleSide::DEFENDER])
+		return BattleSide::ATTACKER;
 	else
-		return 1;
+		return BattleSide::DEFENDER;
 }
 
 VCMI_LIB_NAMESPACE_END

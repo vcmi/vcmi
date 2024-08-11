@@ -1019,7 +1019,7 @@ const BattleInfo * CGameState::getBattle(const PlayerColor & player) const
 		return nullptr;
 
 	for (const auto & battlePtr : currentBattles)
-		if (battlePtr->sides[0].color == player || battlePtr->sides[1].color == player)
+		if (battlePtr->getSide(BattleSide::ATTACKER).color == player || battlePtr->getSide(BattleSide::DEFENDER).color == player)
 			return battlePtr.get();
 
 	return nullptr;

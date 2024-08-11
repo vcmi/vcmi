@@ -289,7 +289,7 @@ public:
 	CUnitStateDetached & operator= (const CUnitState & other);
 
 	uint32_t unitId() const override;
-	ui8 unitSide() const override;
+	BattleSide unitSide() const override;
 
 	const CCreature * unitType() const override;
 	PlayerColor unitOwner() const override;

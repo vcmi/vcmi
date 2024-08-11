@@ -129,17 +129,17 @@ public:
 
 	std::vector<BattleHex> getSurroundingHexes(BattleHex assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
 	std::vector<BattleHex> getAttackableHexes(const Unit * attacker) const;
-	static std::vector<BattleHex> getSurroundingHexes(BattleHex position, bool twoHex, ui8 side);
+	static std::vector<BattleHex> getSurroundingHexes(BattleHex position, bool twoHex, BattleSide side);
 
 	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
 
 	std::vector<BattleHex> getHexes() const; //up to two occupied hexes, starting from front
 	std::vector<BattleHex> getHexes(BattleHex assumedPos) const; //up to two occupied hexes, starting from front
-	static std::vector<BattleHex> getHexes(BattleHex assumedPos, bool twoHex, ui8 side);
+	static std::vector<BattleHex> getHexes(BattleHex assumedPos, bool twoHex, BattleSide side);
 
 	BattleHex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
 	BattleHex occupiedHex(BattleHex assumedPos) const; //returns number of occupied hex (not the position) if stack is double wide and would stand on assumedPos; otherwise -1
-	static BattleHex occupiedHex(BattleHex assumedPos, bool twoHex, ui8 side);
+	static BattleHex occupiedHex(BattleHex assumedPos, bool twoHex, BattleSide side);
 
 	///MetaStrings
 	void addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
@@ -166,7 +166,7 @@ public:
     uint32_t id = 0;
 	TQuantity count = 0;
 	CreatureID type;
-	ui8 side = 0;
+	BattleSide side = BattleSide::NONE;
 	BattleHex position;
 	bool summoned = false;
 

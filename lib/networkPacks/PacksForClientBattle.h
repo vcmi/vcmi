@@ -109,8 +109,8 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	};
 
 	BattleID battleID = BattleID::NONE;
-	std::array<HeroBattleResults, 2> heroResult;
-	ui8 winnerSide;
+	BattleSideArray<HeroBattleResults> heroResult;
+	BattleSide winnerSide;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -127,9 +127,9 @@ struct DLL_LINKAGE BattleResult : public Query
 
 	BattleID battleID = BattleID::NONE;
 	EBattleResult result = EBattleResult::NORMAL;
-	ui8 winner = 2; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
-	std::map<CreatureID, si32> casualties[2]; //first => casualties of attackers - map crid => number
-	TExpType exp[2] = {0, 0}; //exp for attacker and defender
+	BattleSide winner = BattleSide::NONE; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
+	BattleSideArray<std::map<CreatureID, si32>> casualties; //first => casualties of attackers - map crid => number
+	BattleSideArray<TExpType> exp{0,0}; //exp for attacker and defender
 	std::set<ArtifactInstanceID> artifacts; //artifacts taken from loser to winner - currently unused
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -140,8 +140,7 @@ struct DLL_LINKAGE BattleResult : public Query
 		h & queryID;
 		h & result;
 		h & winner;
-		h & casualties[0];
-		h & casualties[1];
+		h & casualties;
 		h & exp;
 		h & artifacts;
 		assert(battleID != BattleID::NONE);
@@ -369,7 +368,7 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 
 	BattleID battleID = BattleID::NONE;
 	bool activeCast = true;
-	ui8 side = 0; //which hero did cast spell: 0 - attacker, 1 - defender
+	BattleSide side = BattleSide::NONE; //which hero did cast spell
 	SpellID spellID; //id of spell
 	ui8 manaGained = 0; //mana channeling ability
 	BattleHex tile; //destination tile (may not be set in some global/mass spells

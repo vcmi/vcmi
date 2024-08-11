@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
+#include "../../lib/battle/BattleSide.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
@@ -44,11 +45,11 @@ class BattleProcessor : boost::noncopyable
 	void engageIntoBattle(PlayerColor player);
 
 	bool checkBattleStateChanges(const CBattleInfoCallback & battle);
-	BattleID setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
+	BattleID setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, bool creatureBank, const CGTownInstance *town);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 
-	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide);
+	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 
 public:
 	explicit BattleProcessor(CGameHandler * gameHandler);

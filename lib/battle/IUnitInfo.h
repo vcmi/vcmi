@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "BattleSide.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -35,7 +36,7 @@ public:
 	virtual int32_t unitBaseAmount() const = 0;
 
 	virtual uint32_t unitId() const = 0;
-	virtual ui8 unitSide() const = 0;
+	virtual BattleSide unitSide() const = 0;
 	virtual PlayerColor unitOwner() const = 0;
 	virtual SlotID unitSlot() const = 0;
 

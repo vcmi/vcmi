@@ -27,7 +27,7 @@ public:
 	void cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
 	int64_t getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
 	int64_t getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
-	void buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int side);
+	void buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side);
 };
 
 /// <summary>

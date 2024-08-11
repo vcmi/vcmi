@@ -18,7 +18,7 @@
 #include "../../lib/CRandomGenerator.h"
 
 CStupidAI::CStupidAI()
-	: side(-1)
+	: side(BattleSide::NONE)
 	, wasWaitingForRealize(false)
 	, wasUnlockingGs(false)
 {
@@ -262,7 +262,7 @@ void CStupidAI::battleStacksEffectsSet(const BattleID & battleID, const SetStack
 	print("battleStacksEffectsSet called");
 }
 
-void CStupidAI::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
+void CStupidAI::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide Side, bool replayAllowed)
 {
 	print("battleStart called");
 	side = Side;

@@ -55,17 +55,17 @@ public:
 	virtual EWallState getWallState(EWallPart partOfWall) const = 0;
 	virtual EGateState getGateState() const = 0;
 
-	virtual PlayerColor getSidePlayer(ui8 side) const = 0;
-	virtual const CArmedInstance * getSideArmy(ui8 side) const = 0;
-	virtual const CGHeroInstance * getSideHero(ui8 side) const = 0;
+	virtual PlayerColor getSidePlayer(BattleSide side) const = 0;
+	virtual const CArmedInstance * getSideArmy(BattleSide side) const = 0;
+	virtual const CGHeroInstance * getSideHero(BattleSide side) const = 0;
 	/// Returns list of all spells used by specified side (and that can be learned by opposite hero)
-	virtual std::vector<SpellID> getUsedSpells(ui8 side) const = 0;
+	virtual std::vector<SpellID> getUsedSpells(BattleSide side) const = 0;
 
-	virtual uint32_t getCastSpells(ui8 side) const = 0;
-	virtual int32_t getEnchanterCounter(ui8 side) const = 0;
+	virtual uint32_t getCastSpells(BattleSide side) const = 0;
+	virtual int32_t getEnchanterCounter(BattleSide side) const = 0;
 
 	virtual ui8 getTacticDist() const = 0;
-	virtual ui8 getTacticsSide() const = 0;
+	virtual BattleSide getTacticsSide() const = 0;
 
 	virtual uint32_t nextUnitId() const = 0;
 
