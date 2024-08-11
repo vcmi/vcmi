@@ -408,7 +408,7 @@ void Nullkiller::makeTurn()
 
 		TTaskVec selectedTasks;
 		int prioOfTask = 0;
-		for (int prio = 0; prio <= 3; ++prio)
+		for (int prio = 0; prio <= 2; ++prio)
 		{
 			prioOfTask = prio;
 			selectedTasks = buildPlan(bestTasks, prio);
@@ -658,7 +658,7 @@ bool Nullkiller::handleTrading()
 				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
 				{
 					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
-					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
 					haveTraded = true;
 					shouldTryToTrade = true;
 				}
