@@ -86,12 +86,11 @@ ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, 
 {
 	auto const & region = regions[which.getNum()];
 
-	static const std::string colors[3][8] =
-	{
-		{"", "", "", "", "", "", "", ""},
-		{"R", "B", "N", "G", "O", "V", "T", "P"},
-		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
-	};
+	static const std::array<std::array<std::string, 8>, 3> colors = {{
+		{ "", "", "", "", "", "", "", "" },
+		{ "R", "B", "N", "G", "O", "V", "T", "P" },
+		{ "Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi" }
+	}};
 
 	std::string color = colors[colorSuffixLength][colorIndex];
 
@@ -100,7 +99,7 @@ ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, 
 
 ImagePath CampaignRegions::getAvailableName(CampaignScenarioID which, int color) const
 {
-	if(campSuffix.size() == 0)
+	if(campSuffix.empty())
 		return getNameFor(which, color, "En");
 	else
 		return getNameFor(which, color, campSuffix[0]);
@@ -108,7 +107,7 @@ ImagePath CampaignRegions::getAvailableName(CampaignScenarioID which, int color)
 
 ImagePath CampaignRegions::getSelectedName(CampaignScenarioID which, int color) const
 {
-	if(campSuffix.size() == 0)
+	if(campSuffix.empty())
 		return getNameFor(which, color, "Se");
 	else
 		return getNameFor(which, color, campSuffix[1]);
@@ -116,7 +115,7 @@ ImagePath CampaignRegions::getSelectedName(CampaignScenarioID which, int color) 
 
 ImagePath CampaignRegions::getConqueredName(CampaignScenarioID which, int color) const
 {
-	if(campSuffix.size() == 0)
+	if(campSuffix.empty())
 		return getNameFor(which, color, "Co");
 	else
 		return getNameFor(which, color, campSuffix[2]);
