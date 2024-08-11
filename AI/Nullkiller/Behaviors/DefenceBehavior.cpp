@@ -158,6 +158,10 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	
 	threats.push_back(threatNode.fastestDanger); // no guarantee that fastest danger will be there
 
+	if (town->garrisonHero && handleGarrisonHeroFromPreviousTurn(town, tasks, ai))
+	{
+		return;
+	}
 	if(!threatNode.fastestDanger.hero)
 	{
 		logAi->trace("No threat found for town %s", town->getNameTranslated());
