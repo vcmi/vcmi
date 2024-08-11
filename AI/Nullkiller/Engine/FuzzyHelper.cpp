@@ -73,6 +73,14 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 			}
 			objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
 		}
+		if (objWithID<Obj::TOWN>(dangerousObject))
+		{
+			auto town = dynamic_cast<const CGTownInstance*>(dangerousObject);
+			auto hero = town->garrisonHero;
+
+			if (hero)
+				objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
+		}
 
 		if(objectDanger)
 		{
