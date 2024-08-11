@@ -9,10 +9,9 @@
  */
 #pragma once
 #include "../windows/CWindowObject.h"
+#include "../../lib/gameState/GameStatistics.h"
 
 class FilledTexturePlayerColored;
-
-class StatisticDataSet;
 
 class CStatisticScreen : public CWindowObject
 {
