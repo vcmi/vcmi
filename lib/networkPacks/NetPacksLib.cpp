@@ -2431,11 +2431,26 @@ void EntitiesChanged::applyGs(CGameState * gs)
 void SetRewardableConfiguration::applyGs(CGameState * gs)
 {
 	auto * objectPtr = gs->getObjInstance(objectID);
-	auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
 
-	assert(rewardablePtr);
+	if (!buildingID.hasValue())
+	{
+		auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
+		assert(rewardablePtr);
+		rewardablePtr->configuration = configuration;
+	}
+	else
+	{
+		auto * townPtr = dynamic_cast<CGTownInstance*>(objectPtr);
+		CGTownBuilding * buildingPtr = nullptr;
 
-	rewardablePtr->configuration = configuration;
+		for (CGTownBuilding * building : townPtr->bonusingBuildings)
+			if (building->getBuildingType() == buildingID)
+				buildingPtr = building;
+
+		auto * rewardablePtr = dynamic_cast<CTownRewardableBuilding *>(buildingPtr);
+		assert(rewardablePtr);
+		rewardablePtr->configuration = configuration;
+	}
 }
 
 void SetBankConfiguration::applyGs(CGameState * gs)
