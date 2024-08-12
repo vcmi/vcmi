@@ -33,7 +33,7 @@
 CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	: CWindowObject(BORDERED), statistic(stat)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	filledBackground->setPlayerColor(PlayerColor(1));
@@ -85,7 +85,7 @@ std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticD
 LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data)
 	: CIntObject(), maxVal(0), maxDay(0)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(LCLICK | MOVE);
 
