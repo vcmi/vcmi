@@ -321,7 +321,7 @@ void ObjectGraphCalculator::addObjectActor(const CGObjectInstance * obj)
 
 void ObjectGraphCalculator::addJunctionActor(const int3 & visitablePos, bool isVirtualBoat)
 {
-	std::lock_guard<std::mutex> lock(syncLock);
+	std::lock_guard lock(syncLock);
 
 	auto internalCb = temporaryActorHeroes.front()->cb;
 	auto objectActor = temporaryActorHeroes.emplace_back(std::make_unique<CGHeroInstance>(internalCb)).get();

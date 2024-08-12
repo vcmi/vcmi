@@ -15,9 +15,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 DLL_LINKAGE VisualLogger * logVisual = new VisualLogger();
 
 
-void VisualLogger::updateWithLock(std::string channel, std::function<void(IVisualLogBuilder & logBuilder)> func)
+void VisualLogger::updateWithLock(const std::string & channel, const std::function<void(IVisualLogBuilder & logBuilder)> & func)
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard lock(mutex);
 
 	mapLines[channel].clear();
 	mapTexts[channel].clear();
@@ -30,21 +30,21 @@ void VisualLogger::updateWithLock(std::string channel, std::function<void(IVisua
 
 void VisualLogger::visualize(IMapOverlayLogVisualizer & visulizer)
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard lock(mutex);
 
-	for(auto line : mapLines[keyToShow])
+	for(const auto & line : mapLines[keyToShow])
 	{
 		visulizer.drawLine(line.start, line.end);
 	}
 
 	std::map<int3, std::vector<Text<int3>>> textMap;
 
-	for(auto line : mapTexts[keyToShow])
+	for(const auto & line : mapTexts[keyToShow])
 	{
 		textMap[line.tile].push_back(line);
 	}
 
-	for(auto & pair : textMap)
+	for(const auto & pair : textMap)
 	{
 		for(int i = 0; i < pair.second.size(); i++)
 		{
@@ -55,7 +55,7 @@ void VisualLogger::visualize(IMapOverlayLogVisualizer & visulizer)
 
 void VisualLogger::visualize(IBattleOverlayLogVisualizer & visulizer)
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard lock(mutex);
 	std::map<BattleHex, std::vector<std::string>> textMap;
 
 	for(auto line : battleTexts[keyToShow])
@@ -72,12 +72,12 @@ void VisualLogger::visualize(IBattleOverlayLogVisualizer & visulizer)
 	}
 }
 
-void VisualLogger::setKey(std::string key)
+void VisualLogger::setKey(const std::string & key)
 {
 	keyToShow = key;
 }
 
-void IVisualLogBuilder::addText(int3 tile, std::string text, PlayerColor background)
+void IVisualLogBuilder::addText(int3 tile, const std::string & text, PlayerColor background)
 {
 	std::optional<ColorRGBA> rgbColor;
 

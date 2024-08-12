@@ -52,8 +52,8 @@ HighScoreCalculation::Result HighScoreCalculation::calculate()
 {
 	Result firstResult;
 	Result summary;
-	const std::array<double, 5> difficultyMultipliers{0.8, 1.0, 1.3, 1.6, 2.0}; 
-	for(auto & param : parameters)
+	const std::array<double, 5> difficultyMultipliers{0.8, 1.0, 1.3, 1.6, 2.0};
+	for(const auto & param : parameters)
 	{
 		double tmp = 200 - (param.day + 10) / (param.townAmount + 5) + (param.allEnemiesDefeated ? 25 : 0) + (param.hasGrail ? 25 : 0);
 		firstResult = Result{static_cast<int>(tmp), static_cast<int>(tmp * difficultyMultipliers.at(param.difficulty)), param.day, param.usedCheat};

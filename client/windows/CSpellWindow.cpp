@@ -98,7 +98,7 @@ public:
 	}
 };
 
-CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells, std::function<void(SpellID)> onSpellSelect):
+CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells, const std::function<void(SpellID)> & onSpellSelect):
 	CWindowObject(PLAYER_COLORED | (settings["gameTweaks"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),

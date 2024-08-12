@@ -733,8 +733,8 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source) const
 		size_t index = faction.puzzleMap.size();
 		SPuzzleInfo spi;
 
-		spi.x = static_cast<si16>(piece["x"].Float());
-		spi.y = static_cast<si16>(piece["y"].Float());
+		spi.position.x = static_cast<si16>(piece["x"].Float());
+		spi.position.y = static_cast<si16>(piece["y"].Float());
 		spi.whenUncovered = static_cast<ui16>(piece["index"].Float());
 		spi.number = static_cast<ui16>(index);
 

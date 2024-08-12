@@ -212,7 +212,7 @@ class EmptyStatusBar : public IStatusBar
 	virtual void setEnteredText(const std::string & text){};
 };
 
-class ObjectConstruction
+class ObjectConstruction : boost::noncopyable
 {
 public:
 	ObjectConstruction(CIntObject *obj);

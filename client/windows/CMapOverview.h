@@ -57,5 +57,5 @@ public:
 	const std::string version;
 	const ESelectionScreen tabType;
 
-	CMapOverview(std::string mapName, std::string fileName, std::string date, std::string author, std::string version, ResourcePath resource, ESelectionScreen tabType);
+	CMapOverview(const std::string & mapName, const std::string & fileName, const std::string & date, const std::string & author, const std::string & version, const ResourcePath & resource, ESelectionScreen tabType);
 };

@@ -48,7 +48,7 @@ std::string CLegacyConfigParser::extractQuotedPart()
 	assert(*curr == '\"');
 
 	curr++; // skip quote
-	char * begin = curr;
+	const char * begin = curr;
 
 	while (curr != end && *curr != '\"' && *curr != '\t')
 		curr++;
@@ -73,7 +73,7 @@ std::string CLegacyConfigParser::extractQuotedString()
 		//extract normal part
 		else if(curr < end && *curr != '\t' && *curr != '\r')
 		{
-			char * begin = curr;
+			const char * begin = curr;
 
 			while (curr < end && *curr != '\t' && *curr != '\r' && *curr != '\"')//find end of string or next quoted part start
 				curr++;
@@ -90,7 +90,7 @@ std::string CLegacyConfigParser::extractQuotedString()
 
 std::string CLegacyConfigParser::extractNormalString()
 {
-	char * begin = curr;
+	const char * begin = curr;
 
 	while (curr < end && *curr != '\t' && *curr != '\r')//find end of string
 		curr++;
@@ -140,7 +140,7 @@ float CLegacyConfigParser::readNumber()
 
 bool CLegacyConfigParser::isNextEntryEmpty() const
 {
-	char * nextSymbol = curr;
+	const char * nextSymbol = curr;
 	while (nextSymbol < end && *nextSymbol == ' ')
 		nextSymbol++; //find next meaningful symbol
 

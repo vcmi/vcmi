@@ -1496,7 +1496,7 @@ void NewObject::applyGs(CGameState *gs)
 	gs->map->addBlockVisTiles(newObject);
 	gs->map->calculateGuardingGreaturePositions();
 
-	logGlobal->debug("Added object id=%d; address=%x; name=%s", newObject->id, (intptr_t)newObject, newObject->getObjectName());
+	logGlobal->debug("Added object id=%d; name=%s", newObject->id, newObject->getObjectName());
 }
 
 void NewArtifact::applyGs(CGameState *gs)

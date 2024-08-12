@@ -24,7 +24,7 @@ class HypotheticBattle;
 class RNGStub final : public vstd::RNG
 {
 public:
-	virtual int nextInt() override
+	int nextInt() override
 	{
 		return 0;
 	}

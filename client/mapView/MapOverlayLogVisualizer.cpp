@@ -54,8 +54,8 @@ void MapOverlayLogVisualizer::drawLine(int3 start, int3 end)
 void MapOverlayLogVisualizer::drawText(
 	int3 tile,
 	int lineNumber,
-	std::string text,
-	std::optional<ColorRGBA> background)
+	const std::string & text,
+	const std::optional<ColorRGBA> & background)
 {
 	const Point offset = Point(6, 6);
 

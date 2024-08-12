@@ -433,7 +433,7 @@ QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
 	create();
 }
 
-std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells()
+std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells() const
 {
 	std::vector<SpellID> spellIds;
 	std::vector<bool> spellIdsFromSetting;

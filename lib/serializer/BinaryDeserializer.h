@@ -58,7 +58,7 @@ class BinaryDeserializer : public CLoaderBase
 		if(reader->smartVectorMembersSerialization)
 		{
 			if(const auto *info = reader->getVectorizedTypeInfo<CArmedInstance, ObjectInstanceID>())
-				armyPtr = static_cast<CArmedInstance *>(reader->getVectorItemFromId<CArmedInstance, ObjectInstanceID>(*info, armyID));
+				armyPtr = reader->getVectorItemFromId<CArmedInstance, ObjectInstanceID>(*info, armyID);
 		}
 
 		if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)

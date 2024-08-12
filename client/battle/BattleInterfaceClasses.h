@@ -169,7 +169,7 @@ public:
 
 	void create();
 
-	std::vector<std::tuple<SpellID, bool>> getSpells();
+	std::vector<std::tuple<SpellID, bool>> getSpells() const;
 
 	void show(Canvas & to) override;
 	void inputModeChanged(InputMode modi) override;
