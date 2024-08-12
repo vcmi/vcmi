@@ -12,12 +12,15 @@
 #include "../../lib/gameState/GameStatistics.h"
 
 class FilledTexturePlayerColored;
+class CToggleButton;
 
 class CStatisticScreen : public CWindowObject
 {
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 
 	std::vector<std::shared_ptr<CIntObject>> layout;
+
+	std::shared_ptr<CToggleButton> buttonCsvSave;
 
 	StatisticDataSet statistic;
 public:
