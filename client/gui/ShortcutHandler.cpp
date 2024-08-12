@@ -279,7 +279,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"listHeroDown",             EShortcut::LIST_HERO_DOWN            },
 		{"listHeroTop",              EShortcut::LIST_HERO_TOP             },
 		{"listHeroBottom",           EShortcut::LIST_HERO_BOTTOM          },
-		{"listHeroDelete",           EShortcut::LIST_HERO_DELETE          },
+		{"listHeroDismiss",          EShortcut::LIST_HERO_DISMISS         },
 		{"listTownUp",               EShortcut::LIST_TOWN_UP              },
 		{"listTownDown",             EShortcut::LIST_TOWN_DOWN            },
 		{"listTownTop",              EShortcut::LIST_TOWN_TOP             },

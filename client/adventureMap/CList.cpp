@@ -315,7 +315,7 @@ void CHeroList::CHeroItem::keyPressed(EShortcut key)
 
 	auto & heroes = LOCPLINT->localState->getWanderingHeroes();
 
-	if(key == EShortcut::LIST_HERO_DELETE)
+	if(key == EShortcut::LIST_HERO_DISMISS)
 	{
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], [=](){ LOCPLINT->cb->dismissHero(hero); }, nullptr);
 		return;

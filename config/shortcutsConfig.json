@@ -246,7 +246,7 @@
 		"listHeroDown":             "Ctrl+PageDown",
 		"listHeroTop":              "Ctrl+Home",
 		"listHeroBottom":           "Ctrl+End",
-		"listHeroDelete":           "Delete",
+		"listHeroDismiss":          "Delete",
 		"listTownUp":               "Ctrl+PageUp",
 		"listTownDown":             "Ctrl+PageDown",
 		"listTownTop":              "Ctrl+Home",
