@@ -624,7 +624,7 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 	for(auto obj : map.objects)
 	{
 		auto handler = obj->getObjectHandler();
-		auto modScope = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
+		auto modScope = handler->getModScope();
 		if(modScope != "core")
 			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
 
