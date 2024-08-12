@@ -44,8 +44,7 @@ DisposedHero::DisposedHero() : heroId(0), portrait(255)
 }
 
 CMapEvent::CMapEvent()
-	: players(0)
-	, humanAffected(false)
+	: humanAffected(false)
 	, computerAffected(false)
 	, firstOccurrence(0)
 	, nextOccurrence(0)
@@ -67,7 +66,19 @@ void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
 	handler.serializeStruct("message", message);
-	handler.serializeInt("players", players);
+	if (!handler.saving && handler.getCurrent()["players"].isNumber())
+	{
+		// compatibility for old maps
+		int playersMask = 0;
+		handler.serializeInt("players", playersMask);
+		for (int i = 0; i < 8; ++i)
+			if ((playersMask & (1 << i)) != 0)
+				players.insert(PlayerColor(i));
+	}
+	else
+	{
+		handler.serializeIdArray("players", players);
+	}
 	handler.serializeInt("humanAffected", humanAffected);
 	handler.serializeInt("computerAffected", computerAffected);
 	handler.serializeInt("firstOccurrence", firstOccurrence);

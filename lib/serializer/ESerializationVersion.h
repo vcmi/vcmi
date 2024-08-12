@@ -50,6 +50,7 @@ enum class ESerializationVersion : int32_t
 	BANK_UNIT_PLACEMENT, // 843 Banks have unit placement flag
 
 	RELEASE_152 = BANK_UNIT_PLACEMENT,
+	RELEASE_156 = BANK_UNIT_PLACEMENT,
 
 	COMPACT_STRING_SERIALIZATION, // 844 - optimized serialization of previously encountered strings
 	COMPACT_INTEGER_SERIALIZATION, // 845 - serialize integers in forms similar to protobuf
@@ -61,6 +62,7 @@ enum class ESerializationVersion : int32_t
 	PLAYER_HANDICAP, // 851 - player handicap selection at game start
 	STATISTICS, // 852 - removed random number generators from library classes
 	CAMPAIGN_REGIONS, // 853 - configurable campaign regions
+	EVENTS_PLAYER_SET, // 854 - map & town events use std::set instead of bitmask to store player list
 
-	CURRENT = CAMPAIGN_REGIONS
+	CURRENT = EVENTS_PLAYER_SET
 };

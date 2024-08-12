@@ -69,7 +69,7 @@ QVariant toVariant(const CCastleEvent& event)
 	QVariantMap result;
 	result["name"] = QString::fromStdString(event.name);
 	result["message"] = QString::fromStdString(event.message.toString());
-	result["players"] = QVariant::fromValue(event.players);
+	result["players"] = toVariant(event.players);
 	result["humanAffected"] = QVariant::fromValue(event.humanAffected);
 	result["computerAffected"] = QVariant::fromValue(event.computerAffected);
 	result["firstOccurrence"] = QVariant::fromValue(event.firstOccurrence);
@@ -87,7 +87,7 @@ CCastleEvent eventFromVariant(CMapHeader& map, const CGTownInstance& town, const
 	auto v = variant.toMap();
 	result.name = v.value("name").toString().toStdString();
 	result.message.appendTextID(mapRegisterLocalizedString("map", map, TextIdentifier("town", town.instanceName, "event", result.name, "message"), v.value("message").toString().toStdString()));
-	result.players = v.value("players").toInt();
+	result.players = playersFromVariant(v.value("players"));
 	result.humanAffected = v.value("humanAffected").toInt();
 	result.computerAffected = v.value("computerAffected").toInt();
 	result.firstOccurrence = v.value("firstOccurrence").toInt();
