@@ -52,14 +52,32 @@ CMapEvent::CMapEvent()
 
 }
 
-bool CMapEvent::earlierThan(const CMapEvent & other) const
+bool CMapEvent::occursToday(int currentDay) const
 {
-	return firstOccurrence < other.firstOccurrence;
+	if (currentDay == firstOccurrence + 1)
+		return true;
+
+	if (nextOccurrence == 0)
+		return false;
+
+	if (currentDay < firstOccurrence)
+		return false;
+
+	return (currentDay - firstOccurrence - 1) % nextOccurrence == 0;
 }
 
-bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
+bool CMapEvent::affectsPlayer(PlayerColor color, bool isHuman) const
 {
-	return firstOccurrence <= other.firstOccurrence;
+	if (players.count(color) == 0)
+		return false;
+
+	if (!isHuman && !computerAffected)
+		return false;
+
+	if (isHuman && !humanAffected)
+		return false;
+
+	return true;
 }
 
 void CMapEvent::serializeJson(JsonSerializeFormat & handler)
