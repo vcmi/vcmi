@@ -15,6 +15,7 @@ class FilledTexturePlayerColored;
 class CToggleButton;
 class GraphicalPrimitiveCanvas;
 class LineChart;
+class CGStatusBar;
 
 class CStatisticScreen : public CWindowObject
 {
@@ -33,6 +34,16 @@ class LineChart : public CIntObject
 {
 	std::shared_ptr<GraphicalPrimitiveCanvas> canvas;
 	std::vector<std::shared_ptr<CIntObject>> layout;
+	std::shared_ptr<CGStatusBar> statusBar;
+
+	Rect chartArea;
+	float maxVal;
+	int maxDay;
+
+	void updateStatusBar(const Point & cursorPosition);
 public:
 	LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data);
+
+	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	void clickPressed(const Point & cursorPosition) override;
 };

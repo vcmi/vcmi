@@ -82,22 +82,26 @@ std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticD
 	return plotData;
 }
 
-LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data) : CIntObject()
+LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data)
+	: CIntObject(), maxVal(0), maxDay(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
+	addUsedEvents(LCLICK | MOVE);
+
 	pos = position + pos.topLeft();
 
-	auto chartArea = pos.resize(-50);
+	chartArea = pos.resize(-50);
 	chartArea.moveTo(Point(50, 50));
 
 	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
 
 	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
 
+	statusBar = CGStatusBar::create(0, 0, ImagePath::builtin("radialMenu/statusBar"));
+	statusBar->setEnabled(false);
+
 	// additional calculations
-	float maxVal = 0;
-	int maxDay = 0;
 	for(auto & line : data)
 	{
 		for(auto & val : line.second)
@@ -134,4 +138,28 @@ LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::
 	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(maxDay)));
 	p = chartArea.topLeft() + Point(-5, -10);
 	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, std::to_string((int)maxVal)));
+}
+
+void LineChart::updateStatusBar(const Point & cursorPosition)
+{
+	statusBar->moveTo(cursorPosition + Point(-statusBar->pos.w / 2, 20));
+	Rect r(pos.x + chartArea.x, pos.y + chartArea.y, chartArea.w, chartArea.h);
+	statusBar->setEnabled(r.isInside(cursorPosition));
+	if(r.isInside(cursorPosition))
+	{
+		float x = ((float)maxDay / (float)chartArea.w) * ((float)cursorPosition.x - (float)r.x) + 1.0f;
+		float y = maxVal - ((float)maxVal / (float)chartArea.h) * ((float)cursorPosition.y - (float)r.y);
+		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + std::to_string((int)x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + std::to_string((int)y));
+	}
+	GH.windows().totalRedraw();
+}
+
+void LineChart::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
+{
+	updateStatusBar(cursorPosition);
+}
+
+void LineChart::clickPressed(const Point & cursorPosition)
+{
+	updateStatusBar(cursorPosition);
 }

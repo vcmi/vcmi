@@ -165,6 +165,7 @@
 	"vcmi.statisticWindow.statistic" : "Statistik",
 	"vcmi.statisticWindow.csvSave" : "Speichere als CSV",
 	"vcmi.statisticWindow.csvSaved" : "CSV gespeichert!",
+	"vcmi.statisticWindow.value" : "Wert",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Vollbild (randlos)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Randloses Vollbild}\n\nWenn diese Option ausgewählt ist, wird VCMI im randlosen Vollbildmodus ausgeführt. In diesem Modus wird das Spiel immer dieselbe Auflösung wie der Desktop verwenden und die gewählte Auflösung ignorieren.",
