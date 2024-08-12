@@ -15,7 +15,7 @@
 
 CreatureCostBox::CreatureCostBox(Rect position, std::string titleText)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	setRedrawParent(true);
 	pos = position + pos.topLeft();
@@ -33,7 +33,7 @@ void CreatureCostBox::createItems(TResources res)
 {
 	resources.clear();
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	TResources::nziterator iter(res);
 	while(iter.valid())

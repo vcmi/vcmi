@@ -41,7 +41,7 @@ CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 {
 	addUsedEvents(SHOW_POPUP);
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
 
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
@@ -68,7 +68,7 @@ void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
 
 void CHighScoreScreen::addButtons()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	
 	buttons.clear();
 
@@ -80,7 +80,7 @@ void CHighScoreScreen::addButtons()
 
 void CHighScoreScreen::addHighScores()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin(highscorepage == HighScorePage::SCENARIO ? "HISCORE" : "HISCORE2"));
 
@@ -143,7 +143,7 @@ void CHighScoreScreen::buttonCampaignClick()
 
 void CHighScoreScreen::buttonScenarioClick()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	highscorepage = HighScorePage::SCENARIO;
 	addHighScores();
 	addButtons();
@@ -177,7 +177,7 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 {
 	addUsedEvents(LCLICK | KEYBOARD);
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
 
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
@@ -264,7 +264,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 	if(statisticButton->pos.isInside(cursorPosition))
 		return;
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	if(!won)
 	{
@@ -299,7 +299,7 @@ void CHighScoreInputScreen::keyPressed(EShortcut key)
 CHighScoreInput::CHighScoreInput(std::string playerName, std::function<void(std::string text)> readyCB)
 	: CWindowObject(NEEDS_ANIMATED_BACKGROUND, ImagePath::builtin("HIGHNAME")), ready(readyCB)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos = center(Rect(0, 0, 232, 212));
 	updateShadow();

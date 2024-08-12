@@ -13,6 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../pforeach.h"
 #include "../../../lib/CRandomGenerator.h"
+#include "../../../lib/logging/VisualLogger.h"
 
 namespace NKAI
 {
@@ -22,6 +23,41 @@ const HitMapInfo HitMapInfo::NoThreat;
 double HitMapInfo::value() const
 {
 	return danger / std::sqrt(turn / 3.0f + 1);
+}
+
+void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
+{
+#if NKAI_TRACE_LEVEL >= 1
+	logVisual->updateWithLock(playerID.toString() + ".danger.max", [&data](IVisualLogBuilder & b)
+		{
+			foreach_tile_pos([&b, &data](const int3 & pos)
+				{
+					auto & treat = data.getTileThreat(pos).maximumDanger;
+					b.addText(pos, std::to_string(treat.danger));
+
+					if(treat.hero.validAndSet())
+					{
+						b.addText(pos, std::to_string(treat.turn));
+						b.addText(pos, treat.hero->getNameTranslated());
+					}
+				});
+		});
+
+	logVisual->updateWithLock(playerID.toString() + ".danger.fast", [&data](IVisualLogBuilder & b)
+		{
+			foreach_tile_pos([&b, &data](const int3 & pos)
+				{
+					auto & treat = data.getTileThreat(pos).fastestDanger;
+					b.addText(pos, std::to_string(treat.danger));
+
+					if(treat.hero.validAndSet())
+					{
+						b.addText(pos, std::to_string(treat.turn));
+						b.addText(pos, treat.hero->getNameTranslated());
+					}
+				});
+		});
+#endif
 }
 
 void DangerHitMapAnalyzer::updateHitMap()
@@ -144,6 +180,8 @@ void DangerHitMapAnalyzer::updateHitMap()
 	}
 
 	logAi->trace("Danger hit map updated in %ld", timeElapsed(start));
+
+	logHitmap(ai->playerID, *this);
 }
 
 void DangerHitMapAnalyzer::calculateTileOwners()

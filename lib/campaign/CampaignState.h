@@ -103,6 +103,10 @@ public:
 
 	std::string getDescriptionTranslated() const;
 	std::string getNameTranslated() const;
+	std::string getAuthor() const;
+	std::string getAuthorContact() const;
+	std::string getCampaignVersion() const;
+	time_t getCreationDateTime() const;
 	std::string getFilename() const;
 	std::string getModName() const;
 	std::string getEncoding() const;

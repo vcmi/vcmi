@@ -50,8 +50,8 @@ void CArtifactsOfHeroBase::init(
 	const Point & position,
 	const BpackScrollFunctor & scrollCallback)
 {
-	// CArtifactsOfHeroBase::init may be transform to CArtifactsOfHeroBase::CArtifactsOfHeroBase if OBJECT_CONSTRUCTION_CAPTURING is removed
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	// CArtifactsOfHeroBase::init may be transform to CArtifactsOfHeroBase::CArtifactsOfHeroBase if OBJECT_CONSTRUCTION is removed
+	OBJECT_CONSTRUCTION;
 	pos += position;
 	for(int g = 0; g < ArtifactPosition::BACKPACK_START; g++)
 	{

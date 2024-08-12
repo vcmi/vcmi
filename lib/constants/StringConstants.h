@@ -199,7 +199,8 @@ namespace MappedKeys
 		{ "experienceVisitingBonus", BuildingSubID::EXPERIENCE_VISITING_BONUS },
 		{ "lighthouse", BuildingSubID::LIGHTHOUSE },
 		{ "treasury", BuildingSubID::TREASURY },
-		{ "thievesGuild", BuildingSubID::THIEVES_GUILD }
+		{ "thievesGuild", BuildingSubID::THIEVES_GUILD },
+		{ "bank", BuildingSubID::BANK }
 	};
 
 	static const std::map<std::string, EMarketMode> MARKET_NAMES_TO_TYPES =

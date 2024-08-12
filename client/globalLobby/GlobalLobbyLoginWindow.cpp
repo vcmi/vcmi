@@ -31,7 +31,7 @@
 GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos.w = 284;
 	pos.h = 220;

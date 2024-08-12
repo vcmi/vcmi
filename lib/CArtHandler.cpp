@@ -106,6 +106,11 @@ std::string CArtifact::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CArtifact::getModScope() const
+{
+	return modScope;
+}
+
 void CArtifact::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "ARTIFACT", image);

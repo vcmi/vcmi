@@ -381,7 +381,7 @@ CAdventureMapIcon::CAdventureMapIcon(const Point & position, const AnimationPath
 	: index(index)
 	, iconsPerPlayer(iconsPerPlayer)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos += position;
 	image = std::make_shared<CAnimImage>(animation, index);
 }

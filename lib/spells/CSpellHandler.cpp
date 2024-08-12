@@ -200,6 +200,11 @@ std::string CSpell::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CSpell::getModScope() const
+{
+	return modScope;
+}
+
 int32_t CSpell::getIndex() const
 {
 	return id.toEnum();

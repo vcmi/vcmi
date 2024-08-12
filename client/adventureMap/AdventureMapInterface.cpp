@@ -59,7 +59,7 @@ AdventureMapInterface::AdventureMapInterface():
 	scrollingWasBlocked(false),
 	backgroundDimLevel(settings["adventure"]["backgroundDimLevel"].Integer())
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
@@ -899,7 +899,7 @@ void AdventureMapInterface::hotkeyZoom(int delta, bool useDeadZone)
 
 void AdventureMapInterface::onScreenResize()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	// remember our activation state and reactive after reconstruction
 	// since othervice activate() calls for created elements will bypass virtual dispatch

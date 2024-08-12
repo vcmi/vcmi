@@ -106,7 +106,7 @@ void InterfaceObjectConfigurable::loadCustomBuilders(const JsonNode & config)
 
 void InterfaceObjectConfigurable::build(const JsonNode &config)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 
 	logGlobal->debug("Building configurable interface object");
 	auto * items = &config;
@@ -371,7 +371,7 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 	group->pos += position;
 	if(!config["items"].isNull())
 	{
-		OBJ_CONSTRUCTION_TARGETED(group.get());
+		OBJECT_CONSTRUCTION_TARGETED(group.get());
 		int itemIdx = -1;
 		for(const auto & item : config["items"].Vector())
 		{

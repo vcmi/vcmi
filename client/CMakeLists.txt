@@ -27,6 +27,7 @@ set(client_SRCS
 	battle/BattleStacksController.cpp
 	battle/BattleWindow.cpp
 	battle/CreatureAnimation.cpp
+	battle/BattleOverlayLogVisualizer.cpp
 
 	eventsSDL/NotificationHandler.cpp
 	eventsSDL/InputHandler.cpp
@@ -75,6 +76,7 @@ set(client_SRCS
 	mapView/MapViewController.cpp
 	mapView/MapViewModel.cpp
 	mapView/mapHandler.cpp
+	mapView/MapOverlayLogVisualizer.cpp
 
 	media/CAudioBase.cpp
 	media/CMusicHandler.cpp
@@ -215,6 +217,7 @@ set(client_HEADERS
 	battle/BattleStacksController.h
 	battle/BattleWindow.h
 	battle/CreatureAnimation.h
+	battle/BattleOverlayLogVisualizer.h
 
 	eventsSDL/NotificationHandler.h
 	eventsSDL/InputHandler.h
@@ -268,6 +271,7 @@ set(client_HEADERS
 	mapView/MapViewController.h
 	mapView/MapViewModel.h
 	mapView/mapHandler.h
+	mapView/MapOverlayLogVisualizer.h
 
 	media/CAudioBase.h
 	media/CEmptyVideoPlayer.h

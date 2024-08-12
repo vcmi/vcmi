@@ -65,6 +65,11 @@ std::string RoadType::getJsonKey() const
 	return modScope + ":" + identifier;
 }
 
+std::string RoadType::getModScope() const
+{
+	return modScope;
+}
+
 std::string RoadType::getNameTextID() const
 {
 	return TextIdentifier( "road", modScope, identifier, "name" ).get();
