@@ -126,7 +126,7 @@ public:
 			h & movementPointsUsed;
 		}
 	};
-    std::vector<StatisticDataSetEntry> data;
+	std::vector<StatisticDataSetEntry> data;
 	std::map<PlayerColor, PlayerAccumulatedValueStorage> accumulatedValues;
 
 	template <typename Handler> void serialize(Handler &h)

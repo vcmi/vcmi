@@ -50,7 +50,7 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.csvSave"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	auto plotData = extractData(stat, [](StatisticDataSetEntry val){ return val.resources[EGameResID::GOLD]; });
-	chart = std::make_shared<LineChart>(contentArea.resize(-5), "test title", plotData);
+	chart = std::make_shared<LineChart>(contentArea.resize(-5), "Total Gold", plotData);
 }
 
 std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector)
