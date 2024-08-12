@@ -86,7 +86,7 @@ int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
 	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
 	auto ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
-	auto minSkillValue = (id == PrimarySkill::SPELL_POWER || id == PrimarySkill::KNOWLEDGE) ? 1 : 0;
+	auto minSkillValue = VLC->settings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[id.getNum()];
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }
 
