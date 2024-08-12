@@ -74,6 +74,11 @@ std::string RiverType::getJsonKey() const
 	return modScope + ":" + identifier;
 }
 
+std::string RiverType::getModScope() const
+{
+	return modScope;
+}
+
 std::string RiverType::getNameTextID() const
 {
 	return TextIdentifier( "river", modScope, identifier, "name" ).get();

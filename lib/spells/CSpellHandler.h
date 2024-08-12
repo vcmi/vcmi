@@ -228,6 +228,7 @@ public:
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	SpellID getId() const override;
 
 	std::string getNameTextID() const override;

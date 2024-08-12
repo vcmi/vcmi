@@ -37,6 +37,7 @@ public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	void registerIcons(const IconRegistar & cb) const override {}
 	RiverId getId() const override { return id;}
 	void updateFrom(const JsonNode & data) {};
