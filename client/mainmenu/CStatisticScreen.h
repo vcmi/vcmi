@@ -13,6 +13,8 @@
 
 class FilledTexturePlayerColored;
 class CToggleButton;
+class GraphicalPrimitiveCanvas;
+class LineChart;
 
 class CStatisticScreen : public CWindowObject
 {
@@ -23,6 +25,16 @@ class CStatisticScreen : public CWindowObject
 	std::shared_ptr<CToggleButton> buttonCsvSave;
 
 	StatisticDataSet statistic;
+
+	std::shared_ptr<LineChart> chart;
 public:
 	CStatisticScreen(StatisticDataSet stat);
+};
+
+class LineChart : public CIntObject
+{
+	std::shared_ptr<GraphicalPrimitiveCanvas> canvas;
+	std::vector<std::shared_ptr<CIntObject>> layout;
+public:
+	LineChart(Rect position, std::string title);
 };

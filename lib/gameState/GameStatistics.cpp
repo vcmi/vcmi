@@ -11,6 +11,7 @@
 #include "GameStatistics.h"
 #include "../CPlayerState.h"
 #include "../constants/StringConstants.h"
+#include "../VCMIDirs.h"
 #include "CGameState.h"
 #include "TerrainHandler.h"
 #include "CHeroHandler.h"
@@ -164,6 +165,19 @@ std::string StatisticDataSet::toCsv()
 	}
 
 	return ss.str();
+}
+
+std::string StatisticDataSet::writeCsv()
+{
+	const boost::filesystem::path outPath = VCMIDirs::get().userCachePath() / "statistic";
+	boost::filesystem::create_directories(outPath);
+
+	const boost::filesystem::path filePath = outPath / (vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".csv");
+	std::ofstream file(filePath.c_str());
+	std::string csv = toCsv();
+	file << csv;
+
+	return filePath.string();
 }
 
 std::vector<const CGMine *> Statistic::getMines(const CGameState * gs, const PlayerState * ps)

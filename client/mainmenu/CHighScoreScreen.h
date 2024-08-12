@@ -71,7 +71,7 @@ public:
 
 class CHighScoreInputScreen : public CWindowObject
 {
-	std::vector<std::shared_ptr<CMultiLineLabel>> texts;
+	std::vector<std::shared_ptr<CIntObject>> texts;
 	std::shared_ptr<CHighScoreInput> input;
 	std::shared_ptr<TransparentFilledRectangle> background;
 	std::shared_ptr<VideoWidgetBase> videoPlayer;

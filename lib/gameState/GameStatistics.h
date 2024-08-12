@@ -99,6 +99,7 @@ public:
     void add(StatisticDataSetEntry entry);
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
     std::string toCsv();
+    std::string writeCsv();
 
 	struct PlayerAccumulatedValueStorage // holds some actual values needed for stats
 	{

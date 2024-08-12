@@ -23,7 +23,6 @@
 #include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
 
-#include "../../lib/VCMIDirs.h"
 #include "../../lib/gameState/GameStatistics.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -37,20 +36,35 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	filledBackground->setPlayerColor(PlayerColor(1));
 
-	layout.push_back(std::make_shared<CMultiLineLabel>(Rect(0, 0, 800, 30), FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.statisticWindow.statistic")));
-	layout.push_back(std::make_shared<TransparentFilledRectangle>(Rect(10, 30, 780, 530), ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1));
+	auto contentArea = Rect(10, 40, 780, 510);
+	layout.push_back(std::make_shared<CLabel>(400, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.statisticWindow.statistic")));
+	layout.push_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1));
 	layout.push_back(std::make_shared<CButton>(Point(725, 564), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
 
 	buttonCsvSave = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
-		const boost::filesystem::path outPath = VCMIDirs::get().userCachePath() / "statistic";
-		boost::filesystem::create_directories(outPath);
-
-		const boost::filesystem::path filePath = outPath / (vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".csv");
-		std::ofstream file(filePath.c_str());
-		std::string csv = statistic.toCsv();
-		file << csv;
-
-		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.statisticWindow.csvSaved") + "\n\n" + filePath.string(), {});
+		std::string path = statistic.writeCsv();
+		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.statisticWindow.csvSaved") + "\n\n" + path, {});
 	});
 	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.csvSave"), EFonts::FONT_SMALL, Colors::YELLOW);
+
+	chart = std::make_shared<LineChart>(contentArea.resize(-5), "test title");
+}
+
+LineChart::LineChart(Rect position, std::string title) : CIntObject()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	pos = position + pos.topLeft();
+
+	auto chartArea = pos.resize(-50);
+	chartArea.moveTo(Point(50, 50));
+
+	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
+
+	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
+	canvas->addLine(chartArea.topLeft(), chartArea.bottomRight(), Colors::GREEN);
+
+	// Axis
+	canvas->addLine(chartArea.topLeft() + Point(0, -10), chartArea.topLeft() + Point(0, chartArea.h + 10), Colors::WHITE);
+	canvas->addLine(chartArea.topLeft() + Point(-10, chartArea.h), chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h), Colors::WHITE);
 }
