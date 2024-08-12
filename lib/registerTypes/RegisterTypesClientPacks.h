@@ -44,8 +44,6 @@ void registerTypesClientPacks(Serializer &s)
 	s.template registerType<CPackForClient, PlayerReinitInterface>();
 	s.template registerType<CPackForClient, RemoveBonus>();
 	s.template registerType<CPackForClient, UpdateArtHandlerLists>();
-	s.template registerType<CPackForClient, UpdateMapEvents>();
-	s.template registerType<CPackForClient, UpdateCastleEvents>();
 	s.template registerType<CPackForClient, ChangeFormation>();
 	s.template registerType<CPackForClient, RemoveObject>();
 	s.template registerType<CPackForClient, TryMoveHero>();

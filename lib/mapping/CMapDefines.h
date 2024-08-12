@@ -30,8 +30,8 @@ public:
 	CMapEvent();
 	virtual ~CMapEvent() = default;
 
-	bool earlierThan(const CMapEvent & other) const;
-	bool earlierThanOrEqual(const CMapEvent & other) const;
+	bool occursToday(int currentDay) const;
+	bool affectsPlayer(PlayerColor player, bool isHuman) const;
 
 	std::string name;
 	MetaString message;
