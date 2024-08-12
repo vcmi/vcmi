@@ -45,7 +45,7 @@ CampaignRegions CampaignRegions::fromJson(const JsonNode & node)
 {
 	CampaignRegions cr;
 	cr.campPrefix = node["prefix"].String();
-	cr.colorSuffixLength = static_cast<int>(node["color_suffix_length"].Float());
+	cr.colorSuffixLength = static_cast<int>(node["colorSuffixLength"].Float());
 	cr.campSuffix = node["suffix"].isNull() ? std::vector<std::string>() : std::vector<std::string>{node["suffix"].Vector()[0].String(), node["suffix"].Vector()[1].String(), node["suffix"].Vector()[2].String()};
 	cr.campBackground = node["background"].isNull() ? "" : node["background"].String();
 

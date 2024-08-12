@@ -182,10 +182,10 @@ Predefined campaign regions are located in file `campaign_regions.json`
 
 ```js
 {
-    "background": "own_region_background.bmp",
+    "background": "ownRegionBackground.png",
 		"suffix": ["Enabled", "Selected", "Conquered"],
     "prefix": "G3",
-    "color_suffix_length": 1,
+    "colorSuffixLength": 1,
     "desc": [
         { "infix": "A", "x": 289, "y": 376 },
         { "infix": "B", "x": 60, "y": 147 },
@@ -198,7 +198,7 @@ Predefined campaign regions are located in file `campaign_regions.json`
 - `"prefix"` used to identify all images related to campaign. In this example (if background parameter wouldn't exists), background picture will be `G3_BG`
 - `"suffix"` optional - use other suffixes than the default `En`, `Se` and `Co` for the three different images
 - `"infix"` used to identify all images related to region. In this example, it will be pictures whose files names begin with `G3A_..., G3B_..., G3C_..."` 
-- `"color_suffix_length"` identifies suffix length for region colourful frames. 0 is no color suffix (no colorisation), 1 is used for `R, B, N, G, O, V, T, P`, value 2 is used for `Re, Bl, Br, Gr, Or, Vi, Te, Pi`
+- `"colorSuffixLength"` identifies suffix length for region colourful frames. 0 is no color suffix (no colorisation), 1 is used for `R, B, N, G, O, V, T, P`, value 2 is used for `Re, Bl, Br, Gr, Or, Vi, Te, Pi`
 
 ## Packing campaign
 

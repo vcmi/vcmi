@@ -33,8 +33,8 @@ class IGameCallback;
 class DLL_LINKAGE CampaignRegions
 {
 	std::string campPrefix;
-	std::vector<std::string> campSuffix = {};
-	std::string campBackground = "";
+	std::vector<std::string> campSuffix;
+	std::string campBackground;
 	int colorSuffixLength;
 
 	struct DLL_LINKAGE RegionDescription
