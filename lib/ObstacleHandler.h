@@ -31,6 +31,7 @@ public:
 	
 	Obstacle obstacle;
 	si32 iconIndex;
+	std::string modScope;
 	std::string identifier;
 	AudioPath appearSound;
 	AnimationPath appearAnimation;
