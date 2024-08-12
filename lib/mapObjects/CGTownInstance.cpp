@@ -322,8 +322,9 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->heroVisitCastle(this, h);
 		}
 	}
-	else if(h->visitablePos() == visitablePos())
+	else
 	{
+		assert(h->visitablePos() == this->visitablePos());
 		bool commander_recover = h->commander && !h->commander->alive;
 		if (commander_recover) // rise commander from dead
 		{
@@ -343,10 +344,6 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			iw.components.emplace_back(ComponentType::CREATURE, h->commander->getId(), h->commander->getCount());
 			cb->showInfoDialog(&iw);
 		}
-	}
-	else
-	{
-		logGlobal->error("%s visits allied town of %s from different pos?", h->getNameTranslated(), getNameTranslated());
 	}
 }
 

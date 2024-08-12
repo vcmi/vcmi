@@ -242,10 +242,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	gameHandler->giveResource(player, EGameResID::GOLD, -GameConstants::HERO_GOLD_COST);
 
 	if(town)
-	{
-		gameHandler->visitCastleObjects(town, recruitedHero);
-		gameHandler->giveSpells(town, recruitedHero);
-	}
+		gameHandler->objectVisited(town, recruitedHero);
 
 	// If new hero has scouting he might reveal more terrain than we saw before
 	gameHandler->changeFogOfWar(recruitedHero->getSightCenter(), recruitedHero->getSightRadius(), player, ETileVisibility::REVEALED);

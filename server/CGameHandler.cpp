@@ -1518,11 +1518,14 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 
 void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
 {
-	HeroVisitCastle vc;
-	vc.hid = hero->id;
-	vc.tid = obj->id;
-	vc.flags |= 1;
-	sendAndApply(&vc);
+	if (obj->visitingHero != hero && obj->garrisonHero != hero)
+	{
+		HeroVisitCastle vc;
+		vc.hid = hero->id;
+		vc.tid = obj->id;
+		vc.flags |= 1;
+		sendAndApply(&vc);
+	}
 	visitCastleObjects(obj, hero);
 	giveSpells (obj, hero);
 
@@ -2487,9 +2490,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
 	if(t->garrisonHero) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		visitCastleObjects(t, t->garrisonHero);
+		objectVisited(t, t->garrisonHero);
 	if(t->visitingHero)
-		visitCastleObjects(t, t->visitingHero);
+		objectVisited(t, t->visitingHero);
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;
