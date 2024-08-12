@@ -553,14 +553,6 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 		for(const auto * manaVortex : getBonusingBuildings(BuildingSubID::MANA_VORTEX))
 			cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_CLEAR_VISITORS, manaVortex->indexOnTV); //reset visitors for Mana Vortex
 
-		//get Mana Vortex or Stables bonuses
-		//same code is in the CGameHandler::buildStructure method
-		if (garrisonHero != nullptr) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-			cb->visitCastleObjects(this, garrisonHero);
-
-		if (visitingHero != nullptr)
-			cb->visitCastleObjects(this, visitingHero);
-
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 		{
 			std::vector<SlotID> nativeCrits; //slots

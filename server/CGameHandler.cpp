@@ -631,10 +631,21 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
 	turnTimerHandler->onPlayerGetTurn(which);
 
-	handleTimeEvents(which);
+	const auto * playerState = gs->getPlayerState(which);
 
-	for (auto t : getPlayerState(which)->towns)
+	handleTimeEvents(which);
+	for (auto t : playerState->towns)
 		handleTownEvents(t);
+
+	for (auto t : playerState->towns)
+	{
+		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+		if (t->garrisonHero != nullptr)
+			objectVisited(t, t->garrisonHero);
+
+		if (t->visitingHero != nullptr)
+			objectVisited(t, t->visitingHero);
+	}
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
