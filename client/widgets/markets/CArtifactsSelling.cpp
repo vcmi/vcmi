@@ -35,7 +35,7 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 		[this](const std::shared_ptr<CTradeableItem> & resSlot){CArtifactsSelling::onSlotClickPressed(resSlot, offerTradePanel);},
 		[this](){CArtifactsSelling::updateSubtitles();})
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	std::string title;
 	if(const auto townMarket = dynamic_cast<const CGTownInstance*>(market))

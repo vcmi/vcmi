@@ -33,7 +33,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	grailPos(GrailPos),
 	currentAlpha(ColorRGBA::ALPHA_OPAQUE)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	CCS->soundh->playSound(soundBase::OBELISK);
 

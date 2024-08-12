@@ -48,7 +48,7 @@
 CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	: CWindowObject(BORDERED), campaignSet(name)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	for(const JsonNode & node : config[name]["images"].Vector())
 		images.push_back(CMainMenu::createPicture(node));
@@ -90,7 +90,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)
 	: campaignSet(campaignSet)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos.x += static_cast<int>(config["x"].Float());
 	pos.y += static_cast<int>(config["y"].Float());
@@ -140,7 +140,7 @@ void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPositio
 
 void CCampaignScreen::CCampaignButton::hover(bool on)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	if (on && !videoPath.empty())
 		videoPlayer = std::make_shared<VideoWidget>(Point(), videoPath, false);

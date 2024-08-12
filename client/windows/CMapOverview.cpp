@@ -45,7 +45,7 @@ CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::strin
 	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), author(author), version(version), tabType(tabType)
 {
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	widget = std::make_shared<CMapOverviewWidget>(*this);
 

@@ -29,7 +29,7 @@ CTradeableItem::CTradeableItem(const Rect & area, EType Type, int ID, int Serial
 	, id(ID)
 	, serial(Serial)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(LCLICK);
 	addUsedEvents(HOVER);
@@ -46,7 +46,7 @@ void CTradeableItem::setType(EType newType)
 {
 	if(type != newType)
 	{
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+		OBJECT_CONSTRUCTION;
 		type = newType;
 
 		if(getIndex() < 0)
@@ -270,7 +270,7 @@ ResourcesPanel::ResourcesPanel(const CTradeableItem::ClickPressedFunctor & click
 	const UpdateSlotsFunctor & updateSubtitles)
 {
 	assert(resourcesForTrade.size() == slotsPos.size());
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	for(const auto & res : resourcesForTrade)
 	{
@@ -287,7 +287,7 @@ ArtifactsPanel::ArtifactsPanel(const CTradeableItem::ClickPressedFunctor & click
 {
 	assert(slotsForTrade == slotsPos.size());
 	assert(slotsForTrade == arts.size());
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	for(auto slotIdx = 0; slotIdx < slotsForTrade; slotIdx++)
 	{
@@ -308,7 +308,7 @@ ArtifactsPanel::ArtifactsPanel(const CTradeableItem::ClickPressedFunctor & click
 PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback)
 {
 	assert(PlayerColor::PLAYER_LIMIT_I <= slotsPos.size() + 1);
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	std::vector<PlayerColor> players;
 	for(auto player = PlayerColor(0); player < PlayerColor::PLAYER_LIMIT_I; player++)
@@ -334,7 +334,7 @@ CreaturesPanel::CreaturesPanel(const CTradeableItem::ClickPressedFunctor & click
 {
 	assert(initialSlots.size() <= GameConstants::ARMY_SIZE);
 	assert(slotsPos.size() <= GameConstants::ARMY_SIZE);
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	for(const auto & [creatureId, slotId, creaturesNum] : initialSlots)
 	{
@@ -352,7 +352,7 @@ CreaturesPanel::CreaturesPanel(const CTradeableItem::ClickPressedFunctor & click
 	const std::vector<std::shared_ptr<CTradeableItem>> & srcSlots, bool emptySlots)
 {
 	assert(slots.size() <= GameConstants::ARMY_SIZE);
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	for(const auto & srcSlot : srcSlots)
 	{
@@ -367,7 +367,7 @@ CreaturesPanel::CreaturesPanel(const CTradeableItem::ClickPressedFunctor & click
 
 ArtifactsAltarPanel::ArtifactsAltarPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	int slotNum = 0;
 	for(auto & altarSlotPos : slotsPos)

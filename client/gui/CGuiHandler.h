@@ -89,7 +89,6 @@ public:
 
 	IUpdateable *curInt;
 
-	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created
 
@@ -113,25 +112,3 @@ public:
 };
 
 extern CGuiHandler GH; //global gui handler
-
-struct SObjectConstruction
-{
-	CIntObject *myObj;
-	SObjectConstruction(CIntObject *obj);
-	~SObjectConstruction();
-};
-
-struct SSetCaptureState
-{
-	bool previousCapture;
-	ui8 prevActions;
-	SSetCaptureState(bool allow, ui8 actions);
-	~SSetCaptureState();
-};
-
-#define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)
-#define OBJ_CONSTRUCTION_TARGETED(obj) SObjectConstruction obj__i(obj)
-#define OBJECT_CONSTRUCTION_CAPTURING(actions) defActions = actions; SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
-#define OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(actions) SSetCaptureState obj__i1(true, actions); SObjectConstruction obj__i(this)
-
-#define OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE defActions = 255 - DISPOSE; SSetCaptureState obj__i1(true, 255 - DISPOSE); SObjectConstruction obj__i(this)

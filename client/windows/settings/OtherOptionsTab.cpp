@@ -24,7 +24,7 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 
 OtherOptionsTab::OtherOptionsTab() : InterfaceObjectConfigurable()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	const JsonNode config(JsonPath::builtin("config/widgets/settings/otherOptionsTab.json"));
 	addCallback("availableCreaturesAsDwellingLabelChanged", [](bool value)

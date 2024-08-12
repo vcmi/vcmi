@@ -40,7 +40,7 @@ CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero
 		mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::ARTIFACT_RESOURCE || mode == EMarketMode::ARTIFACT_EXP ||
 		mode == EMarketMode::CREATURE_EXP);
 	
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	if(mode == EMarketMode::RESOURCE_RESOURCE)
 		createMarketResources(market, hero);
@@ -177,7 +177,7 @@ void CMarketWindow::initWidgetInternals(const EMarketMode mode, const std::pair<
 
 void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("TPMRKABS.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CArtifactsBuying>(market, hero);
@@ -186,7 +186,7 @@ void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroIn
 
 void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("TPMRKASS.bmp"), PLAYER_COLORED);
 	// Create image that copies part of background containing slot MISC_1 into position of slot MISC_5
@@ -203,7 +203,7 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 
 void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("TPMRKRES.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CMarketResources>(market, hero);
@@ -212,7 +212,7 @@ void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroIn
 
 void CMarketWindow::createFreelancersGuild(const IMarket * market, const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("TPMRKCRS.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CFreelancerGuild>(market, hero);
@@ -221,7 +221,7 @@ void CMarketWindow::createFreelancersGuild(const IMarket * market, const CGHeroI
 
 void CMarketWindow::createTransferResources(const IMarket * market, const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("TPMRKPTS.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CTransferResources>(market, hero);
@@ -230,7 +230,7 @@ void CMarketWindow::createTransferResources(const IMarket * market, const CGHero
 
 void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("ALTRART2.bmp"), PLAYER_COLORED);
 	auto altarArtifacts = std::make_shared<CAltarArtifacts>(market, hero);
@@ -257,7 +257,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 
 void CMarketWindow::createAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("ALTARMON.bmp"), PLAYER_COLORED);
 	marketWidget = std::make_shared<CAltarCreatures>(market, hero);
