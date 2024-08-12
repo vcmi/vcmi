@@ -835,7 +835,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		{
 			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
 			{
-				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, town->id, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
 			}
 		}

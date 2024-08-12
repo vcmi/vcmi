@@ -122,12 +122,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 	return true;
 }
 
-bool IMarket::allowsTrade(EMarketMode mode) const
-{
-	return false;
-}
-
-int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
+int IMarket::availableUnits(const EMarketMode mode, const int marketItemSerial) const
 {
 	switch(mode)
 	{
@@ -140,7 +135,7 @@ int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	}
 }
 
-std::vector<TradeItemBuy> IMarket::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) const
 {
 	std::vector<TradeItemBuy> ret;
 	switch(mode)
@@ -152,10 +147,6 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(EMarketMode mode) const
 			ret.push_back(res);
 	}
 	return ret;
-}
-
-IMarket::IMarket()
-{
 }
 
 std::vector<EMarketMode> IMarket::availableModes() const

@@ -526,7 +526,7 @@ void AIGateway::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonu
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
+void AIGateway::showMarketWindow(const IMarket * market, const ObjectInstanceID & marketId, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;

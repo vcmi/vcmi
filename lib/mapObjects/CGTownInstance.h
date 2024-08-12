@@ -76,6 +76,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGDwelling&>(*this);
+		h & static_cast<IMarket&>(*this);
 		h & nameTextId;
 		h & built;
 		h & destroyed;

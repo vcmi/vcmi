@@ -478,7 +478,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		{
 			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
 			{
-				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, town->id, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
 			}
 		}

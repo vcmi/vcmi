@@ -251,12 +251,15 @@ void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 	market->marketModes = marketModes;
 	market->marketEfficiency = marketEfficiency;
 	
-	market->title = market->getObjectName();
-	if(!title.empty())
-		market->title = VLC->generaltexth->translate(title);
-	
-	if (!speech.empty())
-		market->speech = VLC->generaltexth->translate(speech);
+	if(auto univercity = dynamic_cast<CGUniversity*>(market))
+	{
+		univercity->title = market->getObjectName();
+		if(!title.empty())
+			univercity->title = VLC->generaltexth->translate(title);
+
+		if(!speech.empty())
+			univercity->speech = VLC->generaltexth->translate(speech);
+	}
 }
 
 void MarketInstanceConstructor::randomizeObject(CGMarket * object, vstd::RNG & rng) const

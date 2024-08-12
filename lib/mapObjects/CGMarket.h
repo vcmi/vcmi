@@ -22,10 +22,6 @@ public:
 	std::set<EMarketMode> marketModes;
 	int marketEfficiency;
 	
-	//window variables
-	std::string title;
-	std::string speech; //currently shown only in university
-	
 	CGMarket(IGameCallback *cb);
 	///IObjectInterface
 	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
@@ -40,10 +36,9 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<IMarket&>(*this);
 		h & marketModes;
 		h & marketEfficiency;
-		h & title;
-		h & speech;
 	}
 };
 
@@ -68,6 +63,8 @@ class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
 	using CGMarket::CGMarket;
+	std::string speech; //currently shown only in university
+	std::string title;
 
 	std::vector<TradeItemBuy> skills; //available skills
 
@@ -78,6 +75,8 @@ public:
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & skills;
+		h & speech;
+		h & title;
 	}
 };
 
