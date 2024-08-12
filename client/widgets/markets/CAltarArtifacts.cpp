@@ -29,7 +29,7 @@
 CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	assert(dynamic_cast<const CGArtifactsAltar*>(market));
 	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(market);

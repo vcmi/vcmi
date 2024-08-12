@@ -35,7 +35,7 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 	, lastSoundCheckSeconds(0)
 	, isBattleMode(player.isValidPlayer())
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos += position;
 	pos.w = 0;

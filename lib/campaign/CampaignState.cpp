@@ -144,6 +144,26 @@ std::string CampaignHeader::getNameTranslated() const
 	return name.toString();
 }
 
+std::string CampaignHeader::getAuthor() const
+{
+	return authorContact.toString();
+}
+
+std::string CampaignHeader::getAuthorContact() const
+{
+	return authorContact.toString();
+}
+
+std::string CampaignHeader::getCampaignVersion() const
+{
+	return campaignVersion.toString();
+}
+
+time_t CampaignHeader::getCreationDateTime() const
+{
+	return creationDateTime;
+}
+
 std::string CampaignHeader::getFilename() const
 {
 	return filename;

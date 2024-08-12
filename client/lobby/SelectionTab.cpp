@@ -154,7 +154,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 SelectionTab::SelectionTab(ESelectionScreen Type)
 	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), currentMapSizeFilter(0), showRandom(false)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 		
 	generalSortingBy = getSortBySelectionScreen(tabType);
 	sortingBy = _format;
@@ -390,14 +390,28 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 	if(!curItems[py]->isFolder)
 	{
-		auto creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
-		auto author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
+		std::string creationDateTime;
+		std::string author;
+		std::string mapVersion;
+		if(tabType != ESelectionScreen::campaignList)
+		{
+			author = curItems[py]->mapHeader->author.toString() + (!curItems[py]->mapHeader->authorContact.toString().empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString() + ">") : "");
+			mapVersion = curItems[py]->mapHeader->mapVersion.toString();
+			creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
+		}
+		else
+		{
+			author = curItems[py]->campaign->getAuthor() + (!curItems[py]->campaign->getAuthorContact().empty() ? (" <" + curItems[py]->campaign->getAuthorContact() + ">") : "");
+			mapVersion = curItems[py]->campaign->getCampaignVersion();
+			creationDateTime = curItems[py]->campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(curItems[py]->campaign->getCreationDateTime()) : curItems[py]->date;
+		}
+
 		GH.windows().createAndPushWindow<CMapOverview>(
 			curItems[py]->getNameTranslated(),
 			curItems[py]->fullFileURI,
 			creationDateTime,
 			author,
-			curItems[py]->mapHeader->mapVersion.toString(),
+			mapVersion,
 			ResourcePath(curItems[py]->fileURI),
 			tabType
 		);
@@ -883,7 +897,7 @@ std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, ERes
 SelectionTab::ListItem::ListItem(Point position)
 	: CIntObject(LCLICK, position)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
 	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);

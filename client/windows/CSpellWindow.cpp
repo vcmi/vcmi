@@ -115,7 +115,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	offT(-37),
 	offB(56)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	if(isBigSpellbook)
 	{
@@ -594,7 +594,7 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 	schoolLevel = -1;
 	mySpell = nullptr;
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("Spells"), 0, 0);
 	image->visible = false;
@@ -744,7 +744,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		image->visible = true;
 
 		{
-			OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+			OBJECT_CONSTRUCTION;
 
 			static const std::array schoolBorders = {
 				AnimationPath::builtin("SplevA.def"),

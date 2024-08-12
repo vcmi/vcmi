@@ -53,6 +53,11 @@ std::string CHero::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CHero::getModScope() const
+{
+	return modScope;
+}
+
 HeroTypeID CHero::getId() const
 {
 	return ID;
@@ -189,6 +194,11 @@ std::string CHeroClass::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CHeroClass::getModScope() const
+{
+	return modScope;
+}
+
 HeroClassID CHeroClass::getId() const
 {
 	return id;
@@ -230,8 +240,7 @@ void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass *
 {
 	const auto & skillName = NPrimarySkill::names[pSkill.getNum()];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
-	//minimal value is 0 for attack and defense and 1 for spell power and knowledge
-	auto primarySkillLegalMinimum = (pSkill == PrimarySkill::ATTACK || pSkill == PrimarySkill::DEFENSE) ? 0 : 1;
+	int primarySkillLegalMinimum = VLC->settings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[pSkill.getNum()];
 
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{

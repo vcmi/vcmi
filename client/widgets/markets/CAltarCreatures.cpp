@@ -30,7 +30,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	, CMarketSlider(std::bind(&CAltarCreatures::onOfferSliderMoved, this, _1))
 	, CMarketTraderText(Point(28, 31), FONT_MEDIUM, Colors::YELLOW)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("ALTSACR.DEF"),
 		CGI->generaltexth->zelp[584], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);

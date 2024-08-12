@@ -31,7 +31,7 @@
 CHeroOverview::CHeroOverview(const HeroTypeID & h)
 	: CWindowObject(BORDERED | RCLICK_POPUP), hero { h }
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
     heroIdx = hero.getNum();
 

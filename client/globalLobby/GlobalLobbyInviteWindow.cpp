@@ -47,7 +47,7 @@ GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(const GlobalLobbyAcco
 		}
 	}
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	if (thisAccountInvited)
 		backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), ColorRGBA(0, 0, 0, 128), Colors::WHITE, 1);
 	else
@@ -73,7 +73,7 @@ void GlobalLobbyInviteAccountCard::clickPressed(const Point & cursorPosition)
 GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos.w = 236;
 	pos.h = 420;
