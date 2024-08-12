@@ -102,13 +102,12 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 {
 	if(curTab && curTab->isActive())
 	{
-		curTab->deactivate();
-		curTab->recActions = 0;
+		curTab->disable();
 	}
 
 	if(curTab != tab)
 	{
-		tab->activate();
+		tab->enable();
 		curTab = tab;
 	}
 	else
