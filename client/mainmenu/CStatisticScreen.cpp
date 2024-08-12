@@ -17,6 +17,8 @@
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 
+#include "../render/Graphics.h"
+
 #include "../widgets/Images.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/TextControls.h"
@@ -47,10 +49,35 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	});
 	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.csvSave"), EFonts::FONT_SMALL, Colors::YELLOW);
 
-	chart = std::make_shared<LineChart>(contentArea.resize(-5), "test title");
+	auto plotData = extractData(stat, [](StatisticDataSetEntry val){ return val.resources[EGameResID::GOLD]; });
+	chart = std::make_shared<LineChart>(contentArea.resize(-5), "test title", plotData);
 }
 
-LineChart::LineChart(Rect position, std::string title) : CIntObject()
+std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector)
+{
+	auto tmpData = stat.data;
+	std::sort(tmpData.begin(), tmpData.end(), [](StatisticDataSetEntry v1, StatisticDataSetEntry v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
+
+	PlayerColor tmpColor = PlayerColor::NEUTRAL;
+	std::vector<float> tmpColorSet;
+	std::map<ColorRGBA, std::vector<float>> plotData;
+	for(auto & val : tmpData)
+	{
+		if(tmpColor != val.player)
+		{
+			if(tmpColorSet.size())
+				plotData[graphics->playerColors[tmpColor.getNum()]] = tmpColorSet;
+			tmpColorSet.clear();
+			tmpColor = val.player;
+		}
+		tmpColorSet.push_back(selector(val));
+	}
+	plotData[graphics->playerColors[tmpColor.getNum()]] = tmpColorSet;
+
+	return plotData;
+}
+
+LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data) : CIntObject()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -62,9 +89,10 @@ LineChart::LineChart(Rect position, std::string title) : CIntObject()
 	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
 
 	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
-	canvas->addLine(chartArea.topLeft(), chartArea.bottomRight(), Colors::GREEN);
 
 	// Axis
 	canvas->addLine(chartArea.topLeft() + Point(0, -10), chartArea.topLeft() + Point(0, chartArea.h + 10), Colors::WHITE);
 	canvas->addLine(chartArea.topLeft() + Point(-10, chartArea.h), chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h), Colors::WHITE);
+	
+	canvas->addLine(chartArea.topLeft(), chartArea.bottomRight(), Colors::GREEN);
 }

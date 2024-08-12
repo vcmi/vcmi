@@ -93,8 +93,6 @@ struct DLL_LINKAGE StatisticDataSetEntry
 
 class DLL_LINKAGE StatisticDataSet
 {
-    std::vector<StatisticDataSetEntry> data;
-
 public:
     void add(StatisticDataSetEntry entry);
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
@@ -128,6 +126,7 @@ public:
 			h & movementPointsUsed;
 		}
 	};
+    std::vector<StatisticDataSetEntry> data;
 	std::map<PlayerColor, PlayerAccumulatedValueStorage> accumulatedValues;
 
 	template <typename Handler> void serialize(Handler &h)
