@@ -66,13 +66,18 @@ std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticD
 		if(tmpColor != val.player)
 		{
 			if(tmpColorSet.size())
-				plotData[graphics->playerColors[tmpColor.getNum()]] = tmpColorSet;
-			tmpColorSet.clear();
+			{
+				plotData.emplace(graphics->playerColors[tmpColor.getNum()], std::vector<float>(tmpColorSet));
+				tmpColorSet.clear();
+			}
+
 			tmpColor = val.player;
 		}
-		tmpColorSet.push_back(selector(val));
+		if(val.status == EPlayerStatus::INGAME)
+			tmpColorSet.push_back(selector(val));
 	}
-	plotData[graphics->playerColors[tmpColor.getNum()]] = tmpColorSet;
+	if(tmpColorSet.size())
+		plotData.emplace(graphics->playerColors[tmpColor.getNum()], std::vector<float>(tmpColorSet));
 
 	return plotData;
 }
@@ -90,9 +95,43 @@ LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::
 
 	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
 
+	// additional calculations
+	float maxVal = 0;
+	int maxDay = 0;
+	for(auto & line : data)
+	{
+		for(auto & val : line.second)
+			if(maxVal < val)
+				maxVal = val;
+		if(maxDay < line.second.size())
+			maxDay = line.second.size();
+	}
+
+	// draw
+	for(auto & line : data)
+	{
+		Point lastPoint = Point(-1, -1);
+		for(int i = 0; i < line.second.size(); i++)
+		{
+			float x = ((float)chartArea.w / (float)(maxDay-1)) * (float)i;
+			float y = (float)chartArea.h - ((float)chartArea.h / maxVal) * line.second[i];
+			Point p = Point(x, y) + chartArea.topLeft();
+
+			if(lastPoint.x != -1)
+				canvas->addLine(lastPoint, p, line.first);
+
+			lastPoint = p;
+		}
+	}
+
 	// Axis
 	canvas->addLine(chartArea.topLeft() + Point(0, -10), chartArea.topLeft() + Point(0, chartArea.h + 10), Colors::WHITE);
 	canvas->addLine(chartArea.topLeft() + Point(-10, chartArea.h), chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h), Colors::WHITE);
-	
-	canvas->addLine(chartArea.topLeft(), chartArea.bottomRight(), Colors::GREEN);
+
+	Point p = chartArea.topLeft() + Point(-5, chartArea.h + 10);
+	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "0"));
+	p = chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h + 10);
+	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(maxDay)));
+	p = chartArea.topLeft() + Point(-5, -10);
+	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, std::to_string((int)maxVal)));
 }
