@@ -168,6 +168,7 @@
 	"vcmi.statisticWindow.selectView" : "Select view",
 	"vcmi.statisticWindow.value" : "Value",
 	"vcmi.statisticWindow.title.overview" : "Overview",
+	"vcmi.statisticWindow.title.resources" : "Resources",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Fullscreen (borderless)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Borderless Fullscreen}\n\nIf selected, VCMI will run in borderless fullscreen mode. In this mode, game will always use same resolution as desktop, ignoring selected resolution.",

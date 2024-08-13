@@ -40,16 +40,18 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	filledBackground->setPlayerColor(PlayerColor(1));
 
-	auto contentArea = Rect(10, 40, 780, 510);
+	contentArea = Rect(10, 40, 780, 510);
 	layout.push_back(std::make_shared<CLabel>(400, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.statisticWindow.statistic")));
 	layout.push_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1));
 	layout.push_back(std::make_shared<CButton>(Point(725, 564), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
 
 	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
-		std::vector<std::string> texts = { "test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10", "test11", "test12" };
-		GH.windows().createAndPushWindow<StatisticSelector>(texts, [](int selectedIndex)
+		std::vector<std::string> texts;
+		for(auto & val : contentText)
+			texts.push_back(CGI->generaltexth->translate(val));
+		GH.windows().createAndPushWindow<StatisticSelector>(texts, [this](int selectedIndex)
 		{
-			
+			mainContent = getContent((Content)selectedIndex);
 		});
 	});
 	buttonSelect->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
@@ -60,10 +62,7 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	});
 	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.csvSave"), EFonts::FONT_SMALL, Colors::YELLOW);
 
-	//auto plotData = extractData(stat, [](StatisticDataSetEntry val){ return val.resources[EGameResID::GOLD]; });
-	//mainContent = std::make_shared<LineChart>(contentArea.resize(-5), "Total Gold", plotData);
-
-	mainContent = std::make_shared<OverviewPanel>(contentArea.resize(-15), stat);
+	mainContent = getContent(OVERVIEW);
 }
 
 std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector)
@@ -93,6 +92,19 @@ std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticD
 		plotData.emplace(graphics->playerColors[tmpColor.getNum()], std::vector<float>(tmpColorSet));
 
 	return plotData;
+}
+
+std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c)
+{
+	switch (c)
+	{
+	case OVERVIEW:
+		return std::make_shared<OverviewPanel>(contentArea.resize(-15), statistic);
+	
+	case CHART_RESOURCES:
+		auto plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.resources[EGameResID::GOLD]; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), contentText[c], plotData);
+	}
 }
 
 StatisticSelector::StatisticSelector(std::vector<std::string> texts, std::function<void(int selectedIndex)> cb)

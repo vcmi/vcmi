@@ -168,6 +168,7 @@
 	"vcmi.statisticWindow.selectView" : "Ansicht wählen",
 	"vcmi.statisticWindow.value" : "Wert",
 	"vcmi.statisticWindow.title.overview" : "Überblick",
+	"vcmi.statisticWindow.title.resources" : "Ressourcen",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Vollbild (randlos)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Randloses Vollbild}\n\nWenn diese Option ausgewählt ist, wird VCMI im randlosen Vollbildmodus ausgeführt. In diesem Modus wird das Spiel immer dieselbe Auflösung wie der Desktop verwenden und die gewählte Auflösung ignorieren.",

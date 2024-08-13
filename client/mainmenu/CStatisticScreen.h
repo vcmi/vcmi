@@ -21,14 +21,25 @@ class CSlider;
 
 class CStatisticScreen : public CWindowObject
 {
+	enum Content {
+		OVERVIEW,
+		CHART_RESOURCES,
+	};
+	std::map<Content, std::string> contentText = {
+		{ OVERVIEW, "vcmi.statisticWindow.title.overview"},
+		{ CHART_RESOURCES, "vcmi.statisticWindow.title.resources"},
+	};
+
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::vector<std::shared_ptr<CIntObject>> layout;
 	std::shared_ptr<CToggleButton> buttonCsvSave;
 	std::shared_ptr<CToggleButton> buttonSelect;
 	StatisticDataSet statistic;
 	std::shared_ptr<CIntObject> mainContent;
+	Rect contentArea;
 
 	std::map<ColorRGBA, std::vector<float>> extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector);
+	std::shared_ptr<CIntObject> getContent(Content c);
 public:
 	CStatisticScreen(StatisticDataSet stat);
 };
