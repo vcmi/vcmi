@@ -64,6 +64,12 @@ void GraphicalPrimitiveCanvas::addRectangle(const Point & topLeft, const Point &
 	primitives.push_back({color, topLeft, size, PrimitiveType::RECTANGLE});
 }
 
+void GraphicalPrimitiveCanvas::clear()
+{
+	primitives.clear();
+	redraw();
+}
+
 TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color) :
 	GraphicalPrimitiveCanvas(position)
 {

@@ -25,9 +25,9 @@ class CStatisticScreen : public CWindowObject
 		OVERVIEW,
 		CHART_RESOURCES,
 	};
-	std::map<Content, std::string> contentText = {
-		{ OVERVIEW, "vcmi.statisticWindow.title.overview"},
-		{ CHART_RESOURCES, "vcmi.statisticWindow.title.resources"},
+	std::map<Content, std::tuple<std::string, bool>> contentInfo = { // tuple: textid, resource selection needed
+		{ OVERVIEW, { "vcmi.statisticWindow.title.overview", false } },
+		{ CHART_RESOURCES, { "vcmi.statisticWindow.title.resources", true } },
 	};
 
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;

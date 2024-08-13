@@ -47,11 +47,22 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 
 	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
 		std::vector<std::string> texts;
-		for(auto & val : contentText)
-			texts.push_back(CGI->generaltexth->translate(val));
+		for(auto & val : contentInfo)
+			texts.push_back(CGI->generaltexth->translate(std::get<0>(val.second)));
 		GH.windows().createAndPushWindow<StatisticSelector>(texts, [this](int selectedIndex)
 		{
-			mainContent = getContent((Content)selectedIndex);
+			OBJECT_CONSTRUCTION;
+			if(!std::get<1>(contentInfo[(Content)selectedIndex]))
+				mainContent = getContent((Content)selectedIndex);
+			else
+			{
+				auto content = (Content)selectedIndex;
+				GH.windows().createAndPushWindow<StatisticSelector>(std::vector<std::string>({"gold", "bla", "blab"}), [this, content](int selectedIndex)
+				{
+					OBJECT_CONSTRUCTION;
+					mainContent = getContent((Content)selectedIndex);
+				});
+			}
 		});
 	});
 	buttonSelect->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
@@ -103,8 +114,10 @@ std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c)
 	
 	case CHART_RESOURCES:
 		auto plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.resources[EGameResID::GOLD]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), contentText[c], plotData);
+		return std::make_shared<LineChart>(contentArea.resize(-5), std::get<0>(contentInfo[c]), plotData);
 	}
+
+	return nullptr;
 }
 
 StatisticSelector::StatisticSelector(std::vector<std::string> texts, std::function<void(int selectedIndex)> cb)
@@ -131,7 +144,7 @@ void StatisticSelector::update(int to)
 		if(i>=texts.size())
 			continue;
 
-		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this, i](bool on){ cb(i); close(); });
+		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this, i](bool on){ close(); cb(i); });
 		button->setTextOverlay(texts[i], EFonts::FONT_SMALL, Colors::WHITE);
 		buttons.push_back(button);
 	}
@@ -161,6 +174,7 @@ OverviewPanel::OverviewPanel(Rect position, StatisticDataSet data)
 
 void OverviewPanel::update()
 {
+	canvas->clear();
 	Point fieldSize(canvas->pos.w / (graphics->playerColors.size() + 2), canvas->pos.h / LINES);
 	for(int x = 0; x < graphics->playerColors.size() + 1; x++)
 		for(int y = 0; y < LINES; y++)
@@ -190,7 +204,7 @@ LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::
 	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
 
 	statusBar = CGStatusBar::create(0, 0, ImagePath::builtin("radialMenu/statusBar"));
-	statusBar->setEnabled(false);
+	((std::shared_ptr<CIntObject>)statusBar)->setEnabled(false);
 
 	// additional calculations
 	for(auto & line : data)

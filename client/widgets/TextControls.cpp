@@ -544,7 +544,6 @@ void CGStatusBar::activate()
 
 void CGStatusBar::deactivate()
 {
-	assert(GH.statusbar().get() == this);
 	GH.setStatusbar(nullptr);
 
 	if (enteringText)
