@@ -39,7 +39,7 @@ class CStatisticScreen : public CWindowObject
 	Rect contentArea;
 
 	std::map<ColorRGBA, std::vector<float>> extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector);
-	std::shared_ptr<CIntObject> getContent(Content c);
+	std::shared_ptr<CIntObject> getContent(Content c, EGameResID res);
 public:
 	CStatisticScreen(StatisticDataSet stat);
 };
@@ -64,13 +64,14 @@ class OverviewPanel : public CIntObject
 {
 	std::shared_ptr<GraphicalPrimitiveCanvas> canvas;
 	std::vector<std::shared_ptr<CIntObject>> layout;
+	std::vector<std::shared_ptr<CIntObject>> content;
 	std::shared_ptr<CSlider> slider;
 
 	const int LINES = 15;
 
 	void update();
 public:
-	OverviewPanel(Rect position, StatisticDataSet data);
+	OverviewPanel(Rect position, std::string title, StatisticDataSet data);
 };
 
 class LineChart : public CIntObject

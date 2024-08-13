@@ -53,14 +53,19 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 		{
 			OBJECT_CONSTRUCTION;
 			if(!std::get<1>(contentInfo[(Content)selectedIndex]))
-				mainContent = getContent((Content)selectedIndex);
+				mainContent = getContent((Content)selectedIndex, EGameResID::NONE);
 			else
 			{
 				auto content = (Content)selectedIndex;
-				GH.windows().createAndPushWindow<StatisticSelector>(std::vector<std::string>({"gold", "bla", "blab"}), [this, content](int selectedIndex)
+				auto possibleRes = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+				std::vector<std::string> resourceText;
+				for(auto & res : possibleRes)
+					resourceText.push_back(CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()));
+				
+				GH.windows().createAndPushWindow<StatisticSelector>(resourceText, [this, content, possibleRes](int selectedIndex)
 				{
 					OBJECT_CONSTRUCTION;
-					mainContent = getContent((Content)selectedIndex);
+					mainContent = getContent(content, possibleRes[selectedIndex]);
 				});
 			}
 		});
@@ -73,7 +78,7 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	});
 	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.csvSave"), EFonts::FONT_SMALL, Colors::YELLOW);
 
-	mainContent = getContent(OVERVIEW);
+	mainContent = getContent(OVERVIEW, EGameResID::NONE);
 }
 
 std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector)
@@ -105,16 +110,16 @@ std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticD
 	return plotData;
 }
 
-std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c)
+std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID res)
 {
 	switch (c)
 	{
 	case OVERVIEW:
-		return std::make_shared<OverviewPanel>(contentArea.resize(-15), statistic);
+		return std::make_shared<OverviewPanel>(contentArea.resize(-15), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), statistic);
 	
 	case CHART_RESOURCES:
-		auto plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.resources[EGameResID::GOLD]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), std::get<0>(contentInfo[c]), plotData);
+		auto plotData = extractData(statistic, [res](StatisticDataSetEntry val) -> float { return val.resources[res]; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData);
 	}
 
 	return nullptr;
@@ -150,14 +155,14 @@ void StatisticSelector::update(int to)
 	}
 }
 
-OverviewPanel::OverviewPanel(Rect position, StatisticDataSet data)
+OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet data)
 	: CIntObject()
 {
 	OBJECT_CONSTRUCTION;
 
 	pos = position + pos.topLeft();
 
-	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.title.overview")));
+	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
 
 	int yOffs = 30;
 
@@ -165,16 +170,10 @@ OverviewPanel::OverviewPanel(Rect position, StatisticDataSet data)
 
 	int usedLines = 100;
 
-	slider = std::make_shared<CSlider>(Point(pos.w - 16, yOffs), pos.h - yOffs, [this](int to){ update(); redraw(); }, LINES, usedLines, 0, Orientation::VERTICAL, CSlider::BLUE);
+	slider = std::make_shared<CSlider>(Point(pos.w - 16, yOffs), pos.h - yOffs, [this](int to){ update(); setRedrawParent(true); redraw(); }, LINES, usedLines, 0, Orientation::VERTICAL, CSlider::BLUE);
 	slider->setPanningStep(canvas->pos.h / LINES);
 	slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, pos.w, canvas->pos.h));
 
-	update();
-}
-
-void OverviewPanel::update()
-{
-	canvas->clear();
 	Point fieldSize(canvas->pos.w / (graphics->playerColors.size() + 2), canvas->pos.h / LINES);
 	for(int x = 0; x < graphics->playerColors.size() + 1; x++)
 		for(int y = 0; y < LINES; y++)
@@ -185,6 +184,16 @@ void OverviewPanel::update()
 				canvas->addBox(Point(xStart, yStart), Point(x == 0 ? 2 * fieldSize.x : fieldSize.x, fieldSize.y), ColorRGBA(0, 0, 0, 100));
 			canvas->addRectangle(Point(xStart, yStart), Point(x == 0 ? 2 * fieldSize.x : fieldSize.x, fieldSize.y), ColorRGBA(127, 127, 127, 255));
 		}
+
+	update();
+}
+
+void OverviewPanel::update()
+{
+	OBJECT_CONSTRUCTION;
+
+	content.clear();
+	content.push_back(std::make_shared<CLabel>(pos.w / 2, 100, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "blah" + vstd::getDateTimeISO8601Basic(std::time(0))));
 }
 
 LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data)
@@ -196,7 +205,7 @@ LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::
 
 	pos = position + pos.topLeft();
 
-	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
+	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
 
 	chartArea = pos.resize(-50);
 	chartArea.moveTo(Point(50, 50));

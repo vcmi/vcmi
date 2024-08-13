@@ -38,7 +38,6 @@ public:
 	void addLine(const Point & from, const Point & to, const ColorRGBA & color);
 	void addBox(const Point & topLeft, const Point & size, const ColorRGBA & color);
 	void addRectangle(const Point & topLeft, const Point & size, const ColorRGBA & color);
-	void clear();
 };
 
 class TransparentFilledRectangle : public GraphicalPrimitiveCanvas
