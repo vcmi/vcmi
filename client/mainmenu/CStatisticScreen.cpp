@@ -19,11 +19,13 @@
 
 #include "../render/Graphics.h"
 
+#include "../widgets/ComboBox.h"
 #include "../widgets/Images.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
+#include "../widgets/Slider.h"
 
 #include "../../lib/gameState/GameStatistics.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -43,14 +45,25 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	layout.push_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1));
 	layout.push_back(std::make_shared<CButton>(Point(725, 564), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
 
-	buttonCsvSave = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
+	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
+		std::vector<std::string> texts = { "test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10", "test11", "test12" };
+		GH.windows().createAndPushWindow<StatisticSelector>(texts, [](int selectedIndex)
+		{
+			
+		});
+	});
+	buttonSelect->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
+
+	buttonCsvSave = std::make_shared<CToggleButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
 		std::string path = statistic.writeCsv();
 		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.statisticWindow.csvSaved") + "\n\n" + path, {});
 	});
 	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.csvSave"), EFonts::FONT_SMALL, Colors::YELLOW);
 
-	auto plotData = extractData(stat, [](StatisticDataSetEntry val){ return val.resources[EGameResID::GOLD]; });
-	chart = std::make_shared<LineChart>(contentArea.resize(-5), "Total Gold", plotData);
+	//auto plotData = extractData(stat, [](StatisticDataSetEntry val){ return val.resources[EGameResID::GOLD]; });
+	//mainContent = std::make_shared<LineChart>(contentArea.resize(-5), "Total Gold", plotData);
+
+	mainContent = std::make_shared<OverviewPanel>(contentArea.resize(-15), stat);
 }
 
 std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector)
@@ -82,6 +95,72 @@ std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticD
 	return plotData;
 }
 
+StatisticSelector::StatisticSelector(std::vector<std::string> texts, std::function<void(int selectedIndex)> cb)
+	: CWindowObject(BORDERED), texts(texts), cb(cb)
+{
+	OBJECT_CONSTRUCTION;
+	pos = center(Rect(0, 0, 128 + 16, std::min((int)texts.size(), LINES) * 40));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	filledBackground->setPlayerColor(PlayerColor(1));
+
+	slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, [this](int to){ update(to); redraw(); }, LINES, texts.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
+	slider->setPanningStep(40);
+	slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, pos.w, pos.h));
+
+	update(0);
+}
+
+void StatisticSelector::update(int to)
+{
+	OBJECT_CONSTRUCTION;
+	buttons.clear();
+	for(int i = to; i < LINES + to; i++)
+	{
+		if(i>=texts.size())
+			continue;
+
+		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this, i](bool on){ cb(i); close(); });
+		button->setTextOverlay(texts[i], EFonts::FONT_SMALL, Colors::WHITE);
+		buttons.push_back(button);
+	}
+}
+
+OverviewPanel::OverviewPanel(Rect position, StatisticDataSet data)
+	: CIntObject()
+{
+	OBJECT_CONSTRUCTION;
+
+	pos = position + pos.topLeft();
+
+	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.title.overview")));
+
+	int yOffs = 30;
+
+	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, yOffs, pos.w - 16, pos.h - yOffs));
+
+	int usedLines = 100;
+
+	slider = std::make_shared<CSlider>(Point(pos.w - 16, yOffs), pos.h - yOffs, [this](int to){ update(); redraw(); }, LINES, usedLines, 0, Orientation::VERTICAL, CSlider::BLUE);
+	slider->setPanningStep(canvas->pos.h / LINES);
+	slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, pos.w, canvas->pos.h));
+
+	update();
+}
+
+void OverviewPanel::update()
+{
+	Point fieldSize(canvas->pos.w / (graphics->playerColors.size() + 2), canvas->pos.h / LINES);
+	for(int x = 0; x < graphics->playerColors.size() + 1; x++)
+		for(int y = 0; y < LINES; y++)
+		{
+			int xStart = (x + (x == 0 ? 0 : 1)) * fieldSize.x;
+			int yStart = y * fieldSize.y;
+			if(x == 0 || y == 0)
+				canvas->addBox(Point(xStart, yStart), Point(x == 0 ? 2 * fieldSize.x : fieldSize.x, fieldSize.y), ColorRGBA(0, 0, 0, 100));
+			canvas->addRectangle(Point(xStart, yStart), Point(x == 0 ? 2 * fieldSize.x : fieldSize.x, fieldSize.y), ColorRGBA(127, 127, 127, 255));
+		}
+}
+
 LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data)
 	: CIntObject(), maxVal(0), maxDay(0)
 {
@@ -91,10 +170,10 @@ LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::
 
 	pos = position + pos.topLeft();
 
+	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
+
 	chartArea = pos.resize(-50);
 	chartArea.moveTo(Point(50, 50));
-
-	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
 
 	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
 
