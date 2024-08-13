@@ -245,7 +245,7 @@ AttackPossibility AttackPossibility::evaluate(
 
 	std::vector<BattleHex> defenderHex;
 	if(attackInfo.shooting)
-		defenderHex = defender->getHexes();
+		defenderHex.push_back(defender->getPosition());
 	else
 		defenderHex = CStack::meleeAttackHexes(attacker, defender, hex);
 
