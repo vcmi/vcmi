@@ -112,14 +112,59 @@ std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticD
 
 std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID res)
 {
+	std::map<ColorRGBA, std::vector<float>> plotData;
 	switch (c)
 	{
 	case OVERVIEW:
 		return std::make_shared<OverviewPanel>(contentArea.resize(-15), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), statistic);
 	
 	case CHART_RESOURCES:
-		auto plotData = extractData(statistic, [res](StatisticDataSetEntry val) -> float { return val.resources[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData);
+		plotData = extractData(statistic, [res](StatisticDataSetEntry val) -> float { return val.resources[res]; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()), plotData, 0);
+	
+	case CHART_INCOME:
+		plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.income; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData, 0);
+	
+	case CHART_NUMBER_OF_HEROES:
+		plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.numberHeroes; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData, 0);
+	
+	case CHART_NUMBER_OF_TOWNS:
+		plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.numberTowns; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData, 0);
+	
+	case CHART_NUMBER_OF_ARTIFACTS:
+		plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.numberArtifacts; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData, 0);
+	
+	case CHART_NUMBER_OF_DWELLINGS:
+		plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.numberDwellings; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData, 0);
+	
+	case CHART_NUMBER_OF_MINES:
+		plotData = extractData(statistic, [res](StatisticDataSetEntry val) -> float { return val.numMines[res]; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()), plotData, 0);
+	
+	case CHART_ARMY_STRENGTH:
+		plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.armyStrength; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData, 0);
+	
+	case CHART_EXPERIENCE:
+		plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.totalExperience; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData, 0);
+	
+	case CHART_RESOURCES_SPENT_ARMY:
+		plotData = extractData(statistic, [res](StatisticDataSetEntry val) -> float { return val.spentResourcesForArmy[res]; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()), plotData, 0);
+	
+	case CHART_RESOURCES_SPENT_BUILDINGS:
+		plotData = extractData(statistic, [res](StatisticDataSetEntry val) -> float { return val.spentResourcesForBuildings[res]; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()), plotData, 0);
+	
+	case CHART_MAP_EXPLORED:
+		plotData = extractData(statistic, [](StatisticDataSetEntry val) -> float { return val.mapExploredRatio; });
+		return std::make_shared<LineChart>(contentArea.resize(-5), CGI->generaltexth->translate(std::get<0>(contentInfo[c])), plotData, 1);
 	}
 
 	return nullptr;
@@ -196,7 +241,7 @@ void OverviewPanel::update()
 	content.push_back(std::make_shared<CLabel>(pos.w / 2, 100, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "blah" + vstd::getDateTimeISO8601Basic(std::time(0))));
 }
 
-LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data)
+LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data, float maxY)
 	: CIntObject(), maxVal(0), maxDay(0)
 {
 	OBJECT_CONSTRUCTION;
@@ -216,10 +261,12 @@ LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::
 	((std::shared_ptr<CIntObject>)statusBar)->setEnabled(false);
 
 	// additional calculations
+	bool skipMaxValCalc = maxY > 0;
+	maxVal = maxY;
 	for(auto & line : data)
 	{
 		for(auto & val : line.second)
-			if(maxVal < val)
+			if(maxVal < val && !skipMaxValCalc)
 				maxVal = val;
 		if(maxDay < line.second.size())
 			maxDay = line.second.size();
@@ -263,7 +310,7 @@ void LineChart::updateStatusBar(const Point & cursorPosition)
 	{
 		float x = ((float)maxDay / (float)chartArea.w) * ((float)cursorPosition.x - (float)r.x) + 1.0f;
 		float y = maxVal - ((float)maxVal / (float)chartArea.h) * ((float)cursorPosition.y - (float)r.y);
-		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + std::to_string((int)x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + std::to_string((int)y));
+		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + std::to_string((int)x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + ((int)y > 0 ? std::to_string((int)y) : std::to_string(y)));
 	}
 	GH.windows().totalRedraw();
 }

@@ -24,10 +24,32 @@ class CStatisticScreen : public CWindowObject
 	enum Content {
 		OVERVIEW,
 		CHART_RESOURCES,
+		CHART_INCOME,
+		CHART_NUMBER_OF_HEROES,
+		CHART_NUMBER_OF_TOWNS,
+		CHART_NUMBER_OF_ARTIFACTS,
+		CHART_NUMBER_OF_DWELLINGS,
+		CHART_NUMBER_OF_MINES,
+		CHART_ARMY_STRENGTH,
+		CHART_EXPERIENCE,
+		CHART_RESOURCES_SPENT_ARMY,
+		CHART_RESOURCES_SPENT_BUILDINGS,
+		CHART_MAP_EXPLORED,
 	};
 	std::map<Content, std::tuple<std::string, bool>> contentInfo = { // tuple: textid, resource selection needed
-		{ OVERVIEW, { "vcmi.statisticWindow.title.overview", false } },
-		{ CHART_RESOURCES, { "vcmi.statisticWindow.title.resources", true } },
+		{ OVERVIEW,                        { "vcmi.statisticWindow.title.overview",                false } },
+		{ CHART_RESOURCES,                 { "vcmi.statisticWindow.title.resources",               true  } },
+		{ CHART_INCOME,                    { "vcmi.statisticWindow.title.income",                  false } },
+		{ CHART_NUMBER_OF_HEROES,          { "vcmi.statisticWindow.title.numberOfHeroes",          false } },
+		{ CHART_NUMBER_OF_TOWNS,           { "vcmi.statisticWindow.title.numberOfTowns",           false } },
+		{ CHART_NUMBER_OF_ARTIFACTS,       { "vcmi.statisticWindow.title.numberOfArtifacts",       false } },
+		{ CHART_NUMBER_OF_DWELLINGS,       { "vcmi.statisticWindow.title.numberOfDwellings",       false } },
+		{ CHART_NUMBER_OF_MINES,           { "vcmi.statisticWindow.title.numberOfMines",           true  } },
+		{ CHART_ARMY_STRENGTH,             { "vcmi.statisticWindow.title.armyStrength",            false } },
+		{ CHART_EXPERIENCE,                { "vcmi.statisticWindow.title.experience",              false } },
+		{ CHART_RESOURCES_SPENT_ARMY,      { "vcmi.statisticWindow.title.resourcesSpentArmy",      true  } },
+		{ CHART_RESOURCES_SPENT_BUILDINGS, { "vcmi.statisticWindow.title.resourcesSpentBuildings", true  } },
+		{ CHART_MAP_EXPLORED,              { "vcmi.statisticWindow.title.mapExplored",             false } },
 	};
 
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
@@ -86,7 +108,7 @@ class LineChart : public CIntObject
 
 	void updateStatusBar(const Point & cursorPosition);
 public:
-	LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data);
+	LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data, float maxVal);
 
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void clickPressed(const Point & cursorPosition) override;
