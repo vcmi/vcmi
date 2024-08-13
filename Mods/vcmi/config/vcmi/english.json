@@ -180,6 +180,7 @@
 	"vcmi.statisticWindow.title.resourcesSpentArmy" : "army costs",
 	"vcmi.statisticWindow.title.resourcesSpentBuildings" : "building costs",
 	"vcmi.statisticWindow.title.mapExplored" : "map explored ratio",
+	"vcmi.statisticWindow.param.daysSurvived" : "Days survived",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Fullscreen (borderless)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Borderless Fullscreen}\n\nIf selected, VCMI will run in borderless fullscreen mode. In this mode, game will always use same resolution as desktop, ignoring selected resolution.",

@@ -89,9 +89,14 @@ class OverviewPanel : public CIntObject
 	std::vector<std::shared_ptr<CIntObject>> content;
 	std::shared_ptr<CSlider> slider;
 
-	const int LINES = 15;
+	Point fieldSize;
 
-	void update();
+	std::vector<std::pair<std::string, std::function<std::string(PlayerColor color)>>> dataExtract;
+
+	const int LINES = 15;
+	const int Y_OFFS = 30;
+
+	void update(int to);
 public:
 	OverviewPanel(Rect position, std::string title, StatisticDataSet data);
 };

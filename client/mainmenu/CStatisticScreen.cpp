@@ -209,17 +209,31 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 
 	layout.push_back(std::make_shared<CLabel>(pos.w / 2, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, title));
 
-	int yOffs = 30;
+	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, Y_OFFS, pos.w - 16, pos.h - Y_OFFS));
 
-	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, yOffs, pos.w - 16, pos.h - yOffs));
+	auto playerDataFilter = [data](PlayerColor color){
+		std::vector<StatisticDataSetEntry> tmpData;
+		std::copy_if(data.data.begin(), data.data.end(), std::back_inserter(tmpData), [color](StatisticDataSetEntry e){return e.player == color;} );
+		return tmpData;
+	};
 
-	int usedLines = 100;
+	dataExtract = {
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.daysSurvived1"), [playerDataFilter](PlayerColor color){
+				return playerDataFilter(color).size() ? std::to_string(playerDataFilter(color).size()) : "";
+			}
+		},
 
-	slider = std::make_shared<CSlider>(Point(pos.w - 16, yOffs), pos.h - yOffs, [this](int to){ update(); setRedrawParent(true); redraw(); }, LINES, usedLines, 0, Orientation::VERTICAL, CSlider::BLUE);
+		//kill dead ratio (numBattles / numWinBattles)
+	};
+
+	int usedLines = dataExtract.size();
+
+	slider = std::make_shared<CSlider>(Point(pos.w - 16, Y_OFFS), pos.h - Y_OFFS, [this](int to){ update(to); setRedrawParent(true); redraw(); }, LINES - 1, usedLines, 0, Orientation::VERTICAL, CSlider::BLUE);
 	slider->setPanningStep(canvas->pos.h / LINES);
 	slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, pos.w, canvas->pos.h));
 
-	Point fieldSize(canvas->pos.w / (graphics->playerColors.size() + 2), canvas->pos.h / LINES);
+	fieldSize = Point(canvas->pos.w / (graphics->playerColors.size() + 2), canvas->pos.h / LINES);
 	for(int x = 0; x < graphics->playerColors.size() + 1; x++)
 		for(int y = 0; y < LINES; y++)
 		{
@@ -230,15 +244,28 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 			canvas->addRectangle(Point(xStart, yStart), Point(x == 0 ? 2 * fieldSize.x : fieldSize.x, fieldSize.y), ColorRGBA(127, 127, 127, 255));
 		}
 
-	update();
+	update(0);
 }
 
-void OverviewPanel::update()
+void OverviewPanel::update(int to)
 {
 	OBJECT_CONSTRUCTION;
 
 	content.clear();
-	content.push_back(std::make_shared<CLabel>(pos.w / 2, 100, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "blah" + vstd::getDateTimeISO8601Basic(std::time(0))));
+	for(int y = to; y < LINES - 1 + to; y++)
+	{
+		if(y >= dataExtract.size())
+			continue;
+
+		for(int x = 0; x < PlayerColor::PLAYER_LIMIT_I + 1; x++)
+		{
+			if(y == to)
+				content.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS"), x, 0, 180 + x * fieldSize.x, 35));
+			int xStart = (x + (x == 0 ? 0 : 1)) * fieldSize.x + (x == 0 ? fieldSize.x : (fieldSize.x / 2));
+			int yStart = Y_OFFS + (y + 1 - to) * fieldSize.y + (fieldSize.y / 2);
+			content.push_back(std::make_shared<CLabel>(xStart, yStart, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (x == 0 ? dataExtract[y].first : dataExtract[y].second(PlayerColor(x - 1))), x == 0 ? (fieldSize.x * 2) : fieldSize.x));
+		}
+	}
 }
 
 LineChart::LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data, float maxY)
