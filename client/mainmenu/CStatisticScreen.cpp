@@ -43,7 +43,7 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	contentArea = Rect(10, 40, 780, 510);
 	layout.push_back(std::make_shared<CLabel>(400, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.statisticWindow.statistic")));
 	layout.push_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1));
-	layout.push_back(std::make_shared<CButton>(Point(725, 564), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
+	layout.push_back(std::make_shared<CButton>(Point(725, 558), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
 
 	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
 		std::vector<std::string> texts;
@@ -200,8 +200,8 @@ void StatisticSelector::update(int to)
 	}
 }
 
-OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet data)
-	: CIntObject()
+OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet stat)
+	: CIntObject(), data(stat)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -211,20 +211,39 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 
 	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, Y_OFFS, pos.w - 16, pos.h - Y_OFFS));
 
-	auto playerDataFilter = [data](PlayerColor color){
-		std::vector<StatisticDataSetEntry> tmpData;
-		std::copy_if(data.data.begin(), data.data.end(), std::back_inserter(tmpData), [color](StatisticDataSetEntry e){return e.player == color;} );
-		return tmpData;
-	};
-
 	dataExtract = {
 		{
-			CGI->generaltexth->translate("vcmi.statisticWindow.param.daysSurvived1"), [playerDataFilter](PlayerColor color){
-				return playerDataFilter(color).size() ? std::to_string(playerDataFilter(color).size()) : "";
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.daysSurvived"), [this](PlayerColor color){
+				return std::to_string(playerDataFilter(color).size());
 			}
 		},
-
-		//kill dead ratio (numBattles / numWinBattles)
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.maxHeroLevel"), [this](PlayerColor color){
+				int maxLevel = 0;
+				for(auto val : playerDataFilter(color))
+					if(maxLevel < val.maxHeroLevel)
+						maxLevel = val.maxHeroLevel;
+				return std::to_string(maxLevel);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.battleWinRatioHero"), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				if(!val.numBattlesPlayer)
+					return std::string("");
+				float tmp = ((float)val.numWinBattlesPlayer / (float)val.numBattlesPlayer) * 100;
+				return std::to_string((int)tmp) + " %";
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.battleWinRatioNeutral"), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				if(!val.numBattlesPlayer)
+					return std::string("");
+				float tmp = ((float)val.numWinBattlesNeutral / (float)val.numBattlesNeutral) * 100;
+				return std::to_string((int)tmp) + " %";
+			}
+		},
 	};
 
 	int usedLines = dataExtract.size();
@@ -247,6 +266,13 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 	update(0);
 }
 
+std::vector<StatisticDataSetEntry> OverviewPanel::playerDataFilter(PlayerColor color)
+{
+	std::vector<StatisticDataSetEntry> tmpData;
+	std::copy_if(data.data.begin(), data.data.end(), std::back_inserter(tmpData), [color](StatisticDataSetEntry e){ return e.player == color; });
+	return tmpData;
+}
+
 void OverviewPanel::update(int to)
 {
 	OBJECT_CONSTRUCTION;
@@ -263,7 +289,9 @@ void OverviewPanel::update(int to)
 				content.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS"), x, 0, 180 + x * fieldSize.x, 35));
 			int xStart = (x + (x == 0 ? 0 : 1)) * fieldSize.x + (x == 0 ? fieldSize.x : (fieldSize.x / 2));
 			int yStart = Y_OFFS + (y + 1 - to) * fieldSize.y + (fieldSize.y / 2);
-			content.push_back(std::make_shared<CLabel>(xStart, yStart, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (x == 0 ? dataExtract[y].first : dataExtract[y].second(PlayerColor(x - 1))), x == 0 ? (fieldSize.x * 2) : fieldSize.x));
+			PlayerColor tmpColor(x - 1);
+			if(playerDataFilter(tmpColor).size() || x == 0)
+				content.push_back(std::make_shared<CLabel>(xStart, yStart, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (x == 0 ? dataExtract[y].first : dataExtract[y].second(tmpColor)), x == 0 ? (fieldSize.x * 2) : fieldSize.x));
 		}
 	}
 }

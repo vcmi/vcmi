@@ -90,15 +90,17 @@ class OverviewPanel : public CIntObject
 	std::shared_ptr<CSlider> slider;
 
 	Point fieldSize;
+	StatisticDataSet data;
 
 	std::vector<std::pair<std::string, std::function<std::string(PlayerColor color)>>> dataExtract;
 
 	const int LINES = 15;
 	const int Y_OFFS = 30;
 
+	std::vector<StatisticDataSetEntry> playerDataFilter(PlayerColor color);
 	void update(int to);
 public:
-	OverviewPanel(Rect position, std::string title, StatisticDataSet data);
+	OverviewPanel(Rect position, std::string title, StatisticDataSet stat);
 };
 
 class LineChart : public CIntObject
