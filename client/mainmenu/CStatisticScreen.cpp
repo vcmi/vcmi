@@ -99,6 +99,7 @@ TData CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(S
 	PlayerColor tmpColor = PlayerColor::NEUTRAL;
 	std::vector<float> tmpColorSet;
 	TData plotData;
+	EPlayerStatus statusLastRound = EPlayerStatus::INGAME;
 	for(auto & val : tmpData)
 	{
 		if(tmpColor != val.player)
@@ -111,8 +112,9 @@ TData CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(S
 
 			tmpColor = val.player;
 		}
-		if(val.status == EPlayerStatus::INGAME)
+		if(val.status == EPlayerStatus::INGAME || (statusLastRound == EPlayerStatus::INGAME && val.status == EPlayerStatus::LOSER))
 			tmpColorSet.push_back(selector(val));
+		statusLastRound = val.status; //to keep at least one dataset after loose
 	}
 	if(tmpColorSet.size())
 		plotData.push_back({graphics->playerColors[tmpColor.getNum()], std::vector<float>(tmpColorSet)});
