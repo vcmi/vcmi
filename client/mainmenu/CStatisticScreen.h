@@ -18,6 +18,7 @@ class LineChart;
 class CGStatusBar;
 class ComboBox;
 class CSlider;
+class IImage;
 
 class CStatisticScreen : public CWindowObject
 {
@@ -115,7 +116,10 @@ class LineChart : public CIntObject
 
 	void updateStatusBar(const Point & cursorPosition);
 public:
-	LineChart(Rect position, std::string title, std::map<ColorRGBA, std::vector<float>> data, float maxVal);
+	using TData = std::map<ColorRGBA, std::vector<float>>;
+	using TIcons = std::map<ColorRGBA, std::vector<std::pair<int, std::shared_ptr<IImage>>>>;
+
+	LineChart(Rect position, std::string title, TData data, TIcons icons, float maxY);
 
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void clickPressed(const Point & cursorPosition) override;

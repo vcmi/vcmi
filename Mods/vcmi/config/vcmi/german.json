@@ -188,7 +188,7 @@
 	"vcmi.statisticWindow.param.battlesHero" : "Kämpfe (Helden)",
 	"vcmi.statisticWindow.param.battlesNeutral" : "Kämpfe (Neutral)",
 	"vcmi.statisticWindow.param.maxArmyStrength" : "Max Armeestärke",
-	"vcmi.statisticWindow.param.tradeVolume" : "Handelsvolumen",
+	"vcmi.statisticWindow.param.tradeVolume" : "Handelsvol.",
 	"vcmi.statisticWindow.param.obeliskVisited" : "Obelisk besucht",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Vollbild (randlos)",
