@@ -229,8 +229,8 @@ public:
 	void onNewTurn();
 	void addStatistics();
 
-	void handleTimeEvents();
-	void handleTownEvents(CGTownInstance *town, NewTurn &n);
+	void handleTimeEvents(PlayerColor player);
+	void handleTownEvents(CGTownInstance *town);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void objectVisitEnded(const CObjectVisitQuery &query);

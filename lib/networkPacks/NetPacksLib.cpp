@@ -225,16 +225,6 @@ void UpdateArtHandlerLists::visitTyped(ICPackVisitor & visitor)
 	visitor.visitUpdateArtHandlerLists(*this);
 }
 
-void UpdateMapEvents::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitUpdateMapEvents(*this);
-}
-
-void UpdateCastleEvents::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitUpdateCastleEvents(*this);
-}
-
 void ChangeFormation::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeFormation(*this);
@@ -905,17 +895,6 @@ void AddQuest::applyGs(CGameState * gs) const
 void UpdateArtHandlerLists::applyGs(CGameState * gs) const
 {
 	gs->allocatedArtifacts = allocatedArtifacts;
-}
-
-void UpdateMapEvents::applyGs(CGameState * gs) const
-{
-	gs->map->events = events;
-}
-
-void UpdateCastleEvents::applyGs(CGameState * gs) const
-{
-	auto * t = gs->getTown(town);
-	t->events = events;
 }
 
 void ChangeFormation::applyGs(CGameState * gs) const

@@ -2244,7 +2244,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 		reader->readResources(event.resources);
 
-		event.players = reader->readUInt8();
+		reader->readBitmaskPlayers(event.players, false);
 		if(features.levelSOD)
 			event.humanAffected = reader->readBool();
 		else
@@ -2313,7 +2313,7 @@ void CMapLoaderH3M::readEvents()
 		event.message.appendTextID(readLocalizedString(TextIdentifier("event", eventID, "description")));
 
 		reader->readResources(event.resources);
-		event.players = reader->readUInt8();
+		reader->readBitmaskPlayers(event.players, false);
 		if(features.levelSOD)
 		{
 			event.humanAffected = reader->readBool();

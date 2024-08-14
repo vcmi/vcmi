@@ -44,8 +44,7 @@ DisposedHero::DisposedHero() : heroId(0), portrait(255)
 }
 
 CMapEvent::CMapEvent()
-	: players(0)
-	, humanAffected(false)
+	: humanAffected(false)
 	, computerAffected(false)
 	, firstOccurrence(0)
 	, nextOccurrence(0)
@@ -53,21 +52,51 @@ CMapEvent::CMapEvent()
 
 }
 
-bool CMapEvent::earlierThan(const CMapEvent & other) const
+bool CMapEvent::occursToday(int currentDay) const
 {
-	return firstOccurrence < other.firstOccurrence;
+	if (currentDay == firstOccurrence + 1)
+		return true;
+
+	if (nextOccurrence == 0)
+		return false;
+
+	if (currentDay < firstOccurrence)
+		return false;
+
+	return (currentDay - firstOccurrence - 1) % nextOccurrence == 0;
 }
 
-bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
+bool CMapEvent::affectsPlayer(PlayerColor color, bool isHuman) const
 {
-	return firstOccurrence <= other.firstOccurrence;
+	if (players.count(color) == 0)
+		return false;
+
+	if (!isHuman && !computerAffected)
+		return false;
+
+	if (isHuman && !humanAffected)
+		return false;
+
+	return true;
 }
 
 void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
 	handler.serializeStruct("message", message);
-	handler.serializeInt("players", players);
+	if (!handler.saving && handler.getCurrent()["players"].isNumber())
+	{
+		// compatibility for old maps
+		int playersMask = 0;
+		handler.serializeInt("players", playersMask);
+		for (int i = 0; i < 8; ++i)
+			if ((playersMask & (1 << i)) != 0)
+				players.insert(PlayerColor(i));
+	}
+	else
+	{
+		handler.serializeIdArray("players", players);
+	}
 	handler.serializeInt("humanAffected", humanAffected);
 	handler.serializeInt("computerAffected", computerAffected);
 	handler.serializeInt("firstOccurrence", firstOccurrence);

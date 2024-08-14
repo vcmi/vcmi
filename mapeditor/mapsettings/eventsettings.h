@@ -16,7 +16,10 @@ class EventSettings;
 }
 
 QVariant toVariant(const TResources & resources);
+QVariant toVariant(const std::set<PlayerColor> & players);
+
 TResources resourcesFromVariant(const QVariant & v);
+std::set<PlayerColor> playersFromVariant(const QVariant & v);
 
 class EventSettings : public AbstractSettings
 {
