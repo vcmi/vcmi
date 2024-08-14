@@ -149,9 +149,17 @@ void BuildAnalyzer::update()
 
 	auto towns = ai->cb->getTownsInfo();
 
+	float economyDevelopmentCost = 0;
+	uint8_t closestThreat = UINT8_MAX;
+	ai->dangerHitMap->updateHitMap();
+
 	for(const CGTownInstance* town : towns)
 	{
-		logAi->trace("Checking town %s", town->getNameTranslated());
+		for (auto threat : ai->dangerHitMap->getTownThreats(town))
+		{
+			closestThreat = std::min(closestThreat, threat.turn);
+		}
+		logAi->trace("Checking town %s closest threat: %u", town->getNameTranslated(), (unsigned int)closestThreat);
 
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
@@ -161,6 +169,11 @@ void BuildAnalyzer::update()
 
 		requiredResources += developmentInfo.requiredResources;
 		totalDevelopmentCost += developmentInfo.townDevelopmentCost;
+		for(auto building : developmentInfo.toBuild)
+		{
+			if (building.dailyIncome[EGameResID::GOLD] > 0)
+				economyDevelopmentCost += building.buildCostWithPrerequisites[EGameResID::GOLD];
+		}
 		armyCost += developmentInfo.armyCost;
 
 		for(auto bi : developmentInfo.toBuild)
@@ -168,6 +181,9 @@ void BuildAnalyzer::update()
 			logAi->trace("Building preferences %s", bi.toString());
 		}
 	}
+
+	if (closestThreat < 7)
+		economyDevelopmentCost = 0;
 
 	std::sort(developmentInfos.begin(), developmentInfos.end(), [](const TownDevelopmentInfo & t1, const TownDevelopmentInfo & t2) -> bool
 	{
@@ -180,7 +196,7 @@ void BuildAnalyzer::update()
 	updateDailyIncome();
 
 	goldPressure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
-			+ (float)armyCost[EGameResID::GOLD] / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
+			+ ((float)armyCost[EGameResID::GOLD] + economyDevelopmentCost) / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 
 	logAi->trace("Gold pressure: %f", goldPressure);
 }
