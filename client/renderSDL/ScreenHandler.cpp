@@ -12,12 +12,13 @@
 #include "ScreenHandler.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/constants/StringConstants.h"
 #include "../gui/CGuiHandler.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../gui/WindowHandler.h"
 #include "CMT.h"
 #include "SDL_Extensions.h"
+#include "renderSDL/SDLImage.h"
+#include "widgets/Images.h"
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -209,10 +210,21 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 
 	initializeScreenBuffers();
 
+	setWindowIcon();
+
 	if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
 	{
 		NotificationHandler::init(mainWindow);
 	}
+}
+
+void ScreenHandler::setWindowIcon()
+{
+	std::shared_ptr<IImage> image = std::make_shared<SDLImage>(ImagePath::builtin("vcmi"), EImageBlitMode::ALPHA);
+	auto windowIconSurface = CSDL_Ext::newSurface(image->width(), image->height());
+	image->draw(windowIconSurface);
+	SDL_SetWindowIcon(mainWindow, windowIconSurface);
+	SDL_FreeSurface(windowIconSurface);
 }
 
 void ScreenHandler::updateWindowState()
