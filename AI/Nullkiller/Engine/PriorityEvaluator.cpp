@@ -59,8 +59,10 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	armyInvolvement(0),
 	defenseValue(0),
 	isDefend(false),
+	threatTurns(INT_MAX),
 	involvesSailing(false),
-	isTradeBuilding(false)
+	isTradeBuilding(false),
+	isChain(false)
 {
 }
 
@@ -1002,6 +1004,7 @@ public:
 
 		evaluationContext.defenseValue = town->fortLevel();
 		evaluationContext.isDefend = true;
+		evaluationContext.threatTurns = treat.turn;
 
 		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
 		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
@@ -1027,6 +1030,7 @@ public:
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
+		evaluationContext.isChain = true;
 
 		std::map<const CGHeroInstance *, float> costsPerHero;
 
@@ -1352,7 +1356,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		float score = 0;
 		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
 
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, fuzzy: %f",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, fuzzy: %f",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
@@ -1365,6 +1369,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.armyGrowth,
 			evaluationContext.skillReward,
 			evaluationContext.danger,
+			evaluationContext.threatTurns,
 			evaluationContext.threat,
 			evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
 			evaluationContext.strategicalValue,
@@ -1378,7 +1383,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			case 0: //Take towns
 			{
 				//score += evaluationContext.conquestValue * 1000;
-				if(evaluationContext.conquestValue > 0 || (evaluationContext.defenseValue >= CGTownInstance::EFortLevel::CITADEL && evaluationContext.turn <= 1 && evaluationContext.threat > evaluationContext.armyInvolvement))
+				if(evaluationContext.conquestValue > 0 || (evaluationContext.defenseValue >= CGTownInstance::EFortLevel::CITADEL && evaluationContext.turn <= 1 && evaluationContext.threat > evaluationContext.armyInvolvement && evaluationContext.threatTurns == 0))
 					score = 1000;
 				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.turn > 0 && !ai->cb->getTownsInfo().empty()))
 					return 0;
@@ -1391,9 +1396,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case 1: //Collect unguarded stuff
 			{
-				if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend)
+				if (evaluationContext.enemyHeroDangerRatio > 1)
 					return 0;
-				if (evaluationContext.isDefend && evaluationContext.enemyHeroDangerRatio == 0)
+				if (evaluationContext.isDefend)
 					return 0;
 				if (evaluationContext.armyLossPersentage > 0)
 					return 0;
@@ -1425,6 +1430,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.buildingCost.marketValue() > 0)
 					return 0;
+				if (evaluationContext.isDefend && (evaluationContext.enemyHeroDangerRatio < 1 || evaluationContext.threatTurns > 0 || evaluationContext.turn > 0))
+					return 0;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
 				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
@@ -1435,8 +1442,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (score > 0)
 				{
 					score *= evaluationContext.closestWayRatio;
-					if (evaluationContext.threat > 0)
-						score /= evaluationContext.threat;
+					if (evaluationContext.enemyHeroDangerRatio > 1)
+						score /= evaluationContext.enemyHeroDangerRatio;
 					if (evaluationContext.movementCost > 0)
 						score /= evaluationContext.movementCost;
 					score *= (maxWillingToLose - evaluationContext.armyLossPersentage);
@@ -1491,7 +1498,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
-	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, fuzzy: %f, result %f",
+	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, fuzzy: %f, result %f",
 		priorityTier,
 		task->toString(),
 		evaluationContext.armyLossPersentage,
@@ -1504,6 +1511,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		evaluationContext.armyGrowth,
 		evaluationContext.skillReward,
 		evaluationContext.danger,
+		evaluationContext.threatTurns,
 		evaluationContext.threat,
 		evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
 		evaluationContext.strategicalValue,
