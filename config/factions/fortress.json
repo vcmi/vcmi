@@ -171,7 +171,7 @@
 
 				"special1":       {
 					"type" : "configurable",
-					"requires" : [ "allOf", [ "townHall" ], [ "special2" ] ]
+					"requires" : [ "allOf", [ "townHall" ], [ "special2" ] ],
 					"visitMode" : "hero",
 					"rewards" : [
 						{

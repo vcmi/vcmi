@@ -173,7 +173,7 @@
 				"special3":       { "type" : "ballistaYard", "requires" : [ "blacksmith" ] },
 				"special4":       { 
 					"type" : "configurable",
-					"requires" : [ "fort" ]
+					"requires" : [ "fort" ],
 					"visitMode" : "hero",
 					"rewards" : [
 						{
