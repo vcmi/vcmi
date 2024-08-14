@@ -205,11 +205,11 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
-	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, StatisticDataSet statistic);
+	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic);
 	void endNetwork();
 	void endGameplay();
 	void restartGameplay();
-	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, StatisticDataSet statistic);
+	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, const StatisticDataSet & statistic);
 	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle

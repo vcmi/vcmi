@@ -66,6 +66,7 @@ class CStatisticScreen : public CWindowObject
 
 	TData extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector);
 	std::shared_ptr<CIntObject> getContent(Content c, EGameResID res);
+	void onSelectButton();
 public:
 	CStatisticScreen(StatisticDataSet stat);
 };

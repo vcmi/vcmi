@@ -44,41 +44,44 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	filledBackground->setPlayerColor(PlayerColor(1));
 
 	contentArea = Rect(10, 40, 780, 510);
-	layout.push_back(std::make_shared<CLabel>(400, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.statisticWindow.statistic")));
+	layout.push_back(std::make_shared<CLabel>(400, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.statisticWindow.statistics")));
 	layout.push_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 80, 128, 255), 1));
 	layout.push_back(std::make_shared<CButton>(Point(725, 558), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
 
-	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
-		std::vector<std::string> texts;
-		for(auto & val : contentInfo)
-			texts.push_back(CGI->generaltexth->translate(std::get<0>(val.second)));
-		GH.windows().createAndPushWindow<StatisticSelector>(texts, [this](int selectedIndex)
-		{
-			OBJECT_CONSTRUCTION;
-			if(!std::get<1>(contentInfo[(Content)selectedIndex]))
-				mainContent = getContent((Content)selectedIndex, EGameResID::NONE);
-			else
-			{
-				auto content = (Content)selectedIndex;
-				auto possibleRes = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
-				std::vector<std::string> resourceText;
-				for(auto & res : possibleRes)
-					resourceText.push_back(CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()));
-				
-				GH.windows().createAndPushWindow<StatisticSelector>(resourceText, [this, content, possibleRes](int selectedIndex)
-				{
-					OBJECT_CONSTRUCTION;
-					mainContent = getContent(content, possibleRes[selectedIndex]);
-				});
-			}
-		});
-	});
+	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){ onSelectButton(); });
 	buttonSelect->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	buttonCsvSave = std::make_shared<CToggleButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){ GH.input().copyToClipBoard(statistic.toCsv("\t"));	});
 	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.tsvCopy"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	mainContent = getContent(OVERVIEW, EGameResID::NONE);
+}
+
+void CStatisticScreen::onSelectButton()
+{
+	std::vector<std::string> texts;
+	for(auto & val : contentInfo)
+		texts.push_back(CGI->generaltexth->translate(std::get<0>(val.second)));
+	GH.windows().createAndPushWindow<StatisticSelector>(texts, [this](int selectedIndex)
+	{
+		OBJECT_CONSTRUCTION;
+		if(!std::get<1>(contentInfo[(Content)selectedIndex]))
+			mainContent = getContent((Content)selectedIndex, EGameResID::NONE);
+		else
+		{
+			auto content = (Content)selectedIndex;
+			auto possibleRes = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+			std::vector<std::string> resourceText;
+			for(auto & res : possibleRes)
+				resourceText.push_back(CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()));
+			
+			GH.windows().createAndPushWindow<StatisticSelector>(resourceText, [this, content, possibleRes](int selectedIndex)
+			{
+				OBJECT_CONSTRUCTION;
+				mainContent = getContent(content, possibleRes[selectedIndex]);
+			});
+		}
+	});
 }
 
 TData CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector)

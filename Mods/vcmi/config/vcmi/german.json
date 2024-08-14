@@ -162,7 +162,7 @@
 	"vcmi.systemOptions.otherGroup" : "Andere Einstellungen", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Stadt-Bildschirm",
 
-	"vcmi.statisticWindow.statistic" : "Statistik",
+	"vcmi.statisticWindow.statistics" : "Statistik",
 	"vcmi.statisticWindow.tsvCopy" : "Daten in Zwischenabl.",
 	"vcmi.statisticWindow.selectView" : "Ansicht wählen",
 	"vcmi.statisticWindow.value" : "Wert",

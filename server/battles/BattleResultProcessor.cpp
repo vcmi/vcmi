@@ -480,6 +480,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	// Remove beaten hero
 	if(finishingBattle->loserHero)
 	{
+		//add statistics
 		if(!finishingBattle->isDraw())
 		{
 			ConstTransitivePtr<CGHeroInstance> strongestHero = nullptr;

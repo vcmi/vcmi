@@ -673,7 +673,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	setState(EClientState::GAMEPLAY);
 }
 
-void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, StatisticDataSet statistic)
+void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
 	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
 
@@ -722,7 +722,7 @@ void CServerHandler::restartGameplay()
 	logicConnection->enterLobbyConnectionMode();
 }
 
-void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, StatisticDataSet statistic)
+void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, const StatisticDataSet & statistic)
 {
 	std::shared_ptr<CampaignState> ourCampaign = cs;
 
