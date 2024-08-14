@@ -49,11 +49,6 @@ public:
 		, a(ALPHA_OPAQUE)
 	{}
 
-    bool operator <(const ColorRGBA &val) const
-    {
-       return (r + g + b) < (val.r + val.g + val.b);
-    }
-
 	template <typename Handler>
 	void serialize(Handler &h)
 	{

@@ -20,8 +20,8 @@ class ComboBox;
 class CSlider;
 class IImage;
 
-using TData = std::map<ColorRGBA, std::vector<float>>;
-using TIcons = std::map<ColorRGBA, std::vector<std::pair<int, std::shared_ptr<IImage>>>>;
+using TData = std::vector<std::pair<ColorRGBA, std::vector<float>>>;
+using TIcons = std::vector<std::pair<ColorRGBA, std::vector<std::pair<int, std::shared_ptr<IImage>>>>>;
 
 class CStatisticScreen : public CWindowObject
 {
@@ -69,6 +69,7 @@ class CStatisticScreen : public CWindowObject
 	void onSelectButton();
 public:
 	CStatisticScreen(StatisticDataSet stat);
+	static std::string getDay(int day);
 };
 
 class StatisticSelector : public CWindowObject

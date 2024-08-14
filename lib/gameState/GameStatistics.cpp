@@ -75,7 +75,6 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.tradeVolume = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).tradeVolume : TResources();
 	data.eventCapturedTown = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastCapturedTownDay == gs->getDate(Date::DAY) : false;
 	data.eventDefeatedStrongestHero = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastDefeatedStrongestHeroDay == gs->getDate(Date::DAY) : false;
-	data.eventRansackingDragonUtopia = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastRansackingDragonUtopiaDay == gs->getDate(Date::DAY) : false;
 	data.movementPointsUsed = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).movementPointsUsed : 0;
 
 	return data;
@@ -116,7 +115,6 @@ std::string StatisticDataSet::toCsv(std::string sep)
 	ss << "NumHeroEscaped" << sep;
 	ss << "EventCapturedTown" << sep;
 	ss << "EventDefeatedStrongestHero" << sep;
-	ss << "EventRansackingDragonUtopia" << sep;
 	ss << "MovementPointsUsed";
 	for(auto & resource : resources)
 		ss << sep << GameConstants::RESOURCE_NAMES[resource];
@@ -161,7 +159,6 @@ std::string StatisticDataSet::toCsv(std::string sep)
 		ss << entry.numHeroEscaped << sep;
 		ss << entry.eventCapturedTown << sep;
 		ss << entry.eventDefeatedStrongestHero << sep;
-		ss << entry.eventRansackingDragonUtopia << sep;
 		ss << entry.movementPointsUsed;
 		for(auto & resource : resources)
 			ss << sep << entry.resources[resource];

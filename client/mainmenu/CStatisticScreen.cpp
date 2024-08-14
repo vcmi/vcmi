@@ -30,10 +30,16 @@
 #include "../widgets/Slider.h"
 
 #include "../../lib/gameState/GameStatistics.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 
 #include <vstd/DateUtils.h>
+
+std::string CStatisticScreen::getDay(int d)
+{
+	return std::to_string(CGameState::getDate(d, Date::MONTH)) + "/" + std::to_string(CGameState::getDate(d, Date::WEEK)) + "/" + std::to_string(CGameState::getDate(d, Date::DAY_OF_WEEK));
+}
 
 CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	: CWindowObject(BORDERED), statistic(stat)
@@ -98,7 +104,7 @@ TData CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(S
 		{
 			if(tmpColorSet.size())
 			{
-				plotData.emplace(graphics->playerColors[tmpColor.getNum()], std::vector<float>(tmpColorSet));
+				plotData.push_back({graphics->playerColors[tmpColor.getNum()], std::vector<float>(tmpColorSet)});
 				tmpColorSet.clear();
 			}
 
@@ -108,7 +114,7 @@ TData CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(S
 			tmpColorSet.push_back(selector(val));
 	}
 	if(tmpColorSet.size())
-		plotData.emplace(graphics->playerColors[tmpColor.getNum()], std::vector<float>(tmpColorSet));
+		plotData.push_back({graphics->playerColors[tmpColor.getNum()], std::vector<float>(tmpColorSet)});
 
 	return plotData;
 }
@@ -224,7 +230,7 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 		},
 		{
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.daysSurvived"), [this](PlayerColor color){
-				return std::to_string(playerDataFilter(color).size());
+				return CStatisticScreen::getDay(playerDataFilter(color).size());
 			}
 		},
 		{
@@ -430,9 +436,11 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	Point p = chartArea.topLeft() + Point(-5, chartArea.h + 10);
 	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "0"));
 	p = chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h + 10);
-	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(maxDay)));
+	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CStatisticScreen::getDay(maxDay)));
 	p = chartArea.topLeft() + Point(-5, -10);
 	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, std::to_string((int)maxVal)));
+	p = chartArea.bottomLeft() + Point(chartArea.w / 2, + 20);
+	layout.push_back(std::make_shared<CLabel>(p.x, p.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.64")));
 }
 
 void LineChart::updateStatusBar(const Point & cursorPosition)
@@ -444,7 +452,7 @@ void LineChart::updateStatusBar(const Point & cursorPosition)
 	{
 		float x = ((float)maxDay / (float)chartArea.w) * ((float)cursorPosition.x - (float)r.x) + 1.0f;
 		float y = maxVal - ((float)maxVal / (float)chartArea.h) * ((float)cursorPosition.y - (float)r.y);
-		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + std::to_string((int)x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + ((int)y > 0 ? std::to_string((int)y) : std::to_string(y)));
+		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + CStatisticScreen::getDay(x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + ((int)y > 0 ? std::to_string((int)y) : std::to_string(y)));
 	}
 	GH.windows().totalRedraw();
 }

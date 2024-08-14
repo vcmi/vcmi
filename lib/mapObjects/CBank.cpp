@@ -275,10 +275,6 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	//grant resources
 	if (bankConfig)
 	{
-		// add statistics
-		if(ID.toEnum() == Obj::DRAGON_UTOPIA)
-			cb->gameState()->statistic.accumulatedValues[hero->getOwner()].lastRansackingDragonUtopiaDay = cb->gameState()->getDate(Date::DAY);
-
 		for (GameResID it : GameResID::ALL_RESOURCES())
 		{
 			if (bankConfig->resources[it] != 0)

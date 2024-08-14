@@ -129,31 +129,36 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
 	throw std::runtime_error("Can not allocate hero. All heroes are already used.");
 }
 
-int CGameState::getDate(Date mode) const
+int CGameState::getDate(int d, Date mode)
 {
 	int temp;
 	switch (mode)
 	{
 	case Date::DAY:
-		return day;
+		return d;
 	case Date::DAY_OF_WEEK: //day of week
-		temp = (day)%7; // 1 - Monday, 7 - Sunday
+		temp = (d)%7; // 1 - Monday, 7 - Sunday
 		return temp ? temp : 7;
 	case Date::WEEK:  //current week
-		temp = ((day-1)/7)+1;
+		temp = ((d-1)/7)+1;
 		if (!(temp%4))
 			return 4;
 		else
 			return (temp%4);
 	case Date::MONTH: //current month
-		return ((day-1)/28)+1;
+		return ((d-1)/28)+1;
 	case Date::DAY_OF_MONTH: //day of month
-		temp = (day)%28;
+		temp = (d)%28;
 		if (temp)
 			return temp;
 		else return 28;
 	}
 	return 0;
+}
+
+int CGameState::getDate(Date mode) const
+{
+	return getDate(day, mode);
 }
 
 CGameState::CGameState()
