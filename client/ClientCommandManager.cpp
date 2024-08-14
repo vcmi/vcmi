@@ -38,7 +38,6 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
-#include "CMT.h"
 #include "../lib/serializer/Connection.h"
 
 #ifdef SCRIPTING_ENABLED
