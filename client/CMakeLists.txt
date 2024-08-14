@@ -411,7 +411,7 @@ if(APPLE_IOS)
 	)
 endif()
 
-assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS} VCMI_vcmiclientcommon.rc)
+assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 
 if(ANDROID)
 	add_library(vcmiclientcommon SHARED ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
@@ -443,7 +443,6 @@ if(APPLE_IOS)
 endif()
 
 if(WIN32)
-	target_sources(vcmiclientcommon PRIVATE "VCMI_clientcommon.rc")
 	set_target_properties(vcmiclientcommon
 		PROPERTIES
 			OUTPUT_NAME "VCMI_vcmiclientcommon"
