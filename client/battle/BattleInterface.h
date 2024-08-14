@@ -170,7 +170,7 @@ public:
 
 	void showInterface(Canvas & to);
 
-	void setHeroAnimation(ui8 side, EHeroAnimType phase);
+	void setHeroAnimation(BattleSide side, EHeroAnimType phase);
 
 	void executeSpellCast(); //called when a hero casts a spell
 

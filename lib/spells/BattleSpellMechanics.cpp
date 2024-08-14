@@ -193,16 +193,16 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 		return adaptProblem(ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL, problem);
 
 	const PlayerColor player = caster->getCasterOwner();
-	const auto side = battle()->playerToSide(player);
+	const BattleSide side = battle()->playerToSide(player);
 
-	if(!side)
+	if(side == BattleSide::NONE)
 		return adaptProblem(ESpellCastProblem::INVALID, problem);
 
 	//effect like Recanter's Cloak. Blocks also passive casting.
 	//TODO: check creature abilities to block
 	//TODO: check any possible caster
 
-	if(battle()->battleMaxSpellLevel(side.value()) < getSpellLevel() || battle()->battleMinSpellLevel(side.value()) > getSpellLevel())
+	if(battle()->battleMaxSpellLevel(side) < getSpellLevel() || battle()->battleMinSpellLevel(side) > getSpellLevel())
 		return adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
 
 	return effects->applicable(problem, this);
@@ -284,7 +284,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	const CGHeroInstance * otherHero = nullptr;
 	{
 		//check it there is opponent hero
-		const ui8 otherSide = battle()->otherSide(casterSide);
+		const BattleSide otherSide = battle()->otherSide(casterSide);
 
 		if(battle()->battleHasHero(otherSide))
 			otherHero = battle()->battleGetFightingHero(otherSide);

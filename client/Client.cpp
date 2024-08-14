@@ -443,8 +443,8 @@ void CClient::battleStarted(const BattleInfo * info)
 {
 	std::shared_ptr<CPlayerInterface> att;
 	std::shared_ptr<CPlayerInterface> def;
-	auto & leftSide = info->sides[0];
-	auto & rightSide = info->sides[1];
+	const auto & leftSide = info->getSide(BattleSide::LEFT_SIDE);
+	const auto & rightSide = info->getSide(BattleSide::RIGHT_SIDE);
 
 	for(auto & battleCb : battleCallbacks)
 	{
@@ -453,17 +453,17 @@ void CClient::battleStarted(const BattleInfo * info)
 	}
 
 	//If quick combat is not, do not prepare interfaces for battleint
-	auto callBattleStart = [&](PlayerColor color, ui8 side)
+	auto callBattleStart = [&](PlayerColor color, BattleSide side)
 	{
 		if(vstd::contains(battleints, color))
 			battleints[color]->battleStart(info->battleID, leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side, info->replayAllowed);
 	};
 	
-	callBattleStart(leftSide.color, 0);
-	callBattleStart(rightSide.color, 1);
-	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
+	callBattleStart(leftSide.color, BattleSide::LEFT_SIDE);
+	callBattleStart(rightSide.color, BattleSide::RIGHT_SIDE);
+	callBattleStart(PlayerColor::UNFLAGGABLE, BattleSide::RIGHT_SIDE);
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
-		callBattleStart(PlayerColor::SPECTATOR, 1);
+		callBattleStart(PlayerColor::SPECTATOR, BattleSide::RIGHT_SIDE);
 	
 	if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
 		att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);
@@ -480,9 +480,9 @@ void CClient::battleStarted(const BattleInfo * info)
 			{
 				auto side = interface->cb->getBattle(info->battleID)->playerToSide(interface->playerID);
 
-				if(interface->playerID == info->sides[info->tacticsSide].color)
+				if(interface->playerID == info->getSide(info->tacticsSide).color)
 				{
-					auto action = BattleAction::makeEndOFTacticPhase(*side);
+					auto action = BattleAction::makeEndOFTacticPhase(side);
 					interface->cb->battleMakeTacticAction(info->battleID, action);
 				}
 			}
@@ -514,7 +514,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(info->tacticDistance)
 	{
-		auto tacticianColor = info->sides[info->tacticsSide].color;
+		auto tacticianColor = info->getSide(info->tacticsSide).color;
 
 		if (vstd::contains(battleints, tacticianColor))
 			battleints[tacticianColor]->yourTacticPhase(info->battleID, info->tacticDistance);
@@ -523,9 +523,11 @@ void CClient::battleStarted(const BattleInfo * info)
 
 void CClient::battleFinished(const BattleID & battleID)
 {
-	for(auto & side : gs->getBattle(battleID)->sides)
-		if(battleCallbacks.count(side.color))
-			battleCallbacks[side.color]->onBattleEnded(battleID);
+	for(auto side : { BattleSide::ATTACKER, BattleSide::DEFENDER })
+	{
+		if(battleCallbacks.count(gs->getBattle(battleID)->getSide(side).color))
+			battleCallbacks[gs->getBattle(battleID)->getSide(side).color]->onBattleEnded(battleID);
+	}
 
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		battleCallbacks[PlayerColor::SPECTATOR]->onBattleEnded(battleID);

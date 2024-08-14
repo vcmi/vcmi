@@ -1148,7 +1148,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 	}
 }
 
-void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
+void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);

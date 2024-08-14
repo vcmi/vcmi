@@ -746,7 +746,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
 	}
 
-	if(br.winner == 0) //attacker won
+	if(br.winner == BattleSide::ATTACKER)
 	{
 		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
 	}
@@ -754,8 +754,8 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	{
 		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
 	}
-
-	if(br.winner == 1)
+	
+	if(br.winner == BattleSide::DEFENDER)
 	{
 		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
 	}
@@ -770,15 +770,15 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 
 	std::string sideNames[2] = {"N/A", "N/A"};
 
-	for(int i = 0; i < 2; i++)
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
 		auto heroInfo = owner.cb->getBattle(br.battleID)->battleGetHeroInfo(i);
 		const int xs[] = {21, 392};
 
 		if(heroInfo.portraitSource.isValid()) //attacking hero
 		{
-			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), heroInfo.getIconIndex(), 0, xs[i], 38));
-			sideNames[i] = heroInfo.name;
+			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), heroInfo.getIconIndex(), 0, xs[static_cast<int>(i)], 38));
+			sideNames[static_cast<int>(i)] = heroInfo.name;
 		}
 		else
 		{
@@ -795,8 +795,8 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 
 			if(best != stacks.end()) //should be always but to be safe...
 			{
-				icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), (*best)->unitType()->getIconIndex(), 0, xs[i], 38));
-				sideNames[i] = (*best)->unitType()->getNamePluralTranslated();
+				icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), (*best)->unitType()->getIconIndex(), 0, xs[static_cast<int>(i)], 38));
+				sideNames[static_cast<int>(i)] = (*best)->unitType()->getNamePluralTranslated();
 			}
 		}
 	}
@@ -806,16 +806,16 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	labels.push_back(std::make_shared<CLabel>(381, 53, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, sideNames[1]));
 
 	//printing casualties
-	for(int step = 0; step < 2; ++step)
+	for(auto step : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
 		if(br.casualties[step].size()==0)
 		{
-			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * step, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]));
+			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * static_cast<int>(step), FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]));
 		}
 		else
 		{
 			int xPos = 235 - ((int)br.casualties[step].size()*32 + ((int)br.casualties[step].size() - 1)*10)/2; //increment by 42 with each picture
-			int yPos = 344 + step * 97;
+			int yPos = 344 + static_cast<int>(step) * 97;
 			for(auto & elem : br.casualties[step])
 			{
 				auto creature = CGI->creatures()->getByIndex(elem.first);
@@ -842,9 +842,9 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 {
 	//printing result description
-	bool weAreAttacker = !(owner.cb->getBattle(br.battleID)->battleGetMySide());
+	bool weAreAttacker = owner.cb->getBattle(br.battleID)->battleGetMySide() == BattleSide::ATTACKER;
 	bool weAreDefender = !weAreAttacker;
-	bool weWon = (br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker);
+	bool weWon = (br.winner == BattleSide::ATTACKER && weAreAttacker) || (br.winner == BattleSide::DEFENDER && !weAreAttacker);
 	bool isSiege = owner.cb->getBattle(br.battleID)->battleGetDefendedTown() != nullptr;
 
 	BattleResultResources resources;
@@ -884,7 +884,7 @@ BattleResultResources BattleResultWindow::getResources(const BattleResult & br)
 		{
 			resources.resultText.appendTextID("core.genrltxt.305");
 			resources.resultText.replaceTextID(ourHero->getNameTranslated());
-			resources.resultText.replaceNumber(br.exp[weAreAttacker ? 0 : 1]);
+			resources.resultText.replaceNumber(br.exp[weAreAttacker ? BattleSide::ATTACKER : BattleSide::DEFENDER]);
 		}
 	}
 	else // we lose

@@ -44,7 +44,7 @@ void UnitFake::expectAnyBonusSystemCall()
 	EXPECT_CALL(*this, getTreeVersion()).Times(AtLeast(0));
 }
 
-UnitFake & UnitsFake::add(ui8 side)
+UnitFake & UnitsFake::add(BattleSide side)
 {
 	auto * unit = new UnitFake();
 	ON_CALL(*unit, unitSide()).WillByDefault(Return(side));

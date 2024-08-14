@@ -387,7 +387,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if (result.winner == 0)
+	if (result.winner == BattleSide::ATTACKER)
 	{
 		doVisit(hero);
 	}

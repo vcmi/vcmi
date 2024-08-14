@@ -397,7 +397,7 @@ std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(const CSpell
 ///Mechanics
 Mechanics::Mechanics()
 	: caster(nullptr),
-	casterSide(0)
+	casterSide(BattleSide::NONE)
 {
 
 }
@@ -413,8 +413,7 @@ BaseMechanics::BaseMechanics(const IBattleCast * event):
 {
 	caster = event->getCaster();
 
-	//FIXME: do not crash on invalid side
-	casterSide = cb->playerToSide(caster->getCasterOwner()).value();
+	casterSide = cb->playerToSide(caster->getCasterOwner());
 
 	{
 		auto value = event->getSpellLevel();

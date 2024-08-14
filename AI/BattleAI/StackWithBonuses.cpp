@@ -116,7 +116,7 @@ uint32_t StackWithBonuses::unitId() const
 	return id;
 }
 
-ui8 StackWithBonuses::unitSide() const
+BattleSide StackWithBonuses::unitSide() const
 {
 	return side;
 }
@@ -467,7 +467,7 @@ int64_t HypotheticBattle::getActualDamage(const DamageRange & damage, int32_t at
 	return (damage.min + damage.max) / 2;
 }
 
-std::vector<SpellID> HypotheticBattle::getUsedSpells(ui8 side) const
+std::vector<SpellID> HypotheticBattle::getUsedSpells(BattleSide side) const
 {
 	// TODO
 	return {};

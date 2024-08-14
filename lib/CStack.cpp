@@ -24,7 +24,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 
 ///CStack
-CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, ui8 Side, const SlotID & S):
+CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
 	CBonusSystemNode(STACK_BATTLE),
 	base(Base),
 	ID(I),
@@ -45,7 +45,7 @@ CStack::CStack():
 {
 }
 
-CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, ui8 Side, const SlotID & S):
+CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
 	CBonusSystemNode(STACK_BATTLE),
 	ID(I),
 	type(stack->type),
@@ -367,7 +367,7 @@ uint32_t CStack::unitId() const
 	return ID;
 }
 
-ui8 CStack::unitSide() const
+BattleSide CStack::unitSide() const
 {
 	return side;
 }
