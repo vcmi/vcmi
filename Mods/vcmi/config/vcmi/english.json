@@ -187,6 +187,7 @@
 	"vcmi.statisticWindow.param.battleWinRatioNeutral" : "Win ratio (neutral)",
 	"vcmi.statisticWindow.param.battlesHero" : "Battles (hero)",
 	"vcmi.statisticWindow.param.battlesNeutral" : "Battles (neutral)",
+	"vcmi.statisticWindow.param.maxArmyStrength" : "Max army strength",
 	"vcmi.statisticWindow.param.tradeVolume" : "Trade volume",
 	"vcmi.statisticWindow.param.obeliskVisited" : "Obelisk visited",
 

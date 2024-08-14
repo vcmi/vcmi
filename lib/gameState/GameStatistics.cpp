@@ -73,6 +73,9 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.spentResourcesForArmy = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).spentResourcesForArmy : TResources();
 	data.spentResourcesForBuildings = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).spentResourcesForBuildings : TResources();
 	data.tradeVolume = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).tradeVolume : TResources();
+	data.eventCapturedTown = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastCapturedTownDay == gs->getDate(Date::DAY) : false;
+	data.eventDefeatedStrongestHero = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastDefeatedStrongestHeroDay == gs->getDate(Date::DAY) : false;
+	data.eventRansackingDragonUtopia = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastRansackingDragonUtopiaDay == gs->getDate(Date::DAY) : false;
 	data.movementPointsUsed = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).movementPointsUsed : 0;
 
 	return data;
@@ -111,6 +114,9 @@ std::string StatisticDataSet::toCsv()
 	ss << "NumWinBattlesPlayer" << ";";
 	ss << "NumHeroSurrendered" << ";";
 	ss << "NumHeroEscaped" << ";";
+	ss << "EventCapturedTown" << ";";
+	ss << "EventDefeatedStrongestHero" << ";";
+	ss << "EventRansackingDragonUtopia" << ";";
 	ss << "MovementPointsUsed";
 	for(auto & resource : resources)
 		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
@@ -153,6 +159,9 @@ std::string StatisticDataSet::toCsv()
 		ss << entry.numWinBattlesPlayer << ";";
 		ss << entry.numHeroSurrendered << ";";
 		ss << entry.numHeroEscaped << ";";
+		ss << entry.eventCapturedTown << ";";
+		ss << entry.eventDefeatedStrongestHero << ";";
+		ss << entry.eventRansackingDragonUtopia << ";";
 		ss << entry.movementPointsUsed;
 		for(auto & resource : resources)
 			ss << ";" << entry.resources[resource];

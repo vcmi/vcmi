@@ -29,6 +29,7 @@
 
 #include "../../lib/gameState/GameStatistics.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 
 #include <vstd/DateUtils.h>
 
@@ -265,6 +266,15 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.obeliskVisited"), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string((int)(val.obeliskVisitedRatio * 100)) + " %";
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.maxArmyStrength"), [this](PlayerColor color){
+				int maxArmyStrength = 0;
+				for(auto val : playerDataFilter(color))
+					if(maxArmyStrength < val.armyStrength)
+						maxArmyStrength = val.armyStrength;
+				return TextOperations::formatMetric(maxArmyStrength, 6);
 			}
 		},
 		{

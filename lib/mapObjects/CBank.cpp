@@ -383,6 +383,13 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		}
 		cb->setObjPropertyValue(id, ObjProperty::BANK_CLEAR); //bc = nullptr
 	}
+
+	// add statistics
+	if(bankConfig)
+	{
+		if(ID.toEnum() == Obj::DRAGON_UTOPIA)
+			cb->gameState()->statistic.accumulatedValues[hero->getOwner()].lastRansackingDragonUtopiaDay = cb->gameState()->getDate(Date::DAY);
+	}
 }
 
 void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const

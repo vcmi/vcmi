@@ -53,6 +53,9 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	TResources spentResourcesForArmy;
 	TResources spentResourcesForBuildings;
 	TResources tradeVolume;
+	bool eventCapturedTown;
+	bool eventDefeatedStrongestHero;
+	bool eventRansackingDragonUtopia;
 	si64 movementPointsUsed;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -89,6 +92,9 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & spentResourcesForArmy;
 		h & spentResourcesForBuildings;
 		h & tradeVolume;
+		h & eventCapturedTown;
+		h & eventDefeatedStrongestHero;
+		h & eventRansackingDragonUtopia;
 		h & movementPointsUsed;
 	}
 };
@@ -113,6 +119,9 @@ public:
 		TResources spentResourcesForBuildings;
 		TResources tradeVolume;
 		si64 movementPointsUsed;
+		int lastCapturedTownDay;
+		int lastDefeatedStrongestHeroDay;
+		int lastRansackingDragonUtopiaDay;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
@@ -126,6 +135,9 @@ public:
 			h & spentResourcesForBuildings;
 			h & tradeVolume;
 			h & movementPointsUsed;
+			h & lastCapturedTownDay;
+			h & lastDefeatedStrongestHeroDay;
+			h & lastRansackingDragonUtopiaDay;
 		}
 	};
 	std::vector<StatisticDataSetEntry> data;
