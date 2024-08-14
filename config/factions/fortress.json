@@ -172,13 +172,15 @@
 				"special1":       {
 					"type" : "configurable",
 					"requires" : [ "allOf", [ "townHall" ], [ "special2" ] ],
-					"visitMode" : "hero",
-					"rewards" : [
-						{
-							"message" : "@core.genrltxt.585",
-							"primary" : { "defence" : 1 }
-						}
-					]
+					"configuration" : {
+						"visitMode" : "hero",
+						"rewards" : [
+							{
+								"message" : "@core.genrltxt.585",
+								"primary" : { "defence" : 1 }
+							}
+						]
+					}
 				},
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },

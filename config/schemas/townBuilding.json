@@ -31,7 +31,7 @@
 			"type" : "string"
 		},
 		"description" : {
-			"description" : "Localizable decsription of this building",
+			"description" : "Localizable description of this building",
 			"type" : "string"
 		},
 		"type" : {
@@ -57,6 +57,12 @@
 			"description" : "Optional, indicates that this building upgrades another base building",
 			"type" : "string"
 		},
+		"configuration" : {
+			"description" : "Configuration of building. Only used if 'type' is set to 'configurable'",
+			//"$ref" : "#/definitions/rewardable",// TODO
+			"type" : "object",
+			"additionalProperties" : true
+		}
 		"cost" : {
 			"type" : "object",
 			"additionalProperties" : false,

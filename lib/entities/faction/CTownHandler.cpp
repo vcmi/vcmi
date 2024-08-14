@@ -377,7 +377,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		}
 		
 		if(ret->subId == BuildingSubID::CUSTOM_VISITING_REWARD)
-			ret->rewardableObjectInfo.init(source, ret->getBaseTextID());
+			ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
 	}
 	//MODS COMPATIBILITY FOR 0.96
 	if(!ret->produce.nonZero())
