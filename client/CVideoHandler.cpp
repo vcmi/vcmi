@@ -15,6 +15,7 @@
 #include "eventsSDL/InputHandler.h"
 #include "gui/FramerateManager.h"
 #include "renderSDL/SDL_Extensions.h"
+#include "renderSDL/ScreenHandler.h"
 #include "CPlayerInterface.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CInputStream.h"
