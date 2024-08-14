@@ -505,62 +505,14 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 	using namespace SRSLPraserHelpers;
 
 	std::set<BattleHex> ret;
-	std::string rng = owner->getLevelInfo(getRangeLevel()).range + ','; //copy + artificial comma for easier handling
+	std::vector<int> rng = owner->getLevelInfo(getRangeLevel()).range;
 
-	if(rng.size() >= 2 && rng[0] != 'X') //there is at least one hex in range (+artificial comma)
+	for(auto & elem : rng)
 	{
-		std::string number1;
-		std::string number2;
-		int beg = 0;
-		int end = 0;
-		bool readingFirst = true;
-		for(auto & elem : rng)
-		{
-			if(std::isdigit(elem) ) //reading number
-			{
-				if(readingFirst)
-					number1 += elem;
-				else
-					number2 += elem;
-			}
-			else if(elem == ',') //comma
-			{
-				//calculating variables
-				if(readingFirst)
-				{
-					beg = std::stoi(number1);
-					number1 = "";
-				}
-				else
-				{
-					end = std::stoi(number2);
-					number2 = "";
-				}
-				//obtaining new hexes
-				std::set<ui16> curLayer;
-				if(readingFirst)
-				{
-					curLayer = getInRange(centralHex, beg, beg);
-				}
-				else
-				{
-					curLayer = getInRange(centralHex, beg, end);
-					readingFirst = true;
-				}
-				//adding obtained hexes
-				for(const auto & curLayer_it : curLayer)
-				{
-					ret.insert(curLayer_it);
-				}
-
-			}
-			else if(elem == '-') //dash
-			{
-				beg = std::stoi(number1);
-				number1 = "";
-				readingFirst = false;
-			}
-		}
+		std::set<ui16> curLayer = getInRange(centralHex, elem, elem);
+		//adding obtained hexes
+		for(const auto & curLayer_it : curLayer)
+			ret.insert(curLayer_it);
 	}
 
 	return ret;
