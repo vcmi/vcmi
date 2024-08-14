@@ -66,7 +66,7 @@ public:
 
 	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
 
-	const BuildingTypeUniqueID getUniqueTypeID() const;
+	BuildingTypeUniqueID getUniqueTypeID() const;
 
 	std::string getJsonKey() const;
 

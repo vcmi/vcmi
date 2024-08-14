@@ -530,7 +530,6 @@ bool AdventureMapShortcuts::optionCanVisitObject()
 	auto * hero = LOCPLINT->localState->getCurrentHero();
 	auto objects = LOCPLINT->cb->getVisitableObjs(hero->visitablePos());
 
-	//assert(vstd::contains(objects,hero));
 	return objects.size() > 1; // there is object other than our hero
 }
 

@@ -41,7 +41,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	scenarioHighScores.isCampaign = false;
 
 	data.map = gs->map->name.toString();
-	data.timestamp = std::time(0);
+	data.timestamp = std::time(nullptr);
 	data.day = gs->getDate(Date::DAY);
 	data.player = ps->color;
 	data.team = ps->team;
@@ -129,7 +129,7 @@ std::string StatisticDataSet::toCsv()
 		ss << GameConstants::PLAYER_COLOR_NAMES[entry.player] << ";";
 		ss << entry.team.getNum() << ";";
 		ss << entry.isHuman << ";";
-		ss << (int)entry.status << ";";
+		ss << static_cast<int>(entry.status) << ";";
 		ss << entry.numberHeroes << ";";
 		ss << entry.numberTowns <<  ";";
 		ss << entry.numberArtifacts << ";";
@@ -170,8 +170,6 @@ std::vector<const CGMine *> Statistic::getMines(const CGameState * gs, const Pla
 {
 	std::vector<const CGMine *> tmp;
 
-	/// FIXME: Dirty dirty hack
-	/// Stats helper need some access to gamestate.
 	std::vector<const CGObjectInstance *> ownedObjects;
 	for(const CGObjectInstance * obj : gs->map->objects)
 	{
@@ -202,7 +200,7 @@ int Statistic::getNumberOfArts(const PlayerState * ps)
 	int ret = 0;
 	for(auto h : ps->heroes)
 	{
-		ret += (int)h->artifactsInBackpack.size() + (int)h->artifactsWorn.size();
+		ret += h->artifactsInBackpack.size() + h->artifactsWorn.size();
 	}
 	return ret;
 }
@@ -297,9 +295,7 @@ std::vector<std::vector<PlayerColor>> Statistic::getRank(std::vector<std::pair<P
 
 	//put first element
 	std::vector< std::vector<PlayerColor> > ret;
-	std::vector<PlayerColor> tmp;
-	tmp.push_back( stats[0].first );
-	ret.push_back( tmp );
+	ret.push_back( { stats[0].first } );
 
 	//the rest of elements
 	for(int g=1; g<stats.size(); ++g)
@@ -311,9 +307,7 @@ std::vector<std::vector<PlayerColor>> Statistic::getRank(std::vector<std::pair<P
 		else
 		{
 			//create next occupied rank
-			std::vector<PlayerColor> tmp;
-			tmp.push_back(stats[g].first);
-			ret.push_back(tmp);
+			ret.push_back( { stats[g].first });
 		}
 	}
 
@@ -332,7 +326,7 @@ float Statistic::getObeliskVisitedRatio(const CGameState * gs, const TeamID & t)
 {
 	if(!gs->map->obeliskCount)
 		return 0;
-	return (float)getObeliskVisited(gs, t) / (float)gs->map->obeliskCount;
+	return static_cast<float>(getObeliskVisited(gs, t)) / gs->map->obeliskCount;
 }
 
 std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const PlayerState * ps)

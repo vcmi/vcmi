@@ -54,7 +54,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	{
 		const SPuzzleInfo & info = elem;
 
-		auto piece = std::make_shared<CPicture>(info.filename, info.x, info.y);
+		auto piece = std::make_shared<CPicture>(info.filename, info.position.x, info.position.y);
 
 		//piece that will slowly disappear
 		if(info.whenUncovered <= GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)

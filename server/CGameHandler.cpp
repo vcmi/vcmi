@@ -671,7 +671,7 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 
 void CGameHandler::addStatistics()
 {
-	for (auto & elem : gs->players)
+	for (const auto & elem : gs->players)
 	{
 		if (elem.first == PlayerColor::NEUTRAL || !elem.first.isValidPlayer())
 			continue;
@@ -707,7 +707,7 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
-	for (auto & player : gs->players)
+	for (const auto & player : gs->players)
 	{
 		if (player.second.status != EPlayerStatus::INGAME)
 			continue;

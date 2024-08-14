@@ -99,7 +99,7 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
-		std::lock_guard<std::recursive_mutex> globalLock(globalTextMutex);
+		std::lock_guard globalLock(globalTextMutex);
 
 		if (h.version >= Handler::Version::SIMPLE_TEXT_CONTAINER_SERIALIZATION)
 		{
@@ -123,7 +123,7 @@ public:
 
 			if(h.saving)
 			{
-				for(auto s : stringsLocalizations)
+				for(auto & s : stringsLocalizations)
 				{
 					key = s.first;
 					h & key;

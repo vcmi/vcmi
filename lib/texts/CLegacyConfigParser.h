@@ -13,18 +13,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-//class CInputStream;
-//class JsonNode;
-//class JsonSerializeFormat;
-
 /// Parser for any text files from H3
 class DLL_LINKAGE CLegacyConfigParser
 {
 	std::string fileEncoding;
 
 	std::unique_ptr<char[]> data;
-	char * curr;
-	char * end;
+	const char * curr;
+	const char * end;
 
 	/// extracts part of quoted string.
 	std::string extractQuotedPart();
@@ -49,7 +45,7 @@ public:
 		std::vector<numeric> ret;
 		ret.reserve(size);
 		while (size--)
-			ret.push_back((numeric)readNumber());
+			ret.push_back(readNumber());
 		return ret;
 	}
 

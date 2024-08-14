@@ -27,7 +27,7 @@ BattleOverlayLogVisualizer::BattleOverlayLogVisualizer(
 {
 }
 
-void BattleOverlayLogVisualizer::drawText(BattleHex hex, int lineNumber, std::string text)
+void BattleOverlayLogVisualizer::drawText(BattleHex hex, int lineNumber, const std::string & text)
 {
 	Point offset = owner.fieldController->hexPositionLocal(hex).topLeft() + Point(20, 20);
 	int h = graphics->fonts[EFonts::FONT_TINY]->getLineHeight();

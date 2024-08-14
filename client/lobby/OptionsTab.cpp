@@ -494,7 +494,7 @@ void OptionsTab::SelectionWindow::reopen()
 	if(type == SelType::HERO && SEL->getStartInfo()->playerInfos.find(color)->second.castle == FactionID::RANDOM)
 		close();
 	else{
-		auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type, slider ? slider->getValue() : 0));
+		auto window = std::make_shared<SelectionWindow>(color, type, slider ? slider->getValue() : 0);
 		close();
 		if(CSH->isMyColor(color) || CSH->isHost())
 			GH.windows().pushWindow(window);
