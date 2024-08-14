@@ -280,6 +280,7 @@ public:
 	enum Type
 	{
 		DEFAULT = -50,
+		HORDE_PLACEHOLDER8 = -37,
 		HORDE_PLACEHOLDER7 = -36,
 		HORDE_PLACEHOLDER6 = -35,
 		HORDE_PLACEHOLDER5 = -34,
@@ -297,7 +298,7 @@ public:
 		HORDE_2_UPGR,   GRAIL,         EXTRA_TOWN_HALL,   EXTRA_CITY_HALL, EXTRA_CAPITOL,
 		DWELL_FIRST=30, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LAST=36,
 		DWELL_UP_FIRST=37,  DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP,
-		DWELL_LVL_6_UP, DWELL_UP_LAST=43,
+		DWELL_LVL_6_UP, DWELL_UP_LAST=43, DWELL_LVL_8=150, DWELL_LVL_8_UP=151,
 
 		DWELL_LVL_1 = DWELL_FIRST,
 		DWELL_LVL_7 = DWELL_LAST,
@@ -312,6 +313,44 @@ public:
 		ARTIFACT_MERCHANT = SPECIAL_1,
 
 	};
+
+private:
+	static std::vector<std::vector<Type>> getDwellings()
+	{
+		std::vector<Type> dwellings = { DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 };
+		std::vector<Type> dwellingsUp = { DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP };
+		return {dwellings, dwellingsUp};
+	}
+
+public:
+	static Type getDwellingFromLevel(int level, int upgradeIndex)
+	{
+		return getDwellings()[upgradeIndex][level];
+	}
+
+	static int getLevelFromDwelling(BuildingIDBase dwelling)
+	{
+		for(int i = 0; i < 2; i++)
+		{
+			auto tmp = getDwellings()[i];
+			auto it = std::find(tmp.begin(), tmp.end(), dwelling);
+			if (it != tmp.end())
+				return std::distance(tmp.begin(), it);
+		}
+		return (dwelling - DWELL_FIRST) % (GameConstants::CREATURES_PER_TOWN - 1);
+	}
+
+	static int getUpgradedFromDwelling(BuildingIDBase dwelling)
+	{
+		for(int i = 0; i < 2; i++)
+		{
+			auto tmp = getDwellings()[i];
+			auto it = std::find(tmp.begin(), tmp.end(), dwelling);
+			if (it != tmp.end())
+				return i;
+		}
+		return (dwelling - DWELL_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
+	}
 
 	bool IsSpecialOrGrail() const
 	{
