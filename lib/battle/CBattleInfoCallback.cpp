@@ -173,6 +173,9 @@ bool CBattleInfoCallback::battleIsInsideWalls(BattleHex from) const
 
 bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const
 {
+	if (!from.isAvailable() || !dest.isAvailable())
+		throw std::runtime_error("Invalid hex (" + std::to_string(from.hex) + " and " + std::to_string(dest.hex) + ") received in battleHasPenaltyOnLine!" );
+
 	auto isTileBlocked = [&](BattleHex tile)
 	{
 		EWallPart wallPart = battleHexToWallPart(tile);
