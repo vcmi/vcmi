@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CRewardableConstructor.h"
 
+#include "../json/JsonUtils.h"
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
@@ -23,6 +24,8 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 
 	if (!config["name"].isNull())
 		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"].String());
+
+	JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
 	
 }
 

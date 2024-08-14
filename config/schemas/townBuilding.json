@@ -59,10 +59,8 @@
 		},
 		"configuration" : {
 			"description" : "Configuration of building. Only used if 'type' is set to 'configurable'",
-			//"$ref" : "#/definitions/rewardable",// TODO
-			"type" : "object",
-			"additionalProperties" : true
-		}
+			"$ref" : "rewardable.json"
+		},
 		"cost" : {
 			"type" : "object",
 			"additionalProperties" : false,

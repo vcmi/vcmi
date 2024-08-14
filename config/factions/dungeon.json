@@ -202,7 +202,7 @@
 						"rewards" : [
 							{
 								"message" : "@core.genrltxt.583",
-								"experience" : 1000
+								"heroExperience" : 1000
 							}
 						]
 					}
