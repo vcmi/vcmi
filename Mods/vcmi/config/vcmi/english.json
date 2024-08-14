@@ -163,8 +163,7 @@
 	"vcmi.systemOptions.townsGroup" : "Town Screen",
 
 	"vcmi.statisticWindow.statistic" : "Statistic",
-	"vcmi.statisticWindow.csvSave" : "Save as CSV",
-	"vcmi.statisticWindow.csvSaved" : "CSV saved!",
+	"vcmi.statisticWindow.tsvCopy" : "Data to clipboard",
 	"vcmi.statisticWindow.selectView" : "Select view",
 	"vcmi.statisticWindow.value" : "Value",
 	"vcmi.statisticWindow.title.overview" : "Overview",

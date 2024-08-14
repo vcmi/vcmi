@@ -81,98 +81,98 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	return data;
 }
 
-std::string StatisticDataSet::toCsv()
+std::string StatisticDataSet::toCsv(std::string sep)
 {
 	std::stringstream ss;
 
 	auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
 
-	ss << "Map" << ";";
-	ss << "Timestamp" << ";";
-	ss << "Day" << ";";
-	ss << "Player" << ";";
-	ss << "PlayerName" << ";";
-	ss << "Team" << ";";
-	ss << "IsHuman" << ";";
-	ss << "Status" << ";";
-	ss << "NumberHeroes" << ";";
-	ss << "NumberTowns" << ";";
-	ss << "NumberArtifacts" << ";";
-	ss << "NumberDwellings" << ";";
-	ss << "ArmyStrength" << ";";
-	ss << "TotalExperience" << ";";
-	ss << "Income" << ";";
-	ss << "MapExploredRatio" << ";";
-	ss << "ObeliskVisitedRatio" << ";";
-	ss << "TownBuiltRatio" << ";";
-	ss << "HasGrail" << ";";
-	ss << "Score" << ";";
-	ss << "MaxHeroLevel" << ";";
-	ss << "NumBattlesNeutral" << ";";
-	ss << "NumBattlesPlayer" << ";";
-	ss << "NumWinBattlesNeutral" << ";";
-	ss << "NumWinBattlesPlayer" << ";";
-	ss << "NumHeroSurrendered" << ";";
-	ss << "NumHeroEscaped" << ";";
-	ss << "EventCapturedTown" << ";";
-	ss << "EventDefeatedStrongestHero" << ";";
-	ss << "EventRansackingDragonUtopia" << ";";
+	ss << "Map" << sep;
+	ss << "Timestamp" << sep;
+	ss << "Day" << sep;
+	ss << "Player" << sep;
+	ss << "PlayerName" << sep;
+	ss << "Team" << sep;
+	ss << "IsHuman" << sep;
+	ss << "Status" << sep;
+	ss << "NumberHeroes" << sep;
+	ss << "NumberTowns" << sep;
+	ss << "NumberArtifacts" << sep;
+	ss << "NumberDwellings" << sep;
+	ss << "ArmyStrength" << sep;
+	ss << "TotalExperience" << sep;
+	ss << "Income" << sep;
+	ss << "MapExploredRatio" << sep;
+	ss << "ObeliskVisitedRatio" << sep;
+	ss << "TownBuiltRatio" << sep;
+	ss << "HasGrail" << sep;
+	ss << "Score" << sep;
+	ss << "MaxHeroLevel" << sep;
+	ss << "NumBattlesNeutral" << sep;
+	ss << "NumBattlesPlayer" << sep;
+	ss << "NumWinBattlesNeutral" << sep;
+	ss << "NumWinBattlesPlayer" << sep;
+	ss << "NumHeroSurrendered" << sep;
+	ss << "NumHeroEscaped" << sep;
+	ss << "EventCapturedTown" << sep;
+	ss << "EventDefeatedStrongestHero" << sep;
+	ss << "EventRansackingDragonUtopia" << sep;
 	ss << "MovementPointsUsed";
 	for(auto & resource : resources)
-		ss << ";" << GameConstants::RESOURCE_NAMES[resource];
+		ss << sep << GameConstants::RESOURCE_NAMES[resource];
 	for(auto & resource : resources)
-		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "Mines";
+		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "Mines";
 	for(auto & resource : resources)
-		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForArmy";
+		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForArmy";
 	for(auto & resource : resources)
-		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForBuildings";
+		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForBuildings";
 	for(auto & resource : resources)
-		ss << ";" << GameConstants::RESOURCE_NAMES[resource] + "TradeVolume";
+		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "TradeVolume";
 	ss << "\r\n";
 
 	for(auto & entry : data)
 	{
-		ss << entry.map << ";";
-		ss << vstd::getFormattedDateTime(entry.timestamp, "%Y-%m-%dT%H:%M:%S") << ";";
-		ss << entry.day << ";";
-		ss << GameConstants::PLAYER_COLOR_NAMES[entry.player] << ";";
-		ss << entry.playerName << ";";
-		ss << entry.team.getNum() << ";";
-		ss << entry.isHuman << ";";
-		ss << static_cast<int>(entry.status) << ";";
-		ss << entry.numberHeroes << ";";
-		ss << entry.numberTowns <<  ";";
-		ss << entry.numberArtifacts << ";";
-		ss << entry.numberDwellings << ";";
-		ss << entry.armyStrength << ";";
-		ss << entry.totalExperience << ";";
-		ss << entry.income << ";";
-		ss << entry.mapExploredRatio << ";";
-		ss << entry.obeliskVisitedRatio << ";";
-		ss << entry.townBuiltRatio << ";";
-		ss << entry.hasGrail << ";";
-		ss << entry.score << ";";
-		ss << entry.maxHeroLevel << ";";
-		ss << entry.numBattlesNeutral << ";";
-		ss << entry.numBattlesPlayer << ";";
-		ss << entry.numWinBattlesNeutral << ";";
-		ss << entry.numWinBattlesPlayer << ";";
-		ss << entry.numHeroSurrendered << ";";
-		ss << entry.numHeroEscaped << ";";
-		ss << entry.eventCapturedTown << ";";
-		ss << entry.eventDefeatedStrongestHero << ";";
-		ss << entry.eventRansackingDragonUtopia << ";";
+		ss << entry.map << sep;
+		ss << vstd::getFormattedDateTime(entry.timestamp, "%Y-%m-%dT%H:%M:%S") << sep;
+		ss << entry.day << sep;
+		ss << GameConstants::PLAYER_COLOR_NAMES[entry.player] << sep;
+		ss << entry.playerName << sep;
+		ss << entry.team.getNum() << sep;
+		ss << entry.isHuman << sep;
+		ss << static_cast<int>(entry.status) << sep;
+		ss << entry.numberHeroes << sep;
+		ss << entry.numberTowns <<  sep;
+		ss << entry.numberArtifacts << sep;
+		ss << entry.numberDwellings << sep;
+		ss << entry.armyStrength << sep;
+		ss << entry.totalExperience << sep;
+		ss << entry.income << sep;
+		ss << entry.mapExploredRatio << sep;
+		ss << entry.obeliskVisitedRatio << sep;
+		ss << entry.townBuiltRatio << sep;
+		ss << entry.hasGrail << sep;
+		ss << entry.score << sep;
+		ss << entry.maxHeroLevel << sep;
+		ss << entry.numBattlesNeutral << sep;
+		ss << entry.numBattlesPlayer << sep;
+		ss << entry.numWinBattlesNeutral << sep;
+		ss << entry.numWinBattlesPlayer << sep;
+		ss << entry.numHeroSurrendered << sep;
+		ss << entry.numHeroEscaped << sep;
+		ss << entry.eventCapturedTown << sep;
+		ss << entry.eventDefeatedStrongestHero << sep;
+		ss << entry.eventRansackingDragonUtopia << sep;
 		ss << entry.movementPointsUsed;
 		for(auto & resource : resources)
-			ss << ";" << entry.resources[resource];
+			ss << sep << entry.resources[resource];
 		for(auto & resource : resources)
-			ss << ";" << entry.numMines[resource];
+			ss << sep << entry.numMines[resource];
 		for(auto & resource : resources)
-			ss << ";" << entry.spentResourcesForArmy[resource];
+			ss << sep << entry.spentResourcesForArmy[resource];
 		for(auto & resource : resources)
-			ss << ";" << entry.spentResourcesForBuildings[resource];
+			ss << sep << entry.spentResourcesForBuildings[resource];
 		for(auto & resource : resources)
-			ss << ";" << entry.tradeVolume[resource];
+			ss << sep << entry.tradeVolume[resource];
 		ss << "\r\n";
 	}
 
@@ -186,7 +186,7 @@ std::string StatisticDataSet::writeCsv()
 
 	const boost::filesystem::path filePath = outPath / (vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".csv");
 	std::ofstream file(filePath.c_str());
-	std::string csv = toCsv();
+	std::string csv = toCsv(";");
 	file << csv;
 
 	return filePath.string();

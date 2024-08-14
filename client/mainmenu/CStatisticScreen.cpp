@@ -15,6 +15,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../gui/Shortcut.h"
 
 #include "../render/Graphics.h"
@@ -74,23 +75,20 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 	});
 	buttonSelect->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
 
-	buttonCsvSave = std::make_shared<CToggleButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
-		std::string path = statistic.writeCsv();
-		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.statisticWindow.csvSaved") + "\n\n" + path, {});
-	});
-	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.csvSave"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonCsvSave = std::make_shared<CToggleButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){ GH.input().copyToClipBoard(statistic.toCsv("\t"));	});
+	buttonCsvSave->setTextOverlay(CGI->generaltexth->translate("vcmi.statisticWindow.tsvCopy"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	mainContent = getContent(OVERVIEW, EGameResID::NONE);
 }
 
-std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector)
+TData CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector)
 {
 	auto tmpData = stat.data;
 	std::sort(tmpData.begin(), tmpData.end(), [](StatisticDataSetEntry v1, StatisticDataSetEntry v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
 
 	PlayerColor tmpColor = PlayerColor::NEUTRAL;
 	std::vector<float> tmpColorSet;
-	std::map<ColorRGBA, std::vector<float>> plotData;
+	TData plotData;
 	for(auto & val : tmpData)
 	{
 		if(tmpColor != val.player)
@@ -114,8 +112,8 @@ std::map<ColorRGBA, std::vector<float>> CStatisticScreen::extractData(StatisticD
 
 std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID res)
 {
-	LineChart::TData plotData;
-	LineChart::TIcons icons;
+	TData plotData;
+	TIcons icons;
 
 	switch (c)
 	{

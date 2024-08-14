@@ -20,6 +20,9 @@ class ComboBox;
 class CSlider;
 class IImage;
 
+using TData = std::map<ColorRGBA, std::vector<float>>;
+using TIcons = std::map<ColorRGBA, std::vector<std::pair<int, std::shared_ptr<IImage>>>>;
+
 class CStatisticScreen : public CWindowObject
 {
 	enum Content {
@@ -61,7 +64,7 @@ class CStatisticScreen : public CWindowObject
 	std::shared_ptr<CIntObject> mainContent;
 	Rect contentArea;
 
-	std::map<ColorRGBA, std::vector<float>> extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector);
+	TData extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector);
 	std::shared_ptr<CIntObject> getContent(Content c, EGameResID res);
 public:
 	CStatisticScreen(StatisticDataSet stat);
@@ -116,9 +119,6 @@ class LineChart : public CIntObject
 
 	void updateStatusBar(const Point & cursorPosition);
 public:
-	using TData = std::map<ColorRGBA, std::vector<float>>;
-	using TIcons = std::map<ColorRGBA, std::vector<std::pair<int, std::shared_ptr<IImage>>>>;
-
 	LineChart(Rect position, std::string title, TData data, TIcons icons, float maxY);
 
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
