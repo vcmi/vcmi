@@ -475,7 +475,7 @@ void CMultiMode::joinTCP()
 	GH.windows().createAndPushWindow<CMultiPlayers>(getPlayersNames(), savedScreenType, false, ELoadMode::MULTI);
 }
 
-const std::vector<std::string> CMultiMode::getPlayersNames()
+std::vector<std::string> CMultiMode::getPlayersNames()
 {
 	std::vector<std::string> playerNames;
 

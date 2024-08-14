@@ -108,8 +108,8 @@ void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & bat
 		return;
 	}
 
-	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->sides[0].color, ptr, std::forward<Args2>(args)...);
-	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->sides[1].color, ptr, std::forward<Args2>(args)...);
+	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->getSide(BattleSide::ATTACKER).color, ptr, std::forward<Args2>(args)...);
+	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->getSide(BattleSide::DEFENDER).color, ptr, std::forward<Args2>(args)...);
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && LOCPLINT->battleInt)
 	{
 		callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, ptr, std::forward<Args2>(args)...);
@@ -769,12 +769,12 @@ void ApplyClientNetPackVisitor::visitMapObjectSelectDialog(MapObjectSelectDialog
 void ApplyFirstClientNetPackVisitor::visitBattleStart(BattleStart & pack)
 {
 	// Cannot use the usual code because curB is not set yet
-	callOnlyThatBattleInterface(cl, pack.info->sides[0].color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
-		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
-	callOnlyThatBattleInterface(cl, pack.info->sides[1].color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
-		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
-	callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
-		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
+	callOnlyThatBattleInterface(cl, pack.info->getSide(BattleSide::ATTACKER).color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSide(BattleSide::ATTACKER).armyObject, pack.info->getSide(BattleSide::DEFENDER).armyObject,
+		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSide(BattleSide::DEFENDER).hero);
+	callOnlyThatBattleInterface(cl, pack.info->getSide(BattleSide::DEFENDER).color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSide(BattleSide::ATTACKER).armyObject, pack.info->getSide(BattleSide::DEFENDER).armyObject,
+		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSide(BattleSide::DEFENDER).hero);
+	callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSide(BattleSide::ATTACKER).armyObject, pack.info->getSide(BattleSide::DEFENDER).armyObject,
+		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSide(BattleSide::DEFENDER).hero);
 }
 
 void ApplyClientNetPackVisitor::visitBattleStart(BattleStart & pack)
@@ -801,9 +801,9 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 	PlayerColor playerToCall; //pack.player that will move activated stack
 	if (activated->hasBonusOfType(BonusType::HYPNOTIZED))
 	{
-		playerToCall = (gs.getBattle(pack.battleID)->sides[0].color == activated->unitOwner()
-			? gs.getBattle(pack.battleID)->sides[1].color
-			: gs.getBattle(pack.battleID)->sides[0].color);
+		playerToCall = gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color == activated->unitOwner()
+			? gs.getBattle(pack.battleID)->getSide(BattleSide::DEFENDER).color
+			: gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color;
 	}
 	else
 	{

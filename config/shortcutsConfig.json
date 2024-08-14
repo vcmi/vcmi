@@ -243,6 +243,15 @@
 		"townOpenThievesGuild":     "G",
 		"townOpenVisitingHero":     "Ctrl+H",
 		"townSwapArmies":           "Space",
+		"listHeroUp":               "Ctrl+PageUp",
+		"listHeroDown":             "Ctrl+PageDown",
+		"listHeroTop":              "Ctrl+Home",
+		"listHeroBottom":           "Ctrl+End",
+		"listHeroDismiss":          "Delete",
+		"listTownUp":               "Ctrl+PageUp",
+		"listTownDown":             "Ctrl+PageDown",
+		"listTownTop":              "Ctrl+Home",
+		"listTownBottom":           "Ctrl+End",
 		
 		// Controller-specific
 		"mouseCursorX":             [],

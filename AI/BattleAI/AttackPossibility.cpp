@@ -26,7 +26,7 @@ void DamageCache::cacheDamage(const battle::Unit * attacker, const battle::Unit 
 }
 
 
-void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int side)
+void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side)
 {
 	auto stacks = hb->battleGetUnitsIf([=](const battle::Unit * u) -> bool
 		{
@@ -245,7 +245,7 @@ AttackPossibility AttackPossibility::evaluate(
 
 	std::vector<BattleHex> defenderHex;
 	if(attackInfo.shooting)
-		defenderHex = defender->getHexes();
+		defenderHex.push_back(defender->getPosition());
 	else
 		defenderHex = CStack::meleeAttackHexes(attacker, defender, hex);
 

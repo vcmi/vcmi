@@ -205,7 +205,7 @@ ui32 CGMine::getProducedQuantity() const
 
 void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 	{
 		if(isAbandoned())
 		{
@@ -344,7 +344,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 
 void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 		collectRes(hero->getOwner());
 }
 
@@ -911,7 +911,7 @@ BattleField CGArtifact::getBattlefield() const
 
 void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 		pick(hero);
 }
 
@@ -1010,7 +1010,7 @@ bool CGGarrison::passableFor(PlayerColor player) const
 
 void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if (result.winner == 0)
+	if (result.winner == BattleSide::ATTACKER)
 		onHeroVisit(hero);
 }
 

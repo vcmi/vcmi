@@ -32,7 +32,7 @@
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
 CBattleAI::CBattleAI()
-	: side(-1),
+	: side(BattleSide::NONE),
 	wasWaitingForRealize(false),
 	wasUnlockingGs(false)
 {
@@ -100,7 +100,7 @@ void CBattleAI::yourTacticPhase(const BattleID & battleID, int distance)
 	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
 }
 
-static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, int side)
+static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSide side)
 {
 	auto stacks = cb->battleGetAllStacks();
 	auto our = 0;
@@ -243,7 +243,7 @@ BattleAction CBattleAI::useCatapult(const BattleID & battleID, const CStack * st
 	return attack;
 }
 
-void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
+void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide Side, bool replayAllowed)
 {
 	LOG_TRACE(logAi);
 	side = Side;

@@ -35,17 +35,18 @@ CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 	CQuery(owner),
 	battleID(bi->getBattleID())
 {
-	belligerents[0] = bi->getSideArmy(0);
-	belligerents[1] = bi->getSideArmy(1);
+	belligerents[BattleSide::ATTACKER] = bi->getSideArmy(BattleSide::ATTACKER);
+	belligerents[BattleSide::DEFENDER] = bi->getSideArmy(BattleSide::DEFENDER);
 
-	addPlayer(bi->getSidePlayer(0));
-	addPlayer(bi->getSidePlayer(1));
+	addPlayer(bi->getSidePlayer(BattleSide::ATTACKER));
+	addPlayer(bi->getSidePlayer(BattleSide::DEFENDER));
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner):
 	CQuery(owner)
 {
-	belligerents[0] = belligerents[1] = nullptr;
+	belligerents[BattleSide::ATTACKER] = nullptr;
+	belligerents[BattleSide::DEFENDER] = nullptr;
 }
 
 bool CBattleQuery::blocksPack(const CPack * pack) const
@@ -81,8 +82,8 @@ CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo *
 	bi(bi),
 	result(Br)
 {
-	addPlayer(bi->getSidePlayer(0));
-	addPlayer(bi->getSidePlayer(1));
+	addPlayer(bi->getSidePlayer(BattleSide::ATTACKER));
+	addPlayer(bi->getSidePlayer(BattleSide::DEFENDER));
 }
 
 void CBattleDialogQuery::onRemoval(PlayerColor color)
@@ -97,11 +98,11 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	{
 		gh->battles->restartBattlePrimary(
 			bi->getBattleID(),
-			bi->getSideArmy(0),
-			bi->getSideArmy(1),
+			bi->getSideArmy(BattleSide::ATTACKER),
+			bi->getSideArmy(BattleSide::DEFENDER),
 			bi->getLocation(),
-			bi->getSideHero(0),
-			bi->getSideHero(1),
+			bi->getSideHero(BattleSide::ATTACKER),
+			bi->getSideHero(BattleSide::DEFENDER),
 			bi->isCreatureBank(),
 			bi->getDefendedTown()
 		);

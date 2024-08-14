@@ -102,7 +102,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 	{
 		auto side = owner.getBattle()->playerToSide(owner.curInt->playerID);
 
-		if(!oi->visibleForSide(side.value(), owner.getBattle()->battleHasNativeStack(side.value())))
+		if(!oi->visibleForSide(side, owner.getBattle()->battleHasNativeStack(side)))
 			continue;
 
 		auto animation = GH.renderHandler().loadAnimation(oi->getAppearAnimation(), EImageBlitMode::ALPHA);

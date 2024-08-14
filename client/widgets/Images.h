@@ -114,7 +114,6 @@ public:
 	bool visible;
 
 	CAnimImage(const AnimationPath & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
-//	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(const AnimationPath & name, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
 	~CAnimImage();
 

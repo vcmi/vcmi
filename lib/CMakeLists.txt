@@ -403,6 +403,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleAttackInfo.h
 	battle/BattleHex.h
 	battle/BattleInfo.h
+	battle/BattleSide.h
 	battle/BattleStateInfoForRetreat.h
 	battle/BattleProxy.h
 	battle/CBattleInfoCallback.h

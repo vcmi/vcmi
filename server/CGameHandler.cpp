@@ -584,11 +584,6 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	reinitScripting();
 }
 
-static bool evntCmp(const CMapEvent &a, const CMapEvent &b)
-{
-	return a.earlierThan(b);
-}
-
 void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false, bool clear = false)
 {// bool forced = true - if creature should be replaced, if false - only if no creature was set
 
@@ -599,12 +594,12 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 		return;
 	}
 
-	if (forced || town->creatures.at(GameConstants::CREATURES_PER_TOWN).second.empty())//we need to change creature
+	if (forced || town->creatures.at(town->town->creatures.size()).second.empty())//we need to change creature
 		{
 			SetAvailableCreatures ssi;
 			ssi.tid = town->id;
 			ssi.creatures = town->creatures;
-			ssi.creatures[GameConstants::CREATURES_PER_TOWN].second.clear();//remove old one
+			ssi.creatures[town->town->creatures.size()].second.clear();//remove old one
 
 			const std::vector<ConstTransitivePtr<CGDwelling> > &dwellings = p->dwellings;
 			if (dwellings.empty())//no dwellings - just remove
@@ -620,13 +615,13 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 			if (clear)
 			{
-				ssi.creatures[GameConstants::CREATURES_PER_TOWN].first = std::max(1, (VLC->creh->objects.at(creatureId)->getGrowth())/2);
+				ssi.creatures[town->town->creatures.size()].first = std::max(1, (VLC->creh->objects.at(creatureId)->getGrowth())/2);
 			}
 			else
 			{
-				ssi.creatures[GameConstants::CREATURES_PER_TOWN].first = VLC->creh->objects.at(creatureId)->getGrowth();
+				ssi.creatures[town->town->creatures.size()].first = VLC->creh->objects.at(creatureId)->getGrowth();
 			}
-			ssi.creatures[GameConstants::CREATURES_PER_TOWN].second.push_back(creatureId);
+			ssi.creatures[town->town->creatures.size()].second.push_back(creatureId);
 			sendAndApply(&ssi);
 		}
 }
@@ -635,6 +630,11 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 {
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
 	turnTimerHandler->onPlayerGetTurn(which);
+
+	handleTimeEvents(which);
+
+	for (auto t : getPlayerState(which)->towns)
+		handleTownEvents(t);
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
@@ -671,7 +671,7 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 
 void CGameHandler::addStatistics(StatisticDataSet &stat)
 {
-	for (auto & elem : gs->players)
+	for (const auto & elem : gs->players)
 	{
 		if (elem.first == PlayerColor::NEUTRAL || !elem.first.isValidPlayer())
 			continue;
@@ -711,7 +711,7 @@ void CGameHandler::onNewTurn()
 		addStatistics(gameState()->statistic); // write at end of turn
 	}
 
-	for (auto & player : gs->players)
+	for (const auto & player : gs->players)
 	{
 		if (player.second.status != EPlayerStatus::INGAME)
 			continue;
@@ -864,7 +864,6 @@ void CGameHandler::onNewTurn()
 	for (CGTownInstance *t : gs->map->towns)
 	{
 		PlayerColor player = t->tempOwner;
-		handleTownEvents(t, n);
 		if (newWeek) //first day of week
 		{
 			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
@@ -881,7 +880,7 @@ void CGameHandler::onNewTurn()
 			}
 			auto & sac = n.cres.at(t->id);
 
-			for (int k=0; k < GameConstants::CREATURES_PER_TOWN; k++) //creature growths
+			for (int k=0; k < t->town->creatures.size(); k++) //creature growths
 			{
 				if (!t->creatures.at(k).second.empty()) // there are creatures at this level
 				{
@@ -1021,7 +1020,6 @@ void CGameHandler::onNewTurn()
 		checkVictoryLossConditionsForAll(); // check for map turn limit
 
 	logGlobal->trace("Info about turn %d has been sent!", n.day);
-	handleTimeEvents();
 	//call objects
 	for (auto & elem : gs->map->objects)
 	{
@@ -2382,8 +2380,8 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	{
 		if(buildingID >= BuildingID::DWELL_FIRST) //dwelling
 		{
-			int level = (buildingID - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
-			int upgradeNumber = (buildingID - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+			int level = BuildingID::getLevelFromDwelling(buildingID);
+			int upgradeNumber = BuildingID::getUpgradedFromDwelling(buildingID);
 
 			if(upgradeNumber >= t->town->creatures.at(level).size())
 			{
@@ -3410,148 +3408,87 @@ bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, Player
 	return true;
 }
 
-void CGameHandler::handleTimeEvents()
+void CGameHandler::handleTimeEvents(PlayerColor color)
 {
-	gs->map->events.sort(evntCmp);
-	while(gs->map->events.size() && gs->map->events.front().firstOccurrence+1 == gs->day)
+	for (auto const & event : gs->map->events)
 	{
-		CMapEvent ev = gs->map->events.front();
+		if (!event.occursToday(gs->day))
+			continue;
 
-		for (int player = 0; player < PlayerColor::PLAYER_LIMIT_I; player++)
+		if (!event.affectsPlayer(color, getPlayerState(color)->isHuman()))
+			continue;
+
+		InfoWindow iw;
+		iw.player = color;
+		iw.text = event.message;
+
+		//give resources
+		if (!event.resources.empty())
 		{
-			auto color = PlayerColor(player);
-
-			const PlayerState * pinfo = getPlayerState(color, false); //do not output error if player does not exist
-
-			if (pinfo  //player exists
-				&& (ev.players & 1<<player) //event is enabled to this player
-				&& ((ev.computerAffected && !pinfo->human)
-					|| (ev.humanAffected && pinfo->human)
-				)
-			)
-			{
-				//give resources
-				giveResources(color, ev.resources);
-
-				//prepare dialog
-				InfoWindow iw;
-				iw.player = color;
-				iw.text = ev.message;
-
-				for (GameResID i : GameResID::ALL_RESOURCES())
-				{
-					if (ev.resources[i]) //if resource is changed, we add it to the dialog
-						iw.components.emplace_back(ComponentType::RESOURCE, i, ev.resources[i]);
-				}
-
-				sendAndApply(&iw); //show dialog
-			}
-		} //PLAYERS LOOP
-
-		if (ev.nextOccurrence)
-		{
-			gs->map->events.pop_front();
-
-			ev.firstOccurrence += ev.nextOccurrence;
-			auto it = gs->map->events.begin();
-			while(it != gs->map->events.end() && it->earlierThanOrEqual(ev))
-				it++;
-			gs->map->events.insert(it, ev);
+			giveResources(color, event.resources);
+			for (GameResID i : GameResID::ALL_RESOURCES())
+				if (event.resources[i])
+					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
-		else
-		{
-			gs->map->events.pop_front();
-		}
+		sendAndApply(&iw); //show dialog
 	}
-
-	//TODO send only if changed
-	UpdateMapEvents ume;
-	ume.events = gs->map->events;
-	sendAndApply(&ume);
 }
 
-void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
+void CGameHandler::handleTownEvents(CGTownInstance * town)
 {
-	std::sort(town->events.begin(), town->events.end(), evntCmp);
-	while(town->events.size() && town->events.front().firstOccurrence == gs->day)
+	for (auto const & event : town->events)
 	{
-		PlayerColor player = town->tempOwner;
-		CCastleEvent ev = town->events.front();
-		const PlayerState * pinfo = getPlayerState(player, false);
+		if (!event.occursToday(gs->day))
+			continue;
 
-		if (pinfo  //player exists
-			&& (ev.players & 1<<player.getNum()) //event is enabled to this player
-			&& ((ev.computerAffected && !pinfo->human)
-				|| (ev.humanAffected && pinfo->human)))
+		PlayerColor player = town->getOwner();
+		if (!event.affectsPlayer(player, getPlayerState(player)->isHuman()))
+			continue;
+
+		// dialog
+		InfoWindow iw;
+		iw.player = player;
+		iw.text = event.message;
+
+		if (event.resources.nonZero())
 		{
-			// dialog
-			InfoWindow iw;
-			iw.player = player;
-			iw.text = ev.message;
+			giveResources(player, event.resources);
 
-			if (ev.resources.nonZero())
+			for (GameResID i : GameResID::ALL_RESOURCES())
+				if (event.resources[i])
+					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
+		}
+
+		for (auto & i : event.buildings)
+		{
+			// Only perform action if:
+			// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
+			// 2. Building was not built yet
+			// othervice, silently ignore / skip it
+			if (town->town->buildings.count(i) && !town->hasBuilt(i))
 			{
-				TResources was = n.res[player];
-				n.res[player] += ev.resources;
-				n.res[player].amax(0);
-
-				for (GameResID i : GameResID::ALL_RESOURCES())
-					if (ev.resources[i] && pinfo->resources[i] != n.res.at(player)[i]) //if resource had changed, we add it to the dialog
-						iw.components.emplace_back(ComponentType::RESOURCE, i, n.res.at(player)[i] - was[i]);
+				buildStructure(town->id, i, true);
+				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
 			}
+		}
 
-			for (auto & i : ev.buildings)
+		if (!event.creatures.empty())
+		{
+			SetAvailableCreatures sac;
+			sac.tid = town->id;
+			sac.creatures = town->creatures;
+
+			for (si32 i=0;i<event.creatures.size();i++) //creature growths
 			{
-				// Only perform action if:
-				// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
-				// 2. Building was not built yet
-				// othervice, silently ignore / skip it
-				if (town->town->buildings.count(i) && !town->hasBuilt(i))
+				if (!town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
 				{
-					buildStructure(town->id, i, true);
-					iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
+					sac.creatures[i].first += event.creatures.at(i);
+					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
 				}
 			}
-
-			if (!ev.creatures.empty() && !vstd::contains(n.cres, town->id))
-			{
-				n.cres[town->id].tid = town->id;
-				n.cres[town->id].creatures = town->creatures;
-			}
-			auto & sac = n.cres[town->id];
-
-			for (si32 i=0;i<ev.creatures.size();i++) //creature growths
-			{
-				if (!town->creatures.at(i).second.empty() && ev.creatures.at(i) > 0)//there is dwelling
-				{
-					sac.creatures[i].first += ev.creatures.at(i);
-					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), ev.creatures.at(i));
-				}
-			}
-			sendAndApply(&iw); //show dialog
 		}
-
-		if (ev.nextOccurrence)
-		{
-			town->events.erase(town->events.begin());
-
-			ev.firstOccurrence += ev.nextOccurrence;
-			auto it = town->events.begin();
-			while(it != town->events.end() && it->earlierThanOrEqual(ev))
-				it++;
-			town->events.insert(it, ev);
-		}
-		else
-		{
-			town->events.erase(town->events.begin());
-		}
+		sendAndApply(&iw); //show dialog
 	}
-
-	//TODO send only if changed
-	UpdateCastleEvents uce;
-	uce.town = town->id;
-	uce.events = town->events;
-	sendAndApply(&uce);
 }
 
 bool CGameHandler::complain(const std::string &problem)

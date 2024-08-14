@@ -119,7 +119,7 @@ class CSpellWindow : public CWindowObject
 	std::function<void(SpellID)> onSpellSelect; //external processing of selected spell
 
 public:
-	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true, std::function<void(SpellID)> onSpellSelect = nullptr);
+	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true, const std::function<void(SpellID)> & onSpellSelect = nullptr);
 	~CSpellWindow();
 
 	void fexitb();

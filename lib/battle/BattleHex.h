@@ -9,18 +9,11 @@
  */
 #pragma once
 
+#include "BattleSide.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 //TODO: change to enum class
-
-namespace BattleSide
-{
-	enum Type
-	{
-		ATTACKER = 0,
-		DEFENDER = 1
-	};
-}
 
 namespace GameConstants
 {
@@ -28,8 +21,6 @@ namespace GameConstants
 	const int BFIELD_HEIGHT = 11;
 	const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 }
-
-using BattleSideOpt = std::optional<ui8>;
 
 // for battle stacks' positions
 struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class for better code design
@@ -102,7 +93,7 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static EDir mutualPosition(BattleHex hex1, BattleHex hex2);
 	static uint8_t getDistance(BattleHex hex1, BattleHex hex2);
 	static void checkAndPush(BattleHex tile, std::vector<BattleHex> & ret);
-	static BattleHex getClosestTile(ui8 side, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
+	static BattleHex getClosestTile(BattleSide side, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
 
 	template <typename Handler>
 	void serialize(Handler &h)

@@ -604,15 +604,15 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 	if (magic == zipHeaderMagic) // ZIP archive - assume VCMP format
 	{
 		CInputStream * buffer(file.get());
-		std::shared_ptr<CIOApi> ioApi(new CProxyROIOApi(buffer));
+		auto ioApi = std::make_shared<CProxyROIOApi>(buffer);
 		CZipLoader loader("", "_", ioApi);
 
 		// load header
-		JsonPath resource = JsonPath::builtin(VCMP_HEADER_FILE_NAME);
-		if(!loader.existsResource(resource))
-			throw std::runtime_error(resource.getName() + " not found in " + filename);
-		auto data = loader.load(resource)->readAll();
-		ret.push_back(std::vector<ui8>(data.first.get(), data.first.get() + data.second));
+		JsonPath jsonPath = JsonPath::builtin(VCMP_HEADER_FILE_NAME);
+		if(!loader.existsResource(jsonPath))
+			throw std::runtime_error(jsonPath.getName() + " not found in " + filename);
+		auto data = loader.load(jsonPath)->readAll();
+		ret.emplace_back(data.first.get(), data.first.get() + data.second);
 
 		if(headerOnly)
 			return ret;
@@ -621,11 +621,11 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 		JsonNode header(reinterpret_cast<const std::byte*>(data.first.get()), data.second, VCMP_HEADER_FILE_NAME);
 		for(auto scenario : header["scenarios"].Vector())
 		{
-			ResourcePath resource = ResourcePath(scenario["map"].String(), EResType::MAP);
-			if(!loader.existsResource(resource))
-				throw std::runtime_error(resource.getName() + " not found in " + filename);
-			auto data = loader.load(resource)->readAll();
-			ret.push_back(std::vector<ui8>(data.first.get(), data.first.get() + data.second));
+			ResourcePath mapPath(scenario["map"].String(), EResType::MAP);
+			if(!loader.existsResource(mapPath))
+				throw std::runtime_error(mapPath.getName() + " not found in " + filename);
+			auto data = loader.load(mapPath)->readAll();
+			ret.emplace_back(data.first.get(), data.first.get() + data.second);
 		}
 
 		return ret;

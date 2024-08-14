@@ -57,6 +57,7 @@ std::string defaultBuildingIdConversion(BuildingID bId)
 		case BuildingID::DWELL_LVL_5: return "DWELL_LVL_5";
 		case BuildingID::DWELL_LVL_6: return "DWELL_LVL_6";
 		case BuildingID::DWELL_LVL_7: return "DWELL_LVL_7";
+		case BuildingID::DWELL_LVL_8: return "DWELL_LVL_8";
 		case BuildingID::DWELL_LVL_1_UP: return "DWELL_LVL_1_UP";
 		case BuildingID::DWELL_LVL_2_UP: return "DWELL_LVL_2_UP";
 		case BuildingID::DWELL_LVL_3_UP: return "DWELL_LVL_3_UP";
@@ -64,6 +65,7 @@ std::string defaultBuildingIdConversion(BuildingID bId)
 		case BuildingID::DWELL_LVL_5_UP: return "DWELL_LVL_5_UP";
 		case BuildingID::DWELL_LVL_6_UP: return "DWELL_LVL_6_UP";
 		case BuildingID::DWELL_LVL_7_UP: return "DWELL_LVL_7_UP";
+		case BuildingID::DWELL_LVL_8_UP: return "DWELL_LVL_8_UP";
 		default:
 			return "UNKNOWN";
 	}
