@@ -189,6 +189,10 @@
 	"vcmi.statisticWindow.param.maxArmyStrength" : "Max total army strength",
 	"vcmi.statisticWindow.param.tradeVolume" : "Trade volume",
 	"vcmi.statisticWindow.param.obeliskVisited" : "Obelisk visited",
+	"vcmi.statisticWindow.icon.townCaptured" : "Town captured",
+	"vcmi.statisticWindow.icon.strongestHeroDefeated" : "Strongest hero of opponent defeated",
+	"vcmi.statisticWindow.icon.grailFound" : "Grail found",
+	"vcmi.statisticWindow.icon.defeated" : "Defeated",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Fullscreen (borderless)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Borderless Fullscreen}\n\nIf selected, VCMI will run in borderless fullscreen mode. In this mode, game will always use same resolution as desktop, ignoring selected resolution.",

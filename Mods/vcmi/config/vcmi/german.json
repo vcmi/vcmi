@@ -189,6 +189,10 @@
 	"vcmi.statisticWindow.param.maxArmyStrength" : "Max Gesamt-Armeestärke",
 	"vcmi.statisticWindow.param.tradeVolume" : "Handelsvol.",
 	"vcmi.statisticWindow.param.obeliskVisited" : "Obelisk besucht",
+	"vcmi.statisticWindow.icon.townCaptured" : "Stadt erobert",
+	"vcmi.statisticWindow.icon.strongestHeroDefeated" : "Stärksten helden eines Gegners besiegt",
+	"vcmi.statisticWindow.icon.grailFound" : "Gral gefunden",
+	"vcmi.statisticWindow.icon.defeated" : "Besiegt",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Vollbild (randlos)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Randloses Vollbild}\n\nWenn diese Option ausgewählt ist, wird VCMI im randlosen Vollbildmodus ausgeführt. In diesem Modus wird das Spiel immer dieselbe Auflösung wie der Desktop verwenden und die gewählte Auflösung ignorieren.",

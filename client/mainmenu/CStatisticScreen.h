@@ -19,9 +19,12 @@ class CGStatusBar;
 class ComboBox;
 class CSlider;
 class IImage;
+class CPicture;
 
 using TData = std::vector<std::pair<ColorRGBA, std::vector<float>>>;
-using TIcons = std::vector<std::pair<ColorRGBA, std::vector<std::pair<int, std::shared_ptr<IImage>>>>>;
+using TIcons = std::vector<std::tuple<ColorRGBA, int, std::shared_ptr<IImage>, std::string>>; // Color, Day, Image, Helptext
+
+const int CHART_ICON_SIZE = 32;
 
 class CStatisticScreen : public CWindowObject
 {
@@ -65,6 +68,7 @@ class CStatisticScreen : public CWindowObject
 	Rect contentArea;
 
 	TData extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector);
+	TIcons extractIcons();
 	std::shared_ptr<CIntObject> getContent(Content c, EGameResID res);
 	void onSelectButton();
 public:
@@ -114,6 +118,7 @@ class LineChart : public CIntObject
 	std::shared_ptr<GraphicalPrimitiveCanvas> canvas;
 	std::vector<std::shared_ptr<CIntObject>> layout;
 	std::shared_ptr<CGStatusBar> statusBar;
+	std::vector<std::shared_ptr<CPicture>> pictures;
 
 	Rect chartArea;
 	float maxVal;

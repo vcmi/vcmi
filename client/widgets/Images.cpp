@@ -39,6 +39,8 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
 	pos += position;
 	pos.w = bg->width();
 	pos.h = bg->height();
+
+	addUsedEvents(SHOW_POPUP);
 }
 
 CPicture::CPicture( const ImagePath &bmpname, int x, int y )
@@ -66,6 +68,8 @@ CPicture::CPicture( const ImagePath & bmpname, const Point & position )
 	{
 		pos.w = pos.h = 0;
 	}
+
+	addUsedEvents(SHOW_POPUP);
 }
 
 CPicture::CPicture(const ImagePath & bmpname, const Rect &SrcRect, int x, int y)
@@ -74,6 +78,8 @@ CPicture::CPicture(const ImagePath & bmpname, const Rect &SrcRect, int x, int y)
 	srcRect = SrcRect;
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
+
+	addUsedEvents(SHOW_POPUP);
 }
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, int y)
@@ -82,6 +88,8 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, in
 	srcRect = SrcRect;
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
+
+	addUsedEvents(SHOW_POPUP);
 }
 
 void CPicture::show(Canvas & to)
@@ -117,6 +125,17 @@ void CPicture::scaleTo(Point size)
 void CPicture::setPlayerColor(PlayerColor player)
 {
 	bg->playerColored(player);
+}
+
+void CPicture::addRClickCallback(std::function<void()> callback)
+{
+	rCallback = callback;
+}
+
+void CPicture::showPopupWindow(const Point & cursorPosition)
+{
+	if(rCallback)
+		rCallback();
 }
 
 CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position)

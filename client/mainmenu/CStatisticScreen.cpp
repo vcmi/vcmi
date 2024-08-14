@@ -20,6 +20,7 @@
 
 #include "../render/Graphics.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 
 #include "../widgets/ComboBox.h"
 #include "../widgets/Images.h"
@@ -119,10 +120,50 @@ TData CStatisticScreen::extractData(StatisticDataSet stat, std::function<float(S
 	return plotData;
 }
 
+TIcons CStatisticScreen::extractIcons()
+{
+	TIcons icons;
+
+	auto tmpData = statistic.data;
+	std::sort(tmpData.begin(), tmpData.end(), [](StatisticDataSetEntry v1, StatisticDataSetEntry v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
+
+	auto imageTown = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 3, 0, EImageBlitMode::COLORKEY);
+	imageTown->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	auto imageBattle = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 5, 0, EImageBlitMode::COLORKEY);
+	imageBattle->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	auto imageDefeated = GH.renderHandler().loadImage(AnimationPath::builtin("tpthchk"), 1, 0, EImageBlitMode::COLORKEY);
+	imageDefeated->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	auto imageGrail = GH.renderHandler().loadImage(AnimationPath::builtin("vwsymbol"), 2, 0, EImageBlitMode::COLORKEY);
+	imageGrail->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+
+	std::map<PlayerColor, bool> foundDefeated;
+	std::map<PlayerColor, bool> foundGrail;
+
+	for(auto & val : tmpData)
+	{
+		if(val.eventCapturedTown)
+			icons.push_back({ graphics->playerColors[val.player], val.day, imageTown, CGI->generaltexth->translate("vcmi.statisticWindow.icon.townCaptured") });
+		if(val.eventDefeatedStrongestHero)
+			icons.push_back({ graphics->playerColors[val.player], val.day, imageBattle, CGI->generaltexth->translate("vcmi.statisticWindow.icon.strongestHeroDefeated") });
+		if(val.status == EPlayerStatus::LOSER && !foundDefeated[val.player])
+		{
+			foundDefeated[val.player] = true;
+			icons.push_back({ graphics->playerColors[val.player], val.day, imageDefeated, CGI->generaltexth->translate("vcmi.statisticWindow.icon.defeated") });
+		}
+		if(val.hasGrail && !foundGrail[val.player])
+		{
+			foundGrail[val.player] = true;
+			icons.push_back({ graphics->playerColors[val.player], val.day, imageGrail, CGI->generaltexth->translate("vcmi.statisticWindow.icon.grailFound") });
+		}
+	}
+
+	return icons;
+}
+
 std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID res)
 {
 	TData plotData;
-	TIcons icons;
+	TIcons icons = extractIcons();;
 
 	switch (c)
 	{
@@ -424,6 +465,14 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 
 			if(lastPoint.x != -1)
 				canvas->addLine(lastPoint, p, line.first);
+			
+			// icons
+			for(auto & icon : icons)
+				if(std::get<0>(icon) == line.first && std::get<1>(icon) == i + 1) // color && day
+				{
+					pictures.push_back(std::make_shared<CPicture>(std::get<2>(icon), Point(x - (CHART_ICON_SIZE / 2), y - (CHART_ICON_SIZE / 2)) + chartArea.topLeft()));
+					pictures.back()->addRClickCallback([icon](){ CRClickPopup::createAndPush(std::get<3>(icon)); });
+				}
 
 			lastPoint = p;
 		}

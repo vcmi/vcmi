@@ -26,6 +26,7 @@ class IImage;
 class CPicture : public CIntObject
 {
 	std::shared_ptr<IImage> bg;
+	std::function<void()> rCallback;
 
 public:
 	/// if set, only specified section of internal image will be rendered
@@ -57,8 +58,11 @@ public:
 	void scaleTo(Point size);
 	void setPlayerColor(PlayerColor player);
 
+	void addRClickCallback(std::function<void()> callback);
+
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 };
 
 /// area filled with specific texture
