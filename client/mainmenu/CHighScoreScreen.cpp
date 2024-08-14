@@ -209,8 +209,8 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
-		statisticButton = std::make_shared<CButton>(Point(726, 10), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistic")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTIC);
-		texts.push_back(std::make_shared<CLabel>(716, 25, EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistic") + ":"));
+		statisticButton = std::make_shared<CButton>(Point(726, 10), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistics")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTICS);
+		texts.push_back(std::make_shared<CLabel>(716, 25, EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistics") + ":"));
 	}
 }
 
@@ -291,7 +291,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 
 void CHighScoreInputScreen::keyPressed(EShortcut key)
 {
-	if(key == EShortcut::HIGH_SCORES_STATISTIC)
+	if(key == EShortcut::HIGH_SCORES_STATISTICS) // ignore shortcut for skipping video with key
 		return;
 	clickPressed(Point());
 }
