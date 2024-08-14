@@ -367,7 +367,7 @@ void OverviewPanel::update(int to)
 			int yStart = Y_OFFS + (y + 1 - to) * fieldSize.y + (fieldSize.y / 2);
 			PlayerColor tmpColor(x - 1);
 			if(playerDataFilter(tmpColor).size() || x == 0)
-				content.push_back(std::make_shared<CLabel>(xStart, yStart, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (x == 0 ? dataExtract[y].first : dataExtract[y].second(tmpColor)), x == 0 ? (fieldSize.x * 2) : fieldSize.x));
+				content.push_back(std::make_shared<CLabel>(xStart, yStart, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, (x == 0 ? dataExtract[y].first : dataExtract[y].second(tmpColor)), x == 0 ? (fieldSize.x * 2) : fieldSize.x));
 		}
 	}
 }
