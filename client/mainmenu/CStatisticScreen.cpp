@@ -42,7 +42,7 @@ CStatisticScreen::CStatisticScreen(StatisticDataSet stat)
 
 	contentArea = Rect(10, 40, 780, 510);
 	layout.push_back(std::make_shared<CLabel>(400, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.statisticWindow.statistic")));
-	layout.push_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1));
+	layout.push_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 80, 128, 255), 1));
 	layout.push_back(std::make_shared<CButton>(Point(725, 558), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
 
 	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){
@@ -213,6 +213,11 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 
 	dataExtract = {
 		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.playerName"), [this](PlayerColor color){
+				return playerDataFilter(color).front().playerName;
+			}
+		},
+		{
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.daysSurvived"), [this](PlayerColor color){
 				return std::to_string(playerDataFilter(color).size());
 			}
@@ -238,10 +243,70 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 		{
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.battleWinRatioNeutral"), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
-				if(!val.numBattlesPlayer)
+				if(!val.numWinBattlesNeutral)
 					return std::string("");
 				float tmp = ((float)val.numWinBattlesNeutral / (float)val.numBattlesNeutral) * 100;
 				return std::to_string((int)tmp) + " %";
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.battlesHero"), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.numBattlesPlayer);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.battlesNeutral"), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.numBattlesNeutral);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.obeliskVisited"), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string((int)(val.obeliskVisitedRatio * 100)) + " %";
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::GOLD).get()), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.tradeVolume[EGameResID::GOLD]);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::WOOD).get()), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.tradeVolume[EGameResID::WOOD]);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::MERCURY).get()), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.tradeVolume[EGameResID::MERCURY]);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::ORE).get()), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.tradeVolume[EGameResID::ORE]);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::SULFUR).get()), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.tradeVolume[EGameResID::SULFUR]);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::CRYSTAL).get()), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.tradeVolume[EGameResID::CRYSTAL]);
+			}
+		},
+		{
+			CGI->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + CGI->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::GEMS).get()), [this](PlayerColor color){
+				auto val = playerDataFilter(color).back();
+				return std::to_string(val.tradeVolume[EGameResID::GEMS]);
 			}
 		},
 	};

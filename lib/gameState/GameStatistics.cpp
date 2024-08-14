@@ -45,6 +45,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.timestamp = std::time(0);
 	data.day = gs->getDate(Date::DAY);
 	data.player = ps->color;
+	data.playerName = gs->getStartInfo()->playerInfos.at(ps->color).name;
 	data.team = ps->team;
 	data.isHuman = ps->isHuman();
 	data.status = ps->status;
@@ -87,6 +88,7 @@ std::string StatisticDataSet::toCsv()
 	ss << "Timestamp" << ";";
 	ss << "Day" << ";";
 	ss << "Player" << ";";
+	ss << "PlayerName" << ";";
 	ss << "Team" << ";";
 	ss << "IsHuman" << ";";
 	ss << "Status" << ";";
@@ -128,6 +130,7 @@ std::string StatisticDataSet::toCsv()
 		ss << vstd::getFormattedDateTime(entry.timestamp, "%Y-%m-%dT%H:%M:%S") << ";";
 		ss << entry.day << ";";
 		ss << GameConstants::PLAYER_COLOR_NAMES[entry.player] << ";";
+		ss << entry.playerName << ";";
 		ss << entry.team.getNum() << ";";
 		ss << entry.isHuman << ";";
 		ss << (int)entry.status << ";";

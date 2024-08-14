@@ -25,6 +25,7 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	time_t timestamp;
     int day;
     PlayerColor player;
+    std::string playerName;
 	TeamID team;
 	bool isHuman;
 	EPlayerStatus status;
@@ -60,6 +61,7 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & timestamp;
 		h & day;
 		h & player;
+		h & playerName;
 		h & team;
 		h & isHuman;
 		h & status;
