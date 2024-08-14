@@ -396,19 +396,12 @@ set(vcmiclientcommon_HEADERS
 )
 
 if(APPLE_IOS)
-	set(vcmiclientcommon_SRCS ${vcmiclientcommon_SRCS}
-		CFocusableHelper.cpp
-		ios/GameChatKeyboardHandler.m
-		ios/main.m
-		ios/startSDL.mm
-		ios/utils.mm
-	)
-	set(vcmiclientcommon_HEADERS ${vcmiclientcommon_HEADERS}
-		CFocusableHelper.h
-		ios/GameChatKeyboardHandler.h
-		ios/startSDL.h
-		ios/utils.h
-	)
+  set(vcmiclientcommon_SRCS ${vcmiclientcommon_SRCS}
+    ios/utils.mm
+  )
+  set(vcmiclientcommon_HEADERS ${vcmiclientcommon_HEADERS}
+    ios/utils.h
+  )
 endif()
 
 assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
@@ -466,17 +459,6 @@ elseif(APPLE_IOS)
 		"-framework CoreMedia"
 		"-framework VideoToolbox"
 	)
-
-	foreach(XCODE_RESOURCE LaunchScreen.storyboard Images.xcassets Settings.bundle vcmi_logo.png)
-		set(XCODE_RESOURCE_PATH ios/${XCODE_RESOURCE})
-		target_sources(vcmiclientcommon PRIVATE ${XCODE_RESOURCE_PATH})
-		set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-
-		# workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
-		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0" AND CMAKE_VERSION VERSION_LESS "3.25.0")
-			set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES LANGUAGE CXX)
-		endif()
-	endforeach()
 endif()
 
 target_link_libraries(vcmiclientcommon PRIVATE vcmiservercommon)

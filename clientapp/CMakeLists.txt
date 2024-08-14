@@ -7,6 +7,20 @@ set(clientapp_HEADERS
     StdInc.h
 )
 
+if(APPLE_IOS)
+  set(clientapp_SRCS ${clientapp_SRCS}
+    CFocusableHelper.cpp
+    ios/GameChatKeyboardHandler.m
+    ios/main.m
+    ios/startSDL.mm
+  )
+  set(clientapp_HEADERS ${clientapp_HEADERS}
+    CFocusableHelper.h
+    ios/GameChatKeyboardHandler.h
+    ios/startSDL.h
+  )
+endif()
+
 assign_source_group(${clientapp_SRCS} ${clientapp_HEADERS})
 add_executable(vcmiclient ${clientapp_SRCS} ${clientapp_HEADERS})
 
@@ -46,7 +60,18 @@ elseif(APPLE_IOS)
     XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
   )
 
-  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_vcmiclient_main")
+  foreach(XCODE_RESOURCE LaunchScreen.storyboard Images.xcassets Settings.bundle vcmi_logo.png)
+    set(XCODE_RESOURCE_PATH ios/${XCODE_RESOURCE})
+    target_sources(vcmiclient PRIVATE ${XCODE_RESOURCE_PATH})
+    set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+    # workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0" AND CMAKE_VERSION VERSION_LESS "3.25.0")
+      set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES LANGUAGE CXX)
+    endif()
+  endforeach()
+
+  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
 vcmi_set_output_dir(vcmiclient "")
