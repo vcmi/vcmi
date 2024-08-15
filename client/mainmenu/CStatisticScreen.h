@@ -67,12 +67,13 @@ class CStatisticScreen : public CWindowObject
 	std::shared_ptr<CIntObject> mainContent;
 	Rect contentArea;
 
-	TData extractData(StatisticDataSet stat, std::function<float(StatisticDataSetEntry val)> selector);
+	using ExtractFunctor = std::function<float(StatisticDataSetEntry val)>;
+	TData extractData(StatisticDataSet & stat, ExtractFunctor selector);
 	TIcons extractIcons();
 	std::shared_ptr<CIntObject> getContent(Content c, EGameResID res);
 	void onSelectButton();
 public:
-	CStatisticScreen(StatisticDataSet stat);
+	CStatisticScreen(StatisticDataSet & stat);
 	static std::string getDay(int day);
 };
 
@@ -89,7 +90,7 @@ class StatisticSelector : public CWindowObject
 
 	void update(int to);
 public:
-	StatisticSelector(std::vector<std::string> texts, std::function<void(int selectedIndex)> cb);
+	StatisticSelector(std::vector<std::string> & texts, std::function<void(int selectedIndex)> cb);
 };
 
 class OverviewPanel : public CIntObject
@@ -110,7 +111,7 @@ class OverviewPanel : public CIntObject
 	std::vector<StatisticDataSetEntry> playerDataFilter(PlayerColor color);
 	void update(int to);
 public:
-	OverviewPanel(Rect position, std::string title, StatisticDataSet stat);
+	OverviewPanel(Rect position, std::string title, StatisticDataSet & stat);
 };
 
 class LineChart : public CIntObject
