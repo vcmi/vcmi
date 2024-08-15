@@ -80,6 +80,7 @@ struct DLL_EXPORT EvaluationContext
 	bool involvesSailing;
 	bool isTradeBuilding;
 	bool isChain;
+	bool isEnemy;
 
 	EvaluationContext(const Nullkiller * ai);
 
