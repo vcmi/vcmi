@@ -396,12 +396,12 @@ set(vcmiclientcommon_HEADERS
 )
 
 if(APPLE_IOS)
-  set(vcmiclientcommon_SRCS ${vcmiclientcommon_SRCS}
-    ios/utils.mm
-  )
-  set(vcmiclientcommon_HEADERS ${vcmiclientcommon_HEADERS}
-    ios/utils.h
-  )
+	set(vcmiclientcommon_SRCS ${vcmiclientcommon_SRCS}
+		ios/utils.mm
+	)
+	set(vcmiclientcommon_HEADERS ${vcmiclientcommon_HEADERS}
+		ios/utils.h
+	)
 endif()
 
 assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
