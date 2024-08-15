@@ -312,6 +312,28 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
 		progressTracking.exclude(mapGenerator);
 
+		map = randomMap.release();
+		// Update starting options
+		for(int i = 0; i < map->players.size(); ++i)
+		{
+			const auto & playerInfo = map->players[i];
+			if(playerInfo.canAnyonePlay())
+			{
+				PlayerSettings & playerSettings = scenarioOps->playerInfos[PlayerColor(i)];
+				playerSettings.compOnly = !playerInfo.canHumanPlay;
+				playerSettings.castle = playerInfo.defaultCastle();
+				if(playerSettings.isControlledByAI() && playerSettings.name.empty())
+				{
+					playerSettings.name = VLC->generaltexth->allTexts[468];
+				}
+				playerSettings.color = PlayerColor(i);
+			}
+			else
+			{
+				scenarioOps->playerInfos.erase(PlayerColor(i));
+			}
+		}
+
 		if(allowSavingRandomMap)
 		{
 			try
@@ -338,28 +360,6 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 			catch(...)
 			{
 				logGlobal->error("Saving random map failed with exception");
-			}
-		}
-
-		map = randomMap.release();
-		// Update starting options
-		for(int i = 0; i < map->players.size(); ++i)
-		{
-			const auto & playerInfo = map->players[i];
-			if(playerInfo.canAnyonePlay())
-			{
-				PlayerSettings & playerSettings = scenarioOps->playerInfos[PlayerColor(i)];
-				playerSettings.compOnly = !playerInfo.canHumanPlay;
-				playerSettings.castle = playerInfo.defaultCastle();
-				if(playerSettings.isControlledByAI() && playerSettings.name.empty())
-				{
-					playerSettings.name = VLC->generaltexth->allTexts[468];
-				}
-				playerSettings.color = PlayerColor(i);
-			}
-			else
-			{
-				scenarioOps->playerInfos.erase(PlayerColor(i));
 			}
 		}
 
