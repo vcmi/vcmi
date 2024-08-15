@@ -26,7 +26,7 @@ void DamageCache::cacheDamage(const battle::Unit * attacker, const battle::Unit 
 }
 
 
-void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int side)
+void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side)
 {
 	auto stacks = hb->battleGetUnitsIf([=](const battle::Unit * u) -> bool
 		{
@@ -93,6 +93,8 @@ int64_t DamageCache::getOriginalDamage(const battle::Unit * attacker, const batt
 AttackPossibility::AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack)
 	: from(from), dest(dest), attack(attack)
 {
+	this->attack.attackerPos = from;
+	this->attack.defenderPos = dest;
 }
 
 float AttackPossibility::damageDiff() const
@@ -243,7 +245,7 @@ AttackPossibility AttackPossibility::evaluate(
 
 	std::vector<BattleHex> defenderHex;
 	if(attackInfo.shooting)
-		defenderHex = defender->getHexes();
+		defenderHex.push_back(defender->getPosition());
 	else
 		defenderHex = CStack::meleeAttackHexes(attacker, defender, hex);
 
@@ -261,63 +263,105 @@ AttackPossibility AttackPossibility::evaluate(
 		if (!attackInfo.shooting)
 			ap.attackerState->setPosition(hex);
 
-		std::vector<const battle::Unit*> units;
+		std::vector<const battle::Unit *> defenderUnits;
+		std::vector<const battle::Unit *> retaliatedUnits = {attacker};
+		std::vector<const battle::Unit *> affectedUnits;
 
 		if (attackInfo.shooting)
-			units = state->getAttackedBattleUnits(attacker, defHex, true, BattleHex::INVALID);
+			defenderUnits = state->getAttackedBattleUnits(attacker, defender, defHex, true, hex, defender->getPosition());
 		else
-			units = state->getAttackedBattleUnits(attacker, defHex, false, hex);
-
-		// ensure the defender is also affected
-		bool addDefender = true;
-		for(auto unit : units)
 		{
-			if (unit->unitId() == defender->unitId())
+			defenderUnits = state->getAttackedBattleUnits(attacker, defender, defHex, false, hex, defender->getPosition());
+			retaliatedUnits = state->getAttackedBattleUnits(defender, attacker, hex, false, defender->getPosition(), hex);
+
+			// attacker can not melle-attack itself but still can hit that place where it was before moving
+			vstd::erase_if(defenderUnits, [attacker](const battle::Unit * u) -> bool { return u->unitId() == attacker->unitId(); });
+
+			if(!vstd::contains_if(retaliatedUnits, [attacker](const battle::Unit * u) -> bool { return u->unitId() == attacker->unitId(); }))
 			{
-				addDefender = false;
-				break;
+				retaliatedUnits.push_back(attacker);
 			}
 		}
 
-		if(addDefender)
-			units.push_back(defender);
-
-		for(auto u : units)
+		// ensure the defender is also affected
+		if(!vstd::contains_if(defenderUnits, [defender](const battle::Unit * u) -> bool { return u->unitId() == defender->unitId(); }))
 		{
-			if(!ap.attackerState->alive())
-				break;
+			defenderUnits.push_back(defender);
+		}
+
+		affectedUnits = defenderUnits;
+		vstd::concatenate(affectedUnits, retaliatedUnits);
+
+		logAi->trace("Attacked battle units count %d, %d->%d", affectedUnits.size(), hex.hex, defHex.hex);
+
+		std::map<uint32_t, std::shared_ptr<battle::CUnitState>> defenderStates;
+
+		for(auto u : affectedUnits)
+		{
+			if(u->unitId() == attacker->unitId())
+				continue;
 
 			auto defenderState = u->acquireState();
-			ap.affectedUnits.push_back(defenderState);
 
-			for(int i = 0; i < totalAttacks; i++)
+			ap.affectedUnits.push_back(defenderState);
+			defenderStates[u->unitId()] = defenderState;
+		}
+
+		for(int i = 0; i < totalAttacks; i++)
+		{
+			if(!ap.attackerState->alive() || !defenderStates[defender->unitId()]->alive())
+				break;
+
+			for(auto u : defenderUnits)
 			{
+				auto defenderState = defenderStates.at(u->unitId());
+
 				int64_t damageDealt;
-				int64_t damageReceived;
 				float defenderDamageReduce;
 				float attackerDamageReduce;
 
 				DamageEstimation retaliation;
 				auto attackDmg = state->battleEstimateDamage(ap.attack, &retaliation);
 
-				vstd::amin(attackDmg.damage.min, defenderState->getAvailableHealth());
-				vstd::amin(attackDmg.damage.max, defenderState->getAvailableHealth());
-
-				vstd::amin(retaliation.damage.min, ap.attackerState->getAvailableHealth());
-				vstd::amin(retaliation.damage.max, ap.attackerState->getAvailableHealth());
-
 				damageDealt = averageDmg(attackDmg.damage);
-				defenderDamageReduce = calculateDamageReduce(attacker, defender, damageDealt, damageCache, state);
+				vstd::amin(damageDealt, defenderState->getAvailableHealth());
+
+				defenderDamageReduce = calculateDamageReduce(attacker, u, damageDealt, damageCache, state);
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
 				//FIXME: use ranged retaliation
-				damageReceived = 0;
 				attackerDamageReduce = 0;
 
-				if (!attackInfo.shooting && defenderState->ableToRetaliate() && !counterAttacksBlocked)
+				if (!attackInfo.shooting && u->unitId() == defender->unitId() && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
-					damageReceived = averageDmg(retaliation.damage);
-					attackerDamageReduce = calculateDamageReduce(defender, attacker, damageReceived, damageCache, state);
+					for(auto retaliated : retaliatedUnits)
+					{
+						if(retaliated->unitId() == attacker->unitId())
+						{
+							int64_t damageReceived = averageDmg(retaliation.damage);
+
+							vstd::amin(damageReceived, ap.attackerState->getAvailableHealth());
+
+							attackerDamageReduce = calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+							ap.attackerState->damage(damageReceived);
+						}
+						else
+						{
+							auto retaliationCollateral = state->battleEstimateDamage(defender, retaliated, 0);
+							int64_t damageReceived = averageDmg(retaliationCollateral.damage);
+
+							vstd::amin(damageReceived, retaliated->getAvailableHealth());
+
+							if(defender->unitSide() == retaliated->unitSide())
+								defenderDamageReduce += calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+							else
+								ap.collateralDamageReduce += calculateDamageReduce(defender, retaliated, damageReceived, damageCache, state);
+
+							defenderStates.at(retaliated->unitId())->damage(damageReceived);
+						}
+						
+					}
+
 					defenderState->afterAttack(attackInfo.shooting, true);
 				}
 
@@ -331,20 +375,29 @@ AttackPossibility AttackPossibility::evaluate(
 				if(attackerSide == u->unitSide())
 					ap.collateralDamageReduce += defenderDamageReduce;
 
-				if(u->unitId() == defender->unitId() || 
-					(!attackInfo.shooting && CStack::isMeleeAttackPossible(u, attacker, hex)))
+				if(u->unitId() == defender->unitId()
+					|| (!attackInfo.shooting && CStack::isMeleeAttackPossible(u, attacker, hex)))
 				{
 					//FIXME: handle RANGED_RETALIATION ?
 					ap.attackerDamageReduce += attackerDamageReduce;
 				}
 
-				ap.attackerState->damage(damageReceived);
 				defenderState->damage(damageDealt);
 
-				if (!ap.attackerState->alive() || !defenderState->alive())
-					break;
+				if(u->unitId() == defender->unitId())
+				{
+					ap.defenderDead = !defenderState->alive();
+				}
 			}
 		}
+
+#if BATTLE_TRACE_LEVEL>=2
+		logAi->trace("BattleAI AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
+			attackInfo.attacker->unitType()->getJsonKey(),
+			attackInfo.defender->unitType()->getJsonKey(),
+			(int)ap.dest, (int)ap.from, (int)ap.affectedUnits.size(),
+			ap.defenderDamageReduce, ap.attackerDamageReduce, ap.collateralDamageReduce, ap.shootersBlockedDmg);
+#endif
 
 		if(!bestAp.dest.isValid() || ap.attackValue() > bestAp.attackValue())
 			bestAp = ap;

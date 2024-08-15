@@ -29,6 +29,7 @@ int CLoadFile::read(std::byte * data, unsigned size)
 
 void CLoadFile::openNextFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion)
 {
+	serializer.loadingGamestate = true;
 	assert(!serializer.reverseEndianness);
 	assert(minimalVersion <= ESerializationVersion::CURRENT);
 

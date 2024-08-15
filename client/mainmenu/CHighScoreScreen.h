@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "../windows/CWindowObject.h"
+#include "../../lib/gameState/HighScore.h"
 
 class CButton;
 class CLabel;
@@ -19,30 +20,6 @@ class VideoWidgetBase;
 class CFilledTexture;
 
 class TransparentFilledRectangle;
-
-class HighScoreParameter
-{
-public:
-	int difficulty;
-	int day;
-	int townAmount;
-	bool usedCheat;
-	bool hasGrail;
-	bool allDefeated;
-	std::string campaignName;
-	std::string scenarioName;
-	std::string playerName;
-};
-
-class HighScoreCalculation
-{
-public:
-	std::vector<HighScoreParameter> parameters = std::vector<HighScoreParameter>();
-	bool isCampaign = false;
-
-	auto calculate();
-	static CreatureID getCreatureForPoints(int points, bool campaign);
-};
 
 class CHighScoreScreen : public CWindowObject
 {

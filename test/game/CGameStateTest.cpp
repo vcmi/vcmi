@@ -175,8 +175,6 @@ public:
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = HeroTypeID(pinfo.mainCustomHeroPortrait);
 			}
-
-			pset.handicap = PlayerSettings::NO_HANDICAP;
 		}
 
 
@@ -190,8 +188,8 @@ public:
 
 	void startTestBattle(const CGHeroInstance * attacker, const CGHeroInstance * defender)
 	{
-		const CGHeroInstance * heroes[2] = {attacker, defender};
-		const CArmedInstance * armedInstancies[2] = {attacker, defender};
+		BattleSideArray<const CGHeroInstance *> heroes = {attacker, defender};
+		BattleSideArray<const CArmedInstance *> armedInstancies = {attacker, defender};
 
 		int3 tile(4,4,0);
 

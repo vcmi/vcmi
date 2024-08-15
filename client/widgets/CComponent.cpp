@@ -58,7 +58,7 @@ CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
 
 void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts fnt, const std::string & ValText)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(SHOW_POPUP);
 
@@ -293,7 +293,10 @@ std::string CComponent::getSubtitle() const
 			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getNameTranslated();
 		case ComponentType::SPELL_SCROLL:
 		case ComponentType::SPELL:
-			return CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
+			if (data.value < 0)
+				return "{#A9A9A9|" + CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated() + "}";
+			else
+				return CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
 		case ComponentType::NONE:
 		case ComponentType::MORALE:
 		case ComponentType::LUCK:
@@ -320,7 +323,7 @@ std::string CComponent::getSubtitle() const
 
 void CComponent::setSurface(const AnimationPath & defName, int imgPos)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
@@ -431,7 +434,7 @@ int CComponentBox::getDistance(CComponent *left, CComponent *right)
 
 void CComponentBox::placeComponents(bool selectable)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if (components.empty())
 		return;
 
@@ -439,7 +442,6 @@ void CComponentBox::placeComponents(bool selectable)
 	for(auto & comp : components)
 	{
 		addChild(comp.get());
-		comp->recActions = defActions; //FIXME: for some reason, received component might have recActions set to 0
 		comp->moveTo(Point(pos.x, pos.y));
 	}
 

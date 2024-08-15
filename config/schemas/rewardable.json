@@ -1,0 +1,326 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI map object format",
+	"description" : "Description of map object class",
+	"required" : [ "rewards" ],
+	"additionalProperties" : false,
+	
+	"definitions" : {
+		"value" : {
+			"anyOf" : [
+				{
+					"type" : "number"
+				},
+				{
+					"type" : "string" // variable name
+				},
+				{
+					"type" : "array",
+					"items" : {
+						"$ref" : "#/definitions/value"
+					}
+				},
+				{
+					"type" : "object",
+					"additionalProperties" : true,
+					"properties" : {
+						"amount" : { "$ref" : "#/definitions/value" },
+						"min" : { "$ref" : "#/definitions/value" },
+						"max" : { "$ref" : "#/definitions/value" }
+					}
+				}
+			]
+		},
+		"identifier" : {
+			"anyOf" : [
+				{
+					"type" : "string"
+				},
+				{
+					"type" : "object",
+					"additionalProperties" : true,
+					"properties" : {
+						"type" : {
+							"$ref" : "#/definitions/identifier"
+						},
+						"anyOf" : {
+							"type" : "array",
+							"items" : {
+								"$ref" : "#/definitions/identifier"
+							}
+						},
+						"noneOf" : {
+							"type" : "array",
+							"items" : {
+								"$ref" : "#/definitions/identifier"
+							}
+						}
+					}
+				}
+			]
+		},
+		"identifierList" : {
+			"type" : "array",
+			"items" : {
+				"$ref" : "#/definitions/identifier"
+			}
+		},
+		"identifierWithValueList" : {
+			"anyOf" : [
+				{
+					"type" : "array",
+					"items" : {
+						"allOf" : [
+							{ "$ref" : "#/definitions/identifier" },
+							{ "$ref" : "#/definitions/value" }
+						]
+					}
+				},
+				{
+					"type" : "object",
+					"additionalProperties" : {
+						"$ref" : "#/definitions/value"
+					}
+				},
+			],
+		},
+		"reward" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"appearChance" : {
+					"type" : "object", 
+					"additionalProperties" : false,
+					"properties" : {
+						"dice" : { "type" : "number" },
+						"min" : { "type" : "number", "minimum" : 0, "exclusiveMaximum" : 100 },
+						"max" : { "type" : "number", "exclusiveMinimum" : 0, "maximum" : 100 }
+					}
+				},
+				"limiter" : { "$ref" : "#/definitions/limiter" },
+				"message" : { "$ref" : "#/definitions/message" },
+				"description" : { "$ref" : "#/definitions/message" },
+				
+				"heroExperience" : { "$ref" : "#/definitions/value" },
+				"heroLevel" : { "$ref" : "#/definitions/value" },
+				"movePercentage" : { "$ref" : "#/definitions/value" },
+				"movePoints" : { "$ref" : "#/definitions/value" },
+				"manaPercentage" : { "$ref" : "#/definitions/value" },
+				"manaPoints" : { "$ref" : "#/definitions/value" },
+				"manaOverflowFactor" : { "$ref" : "#/definitions/value" },
+
+				"removeObject" : { "type" : "boolean" },
+				"bonuses" : {
+					"type":"array",
+					"description": "List of bonuses that will be granted to visiting hero",
+					"items": { "$ref" : "bonus.json" }
+				},
+
+				"resources" : { "$ref" : "#/definitions/identifierWithValueList" },
+				"secondary" : { "$ref" : "#/definitions/identifierWithValueList" },
+				"creatures" : { "$ref" : "#/definitions/identifierWithValueList" },
+				"primary" : { "$ref" : "#/definitions/identifierWithValueList" },
+
+				"artifacts" : { "$ref" : "#/definitions/identifierList" },
+				"spells" : { "$ref" : "#/definitions/identifierList" },
+
+				"spellCast" : {
+					"type" : "object", 
+					"additionalProperties" : false,
+					"properties" : {
+						"spell" : { "$ref" : "#/definitions/identifier" },
+						"schoolLevel" : { "type" : "number" }
+					}
+				},
+				"revealTiles" : {
+					"type" : "object", 
+					"additionalProperties" : false,
+					"properties" : {
+						"hide" : { "type" : "boolean" },
+						"radius" : { "type" : "number" },
+						"surface" : { "type" : "number" },
+						"subterra" : { "type" : "number" },
+						"water" : { "type" : "number" },
+						"rock" : { "type" : "number" }
+					}
+				},
+				"changeCreatures" : {
+					"type" : "object", 
+					"additionalProperties" : { "type" : "string" }
+				}
+			}
+		},
+		"limiter" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"dayOfWeek" : { "$ref" : "#/definitions/value" },
+				"daysPassed" : { "$ref" : "#/definitions/value" },
+				"heroExperience" : { "$ref" : "#/definitions/value" },
+				"heroLevel" : { "$ref" : "#/definitions/value" },
+				"manaPercentage" : { "$ref" : "#/definitions/value" },
+				"manaPoints" : { "$ref" : "#/definitions/value" },
+
+				"canLearnSkills" : { "type" : "boolean" },
+
+				"resources" : { "$ref" : "#/definitions/identifierWithValueList" },
+				"secondary" : { "$ref" : "#/definitions/identifierWithValueList" },
+				"creatures" : { "$ref" : "#/definitions/identifierWithValueList" },
+				"primary" : { "$ref" : "#/definitions/identifierWithValueList" },
+
+				"canLearnSpells" : { "$ref" : "#/definitions/identifierList" },
+				"heroClasses" : { "$ref" : "#/definitions/identifierList" },
+				"artifacts" : { "$ref" : "#/definitions/identifierList" },
+				"spells" : { "$ref" : "#/definitions/identifierList" },
+				"colors" : { "$ref" : "#/definitions/identifierList" },
+				"heroes" : { "$ref" : "#/definitions/identifierList" },
+				
+				"anyOf" : {
+					"type" : "array",
+					"items" : { "$ref" : "#/definitions/limiter" }
+				},
+				"allOf" : {
+					"type" : "array",
+					"items" : { "$ref" : "#/definitions/limiter" }
+				},
+				"noneOf" : {
+					"type" : "array",
+					"items" : { "$ref" : "#/definitions/limiter" }
+				},
+			}
+		},
+		"message" : {
+			"anyOf" : [
+				{
+					"type" : "array",
+					"items" : {
+						"anyOf" : [
+							{ "type" : "number" },
+							{ "type" : "string" }
+						]
+					}
+				},
+				{
+					"type" : "number"
+				},
+				{
+					"type" : "string"
+				}
+			]
+		},
+		"variableList" : {
+			"type" : "object",
+			"additionalProperties" : { 
+				"$ref" : "#/definitions/identifier"
+			}
+		}
+	},
+
+	"properties" : {
+		"rewards" : {
+			"type" : "array",
+			"items" : { "$ref" : "#/definitions/reward" }
+		},
+		"onVisited" : {
+			"type" : "array",
+			"items" : { "$ref" : "#/definitions/reward" }
+		},
+		"onEmpty" : {
+			"type" : "array",
+			"items" : { "$ref" : "#/definitions/reward" }
+		},
+		
+		"variables" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"number" : {
+					"type" : "object",
+					"additionalProperties" : { 
+						"$ref" : "#/definitions/value"
+					}
+				},
+				"artifact" : {
+					"$ref" : "#/definitions/variableList"
+				},
+				"spell" : {
+					"$ref" : "#/definitions/variableList"
+				},
+				"primarySkill" : {
+					"$ref" : "#/definitions/variableList"
+				},
+				"secondarySkill" : {
+					"$ref" : "#/definitions/variableList"
+				},
+			},
+		},
+
+		"onSelectMessage" : {
+			"$ref" : "#/definitions/message"
+		},
+		"description" : {
+			"$ref" : "#/definitions/message"
+		},
+		"notVisitedTooltip" : {
+			"$ref" : "#/definitions/message"
+		},
+		"visitedTooltip" : {
+			"$ref" : "#/definitions/message"
+		},
+		"onVisitedMessage" : {
+			"$ref" : "#/definitions/message"
+		},
+		"onEmptyMessage" : {
+			"$ref" : "#/definitions/message"
+		},
+		
+		"canRefuse": {
+			"type" : "boolean"
+		},
+		
+		"showScoutedPreview": {
+			"type" : "boolean"
+		},
+		
+		"showInInfobox": {
+			"type" : "boolean"
+		},
+		
+		"visitMode": {
+			"enum" : [ "unlimited", "once", "hero", "bonus", "limiter", "player" ],
+			"type" : "string"
+		},
+		
+		"visitLimiter": {
+			"type" : "object"
+		},
+		
+		"selectMode": {
+			"enum" : [ "selectFirst", "selectPlayer", "selectRandom", "selectAll" ],
+			"type" : "string"
+		},
+		
+		"resetParameters" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"visitors" : { "type" : "boolean" },
+				"rewards" : { "type" : "boolean" },
+				"period" : { "type" : "number" }
+			}
+		},
+		
+		// Properties that might appear since this node is shared with object config
+		"compatibilityIdentifiers" : { },
+		"blockedVisitable" : { },
+		"removable" : { },
+		"aiValue" : { },
+		"index" : { },
+		"base" : { },
+		"rmg" : { },
+		"templates" : { },
+		"battleground" : { },
+		"sounds" : { }
+	}
+}

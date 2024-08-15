@@ -191,6 +191,11 @@ std::string TerrainType::getJsonKey() const
 	return modScope + ":" + identifier;
 }
 
+std::string TerrainType::getModScope() const
+{
+	return modScope;
+}
+
 std::string TerrainType::getNameTextID() const
 {
 	return TextIdentifier( "terrain", modScope, identifier, "name" ).get();

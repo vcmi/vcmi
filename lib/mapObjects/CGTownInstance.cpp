@@ -128,7 +128,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 {
 	GrowthInfo ret;
 
-	if (level<0 || level >=GameConstants::CREATURES_PER_TOWN)
+	if (level<0 || level >=town->creatures.size())
 		return ret;
 	if (creatures[level].second.empty())
 		return ret; //no dwelling
@@ -136,6 +136,14 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	const Creature *creature = creatures[level].second.back().toEntity(VLC);
 	const int base = creature->getGrowth();
 	int castleBonus = 0;
+
+	if(tempOwner.isValidPlayer())
+	{
+		auto * playerSettings = cb->getPlayerSettings(tempOwner);
+		ret.handicapPercentage = playerSettings->handicap.percentGrowth;
+	}
+	else
+		ret.handicapPercentage = 100;
 
 	ret.entries.emplace_back(VLC->generaltexth->allTexts[590], base); // \n\nBasic growth %d"
 
@@ -215,6 +223,11 @@ TResources CGTownInstance::dailyIncome() const
 			ret += p.second->produce;
 		}
 	}
+
+	auto playerSettings = cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner());
+	for(TResources::nziterator it(ret); it.valid(); it++)
+		// always round up income - we don't want to always produce zero if handicap in use
+		ret[it->resType] = vstd::divideAndCeil(ret[it->resType] * playerSettings.handicap.percentIncome, 100);
 	return ret;
 }
 
@@ -268,7 +281,7 @@ void CGTownInstance::setOwner(const PlayerColor & player) const
 	cb->setOwner(this, player);
 }
 
-void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	for (auto building : bonusingBuildings)
 		building->blockingDialogAnswered(hero, answer);
@@ -309,8 +322,9 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->heroVisitCastle(this, h);
 		}
 	}
-	else if(h->visitablePos() == visitablePos())
+	else
 	{
+		assert(h->visitablePos() == this->visitablePos());
 		bool commander_recover = h->commander && !h->commander->alive;
 		if (commander_recover) // rise commander from dead
 		{
@@ -330,10 +344,6 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			iw.components.emplace_back(ComponentType::CREATURE, h->commander->getId(), h->commander->getCount());
 			cb->showInfoDialog(&iw);
 		}
-	}
-	else
-	{
-		logGlobal->error("%s visits allied town of %s from different pos?", h->getNameTranslated(), getNameTranslated());
 	}
 }
 
@@ -501,16 +511,16 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 	blockVisit = true;
 
 	if(townEnvisagesBuilding(BuildingSubID::PORTAL_OF_SUMMONING)) //Dungeon for example
-		creatures.resize(GameConstants::CREATURES_PER_TOWN + 1);
+		creatures.resize(town->creatures.size() + 1);
 	else
-		creatures.resize(GameConstants::CREATURES_PER_TOWN);
+		creatures.resize(town->creatures.size());
 
-	for (int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
+	for (int level = 0; level < town->creatures.size(); level++)
 	{
-		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST + level);
+		BuildingID buildID = BuildingID(BuildingID::getDwellingFromLevel(level, 0));
 		int upgradeNum = 0;
 
-		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(GameConstants::CREATURES_PER_TOWN))
+		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(town->creatures.size()))
 		{
 			if (hasBuilt(buildID) && town->creatures.at(level).size() > upgradeNum)
 				creatures[level].second.push_back(town->creatures[level][upgradeNum]);
@@ -543,14 +553,6 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 		for(const auto * manaVortex : getBonusingBuildings(BuildingSubID::MANA_VORTEX))
 			cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_CLEAR_VISITORS, manaVortex->indexOnTV); //reset visitors for Mana Vortex
 
-		//get Mana Vortex or Stables bonuses
-		//same code is in the CGameHandler::buildStructure method
-		if (garrisonHero != nullptr) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-			cb->visitCastleObjects(this, garrisonHero);
-
-		if (visitingHero != nullptr)
-			cb->visitCastleObjects(this, visitingHero);
-
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 		{
 			std::vector<SlotID> nativeCrits; //slots
@@ -578,7 +580,7 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 			}
 			if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
 			{
-				int i = rand.nextInt(std::min(GameConstants::CREATURES_PER_TOWN, cb->getDate(Date::MONTH) << 1) - 1);
+				int i = rand.nextInt(std::min((int)town->creatures.size(), cb->getDate(Date::MONTH) << 1) - 1);
 				if (!town->creatures[i].empty())
 				{
 					CreatureID c = town->creatures[i][0];
@@ -606,6 +608,14 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 	
 	for(const auto * rewardableBuilding : getBonusingBuildings(BuildingSubID::CUSTOM_VISITING_REWARD))
 		rewardableBuilding->newTurn(rand);
+		
+	if(hasBuilt(BuildingSubID::BANK) && bonusValue.second > 0)
+	{
+		TResources res;
+		res[EGameResID::GOLD] = -500;
+		cb->giveResources(getOwner(), res);
+		cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, bonusValue.second - 500);
+	}
 }
 /*
 int3 CGTownInstance::getSightCenter() const
@@ -1208,6 +1218,12 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		handler.serializeIdArray( "possibleSpells", possibleSpells);
 		handler.serializeIdArray( "obligatorySpells", obligatorySpells);
 	}
+
+	{
+		auto eventsHandler = handler.enterArray("events");
+		eventsHandler.syncSize(events, JsonNode::JsonType::DATA_VECTOR);
+		eventsHandler.serializeStruct(events);
+	}
 }
 
 FactionID CGTownInstance::getFaction() const
@@ -1257,7 +1273,8 @@ int GrowthInfo::totalGrowth() const
 	for(const Entry &entry : entries)
 		ret += entry.count;
 
-	return ret;
+	// always round up income - we don't want buildings to always produce zero if handicap in use
+	return vstd::divideAndCeil(ret * handicapPercentage, 100);
 }
 
 void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const

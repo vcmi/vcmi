@@ -50,6 +50,11 @@ std::string PlayerState::getJsonKey() const
 	return color.toString();
 }
 
+std::string PlayerState::getModScope() const
+{
+	return "core";
+}
+
 std::string PlayerState::getNameTranslated() const
 {
 	return VLC->generaltexth->translate(getNameTextID());

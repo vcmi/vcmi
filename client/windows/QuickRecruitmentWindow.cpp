@@ -51,7 +51,7 @@ void QuickRecruitmentWindow::setCreaturePurchaseCards()
 {
 	int availableAmount = getAvailableCreatures();
 	Point position = Point((pos.w - 100*availableAmount - 8*(availableAmount-1))/2,64);
-	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
+	for (int i = 0; i < town->town->creatures.size(); i++)
 	{
 		if(!town->town->creatures.at(i).empty() && !town->creatures.at(i).second.empty() && town->creatures[i].first)
 		{
@@ -106,7 +106,16 @@ void QuickRecruitmentWindow::purchaseUnits()
 	{
 		if(selected->slider->getValue())
 		{
-			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, selected->creatureOnTheCard->getLevel()-1); };
+			int level = 0;
+			int i = 0;
+			for(auto c : town->town->creatures)
+			{
+				for(auto c2 : c)
+					if(c2 == selected->creatureOnTheCard->getId())
+						level = i;
+				i++;
+			}
+			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level); };
 			CreatureID crid =  selected->creatureOnTheCard->getId();
 			SlotID dstslot = town -> getSlotFor(crid);
 			if(!dstslot.validSlot())
@@ -120,7 +129,7 @@ void QuickRecruitmentWindow::purchaseUnits()
 int QuickRecruitmentWindow::getAvailableCreatures()
 {
 	int creaturesAmount = 0;
-	for (int i=0; i< GameConstants::CREATURES_PER_TOWN; i++)
+	for (int i=0; i< town->town->creatures.size(); i++)
 		if(!town->town->creatures.at(i).empty() && !town->creatures.at(i).second.empty() && town->creatures[i].first)
 			creaturesAmount++;
 	return creaturesAmount;
@@ -151,7 +160,7 @@ QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd, Rec
 	: CWindowObject(PLAYER_COLORED | BORDERED),
 	town(townd)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(ACTIVATE + DEACTIVATE + UPDATE + SHOWALL);
+	OBJECT_CONSTRUCTION;
 
 	initWindow(startupPosition);
 	setButtons();

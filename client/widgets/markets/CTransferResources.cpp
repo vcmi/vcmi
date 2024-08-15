@@ -30,7 +30,7 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 	, CMarketTraderText(Point(28, 48))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
 	labels.emplace_back(std::make_shared<CLabel>(445, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[169]));

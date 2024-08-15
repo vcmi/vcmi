@@ -31,16 +31,14 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 		}
 	}
 
-	BuildingID prefixes[] = {BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_FIRST};
-
-	for(int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
+	for(int level = 0; level < developmentInfo.town->town->creatures.size(); level++)
 	{
 		logAi->trace("Checking dwelling level %d", level);
 		BuildingInfo nextToBuild = BuildingInfo();
 
-		for(BuildingID prefix : prefixes)
+		for(int upgradeIndex : {1, 0})
 		{
-			BuildingID building = BuildingID(prefix + level);
+			BuildingID building = BuildingID(BuildingID::getDwellingFromLevel(level, upgradeIndex));
 
 			if(!vstd::contains(buildings, building))
 				continue; // no such building in town
@@ -211,8 +209,8 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 	if(BuildingID::DWELL_FIRST <= toBuild && toBuild <= BuildingID::DWELL_UP_LAST)
 	{
-		creatureLevel = (toBuild - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
-		creatureUpgrade = (toBuild - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+		creatureLevel = BuildingID::getLevelFromDwelling(toBuild);
+		creatureUpgrade = BuildingID::getUpgradedFromDwelling(toBuild);
 	}
 	else if(toBuild == BuildingID::HORDE_1 || toBuild == BuildingID::HORDE_1_UPGR)
 	{
@@ -317,7 +315,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 		if(mine)
 		{
-			dailyIncome[mine->producedResource.getNum()] += mine->producedQuantity;
+			dailyIncome[mine->producedResource.getNum()] += mine->getProducedQuantity();
 		}
 	}
 

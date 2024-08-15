@@ -181,10 +181,29 @@ void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 	grantRewardAfterLevelup(cb, configuration.info.at(selectedReward), this, hero);
 }
 
-void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer == 0)
+	{
+		switch (configuration.visitMode)
+		{
+			case Rewardable::VISIT_UNLIMITED:
+			case Rewardable::VISIT_BONUS:
+			case Rewardable::VISIT_HERO:
+			case Rewardable::VISIT_LIMITER:
+			{
+				// workaround for object with refusable reward not getting marked as visited
+				// TODO: better solution that would also work for player-visitable objects
+				if (!wasScouted(hero->getOwner()))
+				{
+					ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, hero->id);
+					cb->sendAndApply(&cov);
+				}
+			}
+		}
+
 		return; // player refused
+	}
 
 	if(answer > 0 && answer-1 < configuration.info.size())
 	{

@@ -213,6 +213,7 @@ public:
 	bool upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID );
 	bool recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst, CreatureID crid, ui32 cram, si32 level, PlayerColor player);
 	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings
+	bool triggerTownSpecialBuildingAction(ObjectInstanceID tid, BuildingSubID::EBuildingSubID sid);
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
@@ -226,9 +227,10 @@ public:
 	void onPlayerTurnStarted(PlayerColor which);
 	void onPlayerTurnEnded(PlayerColor which);
 	void onNewTurn();
+	void addStatistics();
 
-	void handleTimeEvents();
-	void handleTownEvents(CGTownInstance *town, NewTurn &n);
+	void handleTimeEvents(PlayerColor player);
+	void handleTownEvents(CGTownInstance *town);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void objectVisitEnded(const CObjectVisitQuery &query);

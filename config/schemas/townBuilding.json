@@ -31,11 +31,12 @@
 			"type" : "string"
 		},
 		"description" : {
-			"description" : "Localizable decsription of this building",
+			"description" : "Localizable description of this building",
 			"type" : "string"
 		},
 		"type" : {
 			"type" : "string",
+			"enum" : [ "mysticPond", "artifactMerchant", "freelancersGuild", "magicUniversity", "castleGate", "creatureTransformer", "portalOfSummoning", "ballistaYard", "lookoutTower", "library", "brotherhoodOfSword", "fountainOfFortune", "spellPowerGarrisonBonus", "attackGarrisonBonus", "defenseGarrisonBonus", "escapeTunnel", "lighthouse", "treasury", "thievesGuild", "bank", "configurable" ],
 			"description" : "Subtype for some special buildings"
 		},
 		"mode" : {
@@ -55,6 +56,10 @@
 		"upgrades" : {
 			"description" : "Optional, indicates that this building upgrades another base building",
 			"type" : "string"
+		},
+		"configuration" : {
+			"description" : "Configuration of building. Only used if 'type' is set to 'configurable'",
+			"$ref" : "rewardable.json"
 		},
 		"cost" : {
 			"type" : "object",

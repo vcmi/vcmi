@@ -28,7 +28,7 @@
 AdventureOptions::AdventureOptions()
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("ADVOPTS"))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	viewWorld = std::make_shared<CButton>(Point(24, 23), AnimationPath::builtin("ADVVIEW.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_WORLD);
 	viewWorld->addCallback([] { LOCPLINT->viewWorldMap(); });

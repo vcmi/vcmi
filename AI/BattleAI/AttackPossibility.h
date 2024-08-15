@@ -27,7 +27,7 @@ public:
 	void cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
 	int64_t getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
 	int64_t getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
-	void buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int side);
+	void buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side);
 };
 
 /// <summary>
@@ -49,6 +49,7 @@ public:
 	float attackerDamageReduce = 0; //usually by counter-attack
 	float collateralDamageReduce = 0; // friendly fire (usually by two-hex attacks)
 	int64_t shootersBlockedDmg = 0;
+	bool defenderDead = false;
 
 	AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack_);
 

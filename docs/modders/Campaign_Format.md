@@ -5,7 +5,7 @@
 Starting from version 1.3, VCMI supports its own campaign format.
 Campaigns have *.vcmp file format and it consists from campaign json and set of scenarios (can be both *.vmap and *.h3m)
 
-To start making campaign, create file named `00.json`. See also [Packing campaign](#packing-campaign)
+To start making campaign, create file named `header.json`. See also [Packing campaign](#packing-campaign)
 
 Basic structure of this file is here, each section is described in details below
 ```js
@@ -182,8 +182,10 @@ Predefined campaign regions are located in file `campaign_regions.json`
 
 ```js
 {
+    "background": "ownRegionBackground.png",
+		"suffix": ["Enabled", "Selected", "Conquered"],
     "prefix": "G3",
-    "color_suffix_length": 1,
+    "colorSuffixLength": 1,
     "desc": [
         { "infix": "A", "x": 289, "y": 376 },
         { "infix": "B", "x": 60, "y": 147 },
@@ -192,31 +194,18 @@ Predefined campaign regions are located in file `campaign_regions.json`
 },
 ```
 
-- `"prefix"` used to identify all images related to campaign. In this example, background picture will be `G3_BG`
-- `"inflix"` ised to identify all images related to region. In this example, it will be pictures starting from `G3A_..., G3B_..., G3C_..."` 
-- `"color_suffix_length"` identifies suffix length for region colourful frames. 1 is used for `R, B, N, G, O, V, T, P`, value 2 is used for `Re, Bl, Br, Gr, Or, Vi, Te, Pi`
+- `"background"` optional - use own image name for background instead of adding "_BG" to the prefix as name
+- `"prefix"` used to identify all images related to campaign. In this example (if background parameter wouldn't exists), background picture will be `G3_BG`
+- `"suffix"` optional - use other suffixes than the default `En`, `Se` and `Co` for the three different images
+- `"infix"` used to identify all images related to region. In this example, it will be pictures whose files names begin with `G3A_..., G3B_..., G3C_..."` 
+- `"colorSuffixLength"` identifies suffix length for region colourful frames. 0 is no color suffix (no colorisation), 1 is used for `R, B, N, G, O, V, T, P`, value 2 is used for `Re, Bl, Br, Gr, Or, Vi, Te, Pi`
 
 ## Packing campaign
 
 After campaign scenarios and campaign description are ready, you should pack them into *.vcmp file.
-This file is basically headless gz archive.
+This file is a zip archive.
 
-Your campaign should be stored in some folder with json describing campaign information.
-Place all your scenarios inside same folder and enumerate their filenames, e.g `01.vmap`, '02.vmap', etc.
-```
-my-campaign/
-|-- 00.json
-|-- 01.vmap
-|-- 02.vmap
-|-- 03.vmap
-```
-
-If you use unix system, execute this command to pack your campaign:
-```
-gzip -c -n ./* >> my-campaign.vcmp
-```
-
-If you are using Windows system, try this https://gnuwin32.sourceforge.net/packages/gzip.htm
+The scenarios should be named as in `"map"` field from header. Subfolders are allowed.
 
 ## Compatibility table
 | Version | Min VCMI | Max VCMI | Description |

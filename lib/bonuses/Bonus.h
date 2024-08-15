@@ -53,7 +53,7 @@ public:
 	JsonNode toJsonNode() const;
 };
 
-#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
+#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.loadingGamestate) deserializationFix();
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable

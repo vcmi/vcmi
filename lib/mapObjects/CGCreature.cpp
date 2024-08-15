@@ -480,12 +480,12 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 
 void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0)
+	if(result.winner == BattleSide::ATTACKER)
 	{
 		giveReward(hero);
 		cb->removeObject(this, hero->getOwner());
 	}
-	else if(result.winner > 1) // draw
+	else if(result.winner == BattleSide::NONE) // draw
 	{
 		// guarded reward is lost forever on draw
 		cb->removeObject(this, hero->getOwner());
@@ -523,7 +523,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	}
 }
 
-void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	auto action = takenAction(hero);
 	if(!refusedJoining && action >= JOIN_FOR_FREE) //higher means price

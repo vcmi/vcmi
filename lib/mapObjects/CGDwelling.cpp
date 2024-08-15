@@ -348,15 +348,19 @@ void CGDwelling::newTurn(vstd::RNG & rand) const
 
 std::vector<Component> CGDwelling::getPopupComponents(PlayerColor player) const
 {
-	if (getOwner() != player)
-		return {};
+	bool visitedByOwner = getOwner() == player;
 
 	std::vector<Component> result;
 
 	if (ID == Obj::CREATURE_GENERATOR1 && !creatures.empty())
 	{
 		for (auto const & creature : creatures.front().second)
-			result.emplace_back(ComponentType::CREATURE, creature, creatures.front().first);
+		{
+			if (visitedByOwner)
+				result.emplace_back(ComponentType::CREATURE, creature, creatures.front().first);
+			else
+				result.emplace_back(ComponentType::CREATURE, creature);
+		}
 	}
 
 	if (ID == Obj::CREATURE_GENERATOR4)
@@ -364,7 +368,12 @@ std::vector<Component> CGDwelling::getPopupComponents(PlayerColor player) const
 		for (auto const & creatureLevel : creatures)
 		{
 			if (!creatureLevel.second.empty())
-				result.emplace_back(ComponentType::CREATURE, creatureLevel.second.back(), creatureLevel.first);
+			{
+				if (visitedByOwner)
+					result.emplace_back(ComponentType::CREATURE, creatureLevel.second.back(), creatureLevel.first);
+				else
+					result.emplace_back(ComponentType::CREATURE, creatureLevel.second.back());
+			}
 		}
 	}
 	return result;
@@ -426,7 +435,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		if(count) //there are available creatures
 		{
 
-			if (VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
+			if (VLC->settings()->getBoolean(EGameSettings::DWELLINGS_MERGE_ON_RECRUIT))
 			{
 				SlotID testSlot = h->getSlotFor(crid);
 				if(!testSlot.validSlot()) //no available slot - try merging army of visiting hero
@@ -501,13 +510,13 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 
 void CGDwelling::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if (result.winner == 0)
+	if (result.winner == BattleSide::ATTACKER)
 	{
 		onHeroVisit(hero);
 	}
 }
 
-void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	auto relations = cb->getPlayerRelations(getOwner(), hero->getOwner());
 	if(stacksCount() > 0  && relations == PlayerRelations::ENEMIES) //guards present

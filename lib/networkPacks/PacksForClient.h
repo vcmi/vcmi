@@ -545,34 +545,6 @@ struct DLL_LINKAGE UpdateArtHandlerLists : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE UpdateMapEvents : public CPackForClient
-{
-	std::list<CMapEvent> events;
-
-	void applyGs(CGameState * gs) const;
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & events;
-	}
-};
-
-struct DLL_LINKAGE UpdateCastleEvents : public CPackForClient
-{
-	ObjectInstanceID town;
-	std::list<CCastleEvent> events;
-
-	void applyGs(CGameState * gs) const;
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & town;
-		h & events;
-	}
-};
-
 struct DLL_LINKAGE ChangeFormation : public CPackForClient
 {
 	ObjectInstanceID hid;

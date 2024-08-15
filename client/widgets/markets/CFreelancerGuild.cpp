@@ -32,7 +32,7 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 		[this](){CMarketBase::updateSubtitlesForBid(EMarketMode::CREATURE_RESOURCE, bidTradePanel->getSelectedItemId());})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		VLC->generaltexth->translate("object.core.freelancersGuild.name")));

@@ -21,6 +21,8 @@
 #include "../lib/constants/StringConstants.h"
 
 #include "townbuildingswidget.h"
+#include "towneventswidget.h"
+#include "townspellswidget.h"
 #include "armywidget.h"
 #include "messagewidget.h"
 #include "rewardswidget.h"
@@ -342,6 +344,8 @@ void Inspector::updateProperties(CGTownInstance * o)
 	
 	auto * delegate = new TownBuildingsDelegate(*o);
 	addProperty("Buildings", PropertyEditorPlaceholder(), delegate, false);
+	addProperty("Spells", PropertyEditorPlaceholder(), new TownSpellsDelegate(*o), false);
+	addProperty("Events", PropertyEditorPlaceholder(), new TownEventsDelegate(*o, controller), false);
 }
 
 void Inspector::updateProperties(CGArtifact * o)

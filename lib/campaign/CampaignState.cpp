@@ -45,7 +45,9 @@ CampaignRegions CampaignRegions::fromJson(const JsonNode & node)
 {
 	CampaignRegions cr;
 	cr.campPrefix = node["prefix"].String();
-	cr.colorSuffixLength = static_cast<int>(node["color_suffix_length"].Float());
+	cr.colorSuffixLength = static_cast<int>(node["colorSuffixLength"].Float());
+	cr.campSuffix = node["suffix"].isNull() ? std::vector<std::string>() : std::vector<std::string>{node["suffix"].Vector()[0].String(), node["suffix"].Vector()[1].String(), node["suffix"].Vector()[2].String()};
+	cr.campBackground = node["background"].isNull() ? "" : node["background"].String();
 
 	for(const JsonNode & desc : node["desc"].Vector())
 		cr.regions.push_back(CampaignRegions::RegionDescription::fromJson(desc));
@@ -68,7 +70,10 @@ CampaignRegions CampaignRegions::getLegacy(int campId)
 
 ImagePath CampaignRegions::getBackgroundName() const
 {
-	return ImagePath::builtin(campPrefix + "_BG.BMP");
+	if(campBackground.empty())
+		return ImagePath::builtin(campPrefix + "_BG.BMP");
+	else
+		return ImagePath::builtin(campBackground);
 }
 
 Point CampaignRegions::getPosition(CampaignScenarioID which) const
@@ -81,30 +86,39 @@ ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, 
 {
 	auto const & region = regions[which.getNum()];
 
-	static const std::string colors[2][8] =
-	{
-		{"R", "B", "N", "G", "O", "V", "T", "P"},
-		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
-	};
+	static const std::array<std::array<std::string, 8>, 3> colors = {{
+		{ "", "", "", "", "", "", "", "" },
+		{ "R", "B", "N", "G", "O", "V", "T", "P" },
+		{ "Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi" }
+	}};
 
-	std::string color = colors[colorSuffixLength - 1][colorIndex];
+	std::string color = colors[colorSuffixLength][colorIndex];
 
 	return ImagePath::builtin(campPrefix + region.infix + "_" + type + color + ".BMP");
 }
 
 ImagePath CampaignRegions::getAvailableName(CampaignScenarioID which, int color) const
 {
-	return getNameFor(which, color, "En");
+	if(campSuffix.empty())
+		return getNameFor(which, color, "En");
+	else
+		return getNameFor(which, color, campSuffix[0]);
 }
 
 ImagePath CampaignRegions::getSelectedName(CampaignScenarioID which, int color) const
 {
-	return getNameFor(which, color, "Se");
+	if(campSuffix.empty())
+		return getNameFor(which, color, "Se");
+	else
+		return getNameFor(which, color, campSuffix[1]);
 }
 
 ImagePath CampaignRegions::getConqueredName(CampaignScenarioID which, int color) const
 {
-	return getNameFor(which, color, "Co");
+	if(campSuffix.empty())
+		return getNameFor(which, color, "Co");
+	else
+		return getNameFor(which, color, campSuffix[2]);
 }
 
 
@@ -142,6 +156,26 @@ std::string CampaignHeader::getDescriptionTranslated() const
 std::string CampaignHeader::getNameTranslated() const
 {
 	return name.toString();
+}
+
+std::string CampaignHeader::getAuthor() const
+{
+	return authorContact.toString();
+}
+
+std::string CampaignHeader::getAuthorContact() const
+{
+	return authorContact.toString();
+}
+
+std::string CampaignHeader::getCampaignVersion() const
+{
+	return campaignVersion.toString();
+}
+
+time_t CampaignHeader::getCreationDateTime() const
+{
+	return creationDateTime;
 }
 
 std::string CampaignHeader::getFilename() const

@@ -106,6 +106,11 @@ std::string CArtifact::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CArtifact::getModScope() const
+{
+	return modScope;
+}
+
 void CArtifact::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "ARTIFACT", image);
@@ -755,7 +760,7 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanc
 	return nullptr;
 }
 
-const ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance * artInst) const
+ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance * artInst) const
 {
 	if(artInst)
 	{

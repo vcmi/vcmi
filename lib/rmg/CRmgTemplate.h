@@ -75,7 +75,8 @@ enum class EConnectionType
 	GUARDED = 0, //default
 	FICTIVE,
 	REPULSIVE,
-	WIDE
+	WIDE,
+	FORCE_PORTAL
 };
 
 enum class ERoadOption

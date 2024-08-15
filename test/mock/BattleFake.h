@@ -52,7 +52,7 @@ class UnitsFake
 public:
 	std::vector<std::shared_ptr<UnitFake>> allUnits;
 
-	UnitFake & add(ui8 side);
+	UnitFake & add(BattleSide side);
 
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const;
 

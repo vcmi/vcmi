@@ -15,6 +15,7 @@
 #include "../texts/TextLocalizationContainer.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
+#include "../gameState/HighScore.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,6 +33,8 @@ class IGameCallback;
 class DLL_LINKAGE CampaignRegions
 {
 	std::string campPrefix;
+	std::vector<std::string> campSuffix;
+	std::string campBackground;
 	int colorSuffixLength;
 
 	struct DLL_LINKAGE RegionDescription
@@ -66,6 +69,11 @@ public:
 		h & campPrefix;
 		h & colorSuffixLength;
 		h & regions;
+		if (h.version >= Handler::Version::CAMPAIGN_REGIONS)
+		{
+			h & campSuffix;
+			h & campBackground;
+		}
 	}
 
 	static CampaignRegions fromJson(const JsonNode & node);
@@ -102,6 +110,10 @@ public:
 
 	std::string getDescriptionTranslated() const;
 	std::string getNameTranslated() const;
+	std::string getAuthor() const;
+	std::string getAuthorContact() const;
+	std::string getCampaignVersion() const;
+	time_t getCreationDateTime() const;
 	std::string getFilename() const;
 	std::string getModName() const;
 	std::string getEncoding() const;
@@ -318,6 +330,8 @@ public:
 
 	std::string campaignSet;
 
+	std::vector<HighScoreParameter> highscoreParameters;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<Campaign&>(*this);
@@ -330,6 +344,8 @@ public:
 		h & campaignSet;
 		if (h.version >= Handler::Version::CAMPAIGN_MAP_TRANSLATIONS)
 			h & mapTranslations;
+		if (h.version >= Handler::Version::HIGHSCORE_PARAMETERS)
+			h & highscoreParameters;
 	}
 };
 

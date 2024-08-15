@@ -89,6 +89,7 @@ public:
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
 	void visitLobbySetPlayer(LobbySetPlayer & pack) override;
 	void visitLobbySetPlayerName(LobbySetPlayerName & pack) override;
+	void visitLobbySetPlayerHandicap(LobbySetPlayerHandicap & pack) override;
 	void visitLobbySetTurnTime(LobbySetTurnTime & pack) override;
 	void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) override;
 	void visitLobbySetSimturns(LobbySetSimturns & pack) override;

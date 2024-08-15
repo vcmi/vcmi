@@ -113,7 +113,7 @@ const CGPath * MapRendererBaseContext::currentPath() const
 
 size_t MapRendererBaseContext::objectGroupIndex(ObjectInstanceID objectID) const
 {
-	static const std::vector<size_t> idleGroups = {0, 13, 0, 1, 2, 3, 4, 15, 14};
+	static const std::array<size_t, 9> idleGroups = {0, 13, 0, 1, 2, 3, 4, 15, 14};
 	return idleGroups[getObjectRotation(objectID)];
 }
 
@@ -156,6 +156,16 @@ size_t MapRendererBaseContext::overlayImageIndex(const int3 & coordinates) const
 	return std::numeric_limits<size_t>::max();
 }
 
+std::string MapRendererBaseContext::overlayText(const int3 & coordinates) const
+{
+	return {};
+}
+
+ColorRGBA MapRendererBaseContext::overlayTextColor(const int3 & coordinates) const
+{
+	return {};
+}
+
 double MapRendererBaseContext::viewTransitionProgress() const
 {
 	return 0;
@@ -181,7 +191,12 @@ bool MapRendererBaseContext::showBorder() const
 	return false;
 }
 
-bool MapRendererBaseContext::showOverlay() const
+bool MapRendererBaseContext::showImageOverlay() const
+{
+	return false;
+}
+
+bool MapRendererBaseContext::showTextOverlay() const
 {
 	return false;
 }
@@ -253,6 +268,59 @@ size_t MapRendererAdventureContext::terrainImageIndex(size_t groupSize) const
 	return frameIndex;
 }
 
+std::string MapRendererAdventureContext::overlayText(const int3 & coordinates) const
+{
+	if(!isVisible(coordinates))
+		return {};
+
+	const auto & tile = getMapTile(coordinates);
+
+	if (!tile.visitable)
+		return {};
+
+	return tile.visitableObjects.back()->getObjectName();
+}
+
+ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates) const
+{
+	if(!isVisible(coordinates))
+		return {};
+
+	const auto & tile = getMapTile(coordinates);
+
+	if (!tile.visitable)
+		return {};
+
+	const auto * object = tile.visitableObjects.back();
+
+	if (object->getOwner() == LOCPLINT->playerID)
+		return { 0, 192, 0};
+
+	if (LOCPLINT->cb->getPlayerRelations(object->getOwner(), LOCPLINT->playerID) == PlayerRelations::ALLIES)
+		return { 0, 128, 255};
+
+	if (object->getOwner().isValidPlayer())
+		return { 255, 0, 0};
+
+	if (object->ID == MapObjectID::MONSTER)
+		return { 255, 0, 0};
+
+	auto hero = LOCPLINT->localState->getCurrentHero();
+
+	if (hero)
+	{
+		if (object->wasVisited(hero))
+			return { 160, 160, 160 };
+	}
+	else
+	{
+		if (object->wasVisited(LOCPLINT->playerID))
+			return { 160, 160, 160 };
+	}
+
+	return { 255, 192, 0 };
+}
+
 bool MapRendererAdventureContext::showBorder() const
 {
 	return true;
@@ -271,6 +339,11 @@ bool MapRendererAdventureContext::showVisitable() const
 bool MapRendererAdventureContext::showBlocked() const
 {
 	return settingShowBlocked;
+}
+
+bool MapRendererAdventureContext::showTextOverlay() const
+{
+	return settingTextOverlay;
 }
 
 bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
@@ -330,7 +403,7 @@ size_t MapRendererAdventureMovingContext::objectGroupIndex(ObjectInstanceID obje
 {
 	if(target == objectID)
 	{
-		static const std::vector<size_t> moveGroups = {0, 10, 5, 6, 7, 8, 9, 12, 11};
+		static const std::array<size_t, 9> moveGroups = {0, 10, 5, 6, 7, 8, 9, 12, 11};
 		return moveGroups[getObjectRotation(objectID)];
 	}
 	return MapRendererAdventureContext::objectGroupIndex(objectID);
@@ -411,7 +484,7 @@ MapRendererWorldViewContext::MapRendererWorldViewContext(const MapRendererContex
 {
 }
 
-bool MapRendererWorldViewContext::showOverlay() const
+bool MapRendererWorldViewContext::showImageOverlay() const
 {
 	return true;
 }

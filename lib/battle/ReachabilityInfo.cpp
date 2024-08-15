@@ -15,7 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition):
-	perspective(static_cast<BattlePerspective::BattlePerspective>(Stack->unitSide())),
+	perspective(static_cast<BattleSide>(Stack->unitSide())),
 	startPosition(StartPosition),
 	doubleWide(Stack->doubleWide()),
 	side(Stack->unitSide()),

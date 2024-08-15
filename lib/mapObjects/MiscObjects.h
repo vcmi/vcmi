@@ -91,7 +91,7 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	std::string getObjectName() const override;
 	std::string getPopupText(PlayerColor player) const override;
@@ -132,7 +132,7 @@ public:
 	void initObj(vstd::RNG & rand) override;
 	void pickRandomObject(vstd::RNG & rand) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	std::string getHoverText(PlayerColor player) const override;
 
 	void collectRes(const PlayerColor & player) const;
@@ -163,7 +163,7 @@ private:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	void flagMine(const PlayerColor & player) const;
 	void newTurn(vstd::RNG & rand) const override;
@@ -181,6 +181,7 @@ public:
 		h & abandonedMineResources;
 	}
 	ui32 defaultResProduction() const;
+	ui32 getProducedQuantity() const;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;

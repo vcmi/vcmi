@@ -66,7 +66,7 @@ std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 CBonusSelection::CBonusSelection()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	setBackground(getCampaign()->getRegions().getBackgroundName());
 
@@ -145,7 +145,7 @@ CBonusSelection::CBonusSelection()
 
 void CBonusSelection::createBonusesIcons()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	const CampaignScenario & scenario = getCampaign()->scenario(CSH->campaignMap);
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
@@ -474,7 +474,7 @@ void CBonusSelection::decreaseDifficulty()
 CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool selectable, const CampaignRegions & campDsc)
 	: CIntObject(LCLICK | SHOW_POPUP), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 
 	pos += campDsc.getPosition(id);
 

@@ -16,6 +16,24 @@
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
 
+QVariant toVariant(const std::set<PlayerColor> & players)
+{
+	QVariantList result;
+	for(auto const id : players)
+		result.push_back(QString::fromStdString(id.toString()));
+	return result;
+}
+
+std::set<PlayerColor> playersFromVariant(const QVariant & v)
+{
+	std::set<PlayerColor> result;
+
+	for(auto const & id : v.toList())
+		result.insert(PlayerColor(PlayerColor::decode(id.toString().toStdString())));
+
+	return result;
+}
+
 QVariant toVariant(const TResources & resources)
 {
 	QVariantMap result;
@@ -30,7 +48,6 @@ TResources resourcesFromVariant(const QVariant & v)
 	for(auto r : v.toMap().keys())
 		vJson[r.toStdString()].Integer() = v.toMap().value(r).toInt();
 	return TResources(vJson);
-
 }
 
 QVariant toVariant(const CMapEvent & event)
@@ -38,7 +55,7 @@ QVariant toVariant(const CMapEvent & event)
 	QVariantMap result;
 	result["name"] = QString::fromStdString(event.name);
 	result["message"] = QString::fromStdString(event.message.toString());
-	result["players"] = QVariant::fromValue(event.players);
+	result["players"] = toVariant(event.players);
 	result["humanAffected"] = QVariant::fromValue(event.humanAffected);
 	result["computerAffected"] = QVariant::fromValue(event.computerAffected);
 	result["firstOccurrence"] = QVariant::fromValue(event.firstOccurrence);
@@ -53,7 +70,7 @@ CMapEvent eventFromVariant(CMapHeader & mapHeader, const QVariant & variant)
 	auto v = variant.toMap();
 	result.name = v.value("name").toString().toStdString();
 	result.message.appendTextID(mapRegisterLocalizedString("map", mapHeader, TextIdentifier("header", "event", result.name, "message"), v.value("message").toString().toStdString()));
-	result.players = v.value("players").toInt();
+	result.players = playersFromVariant(v.value("players"));
 	result.humanAffected = v.value("humanAffected").toInt();
 	result.computerAffected = v.value("computerAffected").toInt();
 	result.firstOccurrence = v.value("firstOccurrence").toInt();

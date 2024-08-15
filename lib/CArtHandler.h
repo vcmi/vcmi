@@ -106,6 +106,7 @@ public:
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	ArtifactID getId() const override;
 	const IBonusBearer * getBonusBearer() const override;
@@ -206,7 +207,7 @@ public:
 	/// Looks for equipped artifact with given ID and returns its slot ID or -1 if none
 	/// (if more than one such artifact lower ID is returned)
 	ArtifactPosition getArtPos(const ArtifactID & aid, bool onlyWorn = true, bool allowLocked = true) const;
-	const ArtifactPosition getArtPos(const CArtifactInstance * art) const;
+	ArtifactPosition getArtPos(const CArtifactInstance * art) const;
 	std::vector<ArtifactPosition> getAllArtPositions(const ArtifactID & aid, bool onlyWorn, bool allowLocked, bool getAll) const;
 	std::vector<ArtifactPosition> getBackpackArtPositions(const ArtifactID & aid) const;
 	const CArtifactInstance * getArtByInstanceId(const ArtifactInstanceID & artInstId) const;

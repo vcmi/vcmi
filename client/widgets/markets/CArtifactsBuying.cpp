@@ -32,7 +32,7 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 	: CMarketBase(market, hero)
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, bidTradePanel);})
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	std::string title;
 	if(auto townMarket = dynamic_cast<const CGTownInstance*>(market))

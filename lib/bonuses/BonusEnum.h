@@ -222,7 +222,7 @@ namespace BonusDuration  //when bonus is automatically removed
 {
 	// We use uint16_t directly because std::bitset<11> eats whole 8 byte word.
 	using Type = uint16_t;
-	constexpr static size_t Size = 11;
+	constexpr size_t Size = 11;
 
 	enum BonusDuration : Type {
 		PERMANENT = 1 << 0,

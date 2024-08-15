@@ -385,7 +385,7 @@ void CTownRewardableBuilding::heroLevelUpDone(const CGHeroInstance *hero) const
 	grantRewardAfterLevelup(cb, configuration.info.at(selectedReward), town, hero);
 }
 
-void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer == 0)
 		return; // player refused
@@ -476,7 +476,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 		cb->showBlockingDialog(&sd);
 	};
 	
-	if(!town->hasBuilt(bID) || cb->isVisitCoveredByAnotherQuery(town, h))
+	if(!town->hasBuilt(bID))
 		return;
 
 	if(!wasVisitedBefore(h))

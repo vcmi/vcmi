@@ -75,6 +75,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::HEROES_STARTING_STACKS_CHANCES,         "heroes",    "startingStackChances"             },
 		{EGameSettings::HEROES_BACKPACK_CAP,                    "heroes",    "backpackSize"                     },
 		{EGameSettings::HEROES_TAVERN_INVITE,                   "heroes",    "tavernInvite"                     },
+		{EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS,          "heroes",    "minimalPrimarySkills"             },
 		{EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA,      "mapFormat", "restorationOfErathia"             },
 		{EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE,           "mapFormat", "armageddonsBlade"                 },
 		{EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH,             "mapFormat", "shadowOfDeath"                    },

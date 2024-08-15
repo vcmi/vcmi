@@ -133,13 +133,15 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 				if(!art)
 					return false;
 
-				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
+				ArtifactLocation al(hero.hero->id, artifactPosition);
 
-				if (takeable)
+				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
+				bool locked = hero.hero->getSlot(al.slot)->locked;
+
+				if (!locked && takeable)
 					hero.transferrableArtifacts.push_back(artifactPosition);
 
-				ArtifactLocation al(hero.hero->id, artifactPosition);
-				if(!takeable && !hero.hero->getSlot(al.slot)->locked)  //don't try removing locked artifacts -> it crashes #1719
+				if (!locked && !takeable)
 				{
 					hero.hero->getArt(al.slot)->removeFrom(*hero.hero, al.slot);
 					return true;

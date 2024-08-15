@@ -212,7 +212,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit, specificObjects));
 			}
 
-			std::lock_guard<std::mutex> lock(sync); // FIXME: consider using tbb::parallel_reduce instead to avoid mutex overhead
+			std::lock_guard lock(sync); // FIXME: consider using tbb::parallel_reduce instead to avoid mutex overhead
 			vstd::concatenate(result, tasksLocal);
 		});
 }

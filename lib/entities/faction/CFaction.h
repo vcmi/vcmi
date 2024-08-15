@@ -11,6 +11,7 @@
 
 #include <vcmi/Faction.h>
 
+#include "../../Point.h"
 #include "../../constants/EntityIdentifiers.h"
 #include "../../constants/Enumerations.h"
 #include "../../filesystem/ResourcePath.h"
@@ -21,8 +22,8 @@ class CTown;
 
 struct DLL_LINKAGE SPuzzleInfo
 {
+	Point position;
 	ui16 number; //type of puzzle
-	si16 x, y; //position
 	ui16 whenUncovered; //determines the sequence of discovering (the lesser it is the sooner puzzle will be discovered)
 	ImagePath filename; //file with graphic of this puzzle
 };
@@ -63,6 +64,7 @@ public:
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
+	std::string getModScope() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	FactionID getId() const override;
 

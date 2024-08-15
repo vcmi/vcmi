@@ -32,18 +32,14 @@ public:
 	int32_t getNum() const
 	{
 		int32_t result;
-
 		std::visit([&result] (const auto& v) { result = v.getNum(); }, value);
-
 		return result;
 	}
 
 	std::string toString() const
 	{
 		std::string result;
-
 		std::visit([&result] (const auto& v) { result = v.encode(v.getNum()); }, value);
-
 		return result;
 	}
 
@@ -56,6 +52,13 @@ public:
 			return *result;
 		else
 			return IdentifierType();
+	}
+
+	bool hasValue() const
+	{
+		bool result = false;
+		std::visit([&result] (const auto& v) { result = v.hasValue(); }, value);
+		return result;
 	}
 
 	template <typename Handler> void serialize(Handler &h)

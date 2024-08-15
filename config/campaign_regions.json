@@ -2,7 +2,7 @@
 	"campaign_regions": [
 		{
 			"prefix": "G1",
-			"color_suffix_length": 1,
+			"colorSuffixLength": 1,
 			"desc": [
 				{ "infix": "A", "x": 57, "y": 314 },
 				{ "infix": "B", "x": 137, "y": 309 },
@@ -12,7 +12,7 @@
 
 		{
 			"prefix": "G2",
-			"color_suffix_length": 1,
+			"colorSuffixLength": 1,
 			"desc": [
 				{ "infix": "A", "x": 56, "y": 90 },
 				{ "infix": "B", "x": 316, "y": 49 },
@@ -23,7 +23,7 @@
 
 		{
 			"prefix": "G3",
-			"color_suffix_length": 1,
+			"colorSuffixLength": 1,
 			"desc": [
 				{ "infix": "A", "x": 289, "y": 376 },
 				{ "infix": "B", "x": 60, "y": 147 },
@@ -33,7 +33,7 @@
 
 		{
 			"prefix": "E1",
-			"color_suffix_length": 1,
+			"colorSuffixLength": 1,
 			"desc": [
 				{ "infix": "A", "x": 270, "y": 332 },
 				{ "infix": "B", "x": 138, "y": 113 },
@@ -47,7 +47,7 @@
 
 		{
 			"prefix": "E2",
-			"color_suffix_length": 1,
+			"colorSuffixLength": 1,
 			"desc": [
 				{ "infix": "A", "x": 131, "y": 202 },
 				{ "infix": "B", "x": 60, "y": 145 },
@@ -58,7 +58,7 @@
 
 		{
 			"prefix": "N1",
-			"color_suffix_length": 1,
+			"colorSuffixLength": 1,
 			"desc": [
 				{ "infix": "A", "x": 42, "y": 94 },
 				{ "infix": "B", "x": 309, "y": 290 },
@@ -68,7 +68,7 @@
 
 		{
 			"prefix": "S1",
-			"color_suffix_length": 1,
+			"colorSuffixLength": 1,
 			"desc": [
 				{ "infix": "A", "x": 263, "y": 199 },
 				{ "infix": "B", "x": 182, "y": 210 },
@@ -78,7 +78,7 @@
 
 		{
 			"prefix": "BR",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 18, "y": 233 },
 				{ "infix": "B", "x": 125, "y": 381 },
@@ -89,7 +89,7 @@
 
 		{
 			"prefix": "IS",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 294, "y": 399 },
 				{ "infix": "B", "x": 183, "y": 293 },
@@ -100,7 +100,7 @@
 
 		{
 			"prefix": "KR",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 148, "y": 323 },
 				{ "infix": "B", "x": 192, "y": 235 },
@@ -111,7 +111,7 @@
 
 		{
 			"prefix": "NI",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 118, "y": 111 },
 				{ "infix": "B", "x": 223, "y": 145 },
@@ -122,7 +122,7 @@
 
 		{
 			"prefix": "TA",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 228, "y": 233 },
 				{ "infix": "B", "x": 147, "y": 194 },
@@ -132,7 +132,7 @@
 
 		{
 			"prefix": "AR",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 135, "y": 238 },
 				{ "infix": "B", "x": 135, "y": 121 },
@@ -147,7 +147,7 @@
 
 		{
 			"prefix": "HS",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 141, "y": 326 },
 				{ "infix": "B", "x": 238, "y": 275 },
@@ -158,7 +158,7 @@
 
 		{
 			"prefix": "BB",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 167, "y": 342 },
 				{ "infix": "B", "x": 217, "y": 263 },
@@ -170,7 +170,7 @@
 
 		{
 			"prefix": "NB",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 6, "y": 292 },
 				{ "infix": "B", "x": 161, "y": 334 },
@@ -181,7 +181,7 @@
 
 		{
 			"prefix": "EL",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 11, "y": 73 },
 				{ "infix": "B", "x": 0, "y": 241 },
@@ -192,7 +192,7 @@
 
 		{
 			"prefix": "RN",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 84, "y": 319 },
 				{ "infix": "B", "x": 194, "y": 275 },
@@ -203,7 +203,7 @@
 
 		{
 			"prefix": "UA",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 157, "y": 409 },
 				{ "infix": "B", "x": 62, "y": 346 },
@@ -222,7 +222,7 @@
 
 		{
 			"prefix": "SP",
-			"color_suffix_length": 2,
+			"colorSuffixLength": 2,
 			"desc": [
 				{ "infix": "A", "x": 7, "y": 295 },
 				{ "infix": "B", "x": 44, "y": 141 },

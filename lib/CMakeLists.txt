@@ -99,9 +99,11 @@ set(lib_MAIN_SRCS
 
 	gameState/CGameState.cpp
 	gameState/CGameStateCampaign.cpp
+	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
+	gameState/GameStatistics.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
 	mapObjectConstructors/CBankInstanceConstructor.cpp
@@ -401,6 +403,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleAttackInfo.h
 	battle/BattleHex.h
 	battle/BattleInfo.h
+	battle/BattleSide.h
 	battle/BattleStateInfoForRetreat.h
 	battle/BattleProxy.h
 	battle/CBattleInfoCallback.h
@@ -463,10 +466,12 @@ set(lib_MAIN_HEADERS
 	gameState/CGameState.h
 	gameState/CGameStateCampaign.h
 	gameState/EVictoryLossCheckResult.h
+	gameState/HighScore.h
 	gameState/InfoAboutArmy.h
 	gameState/RumorState.h
 	gameState/SThievesGuildInfo.h
 	gameState/TavernHeroesPool.h
+	gameState/GameStatistics.h
 	gameState/TavernSlot.h
 	gameState/QuestInfo.h
 

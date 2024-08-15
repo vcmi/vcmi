@@ -463,7 +463,8 @@ void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 		"guarded",
 		"fictive",
 		"repulsive",
-		"wide"
+		"wide",
+		"forcePortal"
 	};
 
 	static const std::vector<std::string> roadOptions =

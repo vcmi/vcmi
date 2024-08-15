@@ -48,7 +48,7 @@ public:
 	void pickRandomObject(vstd::RNG & rand) override;
 	void newTurn(vstd::RNG & rand) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	CreatureID getCreature() const;
 
 	//stack formation depends on position,

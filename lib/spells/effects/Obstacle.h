@@ -66,7 +66,7 @@ private:
 	bool passable = false;
 	int32_t turnsRemaining = -1;
 
-	std::array<ObstacleSideOptions, 2> sideOptions;
+	BattleSideArray<ObstacleSideOptions> sideOptions;
 
 	static bool isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & hex, const bool mustBeClear);
 	static bool noRoomToPlace(Problem & problem, const Mechanics * m);

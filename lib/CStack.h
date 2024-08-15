@@ -32,7 +32,7 @@ private:
 	ui32 baseAmount = -1;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
-	ui8 side = 1;
+	BattleSide side = BattleSide::NONE;
 
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
 
@@ -41,8 +41,8 @@ public:
 	
 	BattleHex initialPosition; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 
-	CStack(const CStackInstance * base, const PlayerColor & O, int I, ui8 Side, const SlotID & S);
-	CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, ui8 Side, const SlotID & S = SlotID(255));
+	CStack(const CStackInstance * base, const PlayerColor & O, int I, BattleSide Side, const SlotID & S);
+	CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, BattleSide Side, const SlotID & S = SlotID(255));
 	CStack();
 	~CStack();
 
@@ -74,7 +74,7 @@ public:
 	int32_t unitBaseAmount() const override;
 
 	uint32_t unitId() const override;
-	ui8 unitSide() const override;
+	BattleSide unitSide() const override;
 	PlayerColor unitOwner() const override;
 	SlotID unitSlot() const override;
 

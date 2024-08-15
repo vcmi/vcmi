@@ -33,6 +33,7 @@
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
+#include "../render/IScreenHandler.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
@@ -58,7 +59,7 @@ AdventureMapInterface::AdventureMapInterface():
 	scrollingWasBlocked(false),
 	backgroundDimLevel(settings["adventure"]["backgroundDimLevel"].Integer())
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
@@ -232,7 +233,7 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 
 	bool cursorInScrollArea = scrollDelta != Point(0,0);
 	bool scrollingActive = cursorInScrollArea && shortcuts->optionMapScrollingActive() && !scrollingWasBlocked;
-	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool();
+	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool() || !GH.screenHandler().hasFocus();
 
 	if (!scrollingWasActive && scrollingBlocked)
 	{
@@ -375,7 +376,7 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuma
 	mapAudio->onEnemyTurnStarted();
 	widget->getMinimap()->setAIRadar(!isHuman);
 	widget->getInfoBar()->startEnemyTurn(playerID);
-	setState(isHuman ? EAdventureState::OTHER_HUMAN_PLAYER_TURN : EAdventureState::AI_PLAYER_TURN);
+	setState(isHuman ? EAdventureState::MAKING_TURN : EAdventureState::AI_PLAYER_TURN);
 }
 
 void AdventureMapInterface::setState(EAdventureState state)
@@ -898,7 +899,7 @@ void AdventureMapInterface::hotkeyZoom(int delta, bool useDeadZone)
 
 void AdventureMapInterface::onScreenResize()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	// remember our activation state and reactive after reconstruction
 	// since othervice activate() calls for created elements will bypass virtual dispatch

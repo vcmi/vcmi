@@ -387,13 +387,13 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if (result.winner == 0)
+	if (result.winner == BattleSide::ATTACKER)
 	{
 		doVisit(hero);
 	}
 }
 
-void CBank::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CBank::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if (answer)
 	{

@@ -73,8 +73,7 @@ public:
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
-	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
-	ui8 defActions; //which calls will be tried to be redirected to children
+	enum {NO_ACTIONS = 0, ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, SHARE_POS=16, ALL_ACTIONS=31};
 	ui8 recActions; //which calls we allow to receive from parent
 
 	/// deactivates if needed, blocks all automatic activity, allows only disposal
@@ -102,6 +101,8 @@ public:
 	void showAll(Canvas & to) override;
 	//request complete redraw of this object
 	void redraw() override;
+	// Move child object to foreground
+	void moveChildForeground(const CIntObject * childToMove);
 
 	/// returns true if this element is a popup window
 	/// called only for windows
@@ -210,3 +211,16 @@ class EmptyStatusBar : public IStatusBar
 	virtual void setEnteringMode(bool on){};
 	virtual void setEnteredText(const std::string & text){};
 };
+
+class ObjectConstruction : boost::noncopyable
+{
+public:
+	ObjectConstruction(CIntObject *obj);
+	~ObjectConstruction();
+};
+
+/// If used, all UI widgets created inside this scope will be added to children of 'this'
+#define OBJECT_CONSTRUCTION ObjectConstruction obj__i(this)
+
+/// If used, all UI widgets created inside this scope will be added to children of provided object
+#define OBJECT_CONSTRUCTION_TARGETED(obj) ObjectConstruction obj__i(obj)

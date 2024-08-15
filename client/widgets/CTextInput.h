@@ -14,6 +14,7 @@
 #include "../render/EFont.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/FunctionList.h"
 
 class CLabel;
 class IImage;
@@ -58,6 +59,7 @@ class CTextInput final : public CFocusable
 
 	TextEditedCallback onTextEdited;
 	TextFilterCallback onTextFiltering;
+	CFunctionList<void()> callbackPopup;
 
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string & text, const std::string & oldText);
@@ -74,6 +76,7 @@ class CTextInput final : public CFocusable
 	void textEdited(const std::string & enteredText) final;
 	void onFocusGot() final;
 	void onFocusLost() final;
+	void showPopupWindow(const Point & cursorPosition) final;
 
 	CTextInput(const Rect & Pos);
 public:
@@ -88,6 +91,9 @@ public:
 
 	/// Set callback that will be called whenever player enters new text
 	void setCallback(const TextEditedCallback & cb);
+
+	/// Set callback when player want to open popup
+	void setPopupCallback(const std::function<void()> & cb);
 
 	/// Enables filtering entered text that ensures that text is valid filename (existing or not)
 	void setFilterFilename();

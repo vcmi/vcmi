@@ -141,12 +141,10 @@ int32_t getResourcesGoldReward(const TResources & res)
 {
 	int32_t result = 0;
 
-	for(EGameResID r = EGameResID(0); r < EGameResID::COUNT; r.advance(1))
+	for(auto r : GameResID::ALL_RESOURCES())
 	{
 		if(res[r] > 0)
-		{
 			result += r == EGameResID::GOLD ? res[r] : res[r] * 100;
-		}
 	}
 
 	return result;
@@ -350,7 +348,7 @@ uint64_t RewardEvaluator::getArmyReward(
 			{
 				for(auto artID : info.reward.artifacts)
 				{
-					const CArtifact * art = dynamic_cast<const CArtifact *>(VLC->artifacts()->getById(artID));
+					const auto * art = dynamic_cast<const CArtifact *>(VLC->artifacts()->getById(artID));
 
 					rewardValue += evaluateArtifactArmyValue(art);
 				}
@@ -358,7 +356,7 @@ uint64_t RewardEvaluator::getArmyReward(
 
 			if(!info.reward.creatures.empty())
 			{
-				for(auto stackInfo : info.reward.creatures)
+				for(const auto & stackInfo : info.reward.creatures)
 				{
 					rewardValue += stackInfo.getType()->getAIValue() * stackInfo.getCount();
 				}

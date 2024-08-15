@@ -74,6 +74,8 @@ public:
 	/// returns full form of identifier of this object in form of modName:objectName
 	std::string getJsonKey() const;
 
+	std::string getModScope() const;
+
 	/// Returns object-specific name, if set
 	SObjectSounds getSounds() const;
 

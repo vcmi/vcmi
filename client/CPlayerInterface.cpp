@@ -137,7 +137,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
-	GH.defActionsDef = 0;
 	LOCPLINT = this;
 	playerID=Player;
 	human=true;
@@ -171,40 +170,39 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	adventureInt.reset(new AdventureMapInterface());
 }
 
+void CPlayerInterface::closeAllDialogs()
+{
+	// remove all active dialogs that do not expect query answer
+	for (;;)
+	{
+		auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
+		auto infoWindow = GH.windows().topWindow<CInfoWindow>();
+
+		if(adventureWindow != nullptr)
+			break;
+
+		if(infoWindow && infoWindow->ID != QueryID::NONE)
+			break;
+
+		if (infoWindow)
+			infoWindow->close();
+		else
+			GH.windows().popWindows(1);
+	}
+
+	if(castleInt)
+		castleInt->close();
+
+	castleInt = nullptr;
+}
+
 void CPlayerInterface::playerEndsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (player == playerID)
 	{
 		makingTurn = false;
-
-		// remove all active dialogs that do not expect query answer
-		for (;;)
-		{
-			auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
-			auto infoWindow = GH.windows().topWindow<CInfoWindow>();
-
-			if(adventureWindow != nullptr)
-				break;
-
-			if(infoWindow && infoWindow->ID != QueryID::NONE)
-				break;
-
-			if (infoWindow)
-				infoWindow->close();
-			else
-				GH.windows().popWindows(1);
-		}
-
-		if(castleInt)
-			castleInt->close();
-
-		castleInt = nullptr;
-
-		// remove all pending dialogs that do not expect query answer
-		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
-			return window->ID == QueryID::NONE;
-		});
+		closeAllDialogs();
 	}
 }
 
@@ -286,6 +284,7 @@ void CPlayerInterface::gamePause(bool pause)
 
 void CPlayerInterface::yourTurn(QueryID queryID)
 {
+	closeAllDialogs();
 	CTutorialWindow::openWindowFirstTime(TutorialMode::TOUCH_ADVENTUREMAP);
 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -625,7 +624,7 @@ void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreat
 		waitForAllDialogs();
 }
 
-void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed)
+void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
@@ -1477,7 +1476,7 @@ void CPlayerInterface::update()
 		return;
 
 	//if there are any waiting dialogs, show them
-	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->isBusy())
+	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
 	{
 		showingDialog->setBusy();
 		GH.windows().pushWindow(dialogs.front());
@@ -1776,7 +1775,6 @@ void CPlayerInterface::proposeLoadingGame()
 		[]()
 		{
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("load");
 		},
 		nullptr

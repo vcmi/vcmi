@@ -41,6 +41,7 @@ public:
 	void visitBulkSmartSplitStack(BulkSmartSplitStack & pack) override;
 	void visitDisbandCreature(DisbandCreature & pack) override;
 	void visitBuildStructure(BuildStructure & pack) override;
+	void visitTriggerTownSpecialBuildingAction(TriggerTownSpecialBuildingAction & pack) override;
 	void visitRecruitCreatures(RecruitCreatures & pack) override;
 	void visitUpgradeCreature(UpgradeCreature & pack) override;
 	void visitGarrisonHeroSwap(GarrisonHeroSwap & pack) override;

@@ -55,8 +55,6 @@ public:
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}
 	virtual void visitUpdateArtHandlerLists(UpdateArtHandlerLists & pack) {}
-	virtual void visitUpdateMapEvents(UpdateMapEvents & pack) {}
-	virtual void visitUpdateCastleEvents(UpdateCastleEvents & pack) {}
 	virtual void visitChangeFormation(ChangeFormation & pack) {}
 	virtual void visitRemoveObject(RemoveObject & pack) {}
 	virtual void visitTryMoveHero(TryMoveHero & pack) {}
@@ -128,6 +126,7 @@ public:
 	virtual void visitBulkSmartSplitStack(BulkSmartSplitStack & pack) {}
 	virtual void visitDisbandCreature(DisbandCreature & pack) {}
 	virtual void visitBuildStructure(BuildStructure & pack) {}
+	virtual void visitTriggerTownSpecialBuildingAction(TriggerTownSpecialBuildingAction & pack) {}
 	virtual void visitRazeStructure(RazeStructure & pack) {}
 	virtual void visitRecruitCreatures(RecruitCreatures & pack) {}
 	virtual void visitUpgradeCreature(UpgradeCreature & pack) {}
@@ -168,6 +167,7 @@ public:
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) {}
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) {}
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
+	virtual void visitLobbySetPlayerHandicap(LobbySetPlayerHandicap & pack) {}
 	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) {}
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) {}
 	virtual void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) {}

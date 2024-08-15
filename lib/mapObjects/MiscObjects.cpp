@@ -23,6 +23,7 @@
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../StartInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -103,7 +104,7 @@ void CGMine::newTurn(vstd::RNG & rand) const
 	if (tempOwner == PlayerColor::NEUTRAL)
 		return;
 
-	cb->giveResource(tempOwner, producedResource, producedQuantity);
+	cb->giveResource(tempOwner, producedResource, getProducedQuantity());
 }
 
 void CGMine::initObj(vstd::RNG & rand)
@@ -177,7 +178,7 @@ void CGMine::flagMine(const PlayerColor & player) const
 	iw.type = EInfoWindowMode::AUTO;
 	iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get()); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
-	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, producedQuantity);
+	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, getProducedQuantity());
 	cb->showInfoDialog(&iw);
 }
 
@@ -195,9 +196,16 @@ ui32 CGMine::defaultResProduction() const
 	}
 }
 
+ui32 CGMine::getProducedQuantity() const
+{
+	auto * playerSettings = cb->getPlayerSettings(getOwner());
+	// always round up income - we don't want mines to always produce zero if handicap in use
+	return vstd::divideAndCeil(producedQuantity * playerSettings->handicap.percentIncome, 100);
+}
+
 void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 	{
 		if(isAbandoned())
 		{
@@ -207,7 +215,7 @@ void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &resu
 	}
 }
 
-void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -336,11 +344,11 @@ void CGResource::collectRes(const PlayerColor & player) const
 
 void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 		collectRes(hero->getOwner());
 }
 
-void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -903,11 +911,11 @@ BattleField CGArtifact::getBattlefield() const
 
 void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 		pick(hero);
 }
 
-void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -1002,7 +1010,7 @@ bool CGGarrison::passableFor(PlayerColor player) const
 
 void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if (result.winner == 0)
+	if (result.winner == BattleSide::ATTACKER)
 		onHeroVisit(hero);
 }
 

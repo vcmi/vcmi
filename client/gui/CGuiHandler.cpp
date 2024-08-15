@@ -19,6 +19,7 @@
 #include "../eventsSDL/InputHandler.h"
 
 #include "../CGameInfo.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../render/Colors.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
@@ -38,33 +39,17 @@ CGuiHandler GH;
 
 static thread_local bool inGuiThread = false;
 
-SObjectConstruction::SObjectConstruction(CIntObject *obj)
-:myObj(obj)
+ObjectConstruction::ObjectConstruction(CIntObject *obj)
 {
 	GH.createdObj.push_front(obj);
 	GH.captureChildren = true;
 }
 
-SObjectConstruction::~SObjectConstruction()
+ObjectConstruction::~ObjectConstruction()
 {
-	assert(GH.createdObj.size());
-	assert(GH.createdObj.front() == myObj);
+	assert(!GH.createdObj.empty());
 	GH.createdObj.pop_front();
-	GH.captureChildren = GH.createdObj.size();
-}
-
-SSetCaptureState::SSetCaptureState(bool allow, ui8 actions)
-{
-	previousCapture = GH.captureChildren;
-	GH.captureChildren = false;
-	prevActions = GH.defActionsDef;
-	GH.defActionsDef = actions;
-}
-
-SSetCaptureState::~SSetCaptureState()
-{
-	GH.captureChildren = previousCapture;
-	GH.defActionsDef = prevActions;
+	GH.captureChildren = !GH.createdObj.empty();
 }
 
 void CGuiHandler::init()
@@ -138,14 +123,19 @@ void CGuiHandler::renderFrame()
 }
 
 CGuiHandler::CGuiHandler()
-	: defActionsDef(0)
-	, captureChildren(false)
+	: captureChildren(false)
 	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 {
 }
 
-CGuiHandler::~CGuiHandler() = default;
+CGuiHandler::~CGuiHandler()
+{
+	// enforce deletion order on shutdown
+	// all UI elements including adventure map must be destroyed before Gui Handler
+	// proper solution would be removal of adventureInt global
+	adventureInt.reset();
+}
 
 ShortcutHandler & CGuiHandler::shortcuts()
 {
