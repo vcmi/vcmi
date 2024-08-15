@@ -25,6 +25,8 @@ class CTown;
 
 class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFaction, FactionService>
 {
+	JsonNode buildingsLibrary;
+
 	struct BuildingRequirementsHelper
 	{
 		JsonNode json;
@@ -82,6 +84,7 @@ public:
 
 	void loadCustom() override;
 	void afterLoadFinalization() override;
+	void beforeValidate(JsonNode & object) override;
 
 	std::set<FactionID> getDefaultAllowed() const;
 	std::set<FactionID> getAllowedFactions(bool withTown = true) const;

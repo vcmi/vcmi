@@ -30,14 +30,16 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 #include "../../json/JsonBonus.h"
+#include "../../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-CTownHandler::CTownHandler():
-	randomTown(new CTown()),
-	randomFaction(new CFaction())
+CTownHandler::CTownHandler()
+	: buildingsLibrary(JsonPath::builtin("config/buildingsLibrary"))
+	, randomTown(new CTown())
+	, randomFaction(new CFaction())
 {
 	randomFaction->town = randomTown;
 	randomTown->faction = randomFaction;
@@ -893,6 +895,29 @@ void CTownHandler::loadRandomFaction()
 void CTownHandler::loadCustom()
 {
 	loadRandomFaction();
+}
+
+void CTownHandler::beforeValidate(JsonNode & object)
+{
+	if (object.Struct().count("town") == 0)
+		return;
+
+	const auto & inheritBuilding = [this](const std::string & name, JsonNode & target)
+	{
+		if (buildingsLibrary.Struct().count(name) == 0)
+			return;
+
+		JsonNode baseCopy(buildingsLibrary[name]);
+		baseCopy.setModScope(target.getModScope());
+		JsonUtils::inherit(target, baseCopy);
+	};
+
+	for (auto & building : object["town"]["buildings"].Struct())
+	{
+		inheritBuilding(building.first, building.second);
+		if (building.second.Struct().count("type"))
+			inheritBuilding(building.second["type"].String(), building.second);
+	}
 }
 
 void CTownHandler::afterLoadFinalization()
