@@ -487,7 +487,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			for(auto & hero : gameHandler->gameState()->getPlayerState(finishingBattle->loser)->heroes)
 				if(!strongestHero || hero->exp > strongestHero->exp)
 					strongestHero = hero;
-			if(strongestHero->id == finishingBattle->loserHero->id)
+			if(strongestHero->id == finishingBattle->loserHero->id && strongestHero->level > 5)
 				gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->victor].lastDefeatedStrongestHeroDay = gameHandler->gameState()->getDate(Date::DAY);
 		}
 
