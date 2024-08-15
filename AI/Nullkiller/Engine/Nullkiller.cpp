@@ -601,7 +601,10 @@ bool Nullkiller::handleTrading()
 				buildAnalyzer->update();
 				TResources required = buildAnalyzer->getTotalResourcesRequired();
 				TResources income = buildAnalyzer->getDailyIncome();
-				TResources available = getFreeResources();
+				TResources available = cb->getResourceAmount();
+
+				logAi->debug("Available %s", available.toString());
+				logAi->debug("Required  %s", required.toString());
 
 				int mostWanted = -1;
 				int mostExpendable = -1;
@@ -610,7 +613,7 @@ bool Nullkiller::handleTrading()
 
 				for (int i = 0; i < required.size(); ++i)
 				{
-					if (required[i] == 0)
+					if (required[i] <= 0)
 						continue;
 					float ratio = static_cast<float>(available[i]) / required[i];
 
@@ -625,6 +628,8 @@ bool Nullkiller::handleTrading()
 					float ratio = available[i];
 					if (required[i] > 0)
 						ratio = static_cast<float>(available[i]) / required[i];
+					else
+						ratio = available[i];
 
 					bool okToSell = false;
 
@@ -635,7 +640,7 @@ bool Nullkiller::handleTrading()
 					}
 					else
 					{
-						if (available[i] > required[i])
+						if (required[i] <= 0)
 							okToSell = true;
 					}
 
@@ -645,7 +650,7 @@ bool Nullkiller::handleTrading()
 					}
 				}
 
-				//logAi->info("mostExpendable: %d mostWanted: %d", mostExpendable, mostWanted);
+				logAi->debug("mostExpendable: %d mostWanted: %d", mostExpendable, mostWanted);
 
 				if (mostExpendable == mostWanted || mostWanted == -1 || mostExpendable == -1)
 					return false;
