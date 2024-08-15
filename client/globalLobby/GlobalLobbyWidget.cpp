@@ -286,5 +286,5 @@ GlobalLobbyMatchCard::GlobalLobbyMatchCard(GlobalLobbyWindow * window, const Glo
 		opponentDescription.replaceNumber(matchDescription.participants.size());
 	}
 
-	labelMatchOpponent = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, opponentDescription.toString());
+	labelMatchOpponent = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, opponentDescription.toString(), 120);
 }
