@@ -89,7 +89,15 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"appearChance" : { "type" : "object", "additionalProperties" : true }, //TODO
+				"appearChance" : {
+					"type" : "object", 
+					"additionalProperties" : false,
+					"properties" : {
+						"dice" : { "type" : "number" },
+						"min" : { "type" : "number", "minimum" : 0, "exclusiveMaximum" : 100 },
+						"max" : { "type" : "number", "exclusiveMinimum" : 0, "maximum" : 100 }
+					}
+				},
 				"limiter" : { "$ref" : "#/definitions/limiter" },
 				"message" : { "$ref" : "#/definitions/message" },
 				"description" : { "$ref" : "#/definitions/message" },
@@ -117,9 +125,30 @@
 				"artifacts" : { "$ref" : "#/definitions/identifierList" },
 				"spells" : { "$ref" : "#/definitions/identifierList" },
 
-				"spellCast" : { "type" : "object", "additionalProperties" : true }, //TODO
-				"revealTiles" : { "type" : "object", "additionalProperties" : true }, //TODO
-				"changeCreatures" : { "type" : "object", "additionalProperties" : true }, //TODO
+				"spellCast" : {
+					"type" : "object", 
+					"additionalProperties" : false,
+					"properties" : {
+						"spell" : { "$ref" : "#/definitions/identifier" },
+						"schoolLevel" : { "type" : "number" }
+					}
+				},
+				"revealTiles" : {
+					"type" : "object", 
+					"additionalProperties" : false,
+					"properties" : {
+						"hide" : { "type" : "boolean" },
+						"radius" : { "type" : "number" },
+						"surface" : { "type" : "number" },
+						"subterra" : { "type" : "number" },
+						"water" : { "type" : "number" },
+						"rock" : { "type" : "number" }
+					}
+				},
+				"changeCreatures" : {
+					"type" : "object", 
+					"additionalProperties" : { "type" : "string" }
+				}
 			}
 		},
 		"limiter" : {
@@ -272,8 +301,17 @@
 			"type" : "string"
 		},
 		
-		"resetParameters" : { "type" : "object", "additionalProperties" : true }, //TODO
+		"resetParameters" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"visitors" : { "type" : "boolean" },
+				"rewards" : { "type" : "boolean" },
+				"period" : { "type" : "number" }
+			}
+		},
 		
+		// Properties that might appear since this node is shared with object config
 		"compatibilityIdentifiers" : { },
 		"blockedVisitable" : { },
 		"removable" : { },
