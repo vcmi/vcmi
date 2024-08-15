@@ -150,16 +150,10 @@ void BuildAnalyzer::update()
 	auto towns = ai->cb->getTownsInfo();
 
 	float economyDevelopmentCost = 0;
-	uint8_t closestThreat = UINT8_MAX;
-	ai->dangerHitMap->updateHitMap();
 
 	for(const CGTownInstance* town : towns)
 	{
-		for (auto threat : ai->dangerHitMap->getTownThreats(town))
-		{
-			closestThreat = std::min(closestThreat, threat.turn);
-		}
-		logAi->trace("Checking town %s closest threat: %u", town->getNameTranslated(), (unsigned int)closestThreat);
+		logAi->trace("Checking town %s", town->getNameTranslated());
 
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
@@ -181,9 +175,6 @@ void BuildAnalyzer::update()
 			logAi->trace("Building preferences %s", bi.toString());
 		}
 	}
-
-	if (closestThreat < 7)
-		economyDevelopmentCost = 0;
 
 	std::sort(developmentInfos.begin(), developmentInfos.end(), [](const TownDevelopmentInfo & t1, const TownDevelopmentInfo & t2) -> bool
 	{
@@ -254,6 +245,12 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	logAi->trace("checking %s", info.name);
 	logAi->trace("buildInfo %s", info.toString());
 
+	int highestFort = 0;
+	for (auto twn : ai->cb->getTownsInfo())
+	{
+		highestFort = std::max(highestFort, (int)twn->fortLevel());
+	}
+
 	if(!town->hasBuilt(building))
 	{
 		auto canBuild = ai->cb->canBuildStructure(town, building);
@@ -298,7 +295,15 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				prerequisite.baseCreatureID = info.baseCreatureID;
 				prerequisite.prerequisitesCount++;
 				prerequisite.armyCost = info.armyCost;
-				prerequisite.dailyIncome = info.dailyIncome;
+				bool haveSameOrBetterFort = false;
+				if (prerequisite.id == BuildingID::FORT && highestFort >= CGTownInstance::EFortLevel::FORT)
+					haveSameOrBetterFort = true;
+				if (prerequisite.id == BuildingID::CITADEL && highestFort >= CGTownInstance::EFortLevel::CITADEL)
+					haveSameOrBetterFort = true;
+				if (prerequisite.id == BuildingID::CASTLE && highestFort >= CGTownInstance::EFortLevel::CASTLE)
+					haveSameOrBetterFort = true;
+				if(!haveSameOrBetterFort)
+					prerequisite.dailyIncome = info.dailyIncome;
 
 				return prerequisite;
 			}
