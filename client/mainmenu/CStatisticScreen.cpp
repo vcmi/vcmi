@@ -91,7 +91,7 @@ void CStatisticScreen::onSelectButton()
 	});
 }
 
-TData CStatisticScreen::extractData(const StatisticDataSet & stat, const ExtractFunctor & selector)
+TData CStatisticScreen::extractData(const StatisticDataSet & stat, const ExtractFunctor & selector) const
 {
 	auto tmpData = stat.data;
 	std::sort(tmpData.begin(), tmpData.end(), [](const StatisticDataSetEntry & v1, const StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
@@ -279,7 +279,7 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, const StatisticDa
 		{
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.maxHeroLevel"), [this](PlayerColor color){
 				int maxLevel = 0;
-				for(auto val : playerDataFilter(color))
+				for(const auto & val : playerDataFilter(color))
 					if(maxLevel < val.maxHeroLevel)
 						maxLevel = val.maxHeroLevel;
 				return std::to_string(maxLevel);
@@ -324,7 +324,7 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, const StatisticDa
 		{
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.maxArmyStrength"), [this](PlayerColor color){
 				int maxArmyStrength = 0;
-				for(auto val : playerDataFilter(color))
+				for(const auto & val : playerDataFilter(color))
 					if(maxArmyStrength < val.armyStrength)
 						maxArmyStrength = val.armyStrength;
 				return TextOperations::formatMetric(maxArmyStrength, 6);
@@ -446,7 +446,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	// additional calculations
 	bool skipMaxValCalc = maxY > 0;
 	maxVal = maxY;
-	for(auto & line : data)
+	for(const auto & line : data)
 	{
 		for(auto & val : line.second)
 			if(maxVal < val && !skipMaxValCalc)
@@ -456,7 +456,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	}
 
 	// draw
-	for(auto & line : data)
+	for(const auto & line : data)
 	{
 		Point lastPoint(-1, -1);
 		for(int i = 0; i < line.second.size(); i++)
@@ -502,7 +502,7 @@ void LineChart::updateStatusBar(const Point & cursorPosition)
 	if(r.isInside(cursorPosition))
 	{
 		float x = (static_cast<float>(maxDay) / static_cast<float>(chartArea.w)) * (static_cast<float>(cursorPosition.x) - static_cast<float>(r.x)) + 1.0f;
-		float y = maxVal - (static_cast<float>(maxVal) / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
+		float y = maxVal - (maxVal / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
 		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + CStatisticScreen::getDay(x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + (static_cast<int>(y) > 0 ? std::to_string(static_cast<int>(y)) : std::to_string(y)));
 	}
 	GH.windows().totalRedraw();

@@ -68,7 +68,7 @@ class CStatisticScreen : public CWindowObject
 	Rect contentArea;
 
 	using ExtractFunctor = std::function<float(StatisticDataSetEntry val)>;
-	TData extractData(const StatisticDataSet & stat, const ExtractFunctor & selector);
+	TData extractData(const StatisticDataSet & stat, const ExtractFunctor & selector) const;
 	TIcons extractIcons() const;
 	std::shared_ptr<CIntObject> getContent(Content c, EGameResID res);
 	void onSelectButton();
