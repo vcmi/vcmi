@@ -78,12 +78,12 @@ class CHighScoreInputScreen : public CWindowObject
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	std::shared_ptr<CButton> statisticButton;
-	StatisticDataSet stat;
 
 	bool won;
 	HighScoreCalculation calc;
+	StatisticDataSet stat;
 public:
-	CHighScoreInputScreen(bool won, HighScoreCalculation calc, StatisticDataSet statistic);
+	CHighScoreInputScreen(bool won, HighScoreCalculation calc, const StatisticDataSet & statistic);
 
 	int addEntry(std::string text);
 

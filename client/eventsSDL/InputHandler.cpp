@@ -143,7 +143,7 @@ InputMode InputHandler::getCurrentInputMode()
 	return currentInputMode;
 }
 
-void InputHandler::copyToClipBoard(std::string text)
+void InputHandler::copyToClipBoard(const std::string & text)
 {
 	SDL_SetClipboardText(text.c_str());
 }

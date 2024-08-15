@@ -228,7 +228,7 @@ public:
 	void onPlayerTurnStarted(PlayerColor which);
 	void onPlayerTurnEnded(PlayerColor which);
 	void onNewTurn();
-	void addStatistics(StatisticDataSet &stat);
+	void addStatistics(StatisticDataSet &stat) const;
 
 	void handleTimeEvents(PlayerColor player);
 	void handleTownEvents(CGTownInstance *town);

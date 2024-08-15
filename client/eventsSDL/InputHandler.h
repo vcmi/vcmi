@@ -104,5 +104,5 @@ public:
 
 	InputMode getCurrentInputMode();
 
-	void copyToClipBoard(std::string text);
+	void copyToClipBoard(const std::string & text);
 };

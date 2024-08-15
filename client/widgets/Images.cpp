@@ -127,7 +127,7 @@ void CPicture::setPlayerColor(PlayerColor player)
 	bg->playerColored(player);
 }
 
-void CPicture::addRClickCallback(std::function<void()> callback)
+void CPicture::addRClickCallback(const std::function<void()> & callback)
 {
 	rCallback = callback;
 }

@@ -172,7 +172,7 @@ void CHighScoreScreen::buttonExitClick()
 	close();
 }
 
-CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc, StatisticDataSet statistic)
+CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc, const StatisticDataSet & statistic)
 	: CWindowObject(BORDERED), won(won), calc(calc), stat(statistic)
 {
 	addUsedEvents(LCLICK | KEYBOARD);

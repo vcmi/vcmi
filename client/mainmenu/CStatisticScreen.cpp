@@ -42,7 +42,7 @@ std::string CStatisticScreen::getDay(int d)
 	return std::to_string(CGameState::getDate(d, Date::MONTH)) + "/" + std::to_string(CGameState::getDate(d, Date::WEEK)) + "/" + std::to_string(CGameState::getDate(d, Date::DAY_OF_WEEK));
 }
 
-CStatisticScreen::CStatisticScreen(StatisticDataSet & stat)
+CStatisticScreen::CStatisticScreen(const StatisticDataSet & stat)
 	: CWindowObject(BORDERED), statistic(stat)
 {
 	OBJECT_CONSTRUCTION;
@@ -79,7 +79,7 @@ void CStatisticScreen::onSelectButton()
 			auto content = static_cast<Content>(selectedIndex);
 			auto possibleRes = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
 			std::vector<std::string> resourceText;
-			for(auto & res : possibleRes)
+			for(const auto & res : possibleRes)
 				resourceText.emplace_back(CGI->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()));
 			
 			GH.windows().createAndPushWindow<StatisticSelector>(resourceText, [this, content, possibleRes](int index)
@@ -91,16 +91,16 @@ void CStatisticScreen::onSelectButton()
 	});
 }
 
-TData CStatisticScreen::extractData(StatisticDataSet & stat, ExtractFunctor selector)
+TData CStatisticScreen::extractData(const StatisticDataSet & stat, const ExtractFunctor & selector)
 {
 	auto tmpData = stat.data;
-	std::sort(tmpData.begin(), tmpData.end(), [](StatisticDataSetEntry & v1, StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
+	std::sort(tmpData.begin(), tmpData.end(), [](const StatisticDataSetEntry & v1, const StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
 
 	PlayerColor tmpColor = PlayerColor::NEUTRAL;
 	std::vector<float> tmpColorSet;
 	TData plotData;
 	EPlayerStatus statusLastRound = EPlayerStatus::INGAME;
-	for(auto & val : tmpData)
+	for(const auto & val : tmpData)
 	{
 		if(tmpColor != val.player)
 		{
@@ -122,12 +122,12 @@ TData CStatisticScreen::extractData(StatisticDataSet & stat, ExtractFunctor sele
 	return plotData;
 }
 
-TIcons CStatisticScreen::extractIcons()
+TIcons CStatisticScreen::extractIcons() const
 {
 	TIcons icons;
 
 	auto tmpData = statistic.data;
-	std::sort(tmpData.begin(), tmpData.end(), [](StatisticDataSetEntry & v1, StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
+	std::sort(tmpData.begin(), tmpData.end(), [](const StatisticDataSetEntry & v1, const StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
 
 	auto imageTown = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 3, 0, EImageBlitMode::COLORKEY);
 	imageTown->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
@@ -141,7 +141,7 @@ TIcons CStatisticScreen::extractIcons()
 	std::map<PlayerColor, bool> foundDefeated;
 	std::map<PlayerColor, bool> foundGrail;
 
-	for(auto & val : tmpData)
+	for(const auto & val : tmpData)
 	{
 		if(val.eventCapturedTown)
 			icons.push_back({ graphics->playerColors[val.player], val.day, imageTown, CGI->generaltexth->translate("vcmi.statisticWindow.icon.townCaptured") });
@@ -224,7 +224,7 @@ std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID r
 	return nullptr;
 }
 
-StatisticSelector::StatisticSelector(std::vector<std::string> & texts, std::function<void(int selectedIndex)> cb)
+StatisticSelector::StatisticSelector(const std::vector<std::string> & texts, const std::function<void(int selectedIndex)> & cb)
 	: CWindowObject(BORDERED | NEEDS_ANIMATED_BACKGROUND), texts(texts), cb(cb)
 {
 	OBJECT_CONSTRUCTION;
@@ -254,7 +254,7 @@ void StatisticSelector::update(int to)
 	}
 }
 
-OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet & stat)
+OverviewPanel::OverviewPanel(Rect position, std::string title, const StatisticDataSet & stat)
 	: CIntObject(), data(stat)
 {
 	OBJECT_CONSTRUCTION;
@@ -291,7 +291,7 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 				if(!val.numBattlesPlayer)
 					return std::string("");
 				float tmp = (static_cast<float>(val.numWinBattlesPlayer) / static_cast<float>(val.numBattlesPlayer)) * 100;
-				return std::to_string((int)tmp) + " %";
+				return std::to_string(static_cast<int>(tmp)) + " %";
 			}
 		},
 		{
@@ -300,7 +300,7 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 				if(!val.numWinBattlesNeutral)
 					return std::string("");
 				float tmp = (static_cast<float>(val.numWinBattlesNeutral) / static_cast<float>(val.numBattlesNeutral)) * 100;
-				return std::to_string((int)tmp) + " %";
+				return std::to_string(static_cast<int>(tmp)) + " %";
 			}
 		},
 		{
@@ -318,7 +318,7 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 		{
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.obeliskVisited"), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
-				return std::to_string((int)(val.obeliskVisitedRatio * 100)) + " %";
+				return std::to_string(static_cast<int>(val.obeliskVisitedRatio * 100)) + " %";
 			}
 		},
 		{
@@ -397,7 +397,7 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, StatisticDataSet 
 std::vector<StatisticDataSetEntry> OverviewPanel::playerDataFilter(PlayerColor color)
 {
 	std::vector<StatisticDataSetEntry> tmpData;
-	std::copy_if(data.data.begin(), data.data.end(), std::back_inserter(tmpData), [color](StatisticDataSetEntry e){ return e.player == color; });
+	std::copy_if(data.data.begin(), data.data.end(), std::back_inserter(tmpData), [color](const StatisticDataSetEntry & e){ return e.player == color; });
 	return tmpData;
 }
 
@@ -441,7 +441,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	canvas = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
 
 	statusBar = CGStatusBar::create(0, 0, ImagePath::builtin("radialMenu/statusBar"));
-	((std::shared_ptr<CIntObject>)statusBar)->setEnabled(false);
+	static_cast<std::shared_ptr<CIntObject>>(statusBar)->setEnabled(false);
 
 	// additional calculations
 	bool skipMaxValCalc = maxY > 0;
@@ -458,7 +458,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	// draw
 	for(auto & line : data)
 	{
-		Point lastPoint = Point(-1, -1);
+		Point lastPoint(-1, -1);
 		for(int i = 0; i < line.second.size(); i++)
 		{
 			float x = (static_cast<float>(chartArea.w) / static_cast<float>(maxDay - 1)) * static_cast<float>(i);
@@ -503,7 +503,7 @@ void LineChart::updateStatusBar(const Point & cursorPosition)
 	{
 		float x = (static_cast<float>(maxDay) / static_cast<float>(chartArea.w)) * (static_cast<float>(cursorPosition.x) - static_cast<float>(r.x)) + 1.0f;
 		float y = maxVal - (static_cast<float>(maxVal) / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
-		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + CStatisticScreen::getDay(x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + ((int)y > 0 ? std::to_string((int)y) : std::to_string(y)));
+		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + CStatisticScreen::getDay(x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + (static_cast<int>(y) > 0 ? std::to_string(static_cast<int>(y)) : std::to_string(y)));
 	}
 	GH.windows().totalRedraw();
 }

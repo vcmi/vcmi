@@ -669,7 +669,7 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 		heroPool->onNewWeek(which);
 }
 
-void CGameHandler::addStatistics(StatisticDataSet &stat)
+void CGameHandler::addStatistics(StatisticDataSet &stat) const
 {
 	for (const auto & elem : gs->players)
 	{

@@ -58,7 +58,7 @@ public:
 	void scaleTo(Point size);
 	void setPlayerColor(PlayerColor player);
 
-	void addRClickCallback(std::function<void()> callback);
+	void addRClickCallback(const std::function<void()> & callback);
 
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
