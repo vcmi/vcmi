@@ -1253,4 +1253,11 @@ void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 	}
 }
 
+void CGTownInstance::postDeserialize()
+{
+	setNodeType(CBonusSystemNode::TOWN);
+	for(auto * bonusingBuilding : bonusingBuildings)
+		bonusingBuilding->town = this;
+}
+
 VCMI_LIB_NAMESPACE_END

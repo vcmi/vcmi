@@ -57,6 +57,7 @@
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/mapObjects/CGTownBuilding.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"

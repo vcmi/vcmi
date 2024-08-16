@@ -242,28 +242,6 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 	bidsToLoad.push_back(hlp);
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val) const
-{
-	return createBonus(build, type, val, BonusSubtypeID(), emptyPropagator());
-}
-
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype) const
-{
-	return createBonus(build, type, val, subtype, emptyPropagator());
-}
-
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, const TPropagatorPtr & prop) const
-{
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, build->getUniqueTypeID(), subtype);
-
-	b->description.appendTextID(build->getNameTextID());
-
-	if(prop)
-		b->addPropagator(prop);
-
-	return b;
-}
-
 void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building)
 {
 	for(const auto & b : source.Vector())

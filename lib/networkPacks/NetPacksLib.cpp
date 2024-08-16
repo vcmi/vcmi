@@ -36,6 +36,7 @@
 #include "mapObjects/CBank.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
+#include "mapObjects/CGTownBuilding.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/CQuest.h"
 #include "mapObjects/MiscObjects.h"

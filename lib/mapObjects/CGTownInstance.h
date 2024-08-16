@@ -11,16 +11,18 @@
 
 #include "IMarket.h"
 #include "CGDwelling.h"
-#include "CGTownBuilding.h"
-#include "../LogicalExpression.h"
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CCastleEvent;
+class CTown;
+class CGTownBuilding;
 struct DamageRange;
 
+template<typename ContainedClass>
+class LogicalExpression;
 
 class DLL_LINKAGE CTownAndVisitingHero : public CBonusSystemNode
 {
@@ -87,10 +89,7 @@ public:
 		h & spells;
 		h & events;
 		h & bonusingBuildings;
-		
-		for(auto * bonusingBuilding : bonusingBuildings)
-			bonusingBuilding->town = this;
-		
+
 		if (h.saving)
 		{
 			CFaction * faction = town ? town->faction : nullptr;
@@ -106,23 +105,10 @@ public:
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
-		if(town)
-		{
-			vstd::erase_if(builtBuildings, [this](BuildingID building) -> bool
-			{
-				if(!town->buildings.count(building) || !town->buildings.at(building))
-				{
-					logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", nameTextId, pos.toString(), building);
-					return true;
-				}
-				return false;
-			});
-		}
-
 		h & overriddenBuildings;
 
 		if(!h.saving)
-			this->setNodeType(CBonusSystemNode::TOWN);
+			postDeserialize();
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -130,6 +116,7 @@ public:
 	std::string nodeName() const override;
 	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();
+	void postDeserialize();
 	void recreateBuildingsBonuses();
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
