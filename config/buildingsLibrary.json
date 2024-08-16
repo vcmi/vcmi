@@ -50,6 +50,7 @@
 	// Previously hardcoded buildings that might be used by mods
 	// Section 1 - building with bonuses during sieges
 	"brotherhoodOfSword" : {
+		"upgradeReplacesBonuses" : true,
 		"bonuses": [
 			{
 				"type": "MORALE",

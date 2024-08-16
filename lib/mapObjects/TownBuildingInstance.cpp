@@ -219,7 +219,6 @@ void TownRewardableBuildingInstance::onHeroVisit(const CGHeroInstance *h) const
 		cb->showBlockingDialog(&sd);
 	};
 	
-	assert(town->hasBuilt(getBuildingType()));
 	if(!town->hasBuilt(getBuildingType()))
 		return;
 

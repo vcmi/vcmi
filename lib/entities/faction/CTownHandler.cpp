@@ -242,7 +242,7 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 	bidsToLoad.push_back(hlp);
 }
 
-void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building)
+void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building) const
 {
 	for(const auto & b : source.Vector())
 	{
@@ -299,7 +299,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
 
-	loadSpecialBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
+	loadBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
 
 	if(!source["configuration"].isNull())
 		ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
@@ -843,7 +843,6 @@ void CTownHandler::beforeValidate(JsonNode & object)
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
-	initializeOverridden();
 	initializeWarMachines();
 }
 
@@ -872,22 +871,6 @@ void CTownHandler::initializeRequirements()
 		});
 	}
 	requirementsToLoad.clear();
-}
-
-void CTownHandler::initializeOverridden()
-{
-	for(auto & bidHelper : overriddenBidsToLoad)
-	{
-		auto jsonNode = bidHelper.json;
-		auto scope = bidHelper.town->getBuildingScope();
-
-		for(const auto & b : jsonNode.Vector())
-		{
-			auto bid = BuildingID(VLC->identifiers()->getIdentifier(scope, b).value());
-			bidHelper.building->overrideBids.insert(bid);
-		}
-	}
-	overriddenBidsToLoad.clear();
 }
 
 void CTownHandler::initializeWarMachines()

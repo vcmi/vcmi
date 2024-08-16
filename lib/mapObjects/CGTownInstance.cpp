@@ -791,11 +791,22 @@ void CGTownInstance::recreateBuildingsBonuses()
 	for(const auto & b : bl)
 		removeBonus(b);
 
+
+
 	for(const auto & bid : builtBuildings)
 	{
-		// FIXME: Restore
-		//if(vstd::contains(overriddenBuildings, bid)) //tricky! -> checks tavern only if no bratherhood of sword
-		//	continue;
+		bool bonusesReplacedByUpgrade = false;
+
+		for(const auto & upgradeID : builtBuildings)
+		{
+			const auto & upgrade = town->buildings.at(upgradeID);
+			if (upgrade->getBase() == bid && upgrade->upgradeReplacesBonuses)
+				bonusesReplacedByUpgrade = true;
+		}
+
+		// bonuses from this building are disabled and replaced by bonuses from an upgrade
+		if (bonusesReplacedByUpgrade)
+			continue;
 
 		auto building = town->buildings.at(bid);
 

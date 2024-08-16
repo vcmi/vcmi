@@ -38,7 +38,7 @@ public:
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
 	BuildingSubID::EBuildingSubID subId; /// subtype for special buildings, -1 = the building is not special
-	std::set<BuildingID> overrideBids; /// the building which bonuses should be overridden with bonuses of the current building
+	bool upgradeReplacesBonuses = false;
 	BonusList buildingBonuses;
 
 	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings

@@ -41,7 +41,6 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	static const TPropagatorPtr & emptyPropagator();
 
 	void initializeRequirements();
-	void initializeOverridden();
 	void initializeWarMachines();
 
 	/// loads CBuilding's into town
@@ -84,9 +83,9 @@ public:
 	std::set<FactionID> getDefaultAllowed() const;
 	std::set<FactionID> getAllowedFactions(bool withTown = true) const;
 
-	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);
-
 protected:
+
+	void loadBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building) const;
 	const std::vector<std::string> & getTypeNames() const override;
 	std::shared_ptr<CFaction> loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };
