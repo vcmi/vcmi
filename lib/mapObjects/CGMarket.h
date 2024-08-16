@@ -18,8 +18,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
 public:
-	
-	std::set<EMarketMode> marketModes;
 	int marketEfficiency;
 	
 	CGMarket(IGameCallback *cb);
@@ -29,7 +27,6 @@ public:
 
 	///IMarket
 	int getMarketEfficiency() const override;
-	bool allowsTrade(EMarketMode mode) const override;
 	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
@@ -37,7 +34,6 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<IMarket&>(*this);
-		h & marketModes;
 		h & marketEfficiency;
 	}
 };

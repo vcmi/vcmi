@@ -804,10 +804,10 @@ void CGameState::initTowns()
 		//init buildings
 		if(vstd::contains(vti->builtBuildings, BuildingID::DEFAULT)) //give standard set of buildings
 		{
-			vti->builtBuildings.erase(BuildingID::DEFAULT);
-			vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
+			vti->removeBuilding(BuildingID::DEFAULT);
+			vti->addBuilding(BuildingID::VILLAGE_HALL);
 			if(vti->tempOwner != PlayerColor::NEUTRAL)
-				vti->builtBuildings.insert(BuildingID::TAVERN);
+				vti->addBuilding(BuildingID::TAVERN);
 
 			auto definesBuildingsChances = VLC->settings()->getVector(EGameSettings::TOWNS_STARTING_DWELLING_CHANCES);
 
@@ -815,32 +815,32 @@ void CGameState::initTowns()
 			{
 				if((getRandomGenerator().nextInt(1,100) <= definesBuildingsChances[i]))
 				{
-					vti->builtBuildings.insert(basicDwellings[i]);
+					vti->addBuilding(basicDwellings[i]);
 				}
 			}
 		}
 
 		// village hall must always exist
-		vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
+		vti->addBuilding(BuildingID::VILLAGE_HALL);
 
 		//init hordes
 		for (int i = 0; i < vti->town->creatures.size(); i++)
 		{
 			if (vstd::contains(vti->builtBuildings, hordes[i])) //if we have horde for this level
 			{
-				vti->builtBuildings.erase(hordes[i]);//remove old ID
+				vti->removeBuilding(hordes[i]);//remove old ID
 				if (vti->getTown()->hordeLvl.at(0) == i)//if town first horde is this one
 				{
-					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
+					vti->addBuilding(BuildingID::HORDE_1);//add it
 					//if we have upgraded dwelling as well
 					if (vstd::contains(vti->builtBuildings, upgradedDwellings[i]))
-						vti->builtBuildings.insert(BuildingID::HORDE_1_UPGR);//add it as well
+						vti->addBuilding(BuildingID::HORDE_1_UPGR);//add it as well
 				}
 				if (vti->getTown()->hordeLvl.at(1) == i)//if town second horde is this one
 				{
-					vti->builtBuildings.insert(BuildingID::HORDE_2);
+					vti->addBuilding(BuildingID::HORDE_2);
 					if (vstd::contains(vti->builtBuildings, upgradedDwellings[i]))
-						vti->builtBuildings.insert(BuildingID::HORDE_2_UPGR);
+						vti->addBuilding(BuildingID::HORDE_2_UPGR);
 				}
 			}
 		}
@@ -853,7 +853,7 @@ void CGameState::initTowns()
 			});
 
 		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
-			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
+			vti->removeBuilding(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//Early check for #1444-like problems
 		for([[maybe_unused]] const auto & building : vti->builtBuildings)

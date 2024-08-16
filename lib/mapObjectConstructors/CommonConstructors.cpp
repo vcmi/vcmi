@@ -248,7 +248,7 @@ CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
 
 void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 {
-	market->marketModes = marketModes;
+	market->addMarketMode(marketModes);
 	market->marketEfficiency = marketEfficiency;
 	
 	if(auto univercity = dynamic_cast<CGUniversity*>(market))

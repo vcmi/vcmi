@@ -664,10 +664,10 @@ void CGameStateCampaign::initTowns()
 			if (newBuilding == BuildingID::NONE)
 				break;
 
-			if (town->builtBuildings.count(newBuilding) != 0)
+			if(town->hasBuilt(newBuilding))
 				break;
 
-			town->builtBuildings.insert(newBuilding);
+			town->addBuilding(newBuilding);
 
 			auto building = town->town->buildings.at(newBuilding);
 			newBuilding = building->upgrade;

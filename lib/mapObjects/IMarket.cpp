@@ -20,6 +20,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+bool IMarket::allowsTrade(const EMarketMode mode) const
+{
+	return marketModes.count(mode) > 0;
+}
+
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const
 {
 	switch(mode)
@@ -133,6 +138,28 @@ int IMarket::availableUnits(const EMarketMode mode, const int marketItemSerial) 
 	default:
 			return 1;
 	}
+}
+
+void IMarket::addMarketMode(const EMarketMode mode)
+{
+	marketModes.insert(mode);
+
+	if(mode == EMarketMode::ARTIFACT_EXP)
+		altarArtifacts = std::make_shared<CArtifactSetAltar>();
+}
+
+void IMarket::addMarketMode(const std::set<EMarketMode> & modes)
+{
+	for(const auto & mode : modes)
+		addMarketMode(mode);
+}
+
+void IMarket::removeMarketMode(const EMarketMode mode)
+{
+	marketModes.erase(mode);
+
+	if(mode == EMarketMode::ARTIFACT_EXP)
+		altarArtifacts.reset();
 }
 
 std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) const

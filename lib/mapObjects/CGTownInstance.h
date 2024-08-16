@@ -153,7 +153,6 @@ public:
 	EGeneratorState shipyardStatus() const override;
 	const IObjectInterface * getObject() const override;
 	int getMarketEfficiency() const override; //=market count
-	bool allowsTrade(EMarketMode mode) const override;
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
 	void updateAppearance();
@@ -175,6 +174,8 @@ public:
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(const BuildingID & buildingID) const;
 	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
+	void addBuilding(const BuildingID & buildingID);
+	void removeBuilding(const BuildingID & buildingID);
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
 	TResources dailyIncome() const; //calculates daily income of this town
@@ -227,6 +228,7 @@ protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void marketBuildingModeMapper(const BuildingID & buildingID, const std::function<void(const EMarketMode)> & func);
 
 private:
 	FactionID randomizeFaction(vstd::RNG & rand);

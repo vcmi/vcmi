@@ -38,11 +38,6 @@ int CGMarket::getMarketEfficiency() const
 	return marketEfficiency;
 }
 
-bool CGMarket::allowsTrade(EMarketMode mode) const
-{
-	return marketModes.count(mode);
-}
-
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 {
 	return -1;

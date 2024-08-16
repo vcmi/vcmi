@@ -25,22 +25,27 @@ public:
 	};
 
 	virtual int getMarketEfficiency() const = 0;
-	virtual bool allowsTrade(const EMarketMode mode) const = 0;
+	virtual bool allowsTrade(const EMarketMode mode) const;
 	virtual int availableUnits(const EMarketMode mode, const int marketItemSerial) const; //-1 if unlimited
 	virtual std::vector<TradeItemBuy> availableItemsIds(const EMarketMode mode) const;
+	void addMarketMode(const EMarketMode mode);
+	void addMarketMode(const std::set<EMarketMode> & modes);
+	void removeMarketMode(const EMarketMode mode);
 
 	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
 	std::vector<EMarketMode> availableModes() const;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		if(h.loadingGamestate)
-		{
-		}
+		h & marketModes;
+
+		if(h.loadingGamestate && vstd::contains(marketModes, EMarketMode::ARTIFACT_EXP))
+			altarArtifacts = std::make_shared<CArtifactSetAltar>();
 	}
 
 private:
 	std::shared_ptr<CArtifactSetAltar> altarArtifacts;
+	std::set<EMarketMode> marketModes;
 };
 
 VCMI_LIB_NAMESPACE_END

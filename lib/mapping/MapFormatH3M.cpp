@@ -2198,18 +2198,20 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)
 	{
-		reader->readBitmaskBuildings(object->builtBuildings, faction);
-		reader->readBitmaskBuildings(object->forbiddenBuildings, faction);
+		object->subID = faction.value();
+		for(const auto & building : reader->readBitmaskBuildings(faction))
+			object->addBuilding(building);
+		object->forbiddenBuildings = reader->readBitmaskBuildings(faction);
 	}
 	// Standard buildings
 	else
 	{
 		bool hasFort = reader->readBool();
 		if(hasFort)
-			object->builtBuildings.insert(BuildingID::FORT);
+			object->addBuilding(BuildingID::FORT);
 
 		//means that set of standard building should be included
-		object->builtBuildings.insert(BuildingID::DEFAULT);
+		object->addBuilding(BuildingID::DEFAULT);
 	}
 
 	if(features.levelAB)
@@ -2257,7 +2259,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		reader->skipZero(17);
 
 		// New buildings
-		reader->readBitmaskBuildings(event.buildings, faction);
+		event.buildings = reader->readBitmaskBuildings(faction);
 
 		event.creatures.resize(7);
 		for(int i = 0; i < 7; ++i)
