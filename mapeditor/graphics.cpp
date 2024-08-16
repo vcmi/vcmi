@@ -48,9 +48,10 @@ void Graphics::loadPaletteAndColors()
 	for(int i = 0; i < 256; ++i)
 	{
 		QColor col;
-		col.setRed(pals[startPoint++]);
-		col.setGreen(pals[startPoint++]);
-		col.setBlue(pals[startPoint++]);
+		// Cast to unsigned char to ensure values are in the range 0-255
+		col.setRed(static_cast<uint8_t>(pals[startPoint++]));
+		col.setGreen(static_cast<uint8_t>(pals[startPoint++]));
+		col.setBlue(static_cast<uint8_t>(pals[startPoint++]));
 		col.setAlpha(255);
 		startPoint++;
 		playerColorPalette[i] = col.rgba();
