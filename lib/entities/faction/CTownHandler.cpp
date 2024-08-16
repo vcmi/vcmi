@@ -242,43 +242,6 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 	bidsToLoad.push_back(hlp);
 }
 
-void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
-{
-	std::shared_ptr<Bonus> b;
-	static const TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
-
-	if(building->bid == BuildingID::TAVERN)
-	{
-		b = createBonus(building, BonusType::MORALE, +1);
-	}
-
-	switch(building->subId)
-	{
-	case BuildingSubID::BROTHERHOOD_OF_SWORD:
-		b = createBonus(building, BonusType::MORALE, +2);
-		building->overrideBids.insert(BuildingID::TAVERN);
-		break;
-	case BuildingSubID::FOUNTAIN_OF_FORTUNE:
-		b = createBonus(building, BonusType::LUCK, +2);
-		break;
-	case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::SPELL_POWER));
-		break;
-	case BuildingSubID::ATTACK_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::ATTACK));
-		break;
-	case BuildingSubID::DEFENSE_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::DEFENSE));
-		break;
-	case BuildingSubID::LIGHTHOUSE:
-		b = createBonus(building, BonusType::MOVEMENT, +500, BonusCustomSubtype::heroMovementSea, playerPropagator);
-		break;
-	}
-
-	if(b)
-		building->addNewBonus(b, building->buildingBonuses);
-}
-
 std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val) const
 {
 	return createBonus(build, type, val, BonusSubtypeID(), emptyPropagator());
@@ -355,17 +318,12 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
 
-	if(ret->bid == BuildingID::TAVERN)
-		addBonusesForVanilaBuilding(ret);
-	else if(ret->bid.IsSpecialOrGrail())
+	if(ret->bid.IsSpecialOrGrail())
 	{
 		loadSpecialBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
 
 		if(ret->buildingBonuses.empty())
-		{
 			ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
-			addBonusesForVanilaBuilding(ret);
-		}
 
 		loadSpecialBuildingBonuses(source["onVisitBonuses"], ret->onVisitBonuses, ret);
 
@@ -378,34 +336,24 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 				bonus->sid = BonusSourceID(ret->getUniqueTypeID());
 		}
 		
-		if(ret->subId == BuildingSubID::CUSTOM_VISITING_REWARD)
+		if(!source["configuration"].isNull())
 			ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
 	}
 	//MODS COMPATIBILITY FOR 0.96
-	if(!ret->produce.nonZero())
+	if(!ret->produce.nonZero() && ret->bid == BuildingID::RESOURCE_SILO)
 	{
-		switch (ret->bid.toEnum()) {
-			break; case BuildingID::VILLAGE_HALL: ret->produce[EGameResID::GOLD] = 500;
-			break; case BuildingID::TOWN_HALL :   ret->produce[EGameResID::GOLD] = 1000;
-			break; case BuildingID::CITY_HALL :   ret->produce[EGameResID::GOLD] = 2000;
-			break; case BuildingID::CAPITOL :     ret->produce[EGameResID::GOLD] = 4000;
-			break; case BuildingID::GRAIL :       ret->produce[EGameResID::GOLD] = 5000;
-			break; case BuildingID::RESOURCE_SILO :
-			{
-				switch (ret->town->primaryRes.toEnum())
-				{
-					case EGameResID::GOLD:
-						ret->produce[ret->town->primaryRes] = 500;
-						break;
-					case EGameResID::WOOD_AND_ORE:
-						ret->produce[EGameResID::WOOD] = 1;
-						ret->produce[EGameResID::ORE] = 1;
-						break;
-					default:
-						ret->produce[ret->town->primaryRes] = 1;
-						break;
-				}
-			}
+		switch (ret->town->primaryRes.toEnum())
+		{
+			case EGameResID::GOLD:
+				ret->produce[ret->town->primaryRes] = 500;
+				break;
+			case EGameResID::WOOD_AND_ORE:
+				ret->produce[EGameResID::WOOD] = 1;
+				ret->produce[EGameResID::ORE] = 1;
+				break;
+			default:
+				ret->produce[ret->town->primaryRes] = 1;
+				break;
 		}
 	}
 	loadBuildingRequirements(ret, source["requires"], requirementsToLoad);

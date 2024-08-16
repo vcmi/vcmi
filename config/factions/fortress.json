@@ -169,19 +169,7 @@
 				"resourceSilo":   { "produce": { "wood": 1, "ore": 1 } },
 				"blacksmith":     { },
 
-				"special1":       {
-					"type" : "configurable",
-					"requires" : [ "allOf", [ "townHall" ], [ "special2" ] ],
-					"configuration" : {
-						"visitMode" : "hero",
-						"rewards" : [
-							{
-								"message" : "@core.genrltxt.585",
-								"primary" : { "defence" : 1 }
-							}
-						]
-					}
-				},
+				"special1":       { "type" : "defenceVisitingBonus", "requires" : [ "allOf", [ "townHall" ], [ "special2" ] ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },

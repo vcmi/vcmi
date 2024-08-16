@@ -4,7 +4,15 @@
 	"mageGuild3":     { "id" : 2,  "upgrades" : "mageGuild2" },
 	"mageGuild4":     { "id" : 3,  "upgrades" : "mageGuild3" },
 	"mageGuild5":     { "id" : 4,  "upgrades" : "mageGuild4" },
-	"tavern":         { "id" : 5 },
+	"tavern": {
+		"id" : 5,
+		"bonuses": [
+			{
+				"type": "MORALE",
+				"val": 1
+			}
+		]
+	},
 	"shipyard":       { "id" : 6 },
 	"fort":           { "id" : 7 },
 	"citadel":        { "id" : 8,  "upgrades" : "fort" },
@@ -37,5 +45,159 @@
 
 	"marketplace":    { "id" : 14 },
 	"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ] },
-	"blacksmith":     { "id" : 16 }
+	"blacksmith":     { "id" : 16 },
+
+	// Previously hardcoded buildings that might be used by mods
+	// Section 1 - building with bonuses during sieges
+	"brotherhoodOfSword" : {
+		"bonuses": [
+			{
+				"type": "MORALE",
+				"val": 2
+			}
+		]
+	},
+	
+	"fountainOfFortune" : {
+		"bonuses": [
+			{
+				"type": "LUCK",
+				"subtype": "primarySkill.knowledge",
+				"val": 2
+			}
+		]
+	},
+	
+	"spellPowerGarrisonBonus" : {
+		"bonuses": [
+			{
+				"type": "PRIMARY_SKILL",
+				"subtype": "primarySkill.knowledge",
+				"val": 2
+			}
+		]
+	},
+	
+	"attackGarrisonBonus" : {
+		"bonuses": [
+			{
+				"type": "PRIMARY_SKILL",
+				"subtype": "primarySkill.knowledge",
+				"val": 2
+			}
+		]
+	},
+	
+	"defenseGarrisonBonus" : {
+		"bonuses": [
+			{
+				"type": "PRIMARY_SKILL",
+				"subtype": "primarySkill.knowledge",
+				"val": 2
+			}
+		]
+	},
+	
+	"lighthouse" : {
+		"bonuses": [
+			{
+				"propagator": "PLAYER_PROPAGATOR",
+				"type": "MOVEMENT",
+				"subtype": "heroMovementSea",
+				"val": 500
+			}
+		]
+	},
+
+	// Section 2 - buildings that are visitable by hero
+	"stables": {
+		"configuration" : {
+			"visitMode" : "bonus",
+			"rewards" : [
+				{
+					"message" : "@core.genrltxt.580",
+					"movePoints" : 400,
+					"bonuses" : [ { "type" : "MOVEMENT", "subtype" : "heroMovementLand",  "val" : 400, "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ]
+				}
+			]
+		}
+	},
+	"manaVortex": {
+		"configuration" : {
+			"resetParameters" : {
+				"period" : 7,
+				"visitors" : true
+			},
+			"visitMode" : "hero", // Should be 'once' to match (somewhat buggy) H3 logic
+			"rewards" : [
+				{
+					"limiter" : {
+						"noneOf" : [ { "manaPercentage" : 200 } ]
+					},
+					"message" : "@core.genrltxt.579",
+					"manaPercentage" : 200
+				}
+			]
+		}
+	},
+
+	"attackVisitingBonus": { 
+		"configuration" : {
+			"visitMode" : "hero",
+			"rewards" : [
+				{
+					"message" : "@core.genrltxt.584",
+					"primary" : { "attack" : 1 }
+				}
+			]
+		}
+	},
+	
+	"defenceVisitingBonus": {
+		"configuration" : {
+			"visitMode" : "hero",
+			"rewards" : [
+				{
+					"message" : "@core.genrltxt.585",
+					"primary" : { "defence" : 1 }
+				}
+			]
+		}
+	},
+	
+	"spellPowerVisitingBonus": {
+		"configuration" : {
+			"visitMode" : "hero",
+			"rewards" : [
+				{
+					"message" : "@core.genrltxt.582",
+					"primary" : { "spellpower" : 1 }
+				}
+			]
+		}
+	},
+
+	"knowledgeVisitingBonus": {
+		"configuration" : {
+			"visitMode" : "hero",
+			"rewards" : [
+				{
+					"message" : "@core.genrltxt.581",
+					"primary" : { "knowledge" : 1 }
+				}
+			]
+		}
+	},
+
+	"experienceVisitingBonus": {
+		"configuration" : {
+			"visitMode" : "hero",
+			"rewards" : [
+				{
+					"message" : "@core.genrltxt.583",
+					"heroExperience" : 1000
+				}
+			]
+		}
+	}
 }

@@ -22,29 +22,16 @@ class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
 ///basic class for town structures handled as map objects
 public:
-	CGTownBuilding(CGTownInstance * town);
+	CGTownBuilding(CGTownInstance * town, const BuildingID & index);
 	CGTownBuilding(IGameCallback *cb);
 
-	si32 indexOnTV = 0; //identifies its index on towns vector
 	
 	CGTownInstance * town;
-
-	STRONG_INLINE
-	BuildingSubID::EBuildingSubID getBuildingSubtype() const
-	{
-		return bType;
-	}
 
 	STRONG_INLINE
 	const BuildingID & getBuildingType() const
 	{
 		return bID;
-	}
-
-	STRONG_INLINE
-	void setBuildingSubtype(BuildingSubID::EBuildingSubID subId)
-	{
-		bType = subId;
 	}
 
 	PlayerColor getOwner() const override;
@@ -57,55 +44,23 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & bID;
-		h & indexOnTV;
-		h & bType;
-	}
+		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
+		{
+			// no-op
+		}
+		else
+		{
+			si32 indexOnTV = 0; //identifies its index on towns vector
+			BuildingSubID::EBuildingSubID bType = BuildingSubID::NONE;
 
-protected:
-	BuildingID bID; //from buildig list
-	BuildingSubID::EBuildingSubID bType = BuildingSubID::NONE;
+			h & indexOnTV;
+			h & bType;
 
-	std::string getVisitingBonusGreeting() const;
-	std::string getCustomBonusGreeting(const Bonus & bonus) const;
-};
-
-class DLL_LINKAGE COPWBonus : public CGTownBuilding
-{///used for OPW bonusing structures
-public:
-	std::set<ObjectInstanceID> visitors;
-	void setProperty(ObjProperty what, ObjPropertyID identifier) override;
-	void onHeroVisit (const CGHeroInstance * h) const override;
-
-	COPWBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
-	COPWBonus(IGameCallback *cb);
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & static_cast<CGTownBuilding&>(*this);
-		h & visitors;
-	}
-};
-
-class DLL_LINKAGE CTownBonus : public CGTownBuilding
-{
-///used for one-time bonusing structures
-///feel free to merge inheritance tree
-public:
-	std::set<ObjectInstanceID> visitors;
-	void setProperty(ObjProperty what, ObjPropertyID identifier) override;
-	void onHeroVisit (const CGHeroInstance * h) const override;
-
-	CTownBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
-	CTownBonus(IGameCallback *cb);
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & static_cast<CGTownBuilding&>(*this);
-		h & visitors;
+		}
 	}
 
 private:
-	void applyBonuses(CGHeroInstance * h, const BonusList & bonuses) const;
+	BuildingID bID; //from building list
 };
 
 class DLL_LINKAGE CTownRewardableBuilding : public CGTownBuilding, public Rewardable::Interface
@@ -135,7 +90,7 @@ public:
 	/// applies player selection of reward
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	
-	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * town, vstd::RNG & rand);
+	CTownRewardableBuilding(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand);
 	CTownRewardableBuilding(IGameCallback *cb);
 	
 	template <typename Handler> void serialize(Handler &h)
@@ -143,6 +98,48 @@ public:
 		h & static_cast<CGTownBuilding&>(*this);
 		h & static_cast<Rewardable::Interface&>(*this);
 		h & visitors;
+	}
+};
+
+/// Compatibility for old code
+class DLL_LINKAGE CTownCompatBuilding1 : public CTownRewardableBuilding
+{
+public:
+	using CTownRewardableBuilding::CTownRewardableBuilding;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
+		{
+			h & static_cast<CTownRewardableBuilding&>(*this);
+		}
+		else
+		{
+			h & static_cast<CGTownBuilding&>(*this);
+			std::set<ObjectInstanceID> visitors;
+			h & visitors;
+		}
+	}
+};
+
+/// Compatibility for old code
+class DLL_LINKAGE CTownCompatBuilding2 : public CTownRewardableBuilding
+{
+public:
+	using CTownRewardableBuilding::CTownRewardableBuilding;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
+		{
+			h & static_cast<CTownRewardableBuilding&>(*this);
+		}
+		else
+		{
+			h & static_cast<CGTownBuilding&>(*this);
+			std::set<ObjectInstanceID> visitors;
+			h & visitors;
+		}
 	}
 };
 

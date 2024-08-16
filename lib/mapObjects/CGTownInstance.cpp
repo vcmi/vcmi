@@ -380,31 +380,12 @@ void CGTownInstance::initOverriddenBids()
 	}
 }
 
-bool CGTownInstance::isBonusingBuildingAdded(BuildingID bid) const
-{
-	auto present = std::find_if(bonusingBuildings.begin(), bonusingBuildings.end(), [&](CGTownBuilding* building)
-		{
-			return building->getBuildingType() == bid;
-		});
-
-	return present != bonusingBuildings.end();
-}
-
-void CGTownInstance::addTownBonuses(vstd::RNG & rand)
+void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
 {
 	for(const auto & kvp : town->buildings)
 	{
-		if(vstd::contains(overriddenBuildings, kvp.first))
-			continue;
-
-		if(kvp.second->IsVisitingBonus())
-			bonusingBuildings.push_back(new CTownBonus(kvp.second->bid, kvp.second->subId, this));
-
-		if(kvp.second->IsWeekBonus())
-			bonusingBuildings.push_back(new COPWBonus(kvp.second->bid, kvp.second->subId, this));
-		
-		if(kvp.second->subId == BuildingSubID::CUSTOM_VISITING_REWARD)
-			bonusingBuildings.push_back(new CTownRewardableBuilding(kvp.second->bid, kvp.second->subId, this, rand));
+		if(!kvp.second->rewardableObjectInfo.getParameters().isNull())
+			bonusingBuildings.push_back(new CTownRewardableBuilding(this, kvp.second->bid, rand));
 	}
 }
 
@@ -460,15 +441,7 @@ void CGTownInstance::deleteTownBonus(BuildingID bid)
 	if(freeIt == nullptr)
 		return;
 
-	auto building = town->buildings.at(bid);
-	auto isVisitingBonus = building->IsVisitingBonus();
-	auto isWeekBonus = building->IsWeekBonus();
-
-	if(!isVisitingBonus && !isWeekBonus)
-		return;
-
 	bonusingBuildings.erase(bonusingBuildings.begin() + i);
-
 	delete freeIt;
 }
 
@@ -527,7 +500,7 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 		}
 	}
 	initOverriddenBids();
-	addTownBonuses(rand); //add special bonuses from buildings to the bonusingBuildings vector.
+	initializeConfigurableBuildings(rand);
 	recreateBuildingsBonuses();
 	updateAppearance();
 }
@@ -549,9 +522,6 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 			cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_FIRST, resID);
 			cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, resVal);
 		}
-		
-		for(const auto * manaVortex : getBonusingBuildings(BuildingSubID::MANA_VORTEX))
-			cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_CLEAR_VISITORS, manaVortex->indexOnTV); //reset visitors for Mana Vortex
 
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 		{
@@ -606,7 +576,7 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 		}
 	}
 	
-	for(const auto * rewardableBuilding : getBonusingBuildings(BuildingSubID::CUSTOM_VISITING_REWARD))
+	for(const auto * rewardableBuilding : bonusingBuildings)
 		rewardableBuilding->newTurn(rand);
 		
 	if(hasBuilt(BuildingSubID::BANK) && bonusValue.second > 0)
@@ -978,18 +948,6 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 		return garrisonHero;
 	return this;
 }
-
-std::vector<const CGTownBuilding *> CGTownInstance::getBonusingBuildings(BuildingSubID::EBuildingSubID subId) const
-{
-	std::vector<const CGTownBuilding *> ret;
-	for(auto * const building : bonusingBuildings)
-	{
-		if(building->getBuildingSubtype() == subId)
-			ret.push_back(building);
-	}
-	return ret;
-}
-
 
 bool CGTownInstance::hasBuiltSomeTradeBuilding() const
 {

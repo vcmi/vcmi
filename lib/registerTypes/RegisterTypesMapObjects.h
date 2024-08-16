@@ -87,8 +87,8 @@ void registerTypesMapObjects(Serializer &s)
 
 	//Other object-related
 	s.template registerType<IObjectInterface, CGTownBuilding>();
-		s.template registerType<CGTownBuilding, CTownBonus>();
-		s.template registerType<CGTownBuilding, COPWBonus>();
+		s.template registerType<CGTownBuilding, CTownCompatBuilding1>();
+		s.template registerType<CGTownBuilding, CTownCompatBuilding2>();
 		s.template registerType<CGTownBuilding, CTownRewardableBuilding>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();

@@ -165,7 +165,6 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	std::vector<const CGTownBuilding *> getBonusingBuildings(BuildingSubID::EBuildingSubID subId) const;
 	bool hasBuiltSomeTradeBuilding() const;
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
@@ -231,9 +230,8 @@ private:
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	bool isBonusingBuildingAdded(BuildingID bid) const;
 	void initOverriddenBids();
-	void addTownBonuses(vstd::RNG & rand);
+	void initializeConfigurableBuildings(vstd::RNG & rand);
 };
 
 VCMI_LIB_NAMESPACE_END

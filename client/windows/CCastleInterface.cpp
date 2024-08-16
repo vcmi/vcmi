@@ -781,13 +781,6 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 							enterBuilding(building);
 						break;
 
-				case BuildingSubID::BROTHERHOOD_OF_SWORD:
-						if(upgrades == BuildingID::TAVERN)
-							LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
-						else
-							enterBuilding(building);
-						break;
-
 				case BuildingSubID::CASTLE_GATE:
 						if (LOCPLINT->makingTurn)
 							enterCastleGate();
@@ -819,8 +812,11 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				default:
+					if(upgrades == BuildingID::TAVERN)
+						LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+					else
 						enterBuilding(building);
-						break;
+					break;
 				}
 				break;
 

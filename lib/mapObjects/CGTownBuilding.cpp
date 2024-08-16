@@ -28,9 +28,10 @@ CGTownBuilding::CGTownBuilding(IGameCallback * cb)
 	, town(nullptr)
 {}
 
-CGTownBuilding::CGTownBuilding(CGTownInstance * town)
+CGTownBuilding::CGTownBuilding(CGTownInstance * town, const BuildingID & index)
 	: IObjectInterface(town->cb)
 	, town(town)
+	, bID(index)
 {}
 
 PlayerColor CGTownBuilding::getOwner() const
@@ -58,272 +59,13 @@ int3 CGTownBuilding::getPosition() const
 	return town->getPosition();
 }
 
-std::string CGTownBuilding::getVisitingBonusGreeting() const
-{
-	auto bonusGreeting = town->getTown()->getGreeting(bType);
-
-	if(!bonusGreeting.empty())
-		return bonusGreeting;
-
-	switch(bType)
-	{
-	case BuildingSubID::MANA_VORTEX:
-		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingManaVortex"));
-		break;
-	case BuildingSubID::KNOWLEDGE_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingKnowledge"));
-		break;
-	case BuildingSubID::SPELL_POWER_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingSpellPower"));
-		break;
-	case BuildingSubID::ATTACK_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingAttack"));
-		break;
-	case BuildingSubID::EXPERIENCE_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingExperience"));
-		break;
-	case BuildingSubID::DEFENSE_VISITING_BONUS:
-		bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingDefence"));
-		break;
-	}
-	auto buildingName = town->getTown()->getSpecialBuilding(bType)->getNameTranslated();
-
-	if(bonusGreeting.empty())
-	{
-		bonusGreeting = "Error: Bonus greeting for '%s' is not localized.";
-		logGlobal->error("'%s' building of '%s' faction has not localized bonus greeting.", buildingName, town->getTown()->faction->getNameTranslated());
-	}
-	boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
-	town->getTown()->setGreeting(bType, bonusGreeting);
-	return bonusGreeting;
-}
-
-std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) const
-{
-	if(bonus.type == BonusType::TOWN_MAGIC_WELL)
-	{
-		MetaString wellGreeting = MetaString::createFromTextID("vcmi.townHall.greetingInTownMagicWell");
-
-		wellGreeting.replaceTextID(town->getTown()->getSpecialBuilding(bType)->getNameTextID());
-		return wellGreeting.toString();
-	}
-
-	MetaString greeting = MetaString::createFromTextID("vcmi.townHall.greetingCustomBonus");
-
-	std::string paramTextID;
-	std::string until;
-
-	if(bonus.type == BonusType::MORALE)
-		paramTextID = "core.genrltxt.384"; // Morale
-
-	if(bonus.type == BonusType::LUCK)
-		paramTextID = "core.genrltxt.385"; // Luck
-
-	greeting.replaceTextID(town->getTown()->getSpecialBuilding(bType)->getNameTextID());
-	greeting.replaceNumber(bonus.val);
-	greeting.replaceTextID(paramTextID);
-
-	if (bonus.duration == BonusDuration::ONE_BATTLE)
-		greeting.replaceTextID("vcmi.townHall.greetingCustomUntil");
-	else
-		greeting.replaceRawString(".");
-
-	return greeting.toString();
-}
-
-COPWBonus::COPWBonus(IGameCallback *cb)
-	: CGTownBuilding(cb)
-{}
-
-COPWBonus::COPWBonus(const BuildingID & bid, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
-	: CGTownBuilding(cgTown)
-{
-	bID = bid;
-	bType = subId;
-	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
-}
-
-void COPWBonus::setProperty(ObjProperty what, ObjPropertyID identifier)
-{
-	switch (what)
-	{
-		case ObjProperty::VISITORS:
-			visitors.insert(identifier.as<ObjectInstanceID>());
-			break;
-		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
-			visitors.clear();
-			break;
-	}
-}
-
-void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
-{
-	ObjectInstanceID heroID = h->id;
-	if(town->hasBuilt(bID))
-	{
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-
-		switch (this->bType)
-		{
-		case BuildingSubID::STABLES:
-			if(!h->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(Obj(Obj::STABLES)))) //does not stack with advMap Stables
-			{
-				GiveBonus gb;
-				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT_TYPE, 600, BonusSourceID(Obj(Obj::STABLES)), BonusCustomSubtype::heroMovementLand);
-				gb.id = heroID;
-				cb->giveHeroBonus(&gb);
-
-				cb->setMovePoints(heroID, 600, false);
-
-				iw.text.appendRawString(VLC->generaltexth->allTexts[580]);
-				cb->showInfoDialog(&iw);
-			}
-			break;
-
-		case BuildingSubID::MANA_VORTEX:
-			if(visitors.empty())
-			{
-				if(h->mana < h->manaLimit() * 2)
-				{
-					cb->setManaPoints (heroID, 2 * h->manaLimit());
-					//TODO: investigate line below
-					//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
-					iw.text.appendRawString(getVisitingBonusGreeting());
-					cb->showInfoDialog(&iw);
-					town->addHeroToStructureVisitors(h, indexOnTV);
-				}
-			}
-			break;
-		}
-	}
-}
-
-CTownBonus::CTownBonus(IGameCallback *cb)
-	: CGTownBuilding(cb)
-{}
-
-CTownBonus::CTownBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
-	: CGTownBuilding(cgTown)
-{
-	bID = index;
-	bType = subId;
-	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
-}
-
-void CTownBonus::setProperty(ObjProperty what, ObjPropertyID identifier)
-{
-	if(what == ObjProperty::VISITORS)
-		visitors.insert(identifier.as<ObjectInstanceID>());
-}
-
-void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
-{
-	ObjectInstanceID heroID = h->id;
-	if(town->hasBuilt(bID) && visitors.find(heroID) == visitors.end())
-	{
-		si64 val = 0;
-		InfoWindow iw;
-		PrimarySkill what = PrimarySkill::NONE;
-
-		switch(bType)
-		{
-		case BuildingSubID::KNOWLEDGE_VISITING_BONUS: //wall of knowledge
-			what = PrimarySkill::KNOWLEDGE;
-			val = 1;
-			iw.components.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill::KNOWLEDGE, 1);
-			break;
-
-		case BuildingSubID::SPELL_POWER_VISITING_BONUS: //order of fire
-			what = PrimarySkill::SPELL_POWER;
-			val = 1;
-			iw.components.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill::SPELL_POWER, 1);
-			break;
-
-		case BuildingSubID::ATTACK_VISITING_BONUS: //hall of Valhalla
-			what = PrimarySkill::ATTACK;
-			val = 1;
-			iw.components.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill::ATTACK, 1);
-			break;
-
-		case BuildingSubID::EXPERIENCE_VISITING_BONUS: //academy of battle scholars
-			what = PrimarySkill::EXPERIENCE;
-			val = static_cast<int>(h->calculateXp(1000));
-			iw.components.emplace_back(ComponentType::EXPERIENCE, val);
-			break;
-
-		case BuildingSubID::DEFENSE_VISITING_BONUS: //cage of warlords
-			what = PrimarySkill::DEFENSE;
-			val = 1;
-			iw.components.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill::DEFENSE, 1);
-			break;
-
-		case BuildingSubID::CUSTOM_VISITING_BONUS:
-			const auto building = town->getTown()->buildings.at(bID);
-			if(!h->hasBonusFrom(BonusSource::TOWN_STRUCTURE, BonusSourceID(building->getUniqueTypeID())))
-			{
-				const auto & bonuses = building->onVisitBonuses;
-				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
-			}
-			break;
-		}
-
-		if(what != PrimarySkill::NONE)
-		{
-			iw.player = cb->getOwner(heroID);
-				iw.text.appendRawString(getVisitingBonusGreeting());
-			cb->showInfoDialog(&iw);
-			if (what == PrimarySkill::EXPERIENCE)
-				cb->giveExperience(cb->getHero(heroID), val);
-			else
-				cb->changePrimSkill(cb->getHero(heroID), what, val);
-
-			town->addHeroToStructureVisitors(h, indexOnTV);
-		}
-	}
-}
-
-void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) const
-{
-	auto addToVisitors = false;
-
-	for(const auto & bonus : bonuses)
-	{
-		GiveBonus gb;
-		InfoWindow iw;
-
-		if(bonus->type == BonusType::TOWN_MAGIC_WELL)
-		{
-			if(h->mana >= h->manaLimit())
-				return;
-			cb->setManaPoints(h->id, h->manaLimit());
-			bonus->duration = BonusDuration::ONE_DAY;
-		}
-		gb.bonus = * bonus;
-		gb.id = h->id;
-		cb->giveHeroBonus(&gb);
-
-		if(bonus->duration == BonusDuration::PERMANENT)
-			addToVisitors = true;
-
-		iw.player = cb->getOwner(h->id);
-		iw.text.appendRawString(getCustomBonusGreeting(gb.bonus));
-		cb->showInfoDialog(&iw);
-	}
-	if(addToVisitors)
-		town->addHeroToStructureVisitors(h, indexOnTV);
-}
-
 CTownRewardableBuilding::CTownRewardableBuilding(IGameCallback *cb)
 	: CGTownBuilding(cb)
 {}
 
-CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown, vstd::RNG & rand)
-	: CGTownBuilding(cgTown)
+CTownRewardableBuilding::CTownRewardableBuilding(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand)
+	: CGTownBuilding(town, index)
 {
-	bID = index;
-	bType = subId;
-	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 	initObj(rand);
 }
 
@@ -336,7 +78,7 @@ void CTownRewardableBuilding::initObj(vstd::RNG & rand)
 Rewardable::Configuration CTownRewardableBuilding::generateConfiguration(vstd::RNG & rand) const
 {
 	Rewardable::Configuration result;
-	auto building = town->town->buildings.at(bID);
+	auto building = town->town->buildings.at(getBuildingType());
 
 	building->rewardableObjectInfo.configureObject(result, rand, cb);
 	for(auto & rewardInfo : result.info)
@@ -355,11 +97,11 @@ void CTownRewardableBuilding::newTurn(vstd::RNG & rand) const
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{
 		auto newConfiguration = generateConfiguration(rand);
-		cb->setRewardableObjectConfiguration(town->id, bID, newConfiguration);
+		cb->setRewardableObjectConfiguration(town->id, getBuildingType(), newConfiguration);
 
 		if(configuration.resetParameters.visitors)
 		{
-			cb->setObjPropertyValue(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, indexOnTV);
+			cb->setObjPropertyValue(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, getBuildingType());
 		}
 	}
 }
@@ -406,7 +148,7 @@ void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero,
 
 void CTownRewardableBuilding::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
 {
-	town->addHeroToStructureVisitors(hero, indexOnTV);
+	town->addHeroToStructureVisitors(hero, getBuildingType());
 	
 	grantRewardBeforeLevelup(cb, configuration.info.at(rewardID), hero);
 	
@@ -429,7 +171,7 @@ bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHer
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
 		{
-			const auto building = town->getTown()->buildings.at(bID);
+			const auto building = town->getTown()->buildings.at(getBuildingType());
 			return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, BonusSourceID(building->getUniqueTypeID()));
 		}
 		case Rewardable::VISIT_HERO:
@@ -448,7 +190,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 		auto vi = configuration.info.at(index);
 		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
 		
-		town->addHeroToStructureVisitors(h, indexOnTV); //adding to visitors
+		town->addHeroToStructureVisitors(h, getBuildingType()); //adding to visitors
 
 		InfoWindow iw;
 		iw.player = h->tempOwner;
@@ -476,7 +218,8 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 		cb->showBlockingDialog(&sd);
 	};
 	
-	if(!town->hasBuilt(bID))
+	assert(town->hasBuilt(getBuildingType()));
+	if(!town->hasBuilt(getBuildingType()))
 		return;
 
 	if(!wasVisitedBefore(h))
