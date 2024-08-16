@@ -254,6 +254,8 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 		bonus->description.appendTextID(building->getNameTextID());
 
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
+		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != CBonusSystemNode::ENodeTypes::UNKNOWN);
+
 		if(bonus->propagator != nullptr
 			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
 				bonus->addPropagator(emptyPropagator());
@@ -293,33 +295,19 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	VLC->generaltexth->registerString(source.getModScope(), ret->getNameTextID(), source["name"].String());
 	VLC->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"].String());
 
+	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
 
-	if(ret->bid.IsSpecialOrGrail())
+	loadSpecialBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
+
+	if(!source["configuration"].isNull())
+		ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
+
+	//MODS COMPATIBILITY FOR pre-1.6
+	if(ret->produce.empty() && ret->bid == BuildingID::RESOURCE_SILO)
 	{
-		loadSpecialBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
-
-		if(ret->buildingBonuses.empty())
-			ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
-
-		loadSpecialBuildingBonuses(source["onVisitBonuses"], ret->onVisitBonuses, ret);
-
-		if(!ret->onVisitBonuses.empty())
-		{
-			if(ret->subId == BuildingSubID::NONE)
-				ret->subId = BuildingSubID::CUSTOM_VISITING_BONUS;
-
-			for(auto & bonus : ret->onVisitBonuses)
-				bonus->sid = BonusSourceID(ret->getUniqueTypeID());
-		}
-		
-		if(!source["configuration"].isNull())
-			ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
-	}
-	//MODS COMPATIBILITY FOR 0.96
-	if(!ret->produce.nonZero() && ret->bid == BuildingID::RESOURCE_SILO)
-	{
+		logGlobal->warn("Resource silo in town '%s' does not produces any resources!", ret->town->faction->getJsonKey());
 		switch (ret->town->primaryRes.toEnum())
 		{
 			case EGameResID::GOLD:
@@ -335,9 +323,6 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		}
 	}
 	loadBuildingRequirements(ret, source["requires"], requirementsToLoad);
-
-	if(ret->bid.IsSpecialOrGrail())
-		loadBuildingRequirements(ret, source["overrides"], overriddenBidsToLoad);
 
 	if (!source["upgrades"].isNull())
 	{
@@ -843,6 +828,15 @@ void CTownHandler::beforeValidate(JsonNode & object)
 		inheritBuilding(building.first, building.second);
 		if (building.second.Struct().count("type"))
 			inheritBuilding(building.second["type"].String(), building.second);
+
+		// MODS COMPATIBILITY FOR pre-1.6
+		// convert old buildigns with onVisitBonuses into configurable building
+		if (building.second.Struct().count("onVisitBonuses"))
+		{
+			building.second["configuration"]["visitMode"] = JsonNode("bonus");
+			building.second["configuration"]["visitMode"]["rewards"][0]["message"] = building.second["description"];
+			building.second["configuration"]["visitMode"]["rewards"][0]["bonuses"] = building.second["onVisitBonuses"];
+		}
 	}
 }
 

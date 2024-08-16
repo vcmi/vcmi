@@ -39,8 +39,7 @@ namespace BuildingSubID
 		MAGIC_UNIVERSITY,
 		TREASURY,
 		THIEVES_GUILD,
-		BANK,
-		CUSTOM_VISITING_BONUS
+		BANK
 	};
 }
 

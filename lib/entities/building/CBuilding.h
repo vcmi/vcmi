@@ -40,7 +40,6 @@ public:
 	BuildingSubID::EBuildingSubID subId; /// subtype for special buildings, -1 = the building is not special
 	std::set<BuildingID> overrideBids; /// the building which bonuses should be overridden with bonuses of the current building
 	BonusList buildingBonuses;
-	BonusList onVisitBonuses;
 
 	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings
 
