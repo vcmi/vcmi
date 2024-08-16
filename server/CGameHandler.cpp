@@ -1409,18 +1409,6 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 			if (town->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(town, true, false);
 		}
-
-		if (oldOwner.isValidPlayer()) //old owner is real player
-		{
-			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last town
-			{
-				InfoWindow iw;
-				iw.player = oldOwner;
-				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 6); //%s, you have lost your last town. If you do not conquer another town in the next week, you will be eliminated.
-				iw.text.replaceName(oldOwner);
-				sendAndApply(&iw);
-			}
-		}
 	}
 
 	const PlayerState * p = getPlayerState(owner);
