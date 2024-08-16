@@ -57,7 +57,7 @@
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
-#include "../lib/mapObjects/CGTownBuilding.h"
+#include "../lib/mapObjects/TownBuildingInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
@@ -1536,8 +1536,8 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
-	for (auto building : t->bonusingBuildings)
-		building->onHeroVisit(h);
+	for (auto & building : t->rewardableBuildings)
+		building.second->onHeroVisit(h);
 }
 
 void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)

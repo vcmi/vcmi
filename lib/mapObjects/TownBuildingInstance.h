@@ -1,5 +1,5 @@
 /*
- * CGTownBuilding.h, part of VCMI engine
+ * TownBuildingInstance.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -18,17 +18,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGTownInstance;
 class CBuilding;
 
-class DLL_LINKAGE CGTownBuilding : public IObjectInterface
+class DLL_LINKAGE TownBuildingInstance : public IObjectInterface
 {
 ///basic class for town structures handled as map objects
 public:
-	CGTownBuilding(CGTownInstance * town, const BuildingID & index);
-	CGTownBuilding(IGameCallback *cb);
+	TownBuildingInstance(CGTownInstance * town, const BuildingID & index);
+	TownBuildingInstance(IGameCallback *cb);
 
-	
 	CGTownInstance * town;
 
-	STRONG_INLINE
 	const BuildingID & getBuildingType() const
 	{
 		return bID;
@@ -44,18 +42,13 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & bID;
-		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
+		if (h.version < Handler::Version::NEW_TOWN_BUILDINGS)
 		{
-			// no-op
-		}
-		else
-		{
+			// compatibility code
 			si32 indexOnTV = 0; //identifies its index on towns vector
 			BuildingSubID::EBuildingSubID bType = BuildingSubID::NONE;
-
 			h & indexOnTV;
 			h & bType;
-
 		}
 	}
 
@@ -63,19 +56,16 @@ private:
 	BuildingID bID; //from building list
 };
 
-class DLL_LINKAGE CTownRewardableBuilding : public CGTownBuilding, public Rewardable::Interface
+class DLL_LINKAGE TownRewardableBuildingInstance : public TownBuildingInstance, public Rewardable::Interface
 {
 	/// reward selected by player, no serialize
 	ui16 selectedReward = 0;
-		
 	std::set<ObjectInstanceID> visitors;
-	
-	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
-	
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
 
+	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
 	Rewardable::Configuration generateConfiguration(vstd::RNG & rand) const;
-	
+
 public:
 	void setProperty(ObjProperty what, ObjPropertyID identifier) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -90,57 +80,30 @@ public:
 	/// applies player selection of reward
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	
-	CTownRewardableBuilding(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand);
-	CTownRewardableBuilding(IGameCallback *cb);
+	TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand);
+	TownRewardableBuildingInstance(IGameCallback *cb);
 	
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & static_cast<CGTownBuilding&>(*this);
-		h & static_cast<Rewardable::Interface&>(*this);
+		h & static_cast<TownBuildingInstance&>(*this);
+		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
+			h & static_cast<Rewardable::Interface&>(*this);
 		h & visitors;
 	}
 };
 
 /// Compatibility for old code
-class DLL_LINKAGE CTownCompatBuilding1 : public CTownRewardableBuilding
+class DLL_LINKAGE CTownCompatBuilding1 : public TownRewardableBuildingInstance
 {
 public:
-	using CTownRewardableBuilding::CTownRewardableBuilding;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
-		{
-			h & static_cast<CTownRewardableBuilding&>(*this);
-		}
-		else
-		{
-			h & static_cast<CGTownBuilding&>(*this);
-			std::set<ObjectInstanceID> visitors;
-			h & visitors;
-		}
-	}
+	using TownRewardableBuildingInstance::TownRewardableBuildingInstance;
 };
 
 /// Compatibility for old code
-class DLL_LINKAGE CTownCompatBuilding2 : public CTownRewardableBuilding
+class DLL_LINKAGE CTownCompatBuilding2 : public TownRewardableBuildingInstance
 {
 public:
-	using CTownRewardableBuilding::CTownRewardableBuilding;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
-		{
-			h & static_cast<CTownRewardableBuilding&>(*this);
-		}
-		else
-		{
-			h & static_cast<CGTownBuilding&>(*this);
-			std::set<ObjectInstanceID> visitors;
-			h & visitors;
-		}
-	}
+	using TownRewardableBuildingInstance::TownRewardableBuildingInstance;
 };
 
 VCMI_LIB_NAMESPACE_END

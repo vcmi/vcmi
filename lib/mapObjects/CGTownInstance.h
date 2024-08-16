@@ -18,7 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CCastleEvent;
 class CTown;
-class CGTownBuilding;
+class TownBuildingInstance;
+class TownRewardableBuildingInstance;
 struct DamageRange;
 
 template<typename ContainedClass>
@@ -49,6 +50,8 @@ struct DLL_LINKAGE GrowthInfo
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
 {
 	std::string nameTextId; // name of town
+
+	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 public:
 	using CGDwelling::getPosition;
 
@@ -63,8 +66,7 @@ public:
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
 	std::set<BuildingID> builtBuildings;
-	std::set<BuildingID> overriddenBuildings; ///buildings which bonuses are overridden and should not be applied
-	std::vector<CGTownBuilding*> bonusingBuildings;
+	std::map<BuildingID, TownRewardableBuildingInstance*> rewardableBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
@@ -88,7 +90,17 @@ public:
 		h & obligatorySpells;
 		h & spells;
 		h & events;
-		h & bonusingBuildings;
+
+		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
+		{
+			h & rewardableBuildings;
+		}
+		else
+		{
+			std::vector<TownRewardableBuildingInstance*> oldVector;
+			h & oldVector;
+			rewardableBuildings = convertOldBuildings(oldVector);
+		}
 
 		if (h.saving)
 		{
@@ -105,7 +117,11 @@ public:
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
-		h & overriddenBuildings;
+		if (h.version < Handler::Version::NEW_TOWN_BUILDINGS)
+		{
+			std::set<BuildingID> overriddenBuildings;
+			h & overriddenBuildings;
+		}
 
 		if(!h.saving)
 			postDeserialize();
@@ -217,7 +233,6 @@ private:
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	void initOverriddenBids();
 	void initializeConfigurableBuildings(vstd::RNG & rand);
 };
 

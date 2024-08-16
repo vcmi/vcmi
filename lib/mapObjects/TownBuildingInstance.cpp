@@ -1,5 +1,5 @@
 /*
- * CGTownBuilding.cpp, part of VCMI engine
+ * TownBuildingInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,8 @@
  */
 
 #include "StdInc.h"
-#include "CGTownBuilding.h"
+#include "TownBuildingInstance.h"
+
 #include "CGTownInstance.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
@@ -23,59 +24,59 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CGTownBuilding::CGTownBuilding(IGameCallback * cb)
+TownBuildingInstance::TownBuildingInstance(IGameCallback * cb)
 	: IObjectInterface(cb)
 	, town(nullptr)
 {}
 
-CGTownBuilding::CGTownBuilding(CGTownInstance * town, const BuildingID & index)
+TownBuildingInstance::TownBuildingInstance(CGTownInstance * town, const BuildingID & index)
 	: IObjectInterface(town->cb)
 	, town(town)
 	, bID(index)
 {}
 
-PlayerColor CGTownBuilding::getOwner() const
+PlayerColor TownBuildingInstance::getOwner() const
 {
 	return town->getOwner();
 }
 
-MapObjectID CGTownBuilding::getObjGroupIndex() const
+MapObjectID TownBuildingInstance::getObjGroupIndex() const
 {
 	return -1;
 }
 
-MapObjectSubID CGTownBuilding::getObjTypeIndex() const
+MapObjectSubID TownBuildingInstance::getObjTypeIndex() const
 {
 	return 0;
 }
 
-int3 CGTownBuilding::visitablePos() const
+int3 TownBuildingInstance::visitablePos() const
 {
 	return town->visitablePos();
 }
 
-int3 CGTownBuilding::getPosition() const
+int3 TownBuildingInstance::getPosition() const
 {
 	return town->getPosition();
 }
 
-CTownRewardableBuilding::CTownRewardableBuilding(IGameCallback *cb)
-	: CGTownBuilding(cb)
+TownRewardableBuildingInstance::TownRewardableBuildingInstance(IGameCallback *cb)
+	: TownBuildingInstance(cb)
 {}
 
-CTownRewardableBuilding::CTownRewardableBuilding(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand)
-	: CGTownBuilding(town, index)
+TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand)
+	: TownBuildingInstance(town, index)
 {
 	initObj(rand);
 }
 
-void CTownRewardableBuilding::initObj(vstd::RNG & rand)
+void TownRewardableBuildingInstance::initObj(vstd::RNG & rand)
 {
 	assert(town && town->town);
 	configuration = generateConfiguration(rand);
 }
 
-Rewardable::Configuration CTownRewardableBuilding::generateConfiguration(vstd::RNG & rand) const
+Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(vstd::RNG & rand) const
 {
 	Rewardable::Configuration result;
 	auto building = town->town->buildings.at(getBuildingType());
@@ -92,7 +93,7 @@ Rewardable::Configuration CTownRewardableBuilding::generateConfiguration(vstd::R
 	return result;
 }
 
-void CTownRewardableBuilding::newTurn(vstd::RNG & rand) const
+void TownRewardableBuildingInstance::newTurn(vstd::RNG & rand) const
 {
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{
@@ -106,7 +107,7 @@ void CTownRewardableBuilding::newTurn(vstd::RNG & rand) const
 	}
 }
 
-void CTownRewardableBuilding::setProperty(ObjProperty what, ObjPropertyID identifier)
+void TownRewardableBuildingInstance::setProperty(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
@@ -122,12 +123,12 @@ void CTownRewardableBuilding::setProperty(ObjProperty what, ObjPropertyID identi
 	}
 }
 
-void CTownRewardableBuilding::heroLevelUpDone(const CGHeroInstance *hero) const
+void TownRewardableBuildingInstance::heroLevelUpDone(const CGHeroInstance *hero) const
 {
 	grantRewardAfterLevelup(cb, configuration.info.at(selectedReward), town, hero);
 }
 
-void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void TownRewardableBuildingInstance::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer == 0)
 		return; // player refused
@@ -146,7 +147,7 @@ void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero,
 	}
 }
 
-void CTownRewardableBuilding::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
+void TownRewardableBuildingInstance::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
 {
 	town->addHeroToStructureVisitors(hero, getBuildingType());
 	
@@ -159,7 +160,7 @@ void CTownRewardableBuilding::grantReward(ui32 rewardID, const CGHeroInstance * 
 	}
 }
 
-bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHero) const
+bool TownRewardableBuildingInstance::wasVisitedBefore(const CGHeroInstance * contextHero) const
 {
 	switch (configuration.visitMode)
 	{
@@ -183,7 +184,7 @@ bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHer
 	}
 }
 
-void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
+void TownRewardableBuildingInstance::onHeroVisit(const CGHeroInstance *h) const
 {
 	auto grantRewardWithMessage = [&](int index) -> void
 	{

@@ -10,7 +10,8 @@
 
 #include "StdInc.h"
 #include "CGTownInstance.h"
-#include "CGTownBuilding.h"
+
+#include "TownBuildingInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../bonuses/Bonus.h"
 #include "../battle/IBattleInfoCallback.h"
@@ -59,13 +60,13 @@ void CGTownInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	switch (what)
 	{
 		case ObjProperty::STRUCTURE_ADD_VISITING_HERO:
-			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::VISITORS, visitingHero->id);
+			rewardableBuildings.at(identifier.getNum())->setProperty(ObjProperty::VISITORS, visitingHero->id);
 			break;
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
-			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::STRUCTURE_CLEAR_VISITORS, NumericID(0));
+			rewardableBuildings.at(identifier.getNum())->setProperty(ObjProperty::STRUCTURE_CLEAR_VISITORS, NumericID(0));
 			break;
 		case ObjProperty::STRUCTURE_ADD_GARRISONED_HERO: //add garrisoned hero to visitors
-			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::VISITORS, garrisonHero->id);
+			rewardableBuildings.at(identifier.getNum())->setProperty(ObjProperty::VISITORS, garrisonHero->id);
 			break;
 		case ObjProperty::BONUS_VALUE_FIRST:
 			bonusValue.first = identifier.getNum();
@@ -254,8 +255,8 @@ CGTownInstance::CGTownInstance(IGameCallback *cb):
 
 CGTownInstance::~CGTownInstance()
 {
-	for (auto & elem : bonusingBuildings)
-		delete elem;
+	for (auto & elem : rewardableBuildings)
+		delete elem.second;
 }
 
 int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
@@ -283,8 +284,8 @@ void CGTownInstance::setOwner(const PlayerColor & player) const
 
 void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
-	for (auto building : bonusingBuildings)
-		building->blockingDialogAnswered(hero, answer);
+	for (auto building : rewardableBuildings)
+		building.second->blockingDialogAnswered(hero, answer); // FIXME: why call for every building?
 }
 
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
@@ -369,23 +370,12 @@ bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) 
 	return town->getBuildingType(subId) != BuildingID::NONE;
 }
 
-void CGTownInstance::initOverriddenBids()
-{
-	for(const auto & bid : builtBuildings)
-	{
-		const auto & overrideThem = town->buildings.at(bid)->overrideBids;
-
-		for(const auto & overrideIt : overrideThem)
-			overriddenBuildings.insert(overrideIt);
-	}
-}
-
 void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
 {
 	for(const auto & kvp : town->buildings)
 	{
 		if(!kvp.second->rewardableObjectInfo.getParameters().isNull())
-			bonusingBuildings.push_back(new CTownRewardableBuilding(this, kvp.second->bid, rand));
+			rewardableBuildings[kvp.first] = new TownRewardableBuildingInstance(this, kvp.second->bid, rand);
 	}
 }
 
@@ -423,26 +413,6 @@ DamageRange CGTownInstance::getKeepDamageRange() const
 		minDamage,
 		minDamage * 2
 	};
-}
-
-void CGTownInstance::deleteTownBonus(BuildingID bid)
-{
-	size_t i = 0;
-	CGTownBuilding * freeIt = nullptr;
-
-	for(i = 0; i != bonusingBuildings.size(); i++)
-	{
-		if(bonusingBuildings[i]->getBuildingType() == bid)
-		{
-			freeIt = bonusingBuildings[i];
-			break;
-		}
-	}
-	if(freeIt == nullptr)
-		return;
-
-	bonusingBuildings.erase(bonusingBuildings.begin() + i);
-	delete freeIt;
 }
 
 FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
@@ -499,7 +469,6 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 				creatures[level].second.push_back(town->creatures[level][upgradeNum]);
 		}
 	}
-	initOverriddenBids();
 	initializeConfigurableBuildings(rand);
 	recreateBuildingsBonuses();
 	updateAppearance();
@@ -576,8 +545,8 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 		}
 	}
 	
-	for(const auto * rewardableBuilding : bonusingBuildings)
-		rewardableBuilding->newTurn(rand);
+	for(const auto & building : rewardableBuildings)
+		building.second->newTurn(rand);
 		
 	if(hasBuilt(BuildingSubID::BANK) && bonusValue.second > 0)
 	{
@@ -824,8 +793,9 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 	for(const auto & bid : builtBuildings)
 	{
-		if(vstd::contains(overriddenBuildings, bid)) //tricky! -> checks tavern only if no bratherhood of sword
-			continue;
+		// FIXME: Restore
+		//if(vstd::contains(overriddenBuildings, bid)) //tricky! -> checks tavern only if no bratherhood of sword
+		//	continue;
 
 		auto building = town->buildings.at(bid);
 
@@ -1256,8 +1226,21 @@ void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 void CGTownInstance::postDeserialize()
 {
 	setNodeType(CBonusSystemNode::TOWN);
-	for(auto * bonusingBuilding : bonusingBuildings)
-		bonusingBuilding->town = this;
+	for(auto & building : rewardableBuildings)
+		building.second->town = this;
+}
+
+std::map<BuildingID, TownRewardableBuildingInstance*> CGTownInstance::convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector)
+{
+	std::map<BuildingID, TownRewardableBuildingInstance*> result;
+
+	for(auto & building : oldVector)
+	{
+		result[building->getBuildingType()] = new TownRewardableBuildingInstance(*building);
+		delete building;
+	}
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

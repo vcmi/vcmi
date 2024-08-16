@@ -27,7 +27,7 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/CGMarket.h"
-#include "mapObjects/CGTownBuilding.h"
+#include "mapObjects/TownBuildingInstance.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/CObjectHandler.h"
 #include "mapObjects/CQuest.h"
