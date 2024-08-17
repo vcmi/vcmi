@@ -79,6 +79,37 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 },
 ```
 
+#### Brotherhood of Sword - bonuses in siege
+```jsonc
+"special3": {
+	// replaces +1 Morale bonus from Tavern
+	"upgradeReplacesBonuses" : true, 
+	// Gives +2 bonus to morale to town (effective only during siege)
+	"bonuses": [
+		{
+			"type": "MORALE",
+			"val": 2
+		}
+	],
+	"upgrades" : "tavern"
+},
+```
+
+#### Lighthouse - bonus to all heroes under player control
+```jsonc
+"special1":       { 
+	"bonuses": [
+		{
+			"propagator": "PLAYER_PROPAGATOR", // bonus affects everything under player control
+			"type": "MOVEMENT",
+			"subtype": "heroMovementSea",
+			"val": 500 // +500 movement points
+		}
+	],
+	"requires" : [ "shipyard" ]
+},
+```
+
 ## Town Building node
 
 ```jsonc
