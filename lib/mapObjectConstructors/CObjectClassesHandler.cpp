@@ -317,12 +317,10 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 	VLC->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.at(index)->id);
 }
 
-#pragma optimize("", off)
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not NULL
-	if (identifier == "ranger")
-		logGlobal->warn("subID of rangers: "+ std::to_string(subID.getNum()));
+
 	assert(mapObjectTypes.at(ID.getNum()));
 
 	if (subID.getNum() >= mapObjectTypes.at(ID.getNum())->objectTypeHandlers.size())
