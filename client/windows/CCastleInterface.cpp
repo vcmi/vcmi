@@ -935,20 +935,8 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 	std::string hasNotProduced;
 	std::string hasProduced;
 
-	if(this->town->town->faction->getIndex() == ETownType::RAMPART)
-	{
-		hasNotProduced = CGI->generaltexth->allTexts[677];
-		hasProduced = CGI->generaltexth->allTexts[678];
-	}
-	else
-	{
-		auto buildingName = town->town->getSpecialBuilding(subID)->getNameTranslated();
-
-		hasNotProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasNotProduced"));
-		hasProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasProduced"));
-		boost::algorithm::replace_first(hasNotProduced, "%s", buildingName);
-		boost::algorithm::replace_first(hasProduced, "%s", buildingName);
-	}
+	hasNotProduced = CGI->generaltexth->allTexts[677];
+	hasProduced = CGI->generaltexth->allTexts[678];
 
 	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND
 		|| (upgrades != BuildingID::NONE

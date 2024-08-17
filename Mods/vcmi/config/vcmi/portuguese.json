@@ -291,18 +291,8 @@
 	"vcmi.otherOptions.compactTownCreatureInfo.help" : "{Informações Compactas de Criaturas}\n\nMostra informações menores para criaturas da cidade no resumo da cidade (canto inferior esquerdo da tela da cidade).",
 
 	"vcmi.townHall.missingBase"             : "A construção base %s deve ser construída primeiro",
-	"vcmi.townHall.noCreaturesToRecruit"	: "Não há criaturas para recrutar!",
-	"vcmi.townHall.greetingManaVortex"	: "Ao se aproximar de %s, seu corpo é preenchido com nova energia. Você dobrou seus pontos de mana normais.",
-	"vcmi.townHall.greetingKnowledge"	: "Estudando os glifos de %s, você adquire uma visão dos segredos sobre o funcionamento de várias magias (+1 de Conhecimento).",
-	"vcmi.townHall.greetingSpellPower"	: "%s ensina novas maneiras de concentrar seus poderes mágicos (+1 de Força).",
-	"vcmi.townHall.greetingExperience"	: "Uma visita em %s ensina muitas habilidades novas (+1000 de Experiência).",
-	"vcmi.townHall.greetingAttack"		: "Algum tempo passado em %s permite que você aprenda habilidades de combate mais eficazes (+1 de Ataque).",
-	"vcmi.townHall.greetingDefence"		: "Ao passar um tempo em %s, os guerreiros experientes lá dentro te ensinam habilidades defensivas adicionais (+1 de Defesa).",
-	"vcmi.townHall.hasNotProduced"		: "%s ainda não produziu nada.",
-	"vcmi.townHall.hasProduced"		: "%s produziu %d %s nesta semana.",
-	"vcmi.townHall.greetingCustomBonus"	: "%s dá +%d %s%s",
-	"vcmi.townHall.greetingCustomUntil"	: " até a próxima batalha.",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s restaurou seus pontos de mana para o máximo.",
+	"vcmi.townHall.noCreaturesToRecruit"    : "Não há criaturas para recrutar!",
+
 
 	"vcmi.logicalExpressions.anyOf"  : "Qualquer um dos seguintes:",
 	"vcmi.logicalExpressions.allOf"  : "Todos os seguintes:",

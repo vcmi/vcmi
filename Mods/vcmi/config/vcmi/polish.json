@@ -292,17 +292,6 @@
 
 	"vcmi.townHall.missingBase"             : "Podstawowy budynek %s musi zostać najpierw wybudowany",
 	"vcmi.townHall.noCreaturesToRecruit"    : "Brak stworzeń do rekrutacji!",
-	"vcmi.townHall.greetingManaVortex"      : "Zbliżając się do %s czujesz jak twoje ciało wypełnia energia. Ilość pkt. magii, które posiadasz, zwiększa się dwukrotnie.",
-	"vcmi.townHall.greetingKnowledge"       : "Studiując napisy na %s odkrywasz nowe aspekty stosowania magii (wiedza +1).",
-	"vcmi.townHall.greetingSpellPower"      : "Odwiedzając %s dowiadujesz się, jak zwiększyć potęgę swojej mocy magicznej (moc +1).",
-	"vcmi.townHall.greetingExperience"      : "Wizyta w %s zwiększa twoje doświadczenie (doświadczenie +1000).",
-	"vcmi.townHall.greetingAttack"          : "Krótka wizyka w %s umożliwia ci polepszenie technik walki (atak +1).",
-	"vcmi.townHall.greetingDefence"         : "Odwiedzasz %s. Doświadczeni żołnierze, którzy tam przebywają, uczą cię sztuki skutecznej obrony (obrona +1).",
-	"vcmi.townHall.hasNotProduced"          : "%s nic jeszcze nie wyprodukował.",
-	"vcmi.townHall.hasProduced"             : "%s wyprodukował w tym tygodniu: %d %s.",
-	"vcmi.townHall.greetingCustomBonus"     : "%s daje tobie +%d %s%s",
-	"vcmi.townHall.greetingCustomUntil"     : " do następnej bitwy.",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s przywraca ci wszystkie punkty magii.",
 
 	"vcmi.townStructure.bank.borrow" : "Wchodzisz do banku. Bankier cię widzi i mówi: \"Złożyliśmy ci specjalną ofertę. Możesz wziąć od nas pożyczkę w wysokości 2500 złota na 5 dni. Będziesz musiał spłacać 500 złota każdego dnia.\"",
 	"vcmi.townStructure.bank.payBack" : "Wchodzisz do banku. Bankier cię widzi i mówi: „Już dostałeś pożyczkę. Spłać ją zanim weźmiesz nową.\"",
