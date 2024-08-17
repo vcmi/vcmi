@@ -335,22 +335,25 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	if (filter != EUpscalingFilter::AUTO)
 		return filter;
 
+	// for now - always fallback to no filter
+	return EUpscalingFilter::NONE;
+
 	// else - autoselect
-	Point outputResolution = getRenderResolution();
-	Point logicalResolution = getPreferredLogicalResolution();
-
-	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
-	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
-	float scaling = std::min(scaleX, scaleY);
-
-	if (scaling <= 1.0f)
-		return EUpscalingFilter::NONE;
-	if (scaling <= 2.0f)
-		return EUpscalingFilter::XBRZ_2;
-	if (scaling <= 3.0f)
-		return EUpscalingFilter::XBRZ_3;
-
-	return EUpscalingFilter::XBRZ_4;
+//	Point outputResolution = getRenderResolution();
+//	Point logicalResolution = getPreferredLogicalResolution();
+//
+//	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
+//	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
+//	float scaling = std::min(scaleX, scaleY);
+//
+//	if (scaling <= 1.0f)
+//		return EUpscalingFilter::NONE;
+//	if (scaling <= 2.0f)
+//		return EUpscalingFilter::XBRZ_2;
+//	if (scaling <= 3.0f)
+//		return EUpscalingFilter::XBRZ_3;
+//
+//	return EUpscalingFilter::XBRZ_4;
 }
 
 void ScreenHandler::selectUpscalingFilter()
