@@ -98,6 +98,7 @@ class VCMI(ConanFile):
         self.options["ffmpeg"].disable_all_demuxers = True
         self.options["ffmpeg"].avdevice = False
         self.options["ffmpeg"].postproc = False
+        self.options["ffmpeg"].swresample = True
         self.options["ffmpeg"].with_asm = False
         self.options["ffmpeg"].with_zlib = False
         self.options["ffmpeg"].with_bzip2 = False
@@ -123,20 +124,19 @@ class VCMI(ConanFile):
         # H3:SoD - .bik and .smk
         # H3:HD  -  ogg container / theora video / vorbis sound
         # and for mods - webm container / vp9 video / opus sound
+        # TODO: add av1 support for mods (likely require newer ffmpeg than 4.4.3
         self.options["ffmpeg"].enable_protocols = "file"
         self.options["ffmpeg"].enable_demuxers = "bink,binka,ogg,smacker,webm_dash_manifest"
-        self.options["ffmpeg"].enable_parsers = "opus,ogg,vorbis,vp9,webp"
+        self.options["ffmpeg"].enable_parsers = "opus,vorbis,vp9,webp"
         self.options["ffmpeg"].enable_decoders = "bink,binkaudio_dct,binkaudio_rdft,smackaud,smacker,theora,vorbis,vp9,opus"
 
         self.options["ffmpeg"].with_programs = False
         self.options["ffmpeg"].avfilter = False
-        self.options["ffmpeg"].swresample = False #Note: we might want to enable this option to allow audio resampling
         self.options["ffmpeg"].with_sdl = False
 
         #optionally, for testing - enable ffplay/ffprobe binaries in conan package:
         #self.options["ffmpeg"].with_programs = True
         #self.options["ffmpeg"].avfilter = True
-        #self.options["ffmpeg"].swresample = True
         #self.options["ffmpeg"].with_sdl = True
         #self.options["ffmpeg"].enable_filters = "aresample,scale"
 
