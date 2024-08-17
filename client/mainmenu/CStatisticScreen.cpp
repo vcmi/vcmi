@@ -497,6 +497,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 void LineChart::updateStatusBar(const Point & cursorPosition)
 {
 	statusBar->moveTo(cursorPosition + Point(-statusBar->pos.w / 2, 20));
+	statusBar->fitToRect(pos, 10);
 	Rect r(pos.x + chartArea.x, pos.y + chartArea.y, chartArea.w, chartArea.h);
 	statusBar->setEnabled(r.isInside(cursorPosition));
 	if(r.isInside(cursorPosition))
@@ -505,7 +506,8 @@ void LineChart::updateStatusBar(const Point & cursorPosition)
 		float y = maxVal - (maxVal / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
 		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + CStatisticScreen::getDay(x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + (static_cast<int>(y) > 0 ? std::to_string(static_cast<int>(y)) : std::to_string(y)));
 	}
-	GH.windows().totalRedraw();
+	setRedrawParent(true);
+	redraw();
 }
 
 void LineChart::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
