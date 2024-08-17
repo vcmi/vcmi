@@ -36,7 +36,7 @@
 		},
 		"type" : {
 			"type" : "string",
-			"enum" : [ "mysticPond", "artifactMerchant", "freelancersGuild", "magicUniversity", "castleGate", "creatureTransformer", "portalOfSummoning", "ballistaYard", "lookoutTower", "library", "brotherhoodOfSword", "fountainOfFortune", "spellPowerGarrisonBonus", "attackGarrisonBonus", "defenseGarrisonBonus", "escapeTunnel", "lighthouse", "treasury", "thievesGuild", "bank", "configurable", "stables", "manaVortex", "attackVisitingBonus", "defenceVisitingBonus", "spellPowerVisitingBonus", "knowledgeVisitingBonus", "experienceVisitingBonus" ],
+			"enum" : [ "mysticPond", "artifactMerchant", "freelancersGuild", "magicUniversity", "castleGate", "creatureTransformer", "portalOfSummoning", "ballistaYard", "library", "escapeTunnel", "treasury", "thievesGuild", "bank" ],
 			"description" : "Subtype for some special buildings"
 		},
 		"mode" : {
@@ -56,6 +56,10 @@
 		"upgrades" : {
 			"description" : "Optional, indicates that this building upgrades another base building",
 			"type" : "string"
+		},
+		"upgradeReplacesBonuses" : {
+			"description" : "If set to true, this building will replace all bonuses from base building, leaving only bonuses defined by this building",
+			"type" : "boolean"
 		},
 		"configuration" : {
 			"description" : "Optional, configuration of building that can be activated by visiting hero",

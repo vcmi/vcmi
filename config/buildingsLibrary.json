@@ -50,7 +50,6 @@
 	// Previously hardcoded buildings that might be used by mods
 	// Section 1 - building with bonuses during sieges
 	"brotherhoodOfSword" : {
-		"upgradeReplacesBonuses" : true,
 		"bonuses": [
 			{
 				"type": "MORALE",
@@ -63,7 +62,6 @@
 		"bonuses": [
 			{
 				"type": "LUCK",
-				"subtype": "primarySkill.knowledge",
 				"val": 2
 			}
 		]
@@ -73,7 +71,7 @@
 		"bonuses": [
 			{
 				"type": "PRIMARY_SKILL",
-				"subtype": "primarySkill.knowledge",
+				"subtype": "primarySkill.spellpower",
 				"val": 2
 			}
 		]
@@ -83,7 +81,7 @@
 		"bonuses": [
 			{
 				"type": "PRIMARY_SKILL",
-				"subtype": "primarySkill.knowledge",
+				"subtype": "primarySkill.attack",
 				"val": 2
 			}
 		]
@@ -93,7 +91,7 @@
 		"bonuses": [
 			{
 				"type": "PRIMARY_SKILL",
-				"subtype": "primarySkill.knowledge",
+				"subtype": "primarySkill.defence",
 				"val": 2
 			}
 		]
