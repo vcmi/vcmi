@@ -31,8 +31,8 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 {
 	OBJECT_CONSTRUCTION;
 
-	assert(dynamic_cast<const CGArtifactsAltar*>(market));
-	altarArtifacts = dynamic_cast<const CGArtifactsAltar*>(market);
+	assert(market->getArtifactsStorage());
+	altarArtifactsStorage = market->getArtifactsStorage();
 
 	deal = std::make_shared<CButton>(Point(269, 520), AnimationPath::builtin("ALTSACR.DEF"),
 		CGI->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); }, EShortcut::MARKET_DEAL);
@@ -124,7 +124,7 @@ std::shared_ptr<CArtifactsOfHeroAltar> CAltarArtifacts::getAOHset() const
 
 void CAltarArtifacts::updateAltarSlots()
 {
-	assert(altarArtifacts->artifactsInBackpack.size() <= GameConstants::ALTAR_ARTIFACTS_SLOTS);
+	assert(altarArtifactsStorage->artifactsInBackpack.size() <= GameConstants::ALTAR_ARTIFACTS_SLOTS);
 	assert(tradeSlotsMap.size() <= GameConstants::ALTAR_ARTIFACTS_SLOTS);
 	
 	auto tradeSlotsMapNewArts = tradeSlotsMap;
@@ -145,12 +145,12 @@ void CAltarArtifacts::updateAltarSlots()
 	for(auto & tradeSlot : tradeSlotsMapNewArts)
 	{
 		assert(tradeSlot.first->id == -1);
-		assert(altarArtifacts->getArtPos(tradeSlot.second) != ArtifactPosition::PRE_FIRST);
+		assert(altarArtifactsStorage->getArtPos(tradeSlot.second) != ArtifactPosition::PRE_FIRST);
 		tradeSlot.first->setID(tradeSlot.second->getTypeId().num);
 		tradeSlot.first->subtitle->setText(std::to_string(calcExpCost(tradeSlot.second->getTypeId())));
 	}
 
-	auto newArtsFromBulkMove = altarArtifacts->artifactsInBackpack;
+	auto newArtsFromBulkMove = altarArtifactsStorage->artifactsInBackpack;
 	for(const auto & [altarSlot, art] : tradeSlotsMap)
 	{
 		newArtsFromBulkMove.erase(std::remove_if(newArtsFromBulkMove.begin(), newArtsFromBulkMove.end(), [artForRemove = art](auto & slotInfo)
@@ -178,7 +178,7 @@ void CAltarArtifacts::putBackArtifacts()
 {
 	// TODO: If the backpack capacity limit is enabled, artifacts may remain on the altar.
 	// Perhaps should be erased in CGameHandler::objectVisitEnded if id of visited object will be available
-	if(!altarArtifacts->artifactsInBackpack.empty())
+	if(!altarArtifactsStorage->artifactsInBackpack.empty())
 		LOCPLINT->cb->bulkMoveArtifacts(heroArts->altarId, heroArts->getHero()->id, false, true, true);
 }
 
@@ -199,7 +199,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 
 	if(const auto pickedArtInst = heroArts->getPickedArtifact())
 	{
-		if(pickedArtInst->canBePutAt(altarArtifacts))
+		if(pickedArtInst->canBePutAt(altarArtifactsStorage.get()))
 		{
 			if(pickedArtInst->artType->isTradable())
 			{
@@ -220,7 +220,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	else if(altarSlot->id != -1)
 	{
 		assert(tradeSlotsMap.at(altarSlot));
-		const auto slot = altarArtifacts->getArtPos(tradeSlotsMap.at(altarSlot));
+		const auto slot = altarArtifactsStorage->getArtPos(tradeSlotsMap.at(altarSlot));
 		assert(slot != ArtifactPosition::PRE_FIRST);
 		LOCPLINT->cb->swapArtifacts(ArtifactLocation(heroArts->altarId, slot),
 			ArtifactLocation(hero->id, GH.isKeyboardCtrlDown() ? ArtifactPosition::FIRST_AVAILABLE : ArtifactPosition::TRANSITION_POS));

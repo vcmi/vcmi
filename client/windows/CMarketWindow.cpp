@@ -239,10 +239,10 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("ALTRART2.bmp"), PLAYER_COLORED);
-	auto altarArtifacts = std::make_shared<CAltarArtifacts>(market, hero, marketId);
-	marketWidget = altarArtifacts;
+	auto altarArtifactsStorage = std::make_shared<CAltarArtifacts>(market, hero, marketId);
+	marketWidget = altarArtifactsStorage;
 	artSets.clear();
-	const auto heroArts = altarArtifacts->getAOHset();
+	const auto heroArts = altarArtifactsStorage->getAOHset();
 	heroArts->clickPressedCallback = [this, heroArts](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
 		clickPressedOnArtPlace(heroArts->getHero(), artPlace.slot, true, true, false);
@@ -258,7 +258,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	addSet(heroArts);
 	initWidgetInternals(EMarketMode::ARTIFACT_EXP, CGI->generaltexth->zelp[568]);
 	updateExperience();
-	quitButton->addCallback([altarArtifacts](){altarArtifacts->putBackArtifacts();});
+	quitButton->addCallback([altarArtifactsStorage](){altarArtifactsStorage->putBackArtifacts();});
 }
 
 void CMarketWindow::createAltarCreatures(const IMarket * market, const CGHeroInstance * hero)

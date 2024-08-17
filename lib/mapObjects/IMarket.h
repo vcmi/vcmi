@@ -31,20 +31,20 @@ public:
 	void addMarketMode(const EMarketMode mode);
 	void addMarketMode(const std::set<EMarketMode> & modes);
 	void removeMarketMode(const EMarketMode mode);
-
+	std::set<EMarketMode> availableModes() const;
+	std::shared_ptr<CArtifactSet> getArtifactsStorage() const;
 	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
-	std::vector<EMarketMode> availableModes() const;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & marketModes;
 
 		if(h.loadingGamestate && vstd::contains(marketModes, EMarketMode::ARTIFACT_EXP))
-			altarArtifacts = std::make_shared<CArtifactSetAltar>();
+			altarArtifactsStorage = std::make_shared<CArtifactSetAltar>();
 	}
 
 private:
-	std::shared_ptr<CArtifactSetAltar> altarArtifacts;
+	std::shared_ptr<CArtifactSetAltar> altarArtifactsStorage;
 	std::set<EMarketMode> marketModes;
 };
 

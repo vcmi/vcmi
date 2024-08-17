@@ -145,7 +145,7 @@ void IMarket::addMarketMode(const EMarketMode mode)
 	marketModes.insert(mode);
 
 	if(mode == EMarketMode::ARTIFACT_EXP)
-		altarArtifacts = std::make_shared<CArtifactSetAltar>();
+		altarArtifactsStorage = std::make_shared<CArtifactSetAltar>();
 }
 
 void IMarket::addMarketMode(const std::set<EMarketMode> & modes)
@@ -159,7 +159,12 @@ void IMarket::removeMarketMode(const EMarketMode mode)
 	marketModes.erase(mode);
 
 	if(mode == EMarketMode::ARTIFACT_EXP)
-		altarArtifacts.reset();
+		altarArtifactsStorage.reset();
+}
+
+std::shared_ptr<CArtifactSet> IMarket::getArtifactsStorage() const
+{
+	return altarArtifactsStorage;
 }
 
 std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) const
@@ -176,14 +181,9 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) con
 	return ret;
 }
 
-std::vector<EMarketMode> IMarket::availableModes() const
+std::set<EMarketMode> IMarket::availableModes() const
 {
-	std::vector<EMarketMode> ret;
-	for (EMarketMode i = static_cast<EMarketMode>(0); i < EMarketMode::MARKET_AFTER_LAST_PLACEHOLDER; i = vstd::next(i, 1))
-	if(allowsTrade(i))
-		ret.push_back(i);
-
-	return ret;
+	return marketModes;
 }
 
 VCMI_LIB_NAMESPACE_END

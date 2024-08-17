@@ -108,9 +108,4 @@ void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 	cb->showObjectWindow(this, EOpenWindowMode::UNIVERSITY_WINDOW, h, true);
 }
 
-ArtBearer::ArtBearer CGArtifactsAltar::bearerType() const
-{
-	return ArtBearer::ALTAR;
-}
-
 VCMI_LIB_NAMESPACE_END

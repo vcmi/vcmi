@@ -238,11 +238,6 @@ CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
 				return new CGUniversity(cb);
 		}
 	}
-	else if(marketModes.size() == 2)
-	{
-		if(vstd::contains(marketModes, EMarketMode::ARTIFACT_EXP))
-			return new CGArtifactsAltar(cb);
-	}
 	return new CGMarket(cb);
 }
 

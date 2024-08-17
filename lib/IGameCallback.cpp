@@ -291,14 +291,12 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 	{
 		return army->getStackPtr(loc.creature.value());
 	}
-	else if(auto market = dynamic_cast<CGArtifactsAltar*>(getObjInstance(loc.artHolder)))
+	else if(auto market = dynamic_cast<IMarket*>(getObjInstance(loc.artHolder)))
 	{
-		return market;
+		if(auto artSet = market->getArtifactsStorage())
+			return artSet.get();
 	}
-	else
-	{
-		return nullptr;
-	}
+	return nullptr;
 }
 
 bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
