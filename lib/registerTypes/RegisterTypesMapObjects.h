@@ -51,10 +51,11 @@ void registerTypesMapObjects(Serializer &s)
 	s.template registerType<CGObjectInstance, CGLighthouse>();
 	s.template registerType<CGObjectInstance, CGTerrainPatch>();
 	s.template registerType<CGObjectInstance, HillFort>();
-	s.template registerType<CGObjectInstance, CGMarket>(); s.template registerType<IMarket, CGMarket>();
+	s.template registerType<CGObjectInstance, CGMarket>();
 		s.template registerType<CGMarket, CGBlackMarket>();
 		s.template registerType<CGMarket, CGUniversity>();
 	s.template registerType<CGObjectInstance, CGHeroPlaceholder>();
+	s.template registerType<IMarket, CGMarket>();
 
 	s.template registerType<CGObjectInstance, CArmedInstance>(); s.template registerType<CBonusSystemNode, CArmedInstance>(); s.template registerType<CCreatureSet, CArmedInstance>();
 

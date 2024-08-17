@@ -152,7 +152,7 @@ public:
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
-	void showMarketWindow(const IMarket * market, const ObjectInstanceID & marketId, const CGHeroInstance * visitor, QueryID queryID) override;
+	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 

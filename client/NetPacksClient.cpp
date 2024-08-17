@@ -1010,7 +1010,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
 			const auto *market = dynamic_cast<const IMarket*>(obj);
-			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, pack.object, hero, pack.queryID);
+			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, hero, pack.queryID);
 		}
 		break;
 	case EOpenWindowMode::HILL_FORT_WINDOW:

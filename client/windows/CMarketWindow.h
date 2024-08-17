@@ -15,8 +15,7 @@
 class CMarketWindow final : public CStatusbarWindow, public CWindowWithArtifacts, public IGarrisonHolder, public IMarketHolder
 {
 public:
-	CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const ObjectInstanceID & marketId,
-		const std::function<void()> & onWindowClosed, EMarketMode mode);
+	CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode);
 	void updateResources() override;
 	void updateArtifacts() override;
 	void updateGarrisons() override;
@@ -43,7 +42,6 @@ private:
 	std::function<void()> windowClosedCallback;
 	const Point quitButtonPos = Point(516, 520);
 	std::shared_ptr<CMarketBase> marketWidget;
-	const ObjectInstanceID marketId;
 
 	// This is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
 	std::shared_ptr<CPicture> artSlotBack;

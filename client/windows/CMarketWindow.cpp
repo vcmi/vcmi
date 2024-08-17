@@ -34,11 +34,9 @@
 
 #include "../../CCallback.h"
 
-CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const ObjectInstanceID & marketId,
-	const std::function<void()> & onWindowClosed, EMarketMode mode)
+CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode)
 	: CWindowObject(PLAYER_COLORED)
 	, windowClosedCallback(onWindowClosed)
-	, marketId(marketId)
 {
 	assert(mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_PLAYER || mode == EMarketMode::CREATURE_RESOURCE ||
 		mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::ARTIFACT_RESOURCE || mode == EMarketMode::ARTIFACT_EXP ||
@@ -115,6 +113,11 @@ void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMark
 		if(!market->allowsTrade(modeButton))
 			return false;
 
+		if(currentMode == EMarketMode::ARTIFACT_EXP && modeButton != EMarketMode::CREATURE_EXP)
+			return false;
+		if(currentMode == EMarketMode::CREATURE_EXP && modeButton != EMarketMode::ARTIFACT_EXP)
+			return false;
+
 		if(modeButton == EMarketMode::RESOURCE_RESOURCE || modeButton == EMarketMode::RESOURCE_PLAYER)
 		{
 			if(const auto town = dynamic_cast<const CGTownInstance*>(market))
@@ -184,7 +187,9 @@ void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroIn
 	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("TPMRKABS.bmp"), PLAYER_COLORED);
-	marketWidget = std::make_shared<CArtifactsBuying>(market, hero, LOCPLINT->cb->getTown(marketId) ?
+	const auto mapObj = dynamic_cast<const CGObjectInstance*>(market);
+	assert(market);
+	marketWidget = std::make_shared<CArtifactsBuying>(market, hero, LOCPLINT->cb->getTown(mapObj->id) ?
 		VLC->generaltexth->translate("building.core.conflux.special1.name") : CGI->generaltexth->allTexts[349]);
 	initWidgetInternals(EMarketMode::RESOURCE_ARTIFACT, CGI->generaltexth->zelp[600]);
 }
@@ -197,8 +202,10 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	// Create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 	artSlotBack = std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 0, 0);
 	artSlotBack->moveTo(pos.topLeft() + Point(18, 339));
-	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero, LOCPLINT->cb->getTown(marketId) ?
-		VLC->generaltexth->translate("building.core.conflux.special1.name") : LOCPLINT->cb->getObj(marketId)->getObjectName());
+	const auto mapObj = dynamic_cast<const CGObjectInstance*>(market);
+	assert(market);
+	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero, LOCPLINT->cb->getTown(mapObj->id) ?
+		VLC->generaltexth->translate("building.core.conflux.special1.name") : mapObj->getObjectName());
 	artSets.clear();
 	const auto heroArts = artsSellingMarket->getAOHset();
 	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition){showArifactInfo(*heroArts, artPlace, cursorPosition);};
@@ -239,7 +246,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("ALTRART2.bmp"), PLAYER_COLORED);
-	auto altarArtifactsStorage = std::make_shared<CAltarArtifacts>(market, hero, marketId);
+	auto altarArtifactsStorage = std::make_shared<CAltarArtifacts>(market, hero);
 	marketWidget = altarArtifactsStorage;
 	artSets.clear();
 	const auto heroArts = altarArtifactsStorage->getAOHset();

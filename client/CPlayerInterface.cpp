@@ -1632,7 +1632,7 @@ void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
 	battleInt->newRoundFirst();
 }
 
-void CPlayerInterface::showMarketWindow(const IMarket * market, const ObjectInstanceID & marketId, const CGHeroInstance * visitor, QueryID queryID)
+void CPlayerInterface::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onWindowClosed = [this, queryID](){
@@ -1649,13 +1649,13 @@ void CPlayerInterface::showMarketWindow(const IMarket * market, const ObjectInst
 	}
 
 	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
-		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, marketId, onWindowClosed, EMarketMode::ARTIFACT_EXP);
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
-		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, marketId, onWindowClosed, EMarketMode::CREATURE_EXP);
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
 		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor, onWindowClosed);
 	else if(vstd::contains(market->availableModes(), EMarketMode::RESOURCE_RESOURCE))
-		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, marketId, onWindowClosed, EMarketMode::RESOURCE_RESOURCE);
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::RESOURCE_RESOURCE);
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)

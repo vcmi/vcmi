@@ -184,7 +184,7 @@ public:
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
-	void showMarketWindow(const IMarket * market, const ObjectInstanceID & marketId, const CGHeroInstance * visitor, QueryID queryID) override;
+	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;

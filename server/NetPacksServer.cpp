@@ -347,7 +347,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 		for(auto const & artInstId : pack.r1)
 			positions.push_back(artInstId.as<ArtifactInstanceID>());
 
-		result = gh.sacrificeArtifact(market, hero, pack.marketId, positions);
+		result = gh.sacrificeArtifact(market, hero, positions);
 		return;
 	}
 	default:

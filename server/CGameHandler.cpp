@@ -2521,7 +2521,7 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 {
 ///incomplete, simply erases target building
 	const CGTownInstance * t = getTown(tid);
-	if (!vstd::contains(t->builtBuildings, bid))
+	if(!t->hasBuilt(bid))
 		return false;
 	RazeStructures rs;
 	rs.tid = tid;
@@ -3909,7 +3909,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstance * hero, const ObjectInstanceID & marketId, const std::vector<ArtifactInstanceID> & arts)
+bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");
@@ -3917,7 +3917,9 @@ bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstanc
 		COMPLAIN_RET("Evil hero can't sacrifice artifact!");
 
 	assert(market);
-	const auto artSet = getArtSet(marketId);
+	const auto mapObj = dynamic_cast<const CGObjectInstance*>(market);
+	assert(mapObj);
+	const auto artSet = getArtSet(mapObj->id);
 
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
@@ -3935,7 +3937,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstanc
 				int expToGive;
 				market->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(marketId, artSet->getArtPos(art)));
+				removeArtifact(ArtifactLocation(mapObj->id, artSet->getArtPos(art)));
 			}
 			else
 			{

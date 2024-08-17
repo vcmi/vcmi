@@ -951,6 +951,17 @@ void CGTownInstance::removeBuilding(const BuildingID & buildingID)
 	marketBuildingModeMapper(buildingID, [this](const EMarketMode mode) {removeMarketMode(mode);});
 }
 
+void CGTownInstance::removeAllBuildings()
+{
+	builtBuildings.clear();
+	removeAllMarketModes();
+}
+
+std::set<BuildingID> CGTownInstance::getBuildings() const
+{
+	return builtBuildings;
+}
+
 void CGTownInstance::marketBuildingModeMapper(const BuildingID & buildingID, const std::function<void(const EMarketMode)> & func)
 {
 	const auto townType = (*VLC->townh)[getFaction()]->town;

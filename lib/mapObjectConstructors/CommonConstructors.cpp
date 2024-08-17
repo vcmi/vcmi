@@ -246,14 +246,14 @@ void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 	market->addMarketMode(marketModes);
 	market->marketEfficiency = marketEfficiency;
 	
-	if(auto univercity = dynamic_cast<CGUniversity*>(market))
+	if(auto university = dynamic_cast<CGUniversity*>(market))
 	{
-		univercity->title = market->getObjectName();
+		university->title = market->getObjectName();
 		if(!title.empty())
-			univercity->title = VLC->generaltexth->translate(title);
+			university->title = VLC->generaltexth->translate(title);
 
 		if(!speech.empty())
-			univercity->speech = VLC->generaltexth->translate(speech);
+			university->speech = VLC->generaltexth->translate(speech);
 	}
 }
 

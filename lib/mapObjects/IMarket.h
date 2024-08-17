@@ -31,6 +31,7 @@ public:
 	void addMarketMode(const EMarketMode mode);
 	void addMarketMode(const std::set<EMarketMode> & modes);
 	void removeMarketMode(const EMarketMode mode);
+	void removeAllMarketModes();
 	std::set<EMarketMode> availableModes() const;
 	std::shared_ptr<CArtifactSet> getArtifactsStorage() const;
 	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units

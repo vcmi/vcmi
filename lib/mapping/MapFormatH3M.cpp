@@ -2199,9 +2199,11 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	if(hasCustomBuildings)
 	{
 		object->subID = faction.value();
-		for(const auto & building : reader->readBitmaskBuildings(faction))
+		std::set<BuildingID> builtBuildings;
+		reader->readBitmaskBuildings(builtBuildings, faction);
+		for(const auto & building : builtBuildings)
 			object->addBuilding(building);
-		object->forbiddenBuildings = reader->readBitmaskBuildings(faction);
+		reader->readBitmaskBuildings(object->forbiddenBuildings, faction);
 	}
 	// Standard buildings
 	else
@@ -2259,7 +2261,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		reader->skipZero(17);
 
 		// New buildings
-		event.buildings = reader->readBitmaskBuildings(faction);
+		reader->readBitmaskBuildings(event.buildings, faction);
 
 		event.creatures.resize(7);
 		for(int i = 0; i < 7; ++i)

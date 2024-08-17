@@ -26,7 +26,7 @@
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
-CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero, const ObjectInstanceID & marketId)
+CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
 {
 	OBJECT_CONSTRUCTION;
@@ -50,7 +50,9 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	// Hero's artifacts
 	heroArts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -11));
 	heroArts->setHero(hero);
-	heroArts->altarId = marketId;
+	const auto mapObj = dynamic_cast<const CGObjectInstance*>(market);
+	assert(mapObj);
+	heroArts->altarId = mapObj->id;
 
 	// Altar
 	offerTradePanel = std::make_shared<ArtifactsAltarPanel>([this](const std::shared_ptr<CTradeableItem> & altarSlot)

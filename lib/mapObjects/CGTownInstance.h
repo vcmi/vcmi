@@ -52,6 +52,8 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 	std::string nameTextId; // name of town
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
+	std::set<BuildingID> builtBuildings;
+
 public:
 	using CGDwelling::getPosition;
 
@@ -65,7 +67,6 @@ public:
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
-	std::set<BuildingID> builtBuildings;
 	std::map<BuildingID, TownRewardableBuildingInstance*> rewardableBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
@@ -176,6 +177,8 @@ public:
 	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
 	void addBuilding(const BuildingID & buildingID);
 	void removeBuilding(const BuildingID & buildingID);
+	void removeAllBuildings();
+	std::set<BuildingID> getBuildings() const;
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
 	TResources dailyIncome() const; //calculates daily income of this town

@@ -287,14 +287,14 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 			return hero;
 		}
 	}
-	else if(auto army = getArmyInstance(loc.artHolder))
-	{
-		return army->getStackPtr(loc.creature.value());
-	}
 	else if(auto market = dynamic_cast<IMarket*>(getObjInstance(loc.artHolder)))
 	{
 		if(auto artSet = market->getArtifactsStorage())
 			return artSet.get();
+	}
+	else if(auto army = getArmyInstance(loc.artHolder))
+	{
+		return army->getStackPtr(loc.creature.value());
 	}
 	return nullptr;
 }

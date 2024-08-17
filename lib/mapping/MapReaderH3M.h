@@ -48,7 +48,7 @@ public:
 	PlayerColor readPlayer();
 	PlayerColor readPlayer32();
 
-	std::set<BuildingID> readBitmaskBuildings(std::optional<FactionID> faction);
+	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
 	void readBitmaskFactions(std::set<FactionID> & dest, bool invert);
 	void readBitmaskPlayers(std::set<PlayerColor> & dest, bool invert);
 	void readBitmaskResources(std::set<GameResID> & dest, bool invert);
