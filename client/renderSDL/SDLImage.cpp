@@ -449,7 +449,8 @@ SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<ISharedImage> & image, SD
 	SDL_SetPaletteColors(currentPalette, originalPalette->colors, 0, originalPalette->ncolors);
 
 	setOverlayColor(Colors::TRANSPARENCY);
-	setShadowTransparency(0);
+	if (mode == EImageBlitMode::ALPHA)
+		setShadowTransparency(1.0);
 }
 
 SDLImageIndexed::~SDLImageIndexed()
@@ -462,16 +463,29 @@ void SDLImageIndexed::setShadowTransparency(float factor)
 	ColorRGBA shadow50(0, 0, 0, 128 * factor);
 	ColorRGBA shadow25(0, 0, 0,  64 * factor);
 
+	std::array<SDL_Color, 5> colorsSDL = {
+		originalPalette->colors[0],
+		originalPalette->colors[1],
+		originalPalette->colors[2],
+		originalPalette->colors[3],
+		originalPalette->colors[4]
+	};
+
 	// seems to be used unconditionally
-	currentPalette->colors[1] = CSDL_Ext::toSDL(shadow25);
-	currentPalette->colors[4] = CSDL_Ext::toSDL(shadow50);
+	colorsSDL[1] = CSDL_Ext::toSDL(shadow25);
+	colorsSDL[4] = CSDL_Ext::toSDL(shadow50);
 
 	// seems to be used only if color matches
+	if (colorsSimilar(originalPalette->colors[0], sourcePalette[0]))
+		colorsSDL[0] = CSDL_Ext::toSDL(Colors::TRANSPARENCY);
+
 	if (colorsSimilar(originalPalette->colors[2], sourcePalette[2]))
-		currentPalette->colors[2] = CSDL_Ext::toSDL(shadow25);
+		colorsSDL[2] = CSDL_Ext::toSDL(shadow25);
 
 	if (colorsSimilar(originalPalette->colors[3], sourcePalette[3]))
-		currentPalette->colors[3] = CSDL_Ext::toSDL(shadow50);
+		colorsSDL[3] = CSDL_Ext::toSDL(shadow50);
+
+	SDL_SetPaletteColors(currentPalette, colorsSDL.data(), 0, colorsSDL.size());
 }
 
 void SDLImageIndexed::setOverlayColor(const ColorRGBA & color)
@@ -487,8 +501,6 @@ void SDLImageIndexed::setShadowEnabled(bool on)
 {
 	if (on)
 		setShadowTransparency(1.0);
-	else
-		setShadowTransparency(0);
 
 	shadowEnabled = on;
 }
