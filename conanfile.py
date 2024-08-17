@@ -123,12 +123,12 @@ class VCMI(ConanFile):
         # We want following options supported:
         # H3:SoD - .bik and .smk
         # H3:HD  -  ogg container / theora video / vorbis sound
-        # and for mods - webm container / vp9 video / opus sound
+        # and for mods - webm container / vp8 or vp9 video / opus sound
         # TODO: add av1 support for mods (likely require newer ffmpeg than 4.4.3
         self.options["ffmpeg"].enable_protocols = "file"
         self.options["ffmpeg"].enable_demuxers = "bink,binka,ogg,smacker,webm_dash_manifest"
-        self.options["ffmpeg"].enable_parsers = "opus,vorbis,vp9,webp"
-        self.options["ffmpeg"].enable_decoders = "bink,binkaudio_dct,binkaudio_rdft,smackaud,smacker,theora,vorbis,vp9,opus"
+        self.options["ffmpeg"].enable_parsers = "opus,vorbis,vp8,vp9,webp"
+        self.options["ffmpeg"].enable_decoders = "bink,binkaudio_dct,binkaudio_rdft,smackaud,smacker,theora,vorbis,vp8,vp9,opus"
 
         self.options["ffmpeg"].with_programs = False
         self.options["ffmpeg"].avfilter = False

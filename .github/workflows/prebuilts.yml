@@ -12,72 +12,39 @@ jobs:
         include:
           - platform: mac-intel
             os: macos-13
-            test: 0
-            pack: 1
-            pack_type: Release
-            extension: dmg
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
             conan_options: --options with_apple_system_libs=True
             artifact_platform: intel
           - platform: mac-arm
             os: macos-13
-            test: 0
-            pack: 1
-            pack_type: Release
-            extension: dmg
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
             conan_options: --options with_apple_system_libs=True
             artifact_platform: arm
           - platform: ios
             os: macos-13
-            test: 0
-            pack: 1
-            pack_type: Release
-            extension: ipa
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
             conan_options: --options with_apple_system_libs=True
-#          - platform: msvc
-#            os: windows-latest
-#            test: 0
-#            pack: 1
-#            pack_type: RelWithDebInfo
-#            extension: exe
-#            preset: windows-msvc-release
           - platform: mingw
             os: ubuntu-22.04
-            test: 0
-            pack: 1
-            pack_type: Release
-            extension: exe
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
-            cmake_args: -G Ninja
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
           - platform: mingw-32
             os: ubuntu-22.04
-            test: 0
-            pack: 1
-            pack_type: Release
-            extension: exe
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
-            cmake_args: -G Ninja
             preset: windows-mingw-conan-linux
             conan_profile: mingw32-linux.jinja
           - platform: android-32
             os: macos-14
-            extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-32
+            conan_profile: android-32-ndk
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: armeabi-v7a
           - platform: android-64
             os: macos-14
-            extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-64
+            conan_profile: android-64-ndk
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: arm64-v8a
     runs-on: ${{ matrix.os }}
@@ -86,9 +53,10 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: Dependencies
+    - name: Install dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:
         VCMI_BUILD_PLATFORM: x64
@@ -96,15 +64,20 @@ jobs:
     - name: Remove old packages
       run: rm -rf ~/.conan/data/ffmpeg/4.4.3/_/_/package
 
-    - uses: actions/setup-python@v5
+    - name: Setup Python
+      uses: actions/setup-python@v5
       if: "${{ matrix.conan_profile != '' }}"
       with:
         python-version: '3.10'
 
-    - name: Conan setup
+    - name: Setup Conan
+      if: "${{ matrix.conan_profile != '' }}"
+      run: pip3 install 'conan<2.0'
+
+
+    - name: Generate conan profile
       if: "${{ matrix.conan_profile != '' }}"
       run: |
-        pip3 install 'conan<2.0'
         conan profile new default --detect
         conan install . \
           --install-folder=conan-generated \
@@ -116,15 +89,19 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
-    - name: Conan cleanup
+    - name: Remove builds and source code
       if: "${{ matrix.conan_profile != '' }}"
       run: "conan remove --builds --src --force '*'"
       
+    - name: Remove Android SDK
+      if: "${{ matrix.conan_profile != '' }}"
+      run: rm -rf ~/.conan/data/android-ndk
+
     - name: Create dependencies archive
       if: "${{ matrix.conan_profile != '' }}"
       run: "tar -czvf dependencies.tgz -C ~/.conan data"
 
-    - name: Artifacts
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.platform }}
