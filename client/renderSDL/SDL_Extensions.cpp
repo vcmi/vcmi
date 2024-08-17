@@ -675,7 +675,7 @@ SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor
 	// TODO: compare performance and size of images, recheck values for potentially better parameters
 	const int granulation = std::clamp(surf->h / 64 * 8, 8, 64);
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [&](const tbb::blocked_range<size_t> & r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate](const tbb::blocked_range<size_t> & r)
 	{
 		xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, xbrz::ColorFormat::ARGB, {}, r.begin(), r.end());
 	});

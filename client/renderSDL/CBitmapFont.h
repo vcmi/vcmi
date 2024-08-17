@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class ResourcePath;
 VCMI_LIB_NAMESPACE_END
 
-class CBitmapFont : public IFont
+class CBitmapFont final : public IFont
 {
 	SDL_Surface * atlasImage;
 

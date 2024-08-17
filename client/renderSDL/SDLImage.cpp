@@ -26,7 +26,7 @@
 class SDLImageLoader;
 
 //First 8 colors in def palette used for transparency
-static const SDL_Color sourcePalette[8] = {
+static constexpr std::array<SDL_Color, 8> sourcePalette = {{
 	{0,   255, 255, SDL_ALPHA_OPAQUE},
 	{255, 150, 255, SDL_ALPHA_OPAQUE},
 	{255, 100, 255, SDL_ALPHA_OPAQUE},
@@ -35,9 +35,9 @@ static const SDL_Color sourcePalette[8] = {
 	{255, 255, 0,   SDL_ALPHA_OPAQUE},
 	{180, 0,   255, SDL_ALPHA_OPAQUE},
 	{0,   255, 0,   SDL_ALPHA_OPAQUE}
-};
+}};
 
-static const ColorRGBA targetPalette[8] = {
+static constexpr std::array<ColorRGBA, 8> targetPalette = {{
 	{0, 0, 0, 0  }, // 0 - transparency                  ( used in most images )
 	{0, 0, 0, 64 }, // 1 - shadow border                 ( used in battle, adventure map def's )
 	{0, 0, 0, 64 }, // 2 - shadow border                 ( used in fog-of-war def's )
@@ -46,7 +46,7 @@ static const ColorRGBA targetPalette[8] = {
 	{0, 0, 0, 0  }, // 5 - selection / owner flag        ( used in battle, adventure map def's )
 	{0, 0, 0, 128}, // 6 - shadow body   below selection ( used in battle def's )
 	{0, 0, 0, 64 }  // 7 - shadow border below selection ( used in battle def's )
-};
+}};
 
 static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
 {
@@ -59,7 +59,7 @@ static ColorRGBA addColors(const ColorRGBA & base, const ColorRGBA & over)
 		mixChannels(over.r, base.r, over.a, base.a),
 		mixChannels(over.g, base.g, over.a, base.a),
 		mixChannels(over.b, base.b, over.a, base.a),
-		ui8(over.a + base.a * (255 - over.a) / 256)
+		static_cast<ui8>(over.a + base.a * (255 - over.a) / 256)
 		);
 }
 
@@ -88,7 +88,7 @@ int IImage::height() const
 	return dimensions().y;
 }
 
-SDLImageShared::SDLImageShared(CDefFile * data, size_t frame, size_t group)
+SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -205,7 +205,7 @@ void SDLImageShared::optimizeSurface()
 	{
 		for (int y = 0; y < surf->h; ++y)
 		{
-			const uint8_t * row = (uint8_t *)surf->pixels + y * surf->pitch;
+			const uint8_t * row = static_cast<uint8_t *>(surf->pixels) + y * surf->pitch;
 			for (int x = 0; x < surf->w; ++x)
 			{
 				if (row[x] != 0)
@@ -288,7 +288,7 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 	// TODO: compare performance and size of images, recheck values for potentially better parameters
 	const int granulation = std::clamp(surf->h / 64 * 8, 8, 64);
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [&](const tbb::blocked_range<size_t> & r)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate](const tbb::blocked_range<size_t> & r)
 	{
 		xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, xbrz::ColorFormat::ARGB, {}, r.begin(), r.end());
 	});

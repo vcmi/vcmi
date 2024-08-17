@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 
-class IFont
+class IFont : boost::noncopyable
 {
 protected:
 	/// Internal function to render font, see renderTextLeft

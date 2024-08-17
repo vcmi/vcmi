@@ -54,8 +54,8 @@ Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 
 Canvas::Canvas(const Point & size, CanvasScalingPolicy scalingPolicy):
 	scalingPolicy(scalingPolicy),
-	renderArea(Point(0,0), size * getScalingFactor()),
-	surface(CSDL_Ext::newSurface(size * getScalingFactor()))
+	surface(CSDL_Ext::newSurface(size * getScalingFactor())),
+	renderArea(Point(0,0), size * getScalingFactor())
 {
 	CSDL_Ext::fillSurface(surface, CSDL_Ext::toSDL(Colors::TRANSPARENCY) );
 	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);

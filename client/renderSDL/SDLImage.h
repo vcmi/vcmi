@@ -42,7 +42,7 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 
 public:
 	//Load image from def file
-	SDLImageShared(CDefFile *data, size_t frame, size_t group=0);
+	SDLImageShared(const CDefFile *data, size_t frame, size_t group=0);
 	//Load from bitmap file
 	SDLImageShared(const ImagePath & filename);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface

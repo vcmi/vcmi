@@ -34,7 +34,7 @@ struct AtlasLayout
 
 /// Attempts to pack provided list of images into 2d box of specified size
 /// Returns resulting layout on success and empty optional on failure
-static std::optional<AtlasLayout> tryAtlasPacking(Point dimensions, std::map<int, Point> images)
+static std::optional<AtlasLayout> tryAtlasPacking(Point dimensions, const std::map<int, Point> & images)
 {
 	// Simple atlas packing algorithm. Can be extended if needed, however optimal solution is NP-complete problem, so 'perfect' solution is too costly
 
@@ -71,9 +71,9 @@ static std::optional<AtlasLayout> tryAtlasPacking(Point dimensions, std::map<int
 	return result;
 }
 
-/// Arranges images to fit into texture atlas with automatic selection of iamge size
+/// Arranges images to fit into texture atlas with automatic selection of image size
 /// Returns images arranged into 2d box
-static AtlasLayout doAtlasPacking(std::map<int, Point> images)
+static AtlasLayout doAtlasPacking(const std::map<int, Point> & images)
 {
 	// initial size of an atlas. Smaller size won't even fit tiniest H3 font
 	Point dimensions(128, 128);
@@ -181,20 +181,19 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 		storedEntry.rightOffset = symbol.second.rightOffset;
 		storedEntry.positionInAtlas = atlas.images.at(symbol.first);
 
+		// Copy pixel data to atlas
+		uint8_t *dstPixels = static_cast<uint8_t*>(atlasImage->pixels);
+		uint8_t *dstLine   = dstPixels + storedEntry.positionInAtlas.y * atlasImage->pitch;
+		uint8_t *dst = dstLine + storedEntry.positionInAtlas.x;
+
+		for (size_t i = 0; i < storedEntry.positionInAtlas.h; ++i)
 		{
-			// Copy pixel data to atlas
-			uint8_t *dstPixels = (uint8_t*)atlasImage->pixels;
-			uint8_t *dstLine   = dstPixels + storedEntry.positionInAtlas.y * atlasImage->pitch;
-			uint8_t *dst = dstLine + storedEntry.positionInAtlas.x;
+			const uint8_t *srcPtr = symbol.second.pixels.data() + i * storedEntry.positionInAtlas.w;
+			uint8_t * dstPtr = dst + i * atlasImage->pitch;
 
-			for (size_t i = 0; i < storedEntry.positionInAtlas.h; ++i)
-			{
-				const uint8_t *srcPtr = symbol.second.pixels.data() + i * storedEntry.positionInAtlas.w;
-				uint8_t * dstPtr = dst + i * atlasImage->pitch;
-
-				std::copy_n(srcPtr, storedEntry.positionInAtlas.w, dstPtr);
-			}
+			std::copy_n(srcPtr, storedEntry.positionInAtlas.w, dstPtr);
 		}
+
 		chars[symbol.first] = storedEntry;
 	}
 
@@ -256,7 +255,6 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 
 	if (atlasImage->format->palette)
 		SDL_SetPaletteColors(atlasImage->format->palette, &sdlColor, 255, 1);
-//		atlasImage->format->palette->colors[255] = CSDL_Ext::toSDL(color);
 	else
 		SDL_SetSurfaceColorMod(atlasImage, color.r, color.g, color.b);
 
