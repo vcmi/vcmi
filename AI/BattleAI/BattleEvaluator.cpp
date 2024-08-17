@@ -167,7 +167,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				score
 			);
 
-			if (moveTarget.scorePerTurn <= score)
+			if (moveTarget.score <= score)
 			{
 				if(evaluationResult.wait)
 				{
@@ -197,7 +197,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 	}
 
 	//ThreatMap threatsToUs(stack); // These lines may be useful but they are't used in the code.
-	if(moveTarget.scorePerTurn > score)
+	if(moveTarget.score > score)
 	{
 		score = moveTarget.score;
 		cachedAttack = moveTarget.cachedAttack;
@@ -206,12 +206,11 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		if(stack->waited())
 		{
 			logAi->debug(
-				"Moving %s towards hex %s[%d], score: %2f/%2f",
+				"Moving %s towards hex %s[%d], score: %2f",
 				stack->getDescription(),
 				moveTarget.cachedAttack->attack.defender->getDescription(),
 				moveTarget.cachedAttack->attack.defender->getPosition().hex,
-				moveTarget.score,
-				moveTarget.scorePerTurn);
+				moveTarget.score);
 
 			return goTowardsNearest(stack, moveTarget.positions, *targets);
 		}

@@ -54,7 +54,6 @@ struct AttackerValue
 struct MoveTarget
 {
 	float score;
-	float scorePerTurn;
 	std::vector<BattleHex> positions;
 	std::optional<AttackPossibility> cachedAttack;
 	uint8_t turnsToRich;
@@ -64,7 +63,7 @@ struct MoveTarget
 
 struct EvaluationResult
 {
-	static const int64_t INEFFECTIVE_SCORE = -10000;
+	static const int64_t INEFFECTIVE_SCORE = -100000000;
 
 	AttackPossibility bestAttack;
 	MoveTarget bestMove;
@@ -120,6 +119,8 @@ struct ReachabilityData
 
 	// far shooters
 	std::vector<const battle::Unit *> shooters;
+
+	std::set<uint32_t> enemyUnitsReachingAttacker;
 };
 
 class BattleExchangeEvaluator

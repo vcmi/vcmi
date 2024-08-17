@@ -18,7 +18,7 @@ AttackerValue::AttackerValue()
 }
 
 MoveTarget::MoveTarget()
-	: positions(), cachedAttack(), score(EvaluationResult::INEFFECTIVE_SCORE), scorePerTurn(EvaluationResult::INEFFECTIVE_SCORE)
+	: positions(), cachedAttack(), score(EvaluationResult::INEFFECTIVE_SCORE)
 {
 	turnsToRich = 1;
 }
@@ -292,7 +292,7 @@ ReachabilityInfo getReachabilityWithEnemyBypass(
 				continue;
 
 			auto dmg = damageCache.getOriginalDamage(activeStack, unit, state);
-			auto turnsToKill = unit->getAvailableHealth() / dmg + 1;
+			auto turnsToKill = unit->getAvailableHealth() / dmg;
 
 			vstd::amin(turnsToKill, 100);
 
@@ -364,15 +364,16 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 			attack.shootersBlockedDmg = 0; // we do not want to count on it, it is not for sure
 
 			auto score = calculateExchange(attack, turnsToRich, targets, damageCache, hb);
-			auto scorePerTurn = BattleScore(score.enemyDamageReduce * multiplier / turnsToRich, score.ourDamageReduce);
+
+			score.enemyDamageReduce *= multiplier;
 
 #if BATTLE_TRACE_LEVEL >= 1
-			logAi->trace("Multiplier: %f, turns: %d, current score %f, new score %f", multiplier, turnsToRich, result.scorePerTurn, scoreValue(scorePerTurn));
+			logAi->trace("Multiplier: %f, turns: %d, current score %f, new score %f", multiplier, turnsToRich, result.score, scoreValue(score));
 #endif
 
-			if(result.scorePerTurn < scoreValue(scorePerTurn))
+			if(result.score < scoreValue(score)
+				|| (result.turnsToRich > turnsToRich && vstd::isAlmostEqual(result.score, scoreValue(score))))
 			{
-				result.scorePerTurn = scoreValue(scorePerTurn);
 				result.score = scoreValue(score);
 				result.positions.clear();
 
@@ -414,18 +415,10 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 								if(scoreValue(bypassScore) > result.score)
 								{
-									auto newMultiplier = multiplier * speed * turnsToRich / dists.distances[attackHex];
-
 									result.score = scoreValue(bypassScore);
 
-									scorePerTurn = BattleScore(
-										score.enemyDamageReduce  * newMultiplier,
-										score.ourDamageReduce);
-
-									result.scorePerTurn = scoreValue(scorePerTurn);
-
 #if BATTLE_TRACE_LEVEL >= 1
-									logAi->trace("New high score after bypass %f", scoreValue(scorePerTurn));
+									logAi->trace("New high score after bypass %f", scoreValue(bypassScore));
 #endif
 								}
 							}
@@ -488,10 +481,23 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 	if(!ap.attack.shooting) hexes.push_back(ap.from);
 
 	std::vector<const battle::Unit *> allReachableUnits = additionalUnits;
-
+	
 	for(auto hex : hexes)
 	{
 		vstd::concatenate(allReachableUnits, turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex));
+	}
+
+	for(auto hex : ap.attack.attacker->getHexes())
+	{
+		auto unitsReachingAttacker = turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex);
+		for(auto unit : unitsReachingAttacker)
+		{
+			if(unit->unitSide() != ap.attack.attacker->unitSide())
+			{
+				allReachableUnits.push_back(unit);
+				result.enemyUnitsReachingAttacker.insert(unit->unitId());
+			}
+		}
 	}
 
 	vstd::removeDuplicates(allReachableUnits);
@@ -621,9 +627,9 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	auto exchangeBattle = std::make_shared<HypotheticBattle>(env.get(), hb);
 	BattleExchangeVariant v;
 
-	for(int turn = 0; turn < exchangeUnits.units.size(); turn++)
+	for(int exchangeTurn = 0; exchangeTurn < exchangeUnits.units.size(); exchangeTurn++)
 	{
-		for(auto unit : exchangeUnits.units.at(turn))
+		for(auto unit : exchangeUnits.units.at(exchangeTurn))
 		{
 			if(unit->isTurret())
 				continue;
@@ -652,16 +658,26 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 		});
 
 	bool canUseAp = true;
+	const int totalTurnsCount = 10;
 
-	for(int turn = 0; turn < exchangeUnits.units.size(); turn++)
+	std::set<uint32_t> blockedShooters;
+
+	for(int exchangeTurn = 0; exchangeTurn < totalTurnsCount; exchangeTurn++)
 	{
-		for(auto activeUnit : exchangeUnits.units.at(turn))
+		bool isMovingTurm = exchangeTurn < turn;
+		int queueTurn = exchangeTurn >= exchangeUnits.units.size()
+			? exchangeUnits.units.size() - 1
+			: exchangeTurn;
+
+		for(auto activeUnit : exchangeUnits.units.at(queueTurn))
 		{
 			bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, activeUnit, true);
 			battle::Units & attackerQueue = isOur ? ourStacks : enemyStacks;
 			battle::Units & oppositeQueue = isOur ? enemyStacks : ourStacks;
 
 			auto attacker = exchangeBattle->getForUpdate(activeUnit->unitId());
+			auto shooting = exchangeBattle->battleCanShoot(attacker.get())
+				&& !vstd::contains(blockedShooters, attacker->unitId());
 
 			if(!attacker->alive())
 			{
@@ -672,10 +688,23 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 				continue;
 			}
 
+			if(isMovingTurm && !shooting
+				&& !vstd::contains(exchangeUnits.enemyUnitsReachingAttacker, attacker->unitId()))
+			{
+#if BATTLE_TRACE_LEVEL>=1
+				logAi->trace("Attacker is moving");
+#endif
+
+				continue;
+			}
+
 			auto targetUnit = ap.attack.defender;
 
 			if(!isOur || !exchangeBattle->battleGetUnitByID(targetUnit->unitId())->alive())
 			{
+#if BATTLE_TRACE_LEVEL>=2
+				logAi->trace("Best target selector for %s", attacker->getDescription());
+#endif
 				auto estimateAttack = [&](const battle::Unit * u) -> float
 				{
 					auto stackWithBonuses = exchangeBattle->getForUpdate(u->unitId());
@@ -688,7 +717,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 						hb,
 						true);
 
-#if BATTLE_TRACE_LEVEL>=1
+#if BATTLE_TRACE_LEVEL>=2
 					logAi->trace("Best target selector %s->%s score = %2f", attacker->getDescription(), stackWithBonuses->getDescription(), score);
 #endif
 
@@ -741,7 +770,6 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			}
 
 			auto defender = exchangeBattle->getForUpdate(targetUnit->unitId());
-			auto shooting = exchangeBattle->battleCanShoot(attacker.get());
 			const int totalAttacks = attacker->getTotalAttacks(shooting);
 
 			if(canUseAp && activeUnit->unitId() == ap.attack.attacker->unitId()
@@ -759,6 +787,9 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 						break;
 				}
 			}
+
+			if(!shooting)
+				blockedShooters.insert(defender->unitId());
 
 			canUseAp = false;
 
@@ -785,11 +816,20 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	for(auto hex : hexes)
 		reachabilityMap[hex] = getOneTurnReachableUnits(turn, hex);
 
+	auto score = v.getScore();
+
+	if(turn > 0)
+	{
+		auto turnMultiplier = 1 - std::min(0.2, 0.05 * turn);
+
+		score.enemyDamageReduce *= turnMultiplier;
+	}
+
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace("Exchange score: enemy: %2f, our -%2f", v.getScore().enemyDamageReduce, v.getScore().ourDamageReduce);
+	logAi->trace("Exchange score: enemy: %2f, our -%2f", score.enemyDamageReduce, score.ourDamageReduce);
 #endif
 
-	return v.getScore();
+	return score;
 }
 
 bool BattleExchangeEvaluator::canBeHitThisTurn(const AttackPossibility & ap)
