@@ -152,7 +152,7 @@ void CSettingsView::loadSettings()
 	ui->comboBoxUpscalingFilter->setCurrentIndex(upscalingFilterIndex);
 
 	std::string downscalingFilter = settings["video"]["downscalingFilter"].String();
-	int downscalingFilterIndex = vstd::find_pos(downscalingFilterTypes, upscalingFilter);
+	int downscalingFilterIndex = vstd::find_pos(downscalingFilterTypes, downscalingFilter);
 	ui->comboBoxDownscalingFilter->setCurrentIndex(downscalingFilterIndex);
 
 	ui->sliderMusicVolume->setValue(settings["general"]["music"].Integer());
