@@ -1173,7 +1173,7 @@ void CHillFortWindow::updateGarrisons()
 			LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
 			if(info.newID.size())//we have upgrades here - update costs
 			{
-				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
+				costs[i] = info.cost.back() * hero->getStackCount(SlotID(i));
 				totalSum += costs[i];
 			}
 		}
@@ -1259,8 +1259,8 @@ void CHillFortWindow::updateGarrisons()
 
 void CHillFortWindow::makeDeal(SlotID slot)
 {
-	assert(slot.getNum()>=0);
-	int offset = (slot.getNum() == slotsCount)?2:0;
+	assert(slot.getNum() >= 0);
+	int offset = (slot.getNum() == slotsCount) ? 2 : 0;
 	switch(currState[slot.getNum()])
 	{
 		case State::ALREADY_UPGRADED:
@@ -1280,7 +1280,7 @@ void CHillFortWindow::makeDeal(SlotID slot)
 				{
 					UpgradeInfo info;
 					LOCPLINT->cb->fillUpgradeInfo(hero, SlotID(i), info);
-					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
+					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID.back());
 				}
 			}
 			break;
@@ -1320,7 +1320,7 @@ CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 		return State::ALREADY_UPGRADED;
 	}
 
-	if(!(info.cost[0] * hero->getStackCount(slot)).canBeAfforded(myRes))
+	if(!(info.cost.back() * hero->getStackCount(slot)).canBeAfforded(myRes))
 		return State::UNAFFORDABLE;
 
 	return State::MAKE_UPGRADE;
