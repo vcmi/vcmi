@@ -54,9 +54,19 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 	const CGTownInstance* bestTownToHireFrom = nullptr;
 	float bestScore = 0;
 	bool haveCapitol = false;
+
+	ai->dangerHitMap->updateHitMap();
 	
 	for(auto town : towns)
 	{
+		uint8_t closestThreat = UINT8_MAX;
+		for (auto threat : ai->dangerHitMap->getTownThreats(town))
+		{
+			closestThreat = std::min(closestThreat, threat.turn);
+		}
+		//Don' hire a hero in a threatened town as one would have to stay outside
+		if (closestThreat <= 1 && (town->visitingHero || town->garrisonHero))
+			continue;
 		if(ai->heroManager->canRecruitHero(town))
 		{
 			auto availableHeroes = ai->cb->getAvailableHeroes(town);
