@@ -741,7 +741,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 		spellcast.spell = castToPerform.spell->id;
 		spellcast.setTarget(castToPerform.dest);
 		spellcast.side = side;
-		spellcast.stackNumber = (!side) ? -1 : -2;
+		spellcast.stackNumber = -1;
 		cb->battleMakeSpellAction(battleID, spellcast);
 		activeActionMade = true;
 

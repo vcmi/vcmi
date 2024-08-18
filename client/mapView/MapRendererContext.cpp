@@ -291,7 +291,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 	if (!tile.visitable)
 		return {};
 
-	auto * object = tile.visitableObjects.back();
+	const auto * object = tile.visitableObjects.back();
 
 	if (object->getOwner() == LOCPLINT->playerID)
 		return { 0, 192, 0};

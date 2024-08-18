@@ -168,6 +168,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 
 #endif
 
+#ifdef NDEBUG
 [[noreturn]] static void onTerminate()
 {
 	logGlobal->error("Disaster happened.");
@@ -205,6 +206,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 #endif
 	std::abort();
 }
+#endif
 
 void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 {
@@ -296,14 +298,14 @@ CConsoleHandler::CConsoleHandler():
 
 	GetConsoleScreenBufferInfo(handleErr, &csbi);
 	defErrColor = csbi.wAttributes;
-#ifndef _DEBUG
+#ifdef NDEBUG
 	SetUnhandledExceptionFilter(onUnhandledException);
 #endif
 #else
 	defColor = "\x1b[0m";
 #endif
 
-#ifndef _DEBUG
+#ifdef NDEBUG
 	std::set_terminate(onTerminate);
 #endif
 }

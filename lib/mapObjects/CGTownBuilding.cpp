@@ -476,7 +476,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 		cb->showBlockingDialog(&sd);
 	};
 	
-	if(!town->hasBuilt(bID) || cb->isVisitCoveredByAnotherQuery(town, h))
+	if(!town->hasBuilt(bID))
 		return;
 
 	if(!wasVisitedBefore(h))

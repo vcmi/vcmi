@@ -274,7 +274,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	BattleObstaclesChanged pack;
 	pack.battleID = m->battle()->getBattle()->getBattleID();
 
-	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
+	auto all = m->battle()->battleGetAllObstacles(BattleSide::ALL_KNOWING);
 
 	int obstacleIdToGive = 1;
 	for(auto & one : all)

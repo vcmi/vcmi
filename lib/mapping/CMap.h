@@ -136,7 +136,7 @@ public:
 	std::set<SpellID> allowedSpells;
 	std::set<ArtifactID> allowedArtifact;
 	std::set<SecondarySkill> allowedAbilities;
-	std::list<CMapEvent> events;
+	std::vector<CMapEvent> events;
 	int3 grailPos;
 	int grailRadius;
 

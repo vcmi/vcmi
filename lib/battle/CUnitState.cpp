@@ -921,7 +921,7 @@ uint32_t CUnitStateDetached::unitId() const
 	return unit->unitId();
 }
 
-ui8 CUnitStateDetached::unitSide() const
+BattleSide CUnitStateDetached::unitSide() const
 {
 	return unit->unitSide();
 }

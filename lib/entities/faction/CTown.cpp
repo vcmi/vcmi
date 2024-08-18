@@ -80,7 +80,7 @@ BuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
 
 std::string CTown::getGreeting(BuildingSubID::EBuildingSubID subID) const
 {
-	return CTownHandler::getMappedValue<const std::string, BuildingSubID::EBuildingSubID>(subID, std::string(), specialMessages, false);
+	return vstd::find_or(specialMessages, subID, std::string());
 }
 
 void CTown::setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const

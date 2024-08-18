@@ -180,7 +180,7 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 
 void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0)
+	if(result.winner == BattleSide::ATTACKER)
 	{
 		CRewardableObject::onHeroVisit(hero);
 	}

@@ -9,6 +9,9 @@
  */
 #include "StdInc.h"
 #include "CBuildingHandler.h"
+#include "VCMI_Lib.h"
+#include "../faction/CTown.h"
+#include "../faction/CTownHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,7 +39,7 @@ BuildingID CBuildingHandler::campToERMU(int camp, FactionID townType, const std:
 	};
 
 	int curPos = static_cast<int>(campToERMU.size());
-	for (int i=0; i<GameConstants::CREATURES_PER_TOWN; ++i)
+	for (int i=0; i<(*VLC->townh)[townType]->town->creatures.size(); ++i)
 	{
 		if(camp == curPos) //non-upgraded
 			return BuildingID(30 + i);
@@ -53,7 +56,7 @@ BuildingID CBuildingHandler::campToERMU(int camp, FactionID townType, const std:
 				{
 					if (hordeLvlsPerTType[townType.getNum()][0] == i)
 					{
-						BuildingID dwellingID(BuildingID::DWELL_UP_FIRST + hordeLvlsPerTType[townType.getNum()][0]);
+						BuildingID dwellingID(BuildingID::getDwellingFromLevel(hordeLvlsPerTType[townType.getNum()][0], 1));
 
 						if(vstd::contains(builtBuildings, dwellingID)) //if upgraded dwelling is built
 							return BuildingID::HORDE_1_UPGR;
@@ -64,7 +67,7 @@ BuildingID CBuildingHandler::campToERMU(int camp, FactionID townType, const std:
 					{
 						if(hordeLvlsPerTType[townType.getNum()].size() > 1)
 						{
-							BuildingID dwellingID(BuildingID::DWELL_UP_FIRST + hordeLvlsPerTType[townType.getNum()][1]);
+							BuildingID dwellingID(BuildingID::getDwellingFromLevel(hordeLvlsPerTType[townType.getNum()][1], 1));
 
 							if(vstd::contains(builtBuildings, dwellingID)) //if upgraded dwelling is built
 								return BuildingID::HORDE_2_UPGR;

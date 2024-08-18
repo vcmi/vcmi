@@ -256,7 +256,7 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 	if (!si->turnTimerInfo.isBattleEnabled())
 		return;
 
-	ui8 side = 0;
+	BattleSide side = BattleSide::NONE;
 	const CStack * stack = nullptr;
 	bool isTactisPhase = gs->getBattle(battleID)->battleTacticDist() > 0;
 	

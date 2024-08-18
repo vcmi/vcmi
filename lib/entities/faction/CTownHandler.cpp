@@ -324,7 +324,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	assert(!source.getModScope().empty());
 
 	auto * ret = new CBuilding();
-	ret->bid = getMappedValue<BuildingID, std::string>(stringID, BuildingID::NONE, MappedKeys::BUILDING_NAMES_TO_TYPES, false);
+	ret->bid = vstd::find_or(MappedKeys::BUILDING_NAMES_TO_TYPES, stringID, BuildingID::NONE);
 	ret->subId = BuildingSubID::NONE;
 
 	if(ret->bid == BuildingID::NONE && !source["id"].isNull())
@@ -339,9 +339,9 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	ret->mode = ret->bid == BuildingID::GRAIL
 		? CBuilding::BUILD_GRAIL
-		: getMappedValue<CBuilding::EBuildMode>(source["mode"], CBuilding::BUILD_NORMAL, CBuilding::MODES);
+		: vstd::find_or(CBuilding::MODES, source["mode"].String(), CBuilding::BUILD_NORMAL);
 
-	ret->height = getMappedValue<CBuilding::ETowerHeight>(source["height"], CBuilding::HEIGHT_NO_TOWER, CBuilding::TOWER_TYPES);
+	ret->height = vstd::find_or(CBuilding::TOWER_TYPES, source["height"].String(), CBuilding::HEIGHT_NO_TOWER);
 
 	ret->identifier = stringID;
 	ret->modScope = source.getModScope();
@@ -361,7 +361,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 		if(ret->buildingBonuses.empty())
 		{
-			ret->subId = getMappedValue<BuildingSubID::EBuildingSubID>(source["type"], BuildingSubID::NONE, MappedKeys::SPECIAL_BUILDINGS);
+			ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
 			addBonusesForVanilaBuilding(ret);
 		}
 
@@ -376,11 +376,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 				bonus->sid = BonusSourceID(ret->getUniqueTypeID());
 		}
 		
-		if(source["type"].String() == "configurable" && ret->subId == BuildingSubID::NONE)
-		{
-			ret->subId = BuildingSubID::CUSTOM_VISITING_REWARD;
-			ret->rewardableObjectInfo.init(source, ret->getBaseTextID());
-		}
+		if(ret->subId == BuildingSubID::CUSTOM_VISITING_REWARD)
+			ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
 	}
 	//MODS COMPATIBILITY FOR 0.96
 	if(!ret->produce.nonZero())
@@ -733,8 +730,8 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source) const
 		size_t index = faction.puzzleMap.size();
 		SPuzzleInfo spi;
 
-		spi.x = static_cast<si16>(piece["x"].Float());
-		spi.y = static_cast<si16>(piece["y"].Float());
+		spi.position.x = static_cast<si16>(piece["x"].Float());
+		spi.position.y = static_cast<si16>(piece["y"].Float());
 		spi.whenUncovered = static_cast<ui16>(piece["index"].Float());
 		spi.number = static_cast<ui16>(index);
 

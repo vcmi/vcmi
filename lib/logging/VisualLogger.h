@@ -20,23 +20,23 @@ class IMapOverlayLogVisualizer
 {
 public:
 	virtual void drawLine(int3 start, int3 end) = 0;
-	virtual void drawText(int3 tile, int lineNumber, std::string text, std::optional<ColorRGBA> background) = 0;
+	virtual void drawText(int3 tile, int lineNumber, const std::string & text, const std::optional<ColorRGBA> & color) = 0;
 };
 
 class IBattleOverlayLogVisualizer
 {
 public:
-	virtual void drawText(BattleHex tile, int lineNumber, std::string text) = 0;
+	virtual void drawText(BattleHex tile, int lineNumber, const std::string & text) = 0;
 };
 
 class DLL_LINKAGE IVisualLogBuilder
 {
 public:
 	virtual void addLine(int3 start, int3 end) = 0;
-	virtual void addText(int3 tile, std::string text, std::optional<ColorRGBA> color = {}) = 0;
-	virtual void addText(BattleHex tile, std::string text) = 0;
+	virtual void addText(int3 tile, const std::string & text, const std::optional<ColorRGBA> & color = {}) = 0;
+	virtual void addText(BattleHex tile, const std::string & text) = 0;
 
-	void addText(int3 tile, std::string text, PlayerColor background);
+	void addText(int3 tile, const std::string & text, PlayerColor background);
 };
 
 /// The logger is used to show screen overlay
@@ -89,12 +89,12 @@ private:
 			mapLines.emplace_back(start, end);
 		}
 
-		void addText(BattleHex tile, std::string text) override
+		void addText(BattleHex tile, const std::string & text) override
 		{
 			battleTexts.emplace_back(tile, text, std::optional<ColorRGBA>());
 		}
 
-		void addText(int3 tile, std::string text, std::optional<ColorRGBA> background) override
+		void addText(int3 tile, const std::string & text, const std::optional<ColorRGBA> & background) override
 		{
 			mapTexts.emplace_back(tile, text, background);
 		}
@@ -109,10 +109,10 @@ private:
 
 public:
 
-	void updateWithLock(std::string channel, std::function<void(IVisualLogBuilder & logBuilder)> func);
+	void updateWithLock(const std::string & channel, const std::function<void(IVisualLogBuilder & logBuilder)> & func);
 	void visualize(IMapOverlayLogVisualizer & visulizer);
 	void visualize(IBattleOverlayLogVisualizer & visulizer);
-	void setKey(std::string key);
+	void setKey(const std::string & key);
 };
 
 extern DLL_LINKAGE VisualLogger * logVisual;

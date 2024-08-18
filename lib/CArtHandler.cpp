@@ -760,7 +760,7 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanc
 	return nullptr;
 }
 
-const ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance * artInst) const
+ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance * artInst) const
 {
 	if(artInst)
 	{

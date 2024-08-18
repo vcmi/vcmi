@@ -500,7 +500,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.hex : ap.from.hex);
 #endif
 
-	if(cb->battleGetMySide() == BattlePerspective::LEFT_SIDE
+	if(cb->battleGetMySide() == BattleSide::LEFT_SIDE
 		&& cb->battleGetGateState() == EGateState::BLOCKED
 		&& ap.attack.defender->coversPos(BattleHex::GATE_BRIDGE))
 	{

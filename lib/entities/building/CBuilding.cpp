@@ -33,7 +33,7 @@ const std::map<std::string, CBuilding::ETowerHeight> CBuilding::TOWER_TYPES =
 		{ "skyship", CBuilding::HEIGHT_SKYSHIP }
 };
 
-const BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
+BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
 {
 	return BuildingTypeUniqueID(town->faction->getId(), bid);
 }

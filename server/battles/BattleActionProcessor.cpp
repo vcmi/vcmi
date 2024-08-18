@@ -65,7 +65,7 @@ bool BattleActionProcessor::doRetreatAction(const CBattleInfoCallback & battle, 
 		return false;
 	}
 
-	owner->setBattleResult(battle, EBattleResult::ESCAPE, !ba.side);
+	owner->setBattleResult(battle, EBattleResult::ESCAPE, battle.otherSide(ba.side));
 	return true;
 }
 
@@ -86,7 +86,7 @@ bool BattleActionProcessor::doSurrenderAction(const CBattleInfoCallback & battle
 	}
 
 	gameHandler->giveResource(player, EGameResID::GOLD, -cost);
-	owner->setBattleResult(battle, EBattleResult::SURRENDER, !ba.side);
+	owner->setBattleResult(battle, EBattleResult::SURRENDER, battle.otherSide(ba.side));
 	return true;
 }
 
@@ -1574,7 +1574,7 @@ bool BattleActionProcessor::makeAutomaticBattleAction(const CBattleInfoCallback 
 
 bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction &ba)
 {
-	if (ba.side != 0 && ba.side != 1 && gameHandler->complain("Can not make action - invalid battle side!"))
+	if (ba.side != BattleSide::ATTACKER && ba.side != BattleSide::DEFENDER && gameHandler->complain("Can not make action - invalid battle side!"))
 		return false;
 
 	if(battle.battleGetTacticDist() != 0)
