@@ -384,6 +384,11 @@ void MapController::pasteFromClipboard(int level)
 	for(auto & objUniquePtr : _clipboard)
 	{
 		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		QString errorMsg;
+		if (!canPlaceObject(level, obj, errorMsg))
+		{
+			QMessageBox::information(main, QObject::tr("Warning"), errorMsg);
+		}
 		auto newPos = objUniquePtr->pos + shift;
 		if(_map->isInTheMap(newPos))
 			obj->pos = newPos;
@@ -623,7 +628,7 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 
 	for(auto obj : map.objects)
 	{
-		auto handler = obj->getObjectHandler();
+		auto handler = obj->getObjectHandler();		
 		auto modScope = handler->getModScope();
 		if(modScope != "core")
 			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();

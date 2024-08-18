@@ -58,12 +58,14 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 		//check player settings
 		int hplayers = 0;
 		int cplayers = 0;
-		std::map<int, int> amountOfCastles;
+		std::map<int, int> amountOfTowns;				// std::map<PlayerID, TownCounter>
+		std::map<int, int> amountOfHeroes;				// std::map<PlayerID, HeroCounter>
+
 		for(int i = 0; i < map->players.size(); ++i)
 		{
 			auto & p = map->players[i];
 			if(p.canAnyonePlay())
-				amountOfCastles[i] = 0;
+				amountOfTowns[i] = 0;
 			if(p.canComputerPlay)
 				++cplayers;
 			if(p.canHumanPlay)
@@ -103,11 +105,11 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			//checking towns
 			if(auto * ins = dynamic_cast<CGTownInstance*>(o.get()))
 			{
-				bool has = amountOfCastles.count(ins->getOwner().getNum());
+				bool has = amountOfTowns.count(ins->getOwner().getNum());
 				if(!has && ins->getOwner() != PlayerColor::NEUTRAL)
 					issues.emplace_back(tr("Town %1 has undefined owner %2").arg(ins->instanceName.c_str(), ins->getOwner().toString().c_str()), true);
 				if(has)
-					++amountOfCastles[ins->getOwner().getNum()];
+					++amountOfTowns[ins->getOwner().getNum()];
 			}
 			//checking heroes and prisons
 			if(auto * ins = dynamic_cast<CGHeroInstance*>(o.get()))
@@ -119,9 +121,11 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				}
 				else
 				{
-					bool has = amountOfCastles.count(ins->getOwner().getNum());
+					bool has = amountOfTowns.count(ins->getOwner().getNum());
 					if(!has)
 						issues.emplace_back(QString(tr("Hero %1 must have an owner")).arg(ins->instanceName.c_str()), true);
+
+					++amountOfHeroes[ins->getOwner().getNum()];
 				}
 				if(ins->type)
 				{
@@ -159,9 +163,18 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 		}
 
 		//verification of starting towns
-		for(auto & mp : amountOfCastles)
-			if(mp.second == 0)
-				issues.emplace_back(QString(tr("Player %1 doesn't have any starting town")).arg(mp.first), false);
+		for (auto & playerTCounter : amountOfTowns)
+		{
+			if (playerTCounter.second == 0)
+			{
+				// FIXME: heroesNames are empty even though heroes are on the map
+				// if(map->players[playerTCounter.first].heroesNames.empty())
+				if(amountOfHeroes[playerTCounter.first] == 0)
+					issues.emplace_back(QString(tr("Player %1 has no towns and heroes assigned")).arg(playerTCounter.first + 1), true);
+				else
+					issues.emplace_back(QString(tr("Player %1 doesn't have any starting town")).arg(playerTCounter.first + 1), false);
+			}
+		}
 
 		//verification of map name and description
 		if(map->name.empty())
