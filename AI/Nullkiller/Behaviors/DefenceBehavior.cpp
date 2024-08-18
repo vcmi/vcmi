@@ -130,7 +130,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 			tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
 
-			return true;
+			return false;
 		}
 		else if(ai->heroManager->getHeroRole(town->garrisonHero.get()) == HeroRole::MAIN)
 		{
@@ -141,7 +141,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 			{
 				tasks.push_back(Goals::sptr(Goals::DismissHero(heroToDismiss).setpriority(5)));
 
-				return true;
+				return false;
 			}
 		}
 	}
@@ -342,7 +342,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			}
 			else if(town->visitingHero && path.targetHero != town->visitingHero && !path.containsHero(town->visitingHero))
 			{
-				if(town->garrisonHero)
+				if(town->garrisonHero && town->garrisonHero != path.targetHero)
 				{
 					if(ai->heroManager->getHeroRole(town->visitingHero.get()) == HeroRole::SCOUT
 						&& town->visitingHero->getArmyStrength() < path.heroArmy->getArmyStrength() / 20)
