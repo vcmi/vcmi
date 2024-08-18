@@ -763,7 +763,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 
 				auto &levelInfo = spell->getLevelInfo(bonus->val);
 				bool isDamageSpell = spell->isDamage() || spell->isOffensive();
-				if (!isDamageSpell || levelInfo.smartTarget || levelInfo.range != "X")
+				if (!isDamageSpell || levelInfo.smartTarget || !levelInfo.range.empty())
 				{
 					parameters.massive = true;
 					parameters.smart = true;
