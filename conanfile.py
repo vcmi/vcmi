@@ -100,6 +100,9 @@ class VCMI(ConanFile):
         self.options["ffmpeg"].postproc = False
         self.options["ffmpeg"].swresample = True
         self.options["ffmpeg"].with_asm = False
+        self.options["ffmpeg"].with_libaom = False
+        self.options["ffmpeg"].with_libsvtav1 = False
+        self.options["ffmpeg"].with_libdav1d = False
         self.options["ffmpeg"].with_zlib = False
         self.options["ffmpeg"].with_bzip2 = False
         self.options["ffmpeg"].with_lzma = False
@@ -124,7 +127,7 @@ class VCMI(ConanFile):
         # H3:SoD - .bik and .smk
         # H3:HD  -  ogg container / theora video / vorbis sound
         # and for mods - webm container / vp8 or vp9 video / opus sound
-        # TODO: add av1 support for mods (likely require newer ffmpeg than 4.4.3
+        # TODO: add av1 support for mods (requires enabling libdav1d which currently fails to build via Conan)
         self.options["ffmpeg"].enable_protocols = "file"
         self.options["ffmpeg"].enable_demuxers = "bink,binka,ogg,smacker,webm_dash_manifest"
         self.options["ffmpeg"].enable_parsers = "opus,vorbis,vp8,vp9,webp"
@@ -135,10 +138,11 @@ class VCMI(ConanFile):
         self.options["ffmpeg"].with_sdl = False
 
         #optionally, for testing - enable ffplay/ffprobe binaries in conan package:
-        #self.options["ffmpeg"].with_programs = True
-        #self.options["ffmpeg"].avfilter = True
-        #self.options["ffmpeg"].with_sdl = True
-        #self.options["ffmpeg"].enable_filters = "aresample,scale"
+        #if self.settings.os == "Windows":
+        #    self.options["ffmpeg"].with_programs = True
+        #    self.options["ffmpeg"].avfilter = True
+        #    self.options["ffmpeg"].with_sdl = True
+        #    self.options["ffmpeg"].enable_filters = "aresample,scale"
 
         self.options["sdl"].sdl2main = self.settings.os != "iOS"
         self.options["sdl"].vulkan = False
@@ -232,7 +236,7 @@ class VCMI(ConanFile):
 
         # client
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/[^4.4]")
+            self.requires("ffmpeg/[^7.0]")
 
         # launcher
         if self.settings.os == "Android":

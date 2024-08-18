@@ -62,7 +62,7 @@ jobs:
         VCMI_BUILD_PLATFORM: x64
 
     - name: Remove old packages
-      run: rm -rf ~/.conan/data/ffmpeg/4.4.3/_/_/package
+      run: rm -rf ~/.conan/data/ffmpeg
 
     - name: Setup Python
       uses: actions/setup-python@v5
