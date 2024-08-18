@@ -687,7 +687,7 @@ std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 	std::set<BattleHex> ret;
 	std::string rng = input + ','; //copy + artificial comma for easier handling
 
-	if(rng.size() >= 2 && rng[0] != 'X') //there is at least one hex in range (+artificial comma)
+	if(rng.size() >= 2 && rng[0] != 'X' && rng[0] != 'x') //there is at least one hex in range (+artificial comma)
 	{
 		std::string number1;
 		std::string number2;
