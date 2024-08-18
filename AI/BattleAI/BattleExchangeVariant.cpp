@@ -728,6 +728,17 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 						return vstd::contains(exchangeUnits.shooters, u);
 					});
 
+				if(!isOur
+					&& exchangeTurn == 0
+					&& exchangeUnits.units.at(exchangeTurn).at(0)->unitId() != ap.attack.attacker->unitId()
+					&& !vstd::contains(exchangeUnits.enemyUnitsReachingAttacker, attacker->unitId()))
+				{
+					vstd::erase_if(unitsInOppositeQueueExceptInaccessible, [&](const battle::Unit * u) -> bool
+						{
+							return u->unitId() == ap.attack.attacker->unitId();
+						});
+				}
+
 				if(!unitsInOppositeQueueExceptInaccessible.empty())
 				{
 					targetUnit = *vstd::maxElementByFun(unitsInOppositeQueueExceptInaccessible, estimateAttack);
