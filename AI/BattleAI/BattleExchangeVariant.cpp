@@ -352,9 +352,6 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 		auto speedRatio = speed / static_cast<float>(enemySpeed);
 		auto multiplier = speedRatio > 1 ? 1 : speedRatio;
 
-		if(enemy->canShoot())
-			multiplier *= 1.5f;
-
 		for(auto & hex : hexes)
 		{
 			// FIXME: provide distance info for Jousting bonus
