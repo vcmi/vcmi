@@ -49,9 +49,9 @@ void Graphics::loadPaletteAndColors()
 	{
 		QColor col;
 		// Cast to unsigned char to ensure values are in the range 0-255
-		col.setRed(static_cast<uint8_t>(pals[startPoint++]));
-		col.setGreen(static_cast<uint8_t>(pals[startPoint++]));
-		col.setBlue(static_cast<uint8_t>(pals[startPoint++]));
+		col.setRed(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
+		col.setGreen(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
+		col.setBlue(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
 		col.setAlpha(255);
 		startPoint++;
 		playerColorPalette[i] = col.rgba();
