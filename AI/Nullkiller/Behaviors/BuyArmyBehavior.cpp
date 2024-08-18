@@ -35,6 +35,8 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 		return tasks;
 	}
 
+	ai->dangerHitMap->updateHitMap();
+
 	for(auto town : cb->getTownsInfo())
 	{
 		//If we can recruit a hero that comes with more army than he costs, we are better off spending our gold on them
@@ -48,7 +50,13 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 			}
 		}
 
-		if (ai->buildAnalyzer->isGoldPressureHigh() && !town->hasBuilt(BuildingID::CITY_HALL) && cb->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
+		uint8_t closestThreat = UINT8_MAX;
+		for (auto threat : ai->dangerHitMap->getTownThreats(town))
+		{
+			closestThreat = std::min(closestThreat, threat.turn);
+		}
+
+		if (closestThreat >=2 && ai->buildAnalyzer->isGoldPressureHigh() && !town->hasBuilt(BuildingID::CITY_HALL) && cb->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
 		{
 			return tasks;
 		}
