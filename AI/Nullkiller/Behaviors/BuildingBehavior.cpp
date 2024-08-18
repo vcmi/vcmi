@@ -49,26 +49,45 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 	auto & developmentInfos = ai->buildAnalyzer->getDevelopmentInfo();
 	auto isGoldPressureLow = !ai->buildAnalyzer->isGoldPressureHigh();
 
+	ai->dangerHitMap->updateHitMap();
+
 	for(auto & developmentInfo : developmentInfos)
 	{
-		for(auto & buildingInfo : developmentInfo.toBuild)
+		uint8_t closestThreat = UINT8_MAX;
+		for (auto threat : ai->dangerHitMap->getTownThreats(developmentInfo.town))
 		{
-			if(isGoldPressureLow || buildingInfo.dailyIncome[EGameResID::GOLD] > 0)
+			closestThreat = std::min(closestThreat, threat.turn);
+		}
+		int fortLevel = developmentInfo.town->fortLevel();
+		for (auto& buildingInfo : developmentInfo.toBuild)
+		{
+			if (closestThreat <= 1 && developmentInfo.town->fortLevel() < BuildingID::CASTLE && !buildingInfo.notEnoughRes)
 			{
-				if(buildingInfo.notEnoughRes)
-				{
-					if(ai->getLockedResources().canAfford(buildingInfo.buildCost))
-						continue;
-
-					Composition composition;
-
-					composition.addNext(BuildThis(buildingInfo, developmentInfo));
-					composition.addNext(SaveResources(buildingInfo.buildCost));
-
-					tasks.push_back(sptr(composition));
-				}
-				else
+				if (buildingInfo.id == BuildingID::FORT || buildingInfo.id == BuildingID::CITADEL || buildingInfo.id == BuildingID::CASTLE)
 					tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
+			}
+		}
+		if (tasks.empty())
+		{
+			for (auto& buildingInfo : developmentInfo.toBuild)
+			{
+				if (isGoldPressureLow || buildingInfo.dailyIncome[EGameResID::GOLD] > 0)
+				{
+					if (buildingInfo.notEnoughRes)
+					{
+						if (ai->getLockedResources().canAfford(buildingInfo.buildCost))
+							continue;
+
+						Composition composition;
+
+						composition.addNext(BuildThis(buildingInfo, developmentInfo));
+						composition.addNext(SaveResources(buildingInfo.buildCost));
+
+						tasks.push_back(sptr(composition));
+					}
+					else
+						tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
+				}
 			}
 		}
 	}
