@@ -1389,8 +1389,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				//score += evaluationContext.conquestValue * 1000;
 				if(evaluationContext.conquestValue > 0 || (evaluationContext.defenseValue >= CGTownInstance::EFortLevel::CITADEL && evaluationContext.turn <= 1 && evaluationContext.threat > evaluationContext.armyInvolvement && evaluationContext.threatTurns <= 1))
 					score = 1000;
-				if (evaluationContext.isEnemy && evaluationContext.turn > 0 && !ai->cb->getTownsInfo().empty())
-					return 0;
 				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.turn > 0 && !ai->cb->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
