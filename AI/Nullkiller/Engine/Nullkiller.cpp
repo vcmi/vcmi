@@ -635,7 +635,7 @@ bool Nullkiller::handleTrading()
 
 					if (i == 6)
 					{
-						if (income[i] > 0)
+						if (income[i] > 0 && !buildAnalyzer->isGoldPressureHigh())
 							okToSell = true;
 					}
 					else
@@ -663,7 +663,7 @@ bool Nullkiller::handleTrading()
 				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
 				{
 					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
-					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
+					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
 					haveTraded = true;
 					shouldTryToTrade = true;
 				}
