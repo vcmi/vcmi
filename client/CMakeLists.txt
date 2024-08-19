@@ -405,15 +405,7 @@ if(APPLE_IOS)
 endif()
 
 assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
-
-if(ANDROID)
-	add_library(vcmiclientcommon SHARED ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
-	set_target_properties(vcmiclientcommon PROPERTIES
-		OUTPUT_NAME "vcmiclient_${ANDROID_ABI}" # required by Qt
-	)
-else()
-	add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
-endif()
+add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 
 if(NOT ENABLE_STATIC_LIBS)
 	add_dependencies(vcmiclientcommon

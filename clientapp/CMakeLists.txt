@@ -22,7 +22,15 @@ if(APPLE_IOS)
 endif()
 
 assign_source_group(${clientapp_SRCS} ${clientapp_HEADERS})
-add_executable(vcmiclient ${clientapp_SRCS} ${clientapp_HEADERS})
+
+if(ANDROID)
+  add_library(vcmiclient SHARED ${clientapp_SRCS} ${clientapp_HEADERS})
+  set_target_properties(vcmiclient PROPERTIES
+    OUTPUT_NAME "vcmiclient_${ANDROID_ABI}" # required by Qt
+  )
+else()
+  add_executable(vcmiclient ${clientapp_SRCS} ${clientapp_HEADERS})
+endif()
 
 target_link_libraries(vcmiclient PRIVATE vcmiclientcommon)
 
