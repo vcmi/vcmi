@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void AssetGenerator::generate()
 {
-    createBigSpellBook("data/SpelBk2.bmp");
+	createBigSpellBook("data/SpelBk2.bmp");
 }
 
 void AssetGenerator::createBigSpellBook(std::string filename)
@@ -30,8 +30,8 @@ void AssetGenerator::createBigSpellBook(std::string filename)
 	if(!CResourceHandler::get("local")->createResource(filename))
 		return;
 
-    auto res = ImagePath::builtin("SpelBack");
-    res.setOriginalResource(true);
+	auto res = ImagePath::builtin("SpelBack");
+	res.setOriginalResource(true);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
 	Canvas canvas = Canvas(Point(800, 600));
@@ -77,10 +77,10 @@ void AssetGenerator::createBigSpellBook(std::string filename)
 	canvas.draw(img, Point(575, 465), Rect(417, 406, 37, 45));
 	canvas.draw(img, Point(667, 465), Rect(478, 406, 37, 47));
 
-    std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
+	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
-    ResourcePath savePath(filename, EResType::IMAGE);
-    image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+	ResourcePath savePath(filename, EResType::IMAGE);
+	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
 
 VCMI_LIB_NAMESPACE_END
