@@ -9,16 +9,11 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-
-class DLL_LINKAGE AssetGenerator
+class AssetGenerator
 {
-    static void createBigSpellBook(std::string filename);
     static void createAdventureOptionsCleanBackground(std::string filename);
+    static void createBigSpellBook(std::string filename);
 
 public:
     static void generate();
 };
-
-VCMI_LIB_NAMESPACE_END

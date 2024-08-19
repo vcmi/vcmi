@@ -18,8 +18,6 @@
 
 #include "../lib/filesystem/Filesystem.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void AssetGenerator::generate()
 {
 	createBigSpellBook("data/SpelBk2.bmp");
@@ -49,6 +47,7 @@ void AssetGenerator::createAdventureOptionsCleanBackground(std::string filename)
 	ResourcePath savePath(filename, EResType::IMAGE);
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
+
 void AssetGenerator::createBigSpellBook(std::string filename)
 {
 	if(!CResourceHandler::get("local")->createResource(filename))
@@ -106,5 +105,3 @@ void AssetGenerator::createBigSpellBook(std::string filename)
 	ResourcePath savePath(filename, EResType::IMAGE);
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
-
-VCMI_LIB_NAMESPACE_END
