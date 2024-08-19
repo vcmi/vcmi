@@ -60,7 +60,7 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 		}
 		for (auto& buildingInfo : developmentInfo.toBuild)
 		{
-			if (closestThreat <= 1 && developmentInfo.town->fortLevel() < BuildingID::CASTLE && !buildingInfo.notEnoughRes)
+			if (closestThreat <= 1 && developmentInfo.town->fortLevel() < CGTownInstance::EFortLevel::CASTLE && !buildingInfo.notEnoughRes)
 			{
 				if (buildingInfo.id == BuildingID::FORT || buildingInfo.id == BuildingID::CITADEL || buildingInfo.id == BuildingID::CASTLE)
 					tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
