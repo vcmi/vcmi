@@ -318,6 +318,7 @@
 		"aiValue" : { },
 		"index" : { },
 		"base" : { },
+		"name" : { },
 		"rmg" : { },
 		"templates" : { },
 		"battleground" : { },
