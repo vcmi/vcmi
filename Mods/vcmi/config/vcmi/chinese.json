@@ -72,6 +72,11 @@
 	"vcmi.lobby.noUnderground" : "无地下部分",
 	"vcmi.lobby.sortDate" : "以修改时间排序地图",
 	"vcmi.lobby.backToLobby" : "返回大厅",
+	"vcmi.lobby.author" : "作者",
+	"vcmi.lobby.handicap" : "障碍",
+	"vcmi.lobby.handicap.resource" : "给予玩家起始资源以外的更多资源，允许负值，但总量不会低于0（玩家永远不会能以负资源开始游戏）。",
+	"vcmi.lobby.handicap.income" : "按百分比改变玩家的各种收入，向上取整。",
+	"vcmi.lobby.handicap.growth" : "改变玩家拥有的城镇的生物增长率，向上取整。",
 
 	"vcmi.lobby.login.title" : "VCMI大厅",
 	"vcmi.lobby.login.username" : "用户名:",
@@ -237,6 +242,8 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{跳过战斗开始音乐}\n\n战斗开始音乐播放期间，你也能够进行操作。",
 	"vcmi.battleOptions.endWithAutocombat.hover": "结束战斗",
 	"vcmi.battleOptions.endWithAutocombat.help": "{结束战斗}\n\n以自动战斗立即结束剩余战斗过程",
+	"vcmi.battleOptions.showQuickSpell.hover": "展示快捷法术面板",
+	"vcmi.battleOptions.showQuickSpell.help": "{展示快捷法术面板}\n\n展示快捷选择法术的面板。",
 
 	"vcmi.adventureMap.revisitObject.hover" : "重新访问",
 	"vcmi.adventureMap.revisitObject.help" : "{重新访问}\n\n让当前英雄重新访问地图建筑或城镇。",
@@ -296,6 +303,9 @@
 	"vcmi.townHall.greetingCustomBonus"     : "%s 给予英雄 +%d %s%s。",
 	"vcmi.townHall.greetingCustomUntil"     : "直到下一场战斗。",
 	"vcmi.townHall.greetingInTownMagicWell" : "%s使你的魔法值恢复到最大值。",
+
+	"vcmi.townStructure.bank.borrow" : "你走进银行。一位银行职员看到你，说道：“我们为您提供了一个特别优惠。您可以向我们借2500金币，期限为5天。您每天需要偿还500金币。”",
+	"vcmi.townStructure.bank.payBack" : "你走进银行。一位银行职员看到你，说道：“您已经获得了贷款。还清之前，不能再申请新的贷款。”",
 
 	"vcmi.logicalExpressions.anyOf"  : "以下任一前提：",
 	"vcmi.logicalExpressions.allOf"  : "以下所有前提：",

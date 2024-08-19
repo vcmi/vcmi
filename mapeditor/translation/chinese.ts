@@ -1438,37 +1438,37 @@
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="53"/>
         <source>Build all</source>
-        <translation type="unfinished"></translation>
+        <translation>建造所有建筑</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="60"/>
         <source>Demolish all</source>
-        <translation type="unfinished"></translation>
+        <translation>拆除所有建筑</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="67"/>
         <source>Enable all</source>
-        <translation type="unfinished"></translation>
+        <translation>允许所有建筑</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="74"/>
         <source>Disable all</source>
-        <translation type="unfinished"></translation>
+        <translation>禁止所有建筑</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="77"/>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="77"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>已允许</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="77"/>
         <source>Built</source>
-        <translation type="unfinished"></translation>
+        <translation>已建造</translation>
     </message>
 </context>
 <context>
@@ -1476,77 +1476,77 @@
     <message>
         <location filename="../inspector/towneventdialog.ui" line="23"/>
         <source>Town event</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇事件</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="42"/>
         <source>General</source>
-        <translation type="unfinished">通用</translation>
+        <translation>通用</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="57"/>
         <source>Event name</source>
-        <translation type="unfinished">事件名</translation>
+        <translation>事件名</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="64"/>
         <source>Type event message text</source>
-        <translation type="unfinished">输入事件信息文本</translation>
+        <translation>输入事件信息文本</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="85"/>
         <source>Day of first occurrence</source>
-        <translation type="unfinished">首次发生天数</translation>
+        <translation>首次发生天数</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="99"/>
         <source>Repeat after (0 = no repeat)</source>
-        <translation type="unfinished">重复周期 (0 = 不重复)</translation>
+        <translation>重复周期 (0 = 不重复)</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="123"/>
         <source>Affected players</source>
-        <translation type="unfinished">生效玩家</translation>
+        <translation>生效玩家</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="146"/>
         <source>affects human</source>
-        <translation type="unfinished">人类玩家生效</translation>
+        <translation>人类玩家生效</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="155"/>
         <source>affects AI</source>
-        <translation type="unfinished">AI玩家生效</translation>
+        <translation>AI玩家生效</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="166"/>
         <source>Resources</source>
-        <translation type="unfinished">资源</translation>
+        <translation>资源</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="198"/>
         <source>Buildings</source>
-        <translation type="unfinished">建筑</translation>
+        <translation>建筑</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="216"/>
         <source>Creatures</source>
-        <translation type="unfinished">生物</translation>
+        <translation>生物</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="255"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>确定</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.cpp" line="177"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
-        <translation type="unfinished"></translation>
+        <translation>%1级生物 / 升级后的%1级生物</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.cpp" line="219"/>
         <source>Day %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - %2 日</translation>
     </message>
 </context>
 <context>
@@ -1554,32 +1554,32 @@
     <message>
         <location filename="../inspector/towneventswidget.ui" line="29"/>
         <source>Town events</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇事件</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="37"/>
         <source>Timed events</source>
-        <translation type="unfinished">计时事件</translation>
+        <translation>计时事件</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="63"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="76"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>移除</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="105"/>
         <source>Day %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - %2 日</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="126"/>
         <source>New event</source>
-        <translation type="unfinished">新事件</translation>
+        <translation>新事件</translation>
     </message>
 </context>
 <context>
@@ -1587,17 +1587,17 @@
     <message>
         <location filename="../inspector/townspellswidget.ui" line="29"/>
         <source>Spells</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>魔法</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="47"/>
         <source>Customize spells</source>
-        <translation type="unfinished">自定义魔法</translation>
+        <translation>自定义魔法</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="76"/>
         <source>Level 1</source>
-        <translation type="unfinished">1级</translation>
+        <translation>1级</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="93"/>
@@ -1606,7 +1606,7 @@
         <location filename="../inspector/townspellswidget.ui" line="231"/>
         <location filename="../inspector/townspellswidget.ui" line="277"/>
         <source>Spell that may appear in mage guild</source>
-        <translation type="unfinished"></translation>
+        <translation>允许出现在魔法行会的魔法</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="100"/>
@@ -1615,27 +1615,27 @@
         <location filename="../inspector/townspellswidget.ui" line="238"/>
         <location filename="../inspector/townspellswidget.ui" line="284"/>
         <source>Spell that must appear in mage guild</source>
-        <translation type="unfinished"></translation>
+        <translation>必须出现在魔法行会的魔法</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="122"/>
         <source>Level 2</source>
-        <translation type="unfinished">2级</translation>
+        <translation>2级</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="168"/>
         <source>Level 3</source>
-        <translation type="unfinished">3级</translation>
+        <translation>3级</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="214"/>
         <source>Level 4</source>
-        <translation type="unfinished">4级</translation>
+        <translation>4级</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="260"/>
         <source>Level 5</source>
-        <translation type="unfinished">5级</translation>
+        <translation>5级</translation>
     </message>
 </context>
 <context>
