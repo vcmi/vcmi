@@ -278,17 +278,6 @@
 
 	"vcmi.townHall.missingBase"             : "Základní budova %s musí být postavena jako první",
 	"vcmi.townHall.noCreaturesToRecruit"    : "Žádné jednotky k vycvičení!",
-	"vcmi.townHall.greetingManaVortex"      : "Při pobytu u místa %s se vaše tělo naplnilo novou energií. Máte dvojnásobné množství maximální magické energie.",
-	"vcmi.townHall.greetingKnowledge"       : "Studujete glyfy na the %s a porozumíte fungování různých magií (+1 Znalosti).",
-	"vcmi.townHall.greetingSpellPower"      : "%s vás učí nové cesty zaměření vaší magické síly (+1 Síla kouzel).",
-	"vcmi.townHall.greetingExperience"      : "Návštěva %s vás naučila spoustu nových dovedností (+1000 zkušeností).",
-	"vcmi.townHall.greetingAttack"          : "Čas strávený poblíž místa zvaného %s vám dovolil se naučit efektivnější bojové dovednosti (+1 Útočná síla).",
-	"vcmi.townHall.greetingDefence"         : "Trávíte čas na místě zvaném %s, zkušení bojovníci vás u toho naučili nové metody obrany (+1 Obranná síla).",
-	"vcmi.townHall.hasNotProduced"          : "%s - zatím nic nevyrobeno.",
-	"vcmi.townHall.hasProduced"             : "%s - vyrobeno %d %s tento týden.",
-	"vcmi.townHall.greetingCustomBonus"     : "%s vám dává +%d %s%s",
-	"vcmi.townHall.greetingCustomUntil"     : " do další bitvy.",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s - obnoveno na maximum vaši magickou energii.",
 
 	"vcmi.logicalExpressions.anyOf"  : "Něco z následujících:",
 	"vcmi.logicalExpressions.allOf"  : "Všechny následující:",

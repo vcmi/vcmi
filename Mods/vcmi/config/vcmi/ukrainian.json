@@ -285,17 +285,6 @@
 
 	"vcmi.townHall.missingBase"             : "Спочатку необхідно звести початкову будівлю: %s",
 	"vcmi.townHall.noCreaturesToRecruit"    : "Немає істот, яких можна завербувати!",
-	"vcmi.townHall.greetingManaVortex"      : "Неподалік %s ваше тіло наповнюється новою силою. Ваша звична магічна енергія сьогодні подвоєна.",
-	"vcmi.townHall.greetingKnowledge"       : "Ви вивчили знаки на %s, і на вас зійшло прозріння у справах магії. (+1 Knowledge).",
-	"vcmi.townHall.greetingSpellPower"      : "В %s вас навчили новим методам концентрації магічної сили. (+1 Power).",
-	"vcmi.townHall.greetingExperience"      : "Відвідавши %s, ви дізналися багато нового. (+1000 Experience).",
-	"vcmi.townHall.greetingAttack"          : "Перебування у %s дозволило вам краще використовувати бойові навички (+1 Attack Skill).",
-	"vcmi.townHall.greetingDefence"         : "У %s досвідчені воїни виклали вам свої захисні вміння. (+1 Defense).",
-	"vcmi.townHall.hasNotProduced"          : "Поки що %s нічого не створило.",
-	"vcmi.townHall.hasProduced"             : "Цього тижня %s створило %d одиниць, цього разу це %s.",
-	"vcmi.townHall.greetingCustomBonus"     : "%s дає вам +%d %s%s",
-	"vcmi.townHall.greetingCustomUntil"     : " до наступної битви.",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s повністю відновлює ваш запас очків магії.",
 
 	"vcmi.logicalExpressions.anyOf"  : "Будь-що з перерахованого:",
 	"vcmi.logicalExpressions.allOf"  : "Все з перерахованого:",

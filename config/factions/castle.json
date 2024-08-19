@@ -153,29 +153,38 @@
 
 			"buildings" :
 			{
-				"mageGuild1":     { "id" : 0 },
-				"mageGuild2":     { "id" : 1,  "upgrades" : "mageGuild1" },
-				"mageGuild3":     { "id" : 2,  "upgrades" : "mageGuild2" },
-				"mageGuild4":     { "id" : 3,  "upgrades" : "mageGuild3" },
-				"tavern":         { "id" : 5 },
-				"shipyard":       { "id" : 6 },
-				"fort":           { "id" : 7 },
-				"citadel":        { "id" : 8,  "upgrades" : "fort" },
-				"castle":         { "id" : 9,  "upgrades" : "citadel" },
-				"villageHall":    { "id" : 10, "mode" : "auto", "produce": { "gold": 500 } },
-				"townHall":       { "id" : 11, "upgrades" : "villageHall", "requires" : [ "tavern" ], "produce": { "gold": 1000 } },
-				"cityHall":       { "id" : 12, "upgrades" : "townHall", "requires" : [ "allOf", [ "mageGuild1" ], [ "marketplace" ], [ "blacksmith" ] ], "produce": { "gold": 2000 } },
-				"capitol":        { "id" : 13, "upgrades" : "cityHall", "requires" : [ "castle" ], "produce": { "gold": 4000 } },
-				"marketplace":    { "id" : 14 },
-				"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ], "produce": { "ore": 1, "wood": 1 } },
-				"blacksmith":     { "id" : 16 },
+				"mageGuild1":     { },
+				"mageGuild2":     { },
+				"mageGuild3":     { },
+				"mageGuild4":     { },
+				"tavern":         { },
+				"shipyard":       { },
+				"fort":           { },
+				"citadel":        { },
+				"castle":         { },
+				"villageHall":    { },
+				"townHall":       { },
+				"cityHall":       { },
+				"capitol":        { },
+				"marketplace":    { },
+				"resourceSilo":   { "produce": { "ore": 1, "wood": 1 } },
+				"blacksmith":     { },
 
-				"special1":       { "type" : "lighthouse", "requires" : [ "shipyard" ] },
+				"special1":       { 
+					"bonuses": [
+						{
+							"propagator": "PLAYER_PROPAGATOR",
+							"type": "MOVEMENT",
+							"subtype": "heroMovementSea",
+							"val": 500
+						}
+					],
+					"requires" : [ "shipyard" ]
+				},
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl3" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl3", "requires" : [ "horde1" ], "mode" : "auto" },
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },
 				"special2":       {
-					"type" : "configurable",
 					"requires" : [ "dwellingLvl4" ],
 					"configuration" : {
 						"visitMode" : "bonus",
@@ -188,7 +197,16 @@
 						]
 					}
 				},
-				"special3":       { "type" : "brotherhoodOfSword", "upgrades" : "tavern" },
+				"special3": {
+					"upgradeReplacesBonuses" : true,
+					"bonuses": [
+						{
+							"type": "MORALE",
+							"val": 2
+						}
+					],
+					"upgrades" : "tavern"
+				},
 				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 }, "bonuses": [ { "type": "MORALE", "val": 2, "propagator": "PLAYER_PROPAGATOR" } ] },
 
 				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },

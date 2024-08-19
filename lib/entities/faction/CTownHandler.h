@@ -25,6 +25,8 @@ class CTown;
 
 class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFaction, FactionService>
 {
+	JsonNode buildingsLibrary;
+
 	struct BuildingRequirementsHelper
 	{
 		JsonNode json;
@@ -39,17 +41,12 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	static const TPropagatorPtr & emptyPropagator();
 
 	void initializeRequirements();
-	void initializeOverridden();
 	void initializeWarMachines();
 
 	/// loads CBuilding's into town
 	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad) const;
 	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown * town, const JsonNode & source);
-
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val) const;
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype) const;
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, const TPropagatorPtr & prop) const;
 
 	/// loads CStructure's into town
 	void loadStructure(CTown & town, const std::string & stringID, const JsonNode & source) const;
@@ -78,17 +75,17 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
-	void addBonusesForVanilaBuilding(CBuilding * building) const;
 
 	void loadCustom() override;
 	void afterLoadFinalization() override;
+	void beforeValidate(JsonNode & object) override;
 
 	std::set<FactionID> getDefaultAllowed() const;
 	std::set<FactionID> getAllowedFactions(bool withTown = true) const;
 
-	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);
-
 protected:
+
+	void loadBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building) const;
 	const std::vector<std::string> & getTypeNames() const override;
 	std::shared_ptr<CFaction> loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };

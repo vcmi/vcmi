@@ -49,8 +49,6 @@ public:
 	std::string getBuildingScope() const;
 	std::set<si32> getAllBuildings() const;
 	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;
-	std::string getGreeting(BuildingSubID::EBuildingSubID subID) const;
-	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const; //may affect only mutable field
 	BuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
 
 	std::string getRandomNameTextID(size_t index) const;
@@ -106,10 +104,6 @@ public:
 		std::string towerIconLarge;
 
 	} clientInfo;
-
-private:
-	///generated bonusing buildings messages for all towns of this type.
-	mutable std::map<BuildingSubID::EBuildingSubID, const std::string> specialMessages; //may be changed by CGTownBuilding::getVisitingBonusGreeting() const
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -36,7 +36,7 @@
 		},
 		"type" : {
 			"type" : "string",
-			"enum" : [ "mysticPond", "artifactMerchant", "freelancersGuild", "magicUniversity", "castleGate", "creatureTransformer", "portalOfSummoning", "ballistaYard", "lookoutTower", "library", "brotherhoodOfSword", "fountainOfFortune", "spellPowerGarrisonBonus", "attackGarrisonBonus", "defenseGarrisonBonus", "escapeTunnel", "lighthouse", "treasury", "thievesGuild", "bank", "configurable" ],
+			"enum" : [ "mysticPond", "artifactMerchant", "freelancersGuild", "magicUniversity", "castleGate", "creatureTransformer", "portalOfSummoning", "ballistaYard", "library", "escapeTunnel", "treasury", "thievesGuild", "bank" ],
 			"description" : "Subtype for some special buildings"
 		},
 		"mode" : {
@@ -57,8 +57,12 @@
 			"description" : "Optional, indicates that this building upgrades another base building",
 			"type" : "string"
 		},
+		"upgradeReplacesBonuses" : {
+			"description" : "If set to true, this building will replace all bonuses from base building, leaving only bonuses defined by this building",
+			"type" : "boolean"
+		},
 		"configuration" : {
-			"description" : "Configuration of building. Only used if 'type' is set to 'configurable'",
+			"description" : "Optional, configuration of building that can be activated by visiting hero",
 			"$ref" : "rewardable.json"
 		},
 		"cost" : {
@@ -89,23 +93,9 @@
 				"gems" :    { "type" : "number"}
 			}
 		},
-		"overrides" : {
-			"type" : "array",
-			"items" : [
-				{
-					"description" : "The buildings which bonuses should be overridden with bonuses of the current building",
-					"type" : "string"
-				}
-			]
-		},
 		"bonuses" : {
 			"type" : "array",
-			"description" : "Bonuses, provided by this special building on build using bonus system",
-			"items" : { "$ref" : "bonus.json" }
-		},
-		"onVisitBonuses" : {
-			"type" : "array",
-			"description" : "Bonuses, provided by this special building on hero visit and applied to the visiting hero",
+			"description" : "Bonuses that are provided by this building in any town where this building has been built. Only affects town itself (including siege), to propagate effect to player or team please use bonus propagators",
 			"items" : { "$ref" : "bonus.json" }
 		}
 	}
