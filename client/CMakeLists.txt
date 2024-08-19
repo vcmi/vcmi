@@ -82,6 +82,7 @@ set(client_SRCS
 	media/CSoundHandler.cpp
 	media/CVideoHandler.cpp
 
+	render/AssetGenerator.cpp
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
 	render/CDefFile.cpp
@@ -280,6 +281,7 @@ set(client_HEADERS
 	media/ISoundPlayer.h
 	media/IVideoPlayer.h
 
+	render/AssetGenerator.h
 	render/CAnimation.h
 	render/CBitmapHandler.h
 	render/CDefFile.h

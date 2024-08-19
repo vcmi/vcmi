@@ -66,11 +66,22 @@ CFilesystemList::~CFilesystemList()
 
 std::unique_ptr<CInputStream> CFilesystemList::load(const ResourcePath & resourceName) const
 {
-	// load resource from last loader that have it (last overridden version)
-	for(const auto & loader : boost::adaptors::reverse(loaders))
+	if(resourceName.getOriginalResource())
 	{
-		if (loader->existsResource(resourceName))
-			return loader->load(resourceName);
+		for(const auto & loader : loaders)
+		{
+			if (loader->existsResource(resourceName))
+				return loader->load(resourceName);
+		}
+	}
+	else
+	{
+		// load resource from last loader that have it (last overridden version)
+		for(const auto & loader : boost::adaptors::reverse(loaders))
+		{
+			if (loader->existsResource(resourceName))
+				return loader->load(resourceName);
+		}
 	}
 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "

@@ -24,6 +24,7 @@
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
 #include "../render/EFont.h"
+#include "../render/AssetGenerator.h"
 #include "../renderSDL/ScreenHandler.h"
 #include "../renderSDL/RenderHandler.h"
 #include "../CMT.h"
@@ -63,6 +64,8 @@ void CGuiHandler::init()
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	inputHandlerInstance = std::make_unique<InputHandler>(); // Must be after windowHandlerInstance and shortcutsHandlerInstance
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
+
+	AssetGenerator::generate();
 }
 
 void CGuiHandler::handleEvents()
