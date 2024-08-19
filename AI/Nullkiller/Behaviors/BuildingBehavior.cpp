@@ -58,7 +58,6 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 		{
 			closestThreat = std::min(closestThreat, threat.turn);
 		}
-		int fortLevel = developmentInfo.town->fortLevel();
 		for (auto& buildingInfo : developmentInfo.toBuild)
 		{
 			if (closestThreat <= 1 && developmentInfo.town->fortLevel() < BuildingID::CASTLE && !buildingInfo.notEnoughRes)
