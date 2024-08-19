@@ -48,7 +48,6 @@ void Graphics::loadPaletteAndColors()
 	for(int i = 0; i < 256; ++i)
 	{
 		QColor col;
-		// Cast to unsigned char to ensure values are in the range 0-255
 		col.setRed(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
 		col.setGreen(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
 		col.setBlue(std::clamp(static_cast<int>(pals[startPoint++]), 0, 255));
