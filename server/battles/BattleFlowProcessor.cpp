@@ -23,6 +23,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/spells/BonusCaster.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
 
@@ -128,7 +129,7 @@ void BattleFlowProcessor::tryPlaceMoats(const CBattleInfoCallback & battle)
 void BattleFlowProcessor::onBattleStarted(const CBattleInfoCallback & battle)
 {
 	tryPlaceMoats(battle);
-	
+
 	gameHandler->turnTimerHandler->onBattleStart(battle.getBattle()->getBattleID());
 
 	if (battle.battleGetTacticDist() == 0)
@@ -321,13 +322,15 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 		if(!removeGhosts.changedStacks.empty())
 			gameHandler->sendAndApply(&removeGhosts);
-		
+
 		gameHandler->turnTimerHandler->onBattleNextStack(battle.getBattle()->getBattleID(), *next);
 
 		if (!tryMakeAutomaticAction(battle, next))
 		{
-			setActiveStack(battle, next);
-			break;
+			if(next->alive()) {
+				setActiveStack(battle, next);
+				break;
+			}
 		}
 	}
 }
@@ -757,8 +760,14 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				});
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
 				parameters.setSpellLevel(bonus->val);
-				parameters.massive = true;
-				parameters.smart = true;
+
+				auto &levelInfo = spell->getLevelInfo(bonus->val);
+				bool isDamageSpell = spell->isDamage() || spell->isOffensive();
+				if (!isDamageSpell || levelInfo.smartTarget || !levelInfo.range.empty())
+				{
+					parameters.massive = true;
+					parameters.smart = true;
+				}
 				//todo: recheck effect level
 				if(parameters.castIfPossible(gameHandler->spellEnv, spells::Target(1, spells::Destination())))
 				{

@@ -1,6 +1,6 @@
 # Town Building Format
 
-# Required data
+## Required data
 
 Each building requires following assets:
 
@@ -8,6 +8,107 @@ Each building requires following assets:
 -   Selection highlight (1 image)
 -   Selection area (1 image)
 -   Town hall icon (1 image)
+
+## Examples
+These are just a couple of examples of what can be done in VCMI. See vcmi configuration files to check how buildings from Heroes III are implemented or other mods for more examples
+####
+
+##### Order of Fire from Inferno:
+```jsonc
+"special4": {
+    "requires" : [ "mageGuild1" ],
+	"name" : "Order of Fire",
+	"description" : "Increases spellpower of visiting hero",
+	"cost" : {
+	    "mercury" : 5,
+		"gold" : 1000
+	},
+	"configuration" : {
+	    "visitMode" : "hero",
+		"rewards" : [
+		    {
+			    // NOTE: this forces vcmi to load string from H3 text file. In order to define own string simply write your own message without '@' symbol
+				"message" : "@core.genrltxt.582", 
+				"primary" : { "spellpower" : 1 }
+			}
+		]
+	}
+}
+``` 
+
+##### Mana Vortex from Dungeon
+```jsonc
+"special2": {
+    "requires" : [ "mageGuild1" ],
+	"name" : "Mana Vortex",
+	"description" : "Doubles mana points of the first visiting hero each week",
+	"cost" : {
+	    "gold" : 5000
+	},
+	"configuration" : {
+	    "resetParameters" : {
+		    "period" : 7,
+			"visitors" : true
+		},
+		"visitMode" : "once",
+		"rewards" : [
+		    {
+			    "limiter" : {
+				    "noneOf" : [ { "manaPercentage" : 200 } ]
+				},
+				"message" : "As you near the mana vortex your body is filled with new energy. You have doubled your normal spell points.",
+				"manaPercentage" : 200
+			}
+		]
+	}
+}
+```
+
+#### Resource Silo with custom production
+```jsonc
+"resourceSilo": {
+    "name" : "Wood Resource Silo",
+	"description" : "Produces 2 wood every day",
+	"cost" : {
+	    "wood" : 10,
+		"gold" : 5000
+	},
+	"produce" : {
+	    "wood": 2
+	}
+},
+```
+
+#### Brotherhood of Sword - bonuses in siege
+```jsonc
+"special3": {
+	// replaces +1 Morale bonus from Tavern
+	"upgradeReplacesBonuses" : true, 
+	// Gives +2 bonus to morale to town (effective only during siege)
+	"bonuses": [
+		{
+			"type": "MORALE",
+			"val": 2
+		}
+	],
+	"upgrades" : "tavern"
+},
+```
+
+#### Lighthouse - bonus to all heroes under player control
+```jsonc
+"special1":       { 
+	"bonuses": [
+		{
+			"propagator": "PLAYER_PROPAGATOR", // bonus affects everything under player control
+			"type": "MOVEMENT",
+			"subtype": "heroMovementSea",
+			"val": 500 // +500 movement points
+		}
+	],
+	"requires" : [ "shipyard" ]
+},
+```
 
 ## Town Building node
 
@@ -55,7 +156,7 @@ Each building requires following assets:
 		"gold" : 2000
 	}, 
 
-	//determine how this building can be built. Possible values are:
+    //determine how this building can be built. Possible values are:
 	// normal  - default value. Fulfill requirements, use resources, spend one day
 	// auto    - building appears when all requirements are built
 	// special - building can not be built manually
@@ -65,11 +166,11 @@ Each building requires following assets:
 	// Buildings which bonuses should be overridden with bonuses of the current building
 	"overrides" : [ "anotherBuilding ]
 	
-	// Bonuses, provided by this special building on build using bonus system
-	"bonuses" : BONUS_FORMAT
+    // Bonuses provided by this special building if this building or any of its upgrades are constructed in town
+	"bonuses" : [ BONUS_FORMAT ]
 	
-	// Bonuses, provided by this special building on hero visit and applied to the visiting hero
-	"onVisitBonuses" : BONUS_FORMAT
+    // If set to true, this building will replace all bonuses from base building, leaving only bonuses defined by this building"
+	"upgradeReplacesBonuses" : false,
 }
 ```
 
@@ -94,7 +195,8 @@ Building requirements can be described using logical expressions:
 ```
 ### List of unique town buildings
 
-Following Heroes III buildings can be used as unique buildings for a town. Their functionality should be identical to a corresponding H3 building:
+#### Buildings from Heroes III
+Following Heroes III buildings can be used as unique buildings for a town. Their functionality should be identical to a corresponding H3 building. H3 buildings that are not present in this list contain no hardcoded functionality. See vcmi json configuration to see how such buildings can be implemented in a mod.
 - `mysticPond`
 - `artifactMerchant`
 - `freelancersGuild`
@@ -103,64 +205,18 @@ Following Heroes III buildings can be used as unique buildings for a town. Their
 - `creatureTransformer`
 - `portalOfSummoning`
 - `ballistaYard`
-- `stables`
-- `manaVortex`
-- `lookoutTower`
 - `library`
-- `brotherhoodOfSword`
-- `fountainOfFortune`
 - `escapeTunnel`
-- `lighthouse`
 - `treasury`
-- `spellPowerGarrisonBonus`
-- `attackGarrisonBonus`
-- `defenseGarrisonBonus`
 
+#### Buildings from other Heroes III mods
 Following HotA buildings can be used as unique building for a town. Functionality should match corresponding HotA building:
 - `thievesGuild`
 - `bank`
 
-In addition to above, it is possible to use same format as [Rewardable](../Map_Objects/Rewardable.md) map objects for town buildings. In order to do that, town building type must be set to `configurable` and configuration of a rewardable object must be placed into `configuration` node 
+#### Custom buildings
+In addition to above, it is possible to use same format as [Rewardable](../Map_Objects/Rewardable.md) map objects for town buildings. In order to do that, configuration of a rewardable object must be placed into `configuration` json node in building config.
 
-Example 1 - Order of Fire from Inferno:
-```jsonc
-"special4": { // 
-	"type" : "configurable",
-	"requires" : [ "mageGuild1" ],
-	"configuration" : {
-		"visitMode" : "hero",
-		"rewards" : [
-			{
-				"message" : "@core.genrltxt.582", // NOTE: this forces vcmi to load string from H3 text file. In order to define own string simply write your own message without '@' symbol
-				"primary" : { "spellpower" : 1 }
-			}
-		]
-	}
-}
-``` 
-
-Example 2 - Mana Vortex from Dungeon
-```jsonc
-"special2": {
-	"type" : "configurable",
-	"requires" : [ "mageGuild1" ],
-	"configuration" : {
-		"resetParameters" : {
-			"period" : 7,
-			"visitors" : true
-		},
-		"visitMode" : "once",
-		"rewards" : [
-			{
-				"limiter" : {
-					"noneOf" : [ { "manaPercentage" : 200 } ]
-				},
-				"message" : "@core.genrltxt.579",
-				"manaPercentage" : 200
-			}
-		]
-	}
-}
 ```
 
 ### Town Structure node

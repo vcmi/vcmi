@@ -135,17 +135,6 @@
 
 	"vcmi.townHall.missingBase"             : "Le bâtiment de base %s doit être construit avant",
 	"vcmi.townHall.noCreaturesToRecruit"    : "Il n'y a aucune créature à recruter !",
-	"vcmi.townHall.greetingManaVortex"      : "Alors que vous approchez du %s, votre corps est rempli d'une nouvelle énergie. Vous avez doublé vos points de sort normaux.",
-	"vcmi.townHall.greetingKnowledge"       : "Vous étudiez les glyphes sur le %s et découvrez le fonctionnement de diverses magies (+1 Connaissance).",
-	"vcmi.townHall.greetingSpellPower"      : "Le %s vous apprend de nouvelles façons de concentrer vos pouvoirs magiques (+1 Pouvoir).",
-	"vcmi.townHall.greetingExperience"      : "Une visite au %s vous apprend de nombreuses nouvelles compétences (+1000 Expérience).",
-	"vcmi.townHall.greetingAttack"          : "Un peu de temps passé au %s vous permet d'apprendre des compétences de combat plus efficaces (+1 compétence d'attaque).",
-	"vcmi.townHall.greetingDefence"         : "En passant du temps dans le %s, les guerriers expérimentés qui s'y trouvent vous enseignent des compétences défensives supplémentaires (+1 Défense).",
-	"vcmi.townHall.hasNotProduced"          : "Le %s n'a encore rien produit.",
-	"vcmi.townHall.hasProduced"             : "Le %s a produit %d %s cette semaine.",
-	"vcmi.townHall.greetingCustomBonus"     : "%s vous offre +%d %s%s",
-	"vcmi.townHall.greetingCustomUntil"     : " jusqu'à la prochaine bataille.",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s a restauré vos points de sort au maximum.",
 
 	"vcmi.logicalExpressions.anyOf"  : "L'un des éléments suivants :",
 	"vcmi.logicalExpressions.allOf"  : "Tous les éléments suivants :",

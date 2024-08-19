@@ -36,6 +36,7 @@
 #include "mapObjects/CBank.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
+#include "mapObjects/TownBuildingInstance.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/CQuest.h"
 #include "mapObjects/MiscObjects.h"
@@ -1332,18 +1333,8 @@ void NewStructures::applyGs(CGameState *gs)
 	{
 		assert(t->town->buildings.at(id) != nullptr);
 		t->builtBuildings.insert(id);
-		t->updateAppearance();
-		auto currentBuilding = t->town->buildings.at(id);
-
-		if(currentBuilding->overrideBids.empty())
-			continue;
-
-		for(const auto & overrideBid : currentBuilding->overrideBids)
-		{
-			t->overriddenBuildings.insert(overrideBid);
-			t->deleteTownBonus(overrideBid);
-		}
 	}
+	t->updateAppearance();
 	t->built = built;
 	t->recreateBuildingsBonuses();
 }
@@ -2441,13 +2432,13 @@ void SetRewardableConfiguration::applyGs(CGameState * gs)
 	else
 	{
 		auto * townPtr = dynamic_cast<CGTownInstance*>(objectPtr);
-		CGTownBuilding * buildingPtr = nullptr;
+		TownBuildingInstance * buildingPtr = nullptr;
 
-		for (CGTownBuilding * building : townPtr->bonusingBuildings)
-			if (building->getBuildingType() == buildingID)
-				buildingPtr = building;
+		for (auto & building : townPtr->rewardableBuildings)
+			if (building.second->getBuildingType() == buildingID)
+				buildingPtr = building.second;
 
-		auto * rewardablePtr = dynamic_cast<CTownRewardableBuilding *>(buildingPtr);
+		auto * rewardablePtr = dynamic_cast<TownRewardableBuildingInstance *>(buildingPtr);
 		assert(rewardablePtr);
 		rewardablePtr->configuration = configuration;
 	}

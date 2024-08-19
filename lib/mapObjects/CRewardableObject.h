@@ -95,7 +95,6 @@ public:
 // class DLL_LINKAGE CGPyramid : public CBank
 
 // EXTRA
-// class DLL_LINKAGE COPWBonus : public CGTownBuilding
 // class DLL_LINKAGE CTownBonus : public CGTownBuilding
 // class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 // class DLL_LINKAGE CGKeymasterTent : public CGKeys

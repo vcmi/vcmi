@@ -12,7 +12,7 @@
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/CGCreature.h"
-#include "../mapObjects/CGTownBuilding.h"
+#include "../mapObjects/TownBuildingInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../battle/BattleInfo.h"
 #include "../battle/CObstacleInstance.h"
@@ -86,10 +86,10 @@ void registerTypesMapObjects(Serializer &s)
 	//order of type registration is critical for loading old savegames
 
 	//Other object-related
-	s.template registerType<IObjectInterface, CGTownBuilding>();
-		s.template registerType<CGTownBuilding, CTownBonus>();
-		s.template registerType<CGTownBuilding, COPWBonus>();
-		s.template registerType<CGTownBuilding, CTownRewardableBuilding>();
+	s.template registerType<IObjectInterface, TownBuildingInstance>();
+	s.template registerType<TownBuildingInstance, TownRewardableBuildingInstance>();
+		s.template registerType<TownBuildingInstance, CTownCompatBuilding1>();
+		s.template registerType<TownBuildingInstance, CTownCompatBuilding2>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
 
