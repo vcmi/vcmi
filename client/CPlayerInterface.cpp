@@ -621,7 +621,7 @@ void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreat
 	movementController->onBattleStarted();
 
 	//Don't wait for dialogs when we are non-active hot-seat player
-	if (LOCPLINT == this)
+	if (makingTurn)
 		waitForAllDialogs();
 }
 
