@@ -23,8 +23,32 @@ VCMI_LIB_NAMESPACE_BEGIN
 void AssetGenerator::generate()
 {
 	createBigSpellBook("data/SpelBk2.bmp");
+    createAdventureOptionsCleanBackground("data/ADVOPTBC.bmp");
 }
 
+void AssetGenerator::createAdventureOptionsCleanBackground(std::string filename)
+{
+	if(!CResourceHandler::get("local")->createResource(filename))
+		return;
+
+	auto res = ImagePath::builtin("ADVOPTBK");
+	res.setOriginalResource(true);
+
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
+
+	Canvas canvas = Canvas(Point(575, 585));
+	canvas.draw(img, Point(0, 0), Rect(0, 0, 575, 585));
+	canvas.draw(img, Point(54, 121), Rect(54, 123, 335, 1));
+	canvas.draw(img, Point(158, 84), Rect(156, 84, 2, 37));
+	canvas.draw(img, Point(234, 84), Rect(232, 84, 2, 37));
+	canvas.draw(img, Point(310, 84), Rect(308, 84, 2, 37));
+	canvas.draw(img, Point(53, 389), Rect(53, 342, 338, 181));
+
+	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
+
+	ResourcePath savePath(filename, EResType::IMAGE);
+	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+}
 void AssetGenerator::createBigSpellBook(std::string filename)
 {
 	if(!CResourceHandler::get("local")->createResource(filename))

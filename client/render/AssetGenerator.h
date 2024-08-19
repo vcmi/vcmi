@@ -15,6 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE AssetGenerator
 {
     static void createBigSpellBook(std::string filename);
+    static void createAdventureOptionsCleanBackground(std::string filename);
 
 public:
     static void generate();
