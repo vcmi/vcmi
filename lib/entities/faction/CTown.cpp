@@ -78,14 +78,4 @@ BuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
 	return building == nullptr ? BuildingID::NONE : building->bid.num;
 }
 
-std::string CTown::getGreeting(BuildingSubID::EBuildingSubID subID) const
-{
-	return vstd::find_or(specialMessages, subID, std::string());
-}
-
-void CTown::setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const
-{
-	specialMessages.insert(std::pair<BuildingSubID::EBuildingSubID, const std::string>(subID, message));
-}
-
 VCMI_LIB_NAMESPACE_END

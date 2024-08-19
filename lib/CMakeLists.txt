@@ -122,7 +122,7 @@ set(lib_MAIN_SRCS
 	mapObjects/CGMarket.cpp
 	mapObjects/CGObjectInstance.cpp
 	mapObjects/CGPandoraBox.cpp
-	mapObjects/CGTownBuilding.cpp
+	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
 	mapObjects/CObjectHandler.cpp
 	mapObjects/CQuest.cpp
@@ -496,7 +496,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/CGMarket.h
 	mapObjects/CGObjectInstance.h
 	mapObjects/CGPandoraBox.h
-	mapObjects/CGTownBuilding.h
+	mapObjects/TownBuildingInstance.h
 	mapObjects/CGTownInstance.h
 	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h

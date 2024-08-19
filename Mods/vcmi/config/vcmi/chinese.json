@@ -285,17 +285,6 @@
 
 	"vcmi.townHall.missingBase"             : "必须先建造基础建筑 %s",
 	"vcmi.townHall.noCreaturesToRecruit"    : "没有可供招募的生物。",
-	"vcmi.townHall.greetingManaVortex"      : "接近%s时，你会全身充满活力，并且你的魔法值会加倍。",
-	"vcmi.townHall.greetingKnowledge"       : "你研究了%s的浮雕，洞察了魔法的秘密(知识+1)。",
-	"vcmi.townHall.greetingSpellPower"      : "%s教你如何运用魔法力量(力量+1)。",
-	"vcmi.townHall.greetingExperience"      : "参观%s可以让你学会许多新的技能(经验值+1000)。",
-	"vcmi.townHall.greetingAttack"          : "在%s中稍待片刻可以让你学会更有效的战斗技巧(攻击力+1)。",
-	"vcmi.townHall.greetingDefence"         : "在%s中稍待片刻，富有战斗经验的战士会教你防御技巧(防御力+1)。",
-	"vcmi.townHall.hasNotProduced"          : "本周%s并没有产生什么资源。",
-	"vcmi.townHall.hasProduced"             : "本周%s产生了%d个%s。",
-	"vcmi.townHall.greetingCustomBonus"     : "%s 给予英雄 +%d %s%s。",
-	"vcmi.townHall.greetingCustomUntil"     : "直到下一场战斗。",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s使你的魔法值恢复到最大值。",
 
 	"vcmi.logicalExpressions.anyOf"  : "以下任一前提：",
 	"vcmi.logicalExpressions.allOf"  : "以下所有前提：",

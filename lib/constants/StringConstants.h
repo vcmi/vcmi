@@ -185,26 +185,12 @@ namespace MappedKeys
 		{ "creatureTransformer", BuildingSubID::CREATURE_TRANSFORMER },//only skeleton transformer yet
 		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
 		{ "ballistaYard", BuildingSubID::BALLISTA_YARD },
-		{ "stables", BuildingSubID::STABLES },
-		{ "manaVortex", BuildingSubID::MANA_VORTEX },
-		{ "lookoutTower", BuildingSubID::LOOKOUT_TOWER },
 		{ "library", BuildingSubID::LIBRARY },
-		{ "brotherhoodOfSword", BuildingSubID::BROTHERHOOD_OF_SWORD },//morale garrison bonus
 		{ "fountainOfFortune", BuildingSubID::FOUNTAIN_OF_FORTUNE },//luck garrison bonus
-		{ "spellPowerGarrisonBonus", BuildingSubID::SPELL_POWER_GARRISON_BONUS },//such as 'stormclouds', but this name is not ok for good towns
-		{ "attackGarrisonBonus", BuildingSubID::ATTACK_GARRISON_BONUS },
-		{ "defenseGarrisonBonus", BuildingSubID::DEFENSE_GARRISON_BONUS },
 		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },
-		{ "attackVisitingBonus", BuildingSubID::ATTACK_VISITING_BONUS },
-		{ "defenceVisitingBonus", BuildingSubID::DEFENSE_VISITING_BONUS },
-		{ "spellPowerVisitingBonus", BuildingSubID::SPELL_POWER_VISITING_BONUS },
-		{ "knowledgeVisitingBonus", BuildingSubID::KNOWLEDGE_VISITING_BONUS },
-		{ "experienceVisitingBonus", BuildingSubID::EXPERIENCE_VISITING_BONUS },
-		{ "lighthouse", BuildingSubID::LIGHTHOUSE },
 		{ "treasury", BuildingSubID::TREASURY },
 		{ "thievesGuild", BuildingSubID::THIEVES_GUILD },
-		{ "bank", BuildingSubID::BANK },
-		{ "configurable", BuildingSubID::CUSTOM_VISITING_REWARD}
+		{ "bank", BuildingSubID::BANK }
 	};
 
 	static const std::map<std::string, EMarketMode> MARKET_NAMES_TO_TYPES =

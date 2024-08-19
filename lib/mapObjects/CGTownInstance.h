@@ -11,16 +11,19 @@
 
 #include "IMarket.h"
 #include "CGDwelling.h"
-#include "CGTownBuilding.h"
-#include "../LogicalExpression.h"
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CCastleEvent;
+class CTown;
+class TownBuildingInstance;
+class TownRewardableBuildingInstance;
 struct DamageRange;
 
+template<typename ContainedClass>
+class LogicalExpression;
 
 class DLL_LINKAGE CTownAndVisitingHero : public CBonusSystemNode
 {
@@ -47,6 +50,8 @@ struct DLL_LINKAGE GrowthInfo
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
 {
 	std::string nameTextId; // name of town
+
+	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 public:
 	using CGDwelling::getPosition;
 
@@ -61,8 +66,7 @@ public:
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
 	std::set<BuildingID> builtBuildings;
-	std::set<BuildingID> overriddenBuildings; ///buildings which bonuses are overridden and should not be applied
-	std::vector<CGTownBuilding*> bonusingBuildings;
+	std::map<BuildingID, TownRewardableBuildingInstance*> rewardableBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
@@ -86,11 +90,18 @@ public:
 		h & obligatorySpells;
 		h & spells;
 		h & events;
-		h & bonusingBuildings;
-		
-		for(auto * bonusingBuilding : bonusingBuildings)
-			bonusingBuilding->town = this;
-		
+
+		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
+		{
+			h & rewardableBuildings;
+		}
+		else
+		{
+			std::vector<TownRewardableBuildingInstance*> oldVector;
+			h & oldVector;
+			rewardableBuildings = convertOldBuildings(oldVector);
+		}
+
 		if (h.saving)
 		{
 			CFaction * faction = town ? town->faction : nullptr;
@@ -106,23 +117,14 @@ public:
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
-		if(town)
+		if (h.version < Handler::Version::NEW_TOWN_BUILDINGS)
 		{
-			vstd::erase_if(builtBuildings, [this](BuildingID building) -> bool
-			{
-				if(!town->buildings.count(building) || !town->buildings.at(building))
-				{
-					logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", nameTextId, pos.toString(), building);
-					return true;
-				}
-				return false;
-			});
+			std::set<BuildingID> overriddenBuildings;
+			h & overriddenBuildings;
 		}
 
-		h & overriddenBuildings;
-
 		if(!h.saving)
-			this->setNodeType(CBonusSystemNode::TOWN);
+			postDeserialize();
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -130,6 +132,7 @@ public:
 	std::string nodeName() const override;
 	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();
+	void postDeserialize();
 	void recreateBuildingsBonuses();
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
@@ -165,7 +168,6 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	std::vector<const CGTownBuilding *> getBonusingBuildings(BuildingSubID::EBuildingSubID subId) const;
 	bool hasBuiltSomeTradeBuilding() const;
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
@@ -231,9 +233,7 @@ private:
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	bool isBonusingBuildingAdded(BuildingID bid) const;
-	void initOverriddenBids();
-	void addTownBonuses(vstd::RNG & rand);
+	void initializeConfigurableBuildings(vstd::RNG & rand);
 };
 
 VCMI_LIB_NAMESPACE_END
