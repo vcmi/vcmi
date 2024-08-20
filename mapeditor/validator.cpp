@@ -88,10 +88,10 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			//owners for objects
 			if(o->getOwner() == PlayerColor::UNFLAGGABLE)
 			{
-				if(dynamic_cast<CGMine * >(o.get()) ||
-				   dynamic_cast<CGDwelling * >(o.get()) ||
-				   dynamic_cast<CGTownInstance * >(o.get()) ||
-				   dynamic_cast<CGGarrison * >(o.get()) ||
+				if(dynamic_cast<CGMine *>(o.get()) ||
+				   dynamic_cast<CGDwelling *>(o.get()) ||
+				   dynamic_cast<CGTownInstance *>(o.get()) ||
+				   dynamic_cast<CGGarrison *>(o.get()) ||
 				   dynamic_cast<CGHeroInstance *>(o.get()))
 				{
 					issues.insert({ tr("Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner").arg(o->instanceName.c_str()), true });
@@ -158,7 +158,7 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 		}
 
 		//verification of starting towns
-		for (auto const & [player, counter] : amountOfTowns)
+		for (const auto & [player, counter] : amountOfTowns)
 		{
 			if (counter == 0)
 			{

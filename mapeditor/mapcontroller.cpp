@@ -382,10 +382,10 @@ void MapController::pasteFromClipboard(int level)
 		_clipboardShiftIndex = 0;
 	
 	QStringList errors;
-	QString errorMsg;
 	for(auto & objUniquePtr : _clipboard)
 	{
 		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		QString errorMsg;
 		if (!canPlaceObject(level, obj, errorMsg))
 		{
 			errors.push_back(std::move(errorMsg));

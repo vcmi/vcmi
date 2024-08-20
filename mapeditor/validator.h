@@ -34,7 +34,7 @@ public:
 
 		bool operator <(const Issue & other) const
 		{
-			return message < other.message;
+			return message < other.message && critical == other.critical;
 		}
 	};
 	
