@@ -31,10 +31,6 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 	if(!CResourceHandler::get("local")->createResource(filename))
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
-	
-	if(boost::filesystem::exists(*CResourceHandler::get("local")->getResourceName(savePath)) &&
-	   boost::filesystem::file_size(*CResourceHandler::get("local")->getResourceName(savePath)))
-		return;   
 
 	auto res = ImagePath::builtin("ADVOPTBK");
 	res.setOriginalResource(true);
@@ -53,6 +49,8 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+
+	CResourceHandler::get("local")->removeResource(savePath); // remove resource -> may overridden by mod later
 }
 
 void AssetGenerator::createBigSpellBook()
@@ -62,10 +60,6 @@ void AssetGenerator::createBigSpellBook()
 	if(!CResourceHandler::get("local")->createResource(filename))
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
-	
-	if(boost::filesystem::exists(*CResourceHandler::get("local")->getResourceName(savePath)) &&
-	   boost::filesystem::file_size(*CResourceHandler::get("local")->getResourceName(savePath)))
-		return;   
 
 	auto res = ImagePath::builtin("SpelBack");
 	res.setOriginalResource(true);
@@ -117,4 +111,6 @@ void AssetGenerator::createBigSpellBook()
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+
+	CResourceHandler::get("local")->removeResource(savePath); // remove resource -> may overridden by mod later
 }
