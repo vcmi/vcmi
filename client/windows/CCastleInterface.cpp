@@ -1906,12 +1906,10 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 		return nullptr;
 
 	const CBuilding * build = town->town->buildings.at(myID);
-	while (town->town->buildings.count(myID))
-	{
-		if (town->hasBuilt(myID))
-			build = town->town->buildings.at(myID);
-		myID.advance(town->town->creatures.size());
-	}
+	myID = BuildingID::getDwellingFromLevel(level, 1);
+	if (town->hasBuilt(myID))
+		build = town->town->buildings.at(myID);
+
 	return build;
 }
 
