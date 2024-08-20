@@ -40,7 +40,8 @@ void AssetGenerator::createAdventureOptionsCleanBackground(std::string filename)
 	canvas.draw(img, Point(158, 84), Rect(156, 84, 2, 37));
 	canvas.draw(img, Point(234, 84), Rect(232, 84, 2, 37));
 	canvas.draw(img, Point(310, 84), Rect(308, 84, 2, 37));
-	canvas.draw(img, Point(53, 389), Rect(53, 342, 338, 181));
+	canvas.draw(img, Point(53, 567), Rect(53, 520, 339, 3));
+	canvas.draw(img, Point(53, 520), Rect(53, 264, 339, 47));
 
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
