@@ -130,13 +130,13 @@ TIcons CStatisticScreen::extractIcons() const
 	std::sort(tmpData.begin(), tmpData.end(), [](const StatisticDataSetEntry & v1, const StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
 
 	auto imageTown = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 3, 0, EImageBlitMode::COLORKEY);
-	imageTown->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	imageTown->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
 	auto imageBattle = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 5, 0, EImageBlitMode::COLORKEY);
-	imageBattle->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	imageBattle->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
 	auto imageDefeated = GH.renderHandler().loadImage(AnimationPath::builtin("tpthchk"), 1, 0, EImageBlitMode::COLORKEY);
-	imageDefeated->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	imageDefeated->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
 	auto imageGrail = GH.renderHandler().loadImage(AnimationPath::builtin("vwsymbol"), 2, 0, EImageBlitMode::COLORKEY);
-	imageGrail->scaleFast(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	imageGrail->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
 
 	std::map<PlayerColor, bool> foundDefeated;
 	std::map<PlayerColor, bool> foundGrail;
