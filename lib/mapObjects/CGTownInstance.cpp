@@ -943,8 +943,12 @@ void CGTownInstance::addBuilding(const BuildingID & buildingID)
 	if(buildingID == BuildingID::NONE)
 		return;
 
-	builtBuildings.insert(buildingID);
-	marketBuildingModeMapper(buildingID, [this](const EMarketMode mode) {addMarketMode(mode);});
+	const auto townType = (*VLC->townh)[getFaction()]->town;
+	if(const auto & building = townType->buildings.find(buildingID); building != townType->buildings.end())
+	{
+		builtBuildings.insert(buildingID);
+		addMarketMode(building->second->marketModes);
+	}
 }
 
 void CGTownInstance::removeBuilding(const BuildingID & buildingID)
@@ -952,8 +956,11 @@ void CGTownInstance::removeBuilding(const BuildingID & buildingID)
 	if(!vstd::contains(builtBuildings, buildingID))
 		return;
 
-	builtBuildings.erase(buildingID);
-	marketBuildingModeMapper(buildingID, [this](const EMarketMode mode) {removeMarketMode(mode);});
+	if(const auto & building = town->buildings.find(buildingID); building != town->buildings.end())
+	{
+		builtBuildings.erase(buildingID);
+		removeMarketMode(building->second->marketModes);
+	}
 }
 
 void CGTownInstance::removeAllBuildings()
@@ -965,37 +972,6 @@ void CGTownInstance::removeAllBuildings()
 std::set<BuildingID> CGTownInstance::getBuildings() const
 {
 	return builtBuildings;
-}
-
-void CGTownInstance::marketBuildingModeMapper(const BuildingID & buildingID, const std::function<void(const EMarketMode)> & func)
-{
-	const auto townType = (*VLC->townh)[getFaction()]->town;
-	if(townType->buildings.find(buildingID) == townType->buildings.end())
-		return;
-
-	// TODO how to remove hardcoded buildings?
-	if(buildingID == BuildingID::MARKETPLACE)
-	{
-		func(EMarketMode::RESOURCE_RESOURCE);
-		func(EMarketMode::RESOURCE_PLAYER);
-	}
-	else if(townType->buildings.at(buildingID)->subId == BuildingSubID::ARTIFACT_MERCHANT)
-	{
-		func(EMarketMode::ARTIFACT_RESOURCE);
-		func(EMarketMode::RESOURCE_ARTIFACT);
-	}
-	else if(townType->buildings.at(buildingID)->subId == BuildingSubID::FREELANCERS_GUILD)
-	{
-		func(EMarketMode::CREATURE_RESOURCE);
-	}
-	else if(townType->buildings.at(buildingID)->subId == BuildingSubID::CREATURE_TRANSFORMER)
-	{
-		func(EMarketMode::CREATURE_UNDEAD);
-	}
-	else if(townType->buildings.at(buildingID)->subId == BuildingSubID::MAGIC_UNIVERSITY)
-	{
-		func(EMarketMode::RESOURCE_SKILL);
-	}
 }
 
 TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const

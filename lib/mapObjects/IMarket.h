@@ -32,6 +32,7 @@ public:
 	void addMarketMode(const EMarketMode mode);
 	void addMarketMode(const std::set<EMarketMode> & modes);
 	void removeMarketMode(const EMarketMode mode);
+	void removeMarketMode(const std::set<EMarketMode> & modes);
 	void removeAllMarketModes();
 	std::set<EMarketMode> availableModes() const;
 	std::shared_ptr<CArtifactSet> getArtifactsStorage() const;

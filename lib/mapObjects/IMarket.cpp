@@ -162,6 +162,12 @@ void IMarket::removeMarketMode(const EMarketMode mode)
 		altarArtifactsStorage.reset();
 }
 
+void IMarket::removeMarketMode(const std::set<EMarketMode> & modes)
+{
+	for(const auto & mode : modes)
+		removeMarketMode(mode);
+}
+
 void IMarket::removeAllMarketModes()
 {
 	marketModes.clear();

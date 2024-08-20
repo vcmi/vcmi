@@ -34,6 +34,7 @@ public:
 	TResources resources;
 	TResources produce;
 	TRequired requirements;
+	std::set<EMarketMode> marketModes;
 
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty

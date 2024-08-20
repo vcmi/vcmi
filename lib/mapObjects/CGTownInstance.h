@@ -231,7 +231,6 @@ protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
-	void marketBuildingModeMapper(const BuildingID & buildingID, const std::function<void(const EMarketMode)> & func);
 
 private:
 	FactionID randomizeFaction(vstd::RNG & rand);

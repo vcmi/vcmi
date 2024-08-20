@@ -170,7 +170,7 @@
 				"townHall":       { },
 				"cityHall":       { },
 				"capitol":        { },
-				"marketplace":    { },
+				"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
 				"resourceSilo":   { "produce": { "crystal": 1 } },
 				"blacksmith":     { },
 

@@ -55,7 +55,6 @@ void registerTypesMapObjects(Serializer &s)
 		s.template registerType<CGMarket, CGBlackMarket>();
 		s.template registerType<CGMarket, CGUniversity>();
 	s.template registerType<CGObjectInstance, CGHeroPlaceholder>();
-	s.template registerType<IMarket, CGMarket>();
 
 	s.template registerType<CGObjectInstance, CArmedInstance>(); s.template registerType<CBonusSystemNode, CArmedInstance>(); s.template registerType<CCreatureSet, CArmedInstance>();
 
@@ -133,6 +132,7 @@ void registerTypesMapObjects(Serializer &s)
 
 	//s.template registerType<CObstacleInstance>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
+	s.template registerType<IMarket, CGMarket>();
 }
 
 VCMI_LIB_NAMESPACE_END
