@@ -176,7 +176,7 @@ const Point & CGuiHandler::getCursorPosition() const
 
 Point CGuiHandler::screenDimensions() const
 {
-	return Point(screen->w, screen->h);
+	return screenHandlerInstance->getLogicalResolution();
 }
 
 void CGuiHandler::drawFPSCounter()

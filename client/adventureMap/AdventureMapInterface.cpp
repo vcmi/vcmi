@@ -453,7 +453,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		widget->getInfoBar()->showDate();
 
 	onHeroChanged(nullptr);
-	Canvas canvas = Canvas::createFromSurface(screen);
+	Canvas canvas = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 	showAll(canvas);
 	mapAudio->onPlayerTurnStarted();
 

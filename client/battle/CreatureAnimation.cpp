@@ -323,33 +323,6 @@ static ColorRGBA genBorderColor(ui8 alpha, const ColorRGBA & base)
 	return ColorRGBA(base.r, base.g, base.b, ui8(base.a * alpha / 256));
 }
 
-static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
-{
-	return c1*a1 / 256 + c2*a2*(255 - a1) / 256 / 256;
-}
-
-static ColorRGBA addColors(const ColorRGBA & base, const ColorRGBA & over)
-{
-	return ColorRGBA(
-			mixChannels(over.r, base.r, over.a, base.a),
-			mixChannels(over.g, base.g, over.a, base.a),
-			mixChannels(over.b, base.b, over.a, base.a),
-			ui8(over.a + base.a * (255 - over.a) / 256)
-			);
-}
-
-void CreatureAnimation::genSpecialPalette(IImage::SpecialPalette & target)
-{
-	target.resize(8);
-	target[0] = genShadow(0);
-	target[1] = genShadow(shadowAlpha / 2);
-	// colors 2 & 3 are not used in creatures
-	target[4] = genShadow(shadowAlpha);
-	target[5] = genBorderColor(getBorderStrength(elapsedTime), border);
-	target[6] = addColors(genShadow(shadowAlpha),     genBorderColor(getBorderStrength(elapsedTime), border));
-	target[7] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
-}
-
 void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight)
 {
 	ColorRGBA shadowTest = shifter.shiftColor(genShadow(128));
@@ -366,11 +339,12 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 
 	if(image)
 	{
-		IImage::SpecialPalette SpecialPalette;
-		genSpecialPalette(SpecialPalette);
+		image->setShadowEnabled(true);
+		image->setOverlayEnabled(isIdle());
+		if (isIdle())
+			image->setOverlayColor(genBorderColor(getBorderStrength(elapsedTime), border));
 
-		image->setSpecialPalette(SpecialPalette, IImage::SPECIAL_PALETTE_MASK_CREATURES);
-		image->adjustPalette(shifter, IImage::SPECIAL_PALETTE_MASK_CREATURES);
+		image->adjustPalette(shifter, 0);
 
 		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
 
