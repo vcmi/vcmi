@@ -20,21 +20,28 @@
 
 void AssetGenerator::generate()
 {
-	createBigSpellBook("data/SpelBk2.bmp");
-    createAdventureOptionsCleanBackground("data/ADVOPTBC.bmp");
+	createBigSpellBook();
+	createAdventureOptionsCleanBackground();
 }
 
-void AssetGenerator::createAdventureOptionsCleanBackground(std::string filename)
+void AssetGenerator::createAdventureOptionsCleanBackground()
 {
+	std::string filename = "data/ADVOPTBC.bmp";
+
 	if(!CResourceHandler::get("local")->createResource(filename))
 		return;
+	ResourcePath savePath(filename, EResType::IMAGE);
+	
+	if(boost::filesystem::exists(*CResourceHandler::get("local")->getResourceName(savePath)) &&
+	   boost::filesystem::file_size(*CResourceHandler::get("local")->getResourceName(savePath)))
+		return;   
 
 	auto res = ImagePath::builtin("ADVOPTBK");
 	res.setOriginalResource(true);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
 
-	Canvas canvas = Canvas(Point(575, 585));
+	Canvas canvas = Canvas(Point(575, 585), CanvasScalingPolicy::IGNORE);
 	canvas.draw(img, Point(0, 0), Rect(0, 0, 575, 585));
 	canvas.draw(img, Point(54, 121), Rect(54, 123, 335, 1));
 	canvas.draw(img, Point(158, 84), Rect(156, 84, 2, 37));
@@ -45,45 +52,51 @@ void AssetGenerator::createAdventureOptionsCleanBackground(std::string filename)
 
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
-	ResourcePath savePath(filename, EResType::IMAGE);
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
 
-void AssetGenerator::createBigSpellBook(std::string filename)
+void AssetGenerator::createBigSpellBook()
 {
+	std::string filename = "data/SpelBk2.bmp";
+
 	if(!CResourceHandler::get("local")->createResource(filename))
 		return;
+	ResourcePath savePath(filename, EResType::IMAGE);
+	
+	if(boost::filesystem::exists(*CResourceHandler::get("local")->getResourceName(savePath)) &&
+	   boost::filesystem::file_size(*CResourceHandler::get("local")->getResourceName(savePath)))
+		return;   
 
 	auto res = ImagePath::builtin("SpelBack");
 	res.setOriginalResource(true);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
-	Canvas canvas = Canvas(Point(800, 600));
+	Canvas canvas = Canvas(Point(800, 600), CanvasScalingPolicy::IGNORE);
 	// edges
 	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
 	canvas.draw(img, Point(0, 460), Rect(15, 400, 90, 141));
 	canvas.draw(img, Point(705, 0), Rect(509, 38, 95, 45));
 	canvas.draw(img, Point(705, 460), Rect(509, 400, 95, 141));
 	// left / right
-	Canvas tmp1 = Canvas(Point(90, 355 - 45));
+	Canvas tmp1 = Canvas(Point(90, 355 - 45), CanvasScalingPolicy::IGNORE);
 	tmp1.draw(img, Point(0, 0), Rect(15, 38 + 45, 90, 355 - 45));
 	canvas.drawScaled(tmp1, Point(0, 45), Point(90, 415));
-	Canvas tmp2 = Canvas(Point(95, 355 - 45));
+	Canvas tmp2 = Canvas(Point(95, 355 - 45), CanvasScalingPolicy::IGNORE);
 	tmp2.draw(img, Point(0, 0), Rect(509, 38 + 45, 95, 355 - 45));
 	canvas.drawScaled(tmp2, Point(705, 45), Point(95, 415));
 	// top / bottom
-	Canvas tmp3 = Canvas(Point(409, 45));
+	Canvas tmp3 = Canvas(Point(409, 45), CanvasScalingPolicy::IGNORE);
 	tmp3.draw(img, Point(0, 0), Rect(100, 38, 409, 45));
 	canvas.drawScaled(tmp3, Point(90, 0), Point(615, 45));
-	Canvas tmp4 = Canvas(Point(409, 141));
+	Canvas tmp4 = Canvas(Point(409, 141), CanvasScalingPolicy::IGNORE);
 	tmp4.draw(img, Point(0, 0), Rect(100, 400, 409, 141));
 	canvas.drawScaled(tmp4, Point(90, 460), Point(615, 141));
 	// middle
-	Canvas tmp5 = Canvas(Point(409, 141));
+	Canvas tmp5 = Canvas(Point(409, 141), CanvasScalingPolicy::IGNORE);
 	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 15, 400 - 38));
 	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
 	// carpet
-	Canvas tmp6 = Canvas(Point(590, 59));
+	Canvas tmp6 = Canvas(Point(590, 59), CanvasScalingPolicy::IGNORE);
 	tmp6.draw(img, Point(0, 0), Rect(15, 484, 590, 59));
 	canvas.drawScaled(tmp6, Point(0, 545), Point(800, 59));
 	// remove bookmarks
@@ -103,6 +116,5 @@ void AssetGenerator::createBigSpellBook(std::string filename)
 
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
-	ResourcePath savePath(filename, EResType::IMAGE);
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }

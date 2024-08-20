@@ -11,8 +11,8 @@
 
 class AssetGenerator
 {
-    static void createAdventureOptionsCleanBackground(std::string filename);
-    static void createBigSpellBook(std::string filename);
+    static void createAdventureOptionsCleanBackground();
+    static void createBigSpellBook();
 
 public:
     static void generate();
