@@ -187,9 +187,7 @@ void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroIn
 	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("TPMRKABS.bmp"), PLAYER_COLORED);
-	const auto mapObj = dynamic_cast<const CGObjectInstance*>(market);
-	assert(market);
-	marketWidget = std::make_shared<CArtifactsBuying>(market, hero, LOCPLINT->cb->getTown(mapObj->id) ?
+	marketWidget = std::make_shared<CArtifactsBuying>(market, hero, LOCPLINT->cb->getTown(market->getObjInstanceID()) ?
 		VLC->generaltexth->translate("building.core.conflux.special1.name") : CGI->generaltexth->allTexts[349]);
 	initWidgetInternals(EMarketMode::RESOURCE_ARTIFACT, CGI->generaltexth->zelp[600]);
 }
@@ -202,8 +200,7 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	// Create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 	artSlotBack = std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 0, 0);
 	artSlotBack->moveTo(pos.topLeft() + Point(18, 339));
-	const auto mapObj = dynamic_cast<const CGObjectInstance*>(market);
-	assert(market);
+	const auto mapObj = LOCPLINT->cb->getObj(market->getObjInstanceID());
 	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero, LOCPLINT->cb->getTown(mapObj->id) ?
 		VLC->generaltexth->translate("building.core.conflux.special1.name") : mapObj->getObjectName());
 	artSets.clear();

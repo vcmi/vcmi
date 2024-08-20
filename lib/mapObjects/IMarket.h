@@ -24,6 +24,7 @@ public:
 		ArtBearer::ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
 	};
 
+	virtual ObjectInstanceID getObjInstanceID() const = 0;	// The market is always an object on the map
 	virtual int getMarketEfficiency() const = 0;
 	virtual bool allowsTrade(const EMarketMode mode) const;
 	virtual int availableUnits(const EMarketMode mode, const int marketItemSerial) const; //-1 if unlimited

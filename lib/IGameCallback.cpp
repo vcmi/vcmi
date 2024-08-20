@@ -287,7 +287,7 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 			return hero;
 		}
 	}
-	else if(auto market = dynamic_cast<IMarket*>(getObjInstance(loc.artHolder)))
+	else if(auto market = getMarket(loc.artHolder))
 	{
 		if(auto artSet = market->getArtifactsStorage())
 			return artSet.get();

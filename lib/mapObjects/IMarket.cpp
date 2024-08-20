@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 bool IMarket::allowsTrade(const EMarketMode mode) const
 {
-	return marketModes.count(mode) > 0;
+	return vstd::contains(marketModes, mode);
 }
 
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const
@@ -180,7 +180,7 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) con
 	case EMarketMode::RESOURCE_RESOURCE:
 	case EMarketMode::ARTIFACT_RESOURCE:
 	case EMarketMode::CREATURE_RESOURCE:
-		for (auto res : GameResID::ALL_RESOURCES())
+		for(const auto & res : GameResID::ALL_RESOURCES())
 			ret.push_back(res);
 	}
 	return ret;

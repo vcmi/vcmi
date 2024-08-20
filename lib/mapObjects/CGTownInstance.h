@@ -155,7 +155,7 @@ public:
 	const IObjectInterface * getObject() const override;
 	int getMarketEfficiency() const override; //=market count
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
-
+	ObjectInstanceID getObjInstanceID() const override;
 	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////

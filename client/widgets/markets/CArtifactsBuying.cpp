@@ -68,7 +68,7 @@ void CArtifactsBuying::makeDeal()
 {
 	if(ArtifactID(offerTradePanel->getSelectedItemId()).toArtifact()->canBePutAt(hero))
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getSelectedItemId()),
+		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getSelectedItemId()),
 			ArtifactID(offerTradePanel->getSelectedItemId()), offerQty, hero);
 		CMarketTraderText::makeDeal();
 		deselect();

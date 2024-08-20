@@ -26,9 +26,9 @@ public:
 	void initObj(vstd::RNG & rand) override;//set skills for trade
 
 	///IMarket
+	ObjectInstanceID getObjInstanceID() const override;
 	int getMarketEfficiency() const override;
 	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
-	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

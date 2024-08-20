@@ -184,7 +184,7 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	if(dynamic_cast<const IMarket*>(gh.getObj(pack.srcHero)) == nullptr)
+	if(gh.getMarket(pack.srcHero) == nullptr)
 		gh.throwIfWrongOwner(&pack, pack.srcHero);
 	if(pack.swap)
 		gh.throwIfWrongOwner(&pack, pack.dstHero);
@@ -250,7 +250,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
 	const CGObjectInstance * object = gh.getObj(pack.marketId);
 	const CGHeroInstance * hero = gh.getHero(pack.heroId);
-	const auto * market = dynamic_cast<const IMarket*>(object);
+	const auto * market = gh.getMarket(pack.marketId);
 
 	gh.throwIfWrongPlayer(&pack);
 	gh.throwIfPlayerNotActive(&pack);

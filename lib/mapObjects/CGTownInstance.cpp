@@ -710,6 +710,11 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 		return IMarket::availableItemsIds(mode);
 }
 
+ObjectInstanceID CGTownInstance::getObjInstanceID() const
+{
+	return id;
+}
+
 void CGTownInstance::updateAppearance()
 {
 	auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();

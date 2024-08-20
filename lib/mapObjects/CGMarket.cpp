@@ -23,6 +23,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+ObjectInstanceID CGMarket::getObjInstanceID() const
+{
+	return id;
+}
+
 void CGMarket::initObj(vstd::RNG & rand)
 {
 	getObjectHandler()->configureObject(this, rand);
@@ -43,13 +48,6 @@ int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	return -1;
 }
 
-std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
-{
-	if(allowsTrade(mode))
-		return IMarket::availableItemsIds(mode);
-	return std::vector<TradeItemBuy>();
-}
-
 CGMarket::CGMarket(IGameCallback *cb):
 	CGObjectInstance(cb)
 {}
@@ -58,8 +56,6 @@ std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) con
 {
 	switch(mode)
 	{
-	case EMarketMode::ARTIFACT_RESOURCE:
-		return IMarket::availableItemsIds(mode);
 	case EMarketMode::RESOURCE_ARTIFACT:
 		{
 			std::vector<TradeItemBuy> ret;

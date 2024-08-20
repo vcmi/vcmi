@@ -24,7 +24,7 @@
 #include "../../../lib/networkPacks/ArtifactLocation.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/mapObjects/IMarket.h"
 
 CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -50,9 +50,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	// Hero's artifacts
 	heroArts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -11));
 	heroArts->setHero(hero);
-	const auto mapObj = dynamic_cast<const CGObjectInstance*>(market);
-	assert(mapObj);
-	heroArts->altarId = mapObj->id;
+	heroArts->altarId = market->getObjInstanceID();
 
 	// Altar
 	offerTradePanel = std::make_shared<ArtifactsAltarPanel>([this](const std::shared_ptr<CTradeableItem> & altarSlot)
@@ -105,7 +103,7 @@ void CAltarArtifacts::makeDeal()
 	{
 		positions.push_back(artInst->getId());
 	}
-	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_EXP, positions, std::vector<TradeItemBuy>(), std::vector<ui32>(), hero);
+	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::ARTIFACT_EXP, positions, std::vector<TradeItemBuy>(), std::vector<ui32>(), hero);
 	deselect();
 }
 

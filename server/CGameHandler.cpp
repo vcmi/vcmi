@@ -3560,9 +3560,9 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 				return true;
 		}
 
-		auto market = dynamic_cast<const IMarket*>(o1);
+		auto market = getMarket(id1);
 		if(market == nullptr)
-			market = dynamic_cast<const IMarket*>(o2);
+			market = getMarket(id2);
 		if(market)
 			return market->allowsTrade(EMarketMode::ARTIFACT_EXP);
 
@@ -3917,9 +3917,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstanc
 		COMPLAIN_RET("Evil hero can't sacrifice artifact!");
 
 	assert(market);
-	const auto mapObj = dynamic_cast<const CGObjectInstance*>(market);
-	assert(mapObj);
-	const auto artSet = getArtSet(mapObj->id);
+	const auto artSet = market->getArtifactsStorage();
 
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
@@ -3937,7 +3935,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstanc
 				int expToGive;
 				market->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(mapObj->id, artSet->getArtPos(art)));
+				removeArtifact(ArtifactLocation(market->getObjInstanceID(), artSet->getArtPos(art)));
 			}
 			else
 			{

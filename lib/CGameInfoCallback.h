@@ -48,6 +48,7 @@ class CGHeroInstance;
 class CGDwelling;
 class CGTeleport;
 class CGTownInstance;
+class IMarket;
 
 class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
 {
@@ -189,6 +190,7 @@ public:
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	virtual const CGObjectInstance * getTopObj (int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
+	virtual const IMarket * getMarket(ObjectInstanceID objid) const;
 
 	//map
 	virtual int3 guardingCreaturePosition (int3 pos) const;
