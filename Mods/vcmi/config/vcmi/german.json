@@ -324,17 +324,6 @@
 
 	"vcmi.townHall.missingBase"             : "Basis Gebäude %s muss als erstes gebaut werden",
 	"vcmi.townHall.noCreaturesToRecruit"    : "Es gibt keine Kreaturen zu rekrutieren!",
-	"vcmi.townHall.greetingManaVortex"      : "Wenn Ihr Euch den %s nähert, wird Euer Körper mit neuer Energie gefüllt. Ihr habt Eure normalen Zauberpunkte verdoppelt.",
-	"vcmi.townHall.greetingKnowledge"       : "Ihr studiert die Glyphen auf dem %s und erhaltet Einblick in die Funktionsweise verschiedener Magie (+1 Wissen).",
-	"vcmi.townHall.greetingSpellPower"      : "Der %s lehrt Euch neue Wege, Eure magischen Kräfte zu bündeln (+1 Kraft).",
-	"vcmi.townHall.greetingExperience"      : "Ein Besuch bei den %s bringt Euch viele neue Fähigkeiten bei (+1000 Erfahrung).",
-	"vcmi.townHall.greetingAttack"          : "Nach einiger Zeit im %s könnt Ihr effizientere Kampffertigkeiten erlernen (+1 Angriffsfertigkeit).",
-	"vcmi.townHall.greetingDefence"         : "Wenn Ihr Zeit im %s verbringt, bringen Euch die erfahrenen Krieger dort zusätzliche Verteidigungsfähigkeiten bei (+1 Verteidigung).",
-	"vcmi.townHall.hasNotProduced"          : "Die %s hat noch nichts produziert.",
-	"vcmi.townHall.hasProduced"             : "Die %s hat diese Woche %d %s produziert.",
-	"vcmi.townHall.greetingCustomBonus"     : "%s gibt Ihnen +%d %s%s",
-	"vcmi.townHall.greetingCustomUntil"     : " bis zur nächsten Schlacht.",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s hat Eure Zauberpunkte wieder auf das Maximum erhöht.",
 
 	"vcmi.logicalExpressions.anyOf"  : "Eines der folgenden:",
 	"vcmi.logicalExpressions.allOf"  : "Alles der folgenden:",

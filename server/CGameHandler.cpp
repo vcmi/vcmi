@@ -57,6 +57,7 @@
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/mapObjects/TownBuildingInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
@@ -631,10 +632,21 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
 	turnTimerHandler->onPlayerGetTurn(which);
 
-	handleTimeEvents(which);
+	const auto * playerState = gs->getPlayerState(which);
 
-	for (auto t : getPlayerState(which)->towns)
+	handleTimeEvents(which);
+	for (auto t : playerState->towns)
 		handleTownEvents(t);
+
+	for (auto t : playerState->towns)
+	{
+		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+		if (t->garrisonHero != nullptr)
+			objectVisited(t, t->garrisonHero);
+
+		if (t->visitingHero != nullptr)
+			objectVisited(t, t->visitingHero);
+	}
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
@@ -1411,18 +1423,6 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 			if (town->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(town, true, false);
 		}
-
-		if (oldOwner.isValidPlayer()) //old owner is real player
-		{
-			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last town
-			{
-				InfoWindow iw;
-				iw.player = oldOwner;
-				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 6); //%s, you have lost your last town. If you do not conquer another town in the next week, you will be eliminated.
-				iw.text.replaceName(oldOwner);
-				sendAndApply(&iw);
-			}
-		}
 	}
 
 	const PlayerState * p = getPlayerState(owner);
@@ -1522,11 +1522,14 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 
 void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
 {
-	HeroVisitCastle vc;
-	vc.hid = hero->id;
-	vc.tid = obj->id;
-	vc.flags |= 1;
-	sendAndApply(&vc);
+	if (obj->visitingHero != hero && obj->garrisonHero != hero)
+	{
+		HeroVisitCastle vc;
+		vc.hid = hero->id;
+		vc.tid = obj->id;
+		vc.flags |= 1;
+		sendAndApply(&vc);
+	}
 	visitCastleObjects(obj, hero);
 	giveSpells (obj, hero);
 
@@ -1537,8 +1540,8 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
-	for (auto building : t->bonusingBuildings)
-		building->onHeroVisit(h);
+	for (auto & building : t->rewardableBuildings)
+		building.second->onHeroVisit(h);
 }
 
 void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
@@ -2491,9 +2494,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
 	if(t->garrisonHero) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		visitCastleObjects(t, t->garrisonHero);
+		objectVisited(t, t->garrisonHero);
 	if(t->visitingHero)
-		visitCastleObjects(t, t->visitingHero);
+		objectVisited(t, t->visitingHero);
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;

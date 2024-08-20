@@ -40,6 +40,15 @@ static constexpr std::array cursorTypesList =
 
 static constexpr std::array upscalingFilterTypes =
 {
+	"auto",
+	"none",
+	"xbrz2",
+	"xbrz3",
+	"xbrz4"
+};
+
+static constexpr std::array downscalingFilterTypes =
+{
 	"nearest",
 	"linear",
 	"best"
@@ -138,9 +147,13 @@ void CSettingsView::loadSettings()
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 	fillValidRenderers();
 
-	std::string upscalingFilter = settings["video"]["scalingMode"].String();
+	std::string upscalingFilter = settings["video"]["upscalingFilter"].String();
 	int upscalingFilterIndex = vstd::find_pos(upscalingFilterTypes, upscalingFilter);
 	ui->comboBoxUpscalingFilter->setCurrentIndex(upscalingFilterIndex);
+
+	std::string downscalingFilter = settings["video"]["downscalingFilter"].String();
+	int downscalingFilterIndex = vstd::find_pos(downscalingFilterTypes, downscalingFilter);
+	ui->comboBoxDownscalingFilter->setCurrentIndex(downscalingFilterIndex);
 
 	ui->sliderMusicVolume->setValue(settings["general"]["music"].Integer());
 	ui->sliderSoundVolume->setValue(settings["general"]["sound"].Integer());
@@ -645,8 +658,14 @@ void CSettingsView::on_buttonIgnoreSslErrors_clicked(bool checked)
 
 void CSettingsView::on_comboBoxUpscalingFilter_currentIndexChanged(int index)
 {
-	Settings node = settings.write["video"]["scalingMode"];
+	Settings node = settings.write["video"]["upscalingFilter"];
 	node->String() = upscalingFilterTypes[index];
+}
+
+void CSettingsView::on_comboBoxDownscalingFilter_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"]["downscalingFilter"];
+	node->String() = downscalingFilterTypes[index];
 }
 
 void CSettingsView::on_sliderMusicVolume_valueChanged(int value)

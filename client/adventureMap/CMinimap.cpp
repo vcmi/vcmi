@@ -73,7 +73,7 @@ void CMinimapInstance::redrawMinimap()
 
 CMinimapInstance::CMinimapInstance(CMinimap *Parent, int Level):
 	parent(Parent),
-	minimap(new Canvas(Point(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y))),
+	minimap(new Canvas(Point(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y), CanvasScalingPolicy::IGNORE)),
 	level(Level)
 {
 	pos.w = parent->pos.w;

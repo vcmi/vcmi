@@ -10,6 +10,9 @@
 #include "StdInc.h"
 #include "ImageLocator.h"
 
+#include "../gui/CGuiHandler.h"
+#include "IScreenHandler.h"
+
 #include "../../lib/json/JsonNode.h"
 
 
@@ -47,10 +50,46 @@ bool ImageLocator::operator<(const ImageLocator & other) const
 		return defFrame < other.defFrame;
 	if(verticalFlip != other.verticalFlip)
 		return verticalFlip < other.verticalFlip;
-	return horizontalFlip < other.horizontalFlip;
+	if(horizontalFlip != other.horizontalFlip)
+		return horizontalFlip < other.horizontalFlip;
+	if(scalingFactor != other.scalingFactor)
+		return scalingFactor < other.scalingFactor;
+	if(playerColored != other.playerColored)
+		return playerColored < other.playerColored;
+	if(layerShadow != other.layerShadow)
+		return layerShadow < other.layerShadow;
+	if(layerBody != other.layerBody)
+		return layerBody < other.layerBody;
+	if (layerOverlay != other.layerOverlay)
+		return layerOverlay < other.layerOverlay;
+
+	return false;
 }
 
 bool ImageLocator::empty() const
 {
 	return !image.has_value() && !defFile.has_value();
+}
+
+ImageLocator ImageLocator::copyFile() const
+{
+	ImageLocator result;
+	result.image = image;
+	result.defFile = defFile;
+	result.defFrame = defFrame;
+	result.defGroup = defGroup;
+	return result;
+}
+
+ImageLocator ImageLocator::copyFileTransform() const
+{
+	ImageLocator result = copyFile();
+	result.horizontalFlip = horizontalFlip;
+	result.verticalFlip = verticalFlip;
+	return result;
+}
+
+ImageLocator ImageLocator::copyFileTransformScale() const
+{
+	return *this; // full copy
 }

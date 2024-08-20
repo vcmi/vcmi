@@ -149,7 +149,7 @@ public:
 		BASE=1,            //base frame will be blitted before current one
 		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
-		PALETTE_ALPHA=8,   // use alpha channel for images with palette. Required for creatures in battle and map objects
+		CREATURE_MODE=8,   // use alpha channel for images with palette. Required for creatures in battle and map objects
 		PLAY_ONCE=32       //play animation only once and stop at last frame
 	};
 protected:

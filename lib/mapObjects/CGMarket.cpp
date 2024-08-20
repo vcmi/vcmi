@@ -85,7 +85,7 @@ void CGBlackMarket::newTurn(vstd::RNG & rand) const
 	int resetPeriod = VLC->settings()->getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
 
 	bool isFirstDay = cb->getDate(Date::DAY) == 1;
-	bool regularResetTriggered = resetPeriod != 0 && ((cb->getDate(Date::DAY)-1) % resetPeriod) != 0;
+	bool regularResetTriggered = resetPeriod != 0 && ((cb->getDate(Date::DAY)-1) % resetPeriod) == 0;
 
 	if (!isFirstDay && !regularResetTriggered)
 		return;

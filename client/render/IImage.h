@@ -21,10 +21,12 @@ class ColorRGBA;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
+struct SDL_Palette;
 class ColorFilter;
+class ISharedImage;
 
 /// Defines which blit method will be selected when image is used for rendering
-enum class EImageBlitMode
+enum class EImageBlitMode : uint8_t
 {
 	/// Preferred for images that don't need any background
 	/// Indexed or RGBA: Image can have no transparency and can be only used as background
@@ -40,27 +42,21 @@ enum class EImageBlitMode
 	ALPHA
 };
 
-/*
- * Base class for images, can be used for non-animation pictures as well
- */
+/// Base class for images for use in client code.
+/// This class represents current state of image, with potential transformations applied, such as player coloring
 class IImage
 {
 public:
-	using SpecialPalette = std::vector<ColorRGBA>;
-	static constexpr int32_t SPECIAL_PALETTE_MASK_CREATURES = 0b11110011;
-
 	//draws image on surface "where" at position
 	virtual void draw(SDL_Surface * where, const Point & pos, const Rect * src = nullptr) const = 0;
 
-	virtual void scaleFast(const Point & size) = 0;
+	virtual void scaleTo(const Point & size) = 0;
+	virtual void scaleInteger(int factor) = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 
 	//Change palette to specific player
 	virtual void playerColored(PlayerColor player) = 0;
-
-	//set special color for flag
-	virtual void setFlagColor(PlayerColor player) = 0;
 
 	//test transparency of specific pixel
 	virtual bool isTransparent(const Point & coords) const = 0;
@@ -77,23 +73,34 @@ public:
 	virtual void setBlitMode(EImageBlitMode mode) = 0;
 
 	//only indexed bitmaps with 7 special colors
-	virtual void setSpecialPalette(const SpecialPalette & SpecialPalette, uint32_t colorsToSkipMask) = 0;
+	virtual void setOverlayColor(const ColorRGBA & color) = 0;
+
+	virtual void setShadowEnabled(bool on) = 0;
+	virtual void setBodyEnabled(bool on) = 0;
+	virtual void setOverlayEnabled(bool on) = 0;
+	virtual std::shared_ptr<ISharedImage> getSharedImage() const = 0;
 
 	virtual ~IImage() = default;
 };
 
-class IConstImage
+/// Base class for image data, mostly for internal use
+/// Represents unmodified pixel data, usually loaded from file
+/// This image can be shared between multiple image handlers (IImage instances)
+class ISharedImage
 {
 public:
 	virtual Point dimensions() const = 0;
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
 	virtual bool isTransparent(const Point & coords) const = 0;
+	virtual void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
 
 	virtual std::shared_ptr<IImage> createImageReference(EImageBlitMode mode) = 0;
 
-	virtual std::shared_ptr<IConstImage> horizontalFlip() const = 0;
-	virtual std::shared_ptr<IConstImage> verticalFlip() const = 0;
+	virtual std::shared_ptr<ISharedImage> horizontalFlip() const = 0;
+	virtual std::shared_ptr<ISharedImage> verticalFlip() const = 0;
+	virtual std::shared_ptr<ISharedImage> scaleInteger(int factor, SDL_Palette * palette) const = 0;
+	virtual std::shared_ptr<ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const = 0;
 
 
-	virtual ~IConstImage() = default;
+	virtual ~ISharedImage() = default;
 };

@@ -63,7 +63,8 @@ enum class ESerializationVersion : int32_t
 	STATISTICS, // 852 - removed random number generators from library classes
 	CAMPAIGN_REGIONS, // 853 - configurable campaign regions
 	EVENTS_PLAYER_SET, // 854 - map & town events use std::set instead of bitmask to store player list
-	STATISTICS_SCREEN, // 855 - extent statistic functions
+	NEW_TOWN_BUILDINGS, // 855 - old bonusing buildings have been removed
+	STATISTICS_SCREEN, // 856 - extent statistic functions
 
 	CURRENT = STATISTICS_SCREEN
 };

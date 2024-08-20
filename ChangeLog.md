@@ -4,9 +4,25 @@
 * Saved game size reduced by approximately 3 times, especially for large maps or games with a large number of mods.
 * Added option to start vcmi server on randomly selected TCP port
 * Fixed potential desynchronization between server and clients on randomization of map objects if client and server run on different operating systems
+* It is now possible to generate game statistics using `!statistic` command in game chat
+
+### Stability
+* Fixed possible crash on connecting bluetooth mouse during gameplay on Android
+* VCMI will now write more detailed information to log file on crash due to uncaught exception
+
+### Multiplayer
+* Implemented handicap system, with options to reduce income and growth in addition to starting resources restriction
+
+### Mechanics
+* Arrow tower will now prefer to attack more units that are viewed most dangerous instead of simply attacking top-most unit
+* Score in campaigns will now be correctly tracked for games loaded from a save
+* Fixed incorrect direction of Dragon Breath attack in some cases if wide creature attacks another wide creature
+* Map events and town events are now triggered on start of turn of player affected by event, in line with H3 instead of triggering on start of new day for all players
 
 ### Interface
 * Implemented spell quick selection panel in combat
+* Implemented adventure map overlay accessible via Alt key that highlights all interactive objects on screen
+* Added hotkeys to reorder list of owned towns or heroes
 * The number of units resurrected using the Life Drain ability is now written to the combat log.
 * Fixed playback of audio stream with different formats from video files in some Heroes 3 versions
 * Video playback will not be replaced by a black square when another dialogue box is on top of the video.
@@ -19,17 +35,40 @@
 * Semi-transparent shadows now correctly update their transparency during fading effects, such as resource pickups
 * Game will now save all names for human player in hotseat mode
 * Added unassigned by default shortcuts for toggling visibility of visitable and blocked tiles
+* Spellbook button in battle is now blocked if hero has no spellbook 
+* Adventure map will no longer scroll if window is not in focus
+
+### Random Maps Generator
+* Implemented connection option 'forcePortal'
+* It is now possible to connect zone to itself using pair of portals
 
 ### AI
 * Fixed bug where BattleAI attempts to move double-wide unit to an unreachable hex
 * Fixed several cases where Nullkiller AI can count same dangerous object twice, doubling expected army loss.
 * Nullkiller is now capable of visiting configurable objects from mods
+* Nullkiller now uses whirlpools for map movement
+* AI can now correctly estimate effect of Dragon Breath and other similar abilities
+
+### Map Editor
+* Implemented tracking of building requirements for Building Dialog
+* Added build/demolish/enable/disable all buildings options to Building Dialog in town properties
+* It is now possible to set spells allowed or required to be present in Mages Guild
+* It is now possible to add timed events to a town
+* Fixed editor not marking mod as dependency if spells from mod are used in town Mages Guild or in hero starting spells
 
 ### Modding
+* Fixed multiple issues with configurable town buildings
+* Added documentation for configurable town buildings. See docs/Moddders/Entities_Format/Town_Buildings_Format.md
+* Replaced some of hardcoded town buildings with configurable buildings. These building types are now deprecated and will be removed in future.
 * Added support for custom music and opening sound for a battlefield
 * Added support for multiple music tracks for towns
 * Added support for multiple music tracks for terrains on adventure map
 * Fixed several cases where vcmi will report errors in json without specifying filename of invalid file
+* It is now possible to use .zip archive for VCMI campaigns instead of raw gzip stream
+* Added support for custom region definitions (such as background images) for VCMI campaigns 
+* It is now possible to change minimal values of primary skills for heroes
+* Added support for HotA bank building from Factory
+* Added support for HotA-style 8th creature in town
 
 # 1.5.5 -> 1.5.6
 
