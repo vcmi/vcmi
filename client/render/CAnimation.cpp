@@ -13,6 +13,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
+#include "../render/IScreenHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonUtils.h"

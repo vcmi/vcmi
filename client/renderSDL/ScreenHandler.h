@@ -29,9 +29,23 @@ enum class EWindowMode
 	FULLSCREEN_EXCLUSIVE
 };
 
+enum class EUpscalingFilter
+{
+	AUTO, // used only for loading from config, replaced with autoselected value on init
+	NONE,
+	//BILINEAR, // TODO?
+	//BICUBIC, // TODO?
+	XBRZ_2,
+	XBRZ_3,
+	XBRZ_4,
+	// NOTE: xbrz also provides x5 and x6 filters, but those would require high-end gaming PC's due to huge memory usage with no visible gain
+};
+
 /// This class is responsible for management of game window and its main rendering surface
 class ScreenHandler final : public IScreenHandler
 {
+	EUpscalingFilter upscalingFilter = EUpscalingFilter::AUTO;
+
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;
 
@@ -69,6 +83,11 @@ class ScreenHandler final : public IScreenHandler
 
 	/// Performs validation of settings and updates them to valid values if necessary
 	void validateSettings();
+
+	EUpscalingFilter loadUpscalingFilter() const;
+
+	void selectDownscalingFilter();
+	void selectUpscalingFilter();
 public:
 
 	/// Creates and initializes screen, window and SDL state
@@ -88,6 +107,10 @@ public:
 
 	/// Window has focus
 	bool hasFocus() final;
+
+	Point getLogicalResolution() const final;
+
+	int getScalingFactor() const final;
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
