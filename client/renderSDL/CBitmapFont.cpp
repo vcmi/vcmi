@@ -12,7 +12,9 @@
 
 #include "SDL_Extensions.h"
 #include "../CGameInfo.h"
+#include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
+#include "../render/IScreenHandler.h"
 
 #include "../../lib/Rect.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -24,7 +26,75 @@
 
 #include <SDL_surface.h>
 
-void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & resource)
+struct AtlasLayout
+{
+	Point dimensions;
+	std::map<int, Rect> images;
+};
+
+/// Attempts to pack provided list of images into 2d box of specified size
+/// Returns resulting layout on success and empty optional on failure
+static std::optional<AtlasLayout> tryAtlasPacking(Point dimensions, const std::map<int, Point> & images)
+{
+	// Simple atlas packing algorithm. Can be extended if needed, however optimal solution is NP-complete problem, so 'perfect' solution is too costly
+
+	AtlasLayout result;
+	result.dimensions = dimensions;
+
+	// a little interval to prevent potential 'bleeding' into adjacent symbols
+	// should be unnecessary for base game, but may be needed for upscaled filters
+	constexpr int interval = 1;
+	int currentHeight = 0;
+	int nextHeight = 0;
+	int currentWidth = 0;
+
+	for (auto const & image : images)
+	{
+		int nextWidth = currentWidth + image.second.x + interval;
+
+		if (nextWidth > dimensions.x)
+		{
+			currentHeight = nextHeight;
+			currentWidth = 0;
+			nextWidth = currentWidth + image.second.x + interval;
+		}
+
+		nextHeight = std::max(nextHeight, currentHeight + image.second.y + interval);
+		if (nextHeight > dimensions.y)
+			return std::nullopt; // failure - ran out of space
+
+		result.images[image.first] = Rect(Point(currentWidth, currentHeight), image.second);
+
+		currentWidth = nextWidth;
+	}
+
+	return result;
+}
+
+/// Arranges images to fit into texture atlas with automatic selection of image size
+/// Returns images arranged into 2d box
+static AtlasLayout doAtlasPacking(const std::map<int, Point> & images)
+{
+	// initial size of an atlas. Smaller size won't even fit tiniest H3 font
+	Point dimensions(128, 128);
+
+	for (;;)
+	{
+		auto result = tryAtlasPacking(dimensions, images);
+
+		if (result)
+			return *result;
+
+		// else - packing failed. Increase atlas size and try again
+		// increase width and height in alternating form: (64,64) -> (128,64) -> (128,128) ...
+		if (dimensions.x > dimensions.y)
+			dimensions.y *= 2;
+		else
+			dimensions.x *= 2;
+	}
+}
+
+void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & resource, std::unordered_map<CodePoint, EntryFNT> & loadedChars)
 {
 	if (!CResourceHandler::get(modName)->existsResource(resource))
 	{
@@ -49,7 +119,7 @@ void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & 
 	{
 		CodePoint codepoint = TextOperations::getUnicodeCodepoint(static_cast<char>(charIndex), modEncoding);
 
-		BitmapChar symbol;
+		EntryFNT symbol;
 
 		symbol.leftOffset =  read_le_u32(data.first.get() + baseIndex + charIndex * 12 + 0);
 		symbol.width =       read_le_u32(data.first.get() + baseIndex + charIndex * 12 + 4);
@@ -65,7 +135,7 @@ void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & 
 
 		std::copy_n(pixelData, pixelsCount, symbol.pixels.data() );
 
-		chars[codepoint] = symbol;
+		loadedChars[codepoint] = symbol;
 	}
 }
 
@@ -74,13 +144,70 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 {
 	ResourcePath resource("data/" + filename, EResType::BMP_FONT);
 
-	loadModFont("core", resource);
+	std::unordered_map<CodePoint, EntryFNT> loadedChars;
+	loadModFont("core", resource, loadedChars);
 
 	for(const auto & modName : VLC->modh->getActiveMods())
 	{
 		if (CResourceHandler::get(modName)->existsResource(resource))
-			loadModFont(modName, resource);
+			loadModFont(modName, resource, loadedChars);
 	}
+
+	std::map<int, Point> atlasSymbol;
+	for (auto const & symbol : loadedChars)
+		atlasSymbol[symbol.first] = Point(symbol.second.width, symbol.second.height);
+
+	auto atlas = doAtlasPacking(atlasSymbol);
+
+	atlasImage = SDL_CreateRGBSurface(0, atlas.dimensions.x, atlas.dimensions.y, 8, 0, 0, 0, 0);
+
+	assert(atlasImage->format->palette != nullptr);
+	assert(atlasImage->format->palette->ncolors == 256);
+
+	atlasImage->format->palette->colors[0] = { 0, 255, 255, SDL_ALPHA_OPAQUE }; // transparency
+	atlasImage->format->palette->colors[1] = { 0, 0, 0, SDL_ALPHA_OPAQUE }; // black shadow
+
+	CSDL_Ext::fillSurface(atlasImage, CSDL_Ext::toSDL(Colors::CYAN));
+	CSDL_Ext::setColorKey(atlasImage, CSDL_Ext::toSDL(Colors::CYAN));
+
+	for (size_t i = 2; i < atlasImage->format->palette->ncolors; ++i)
+		atlasImage->format->palette->colors[i] = { 255, 255, 255, SDL_ALPHA_OPAQUE };
+
+	for (auto const	& symbol : loadedChars)
+	{
+		BitmapChar storedEntry;
+
+		storedEntry.leftOffset = symbol.second.leftOffset;
+		storedEntry.rightOffset = symbol.second.rightOffset;
+		storedEntry.positionInAtlas = atlas.images.at(symbol.first);
+
+		// Copy pixel data to atlas
+		uint8_t *dstPixels = static_cast<uint8_t*>(atlasImage->pixels);
+		uint8_t *dstLine   = dstPixels + storedEntry.positionInAtlas.y * atlasImage->pitch;
+		uint8_t *dst = dstLine + storedEntry.positionInAtlas.x;
+
+		for (size_t i = 0; i < storedEntry.positionInAtlas.h; ++i)
+		{
+			const uint8_t *srcPtr = symbol.second.pixels.data() + i * storedEntry.positionInAtlas.w;
+			uint8_t * dstPtr = dst + i * atlasImage->pitch;
+
+			std::copy_n(srcPtr, storedEntry.positionInAtlas.w, dstPtr);
+		}
+
+		chars[symbol.first] = storedEntry;
+	}
+
+	if (GH.screenHandler().getScalingFactor() != 1)
+	{
+		auto scaledSurface = CSDL_Ext::scaleSurfaceIntegerFactor(atlasImage, GH.screenHandler().getScalingFactor());
+		SDL_FreeSurface(atlasImage);
+		atlasImage = scaledSurface;
+	}
+}
+
+CBitmapFont::~CBitmapFont()
+{
+	SDL_FreeSurface(atlasImage);
 }
 
 size_t CBitmapFont::getLineHeight() const
@@ -97,7 +224,7 @@ size_t CBitmapFont::getGlyphWidth(const char * data) const
 	if (iter == chars.end())
 		return 0;
 
-	return iter->second.leftOffset + iter->second.width + iter->second.rightOffset;
+	return iter->second.leftOffset + iter->second.positionInAtlas.w + iter->second.rightOffset;
 }
 
 bool CBitmapFont::canRepresentCharacter(const char *data) const
@@ -120,52 +247,21 @@ bool CBitmapFont::canRepresentString(const std::string & data) const
 
 void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const
 {
-	Rect clipRect;
-	CSDL_Ext::getClipRect(surface, clipRect);
+	int scalingFactor = GH.screenHandler().getScalingFactor();
 
-	posX += character.leftOffset;
+	posX += character.leftOffset * scalingFactor;
 
-	CSDL_Ext::TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface);
+	auto sdlColor = CSDL_Ext::toSDL(color);
 
-	uint8_t bpp = surface->format->BytesPerPixel;
+	if (atlasImage->format->palette)
+		SDL_SetPaletteColors(atlasImage->format->palette, &sdlColor, 255, 1);
+	else
+		SDL_SetSurfaceColorMod(atlasImage, color.r, color.g, color.b);
 
-	// start of line, may differ from 0 due to end of surface or clipped surface
-	int lineBegin = std::max<int>(0, clipRect.y - posY);
-	int lineEnd   = std::min<int>(character.height, clipRect.y + clipRect.h - posY - 1);
+	CSDL_Ext::blitSurface(atlasImage, character.positionInAtlas * scalingFactor, surface, Point(posX, posY));
 
-	// start end end of each row, may differ from 0
-	int rowBegin = std::max<int>(0, clipRect.x - posX);
-	int rowEnd   = std::min<int>(character.width, clipRect.x + clipRect.w - posX - 1);
-
-	//for each line in symbol
-	for(int dy = lineBegin; dy <lineEnd; dy++)
-	{
-		uint8_t *dstLine = (uint8_t*)surface->pixels;
-		const uint8_t *srcLine = character.pixels.data();
-
-		// shift source\destination pixels to current position
-		dstLine += (posY+dy) * surface->pitch + posX * bpp;
-		srcLine += dy * character.width;
-
-		//for each column in line
-		for(int dx = rowBegin; dx < rowEnd; dx++)
-		{
-			uint8_t* dstPixel = dstLine + dx*bpp;
-			switch(srcLine[dx])
-			{
-			case 1: //black "shadow"
-				colorPutter(dstPixel, 0, 0, 0);
-				break;
-			case 255: //text colour
-				colorPutter(dstPixel, color.r, color.g, color.b);
-				break;
-			default :
-				break; //transparency
-			}
-		}
-	}
-	posX += character.width;
-	posX += character.rightOffset;
+	posX += character.positionInAtlas.w * scalingFactor;
+	posX += character.rightOffset * scalingFactor;
 }
 
 void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
@@ -178,12 +274,6 @@ void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, co
 	int posX = pos.x;
 	int posY = pos.y;
 
-	// Should be used to detect incorrect text parsing. Disabled right now due to some old UI code (mostly pregame and battles)
-	//assert(data[0] != '{');
-	//assert(data[data.size()-1] != '}');
-
-	SDL_LockSurface(surface);
-
 	for(size_t i=0; i<data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
 		CodePoint codepoint = TextOperations::getUnicodeCodepoint(data.data() + i, data.size() - i);
@@ -193,6 +283,5 @@ void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, co
 		if (iter != chars.end())
 			renderCharacter(surface, iter->second, color, posX, posY);
 	}
-	SDL_UnlockSurface(surface);
 }
 
