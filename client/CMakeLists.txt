@@ -454,9 +454,6 @@ elseif(APPLE_IOS)
 endif()
 
 target_link_libraries(vcmiclientcommon PRIVATE vcmiservercommon)
-if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
-	target_link_libraries(vcmiclientcommon PRIVATE vcmilauncher)
-endif()
 
 target_link_libraries(vcmiclientcommon PUBLIC
 		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF

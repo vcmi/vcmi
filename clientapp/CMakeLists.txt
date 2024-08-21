@@ -34,6 +34,10 @@ endif()
 
 target_link_libraries(vcmiclient PRIVATE vcmiclientcommon)
 
+if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
+  target_link_libraries(vcmiclientcommon PRIVATE vcmilauncher)
+endif()
+
 target_include_directories(vcmiclient
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
