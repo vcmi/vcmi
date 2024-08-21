@@ -1910,10 +1910,7 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 	{
 		if (town->hasBuilt(myID))
 			build = town->town->buildings.at(myID);
-		if(myID != BuildingID::DWELL_LVL_8)
-			myID.advance(GameConstants::CREATURES_PER_TOWN - 1);
-		else
-			myID = BuildingID::DWELL_LVL_8_UP;
+		BuildingID::advanceDwelling(myID);
 	}
 
 	return build;

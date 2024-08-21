@@ -352,6 +352,14 @@ public:
 		return (dwelling - DWELL_FIRST) / (GameConstants::CREATURES_PER_TOWN - 1);
 	}
 
+	static void advanceDwelling(BuildingIDBase & dwelling)
+	{
+		if(dwelling != BuildingIDBase::DWELL_LVL_8)
+			dwelling.advance(GameConstants::CREATURES_PER_TOWN - 1);
+		else
+			dwelling.advance(1);
+	}
+
 	bool IsSpecialOrGrail() const
 	{
 		return num == SPECIAL_1 || num == SPECIAL_2 || num == SPECIAL_3 || num == SPECIAL_4 || num == GRAIL;
