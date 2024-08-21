@@ -135,7 +135,7 @@ InfoCard::InfoCard()
 
 	labelSaveDate = std::make_shared<CLabel>(310, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 	labelMapSize = std::make_shared<CLabel>(333, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
-	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", 285);
+	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 285);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
