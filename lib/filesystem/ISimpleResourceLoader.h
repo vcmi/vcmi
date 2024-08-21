@@ -96,11 +96,6 @@ public:
 	}
 
 	/**
-	 * Remove resources from cached list.
-	 */
-	virtual void removeResource(const ResourcePath & resourceName) { };
-
-	/**
 	 * @brief Returns all loaders that have resource with such name
 	 *
 	 * @return vector with all loaders

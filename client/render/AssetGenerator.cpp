@@ -28,12 +28,15 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 {
 	std::string filename = "data/ADVOPTBC.bmp";
 
+	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
+		return;
+
 	if(!CResourceHandler::get("local")->createResource(filename))
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
 
 	auto res = ImagePath::builtin("ADVOPTBK");
-	res.setOriginalResource(true);
+	res = res.setOriginalResource(true);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
 
@@ -49,20 +52,21 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
-
-	CResourceHandler::get("local")->removeResource(savePath); // remove resource -> may overridden by mod later
 }
 
 void AssetGenerator::createBigSpellBook()
 {
 	std::string filename = "data/SpelBk2.bmp";
 
+	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
+		return;
+
 	if(!CResourceHandler::get("local")->createResource(filename))
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
 
 	auto res = ImagePath::builtin("SpelBack");
-	res.setOriginalResource(true);
+	res = res.setOriginalResource(true);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
 	Canvas canvas = Canvas(Point(800, 600), CanvasScalingPolicy::IGNORE);
@@ -111,6 +115,4 @@ void AssetGenerator::createBigSpellBook()
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
-
-	CResourceHandler::get("local")->removeResource(savePath); // remove resource -> may overridden by mod later
 }

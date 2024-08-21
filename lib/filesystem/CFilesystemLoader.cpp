@@ -108,11 +108,6 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 	return true;
 }
 
-void CFilesystemLoader::removeResource(const ResourcePath & resourceName)
-{
-	fileList.erase(resourceName);
-}
-
 std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::listFiles(const std::string &mountPoint, size_t depth, bool initial) const
 {
 	static const EResType initArray[] = {
