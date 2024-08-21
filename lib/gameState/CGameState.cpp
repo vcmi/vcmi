@@ -312,11 +312,10 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
 		progressTracking.exclude(mapGenerator);
 
-		map = randomMap.release();
 		// Update starting options
-		for(int i = 0; i < map->players.size(); ++i)
+		for(int i = 0; i < randomMap->players.size(); ++i)
 		{
-			const auto & playerInfo = map->players[i];
+			const auto & playerInfo = randomMap->players[i];
 			if(playerInfo.canAnyonePlay())
 			{
 				PlayerSettings & playerSettings = scenarioOps->playerInfos[PlayerColor(i)];
@@ -362,6 +361,8 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 				logGlobal->error("Saving random map failed with exception");
 			}
 		}
+
+		map = randomMap.release();
 
 		logGlobal->info("Generated random map in %i ms.", sw.getDiff());
 	}
