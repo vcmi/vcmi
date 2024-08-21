@@ -55,8 +55,6 @@ public:
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}
 	virtual void visitUpdateArtHandlerLists(UpdateArtHandlerLists & pack) {}
-	virtual void visitUpdateMapEvents(UpdateMapEvents & pack) {}
-	virtual void visitUpdateCastleEvents(UpdateCastleEvents & pack) {}
 	virtual void visitChangeFormation(ChangeFormation & pack) {}
 	virtual void visitRemoveObject(RemoveObject & pack) {}
 	virtual void visitTryMoveHero(TryMoveHero & pack) {}

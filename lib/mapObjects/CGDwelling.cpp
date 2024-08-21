@@ -510,7 +510,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 
 void CGDwelling::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if (result.winner == 0)
+	if (result.winner == BattleSide::ATTACKER)
 	{
 		onHeroVisit(hero);
 	}

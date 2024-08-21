@@ -34,7 +34,7 @@ BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler *
 {
 }
 
-void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
+void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
 {
 	int x = targetPosition.getX();
 	int y = targetPosition.getY();
@@ -185,7 +185,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 
 void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 {
-	for (int i = 0; i < 2; ++i)
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
 		auto h = battle.battleGetFightingHero(i);
 		if (!h)
@@ -742,7 +742,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			return b->subtype.as<SpellID>() == SpellID::NONE;
 		});
 
-		int side = *battle.playerToSide(st->unitOwner());
+		BattleSide side = battle.playerToSide(st->unitOwner());
 		if(st->canCast() && battle.battleGetEnchanterCounter(side) == 0)
 		{
 			bool cast = false;

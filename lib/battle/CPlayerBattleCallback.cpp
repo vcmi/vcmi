@@ -76,7 +76,7 @@ const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const
 
 InfoAboutHero CPlayerBattleCallback::battleGetEnemyHero() const
 {
-	return battleGetHeroInfo(!battleGetMySide());
+	return battleGetHeroInfo(otherSide(battleGetMySide()));
 }
 
 

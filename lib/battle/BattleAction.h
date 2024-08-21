@@ -24,7 +24,7 @@ namespace battle
 class DLL_LINKAGE BattleAction
 {
 public:
-	ui8 side; //who made this action
+	BattleSide side; //who made this action
 	ui32 stackNumber; //stack ID, -1 left hero, -2 right hero,
 	EActionType actionType; //use ActionType enum for values
 
@@ -39,9 +39,9 @@ public:
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
 	static BattleAction makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID);
 	static BattleAction makeMove(const battle::Unit * stack, BattleHex dest);
-	static BattleAction makeEndOFTacticPhase(ui8 side);
-	static BattleAction makeRetreat(ui8 side);
-	static BattleAction makeSurrender(ui8 side);
+	static BattleAction makeEndOFTacticPhase(BattleSide side);
+	static BattleAction makeRetreat(BattleSide side);
+	static BattleAction makeSurrender(BattleSide side);
 
 	bool isTacticsAction() const;
 	bool isUnitAction() const;

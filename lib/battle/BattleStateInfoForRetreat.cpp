@@ -23,7 +23,7 @@ BattleStateInfoForRetreat::BattleStateInfoForRetreat():
 	isLastTurnBeforeDie(false),
 	ourHero(nullptr),
 	enemyHero(nullptr),
-	ourSide(-1)
+	ourSide(BattleSide::NONE)
 {
 }
 

@@ -25,20 +25,20 @@ public:
 	MOCK_CONST_METHOD0(getDefendedTown, const CGTownInstance *());
 	MOCK_CONST_METHOD1(getWallState, EWallState(EWallPart));
 	MOCK_CONST_METHOD0(getGateState, EGateState());
-	MOCK_CONST_METHOD1(getSidePlayer, PlayerColor(ui8));
-	MOCK_CONST_METHOD1(getSideArmy, const CArmedInstance *(ui8));
-	MOCK_CONST_METHOD1(getSideHero, const CGHeroInstance *(ui8));
-	MOCK_CONST_METHOD1(getCastSpells, uint32_t(ui8));
-	MOCK_CONST_METHOD1(getEnchanterCounter, int32_t(ui8));
+	MOCK_CONST_METHOD1(getSidePlayer, PlayerColor(BattleSide));
+	MOCK_CONST_METHOD1(getSideArmy, const CArmedInstance *(BattleSide));
+	MOCK_CONST_METHOD1(getSideHero, const CGHeroInstance *(BattleSide));
+	MOCK_CONST_METHOD1(getCastSpells, uint32_t(BattleSide));
+	MOCK_CONST_METHOD1(getEnchanterCounter, int32_t(BattleSide));
 	MOCK_CONST_METHOD0(getTacticDist, ui8());
-	MOCK_CONST_METHOD0(getTacticsSide, ui8());
+	MOCK_CONST_METHOD0(getTacticsSide, BattleSide());
 	MOCK_CONST_METHOD0(getBonusBearer, const IBonusBearer *());
 	MOCK_CONST_METHOD0(nextUnitId, uint32_t());
 	MOCK_CONST_METHOD3(getActualDamage, int64_t(const DamageRange &, int32_t, vstd::RNG &));
 	MOCK_CONST_METHOD0(getBattleID, BattleID());
 	MOCK_CONST_METHOD0(getLocation, int3());
 	MOCK_CONST_METHOD0(isCreatureBank, bool());
-	MOCK_CONST_METHOD1(getUsedSpells, std::vector<SpellID>(ui8));
+	MOCK_CONST_METHOD1(getUsedSpells, std::vector<SpellID>(BattleSide));
 
 	MOCK_METHOD0(nextRound, void());
 	MOCK_METHOD1(nextTurn, void(uint32_t));

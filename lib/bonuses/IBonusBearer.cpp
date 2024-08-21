@@ -84,11 +84,9 @@ bool IBonusBearer::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 
 bool IBonusBearer::hasBonusFrom(BonusSource source, BonusSourceID sourceID) const
 {
-	boost::format fmt("source_%did_%s");
-	fmt % static_cast<int>(source) % sourceID.toString();
-
-	return hasBonus(Selector::source(source,sourceID), fmt.str());
+	return hasBonus(Selector::source(source,sourceID));
 }
+
 std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) const
 {
 	auto bonuses = getAllBonuses(selector, Selector::all);

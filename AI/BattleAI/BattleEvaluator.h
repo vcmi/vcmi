@@ -33,7 +33,7 @@ class BattleEvaluator
 	std::optional<AttackPossibility> cachedAttack;
 	PlayerColor playerID;
 	BattleID battleID;
-	int side;
+	BattleSide side;
 	float cachedScore;
 	DamageCache damageCache;
 	float strengthRatio;
@@ -54,7 +54,7 @@ public:
 		const battle::Unit * activeStack,
 		PlayerColor playerID,
 		BattleID battleID,
-		int side,
+		BattleSide side,
 		float strengthRatio)
 		:scoreEvaluator(cb->getBattle(battleID), env, strengthRatio), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), strengthRatio(strengthRatio), battleID(battleID)
 	{
@@ -73,7 +73,7 @@ public:
 		const battle::Unit * activeStack,
 		PlayerColor playerID,
 		BattleID battleID,
-		int side,
+		BattleSide side,
 		float strengthRatio)
 		:scoreEvaluator(cb->getBattle(battleID), env, strengthRatio), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), hb(hb), damageCache(damageCache), strengthRatio(strengthRatio), battleID(battleID)
 	{

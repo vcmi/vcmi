@@ -30,13 +30,13 @@ public:
 	CMapEvent();
 	virtual ~CMapEvent() = default;
 
-	bool earlierThan(const CMapEvent & other) const;
-	bool earlierThanOrEqual(const CMapEvent & other) const;
+	bool occursToday(int currentDay) const;
+	bool affectsPlayer(PlayerColor player, bool isHuman) const;
 
 	std::string name;
 	MetaString message;
 	TResources resources;
-	ui8 players; // affected players, bit field?
+	std::set<PlayerColor> players;
 	bool humanAffected;
 	bool computerAffected;
 	ui32 firstOccurrence;
@@ -48,7 +48,18 @@ public:
 		h & name;
 		h & message;
 		h & resources;
-		h & players;
+		if (h.version >= Handler::Version::EVENTS_PLAYER_SET)
+		{
+			h & players;
+		}
+		else
+		{
+			ui8 playersMask = 0;
+			h & playersMask;
+			for (int i = 0; i < 8; ++i)
+				if ((playersMask & (1 << i)) != 0)
+					players.insert(PlayerColor(i));
+		}
 		h & humanAffected;
 		h & computerAffected;
 		h & firstOccurrence;

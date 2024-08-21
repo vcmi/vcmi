@@ -225,16 +225,6 @@ void UpdateArtHandlerLists::visitTyped(ICPackVisitor & visitor)
 	visitor.visitUpdateArtHandlerLists(*this);
 }
 
-void UpdateMapEvents::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitUpdateMapEvents(*this);
-}
-
-void UpdateCastleEvents::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitUpdateCastleEvents(*this);
-}
-
 void ChangeFormation::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeFormation(*this);
@@ -905,17 +895,6 @@ void AddQuest::applyGs(CGameState * gs) const
 void UpdateArtHandlerLists::applyGs(CGameState * gs) const
 {
 	gs->allocatedArtifacts = allocatedArtifacts;
-}
-
-void UpdateMapEvents::applyGs(CGameState * gs) const
-{
-	gs->map->events = events;
-}
-
-void UpdateCastleEvents::applyGs(CGameState * gs) const
-{
-	auto * t = gs->getTown(town);
-	t->events = events;
 }
 
 void ChangeFormation::applyGs(CGameState * gs) const
@@ -2114,7 +2093,7 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 			res.hero->removeBonusesRecursive(Bonus::OneBattle);
 	}
 
-	if(winnerSide != 2)
+	if(winnerSide != BattleSide::NONE)
 	{
 		// Grow up growing artifacts
 		const auto hero = heroResult[winnerSide].hero;
@@ -2135,10 +2114,10 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 
 	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
-		if(heroResult[0].army)
-			heroResult[0].army->giveStackExp(heroResult[0].exp);
-		if(heroResult[1].army)
-			heroResult[1].army->giveStackExp(heroResult[1].exp);
+		if(heroResult[BattleSide::ATTACKER].army)
+			heroResult[BattleSide::ATTACKER].army->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
+		if(heroResult[BattleSide::DEFENDER].army)
+			heroResult[BattleSide::DEFENDER].army->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
 		CBonusSystemNode::treeHasChanged();
 	}
 
@@ -2242,19 +2221,14 @@ void StartAction::applyGs(CGameState *gs)
 	else
 	{
 		if(ba.actionType == EActionType::HERO_SPELL)
-			gs->getBattle(battleID)->sides[ba.side].usedSpellsHistory.push_back(ba.spell);
+			gs->getBattle(battleID)->getSide(ba.side).usedSpellsHistory.push_back(ba.spell);
 	}
 }
 
 void BattleSpellCast::applyGs(CGameState * gs) const
 {
-	if(castByHero)
-	{
-		if(side < 2)
-		{
-			gs->getBattle(battleID)->sides[side].castSpellsCount++;
-		}
-	}
+	if(castByHero && side != BattleSide::NONE)
+		gs->getBattle(battleID)->getSide(side).castSpellsCount++;
 }
 
 void SetStackEffect::applyGs(CGameState *gs)
@@ -2388,7 +2362,7 @@ void BattleSetStackProperty::applyGs(CGameState * gs) const
 		}
 		case ENCHANTER_COUNTER:
 		{
-			auto & counter = gs->getBattle(battleID)->sides[gs->getBattle(battleID)->whatSide(stack->unitOwner())].enchanterCounter;
+			auto & counter = gs->getBattle(battleID)->getSide(gs->getBattle(battleID)->whatSide(stack->unitOwner())).enchanterCounter;
 			if(absolute)
 				counter = val;
 			else
@@ -2457,11 +2431,26 @@ void EntitiesChanged::applyGs(CGameState * gs)
 void SetRewardableConfiguration::applyGs(CGameState * gs)
 {
 	auto * objectPtr = gs->getObjInstance(objectID);
-	auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
 
-	assert(rewardablePtr);
+	if (!buildingID.hasValue())
+	{
+		auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
+		assert(rewardablePtr);
+		rewardablePtr->configuration = configuration;
+	}
+	else
+	{
+		auto * townPtr = dynamic_cast<CGTownInstance*>(objectPtr);
+		CGTownBuilding * buildingPtr = nullptr;
 
-	rewardablePtr->configuration = configuration;
+		for (CGTownBuilding * building : townPtr->bonusingBuildings)
+			if (building->getBuildingType() == buildingID)
+				buildingPtr = building;
+
+		auto * rewardablePtr = dynamic_cast<CTownRewardableBuilding *>(buildingPtr);
+		assert(rewardablePtr);
+		rewardablePtr->configuration = configuration;
+	}
 }
 
 void SetBankConfiguration::applyGs(CGameState * gs)

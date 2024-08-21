@@ -480,12 +480,12 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 
 void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0)
+	if(result.winner == BattleSide::ATTACKER)
 	{
 		giveReward(hero);
 		cb->removeObject(this, hero->getOwner());
 	}
-	else if(result.winner > 1) // draw
+	else if(result.winner == BattleSide::NONE) // draw
 	{
 		// guarded reward is lost forever on draw
 		cb->removeObject(this, hero->getOwner());
