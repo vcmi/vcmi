@@ -132,6 +132,7 @@ private:
 	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
 	std::vector<battle::Units> turnOrder;
 	float negativeEffectMultiplier;
+	int simulationTurnsCount;
 
 	float scoreValue(const BattleScore & score) const;
 
@@ -149,7 +150,8 @@ public:
 	BattleExchangeEvaluator(
 		std::shared_ptr<CBattleInfoCallback> cb,
 		std::shared_ptr<Environment> env,
-		float strengthRatio): cb(cb), env(env) {
+		float strengthRatio,
+		int simulationTurnsCount): cb(cb), env(env), simulationTurnsCount(simulationTurnsCount){
 		negativeEffectMultiplier = strengthRatio >= 1 ? 1 : strengthRatio * strengthRatio;
 	}
 

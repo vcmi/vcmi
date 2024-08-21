@@ -49,6 +49,45 @@ SpellTypes spellType(const CSpell * spell)
 	return SpellTypes::OTHER;
 }
 
+BattleEvaluator::BattleEvaluator(
+	std::shared_ptr<Environment> env,
+	std::shared_ptr<CBattleCallback> cb,
+	const battle::Unit * activeStack,
+	PlayerColor playerID,
+	BattleID battleID,
+	BattleSide side,
+	float strengthRatio,
+	int simulationTurnsCount)
+	:scoreEvaluator(cb->getBattle(battleID), env, strengthRatio, simulationTurnsCount),
+	cachedAttack(), playerID(playerID), side(side), env(env),
+	cb(cb), strengthRatio(strengthRatio), battleID(battleID), simulationTurnsCount(simulationTurnsCount)
+{
+	hb = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
+	damageCache.buildDamageCache(hb, side);
+
+	targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
+	cachedScore = EvaluationResult::INEFFECTIVE_SCORE;
+}
+
+BattleEvaluator::BattleEvaluator(
+	std::shared_ptr<Environment> env,
+	std::shared_ptr<CBattleCallback> cb,
+	std::shared_ptr<HypotheticBattle> hb,
+	DamageCache & damageCache,
+	const battle::Unit * activeStack,
+	PlayerColor playerID,
+	BattleID battleID,
+	BattleSide side,
+	float strengthRatio,
+	int simulationTurnsCount)
+	:scoreEvaluator(cb->getBattle(battleID), env, strengthRatio, simulationTurnsCount),
+	cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), hb(hb),
+	damageCache(damageCache), strengthRatio(strengthRatio), battleID(battleID), simulationTurnsCount(simulationTurnsCount)
+{
+	targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
+	cachedScore = EvaluationResult::INEFFECTIVE_SCORE;
+}
+
 std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 {
 	std::vector<BattleHex> result;
@@ -618,7 +657,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 #endif
 
 					PotentialTargets innerTargets(activeStack, innerCache, state);
-					BattleExchangeEvaluator innerEvaluator(state, env, strengthRatio);
+					BattleExchangeEvaluator innerEvaluator(state, env, strengthRatio, simulationTurnsCount);
 
 					if(!innerTargets.possibleAttacks.empty())
 					{

@@ -655,11 +655,14 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 		});
 
 	bool canUseAp = true;
-	const int totalTurnsCount = 10;
 
 	std::set<uint32_t> blockedShooters;
 
-	for(int exchangeTurn = 0; exchangeTurn < totalTurnsCount; exchangeTurn++)
+	int totalTurnsCount = simulationTurnsCount >= turn + turnOrder.size()
+		? simulationTurnsCount
+		: turn + turnOrder.size();
+
+	for(int exchangeTurn = 0; exchangeTurn < simulationTurnsCount; exchangeTurn++)
 	{
 		bool isMovingTurm = exchangeTurn < turn;
 		int queueTurn = exchangeTurn >= exchangeUnits.units.size()
@@ -825,6 +828,14 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 		reachabilityMap[hex] = getOneTurnReachableUnits(turn, hex);
 
 	auto score = v.getScore();
+
+	if(simulationTurnsCount < totalTurnsCount)
+	{
+		float scalingRatio = simulationTurnsCount / static_cast<float>(totalTurnsCount);
+
+		score.enemyDamageReduce *= scalingRatio;
+		score.ourDamageReduce *= scalingRatio;
+	}
 
 	if(turn > 0)
 	{
