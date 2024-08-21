@@ -339,10 +339,11 @@ FFMpegStream::~FFMpegStream()
 {
 	av_frame_free(&frame);
 
+#if (LIBAVCODEC_VERSION_MAJOR < 61 )
+	// deprecated, apparently no longer necessary - avcodec_free_context should suffice
 	avcodec_close(codecContext);
-	avcodec_free_context(&codecContext);
+#endif
 
-	avcodec_close(codecContext);
 	avcodec_free_context(&codecContext);
 
 	avformat_close_input(&formatContext);

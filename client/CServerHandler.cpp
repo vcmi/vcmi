@@ -673,13 +673,13 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	setState(EClientState::GAMEPLAY);
 }
 
-void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory)
+void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
 	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
 
 	if(victory && client->gameState()->getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState()->getStartInfo()->campState);
+		startCampaignScenario(param, client->gameState()->getStartInfo()->campState, statistic);
 	}
 	else
 	{
@@ -689,7 +689,7 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 
 		endGameplay();
 		CMM->menu->switchToTab("main");
-		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores);
+		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
 	}
 }
 
@@ -722,7 +722,7 @@ void CServerHandler::restartGameplay()
 	logicConnection->enterLobbyConnectionMode();
 }
 
-void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)
+void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, const StatisticDataSet & statistic)
 {
 	std::shared_ptr<CampaignState> ourCampaign = cs;
 
@@ -738,7 +738,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	endGameplay();
 
 	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
-	auto finisher = [ourCampaign, campaignScoreCalculator]()
+	auto finisher = [ourCampaign, campaignScoreCalculator, statistic]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{
@@ -754,7 +754,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		else
 		{
 			CMM->openCampaignScreen(ourCampaign->campaignSet);
-			GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator);
+			GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 		}
 	};
 

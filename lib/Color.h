@@ -57,6 +57,11 @@ public:
 		h & b;
 		h & a;
 	}
+
+	bool operator==(ColorRGBA const& rhs) const
+	{
+		return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

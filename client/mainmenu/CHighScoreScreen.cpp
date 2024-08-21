@@ -11,6 +11,7 @@
 #include "StdInc.h"
 
 #include "CHighScoreScreen.h"
+#include "CStatisticScreen.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
@@ -33,6 +34,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/gameState/HighScore.h"
+#include "../../lib/gameState/GameStatistics.h"
 
 CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 	: CWindowObject(BORDERED), highscorepage(highscorepage), highlighted(highlighted)
@@ -170,8 +172,8 @@ void CHighScoreScreen::buttonExitClick()
 	close();
 }
 
-CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc)
-	: CWindowObject(BORDERED), won(won), calc(calc)
+CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc, const StatisticDataSet & statistic)
+	: CWindowObject(BORDERED), won(won), calc(calc), stat(statistic)
 {
 	addUsedEvents(LCLICK | KEYBOARD);
 
@@ -203,6 +205,12 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 	{
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), VideoPath::builtin("LOSEGAME.SMK"), true, [this](){close();});
 		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
+	}
+
+	if (settings["general"]["enableUiEnhancements"].Bool())
+	{
+		statisticButton = std::make_shared<CButton>(Point(726, 10), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistics")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTICS);
+		texts.push_back(std::make_shared<CLabel>(716, 25, EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistics") + ":"));
 	}
 }
 
@@ -253,6 +261,9 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 {
+	if(statisticButton->pos.isInside(cursorPosition))
+		return;
+
 	OBJECT_CONSTRUCTION;
 
 	if(!won)
@@ -280,6 +291,8 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 
 void CHighScoreInputScreen::keyPressed(EShortcut key)
 {
+	if(key == EShortcut::HIGH_SCORES_STATISTICS) // ignore shortcut for skipping video with key
+		return;
 	clickPressed(Point());
 }
 

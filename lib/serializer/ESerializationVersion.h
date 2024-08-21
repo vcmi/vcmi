@@ -64,7 +64,8 @@ enum class ESerializationVersion : int32_t
 	CAMPAIGN_REGIONS, // 853 - configurable campaign regions
 	EVENTS_PLAYER_SET, // 854 - map & town events use std::set instead of bitmask to store player list
 	NEW_TOWN_BUILDINGS, // 855 - old bonusing buildings have been removed
-	RESOURCE_GENERATION, // 856 - resource generation
+	STATISTICS_SCREEN, // 856 - extent statistic functions
+	RESOURCE_GENERATION, // 857 - resource generation
 
 	CURRENT = RESOURCE_GENERATION
 };
