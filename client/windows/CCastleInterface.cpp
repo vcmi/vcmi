@@ -1906,9 +1906,15 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 		return nullptr;
 
 	const CBuilding * build = town->town->buildings.at(myID);
-	myID = BuildingID::getDwellingFromLevel(level, 1);
-	if (town->hasBuilt(myID))
-		build = town->town->buildings.at(myID);
+	while (town->town->buildings.count(myID))
+	{
+		if (town->hasBuilt(myID))
+			build = town->town->buildings.at(myID);
+		if(myID != BuildingID::DWELL_LVL_8)
+			myID.advance(GameConstants::CREATURES_PER_TOWN - 1);
+		else
+			myID = BuildingID::DWELL_LVL_8_UP;
+	}
 
 	return build;
 }
