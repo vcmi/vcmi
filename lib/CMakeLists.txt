@@ -181,6 +181,7 @@ set(lib_MAIN_SRCS
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
 	rmg/Functions.cpp
+	rmg/ObjectInfo.cpp
 	rmg/RmgMap.cpp
 	rmg/PenroseTiling.cpp
 	rmg/modificators/Modificator.cpp
@@ -583,6 +584,7 @@ set(lib_MAIN_HEADERS
 	rmg/RmgMap.h
 	rmg/float3.h
 	rmg/Functions.h
+	rmg/ObjectInfo.h
 	rmg/PenroseTiling.h
 	rmg/modificators/Modificator.h
 	rmg/modificators/ObjectManager.h

@@ -37,15 +37,19 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ObjectInfo::ObjectInfo():
-	destroyObject([](CGObjectInstance * obj){})
-{
-
-}
-
 void TreasurePlacer::process()
 {
+	if (zone.getMaxTreasureValue() == 0)
+	{
+		//No treasures at all
+		return;
+	}
+
+	// Get default objects
 	addAllPossibleObjects();
+	// Override with custom objects
+	objects.patchWithZoneConfig(zone);
+
 	auto * m = zone.getModificator<ObjectManager>();
 	if(m)
 		createTreasures(*m);
@@ -58,15 +62,52 @@ void TreasurePlacer::init()
 	DEPENDENCY(ConnectionsPlacer);
 	DEPENDENCY_ALL(PrisonHeroPlacer);
 	DEPENDENCY(RoadPlacer);
+
+	// Add all native creatures
+	for(auto const & cre : VLC->creh->objects)
+	{
+		if(!cre->special && cre->getFaction() == zone.getTownType())
+		{
+			creatures.push_back(cre.get());
+		}
+	}
+
+	tierValues = generator.getConfig().pandoraCreatureValues;
 }
 
 void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
 {
+	// FIXME: It is never the case - objects must be erased or badly copied after this
+	if (oi.templates.empty())
+	{
+		logGlobal->error("Attempt to add ObjectInfo with no templates! Value: %d", oi.value);
+		return;
+	}
+	if (!oi.generateObject)
+	{
+		logGlobal->error("Attempt to add ObjectInfo with no generateObject function! Value: %d", oi.value);
+		return;
+	}
+	if (!oi.maxPerZone)
+	{
+		logGlobal->warn("Attempt to add ObjectInfo with 0 maxPerZone! Value: %d", oi.value);
+		return;
+	}
 	RecursiveLock lock(externalAccessMutex);
-	possibleObjects.push_back(oi);
+	objects.addObject(oi);
 }
 
 void TreasurePlacer::addAllPossibleObjects()
+{
+	addCommonObjects();
+	addDwellings();
+	addPandoraBoxes();
+	addSeerHuts();
+	addPrisons();
+	addScrolls();
+}
+
+void TreasurePlacer::addCommonObjects()
 {
 	ObjectInfo oi;
 	
@@ -97,7 +138,10 @@ void TreasurePlacer::addAllPossibleObjects()
 			}
 		}
 	}
+}
 
+void TreasurePlacer::addPrisons()
+{
 	//Generate Prison on water only if it has a template
 	auto prisonTemplates = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType());
 	if (!prisonTemplates.empty())
@@ -157,21 +201,14 @@ void TreasurePlacer::addAllPossibleObjects()
 				addObjectToRandomPool(oi);
 		}
 	}
+}
 
+void TreasurePlacer::addDwellings()
+{
 	if(zone.getType() == ETemplateZoneType::WATER)
 		return;
 	
-	//all following objects are unlimited
-	oi.maxPerZone = std::numeric_limits<ui32>::max();
-
-	std::vector<const CCreature *> creatures; //native creatures for this zone
-	for(auto const & cre : VLC->creh->objects)
-	{
-		if(!cre->special && cre->getFaction() == zone.getTownType())
-		{
-			creatures.push_back(cre.get());
-		}
-	}
+	ObjectInfo oi;
 	
 	//dwellings
 	auto dwellingTypes = {Obj::CREATURE_GENERATOR1, Obj::CREATURE_GENERATOR4};
@@ -214,7 +251,15 @@ void TreasurePlacer::addAllPossibleObjects()
 			}
 		}
 	}
-	
+}
+
+void TreasurePlacer::addScrolls()
+{
+	if(zone.getType() == ETemplateZoneType::WATER)
+		return;
+
+	ObjectInfo oi;
+
 	for(int i = 0; i < generator.getConfig().scrollValues.size(); i++)
 	{
 		oi.generateObject = [i, this]() -> CGObjectInstance *
@@ -239,6 +284,22 @@ void TreasurePlacer::addAllPossibleObjects()
 			addObjectToRandomPool(oi);
 	}
 	
+}
+
+void TreasurePlacer::addPandoraBoxes()
+{
+	if(zone.getType() == ETemplateZoneType::WATER)
+		return;
+
+	addPandoraBoxesWithGold();
+	addPandoraBoxesWithExperience();
+	addPandoraBoxesWithCreatures();
+	addPandoraBoxesWithSpells();
+}
+
+void TreasurePlacer::addPandoraBoxesWithGold()
+{
+	ObjectInfo oi;
 	//pandora box with gold
 	for(int i = 1; i < 5; i++)
 	{
@@ -260,7 +321,11 @@ void TreasurePlacer::addAllPossibleObjects()
 		if(!oi.templates.empty())
 			addObjectToRandomPool(oi);
 	}
-	
+}
+
+void TreasurePlacer::addPandoraBoxesWithExperience()
+{
+	ObjectInfo oi;
 	//pandora box with experience
 	for(int i = 1; i < 5; i++)
 	{
@@ -282,43 +347,12 @@ void TreasurePlacer::addAllPossibleObjects()
 		if(!oi.templates.empty())
 			addObjectToRandomPool(oi);
 	}
-	
-	//pandora box with creatures
-	const std::vector<int> & tierValues = generator.getConfig().pandoraCreatureValues;
-	
-	auto creatureToCount = [tierValues](const CCreature * creature) -> int
-	{
-		if(!creature->getAIValue() || tierValues.empty()) //bug #2681
-			return 0; //this box won't be generated
-		
-		//Follow the rules from https://heroes.thelazy.net/index.php/Pandora%27s_Box
+}
 
-		int actualTier = creature->getLevel() > tierValues.size() ?
-			tierValues.size() - 1 :
-			creature->getLevel() - 1;
-		float creaturesAmount = std::floor((static_cast<float>(tierValues[actualTier])) / creature->getAIValue());
-		if (creaturesAmount < 1)
-		{
-			return 0;
-		}
-		else if(creaturesAmount <= 5)
-		{
-			//No change
-		}
-		else if(creaturesAmount <= 12)
-		{
-			creaturesAmount = std::ceil(creaturesAmount / 2) * 2;
-		}
-		else if(creaturesAmount <= 50)
-		{
-			creaturesAmount = std::round(creaturesAmount / 5) * 5;
-		}
-		else
-		{
-			creaturesAmount = std::round(creaturesAmount / 10) * 10;
-		}
-		return static_cast<int>(creaturesAmount);
-	};
+void TreasurePlacer::addPandoraBoxesWithCreatures()
+{
+	ObjectInfo oi;
+	//pandora box with creatures
 
 	for(auto * creature : creatures)
 	{
@@ -344,7 +378,11 @@ void TreasurePlacer::addAllPossibleObjects()
 		if(!oi.templates.empty())
 			addObjectToRandomPool(oi);
 	}
-	
+}
+
+void TreasurePlacer::addPandoraBoxesWithSpells()
+{
+	ObjectInfo oi;
 	//Pandora with 12 spells of certain level
 	for(int i = 1; i <= GameConstants::SPELL_LEVELS; i++)
 	{
@@ -441,8 +479,13 @@ void TreasurePlacer::addAllPossibleObjects()
 	oi.probability = 2;
 	if(!oi.templates.empty())
 		addObjectToRandomPool(oi);
-	
+}
+
+void TreasurePlacer::addSeerHuts()
+{
 	//Seer huts with creatures or generic rewards
+
+	ObjectInfo oi;
 
 	if(zone.getConnectedZoneIds().size()) //Unlikely, but...
 	{
@@ -588,12 +631,6 @@ void TreasurePlacer::addAllPossibleObjects()
 	}
 }
 
-size_t TreasurePlacer::getPossibleObjectsSize() const
-{
-	RecursiveLock lock(externalAccessMutex);
-	return possibleObjects.size();
-}
-
 void TreasurePlacer::setMaxPrisons(size_t count)
 {
 	RecursiveLock lock(externalAccessMutex);
@@ -605,6 +642,40 @@ size_t TreasurePlacer::getMaxPrisons() const
 	RecursiveLock lock(externalAccessMutex);
 	return maxPrisons;
 }
+
+int TreasurePlacer::creatureToCount(const CCreature * creature) const
+{
+	if(!creature->getAIValue() || tierValues.empty()) //bug #2681
+		return 0; //this box won't be generated
+	
+	//Follow the rules from https://heroes.thelazy.net/index.php/Pandora%27s_Box
+
+	int actualTier = creature->getLevel() > tierValues.size() ?
+		tierValues.size() - 1 :
+		creature->getLevel() - 1;
+	float creaturesAmount = std::floor((static_cast<float>(tierValues[actualTier])) / creature->getAIValue());
+	if (creaturesAmount < 1)
+	{
+		return 0;
+	}
+	else if(creaturesAmount <= 5)
+	{
+		//No change
+	}
+	else if(creaturesAmount <= 12)
+	{
+		creaturesAmount = std::ceil(creaturesAmount / 2) * 2;
+	}
+	else if(creaturesAmount <= 50)
+	{
+		creaturesAmount = std::round(creaturesAmount / 5) * 5;
+	}
+	else
+	{
+		creaturesAmount = std::round(creaturesAmount / 10) * 10;
+	}
+	return static_cast<int>(creaturesAmount);
+};
 
 bool TreasurePlacer::isGuardNeededForTreasure(int value)
 {// no guard in a zone with "monsters: none" and for small treasures; water zones cen get monster strength ZONE_NONE elsewhere if needed
@@ -623,6 +694,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	bool hasLargeObject = false;
 	while(currentValue <= static_cast<int>(desiredValue) - 100) //no objects with value below 100 are available
 	{
+		// FIXME: Pointer might be invalidated after this
 		auto * oi = getRandomObject(desiredValue, currentValue, !hasLargeObject);
 		if(!oi) //fail
 			break;
@@ -674,12 +746,21 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			accessibleArea.add(int3());
 		}
 		
-		auto * object = oi->generateObject();
-		if(oi->templates.empty())
+		CGObjectInstance * object = nullptr;
+		if (oi->generateObject)
 		{
-			logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
-			oi->destroyObject(object);
-			delete object;
+			object = oi->generateObject();
+			if(oi->templates.empty())
+			{
+				logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
+				oi->destroyObject(object);
+				delete object;
+				continue;
+			}
+		}
+		else
+		{
+			logGlobal->error("ObjectInfo has no generateObject function! Templates: %d", oi->templates.size());
 			continue;
 		}
 		
@@ -785,7 +866,7 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 	ui32 maxVal = desiredValue - currentValue;
 	ui32 minValue = static_cast<ui32>(0.25f * (desiredValue - currentValue));
 	
-	for(ObjectInfo & oi : possibleObjects) //copy constructor turned out to be costly
+	for(ObjectInfo & oi : objects.getPossibleObjects()) //copy constructor turned out to be costly
 	{
 		if(oi.value > maxVal)
 			break; //this assumes values are sorted in ascending order
@@ -859,24 +940,19 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 	boost::sort(treasureInfo, valueComparator);
 
 	//sort treasures by ascending value so we can stop checking treasures with too high value
-	boost::sort(possibleObjects, [](const ObjectInfo& oi1, const ObjectInfo& oi2) -> bool
-	{
-		return oi1.value < oi2.value;
-	});
+	objects.sortPossibleObjects();
 
 	const size_t size = zone.area()->getTilesVector().size();
 
 	int totalDensity = 0;
 
+	// FIXME: No need to use iterator here
 	for (auto t  = treasureInfo.begin(); t != treasureInfo.end(); t++)
 	{
 		std::vector<rmg::Object> treasures;
 
 		//discard objects with too high value to be ever placed
-		vstd::erase_if(possibleObjects, [t](const ObjectInfo& oi) -> bool
-		{
-			return oi.value > t->max;
-		});
+		objects.discardObjectsAboveValue(t->max);
 
 		totalDensity += t->density;
 
@@ -895,7 +971,11 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 				continue;
 			}
 
-			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo* oi) {return v + oi->value; });
+			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0,
+				[](int v, const ObjectInfo* oi)
+			{
+				return v + oi->value;
+			});
 
 			const ui32 maxPileGenerationAttempts = 2;
 			for (ui32 attempt = 0; attempt < maxPileGenerationAttempts; attempt++)
@@ -1016,13 +1096,88 @@ char TreasurePlacer::dump(const int3 & t)
 	return Modificator::dump(t);
 }
 
-void ObjectInfo::setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrainType)
+void TreasurePlacer::ObjectPool::addObject(const ObjectInfo & info)
 {
-	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
-	if(!templHandler)
-		return;
-	
-	templates = templHandler->getTemplates(terrainType);
+	possibleObjects.push_back(info);
+}
+
+void TreasurePlacer::ObjectPool::updateObject(MapObjectID id, MapObjectSubID subid, ObjectInfo info)
+{
+	/*
+	Handle separately:
+		- Dwellings
+		- Prisons
+		- Seer huts (quests)
+		- Pandora Boxes
+	*/
+	// FIXME: This will drop all templates
+	customObjects[CompoundMapObjectID(id, subid)] = info;
+}
+
+void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone)
+{
+	// FIXME: Wycina wszystkie obiekty poza pandorami i dwellami :?
+
+	// Copy standard objects if they are not already modified
+	/*
+	for (const auto & object : possibleObjects)
+	{
+		for (const auto & templ : object.templates)
+		{
+			// FIXME: Objects with same temmplates (Pandora boxes) are not added
+			CompoundMapObjectID key(templ->id, templ->subid);
+			if (!vstd::contains(customObjects, key))
+			{
+				customObjects[key] = object;
+			}
+		}
+	}
+	*/
+
+	vstd::erase_if(possibleObjects, [&zone](const ObjectInfo & object)
+	{
+		for (const auto & templ : object.templates)
+		{
+			CompoundMapObjectID key(templ->id, templ->subid);
+			if (vstd::contains(zone.getBannedObjects(), key))
+			{
+				return true;
+			}
+		}
+		return false;
+	});
+
+	// Now copy back modified list
+	// FIXME: Protect with mutex as well?
+	/*
+	possibleObjects.clear();
+	for (const auto & customObject : customObjects)
+	{
+		addObject(customObject.second);
+	}
+	*/
+	// TODO: Consider adding custom Pandora boxes with arbitrary content
+}
+
+std::vector<ObjectInfo> & TreasurePlacer::ObjectPool::getPossibleObjects()
+{
+	return possibleObjects;
+}
+
+void TreasurePlacer::ObjectPool::sortPossibleObjects()
+{
+	boost::sort(possibleObjects, [](const ObjectInfo& oi1, const ObjectInfo& oi2) -> bool
+	{
+		return oi1.value < oi2.value;
+	});
+}
+
+void TreasurePlacer::ObjectPool::discardObjectsAboveValue(ui32 value)
+{
+	vstd::erase_if(possibleObjects, [value](const ObjectInfo& oi) -> bool
+	{
+		return oi.value > value;
+	});
 }
 
 VCMI_LIB_NAMESPACE_END

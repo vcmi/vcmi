@@ -13,10 +13,13 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "ObjectInfo.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonSerializeFormat;
+struct CompoundMapObjectID;
 
 enum class ETemplateZoneType
 {
@@ -131,7 +134,36 @@ public:
 		int castleCount;
 		int townDensity;
 		int castleDensity;
+
+		// TODO: Copy from another zone once its randomized
+		TRmgTemplateZoneId sourceZone = NO_ZONE;
 	};
+
+	// TODO: Store config for custom objects to spawn in this zone
+	// TODO: Read custom object config from zone file
+	class DLL_LINKAGE ObjectConfig
+	{
+	public:
+		//ObjectConfig() = default;
+
+		void addBannedObject(const CompoundMapObjectID & objid);
+		void addCustomObject(const ObjectInfo & object);
+		void clearBannedObjects();
+		void clearCustomObjects();
+		const std::vector<CompoundMapObjectID> & getBannedObjects() const;
+		const std::vector<ObjectInfo> & getCustomObjects() const;
+
+		// TODO: Separate serializer
+		void serializeJson(JsonSerializeFormat & handler);
+	private:
+		// TODO: Add convenience method for banning objects by name
+		std::vector<CompoundMapObjectID> bannedObjects;
+
+		// TODO: In what format should I store custom objects?
+		// Need to convert map serialization format to ObjectInfo
+		std::vector<ObjectInfo> customObjects;
+	};
+	// TODO: Allow to copy all custom objects config from another zone
 
 	ZoneOptions();
 
@@ -182,12 +214,17 @@ public:
 	bool areTownsSameType() const;
 	bool isMatchTerrainToTown() const;
 
+	const std::vector<CompoundMapObjectID> & getBannedObjects() const;
+	const std::vector<ObjectInfo> & getCustomObjects() const;
+
 protected:
 	TRmgTemplateZoneId id;
 	ETemplateZoneType type;
 	int size;
 	ui32 maxTreasureValue;
 	std::optional<int> owner;
+
+	ObjectConfig objectConfig;
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
@@ -276,6 +313,10 @@ private:
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::vector<CTreasureInfo> inheritTreasureInfo(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
+
+	// TODO: Copy custom object settings
+	// TODO: Copy town type after source town is actually randomized
+
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
 };

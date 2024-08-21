@@ -382,6 +382,78 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID comp
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
 }
 
+CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const
+{
+	std::optional<si32> id;
+	if (scope.empty())
+	{
+		id = VLC->identifiers()->getIdentifier("object", type);
+	}
+	else
+	{
+		id = VLC->identifiers()->getIdentifier(scope, "object", type);
+	}
+
+	if(id)
+	{
+		const auto & object = objects.at(id.value());
+		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
+
+		if (subID)
+			return CompoundMapObjectID(id.value(), subID.value());
+	}
+
+	std::string errorString = "Failed to get id for object of type " + type + "." + subtype;
+	logGlobal->error(errorString);
+	throw std::runtime_error(errorString);
+}
+
+CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
+{
+	// FIXME: Crash with no further log
+	//"core:object.creatureBank.experimentalShop",
+	//"core:object.creatureBank.wolfRiderPicket",
+	//"core:object.creatureBank.demonDomain"
+
+		// TODO: Use existing utilities for parsing id?	
+	JsonNode node(objectName);
+	auto modScope = node.getModScope();
+
+	std::string scope, type, subtype;
+	size_t firstColon = objectName.find(':');
+	size_t lastDot = objectName.find_last_of('.');
+
+	// TODO: Ignore object class, there should not be objects with same names within one scope anyway
+	
+	if(firstColon != std::string::npos)
+	{
+		scope = objectName.substr(0, firstColon);
+		if(lastDot != std::string::npos && lastDot > firstColon)
+		{
+			type = objectName.substr(firstColon + 1, lastDot - firstColon - 1);
+			subtype = objectName.substr(lastDot + 1);
+		}
+		else
+		{
+			type = objectName.substr(firstColon + 1);
+		}
+	}
+	else
+	{
+		if(lastDot != std::string::npos)
+		{
+			type = objectName.substr(0, lastDot);
+			subtype = objectName.substr(lastDot + 1);
+		}
+		else
+		{
+			type = objectName;
+		}
+	}
+
+	return getCompoundIdentifier(scope, type, subtype);
+}
+
 std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
 {
 	std::set<MapObjectID> ret;
@@ -451,6 +523,18 @@ void CObjectClassesHandler::afterLoadFinalization()
 				logGlobal->warn("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
+
+	for(auto & entry : objectIdHandlers)
+	{
+		// Call function for each object id
+		entry.second(entry.first);
+	}
+}
+
+void CObjectClassesHandler::resolveObjectCompoundId(const std::string & id, std::function<void(CompoundMapObjectID)> callback)
+{
+	auto compoundId = getCompoundIdentifier(id);
+	objectIdHandlers.push_back(std::make_pair(compoundId, callback));
 }
 
 void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container)

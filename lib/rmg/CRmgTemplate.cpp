@@ -102,6 +102,7 @@ void ZoneOptions::CTownInfo::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("castles", castleCount, 0);
 	handler.serializeInt("townDensity", townDensity, 0);
 	handler.serializeInt("castleDensity", castleDensity, 0);
+	handler.serializeInt("sourceZone", sourceZone, NO_ZONE);
 }
 
 ZoneOptions::ZoneOptions():
@@ -398,6 +399,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], mines[idx], 0);
 		}
 	}
+
+	handler.serializeStruct("customObjects", objectConfig);
 }
 
 ZoneConnection::ZoneConnection():
@@ -837,6 +840,7 @@ void CRmgTemplate::afterLoad()
 	allowedWaterContent.erase(EWaterContent::RANDOM);
 }
 
+// TODO: Allow any integer size which does not match enum, as well
 void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName)
 {
 	static const std::map<std::string, int3> sizeMapping =
@@ -905,5 +909,87 @@ void CRmgTemplate::serializePlayers(JsonSerializeFormat & handler, CPlayerCountR
 		value.fromString(encodedValue);
 }
 
+void ZoneOptions::ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
+{
+	// FIXME: We do not need to store the object info, just the id
+
+	bannedObjects.push_back(objid);
+
+	logGlobal->info("Banned object of type %d.%d", objid.primaryID, objid.secondaryID);
+}
+
+void ZoneOptions::ObjectConfig::serializeJson(JsonSerializeFormat & handler)
+{
+	// TODO: Implement'
+	
+	auto bannedObjectData = handler.enterArray("bannedObjects");	
+	if (handler.saving)
+	{
+
+		// FIXME: Do we even need to serialize / store banned objects?
+		/*
+		for (const auto & object : bannedObjects)
+		{
+			// TODO: Translate id back to string?
+
+
+			JsonNode node;
+			node.String() = VLC->objtypeh->getHandlerFor(object.primaryID, object.secondaryID);
+			// TODO: Check if AI-generated code is right
+
+
+		}
+		// handler.serializeRaw("bannedObjects", node, std::nullopt);
+
+		*/
+	}
+	else
+	{
+		/*
+			auto zonesData = handler.enterStruct("zones");
+			for(const auto & idAndZone : zonesData->getCurrent().Struct())
+			{
+				auto guard = handler.enterStruct(idAndZone.first);
+				auto zone = std::make_shared<ZoneOptions>();
+				zone->setId(decodeZoneId(idAndZone.first));
+				zone->serializeJson(handler);
+				zones[zone->getId()] = zone;
+			}
+		*/
+		std::vector<std::string> objectNames;
+		bannedObjectData.serializeArray(objectNames);
+
+		for (const auto & objectName : objectNames)
+		{
+			VLC->objtypeh->resolveObjectCompoundId(objectName,
+				[this](CompoundMapObjectID objid)
+				{
+					addBannedObject(objid);
+				}
+			);
+			
+		}
+	}
+}
+
+const std::vector<CompoundMapObjectID> & ZoneOptions::getBannedObjects() const
+{
+	return objectConfig.getBannedObjects();
+}
+
+const std::vector<ObjectInfo> & ZoneOptions::getCustomObjects() const
+{
+	return objectConfig.getCustomObjects();
+}
+
+const std::vector<CompoundMapObjectID> & ZoneOptions::ObjectConfig::getBannedObjects() const
+{
+	return bannedObjects;
+}
+
+const std::vector<ObjectInfo> & ZoneOptions::ObjectConfig::getCustomObjects() const
+{
+	return customObjects;
+}
 
 VCMI_LIB_NAMESPACE_END

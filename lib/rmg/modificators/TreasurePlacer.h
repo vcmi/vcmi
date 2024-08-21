@@ -9,6 +9,8 @@
  */
 
 #pragma once
+
+#include "../ObjectInfo.h"
 #include "../Zone.h"
 #include "../../mapObjects/ObjectTemplate.h"
 
@@ -18,21 +20,7 @@ class CGObjectInstance;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
-
-struct ObjectInfo
-{
-	ObjectInfo();
-
-	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
-	ui32 value = 0;
-	ui16 probability = 0;
-	ui32 maxPerZone = 1;
-	//ui32 maxPerMap; //unused
-	std::function<CGObjectInstance *()> generateObject;
-	std::function<void(CGObjectInstance *)> destroyObject;
-	
-	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);
-};
+struct CompoundMapObjectID;
 
 class TreasurePlacer: public Modificator
 {
@@ -45,11 +33,26 @@ public:
 	
 	void createTreasures(ObjectManager & manager);
 	void addObjectToRandomPool(const ObjectInfo& oi);
-	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
 
-	size_t getPossibleObjectsSize() const;
+	// TODO: Can be defaulted to addAllPossibleObjects, but then each object will need to be configured
+	void addCommonObjects();
+	void addDwellings();
+	void addPandoraBoxes();
+	void addPandoraBoxesWithGold();
+	void addPandoraBoxesWithExperience();
+	void addPandoraBoxesWithCreatures();
+	void addPandoraBoxesWithSpells();
+	void addSeerHuts();
+	void addPrisons();
+	void addScrolls();
+	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
+	// TODO: Read custom object config from zone file
+
+	/// Get all objects for this terrain
+
 	void setMaxPrisons(size_t count);
 	size_t getMaxPrisons() const;
+	int creatureToCount(const CCreature * creature) const;
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
@@ -59,7 +62,24 @@ protected:
 	rmg::Object constructTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement = false);
 
 protected:
-	std::vector<ObjectInfo> possibleObjects;
+	class ObjectPool
+	{
+	public:
+		void addObject(const ObjectInfo & info);
+		void updateObject(MapObjectID id, MapObjectSubID subid, ObjectInfo info);
+		std::vector<ObjectInfo> & getPossibleObjects();
+		void patchWithZoneConfig(const Zone & zone);
+		void sortPossibleObjects();
+		void discardObjectsAboveValue(ui32 value);
+
+	private:
+
+		std::vector<ObjectInfo> possibleObjects;
+		std::map<CompoundMapObjectID, ObjectInfo> customObjects;
+
+	} objects;
+	// TODO: Need to nagivate and update these
+
 	int minGuardedValue = 0;
 	
 	rmg::Area treasureArea;
@@ -67,6 +87,9 @@ protected:
 	rmg::Area guards;
 
 	size_t maxPrisons;
+
+	std::vector<const CCreature *> creatures; //native creatures for this zone
+	std::vector<int> tierValues;
 };
 
 VCMI_LIB_NAMESPACE_END
