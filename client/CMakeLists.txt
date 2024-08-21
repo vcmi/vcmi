@@ -65,6 +65,7 @@ set(vcmiclientcommon_SRCS
 	mainmenu/CPrologEpilogVideo.cpp
 	mainmenu/CreditsScreen.cpp
 	mainmenu/CHighScoreScreen.cpp
+	mainmenu/CStatisticScreen.cpp
 
 	mapView/MapRenderer.cpp
 	mapView/MapRendererContext.cpp
@@ -97,6 +98,7 @@ set(vcmiclientcommon_SRCS
 	renderSDL/CTrueTypeFont.cpp
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
+	renderSDL/ImageScaled.cpp
 	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
@@ -170,6 +172,8 @@ set(vcmiclientcommon_SRCS
 	windows/settings/SettingsMainWindow.cpp
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
+
+	xBRZ/xbrz.cpp
 
 	ArtifactsUIController.cpp
 	CGameInfo.cpp
@@ -257,6 +261,7 @@ set(vcmiclientcommon_HEADERS
 	mainmenu/CPrologEpilogVideo.h
 	mainmenu/CreditsScreen.h
 	mainmenu/CHighScoreScreen.h
+	mainmenu/CStatisticScreen.h
 
 	mapView/IMapRendererContext.h
 	mapView/IMapRendererObserver.h
@@ -301,6 +306,7 @@ set(vcmiclientcommon_HEADERS
 	renderSDL/CTrueTypeFont.h
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
+	renderSDL/ImageScaled.h
 	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
@@ -377,6 +383,9 @@ set(vcmiclientcommon_HEADERS
 	windows/settings/SettingsMainWindow.h
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h
+
+	xBRZ/xbrz.h
+	xBRZ/xbrz_tools.h
 
 	ArtifactsUIController.h
 	CGameInfo.h

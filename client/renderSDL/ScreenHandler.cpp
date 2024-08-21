@@ -38,13 +38,14 @@ SDL_Surface * screen2 = nullptr; //and hlp surface (used to store not-active int
 SDL_Surface * screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 static const std::string NAME = GameConstants::VCMI_VERSION; //application name
+static constexpr Point heroes3Resolution = Point(800, 600);
 
 std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 {
 	// H3 resolution, any resolution smaller than that is not correctly supported
-	static const Point minResolution = {800, 600};
+	static constexpr Point minResolution = heroes3Resolution;
 	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
-	static const double minimalScaling = 50;
+	static constexpr double minimalScaling = 50;
 
 	Point renderResolution = getRenderResolution();
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
@@ -97,6 +98,24 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 	Point logicalResolution = availableResolution * 100.0 / scaling;
 
 	return logicalResolution;
+}
+
+int ScreenHandler::getScalingFactor() const
+{
+	switch (upscalingFilter)
+	{
+		case EUpscalingFilter::NONE: return 1;
+		case EUpscalingFilter::XBRZ_2: return 2;
+		case EUpscalingFilter::XBRZ_3: return 3;
+		case EUpscalingFilter::XBRZ_4: return 4;
+	}
+
+	throw std::runtime_error("invalid upscaling filter");
+}
+
+Point ScreenHandler::getLogicalResolution() const
+{
+	return Point(screen->w, screen->h) / getScalingFactor();
 }
 
 Point ScreenHandler::getRenderResolution() const
@@ -291,10 +310,62 @@ void ScreenHandler::initializeWindow()
 		handleFatalError(message, true);
 	}
 
+	selectUpscalingFilter();
+	selectDownscalingFilter();
+
 	SDL_RendererInfo info;
 	SDL_GetRendererInfo(mainRenderer, &info);
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, settings["video"]["scalingMode"].String().c_str());
 	logGlobal->info("Created renderer %s", info.name);
+}
+
+EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
+{
+	static const std::map<std::string, EUpscalingFilter> upscalingFilterTypes =
+	{
+		{"auto", EUpscalingFilter::AUTO },
+		{"none", EUpscalingFilter::NONE },
+		{"xbrz2", EUpscalingFilter::XBRZ_2 },
+		{"xbrz3", EUpscalingFilter::XBRZ_3 },
+		{"xbrz4", EUpscalingFilter::XBRZ_4 }
+	};
+
+	auto filterName = settings["video"]["upscalingFilter"].String();
+	auto filter = upscalingFilterTypes.at(filterName);
+
+	if (filter != EUpscalingFilter::AUTO)
+		return filter;
+
+	// for now - always fallback to no filter
+	return EUpscalingFilter::NONE;
+
+	// else - autoselect
+//	Point outputResolution = getRenderResolution();
+//	Point logicalResolution = getPreferredLogicalResolution();
+//
+//	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
+//	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
+//	float scaling = std::min(scaleX, scaleY);
+//
+//	if (scaling <= 1.0f)
+//		return EUpscalingFilter::NONE;
+//	if (scaling <= 2.0f)
+//		return EUpscalingFilter::XBRZ_2;
+//	if (scaling <= 3.0f)
+//		return EUpscalingFilter::XBRZ_3;
+//
+//	return EUpscalingFilter::XBRZ_4;
+}
+
+void ScreenHandler::selectUpscalingFilter()
+{
+	upscalingFilter	= loadUpscalingFilter();
+	logGlobal->debug("Selected upscaling filter %d", static_cast<int>(upscalingFilter));
+}
+
+void ScreenHandler::selectDownscalingFilter()
+{
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, settings["video"]["downscalingFilter"].String().c_str());
+	logGlobal->debug("Selected downscaling filter %s", settings["video"]["downscalingFilter"].String());
 }
 
 void ScreenHandler::initializeScreenBuffers()
@@ -311,7 +382,7 @@ void ScreenHandler::initializeScreenBuffers()
 	int amask = 0xFF000000;
 #endif
 
-	auto logicalSize = getPreferredLogicalResolution();
+	auto logicalSize = getPreferredLogicalResolution() * getScalingFactor();
 	SDL_RenderSetLogicalSize(mainRenderer, logicalSize.x, logicalSize.y);
 
 	screen = SDL_CreateRGBSurface(0, logicalSize.x, logicalSize.y, 32, rmask, gmask, bmask, amask);

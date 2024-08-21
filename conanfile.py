@@ -20,6 +20,7 @@ class VCMI(ConanFile):
         "sdl_mixer/[~2.0.4]",
         "sdl_ttf/[~2.0.18]",
         "onetbb/[^2021.3]",
+        "xz_utils/[>=5.2.5]", # Required for innoextract
     ]
 
     requires = _libRequires + _clientRequires
@@ -87,24 +88,64 @@ class VCMI(ConanFile):
         self.options["boost"].without_type_erasure = True
         self.options["boost"].without_wave = True
 
-        self.options["ffmpeg"].avdevice = False
-        self.options["ffmpeg"].avfilter = False
-        self.options["ffmpeg"].postproc = False
-        self.options["ffmpeg"].swresample = False
-        self.options["ffmpeg"].with_asm = self.settings.os != "Android"
+        self.options["ffmpeg"].disable_all_bitstream_filters = True
+        self.options["ffmpeg"].disable_all_decoders = True
+        self.options["ffmpeg"].disable_all_demuxers = True
+        self.options["ffmpeg"].disable_all_encoders = True
+        self.options["ffmpeg"].disable_all_filters = True
+        self.options["ffmpeg"].disable_all_hardware_accelerators = True
+        self.options["ffmpeg"].disable_all_muxers = True
+        self.options["ffmpeg"].disable_all_parsers = True
+        self.options["ffmpeg"].disable_all_protocols = True
+
+        self.options["ffmpeg"].with_asm = False
+        self.options["ffmpeg"].with_bzip2 = False
         self.options["ffmpeg"].with_freetype = False
-        self.options["ffmpeg"].with_libfdk_aac = False
+        self.options["ffmpeg"].with_libaom = False
+        self.options["ffmpeg"].with_libdav1d = False
+        self.options["ffmpeg"].with_libiconv = False
         self.options["ffmpeg"].with_libmp3lame = False
+        self.options["ffmpeg"].with_libsvtav1 = False
         self.options["ffmpeg"].with_libvpx = False
         self.options["ffmpeg"].with_libwebp = False
         self.options["ffmpeg"].with_libx264 = False
         self.options["ffmpeg"].with_libx265 = False
+        self.options["ffmpeg"].with_lzma = True
         self.options["ffmpeg"].with_openh264 = False
         self.options["ffmpeg"].with_openjpeg = False
         self.options["ffmpeg"].with_opus = False
         self.options["ffmpeg"].with_programs = False
+        self.options["ffmpeg"].with_sdl = False
         self.options["ffmpeg"].with_ssl = False
         self.options["ffmpeg"].with_vorbis = False
+        self.options["ffmpeg"].with_zlib = False
+        if self.settings.os != "Android":
+            self.options["ffmpeg"].with_libfdk_aac = False
+
+        self.options["ffmpeg"].avcodec = True
+        self.options["ffmpeg"].avdevice = False
+        self.options["ffmpeg"].avfilter = False
+        self.options["ffmpeg"].avformat = True
+        self.options["ffmpeg"].postproc = False
+        self.options["ffmpeg"].swresample = True # For resampling of audio in 'planar' formats
+        self.options["ffmpeg"].swscale = True    # For video scaling
+
+        # We want following options supported:
+        # H3:SoD - .bik and .smk
+        # H3:HD  -  ogg container / theora video / vorbis sound (not supported by vcmi at the moment, but might be supported in future)
+        # and for mods - webm container / vp8 or vp9 video / opus sound
+        # TODO: add av1 support for mods (requires enabling libdav1d which currently fails to build via Conan)
+        self.options["ffmpeg"].enable_protocols = "file"
+        self.options["ffmpeg"].enable_demuxers = "bink,binka,ogg,smacker,webm_dash_manifest"
+        self.options["ffmpeg"].enable_parsers = "opus,vorbis,vp8,vp9,webp"
+        self.options["ffmpeg"].enable_decoders = "bink,binkaudio_dct,binkaudio_rdft,smackaud,smacker,theora,vorbis,vp8,vp9,opus"
+
+        #optionally, for testing - enable ffplay/ffprobe binaries in conan package:
+        #if self.settings.os == "Windows":
+        #    self.options["ffmpeg"].with_programs = True
+        #    self.options["ffmpeg"].avfilter = True
+        #    self.options["ffmpeg"].with_sdl = True
+        #    self.options["ffmpeg"].enable_filters = "aresample,scale"
 
         self.options["sdl"].sdl2main = self.settings.os != "iOS"
         self.options["sdl"].vulkan = False
@@ -198,7 +239,7 @@ class VCMI(ConanFile):
 
         # client
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/[^4.4]")
+            self.requires("ffmpeg/[>=4.4]")
 
         # launcher
         if self.settings.os == "Android":

@@ -17,7 +17,7 @@
 
 #include <SDL_surface.h>
 
-SDLImageLoader::SDLImageLoader(SDLImageConst * Img):
+SDLImageLoader::SDLImageLoader(SDLImageShared * Img):
 	image(Img),
 	lineStart(nullptr),
 	position(nullptr)

@@ -122,7 +122,7 @@ set(lib_MAIN_SRCS
 	mapObjects/CGMarket.cpp
 	mapObjects/CGObjectInstance.cpp
 	mapObjects/CGPandoraBox.cpp
-	mapObjects/CGTownBuilding.cpp
+	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
 	mapObjects/CObjectHandler.cpp
 	mapObjects/CQuest.cpp
@@ -496,7 +496,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/CGMarket.h
 	mapObjects/CGObjectInstance.h
 	mapObjects/CGPandoraBox.h
-	mapObjects/CGTownBuilding.h
+	mapObjects/TownBuildingInstance.h
 	mapObjects/CGTownInstance.h
 	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h
@@ -731,7 +731,7 @@ endif()
 
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi PUBLIC
-	minizip::minizip ZLIB::ZLIB
+	minizip::minizip ZLIB::ZLIB TBB::tbb
 	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
 
@@ -796,6 +796,8 @@ if(NOT ENABLE_STATIC_LIBS)
 endif()
 
 if(APPLE_IOS AND NOT USING_CONAN)
+	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
+
 	get_target_property(LINKED_LIBS vcmi LINK_LIBRARIES)
 	foreach(LINKED_LIB IN LISTS LINKED_LIBS)
 		if(NOT TARGET ${LINKED_LIB})

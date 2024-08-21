@@ -78,20 +78,21 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint, uint8_t alpha); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	uint32_t colorTouint32_t(const SDL_Color * color); //little endian only
 
-	void drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2);
+	void drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2, int width);
 	void drawLineDashed(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color);
 
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color & color, int depth = 1);
 	void drawBorder(SDL_Surface * sur, const Rect & r, const SDL_Color & color, int depth = 1);
 
-	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
-	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface
+	SDL_Surface * newSurface(const Point & dimensions, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
+	SDL_Surface * newSurface(const Point & dimensions); //creates new surface, with flags/format same as in screen surface
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
 
 	// bilinear filtering. Always returns rgba surface
 	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height);
+	SDL_Surface * scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor);
 
 	template<int bpp>
 	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);
@@ -110,11 +111,13 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 		SDL_Surface * surf;
 		Rect oldRect;
 
+		int getScalingFactor() const;
+
 	public:
 		CClipRectGuard(SDL_Surface * surface, const Rect & rect): surf(surface)
 		{
 			CSDL_Ext::getClipRect(surf, oldRect);
-			CSDL_Ext::setClipRect(surf, rect);
+			CSDL_Ext::setClipRect(surf, rect * getScalingFactor());
 		}
 
 		~CClipRectGuard()

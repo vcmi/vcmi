@@ -159,17 +159,6 @@
 
   "vcmi.townHall.missingBase": "Căn cứ %s phải được xây trước",
   "vcmi.townHall.noCreaturesToRecruit": "Không có quái để chiêu mộ!",
-  "vcmi.townHall.greetingManaVortex": "%s giúp cơ thể bạn tràn đầy năng lượng mới. Bạn được gấp đôi năng lượng tối đa.",
-  "vcmi.townHall.greetingKnowledge": "Bạn học chữ khắc trên %s và thấu hiểu cách vận hành của nhiều ma thuật (+1 Trí).",
-  "vcmi.townHall.greetingSpellPower": "%s dạy bạn hướng mới tập trung sức mạnh ma thuật (+1 Lực).",
-  "vcmi.townHall.greetingExperience": "Viếng thăm %s dạy bạn nhiều kĩ năng mới (+1000 Kinh nghiệm).",
-  "vcmi.townHall.greetingAttack": "Thời gian ở %s giúp bạn học nhiều kĩ năng chiến đấu hiệu quả (+1 Công).",
-  "vcmi.townHall.greetingDefence": "Thời gian ở %s, các chiến binh lão luyện tại đó dạy bạn nhiều kĩ năng phòng thủ (+1 Thủ).",
-  "vcmi.townHall.hasNotProduced": "%s chưa tạo được cái gì.",
-  "vcmi.townHall.hasProduced": "%s tạo %d %s tuần này.",
-  "vcmi.townHall.greetingCustomBonus": "%s cho bạn +%d %s%s",
-  "vcmi.townHall.greetingCustomUntil": " đến trận đánh tiếp theo.",
-  "vcmi.townHall.greetingInTownMagicWell": "%s đã hồi phục năng lượng tối đa của bạn.",
 
   "vcmi.logicalExpressions.anyOf": "Bất kì cái sau:",
   "vcmi.logicalExpressions.allOf": "Tất cả cái sau:",

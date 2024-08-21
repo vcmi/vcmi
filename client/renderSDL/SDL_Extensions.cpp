@@ -12,11 +12,16 @@
 
 #include "SDL_PixelAccess.h"
 
+#include "../gui/CGuiHandler.h"
 #include "../render/Graphics.h"
+#include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../CMT.h"
+#include "../xBRZ/xbrz.h"
 
 #include "../../lib/GameConstants.h"
+
+#include <tbb/parallel_for.h>
 
 #include <SDL_render.h>
 #include <SDL_surface.h>
@@ -63,21 +68,21 @@ void CSDL_Ext::setAlpha(SDL_Surface * bg, int value)
 	SDL_SetSurfaceAlphaMod(bg, value);
 }
 
-SDL_Surface * CSDL_Ext::newSurface(int w, int h)
+SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions)
 {
-	return newSurface(w, h, screen);
+	return newSurface(dimensions, screen);
 }
 
-SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
+SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
-	SDL_Surface * ret = SDL_CreateRGBSurface(0,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	SDL_Surface * ret = SDL_CreateRGBSurface(0,dimensions.x,dimensions.y,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
 
 	if(ret == nullptr)
 	{
 		const char * error = SDL_GetError();
 
 		std::string messagePattern = "Failed to create SDL Surface of size %d x %d, %d bpp. Reason: %s";
-		std::string message = boost::str(boost::format(messagePattern) % w % h % mod->format->BitsPerPixel % error);
+		std::string message = boost::str(boost::format(messagePattern) % dimensions.x % dimensions.y % mod->format->BitsPerPixel % error);
 
 		handleFatalError(message, true);
 	}
@@ -448,32 +453,35 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 	}
 }
 
-void CSDL_Ext::drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2)
+void CSDL_Ext::drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2, int thickness)
 {
 	//FIXME: duplicated code with drawLineDashed
-	int width  = std::abs(from.x - dest.x);
+	int width = std::abs(from.x - dest.x);
 	int height = std::abs(from.y - dest.y);
 
-	if ( width == 0 && height == 0)
+	if(width == 0 && height == 0)
 	{
-		uint8_t *p = CSDL_Ext::getPxPtr(sur, from.x, from.y);
+		uint8_t * p = CSDL_Ext::getPxPtr(sur, from.x, from.y);
 		ColorPutter<4>::PutColorAlpha(p, color1);
 		return;
 	}
 
-	if (width > height)
+	for(int i = 0; i < thickness; ++i)
 	{
-		if ( from.x < dest.x)
-			drawLineX(sur, from.x, from.y, dest.x, dest.y, color1, color2);
+		if(width > height)
+		{
+			if(from.x < dest.x)
+				drawLineX(sur, from.x, from.y + i, dest.x, dest.y + i, color1, color2);
+			else
+				drawLineX(sur, dest.x, dest.y + i, from.x, from.y + i, color2, color1);
+		}
 		else
-			drawLineX(sur, dest.x, dest.y, from.x, from.y, color2, color1);
-	}
-	else
-	{
-		if ( from.y < dest.y)
-			drawLineY(sur, from.x, from.y, dest.x, dest.y, color1, color2);
-		else
-			drawLineY(sur, dest.x, dest.y, from.x, from.y, color2, color1);
+		{
+			if(from.y < dest.y)
+				drawLineY(sur, from.x + i, from.y, dest.x + i, dest.y, color1, color2);
+			else
+				drawLineY(sur, dest.x + i, dest.y, from.x + i, from.y, color2, color1);
+		}
 	}
 }
 
@@ -630,14 +638,48 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 	if(!surf || !width || !height)
 		return nullptr;
 
+	if (surf->w * 2 == width && surf->h * 2 == height)
+		return scaleSurfaceIntegerFactor(surf, 2);
+
 	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
-	SDL_Surface * ret = newSurface(width, height, intermediate);
+	SDL_Surface * ret = newSurface(Point(width, height), intermediate);
 
 #if SDL_VERSION_ATLEAST(2,0,16)
 	SDL_SoftStretchLinear(intermediate, nullptr, ret, nullptr);
 #else
 	SDL_SoftStretch(intermediate, nullptr, ret, nullptr);
 #endif
+	SDL_FreeSurface(intermediate);
+
+	return ret;
+}
+
+SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor)
+{
+	if(surf == nullptr || factor == 0)
+		return nullptr;
+
+	int newWidth = surf->w * factor;
+	int newHight = surf->h * factor;
+
+	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
+	SDL_Surface * ret = newSurface(Point(newWidth, newHight), intermediate);
+
+	assert(intermediate->pitch == intermediate->w * 4);
+	assert(ret->pitch == ret->w * 4);
+
+	const uint32_t * srcPixels = static_cast<const uint32_t*>(intermediate->pixels);
+	uint32_t * dstPixels = static_cast<uint32_t*>(ret->pixels);
+
+	// avoid excessive granulation - xBRZ prefers at least 8-16 lines per task
+	// TODO: compare performance and size of images, recheck values for potentially better parameters
+	const int granulation = std::clamp(surf->h / 64 * 8, 8, 64);
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate](const tbb::blocked_range<size_t> & r)
+	{
+		xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, xbrz::ColorFormat::ARGB, {}, r.begin(), r.end());
+	});
+
 	SDL_FreeSurface(intermediate);
 
 	return ret;
@@ -730,6 +772,11 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	SDL_GetClipRect(src, &rect);
 
 	other = CSDL_Ext::fromSDL(rect);
+}
+
+int CSDL_Ext::CClipRectGuard::getScalingFactor() const
+{
+	return GH.screenHandler().getScalingFactor();
 }
 
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);

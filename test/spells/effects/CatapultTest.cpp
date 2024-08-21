@@ -14,6 +14,7 @@
 #include <vstd/RNG.h>
 
 #include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/json/JsonNode.h"
 
 
 namespace test

@@ -26,6 +26,7 @@ class IImage;
 class CPicture : public CIntObject
 {
 	std::shared_ptr<IImage> bg;
+	std::function<void()> rCallback;
 
 public:
 	/// if set, only specified section of internal image will be rendered
@@ -57,8 +58,11 @@ public:
 	void scaleTo(Point size);
 	void setPlayerColor(PlayerColor player);
 
+	void addRClickCallback(const std::function<void()> & callback);
+
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 };
 
 /// area filled with specific texture
@@ -145,7 +149,7 @@ public:
 		BASE=1,            //base frame will be blitted before current one
 		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
-		PALETTE_ALPHA=8,   // use alpha channel for images with palette. Required for creatures in battle and map objects
+		CREATURE_MODE=8,   // use alpha channel for images with palette. Required for creatures in battle and map objects
 		PLAY_ONCE=32       //play animation only once and stop at last frame
 	};
 protected:

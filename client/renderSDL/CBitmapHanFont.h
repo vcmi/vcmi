@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_END
 class CBitmapFont;
 
 /// supports multi-byte characters for such languages like Chinese
-class CBitmapHanFont : public IFont
+class CBitmapHanFont final : public IFont
 {
 	std::unique_ptr<CBitmapFont> fallback;
 	// data, directly copied from file

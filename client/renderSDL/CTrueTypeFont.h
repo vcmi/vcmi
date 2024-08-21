@@ -19,7 +19,7 @@ class CBitmapFont;
 
 using TTF_Font = struct _TTF_Font;
 
-class CTrueTypeFont : public IFont
+class CTrueTypeFont final : public IFont
 {
 	std::unique_ptr<CBitmapFont> fallbackFont;
 	const std::pair<std::unique_ptr<ui8[]>, ui64> data;
