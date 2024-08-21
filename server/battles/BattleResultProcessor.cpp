@@ -480,6 +480,17 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	// Remove beaten hero
 	if(finishingBattle->loserHero)
 	{
+		//add statistics
+		if(!finishingBattle->isDraw())
+		{
+			ConstTransitivePtr<CGHeroInstance> strongestHero = nullptr;
+			for(auto & hero : gameHandler->gameState()->getPlayerState(finishingBattle->loser)->heroes)
+				if(!strongestHero || hero->exp > strongestHero->exp)
+					strongestHero = hero;
+			if(strongestHero->id == finishingBattle->loserHero->id && strongestHero->level > 5)
+				gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->victor].lastDefeatedStrongestHeroDay = gameHandler->gameState()->getDate(Date::DAY);
+		}
+
 		RemoveObject ro(finishingBattle->loserHero->id, finishingBattle->victor);
 		gameHandler->sendAndApply(&ro);
 	}

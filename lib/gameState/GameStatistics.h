@@ -25,6 +25,7 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	time_t timestamp;
     int day;
     PlayerColor player;
+    std::string playerName;
 	TeamID team;
 	bool isHuman;
 	EPlayerStatus status;
@@ -52,6 +53,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	TResources spentResourcesForArmy;
 	TResources spentResourcesForBuildings;
 	TResources tradeVolume;
+	bool eventCapturedTown;
+	bool eventDefeatedStrongestHero;
 	si64 movementPointsUsed;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -60,6 +63,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & timestamp;
 		h & day;
 		h & player;
+		if(h.version >= Handler::Version::STATISTICS_SCREEN)
+			h & playerName;
 		h & team;
 		h & isHuman;
 		h & status;
@@ -87,18 +92,22 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & spentResourcesForArmy;
 		h & spentResourcesForBuildings;
 		h & tradeVolume;
+		if(h.version >= Handler::Version::STATISTICS_SCREEN)
+		{
+			h & eventCapturedTown;
+			h & eventDefeatedStrongestHero;
+		}
 		h & movementPointsUsed;
 	}
 };
 
 class DLL_LINKAGE StatisticDataSet
 {
-    std::vector<StatisticDataSetEntry> data;
-
 public:
     void add(StatisticDataSetEntry entry);
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
-    std::string toCsv();
+    std::string toCsv(std::string sep);
+    std::string writeCsv();
 
 	struct PlayerAccumulatedValueStorage // holds some actual values needed for stats
 	{
@@ -112,6 +121,8 @@ public:
 		TResources spentResourcesForBuildings;
 		TResources tradeVolume;
 		si64 movementPointsUsed;
+		int lastCapturedTownDay;
+		int lastDefeatedStrongestHeroDay;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
@@ -125,8 +136,14 @@ public:
 			h & spentResourcesForBuildings;
 			h & tradeVolume;
 			h & movementPointsUsed;
+			if(h.version >= Handler::Version::STATISTICS_SCREEN)
+			{
+				h & lastCapturedTownDay;
+				h & lastDefeatedStrongestHeroDay;
+			}
 		}
 	};
+	std::vector<StatisticDataSetEntry> data;
 	std::map<PlayerColor, PlayerAccumulatedValueStorage> accumulatedValues;
 
 	template <typename Handler> void serialize(Handler &h)

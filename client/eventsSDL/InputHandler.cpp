@@ -32,6 +32,7 @@
 
 #include <SDL_events.h>
 #include <SDL_timer.h>
+#include <SDL_clipboard.h>
 
 InputHandler::InputHandler()
 	: enableMouse(settings["input"]["enableMouse"].Bool())
@@ -140,6 +141,11 @@ void InputHandler::setCurrentInputMode(InputMode modi)
 InputMode InputHandler::getCurrentInputMode()
 {
 	return currentInputMode;
+}
+
+void InputHandler::copyToClipBoard(const std::string & text)
+{
+	SDL_SetClipboardText(text.c_str());
 }
 
 std::vector<SDL_Event> InputHandler::acquireEvents()

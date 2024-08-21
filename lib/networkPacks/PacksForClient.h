@@ -24,6 +24,7 @@
 #include "../gameState/RumorState.h"
 #include "../gameState/QuestInfo.h"
 #include "../gameState/TavernSlot.h"
+#include "../gameState/GameStatistics.h"
 #include "../int3.h"
 #include "../mapping/CMapDefines.h"
 #include "../spells/ViewSpellInt.h"
@@ -435,6 +436,7 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 
 	PlayerColor player;
 	EVictoryLossCheckResult victoryLossCheckResult;
+	StatisticDataSet statistic;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -442,6 +444,8 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 	{
 		h & player;
 		h & victoryLossCheckResult;
+		if (h.version >= Handler::Version::STATISTICS_SCREEN)
+			h & statistic;
 	}
 };
 
