@@ -35,7 +35,7 @@ endif()
 target_link_libraries(vcmiclient PRIVATE vcmiclientcommon)
 
 if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
-  target_link_libraries(vcmiclientcommon PRIVATE vcmilauncher)
+  target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()
 
 target_include_directories(vcmiclient
