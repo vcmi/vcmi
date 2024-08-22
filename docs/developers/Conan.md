@@ -27,12 +27,12 @@ The following platforms are supported and known to work, others might require ch
     - **Windows**: libraries are built with x86_64-mingw-w64-gcc version 10 (which is available in repositories of Ubuntu 22.04)
     - **Android**: libraries are built with NDK r25c (25.2.9519653)
 
-2. Download the binaries archive and unpack it to `~/.conan` directory:
+2. Download the binaries archive and unpack it to `~/.conan` directory from https://github.com/vcmi/vcmi-dependencies/releases/latest
 
-    - [macOS](https://github.com/vcmi/vcmi-deps-macos/releases/latest): pick **intel.txz** if you have Intel Mac, otherwise - **intel-cross-arm.txz**
-    - [iOS](https://github.com/vcmi/vcmi-ios-deps/releases/latest)
-    - [Windows](https://github.com/vcmi/vcmi-deps-windows-conan/releases/latest): pick **vcmi-deps-windows-conan-w64.tgz** if you want x86_64, otherwise pick **vcmi-deps-windows-conan-w32.tgz**
-    - [Android](https://github.com/vcmi/vcmi-dependencies/releases): current limitation is that building works only on a macOS host due to Qt 5 for Android being compiled on macOS. Simply delete directory `~/.conan/data/qt/5.15.x/_/_/package` (`5.15.x` is a placeholder) after unpacking the archive and build Qt from source. Alternatively, if you have (or are [willing to build](https://github.com/vcmi/vcmi-ios-deps#note-for-arm-macs)) Qt host tools for your platform, then simply replace those in the archive with yours and most probably it would work.
+    - macOS: pick **dependencies-mac-intel.txz** if you have Intel Mac, otherwise - **dependencies-mac-arm.txz**
+    - iOS: pick ***dependencies-ios.txz***
+    - Windows: currently only mingw is supported. Pick **dependencies-mingw.tgz** if you want x86_64, otherwise pick **dependencies-mingw-32.tgz**
+    - Android: current limitation is that building works only on a macOS host due to Qt 5 for Android being compiled on macOS. Simply delete directory `~/.conan/data/qt/5.15.x/_/_/package` (`5.15.x` is a placeholder) after unpacking the archive and build Qt from source. Alternatively, if you have (or are [willing to build](https://github.com/vcmi/vcmi-ios-deps#note-for-arm-macs)) Qt host tools for your platform, then simply replace those in the archive with yours and most probably it would work.
 
 3. Only if you have Apple Silicon Mac and trying to build for macOS or iOS:
 

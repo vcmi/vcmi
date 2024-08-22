@@ -57,6 +57,7 @@
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/mapObjects/TownBuildingInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
@@ -680,7 +681,7 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 		heroPool->onNewWeek(which);
 }
 
-void CGameHandler::addStatistics()
+void CGameHandler::addStatistics(StatisticDataSet &stat) const
 {
 	for (const auto & elem : gs->players)
 	{
@@ -689,7 +690,7 @@ void CGameHandler::addStatistics()
 
 		auto data = StatisticDataSet::createEntry(&elem.second, gs);
 
-		gameState()->statistic.add(data);
+		stat.add(data);
 	}
 }
 
@@ -716,6 +717,10 @@ void CGameHandler::onNewTurn()
 				giveExperience(getHero(obj->id), 0);
 			}
 		}
+	}
+	else
+	{
+		addStatistics(gameState()->statistic); // write at end of turn
 	}
 
 	for (const auto & player : gs->players)
@@ -1035,8 +1040,6 @@ void CGameHandler::onNewTurn()
 	}
 
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
-
-	addStatistics();
 }
 
 void CGameHandler::start(bool resume)
@@ -1413,6 +1416,8 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 	if (town) //town captured
 	{
+		gs->statistic.accumulatedValues[owner].lastCapturedTownDay = gs->getDate(Date::DAY);
+
 		if (owner.isValidPlayer()) //new owner is real player
 		{
 			if (town->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
@@ -1535,8 +1540,8 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
-	for (auto building : t->bonusingBuildings)
-		building->onHeroVisit(h);
+	for (auto & building : t->rewardableBuildings)
+		building.second->onHeroVisit(h);
 }
 
 void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
@@ -3732,6 +3737,8 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		PlayerEndsGame peg;
 		peg.player = player;
 		peg.victoryLossCheckResult = victoryLossCheckResult;
+		peg.statistic = StatisticDataSet(gameState()->statistic);
+		addStatistics(peg.statistic); // add last turn befor win / loss
 		sendAndApply(&peg);
 
 		turnOrder->onPlayerEndsGame(player);

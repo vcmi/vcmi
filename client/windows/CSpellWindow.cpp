@@ -224,32 +224,32 @@ CSpellWindow::~CSpellWindow()
 std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 {
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"), EImageBlitMode::OPAQUE);
-	Canvas canvas = Canvas(Point(800, 600));
+	Canvas canvas = Canvas(Point(800, 600), CanvasScalingPolicy::AUTO);
 	// edges
 	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
 	canvas.draw(img, Point(0, 460), Rect(15, 400, 90, 141));
 	canvas.draw(img, Point(705, 0), Rect(509, 38, 95, 45));
 	canvas.draw(img, Point(705, 460), Rect(509, 400, 95, 141));
 	// left / right
-	Canvas tmp1 = Canvas(Point(90, 355 - 45));
+	Canvas tmp1 = Canvas(Point(90, 355 - 45), CanvasScalingPolicy::AUTO);
 	tmp1.draw(img, Point(0, 0), Rect(15, 38 + 45, 90, 355 - 45));
 	canvas.drawScaled(tmp1, Point(0, 45), Point(90, 415));
-	Canvas tmp2 = Canvas(Point(95, 355 - 45));
+	Canvas tmp2 = Canvas(Point(95, 355 - 45), CanvasScalingPolicy::AUTO);
 	tmp2.draw(img, Point(0, 0), Rect(509, 38 + 45, 95, 355 - 45));
 	canvas.drawScaled(tmp2, Point(705, 45), Point(95, 415));
 	// top / bottom
-	Canvas tmp3 = Canvas(Point(409, 45));
+	Canvas tmp3 = Canvas(Point(409, 45), CanvasScalingPolicy::AUTO);
 	tmp3.draw(img, Point(0, 0), Rect(100, 38, 409, 45));
 	canvas.drawScaled(tmp3, Point(90, 0), Point(615, 45));
-	Canvas tmp4 = Canvas(Point(409, 141));
+	Canvas tmp4 = Canvas(Point(409, 141), CanvasScalingPolicy::AUTO);
 	tmp4.draw(img, Point(0, 0), Rect(100, 400, 409, 141));
 	canvas.drawScaled(tmp4, Point(90, 460), Point(615, 141));
 	// middle
-	Canvas tmp5 = Canvas(Point(409, 141));
+	Canvas tmp5 = Canvas(Point(409, 141), CanvasScalingPolicy::AUTO);
 	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 15, 400 - 38));
 	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
 	// carpet
-	Canvas tmp6 = Canvas(Point(590, 59));
+	Canvas tmp6 = Canvas(Point(590, 59), CanvasScalingPolicy::AUTO);
 	tmp6.draw(img, Point(0, 0), Rect(15, 484, 590, 59));
 	canvas.drawScaled(tmp6, Point(0, 545), Point(800, 59));
 	// remove bookmarks
@@ -535,13 +535,13 @@ void CSpellWindow::setCurrentPage(int value)
 void CSpellWindow::turnPageLeft()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNLFT.SMK"), pos.topLeft() + Point(13, 15));
+		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNLFT.SMK"), pos.topLeft() + Point(13, 14));
 }
 
 void CSpellWindow::turnPageRight()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNRGH.SMK"), pos.topLeft() + Point(13, 15));
+		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNRGH.SMK"), pos.topLeft() + Point(13, 14));
 }
 
 void CSpellWindow::keyPressed(EShortcut key)

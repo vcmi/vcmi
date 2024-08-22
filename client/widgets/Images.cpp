@@ -39,6 +39,8 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
 	pos += position;
 	pos.w = bg->width();
 	pos.h = bg->height();
+
+	addUsedEvents(SHOW_POPUP);
 }
 
 CPicture::CPicture( const ImagePath &bmpname, int x, int y )
@@ -66,6 +68,8 @@ CPicture::CPicture( const ImagePath & bmpname, const Point & position )
 	{
 		pos.w = pos.h = 0;
 	}
+
+	addUsedEvents(SHOW_POPUP);
 }
 
 CPicture::CPicture(const ImagePath & bmpname, const Rect &SrcRect, int x, int y)
@@ -74,6 +78,8 @@ CPicture::CPicture(const ImagePath & bmpname, const Rect &SrcRect, int x, int y)
 	srcRect = SrcRect;
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
+
+	addUsedEvents(SHOW_POPUP);
 }
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, int y)
@@ -82,6 +88,8 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, in
 	srcRect = SrcRect;
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
+
+	addUsedEvents(SHOW_POPUP);
 }
 
 void CPicture::show(Canvas & to)
@@ -108,7 +116,7 @@ void CPicture::setAlpha(uint8_t value)
 
 void CPicture::scaleTo(Point size)
 {
-	bg->scaleFast(size);
+	bg->scaleTo(size);
 
 	pos.w = bg->width();
 	pos.h = bg->height();
@@ -117,6 +125,17 @@ void CPicture::scaleTo(Point size)
 void CPicture::setPlayerColor(PlayerColor player)
 {
 	bg->playerColored(player);
+}
+
+void CPicture::addRClickCallback(const std::function<void()> & callback)
+{
+	rCallback = callback;
+}
+
+void CPicture::showPopupWindow(const Point & cursorPosition)
+{
+	if(rCallback)
+		rCallback();
 }
 
 CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position)
@@ -255,7 +274,7 @@ void CAnimImage::showAll(Canvas & to)
 		if(auto img = anim->getImage(targetFrame, group))
 		{
 			if(isScaled())
-				img->scaleFast(scaledSize);
+				img->scaleTo(scaledSize);
 
 			to.draw(img, pos.topLeft());
 		}
@@ -307,7 +326,7 @@ bool CAnimImage::isPlayerColored() const
 }
 
 CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
-	anim(GH.renderHandler().loadAnimation(name, (Flags & PALETTE_ALPHA) ? EImageBlitMode::ALPHA : EImageBlitMode::COLORKEY)),
+	anim(GH.renderHandler().loadAnimation(name, (Flags & CREATURE_MODE) ? EImageBlitMode::ALPHA : EImageBlitMode::COLORKEY)),
 	group(Group),
 	frame(0),
 	first(0),
@@ -420,6 +439,8 @@ void CShowableAnim::blitImage(size_t frame, size_t group, Canvas & to)
 	auto img = anim->getImage(frame, group);
 	if(img)
 	{
+		if (flags & CREATURE_MODE)
+			img->setShadowEnabled(true);
 		img->setAlpha(alpha);
 		to.draw(img, pos.topLeft(), src);
 	}
@@ -440,7 +461,7 @@ void CShowableAnim::setDuration(int durationMs)
 }
 
 CCreatureAnim::CCreatureAnim(int x, int y, const AnimationPath & name, ui8 flags, ECreatureAnimType type):
-	CShowableAnim(x, y, name, flags | PALETTE_ALPHA, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
+	CShowableAnim(x, y, name, flags | CREATURE_MODE, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
 {
 	xOffset = 0;
 	yOffset = 0;

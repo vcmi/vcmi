@@ -162,17 +162,6 @@
 
 	"vcmi.townHall.missingBase"             : "Сначала необходимо построить: %s",
 	"vcmi.townHall.noCreaturesToRecruit"    : "Нет существ для найма!",
-	"vcmi.townHall.greetingManaVortex"      : "Близ %s ваше тело наполняется новой силой. Ваша обычная магическая энергия ныне удвоена.",
-	"vcmi.townHall.greetingKnowledge"       : "Вы изучили знаки %s, на вас снизошло прозрение в деле магии (+1 Знания).",
-	"vcmi.townHall.greetingSpellPower"      : "В %s вас научили новым способам концентрации магической силы (+1 Силы)",
-	"vcmi.townHall.greetingExperience"      : "Посетив %s, вы узнали много нового (+1000 опыта).",
-	"vcmi.townHall.greetingAttack"          : "Пребывание в %s позволило вам лучше использовать боевые навыки (+1 Атаки).",
-	"vcmi.townHall.greetingDefence"         : "В %s искушенные воины преподали вам свои защитные умения (+1 Защиты).",
-	"vcmi.townHall.hasNotProduced"          : "В %s еще ничего не произведено.",
-	"vcmi.townHall.hasProduced"             : "В %s на этой неделе произведено: %d %s",
-	"vcmi.townHall.greetingCustomBonus"     : "%s дает вам +%d %s%s",
-	"vcmi.townHall.greetingCustomUntil"     : " до следующей битвы.",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s восстанавливает ваши очки заклинаний до максимума.",
 
 	"vcmi.logicalExpressions.anyOf"  : "Любое из:",
 	"vcmi.logicalExpressions.allOf"  : "Все перечисленное:",

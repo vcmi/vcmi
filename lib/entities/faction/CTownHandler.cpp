@@ -30,14 +30,16 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 #include "../../json/JsonBonus.h"
+#include "../../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-CTownHandler::CTownHandler():
-	randomTown(new CTown()),
-	randomFaction(new CFaction())
+CTownHandler::CTownHandler()
+	: buildingsLibrary(JsonPath::builtin("config/buildingsLibrary"))
+	, randomTown(new CTown())
+	, randomFaction(new CFaction())
 {
 	randomFaction->town = randomTown;
 	randomTown->faction = randomFaction;
@@ -240,66 +242,7 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 	bidsToLoad.push_back(hlp);
 }
 
-void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
-{
-	std::shared_ptr<Bonus> b;
-	static const TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
-
-	if(building->bid == BuildingID::TAVERN)
-	{
-		b = createBonus(building, BonusType::MORALE, +1);
-	}
-
-	switch(building->subId)
-	{
-	case BuildingSubID::BROTHERHOOD_OF_SWORD:
-		b = createBonus(building, BonusType::MORALE, +2);
-		building->overrideBids.insert(BuildingID::TAVERN);
-		break;
-	case BuildingSubID::FOUNTAIN_OF_FORTUNE:
-		b = createBonus(building, BonusType::LUCK, +2);
-		break;
-	case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::SPELL_POWER));
-		break;
-	case BuildingSubID::ATTACK_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::ATTACK));
-		break;
-	case BuildingSubID::DEFENSE_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::DEFENSE));
-		break;
-	case BuildingSubID::LIGHTHOUSE:
-		b = createBonus(building, BonusType::MOVEMENT, +500, BonusCustomSubtype::heroMovementSea, playerPropagator);
-		break;
-	}
-
-	if(b)
-		building->addNewBonus(b, building->buildingBonuses);
-}
-
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val) const
-{
-	return createBonus(build, type, val, BonusSubtypeID(), emptyPropagator());
-}
-
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype) const
-{
-	return createBonus(build, type, val, subtype, emptyPropagator());
-}
-
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, const TPropagatorPtr & prop) const
-{
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, build->getUniqueTypeID(), subtype);
-
-	b->description.appendTextID(build->getNameTextID());
-
-	if(prop)
-		b->addPropagator(prop);
-
-	return b;
-}
-
-void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building)
+void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building) const
 {
 	for(const auto & b : source.Vector())
 	{
@@ -311,6 +254,8 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 		bonus->description.appendTextID(building->getNameTextID());
 
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
+		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != CBonusSystemNode::ENodeTypes::UNKNOWN);
+
 		if(bonus->propagator != nullptr
 			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
 				bonus->addPropagator(emptyPropagator());
@@ -350,66 +295,34 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	VLC->generaltexth->registerString(source.getModScope(), ret->getNameTextID(), source["name"].String());
 	VLC->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"].String());
 
+	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
 
-	if(ret->bid == BuildingID::TAVERN)
-		addBonusesForVanilaBuilding(ret);
-	else if(ret->bid.IsSpecialOrGrail())
+	loadBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
+
+	if(!source["configuration"].isNull())
+		ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
+
+	//MODS COMPATIBILITY FOR pre-1.6
+	if(ret->produce.empty() && ret->bid == BuildingID::RESOURCE_SILO)
 	{
-		loadSpecialBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
-
-		if(ret->buildingBonuses.empty())
+		logGlobal->warn("Resource silo in town '%s' does not produces any resources!", ret->town->faction->getJsonKey());
+		switch (ret->town->primaryRes.toEnum())
 		{
-			ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
-			addBonusesForVanilaBuilding(ret);
-		}
-
-		loadSpecialBuildingBonuses(source["onVisitBonuses"], ret->onVisitBonuses, ret);
-
-		if(!ret->onVisitBonuses.empty())
-		{
-			if(ret->subId == BuildingSubID::NONE)
-				ret->subId = BuildingSubID::CUSTOM_VISITING_BONUS;
-
-			for(auto & bonus : ret->onVisitBonuses)
-				bonus->sid = BonusSourceID(ret->getUniqueTypeID());
-		}
-		
-		if(ret->subId == BuildingSubID::CUSTOM_VISITING_REWARD)
-			ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
-	}
-	//MODS COMPATIBILITY FOR 0.96
-	if(!ret->produce.nonZero())
-	{
-		switch (ret->bid.toEnum()) {
-			break; case BuildingID::VILLAGE_HALL: ret->produce[EGameResID::GOLD] = 500;
-			break; case BuildingID::TOWN_HALL :   ret->produce[EGameResID::GOLD] = 1000;
-			break; case BuildingID::CITY_HALL :   ret->produce[EGameResID::GOLD] = 2000;
-			break; case BuildingID::CAPITOL :     ret->produce[EGameResID::GOLD] = 4000;
-			break; case BuildingID::GRAIL :       ret->produce[EGameResID::GOLD] = 5000;
-			break; case BuildingID::RESOURCE_SILO :
-			{
-				switch (ret->town->primaryRes.toEnum())
-				{
-					case EGameResID::GOLD:
-						ret->produce[ret->town->primaryRes] = 500;
-						break;
-					case EGameResID::WOOD_AND_ORE:
-						ret->produce[EGameResID::WOOD] = 1;
-						ret->produce[EGameResID::ORE] = 1;
-						break;
-					default:
-						ret->produce[ret->town->primaryRes] = 1;
-						break;
-				}
-			}
+			case EGameResID::GOLD:
+				ret->produce[ret->town->primaryRes] = 500;
+				break;
+			case EGameResID::WOOD_AND_ORE:
+				ret->produce[EGameResID::WOOD] = 1;
+				ret->produce[EGameResID::ORE] = 1;
+				break;
+			default:
+				ret->produce[ret->town->primaryRes] = 1;
+				break;
 		}
 	}
 	loadBuildingRequirements(ret, source["requires"], requirementsToLoad);
-
-	if(ret->bid.IsSpecialOrGrail())
-		loadBuildingRequirements(ret, source["overrides"], overriddenBidsToLoad);
 
 	if (!source["upgrades"].isNull())
 	{
@@ -895,10 +808,41 @@ void CTownHandler::loadCustom()
 	loadRandomFaction();
 }
 
+void CTownHandler::beforeValidate(JsonNode & object)
+{
+	if (object.Struct().count("town") == 0)
+		return;
+
+	const auto & inheritBuilding = [this](const std::string & name, JsonNode & target)
+	{
+		if (buildingsLibrary.Struct().count(name) == 0)
+			return;
+
+		JsonNode baseCopy(buildingsLibrary[name]);
+		baseCopy.setModScope(target.getModScope());
+		JsonUtils::inherit(target, baseCopy);
+	};
+
+	for (auto & building : object["town"]["buildings"].Struct())
+	{
+		inheritBuilding(building.first, building.second);
+		if (building.second.Struct().count("type"))
+			inheritBuilding(building.second["type"].String(), building.second);
+
+		// MODS COMPATIBILITY FOR pre-1.6
+		// convert old buildigns with onVisitBonuses into configurable building
+		if (building.second.Struct().count("onVisitBonuses"))
+		{
+			building.second["configuration"]["visitMode"] = JsonNode("bonus");
+			building.second["configuration"]["visitMode"]["rewards"][0]["message"] = building.second["description"];
+			building.second["configuration"]["visitMode"]["rewards"][0]["bonuses"] = building.second["onVisitBonuses"];
+		}
+	}
+}
+
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
-	initializeOverridden();
 	initializeWarMachines();
 }
 
@@ -927,22 +871,6 @@ void CTownHandler::initializeRequirements()
 		});
 	}
 	requirementsToLoad.clear();
-}
-
-void CTownHandler::initializeOverridden()
-{
-	for(auto & bidHelper : overriddenBidsToLoad)
-	{
-		auto jsonNode = bidHelper.json;
-		auto scope = bidHelper.town->getBuildingScope();
-
-		for(const auto & b : jsonNode.Vector())
-		{
-			auto bid = BuildingID(VLC->identifiers()->getIdentifier(scope, b).value());
-			bidHelper.building->overrideBids.insert(bid);
-		}
-	}
-	overriddenBidsToLoad.clear();
 }
 
 void CTownHandler::initializeWarMachines()

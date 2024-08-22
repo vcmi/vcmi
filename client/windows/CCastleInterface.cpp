@@ -781,13 +781,6 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 							enterBuilding(building);
 						break;
 
-				case BuildingSubID::BROTHERHOOD_OF_SWORD:
-						if(upgrades == BuildingID::TAVERN)
-							LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
-						else
-							enterBuilding(building);
-						break;
-
 				case BuildingSubID::CASTLE_GATE:
 						if (LOCPLINT->makingTurn)
 							enterCastleGate();
@@ -819,8 +812,11 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				default:
+					if(upgrades == BuildingID::TAVERN)
+						LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+					else
 						enterBuilding(building);
-						break;
+					break;
 				}
 				break;
 
@@ -889,7 +885,7 @@ void CCastleBuildings::enterCastleGate()
 			if(settings["general"]["enableUiEnhancements"].Bool())
 			{
 				auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->town->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
-				image->scaleFast(Point(35, 23));
+				image->scaleTo(Point(35, 23));
 				images.push_back(image);
 			}
 		}
@@ -939,20 +935,8 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 	std::string hasNotProduced;
 	std::string hasProduced;
 
-	if(this->town->town->faction->getIndex() == ETownType::RAMPART)
-	{
-		hasNotProduced = CGI->generaltexth->allTexts[677];
-		hasProduced = CGI->generaltexth->allTexts[678];
-	}
-	else
-	{
-		auto buildingName = town->town->getSpecialBuilding(subID)->getNameTranslated();
-
-		hasNotProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasNotProduced"));
-		hasProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasProduced"));
-		boost::algorithm::replace_first(hasNotProduced, "%s", buildingName);
-		boost::algorithm::replace_first(hasProduced, "%s", buildingName);
-	}
+	hasNotProduced = CGI->generaltexth->allTexts[677];
+	hasProduced = CGI->generaltexth->allTexts[678];
 
 	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND
 		|| (upgrades != BuildingID::NONE

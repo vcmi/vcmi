@@ -330,6 +330,7 @@ Rect CMultiLineLabel::getTextLocation()
 	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSize);
 	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSize);
 	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
+	case ETextAlignment::CENTERRIGHT: return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSize);
 	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
 	}
 	assert(0);
@@ -543,7 +544,6 @@ void CGStatusBar::activate()
 
 void CGStatusBar::deactivate()
 {
-	assert(GH.statusbar().get() == this);
 	GH.setStatusbar(nullptr);
 
 	if (enteringText)

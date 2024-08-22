@@ -140,15 +140,9 @@ void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vec
 	if(!isHost)
 		return;
 
-	const boost::filesystem::path outPath = VCMIDirs::get().userCachePath() / "statistic";
-	boost::filesystem::create_directories(outPath);
+	std::string path = gameHandler->gameState()->statistic.writeCsv();
 
-	const boost::filesystem::path filePath = outPath / (vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".csv");
-	std::ofstream file(filePath.c_str());
-	std::string csv = gameHandler->gameState()->statistic.toCsv();
-	file << csv;
-
-	broadcastSystemMessage("Statistic files can be found in " + outPath.string() + " directory\n");
+	broadcastSystemMessage("Statistic files can be found in " + path + " directory\n");
 }
 
 void PlayerMessageProcessor::commandHelp(PlayerColor player, const std::vector<std::string> & words)

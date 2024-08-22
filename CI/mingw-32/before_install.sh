@@ -11,6 +11,4 @@ curl -O -L http://mirrors.kernel.org/ubuntu/pool/universe/m/mingw-w64/mingw-w64-
 curl -O -L http://mirrors.kernel.org/ubuntu/pool/universe/m/mingw-w64/mingw-w64-i686-dev_10.0.0-3_all.deb \
   && sudo dpkg -i mingw-w64-i686-dev_10.0.0-3_all.deb;
 
-mkdir ~/.conan ; cd ~/.conan
-curl -L "https://github.com/vcmi/vcmi-deps-windows-conan/releases/download/1.2/vcmi-deps-windows-conan-w32.tgz" \
-	| tar -xzf -
+. CI/install_conan_dependencies.sh "dependencies-mingw-32"

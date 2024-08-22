@@ -157,11 +157,16 @@ void CIntObject::setRedrawParent(bool on)
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
 {
+	fitToRect(Rect(Point(0, 0), GH.screenDimensions()), borderWidth, propagate);
+}
+
+void CIntObject::fitToRect(Rect rect, int borderWidth, bool propagate)
+{
 	Point newPos = pos.topLeft();
-	vstd::amax(newPos.x, borderWidth);
-	vstd::amax(newPos.y, borderWidth);
-	vstd::amin(newPos.x, GH.screenDimensions().x - borderWidth - pos.w);
-	vstd::amin(newPos.y, GH.screenDimensions().y - borderWidth - pos.h);
+	vstd::amax(newPos.x, rect.x + borderWidth);
+	vstd::amax(newPos.y, rect.y + borderWidth);
+	vstd::amin(newPos.x, rect.x + rect.w - borderWidth - pos.w);
+	vstd::amin(newPos.y, rect.y + rect.h - borderWidth - pos.h);
 	if (newPos != pos.topLeft())
 		moveTo(newPos, propagate);
 }
@@ -233,12 +238,12 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			Canvas buffer = Canvas::createFromSurface(screenBuf);
+			Canvas buffer = Canvas::createFromSurface(screenBuf, CanvasScalingPolicy::AUTO);
 
 			showAll(buffer);
 			if(screenBuf != screen)
 			{
-				Canvas screenBuffer = Canvas::createFromSurface(screen);
+				Canvas screenBuffer = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 
 				showAll(screenBuffer);
 			}

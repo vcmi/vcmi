@@ -74,6 +74,7 @@ enum class EShortcut
 	HIGH_SCORES_CAMPAIGNS,
 	HIGH_SCORES_SCENARIOS,
 	HIGH_SCORES_RESET,
+	HIGH_SCORES_STATISTICS,
 
 	// Game lobby / scenario selection
 	LOBBY_BEGIN_STANDARD_GAME, // b

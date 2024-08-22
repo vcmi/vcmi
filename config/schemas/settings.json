@@ -166,7 +166,8 @@
 				"showfps",
 				"targetfps",
 				"vsync",
-				"scalingMode"
+				"upscalingFilter",
+				"downscalingFilter"
 			],
 			"properties" : {
 				"resolution" : {
@@ -230,7 +231,12 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"scalingMode" : {
+				"upscalingFilter" : {
+					"type" : "string",
+					"enum" : [ "auto", "none", "xbrz2", "xbrz3", "xbrz4" ],
+					"default" : "auto"
+				},
+				"downscalingFilter" : {
 					"type" : "string",
 					"enum" : [ "nearest", "linear", "best" ],
 					"default" : "best"
