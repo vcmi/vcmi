@@ -455,15 +455,31 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 			maxDay = line.second.size();
 	}
 
+	// calculate points in chart
+	auto getPoint = [this](int i, std::vector<float> data){
+		float x = (static_cast<float>(chartArea.w) / static_cast<float>(maxDay - 1)) * static_cast<float>(i);
+		float y = static_cast<float>(chartArea.h) - (static_cast<float>(chartArea.h) / maxVal) * data[i];
+		return Point(x, y);
+	};
+
+	// draw grid
+	int dayGridInterval = maxDay < 700 ? 7 : 28;
+	for(const auto & line : data)
+	{
+		for(int i = 0; i + dayGridInterval - 1 < line.second.size(); i += dayGridInterval)
+		{
+			Point p = getPoint(i, line.second) + chartArea.topLeft();
+			canvas->addLine(Point(p.x, chartArea.topLeft().y), Point(p.x, chartArea.topLeft().y + chartArea.h), ColorRGBA(70, 70, 70));
+		}
+	}
+	
 	// draw
 	for(const auto & line : data)
 	{
 		Point lastPoint(-1, -1);
 		for(int i = 0; i < line.second.size(); i++)
 		{
-			float x = (static_cast<float>(chartArea.w) / static_cast<float>(maxDay - 1)) * static_cast<float>(i);
-			float y = static_cast<float>(chartArea.h) - (static_cast<float>(chartArea.h) / maxVal) * line.second[i];
-			Point p = Point(x, y) + chartArea.topLeft();
+			Point p = getPoint(i, line.second) + chartArea.topLeft();
 
 			if(lastPoint.x != -1)
 				canvas->addLine(lastPoint, p, line.first);
@@ -472,7 +488,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 			for(auto & icon : icons)
 				if(std::get<0>(icon) == line.first && std::get<1>(icon) == i + 1) // color && day
 				{
-					pictures.emplace_back(std::make_shared<CPicture>(std::get<2>(icon), Point(x - (CHART_ICON_SIZE / 2), y - (CHART_ICON_SIZE / 2)) + chartArea.topLeft()));
+					pictures.emplace_back(std::make_shared<CPicture>(std::get<2>(icon), Point(p.x - (CHART_ICON_SIZE / 2), p.y - (CHART_ICON_SIZE / 2))));
 					pictures.back()->addRClickCallback([icon](){ CRClickPopup::createAndPush(std::get<3>(icon)); });
 				}
 
