@@ -764,7 +764,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 
 			ReachabilityInfo unitReachability = reachabilityIter != reachabilityCache.end() ? reachabilityIter->second : turnBattle.getReachability(unit);
 
-			bool reachable = unitReachability.distances[hex] <= radius;
+			bool reachable = unitReachability.distances.at(hex) <= radius;
 
 			if(!reachable && unitReachability.accessibility[hex] == EAccessibility::ALIVE_STACK)
 			{
@@ -774,7 +774,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 				{
 					for(BattleHex neighbor : hex.neighbouringTiles())
 					{
-						reachable = unitReachability.distances[neighbor] <= radius;
+						reachable = unitReachability.distances.at(neighbor) <= radius;
 
 						if(reachable) break;
 					}
@@ -824,7 +824,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
 			{
 				bool enemyUnit = false;
-				bool reachable = unitReachability.distances[hex] <= unitSpeed;
+				bool reachable = unitReachability.distances.at(hex) <= unitSpeed;
 
 				if(!reachable && unitReachability.accessibility[hex] == EAccessibility::ALIVE_STACK)
 				{
@@ -836,7 +836,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 
 						for(BattleHex neighbor : hex.neighbouringTiles())
 						{
-							reachable = unitReachability.distances[neighbor] <= unitSpeed;
+							reachable = unitReachability.distances.at(neighbor) <= unitSpeed;
 
 							if(reachable) break;
 						}
