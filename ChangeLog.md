@@ -1,3 +1,12 @@
+# 1.5.6 -> 1.5.7
+
+* Fixed game freeze if player is attacked in online multiplayer game by another player when he has unread dialogs, such as new week notification
+* Fixed heroes on map limit game setting not respected when moving hero from town garrison.
+* Add workaround to fix possible crash on attempt to start previously generated random map that has players without owned heroes or towns
+* Fix crash on right-clicking spell icon when receiving unlearnable spells from Pandora
+* Fixed possible text overflow in match information box in online lobby
+* Fixed overlapping text in lobby login window
+
 # 1.5.5 -> 1.5.6
 
 # Stability
