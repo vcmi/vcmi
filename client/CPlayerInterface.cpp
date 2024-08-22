@@ -193,11 +193,6 @@ void CPlayerInterface::closeAllDialogs()
 		castleInt->close();
 
 	castleInt = nullptr;
-
-	// remove all pending dialogs that do not expect query answer
-	vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
-		return window->ID == QueryID::NONE;
-	});
 }
 
 void CPlayerInterface::playerEndsTurn(PlayerColor player)
@@ -207,6 +202,11 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 	{
 		makingTurn = false;
 		closeAllDialogs();
+
+		// remove all pending dialogs that do not expect query answer
+		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
+						   return window->ID == QueryID::NONE;
+					   });
 	}
 }
 
@@ -1511,7 +1511,7 @@ void CPlayerInterface::update()
 		return;
 
 	//if there are any waiting dialogs, show them
-	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->isBusy())
+	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
 	{
 		showingDialog->setBusy();
 		GH.windows().pushWindow(dialogs.front());
