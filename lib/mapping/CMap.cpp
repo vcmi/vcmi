@@ -332,15 +332,6 @@ bool CMap::isCoastalTile(const int3 & pos) const
 	return false;
 }
 
-bool CMap::isInTheMap(const int3 & pos) const
-{
-	// Check whether coord < 0 is done implicitly. Negative signed int overflows to unsigned number larger than all signed ints.
-	return
-		static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
-		static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
-		static_cast<uint32_t>(pos.z) <= (twoLevel ? 1 : 0);
-}
-
 TerrainTile & CMap::getTile(const int3 & tile)
 {
 	assert(isInTheMap(tile));
