@@ -475,7 +475,7 @@ void Inspector::updateProperties()
 	addProperty("TypeName", obj->typeName);
 	addProperty("SubTypeName", obj->subTypeName);
 	
-	if(!dynamic_cast<CGHeroInstance*>(obj))
+	if(!dynamic_cast<CGHeroInstance*>(obj) && obj->ID != Obj::HERO_PLACEHOLDER)
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
 		addProperty("IsStatic", factory->isStaticObject());
