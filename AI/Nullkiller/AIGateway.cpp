@@ -570,6 +570,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	LOG_TRACE(logAi);
 	myCb = CB;
 	cbc = CB;
+	this->env = env;
 
 	NET_EVENT_HANDLER;
 	playerID = *myCb->getPlayerID();
