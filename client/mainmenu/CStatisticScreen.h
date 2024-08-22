@@ -130,5 +130,5 @@ public:
 	LineChart(Rect position, std::string title, TData data, TIcons icons, float maxY);
 
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
-	void clickPressed(const Point & cursorPosition) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 };

@@ -429,7 +429,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 {
 	OBJECT_CONSTRUCTION;
 
-	addUsedEvents(LCLICK | MOVE);
+	addUsedEvents(LCLICK | MOVE | GESTURE);
 
 	pos = position + pos.topLeft();
 
@@ -515,7 +515,7 @@ void LineChart::mouseMoved(const Point & cursorPosition, const Point & lastUpdat
 	updateStatusBar(cursorPosition);
 }
 
-void LineChart::clickPressed(const Point & cursorPosition)
+void LineChart::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	updateStatusBar(cursorPosition);
+	updateStatusBar(currentPosition);
 }
