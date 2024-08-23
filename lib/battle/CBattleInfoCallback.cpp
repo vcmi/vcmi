@@ -1035,7 +1035,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 		if(isInObstacle(curHex, obstacles, checkParams))
 			continue;
 
-		const int costToNeighbour = ret.distances[curHex.hex] + 1;
+		const int costToNeighbour = ret.distances.at(curHex.hex) + 1;
 		for(BattleHex neighbour : BattleHex::neighbouringTilesCache[curHex.hex])
 		{
 			if(neighbour.isValid())

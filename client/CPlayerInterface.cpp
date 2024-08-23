@@ -202,6 +202,11 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 	{
 		makingTurn = false;
 		closeAllDialogs();
+
+		// remove all pending dialogs that do not expect query answer
+		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
+						   return window->ID == QueryID::NONE;
+					   });
 	}
 }
 
@@ -615,9 +620,7 @@ void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreat
 {
 	movementController->onBattleStarted();
 
-	//Don't wait for dialogs when we are non-active hot-seat player
-	if (LOCPLINT == this)
-		waitForAllDialogs();
+	waitForAllDialogs();
 }
 
 void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed)
@@ -640,9 +643,7 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 		cb->registerBattleInterface(autofightingAI);
 	}
 
-	//Don't wait for dialogs when we are non-active hot-seat player
-	if (LOCPLINT == this)
-		waitForAllDialogs();
+	waitForAllDialogs();
 
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
@@ -1825,6 +1826,9 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 
 void CPlayerInterface::waitForAllDialogs()
 {
+	if (!makingTurn)
+		return;
+
 	while(!dialogs.empty())
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
