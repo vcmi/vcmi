@@ -136,6 +136,9 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 		"gold" : 10000
 	}, 
 	
+	// Artifact ID of a war machine produced in this town building, if any
+	"warMachine" : "ballista",
+	
 	// Allows to define additional functionality of this building, usually using logic of one of original H3 town building
 	// Generally only needs to be specified for "special" buildings
 	// See 'List of unique town buildings' section below for detailed description of this field

@@ -2798,8 +2798,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 		const int price = art->getPrice();
 		COMPLAIN_RET_FALSE_IF(getPlayerState(hero->getOwner())->resources[EGameResID::GOLD] < price, "Not enough gold!");
 
-		if ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
-		 || (town->hasBuilt(BuildingSubID::BALLISTA_YARD) && aid == ArtifactID::BALLISTA))
+		if(town->isWarMachineAvailable(aid))
 		{
 			giveResource(hero->getOwner(),EGameResID::GOLD,-price);
 			return giveHeroNewArtifact(hero, art);

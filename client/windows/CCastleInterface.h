@@ -150,7 +150,7 @@ class CCastleBuildings : public CIntObject
 
 	const CGHeroInstance* getHero();//Select hero for buildings usage
 
-	void enterBlacksmith(ArtifactID artifactID);//support for blacksmith + ballista yard
+	void enterBlacksmith(BuildingID building, ArtifactID artifactID);//support for blacksmith + ballista yard
 	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
 	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains

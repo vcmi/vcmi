@@ -198,5 +198,10 @@
 				}
 			]
 		}
+	},
+	
+	// Section 3 - buildings that now have dedicated mechanics
+	"ballistaYard": {
+		"blacksmith" : "ballista"
 	}
 }

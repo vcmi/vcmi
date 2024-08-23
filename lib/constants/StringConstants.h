@@ -184,7 +184,6 @@ namespace MappedKeys
 		{ "castleGate", BuildingSubID::CASTLE_GATE },
 		{ "creatureTransformer", BuildingSubID::CREATURE_TRANSFORMER },//only skeleton transformer yet
 		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
-		{ "ballistaYard", BuildingSubID::BALLISTA_YARD },
 		{ "library", BuildingSubID::LIBRARY },
 		{ "fountainOfFortune", BuildingSubID::FOUNTAIN_OF_FORTUNE },//luck garrison bonus
 		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },

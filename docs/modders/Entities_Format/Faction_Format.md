@@ -247,9 +247,6 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// maximum level of mage guild
 	"mageGuild" : 4,
 
-	// war machine produced in town
-	"warMachine" : "ballista"
-	
 	// Identifier of spell that will create effects for town moat during siege
 	"moatAbility" : "castleMoat"
 }

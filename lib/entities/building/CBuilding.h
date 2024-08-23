@@ -34,6 +34,7 @@ public:
 	TResources resources;
 	TResources produce;
 	TRequired requirements;
+	ArtifactID warMachine;
 	std::set<EMarketMode> marketModes;
 
 	BuildingID bid; //structure ID

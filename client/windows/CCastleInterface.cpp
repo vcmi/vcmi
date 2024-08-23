@@ -686,6 +686,12 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 	logGlobal->trace("You've clicked on %d", (int)building.toEnum());
 	const CBuilding *b = town->town->buildings.find(building)->second;
 
+	if (town->getWarMachineInBuilding(building).hasValue())
+	{
+		enterBlacksmith(building, town->getWarMachineInBuilding(building));
+		return;
+	}
+
 	if (building >= BuildingID::DWELL_FIRST)
 	{
 		enterDwelling((BuildingID::getLevelFromDwelling(building)));
@@ -732,10 +738,6 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 					GH.windows().createAndPushWindow<CMarketWindow>(town, town->visitingHero, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				else
 					enterBuilding(building);
-				break;
-
-		case BuildingID::BLACKSMITH:
-				enterBlacksmith(town->town->warMachine);
 				break;
 
 		case BuildingID::SHIP:
@@ -799,10 +801,6 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 							enterDwelling(town->town->creatures.size());
 						break;
 
-				case BuildingSubID::BALLISTA_YARD:
-						enterBlacksmith(ArtifactID::BALLISTA);
-						break;
-
 				case BuildingSubID::THIEVES_GUILD:
 						enterAnyThievesGuild();
 						break;
@@ -827,12 +825,12 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 	}
 }
 
-void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
+void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactID)
 {
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
 	{
-		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->getNameTranslated()));
+		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(building)->second->getNameTranslated()));
 		return;
 	}
 	auto art = artifactID.toArtifact();
@@ -854,8 +852,9 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 			}
 		}
 	}
-	CreatureID cre = art->getWarMachine();
-	GH.windows().createAndPushWindow<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
+
+	CreatureID creatureID = artifactID.toArtifact()->getWarMachine();
+	GH.windows().createAndPushWindow<CBlacksmithDialog>(possible, creatureID, artifactID, hero->id);
 }
 
 void CCastleBuildings::enterBuilding(BuildingID building)

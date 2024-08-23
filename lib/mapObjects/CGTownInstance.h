@@ -208,6 +208,11 @@ public:
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
 
+	/// Returns ID of war machine that is produced by specified building or NONE if this is not built or if building does not produce war machines
+	ArtifactID getWarMachineInBuilding(BuildingID) const;
+	/// Returns true if provided war machine is available in any of built buildings of this town
+	bool isWarMachineAvailable(ArtifactID) const;
+
 	CGTownInstance(IGameCallback *cb);
 	virtual ~CGTownInstance();
 

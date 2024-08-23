@@ -147,7 +147,6 @@
 			"horde" : [ 1, -1 ],
 			"primaryResource" : "gems",
 			"mageGuild" : 5,
-			"warMachine" : "ammoCart",
 			"moatAbility" : "towerMoat",
 
 			"buildings" :
@@ -167,7 +166,7 @@
 				"capitol":        { },
 				"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
 				"resourceSilo":   { "produce" : { "gems": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "ammoCart" },
 
 				"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl2" },
