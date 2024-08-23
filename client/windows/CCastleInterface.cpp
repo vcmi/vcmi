@@ -841,7 +841,7 @@ void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactI
 	{
 		for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
 		{
-			if(hero->getArt(slot) == nullptr)
+			if(hero->getArt(slot) == nullptr || hero->getArt(slot)->getTypeId() != artifactID)
 			{
 				possible = true;
 				break;

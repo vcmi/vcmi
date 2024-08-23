@@ -2800,6 +2800,17 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 
 		if(town->isWarMachineAvailable(aid))
 		{
+			bool hasFreeSlot = false;
+			for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
+				if (hero->getArt(slot) == nullptr)
+					hasFreeSlot = true;
+
+			if (!hasFreeSlot)
+			{
+				auto slot = art->getPossibleSlots().at(ArtBearer::HERO).front();
+				removeArtifact(ArtifactLocation(hero->id, slot));
+			}
+
 			giveResource(hero->getOwner(),EGameResID::GOLD,-price);
 			return giveHeroNewArtifact(hero, art);
 		}
