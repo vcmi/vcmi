@@ -39,7 +39,7 @@ struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCal
 	}
 };
 
-class ISerializerReflection : boost::noncopyable
+class ISerializerReflection
 {
 public:
 	virtual Serializeable * createPtr(BinaryDeserializer &ar, IGameCallback * cb) const =0;
@@ -48,7 +48,7 @@ public:
 	virtual ~ISerializerReflection() = default;
 };
 
-class DLL_LINKAGE CSerializationApplier
+class DLL_LINKAGE CSerializationApplier : boost::noncopyable
 {
 	std::map<int32_t, std::unique_ptr<ISerializerReflection>> apps;
 
@@ -66,3 +66,5 @@ public:
 
 	static CSerializationApplier & getInstance();
 };
+
+VCMI_LIB_NAMESPACE_END
