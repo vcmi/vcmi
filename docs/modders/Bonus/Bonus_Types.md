@@ -1018,3 +1018,6 @@ Internal bonus, do not use
 
 Internal bonus, do not use
 
+### DISINTEGRATE
+
+After death of unit no corpse remains
