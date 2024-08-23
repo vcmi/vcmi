@@ -210,14 +210,12 @@ Following Heroes III buildings can be used as unique buildings for a town. Their
 - `castleGate`
 - `creatureTransformer`
 - `portalOfSummoning`
-- `ballistaYard`
 - `library`
 - `escapeTunnel`
 - `treasury`
 
 #### Buildings from other Heroes III mods
 Following HotA buildings can be used as unique building for a town. Functionality should match corresponding HotA building:
-- `thievesGuild`
 - `bank`
 
 #### Custom buildings

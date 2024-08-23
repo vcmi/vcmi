@@ -10,6 +10,11 @@
 			{
 				"type": "MORALE",
 				"val": 1
+			},
+			{
+				"propagator": "PLAYER_PROPAGATOR",
+				"type": "THIEVES_GUILD_ACCESS",
+				"val": 1
 			}
 		]
 	},
@@ -203,5 +208,15 @@
 	// Section 3 - buildings that now have dedicated mechanics
 	"ballistaYard": {
 		"blacksmith" : "ballista"
+	},
+	
+	"thievesGuild" : {
+		"bonuses": [
+			{
+				"propagator": "PLAYER_PROPAGATOR",
+				"type": "THIEVES_GUILD_ACCESS",
+				"val": 2
+			}
+		]
 	}
 }

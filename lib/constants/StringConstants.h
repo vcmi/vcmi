@@ -188,7 +188,6 @@ namespace MappedKeys
 		{ "fountainOfFortune", BuildingSubID::FOUNTAIN_OF_FORTUNE },//luck garrison bonus
 		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },
 		{ "treasury", BuildingSubID::TREASURY },
-		{ "thievesGuild", BuildingSubID::THIEVES_GUILD },
 		{ "bank", BuildingSubID::BANK }
 	};
 

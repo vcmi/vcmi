@@ -801,10 +801,6 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 							enterDwelling(town->town->creatures.size());
 						break;
 
-				case BuildingSubID::THIEVES_GUILD:
-						enterAnyThievesGuild();
-						break;
-
 				case BuildingSubID::BANK:
 						enterBank();
 						break;

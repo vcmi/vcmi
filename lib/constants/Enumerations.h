@@ -36,7 +36,6 @@ namespace BuildingSubID
 		FREELANCERS_GUILD,
 		MAGIC_UNIVERSITY,
 		TREASURY,
-		THIEVES_GUILD,
 		BANK
 	};
 }
