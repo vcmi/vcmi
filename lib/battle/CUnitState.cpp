@@ -831,7 +831,8 @@ void CUnitState::damage(int64_t & amount)
 		health.damage(amount);
 	}
 
-	if(health.available() <= 0 && (cloned || summoned))
+	bool disintegrate = hasBonusOfType(BonusType::DISINTEGRATE);
+	if(health.available() <= 0 && (cloned || summoned || disintegrate))
 		ghostPending = true;
 }
 
