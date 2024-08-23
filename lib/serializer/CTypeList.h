@@ -36,22 +36,15 @@ public:
 		return registry;
 	}
 
-	template<typename T, typename U>
-	void registerType()
-	{
-		registerType<T>();
-		registerType<U>();
-	}
-
 	template<typename T>
-	void registerType()
+	void registerType(uint16_t index)
 	{
 		const std::type_info & typeInfo = typeid(T);
 
 		if (typeInfos.count(typeInfo.name()) != 0)
 			return;
 
-		typeInfos[typeInfo.name()] = typeInfos.size() + 1;
+		typeInfos[typeInfo.name()] = index;
 	}
 
 	template<typename T>

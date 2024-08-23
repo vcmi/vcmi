@@ -30,16 +30,7 @@ struct ClassObjectCreator
 };
 
 template<typename T>
-struct ClassObjectCreator<T, typename std::enable_if_t<std::is_abstract_v<T>>>
-{
-	static T *invoke(IGameCallback *cb)
-	{
-		throw std::runtime_error("Something went really wrong during deserialization. Attempted creating an object of an abstract class " + std::string(typeid(T).name()));
-	}
-};
-
-template<typename T>
-struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCallbackHolder, T> && !std::is_abstract_v<T>>>
+struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCallbackHolder, T>>>
 {
 	static T *invoke(IGameCallback *cb)
 	{
@@ -61,20 +52,17 @@ class DLL_LINKAGE CSerializationApplier
 {
 	std::map<int32_t, std::unique_ptr<ISerializerReflection>> apps;
 
-	template<typename RegisteredType>
-	void addApplier(ui16 ID);
-
 	CSerializationApplier();
 public:
-	ISerializerReflection * getApplier(ui16 ID)
+	ISerializerReflection * getApplier(uint16_t ID)
 	{
 		if(!apps.count(ID))
 			throw std::runtime_error("No applier found.");
 		return apps[ID].get();
 	}
 
-	template<typename Base, typename Derived>
-	void registerType(const Base * b = nullptr, const Derived * d = nullptr);
+	template<typename Type>
+	void registerType(uint16_t index);
 
 	static CSerializationApplier & getInstance();
 };

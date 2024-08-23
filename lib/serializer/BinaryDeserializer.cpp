@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "BinaryDeserializer.h"
-#include "../registerTypes/RegisterTypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

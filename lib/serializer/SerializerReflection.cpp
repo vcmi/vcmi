@@ -14,7 +14,7 @@
 #include "BinarySerializer.h"
 #include "CTypeList.h"
 
-#include "../registerTypes/RegisterTypes.h"
+#include "RegisterTypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -42,21 +42,11 @@ public:
 	}
 };
 
-template<typename RegisteredType>
-void CSerializationApplier::addApplier(ui16 ID)
+template<typename Type>
+void CSerializationApplier::registerType(uint16_t ID)
 {
-	if(!apps.count(ID))
-	{
-		logGlobal->info("Registering type %d (%s)", ID, typeid(RegisteredType).name());
-		apps[ID].reset(new SerializerReflection<RegisteredType>);
-	}
-}
-
-template<typename Base, typename Derived>
-void CSerializationApplier::registerType(const Base * b, const Derived * d)
-{
-	addApplier<Base>(CTypeList::getInstance().getTypeID<Base>(nullptr));
-	addApplier<Derived>(CTypeList::getInstance().getTypeID<Derived>(nullptr));
+	assert(!apps.count(ID));
+	apps[ID].reset(new SerializerReflection<Type>);
 }
 
 CSerializationApplier::CSerializationApplier()
