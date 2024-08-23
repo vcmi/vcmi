@@ -265,7 +265,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 	{
 		std::sort(targetHexes.begin(), targetHexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
 			{
-				return reachability.distances[h1] < reachability.distances[h2];
+				return reachability.distances.at(h1) < reachability.distances.at(h2);
 			});
 
 		for(auto hex : targetHexes)
@@ -283,7 +283,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 			}
 		}
 
-		if(reachability.distances[targetHexes.front()] <= GameConstants::BFIELD_SIZE)
+		if(reachability.distances.at(targetHexes.front()) <= GameConstants::BFIELD_SIZE)
 		{
 			break;
 		}
@@ -291,16 +291,15 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 		std::vector<BattleHex> copy = targetHexes;
 
 		for(auto hex : copy)
-		{
 			vstd::concatenate(targetHexes, hex.allNeighbouringTiles());
-		}
 
+		vstd::erase_if(targetHexes, [](const BattleHex & hex) {return !hex.isValid();});
 		vstd::removeDuplicates(targetHexes);
 	}
 
 	BattleHex bestNeighbor = targetHexes.front();
 
-	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
+	if(reachability.distances.at(bestNeighbor) > GameConstants::BFIELD_SIZE)
 	{
 		return BattleAction::makeDefend(stack);
 	}
