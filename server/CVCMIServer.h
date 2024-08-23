@@ -52,7 +52,6 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	std::unique_ptr<INetworkHandler> networkHandler;
 
-	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	EServerState state = EServerState::LOBBY;
 
 	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);

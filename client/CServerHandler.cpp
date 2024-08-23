@@ -35,6 +35,7 @@
 #include "../lib/TurnTimerInfo.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/HighScore.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/mapping/CMapInfo.h"
@@ -44,7 +45,6 @@
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/UnlockGuard.h"
 
@@ -55,61 +55,6 @@
 #include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
-
-template<typename T> class CApplyOnLobby;
-
-class CBaseForLobbyApply
-{
-public:
-	virtual bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const = 0;
-	virtual void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const = 0;
-	virtual ~CBaseForLobbyApply(){};
-	template<typename U> static CBaseForLobbyApply * getApplier(const U * t = nullptr)
-	{
-		return new CApplyOnLobby<U>();
-	}
-};
-
-template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
-{
-public:
-	bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const override
-	{
-		auto & ref = static_cast<T&>(pack);
-		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
-
-		logNetwork->trace("\tImmediately apply on lobby: %s", typeid(ref).name());
-		ref.visit(visitor);
-
-		return visitor.getResult();
-	}
-
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const override
-	{
-		auto & ref = static_cast<T &>(pack);
-		ApplyOnLobbyScreenNetPackVisitor visitor(*handler, lobby);
-
-		logNetwork->trace("\tApply on lobby from queue: %s", typeid(ref).name());
-		ref.visit(visitor);
-	}
-};
-
-template<> class CApplyOnLobby<CPack>: public CBaseForLobbyApply
-{
-public:
-	bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-		return false;
-	}
-
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-	}
-};
 
 CServerHandler::~CServerHandler()
 {
@@ -148,7 +93,6 @@ CServerHandler::CServerHandler()
 	: networkHandler(INetworkHandler::createHandler())
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
 	, gameChat(std::make_unique<GameChatHandler>())
-	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, threadNetwork(&CServerHandler::threadRunNetwork, this)
 	, state(EClientState::NONE)
 	, serverPort(0)
@@ -159,7 +103,6 @@ CServerHandler::CServerHandler()
 	, client(nullptr)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
-	registerTypesLobbyPacks(*applier);
 }
 
 void CServerHandler::threadRunNetwork()
@@ -320,8 +263,8 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 
 void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
 {
-	const CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(&pack)); //find the applier
-	apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
+	ApplyOnLobbyScreenNetPackVisitor visitor(*this, dynamic_cast<CLobbyScreen *>(SEL));
+	pack.visit(visitor);
 	GH.windows().totalRedraw();
 }
 
@@ -960,7 +903,10 @@ void CServerHandler::waitForServerShutdown()
 
 void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 {
-	if(applier->getApplier(CTypeList::getInstance().getTypeID(&lobbyPack))->applyOnLobbyHandler(this, lobbyPack))
+	ApplyOnLobbyHandlerNetPackVisitor visitor(*this);
+	lobbyPack.visit(visitor);
+
+	if(visitor.getResult())
 	{
 		if(!settings["session"]["headless"].Bool())
 			applyPackOnLobbyScreen(lobbyPack);

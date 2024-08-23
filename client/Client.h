@@ -237,8 +237,6 @@ private:
 #endif
 	std::unique_ptr<events::EventBus> clientEventBus;
 
-	std::shared_ptr<CApplier<CBaseForCLApply>> applier;
-
 	mutable boost::mutex pathCacheMutex;
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 

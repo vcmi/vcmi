@@ -71,8 +71,6 @@
 #include "../lib/pathfinder/PathfinderOptions.h"
 #include "../lib/pathfinder/TurnInfo.h"
 
-#include "../lib/registerTypes/RegisterTypesServerPacks.h"
-
 #include "../lib/rmg/CMapGenOptions.h"
 
 #include "../lib/serializer/CSaveFile.h"
@@ -91,53 +89,6 @@
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
-
-template <typename T> class CApplyOnGH;
-
-class CBaseForGHApply
-{
-public:
-	virtual bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const =0;
-	virtual ~CBaseForGHApply(){}
-	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
-	{
-		return new CApplyOnGH<U>();
-	}
-};
-
-template <typename T> class CApplyOnGH : public CBaseForGHApply
-{
-public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
-	{
-		T *ptr = static_cast<T*>(pack);
-		try
-		{
-			ApplyGhNetPackVisitor applier(*gh);
-
-			ptr->visit(applier);
-
-			return applier.getResult();
-		}
-		catch(ExceptionNotAllowedAction & e)
-		{
-            (void)e;
-			return false;
-		}
-	}
-};
-
-template <>
-class CApplyOnGH<CPack> : public CBaseForGHApply
-{
-public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply on GH plain CPack!");
-		assert(0);
-		return false;
-	}
-};
 
 static inline double distance(int3 a, int3 b)
 {
@@ -499,28 +450,30 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		pack->c->sendPack(&applied);
 	};
 
-	CBaseForGHApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //and appropriate applier object
 	if(isBlockedByQueries(pack, pack->player))
 	{
 		sendPackageResponse(false);
 	}
-	else if(apply)
-	{
-		const bool result = apply->applyOnGH(this, this->gs, pack);
-		if(result)
-			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
-		else
-			complain((boost::format("Got false in applying %s... that request must have been fishy!")
-				% typeid(*pack).name()).str());
 
-		sendPackageResponse(true);
+	bool result;
+	try
+	{
+		ApplyGhNetPackVisitor applier(*this);
+		pack->visit(applier);
+		result = applier.getResult();
 	}
+	catch(ExceptionNotAllowedAction &)
+	{
+		result = false;
+	}
+
+	if(result)
+		logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
 	else
-	{
-		logGlobal->error("Message cannot be applied, cannot find applier (unregistered type)!");
-		sendPackageResponse(false);
-	}
+		complain((boost::format("Got false in applying %s... that request must have been fishy!")
+			% typeid(*pack).name()).str());
 
+	sendPackageResponse(true);
 	vstd::clear_pointer(pack);
 }
 
@@ -538,8 +491,6 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
 {
 	QID = 1;
-	applier = std::make_shared<CApplier<CBaseForGHApply>>();
-	registerTypesServerPacks(*applier);
 
 	spellEnv = new ServerSpellCastEnvironment(this);
 }

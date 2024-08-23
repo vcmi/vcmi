@@ -102,7 +102,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::shared_ptr<INetworkConnection> networkConnection;
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<GameChatHandler> gameChat;
-	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::unique_ptr<IServerRunner> serverRunner;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;

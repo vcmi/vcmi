@@ -57,7 +57,6 @@ class CObjectVisitQuery;
 class CGameHandler : public IGameCallback, public Environment
 {
 	CVCMIServer * lobby;
-	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;

@@ -102,7 +102,6 @@
 
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/serializer/BinarySerializer.h"
-#include "../lib/serializer/CTypeList.h"
 
 #include "../lib/spells/CSpellHandler.h"
 
