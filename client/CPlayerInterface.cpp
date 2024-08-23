@@ -100,8 +100,8 @@
 
 #include "../lib/pathfinder/CGPathNode.h"
 
-#include "../lib/serializer/BinaryDeserializer.h"
-#include "../lib/serializer/BinarySerializer.h"
+#include "../lib/serializer/CTypeList.h"
+#include "../lib/serializer/ESerializationVersion.h"
 
 #include "../lib/spells/CSpellHandler.h"
 

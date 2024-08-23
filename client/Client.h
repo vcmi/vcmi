@@ -21,13 +21,9 @@ struct CPackForServer;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
 class CGameInterface;
-class BinaryDeserializer;
-class BinarySerializer;
 class BattleAction;
 class BattleInfo;
 struct BankConfig;
-
-template<typename T> class CApplier;
 
 #if SCRIPTING_ENABLED
 namespace scripting

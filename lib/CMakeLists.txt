@@ -217,6 +217,7 @@ set(lib_MAIN_SRCS
 	serializer/JsonSerializeFormat.cpp
 	serializer/JsonSerializer.cpp
 	serializer/JsonUpdater.cpp
+	serializer/SerializerReflection.cpp
 
 	spells/AbilityCaster.cpp
 	spells/AdventureSpellMechanics.cpp
@@ -626,6 +627,7 @@ set(lib_MAIN_HEADERS
 	serializer/Cast.h
 	serializer/ESerializationVersion.h
 	serializer/Serializeable.h
+	serializer/SerializerReflection.h
 
 	spells/AbilityCaster.h
 	spells/AdventureSpellMechanics.h

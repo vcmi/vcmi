@@ -15,7 +15,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 BinarySerializer::BinarySerializer(IBinaryWriter * w): CSaverBase(w)
 {
-    registerTypes(applier);
 }
 
 VCMI_LIB_NAMESPACE_END

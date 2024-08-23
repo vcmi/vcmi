@@ -29,8 +29,6 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/battle/BattleInfo.h"
-#include "../lib/serializer/BinaryDeserializer.h"
-#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/pathfinder/CGPathNode.h"

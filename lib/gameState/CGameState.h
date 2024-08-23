@@ -38,9 +38,6 @@ class TavernHeroesPool;
 struct SThievesGuildInfo;
 class CRandomGenerator;
 
-template<typename T> class CApplier;
-class CBaseForGSApply;
-
 struct UpgradeInfo
 {
 	CreatureID oldID; //creature to be upgraded

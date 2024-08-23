@@ -25,8 +25,6 @@ struct PlayerSettings;
 class PlayerColor;
 class MetaString;
 
-template<typename T> class CApplier;
-
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;

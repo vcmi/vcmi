@@ -17,8 +17,6 @@ BinaryDeserializer::BinaryDeserializer(IBinaryReader * r): CLoaderBase(r)
 {
 	version = Version::NONE;
 	reverseEndianness = false;
-
-	registerTypes(applier);
 }
 
 VCMI_LIB_NAMESPACE_END

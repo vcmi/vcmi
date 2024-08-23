@@ -31,8 +31,6 @@ struct CPackForClient;
 
 class HighScoreParameter;
 
-template<typename T> class CApplier;
-
 VCMI_LIB_NAMESPACE_END
 
 class CClient;
