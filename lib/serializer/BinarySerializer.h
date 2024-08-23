@@ -129,12 +129,6 @@ public:
 
 	DLL_LINKAGE BinarySerializer(IBinaryWriter * w);
 
-	template<typename Base, typename Derived>
-	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		applier.registerType(b, d);
-	}
-
 	template<class T>
 	BinarySerializer & operator&(const T & t)
 	{

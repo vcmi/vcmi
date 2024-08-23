@@ -388,11 +388,6 @@ public:
 			loadedPointers[pid] = const_cast<Serializeable*>(dynamic_cast<const Serializeable*>(ptr)); //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 
-	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		applier.registerType(b, d);
-	}
-
 	template <typename T>
 	void load(std::shared_ptr<T> &data)
 	{

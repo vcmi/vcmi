@@ -45,12 +45,11 @@
 #include "../mapping/CMapService.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
+#include "../networkPacks/NetPacksBase.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
-#include "../registerTypes/RegisterTypesClientPacks.h"
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
-#include "../serializer/CTypeList.h"
 #include "../spells/CSpellHandler.h"
 
 #include <vstd/RNG.h>
@@ -58,29 +57,6 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 boost::shared_mutex CGameState::mutex;
-
-template <typename T> class CApplyOnGS;
-
-class CBaseForGSApply
-{
-public:
-	virtual void applyOnGS(CGameState *gs, CPack * pack) const =0;
-	virtual ~CBaseForGSApply() = default;
-	template<typename U> static CBaseForGSApply *getApplier(const U * t=nullptr)
-	{
-		return new CApplyOnGS<U>();
-	}
-};
-
-template <typename T> class CApplyOnGS : public CBaseForGSApply
-{
-public:
-	void applyOnGS(CGameState *gs, CPack * pack) const override
-	{
-		T *ptr = static_cast<T*>(pack);
-		ptr->applyGs(gs);
-	}
-};
 
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {
@@ -165,8 +141,6 @@ CGameState::CGameState()
 {
 	gs = this;
 	heroesPool = std::make_unique<TavernHeroesPool>();
-	applier = std::make_shared<CApplier<CBaseForGSApply>>();
-	registerTypesClientPacks(*applier);
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 
@@ -1146,10 +1120,9 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 	return PlayerRelations::ENEMIES;
 }
 
-void CGameState::apply(CPack *pack)
+void CGameState::apply(CPackForClient *pack)
 {
-	ui16 typ = CTypeList::getInstance().getTypeID(pack);
-	applier->getApplier(typ)->applyOnGS(this, pack);
+	pack->applyGs(this);
 }
 
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)

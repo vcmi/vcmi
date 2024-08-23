@@ -147,7 +147,7 @@ public:
 
 	static ThreadSafeVector<int> waitingRequest; //FIXME: make this normal field (need to join all threads before client destruction)
 
-	void handlePack(CPack * pack); //applies the given pack and deletes it
+	void handlePack(CPackForClient * pack); //applies the given pack and deletes it
 	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);

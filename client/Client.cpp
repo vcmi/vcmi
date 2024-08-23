@@ -349,7 +349,7 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 	}
 }
 
-void CClient::handlePack(CPack * pack)
+void CClient::handlePack(CPackForClient * pack)
 {
 	ApplyClientNetPackVisitor afterVisitor(*this, *gameState());
 	ApplyFirstClientNetPackVisitor beforeVisitor(*this, *gameState());
