@@ -130,13 +130,9 @@ TIcons CStatisticScreen::extractIcons() const
 	std::sort(tmpData.begin(), tmpData.end(), [](const StatisticDataSetEntry & v1, const StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
 
 	auto imageTown = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 3, 0, EImageBlitMode::COLORKEY);
-	imageTown->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
 	auto imageBattle = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 5, 0, EImageBlitMode::COLORKEY);
-	imageBattle->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
-	auto imageDefeated = GH.renderHandler().loadImage(AnimationPath::builtin("tpthchk"), 1, 0, EImageBlitMode::COLORKEY);
-	imageDefeated->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	auto imageDefeated = GH.renderHandler().loadImage(AnimationPath::builtin("crcombat"), 0, 0, EImageBlitMode::COLORKEY);
 	auto imageGrail = GH.renderHandler().loadImage(AnimationPath::builtin("vwsymbol"), 2, 0, EImageBlitMode::COLORKEY);
-	imageGrail->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
 
 	std::map<PlayerColor, bool> foundDefeated;
 	std::map<PlayerColor, bool> foundGrail;
@@ -492,7 +488,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 			for(auto & icon : icons)
 				if(std::get<0>(icon) == line.first && std::get<1>(icon) == i + 1) // color && day
 				{
-					pictures.emplace_back(std::make_shared<CPicture>(std::get<2>(icon), Point(p.x - (CHART_ICON_SIZE / 2), p.y - (CHART_ICON_SIZE / 2))));
+					pictures.emplace_back(std::make_shared<CPicture>(std::get<2>(icon), Point(p.x - (std::get<2>(icon)->width() / 2), p.y - (std::get<2>(icon)->height() / 2))));
 					pictures.back()->addRClickCallback([icon](){ CRClickPopup::createAndPush(std::get<3>(icon)); });
 				}
 
