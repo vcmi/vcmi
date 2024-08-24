@@ -40,10 +40,10 @@ void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 	const auto * playerState = gameHandler->gameState()->getPlayerState(which);
 
 	gameHandler->handleTimeEvents(which);
-	for (auto t : playerState->towns)
+	for (const auto * t : playerState->getTowns())
 		gameHandler->handleTownEvents(t);
 
-	for (auto t : playerState->towns)
+	for (const auto * t : playerState->getTowns())
 	{
 		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
 		if (t->garrisonHero != nullptr)
@@ -59,7 +59,7 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 	const auto * playerState = gameHandler->gameState()->getPlayerState(which);
 	assert(playerState->status == EPlayerStatus::INGAME);
 
-	if (playerState->towns.empty())
+	if (playerState->getTowns().empty())
 	{
 		DaysWithoutTown pack;
 		pack.player = which;
@@ -92,7 +92,7 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	const PlayerState & state = gameHandler->gameState()->players.at(playerID);
 	ResourceSet income;
 
-	for (const auto & town : state.towns)
+	for (const auto & town : state.getTowns())
 	{
 		if (newWeek && town->hasBuilt(BuildingSubID::TREASURY))
 		{
@@ -123,18 +123,18 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
 	{
 		income += state.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
-		income += state.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * state.towns.size();
+		income += state.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * state.getTowns().size();
 	}
 
 	if(newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
 	{
 		bool hasCrystalGenCreature = false;
-		for (const auto & hero : state.heroes)
+		for (const auto & hero : state.getHeroes())
 			for(auto stack : hero->stacks)
 				if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
 					hasCrystalGenCreature = true;
 
-		for(const auto & town : state.towns)
+		for(const auto & town : state.getTowns())
 			for(auto stack : town->stacks)
 				if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
 					hasCrystalGenCreature = true;
@@ -146,10 +146,9 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	TResources incomeHandicapped = income;
 	incomeHandicapped.applyHandicap(playerSettings->handicap.percentIncome);
 
-	// FIXME: store pre-filtered, all owned objects in PlayerState
-	for (auto obj : gameHandler->gameState()->map->objects)
+	for (auto obj :	state.getOwnedObjects())
 	{
-		if (obj && obj->asOwnable() && obj->getOwner() == playerID)
+		if (obj->asOwnable())
 			incomeHandicapped += obj->asOwnable()->dailyIncome();
 	}
 

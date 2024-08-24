@@ -574,7 +574,6 @@ void CGameState::initHeroes()
 		}
 
 		hero->initHero(getRandomGenerator());
-		getPlayerState(hero->getOwner())->heroes.push_back(hero);
 		map->allHeroes[hero->getHeroType().getNum()] = hero;
 	}
 
@@ -699,14 +698,14 @@ void CGameState::initStartingBonus()
 			}
 		case PlayerStartingBonus::ARTIFACT:
 			{
-				if(elem.second.heroes.empty())
+				if(elem.second.getHeroes().empty())
 				{
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
 				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
 
-				CGHeroInstance *hero = elem.second.heroes[0];
+				CGHeroInstance *hero = elem.second.getHeroes()[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
 					logGlobal->error("Cannot give starting artifact - no free slots!");
 			}
@@ -893,14 +892,18 @@ void CGameState::initTowns()
 			vti->possibleSpells -= s->id;
 		}
 		vti->possibleSpells.clear();
-		if(vti->getOwner() != PlayerColor::NEUTRAL)
-			getPlayerState(vti->getOwner())->towns.emplace_back(vti);
 	}
 }
 
 void CGameState::initMapObjects()
 {
 	logGlobal->debug("\tObject initialization");
+
+	for(CGObjectInstance *obj : map->objects)
+	{
+		if (obj && obj->getOwner().isValidPlayer())
+			getPlayerState(obj->getOwner())->addOwnedObject(obj);
+	}
 
 //	objCaller->preInit();
 	for(CGObjectInstance *obj : map->objects)
@@ -937,9 +940,9 @@ void CGameState::placeHeroesInTowns()
 		if(player.first == PlayerColor::NEUTRAL)
 			continue;
 
-		for(CGHeroInstance * h : player.second.heroes)
+		for(CGHeroInstance * h : player.second.getHeroes())
 		{
-			for(CGTownInstance * t : player.second.towns)
+			for(CGTownInstance * t : player.second.getTowns())
 			{
 				if(h->visitablePos().z != t->visitablePos().z)
 					continue;
@@ -971,9 +974,9 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 			continue;
 
 		//init visiting and garrisoned heroes
-		for(CGHeroInstance * h : player.second.heroes)
+		for(CGHeroInstance * h : player.second.getHeroes())
 		{
-			for(CGTownInstance * t : player.second.towns)
+			for(CGTownInstance * t : player.second.getTowns())
 			{
 				if(h->visitablePos().z != t->visitablePos().z)
 					continue;
@@ -1371,7 +1374,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::HAVE_ARTIFACT: //check if any hero has winning artifact
 		{
-			for(const auto & elem : p->heroes)
+			for(const auto & elem : p->getHeroes())
 				if(elem->hasArt(condition.objectType.as<ArtifactID>()))
 					return true;
 			return false;
@@ -1405,7 +1408,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			}
 			else // any town
 			{
-				for (const CGTownInstance * t : p->towns)
+				for (const CGTownInstance * t : p->getTowns())
 				{
 					if (t->hasBuilt(condition.objectType.as<BuildingID>()))
 						return true;
@@ -1550,9 +1553,9 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	if(level >= 0) //num of towns & num of heroes
 	{
 		//num of towns
-		FILL_FIELD(numOfTowns, g->second.towns.size())
+		FILL_FIELD(numOfTowns, g->second.getTowns().size())
 		//num of heroes
-		FILL_FIELD(numOfHeroes, g->second.heroes.size())
+		FILL_FIELD(numOfHeroes, g->second.getHeroes().size())
 	}
 	if(level >= 1) //best hero's portrait
 	{
@@ -1624,7 +1627,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			if(playerInactive(player.second.color)) //do nothing for neutral player
 				continue;
 			CreatureID bestCre; //best creature's ID
-			for(const auto & elem : player.second.heroes)
+			for(const auto & elem : player.second.getHeroes())
 			{
 				for(const auto & it : elem->Slots())
 				{

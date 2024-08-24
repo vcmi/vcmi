@@ -14,7 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct PlayerState;
+class PlayerState;
 class CGameState;
 class CGHeroInstance;
 class CGMine;

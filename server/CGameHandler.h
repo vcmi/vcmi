@@ -230,7 +230,7 @@ public:
 	void addStatistics(StatisticDataSet &stat) const;
 
 	void handleTimeEvents(PlayerColor player);
-	void handleTownEvents(CGTownInstance *town);
+	void handleTownEvents(const CGTownInstance *town);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void objectVisitEnded(const CObjectVisitQuery &query);

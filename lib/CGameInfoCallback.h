@@ -23,7 +23,7 @@ struct InfoWindow;
 struct PlayerSettings;
 struct CPackForClient;
 struct TerrainTile;
-struct PlayerState;
+class PlayerState;
 class CTown;
 struct StartInfo;
 struct CPathsInfo;

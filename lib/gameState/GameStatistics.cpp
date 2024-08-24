@@ -50,10 +50,10 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.isHuman = ps->isHuman();
 	data.status = ps->status;
 	data.resources = ps->resources;
-	data.numberHeroes = ps->heroes.size();
+	data.numberHeroes = ps->getHeroes().size();
 	data.numberTowns = gs->howManyTowns(ps->color);
 	data.numberArtifacts = Statistic::getNumberOfArts(ps);
-	data.numberDwellings = gs->getPlayerState(ps->color)->dwellings.size();
+	data.numberDwellings = gs->getPlayerState(ps->color)->getDwellings().size();
 	data.armyStrength = Statistic::getArmyStrength(ps, true);
 	data.totalExperience = Statistic::getTotalExperience(ps);
 	data.income = Statistic::getIncome(gs, ps);
@@ -221,7 +221,7 @@ std::vector<const CGMine *> Statistic::getMines(const CGameState * gs, const Pla
 int Statistic::getNumberOfArts(const PlayerState * ps)
 {
 	int ret = 0;
-	for(auto h : ps->heroes)
+	for(auto h : ps->getHeroes())
 	{
 		ret += h->artifactsInBackpack.size() + h->artifactsWorn.size();
 	}
@@ -233,7 +233,7 @@ si64 Statistic::getArmyStrength(const PlayerState * ps, bool withTownGarrison)
 {
 	si64 str = 0;
 
-	for(auto h : ps->heroes)
+	for(auto h : ps->getHeroes())
 	{
 		if(!h->inTownGarrison || withTownGarrison)		//original h3 behavior
 			str += h->getArmyStrength();
@@ -246,7 +246,7 @@ si64 Statistic::getTotalExperience(const PlayerState * ps)
 {
 	si64 tmp = 0;
 
-	for(auto h : ps->heroes)
+	for(auto h : ps->getHeroes())
 		tmp += h->exp;
 	
 	return tmp;
@@ -258,11 +258,11 @@ int Statistic::getIncome(const CGameState * gs, const PlayerState * ps)
 	int totalIncome = 0;
 
 	//Heroes can produce gold as well - skill, specialty or arts
-	for(const auto & h : ps->heroes)
+	for(const auto & h : ps->getHeroes())
 		totalIncome += h->dailyIncome()[EGameResID::GOLD];
 
 	//Add town income of all towns
-	for(const auto & t : ps->towns)
+	for(const auto & t : ps->getTowns())
 		totalIncome += t->dailyIncome()[EGameResID::GOLD];
 
 	for(const CGMine * mine : getMines(gs, ps))
@@ -295,7 +295,7 @@ float Statistic::getMapExploredRatio(const CGameState * gs, PlayerColor player)
 
 const CGHeroInstance * Statistic::findBestHero(const CGameState * gs, const PlayerColor & color)
 {
-	auto &h = gs->players.at(color).heroes;
+	const auto &h = gs->players.at(color).getHeroes();
 	if(h.empty())
 		return nullptr;
 	//best hero will be that with highest exp
@@ -368,7 +368,7 @@ float Statistic::getTownBuiltRatio(const PlayerState * ps)
 	float built = 0.0;
 	float total = 0.0;
 
-	for(const auto & t : ps->towns)
+	for(const auto & t : ps->getTowns())
 	{
 		built += t->getBuildings().size();
 		for(const auto & b : t->town->buildings)

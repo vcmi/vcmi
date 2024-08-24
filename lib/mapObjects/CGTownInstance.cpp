@@ -181,7 +181,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
 	{
-		dwellingBonus = getDwellingBonus(creatures[level].second, p->dwellings);
+		dwellingBonus = getDwellingBonus(creatures[level].second, p->getDwellings());
 	}
 	if(dwellingBonus)
 		ret.entries.emplace_back(VLC->generaltexth->allTexts[591], dwellingBonus); // \nExternal dwellings %+d
@@ -192,7 +192,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	return ret;
 }
 
-int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const
+int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGDwelling * >& dwellings) const
 {
 	int totalBonus = 0;
 	for (const auto& dwelling : dwellings)
@@ -635,9 +635,9 @@ void CGTownInstance::removeCapitols(const PlayerColor & owner) const
 	if (hasCapitol()) // search if there's an older capitol
 	{
 		PlayerState* state = cb->gameState()->getPlayerState(owner); //get all towns owned by player
-		for (auto i = state->towns.cbegin(); i < state->towns.cend(); ++i)
+		for (const auto & town : state->getTowns())
 		{
-			if (*i != this && (*i)->hasCapitol())
+			if (town != this && town->hasCapitol())
 			{
 				RazeStructures rs;
 				rs.tid = id;
@@ -672,7 +672,7 @@ int CGTownInstance::getMarketEfficiency() const
 	assert(p);
 
 	int marketCount = 0;
-	for(const CGTownInstance *t : p->towns)
+	for(const CGTownInstance *t : p->getTowns())
 		if(t->hasBuiltSomeTradeBuilding())
 			marketCount++;
 

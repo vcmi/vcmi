@@ -710,11 +710,11 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 			executeCheatCode(cheatName, i.first, ObjectInstanceID::NONE, parameters);
 
 		if (vstd::contains(townTargetedCheats, cheatName))
-			for (const auto & t : i.second.towns)
+			for (const auto & t : i.second.getTowns())
 				executeCheatCode(cheatName, i.first, t->id, parameters);
 
 		if (vstd::contains(heroTargetedCheats, cheatName))
-			for (const auto & h : i.second.heroes)
+			for (const auto & h : i.second.getHeroes())
 				executeCheatCode(cheatName, i.first, h->id, parameters);
 	}
 

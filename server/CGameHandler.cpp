@@ -555,7 +555,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 			ssi.creatures = town->creatures;
 			ssi.creatures[town->town->creatures.size()].second.clear();//remove old one
 
-			const std::vector<ConstTransitivePtr<CGDwelling> > &dwellings = p->dwellings;
+			const auto &dwellings = p->getDwellings();
 			if (dwellings.empty())//no dwellings - just remove
 			{
 				sendAndApply(&ssi);
@@ -639,7 +639,7 @@ void CGameHandler::onNewTurn()
 		if (player.second.status != EPlayerStatus::INGAME)
 			continue;
 
-		if (player.second.heroes.empty() && player.second.towns.empty())
+		if (player.second.getHeroes().empty() && player.second.getTowns().empty())
 			throw std::runtime_error("Invalid player in player state! Player " + std::to_string(player.first.getNum()) + ", map name: " + gs->map->name.toString() + ", map description: " + gs->map->description.toString());
 	}
 
@@ -724,7 +724,7 @@ void CGameHandler::onNewTurn()
 		if (firstTurn)
 			heroPool->onNewWeek(elem.first);
 
-		for (CGHeroInstance *h : (elem).second.heroes)
+		for (CGHeroInstance *h : (elem).second.getHeroes())
 		{
 			if (h->visitedTown)
 				giveSpells(h->visitedTown, h);
@@ -1286,9 +1286,9 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 
 	const PlayerState * p = getPlayerState(owner);
 
-	if ((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4) && p && p->dwellings.size()==1)//first dwelling captured
+	if ((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4) && p && p->getDwellings().size()==1)//first dwelling captured
 	{
-		for (const CGTownInstance * t : getPlayerState(owner)->towns)
+		for (const CGTownInstance * t : getPlayerState(owner)->getTowns())
 		{
 			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
@@ -3297,7 +3297,7 @@ void CGameHandler::handleTimeEvents(PlayerColor color)
 	}
 }
 
-void CGameHandler::handleTownEvents(CGTownInstance * town)
+void CGameHandler::handleTownEvents(const CGTownInstance * town)
 {
 	for (auto const & event : town->events)
 	{
@@ -3631,10 +3631,10 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		else
 		{
 			//copy heroes vector to avoid iterator invalidation as removal change PlayerState
-			auto hlp = p->heroes;
+			auto hlp = p->getHeroes();
 			for (auto h : hlp) //eliminate heroes
 			{
-				if (h.get())
+				if (h)
 					removeObject(h, player);
 			}
 
@@ -4159,11 +4159,11 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 
 		std::unordered_set<int3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
 		auto p = getPlayerState(player);
-		for (auto h : p->heroes)
+		for (auto h : p->getHeroes())
 		{
 			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadius(), ETileVisibility::REVEALED, h->tempOwner);
 		}
-		for (auto t : p->towns)
+		for (auto t : p->getTowns())
 		{
 			getTilesInRange(observedTiles, t->getSightCenter(), t->getSightRadius(), ETileVisibility::REVEALED, t->tempOwner);
 		}
