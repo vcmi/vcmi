@@ -466,7 +466,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	int dayGridInterval = maxDay < 700 ? 7 : 28;
 	for(const auto & line : data)
 	{
-		for(int i = 0; i + dayGridInterval - 1 < line.second.size(); i += dayGridInterval)
+		for(int i = 0; i < line.second.size(); i += dayGridInterval)
 		{
 			Point p = getPoint(i, line.second) + chartArea.topLeft();
 			canvas->addLine(Point(p.x, chartArea.topLeft().y), Point(p.x, chartArea.topLeft().y + chartArea.h), ColorRGBA(70, 70, 70));
