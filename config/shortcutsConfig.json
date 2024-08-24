@@ -137,6 +137,7 @@
 		"heroToggleTactics":        "B",
 		"highScoresCampaigns":      "C",
 		"highScoresReset":          "R",
+		"highScoresStatistics":     ".",
 		"highScoresScenarios":      "S",
 		"kingdomHeroesTab":         "H",
 		"kingdomTownsTab":          "T",

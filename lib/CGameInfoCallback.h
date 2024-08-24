@@ -56,7 +56,7 @@ public:
 
 //	//various
 	virtual int getDate(Date mode=Date::DAY) const = 0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-//	const StartInfo * getStartInfo(bool beforeRandomization = false)const;
+	virtual const StartInfo * getStartInfo(bool beforeRandomization = false) const = 0;
 	virtual bool isAllowed(SpellID id) const = 0;
 	virtual bool isAllowed(ArtifactID id) const = 0;
 	virtual bool isAllowed(SecondarySkill id) const = 0;
@@ -143,7 +143,7 @@ protected:
 public:
 	//various
 	int getDate(Date mode=Date::DAY)const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	virtual const StartInfo * getStartInfo(bool beforeRandomization = false)const;
+	const StartInfo * getStartInfo(bool beforeRandomization = false) const override;
 	bool isAllowed(SpellID id) const override;
 	bool isAllowed(ArtifactID id) const override;
 	bool isAllowed(SecondarySkill id) const override;

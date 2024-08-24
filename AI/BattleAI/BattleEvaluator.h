@@ -37,16 +37,18 @@ class BattleEvaluator
 	float cachedScore;
 	DamageCache damageCache;
 	float strengthRatio;
+	int simulationTurnsCount;
 
 public:
 	BattleAction selectStackAction(const CStack * stack);
 	bool attemptCastingSpell(const CStack * stack);
 	bool canCastSpell();
 	std::optional<PossibleSpellcast> findBestCreatureSpell(const CStack * stack);
-	BattleAction goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes);
+	BattleAction goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes, const PotentialTargets & targets);
 	std::vector<BattleHex> getBrokenWallMoatHexes() const;
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
 	void print(const std::string & text) const;
+	BattleAction moveOrAttack(const CStack * stack, BattleHex hex, const PotentialTargets & targets);
 
 	BattleEvaluator(
 		std::shared_ptr<Environment> env,
@@ -55,15 +57,8 @@ public:
 		PlayerColor playerID,
 		BattleID battleID,
 		BattleSide side,
-		float strengthRatio)
-		:scoreEvaluator(cb->getBattle(battleID), env, strengthRatio), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), strengthRatio(strengthRatio), battleID(battleID)
-	{
-		hb = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
-		damageCache.buildDamageCache(hb, side);
-
-		targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
-		cachedScore = EvaluationResult::INEFFECTIVE_SCORE;
-	}
+		float strengthRatio,
+		int simulationTurnsCount);
 
 	BattleEvaluator(
 		std::shared_ptr<Environment> env,
@@ -74,10 +69,6 @@ public:
 		PlayerColor playerID,
 		BattleID battleID,
 		BattleSide side,
-		float strengthRatio)
-		:scoreEvaluator(cb->getBattle(battleID), env, strengthRatio), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), hb(hb), damageCache(damageCache), strengthRatio(strengthRatio), battleID(battleID)
-	{
-		targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
-		cachedScore = EvaluationResult::INEFFECTIVE_SCORE;
-	}
+		float strengthRatio,
+		int simulationTurnsCount);
 };

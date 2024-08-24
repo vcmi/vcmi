@@ -19,8 +19,10 @@ Example of how directory structure of your mod may look like:
                 music/   - music files. Mp3 and ogg/vorbis are supported
                 sounds/  - sound files, in wav format.
                 sprites/ - animation, image sets (H3 .def files or VCMI .json files)
-                video/   - video files, .bik or .smk
+                video/   - video files, .bik, .smk, .ogv .webm
 ```
+See [File Formats](File_Formats.md) page for more information on which formats are supported or recommended for vcmi
+
 
 ## Creating mod file
 

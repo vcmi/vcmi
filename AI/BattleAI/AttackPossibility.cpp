@@ -201,6 +201,8 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 	if(attackInfo.shooting)
 		return 0;
 
+	std::set<uint32_t> checkedUnits;
+
 	auto attacker = attackInfo.attacker;
 	auto hexes = attacker->getSurroundingHexes(hex);
 	for(BattleHex tile : hexes)
@@ -208,8 +210,12 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 		auto st = state->battleGetUnitByPos(tile, true);
 		if(!st || !state->battleMatchOwner(st, attacker))
 			continue;
+		if(vstd::contains(checkedUnits, st->unitId()))
+			continue;
 		if(!state->battleCanShoot(st))
 			continue;
+
+		checkedUnits.insert(st->unitId());
 
 		// FIXME: provide distance info for Jousting bonus
 		BattleAttackInfo rangeAttackInfo(st, attacker, 0, true);
@@ -220,9 +226,10 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
+		auto cachedDmg = damageCache.getOriginalDamage(st, attacker, state);
 
 		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;
-		res += gain;
+		res += gain * cachedDmg / std::max<uint64_t>(1, averageDmg(rangeDmg.damage));
 	}
 
 	return res;

@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-DEPS_FILENAME=armeabi-v7a
+DEPS_FILENAME=dependencies-android-32
 . CI/android/before_install.sh
