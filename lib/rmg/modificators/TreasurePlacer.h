@@ -73,7 +73,7 @@ protected:
 		void sortPossibleObjects();
 		void discardObjectsAboveValue(ui32 value);
 
-		ObjectConfig::EObjectCategory getObjectCategory(MapObjectID id);
+		ObjectConfig::EObjectCategory getObjectCategory(CompoundMapObjectID id);
 
 	private:
 

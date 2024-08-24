@@ -77,15 +77,15 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 		(EObjectCategory::ALL, "all")
 		(EObjectCategory::NONE, "none")
 		(EObjectCategory::CREATURE_BANK, "creatureBank")
-		(EObjectCategory::PERMANENT_BONUS, "permanentBonus")
-		(EObjectCategory::NEXT_BATTLE_BONUS, "nextBattleBonus")
+		(EObjectCategory::BONUS, "bonus")
 		(EObjectCategory::DWELLING, "dwelling")
 		(EObjectCategory::RESOURCE, "resource")
 		(EObjectCategory::RESOURCE_GENERATOR, "resourceGenerator")
 		(EObjectCategory::SPELL_SCROLL, "spellScroll")
 		(EObjectCategory::RANDOM_ARTIFACT, "randomArtifact")
 		(EObjectCategory::PANDORAS_BOX, "pandorasBox")
-		(EObjectCategory::QUEST_ARTIFACT, "questArtifact");
+		(EObjectCategory::QUEST_ARTIFACT, "questArtifact")
+		(EObjectCategory::SEER_HUT, "seerHut");
 
 	auto categories = handler.enterArray("bannedCategories");
 	if (handler.saving)
@@ -161,7 +161,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-const std::vector<ObjectInfo> & ObjectConfig::getCustomObjects() const
+const std::vector<ObjectInfo> & ObjectConfig::getConfiguredObjects() const
 {
 	return customObjects;
 }

@@ -25,6 +25,7 @@
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../../rewardable/Info.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/CGPandoraBox.h"
 #include "../../mapObjects/CQuest.h"
@@ -1139,7 +1140,8 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone)
 
 	vstd::erase_if(possibleObjects, [this, &categoriesSet](const ObjectInfo & oi) -> bool
 	{
-		auto category = getObjectCategory(oi.templates.front()->id);
+		auto temp = oi.templates.front();
+		auto category = getObjectCategory(CompoundMapObjectID(temp->id, temp->subid));
 		if (categoriesSet.count(category))
 		{
 			logGlobal->info("Removing object %s from possible objects", oi.templates.front()->stringID);
@@ -1161,10 +1163,11 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone)
 		return false;
 	});
 
-	// Now copy back modified list
+	auto configuredObjects = zone.getConfiguredObjects();
+	// TODO: Overwrite or add to possibleObjects
+
 	// FIXME: Protect with mutex as well?
 	/*
-	possibleObjects.clear();
 	for (const auto & customObject : customObjects)
 	{
 		addObject(customObject.second);
@@ -1194,15 +1197,35 @@ void TreasurePlacer::ObjectPool::discardObjectsAboveValue(ui32 value)
 	});
 }
 
-ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(MapObjectID id)
+ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(CompoundMapObjectID id)
 {
-	auto name = VLC->objtypeh->getObjectHandlerName(id);
+	auto name = VLC->objtypeh->getObjectHandlerName(id.primaryID);
 
 	if (name == "configurable")
 	{
-		// TODO: Need to check configuration here.
-		// Possible otions: PERMANENT_BONUS, NEXT_BATTLE_BONUS, RESOURCE
-		return ObjectConfig::EObjectCategory::RESOURCE;
+		// TODO: Access Rewardable::Info by ID
+
+		auto handler = VLC->objtypeh->getHandlerFor(id.primaryID, id.secondaryID);
+		if (!handler)
+		{
+			return ObjectConfig::EObjectCategory::NONE;
+		}
+		auto temp = handler->getTemplates().front();
+		auto info = handler->getObjectInfo(temp);
+		if (info->givesResources())
+		{
+			return ObjectConfig::EObjectCategory::RESOURCE;
+		}
+		else if (info->givesArtifacts())
+		{
+			return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
+		}
+		else if (info->givesBonuses())
+		{
+			return ObjectConfig::EObjectCategory::BONUS;
+		}
+
+		return ObjectConfig::EObjectCategory::OTHER;
 	}
 	else if (name == "dwelling" || name == "randomDwelling")
 	{
@@ -1223,28 +1246,33 @@ ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(MapO
 		return ObjectConfig::EObjectCategory::OTHER;
 	else if (name == "lighthouse")
 	{
-		// TODO: So far Lighthouse is not generated
-		// Also, it gives global bonus as long as owned
-		return ObjectConfig::EObjectCategory::PERMANENT_BONUS;
+		return ObjectConfig::EObjectCategory::BONUS;
 	}
 	else if (name == "magi")
+	{
+		// TODO: By default, both eye and hut are banned in every zone
 		return ObjectConfig::EObjectCategory::OTHER;
+	}
 	else if (name == "mine")
 		return ObjectConfig::EObjectCategory::RESOURCE_GENERATOR;
 	else if (name == "pandora")
 		return ObjectConfig::EObjectCategory::PANDORAS_BOX;
 	else if (name == "prison")
 	{
-		// TODO: Prisons are configurable
+		// TODO: Prisons should be configurable
 		return ObjectConfig::EObjectCategory::OTHER;
+	}
+	else if (name == "questArtifact")
+	{
+		// TODO: There are no dedicated quest artifacts, needs extra logic
+		return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
 	}
 	else if (name == "seerHut")
 	{
-		// quest artifacts are configurable, but what about seer huts?
-		return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
+		return ObjectConfig::EObjectCategory::SEER_HUT;
 	}
 	else if (name == "siren")
-		return ObjectConfig::EObjectCategory::NEXT_BATTLE_BONUS;
+		return ObjectConfig::EObjectCategory::BONUS;
 	else if (name == "obelisk")
 		return ObjectConfig::EObjectCategory::OTHER;
 

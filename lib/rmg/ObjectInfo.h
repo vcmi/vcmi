@@ -49,16 +49,15 @@ public:
 		ALL = -1,
 		NONE = 0,
 		CREATURE_BANK = 1,
-		PERMANENT_BONUS,
-		NEXT_BATTLE_BONUS,
+		BONUS,
 		DWELLING,
 		RESOURCE,
 		RESOURCE_GENERATOR,
 		SPELL_SCROLL,
 		RANDOM_ARTIFACT,
 		PANDORAS_BOX,
-		QUEST_ARTIFACT
-		// TODO: Seer huts?
+		QUEST_ARTIFACT,
+		SEER_HUT
 	};
 
 	void addBannedObject(const CompoundMapObjectID & objid);
@@ -67,9 +66,8 @@ public:
 	void clearCustomObjects();
 	const std::vector<CompoundMapObjectID> & getBannedObjects() const;
 	const std::vector<EObjectCategory> & getBannedObjectCategories() const;
-	const std::vector<ObjectInfo> & getCustomObjects() const;
+	const std::vector<ObjectInfo> & getConfiguredObjects() const;
 
-	// TODO: Separate serializer
 	void serializeJson(JsonSerializeFormat & handler);
 private:
 	// TODO: Add convenience method for banning objects by name

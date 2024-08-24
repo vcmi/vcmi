@@ -22,6 +22,7 @@
 				"minesLikeZone" : { "type" : "number" },
 				"terrainTypeLikeZone" : { "type" : "number" },
 				"treasureLikeZone" : { "type" : "number" },
+				"customObjectsLikeZone" : { "type" : "number" },
 				
 				"terrainTypes": {"$ref" : "#/definitions/stringArray"},
 				"bannedTerrains": {"$ref" : "#/definitions/stringArray"},

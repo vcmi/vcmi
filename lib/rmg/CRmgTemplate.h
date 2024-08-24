@@ -151,15 +151,15 @@ public:
 	void setSize(int value);
 	std::optional<int> getOwner() const;
 
-	const std::set<TerrainId> getTerrainTypes() const;
+	std::set<TerrainId> getTerrainTypes() const;
 	void setTerrainTypes(const std::set<TerrainId> & value);
 	std::set<TerrainId> getDefaultTerrainTypes() const;
 
 	const CTownInfo & getPlayerTowns() const;
 	const CTownInfo & getNeutralTowns() const;
 	std::set<FactionID> getDefaultTownTypes() const;
-	const std::set<FactionID> getTownTypes() const;
-	const std::set<FactionID> getMonsterTypes() const;
+	std::set<FactionID> getTownTypes() const;
+	std::set<FactionID> getMonsterTypes() const;
 
 	void setTownTypes(const std::set<FactionID> & value);
 	void setMonsterTypes(const std::set<FactionID> & value);
@@ -169,7 +169,7 @@ public:
 
 	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
 	void addTreasureInfo(const CTreasureInfo & value);
-	const std::vector<CTreasureInfo> & getTreasureInfo() const;
+	std::vector<CTreasureInfo> getTreasureInfo() const;
 	ui32 getMaxTreasureValue() const;
 	void recalculateMaxTreasureValue();
 
@@ -188,9 +188,15 @@ public:
 	bool areTownsSameType() const;
 	bool isMatchTerrainToTown() const;
 
+	// Get a group of configured objects
 	const std::vector<CompoundMapObjectID> & getBannedObjects() const;
 	const std::vector<ObjectConfig::EObjectCategory> & getBannedObjectCategories() const;
-	const std::vector<ObjectInfo> & getCustomObjects() const;
+	const std::vector<ObjectInfo> & getConfiguredObjects() const;
+
+	// Copy whole custom object config from another zone
+	ObjectConfig getCustomObjects() const;
+	void setCustomObjects(const ObjectConfig & value);
+	TRmgTemplateZoneId	getCustomObjectsLikeZone() const;
 
 protected:
 	TRmgTemplateZoneId id;
@@ -222,6 +228,7 @@ protected:
 	TRmgTemplateZoneId minesLikeZone;
 	TRmgTemplateZoneId terrainTypeLikeZone;
 	TRmgTemplateZoneId treasureLikeZone;
+	TRmgTemplateZoneId customObjectsLikeZone;
 };
 
 }
@@ -294,6 +301,15 @@ private:
 
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
+
+	template<typename T>
+	T inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone, 
+						  T (rmg::ZoneOptions::*getter)() const,
+						  void (rmg::ZoneOptions::*setter)(const T&),
+						  TRmgTemplateZoneId (rmg::ZoneOptions::*inheritFrom)() const,
+						  const std::string& propertyString,
+						  uint32_t iteration = 0);
+
 };
 
 VCMI_LIB_NAMESPACE_END
