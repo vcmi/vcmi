@@ -273,7 +273,11 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, const StatisticDa
 		},
 		{
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.daysSurvived"), [this](PlayerColor color){
-				return CStatisticScreen::getDay(playerDataFilter(color).size());
+				auto playerData = playerDataFilter(color);
+				for(int i = 0; i < playerData.size(); i++)
+					if(playerData[i].status == EPlayerStatus::LOSER)
+						return CStatisticScreen::getDay(i + 1);
+				return CStatisticScreen::getDay(playerData.size());
 			}
 		},
 		{
