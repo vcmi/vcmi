@@ -411,11 +411,8 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
 {
 	// FIXME: Crash with no further log
-	//"core:object.creatureBank.experimentalShop",
-	//"core:object.creatureBank.wolfRiderPicket",
-	//"core:object.creatureBank.demonDomain"
 
-		// TODO: Use existing utilities for parsing id?	
+	// TODO: Use existing utilities for parsing id?	
 	JsonNode node(objectName);
 	auto modScope = node.getModScope();
 

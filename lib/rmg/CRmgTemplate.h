@@ -139,32 +139,6 @@ public:
 		TRmgTemplateZoneId sourceZone = NO_ZONE;
 	};
 
-	// TODO: Store config for custom objects to spawn in this zone
-	// TODO: Read custom object config from zone file
-	class DLL_LINKAGE ObjectConfig
-	{
-	public:
-		//ObjectConfig() = default;
-
-		void addBannedObject(const CompoundMapObjectID & objid);
-		void addCustomObject(const ObjectInfo & object);
-		void clearBannedObjects();
-		void clearCustomObjects();
-		const std::vector<CompoundMapObjectID> & getBannedObjects() const;
-		const std::vector<ObjectInfo> & getCustomObjects() const;
-
-		// TODO: Separate serializer
-		void serializeJson(JsonSerializeFormat & handler);
-	private:
-		// TODO: Add convenience method for banning objects by name
-		std::vector<CompoundMapObjectID> bannedObjects;
-
-		// TODO: In what format should I store custom objects?
-		// Need to convert map serialization format to ObjectInfo
-		std::vector<ObjectInfo> customObjects;
-	};
-	// TODO: Allow to copy all custom objects config from another zone
-
 	ZoneOptions();
 
 	TRmgTemplateZoneId getId() const;
@@ -215,6 +189,7 @@ public:
 	bool isMatchTerrainToTown() const;
 
 	const std::vector<CompoundMapObjectID> & getBannedObjects() const;
+	const std::vector<ObjectConfig::EObjectCategory> & getBannedObjectCategories() const;
 	const std::vector<ObjectInfo> & getCustomObjects() const;
 
 protected:

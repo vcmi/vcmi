@@ -49,6 +49,9 @@
 						},
 						"additionalProperties" : false
 					}
+				},
+				"customObjects" : {
+					"type" : "object"
 				}
 			}
 		},

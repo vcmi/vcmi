@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "TreasurePlacer.h"
+#include "../CRmgTemplate.h"
 #include "../CMapGenerator.h"
 #include "../Functions.h"
 #include "ObjectManager.h"
@@ -1133,6 +1134,19 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone)
 		}
 	}
 	*/
+	auto bannedObjectCategories = zone.getBannedObjectCategories();
+	auto categoriesSet = std::unordered_set<ObjectConfig::EObjectCategory>(bannedObjectCategories.begin(), bannedObjectCategories.end());
+
+	vstd::erase_if(possibleObjects, [this, &categoriesSet](const ObjectInfo & oi) -> bool
+	{
+		auto category = getObjectCategory(oi.templates.front()->id);
+		if (categoriesSet.count(category))
+		{
+			logGlobal->info("Removing object %s from possible objects", oi.templates.front()->stringID);
+			return true;
+		}
+		return false;
+	});
 
 	vstd::erase_if(possibleObjects, [&zone](const ObjectInfo & object)
 	{
@@ -1178,6 +1192,66 @@ void TreasurePlacer::ObjectPool::discardObjectsAboveValue(ui32 value)
 	{
 		return oi.value > value;
 	});
+}
+
+ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(MapObjectID id)
+{
+	auto name = VLC->objtypeh->getObjectHandlerName(id);
+
+	if (name == "configurable")
+	{
+		// TODO: Need to check configuration here.
+		// Possible otions: PERMANENT_BONUS, NEXT_BATTLE_BONUS, RESOURCE
+		return ObjectConfig::EObjectCategory::RESOURCE;
+	}
+	else if (name == "dwelling" || name == "randomDwelling")
+	{
+		// TODO: Special handling for different tiers
+		return ObjectConfig::EObjectCategory::DWELLING;
+	}
+	else if (name == "bank")
+		return ObjectConfig::EObjectCategory::CREATURE_BANK;
+	else if (name == "market")
+		return ObjectConfig::EObjectCategory::OTHER;
+	else if (name == "hillFort")
+		return ObjectConfig::EObjectCategory::OTHER;
+	else if (name == "resource" || name == "randomResource")
+		return ObjectConfig::EObjectCategory::RESOURCE;
+	else if (name == "randomArtifact") //"artifact"
+		return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
+	else if (name == "denOfThieves")
+		return ObjectConfig::EObjectCategory::OTHER;
+	else if (name == "lighthouse")
+	{
+		// TODO: So far Lighthouse is not generated
+		// Also, it gives global bonus as long as owned
+		return ObjectConfig::EObjectCategory::PERMANENT_BONUS;
+	}
+	else if (name == "magi")
+		return ObjectConfig::EObjectCategory::OTHER;
+	else if (name == "mine")
+		return ObjectConfig::EObjectCategory::RESOURCE_GENERATOR;
+	else if (name == "pandora")
+		return ObjectConfig::EObjectCategory::PANDORAS_BOX;
+	else if (name == "prison")
+	{
+		// TODO: Prisons are configurable
+		return ObjectConfig::EObjectCategory::OTHER;
+	}
+	else if (name == "seerHut")
+	{
+		// quest artifacts are configurable, but what about seer huts?
+		return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
+	}
+	else if (name == "siren")
+		return ObjectConfig::EObjectCategory::NEXT_BATTLE_BONUS;
+	else if (name == "obelisk")
+		return ObjectConfig::EObjectCategory::OTHER;
+
+	// TODO: ObjectConfig::EObjectCategory::SPELL_SCROLL
+
+	// Not interesting for us
+	return ObjectConfig::EObjectCategory::NONE;
 }
 
 VCMI_LIB_NAMESPACE_END
