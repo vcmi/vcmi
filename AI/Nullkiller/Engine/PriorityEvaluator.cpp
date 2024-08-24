@@ -1384,10 +1384,19 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 		switch (priorityTier)
 		{
-			case 0: //Take towns
+			case 1: //Defend immediately threatened towns
+			{
+				if (evaluationContext.isDefend && evaluationContext.threatTurns == 0 && evaluationContext.turn == 0)
+					score = evaluationContext.armyInvolvement;
+				score *= evaluationContext.closestWayRatio;
+				if (evaluationContext.movementCost > 0)
+					score /= evaluationContext.movementCost;
+				break;
+			}
+			case 2: //Take towns
 			{
 				//score += evaluationContext.conquestValue * 1000;
-				if(evaluationContext.conquestValue > 0 || (evaluationContext.defenseValue >= CGTownInstance::EFortLevel::CITADEL && evaluationContext.turn <= 1 && evaluationContext.threat > evaluationContext.armyInvolvement && evaluationContext.threatTurns <= 1))
+				if(evaluationContext.conquestValue > 0)
 					score = 1000;
 				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.turn > 0 && !ai->cb->getTownsInfo().empty()))
 					return 0;
@@ -1398,7 +1407,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score /= evaluationContext.movementCost;
 				break;
 			}
-			case 1: //Collect unguarded stuff
+			case 3: //Collect unguarded stuff
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1)
 					return 0;
@@ -1428,7 +1437,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score /= evaluationContext.movementCost;
 				break;
 			}
-			case 2: //Collect guarded stuff
+			case 4: //Collect guarded stuff
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend)
 					return 0;
@@ -1454,7 +1463,16 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				}
 				break;
 			}
-			case 3: //For buildings and buying army
+			case 5: //Defend whatever if nothing else is to do
+			{
+				if (evaluationContext.isDefend)
+					score = evaluationContext.armyInvolvement;
+				score *= evaluationContext.closestWayRatio;
+				if (evaluationContext.movementCost > 0)
+					score /= evaluationContext.movementCost;
+				break;
+			}
+			case 0: //For buildings and buying army
 			{
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;

@@ -103,7 +103,7 @@ public:
 	~PriorityEvaluator();
 	void initVisitTile();
 
-	float evaluate(Goals::TSubgoal task, int priorityTier = 3);
+	float evaluate(Goals::TSubgoal task, int priorityTier = 0);
 
 private:
 	const Nullkiller * ai;

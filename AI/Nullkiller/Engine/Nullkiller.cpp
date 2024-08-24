@@ -408,7 +408,7 @@ void Nullkiller::makeTurn()
 
 		TTaskVec selectedTasks;
 		int prioOfTask = 0;
-		for (int prio = 0; prio <= 2; ++prio)
+		for (int prio = 1; prio <= 5; ++prio)
 		{
 			prioOfTask = prio;
 			selectedTasks = buildPlan(bestTasks, prio);
