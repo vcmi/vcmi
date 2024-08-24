@@ -381,9 +381,15 @@ void MapController::pasteFromClipboard(int level)
 	if(_clipboardShiftIndex == int3::getDirs().size())
 		_clipboardShiftIndex = 0;
 	
+	QStringList errors;
 	for(auto & objUniquePtr : _clipboard)
 	{
 		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		QString errorMsg;
+		if (!canPlaceObject(level, obj, errorMsg))
+		{
+			errors.push_back(std::move(errorMsg));
+		}
 		auto newPos = objUniquePtr->pos + shift;
 		if(_map->isInTheMap(newPos))
 			obj->pos = newPos;
@@ -394,6 +400,8 @@ void MapController::pasteFromClipboard(int level)
 		_scenes[level]->selectionObjectsView.selectObject(obj);
 		_mapHandler->invalidate(obj);
 	}
+
+	QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
 	
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->passabilityView.update();
@@ -565,13 +573,13 @@ bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString
 	{
 		auto typeName = QString::fromStdString(newObj->typeName);
 		auto subTypeName = QString::fromStdString(newObj->subTypeName);
-		error = QString("There can be only one grail object on the map");
+		error = QObject::tr("There can only be one grail object on the map.");
 		return false; //maplimit reached
 	}
 	
 	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
 	{
-		error = "Hero cannot be created as NEUTRAL";
+		error = QObject::tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(newObj->instanceName));
 		return false;
 	}
 	
