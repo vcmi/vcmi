@@ -790,7 +790,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	};
 	auto castToPerform = *vstd::maxElementByFun(possibleCasts, pscValue);
 
-	if(castToPerform.value > cachedScore)
+	if(castToPerform.value > cachedScore && castToPerform.value > 0)
 	{
 		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
