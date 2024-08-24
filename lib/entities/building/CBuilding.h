@@ -86,7 +86,7 @@ public:
 	STRONG_INLINE
 		bool IsTradeBuilding() const
 	{
-		return bid == BuildingID::MARKETPLACE || subId == BuildingSubID::ARTIFACT_MERCHANT || subId == BuildingSubID::FREELANCERS_GUILD;
+		return !marketModes.empty();
 	}
 
 	void addNewBonus(const std::shared_ptr<Bonus> & b, BonusList & bonusList) const;

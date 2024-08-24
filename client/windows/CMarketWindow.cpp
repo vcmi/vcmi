@@ -27,6 +27,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
+#include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGMarket.h"
@@ -182,13 +183,28 @@ void CMarketWindow::initWidgetInternals(const EMarketMode mode, const std::pair<
 	redraw();
 }
 
+std::string CMarketWindow::getMarketTitle(const ObjectInstanceID marketId, const EMarketMode mode) const
+{
+	assert(LOCPLINT->cb->getMarket(marketId));
+	assert(vstd::contains(LOCPLINT->cb->getMarket(marketId)->availableModes(), mode));
+
+	if(const auto town = LOCPLINT->cb->getTown(marketId))
+	{
+		for(const auto & buildingId : town->getBuildings())
+		{
+			if(const auto building = town->town->buildings.at(buildingId); vstd::contains(building->marketModes, mode))
+				return building->getNameTranslated();
+		}
+	}
+	return LOCPLINT->cb->getObj(marketId)->getObjectName();
+}
+
 void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION;
 
 	background = createBg(ImagePath::builtin("TPMRKABS.bmp"), PLAYER_COLORED);
-	marketWidget = std::make_shared<CArtifactsBuying>(market, hero, LOCPLINT->cb->getTown(market->getObjInstanceID()) ?
-		VLC->generaltexth->translate("building.core.conflux.special1.name") : CGI->generaltexth->allTexts[349]);
+	marketWidget = std::make_shared<CArtifactsBuying>(market, hero, getMarketTitle(market->getObjInstanceID(), EMarketMode::RESOURCE_ARTIFACT));
 	initWidgetInternals(EMarketMode::RESOURCE_ARTIFACT, CGI->generaltexth->zelp[600]);
 }
 
@@ -200,9 +216,7 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 	// Create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 	artSlotBack = std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 0, 0);
 	artSlotBack->moveTo(pos.topLeft() + Point(18, 339));
-	const auto mapObj = LOCPLINT->cb->getObj(market->getObjInstanceID());
-	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero, LOCPLINT->cb->getTown(mapObj->id) ?
-		VLC->generaltexth->translate("building.core.conflux.special1.name") : mapObj->getObjectName());
+	auto artsSellingMarket = std::make_shared<CArtifactsSelling>(market, hero, getMarketTitle(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE));
 	artSets.clear();
 	const auto heroArts = artsSellingMarket->getAOHset();
 	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition){showArifactInfo(*heroArts, artPlace, cursorPosition);};

@@ -908,12 +908,7 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 
 bool CGTownInstance::hasBuiltSomeTradeBuilding() const
 {
-	for(const auto & bid : builtBuildings)
-	{
-		if(town->buildings.at(bid)->IsTradeBuilding())
-			return true;
-	}
-	return false;
+	return availableModes().empty() ? false : true;
 }
 
 bool CGTownInstance::hasBuilt(BuildingSubID::EBuildingSubID buildingID) const
