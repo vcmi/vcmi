@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CArmedInstance.h"
+#include "IOwnableObject.h"
 #include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -148,16 +149,13 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGMine : public CArmedInstance
+class DLL_LINKAGE CGMine : public CArmedInstance, public IOwnableObject
 {
 public:
 	GameResID producedResource;
 	ui32 producedQuantity;
 	std::set<GameResID> abandonedMineResources;
-	
 	bool isAbandoned() const;
-	ResourceSet dailyIncome() const;
-
 private:
 	using CArmedInstance::CArmedInstance;
 
@@ -166,7 +164,6 @@ private:
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	void flagMine(const PlayerColor & player) const;
-	void newTurn(vstd::RNG & rand) const override;
 	void initObj(vstd::RNG & rand) override;
 
 	std::string getObjectName() const override;
@@ -182,6 +179,9 @@ public:
 	}
 	ui32 defaultResProduction() const;
 	ui32 getProducedQuantity() const;
+
+	ResourceSet dailyIncome() const override;
+	const IOwnableObject * asOwnable() const final;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;

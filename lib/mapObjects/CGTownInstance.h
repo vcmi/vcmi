@@ -11,6 +11,7 @@
 
 #include "IMarket.h"
 #include "CGDwelling.h"
+#include "IOwnableObject.h"
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
@@ -47,7 +48,7 @@ struct DLL_LINKAGE GrowthInfo
 	int handicapPercentage;
 };
 
-class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
+class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader, public IOwnableObject
 {
 	std::string nameTextId; // name of town
 
@@ -181,7 +182,9 @@ public:
 	std::set<BuildingID> getBuildings() const;
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
-	TResources dailyIncome() const; //calculates daily income of this town
+	ResourceSet dailyIncome() const override;
+	const IOwnableObject * asOwnable() const final;
+
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;

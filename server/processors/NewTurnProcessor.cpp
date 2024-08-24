@@ -23,6 +23,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/IOwnableObject.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/pathfinder/TurnInfo.h"
@@ -87,20 +88,12 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 
 ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool newWeek)
 {
-	const auto & playerSettings = gameHandler->gameState()->scenarioOps->getIthPlayersSettings(playerID);
+	const auto & playerSettings = gameHandler->getPlayerSettings(playerID);
 	const PlayerState & state = gameHandler->gameState()->players.at(playerID);
 	ResourceSet income;
 
-	for (const auto & hero : state.heroes)
-	{
-		for (GameResID k : GameResID::ALL_RESOURCES())
-			income[k] += hero->valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
-	}
-
 	for (const auto & town : state.towns)
 	{
-		income += town->dailyIncome();
-
 		if (newWeek && town->hasBuilt(BuildingSubID::TREASURY))
 		{
 			//give 10% of starting gold
@@ -150,7 +143,15 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 			income[EGameResID::CRYSTAL] += 3;
 	}
 
-	TResources incomeHandicapped = income * playerSettings.handicap.percentIncome / 100;
+	TResources incomeHandicapped = income;
+	incomeHandicapped.applyHandicap(playerSettings->handicap.percentIncome);
+
+	// FIXME: store pre-filtered, all owned objects in PlayerState
+	for (auto obj : gameHandler->gameState()->map->objects)
+	{
+		if (obj && obj->asOwnable() && obj->getOwner() == playerID)
+			incomeHandicapped += obj->asOwnable()->dailyIncome();
+	}
 
 	return incomeHandicapped;
 }

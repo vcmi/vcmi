@@ -35,6 +35,7 @@ public:
 	PlayerColor getOwner() const override;
 	MapObjectID getObjGroupIndex() const override;
 	MapObjectSubID getObjTypeIndex() const override;
+	const IOwnableObject * asOwnable() const override;
 
 	int3 visitablePos() const override;
 	int3 getPosition() const override;

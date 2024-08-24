@@ -643,8 +643,11 @@ void CGameHandler::onNewTurn()
 			throw std::runtime_error("Invalid player in player state! Player " + std::to_string(player.first.getNum()) + ", map name: " + gs->map->name.toString() + ", map description: " + gs->map->description.toString());
 	}
 
-	for (const auto & player : gs->players)
-		n.playerIncome[player.first] = newTurnProcessor->generatePlayerIncome(player.first, newWeek && !firstTurn);
+	if (!firstTurn)
+	{
+		for (const auto & player : gs->players)
+			n.playerIncome[player.first] = newTurnProcessor->generatePlayerIncome(player.first, newWeek);
+	}
 
 	if (newWeek && !firstTurn)
 	{

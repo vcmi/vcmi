@@ -314,9 +314,7 @@ void BuildAnalyzer::updateDailyIncome()
 		const CGMine* mine = dynamic_cast<const CGMine*>(obj);
 
 		if(mine)
-		{
-			dailyIncome[mine->producedResource.getNum()] += mine->getProducedQuantity();
-		}
+			dailyIncome += mine->dailyIncome();
 	}
 
 	for(const CGTownInstance* town : towns)

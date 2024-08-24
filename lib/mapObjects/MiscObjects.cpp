@@ -93,18 +93,6 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	flagMine(h->tempOwner);
-
-}
-
-void CGMine::newTurn(vstd::RNG & rand) const
-{
-	if(cb->getDate() == 1)
-		return;
-
-	if (tempOwner == PlayerColor::NEUTRAL)
-		return;
-
-	cb->giveResource(tempOwner, producedResource, getProducedQuantity());
 }
 
 void CGMine::initObj(vstd::RNG & rand)
@@ -139,10 +127,18 @@ bool CGMine::isAbandoned() const
 	return subID.getNum() >= 7;
 }
 
+const IOwnableObject * CGMine::asOwnable() const
+{
+	return this;
+}
+
 ResourceSet CGMine::dailyIncome() const
 {
 	ResourceSet result;
 	result[producedResource] += defaultResProduction();
+
+	const auto & playerSettings = cb->getPlayerSettings(getOwner());
+	result.applyHandicap(playerSettings->handicap.percentIncome);
 
 	return result;
 }

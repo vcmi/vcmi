@@ -255,20 +255,18 @@ si64 Statistic::getTotalExperience(const PlayerState * ps)
 // get total gold income
 int Statistic::getIncome(const CGameState * gs, const PlayerState * ps)
 {
-	int percentIncome = gs->getStartInfo()->getIthPlayersSettings(ps->color).handicap.percentIncome;
 	int totalIncome = 0;
 
 	//Heroes can produce gold as well - skill, specialty or arts
 	for(const auto & h : ps->heroes)
-		totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD)))) * percentIncome / 100;
+		totalIncome += h->dailyIncome()[EGameResID::GOLD];
 
 	//Add town income of all towns
 	for(const auto & t : ps->towns)
 		totalIncome += t->dailyIncome()[EGameResID::GOLD];
 
 	for(const CGMine * mine : getMines(gs, ps))
-		if(mine->producedResource == EGameResID::GOLD)
-			totalIncome += mine->getProducedQuantity();
+			totalIncome += mine->dailyIncome()[EGameResID::GOLD];
 
 	return totalIncome;
 }

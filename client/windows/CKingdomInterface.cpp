@@ -585,9 +585,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 			const CGMine * mine = dynamic_cast<const CGMine *>(object);
 			assert(mine);
 			minesCount[mine->producedResource]++;
-
-			if (mine->producedResource == EGameResID::GOLD)
-				totalIncome += mine->getProducedQuantity();
+			totalIncome += mine->dailyIncome()[EGameResID::GOLD];
 		}
 	}
 
@@ -596,7 +594,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	auto * playerSettings = LOCPLINT->cb->getPlayerSettings(LOCPLINT->playerID);
 	for(auto & hero : heroes)
 	{
-		totalIncome += hero->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD)))) * playerSettings->handicap.percentIncome / 100;
+		totalIncome += hero->dailyIncome()[EGameResID::GOLD];
 	}
 
 	//Add town income of all towns

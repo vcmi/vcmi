@@ -225,11 +225,14 @@ TResources CGTownInstance::dailyIncome() const
 		}
 	}
 
-	auto playerSettings = cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner());
-	for(TResources::nziterator it(ret); it.valid(); it++)
-		// always round up income - we don't want to always produce zero if handicap in use
-		ret[it->resType] = vstd::divideAndCeil(ret[it->resType] * playerSettings.handicap.percentIncome, 100);
+	const auto & playerSettings = cb->getPlayerSettings(getOwner());
+	ret.applyHandicap(playerSettings->handicap.percentIncome);
 	return ret;
+}
+
+const IOwnableObject * CGTownInstance::asOwnable() const
+{
+	return this;
 }
 
 bool CGTownInstance::hasFort() const
