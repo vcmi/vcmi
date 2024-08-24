@@ -1894,8 +1894,9 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 	{
 		if (town->hasBuilt(myID))
 			build = town->town->buildings.at(myID);
-		myID.advance(town->town->creatures.size());
+		BuildingID::advanceDwelling(myID);
 	}
+
 	return build;
 }
 
