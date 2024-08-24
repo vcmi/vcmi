@@ -16,6 +16,7 @@
 #include "ServerSpellCastEnvironment.h"
 #include "battles/BattleProcessor.h"
 #include "processors/HeroPoolProcessor.h"
+#include "processors/NewTurnProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
@@ -489,6 +490,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
+	, newTurnProcessor(std::make_unique<NewTurnProcessor>(this))
 {
 	QID = 1;
 
@@ -582,54 +584,12 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 {
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
 	turnTimerHandler->onPlayerGetTurn(which);
-
-	const auto * playerState = gs->getPlayerState(which);
-
-	handleTimeEvents(which);
-	for (auto t : playerState->towns)
-		handleTownEvents(t);
-
-	for (auto t : playerState->towns)
-	{
-		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		if (t->garrisonHero != nullptr)
-			objectVisited(t, t->garrisonHero);
-
-		if (t->visitingHero != nullptr)
-			objectVisited(t, t->visitingHero);
-	}
+	newTurnProcessor->onPlayerTurnStarted(which);
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
-	const auto * playerState = gs->getPlayerState(which);
-	assert(playerState->status == EPlayerStatus::INGAME);
-
-	if (playerState->towns.empty())
-	{
-		DaysWithoutTown pack;
-		pack.player = which;
-		pack.daysWithoutCastle = playerState->daysWithoutCastle.value_or(0) + 1;
-		sendAndApply(&pack);
-	}
-	else
-	{
-		if (playerState->daysWithoutCastle.has_value())
-		{
-			DaysWithoutTown pack;
-			pack.player = which;
-			pack.daysWithoutCastle = std::nullopt;
-			sendAndApply(&pack);
-		}
-	}
-
-	// check for 7 days without castle
-	checkVictoryLossConditionsForPlayer(which);
-
-	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; // end of 7th day
-
-	if (newWeek) //new heroes in tavern
-		heroPool->onNewWeek(which);
+	newTurnProcessor->onPlayerTurnEnded(which);
 }
 
 void CGameHandler::addStatistics(StatisticDataSet &stat) const
@@ -682,6 +642,9 @@ void CGameHandler::onNewTurn()
 		if (player.second.heroes.empty() && player.second.towns.empty())
 			throw std::runtime_error("Invalid player in player state! Player " + std::to_string(player.first.getNum()) + ", map name: " + gs->map->name.toString() + ", map description: " + gs->map->description.toString());
 	}
+
+	for (const auto & player : gs->players)
+		n.playerIncome[player.first] = newTurnProcessor->generatePlayerIncome(player.first, newWeek && !firstTurn);
 
 	if (newWeek && !firstTurn)
 	{
@@ -758,49 +721,6 @@ void CGameHandler::onNewTurn()
 		if (firstTurn)
 			heroPool->onNewWeek(elem.first);
 
-		n.res[elem.first] = elem.second.resources;
-
-		if(!firstTurn)
-		{
-			for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
-			{
-				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k)) * playerSettings.handicap.percentIncome / 100;
-				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * elem.second.towns.size() * playerSettings.handicap.percentIncome / 100;
-			}
-
-			if(newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
-			{
-				bool hasCrystalGenCreature = false;
-				for(CGHeroInstance * hero : elem.second.heroes)
-				{
-					for(auto stack : hero->stacks)
-					{
-						if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
-						{
-							hasCrystalGenCreature = true;
-							break;
-						}
-					}
-				}
-				if(!hasCrystalGenCreature) //not found in armies, check towns
-				{
-					for(CGTownInstance * town : elem.second.towns)
-					{
-						for(auto stack : town->stacks)
-						{
-							if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
-							{
-								hasCrystalGenCreature = true;
-								break;
-							}
-						}
-					}
-				}
-				if(hasCrystalGenCreature)
-					n.res[elem.first][EGameResID::CRYSTAL] += 3 * playerSettings.handicap.percentIncome / 100;
-			}
-		}
-
 		for (CGHeroInstance *h : (elem).second.heroes)
 		{
 			if (h->visitedTown)
@@ -814,14 +734,6 @@ void CGameHandler::onNewTurn()
 			hth.mana = h->getManaNewTurn();
 
 			n.heroes.insert(hth);
-
-			if (!firstTurn) //not first day
-			{
-				for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
-				{
-					n.res[elem.first][k] += h->valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k)) * playerSettings.handicap.percentIncome / 100;
-				}
-			}
 		}
 	}
 	for (CGTownInstance *t : gs->map->towns)
@@ -831,10 +743,6 @@ void CGameHandler::onNewTurn()
 		{
 			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
-
-			if (!firstTurn)
-				if (t->hasBuilt(BuildingSubID::TREASURY) && player.isValidPlayer())
-						n.res[player][EGameResID::GOLD] += hadGold.at(player)/10; //give 10% of starting gold
 
 			if (!vstd::contains(n.cres, t->id))
 			{
@@ -874,10 +782,7 @@ void CGameHandler::onNewTurn()
 				}
 			}
 		}
-		if (!firstTurn  &&  player.isValidPlayer())//not the first day and town not neutral
-		{
-			n.res[player] = n.res[player] + t->dailyIncome();
-		}
+
 		if(t->hasBuilt(BuildingID::GRAIL)
 			&& t->town->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
 		{

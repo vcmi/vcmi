@@ -1916,11 +1916,10 @@ void NewTurn::applyGs(CGameState *gs)
 
 	gs->heroesPool->onNewDay();
 
-	for(const auto & re : res)
+	for(const auto & entry : playerIncome)
 	{
-		assert(re.first.isValidPlayer());
-		gs->getPlayerState(re.first)->resources = re.second;
-		gs->getPlayerState(re.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
+		gs->getPlayerState(entry.first)->resources += entry.second;
+		gs->getPlayerState(entry.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
 	}
 
 	for(auto & creatureSet : cres) //set available creatures in towns

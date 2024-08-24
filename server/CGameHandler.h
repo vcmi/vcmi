@@ -51,6 +51,7 @@ class TurnOrderProcessor;
 class TurnTimerHandler;
 class QueriesProcessor;
 class CObjectVisitQuery;
+class NewTurnProcessor;
 
 class CGameHandler : public IGameCallback, public Environment
 {
@@ -62,6 +63,7 @@ public:
 	std::unique_ptr<QueriesProcessor> queries;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
+	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
 	std::unique_ptr<CRandomGenerator> randomNumberGenerator;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable

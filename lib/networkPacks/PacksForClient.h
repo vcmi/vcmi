@@ -1136,8 +1136,8 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 	};
 
 	std::set<Hero> heroes; //updates movement and mana points
-	std::map<PlayerColor, ResourceSet> res; //player ID => resource value[res_id]
 	std::map<ObjectInstanceID, SetAvailableCreatures> cres;//creatures to be placed in towns
+	std::map<PlayerColor, ResourceSet> playerIncome; //player ID => resource value[res_id]
 	ui32 day = 0;
 	ui8 specialWeek = 0; //weekType
 	CreatureID creatureid; //for creature weeks
@@ -1149,7 +1149,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 	{
 		h & heroes;
 		h & cres;
-		h & res;
+		h & playerIncome;
 		h & day;
 		h & specialWeek;
 		h & creatureid;
