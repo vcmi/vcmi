@@ -22,6 +22,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 {
 	hero = path.targetHero;
 	tile = path.targetTile();
+	closestWayRatio = 1;
 
 	if(obj)
 	{
