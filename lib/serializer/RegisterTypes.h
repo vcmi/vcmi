@@ -114,8 +114,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<OppositeSideLimiter>(51);
 	s.template registerType<TownBuildingInstance>(52);
 	s.template registerType<TownRewardableBuildingInstance>(53);
-	s.template registerType<CTownCompatBuilding1>(54);
-	s.template registerType<CTownCompatBuilding2>(55);
 	s.template registerType<CRewardableObject>(56);
 	s.template registerType<CTeamVisited>(57);
 	s.template registerType<CGObelisk>(58);

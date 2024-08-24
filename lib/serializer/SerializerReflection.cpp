@@ -12,7 +12,6 @@
 
 #include "BinaryDeserializer.h"
 #include "BinarySerializer.h"
-#include "CTypeList.h"
 
 #include "RegisterTypes.h"
 
@@ -36,9 +35,31 @@ public:
 	void savePtr(BinarySerializer &s, const Serializeable *data) const override
 	{
 		const Type *ptr = dynamic_cast<const Type*>(data);
-
-		//T is most derived known type, it's time to call actual serialize
 		const_cast<Type*>(ptr)->serialize(s);
+	}
+};
+
+template<typename Type, ESerializationVersion maxVersion>
+class SerializerCompatibility : public ISerializerReflection
+{
+public:
+	Serializeable * createPtr(BinaryDeserializer &ar, IGameCallback * cb) const override
+	{
+		return ClassObjectCreator<Type>::invoke(cb);
+	}
+
+	void savePtr(BinarySerializer &s, const Serializeable *data) const override
+	{
+		throw std::runtime_error("Illegal call to savePtr - this type should not be used for serialization!");
+	}
+};
+
+class SerializerCompatibilityBonusingBuilding final : public SerializerCompatibility<TownRewardableBuildingInstance, ESerializationVersion::NEW_TOWN_BUILDINGS>
+{
+	void loadPtr(BinaryDeserializer &ar, IGameCallback * cb, Serializeable * data) const override
+	{
+		auto * realPtr = dynamic_cast<TownRewardableBuildingInstance *>(data);
+		realPtr->serialize(ar);
 	}
 };
 
@@ -52,6 +73,9 @@ void CSerializationApplier::registerType(uint16_t ID)
 CSerializationApplier::CSerializationApplier()
 {
 	registerTypes(*this);
+
+	apps[54].reset(new SerializerCompatibilityBonusingBuilding);
+	apps[55].reset(new SerializerCompatibilityBonusingBuilding);
 }
 
 CSerializationApplier & CSerializationApplier::getInstance()
