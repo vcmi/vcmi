@@ -529,9 +529,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	canvas->addLine(chartArea.topLeft() + Point(0, -10), chartArea.topLeft() + Point(0, chartArea.h + 10), Colors::WHITE);
 	canvas->addLine(chartArea.topLeft() + Point(-10, chartArea.h), chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h), Colors::WHITE);
 
-	Point p = chartArea.topLeft() + Point(-5, chartArea.h + 10);
-	//layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "0"));
-	p = chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h + 10);
+	Point p = chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h + 10);
 	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CStatisticScreen::getDay(maxDay)));
 	p = chartArea.bottomLeft() + Point(chartArea.w / 2, + 20);
 	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.64")));
