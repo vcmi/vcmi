@@ -25,7 +25,7 @@ void BonusBearerMock::addNewBonus(const std::shared_ptr<Bonus> & b)
 	treeVersion++;
 }
 
-TConstBonusListPtr BonusBearerMock::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
+TConstBonusListPtr BonusBearerMock::getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr) const
 {
 	if(cachedLast != treeVersion)
 	{
