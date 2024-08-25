@@ -17,6 +17,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGTownInstance;
 class ResourceSet;
 struct SetAvailableCreatures;
+struct SetMovePoints;
+struct SetMana;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -26,6 +28,9 @@ class NewTurnProcessor : boost::noncopyable
 	CGameHandler * gameHandler;
 public:
 	NewTurnProcessor(CGameHandler * gameHandler);
+
+	std::vector<SetMana> updateHeroesManaPoints();
+	std::vector<SetMovePoints> updateHeroesMovementPoints();
 
 	ResourceSet generatePlayerIncome(PlayerColor playerID, bool newWeek);
 	SetAvailableCreatures generateTownGrowth(const CGTownInstance * town, EWeekType weekType, CreatureID creatureWeek, bool firstDay);

@@ -294,6 +294,13 @@ struct DLL_LINKAGE SetMana : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
+	SetMana() = default;
+	SetMana(ObjectInstanceID hid, si32 val, bool absolute)
+		: hid(hid)
+		, val(val)
+		, absolute(absolute)
+	{}
+
 	ObjectInstanceID hid;
 	si32 val = 0;
 	bool absolute = true;
@@ -309,6 +316,13 @@ struct DLL_LINKAGE SetMana : public CPackForClient
 struct DLL_LINKAGE SetMovePoints : public CPackForClient
 {
 	void applyGs(CGameState * gs) override;
+
+	SetMovePoints() = default;
+	SetMovePoints(ObjectInstanceID hid, si32 val, bool absolute)
+		: hid(hid)
+		, val(val)
+		, absolute(absolute)
+	{}
 
 	ObjectInstanceID hid;
 	si32 val = 0;
@@ -1119,38 +1133,27 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	struct Hero
-	{
-		ObjectInstanceID id; //id is a general serial id
-		ui32 move;
-		ui32 mana;
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & id;
-			h & move;
-			h & mana;
-		}
-		bool operator<(const Hero & h)const { return id < h.id; }
-	};
-
-	std::set<Hero> heroes; //updates movement and mana points
-	std::vector<SetAvailableCreatures> availableCreatures;//creatures to be placed in towns
-	std::map<PlayerColor, ResourceSet> playerIncome; //player ID => resource value[res_id]
 	ui32 day = 0;
-	EWeekType specialWeek = EWeekType::NORMAL;
 	CreatureID creatureid; //for creature weeks
+	EWeekType specialWeek = EWeekType::NORMAL;
+
+	std::vector<SetMovePoints> heroesMovement;
+	std::vector<SetMana> heroesMana;
+	std::vector<SetAvailableCreatures> availableCreatures;
+	std::map<PlayerColor, ResourceSet> playerIncome;
 	std::optional<RumorState> newRumor; // only on new weeks
 
 	NewTurn() = default;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & heroes;
+		h & day;
+		h & creatureid;
+		h & specialWeek;
+		h & heroesMovement;
+		h & heroesMana;
 		h & availableCreatures;
 		h & playerIncome;
-		h & day;
-		h & specialWeek;
-		h & creatureid;
 		h & newRumor;
 	}
 };

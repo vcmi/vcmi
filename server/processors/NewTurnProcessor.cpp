@@ -337,3 +337,41 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 		return { EWeekType::NORMAL, CreatureID::NONE};
 	}
 }
+
+std::vector<SetMana> NewTurnProcessor::updateHeroesManaPoints()
+{
+	std::vector<SetMana> result;
+
+	for (auto & elem : gameHandler->gameState()->players)
+	{
+		for (CGHeroInstance *h : elem.second.getHeroes())
+		{
+			int32_t newMana = h->getManaNewTurn();
+
+			if (newMana != h->mana)
+				result.emplace_back(h->id, newMana, true);
+		}
+	}
+
+	return result;
+}
+
+std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
+{
+	std::vector<SetMovePoints> result;
+
+	for (auto & elem : gameHandler->gameState()->players)
+	{
+		for (CGHeroInstance *h : elem.second.getHeroes())
+		{
+			auto ti = std::make_unique<TurnInfo>(h, 1);
+			// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
+			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
+
+			if (newMovementPoints != h->movementPointsRemaining())
+				result.emplace_back(h->id, newMovementPoints, true);
+		}
+	}
+
+	return result;
+}

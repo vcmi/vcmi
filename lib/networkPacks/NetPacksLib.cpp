@@ -1901,18 +1901,11 @@ void NewTurn::applyGs(CGameState *gs)
 	gs->globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
-	for(const NewTurn::Hero & h : heroes) //give mana/movement point
-	{
-		CGHeroInstance *hero = gs->getHero(h.id);
-		if(!hero)
-		{
-			logGlobal->error("Hero %d not found in NewTurn::applyGs", h.id.getNum());
-			continue;
-		}
+	for(const auto & manaPack : heroesMana)
+		manaPack.applyGs(gs);
 
-		hero->setMovementPoints(h.move);
-		hero->mana = h.mana;
-	}
+	for(const auto & movePack : heroesMovement)
+		movePack.applyGs(gs);
 
 	gs->heroesPool->onNewDay();
 

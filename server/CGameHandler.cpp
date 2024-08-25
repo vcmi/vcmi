@@ -617,8 +617,6 @@ void CGameHandler::onNewTurn()
 	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
 	bool newMonth = getDate(Date::DAY_OF_MONTH) == 28;
 
-	std::map<PlayerColor, si32> hadGold;//starting gold - for buildings like dwarven treasury
-
 	if (firstTurn)
 	{
 		for (auto obj : gs->map->objects)
@@ -656,36 +654,14 @@ void CGameHandler::onNewTurn()
 		n.creatureid = creatureID;
 	}
 
-	for (auto & elem : gs->players)
+	if (firstTurn)
 	{
-		if (elem.first == PlayerColor::NEUTRAL)
-			continue;
-
-		assert(elem.first.isValidPlayer());//illegal player number!
-			
-		auto playerSettings = gameState()->scenarioOps->getIthPlayersSettings(elem.first);
-
-		std::pair<PlayerColor, si32> playerGold(elem.first, elem.second.resources[EGameResID::GOLD]);
-		hadGold.insert(playerGold);
-
-		if (firstTurn)
+		for (auto & elem : gs->players)
 			heroPool->onNewWeek(elem.first);
-
-		for (CGHeroInstance *h : (elem).second.getHeroes())
-		{
-			if (h->visitedTown)
-				giveSpells(h->visitedTown, h);
-
-			NewTurn::Hero hth;
-			hth.id = h->id;
-			auto ti = std::make_unique<TurnInfo>(h, 1);
-			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			hth.move = h->movementPointsLimitCached(gs->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
-			hth.mana = h->getManaNewTurn();
-
-			n.heroes.insert(hth);
-		}
 	}
+
+	n.heroesMana = newTurnProcessor->updateHeroesManaPoints();
+	n.heroesMovement = newTurnProcessor->updateHeroesMovementPoints();
 
 	if (newWeek)
 	{
