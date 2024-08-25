@@ -151,3 +151,56 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 
 	return incomeHandicapped;
 }
+
+SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance * t, EWeekType weekType, CreatureID creatureWeek, bool firstDay)
+{
+	SetAvailableCreatures sac;
+	PlayerColor player = t->tempOwner;
+
+	sac.tid = t->id;
+	sac.creatures = t->creatures;
+
+	for (int k=0; k < t->town->creatures.size(); k++)
+	{
+		if (t->creatures.at(k).second.empty())
+			continue;
+
+		uint32_t creaturesBefore = t->creatures.at(k).first;
+		uint32_t creatureGrowth = 0;
+		const CCreature *cre = t->creatures.at(k).second.back().toCreature();
+
+		if (firstDay)
+		{
+			creatureGrowth = cre->getGrowth();
+		}
+		else
+		{
+			creatureGrowth = t->creatureGrowth(k);
+
+			//Deity of fire week - upgrade both imps and upgrades
+			if (weekType == EWeekType::DEITYOFFIRE && vstd::contains(t->creatures.at(k).second, creatureWeek))
+				creatureGrowth += 15;
+
+			//bonus week, effect applies only to identical creatures
+			if (weekType == EWeekType::BONUS_GROWTH && cre->getId() == creatureWeek)
+				creatureGrowth += 5;
+		}
+
+		// Neutral towns have halved creature growth
+		if (!player.isValidPlayer())
+			creatureGrowth /= 2;
+
+		uint32_t resultingCreatures = 0;
+
+		if (weekType == EWeekType::PLAGUE)
+			resultingCreatures = creaturesBefore / 2;
+		else if (weekType == EWeekType::DOUBLE_GROWTH)
+			resultingCreatures = (creaturesBefore + creatureGrowth) * 2;
+		else
+			resultingCreatures = creaturesBefore + creatureGrowth;
+
+		sac.creatures.at(k).first = resultingCreatures;
+	}
+
+	return sac;
+}

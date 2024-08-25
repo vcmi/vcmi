@@ -1115,8 +1115,6 @@ struct DLL_LINKAGE HeroVisit : public CPackForClient
 
 struct DLL_LINKAGE NewTurn : public CPackForClient
 {
-	enum weekType { NORMAL, DOUBLE_GROWTH, BONUS_GROWTH, DEITYOFFIRE, PLAGUE, NO_ACTION };
-
 	void applyGs(CGameState * gs) override;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -1136,10 +1134,10 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 	};
 
 	std::set<Hero> heroes; //updates movement and mana points
-	std::map<ObjectInstanceID, SetAvailableCreatures> cres;//creatures to be placed in towns
+	std::vector<SetAvailableCreatures> availableCreatures;//creatures to be placed in towns
 	std::map<PlayerColor, ResourceSet> playerIncome; //player ID => resource value[res_id]
 	ui32 day = 0;
-	ui8 specialWeek = 0; //weekType
+	EWeekType specialWeek = EWeekType::NORMAL;
 	CreatureID creatureid; //for creature weeks
 	std::optional<RumorState> newRumor; // only on new weeks
 
@@ -1148,7 +1146,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & heroes;
-		h & cres;
+		h & availableCreatures;
 		h & playerIncome;
 		h & day;
 		h & specialWeek;

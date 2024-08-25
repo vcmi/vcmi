@@ -256,4 +256,14 @@ enum class EMapLevel : int8_t
 	UNDERGROUND = 1
 };
 
+enum class EWeekType : int8_t
+{
+	FIRST_WEEK,
+	NORMAL,
+	DOUBLE_GROWTH,
+	BONUS_GROWTH,
+	DEITYOFFIRE,
+	PLAGUE
+};
+
 VCMI_LIB_NAMESPACE_END

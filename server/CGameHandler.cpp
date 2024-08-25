@@ -609,7 +609,7 @@ void CGameHandler::onNewTurn()
 {
 	logGlobal->trace("Turn %d", gs->day+1);
 	NewTurn n;
-	n.specialWeek = NewTurn::NO_ACTION;
+	n.specialWeek = EWeekType::FIRST_WEEK;
 	n.creatureid = CreatureID::NONE;
 	n.day = gs->day + 1;
 
@@ -651,7 +651,7 @@ void CGameHandler::onNewTurn()
 
 	if (newWeek && !firstTurn)
 	{
-		n.specialWeek = NewTurn::NORMAL;
+		n.specialWeek = EWeekType::NORMAL;
 		bool deityOfFireBuilt = false;
 		for (const CGTownInstance *t : gs->map->towns)
 		{
@@ -664,7 +664,7 @@ void CGameHandler::onNewTurn()
 
 		if (deityOfFireBuilt)
 		{
-			n.specialWeek = NewTurn::DEITYOFFIRE;
+			n.specialWeek = EWeekType::DEITYOFFIRE;
 			n.creatureid = CreatureID::IMP;
 		}
 		else if(VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
@@ -674,7 +674,7 @@ void CGameHandler::onNewTurn()
 			{
 				if (monthType < 40) //double growth
 				{
-					n.specialWeek = NewTurn::DOUBLE_GROWTH;
+					n.specialWeek = EWeekType::DOUBLE_GROWTH;
 					if (VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 					{
 						n.creatureid = VLC->creh->pickRandomMonster(getRandomGenerator());
@@ -686,17 +686,17 @@ void CGameHandler::onNewTurn()
 					else
 					{
 						complain("Cannot find creature that can be spawned!");
-						n.specialWeek = NewTurn::NORMAL;
+						n.specialWeek = EWeekType::NORMAL;
 					}
 				}
 				else if (monthType < 50)
-					n.specialWeek = NewTurn::PLAGUE;
+					n.specialWeek = EWeekType::PLAGUE;
 			}
 			else //it's a week, but not full month
 			{
 				if (monthType < 25)
 				{
-					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
+					n.specialWeek = EWeekType::BONUS_GROWTH; //+5
 					std::pair<int, CreatureID> newMonster(54, CreatureID());
 					do
 					{
@@ -739,52 +739,20 @@ void CGameHandler::onNewTurn()
 			n.heroes.insert(hth);
 		}
 	}
+
+	if (newWeek)
+	{
+		for (CGTownInstance *t : gs->map->towns)
+			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
+				setPortalDwelling(t, true, (n.specialWeek == EWeekType::PLAGUE ? true : false)); //set creatures for Portal of Summoning
+
+		for (CGTownInstance *t : gs->map->towns)
+			n.availableCreatures.push_back(newTurnProcessor->generateTownGrowth(t, n.specialWeek, n.creatureid, firstTurn));
+	}
+
 	for (CGTownInstance *t : gs->map->towns)
 	{
 		PlayerColor player = t->tempOwner;
-		if (newWeek) //first day of week
-		{
-			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
-				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
-
-			if (!vstd::contains(n.cres, t->id))
-			{
-				n.cres[t->id].tid = t->id;
-				n.cres[t->id].creatures = t->creatures;
-			}
-			auto & sac = n.cres.at(t->id);
-
-			for (int k=0; k < t->town->creatures.size(); k++) //creature growths
-			{
-				if (!t->creatures.at(k).second.empty()) // there are creatures at this level
-				{
-					ui32 &availableCount = sac.creatures.at(k).first;
-					const CCreature *cre = t->creatures.at(k).second.back().toCreature();
-
-					if (n.specialWeek == NewTurn::PLAGUE)
-						availableCount = t->creatures.at(k).first / 2; //halve their number, no growth
-					else
-					{
-						if (firstTurn) //first day of game: use only basic growths
-							availableCount = cre->getGrowth();
-						else
-							availableCount += t->creatureGrowth(k);
-
-						//Deity of fire week - upgrade both imps and upgrades
-						if (n.specialWeek == NewTurn::DEITYOFFIRE && vstd::contains(t->creatures.at(k).second, n.creatureid))
-							availableCount += 15;
-
-						if (cre->getId() == n.creatureid) //bonus week, effect applies only to identical creatures
-						{
-							if (n.specialWeek == NewTurn::DOUBLE_GROWTH)
-								availableCount *= 2;
-							else if (n.specialWeek == NewTurn::BONUS_GROWTH)
-								availableCount += 5;
-						}
-					}
-				}
-			}
-		}
 
 		if(t->hasBuilt(BuildingID::GRAIL)
 			&& t->town->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
@@ -835,7 +803,7 @@ void CGameHandler::onNewTurn()
 	if (newWeek)
 	{
 		//spawn wandering monsters
-		if (newMonth && (n.specialWeek == NewTurn::DOUBLE_GROWTH || n.specialWeek == NewTurn::DEITYOFFIRE))
+		if (newMonth && (n.specialWeek == EWeekType::DOUBLE_GROWTH || n.specialWeek == EWeekType::DEITYOFFIRE))
 		{
 			spawnWanderingMonsters(n.creatureid);
 		}
@@ -846,20 +814,20 @@ void CGameHandler::onNewTurn()
 			InfoWindow iw;
 			switch (n.specialWeek)
 			{
-				case NewTurn::DOUBLE_GROWTH:
+				case EWeekType::DOUBLE_GROWTH:
 					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 131);
 					iw.text.replaceNameSingular(n.creatureid);
 					iw.text.replaceNameSingular(n.creatureid);
 					break;
-				case NewTurn::PLAGUE:
+				case EWeekType::PLAGUE:
 					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 132);
 					break;
-				case NewTurn::BONUS_GROWTH:
+				case EWeekType::BONUS_GROWTH:
 					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 134);
 					iw.text.replaceNameSingular(n.creatureid);
 					iw.text.replaceNameSingular(n.creatureid);
 					break;
-				case NewTurn::DEITYOFFIRE:
+				case EWeekType::DEITYOFFIRE:
 					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 135);
 					iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
 					iw.text.replaceNameSingular(CreatureID::IMP); //%s imp

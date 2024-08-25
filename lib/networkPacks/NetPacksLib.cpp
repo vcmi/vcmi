@@ -1922,8 +1922,8 @@ void NewTurn::applyGs(CGameState *gs)
 		gs->getPlayerState(entry.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
 	}
 
-	for(auto & creatureSet : cres) //set available creatures in towns
-		creatureSet.second.applyGs(gs);
+	for(auto & creatureSet : availableCreatures) //set available creatures in towns
+		creatureSet.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
 		t->built = 0;
