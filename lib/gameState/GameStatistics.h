@@ -158,6 +158,7 @@ class DLL_LINKAGE Statistic
 	static std::vector<const CGMine *> getMines(const CGameState * gs, const PlayerState * ps);
 public:
 	static int getNumberOfArts(const PlayerState * ps);
+	static int getNumberOfDwellings(const PlayerState * ps);
 	static si64 getArmyStrength(const PlayerState * ps, bool withTownGarrison = false);
 	static si64 getTotalExperience(const PlayerState * ps);
 	static int getIncome(const CGameState * gs, const PlayerState * ps);

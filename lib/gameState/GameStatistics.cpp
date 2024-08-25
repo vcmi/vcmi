@@ -53,7 +53,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numberHeroes = ps->getHeroes().size();
 	data.numberTowns = gs->howManyTowns(ps->color);
 	data.numberArtifacts = Statistic::getNumberOfArts(ps);
-	data.numberDwellings = gs->getPlayerState(ps->color)->getDwellings().size();
+	data.numberDwellings = Statistic::getNumberOfDwellings(ps);
 	data.armyStrength = Statistic::getArmyStrength(ps, true);
 	data.totalExperience = Statistic::getTotalExperience(ps);
 	data.income = Statistic::getIncome(gs, ps);
@@ -225,6 +225,16 @@ int Statistic::getNumberOfArts(const PlayerState * ps)
 	{
 		ret += h->artifactsInBackpack.size() + h->artifactsWorn.size();
 	}
+	return ret;
+}
+
+int Statistic::getNumberOfDwellings(const PlayerState * ps)
+{
+	int ret = 0;
+	for(const auto * obj : ps->getOwnedObjects())
+		if (!obj->asOwnable()->providedCreatures().empty())
+			ret	+= 1;
+
 	return ret;
 }
 

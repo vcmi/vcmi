@@ -1943,7 +1943,7 @@ void SetObjectProperty::applyGs(CGameState *gs)
 
 	auto * cai = dynamic_cast<CArmedInstance *>(obj);
 
-	if(what == ObjProperty::OWNER)
+	if(what == ObjProperty::OWNER && obj->asOwnable())
 	{
 		PlayerColor oldOwner = obj->getOwner();
 		PlayerColor newOwner = identifier.as<PlayerColor>();

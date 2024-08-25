@@ -167,6 +167,7 @@ public:
 	bool needsLastStack()const override;
 
 	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
 	const IOwnableObject * asOwnable() const final;
 
 	//INativeTerrainProvider

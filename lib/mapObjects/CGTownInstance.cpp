@@ -181,7 +181,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
 	{
-		dwellingBonus = getDwellingBonus(creatures[level].second, p->getDwellings());
+		dwellingBonus = getDwellingBonus(creatures[level].second, p->getOwnedObjects());
 	}
 	if(dwellingBonus)
 		ret.entries.emplace_back(VLC->generaltexth->allTexts[591], dwellingBonus); // \nExternal dwellings %+d
@@ -192,15 +192,18 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	return ret;
 }
 
-int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGDwelling * >& dwellings) const
+int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance * >& dwellings) const
 {
 	int totalBonus = 0;
 	for (const auto& dwelling : dwellings)
 	{
-		for (const auto& creature : dwelling->creatures)
-		{
-			totalBonus += vstd::contains(creatureIds, creature.second[0]) ? 1 : 0;
-		}
+		const auto & dwellingCreatures = dwelling->asOwnable()->providedCreatures();
+		bool hasMatch = false;
+		for (const auto& creature : dwellingCreatures)
+			hasMatch = vstd::contains(creatureIds, creature);
+
+		if (hasMatch)
+			totalBonus += 1;
 	}
 	return totalBonus;
 }
@@ -230,9 +233,9 @@ TResources CGTownInstance::dailyIncome() const
 	return ret;
 }
 
-const IOwnableObject * CGTownInstance::asOwnable() const
+std::vector<CreatureID> CGTownInstance::providedCreatures() const
 {
-	return this;
+	return {};
 }
 
 bool CGTownInstance::hasFort() const

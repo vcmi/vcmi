@@ -11,7 +11,6 @@
 
 #include "IMarket.h"
 #include "CGDwelling.h"
-#include "IOwnableObject.h"
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
@@ -48,7 +47,7 @@ struct DLL_LINKAGE GrowthInfo
 	int handicapPercentage;
 };
 
-class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader, public IOwnableObject
+class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
 {
 	std::string nameTextId; // name of town
 
@@ -183,7 +182,7 @@ public:
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
 	ResourceSet dailyIncome() const override;
-	const IOwnableObject * asOwnable() const final;
+	std::vector<CreatureID> providedCreatures() const override;
 
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
@@ -239,7 +238,7 @@ private:
 	FactionID randomizeFaction(vstd::RNG & rand);
 	void setOwner(const PlayerColor & owner) const;
 	void onTownCaptured(const PlayerColor & winner) const;
-	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGDwelling* >& dwellings) const;
+	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	void initializeConfigurableBuildings(vstd::RNG & rand);
 };

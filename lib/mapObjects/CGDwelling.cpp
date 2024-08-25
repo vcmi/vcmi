@@ -534,4 +534,26 @@ void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
+const IOwnableObject * CGDwelling::asOwnable() const
+{
+	return this;
+}
+
+ResourceSet CGDwelling::dailyIncome() const
+{
+	return {};
+}
+
+std::vector<CreatureID> CGDwelling::providedCreatures() const
+{
+	if (ID == Obj::WAR_MACHINE_FACTORY || ID == Obj::REFUGEE_CAMP)
+		return {};
+
+	std::vector<CreatureID> result;
+	for (const auto & level : creatures)
+		result.insert(result.end(), level.second.begin(), level.second.end());
+
+	return result;
+}
+
 VCMI_LIB_NAMESPACE_END

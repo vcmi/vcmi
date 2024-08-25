@@ -97,7 +97,6 @@ public:
 	std::vector<CGHeroInstance* > getHeroes();
 	std::vector<CGTownInstance* > getTowns();
 
-	std::vector<const CGDwelling* > getDwellings() const;
 	std::vector<const CGObjectInstance* > getOwnedObjects() const;
 
 	void addOwnedObject(CGObjectInstance * object);

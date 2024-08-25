@@ -12,11 +12,19 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class ResourceSet;
+class CreatureID;
 
 class DLL_LINKAGE IOwnableObject
 {
 public:
+	/// Fixed daily income of this object
+	/// May not include random or periodical (e.g. weekly) income sources
 	virtual ResourceSet dailyIncome() const = 0;
+
+	/// List of creatures that are provided by this building
+	/// For use in town dwellings growth bonus and for portal of summoning
+	virtual std::vector<CreatureID> providedCreatures() const = 0;
+
 	virtual ~IOwnableObject() = default;
 };
 

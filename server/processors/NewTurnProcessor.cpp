@@ -147,10 +147,7 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	incomeHandicapped.applyHandicap(playerSettings->handicap.percentIncome);
 
 	for (auto obj :	state.getOwnedObjects())
-	{
-		if (obj->asOwnable())
-			incomeHandicapped += obj->asOwnable()->dailyIncome();
-	}
+		incomeHandicapped += obj->asOwnable()->dailyIncome();
 
 	return incomeHandicapped;
 }

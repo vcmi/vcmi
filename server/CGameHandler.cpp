@@ -555,25 +555,25 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 			ssi.creatures = town->creatures;
 			ssi.creatures[town->town->creatures.size()].second.clear();//remove old one
 
-			const auto &dwellings = p->getDwellings();
-			if (dwellings.empty())//no dwellings - just remove
+			std::set<CreatureID> availableCreatures;
+			for (const auto & dwelling : p->getOwnedObjects())
 			{
-				sendAndApply(&ssi);
-				return;
+				const auto & dwellingCreatures = dwelling->asOwnable()->providedCreatures();
+				availableCreatures.insert(dwellingCreatures.begin(), dwellingCreatures.end());
 			}
 
-			auto dwelling = *RandomGeneratorUtil::nextItem(dwellings, getRandomGenerator());
+			if (availableCreatures.empty())
+				return;
 
-			// for multi-creature dwellings like Golem Factory
-			auto creatureId = RandomGeneratorUtil::nextItem(dwelling->creatures, getRandomGenerator())->second[0];
+			CreatureID creatureId = *RandomGeneratorUtil::nextItem(availableCreatures, getRandomGenerator());
 
 			if (clear)
 			{
-				ssi.creatures[town->town->creatures.size()].first = std::max(1, (VLC->creh->objects.at(creatureId)->getGrowth())/2);
+				ssi.creatures[town->town->creatures.size()].first = std::max(1, (creatureId.toEntity(VLC)->getGrowth())/2);
 			}
 			else
 			{
-				ssi.creatures[town->town->creatures.size()].first = VLC->creh->objects.at(creatureId)->getGrowth();
+				ssi.creatures[town->town->creatures.size()].first = creatureId.toEntity(VLC)->getGrowth();
 			}
 			ssi.creatures[town->town->creatures.size()].second.push_back(creatureId);
 			sendAndApply(&ssi);
@@ -1284,9 +1284,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 		}
 	}
 
-	const PlayerState * p = getPlayerState(owner);
-
-	if ((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4) && p && p->getDwellings().size()==1)//first dwelling captured
+	if ((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4))
 	{
 		for (const CGTownInstance * t : getPlayerState(owner)->getTowns())
 		{

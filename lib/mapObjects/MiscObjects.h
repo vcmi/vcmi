@@ -60,7 +60,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGGarrison : public CArmedInstance
+class DLL_LINKAGE CGGarrison : public CArmedInstance, public IOwnableObject
 {
 public:
 	using CArmedInstance::CArmedInstance;
@@ -72,6 +72,10 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 
+	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
@@ -80,6 +84,7 @@ public:
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	void addAntimagicGarrisonBonus();
+
 };
 
 class DLL_LINKAGE CGArtifact : public CArmedInstance
@@ -180,8 +185,9 @@ public:
 	ui32 defaultResProduction() const;
 	ui32 getProducedQuantity() const;
 
-	ResourceSet dailyIncome() const override;
 	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -403,13 +409,17 @@ protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 };
 
-class DLL_LINKAGE CGLighthouse : public CGObjectInstance
+class DLL_LINKAGE CGLighthouse : public CGObjectInstance, public IOwnableObject
 {
 public:
 	using CGObjectInstance::CGObjectInstance;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(vstd::RNG & rand) override;
+
+	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

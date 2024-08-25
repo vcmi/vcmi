@@ -93,19 +93,6 @@ int PlayerState::getResourceAmount(int type) const
 	return vstd::atOrDefault(resources, static_cast<size_t>(type), 0);
 }
 
-std::vector<const CGDwelling* > PlayerState::getDwellings() const
-{
-	std::vector<const CGDwelling* > result;
-	for (auto const & object : ownedObjects)
-	{
-		auto dwelling = dynamic_cast<const CGDwelling *>(object);
-		auto town = dynamic_cast<const CGTownInstance *>(object);
-		if (dwelling && !town)
-			result.push_back(dwelling);
-	}
-	return result;
-}
-
 template<typename T>
 std::vector<T> PlayerState::getObjectsOfType() const
 {
@@ -146,6 +133,7 @@ std::vector<const CGObjectInstance *> PlayerState::getOwnedObjects() const
 
 void PlayerState::addOwnedObject(CGObjectInstance * object)
 {
+	assert(object->asOwnable() != nullptr);
 	ownedObjects.push_back(object);
 }
 

@@ -822,34 +822,12 @@ int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
 
 std::vector < const CGObjectInstance * > CPlayerSpecificInfoCallback::getMyObjects() const
 {
-	std::vector < const CGObjectInstance * > ret;
-	for(const CGObjectInstance * obj : gs->map->objects)
-	{
-		if(obj && obj->tempOwner == getPlayerID())
-			ret.push_back(obj);
-	}
-	return ret;
-}
-
-std::vector < const CGDwelling * > CPlayerSpecificInfoCallback::getMyDwellings() const
-{
-	ASSERT_IF_CALLED_WITH_PLAYER
-	std::vector < const CGDwelling * > ret;
-	for(const CGDwelling * dw : gs->getPlayerState(*getPlayerID())->getDwellings())
-	{
-		ret.push_back(dw);
-	}
-	return ret;
+	return gs->getPlayerState(*getPlayerID())->getOwnedObjects();
 }
 
 std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 {
-	std::vector <QuestInfo> ret;
-	for(const auto & quest : gs->getPlayerState(*getPlayerID())->quests)
-	{
-		ret.push_back (quest);
-	}
-	return ret;
+	return gs->getPlayerState(*getPlayerID())->quests;
 }
 
 int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const

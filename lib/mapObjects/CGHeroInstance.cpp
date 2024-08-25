@@ -1834,6 +1834,11 @@ ResourceSet CGHeroInstance::dailyIncome() const
 	return income;
 }
 
+std::vector<CreatureID> CGHeroInstance::providedCreatures() const
+{
+	return {};
+}
+
 const IOwnableObject * CGHeroInstance::asOwnable() const
 {
 	return this;
