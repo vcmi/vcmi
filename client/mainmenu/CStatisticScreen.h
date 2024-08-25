@@ -121,6 +121,7 @@ class LineChart : public CIntObject
 
 	Rect chartArea;
 	float maxVal;
+	int niceMaxVal;
 	int maxDay;
 
 	void updateStatusBar(const Point & cursorPosition);

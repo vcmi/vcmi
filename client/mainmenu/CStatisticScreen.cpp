@@ -424,6 +424,19 @@ void OverviewPanel::update(int to)
 	}
 }
 
+int computeGridStep(int maxAmount, int linesLimit)
+{
+	for (int lineInterval = 1;;lineInterval *= 10)
+	{
+		for (int factor : { 1, 2, 5 } )
+		{
+			int lineIntervalToTest = lineInterval * factor;
+			if (maxAmount / lineIntervalToTest <= linesLimit)
+				return lineIntervalToTest;
+		}
+	}
+}
+
 LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons, float maxY)
 	: CIntObject(), maxVal(0), maxDay(0)
 {
@@ -455,14 +468,19 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 			maxDay = line.second.size();
 	}
 
+	//calculate nice maxVal
+	int gridLineCount = 10;
+	int gridStep = computeGridStep(maxVal, gridLineCount);
+	niceMaxVal = gridStep * std::ceil(maxVal / gridStep);
+
 	// calculate points in chart
 	auto getPoint = [this](int i, std::vector<float> data){
 		float x = (static_cast<float>(chartArea.w) / static_cast<float>(maxDay - 1)) * static_cast<float>(i);
-		float y = static_cast<float>(chartArea.h) - (static_cast<float>(chartArea.h) / maxVal) * data[i];
+		float y = static_cast<float>(chartArea.h) - (static_cast<float>(chartArea.h) / niceMaxVal) * data[i];
 		return Point(x, y);
 	};
 
-	// draw grid
+	// draw grid (vertical lines)
 	int dayGridInterval = maxDay < 700 ? 7 : 28;
 	for(const auto & line : data)
 	{
@@ -472,7 +490,18 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 			canvas->addLine(Point(p.x, chartArea.topLeft().y), Point(p.x, chartArea.topLeft().y + chartArea.h), ColorRGBA(70, 70, 70));
 		}
 	}
-	
+
+	// draw grid (horizontal lines)
+	if(maxVal > 0)
+	{
+		int gridStepPx = int((static_cast<float>(chartArea.h) / niceMaxVal) * gridStep);
+		for(int i = 0; i < std::ceil(maxVal / gridStep) + 1; i++)
+		{
+			canvas->addLine(chartArea.topLeft() + Point(0, chartArea.h - gridStepPx * i), chartArea.topLeft() + Point(chartArea.w, chartArea.h - gridStepPx * i), ColorRGBA(70, 70, 70));
+			layout.emplace_back(std::make_shared<CLabel>(chartArea.topLeft().x - 5, chartArea.topLeft().y + 10 + chartArea.h - gridStepPx * i, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, TextOperations::formatMetric(i * gridStep, 5)));
+		}
+	}
+
 	// draw
 	for(const auto & line : data)
 	{
@@ -501,11 +530,9 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	canvas->addLine(chartArea.topLeft() + Point(-10, chartArea.h), chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h), Colors::WHITE);
 
 	Point p = chartArea.topLeft() + Point(-5, chartArea.h + 10);
-	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "0"));
+	//layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "0"));
 	p = chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h + 10);
 	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CStatisticScreen::getDay(maxDay)));
-	p = chartArea.topLeft() + Point(-5, -10);
-	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, std::to_string(static_cast<int>(maxVal))));
 	p = chartArea.bottomLeft() + Point(chartArea.w / 2, + 20);
 	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.64")));
 }
@@ -518,8 +545,8 @@ void LineChart::updateStatusBar(const Point & cursorPosition)
 	statusBar->setEnabled(r.isInside(cursorPosition));
 	if(r.isInside(cursorPosition))
 	{
-		float x = (static_cast<float>(maxDay) / static_cast<float>(chartArea.w)) * (static_cast<float>(cursorPosition.x) - static_cast<float>(r.x)) + 1.0f;
-		float y = maxVal - (maxVal / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
+		float x = (static_cast<float>(maxDay - 1) / static_cast<float>(chartArea.w)) * (static_cast<float>(cursorPosition.x) - static_cast<float>(r.x)) + 1.0f;
+		float y = niceMaxVal - (niceMaxVal / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
 		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + CStatisticScreen::getDay(x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + (static_cast<int>(y) > 0 ? std::to_string(static_cast<int>(y)) : std::to_string(y)));
 	}
 	setRedrawParent(true);
