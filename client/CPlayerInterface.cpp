@@ -1010,7 +1010,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 	std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(text, playerID, components);
 
-	if (makingTurn && GH.windows().count() > 0 && LOCPLINT == this)
+	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && GH.windows().count() > 0 && LOCPLINT == this)
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->setBusy();
