@@ -30,6 +30,7 @@ public:
 	ResourceSet generatePlayerIncome(PlayerColor playerID, bool newWeek);
 	SetAvailableCreatures generateTownGrowth(const CGTownInstance * town, EWeekType weekType, CreatureID creatureWeek, bool firstDay);
 	RumorState pickNewRumor();
+	std::tuple<EWeekType, CreatureID> pickWeekType(bool newMonth);
 
 	void onPlayerTurnStarted(PlayerColor color);
 	void onPlayerTurnEnded(PlayerColor color);

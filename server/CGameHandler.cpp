@@ -651,62 +651,9 @@ void CGameHandler::onNewTurn()
 
 	if (newWeek && !firstTurn)
 	{
-		n.specialWeek = EWeekType::NORMAL;
-		bool deityOfFireBuilt = false;
-		for (const CGTownInstance *t : gs->map->towns)
-		{
-			if (t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
-			{
-				deityOfFireBuilt = true;
-				break;
-			}
-		}
-
-		if (deityOfFireBuilt)
-		{
-			n.specialWeek = EWeekType::DEITYOFFIRE;
-			n.creatureid = CreatureID::IMP;
-		}
-		else if(VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
-		{
-			int monthType = getRandomGenerator().nextInt(99);
-			if (newMonth) //new month
-			{
-				if (monthType < 40) //double growth
-				{
-					n.specialWeek = EWeekType::DOUBLE_GROWTH;
-					if (VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
-					{
-						n.creatureid = VLC->creh->pickRandomMonster(getRandomGenerator());
-					}
-					else if (VLC->creh->doubledCreatures.size())
-					{
-						n.creatureid = *RandomGeneratorUtil::nextItem(VLC->creh->doubledCreatures, getRandomGenerator());
-					}
-					else
-					{
-						complain("Cannot find creature that can be spawned!");
-						n.specialWeek = EWeekType::NORMAL;
-					}
-				}
-				else if (monthType < 50)
-					n.specialWeek = EWeekType::PLAGUE;
-			}
-			else //it's a week, but not full month
-			{
-				if (monthType < 25)
-				{
-					n.specialWeek = EWeekType::BONUS_GROWTH; //+5
-					std::pair<int, CreatureID> newMonster(54, CreatureID());
-					do
-					{
-						newMonster.second = VLC->creh->pickRandomMonster(getRandomGenerator());
-					} while (VLC->creh->objects[newMonster.second] &&
-						(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFaction()]->town == nullptr); // find first non neutral creature
-					n.creatureid = newMonster.second;
-				}
-			}
-		}
+		auto [specialWeek, creatureID] = newTurnProcessor->pickWeekType(newMonth);
+		n.specialWeek = specialWeek;
+		n.creatureid = creatureID;
 	}
 
 	for (auto & elem : gs->players)

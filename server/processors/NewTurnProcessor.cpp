@@ -282,3 +282,58 @@ RumorState NewTurnProcessor::pickNewRumor()
 
 	return newRumor;
 }
+
+std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
+{
+	for (const CGTownInstance *t : gameHandler->gameState()->map->towns)
+	{
+		if (t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
+			return { EWeekType::DEITYOFFIRE, CreatureID::IMP };
+	}
+
+	if(!VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
+		return { EWeekType::NORMAL, CreatureID::NONE};
+
+	int monthType = gameHandler->getRandomGenerator().nextInt(99);
+	if (newMonth) //new month
+	{
+		if (monthType < 40) //double growth
+		{
+			if (VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
+			{
+				CreatureID creatureID = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+				return { EWeekType::DOUBLE_GROWTH, creatureID};
+			}
+			else if (VLC->creh->doubledCreatures.size())
+			{
+				CreatureID creatureID = *RandomGeneratorUtil::nextItem(VLC->creh->doubledCreatures, gameHandler->getRandomGenerator());
+				return { EWeekType::DOUBLE_GROWTH, creatureID};
+			}
+			else
+			{
+				gameHandler->complain("Cannot find creature that can be spawned!");
+				return { EWeekType::NORMAL, CreatureID::NONE};
+			}
+		}
+
+		if (monthType < 50)
+			return { EWeekType::PLAGUE, CreatureID::NONE};
+
+		return { EWeekType::NORMAL, CreatureID::NONE};
+	}
+	else //it's a week, but not full month
+	{
+		if (monthType < 25)
+		{
+			std::pair<int, CreatureID> newMonster(54, CreatureID());
+			do
+			{
+				newMonster.second = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+			} while (VLC->creh->objects[newMonster.second] &&
+					(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFaction()]->town == nullptr); // find first non neutral creature
+
+			return { EWeekType::BONUS_GROWTH, newMonster.second};
+		}
+		return { EWeekType::NORMAL, CreatureID::NONE};
+	}
+}
