@@ -164,6 +164,8 @@ public:
 
 	int64_t getTreeVersion() const;
 
+	void makeWait(const battle::Unit * activeStack);
+
 	void resetActiveUnit()
 	{
 		activeUnitId = -1;
