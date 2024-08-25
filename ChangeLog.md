@@ -1,6 +1,7 @@
 # 1.5.6 -> 1.5.7
 
 * Fixed game freeze if player is attacked in online multiplayer game by another player when he has unread dialogs, such as new week notification
+* Fixed possible game crash after being attacked by enemy with artifact that blocks spellcasting
 * Fixed heroes on map limit game setting not respected when moving hero from town garrison.
 * Add workaround to fix possible crash on attempt to start previously generated random map that has players without owned heroes or towns
 * Fixed crash on right-clicking spell icon when receiving unlearnable spells from Pandora
