@@ -789,7 +789,7 @@ void CGameHandler::onNewTurn()
 	}
 
 	if (newWeek)
-		n.newRumor = gameState()->pickNewRumor();
+		n.newRumor = newTurnProcessor->pickNewRumor();
 
 	if (newMonth)
 	{

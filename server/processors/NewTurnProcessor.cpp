@@ -21,12 +21,14 @@
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/gameState/SThievesGuildInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/IOwnableObject.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/pathfinder/TurnInfo.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -203,4 +205,80 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 	}
 
 	return sac;
+}
+
+RumorState NewTurnProcessor::pickNewRumor()
+{
+	RumorState newRumor;
+
+	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
+	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
+															  RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
+	if(gameHandler->gameState()->map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
+
+	int rumorId = -1;
+	int rumorExtra = -1;
+	auto & rand = gameHandler->getRandomGenerator();
+	newRumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
+
+	do
+	{
+		switch(newRumor.type)
+		{
+			case RumorState::TYPE_SPECIAL:
+			{
+				SThievesGuildInfo tgi;
+				gameHandler->gameState()->obtainPlayersStats(tgi, 20);
+				rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
+				if(rumorId == RumorState::RUMOR_GRAIL)
+				{
+					rumorExtra = gameHandler->gameState()->getTile(gameHandler->gameState()->map->grailPos)->terType->getIndex();
+					break;
+				}
+
+				std::vector<PlayerColor> players = {};
+				switch(rumorId)
+				{
+					case RumorState::RUMOR_OBELISKS:
+						players = tgi.obelisks[0];
+						break;
+
+					case RumorState::RUMOR_ARTIFACTS:
+						players = tgi.artifacts[0];
+						break;
+
+					case RumorState::RUMOR_ARMY:
+						players = tgi.army[0];
+						break;
+
+					case RumorState::RUMOR_INCOME:
+						players = tgi.income[0];
+						break;
+				}
+				rumorExtra = RandomGeneratorUtil::nextItem(players, rand)->getNum();
+
+				break;
+			}
+			case RumorState::TYPE_MAP:
+				// Makes sure that map rumors only used if there enough rumors too choose from
+				if(!gameHandler->gameState()->map->rumors.empty() && (gameHandler->gameState()->map->rumors.size() > 1 || !gameHandler->gameState()->currentRumor.last.count(RumorState::TYPE_MAP)))
+				{
+					rumorId = rand.nextInt(gameHandler->gameState()->map->rumors.size() - 1);
+					break;
+				}
+				else
+					newRumor.type = RumorState::TYPE_RAND;
+				[[fallthrough]];
+
+			case RumorState::TYPE_RAND:
+				auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
+				rumorId = rand.nextInt((int)vector.size() - 1);
+
+				break;
+		}
+	}
+	while(!newRumor.update(rumorId, rumorExtra));
+
+	return newRumor;
 }

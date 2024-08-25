@@ -11,6 +11,7 @@
 
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/constants/Enumerations.h"
+#include "../../lib/gameState/RumorState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGTownInstance;
@@ -28,6 +29,7 @@ public:
 
 	ResourceSet generatePlayerIncome(PlayerColor playerID, bool newWeek);
 	SetAvailableCreatures generateTownGrowth(const CGTownInstance * town, EWeekType weekType, CreatureID creatureWeek, bool firstDay);
+	RumorState pickNewRumor();
 
 	void onPlayerTurnStarted(PlayerColor color);
 	void onPlayerTurnEnded(PlayerColor color);
