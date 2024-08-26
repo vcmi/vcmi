@@ -2759,10 +2759,11 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 	}
 	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
 	{
-		//check if moving hero out of town will break 8 wandering heroes limit
-		if (getHeroCount(town->garrisonHero->tempOwner,false) >= 8)
+		int mapCap = VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		//check if moving hero out of town will break wandering heroes limit
+		if (getHeroCount(town->garrisonHero->tempOwner,false) >= mapCap)
 		{
-			complain("Cannot move hero out of the garrison, there are already 8 wandering heroes!");
+			complain("Cannot move hero out of the garrison, there are already " + std::to_string(mapCap) + " wandering heroes!");
 			return false;
 		}
 

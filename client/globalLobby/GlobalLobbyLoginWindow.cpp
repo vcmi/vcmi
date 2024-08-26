@@ -68,7 +68,10 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 		onLoginModeChanged(0); // call it manually to disable widgets - toggleMode will not emit this call if this is currently selected option
 	}
 	else
+	{
 		toggleMode->setSelected(1);
+		onLoginModeChanged(1);
+	}
 
 	filledBackground->setPlayerColor(PlayerColor(1));
 	inputUsername->setCallback([this](const std::string & text)

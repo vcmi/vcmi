@@ -233,7 +233,7 @@ std::string CComponent::getDescription() const
 			return description;
 		}
 		case ComponentType::SPELL:
-			return CGI->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(data.value.value_or(0));
+			return CGI->spells()->getById(data.subType.as<SpellID>())->getDescriptionTranslated(std::max(0, data.value.value_or(0)));
 		case ComponentType::MORALE:
 			return CGI->generaltexth->heroscrn[ 4 - (data.value.value_or(0)>0) + (data.value.value_or(0)<0)];
 		case ComponentType::LUCK:
@@ -293,7 +293,7 @@ std::string CComponent::getSubtitle() const
 			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getNameTranslated();
 		case ComponentType::SPELL_SCROLL:
 		case ComponentType::SPELL:
-			if (data.value < 0)
+			if (data.value.value_or(0) < 0)
 				return "{#A9A9A9|" + CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated() + "}";
 			else
 				return CGI->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
