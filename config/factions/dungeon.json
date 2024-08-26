@@ -165,11 +165,11 @@
 				"townHall":       { },
 				"cityHall":       { },
 				"capitol":        { },
-				"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
+				"marketplace":    { },
 				"resourceSilo":   { "produce": { "sulfur": 1 } },
 				"blacksmith":     { "warMachine" : "ballista" },
 
-				"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
+				"special1":       { "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"special2":       {

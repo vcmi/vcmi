@@ -166,7 +166,7 @@
 				"townHall":       { },
 				"cityHall":       { },
 				"capitol":        { },
-				"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
+				"marketplace":    { },
 				"resourceSilo":   { "produce": { "mercury": 1 } },
 				"blacksmith":     { "warMachine" : "ammoCart" },
 

@@ -36,7 +36,7 @@
 		},
 		"type" : {
 			"type" : "string",
-			"enum" : [ "mysticPond", "artifactMerchant", "freelancersGuild", "magicUniversity", "castleGate", "creatureTransformer", "portalOfSummoning", "library", "escapeTunnel", "treasury", "bank" ],
+			"enum" : [ "mysticPond", "castleGate", "portalOfSummoning", "library", "escapeTunnel", "treasury", "bank" ],
 			"description" : "Subtype for some special buildings"
 		},
 		"mode" : {
@@ -104,7 +104,10 @@
 		},
 		"marketModes" : {
 			"type" : "array",
-			"enum" : [ "resource-resource", "resource-player", "creature-resource", "resource-artifact", "artifact-resource", "artifact-experience", "creature-experience", "creature-undead", "resource-skill"],
+			"items" : {
+				"type" : "string",
+				"enum" : [ "resource-resource", "resource-player", "creature-resource", "resource-artifact", "artifact-resource", "artifact-experience", "creature-experience", "creature-undead", "resource-skill"],
+			},
 			"description" : "List of modes available in this market"
 		}
 	}

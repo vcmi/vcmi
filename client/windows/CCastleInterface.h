@@ -173,7 +173,8 @@ public:
 	void enterBank();
 	void enterToTheQuickRecruitmentWindow();
 
-	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);
+	bool buildingTryActivateCustomUI(BuildingID buildingToTest, BuildingID buildingTarget);
+	void buildingClicked(BuildingID building);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
 };

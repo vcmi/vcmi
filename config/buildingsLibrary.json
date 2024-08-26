@@ -48,7 +48,10 @@
 		"produce": { "gold": 4000 }
 	},
 
-	"marketplace":    { "id" : 14 },
+	"marketplace":    { 
+		"id" : 14,
+		"marketModes" : ["resource-resource", "resource-player"]
+	},
 	"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ] },
 	"blacksmith":     { "id" : 16 },
 
@@ -205,7 +208,26 @@
 		}
 	},
 	
-	// Section 3 - buildings that now have dedicated mechanics
+	// Section 3 - markets
+	"artifactMerchant" : {
+		"requires" : [ "marketplace" ],
+		"marketModes" : ["resource-artifact", "artifact-resource"]
+	},
+	
+	"freelancersGuild" : {
+		"requires" : [ "marketplace" ],
+		"marketModes" : ["creature-resource"]
+	},
+	
+	"magicUniversity" : {
+		"marketModes" : ["resource-skill"]
+	},
+	
+	"creatureTransformer" : {
+		"marketModes" : ["creature-undead"]
+	},
+	
+	// Section 4 - buildings that now have dedicated mechanics
 	"ballistaYard": {
 		"blacksmith" : "ballista"
 	},
