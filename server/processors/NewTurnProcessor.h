@@ -39,6 +39,8 @@ class NewTurnProcessor : boost::noncopyable
 	std::tuple<EWeekType, CreatureID> pickWeekType(bool newMonth);
 
 	NewTurn generateNewTurnPack();
+	void handleTimeEvents(PlayerColor player);
+	void handleTownEvents(const CGTownInstance *town);
 
 public:
 	NewTurnProcessor(CGameHandler * gameHandler);

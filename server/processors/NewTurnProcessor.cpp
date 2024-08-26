@@ -37,13 +37,96 @@ NewTurnProcessor::NewTurnProcessor(CGameHandler * gameHandler)
 {
 }
 
+void NewTurnProcessor::handleTimeEvents(PlayerColor color)
+{
+	for (auto const & event : gameHandler->gameState()->map->events)
+	{
+		if (!event.occursToday(gameHandler->gameState()->day))
+			continue;
+
+		if (!event.affectsPlayer(color, gameHandler->getPlayerState(color)->isHuman()))
+			continue;
+
+		InfoWindow iw;
+		iw.player = color;
+		iw.text = event.message;
+
+		//give resources
+		if (!event.resources.empty())
+		{
+			gameHandler->giveResources(color, event.resources);
+			for (GameResID i : GameResID::ALL_RESOURCES())
+				if (event.resources[i])
+					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
+		}
+		gameHandler->sendAndApply(&iw); //show dialog
+	}
+}
+
+void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
+{
+	for (auto const & event : town->events)
+	{
+		if (!event.occursToday(gameHandler->gameState()->day))
+			continue;
+
+		PlayerColor player = town->getOwner();
+		if (!event.affectsPlayer(player, gameHandler->getPlayerState(player)->isHuman()))
+			continue;
+
+		// dialog
+		InfoWindow iw;
+		iw.player = player;
+		iw.text = event.message;
+
+		if (event.resources.nonZero())
+		{
+			gameHandler->giveResources(player, event.resources);
+
+			for (GameResID i : GameResID::ALL_RESOURCES())
+				if (event.resources[i])
+					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
+		}
+
+		for (auto & i : event.buildings)
+		{
+			// Only perform action if:
+			// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
+			// 2. Building was not built yet
+			// othervice, silently ignore / skip it
+			if (town->town->buildings.count(i) && !town->hasBuilt(i))
+			{
+				gameHandler->buildStructure(town->id, i, true);
+				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
+			}
+		}
+
+		if (!event.creatures.empty())
+		{
+			SetAvailableCreatures sac;
+			sac.tid = town->id;
+			sac.creatures = town->creatures;
+
+			for (si32 i=0;i<event.creatures.size();i++) //creature growths
+			{
+				if (!town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
+				{
+					sac.creatures[i].first += event.creatures.at(i);
+					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
+				}
+			}
+		}
+		gameHandler->sendAndApply(&iw); //show dialog
+	}
+}
+
 void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 {
 	const auto * playerState = gameHandler->gameState()->getPlayerState(which);
 
-	gameHandler->handleTimeEvents(which);
+	handleTimeEvents(which);
 	for (const auto * t : playerState->getTowns())
-		gameHandler->handleTownEvents(t);
+		handleTownEvents(t);
 
 	for (const auto * t : playerState->getTowns())
 	{
