@@ -1127,6 +1127,27 @@ struct DLL_LINKAGE HeroVisit : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE InfoWindow : public CPackForClient //103  - displays simple info window
+{
+	EInfoWindowMode type = EInfoWindowMode::MODAL;
+	MetaString text;
+	std::vector<Component> components;
+	PlayerColor player;
+	ui16 soundID = 0;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & type;
+		h & text;
+		h & components;
+		h & player;
+		h & soundID;
+	}
+	InfoWindow() = default;
+};
+
 struct DLL_LINKAGE NewTurn : public CPackForClient
 {
 	void applyGs(CGameState * gs) override;
@@ -1142,6 +1163,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 	std::vector<SetAvailableCreatures> availableCreatures;
 	std::map<PlayerColor, ResourceSet> playerIncome;
 	std::optional<RumorState> newRumor; // only on new weeks
+	std::optional<InfoWindow> newWeekNotification; // only on new week
 
 	NewTurn() = default;
 
@@ -1155,30 +1177,10 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 		h & availableCreatures;
 		h & playerIncome;
 		h & newRumor;
+		h & newWeekNotification;
 	}
 };
-
-struct DLL_LINKAGE InfoWindow : public CPackForClient //103  - displays simple info window
-{
-	EInfoWindowMode type = EInfoWindowMode::MODAL;
-	MetaString text;
-	std::vector<Component> components;
-	PlayerColor player;
-	ui16 soundID = 0;
-
-	void visitTyped(ICPackVisitor & visitor) override;
 	void applyGs(CGameState * gs) override {}
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & type;
-		h & text;
-		h & components;
-		h & player;
-		h & soundID;
-	}
-	InfoWindow() = default;
-};
 
 struct DLL_LINKAGE SetObjectProperty : public CPackForClient
 {

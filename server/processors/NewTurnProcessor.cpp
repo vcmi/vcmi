@@ -352,7 +352,6 @@ std::vector<SetMana> NewTurnProcessor::updateHeroesManaPoints()
 				result.emplace_back(h->id, newMana, true);
 		}
 	}
-
 	return result;
 }
 
@@ -372,6 +371,117 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 				result.emplace_back(h->id, newMovementPoints, true);
 		}
 	}
-
 	return result;
+}
+
+InfoWindow NewTurnProcessor::createInfoWindow(EWeekType weekType, CreatureID creatureWeek, bool newMonth)
+{
+	InfoWindow iw;
+	switch (weekType)
+	{
+		case EWeekType::DOUBLE_GROWTH:
+			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 131);
+			iw.text.replaceNameSingular(creatureWeek);
+			iw.text.replaceNameSingular(creatureWeek);
+			break;
+		case EWeekType::PLAGUE:
+			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 132);
+			break;
+		case EWeekType::BONUS_GROWTH:
+			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 134);
+			iw.text.replaceNameSingular(creatureWeek);
+			iw.text.replaceNameSingular(creatureWeek);
+			break;
+		case EWeekType::DEITYOFFIRE:
+			iw.text.appendLocalString(EMetaText::ARRAY_TXT, 135);
+			iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
+			iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
+			iw.text.replacePositiveNumber(15);//%+d 15
+			iw.text.replaceNameSingular(CreatureID::FAMILIAR); //%s familiar
+			iw.text.replacePositiveNumber(15);//%+d 15
+			break;
+		default:
+			if (newMonth)
+			{
+				iw.text.appendLocalString(EMetaText::ARRAY_TXT, (130));
+				iw.text.replaceLocalString(EMetaText::ARRAY_TXT, gameHandler->getRandomGenerator().nextInt(32, 41));
+			}
+			else
+			{
+				iw.text.appendLocalString(EMetaText::ARRAY_TXT, (133));
+				iw.text.replaceLocalString(EMetaText::ARRAY_TXT, gameHandler->getRandomGenerator().nextInt(43, 57));
+			}
+	}
+	return iw;
+}
+
+NewTurn NewTurnProcessor::generateNewTurnPack()
+{
+	NewTurn n;
+	n.specialWeek = EWeekType::FIRST_WEEK;
+	n.creatureid = CreatureID::NONE;
+	n.day = gameHandler->gameState()->day + 1;
+
+	bool firstTurn = !gameHandler->getDate(Date::DAY);
+	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
+	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
+
+	if (!firstTurn)
+	{
+		for (const auto & player : gameHandler->gameState()->players)
+			n.playerIncome[player.first] = generatePlayerIncome(player.first, newWeek);
+	}
+
+	if (newWeek && !firstTurn)
+	{
+		auto [specialWeek, creatureID] = pickWeekType(newMonth);
+		n.specialWeek = specialWeek;
+		n.creatureid = creatureID;
+	}
+
+	n.heroesMana = updateHeroesManaPoints();
+	n.heroesMovement = updateHeroesMovementPoints();
+
+	if (newWeek)
+	{
+		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+			n.availableCreatures.push_back(generateTownGrowth(t, n.specialWeek, n.creatureid, firstTurn));
+	}
+
+	if (newWeek)
+		n.newRumor = pickNewRumor();
+
+	if (newWeek)
+	{
+		//new week info popup
+		if (n.specialWeek != EWeekType::FIRST_WEEK)
+			n.newWeekNotification = createInfoWindow(n.specialWeek, n.creatureid, newMonth);
+	}
+
+	return n;
+}
+
+void NewTurnProcessor::onNewTurn()
+{
+	NewTurn n = generateNewTurnPack();
+
+	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
+	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
+
+	gameHandler->sendAndApply(&n);
+
+	if (newWeek)
+	{
+		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
+				gameHandler->setPortalDwelling(t, true, (n.specialWeek == EWeekType::PLAGUE ? true : false)); //set creatures for Portal of Summoning
+	}
+
+	//spawn wandering monsters
+	if (newMonth && (n.specialWeek == EWeekType::DOUBLE_GROWTH || n.specialWeek == EWeekType::DEITYOFFIRE))
+	{
+		gameHandler->spawnWanderingMonsters(n.creatureid);
+	}
+
+	logGlobal->trace("Info about turn %d has been sent!", n.day);
 }

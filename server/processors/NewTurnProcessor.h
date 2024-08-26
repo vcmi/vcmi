@@ -19,6 +19,8 @@ class ResourceSet;
 struct SetAvailableCreatures;
 struct SetMovePoints;
 struct SetMana;
+struct InfoWindow;
+struct NewTurn;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -26,8 +28,6 @@ class CGameHandler;
 class NewTurnProcessor : boost::noncopyable
 {
 	CGameHandler * gameHandler;
-public:
-	NewTurnProcessor(CGameHandler * gameHandler);
 
 	std::vector<SetMana> updateHeroesManaPoints();
 	std::vector<SetMovePoints> updateHeroesMovementPoints();
@@ -35,8 +35,15 @@ public:
 	ResourceSet generatePlayerIncome(PlayerColor playerID, bool newWeek);
 	SetAvailableCreatures generateTownGrowth(const CGTownInstance * town, EWeekType weekType, CreatureID creatureWeek, bool firstDay);
 	RumorState pickNewRumor();
+	InfoWindow createInfoWindow(EWeekType weekType, CreatureID creatureWeek, bool newMonth);
 	std::tuple<EWeekType, CreatureID> pickWeekType(bool newMonth);
 
+	NewTurn generateNewTurnPack();
+
+public:
+	NewTurnProcessor(CGameHandler * gameHandler);
+
+	void onNewTurn();
 	void onPlayerTurnStarted(PlayerColor color);
 	void onPlayerTurnEnded(PlayerColor color);
 };

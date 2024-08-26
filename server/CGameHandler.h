@@ -159,7 +159,7 @@ public:
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override;
-	void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player,ETileVisibility mode) override;
+	void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player,ETileVisibility mode) override;
 	
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
 

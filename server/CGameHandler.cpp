@@ -608,13 +608,8 @@ void CGameHandler::addStatistics(StatisticDataSet &stat) const
 void CGameHandler::onNewTurn()
 {
 	logGlobal->trace("Turn %d", gs->day+1);
-	NewTurn n;
-	n.specialWeek = EWeekType::FIRST_WEEK;
-	n.creatureid = CreatureID::NONE;
-	n.day = gs->day + 1;
 
 	bool firstTurn = !getDate(Date::DAY);
-	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
 	bool newMonth = getDate(Date::DAY_OF_MONTH) == 28;
 
 	if (firstTurn)
@@ -626,51 +621,14 @@ void CGameHandler::onNewTurn()
 				giveExperience(getHero(obj->id), 0);
 			}
 		}
+
+		for (auto & elem : gs->players)
+			heroPool->onNewWeek(elem.first);
+
 	}
 	else
 	{
 		addStatistics(gameState()->statistic); // write at end of turn
-	}
-
-	for (const auto & player : gs->players)
-	{
-		if (player.second.status != EPlayerStatus::INGAME)
-			continue;
-
-		if (player.second.getHeroes().empty() && player.second.getTowns().empty())
-			throw std::runtime_error("Invalid player in player state! Player " + std::to_string(player.first.getNum()) + ", map name: " + gs->map->name.toString() + ", map description: " + gs->map->description.toString());
-	}
-
-	if (!firstTurn)
-	{
-		for (const auto & player : gs->players)
-			n.playerIncome[player.first] = newTurnProcessor->generatePlayerIncome(player.first, newWeek);
-	}
-
-	if (newWeek && !firstTurn)
-	{
-		auto [specialWeek, creatureID] = newTurnProcessor->pickWeekType(newMonth);
-		n.specialWeek = specialWeek;
-		n.creatureid = creatureID;
-	}
-
-	if (firstTurn)
-	{
-		for (auto & elem : gs->players)
-			heroPool->onNewWeek(elem.first);
-	}
-
-	n.heroesMana = newTurnProcessor->updateHeroesManaPoints();
-	n.heroesMovement = newTurnProcessor->updateHeroesMovementPoints();
-
-	if (newWeek)
-	{
-		for (CGTownInstance *t : gs->map->towns)
-			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
-				setPortalDwelling(t, true, (n.specialWeek == EWeekType::PLAGUE ? true : false)); //set creatures for Portal of Summoning
-
-		for (CGTownInstance *t : gs->map->towns)
-			n.availableCreatures.push_back(newTurnProcessor->generateTownGrowth(t, n.specialWeek, n.creatureid, firstTurn));
 	}
 
 	for (CGTownInstance *t : gs->map->towns)
@@ -681,25 +639,27 @@ void CGameHandler::onNewTurn()
 			&& t->town->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
 		{
 			// Skyship, probably easier to handle same as Veil of darkness
-			//do it every new day after veils apply
-			if (player != PlayerColor::NEUTRAL) //do not reveal fow for neutral player
+			// do it every new day before veils
+			if (player.isValidPlayer())
 			{
-				FoWChange fw;
-				fw.mode = ETileVisibility::REVEALED;
-				fw.player = player;
+				std::unordered_set<int3> revealedTiles;
+
 				// find all hidden tiles
 				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
-
 				auto shape = fow.shape();
 				for(size_t z = 0; z < shape[0]; z++)
 					for(size_t x = 0; x < shape[1]; x++)
 						for(size_t y = 0; y < shape[2]; y++)
 							if (!fow[z][x][y])
-								fw.tiles.insert(int3(x, y, z));
+								revealedTiles.insert(int3(x, y, z));
 
-				sendAndApply (&fw);
+				changeFogOfWar(revealedTiles, player, ETileVisibility::REVEALED);
 			}
 		}
+	}
+
+	for (CGTownInstance *t : gs->map->towns)
+	{
 		if (t->hasBonusOfType (BonusType::DARKNESS))
 		{
 			for (auto & player : gs->players)
@@ -711,9 +671,6 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
-	if (newWeek)
-		n.newRumor = newTurnProcessor->pickNewRumor();
-
 	if (newMonth)
 	{
 		SetAvailableArtifacts saa;
@@ -721,67 +678,12 @@ void CGameHandler::onNewTurn()
 		pickAllowedArtsSet(saa.arts, getRandomGenerator());
 		sendAndApply(&saa);
 	}
-	sendAndApply(&n);
 
-	if (newWeek)
-	{
-		//spawn wandering monsters
-		if (newMonth && (n.specialWeek == EWeekType::DOUBLE_GROWTH || n.specialWeek == EWeekType::DEITYOFFIRE))
-		{
-			spawnWanderingMonsters(n.creatureid);
-		}
-
-		//new week info popup
-		if (!firstTurn)
-		{
-			InfoWindow iw;
-			switch (n.specialWeek)
-			{
-				case EWeekType::DOUBLE_GROWTH:
-					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 131);
-					iw.text.replaceNameSingular(n.creatureid);
-					iw.text.replaceNameSingular(n.creatureid);
-					break;
-				case EWeekType::PLAGUE:
-					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 132);
-					break;
-				case EWeekType::BONUS_GROWTH:
-					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 134);
-					iw.text.replaceNameSingular(n.creatureid);
-					iw.text.replaceNameSingular(n.creatureid);
-					break;
-				case EWeekType::DEITYOFFIRE:
-					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 135);
-					iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
-					iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
-					iw.text.replacePositiveNumber(15);//%+d 15
-					iw.text.replaceNameSingular(CreatureID::FAMILIAR); //%s familiar
-					iw.text.replacePositiveNumber(15);//%+d 15
-					break;
-				default:
-					if (newMonth)
-					{
-						iw.text.appendLocalString(EMetaText::ARRAY_TXT, (130));
-						iw.text.replaceLocalString(EMetaText::ARRAY_TXT, getRandomGenerator().nextInt(32, 41));
-					}
-					else
-					{
-						iw.text.appendLocalString(EMetaText::ARRAY_TXT, (133));
-						iw.text.replaceLocalString(EMetaText::ARRAY_TXT, getRandomGenerator().nextInt(43, 57));
-					}
-			}
-			for (auto & elem : gs->players)
-			{
-				iw.player = elem.first;
-				sendAndApply(&iw);
-			}
-		}
-	}
+	newTurnProcessor->onNewTurn();
 
 	if (!firstTurn)
 		checkVictoryLossConditionsForAll(); // check for map turn limit
 
-	logGlobal->trace("Info about turn %d has been sent!", n.day);
 	//call objects
 	for (auto & elem : gs->map->objects)
 	{
@@ -4045,19 +3947,6 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 	if (mode == ETileVisibility::HIDDEN)
 	{
 		getTilesInRange(tiles, center, radius, ETileVisibility::REVEALED, player);
-
-		std::unordered_set<int3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
-		auto p = getPlayerState(player);
-		for (auto h : p->getHeroes())
-		{
-			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadius(), ETileVisibility::REVEALED, h->tempOwner);
-		}
-		for (auto t : p->getTowns())
-		{
-			getTilesInRange(observedTiles, t->getSightCenter(), t->getSightRadius(), ETileVisibility::REVEALED, t->tempOwner);
-		}
-		for (auto tile : observedTiles)
-			vstd::erase_if_present (tiles, tile);
 	}
 	else
 	{
@@ -4066,7 +3955,7 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 	changeFogOfWar(tiles, player, mode);
 }
 
-void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode)
+void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode)
 {
 	if (tiles.empty())
 		return;
@@ -4075,6 +3964,22 @@ void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor p
 	fow.tiles = tiles;
 	fow.player = player;
 	fow.mode = mode;
+
+	if (mode == ETileVisibility::HIDDEN)
+	{
+		//do not hide tiles observed by owned objects. May lead to disastrous AI problems
+		std::unordered_set<int3> observedTiles;
+		auto p = getPlayerState(player);
+		for (auto obj : p->getOwnedObjects())
+			getTilesInRange(observedTiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::REVEALED, obj->getOwner());
+
+		for (auto tile : observedTiles)
+			vstd::erase_if_present (fow.tiles, tile);
+
+		if (fow.tiles.empty())
+			return;
+	}
+
 	sendAndApply(&fow);
 }
 
