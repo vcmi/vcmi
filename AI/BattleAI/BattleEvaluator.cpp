@@ -630,7 +630,15 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				auto & ps = possibleCasts[i];
 
 #if BATTLE_TRACE_LEVEL >= 1
-				logAi->trace("Evaluating %s", ps.spell->getNameTranslated());
+				if(ps.dest.empty())
+					logAi->trace("Evaluating %s", ps.spell->getNameTranslated());
+				else
+				{
+					auto psFirst = ps.dest.front();
+					auto strWhere = psFirst.unitValue ? psFirst.unitValue->getDescription() : std::to_string(psFirst.hexValue.hex);
+
+					logAi->trace("Evaluating %s at %s", ps.spell->getNameTranslated(), strWhere);
+				}
 #endif
 
 				auto state = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
@@ -667,7 +675,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 					innerEvaluator.updateReachabilityMap(state);
 
-					auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(activeStack, innerTargets, innerCache, state);
+					auto moveTarget = innerEvaluator.findMoveTowardsUnreachable(activeStack, innerTargets, innerCache, state);
 
 					if(!innerTargets.possibleAttacks.empty())
 					{
@@ -682,12 +690,22 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				}
 				else
 				{
-					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack.ap, cachedAttack.turn, *targets, innerCache, state);
+					auto updatedAttacker = state->getForUpdate(cachedAttack.ap->attack.attacker->unitId());
+					auto updatedDefender = state->getForUpdate(cachedAttack.ap->attack.defender->unitId());
+					auto updatedBai = BattleAttackInfo(
+						updatedAttacker.get(),
+						updatedDefender.get(),
+						cachedAttack.ap->attack.chargeDistance,
+						cachedAttack.ap->attack.shooting);
+
+					auto updatedAttack = AttackPossibility::evaluate(updatedBai, cachedAttack.ap->from, innerCache, state);
+
+					ps.value = scoreEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
 				}
 
 				for(const auto & unit : allUnits)
 				{
-					if(!unit->isValidTarget())
+					if(!unit->isValidTarget(true))
 						continue;
 
 					auto newHealth = unit->getAvailableHealth();
@@ -710,13 +728,18 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 						if(ourUnit * goodEffect == 1)
 						{
-							if(ourUnit && goodEffect && (unit->isClone() || unit->isGhost()))
+							auto isMagical = state->getForUpdate(unit->unitId())->summoned
+								|| unit->isClone()
+								|| unit->isGhost();
+
+							if(ourUnit && goodEffect && isMagical)
 								continue;
 
 							ps.value += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
 						}
 						else
-							ps.value -= dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
+							// discourage AI making collateral damage with spells
+							ps.value -= 4 * dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
 
 #if BATTLE_TRACE_LEVEL >= 1
 						logAi->trace(
