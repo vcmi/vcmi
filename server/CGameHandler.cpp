@@ -641,20 +641,7 @@ void CGameHandler::onNewTurn()
 			// Skyship, probably easier to handle same as Veil of darkness
 			// do it every new day before veils
 			if (player.isValidPlayer())
-			{
-				std::unordered_set<int3> revealedTiles;
-
-				// find all hidden tiles
-				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
-				auto shape = fow.shape();
-				for(size_t z = 0; z < shape[0]; z++)
-					for(size_t x = 0; x < shape[1]; x++)
-						for(size_t y = 0; y < shape[2]; y++)
-							if (!fow[z][x][y])
-								revealedTiles.insert(int3(x, y, z));
-
-				changeFogOfWar(revealedTiles, player, ETileVisibility::REVEALED);
-			}
+				changeFogOfWar(t->getSightCenter(), t->getSightRadius(), player, ETileVisibility::REVEALED);
 		}
 	}
 
@@ -3884,7 +3871,8 @@ void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerC
 
 	if (mode == ETileVisibility::HIDDEN)
 	{
-		//do not hide tiles observed by owned objects. May lead to disastrous AI problems
+		// do not hide tiles observed by owned objects. May lead to disastrous AI problems
+		// FIXME: this leads to a bug - shroud of darkness from Necropolis does can not override Skyship from Tower
 		std::unordered_set<int3> observedTiles;
 		auto p = getPlayerState(player);
 		for (auto obj : p->getOwnedObjects())
