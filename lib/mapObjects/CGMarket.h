@@ -35,6 +35,19 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<IMarket&>(*this);
 		h & marketEfficiency;
+		if (h.version < Handler::Version::NEW_MARKETS)
+		{
+			std::string speech;
+			std::string title;
+			h & speech;
+			h & title;
+		}
+	}
+
+	template <typename Handler> void serializeArtifactsAltar(Handler &h)
+	{
+		serialize(h);
+		IMarket::serializeArtifactsAltar(h);
 	}
 };
 
@@ -71,8 +84,11 @@ public:
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & skills;
-		h & speech;
-		h & title;
+		if (h.version >= Handler::Version::NEW_MARKETS)
+		{
+			h & speech;
+			h & title;
+		}
 	}
 };
 

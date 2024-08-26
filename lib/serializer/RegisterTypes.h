@@ -139,7 +139,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<CArtifactInstance>(78);
 	s.template registerType<CObstacleInstance>(79);
 	s.template registerType<SpellCreatedObstacle>(80);
-	//s.template registerType<CGArtifactsAltar>(81);
 	s.template registerType<CPack>(82);
 	s.template registerType<PackageApplied>(84);
 	s.template registerType<SystemMessage>(85);

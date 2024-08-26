@@ -946,6 +946,14 @@ void CGTownInstance::addBuilding(const BuildingID & buildingID)
 	}
 }
 
+void CGTownInstance::postDeserializeMarketFix()
+{
+	// re-add all buildings to recreate existing market modes
+	auto buildingsBak = builtBuildings;
+	for (auto building : buildingsBak)
+		addBuilding(building);
+}
+
 void CGTownInstance::removeBuilding(const BuildingID & buildingID)
 {
 	if(!vstd::contains(builtBuildings, buildingID))
