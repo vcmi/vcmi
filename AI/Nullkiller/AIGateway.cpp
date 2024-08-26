@@ -21,8 +21,6 @@
 #include "../../lib/GameSettings.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/serializer/CTypeList.h"
-#include "../../lib/serializer/BinarySerializer.h"
-#include "../../lib/serializer/BinaryDeserializer.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"

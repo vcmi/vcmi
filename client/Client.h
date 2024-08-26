@@ -21,13 +21,9 @@ struct CPackForServer;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
 class CGameInterface;
-class BinaryDeserializer;
-class BinarySerializer;
 class BattleAction;
 class BattleInfo;
 struct BankConfig;
-
-template<typename T> class CApplier;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -147,7 +143,7 @@ public:
 
 	static ThreadSafeVector<int> waitingRequest; //FIXME: make this normal field (need to join all threads before client destruction)
 
-	void handlePack(CPack * pack); //applies the given pack and deletes it
+	void handlePack(CPackForClient * pack); //applies the given pack and deletes it
 	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
@@ -236,8 +232,6 @@ private:
 	std::shared_ptr<scripting::PoolImpl> clientScripts;
 #endif
 	std::unique_ptr<events::EventBus> clientEventBus;
-
-	std::shared_ptr<CApplier<CBaseForCLApply>> applier;
 
 	mutable boost::mutex pathCacheMutex;
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;

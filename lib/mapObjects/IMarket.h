@@ -42,8 +42,18 @@ public:
 	{
 		h & marketModes;
 
-		if(h.loadingGamestate && vstd::contains(marketModes, EMarketMode::ARTIFACT_EXP))
-			altarArtifactsStorage = std::make_shared<CArtifactSetAltar>();
+		if(vstd::contains(marketModes, EMarketMode::ARTIFACT_EXP))
+		{
+			if (!h.saving)
+				altarArtifactsStorage = std::make_shared<CArtifactSetAltar>();
+
+			h & *altarArtifactsStorage;
+		}
+	}
+
+	template <typename Handler> void serializeArtifactsAltar(Handler & h)
+	{
+		h & *altarArtifactsStorage;
 	}
 
 private:

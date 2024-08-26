@@ -77,7 +77,9 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGDwelling&>(*this);
-		h & static_cast<IMarket&>(*this);
+		if (h.version >= Handler::Version::NEW_MARKETS)
+			h & static_cast<IMarket&>(*this);
+
 		h & nameTextId;
 		h & built;
 		h & destroyed;
@@ -116,6 +118,9 @@ public:
 			town = faction ? faction->town : nullptr;
 		}
 
+		if (!h.saving && h.version < Handler::Version::NEW_MARKETS)
+			postDeserializeMarketFix();
+
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
@@ -135,6 +140,7 @@ public:
 	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();
 	void postDeserialize();
+	void postDeserializeMarketFix();
 	void recreateBuildingsBonuses();
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);

@@ -40,8 +40,6 @@ namespace scripting
 }
 #endif
 
-template<typename T> class CApplier;
-
 VCMI_LIB_NAMESPACE_END
 
 class HeroPoolProcessor;
@@ -57,7 +55,6 @@ class CObjectVisitQuery;
 class CGameHandler : public IGameCallback, public Environment
 {
 	CVCMIServer * lobby;
-	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
