@@ -282,7 +282,7 @@ public:
 
 	void start(bool resume);
 	void tick(int millisecondsPassed);
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts);
+	bool sacrificeArtifact(const IMarket * market, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts);
 	void spawnWanderingMonsters(CreatureID creatureID);
 
 	// Check for victory and loss conditions

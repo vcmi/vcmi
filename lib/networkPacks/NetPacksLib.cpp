@@ -1332,7 +1332,7 @@ void NewStructures::applyGs(CGameState *gs)
 	for(const auto & id : bid)
 	{
 		assert(t->town->buildings.at(id) != nullptr);
-		t->builtBuildings.insert(id);
+		t->addBuilding(id);
 	}
 	t->updateAppearance();
 	t->built = built;
@@ -1344,7 +1344,7 @@ void RazeStructures::applyGs(CGameState *gs)
 	CGTownInstance *t = gs->getTown(tid);
 	for(const auto & id : bid)
 	{
-		t->builtBuildings.erase(id);
+		t->removeBuilding(id);
 
 		t->updateAppearance();
 	}

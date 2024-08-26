@@ -1633,14 +1633,14 @@ void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
 	battleInt->newRoundFirst();
 }
 
-void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
+void CPlayerInterface::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onWindowClosed = [this, queryID](){
 		cb->selectionMade(0, queryID);
 	};
 
-	if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && dynamic_cast<const CGArtifactsAltar*>(market) == nullptr)
+	if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && market->getArtifactsStorage() == nullptr)
 	{
 		// compatibility check, safe to remove for 1.6
 		// 1.4 saves loaded in 1.5 will not be able to visit Altar of Sacrifice due to Altar now requiring different map object class
@@ -1655,8 +1655,17 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
 		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor, onWindowClosed);
-	else if(!market->availableModes().empty())
-		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, market->availableModes().front());
+	else if (!market->availableModes().empty())
+		for(auto mode = EMarketMode::RESOURCE_RESOURCE; mode != EMarketMode::MARKET_AFTER_LAST_PLACEHOLDER; mode = vstd::next(mode, 1))
+		{
+			if(vstd::contains(market->availableModes(), mode))
+			{
+				GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, mode);
+				break;
+			}
+		}
+	else
+		onWindowClosed();
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)

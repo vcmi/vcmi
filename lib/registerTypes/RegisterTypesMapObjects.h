@@ -132,8 +132,7 @@ void registerTypesMapObjects(Serializer &s)
 
 	//s.template registerType<CObstacleInstance>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
-
-	s.template registerType<CGMarket, CGArtifactsAltar>();
+	s.template registerType<IMarket, CGMarket>();
 }
 
 VCMI_LIB_NAMESPACE_END

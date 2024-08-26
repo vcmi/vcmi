@@ -464,7 +464,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
-			if(town->id == townId && town->builtBuildings.count(BuildingID::TAVERN))
+			if(town->id == townId && town->hasBuilt(BuildingID::TAVERN))
 				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 		}
 	}, [town]{
@@ -476,7 +476,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
-			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+			if(town->hasBuilt(BuildingID::MARKETPLACE))
 			{
 				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;

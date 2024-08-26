@@ -342,6 +342,11 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		ret->upgrade = BuildingID::NONE;
 
 	ret->town->buildings[ret->bid] = ret;
+	for(const auto & element : source["marketModes"].Vector())
+	{
+		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
+			ret->marketModes.insert(MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String()));
+	}
 
 	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, ret->bid.getNum());
 }

@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "CArtifactsBuying.h"
 
-#include "../../gui/CGuiHandler.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -21,24 +20,16 @@
 
 #include "../../../CCallback.h"
 
-#include "../../../lib/entities/building/CBuilding.h"
-#include "../../../lib/entities/faction/CTownHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 
-CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
+CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero, const std::string & title)
 	: CMarketBase(market, hero)
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, bidTradePanel);})
 {
 	OBJECT_CONSTRUCTION;
 
-	std::string title;
-	if(auto townMarket = dynamic_cast<const CGTownInstance*>(market))
-		title = (*CGI->townh)[townMarket->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
-	else
-		title = CGI->generaltexth->allTexts[349];
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this](){CArtifactsBuying::makeDeal();}, EShortcut::MARKET_DEAL);
@@ -77,7 +68,7 @@ void CArtifactsBuying::makeDeal()
 {
 	if(ArtifactID(offerTradePanel->getSelectedItemId()).toArtifact()->canBePutAt(hero))
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getSelectedItemId()),
+		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_ARTIFACT, GameResID(bidTradePanel->getSelectedItemId()),
 			ArtifactID(offerTradePanel->getSelectedItemId()), offerQty, hero);
 		CMarketTraderText::makeDeal();
 		deselect();

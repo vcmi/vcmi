@@ -27,6 +27,7 @@ public:
 private:
 	void createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero);
 	void initWidgetInternals(const EMarketMode mode, const std::pair<std::string, std::string> & quitButtonHelpContainer);
+	std::string getMarketTitle(const ObjectInstanceID marketId, const EMarketMode mode) const;
 
 	void createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero);
 	void createArtifactsSelling(const IMarket * market, const CGHeroInstance * hero);

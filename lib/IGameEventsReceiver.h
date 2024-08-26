@@ -109,7 +109,7 @@ public:
 
 	virtual void showPuzzleMap(){};
 	virtual void viewWorldMap(){};
-	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
+	virtual void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID){};
 	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};

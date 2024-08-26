@@ -2525,7 +2525,7 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 {
 ///incomplete, simply erases target building
 	const CGTownInstance * t = getTown(tid);
-	if (!vstd::contains(t->builtBuildings, bid))
+	if(!t->hasBuilt(bid))
 		return false;
 	RazeStructures rs;
 	rs.tid = tid;
@@ -3565,9 +3565,9 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 				return true;
 		}
 
-		auto market = dynamic_cast<const IMarket*>(o1);
+		auto market = getMarket(id1);
 		if(market == nullptr)
-			market = dynamic_cast<const IMarket*>(o2);
+			market = getMarket(id2);
 		if(market)
 			return market->allowsTrade(EMarketMode::ARTIFACT_EXP);
 
@@ -3916,15 +3916,15 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
+bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");
 	if(hero->getAlignment() == EAlignment::EVIL)
 		COMPLAIN_RET("Evil hero can't sacrifice artifact!");
 
-	assert(m);
-	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(m);
+	assert(market);
+	const auto artSet = market->getArtifactsStorage();
 
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
@@ -3934,15 +3934,15 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 
 	for(const auto & artInstId : arts)
 	{
-		if(auto art = altarObj->getArtByInstanceId(artInstId))
+		if(auto art = artSet->getArtByInstanceId(artInstId))
 		{
 			if(art->artType->isTradable())
 			{
 				int dmp;
 				int expToGive;
-				m->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
+				market->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getArtPos(art)));
+				removeArtifact(ArtifactLocation(market->getObjInstanceID(), artSet->getArtPos(art)));
 			}
 			else
 			{
