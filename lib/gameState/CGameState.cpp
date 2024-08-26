@@ -348,7 +348,7 @@ void CGameState::generateOwnedObjectsAfterDeserialize()
 {
 	for (auto & object : map->objects)
 	{
-		if (object->asOwnable() && object->getOwner().isValidPlayer())
+		if (object && object->asOwnable() && object->getOwner().isValidPlayer())
 			players.at(object->getOwner()).addOwnedObject(object.get());
 	}
 }
@@ -492,6 +492,9 @@ void CGameState::randomizeMapObjects()
 				}
 			}
 		}
+
+		if (object->getOwner().isValidPlayer())
+			getPlayerState(object->getOwner())->addOwnedObject(object);
 	}
 }
 
@@ -907,12 +910,6 @@ void CGameState::initTowns()
 void CGameState::initMapObjects()
 {
 	logGlobal->debug("\tObject initialization");
-
-	for(CGObjectInstance *obj : map->objects)
-	{
-		if (obj && obj->getOwner().isValidPlayer())
-			getPlayerState(obj->getOwner())->addOwnedObject(obj);
-	}
 
 //	objCaller->preInit();
 	for(CGObjectInstance *obj : map->objects)
