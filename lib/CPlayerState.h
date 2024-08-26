@@ -115,10 +115,21 @@ public:
 		h & resources;
 		h & status;
 		h & turnTimer;
-		h & ownedObjects;
-		//h & heroes;
-		//h & towns;
-		//h & dwellings;
+
+		if (h.version >= Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
+		{
+			h & ownedObjects;
+		}
+		else
+		{
+			std::vector<const CGObjectInstance* > heroes;
+			std::vector<const CGObjectInstance* > towns;
+			std::vector<const CGObjectInstance* > dwellings;
+
+			h & heroes;
+			h & towns;
+			h & dwellings;
+		}
 		h & quests;
 		h & visitedObjects;
 		h & visitedObjectsGlobal;

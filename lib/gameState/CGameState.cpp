@@ -344,6 +344,15 @@ void CGameState::initCampaign()
 	map = campaign->getCurrentMap().release();
 }
 
+void CGameState::generateOwnedObjectsAfterDeserialize()
+{
+	for (auto & object : map->objects)
+	{
+		if (object->asOwnable() && object->getOwner().isValidPlayer())
+			players.at(object->getOwner()).addOwnedObject(object.get());
+	}
+}
+
 void CGameState::initGlobalBonuses()
 {
 	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_GLOBAL);

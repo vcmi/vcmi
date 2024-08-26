@@ -156,6 +156,8 @@ public:
 		h & day;
 		h & map;
 		h & players;
+		if (h.version < Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
+			generateOwnedObjectsAfterDeserialize();
 		h & teams;
 		h & heroesPool;
 		h & globalEffects;
@@ -194,6 +196,8 @@ private:
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();
+
+	void generateOwnedObjectsAfterDeserialize();
 
 	// ----- bonus system handling -----
 
