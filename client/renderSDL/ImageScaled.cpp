@@ -47,7 +47,7 @@ void ImageScaled::scaleInteger(int factor)
 void ImageScaled::scaleTo(const Point & size)
 {
 	if (body)
-		body = body->scaleTo(size, nullptr); // FIXME: adjust for scaling
+		body = body->scaleTo(size * GH.screenHandler().getScalingFactor(), nullptr);
 }
 
 void ImageScaled::exportBitmap(const boost::filesystem::path &path) const
