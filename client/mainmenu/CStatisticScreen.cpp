@@ -472,6 +472,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	int gridLineCount = 10;
 	int gridStep = computeGridStep(maxVal, gridLineCount);
 	niceMaxVal = gridStep * std::ceil(maxVal / gridStep);
+	niceMaxVal = std::max(1, niceMaxVal); // avoid zero size Y axis (if all values are 0)
 
 	// calculate points in chart
 	auto getPoint = [this](int i, std::vector<float> data){
