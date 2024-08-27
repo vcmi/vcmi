@@ -31,6 +31,8 @@ struct BankConfig;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
+class CSaveFile;
+class CLoadFile;
 enum class EOpenWindowMode : uint8_t;
 
 namespace spells
@@ -74,11 +76,8 @@ public:
 	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
-	template<typename Saver>
-	void saveCommonState(Saver &out) const; //stores GS and VLC
-
-	template<typename Loader>
-	void loadCommonState(Loader &in); //loads GS and VLC
+	void saveCommonState(CSaveFile &out) const; //stores GS and VLC
+	void loadCommonState(CLoadFile &in); //loads GS and VLC
 };
 
 class DLL_LINKAGE IGameEventCallback

@@ -196,7 +196,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 		return true;
 
 	//workaround for mantis #2696 - build capitol with separate algorithm if it is available
-	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
+	if(t->hasBuilt(BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
 	{
 		if(tryBuildNextStructure(t, capitolAndRequirements))
 			return true;

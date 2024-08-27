@@ -11,6 +11,7 @@
 
 #include "CSerializer.h"
 #include "CTypeList.h"
+#include "SerializerReflection.h"
 #include "ESerializationVersion.h"
 #include "Serializeable.h"
 #include "../mapObjects/CArmedInstance.h"
@@ -80,37 +81,6 @@ class BinarySerializer : public CSaverBase
 			return false;
 	}
 
-	template <typename T> class CPointerSaver;
-
-	class CBasicPointerSaver
-	{
-	public:
-		virtual void savePtr(CSaverBase &ar, const Serializeable *data) const =0;
-		virtual ~CBasicPointerSaver() = default;
-
-		template<typename T> static CBasicPointerSaver *getApplier(const T * t=nullptr)
-		{
-			return new CPointerSaver<T>();
-		}
-	};
-
-
-	template <typename T>
-	class CPointerSaver : public CBasicPointerSaver
-	{
-	public:
-		void savePtr(CSaverBase &ar, const Serializeable *data) const override
-		{
-			auto & s = static_cast<BinarySerializer &>(ar);
-			const T *ptr = dynamic_cast<const T*>(data);
-
-			//T is most derived known type, it's time to call actual serialize
-			const_cast<T*>(ptr)->serialize(s);
-		}
-	};
-
-	CApplier<CBasicPointerSaver> applier;
-
 public:
 	using Version = ESerializationVersion;
 
@@ -128,12 +98,6 @@ public:
 	};
 
 	DLL_LINKAGE BinarySerializer(IBinaryWriter * w);
-
-	template<typename Base, typename Derived>
-	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		applier.registerType(b, d);
-	}
 
 	template<class T>
 	BinarySerializer & operator&(const T & t)
@@ -284,7 +248,7 @@ public:
 		if(!tid)
 			save(*data); //if type is unregistered simply write all data in a standard way
 		else
-			applier.getApplier(tid)->savePtr(*this, static_cast<const Serializeable*>(data));  //call serializer specific for our real type
+			CSerializationApplier::getInstance().getApplier(tid)->savePtr(*this, static_cast<const Serializeable*>(data));  //call serializer specific for our real type
 	}
 
 	template < typename T, typename std::enable_if_t < is_serializeable<BinarySerializer, T>::value, int  > = 0 >

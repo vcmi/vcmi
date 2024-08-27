@@ -166,7 +166,7 @@ QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, s
 	
 	checks << new QStandardItem;
 	checks.back()->setCheckable(true);
-	checks.back()->setCheckState(town.builtBuildings.count(buildingId) ? Qt::Checked : Qt::Unchecked);
+	checks.back()->setCheckState(town.hasBuilt(buildingId) ? Qt::Checked : Qt::Unchecked);
 	checks.back()->setData(bId, MapEditorRoles::BuildingIDRole);
 	
 	if(building->getBase() == buildingId)
@@ -350,7 +350,9 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 	if(auto * ed = qobject_cast<TownBuildingsWidget *>(editor))
 	{
 		town.forbiddenBuildings = ed->getForbiddenBuildings();
-		town.builtBuildings = ed->getBuiltBuildings();
+		town.removeAllBuildings();
+		for(const auto & building : ed->getBuiltBuildings())
+			town.addBuilding(building);
 	}
 	else
 	{

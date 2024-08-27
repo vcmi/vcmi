@@ -372,7 +372,7 @@ float Statistic::getTownBuiltRatio(const PlayerState * ps)
 
 	for(const auto & t : ps->towns)
 	{
-		built += t->builtBuildings.size();
+		built += t->getBuildings().size();
 		for(const auto & b : t->town->buildings)
 			if(!t->forbiddenBuildings.count(b.first))
 				total += 1;

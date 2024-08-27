@@ -84,8 +84,15 @@ public:
 	TerrainTile & getTile(const int3 & tile);
 	const TerrainTile & getTile(const int3 & tile) const;
 	bool isCoastalTile(const int3 & pos) const;
-	bool isInTheMap(const int3 & pos) const;
 	bool isWaterTile(const int3 & pos) const;
+	inline bool isInTheMap(const int3 & pos) const
+	{
+		// Check whether coord < 0 is done implicitly. Negative signed int overflows to unsigned number larger than all signed ints.
+		return
+			static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
+			static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
+			static_cast<uint32_t>(pos.z) <= (twoLevel ? 1 : 0);
+	}
 
 	bool canMoveBetween(const int3 &src, const int3 &dst) const;
 	bool checkForVisitableDir(const int3 & src, const TerrainTile * pom, const int3 & dst) const;

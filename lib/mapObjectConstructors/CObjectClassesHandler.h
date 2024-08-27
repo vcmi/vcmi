@@ -55,7 +55,7 @@ public:
 	std::string handlerName; // ID of handler that controls this object, should be determined using handlerConstructor map
 
 	JsonNode base;
-	std::vector<TObjectTypeHandler> objects;
+	std::vector<TObjectTypeHandler> objectTypeHandlers;
 
 	ObjectClass();
 	~ObjectClass();
@@ -69,7 +69,7 @@ public:
 class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase, boost::noncopyable
 {
 	/// list of object handlers, each of them handles only one type
-	std::vector< std::unique_ptr<ObjectClass> > objects;
+	std::vector< std::unique_ptr<ObjectClass> > mapObjectTypes;
 
 	/// map that is filled during construction with all known handlers. Not serializeable due to usage of std::function
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;

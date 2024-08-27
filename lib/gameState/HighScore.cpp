@@ -33,7 +33,7 @@ HighScoreParameter HighScore::prepareHighScores(const CGameState * gs, PlayerCol
 		if(h->hasArt(ArtifactID::GRAIL))
 			param.hasGrail = true;
 	for(const CGTownInstance * t : playerState->towns)
-		if(t->builtBuildings.count(BuildingID::GRAIL))
+		if(t->hasBuilt(BuildingID::GRAIL))
 			param.hasGrail = true;
 	param.allEnemiesDefeated = true;
 	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)

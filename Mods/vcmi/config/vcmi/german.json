@@ -163,7 +163,7 @@
 	"vcmi.systemOptions.townsGroup" : "Stadt-Bildschirm",
 
 	"vcmi.statisticWindow.statistics" : "Statistik",
-	"vcmi.statisticWindow.tsvCopy" : "Daten in Zwischenabl.",
+	"vcmi.statisticWindow.tsvCopy" : "In Zwischenablage",
 	"vcmi.statisticWindow.selectView" : "Ansicht wählen",
 	"vcmi.statisticWindow.value" : "Wert",
 	"vcmi.statisticWindow.title.overview" : "Überblick",

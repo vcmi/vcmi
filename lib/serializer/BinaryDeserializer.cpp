@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "BinaryDeserializer.h"
-#include "../registerTypes/RegisterTypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -17,8 +16,6 @@ BinaryDeserializer::BinaryDeserializer(IBinaryReader * r): CLoaderBase(r)
 {
 	version = Version::NONE;
 	reverseEndianness = false;
-
-	registerTypes(*this);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -29,7 +29,6 @@
 #include "../CCallback.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileInfo.h"
-#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -999,7 +998,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::UNIVERSITY_WINDOW:
 		{
 			//displays University window (when hero enters University on adventure map)
-			const auto * market = dynamic_cast<const IMarket*>(cl.getObj(ObjectInstanceID(pack.object)));
+			const auto * market = cl.getMarket(ObjectInstanceID(pack.object));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
 			callInterfaceIfPresent(cl, hero->tempOwner, &IGameEventsReceiver::showUniversityWindow, market, hero, pack.queryID);
 		}
@@ -1009,7 +1008,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
-			const auto *market = dynamic_cast<const IMarket*>(obj);
+			const auto market = cl.getMarket(pack.object);
 			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, hero, pack.queryID);
 		}
 		break;

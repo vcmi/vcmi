@@ -17,7 +17,12 @@
 
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
-#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
+#include "../lib/campaign/CampaignState.h"
+#include "../lib/gameState/CGameState.h"
+#include "../lib/mapping/CMapDefines.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
+#include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -27,64 +32,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/program_options.hpp>
-
-template<typename T> class CApplyOnServer;
-
-class CBaseForServerApply
-{
-public:
-	virtual bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const =0;
-	virtual void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const =0;
-	virtual ~CBaseForServerApply() {}
-	template<typename U> static CBaseForServerApply * getApplier(const U * t = nullptr)
-	{
-		return new CApplyOnServer<U>();
-	}
-};
-
-template <typename T> class CApplyOnServer : public CBaseForServerApply
-{
-public:
-	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
-	{
-		T * ptr = static_cast<T *>(pack);
-		ClientPermissionsCheckerNetPackVisitor checker(*srv);
-		ptr->visit(checker);
-
-		if(checker.getResult())
-		{
-			ApplyOnServerNetPackVisitor applier(*srv);
-			ptr->visit(applier);
-			return applier.getResult();
-		}
-		else
-			return false;
-	}
-
-	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
-	{
-		T * ptr = static_cast<T *>(pack);
-		ApplyOnServerAfterAnnounceNetPackVisitor applier(*srv);
-		ptr->visit(applier);
-	}
-};
-
-template <>
-class CApplyOnServer<CPack> : public CBaseForServerApply
-{
-public:
-	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-		return false;
-	}
-	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-	}
-};
 
 class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
@@ -126,8 +73,6 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
-	applier = std::make_shared<CApplier<CBaseForServerApply>>();
-	registerTypesLobbyPacks(*applier);
 
 	networkHandler = INetworkHandler::createHandler();
 }
@@ -376,9 +321,16 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 
 void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
 {
-	CBaseForServerApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()));
-	if(apply->applyOnServerBefore(this, pack.get()))
-		announcePack(std::move(pack));
+	ClientPermissionsCheckerNetPackVisitor checker(*this);
+	pack->visit(checker);
+
+	if(checker.getResult())
+	{
+		ApplyOnServerNetPackVisitor applier(*this);
+		pack->visit(applier);
+		if (applier.getResult())
+			announcePack(std::move(pack));
+	}
 }
 
 void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
@@ -392,7 +344,8 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 		activeConnection->sendPack(pack.get());
 	}
 
-	applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
+	ApplyOnServerAfterAnnounceNetPackVisitor applier(*this);
+	pack->visit(applier);
 }
 
 void CVCMIServer::announceMessage(const MetaString & txt)

@@ -332,11 +332,6 @@ bool CMap::isCoastalTile(const int3 & pos) const
 	return false;
 }
 
-bool CMap::isInTheMap(const int3 & pos) const
-{
-	return pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < width && pos.y < height && pos.z <= (twoLevel ? 1 : 0);
-}
-
 TerrainTile & CMap::getTile(const int3 & tile)
 {
 	assert(isInTheMap(tile));

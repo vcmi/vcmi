@@ -174,6 +174,15 @@ const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
 		return nullptr;
 }
 
+const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
+{
+	const CGObjectInstance * obj = getObj(objid, false);
+	if(obj)
+		return dynamic_cast<const IMarket*>(obj);
+	else
+		return nullptr;
+}
+
 void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

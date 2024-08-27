@@ -282,7 +282,7 @@ public:
 	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_);
 
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit,
-		const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
+		const std::string & cachingStr = "") const override;
 
 	int64_t getTreeVersion() const override;
 

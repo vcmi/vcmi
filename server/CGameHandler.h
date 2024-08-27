@@ -40,8 +40,6 @@ namespace scripting
 }
 #endif
 
-template<typename T> class CApplier;
-
 VCMI_LIB_NAMESPACE_END
 
 class HeroPoolProcessor;
@@ -57,7 +55,6 @@ class CObjectVisitQuery;
 class CGameHandler : public IGameCallback, public Environment
 {
 	CVCMIServer * lobby;
-	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
@@ -282,7 +279,7 @@ public:
 
 	void start(bool resume);
 	void tick(int millisecondsPassed);
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts);
+	bool sacrificeArtifact(const IMarket * market, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts);
 	void spawnWanderingMonsters(CreatureID creatureID);
 
 	// Check for victory and loss conditions

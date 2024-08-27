@@ -238,25 +238,27 @@ CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
 				return new CGUniversity(cb);
 		}
 	}
-	else if(marketModes.size() == 2)
-	{
-		if(vstd::contains(marketModes, EMarketMode::ARTIFACT_EXP))
-			return new CGArtifactsAltar(cb);
-	}
 	return new CGMarket(cb);
 }
 
 void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 {
-	market->marketModes = marketModes;
 	market->marketEfficiency = marketEfficiency;
 	
-	market->title = market->getObjectName();
-	if(!title.empty())
-		market->title = VLC->generaltexth->translate(title);
-	
-	if (!speech.empty())
-		market->speech = VLC->generaltexth->translate(speech);
+	if(auto university = dynamic_cast<CGUniversity*>(market))
+	{
+		university->title = market->getObjectName();
+		if(!title.empty())
+			university->title = VLC->generaltexth->translate(title);
+
+		if(!speech.empty())
+			university->speech = VLC->generaltexth->translate(speech);
+	}
+}
+
+const std::set<EMarketMode> & MarketInstanceConstructor::availableModes() const
+{
+	return marketModes;
 }
 
 void MarketInstanceConstructor::randomizeObject(CGMarket * object, vstd::RNG & rng) const

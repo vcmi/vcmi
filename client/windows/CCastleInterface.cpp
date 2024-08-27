@@ -586,9 +586,9 @@ void CCastleBuildings::recreate()
 
 	//Generate buildings list
 
-	auto buildingsCopy = town->builtBuildings;// a bit modified copy of built buildings
+	auto buildingsCopy = town->getBuildings();// a bit modified copy of built buildings
 
-	if(vstd::contains(town->builtBuildings, BuildingID::SHIPYARD))
+	if(town->hasBuilt(BuildingID::SHIPYARD))
 	{
 		auto bayPos = town->bestLocation();
 		if(!bayPos.valid())
@@ -996,7 +996,7 @@ void CCastleBuildings::enterMagesGuild()
 void CCastleBuildings::enterTownHall()
 {
 	if(town->visitingHero && town->visitingHero->hasArt(ArtifactID::GRAIL) &&
-		!vstd::contains(town->builtBuildings, BuildingID::GRAIL)) //hero has grail, but town does not have it
+		!town->hasBuilt(BuildingID::GRAIL)) //hero has grail, but town does not have it
 	{
 		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
 		{
@@ -1033,7 +1033,7 @@ void CCastleBuildings::enterAnyThievesGuild()
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & ownedTown : towns)
 	{
-		if(ownedTown->builtBuildings.count(BuildingID::TAVERN))
+		if(ownedTown->hasBuilt(BuildingID::TAVERN))
 		{
 			LOCPLINT->showThievesGuildWindow(ownedTown);
 			return;
@@ -1059,7 +1059,7 @@ void CCastleBuildings::enterBank()
 
 void CCastleBuildings::enterAnyMarket()
 {
-	if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+	if(town->hasBuilt(BuildingID::MARKETPLACE))
 	{
 		GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 		return;
@@ -1068,7 +1068,7 @@ void CCastleBuildings::enterAnyMarket()
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & town : towns)
 	{
-		if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+		if(town->hasBuilt(BuildingID::MARKETPLACE))
 		{
 			GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 			return;
@@ -1385,7 +1385,7 @@ void CCastleInterface::recreateIcons()
 	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [this]() { builds->enterAnyMarket(); });
 	fastTavern = std::make_shared<LRClickableArea>(Rect(15, 387, 58, 64), [&]()
 	{
-		if(town->builtBuildings.count(BuildingID::TAVERN))
+		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 	}, [this]{
 		if(!town->town->faction->getDescriptionTranslated().empty())
@@ -1563,7 +1563,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 				}
 
 				const CBuilding * current = town->town->buildings.at(buildingID);
-				if(vstd::contains(town->builtBuildings, buildingID))
+				if(town->hasBuilt(buildingID))
 				{
 					building = current;
 				}
@@ -1776,7 +1776,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		{
 			BuildingID dwelling = BuildingID::getDwellingFromLevel(i, 1);
 
-			if(vstd::contains(town->builtBuildings, dwelling))
+			if(town->hasBuilt(dwelling))
 				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, 1));
 			else
 				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, 0));
@@ -1841,7 +1841,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		buildingIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, getMyBuilding()->bid, 0, 4, 21);
 		buildingName = std::make_shared<CLabel>(78, 101, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyBuilding()->getNameTranslated(), 152);
 
-		if(vstd::contains(town->builtBuildings, getMyBuilding()->bid))
+		if(town->hasBuilt(getMyBuilding()->bid))
 		{
 			ui32 available = town->creatures[level].first;
 			std::string availableText = CGI->generaltexth->allTexts[217]+ std::to_string(available);
@@ -1894,8 +1894,9 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 	{
 		if (town->hasBuilt(myID))
 			build = town->town->buildings.at(myID);
-		myID.advance(town->town->creatures.size());
+		BuildingID::advanceDwelling(myID);
 	}
+
 	return build;
 }
 

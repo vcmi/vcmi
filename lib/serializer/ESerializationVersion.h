@@ -65,7 +65,8 @@ enum class ESerializationVersion : int32_t
 	EVENTS_PLAYER_SET, // 854 - map & town events use std::set instead of bitmask to store player list
 	NEW_TOWN_BUILDINGS, // 855 - old bonusing buildings have been removed
 	STATISTICS_SCREEN, // 856 - extent statistic functions
-	RESOURCE_GENERATION, // 857 - resource generation
+	NEW_MARKETS, // 857 - reworked market classes
+	RESOURCE_GENERATION, // 858 - resource generation
 
 	CURRENT = RESOURCE_GENERATION
 };
