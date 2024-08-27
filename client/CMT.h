@@ -20,9 +20,6 @@ extern SDL_Surface *screen;      // main screen surface
 extern SDL_Surface *screen2;     // and hlp surface (used to store not-active interfaces layer)
 extern SDL_Surface *screenBuf; // points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
+// defined in clientapp EntryPoint
 void handleQuit(bool ask = true);
-
-/// Notify user about encountered fatal error and terminate the game
-/// TODO: decide on better location for this method
-[[noreturn]] void handleFatalError(const std::string & message, bool terminate);
-[[noreturn]] void quitApplication();
+void handleFatalError(const std::string & message, bool terminate);

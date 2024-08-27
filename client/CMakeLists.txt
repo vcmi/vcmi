@@ -177,7 +177,6 @@ set(vcmiclientcommon_SRCS
 
 	ArtifactsUIController.cpp
 	CGameInfo.cpp
-	CMT.cpp
 	CPlayerInterface.cpp
 	PlayerLocalState.cpp
 	CServerHandler.cpp

@@ -9,33 +9,37 @@
  */
 
 // EntryPoint.cpp : Defines the entry point for the console application.
-#include "Global.h"
-#include "StdInc.h"
 
-#include "client/CGameInfo.h"
-#include "client/mainmenu/CMainMenu.h"
-#include "media/CEmptyVideoPlayer.h"
-#include "media/CMusicHandler.h"
-#include "media/CSoundHandler.h"
-#include "media/CVideoHandler.h"
-#include "client/gui/CursorHandler.h"
-#include "client/eventsSDL/InputHandler.h"
-#include "client/gui/CGuiHandler.h"
-#include "client/CServerHandler.h"
-#include "client/ClientCommandManager.h"
-#include "client/windows/CMessage.h"
-#include "client/render/IRenderHandler.h"
-#include "client/render/IScreenHandler.h"
-#include "client/render/Graphics.h"
-#include "client/CMT.h"
+#include "StdInc.h"
+#include "../Global.h"
+
+#include "../client/CGameInfo.h"
+#include "../client/ClientCommandManager.h"
+#include "../client/CMT.h"
+#include "../client/CPlayerInterface.h"
+#include "../client/CServerHandler.h"
+#include "../client/eventsSDL/InputHandler.h"
+#include "../client/gui/CGuiHandler.h"
+#include "../client/gui/CursorHandler.h"
+#include "../client/gui/WindowHandler.h"
+#include "../client/mainmenu/CMainMenu.h"
+#include "../client/media/CEmptyVideoPlayer.h"
+#include "../client/media/CMusicHandler.h"
+#include "../client/media/CSoundHandler.h"
+#include "../client/media/CVideoHandler.h"
+#include "../client/render/Graphics.h"
+#include "../client/render/IRenderHandler.h"
+#include "../client/render/IScreenHandler.h"
+#include "../client/windows/CMessage.h"
+#include "../client/windows/InfoWindows.h"
 
 #include "../lib/CThreadHelper.h"
 #include "../lib/ExceptionsCommon.h"
-#include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
 #include "../lib/filesystem/Filesystem.h"
-
 #include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/VCMI_Lib.h"
+#include "../lib/VCMIDirs.h"
 
 #include <boost/program_options.hpp>
 #include <vstd/StringUtils.h>
@@ -55,16 +59,17 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
-std::atomic<bool> headlessQuit = false;
-std::optional<std::string> criticalInitializationError;
+static std::atomic<bool> headlessQuit = false;
+static std::optional<std::string> criticalInitializationError;
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
 #endif
 void playIntro();
+[[noreturn]] static void quitApplication();
 static void mainLoop();
 
-CBasicLogConfigurator *logConfig;
+static CBasicLogConfigurator *logConfig;
 
 void init()
 {
@@ -421,4 +426,118 @@ static void mainLoop()
 		GH.input().fetchEvents();
 		GH.renderFrame();
 	}
+}
+
+[[noreturn]] static void quitApplicationImmediately(int error_code)
+{
+	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
+	// We generally don't care about them and this leads to numerous issues, e.g.
+	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
+	// Android - std::quick_exit is available only starting from API level 21
+	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
+#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
+	::exit(error_code);
+#else
+	std::quick_exit(error_code);
+#endif
+}
+
+[[noreturn]] static void quitApplication()
+{
+	CSH->endNetwork();
+
+	if(!settings["session"]["headless"].Bool())
+	{
+		if(CSH->client)
+			CSH->endGameplay();
+
+		GH.windows().clear();
+	}
+
+	vstd::clear_pointer(CSH);
+
+	CMM.reset();
+
+	if(!settings["session"]["headless"].Bool())
+	{
+		// cleanup, mostly to remove false leaks from analyzer
+		if(CCS)
+		{
+			delete CCS->consoleh;
+			delete CCS->curh;
+			delete CCS->videoh;
+			delete CCS->musich;
+			delete CCS->soundh;
+
+			vstd::clear_pointer(CCS);
+		}
+		CMessage::dispose();
+
+		vstd::clear_pointer(graphics);
+	}
+
+	vstd::clear_pointer(VLC);
+
+	// sometimes leads to a hang. TODO: investigate
+	//vstd::clear_pointer(console);// should be removed after everything else since used by logging
+
+	if(!settings["session"]["headless"].Bool())
+		GH.screenHandler().close();
+
+	if(logConfig != nullptr)
+	{
+		logConfig->deconfigure();
+		delete logConfig;
+		logConfig = nullptr;
+	}
+
+	std::cout << "Ending...\n";
+	quitApplicationImmediately(0);
+}
+
+void handleQuit(bool ask)
+{
+	if(!ask)
+	{
+		if(settings["session"]["headless"].Bool())
+		{
+			headlessQuit = true;
+		}
+		else
+		{
+			quitApplication();
+		}
+
+		return;
+	}
+
+	// FIXME: avoids crash if player attempts to close game while opening is still playing
+	// use cursor handler as indicator that loading is not done yet
+	// proper solution would be to abort init thread (or wait for it to finish)
+	if (!CCS->curh)
+	{
+		quitApplicationImmediately(0);
+	}
+
+	if (LOCPLINT)
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
+	else
+		CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
+}
+
+/// Notify user about encountered fatal error and terminate the game
+/// TODO: decide on better location for this method
+void handleFatalError(const std::string & message, bool terminate)
+{
+	logGlobal->error("FATAL ERROR ENCOUNTERED, VCMI WILL NOW TERMINATE");
+	logGlobal->error("Reason: %s", message);
+
+	std::string messageToShow = "Fatal error! " + message;
+
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal error!", messageToShow.c_str(), nullptr);
+
+	if (terminate)
+		throw std::runtime_error(message);
+	else
+		quitApplicationImmediately(1);
 }
