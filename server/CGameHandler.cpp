@@ -71,8 +71,6 @@
 #include "../lib/pathfinder/PathfinderOptions.h"
 #include "../lib/pathfinder/TurnInfo.h"
 
-#include "../lib/registerTypes/RegisterTypesServerPacks.h"
-
 #include "../lib/rmg/CMapGenOptions.h"
 
 #include "../lib/serializer/CSaveFile.h"
@@ -91,53 +89,6 @@
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
-
-template <typename T> class CApplyOnGH;
-
-class CBaseForGHApply
-{
-public:
-	virtual bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const =0;
-	virtual ~CBaseForGHApply(){}
-	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
-	{
-		return new CApplyOnGH<U>();
-	}
-};
-
-template <typename T> class CApplyOnGH : public CBaseForGHApply
-{
-public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
-	{
-		T *ptr = static_cast<T*>(pack);
-		try
-		{
-			ApplyGhNetPackVisitor applier(*gh);
-
-			ptr->visit(applier);
-
-			return applier.getResult();
-		}
-		catch(ExceptionNotAllowedAction & e)
-		{
-            (void)e;
-			return false;
-		}
-	}
-};
-
-template <>
-class CApplyOnGH<CPack> : public CBaseForGHApply
-{
-public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply on GH plain CPack!");
-		assert(0);
-		return false;
-	}
-};
 
 static inline double distance(int3 a, int3 b)
 {
@@ -499,28 +450,30 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		pack->c->sendPack(&applied);
 	};
 
-	CBaseForGHApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //and appropriate applier object
 	if(isBlockedByQueries(pack, pack->player))
 	{
 		sendPackageResponse(false);
 	}
-	else if(apply)
-	{
-		const bool result = apply->applyOnGH(this, this->gs, pack);
-		if(result)
-			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
-		else
-			complain((boost::format("Got false in applying %s... that request must have been fishy!")
-				% typeid(*pack).name()).str());
 
-		sendPackageResponse(true);
+	bool result;
+	try
+	{
+		ApplyGhNetPackVisitor applier(*this);
+		pack->visit(applier);
+		result = applier.getResult();
 	}
+	catch(ExceptionNotAllowedAction &)
+	{
+		result = false;
+	}
+
+	if(result)
+		logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
 	else
-	{
-		logGlobal->error("Message cannot be applied, cannot find applier (unregistered type)!");
-		sendPackageResponse(false);
-	}
+		complain((boost::format("Got false in applying %s... that request must have been fishy!")
+			% typeid(*pack).name()).str());
 
+	sendPackageResponse(true);
 	vstd::clear_pointer(pack);
 }
 
@@ -538,8 +491,6 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
 {
 	QID = 1;
-	applier = std::make_shared<CApplier<CBaseForGHApply>>();
-	registerTypesServerPacks(*applier);
 
 	spellEnv = new ServerSpellCastEnvironment(this);
 }
@@ -2525,7 +2476,7 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 {
 ///incomplete, simply erases target building
 	const CGTownInstance * t = getTown(tid);
-	if (!vstd::contains(t->builtBuildings, bid))
+	if(!t->hasBuilt(bid))
 		return false;
 	RazeStructures rs;
 	rs.tid = tid;
@@ -2759,10 +2710,11 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 	}
 	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
 	{
-		//check if moving hero out of town will break 8 wandering heroes limit
-		if (getHeroCount(town->garrisonHero->tempOwner,false) >= 8)
+		int mapCap = VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		//check if moving hero out of town will break wandering heroes limit
+		if (getHeroCount(town->garrisonHero->tempOwner,false) >= mapCap)
 		{
-			complain("Cannot move hero out of the garrison, there are already 8 wandering heroes!");
+			complain("Cannot move hero out of the garrison, there are already " + std::to_string(mapCap) + " wandering heroes!");
 			return false;
 		}
 
@@ -3564,9 +3516,9 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 				return true;
 		}
 
-		auto market = dynamic_cast<const IMarket*>(o1);
+		auto market = getMarket(id1);
 		if(market == nullptr)
-			market = dynamic_cast<const IMarket*>(o2);
+			market = getMarket(id2);
 		if(market)
 			return market->allowsTrade(EMarketMode::ARTIFACT_EXP);
 
@@ -3915,15 +3867,15 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
+bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");
 	if(hero->getAlignment() == EAlignment::EVIL)
 		COMPLAIN_RET("Evil hero can't sacrifice artifact!");
 
-	assert(m);
-	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(m);
+	assert(market);
+	const auto artSet = market->getArtifactsStorage();
 
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
@@ -3933,15 +3885,15 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 
 	for(const auto & artInstId : arts)
 	{
-		if(auto art = altarObj->getArtByInstanceId(artInstId))
+		if(auto art = artSet->getArtByInstanceId(artInstId))
 		{
 			if(art->artType->isTradable())
 			{
 				int dmp;
 				int expToGive;
-				m->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
+				market->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getArtPos(art)));
+				removeArtifact(ArtifactLocation(market->getObjInstanceID(), artSet->getArtPos(art)));
 			}
 			else
 			{

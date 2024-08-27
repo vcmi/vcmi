@@ -183,6 +183,11 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
+    # a hack to build ID for x64 build in order for Google Play to allow upload of both 32 and 64 bit builds
+    - name: Bump Android x64 build ID
+      if: ${{ matrix.platform == 'android-64' }}
+      run: perl -i -pe 's/versionCode (\d+)/$x=$1+1; "versionCode $x"/e' android/vcmi-app/build.gradle
+
     - name: Build Number
       run: |
         source '${{github.workspace}}/CI/get_package_name.sh'

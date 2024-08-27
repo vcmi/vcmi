@@ -166,12 +166,12 @@ void Initializer::initialize(CGTownInstance * o)
 
 	const std::vector<std::string> castleLevels{"village", "fort", "citadel", "castle", "capitol"};
 	int lvl = vstd::find_pos(castleLevels, o->appearance->stringID);
-	o->builtBuildings.insert(BuildingID::DEFAULT);
-	if(lvl > -1) o->builtBuildings.insert(BuildingID::TAVERN);
-	if(lvl > 0) o->builtBuildings.insert(BuildingID::FORT);
-	if(lvl > 1) o->builtBuildings.insert(BuildingID::CITADEL);
-	if(lvl > 2) o->builtBuildings.insert(BuildingID::CASTLE);
-	if(lvl > 3) o->builtBuildings.insert(BuildingID::CAPITOL);
+	o->addBuilding(BuildingID::DEFAULT);
+	if(lvl > -1) o->addBuilding(BuildingID::TAVERN);
+	if(lvl > 0) o->addBuilding(BuildingID::FORT);
+	if(lvl > 1) o->addBuilding(BuildingID::CITADEL);
+	if(lvl > 2) o->addBuilding(BuildingID::CASTLE);
+	if(lvl > 3) o->addBuilding(BuildingID::CAPITOL);
 
 	for(auto const & spell : VLC->spellh->objects) //add all regular spells to town
 	{

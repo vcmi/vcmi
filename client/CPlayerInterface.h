@@ -120,7 +120,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
+	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
 	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override; //called when a hero casts a spell

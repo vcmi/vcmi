@@ -23,7 +23,7 @@
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/mapObjects/IMarket.h"
 
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -69,7 +69,7 @@ void CFreelancerGuild::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getSelectedItemId()), bidQty * toTrade, hero);
+		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getSelectedItemId()), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
 	}

@@ -79,8 +79,8 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 
 		CGTownInstance * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->tempOwner = player;
-		town->builtBuildings.insert(BuildingID::FORT);
-		town->builtBuildings.insert(BuildingID::DEFAULT);
+		town->addBuilding(BuildingID::FORT);
+		town->addBuilding(BuildingID::DEFAULT);
 		
 
 		for(auto spellID : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
@@ -203,8 +203,8 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 		
 		town->tempOwner = player;
 		if (hasFort)
-			town->builtBuildings.insert(BuildingID::FORT);
-		town->builtBuildings.insert(BuildingID::DEFAULT);
+			town->addBuilding(BuildingID::FORT);
+		town->addBuilding(BuildingID::DEFAULT);
 		
 		for(auto spellID : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
 			town->possibleSpells.push_back(spellID);

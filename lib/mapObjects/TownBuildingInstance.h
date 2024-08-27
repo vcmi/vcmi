@@ -92,18 +92,4 @@ public:
 	}
 };
 
-/// Compatibility for old code
-class DLL_LINKAGE CTownCompatBuilding1 : public TownRewardableBuildingInstance
-{
-public:
-	using TownRewardableBuildingInstance::TownRewardableBuildingInstance;
-};
-
-/// Compatibility for old code
-class DLL_LINKAGE CTownCompatBuilding2 : public TownRewardableBuildingInstance
-{
-public:
-	using TownRewardableBuildingInstance::TownRewardableBuildingInstance;
-};
-
 VCMI_LIB_NAMESPACE_END

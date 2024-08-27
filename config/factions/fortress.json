@@ -165,7 +165,7 @@
 				"townHall":       { },
 				"cityHall":       { },
 				"capitol":        { },
-				"marketplace":    { },
+				"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
 				"resourceSilo":   { "produce": { "wood": 1, "ore": 1 } },
 				"blacksmith":     { },
 

@@ -162,14 +162,14 @@
 				"townHall":       { },
 				"cityHall":       { },
 				"capitol":        { },
-				"marketplace":    { },
+				"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
 				"resourceSilo":   { "produce": { "ore": 1, "wood": 1 } },
 				"blacksmith":     { },
 
 				"special1":       { "type" : "escapeTunnel", "requires" : [ "fort" ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
-				"special2":       { "type" : "freelancersGuild", "requires" : [ "marketplace" ] },
+				"special2":       { "type" : "freelancersGuild", "requires" : [ "marketplace" ], "marketModes" : ["creature-resource"] },
 				"special3":       { "type" : "ballistaYard", "requires" : [ "blacksmith" ] },
 				"special4":       { 
 					"requires" : [ "fort" ],

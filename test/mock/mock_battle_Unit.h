@@ -15,7 +15,7 @@
 class UnitMock : public battle::Unit
 {
 public:
-	MOCK_CONST_METHOD4(getAllBonuses, TConstBonusListPtr(const CSelector &, const CSelector &, const CBonusSystemNode *, const std::string &));
+	MOCK_CONST_METHOD3(getAllBonuses, TConstBonusListPtr(const CSelector &, const CSelector &, const std::string &));
 	MOCK_CONST_METHOD0(getTreeVersion, int64_t());
 
 	MOCK_CONST_METHOD0(getCasterUnitId, int32_t());

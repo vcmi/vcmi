@@ -38,9 +38,6 @@ class TavernHeroesPool;
 struct SThievesGuildInfo;
 class CRandomGenerator;
 
-template<typename T> class CApplier;
-class CBaseForGSApply;
-
 struct UpgradeInfo
 {
 	CreatureID oldID; //creature to be upgraded
@@ -101,7 +98,7 @@ public:
 	/// picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
-	void apply(CPack *pack);
+	void apply(CPackForClient *pack);
 	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & rand);
 
 	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
@@ -215,7 +212,6 @@ private:
 	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----
-	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
 	Services * services;
 
 	/// Pointer to campaign state manager. Nullptr for single scenarios

@@ -52,6 +52,8 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 	std::string nameTextId; // name of town
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
+	std::set<BuildingID> builtBuildings;
+
 public:
 	using CGDwelling::getPosition;
 
@@ -65,7 +67,6 @@ public:
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
-	std::set<BuildingID> builtBuildings;
 	std::map<BuildingID, TownRewardableBuildingInstance*> rewardableBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
@@ -76,6 +77,9 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGDwelling&>(*this);
+		if (h.version >= Handler::Version::NEW_MARKETS)
+			h & static_cast<IMarket&>(*this);
+
 		h & nameTextId;
 		h & built;
 		h & destroyed;
@@ -114,6 +118,9 @@ public:
 			town = faction ? faction->town : nullptr;
 		}
 
+		if (!h.saving && h.version < Handler::Version::NEW_MARKETS)
+			postDeserializeMarketFix();
+
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
@@ -133,6 +140,7 @@ public:
 	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();
 	void postDeserialize();
+	void postDeserializeMarketFix();
 	void recreateBuildingsBonuses();
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
@@ -152,9 +160,8 @@ public:
 	EGeneratorState shipyardStatus() const override;
 	const IObjectInterface * getObject() const override;
 	int getMarketEfficiency() const override; //=market count
-	bool allowsTrade(EMarketMode mode) const override;
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
-
+	ObjectInstanceID getObjInstanceID() const override;
 	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -174,6 +181,10 @@ public:
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(const BuildingID & buildingID) const;
 	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
+	void addBuilding(const BuildingID & buildingID);
+	void removeBuilding(const BuildingID & buildingID);
+	void removeAllBuildings();
+	std::set<BuildingID> getBuildings() const;
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
 	TResources dailyIncome() const; //calculates daily income of this town

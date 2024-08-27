@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CTypeList.h"
 
-#include "../registerTypes/RegisterTypes.h"
+#include "RegisterTypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

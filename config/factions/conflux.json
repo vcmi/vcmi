@@ -171,11 +171,11 @@
 				"townHall":       { },
 				"cityHall":       { },
 				"capitol":        { },
-				"marketplace":    { },
+				"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
 				"resourceSilo":   { "produce": { "mercury": 1 } },
 				"blacksmith":     { },
 
-				"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ] },
+				"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },

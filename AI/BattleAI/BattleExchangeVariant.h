@@ -54,7 +54,6 @@ struct AttackerValue
 struct MoveTarget
 {
 	float score;
-	float scorePerTurn;
 	std::vector<BattleHex> positions;
 	std::optional<AttackPossibility> cachedAttack;
 	uint8_t turnsToRich;
@@ -64,7 +63,7 @@ struct MoveTarget
 
 struct EvaluationResult
 {
-	static const int64_t INEFFECTIVE_SCORE = -10000;
+	static const int64_t INEFFECTIVE_SCORE = -100000000;
 
 	AttackPossibility bestAttack;
 	MoveTarget bestMove;
@@ -113,13 +112,15 @@ private:
 
 struct ReachabilityData
 {
-	std::vector<const battle::Unit *> units;
+	std::map<int, std::vector<const battle::Unit *>> units;
 
 	// shooters which are within mellee attack and mellee units
 	std::vector<const battle::Unit *> melleeAccessible;
 
 	// far shooters
 	std::vector<const battle::Unit *> shooters;
+
+	std::set<uint32_t> enemyUnitsReachingAttacker;
 };
 
 class BattleExchangeEvaluator
@@ -131,6 +132,7 @@ private:
 	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
 	std::vector<battle::Units> turnOrder;
 	float negativeEffectMultiplier;
+	int simulationTurnsCount;
 
 	float scoreValue(const BattleScore & score) const;
 
@@ -139,7 +141,8 @@ private:
 		uint8_t turn,
 		PotentialTargets & targets,
 		DamageCache & damageCache,
-		std::shared_ptr<HypotheticBattle> hb) const;
+		std::shared_ptr<HypotheticBattle> hb,
+		std::vector<const battle::Unit *> additionalUnits = {}) const;
 
 	bool canBeHitThisTurn(const AttackPossibility & ap);
 
@@ -147,7 +150,8 @@ public:
 	BattleExchangeEvaluator(
 		std::shared_ptr<CBattleInfoCallback> cb,
 		std::shared_ptr<Environment> env,
-		float strengthRatio): cb(cb), env(env) {
+		float strengthRatio,
+		int simulationTurnsCount): cb(cb), env(env), simulationTurnsCount(simulationTurnsCount){
 		negativeEffectMultiplier = strengthRatio >= 1 ? 1 : strengthRatio * strengthRatio;
 	}
 
@@ -171,7 +175,8 @@ public:
 		const AttackPossibility & ap,
 		uint8_t turn,
 		PotentialTargets & targets,
-		std::shared_ptr<HypotheticBattle> hb) const;
+		std::shared_ptr<HypotheticBattle> hb,
+		std::vector<const battle::Unit *> additionalUnits = {}) const;
 
 	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
 

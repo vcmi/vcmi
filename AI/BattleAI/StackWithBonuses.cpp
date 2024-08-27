@@ -132,10 +132,10 @@ SlotID StackWithBonuses::unitSlot() const
 }
 
 TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, const CSelector & limit,
-	const CBonusSystemNode * root, const std::string & cachingStr) const
+	const std::string & cachingStr) const
 {
 	auto ret = std::make_shared<BonusList>();
-	TConstBonusListPtr originalList = origBearer->getAllBonuses(selector, limit, root, cachingStr);
+	TConstBonusListPtr originalList = origBearer->getAllBonuses(selector, limit, cachingStr);
 
 	vstd::copy_if(*originalList, std::back_inserter(*ret), [this](const std::shared_ptr<Bonus> & b)
 	{

@@ -690,35 +690,6 @@ int CGTownInstance::getMarketEfficiency() const
 	return marketCount;
 }
 
-bool CGTownInstance::allowsTrade(EMarketMode mode) const
-{
-	switch(mode)
-	{
-	case EMarketMode::RESOURCE_RESOURCE:
-	case EMarketMode::RESOURCE_PLAYER:
-		return hasBuilt(BuildingID::MARKETPLACE);
-
-	case EMarketMode::ARTIFACT_RESOURCE:
-	case EMarketMode::RESOURCE_ARTIFACT:
-		return hasBuilt(BuildingSubID::ARTIFACT_MERCHANT);
-
-	case EMarketMode::CREATURE_RESOURCE:
-		return hasBuilt(BuildingSubID::FREELANCERS_GUILD);
-
-	case EMarketMode::CREATURE_UNDEAD:
-		return hasBuilt(BuildingSubID::CREATURE_TRANSFORMER);
-
-	case EMarketMode::RESOURCE_SKILL:
-		return hasBuilt(BuildingSubID::MAGIC_UNIVERSITY);
-	case EMarketMode::CREATURE_EXP:
-	case EMarketMode::ARTIFACT_EXP:
-		return false;
-	default:
-		assert(0);
-		return false;
-	}
-}
-
 std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) const
 {
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
@@ -737,6 +708,11 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	}
 	else
 		return IMarket::availableItemsIds(mode);
+}
+
+ObjectInstanceID CGTownInstance::getObjInstanceID() const
+{
+	return id;
 }
 
 void CGTownInstance::updateAppearance()
@@ -932,12 +908,7 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 
 bool CGTownInstance::hasBuiltSomeTradeBuilding() const
 {
-	for(const auto & bid : builtBuildings)
-	{
-		if(town->buildings.at(bid)->IsTradeBuilding())
-			return true;
-	}
-	return false;
+	return availableModes().empty() ? false : true;
 }
 
 bool CGTownInstance::hasBuilt(BuildingSubID::EBuildingSubID buildingID) const
@@ -960,6 +931,50 @@ bool CGTownInstance::hasBuilt(const BuildingID & buildingID, FactionID townID) c
 	if (townID == town->faction->getId() || townID == FactionID::ANY)
 		return hasBuilt(buildingID);
 	return false;
+}
+
+void CGTownInstance::addBuilding(const BuildingID & buildingID)
+{
+	if(buildingID == BuildingID::NONE)
+		return;
+
+	const auto townType = (*VLC->townh)[getFaction()]->town;
+	if(const auto & building = townType->buildings.find(buildingID); building != townType->buildings.end())
+	{
+		builtBuildings.insert(buildingID);
+		addMarketMode(building->second->marketModes);
+	}
+}
+
+void CGTownInstance::postDeserializeMarketFix()
+{
+	// re-add all buildings to recreate existing market modes
+	auto buildingsBak = builtBuildings;
+	for (auto building : buildingsBak)
+		addBuilding(building);
+}
+
+void CGTownInstance::removeBuilding(const BuildingID & buildingID)
+{
+	if(!vstd::contains(builtBuildings, buildingID))
+		return;
+
+	if(const auto & building = town->buildings.find(buildingID); building != town->buildings.end())
+	{
+		builtBuildings.erase(buildingID);
+		removeMarketMode(building->second->marketModes);
+	}
+}
+
+void CGTownInstance::removeAllBuildings()
+{
+	builtBuildings.clear();
+	removeAllMarketModes();
+}
+
+std::set<BuildingID> CGTownInstance::getBuildings() const
+{
+	return builtBuildings;
 }
 
 TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
@@ -1132,23 +1147,23 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			handler.serializeLIC("buildings", buildingsLIC);
 
-			builtBuildings.insert(BuildingID::VILLAGE_HALL);
+			addBuilding(BuildingID::VILLAGE_HALL);
 
 			if(buildingsLIC.none.empty() && buildingsLIC.all.empty())
 			{
-				builtBuildings.insert(BuildingID::DEFAULT);
+				addBuilding(BuildingID::DEFAULT);
 
 				bool hasFort = false;
 				handler.serializeBool("hasFort",hasFort);
 				if(hasFort)
-					builtBuildings.insert(BuildingID::FORT);
+					addBuilding(BuildingID::FORT);
 			}
 			else
 			{
 				for(const si32 item : buildingsLIC.none)
 					forbiddenBuildings.insert(BuildingID(item));
 				for(const si32 item : buildingsLIC.all)
-					builtBuildings.insert(BuildingID(item));
+					addBuilding(BuildingID(item));
 			}
 		}
 	}

@@ -217,6 +217,7 @@ set(lib_MAIN_SRCS
 	serializer/JsonSerializeFormat.cpp
 	serializer/JsonSerializer.cpp
 	serializer/JsonUpdater.cpp
+	serializer/SerializerReflection.cpp
 
 	spells/AbilityCaster.cpp
 	spells/AdventureSpellMechanics.cpp
@@ -563,12 +564,6 @@ set(lib_MAIN_HEADERS
 	pathfinder/PathfindingRules.h
 	pathfinder/TurnInfo.h
 
-	registerTypes/RegisterTypes.h
-	registerTypes/RegisterTypesClientPacks.h
-	registerTypes/RegisterTypesLobbyPacks.h
-	registerTypes/RegisterTypesMapObjects.h
-	registerTypes/RegisterTypesServerPacks.h
-
 	rewardable/Configuration.h
 	rewardable/Info.h
 	rewardable/Interface.h
@@ -625,7 +620,9 @@ set(lib_MAIN_HEADERS
 	serializer/JsonUpdater.h
 	serializer/Cast.h
 	serializer/ESerializationVersion.h
+	serializer/RegisterTypes.h
 	serializer/Serializeable.h
+	serializer/SerializerReflection.h
 
 	spells/AbilityCaster.h
 	spells/AdventureSpellMechanics.h

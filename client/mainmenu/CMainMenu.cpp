@@ -47,7 +47,6 @@
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
-#include "../../lib/serializer/CTypeList.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
 #include "../../lib/mapping/CMapInfo.h"
