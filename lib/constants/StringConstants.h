@@ -190,7 +190,8 @@ namespace MappedKeys
 		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },
 		{ "treasury", BuildingSubID::TREASURY },
 		{ "thievesGuild", BuildingSubID::THIEVES_GUILD },
-		{ "bank", BuildingSubID::BANK }
+		{ "bank", BuildingSubID::BANK },
+		{ "altarOfSacrifice", BuildingSubID::ALTAR_OF_SACRIFICE }
 	};
 
 	static const std::map<std::string, EMarketMode> MARKET_NAMES_TO_TYPES =

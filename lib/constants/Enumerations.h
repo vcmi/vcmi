@@ -38,7 +38,8 @@ namespace BuildingSubID
 		MAGIC_UNIVERSITY,
 		TREASURY,
 		THIEVES_GUILD,
-		BANK
+		BANK,
+		ALTAR_OF_SACRIFICE
 	};
 }
 

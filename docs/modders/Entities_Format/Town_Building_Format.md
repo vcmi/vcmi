@@ -216,6 +216,7 @@ Following Heroes III buildings can be used as unique buildings for a town. Their
 Following HotA buildings can be used as unique building for a town. Functionality should match corresponding HotA building:
 - `thievesGuild`
 - `bank`
+- `altarOfSacrifice` (Grotto)
 
 #### Custom buildings
 In addition to above, it is possible to use same format as [Rewardable](../Map_Objects/Rewardable.md) map objects for town buildings. In order to do that, configuration of a rewardable object must be placed into `configuration` json node in building config.

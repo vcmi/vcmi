@@ -763,6 +763,13 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
+				case BuildingSubID::ALTAR_OF_SACRIFICE:
+						if(town->visitingHero)
+							GH.windows().createAndPushWindow<CMarketWindow>(town, town->visitingHero, nullptr, getHero()->getAlignment() != EAlignment::EVIL ? EMarketMode::ARTIFACT_EXP : EMarketMode::CREATURE_EXP);
+						else
+							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
+						break;
+
 				case BuildingSubID::FOUNTAIN_OF_FORTUNE:
 						enterFountain(building, subID, upgrades);
 					break;
