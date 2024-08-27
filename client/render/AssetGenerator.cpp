@@ -26,7 +26,7 @@ void AssetGenerator::generate()
 
 void AssetGenerator::createAdventureOptionsCleanBackground()
 {
-	std::string filename = "data/ADVOPTBC.bmp";
+	std::string filename = "data/AdventureOptionsBackgroundClear.bmp";
 
 	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
 		return;
@@ -56,7 +56,7 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 
 void AssetGenerator::createBigSpellBook()
 {
-	std::string filename = "data/SpelBk2.bmp";
+	std::string filename = "data/SpellBookLarge.bmp";
 
 	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
 		return;

@@ -115,7 +115,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	if(isBigSpellbook)
 	{
-		background = std::make_shared<CPicture>(ImagePath::builtin("SpelBk2"), 0, 0);
+		background = std::make_shared<CPicture>(ImagePath::builtin("SpellBookLarge"), 0, 0);
 		updateShadow();
 	}
 	else

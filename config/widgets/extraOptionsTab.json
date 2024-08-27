@@ -6,7 +6,7 @@
 		{
 			"name": "background",
 			"type": "picture",
-			"image": "ADVOPTBC",
+			"image": "AdventureOptionsBackgroundClear",
 			"position": {"x": 0, "y": 6}
 		},
 		{
