@@ -19,6 +19,7 @@
 #include "../CSkillHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/CommonConstructors.h"
 #include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -46,6 +47,14 @@ int CGMarket::getMarketEfficiency() const
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 {
 	return -1;
+}
+
+std::set<EMarketMode> CGMarket::availableModes() const
+{
+	const auto & baseHandler = getObjectHandler();
+	const auto & ourHandler = std::dynamic_pointer_cast<MarketInstanceConstructor>(baseHandler);
+
+	return ourHandler->availableModes();
 }
 
 CGMarket::CGMarket(IGameCallback *cb):

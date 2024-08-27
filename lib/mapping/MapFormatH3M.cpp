@@ -2198,7 +2198,6 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)
 	{
-		object->subID = faction.value();
 		std::set<BuildingID> builtBuildings;
 		reader->readBitmaskBuildings(builtBuildings, faction);
 		for(const auto & building : builtBuildings)

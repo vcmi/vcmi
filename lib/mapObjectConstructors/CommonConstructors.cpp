@@ -243,7 +243,6 @@ CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
 
 void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 {
-	market->addMarketMode(marketModes);
 	market->marketEfficiency = marketEfficiency;
 	
 	if(auto university = dynamic_cast<CGUniversity*>(market))
@@ -255,6 +254,11 @@ void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 		if(!speech.empty())
 			university->speech = VLC->generaltexth->translate(speech);
 	}
+}
+
+const std::set<EMarketMode> & MarketInstanceConstructor::availableModes() const
+{
+	return marketModes;
 }
 
 void MarketInstanceConstructor::randomizeObject(CGMarket * object, vstd::RNG & rng) const

@@ -199,7 +199,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 
 	if(const auto pickedArtInst = heroArts->getPickedArtifact())
 	{
-		if(pickedArtInst->canBePutAt(altarArtifactsStorage.get()))
+		if(pickedArtInst->canBePutAt(altarArtifactsStorage))
 		{
 			if(pickedArtInst->artType->isTradable())
 			{

@@ -938,20 +938,19 @@ void CGTownInstance::addBuilding(const BuildingID & buildingID)
 	if(buildingID == BuildingID::NONE)
 		return;
 
-	const auto townType = (*VLC->townh)[getFaction()]->town;
-	if(const auto & building = townType->buildings.find(buildingID); building != townType->buildings.end())
-	{
-		builtBuildings.insert(buildingID);
-		addMarketMode(building->second->marketModes);
-	}
+	builtBuildings.insert(buildingID);
 }
 
-void CGTownInstance::postDeserializeMarketFix()
+std::set<EMarketMode> CGTownInstance::availableModes() const
 {
-	// re-add all buildings to recreate existing market modes
-	auto buildingsBak = builtBuildings;
-	for (auto building : buildingsBak)
-		addBuilding(building);
+	std::set<EMarketMode> result;
+	for (const auto & buildingID : builtBuildings)
+	{
+		const auto * buildingPtr = town->buildings.at(buildingID).get();
+		result.insert(buildingPtr->marketModes.begin(), buildingPtr->marketModes.end());
+	}
+
+	return result;
 }
 
 void CGTownInstance::removeBuilding(const BuildingID & buildingID)
@@ -959,17 +958,12 @@ void CGTownInstance::removeBuilding(const BuildingID & buildingID)
 	if(!vstd::contains(builtBuildings, buildingID))
 		return;
 
-	if(const auto & building = town->buildings.find(buildingID); building != town->buildings.end())
-	{
-		builtBuildings.erase(buildingID);
-		removeMarketMode(building->second->marketModes);
-	}
+	builtBuildings.erase(buildingID);
 }
 
 void CGTownInstance::removeAllBuildings()
 {
 	builtBuildings.clear();
-	removeAllMarketModes();
 }
 
 std::set<BuildingID> CGTownInstance::getBuildings() const

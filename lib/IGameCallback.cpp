@@ -284,7 +284,7 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 	else if(auto market = getMarket(loc.artHolder))
 	{
 		if(auto artSet = market->getArtifactsStorage())
-			return artSet.get();
+			return artSet;
 	}
 	else if(auto army = getArmyInstance(loc.artHolder))
 	{
