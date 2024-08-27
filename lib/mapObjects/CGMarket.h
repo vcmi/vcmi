@@ -29,11 +29,17 @@ public:
 	ObjectInstanceID getObjInstanceID() const override;
 	int getMarketEfficiency() const override;
 	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
+	std::set<EMarketMode> availableModes() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & static_cast<IMarket&>(*this);
+		if (h.version < Handler::Version::NEW_MARKETS)
+		{
+			std::set<EMarketMode> marketModes;
+			h & marketModes;
+		}
+
 		h & marketEfficiency;
 		if (h.version < Handler::Version::NEW_MARKETS)
 		{
@@ -47,7 +53,6 @@ public:
 	template <typename Handler> void serializeArtifactsAltar(Handler &h)
 	{
 		serialize(h);
-		IMarket::serializeArtifactsAltar(h);
 	}
 };
 
