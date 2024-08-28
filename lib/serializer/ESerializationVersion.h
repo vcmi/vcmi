@@ -66,7 +66,6 @@ enum class ESerializationVersion : int32_t
 	NEW_TOWN_BUILDINGS, // 855 - old bonusing buildings have been removed
 	STATISTICS_SCREEN, // 856 - extent statistic functions
 	NEW_MARKETS, // 857 - reworked market classes
-	RESOURCE_GENERATION, // 858 - resource generation
 
-	CURRENT = RESOURCE_GENERATION
+	CURRENT = NEW_MARKETS
 };

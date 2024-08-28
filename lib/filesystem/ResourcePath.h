@@ -99,7 +99,6 @@ public:
 	bool empty() const {return name.empty();}
 	std::string getName() const {return name;}
 	std::string getOriginalName() const {return originalName;}
-	bool getOriginalResource() const {return originalResource;}
 	EResType getType() const {return type;}
 
 	void serializeJson(JsonSerializeFormat & handler);
@@ -109,8 +108,6 @@ public:
 		h & type;
 		h & name;
 		h & originalName;
-		if (h.version >= Handler::Version::RESOURCE_GENERATION)
-			h & originalResource;
 	}
 
 protected:
@@ -123,9 +120,6 @@ protected:
 
 	/// name in original case
 	std::string originalName;
-
-	/// flag for requesting unmodded, original resource
-	bool originalResource;
 };
 
 template<EResType Type>
@@ -186,17 +180,6 @@ public:
 		ResourcePathTempl result;
 		result.name = prefix + this->getName();
 		result.originalName = prefix + this->getOriginalName();
-		result.originalResource = this->getOriginalResource();
-
-		return result;
-	}
-
-	ResourcePathTempl setOriginalResource(bool original) const
-	{
-		ResourcePathTempl result;
-		result.name = this->getName();
-		result.originalName = this->getOriginalName();
-		result.originalResource = original;
 
 		return result;
 	}

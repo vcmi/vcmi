@@ -36,7 +36,6 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 	ResourcePath savePath(filename, EResType::IMAGE);
 
 	auto res = ImagePath::builtin("ADVOPTBK");
-	res = res.setOriginalResource(true);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
 
@@ -66,7 +65,6 @@ void AssetGenerator::createBigSpellBook()
 	ResourcePath savePath(filename, EResType::IMAGE);
 
 	auto res = ImagePath::builtin("SpelBack");
-	res = res.setOriginalResource(true);
 
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
 	Canvas canvas = Canvas(Point(800, 600), CanvasScalingPolicy::IGNORE);
