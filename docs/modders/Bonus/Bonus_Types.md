@@ -1010,9 +1010,11 @@ Dummy bonus that acts as marker for Dendroid's Bind ability
 
 Dummy skill for alternative upgrades mod
 
-### TOWN_MAGIC_WELL
+### THIEVES_GUILD_ACCESS
 
-Internal bonus, do not use
+Increases amount of information available in affected thieves guild (in town or in adventure map tavern). Does not affects adventure map object "Den of Thieves". You may want to use PLAYER_PROPAGATOR with this bonus to make its effect player wide.
+
+- val: additional number of 'levels' of information to grant access to
 
 ### LEVEL_COUNTER
 

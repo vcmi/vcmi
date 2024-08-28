@@ -34,14 +34,12 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 		CTown * town;
 	};
 
-	std::map<CTown *, JsonNode> warMachinesToLoad;
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
 	static const TPropagatorPtr & emptyPropagator();
 
 	void initializeRequirements();
-	void initializeWarMachines();
 
 	/// loads CBuilding's into town
 	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad) const;

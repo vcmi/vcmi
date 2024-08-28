@@ -44,13 +44,10 @@ int CGTownInstance::getSightRadius() const //returns sight distance
 
 	for(const auto & bid : builtBuildings)
 	{
-		if(bid.IsSpecialOrGrail())
-		{
-			auto height = town->buildings.at(bid)->height;
-			if(ret < height)
-				ret = height;
+		auto height = town->buildings.at(bid)->height;
+		if(ret < height)
+			ret = height;
 	}
-}
 	return ret;
 }
 
@@ -1174,6 +1171,31 @@ FactionID CGTownInstance::getFaction() const
 TerrainId CGTownInstance::getNativeTerrain() const
 {
 	return town->faction->getNativeTerrain();
+}
+
+ArtifactID CGTownInstance::getWarMachineInBuilding(BuildingID building) const
+{
+	if (builtBuildings.count(building) == 0)
+		return ArtifactID::NONE;
+
+	if (building == BuildingID::BLACKSMITH && town->warMachineDeprecated.hasValue())
+		return town->warMachineDeprecated.toCreature()->warMachine;
+
+	return town->buildings.at(building)->warMachine;
+}
+
+bool CGTownInstance::isWarMachineAvailable(ArtifactID warMachine) const
+{
+	for (auto const & buildingID : builtBuildings)
+		if (town->buildings.at(buildingID)->warMachine == warMachine)
+			return true;
+
+	if (builtBuildings.count(BuildingID::BLACKSMITH) &&
+	   town->warMachineDeprecated.hasValue() &&
+	   town->warMachineDeprecated.toCreature()->warMachine == warMachine)
+		return true;
+
+	return false;
 }
 
 GrowthInfo::Entry::Entry(const std::string &format, int _count)

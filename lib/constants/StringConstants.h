@@ -178,18 +178,11 @@ namespace MappedKeys
 	static const std::map<std::string, BuildingSubID::EBuildingSubID> SPECIAL_BUILDINGS =
 	{
 		{ "mysticPond", BuildingSubID::MYSTIC_POND },
-		{ "artifactMerchant", BuildingSubID::ARTIFACT_MERCHANT },
-		{ "freelancersGuild", BuildingSubID::FREELANCERS_GUILD },
-		{ "magicUniversity", BuildingSubID::MAGIC_UNIVERSITY },
 		{ "castleGate", BuildingSubID::CASTLE_GATE },
-		{ "creatureTransformer", BuildingSubID::CREATURE_TRANSFORMER },//only skeleton transformer yet
 		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
-		{ "ballistaYard", BuildingSubID::BALLISTA_YARD },
 		{ "library", BuildingSubID::LIBRARY },
-		{ "fountainOfFortune", BuildingSubID::FOUNTAIN_OF_FORTUNE },//luck garrison bonus
 		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },
 		{ "treasury", BuildingSubID::TREASURY },
-		{ "thievesGuild", BuildingSubID::THIEVES_GUILD },
 		{ "bank", BuildingSubID::BANK }
 	};
 

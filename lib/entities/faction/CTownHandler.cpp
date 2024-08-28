@@ -324,6 +324,14 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	}
 	loadBuildingRequirements(ret, source["requires"], requirementsToLoad);
 
+	if (!source["warMachine"].isNull())
+	{
+		VLC->identifiers()->requestIdentifier("artifact", source["warMachine"], [=](si32 identifier)
+		{
+			ret->warMachine = ArtifactID(identifier);
+		});
+	}
+
 	if (!source["upgrades"].isNull())
 	{
 		// building id and upgrades can't be the same
@@ -552,7 +560,13 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	else
 		town->primaryRes = GameResID(resIter - std::begin(GameConstants::RESOURCE_NAMES));
 
-	warMachinesToLoad[town] = source["warMachine"];
+	if (!source["warMachine"].isNull())
+	{
+		VLC->identifiers()->requestIdentifier( "creature", source["warMachine"], [=](si32 creatureID)
+		{
+			town->warMachineDeprecated = creatureID;
+		});
+	}
 
 	town->mageLevel = static_cast<ui32>(source["mageGuild"].Float());
 
@@ -848,7 +862,6 @@ void CTownHandler::beforeValidate(JsonNode & object)
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
-	initializeWarMachines();
 }
 
 void CTownHandler::initializeRequirements()
@@ -876,27 +889,6 @@ void CTownHandler::initializeRequirements()
 		});
 	}
 	requirementsToLoad.clear();
-}
-
-void CTownHandler::initializeWarMachines()
-{
-	// must be done separately after all objects are loaded
-	for(auto & p : warMachinesToLoad)
-	{
-		CTown * t = p.first;
-		JsonNode creatureKey = p.second;
-
-		auto ret = VLC->identifiers()->getIdentifier("creature", creatureKey, false);
-
-		if(ret)
-		{
-			const CCreature * creature = CreatureID(*ret).toCreature();
-
-			t->warMachine = creature->warMachine;
-		}
-	}
-
-	warMachinesToLoad.clear();
 }
 
 std::set<FactionID> CTownHandler::getDefaultAllowed() const
