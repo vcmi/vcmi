@@ -11,7 +11,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>Têm uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós</translation>
+        <translation>Tem uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
@@ -341,7 +341,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="309"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
         <source>Required VCMI version</source>
-        <translation>Versão do VCMI requerida</translation>
+        <translation>Versão do VCMI necessária</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
