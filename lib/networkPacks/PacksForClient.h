@@ -1136,6 +1136,7 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient //103  - displays simple i
 	ui16 soundID = 0;
 
 	void visitTyped(ICPackVisitor & visitor) override;
+	void applyGs(CGameState * gs) override {}
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -1180,7 +1181,6 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 		h & newWeekNotification;
 	}
 };
-	void applyGs(CGameState * gs) override {}
 
 struct DLL_LINKAGE SetObjectProperty : public CPackForClient
 {

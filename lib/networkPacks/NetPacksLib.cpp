@@ -1901,15 +1901,15 @@ void NewTurn::applyGs(CGameState *gs)
 	gs->globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
-	for(const auto & manaPack : heroesMana)
+	for(auto & manaPack : heroesMana)
 		manaPack.applyGs(gs);
 
-	for(const auto & movePack : heroesMovement)
+	for(auto & movePack : heroesMovement)
 		movePack.applyGs(gs);
 
 	gs->heroesPool->onNewDay();
 
-	for(const auto & entry : playerIncome)
+	for(auto & entry : playerIncome)
 	{
 		gs->getPlayerState(entry.first)->resources += entry.second;
 		gs->getPlayerState(entry.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
