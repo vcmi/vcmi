@@ -45,6 +45,8 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	addCallback("closeWindow", [this](int) { backButtonCallback(); });
 	build(config);
 
+	addUsedEvents(INPUT_MODE_CHANGE);
+
 	std::shared_ptr<CIntObject> background = widget<CIntObject>("background");
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
