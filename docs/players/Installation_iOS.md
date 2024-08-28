@@ -14,7 +14,7 @@ have the following options:
 - if you're on iOS 14.0-15.4.1, you can try <https://github.com/opa334/TrollStore>
 - Get signer tool [here](https://dantheman827.github.io/ios-app-signer/) and a guide [here](https://forum.kodi.tv/showthread.php?tid=245978) (it's for Kodi, but the logic is the same). Signing with this app can only be done on macOS.
 - [Create signing assets on macOS from terminal](https://github.com/kambala-decapitator/xcode-auto-signing-assets). In the command replace `your.bundle.id` with something like `com.MY-NAME.vcmi`. After that use the above signer tool.
-- [Sign from any OS](https://github.com/indygreg/PyOxidizer/tree/main/tugger-code-signing). You'd still need to find a way to create signing assets (private key and provisioning profile) though.
+- [Sign from any OS (Rust)](https://github.com/indygreg/PyOxidizer/tree/main/tugger-code-signing) / [alternative project (C++)](https://github.com/zhlynn/zsign). You'd still need to find a way to create signing assets (private key and provisioning profile) though.
 
 To install the signed ipa on your device, you can use Xcode or Apple Configurator (available on the Mac App Store for free). The latter also allows installing ipa from the command line, here's an example that assumes you have only 1 device connected to your Mac and the signed ipa is on your desktop:
 
