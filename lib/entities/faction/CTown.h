@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../building/TownFortifications.h"
 #include "../../ConstTransitivePtr.h"
 #include "../../Point.h"
 #include "../../constants/EntityIdentifiers.h"
@@ -70,7 +71,10 @@ public:
 	ui32 mageLevel; //max available mage guild level
 	GameResID primaryRes;
 	CreatureID warMachineDeprecated;
-	SpellID moatAbility;
+
+	/// Base state of fortifications for empty town.
+	/// Used to define shooter units and moat spell ID
+	TownFortifications fortifications;
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
@@ -99,7 +103,6 @@ public:
 
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
-		CreatureID siegeShooter; // shooter creature ID
 		std::string towerIconSmall;
 		std::string towerIconLarge;
 

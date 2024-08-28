@@ -17,6 +17,7 @@
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
@@ -262,7 +263,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 	if(score <= EvaluationResult::INEFFECTIVE_SCORE
 		&& !stack->hasBonusOfType(BonusType::FLYING)
 		&& stack->unitSide() == BattleSide::ATTACKER
-		&& cb->getBattle(battleID)->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+	   && cb->getBattle(battleID)->battleGetFortifications().hasMoat)
 	{
 		auto brokenWallMoat = getBrokenWallMoatHexes();
 

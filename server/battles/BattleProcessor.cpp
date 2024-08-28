@@ -23,6 +23,7 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -192,7 +193,7 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 bool BattleProcessor::checkBattleStateChanges(const CBattleInfoCallback & battle)
 {
 	//check if drawbridge state need to be changes
-	if (battle.battleGetSiegeLevel() > 0)
+	if (battle.battleGetFortifications().wallsHealth > 0)
 		updateGateState(battle);
 
 	if (resultProcessor->battleIsEnding(battle))

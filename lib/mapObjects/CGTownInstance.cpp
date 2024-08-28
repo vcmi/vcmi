@@ -245,6 +245,19 @@ bool CGTownInstance::hasCapitol() const
 	return hasBuilt(BuildingID::CAPITOL);
 }
 
+TownFortifications CGTownInstance::fortificationsLevel() const
+{
+	auto result = town->fortifications;
+
+	for (auto const	& buildingID : builtBuildings)
+		result += town->buildings.at(buildingID)->fortifications;
+
+	if (result.wallsHealth == 0)
+		return TownFortifications();
+
+	return result;
+}
+
 CGTownInstance::CGTownInstance(IGameCallback *cb):
 	CGDwelling(cb),
 	town(nullptr),
@@ -384,8 +397,6 @@ void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
 
 DamageRange CGTownInstance::getTowerDamageRange() const
 {
-	assert(hasBuilt(BuildingID::CASTLE));
-
 	// http://heroes.thelazy.net/wiki/Arrow_tower
 	// base damage, irregardless of town level
 	static constexpr int baseDamage = 6;
@@ -402,8 +413,6 @@ DamageRange CGTownInstance::getTowerDamageRange() const
 
 DamageRange CGTownInstance::getKeepDamageRange() const
 {
-	assert(hasBuilt(BuildingID::CITADEL));
-
 	// http://heroes.thelazy.net/wiki/Arrow_tower
 	// base damage, irregardless of town level
 	static constexpr int baseDamage = 10;

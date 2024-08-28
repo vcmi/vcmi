@@ -229,7 +229,7 @@ BattleAction CBattleAI::useCatapult(const BattleID & battleID, const CStack * st
 		{
 			auto wallState = cb->getBattle(battleID)->battleGetWallState(wallPart);
 
-			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
+			if(wallState != EWallState::NONE && wallState != EWallState::DESTROYED)
 			{
 				targetHex = cb->getBattle(battleID)->wallPartToBattleHex(wallPart);
 				break;

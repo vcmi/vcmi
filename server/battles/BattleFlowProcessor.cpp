@@ -19,6 +19,7 @@
 #include "../../lib/GameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -114,13 +115,18 @@ void BattleFlowProcessor::tryPlaceMoats(const CBattleInfoCallback & battle)
 {
 	const auto * town = battle.battleGetDefendedTown();
 
+	if (!town)
+		return;
+
+	const auto & fortifications = town->fortificationsLevel();
+
 	//Moat should be initialized here, because only here we can use spellcasting
-	if (town && town->fortLevel() >= CGTownInstance::CITADEL)
+	if (fortifications.hasMoat)
 	{
 		const auto * h = battle.battleGetFightingHero(BattleSide::DEFENDER);
 		const auto * actualCaster = h ? static_cast<const spells::Caster*>(h) : nullptr;
 		auto moatCaster = spells::SilentCaster(battle.sideToPlayer(BattleSide::DEFENDER), actualCaster);
-		auto cast = spells::BattleCast(&battle, &moatCaster, spells::Mode::PASSIVE, town->town->moatAbility.toSpell());
+		auto cast = spells::BattleCast(&battle, &moatCaster, spells::Mode::PASSIVE, fortifications.moatSpell.toSpell());
 		auto target = spells::Target();
 		cast.cast(gameHandler->spellEnv, target);
 	}
