@@ -42,6 +42,7 @@ public:
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void wheelScrolled(int distance) override;
 	
 	bool dragActive;
