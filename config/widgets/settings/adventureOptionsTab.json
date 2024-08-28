@@ -364,7 +364,7 @@
 				},
 				{
 					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
-					"created" : "desktop"
+					"created" : "keyboardMouse"
 				},
 				{
 					"text": "vcmi.adventureOptions.smoothDragging.hover"
@@ -379,7 +379,7 @@
 			[
 				{
 					"text": "vcmi.adventureOptions.rightButtonDrag.hover",
-					"created" : "desktop"
+					"created" : "keyboardMouse"
 				}
 			]
 		},
@@ -423,7 +423,7 @@
 					"name": "leftButtonDragCheckbox",
 					"help": "vcmi.adventureOptions.leftButtonDrag",
 					"callback": "leftButtonDragChanged",
-					"created" : "desktop"
+					"created" : "keyboardMouse"
 				},
 				{
 					"name": "smoothDraggingCheckbox",
@@ -442,7 +442,7 @@
 					"name": "rightButtonDragCheckbox",
 					"help": "vcmi.adventureOptions.rightButtonDrag",
 					"callback": "rightButtonDragChanged",
-					"created" : "desktop"
+					"created" : "keyboardMouse"
 				}
 			]
 		}

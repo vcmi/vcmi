@@ -196,3 +196,8 @@ void SettingsMainWindow::onScreenResize()
 	if (tab)
 		tab->updateResolutionSelector();
 }
+
+void SettingsMainWindow::inputModeChanged(InputMode mode)
+{
+	tabContentArea->reset();
+}
