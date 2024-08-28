@@ -18,6 +18,7 @@
 #include "../widgets/TextControls.h"
 #include "../CServerHandler.h"
 #include "../CGameInfo.h"
+#include "../render/AssetGenerator.h"
 
 #include "../../lib/StartInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -68,6 +69,8 @@ std::vector<SimturnsInfo> OptionsTabBase::getSimturnsPresets() const
 
 OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 {
+	AssetGenerator::createAdventureOptionsCleanBackground();
+
 	recActions = 0;
 
 	auto setTimerPresetCallback = [this](int index){

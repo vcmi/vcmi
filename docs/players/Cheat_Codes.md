@@ -120,13 +120,14 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 `bonuses` - shows bonuses of currently selected adventure map object
 
 #### Extract commands
-`translate` - save game texts into json files  
-`translate maps` - save map and campaign texts into json files  
-`get config` - save game objects data into json files  
-`get scripts` - dumps lua script stuff into files (currently inactive due to scripting disabled for default builds)    
-`get txt` - save game texts into .txt files matching original heroes 3 files  
-`def2bmp <.def file name>` - extract .def animation as BMP files  
-`extract <relative file path>` - export file into directory used by other extraction commands  
+`translate` - save game texts into json files
+`translate maps` - save map and campaign texts into json files
+`get config` - save game objects data into json files
+`get scripts` - dumps lua script stuff into files (currently inactive due to scripting disabled for default builds)
+`get txt` - save game texts into .txt files matching original heroes 3 files
+`def2bmp <.def file name>` - extract .def animation as BMP files
+`extract <relative file path>` - export file into directory used by other extraction commands
+`generate assets` - generate all assets at once
 
 #### AI commands
 `setBattleAI <ai name>` - change battle AI used by neutral creatures to the one specified, persists through game quit  

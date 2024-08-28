@@ -11,9 +11,8 @@
 
 class AssetGenerator
 {
+public:
+    static void generateAll();
     static void createAdventureOptionsCleanBackground();
     static void createBigSpellBook();
-
-public:
-    static void generate();
 };

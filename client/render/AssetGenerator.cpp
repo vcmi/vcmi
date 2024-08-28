@@ -18,7 +18,7 @@
 
 #include "../lib/filesystem/Filesystem.h"
 
-void AssetGenerator::generate()
+void AssetGenerator::generateAll()
 {
 	createBigSpellBook();
 	createAdventureOptionsCleanBackground();
