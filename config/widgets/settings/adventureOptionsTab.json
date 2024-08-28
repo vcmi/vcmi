@@ -373,6 +373,18 @@
 		},
 		{
 			"type": "verticalLayout",
+			"customType": "labelDescription",
+			"position": {"x": 225, "y": 415},
+			"items":
+			[
+				{
+					"text": "vcmi.adventureOptions.rightButtonDrag.hover",
+					"created" : "desktop"
+				}
+			]
+		},
+		{
+			"type": "verticalLayout",
 			"customType": "checkbox",
 			"position": {"x": 10, "y": 233},
 			"items":
@@ -417,6 +429,20 @@
 					"name": "smoothDraggingCheckbox",
 					"help": "vcmi.adventureOptions.smoothDragging",
 					"callback": "smoothDraggingChanged"
+				}
+			]
+		},
+		{
+			"type": "verticalLayout",
+			"customType": "checkbox",
+			"position": {"x": 190, "y": 413},
+			"items":
+			[
+				{
+					"name": "rightButtonDragCheckbox",
+					"help": "vcmi.adventureOptions.rightButtonDrag",
+					"callback": "rightButtonDragChanged",
+					"created" : "desktop"
 				}
 			]
 		}

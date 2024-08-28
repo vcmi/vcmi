@@ -126,6 +126,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("adventure", "leftButtonDrag", value);
 	});
+	addCallback("rightButtonDragChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "rightButtonDrag", value);
+	});
 	addCallback("smoothDraggingChanged", [](bool value)
 	{
 		return setBoolSetting("adventure", "smoothDragging", value);
@@ -176,6 +180,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	std::shared_ptr<CToggleButton> leftButtonDragCheckbox = widget<CToggleButton>("leftButtonDragCheckbox");
 	if (leftButtonDragCheckbox)
 		leftButtonDragCheckbox->setSelected(settings["adventure"]["leftButtonDrag"].Bool());
+
+	std::shared_ptr<CToggleButton> rightButtonDragCheckbox = widget<CToggleButton>("rightButtonDragCheckbox");
+	if (rightButtonDragCheckbox)
+		rightButtonDragCheckbox->setSelected(settings["adventure"]["rightButtonDrag"].Bool());
 
 	std::shared_ptr<CToggleButton> smoothDraggingCheckbox = widget<CToggleButton>("smoothDraggingCheckbox");
 	if (smoothDraggingCheckbox)
