@@ -361,6 +361,14 @@ void ApplyClientNetPackVisitor::visitHeroVisit(HeroVisit & pack)
 void ApplyClientNetPackVisitor::visitNewTurn(NewTurn & pack)
 {
 	cl.invalidatePaths();
+
+	if (pack.newWeekNotification)
+	{
+		const auto & newWeek = *pack.newWeekNotification;
+
+		std::string str = newWeek.text.toString();
+		callAllInterfaces(cl, &CGameInterface::showInfoDialog, newWeek.type, str, newWeek.components,(soundBase::soundID)newWeek.soundID);
+	}
 }
 
 void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)

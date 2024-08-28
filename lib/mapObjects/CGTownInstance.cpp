@@ -181,7 +181,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
 	{
-		dwellingBonus = getDwellingBonus(creatures[level].second, p->dwellings);
+		dwellingBonus = getDwellingBonus(creatures[level].second, p->getOwnedObjects());
 	}
 	if(dwellingBonus)
 		ret.entries.emplace_back(VLC->generaltexth->allTexts[591], dwellingBonus); // \nExternal dwellings %+d
@@ -192,15 +192,18 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	return ret;
 }
 
-int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const
+int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance * >& dwellings) const
 {
 	int totalBonus = 0;
 	for (const auto& dwelling : dwellings)
 	{
-		for (const auto& creature : dwelling->creatures)
-		{
-			totalBonus += vstd::contains(creatureIds, creature.second[0]) ? 1 : 0;
-		}
+		const auto & dwellingCreatures = dwelling->asOwnable()->providedCreatures();
+		bool hasMatch = false;
+		for (const auto& creature : dwellingCreatures)
+			hasMatch = vstd::contains(creatureIds, creature);
+
+		if (hasMatch)
+			totalBonus += 1;
 	}
 	return totalBonus;
 }
@@ -225,11 +228,14 @@ TResources CGTownInstance::dailyIncome() const
 		}
 	}
 
-	auto playerSettings = cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner());
-	for(TResources::nziterator it(ret); it.valid(); it++)
-		// always round up income - we don't want to always produce zero if handicap in use
-		ret[it->resType] = vstd::divideAndCeil(ret[it->resType] * playerSettings.handicap.percentIncome, 100);
+	const auto & playerSettings = cb->getPlayerSettings(getOwner());
+	ret.applyHandicap(playerSettings->handicap.percentIncome);
 	return ret;
+}
+
+std::vector<CreatureID> CGTownInstance::providedCreatures() const
+{
+	return {};
 }
 
 bool CGTownInstance::hasFort() const
@@ -478,20 +484,6 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 {
 	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
 	{
-		//give resources if there's a Mystic Pond
-		if (hasBuilt(BuildingSubID::MYSTIC_POND)
-			&& cb->getDate(Date::DAY) != 1
-			&& (tempOwner.isValidPlayer())
-			)
-		{
-			int resID = rand.nextInt(2, 5); //bonus to random rare resource
-			resID = (resID==2)?1:resID;
-			int resVal = rand.nextInt(1, 4);//with size 1..4
-			cb->giveResource(tempOwner, static_cast<EGameResID>(resID), resVal);
-			cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_FIRST, resID);
-			cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, resVal);
-		}
-
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 		{
 			std::vector<SlotID> nativeCrits; //slots
@@ -646,9 +638,9 @@ void CGTownInstance::removeCapitols(const PlayerColor & owner) const
 	if (hasCapitol()) // search if there's an older capitol
 	{
 		PlayerState* state = cb->gameState()->getPlayerState(owner); //get all towns owned by player
-		for (auto i = state->towns.cbegin(); i < state->towns.cend(); ++i)
+		for (const auto & town : state->getTowns())
 		{
-			if (*i != this && (*i)->hasCapitol())
+			if (town != this && town->hasCapitol())
 			{
 				RazeStructures rs;
 				rs.tid = id;
@@ -683,7 +675,7 @@ int CGTownInstance::getMarketEfficiency() const
 	assert(p);
 
 	int marketCount = 0;
-	for(const CGTownInstance *t : p->towns)
+	for(const CGTownInstance *t : p->getTowns())
 		if(t->hasBuiltSomeTradeBuilding())
 			marketCount++;
 

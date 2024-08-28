@@ -12,6 +12,7 @@
 #include <vcmi/spells/Caster.h>
 
 #include "CArmedInstance.h"
+#include "IOwnableObject.h"
 
 #include "../CArtHandler.h" // For CArtifactSet
 
@@ -48,7 +49,7 @@ protected:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader, public IOwnableObject
 {
 	// We serialize heroes into JSON for crossover
 	friend class CampaignState;
@@ -164,6 +165,10 @@ public:
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
+
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
+	const IOwnableObject * asOwnable() const final;
 
 	//INativeTerrainProvider
 	FactionID getFaction() const override;

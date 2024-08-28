@@ -536,7 +536,7 @@ void CGameStateCampaign::initHeroes()
 		}
 		assert(humanPlayer != PlayerColor::NEUTRAL);
 
-		std::vector<ConstTransitivePtr<CGHeroInstance> > & heroes = gameState->players[humanPlayer].heroes;
+		const auto & heroes = gameState->players[humanPlayer].getHeroes();
 
 		if (chosenBonus->info1 == 0xFFFD) //most powerful
 		{

@@ -140,7 +140,7 @@ public:
 	virtual void sendAndApply(CPackForClient * pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) = 0;
-	virtual void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
+	virtual void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
 	
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 

@@ -395,4 +395,9 @@ BattleField CGObjectInstance::getBattlefield() const
 	return VLC->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
 }
 
+const IOwnableObject * CGObjectInstance::asOwnable() const
+{
+	return nullptr;
+}
+
 VCMI_LIB_NAMESPACE_END
