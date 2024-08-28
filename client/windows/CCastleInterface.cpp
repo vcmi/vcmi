@@ -712,8 +712,6 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 		return true;
 	}
 
-	// FIXME: implement correct visiting of thieves guild
-
 	if (!b->marketModes.empty())
 	{
 		switch (*b->marketModes.begin())
@@ -825,11 +823,18 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 						enterBank();
 						return true;
 				}
-				return false;
-		default:
-			return false;
 		}
 	}
+
+	for (auto const & bonus : b->buildingBonuses)
+	{
+		if (bonus->type == BonusType::THIEVES_GUILD_ACCESS)
+		{
+			enterAnyThievesGuild();
+			return true;
+		}
+	}
+	return false;
 }
 
 void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactID)
