@@ -232,10 +232,6 @@
         <translation>Inativo</translation>
     </message>
     <message>
-        <source>Download &amp;&amp; refresh repositories</source>
-        <translation type="vanished">Baixar e atualizar repositórios</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="348"/>
         <source>Description</source>
@@ -464,10 +460,6 @@
         <translation>Baixando %1. %p% (%v MB de %m MB) concluído</translation>
     </message>
     <message>
-        <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation type="vanished">Baixando %s%. %p% (%v MB de %m MB) completado</translation>
-    </message>
-    <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="726"/>
         <source>Download failed</source>
         <translation>Falha no download</translation>
@@ -635,10 +627,6 @@ Instalar o download realizado com sucesso?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="309"/>
         <source>Artificial Intelligence</source>
         <translation>Inteligência Artificial</translation>
-    </message>
-    <message>
-        <source>Mod Repositories</source>
-        <translation type="vanished">Repositórios de Mods</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1080"/>
@@ -821,10 +809,6 @@ Instalar o download realizado com sucesso?</translation>
         <translation>Limite de salvamento automático (0 = sem limite)</translation>
     </message>
     <message>
-        <source>Friendly AI in battles</source>
-        <translation type="vanished">IA amigável nas batalhas</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1038"/>
         <source>Framerate Limit</source>
         <translation>Limite de Taxa de Quadros</translation>
@@ -868,14 +852,6 @@ Instalar o download realizado com sucesso?</translation>
         <location filename="../settingsView/csettingsview_moc.cpp" line="83"/>
         <source>On</source>
         <translation>Ativado</translation>
-    </message>
-    <message>
-        <source>Cursor</source>
-        <translation type="vanished">Cursor</translation>
-    </message>
-    <message>
-        <source>Heroes III Data Language</source>
-        <translation type="vanished">Idioma dos Dados do Heroes III</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="391"/>
@@ -1086,21 +1062,9 @@ Heroes® of Might and Magic® III HD atualmente não é suportado!</translation>
         <translation>Instalar arquivos do gog.com</translation>
     </message>
     <message>
-        <source>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.</source>
-        <translation type="vanished">Para executar o VCMI, os arquivos de dados do Heroes III precisam estar presentes em um dos locais especificados. Por favor, copie os dados do Heroes III para um desses diretórios.</translation>
-    </message>
-    <message>
-        <source>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</source>
-        <translation type="vanished">Alternativamente, você pode fornecer o diretório onde os dados do Heroes III estão instalados e o VCMI irá copiar os dados existentes automaticamente.</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="495"/>
         <source>Your Heroes III data files have been successfully found.</source>
         <translation>Seus arquivos de dados do Heroes III foram encontrados com sucesso.</translation>
-    </message>
-    <message>
-        <source>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</source>
-        <translation type="vanished">A detecção automática do idioma do Heroes III falhou. Por favor, selecione o idioma do seu Heroes III manualmente</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="749"/>
@@ -1186,10 +1150,6 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
         <translation>Buscar novamente</translation>
     </message>
     <message>
-        <source>If you don&apos;t have a copy of Heroes III installed, VCMI can import your Heroes III data using the offline installer from gog.com.</source>
-        <translation type="vanished">Se você não tiver uma cópia do Heroes III instalada, o VCMI pode importar seus dados do Heroes III usando o instalador offline do gog.com.</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="448"/>
         <source>Heroes III data files</source>
         <translation>Arquivos de dados do Heroes III</translation>
@@ -1198,14 +1158,6 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="286"/>
         <source>Copy existing data</source>
         <translation>Copiar dados existentes</translation>
-    </message>
-    <message>
-        <source>Your Heroes III language has been successfully detected.</source>
-        <translation type="vanished">Seu idioma do Heroes III foi detectado com sucesso.</translation>
-    </message>
-    <message>
-        <source>Heroes III language</source>
-        <translation type="vanished">Idioma do Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="564"/>
@@ -1286,8 +1238,26 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
         <translation>Dados do GOG</translation>
     </message>
     <message>
-        <source>Installing... Please wait!</source>
-        <translation type="vanished">Instalando... Por favor, aguarde!</translation>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
+        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
+        <translation>Você forneceu o instalador do GOG Galaxy! Este arquivo não contém o jogo. Por favor, faça o download do instalador offline de backup do jogo!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
+        <source>Stream error while extracting files!
+error reason: </source>
+        <translation>Erro de fluxo ao extrair arquivos!
+Motivo do erro: </translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
+        <source>Not a supported Inno Setup installer!</source>
+        <translation>Instalador Inno Setup não suportado!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
+        <source>Extracting error!</source>
+        <translation>Erro ao extrair!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
@@ -1313,28 +1283,6 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
 Please select directory with installed Heroes III data.</source>
         <translation>Falha ao detectar dados válidos do Heroes III no diretório escolhido.
 Por favor, selecione o diretório com os dados do Heroes III instalados.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
-        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation>Você forneceu o instalador do GOG Galaxy! Este arquivo não contém o jogo. Por favor, faça o download do instalador offline de backup do jogo!</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
-        <source>Stream error while extracting files!
-error reason: </source>
-        <translation>Erro de fluxo ao extrair arquivos!
-Motivo do erro: </translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
-        <source>Not a supported Inno Setup installer!</source>
-        <translation>Instalador do Inno Setup não suportado!</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
-        <source>Extracting error!</source>
-        <translation>Erro ao extrair!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
@@ -1447,18 +1395,6 @@ Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III
         <translation>Vietnamita</translation>
     </message>
     <message>
-        <source>Other (East European)</source>
-        <translation type="vanished">Outros (Leste Europeu)</translation>
-    </message>
-    <message>
-        <source>Other (Cyrillic Script)</source>
-        <translation type="vanished">Outros (Escrita Cirílica)</translation>
-    </message>
-    <message>
-        <source>Other (West European)</source>
-        <translation type="vanished">Outros (Oeste Europeu)</translation>
-    </message>
-    <message>
         <location filename="../languages.cpp" line="61"/>
         <source>Auto (%1)</source>
         <translation>Automático (%1)</translation>
@@ -1509,10 +1445,6 @@ Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III
         <source>Type</source>
         <translation>Tipo</translation>
     </message>
-    <message>
-        <source>Version</source>
-        <translation type="vanished">Versão</translation>
-    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -1534,7 +1466,7 @@ Motivo: %2</translation>
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation>Já possui a versão mais recente</translation>
+        <translation>Já tem a versão mais recente</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
