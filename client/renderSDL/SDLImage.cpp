@@ -472,13 +472,11 @@ void SDLImageIndexed::setShadowTransparency(float factor)
 	};
 
 	// seems to be used unconditionally
+	colorsSDL[0] = CSDL_Ext::toSDL(Colors::TRANSPARENCY);
 	colorsSDL[1] = CSDL_Ext::toSDL(shadow25);
 	colorsSDL[4] = CSDL_Ext::toSDL(shadow50);
 
 	// seems to be used only if color matches
-	if (colorsSimilar(originalPalette->colors[0], sourcePalette[0]))
-		colorsSDL[0] = CSDL_Ext::toSDL(Colors::TRANSPARENCY);
-
 	if (colorsSimilar(originalPalette->colors[2], sourcePalette[2]))
 		colorsSDL[2] = CSDL_Ext::toSDL(shadow25);
 
@@ -501,6 +499,9 @@ void SDLImageIndexed::setShadowEnabled(bool on)
 {
 	if (on)
 		setShadowTransparency(1.0);
+
+	if (!on && blitMode == EImageBlitMode::ALPHA)
+		setShadowTransparency(0.0);
 
 	shadowEnabled = on;
 }

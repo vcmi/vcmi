@@ -12,6 +12,15 @@
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
+enum class EImageLayer
+{
+	ALL,
+
+	BODY,
+	SHADOW,
+	OVERLAY,
+};
+
 struct ImageLocator
 {
 	std::optional<ImagePath> image;
@@ -19,13 +28,12 @@ struct ImageLocator
 	int defFrame = -1;
 	int defGroup = -1;
 
+	PlayerColor playerColored = PlayerColor::CANNOT_DETERMINE;
+
 	bool verticalFlip = false;
 	bool horizontalFlip = false;
 	int8_t scalingFactor = 1;
-	PlayerColor playerColored = PlayerColor::CANNOT_DETERMINE;
-	bool layerShadow = false;
-	bool layerBody = true;
-	bool layerOverlay = false;
+	EImageLayer layer = EImageLayer::ALL;
 
 	ImageLocator() = default;
 	ImageLocator(const AnimationPath & path, int frame, int group);
