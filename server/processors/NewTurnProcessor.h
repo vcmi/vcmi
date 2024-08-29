@@ -42,6 +42,8 @@ class NewTurnProcessor : boost::noncopyable
 	void handleTimeEvents(PlayerColor player);
 	void handleTownEvents(const CGTownInstance *town);
 
+	void updateNeutralTownGarrison(const CGTownInstance * t, int currentWeek) const;
+
 public:
 	NewTurnProcessor(CGameHandler * gameHandler);
 

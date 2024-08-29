@@ -479,61 +479,6 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 
 void CGTownInstance::newTurn(vstd::RNG & rand) const
 {
-	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
-	{
-		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
-		{
-			std::vector<SlotID> nativeCrits; //slots
-			for(const auto & elem : Slots())
-			{
-				if (elem.second->type->getFaction() == getFaction()) //native
-				{
-					nativeCrits.push_back(elem.first); //collect matching slots
-				}
-			}
-			if(!nativeCrits.empty())
-			{
-				SlotID pos = *RandomGeneratorUtil::nextItem(nativeCrits, rand);
-				StackLocation sl(this, pos);
-				
-				const CCreature *c = getCreature(pos);
-				if (rand.nextInt(99) < 90 || c->upgrades.empty()) //increase number if no upgrade available
-				{
-					cb->changeStackCount(sl, c->getGrowth());
-				}
-				else //upgrade
-				{
-					cb->changeStackType(sl, c->upgrades.begin()->toCreature());
-				}
-			}
-			if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
-			{
-				int i = rand.nextInt(std::min((int)town->creatures.size(), cb->getDate(Date::MONTH) << 1) - 1);
-				if (!town->creatures[i].empty())
-				{
-					CreatureID c = town->creatures[i][0];
-					SlotID n;
-					
-					TQuantity count = creatureGrowth(i);
-					if (!count) // no dwelling
-						count = VLC->creatures()->getById(c)->getGrowth();
-					
-					{//no lower tiers or above current month
-						
-						if ((n = getSlotFor(c)).validSlot())
-						{
-							StackLocation sl(this, n);
-							if (slotEmpty(n))
-								cb->insertNewStack(sl, c.toCreature(), count);
-							else //add to existing
-								cb->changeStackCount(sl, count);
-						}
-					}
-				}
-			}
-		}
-	}
-	
 	for(const auto & building : rewardableBuildings)
 		building.second->newTurn(rand);
 		
@@ -545,12 +490,7 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 		cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, bonusValue.second - 500);
 	}
 }
-/*
-int3 CGTownInstance::getSightCenter() const
-{
-	return pos - int3(2,0,0);
-}
-*/
+
 bool CGTownInstance::passableFor(PlayerColor color) const
 {
 	if (!armedGarrison())//empty castle - anyone can visit
