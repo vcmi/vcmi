@@ -194,6 +194,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	initRandomFactionsForPlayers();
 	randomizeMapObjects();
 	placeStartingHeroes();
+	initOwnedObjects();
 	initDifficulty();
 	initHeroes();
 	initStartingBonus();
@@ -492,8 +493,14 @@ void CGameState::randomizeMapObjects()
 				}
 			}
 		}
+	}
+}
 
-		if (object->getOwner().isValidPlayer())
+void CGameState::initOwnedObjects()
+{
+	for(CGObjectInstance *object : map->objects)
+	{
+		if (object && object->getOwner().isValidPlayer())
 			getPlayerState(object->getOwner())->addOwnedObject(object);
 	}
 }

@@ -181,6 +181,7 @@ private:
 	void initGlobalBonuses();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
+	void initOwnedObjects();
 	void randomizeMapObjects();
 	void initPlayerStates();
 	void placeStartingHeroes();
