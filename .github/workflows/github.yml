@@ -281,7 +281,7 @@ jobs:
         echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
 
     - name: Android apk artifacts
-      if: ${{ startsWith(matrix.platform, 'android') }}
+      if: ${{ startsWith(matrix.platform, 'android')  }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
@@ -289,7 +289,7 @@ jobs:
           ${{ env.ANDROID_APK_PATH }}
 
     - name: Android aab artifacts
-      if: ${{ startsWith(matrix.platform, 'android') }}
+      if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
