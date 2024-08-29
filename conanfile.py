@@ -108,6 +108,7 @@ class VCMI(ConanFile):
         self.options["boost"].without_timer = True
         self.options["boost"].without_type_erasure = True
         self.options["boost"].without_wave = True
+        self.options["boost"].without_url = True
 
         self.options["ffmpeg"].disable_all_bitstream_filters = True
         self.options["ffmpeg"].disable_all_decoders = True
