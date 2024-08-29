@@ -243,9 +243,7 @@ public:
 		h & *heroPool;
 		h & *playerMessages;
 		h & *turnOrder;
-
-		if (h.version >= Handler::Version::TURN_TIMERS_STATE)
-			h & *turnTimerHandler;
+		h & *turnTimerHandler;
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;

@@ -77,10 +77,7 @@ public:
 			h & startingTown;
 			h & playerType;
 			h & team;
-			if (h.version >= Handler::Version::RELEASE_143)
-				h & startingHero;
-			else
-				startingHero = HeroTypeID::RANDOM;
+			h & startingHero;
 		}
 	};
 

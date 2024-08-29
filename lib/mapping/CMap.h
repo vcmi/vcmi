@@ -196,14 +196,6 @@ public:
 		h & quests;
 		h & allHeroes;
 
-		if (h.version < Handler::Version::DESTROYED_OBJECTS)
-		{
-			// old save compatibility
-			//FIXME: remove this field after save-breaking change
-			h & questIdentifierToId;
-			resolveQuestIdentifiers();
-		}
-
 		//TODO: viccondetails
 		h & terrain;
 		h & guardingCreaturePositions;
