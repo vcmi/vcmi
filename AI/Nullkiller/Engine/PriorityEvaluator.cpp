@@ -1141,6 +1141,14 @@ public:
 		Goals::ExchangeSwapTownHeroes & swapCommand = dynamic_cast<Goals::ExchangeSwapTownHeroes &>(*task);
 		const CGHeroInstance * garrisonHero = swapCommand.getGarrisonHero();
 
+		logAi->trace("buildEvaluationContext ExchangeSwapTownHeroesContextBuilder %s affected objects: %d", swapCommand.toString(), swapCommand.getAffectedObjects().size());
+		for (auto obj : swapCommand.getAffectedObjects())
+		{
+			logAi->trace("affected object: %s", evaluationContext.evaluator.ai->cb->getObj(obj)->getObjectName());
+		}
+		if (garrisonHero)
+			logAi->debug("with %s and %d", garrisonHero->getNameTranslated(), int(swapCommand.getLockingReason()));
+
 		if(garrisonHero && swapCommand.getLockingReason() == HeroLockedReason::DEFENCE)
 		{
 			auto defenderRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(garrisonHero);
@@ -1149,6 +1157,9 @@ public:
 			evaluationContext.movementCost += mpLeft;
 			evaluationContext.movementCostByRole[defenderRole] += mpLeft;
 			evaluationContext.heroRole = defenderRole;
+			evaluationContext.isDefend = true;
+			evaluationContext.armyInvolvement = garrisonHero->getArmyStrength();
+			logAi->debug("evaluationContext.isDefend: %d", evaluationContext.isDefend);
 		}
 	}
 };
@@ -1360,7 +1371,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		float score = 0;
 		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
 
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, fuzzy: %f",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, isDefend: %d, fuzzy: %f",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
@@ -1380,6 +1391,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.conquestValue,
 			evaluationContext.closestWayRatio,
 			evaluationContext.enemyHeroDangerRatio,
+			evaluationContext.isDefend,
 			fuzzyResult);
 
 		switch (priorityTier)
@@ -1389,8 +1401,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.isDefend && evaluationContext.threatTurns == 0 && evaluationContext.turn == 0)
 					score = evaluationContext.armyInvolvement;
 				score *= evaluationContext.closestWayRatio;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
 				break;
 			}
 			case 2: //Take towns
@@ -1468,8 +1478,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.isDefend)
 					score = evaluationContext.armyInvolvement;
 				score *= evaluationContext.closestWayRatio;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score /= (evaluationContext.turn + 1);
 				break;
 			}
 			case 0: //For buildings and buying army
