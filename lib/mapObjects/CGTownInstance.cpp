@@ -225,6 +225,9 @@ TResources CGTownInstance::dailyIncome() const
 		}
 	}
 
+	if (!getOwner().isValidPlayer())
+		return ret;
+
 	const auto & playerSettings = cb->getPlayerSettings(getOwner());
 	ret.applyHandicap(playerSettings->handicap.percentIncome);
 	return ret;
