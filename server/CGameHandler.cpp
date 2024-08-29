@@ -1189,10 +1189,16 @@ void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroI
 	sendAndApply(&vc);
 }
 
-void CGameHandler::removeArtifact(const ArtifactLocation &al)
+void CGameHandler::removeArtifact(const ArtifactLocation & al)
 {
-	EraseArtifact ea;
-	ea.al = al;
+	removeArtifact(al.artHolder, {al.slot});
+}
+
+void CGameHandler::removeArtifact(const ObjectInstanceID & srcId, const std::vector<ArtifactPosition> & slotsPack)
+{
+	BulkEraseArtifacts ea;
+	ea.artHolder = srcId;
+	ea.posPack.insert(ea.posPack.end(), slotsPack.begin(), slotsPack.end());
 	sendAndApply(&ea);
 }
 
@@ -3491,8 +3497,10 @@ bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstanc
 	const auto artSet = market->getArtifactsStorage();
 
 	int expSum = 0;
-	auto finish = [this, &hero, &expSum]()
+	std::vector<ArtifactPosition> artPack;
+	auto finish = [this, &hero, &expSum, &artPack, market]()
 	{
+		removeArtifact(market->getObjInstanceID(), artPack);
 		giveExperience(hero, hero->calculateXp(expSum));
 	};
 
@@ -3506,7 +3514,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstanc
 				int expToGive;
 				market->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(market->getObjInstanceID(), artSet->getArtPos(art)));
+				artPack.push_back(artSet->getArtPos(art));
 			}
 			else
 			{
