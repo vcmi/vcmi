@@ -365,9 +365,9 @@ void Nullkiller::makeTurn()
 
 	Goals::TGoalVec bestTasks;
 
+	logAi->info("Beginning: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
 	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
-		logAi->info("Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
 		auto start = std::chrono::high_resolution_clock::now();
 		updateAiState(i);
 
@@ -485,7 +485,7 @@ void Nullkiller::makeTurn()
 
 				continue;
 			}
-			logAi->info("Performing prio %d task %s with prio: %d", prioOfTask, bestTask->toString(), bestTask->priority);
+			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, bestTask->toString(), bestTask->priority);
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
@@ -509,6 +509,15 @@ void Nullkiller::makeTurn()
 			logAi->warn("Maxpass exceeded. Terminating AI turn.");
 		}
 	}
+	for (auto heroInfo : cb->getHeroesInfo())
+	{
+		totalHeroStrength += heroInfo->getTotalStrength();
+	}
+	for (auto townInfo : cb->getTownsInfo())
+	{
+		totalTownLevel += townInfo->getTownLevel();
+	}
+	logAi->info("End: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
 }
 
 bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
@@ -662,7 +671,7 @@ bool Nullkiller::handleTrading()
 				//TODO trade only as much as needed
 				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
 				{
-					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
+					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
 					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
 					haveTraded = true;
 					shouldTryToTrade = true;
