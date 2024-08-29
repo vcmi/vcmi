@@ -80,6 +80,12 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	pos = background->center();
 
+	if(!config["video"].isNull())
+	{
+		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
+		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]), false);
+	}
+
 	for(const JsonNode & node : config["items"].Vector())
 		menuNameToEntry.push_back(node["name"].String());
 
@@ -90,12 +96,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	menuNameToEntry.push_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
-	if(!config["video"].isNull())
-	{
-		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
-		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]), false);
-	}
-	else
+	if(config["video"].isNull())
 		tabs->setRedrawParent(true);
 
 }
