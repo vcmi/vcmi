@@ -45,12 +45,11 @@
 #include "../mapping/CMapService.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
+#include "../networkPacks/NetPacksBase.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
-#include "../registerTypes/RegisterTypesClientPacks.h"
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
-#include "../serializer/CTypeList.h"
 #include "../spells/CSpellHandler.h"
 
 #include <vstd/RNG.h>
@@ -58,29 +57,6 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 boost::shared_mutex CGameState::mutex;
-
-template <typename T> class CApplyOnGS;
-
-class CBaseForGSApply
-{
-public:
-	virtual void applyOnGS(CGameState *gs, CPack * pack) const =0;
-	virtual ~CBaseForGSApply() = default;
-	template<typename U> static CBaseForGSApply *getApplier(const U * t=nullptr)
-	{
-		return new CApplyOnGS<U>();
-	}
-};
-
-template <typename T> class CApplyOnGS : public CBaseForGSApply
-{
-public:
-	void applyOnGS(CGameState *gs, CPack * pack) const override
-	{
-		T *ptr = static_cast<T*>(pack);
-		ptr->applyGs(gs);
-	}
-};
 
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {
@@ -165,8 +141,6 @@ CGameState::CGameState()
 {
 	gs = this;
 	heroesPool = std::make_unique<TavernHeroesPool>();
-	applier = std::make_shared<CApplier<CBaseForGSApply>>();
-	registerTypesClientPacks(*applier);
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 
@@ -303,6 +277,27 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
 		progressTracking.exclude(mapGenerator);
 
+		// Update starting options
+		for(int i = 0; i < randomMap->players.size(); ++i)
+		{
+			const auto & playerInfo = randomMap->players[i];
+			if(playerInfo.canAnyonePlay())
+			{
+				PlayerSettings & playerSettings = scenarioOps->playerInfos[PlayerColor(i)];
+				playerSettings.compOnly = !playerInfo.canHumanPlay;
+				playerSettings.castle = playerInfo.defaultCastle();
+				if(playerSettings.isControlledByAI() && playerSettings.name.empty())
+				{
+					playerSettings.name = VLC->generaltexth->allTexts[468];
+				}
+				playerSettings.color = PlayerColor(i);
+			}
+			else
+			{
+				scenarioOps->playerInfos.erase(PlayerColor(i));
+			}
+		}
+
 		if(allowSavingRandomMap)
 		{
 			try
@@ -332,26 +327,6 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		}
 
 		map = randomMap.release();
-		// Update starting options
-		for(int i = 0; i < map->players.size(); ++i)
-		{
-			const auto & playerInfo = map->players[i];
-			if(playerInfo.canAnyonePlay())
-			{
-				PlayerSettings & playerSettings = scenarioOps->playerInfos[PlayerColor(i)];
-				playerSettings.compOnly = !playerInfo.canHumanPlay;
-				playerSettings.castle = playerInfo.defaultCastle();
-				if(playerSettings.isControlledByAI() && playerSettings.name.empty())
-				{
-					playerSettings.name = VLC->generaltexth->allTexts[468];
-				}
-				playerSettings.color = PlayerColor(i);
-			}
-			else
-			{
-				scenarioOps->playerInfos.erase(PlayerColor(i));
-			}
-		}
 
 		logGlobal->info("Generated random map in %i ms.", sw.getDiff());
 	}
@@ -367,6 +342,15 @@ void CGameState::initCampaign()
 {
 	campaign = std::make_unique<CGameStateCampaign>(this);
 	map = campaign->getCurrentMap().release();
+}
+
+void CGameState::generateOwnedObjectsAfterDeserialize()
+{
+	for (auto & object : map->objects)
+	{
+		if (object && object->asOwnable() && object->getOwner().isValidPlayer())
+			players.at(object->getOwner()).addOwnedObject(object.get());
+	}
 }
 
 void CGameState::initGlobalBonuses()
@@ -508,6 +492,9 @@ void CGameState::randomizeMapObjects()
 				}
 			}
 		}
+
+		if (object->getOwner().isValidPlayer())
+			getPlayerState(object->getOwner())->addOwnedObject(object);
 	}
 }
 
@@ -599,7 +586,6 @@ void CGameState::initHeroes()
 		}
 
 		hero->initHero(getRandomGenerator());
-		getPlayerState(hero->getOwner())->heroes.push_back(hero);
 		map->allHeroes[hero->getHeroType().getNum()] = hero;
 	}
 
@@ -724,14 +710,14 @@ void CGameState::initStartingBonus()
 			}
 		case PlayerStartingBonus::ARTIFACT:
 			{
-				if(elem.second.heroes.empty())
+				if(elem.second.getHeroes().empty())
 				{
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
 				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
 
-				CGHeroInstance *hero = elem.second.heroes[0];
+				CGHeroInstance *hero = elem.second.getHeroes()[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
 					logGlobal->error("Cannot give starting artifact - no free slots!");
 			}
@@ -807,12 +793,12 @@ void CGameState::initTowns()
 		constexpr std::array hordes = { BuildingID::HORDE_PLACEHOLDER1, BuildingID::HORDE_PLACEHOLDER2, BuildingID::HORDE_PLACEHOLDER3, BuildingID::HORDE_PLACEHOLDER4, BuildingID::HORDE_PLACEHOLDER5, BuildingID::HORDE_PLACEHOLDER6, BuildingID::HORDE_PLACEHOLDER7, BuildingID::HORDE_PLACEHOLDER8 };
 
 		//init buildings
-		if(vstd::contains(vti->builtBuildings, BuildingID::DEFAULT)) //give standard set of buildings
+		if(vti->hasBuilt(BuildingID::DEFAULT)) //give standard set of buildings
 		{
-			vti->builtBuildings.erase(BuildingID::DEFAULT);
-			vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
+			vti->removeBuilding(BuildingID::DEFAULT);
+			vti->addBuilding(BuildingID::VILLAGE_HALL);
 			if(vti->tempOwner != PlayerColor::NEUTRAL)
-				vti->builtBuildings.insert(BuildingID::TAVERN);
+				vti->addBuilding(BuildingID::TAVERN);
 
 			auto definesBuildingsChances = VLC->settings()->getVector(EGameSettings::TOWNS_STARTING_DWELLING_CHANCES);
 
@@ -820,48 +806,49 @@ void CGameState::initTowns()
 			{
 				if((getRandomGenerator().nextInt(1,100) <= definesBuildingsChances[i]))
 				{
-					vti->builtBuildings.insert(basicDwellings[i]);
+					vti->addBuilding(basicDwellings[i]);
 				}
 			}
 		}
 
 		// village hall must always exist
-		vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
+		vti->addBuilding(BuildingID::VILLAGE_HALL);
 
 		//init hordes
 		for (int i = 0; i < vti->town->creatures.size(); i++)
 		{
-			if (vstd::contains(vti->builtBuildings, hordes[i])) //if we have horde for this level
+			if(vti->hasBuilt(hordes[i])) //if we have horde for this level
 			{
-				vti->builtBuildings.erase(hordes[i]);//remove old ID
+				vti->removeBuilding(hordes[i]);//remove old ID
 				if (vti->getTown()->hordeLvl.at(0) == i)//if town first horde is this one
 				{
-					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
+					vti->addBuilding(BuildingID::HORDE_1);//add it
 					//if we have upgraded dwelling as well
-					if (vstd::contains(vti->builtBuildings, upgradedDwellings[i]))
-						vti->builtBuildings.insert(BuildingID::HORDE_1_UPGR);//add it as well
+					if(vti->hasBuilt(upgradedDwellings[i]))
+						vti->addBuilding(BuildingID::HORDE_1_UPGR);//add it as well
 				}
 				if (vti->getTown()->hordeLvl.at(1) == i)//if town second horde is this one
 				{
-					vti->builtBuildings.insert(BuildingID::HORDE_2);
-					if (vstd::contains(vti->builtBuildings, upgradedDwellings[i]))
-						vti->builtBuildings.insert(BuildingID::HORDE_2_UPGR);
+					vti->addBuilding(BuildingID::HORDE_2);
+					if(vti->hasBuilt(upgradedDwellings[i]))
+						vti->addBuilding(BuildingID::HORDE_2_UPGR);
 				}
 			}
 		}
 
 		//#1444 - remove entries that don't have buildings defined (like some unused extra town hall buildings)
 		//But DO NOT remove horde placeholders before they are replaced
-		vstd::erase_if(vti->builtBuildings, [vti](const BuildingID & bid)
-			{
-				return !vti->getTown()->buildings.count(bid) || !vti->getTown()->buildings.at(bid);
-			});
+		for(const auto & building : vti->getBuildings())
+		{
+			if(!vti->getTown()->buildings.count(building) || !vti->getTown()->buildings.at(building))
+				vti->removeBuilding(building);
+		}
 
-		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
-			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
+		if(vti->hasBuilt(BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
+			vti->removeBuilding(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//Early check for #1444-like problems
-		for([[maybe_unused]] const auto & building : vti->builtBuildings)
+		for([[maybe_unused]] const auto & building : vti->getBuildings())
 		{
 			assert(vti->getTown()->buildings.at(building) != nullptr);
 		}
@@ -917,8 +904,6 @@ void CGameState::initTowns()
 			vti->possibleSpells -= s->id;
 		}
 		vti->possibleSpells.clear();
-		if(vti->getOwner() != PlayerColor::NEUTRAL)
-			getPlayerState(vti->getOwner())->towns.emplace_back(vti);
 	}
 }
 
@@ -961,9 +946,9 @@ void CGameState::placeHeroesInTowns()
 		if(player.first == PlayerColor::NEUTRAL)
 			continue;
 
-		for(CGHeroInstance * h : player.second.heroes)
+		for(CGHeroInstance * h : player.second.getHeroes())
 		{
-			for(CGTownInstance * t : player.second.towns)
+			for(CGTownInstance * t : player.second.getTowns())
 			{
 				if(h->visitablePos().z != t->visitablePos().z)
 					continue;
@@ -995,9 +980,9 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 			continue;
 
 		//init visiting and garrisoned heroes
-		for(CGHeroInstance * h : player.second.heroes)
+		for(CGHeroInstance * h : player.second.getHeroes())
 		{
-			for(CGTownInstance * t : player.second.towns)
+			for(CGTownInstance * t : player.second.getTowns())
 			{
 				if(h->visitablePos().z != t->visitablePos().z)
 					continue;
@@ -1144,10 +1129,9 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 	return PlayerRelations::ENEMIES;
 }
 
-void CGameState::apply(CPack *pack)
+void CGameState::apply(CPackForClient *pack)
 {
-	ui16 typ = CTypeList::getInstance().getTypeID(pack);
-	applier->getApplier(typ)->applyOnGS(this, pack);
+	pack->applyGs(this);
 }
 
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
@@ -1220,82 +1204,6 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
 	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
-}
-
-RumorState CGameState::pickNewRumor()
-{
-	RumorState newRumor;
-
-	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
-	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
-		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
-	if(map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
-		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
-
-	int rumorId = -1;
-	int rumorExtra = -1;
-	auto & rand = getRandomGenerator();
-	newRumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
-
-	do
-	{
-		switch(newRumor.type)
-		{
-		case RumorState::TYPE_SPECIAL:
-		{
-			SThievesGuildInfo tgi;
-			obtainPlayersStats(tgi, 20);
-			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
-			if(rumorId == RumorState::RUMOR_GRAIL)
-			{
-				rumorExtra = getTile(map->grailPos)->terType->getIndex();
-				break;
-			}
-
-			std::vector<PlayerColor> players = {};
-			switch(rumorId)
-			{
-			case RumorState::RUMOR_OBELISKS:
-				players = tgi.obelisks[0];
-				break;
-
-			case RumorState::RUMOR_ARTIFACTS:
-				players = tgi.artifacts[0];
-				break;
-
-			case RumorState::RUMOR_ARMY:
-				players = tgi.army[0];
-				break;
-
-			case RumorState::RUMOR_INCOME:
-				players = tgi.income[0];
-				break;
-			}
-			rumorExtra = RandomGeneratorUtil::nextItem(players, rand)->getNum();
-
-			break;
-		}
-		case RumorState::TYPE_MAP:
-			// Makes sure that map rumors only used if there enough rumors too choose from
-			if(!map->rumors.empty() && (map->rumors.size() > 1 || !currentRumor.last.count(RumorState::TYPE_MAP)))
-			{
-				rumorId = rand.nextInt((int)map->rumors.size() - 1);
-				break;
-			}
-			else
-				newRumor.type = RumorState::TYPE_RAND;
-			[[fallthrough]];
-
-		case RumorState::TYPE_RAND:
-			auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
-			rumorId = rand.nextInt((int)vector.size() - 1);
-
-			break;
-		}
-	}
-	while(!newRumor.update(rumorId, rumorExtra));
-
-	return newRumor;
 }
 
 bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const
@@ -1396,7 +1304,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::HAVE_ARTIFACT: //check if any hero has winning artifact
 		{
-			for(const auto & elem : p->heroes)
+			for(const auto & elem : p->getHeroes())
 				if(elem->hasArt(condition.objectType.as<ArtifactID>()))
 					return true;
 			return false;
@@ -1430,7 +1338,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			}
 			else // any town
 			{
-				for (const CGTownInstance * t : p->towns)
+				for (const CGTownInstance * t : p->getTowns())
 				{
 					if (t->hasBuilt(condition.objectType.as<BuildingID>()))
 						return true;
@@ -1575,9 +1483,9 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	if(level >= 0) //num of towns & num of heroes
 	{
 		//num of towns
-		FILL_FIELD(numOfTowns, g->second.towns.size())
+		FILL_FIELD(numOfTowns, g->second.getTowns().size())
 		//num of heroes
-		FILL_FIELD(numOfHeroes, g->second.heroes.size())
+		FILL_FIELD(numOfHeroes, g->second.getHeroes().size())
 	}
 	if(level >= 1) //best hero's portrait
 	{
@@ -1649,7 +1557,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			if(playerInactive(player.second.color)) //do nothing for neutral player
 				continue;
 			CreatureID bestCre; //best creature's ID
-			for(const auto & elem : player.second.heroes)
+			for(const auto & elem : player.second.getHeroes())
 			{
 				for(const auto & it : elem->Slots())
 				{

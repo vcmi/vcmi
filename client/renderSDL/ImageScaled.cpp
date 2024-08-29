@@ -30,6 +30,8 @@ ImageScaled::ImageScaled(const ImageLocator & inputLocator, const std::shared_pt
 {
 	locator.scalingFactor = GH.screenHandler().getScalingFactor();
 	setBodyEnabled(true);
+	if (mode == EImageBlitMode::ALPHA)
+		setShadowEnabled(true);
 }
 
 std::shared_ptr<ISharedImage> ImageScaled::getSharedImage() const
@@ -45,7 +47,7 @@ void ImageScaled::scaleInteger(int factor)
 void ImageScaled::scaleTo(const Point & size)
 {
 	if (body)
-		body = body->scaleTo(size, nullptr); // FIXME: adjust for scaling
+		body = body->scaleTo(size * GH.screenHandler().getScalingFactor(), nullptr);
 }
 
 void ImageScaled::exportBitmap(const boost::filesystem::path &path) const
@@ -107,11 +109,10 @@ void ImageScaled::adjustPalette(const ColorFilter &shifter, uint32_t colorsToSki
 
 void ImageScaled::setShadowEnabled(bool on)
 {
+	assert(blitMode == EImageBlitMode::ALPHA);
 	if (on)
 	{
-		locator.layerBody = false;
-		locator.layerShadow = true;
-		locator.layerOverlay = false;
+		locator.layer = EImageLayer::SHADOW;
 		locator.playerColored = PlayerColor::CANNOT_DETERMINE;
 		shadow = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
 	}
@@ -123,9 +124,7 @@ void ImageScaled::setBodyEnabled(bool on)
 {
 	if (on)
 	{
-		locator.layerBody = true;
-		locator.layerShadow = false;
-		locator.layerOverlay = false;
+		locator.layer = blitMode == EImageBlitMode::ALPHA ? EImageLayer::BODY : EImageLayer::ALL;
 		locator.playerColored = playerColor;
 		body = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
 	}
@@ -136,11 +135,10 @@ void ImageScaled::setBodyEnabled(bool on)
 
 void ImageScaled::setOverlayEnabled(bool on)
 {
+	assert(blitMode == EImageBlitMode::ALPHA);
 	if (on)
 	{
-		locator.layerBody = false;
-		locator.layerShadow = false;
-		locator.layerOverlay = true;
+		locator.layer = EImageLayer::OVERLAY;
 		locator.playerColored = PlayerColor::CANNOT_DETERMINE;
 		overlay = GH.renderHandler().loadImage(locator, blitMode)->getSharedImage();
 	}

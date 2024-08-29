@@ -174,6 +174,15 @@ const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
 		return nullptr;
 }
 
+const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
+{
+	const CGObjectInstance * obj = getObj(objid, false);
+	if(obj)
+		return dynamic_cast<const IMarket*>(obj);
+	else
+		return nullptr;
+}
+
 void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -227,15 +236,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 
 	if(obj->ID == Obj::TOWN || obj->ID == Obj::TAVERN)
 	{
-		int taverns = 0;
-		for(auto town : gs->players[*getPlayerID()].towns)
-		{
-			if(town->hasBuilt(BuildingID::TAVERN))
-				taverns++;
-			
-			if(town->hasBuilt(BuildingSubID::THIEVES_GUILD))
-				taverns += 2;
-		}
+		int taverns = gs->players[*getPlayerID()].valOfBonuses(BonusType::THIEVES_GUILD_ACCESS);
 		gs->obtainPlayersStats(thi, taverns);
 	}
 	else if(obj->ID == Obj::DEN_OF_THIEVES)
@@ -247,7 +248,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 {
 	ERROR_RET_VAL_IF(!hasAccess(Player), "Access forbidden!", -1);
-	return static_cast<int>(gs->players[Player].towns.size());
+	return static_cast<int>(gs->players[Player].getTowns().size());
 }
 
 bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject) const
@@ -600,7 +601,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 		const PlayerState *ps = getPlayerState(t->tempOwner, false);
 		if(ps)
 		{
-			for(const CGTownInstance *town : ps->towns)
+			for(const CGTownInstance *town : ps->getTowns())
 			{
 				if(town->hasBuilt(BuildingID::CAPITOL))
 				{
@@ -702,9 +703,9 @@ int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned 
 	ERROR_RET_VAL_IF(!p, "No such player!", -1);
 
 	if(includeGarrisoned)
-		return static_cast<int>(p->heroes.size());
+		return static_cast<int>(p->getHeroes().size());
 	else
-		for(const auto & elem : p->heroes)
+		for(const auto & elem : p->getHeroes())
 			if(!elem->inTownGarrison)
 				ret++;
 	return ret;
@@ -748,7 +749,7 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 	auto ret = std::vector < const CGTownInstance *>();
 	for(const auto & i : gs->players)
 	{
-		for(const auto & town : i.second.towns)
+		for(const auto & town : i.second.getTowns())
 		{
 			if(i.first == getPlayerID() || (!onlyOur && isVisible(town, getPlayerID())))
 			{
@@ -780,7 +781,7 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 		return -1;
 
 	size_t index = 0;
-	auto & heroes = gs->players[*getPlayerID()].heroes;
+	const auto & heroes = gs->players[*getPlayerID()].getHeroes();
 
 	for (auto & possibleHero : heroes)
 	{
@@ -813,34 +814,12 @@ int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
 
 std::vector < const CGObjectInstance * > CPlayerSpecificInfoCallback::getMyObjects() const
 {
-	std::vector < const CGObjectInstance * > ret;
-	for(const CGObjectInstance * obj : gs->map->objects)
-	{
-		if(obj && obj->tempOwner == getPlayerID())
-			ret.push_back(obj);
-	}
-	return ret;
-}
-
-std::vector < const CGDwelling * > CPlayerSpecificInfoCallback::getMyDwellings() const
-{
-	ASSERT_IF_CALLED_WITH_PLAYER
-	std::vector < const CGDwelling * > ret;
-	for(CGDwelling * dw : gs->getPlayerState(*getPlayerID())->dwellings)
-	{
-		ret.push_back(dw);
-	}
-	return ret;
+	return gs->getPlayerState(*getPlayerID())->getOwnedObjects();
 }
 
 std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 {
-	std::vector <QuestInfo> ret;
-	for(const auto & quest : gs->getPlayerState(*getPlayerID())->quests)
-	{
-		ret.push_back (quest);
-	}
-	return ret;
+	return gs->getPlayerState(*getPlayerID())->quests;
 }
 
 int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
@@ -858,12 +837,12 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 
 	if (!includeGarrisoned)
 	{
-		for(ui32 i = 0; i < p->heroes.size() && static_cast<int>(i) <= serialId; i++)
-			if(p->heroes[i]->inTownGarrison)
+		for(ui32 i = 0; i < p->getHeroes().size() && static_cast<int>(i) <= serialId; i++)
+			if(p->getHeroes()[i]->inTownGarrison)
 				serialId++;
 	}
-	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->heroes.size(), "No player info", nullptr);
-	return p->heroes[serialId];
+	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->getHeroes().size(), "No player info", nullptr);
+	return p->getHeroes()[serialId];
 }
 
 const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId) const
@@ -871,8 +850,8 @@ const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId)
 	ASSERT_IF_CALLED_WITH_PLAYER
 	const PlayerState *p = getPlayerState(*getPlayerID());
 	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
-	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->towns.size(), "No player info", nullptr);
-	return p->towns[serialId];
+	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->getTowns().size(), "No player info", nullptr);
+	return p->getTowns()[serialId];
 }
 
 int CPlayerSpecificInfoCallback::getResourceAmount(GameResID type) const

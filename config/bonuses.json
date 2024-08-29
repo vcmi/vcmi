@@ -591,6 +591,15 @@
 		{
 			"icon":  "zvs/Lib1.res/MEGABREATH"
 		}
+	},
+
+	"DISINTEGRATE":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/DISINTEGRATE"
+		}
+
 	}
 }
 

@@ -56,12 +56,8 @@ bool ImageLocator::operator<(const ImageLocator & other) const
 		return scalingFactor < other.scalingFactor;
 	if(playerColored != other.playerColored)
 		return playerColored < other.playerColored;
-	if(layerShadow != other.layerShadow)
-		return layerShadow < other.layerShadow;
-	if(layerBody != other.layerBody)
-		return layerBody < other.layerBody;
-	if (layerOverlay != other.layerOverlay)
-		return layerOverlay < other.layerOverlay;
+	if(layer != other.layer)
+		return layer < other.layer;
 
 	return false;
 }

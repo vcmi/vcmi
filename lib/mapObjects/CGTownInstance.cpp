@@ -44,13 +44,10 @@ int CGTownInstance::getSightRadius() const //returns sight distance
 
 	for(const auto & bid : builtBuildings)
 	{
-		if(bid.IsSpecialOrGrail())
-		{
-			auto height = town->buildings.at(bid)->height;
-			if(ret < height)
-				ret = height;
+		auto height = town->buildings.at(bid)->height;
+		if(ret < height)
+			ret = height;
 	}
-}
 	return ret;
 }
 
@@ -181,7 +178,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
 	{
-		dwellingBonus = getDwellingBonus(creatures[level].second, p->dwellings);
+		dwellingBonus = getDwellingBonus(creatures[level].second, p->getOwnedObjects());
 	}
 	if(dwellingBonus)
 		ret.entries.emplace_back(VLC->generaltexth->allTexts[591], dwellingBonus); // \nExternal dwellings %+d
@@ -192,15 +189,18 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	return ret;
 }
 
-int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const
+int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance * >& dwellings) const
 {
 	int totalBonus = 0;
 	for (const auto& dwelling : dwellings)
 	{
-		for (const auto& creature : dwelling->creatures)
-		{
-			totalBonus += vstd::contains(creatureIds, creature.second[0]) ? 1 : 0;
-		}
+		const auto & dwellingCreatures = dwelling->asOwnable()->providedCreatures();
+		bool hasMatch = false;
+		for (const auto& creature : dwellingCreatures)
+			hasMatch = vstd::contains(creatureIds, creature);
+
+		if (hasMatch)
+			totalBonus += 1;
 	}
 	return totalBonus;
 }
@@ -225,11 +225,14 @@ TResources CGTownInstance::dailyIncome() const
 		}
 	}
 
-	auto playerSettings = cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner());
-	for(TResources::nziterator it(ret); it.valid(); it++)
-		// always round up income - we don't want to always produce zero if handicap in use
-		ret[it->resType] = vstd::divideAndCeil(ret[it->resType] * playerSettings.handicap.percentIncome, 100);
+	const auto & playerSettings = cb->getPlayerSettings(getOwner());
+	ret.applyHandicap(playerSettings->handicap.percentIncome);
 	return ret;
+}
+
+std::vector<CreatureID> CGTownInstance::providedCreatures() const
+{
+	return {};
 }
 
 bool CGTownInstance::hasFort() const
@@ -478,20 +481,6 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 {
 	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
 	{
-		//give resources if there's a Mystic Pond
-		if (hasBuilt(BuildingSubID::MYSTIC_POND)
-			&& cb->getDate(Date::DAY) != 1
-			&& (tempOwner.isValidPlayer())
-			)
-		{
-			int resID = rand.nextInt(2, 5); //bonus to random rare resource
-			resID = (resID==2)?1:resID;
-			int resVal = rand.nextInt(1, 4);//with size 1..4
-			cb->giveResource(tempOwner, static_cast<EGameResID>(resID), resVal);
-			cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_FIRST, resID);
-			cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, resVal);
-		}
-
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 		{
 			std::vector<SlotID> nativeCrits; //slots
@@ -646,9 +635,9 @@ void CGTownInstance::removeCapitols(const PlayerColor & owner) const
 	if (hasCapitol()) // search if there's an older capitol
 	{
 		PlayerState* state = cb->gameState()->getPlayerState(owner); //get all towns owned by player
-		for (auto i = state->towns.cbegin(); i < state->towns.cend(); ++i)
+		for (const auto & town : state->getTowns())
 		{
-			if (*i != this && (*i)->hasCapitol())
+			if (town != this && town->hasCapitol())
 			{
 				RazeStructures rs;
 				rs.tid = id;
@@ -683,40 +672,11 @@ int CGTownInstance::getMarketEfficiency() const
 	assert(p);
 
 	int marketCount = 0;
-	for(const CGTownInstance *t : p->towns)
+	for(const CGTownInstance *t : p->getTowns())
 		if(t->hasBuiltSomeTradeBuilding())
 			marketCount++;
 
 	return marketCount;
-}
-
-bool CGTownInstance::allowsTrade(EMarketMode mode) const
-{
-	switch(mode)
-	{
-	case EMarketMode::RESOURCE_RESOURCE:
-	case EMarketMode::RESOURCE_PLAYER:
-		return hasBuilt(BuildingID::MARKETPLACE);
-
-	case EMarketMode::ARTIFACT_RESOURCE:
-	case EMarketMode::RESOURCE_ARTIFACT:
-		return hasBuilt(BuildingSubID::ARTIFACT_MERCHANT);
-
-	case EMarketMode::CREATURE_RESOURCE:
-		return hasBuilt(BuildingSubID::FREELANCERS_GUILD);
-
-	case EMarketMode::CREATURE_UNDEAD:
-		return hasBuilt(BuildingSubID::CREATURE_TRANSFORMER);
-
-	case EMarketMode::RESOURCE_SKILL:
-		return hasBuilt(BuildingSubID::MAGIC_UNIVERSITY);
-	case EMarketMode::CREATURE_EXP:
-	case EMarketMode::ARTIFACT_EXP:
-		return false;
-	default:
-		assert(0);
-		return false;
-	}
 }
 
 std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) const
@@ -737,6 +697,11 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	}
 	else
 		return IMarket::availableItemsIds(mode);
+}
+
+ObjectInstanceID CGTownInstance::getObjInstanceID() const
+{
+	return id;
 }
 
 void CGTownInstance::updateAppearance()
@@ -932,12 +897,7 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 
 bool CGTownInstance::hasBuiltSomeTradeBuilding() const
 {
-	for(const auto & bid : builtBuildings)
-	{
-		if(town->buildings.at(bid)->IsTradeBuilding())
-			return true;
-	}
-	return false;
+	return availableModes().empty() ? false : true;
 }
 
 bool CGTownInstance::hasBuilt(BuildingSubID::EBuildingSubID buildingID) const
@@ -960,6 +920,44 @@ bool CGTownInstance::hasBuilt(const BuildingID & buildingID, FactionID townID) c
 	if (townID == town->faction->getId() || townID == FactionID::ANY)
 		return hasBuilt(buildingID);
 	return false;
+}
+
+void CGTownInstance::addBuilding(const BuildingID & buildingID)
+{
+	if(buildingID == BuildingID::NONE)
+		return;
+
+	builtBuildings.insert(buildingID);
+}
+
+std::set<EMarketMode> CGTownInstance::availableModes() const
+{
+	std::set<EMarketMode> result;
+	for (const auto & buildingID : builtBuildings)
+	{
+		const auto * buildingPtr = town->buildings.at(buildingID).get();
+		result.insert(buildingPtr->marketModes.begin(), buildingPtr->marketModes.end());
+	}
+
+	return result;
+}
+
+void CGTownInstance::removeBuilding(const BuildingID & buildingID)
+{
+	if(!vstd::contains(builtBuildings, buildingID))
+		return;
+
+	builtBuildings.erase(buildingID);
+}
+
+void CGTownInstance::removeAllBuildings()
+{
+	builtBuildings.clear();
+}
+
+std::set<BuildingID> CGTownInstance::getBuildings() const
+{
+	return builtBuildings;
 }
 
 TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
@@ -1132,23 +1130,23 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			handler.serializeLIC("buildings", buildingsLIC);
 
-			builtBuildings.insert(BuildingID::VILLAGE_HALL);
+			addBuilding(BuildingID::VILLAGE_HALL);
 
 			if(buildingsLIC.none.empty() && buildingsLIC.all.empty())
 			{
-				builtBuildings.insert(BuildingID::DEFAULT);
+				addBuilding(BuildingID::DEFAULT);
 
 				bool hasFort = false;
 				handler.serializeBool("hasFort",hasFort);
 				if(hasFort)
-					builtBuildings.insert(BuildingID::FORT);
+					addBuilding(BuildingID::FORT);
 			}
 			else
 			{
 				for(const si32 item : buildingsLIC.none)
 					forbiddenBuildings.insert(BuildingID(item));
 				for(const si32 item : buildingsLIC.all)
-					builtBuildings.insert(BuildingID(item));
+					addBuilding(BuildingID(item));
 			}
 		}
 	}
@@ -1173,6 +1171,31 @@ FactionID CGTownInstance::getFaction() const
 TerrainId CGTownInstance::getNativeTerrain() const
 {
 	return town->faction->getNativeTerrain();
+}
+
+ArtifactID CGTownInstance::getWarMachineInBuilding(BuildingID building) const
+{
+	if (builtBuildings.count(building) == 0)
+		return ArtifactID::NONE;
+
+	if (building == BuildingID::BLACKSMITH && town->warMachineDeprecated.hasValue())
+		return town->warMachineDeprecated.toCreature()->warMachine;
+
+	return town->buildings.at(building)->warMachine;
+}
+
+bool CGTownInstance::isWarMachineAvailable(ArtifactID warMachine) const
+{
+	for (auto const & buildingID : builtBuildings)
+		if (town->buildings.at(buildingID)->warMachine == warMachine)
+			return true;
+
+	if (builtBuildings.count(BuildingID::BLACKSMITH) &&
+	   town->warMachineDeprecated.hasValue() &&
+	   town->warMachineDeprecated.toCreature()->warMachine == warMachine)
+		return true;
+
+	return false;
 }
 
 GrowthInfo::Entry::Entry(const std::string &format, int _count)

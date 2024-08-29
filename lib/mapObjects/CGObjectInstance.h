@@ -126,6 +126,8 @@ public:
 	virtual std::vector<Component> getPopupComponents(PlayerColor player) const;
 	virtual std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const;
 
+	const IOwnableObject * asOwnable() const override;
+
 	/** OVERRIDES OF IObjectInterface **/
 
 	void initObj(vstd::RNG & rand) override;

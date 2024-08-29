@@ -16,6 +16,7 @@
 #include "ServerSpellCastEnvironment.h"
 #include "battles/BattleProcessor.h"
 #include "processors/HeroPoolProcessor.h"
+#include "processors/NewTurnProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
@@ -71,8 +72,6 @@
 #include "../lib/pathfinder/PathfinderOptions.h"
 #include "../lib/pathfinder/TurnInfo.h"
 
-#include "../lib/registerTypes/RegisterTypesServerPacks.h"
-
 #include "../lib/rmg/CMapGenOptions.h"
 
 #include "../lib/serializer/CSaveFile.h"
@@ -91,53 +90,6 @@
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
-
-template <typename T> class CApplyOnGH;
-
-class CBaseForGHApply
-{
-public:
-	virtual bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const =0;
-	virtual ~CBaseForGHApply(){}
-	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
-	{
-		return new CApplyOnGH<U>();
-	}
-};
-
-template <typename T> class CApplyOnGH : public CBaseForGHApply
-{
-public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
-	{
-		T *ptr = static_cast<T*>(pack);
-		try
-		{
-			ApplyGhNetPackVisitor applier(*gh);
-
-			ptr->visit(applier);
-
-			return applier.getResult();
-		}
-		catch(ExceptionNotAllowedAction & e)
-		{
-            (void)e;
-			return false;
-		}
-	}
-};
-
-template <>
-class CApplyOnGH<CPack> : public CBaseForGHApply
-{
-public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply on GH plain CPack!");
-		assert(0);
-		return false;
-	}
-};
 
 static inline double distance(int3 a, int3 b)
 {
@@ -499,28 +451,30 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		pack->c->sendPack(&applied);
 	};
 
-	CBaseForGHApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //and appropriate applier object
 	if(isBlockedByQueries(pack, pack->player))
 	{
 		sendPackageResponse(false);
 	}
-	else if(apply)
-	{
-		const bool result = apply->applyOnGH(this, this->gs, pack);
-		if(result)
-			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
-		else
-			complain((boost::format("Got false in applying %s... that request must have been fishy!")
-				% typeid(*pack).name()).str());
 
-		sendPackageResponse(true);
+	bool result;
+	try
+	{
+		ApplyGhNetPackVisitor applier(*this);
+		pack->visit(applier);
+		result = applier.getResult();
 	}
+	catch(ExceptionNotAllowedAction &)
+	{
+		result = false;
+	}
+
+	if(result)
+		logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
 	else
-	{
-		logGlobal->error("Message cannot be applied, cannot find applier (unregistered type)!");
-		sendPackageResponse(false);
-	}
+		complain((boost::format("Got false in applying %s... that request must have been fishy!")
+			% typeid(*pack).name()).str());
 
+	sendPackageResponse(true);
 	vstd::clear_pointer(pack);
 }
 
@@ -536,10 +490,9 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
+	, newTurnProcessor(std::make_unique<NewTurnProcessor>(this))
 {
 	QID = 1;
-	applier = std::make_shared<CApplier<CBaseForGHApply>>();
-	registerTypesServerPacks(*applier);
 
 	spellEnv = new ServerSpellCastEnvironment(this);
 }
@@ -602,25 +555,25 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 			ssi.creatures = town->creatures;
 			ssi.creatures[town->town->creatures.size()].second.clear();//remove old one
 
-			const std::vector<ConstTransitivePtr<CGDwelling> > &dwellings = p->dwellings;
-			if (dwellings.empty())//no dwellings - just remove
+			std::set<CreatureID> availableCreatures;
+			for (const auto & dwelling : p->getOwnedObjects())
 			{
-				sendAndApply(&ssi);
-				return;
+				const auto & dwellingCreatures = dwelling->asOwnable()->providedCreatures();
+				availableCreatures.insert(dwellingCreatures.begin(), dwellingCreatures.end());
 			}
 
-			auto dwelling = *RandomGeneratorUtil::nextItem(dwellings, getRandomGenerator());
+			if (availableCreatures.empty())
+				return;
 
-			// for multi-creature dwellings like Golem Factory
-			auto creatureId = RandomGeneratorUtil::nextItem(dwelling->creatures, getRandomGenerator())->second[0];
+			CreatureID creatureId = *RandomGeneratorUtil::nextItem(availableCreatures, getRandomGenerator());
 
 			if (clear)
 			{
-				ssi.creatures[town->town->creatures.size()].first = std::max(1, (VLC->creh->objects.at(creatureId)->getGrowth())/2);
+				ssi.creatures[town->town->creatures.size()].first = std::max(1, (creatureId.toEntity(VLC)->getGrowth())/2);
 			}
 			else
 			{
-				ssi.creatures[town->town->creatures.size()].first = VLC->creh->objects.at(creatureId)->getGrowth();
+				ssi.creatures[town->town->creatures.size()].first = creatureId.toEntity(VLC)->getGrowth();
 			}
 			ssi.creatures[town->town->creatures.size()].second.push_back(creatureId);
 			sendAndApply(&ssi);
@@ -631,54 +584,12 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 {
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
 	turnTimerHandler->onPlayerGetTurn(which);
-
-	const auto * playerState = gs->getPlayerState(which);
-
-	handleTimeEvents(which);
-	for (auto t : playerState->towns)
-		handleTownEvents(t);
-
-	for (auto t : playerState->towns)
-	{
-		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		if (t->garrisonHero != nullptr)
-			objectVisited(t, t->garrisonHero);
-
-		if (t->visitingHero != nullptr)
-			objectVisited(t, t->visitingHero);
-	}
+	newTurnProcessor->onPlayerTurnStarted(which);
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
-	const auto * playerState = gs->getPlayerState(which);
-	assert(playerState->status == EPlayerStatus::INGAME);
-
-	if (playerState->towns.empty())
-	{
-		DaysWithoutTown pack;
-		pack.player = which;
-		pack.daysWithoutCastle = playerState->daysWithoutCastle.value_or(0) + 1;
-		sendAndApply(&pack);
-	}
-	else
-	{
-		if (playerState->daysWithoutCastle.has_value())
-		{
-			DaysWithoutTown pack;
-			pack.player = which;
-			pack.daysWithoutCastle = std::nullopt;
-			sendAndApply(&pack);
-		}
-	}
-
-	// check for 7 days without castle
-	checkVictoryLossConditionsForPlayer(which);
-
-	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; // end of 7th day
-
-	if (newWeek) //new heroes in tavern
-		heroPool->onNewWeek(which);
+	newTurnProcessor->onPlayerTurnEnded(which);
 }
 
 void CGameHandler::addStatistics(StatisticDataSet &stat) const
@@ -697,16 +608,9 @@ void CGameHandler::addStatistics(StatisticDataSet &stat) const
 void CGameHandler::onNewTurn()
 {
 	logGlobal->trace("Turn %d", gs->day+1);
-	NewTurn n;
-	n.specialWeek = NewTurn::NO_ACTION;
-	n.creatureid = CreatureID::NONE;
-	n.day = gs->day + 1;
 
 	bool firstTurn = !getDate(Date::DAY);
-	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
 	bool newMonth = getDate(Date::DAY_OF_MONTH) == 28;
-
-	std::map<PlayerColor, si32> hadGold;//starting gold - for buildings like dwarven treasury
 
 	if (firstTurn)
 	{
@@ -717,252 +621,42 @@ void CGameHandler::onNewTurn()
 				giveExperience(getHero(obj->id), 0);
 			}
 		}
+
+		for (auto & elem : gs->players)
+			heroPool->onNewWeek(elem.first);
+
 	}
 	else
 	{
 		addStatistics(gameState()->statistic); // write at end of turn
 	}
 
-	for (const auto & player : gs->players)
-	{
-		if (player.second.status != EPlayerStatus::INGAME)
-			continue;
-
-		if (player.second.heroes.empty() && player.second.towns.empty())
-			throw std::runtime_error("Invalid player in player state! Player " + std::to_string(player.first.getNum()) + ", map name: " + gs->map->name.toString() + ", map description: " + gs->map->description.toString());
-	}
-
-	if (newWeek && !firstTurn)
-	{
-		n.specialWeek = NewTurn::NORMAL;
-		bool deityOfFireBuilt = false;
-		for (const CGTownInstance *t : gs->map->towns)
-		{
-			if (t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
-			{
-				deityOfFireBuilt = true;
-				break;
-			}
-		}
-
-		if (deityOfFireBuilt)
-		{
-			n.specialWeek = NewTurn::DEITYOFFIRE;
-			n.creatureid = CreatureID::IMP;
-		}
-		else if(VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
-		{
-			int monthType = getRandomGenerator().nextInt(99);
-			if (newMonth) //new month
-			{
-				if (monthType < 40) //double growth
-				{
-					n.specialWeek = NewTurn::DOUBLE_GROWTH;
-					if (VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
-					{
-						n.creatureid = VLC->creh->pickRandomMonster(getRandomGenerator());
-					}
-					else if (VLC->creh->doubledCreatures.size())
-					{
-						n.creatureid = *RandomGeneratorUtil::nextItem(VLC->creh->doubledCreatures, getRandomGenerator());
-					}
-					else
-					{
-						complain("Cannot find creature that can be spawned!");
-						n.specialWeek = NewTurn::NORMAL;
-					}
-				}
-				else if (monthType < 50)
-					n.specialWeek = NewTurn::PLAGUE;
-			}
-			else //it's a week, but not full month
-			{
-				if (monthType < 25)
-				{
-					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-					std::pair<int, CreatureID> newMonster(54, CreatureID());
-					do
-					{
-						newMonster.second = VLC->creh->pickRandomMonster(getRandomGenerator());
-					} while (VLC->creh->objects[newMonster.second] &&
-						(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFaction()]->town == nullptr); // find first non neutral creature
-					n.creatureid = newMonster.second;
-				}
-			}
-		}
-	}
-
-	for (auto & elem : gs->players)
-	{
-		if (elem.first == PlayerColor::NEUTRAL)
-			continue;
-
-		assert(elem.first.isValidPlayer());//illegal player number!
-			
-		auto playerSettings = gameState()->scenarioOps->getIthPlayersSettings(elem.first);
-
-		std::pair<PlayerColor, si32> playerGold(elem.first, elem.second.resources[EGameResID::GOLD]);
-		hadGold.insert(playerGold);
-
-		if (firstTurn)
-			heroPool->onNewWeek(elem.first);
-
-		n.res[elem.first] = elem.second.resources;
-
-		if(!firstTurn)
-		{
-			for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
-			{
-				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k)) * playerSettings.handicap.percentIncome / 100;
-				n.res[elem.first][k] += elem.second.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * elem.second.towns.size() * playerSettings.handicap.percentIncome / 100;
-			}
-
-			if(newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
-			{
-				bool hasCrystalGenCreature = false;
-				for(CGHeroInstance * hero : elem.second.heroes)
-				{
-					for(auto stack : hero->stacks)
-					{
-						if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
-						{
-							hasCrystalGenCreature = true;
-							break;
-						}
-					}
-				}
-				if(!hasCrystalGenCreature) //not found in armies, check towns
-				{
-					for(CGTownInstance * town : elem.second.towns)
-					{
-						for(auto stack : town->stacks)
-						{
-							if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
-							{
-								hasCrystalGenCreature = true;
-								break;
-							}
-						}
-					}
-				}
-				if(hasCrystalGenCreature)
-					n.res[elem.first][EGameResID::CRYSTAL] += 3 * playerSettings.handicap.percentIncome / 100;
-			}
-		}
-
-		for (CGHeroInstance *h : (elem).second.heroes)
-		{
-			if (h->visitedTown)
-				giveSpells(h->visitedTown, h);
-
-			NewTurn::Hero hth;
-			hth.id = h->id;
-			auto ti = std::make_unique<TurnInfo>(h, 1);
-			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			hth.move = h->movementPointsLimitCached(gs->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
-			hth.mana = h->getManaNewTurn();
-
-			n.heroes.insert(hth);
-
-			if (!firstTurn) //not first day
-			{
-				for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
-				{
-					n.res[elem.first][k] += h->valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k)) * playerSettings.handicap.percentIncome / 100;
-				}
-			}
-		}
-	}
 	for (CGTownInstance *t : gs->map->towns)
 	{
 		PlayerColor player = t->tempOwner;
-		if (newWeek) //first day of week
-		{
-			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
-				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
-			if (!firstTurn)
-				if (t->hasBuilt(BuildingSubID::TREASURY) && player.isValidPlayer())
-						n.res[player][EGameResID::GOLD] += hadGold.at(player)/10; //give 10% of starting gold
-
-			if (!vstd::contains(n.cres, t->id))
-			{
-				n.cres[t->id].tid = t->id;
-				n.cres[t->id].creatures = t->creatures;
-			}
-			auto & sac = n.cres.at(t->id);
-
-			for (int k=0; k < t->town->creatures.size(); k++) //creature growths
-			{
-				if (!t->creatures.at(k).second.empty()) // there are creatures at this level
-				{
-					ui32 &availableCount = sac.creatures.at(k).first;
-					const CCreature *cre = t->creatures.at(k).second.back().toCreature();
-
-					if (n.specialWeek == NewTurn::PLAGUE)
-						availableCount = t->creatures.at(k).first / 2; //halve their number, no growth
-					else
-					{
-						if (firstTurn) //first day of game: use only basic growths
-							availableCount = cre->getGrowth();
-						else
-							availableCount += t->creatureGrowth(k);
-
-						//Deity of fire week - upgrade both imps and upgrades
-						if (n.specialWeek == NewTurn::DEITYOFFIRE && vstd::contains(t->creatures.at(k).second, n.creatureid))
-							availableCount += 15;
-
-						if (cre->getId() == n.creatureid) //bonus week, effect applies only to identical creatures
-						{
-							if (n.specialWeek == NewTurn::DOUBLE_GROWTH)
-								availableCount *= 2;
-							else if (n.specialWeek == NewTurn::BONUS_GROWTH)
-								availableCount += 5;
-						}
-					}
-				}
-			}
-		}
-		if (!firstTurn  &&  player.isValidPlayer())//not the first day and town not neutral
-		{
-			n.res[player] = n.res[player] + t->dailyIncome();
-		}
 		if(t->hasBuilt(BuildingID::GRAIL)
 			&& t->town->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
 		{
 			// Skyship, probably easier to handle same as Veil of darkness
-			//do it every new day after veils apply
-			if (player != PlayerColor::NEUTRAL) //do not reveal fow for neutral player
-			{
-				FoWChange fw;
-				fw.mode = ETileVisibility::REVEALED;
-				fw.player = player;
-				// find all hidden tiles
-				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
-
-				auto shape = fow.shape();
-				for(size_t z = 0; z < shape[0]; z++)
-					for(size_t x = 0; x < shape[1]; x++)
-						for(size_t y = 0; y < shape[2]; y++)
-							if (!fow[z][x][y])
-								fw.tiles.insert(int3(x, y, z));
-
-				sendAndApply (&fw);
-			}
+			// do it every new day before veils
+			if (player.isValidPlayer())
+				changeFogOfWar(t->getSightCenter(), t->getSightRadius(), player, ETileVisibility::REVEALED);
 		}
+	}
+
+	for (CGTownInstance *t : gs->map->towns)
+	{
 		if (t->hasBonusOfType (BonusType::DARKNESS))
 		{
 			for (auto & player : gs->players)
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
-					changeFogOfWar(t->getSightCenter(), t->getFirstBonus(Selector::type()(BonusType::DARKNESS))->val, player.first, ETileVisibility::HIDDEN);
+					changeFogOfWar(t->getSightCenter(), t->valOfBonuses(BonusType::DARKNESS), player.first, ETileVisibility::HIDDEN);
 			}
 		}
 	}
-
-	if (newWeek)
-		n.newRumor = gameState()->pickNewRumor();
 
 	if (newMonth)
 	{
@@ -971,67 +665,12 @@ void CGameHandler::onNewTurn()
 		pickAllowedArtsSet(saa.arts, getRandomGenerator());
 		sendAndApply(&saa);
 	}
-	sendAndApply(&n);
 
-	if (newWeek)
-	{
-		//spawn wandering monsters
-		if (newMonth && (n.specialWeek == NewTurn::DOUBLE_GROWTH || n.specialWeek == NewTurn::DEITYOFFIRE))
-		{
-			spawnWanderingMonsters(n.creatureid);
-		}
-
-		//new week info popup
-		if (!firstTurn)
-		{
-			InfoWindow iw;
-			switch (n.specialWeek)
-			{
-				case NewTurn::DOUBLE_GROWTH:
-					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 131);
-					iw.text.replaceNameSingular(n.creatureid);
-					iw.text.replaceNameSingular(n.creatureid);
-					break;
-				case NewTurn::PLAGUE:
-					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 132);
-					break;
-				case NewTurn::BONUS_GROWTH:
-					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 134);
-					iw.text.replaceNameSingular(n.creatureid);
-					iw.text.replaceNameSingular(n.creatureid);
-					break;
-				case NewTurn::DEITYOFFIRE:
-					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 135);
-					iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
-					iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
-					iw.text.replacePositiveNumber(15);//%+d 15
-					iw.text.replaceNameSingular(CreatureID::FAMILIAR); //%s familiar
-					iw.text.replacePositiveNumber(15);//%+d 15
-					break;
-				default:
-					if (newMonth)
-					{
-						iw.text.appendLocalString(EMetaText::ARRAY_TXT, (130));
-						iw.text.replaceLocalString(EMetaText::ARRAY_TXT, getRandomGenerator().nextInt(32, 41));
-					}
-					else
-					{
-						iw.text.appendLocalString(EMetaText::ARRAY_TXT, (133));
-						iw.text.replaceLocalString(EMetaText::ARRAY_TXT, getRandomGenerator().nextInt(43, 57));
-					}
-			}
-			for (auto & elem : gs->players)
-			{
-				iw.player = elem.first;
-				sendAndApply(&iw);
-			}
-		}
-	}
+	newTurnProcessor->onNewTurn();
 
 	if (!firstTurn)
 		checkVictoryLossConditionsForAll(); // check for map turn limit
 
-	logGlobal->trace("Info about turn %d has been sent!", n.day);
 	//call objects
 	for (auto & elem : gs->map->objects)
 	{
@@ -1425,11 +1064,9 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 		}
 	}
 
-	const PlayerState * p = getPlayerState(owner);
-
-	if ((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4) && p && p->dwellings.size()==1)//first dwelling captured
+	if ((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4))
 	{
-		for (const CGTownInstance * t : getPlayerState(owner)->towns)
+		for (const CGTownInstance * t : getPlayerState(owner)->getTowns())
 		{
 			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
@@ -2525,7 +2162,7 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 {
 ///incomplete, simply erases target building
 	const CGTownInstance * t = getTown(tid);
-	if (!vstd::contains(t->builtBuildings, bid))
+	if(!t->hasBuilt(bid))
 		return false;
 	RazeStructures rs;
 	rs.tid = tid;
@@ -2759,10 +2396,11 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 	}
 	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
 	{
-		//check if moving hero out of town will break 8 wandering heroes limit
-		if (getHeroCount(town->garrisonHero->tempOwner,false) >= 8)
+		int mapCap = VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		//check if moving hero out of town will break wandering heroes limit
+		if (getHeroCount(town->garrisonHero->tempOwner,false) >= mapCap)
 		{
-			complain("Cannot move hero out of the garrison, there are already 8 wandering heroes!");
+			complain("Cannot move hero out of the garrison, there are already " + std::to_string(mapCap) + " wandering heroes!");
 			return false;
 		}
 
@@ -3160,9 +2798,19 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 		const int price = art->getPrice();
 		COMPLAIN_RET_FALSE_IF(getPlayerState(hero->getOwner())->resources[EGameResID::GOLD] < price, "Not enough gold!");
 
-		if ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
-		 || (town->hasBuilt(BuildingSubID::BALLISTA_YARD) && aid == ArtifactID::BALLISTA))
+		if(town->isWarMachineAvailable(aid))
 		{
+			bool hasFreeSlot = false;
+			for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
+				if (hero->getArt(slot) == nullptr)
+					hasFreeSlot = true;
+
+			if (!hasFreeSlot)
+			{
+				auto slot = art->getPossibleSlots().at(ArtBearer::HERO).front();
+				removeArtifact(ArtifactLocation(hero->id, slot));
+			}
+
 			giveResource(hero->getOwner(),EGameResID::GOLD,-price);
 			return giveHeroNewArtifact(hero, art);
 		}
@@ -3411,89 +3059,6 @@ bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, Player
 	return true;
 }
 
-void CGameHandler::handleTimeEvents(PlayerColor color)
-{
-	for (auto const & event : gs->map->events)
-	{
-		if (!event.occursToday(gs->day))
-			continue;
-
-		if (!event.affectsPlayer(color, getPlayerState(color)->isHuman()))
-			continue;
-
-		InfoWindow iw;
-		iw.player = color;
-		iw.text = event.message;
-
-		//give resources
-		if (!event.resources.empty())
-		{
-			giveResources(color, event.resources);
-			for (GameResID i : GameResID::ALL_RESOURCES())
-				if (event.resources[i])
-					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
-		}
-		sendAndApply(&iw); //show dialog
-	}
-}
-
-void CGameHandler::handleTownEvents(CGTownInstance * town)
-{
-	for (auto const & event : town->events)
-	{
-		if (!event.occursToday(gs->day))
-			continue;
-
-		PlayerColor player = town->getOwner();
-		if (!event.affectsPlayer(player, getPlayerState(player)->isHuman()))
-			continue;
-
-		// dialog
-		InfoWindow iw;
-		iw.player = player;
-		iw.text = event.message;
-
-		if (event.resources.nonZero())
-		{
-			giveResources(player, event.resources);
-
-			for (GameResID i : GameResID::ALL_RESOURCES())
-				if (event.resources[i])
-					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
-		}
-
-		for (auto & i : event.buildings)
-		{
-			// Only perform action if:
-			// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
-			// 2. Building was not built yet
-			// othervice, silently ignore / skip it
-			if (town->town->buildings.count(i) && !town->hasBuilt(i))
-			{
-				buildStructure(town->id, i, true);
-				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
-			}
-		}
-
-		if (!event.creatures.empty())
-		{
-			SetAvailableCreatures sac;
-			sac.tid = town->id;
-			sac.creatures = town->creatures;
-
-			for (si32 i=0;i<event.creatures.size();i++) //creature growths
-			{
-				if (!town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
-				{
-					sac.creatures[i].first += event.creatures.at(i);
-					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
-				}
-			}
-		}
-		sendAndApply(&iw); //show dialog
-	}
-}
-
 bool CGameHandler::complain(const std::string &problem)
 {
 #ifndef ENABLE_GOLDMASTER
@@ -3564,9 +3129,9 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 				return true;
 		}
 
-		auto market = dynamic_cast<const IMarket*>(o1);
+		auto market = getMarket(id1);
 		if(market == nullptr)
-			market = dynamic_cast<const IMarket*>(o2);
+			market = getMarket(id2);
 		if(market)
 			return market->allowsTrade(EMarketMode::ARTIFACT_EXP);
 
@@ -3771,10 +3336,10 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		else
 		{
 			//copy heroes vector to avoid iterator invalidation as removal change PlayerState
-			auto hlp = p->heroes;
+			auto hlp = p->getHeroes();
 			for (auto h : hlp) //eliminate heroes
 			{
-				if (h.get())
+				if (h)
 					removeObject(h, player);
 			}
 
@@ -3915,15 +3480,15 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
+bool CGameHandler::sacrificeArtifact(const IMarket * market, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");
 	if(hero->getAlignment() == EAlignment::EVIL)
 		COMPLAIN_RET("Evil hero can't sacrifice artifact!");
 
-	assert(m);
-	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(m);
+	assert(market);
+	const auto artSet = market->getArtifactsStorage();
 
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
@@ -3933,15 +3498,15 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 
 	for(const auto & artInstId : arts)
 	{
-		if(auto art = altarObj->getArtByInstanceId(artInstId))
+		if(auto art = artSet->getArtByInstanceId(artInstId))
 		{
 			if(art->artType->isTradable())
 			{
 				int dmp;
 				int expToGive;
-				m->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
+				market->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 				expSum += expToGive;
-				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getArtPos(art)));
+				removeArtifact(ArtifactLocation(market->getObjInstanceID(), artSet->getArtPos(art)));
 			}
 			else
 			{
@@ -4296,19 +3861,6 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 	if (mode == ETileVisibility::HIDDEN)
 	{
 		getTilesInRange(tiles, center, radius, ETileVisibility::REVEALED, player);
-
-		std::unordered_set<int3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
-		auto p = getPlayerState(player);
-		for (auto h : p->heroes)
-		{
-			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadius(), ETileVisibility::REVEALED, h->tempOwner);
-		}
-		for (auto t : p->towns)
-		{
-			getTilesInRange(observedTiles, t->getSightCenter(), t->getSightRadius(), ETileVisibility::REVEALED, t->tempOwner);
-		}
-		for (auto tile : observedTiles)
-			vstd::erase_if_present (tiles, tile);
 	}
 	else
 	{
@@ -4317,7 +3869,7 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 	changeFogOfWar(tiles, player, mode);
 }
 
-void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode)
+void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode)
 {
 	if (tiles.empty())
 		return;
@@ -4326,6 +3878,23 @@ void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor p
 	fow.tiles = tiles;
 	fow.player = player;
 	fow.mode = mode;
+
+	if (mode == ETileVisibility::HIDDEN)
+	{
+		// do not hide tiles observed by owned objects. May lead to disastrous AI problems
+		// FIXME: this leads to a bug - shroud of darkness from Necropolis does can not override Skyship from Tower
+		std::unordered_set<int3> observedTiles;
+		auto p = getPlayerState(player);
+		for (auto obj : p->getOwnedObjects())
+			getTilesInRange(observedTiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::REVEALED, obj->getOwner());
+
+		for (auto tile : observedTiles)
+			vstd::erase_if_present (fow.tiles, tile);
+
+		if (fow.tiles.empty())
+			return;
+	}
+
 	sendAndApply(&fow);
 }
 

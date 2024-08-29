@@ -152,7 +152,6 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
-			"warMachine" : "ballista",
 			"moatAbility" : "castleMoat",
 
 			"buildings" :
@@ -173,13 +172,13 @@
 				"capitol":        { },
 				"marketplace":    { },
 				"resourceSilo":   { "produce": { "mercury": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "ballista" },
 
-				"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ] },
+				"special1":       { "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },
-				"special2":       { "type" : "magicUniversity", "requires" : [ "mageGuild1" ] },
+				"special2":       { "requires" : [ "mageGuild1" ], "marketModes" : ["resource-skill"] },
 				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 }},
 				"extraTownHall":  { "id" : 27, "requires" : [ "townHall" ], "mode" : "auto" },
 				"extraCityHall":  { "id" : 28, "requires" : [ "cityHall" ], "mode" : "auto" },

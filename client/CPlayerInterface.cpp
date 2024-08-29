@@ -100,9 +100,8 @@
 
 #include "../lib/pathfinder/CGPathNode.h"
 
-#include "../lib/serializer/BinaryDeserializer.h"
-#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/serializer/CTypeList.h"
+#include "../lib/serializer/ESerializationVersion.h"
 
 #include "../lib/spells/CSpellHandler.h"
 
@@ -203,6 +202,11 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 	{
 		makingTurn = false;
 		closeAllDialogs();
+
+		// remove all pending dialogs that do not expect query answer
+		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
+						   return window->ID == QueryID::NONE;
+					   });
 	}
 }
 
@@ -619,9 +623,7 @@ void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreat
 {
 	movementController->onBattleStarted();
 
-	//Don't wait for dialogs when we are non-active hot-seat player
-	if (LOCPLINT == this)
-		waitForAllDialogs();
+	waitForAllDialogs();
 }
 
 void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed)
@@ -644,9 +646,7 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 		cb->registerBattleInterface(autofightingAI);
 	}
 
-	//Don't wait for dialogs when we are non-active hot-seat player
-	if (LOCPLINT == this)
-		waitForAllDialogs();
+	waitForAllDialogs();
 
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
@@ -1632,14 +1632,14 @@ void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
 	battleInt->newRoundFirst();
 }
 
-void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
+void CPlayerInterface::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onWindowClosed = [this, queryID](){
 		cb->selectionMade(0, queryID);
 	};
 
-	if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && dynamic_cast<const CGArtifactsAltar*>(market) == nullptr)
+	if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && market->getArtifactsStorage() == nullptr)
 	{
 		// compatibility check, safe to remove for 1.6
 		// 1.4 saves loaded in 1.5 will not be able to visit Altar of Sacrifice due to Altar now requiring different map object class
@@ -1654,8 +1654,17 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
 		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor, onWindowClosed);
-	else if(!market->availableModes().empty())
-		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, market->availableModes().front());
+	else if (!market->availableModes().empty())
+		for(auto mode = EMarketMode::RESOURCE_RESOURCE; mode != EMarketMode::MARKET_AFTER_LAST_PLACEHOLDER; mode = vstd::next(mode, 1))
+		{
+			if(vstd::contains(market->availableModes(), mode))
+			{
+				GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, mode);
+				break;
+			}
+		}
+	else
+		onWindowClosed();
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
@@ -1664,7 +1673,7 @@ void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroI
 	auto onWindowClosed = [this, queryID](){
 		cb->selectionMade(0, queryID);
 	};
-	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, market, onWindowClosed);
+	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, BuildingID::NONE, market, onWindowClosed);
 }
 
 void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
@@ -1760,6 +1769,9 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 
 void CPlayerInterface::waitForAllDialogs()
 {
+	if (!makingTurn)
+		return;
+
 	while(!dialogs.empty())
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);

@@ -174,10 +174,11 @@ void MapController::repairMap(CMap * map) const
 		{
 			if(tnh->getTown())
 			{
-				vstd::erase_if(tnh->builtBuildings, [tnh](BuildingID bid)
+				for(const auto & building : tnh->getBuildings())
 				{
-					return !tnh->getTown()->buildings.count(bid);
-				});
+					if(!tnh->getTown()->buildings.count(building))
+						tnh->removeBuilding(building);
+				}
 				vstd::erase_if(tnh->forbiddenBuildings, [tnh](BuildingID bid)
 				{
 					return !tnh->getTown()->buildings.count(bid);

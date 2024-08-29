@@ -10,6 +10,9 @@
 #include "StdInc.h"
 
 #include "CPlayerState.h"
+#include "mapObjects/CGDwelling.h"
+#include "mapObjects/CGTownInstance.h"
+#include "mapObjects/CGHeroInstance.h"
 #include "gameState/QuestInfo.h"
 #include "texts/CGeneralTextHandler.h"
 #include "VCMI_Lib.h"
@@ -89,5 +92,55 @@ int PlayerState::getResourceAmount(int type) const
 {
 	return vstd::atOrDefault(resources, static_cast<size_t>(type), 0);
 }
+
+template<typename T>
+std::vector<T> PlayerState::getObjectsOfType() const
+{
+	std::vector<T> result;
+	for (auto const & object : ownedObjects)
+	{
+		auto casted = dynamic_cast<T>(object);
+		if (casted)
+			result.push_back(casted);
+	}
+	return result;
+}
+
+std::vector<const CGHeroInstance *> PlayerState::getHeroes() const
+{
+	return getObjectsOfType<const CGHeroInstance *>();
+}
+
+std::vector<const CGTownInstance *> PlayerState::getTowns() const
+{
+	return getObjectsOfType<const CGTownInstance *>();
+}
+
+std::vector<CGHeroInstance *> PlayerState::getHeroes()
+{
+	return getObjectsOfType<CGHeroInstance *>();
+}
+
+std::vector<CGTownInstance *> PlayerState::getTowns()
+{
+	return getObjectsOfType<CGTownInstance *>();
+}
+
+std::vector<const CGObjectInstance *> PlayerState::getOwnedObjects() const
+{
+	return {ownedObjects.begin(), ownedObjects.end()};
+}
+
+void PlayerState::addOwnedObject(CGObjectInstance * object)
+{
+	assert(object->asOwnable() != nullptr);
+	ownedObjects.push_back(object);
+}
+
+void PlayerState::removeOwnedObject(CGObjectInstance * object)
+{
+	vstd::erase(ownedObjects, object);
+}
+
 
 VCMI_LIB_NAMESPACE_END

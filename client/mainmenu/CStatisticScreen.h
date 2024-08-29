@@ -24,8 +24,6 @@ class CPicture;
 using TData = std::vector<std::pair<ColorRGBA, std::vector<float>>>;
 using TIcons = std::vector<std::tuple<ColorRGBA, int, std::shared_ptr<IImage>, std::string>>; // Color, Day, Image, Helptext
 
-const int CHART_ICON_SIZE = 32;
-
 class CStatisticScreen : public CWindowObject
 {
 	enum Content {
@@ -123,6 +121,7 @@ class LineChart : public CIntObject
 
 	Rect chartArea;
 	float maxVal;
+	int niceMaxVal;
 	int maxDay;
 
 	void updateStatusBar(const Point & cursorPosition);
@@ -130,5 +129,5 @@ public:
 	LineChart(Rect position, std::string title, TData data, TIcons icons, float maxY);
 
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
-	void clickPressed(const Point & cursorPosition) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 };

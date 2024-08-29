@@ -136,6 +136,9 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 		"gold" : 10000
 	}, 
 	
+	// Artifact ID of a war machine produced in this town building, if any
+	"warMachine" : "ballista",
+	
 	// Allows to define additional functionality of this building, usually using logic of one of original H3 town building
 	// Generally only needs to be specified for "special" buildings
 	// See 'List of unique town buildings' section below for detailed description of this field
@@ -171,6 +174,9 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 	
     // If set to true, this building will replace all bonuses from base building, leaving only bonuses defined by this building"
 	"upgradeReplacesBonuses" : false,
+	
+	// If the building is a market, it requires market mode.
+	"marketModes" : [ "resource-resource", "resource-player" ],
 }
 ```
 
@@ -204,20 +210,17 @@ Following Heroes III buildings can be used as unique buildings for a town. Their
 - `castleGate`
 - `creatureTransformer`
 - `portalOfSummoning`
-- `ballistaYard`
 - `library`
 - `escapeTunnel`
 - `treasury`
 
 #### Buildings from other Heroes III mods
 Following HotA buildings can be used as unique building for a town. Functionality should match corresponding HotA building:
-- `thievesGuild`
 - `bank`
 
 #### Custom buildings
 In addition to above, it is possible to use same format as [Rewardable](../Map_Objects/Rewardable.md) map objects for town buildings. In order to do that, configuration of a rewardable object must be placed into `configuration` json node in building config.
 
-```
 
 ### Town Structure node
 
@@ -247,4 +250,18 @@ In addition to above, it is possible to use same format as [Rewardable](../Map_O
 	// If upgrade, this building will replace parent animation but will not alter its behaviour
 	"hidden" : false 
 }
+```
+
+
+#### Markets in towns
+Market buildings require list of available [modes](../Map_Objects/Market.md)
+
+##### Marketplace
+```jsonc
+	"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
+```
+
+##### Artifact merchant
+```jsonc
+	"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
 ```

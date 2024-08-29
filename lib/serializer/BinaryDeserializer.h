@@ -10,7 +10,7 @@
 #pragma once
 
 #include "CSerializer.h"
-#include "CTypeList.h"
+#include "SerializerReflection.h"
 #include "ESerializationVersion.h"
 #include "../mapObjects/CGHeroInstance.h"
 
@@ -76,36 +76,6 @@ class BinaryDeserializer : public CLoaderBase
 		return true;
 	}
 
-	template <typename T, typename Enable = void>
-	struct ClassObjectCreator
-	{
-		static T *invoke(IGameCallback *cb)
-		{
-			static_assert(!std::is_base_of_v<GameCallbackHolder, T>, "Cannot call new upon map objects!");
-			static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
-			return new T();
-		}
-	};
-
-	template<typename T>
-	struct ClassObjectCreator<T, typename std::enable_if_t<std::is_abstract_v<T>>>
-	{
-		static T *invoke(IGameCallback *cb)
-		{
-			throw std::runtime_error("Something went really wrong during deserialization. Attempted creating an object of an abstract class " + std::string(typeid(T).name()));
-		}
-	};
-
-	template<typename T>
-	struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCallbackHolder, T> && !std::is_abstract_v<T>>>
-	{
-		static T *invoke(IGameCallback *cb)
-		{
-			static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
-			return new T(cb);
-		}
-	};
-
 	STRONG_INLINE uint32_t readAndCheckLength()
 	{
 		uint32_t length;
@@ -118,40 +88,6 @@ class BinaryDeserializer : public CLoaderBase
 		};
 		return length;
 	}
-
-	template <typename Type> class CPointerLoader;
-
-	class IPointerLoader
-	{
-	public:
-		virtual Serializeable * loadPtr(CLoaderBase &ar, IGameCallback * cb, uint32_t pid) const =0; //data is pointer to the ACTUAL POINTER
-		virtual ~IPointerLoader() = default;
-
-		template<typename Type> static IPointerLoader *getApplier(const Type * t = nullptr)
-		{
-			return new CPointerLoader<Type>();
-		}
-	};
-
-	template <typename Type>
-	class CPointerLoader : public IPointerLoader
-	{
-	public:
-		Serializeable * loadPtr(CLoaderBase &ar, IGameCallback * cb, uint32_t pid) const override //data is pointer to the ACTUAL POINTER
-		{
-			auto & s = static_cast<BinaryDeserializer &>(ar);
-
-			//create new object under pointer
-			Type * ptr = ClassObjectCreator<Type>::invoke(cb); //does new npT or throws for abstract classes
-			s.ptrAllocated(ptr, pid);
-
-			ptr->serialize(s);
-
-			return static_cast<Serializeable*>(ptr);
-		}
-	};
-
-	CApplier<IPointerLoader> applier;
 
 	int write(const void * data, unsigned size);
 
@@ -360,24 +296,27 @@ public:
 		uint16_t tid;
 		load( tid );
 
+		typedef typename std::remove_pointer_t<T> npT;
+		typedef typename std::remove_const_t<npT> ncpT;
 		if(!tid)
 		{
-			typedef typename std::remove_pointer_t<T> npT;
-			typedef typename std::remove_const_t<npT> ncpT;
 			data = ClassObjectCreator<ncpT>::invoke(cb);
 			ptrAllocated(data, pid);
 			load(*data);
 		}
 		else
 		{
-			auto * app = applier.getApplier(tid);
+			auto * app = CSerializationApplier::getInstance().getApplier(tid);
 			if(app == nullptr)
 			{
 				logGlobal->error("load %d %d - no loader exists", tid, pid);
 				data = nullptr;
 				return;
 			}
-			data = dynamic_cast<T>(app->loadPtr(*this, cb, pid));
+			auto dataNonConst = dynamic_cast<ncpT*>(app->createPtr(*this, cb));
+			data = dataNonConst;
+			ptrAllocated(data, pid);
+			app->loadPtr(*this, cb, dataNonConst);
 		}
 	}
 
@@ -386,11 +325,6 @@ public:
 	{
 		if(trackSerializedPointers && pid != 0xffffffff)
 			loadedPointers[pid] = const_cast<Serializeable*>(dynamic_cast<const Serializeable*>(ptr)); //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
-	}
-
-	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		applier.registerType(b, d);
 	}
 
 	template <typename T>

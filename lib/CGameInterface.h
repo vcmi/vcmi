@@ -53,8 +53,6 @@ class CStack;
 class CCreature;
 class CLoadFile;
 class CSaveFile;
-class BinaryDeserializer;
-class BinarySerializer;
 class BattleStateInfo;
 struct ArtifactLocation;
 class BattleStateInfoForRetreat;

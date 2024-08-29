@@ -38,9 +38,6 @@ class TavernHeroesPool;
 struct SThievesGuildInfo;
 class CRandomGenerator;
 
-template<typename T> class CApplier;
-class CBaseForGSApply;
-
 struct UpgradeInfo
 {
 	CreatureID oldID; //creature to be upgraded
@@ -101,7 +98,7 @@ public:
 	/// picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
-	void apply(CPack *pack);
+	void apply(CPackForClient *pack);
 	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & rand);
 
 	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
@@ -111,7 +108,6 @@ public:
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) override;
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
-	RumorState pickNewRumor();
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
@@ -160,6 +156,8 @@ public:
 		h & day;
 		h & map;
 		h & players;
+		if (h.version < Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
+			generateOwnedObjectsAfterDeserialize();
 		h & teams;
 		h & heroesPool;
 		h & globalEffects;
@@ -199,6 +197,8 @@ private:
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();
 
+	void generateOwnedObjectsAfterDeserialize();
+
 	// ----- bonus system handling -----
 
 	void buildBonusSystemTree();
@@ -215,7 +215,6 @@ private:
 	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----
-	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
 	Services * services;
 
 	/// Pointer to campaign state manager. Nullptr for single scenarios

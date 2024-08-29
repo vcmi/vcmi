@@ -21,8 +21,6 @@
 #include "../../lib/GameSettings.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/serializer/CTypeList.h"
-#include "../../lib/serializer/BinarySerializer.h"
-#include "../../lib/serializer/BinaryDeserializer.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"
@@ -1491,7 +1489,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
+					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
 					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName());
 				}

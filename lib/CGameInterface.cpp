@@ -13,9 +13,6 @@
 #include "CStack.h"
 #include "VCMIDirs.h"
 
-#include "serializer/BinaryDeserializer.h"
-#include "serializer/BinarySerializer.h"
-
 #ifdef STATIC_AI
 # include "AI/VCAI/VCAI.h"
 # include "AI/Nullkiller/AIGateway.h"

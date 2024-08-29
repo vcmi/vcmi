@@ -819,7 +819,7 @@ void CTransformerWindow::makeDeal()
 	for(auto & elem : items)
 	{
 		if(!elem->left)
-			LOCPLINT->cb->trade(market, EMarketMode::CREATURE_UNDEAD, SlotID(elem->id), {}, {}, hero);
+			LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_UNDEAD, SlotID(elem->id), {}, {}, hero);
 	}
 }
 
@@ -946,7 +946,7 @@ void CUniversityWindow::CItem::hover(bool on)
 		GH.statusbar()->clear();
 }
 
-CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed)
+CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
 	hero(_hero),
 	onWindowClosed(onWindowClosed),
@@ -961,8 +961,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
 		auto faction = town->town->faction->getId();
-		auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
-		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
+		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, building);
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
@@ -1005,7 +1004,7 @@ void CUniversityWindow::updateSecondarySkills()
 
 void CUniversityWindow::makeDeal(SecondarySkill skill)
 {
-	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_SKILL, GameResID(GameResID::GOLD), skill, 1, hero);
+	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_SKILL, GameResID(GameResID::GOLD), skill, 1, hero);
 }
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkill SKILL, bool available)

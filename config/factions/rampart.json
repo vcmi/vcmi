@@ -152,7 +152,6 @@
 			"horde" : [ 1, 4 ],
 			"mageGuild" : 5,
 			"primaryResource" : "crystal",
-			"warMachine" : "firstAidTent",
 			"moatAbility" : "rampartMoat",
 
 			"buildings" :
@@ -172,7 +171,7 @@
 				"capitol":        { },
 				"marketplace":    { },
 				"resourceSilo":   { "produce": { "crystal": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "firstAidTent" },
 
 				"special1":       { "type" : "mysticPond" },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl2" },

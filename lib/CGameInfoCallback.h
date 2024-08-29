@@ -23,7 +23,7 @@ struct InfoWindow;
 struct PlayerSettings;
 struct CPackForClient;
 struct TerrainTile;
-struct PlayerState;
+class PlayerState;
 class CTown;
 struct StartInfo;
 struct CPathsInfo;
@@ -48,6 +48,7 @@ class CGHeroInstance;
 class CGDwelling;
 class CGTeleport;
 class CGTownInstance;
+class IMarket;
 
 class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
 {
@@ -189,6 +190,7 @@ public:
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	virtual const CGObjectInstance * getTopObj (int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
+	virtual const IMarket * getMarket(ObjectInstanceID objid) const;
 
 	//map
 	virtual int3 guardingCreaturePosition (int3 pos) const;
@@ -245,7 +247,6 @@ public:
 	virtual const CGTownInstance* getTownBySerial(int serialId) const; // serial id is [0, number of towns)
 	virtual const CGHeroInstance* getHeroBySerial(int serialId, bool includeGarrisoned=true) const; // serial id is [0, number of heroes)
 	virtual std::vector <const CGHeroInstance *> getHeroesInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
-	virtual std::vector <const CGDwelling *> getMyDwellings() const; //returns all dwellings that belong to player
 	virtual std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 	virtual std::vector <QuestInfo> getMyQuests() const;
 

@@ -29,11 +29,11 @@ HighScoreParameter HighScore::prepareHighScores(const CGameState * gs, PlayerCol
 	param.townAmount = gs->howManyTowns(player);
 	param.usedCheat = gs->getPlayerState(player)->cheated;
 	param.hasGrail = false;
-	for(const CGHeroInstance * h : playerState->heroes)
+	for(const CGHeroInstance * h : playerState->getHeroes())
 		if(h->hasArt(ArtifactID::GRAIL))
 			param.hasGrail = true;
-	for(const CGTownInstance * t : playerState->towns)
-		if(t->builtBuildings.count(BuildingID::GRAIL))
+	for(const CGTownInstance * t : playerState->getTowns())
+		if(t->hasBuilt(BuildingID::GRAIL))
 			param.hasGrail = true;
 	param.allEnemiesDefeated = true;
 	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)

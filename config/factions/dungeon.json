@@ -148,9 +148,7 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"primaryResource" : "sulfur",
-			"warMachine" : "ballista",
 			"moatAbility" : "dungeonMoat",
-
 
 			"buildings" :
 			{
@@ -169,9 +167,9 @@
 				"capitol":        { },
 				"marketplace":    { },
 				"resourceSilo":   { "produce": { "sulfur": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "ballista" },
 
-				"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ] },
+				"special1":       { "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"special2":       {

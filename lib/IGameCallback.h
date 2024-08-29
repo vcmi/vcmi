@@ -31,6 +31,8 @@ struct BankConfig;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
+class CSaveFile;
+class CLoadFile;
 enum class EOpenWindowMode : uint8_t;
 
 namespace spells
@@ -74,11 +76,8 @@ public:
 	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
-	template<typename Saver>
-	void saveCommonState(Saver &out) const; //stores GS and VLC
-
-	template<typename Loader>
-	void loadCommonState(Loader &in); //loads GS and VLC
+	void saveCommonState(CSaveFile &out) const; //stores GS and VLC
+	void loadCommonState(CLoadFile &in); //loads GS and VLC
 };
 
 class DLL_LINKAGE IGameEventCallback
@@ -141,7 +140,7 @@ public:
 	virtual void sendAndApply(CPackForClient * pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) = 0;
-	virtual void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
+	virtual void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
 	
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 

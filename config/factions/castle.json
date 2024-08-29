@@ -147,7 +147,6 @@
 			],
 			"horde" : [ 2, -1 ],
 			"mageGuild" : 4,
-			"warMachine" : "ballista",
 			"moatAbility" : "castleMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
@@ -168,7 +167,7 @@
 				"capitol":        { },
 				"marketplace":    { },
 				"resourceSilo":   { "produce": { "ore": 1, "wood": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "ballista" },
 
 				"special1":       { 
 					"bonuses": [

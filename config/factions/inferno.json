@@ -149,7 +149,6 @@
 			"horde" : [ 0, 2 ],
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
-			"warMachine" : "ammoCart",
 			"moatAbility" : "infernoMoat",
 
 			"buildings" :
@@ -169,7 +168,7 @@
 				"capitol":        { },
 				"marketplace":    { },
 				"resourceSilo":   { "produce": { "mercury": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "ammoCart" },
 
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },

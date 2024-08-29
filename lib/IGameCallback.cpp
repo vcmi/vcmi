@@ -180,8 +180,7 @@ CGameState * CPrivilegedInfoCallback::gameState()
 	return gs;
 }
 
-template<typename Loader>
-void CPrivilegedInfoCallback::loadCommonState(Loader & in)
+void CPrivilegedInfoCallback::loadCommonState(CLoadFile & in)
 {
 	logGlobal->info("Loading lib part of game...");
 	in.checkMagicBytes(SAVEGAME_MAGIC);
@@ -203,8 +202,7 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 	in.serializer & gs;
 }
 
-template<typename Saver>
-void CPrivilegedInfoCallback::saveCommonState(Saver & out) const
+void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
 {
 	ActiveModsInSaveList activeMods;
 
@@ -219,10 +217,6 @@ void CPrivilegedInfoCallback::saveCommonState(Saver & out) const
 	logGlobal->info("\tSaving gamestate");
 	out.serializer & gs;
 }
-
-// hardly memory usage for `-gdwarf-4` flag
-template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadFile>(CLoadFile &);
-template DLL_LINKAGE void CPrivilegedInfoCallback::saveCommonState<CSaveFile>(CSaveFile &) const;
 
 TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)
 {
@@ -287,18 +281,16 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 			return hero;
 		}
 	}
+	else if(auto market = getMarket(loc.artHolder))
+	{
+		if(auto artSet = market->getArtifactsStorage())
+			return artSet;
+	}
 	else if(auto army = getArmyInstance(loc.artHolder))
 	{
 		return army->getStackPtr(loc.creature.value());
 	}
-	else if(auto market = dynamic_cast<CGArtifactsAltar*>(getObjInstance(loc.artHolder)))
-	{
-		return market;
-	}
-	else
-	{
-		return nullptr;
-	}
+	return nullptr;
 }
 
 bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)

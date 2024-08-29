@@ -145,7 +145,6 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
-			"warMachine" : "ammoCart",
 			"moatAbility" : "strongholdMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
@@ -164,13 +163,13 @@
 				"capitol":        { },
 				"marketplace":    { },
 				"resourceSilo":   { "produce": { "ore": 1, "wood": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "ammoCart" },
 
 				"special1":       { "type" : "escapeTunnel", "requires" : [ "fort" ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
-				"special2":       { "type" : "freelancersGuild", "requires" : [ "marketplace" ] },
-				"special3":       { "type" : "ballistaYard", "requires" : [ "blacksmith" ] },
+				"special2":       { "requires" : [ "marketplace" ], "marketModes" : ["creature-resource"] },
+				"special3":       { "warMachine" : "ballista", "requires" : [ "blacksmith" ] },
 				"special4":       { 
 					"requires" : [ "fort" ],
 					"configuration" : {

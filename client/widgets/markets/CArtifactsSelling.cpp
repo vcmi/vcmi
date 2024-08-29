@@ -22,26 +22,17 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/CArtifactInstance.h"
-#include "../../../lib/entities/building/CBuilding.h"
-#include "../../../lib/entities/faction/CTownHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 
-CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
+CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero, const std::string & title)
 	: CMarketBase(market, hero)
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & resSlot){CArtifactsSelling::onSlotClickPressed(resSlot, offerTradePanel);},
 		[this](){CArtifactsSelling::updateSubtitles();})
 {
 	OBJECT_CONSTRUCTION;
-
-	std::string title;
-	if(const auto townMarket = dynamic_cast<const CGTownInstance*>(market))
-		title = (*CGI->townh)[townMarket->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
-	else if(const auto mapMarket = dynamic_cast<const CGMarket*>(market))
-		title = mapMarket->title;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
 	labels.push_back(std::make_shared<CLabel>(155, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->getNameTranslated())));
@@ -87,7 +78,8 @@ void CArtifactsSelling::makeDeal()
 {
 	const auto art = hero->getArt(selectedHeroSlot);
 	assert(art);
-	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_RESOURCE, art->getId(), GameResID(offerTradePanel->getSelectedItemId()), offerQty, hero);
+	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE, art->getId(),
+		GameResID(offerTradePanel->getSelectedItemId()), offerQty, hero);
 	CMarketTraderText::makeDeal();
 }
 

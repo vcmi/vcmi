@@ -22,7 +22,7 @@ public:
 	//interface
 	IBonusBearer() = default;
 	virtual ~IBonusBearer() = default;
-	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
+	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const = 0;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;

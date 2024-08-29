@@ -339,6 +339,7 @@ void Rewardable::Info::configureRewards(
 void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb) const
 {
 	object.info.clear();
+	object.variables.values.clear();
 
 	configureVariables(object, rng, cb, parameters["variables"]);
 

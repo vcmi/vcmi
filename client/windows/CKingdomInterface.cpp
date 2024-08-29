@@ -585,9 +585,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 			const CGMine * mine = dynamic_cast<const CGMine *>(object);
 			assert(mine);
 			minesCount[mine->producedResource]++;
-
-			if (mine->producedResource == EGameResID::GOLD)
-				totalIncome += mine->getProducedQuantity();
+			totalIncome += mine->dailyIncome()[EGameResID::GOLD];
 		}
 	}
 
@@ -596,7 +594,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	auto * playerSettings = LOCPLINT->cb->getPlayerSettings(LOCPLINT->playerID);
 	for(auto & hero : heroes)
 	{
-		totalIncome += hero->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD)))) * playerSettings->handicap.percentIncome / 100;
+		totalIncome += hero->dailyIncome()[EGameResID::GOLD];
 	}
 
 	//Add town income of all towns
@@ -822,7 +820,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 
 	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
 	{
-		if(town->builtBuildings.count(BuildingID::TAVERN))
+		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 	}, [&]{
 		if(!town->town->faction->getDescriptionTranslated().empty())
@@ -833,7 +831,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
-			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+			if(town->hasBuilt(BuildingID::MARKETPLACE))
 			{
 				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;

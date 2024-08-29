@@ -536,7 +536,7 @@ void CGameStateCampaign::initHeroes()
 		}
 		assert(humanPlayer != PlayerColor::NEUTRAL);
 
-		std::vector<ConstTransitivePtr<CGHeroInstance> > & heroes = gameState->players[humanPlayer].heroes;
+		const auto & heroes = gameState->players[humanPlayer].getHeroes();
 
 		if (chosenBonus->info1 == 0xFFFD) //most powerful
 		{
@@ -656,7 +656,7 @@ void CGameStateCampaign::initTowns()
 		if(gameState->scenarioOps->campState->formatVCMI())
 			newBuilding = BuildingID(chosenBonus->info1);
 		else
-			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFaction(), town->builtBuildings);
+			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFaction(), town->getBuildings());
 
 		// Build granted building & all prerequisites - e.g. Mages Guild Lvl 3 should also give Mages Guild Lvl 1 & 2
 		while(true)
@@ -664,10 +664,10 @@ void CGameStateCampaign::initTowns()
 			if (newBuilding == BuildingID::NONE)
 				break;
 
-			if (town->builtBuildings.count(newBuilding) != 0)
+			if(town->hasBuilt(newBuilding))
 				break;
 
-			town->builtBuildings.insert(newBuilding);
+			town->addBuilding(newBuilding);
 
 			auto building = town->town->buildings.at(newBuilding);
 			newBuilding = building->upgrade;

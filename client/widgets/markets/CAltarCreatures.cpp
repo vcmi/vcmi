@@ -23,7 +23,7 @@
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/mapObjects/IMarket.h"
 
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -157,7 +157,7 @@ void CAltarCreatures::makeDeal()
 		}
 	}
 
-	LOCPLINT->cb->trade(market, EMarketMode::CREATURE_EXP, ids, {}, toSacrifice, hero);
+	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_EXP, ids, {}, toSacrifice, hero);
 
 	for(int & units : unitsOnAltar)
 		units = 0;

@@ -150,7 +150,7 @@ class JsonNode;
 	BONUS_NAME(GARGOYLE) /* gargoyle is special than NON_LIVING, cannot be rised or healed */ \
 	BONUS_NAME(SPECIAL_ADD_VALUE_ENCHANT) /*specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add*/\
 	BONUS_NAME(SPECIAL_FIXED_VALUE_ENCHANT) /*specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.*/\
-	BONUS_NAME(TOWN_MAGIC_WELL) /*one-time pseudo-bonus to implement Magic Well in the town*/\
+	BONUS_NAME(THIEVES_GUILD_ACCESS) \
 	BONUS_NAME(LIMITED_SHOOTING_RANGE) /*limits range of shooting creatures, doesn't adjust any other mechanics (half vs full damage etc). val - range in hexes, additional info - optional new range for broken arrow mechanic */\
 	BONUS_NAME(LEARN_BATTLE_SPELL_CHANCE) /*skill-agnostic eagle eye chance. subtype = 0 - from enemy, 1 - TODO: from entire battlefield*/\
 	BONUS_NAME(LEARN_BATTLE_SPELL_LEVEL_LIMIT) /*skill-agnostic eagle eye limit, subtype - school (-1 for all), others TODO*/\
@@ -178,6 +178,7 @@ class JsonNode;
 	BONUS_NAME(REVENGE) /*additional damage based on how many units in stack died - formula: sqrt((number of creatures at battle start + 1) * creature health) / (total health now + 1 creature health) - 1) * 100% */ \
 	BONUS_NAME(RESOURCES_CONSTANT_BOOST) /*Bonus that does not account for propagation and gives extra resources per day. val - resource amount, subtype - resource type*/ \
 	BONUS_NAME(RESOURCES_TOWN_MULTIPLYING_BOOST) /*Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns. val - base resource amount to be multiplied times number of owned towns, subtype - resource type*/ \
+	BONUS_NAME(DISINTEGRATE) /* after death no corpse remains */ \
 	/* end of list */
 
 

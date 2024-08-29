@@ -35,6 +35,7 @@ public:
 	PlayerColor getOwner() const override;
 	MapObjectID getObjGroupIndex() const override;
 	MapObjectSubID getObjTypeIndex() const override;
+	const IOwnableObject * asOwnable() const override;
 
 	int3 visitablePos() const override;
 	int3 getPosition() const override;
@@ -90,20 +91,6 @@ public:
 			h & static_cast<Rewardable::Interface&>(*this);
 		h & visitors;
 	}
-};
-
-/// Compatibility for old code
-class DLL_LINKAGE CTownCompatBuilding1 : public TownRewardableBuildingInstance
-{
-public:
-	using TownRewardableBuildingInstance::TownRewardableBuildingInstance;
-};
-
-/// Compatibility for old code
-class DLL_LINKAGE CTownCompatBuilding2 : public TownRewardableBuildingInstance
-{
-public:
-	using TownRewardableBuildingInstance::TownRewardableBuildingInstance;
 };
 
 VCMI_LIB_NAMESPACE_END

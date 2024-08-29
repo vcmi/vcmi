@@ -831,7 +831,8 @@ void CUnitState::damage(int64_t & amount)
 		health.damage(amount);
 	}
 
-	if(health.available() <= 0 && (cloned || summoned))
+	bool disintegrate = hasBonusOfType(BonusType::DISINTEGRATE);
+	if(health.available() <= 0 && (cloned || summoned || disintegrate))
 		ghostPending = true;
 }
 
@@ -900,9 +901,9 @@ CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBear
 {
 }
 
-TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
+TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr) const
 {
-	return bonus->getAllBonuses(selector, limit, root, cachingStr);
+	return bonus->getAllBonuses(selector, limit, cachingStr);
 }
 
 int64_t CUnitStateDetached::getTreeVersion() const

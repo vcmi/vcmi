@@ -130,13 +130,9 @@ TIcons CStatisticScreen::extractIcons() const
 	std::sort(tmpData.begin(), tmpData.end(), [](const StatisticDataSetEntry & v1, const StatisticDataSetEntry & v2){ return v1.player == v2.player ? v1.day < v2.day : v1.player < v2.player; });
 
 	auto imageTown = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 3, 0, EImageBlitMode::COLORKEY);
-	imageTown->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
 	auto imageBattle = GH.renderHandler().loadImage(AnimationPath::builtin("cradvntr"), 5, 0, EImageBlitMode::COLORKEY);
-	imageBattle->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
-	auto imageDefeated = GH.renderHandler().loadImage(AnimationPath::builtin("tpthchk"), 1, 0, EImageBlitMode::COLORKEY);
-	imageDefeated->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
+	auto imageDefeated = GH.renderHandler().loadImage(AnimationPath::builtin("crcombat"), 0, 0, EImageBlitMode::COLORKEY);
 	auto imageGrail = GH.renderHandler().loadImage(AnimationPath::builtin("vwsymbol"), 2, 0, EImageBlitMode::COLORKEY);
-	imageGrail->scaleTo(Point(CHART_ICON_SIZE, CHART_ICON_SIZE));
 
 	std::map<PlayerColor, bool> foundDefeated;
 	std::map<PlayerColor, bool> foundGrail;
@@ -273,7 +269,11 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, const StatisticDa
 		},
 		{
 			CGI->generaltexth->translate("vcmi.statisticWindow.param.daysSurvived"), [this](PlayerColor color){
-				return CStatisticScreen::getDay(playerDataFilter(color).size());
+				auto playerData = playerDataFilter(color);
+				for(int i = 0; i < playerData.size(); i++)
+					if(playerData[i].status == EPlayerStatus::LOSER)
+						return CStatisticScreen::getDay(i + 1);
+				return CStatisticScreen::getDay(playerData.size());
 			}
 		},
 		{
@@ -424,12 +424,25 @@ void OverviewPanel::update(int to)
 	}
 }
 
+int computeGridStep(int maxAmount, int linesLimit)
+{
+	for (int lineInterval = 1;;lineInterval *= 10)
+	{
+		for (int factor : { 1, 2, 5 } )
+		{
+			int lineIntervalToTest = lineInterval * factor;
+			if (maxAmount / lineIntervalToTest <= linesLimit)
+				return lineIntervalToTest;
+		}
+	}
+}
+
 LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons, float maxY)
 	: CIntObject(), maxVal(0), maxDay(0)
 {
 	OBJECT_CONSTRUCTION;
 
-	addUsedEvents(LCLICK | MOVE);
+	addUsedEvents(LCLICK | MOVE | GESTURE);
 
 	pos = position + pos.topLeft();
 
@@ -455,15 +468,48 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 			maxDay = line.second.size();
 	}
 
+	//calculate nice maxVal
+	int gridLineCount = 10;
+	int gridStep = computeGridStep(maxVal, gridLineCount);
+	niceMaxVal = gridStep * std::ceil(maxVal / gridStep);
+	niceMaxVal = std::max(1, niceMaxVal); // avoid zero size Y axis (if all values are 0)
+
+	// calculate points in chart
+	auto getPoint = [this](int i, std::vector<float> data){
+		float x = (static_cast<float>(chartArea.w) / static_cast<float>(maxDay - 1)) * static_cast<float>(i);
+		float y = static_cast<float>(chartArea.h) - (static_cast<float>(chartArea.h) / niceMaxVal) * data[i];
+		return Point(x, y);
+	};
+
+	// draw grid (vertical lines)
+	int dayGridInterval = maxDay < 700 ? 7 : 28;
+	for(const auto & line : data)
+	{
+		for(int i = 0; i < line.second.size(); i += dayGridInterval)
+		{
+			Point p = getPoint(i, line.second) + chartArea.topLeft();
+			canvas->addLine(Point(p.x, chartArea.topLeft().y), Point(p.x, chartArea.topLeft().y + chartArea.h), ColorRGBA(70, 70, 70));
+		}
+	}
+
+	// draw grid (horizontal lines)
+	if(maxVal > 0)
+	{
+		int gridStepPx = int((static_cast<float>(chartArea.h) / niceMaxVal) * gridStep);
+		for(int i = 0; i < std::ceil(maxVal / gridStep) + 1; i++)
+		{
+			canvas->addLine(chartArea.topLeft() + Point(0, chartArea.h - gridStepPx * i), chartArea.topLeft() + Point(chartArea.w, chartArea.h - gridStepPx * i), ColorRGBA(70, 70, 70));
+			layout.emplace_back(std::make_shared<CLabel>(chartArea.topLeft().x - 5, chartArea.topLeft().y + 10 + chartArea.h - gridStepPx * i, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, TextOperations::formatMetric(i * gridStep, 5)));
+		}
+	}
+
 	// draw
 	for(const auto & line : data)
 	{
 		Point lastPoint(-1, -1);
 		for(int i = 0; i < line.second.size(); i++)
 		{
-			float x = (static_cast<float>(chartArea.w) / static_cast<float>(maxDay - 1)) * static_cast<float>(i);
-			float y = static_cast<float>(chartArea.h) - (static_cast<float>(chartArea.h) / maxVal) * line.second[i];
-			Point p = Point(x, y) + chartArea.topLeft();
+			Point p = getPoint(i, line.second) + chartArea.topLeft();
 
 			if(lastPoint.x != -1)
 				canvas->addLine(lastPoint, p, line.first);
@@ -472,7 +518,7 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 			for(auto & icon : icons)
 				if(std::get<0>(icon) == line.first && std::get<1>(icon) == i + 1) // color && day
 				{
-					pictures.emplace_back(std::make_shared<CPicture>(std::get<2>(icon), Point(x - (CHART_ICON_SIZE / 2), y - (CHART_ICON_SIZE / 2)) + chartArea.topLeft()));
+					pictures.emplace_back(std::make_shared<CPicture>(std::get<2>(icon), Point(p.x - (std::get<2>(icon)->width() / 2), p.y - (std::get<2>(icon)->height() / 2))));
 					pictures.back()->addRClickCallback([icon](){ CRClickPopup::createAndPush(std::get<3>(icon)); });
 				}
 
@@ -484,12 +530,8 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	canvas->addLine(chartArea.topLeft() + Point(0, -10), chartArea.topLeft() + Point(0, chartArea.h + 10), Colors::WHITE);
 	canvas->addLine(chartArea.topLeft() + Point(-10, chartArea.h), chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h), Colors::WHITE);
 
-	Point p = chartArea.topLeft() + Point(-5, chartArea.h + 10);
-	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, "0"));
-	p = chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h + 10);
+	Point p = chartArea.topLeft() + Point(chartArea.w + 10, chartArea.h + 10);
 	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CStatisticScreen::getDay(maxDay)));
-	p = chartArea.topLeft() + Point(-5, -10);
-	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_SMALL, ETextAlignment::CENTERRIGHT, Colors::WHITE, std::to_string(static_cast<int>(maxVal))));
 	p = chartArea.bottomLeft() + Point(chartArea.w / 2, + 20);
 	layout.emplace_back(std::make_shared<CLabel>(p.x, p.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.64")));
 }
@@ -502,8 +544,8 @@ void LineChart::updateStatusBar(const Point & cursorPosition)
 	statusBar->setEnabled(r.isInside(cursorPosition));
 	if(r.isInside(cursorPosition))
 	{
-		float x = (static_cast<float>(maxDay) / static_cast<float>(chartArea.w)) * (static_cast<float>(cursorPosition.x) - static_cast<float>(r.x)) + 1.0f;
-		float y = maxVal - (maxVal / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
+		float x = (static_cast<float>(maxDay - 1) / static_cast<float>(chartArea.w)) * (static_cast<float>(cursorPosition.x) - static_cast<float>(r.x)) + 1.0f;
+		float y = niceMaxVal - (niceMaxVal / static_cast<float>(chartArea.h)) * (static_cast<float>(cursorPosition.y) - static_cast<float>(r.y));
 		statusBar->write(CGI->generaltexth->translate("core.genrltxt.64") + ": " + CStatisticScreen::getDay(x) + "   " + CGI->generaltexth->translate("vcmi.statisticWindow.value") + ": " + (static_cast<int>(y) > 0 ? std::to_string(static_cast<int>(y)) : std::to_string(y)));
 	}
 	setRedrawParent(true);
@@ -515,7 +557,7 @@ void LineChart::mouseMoved(const Point & cursorPosition, const Point & lastUpdat
 	updateStatusBar(cursorPosition);
 }
 
-void LineChart::clickPressed(const Point & cursorPosition)
+void LineChart::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	updateStatusBar(cursorPosition);
+	updateStatusBar(currentPosition);
 }

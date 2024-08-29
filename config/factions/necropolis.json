@@ -152,7 +152,6 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
-			"warMachine" : "firstAidTent",
 			"moatAbility" : "necropolisMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
@@ -174,7 +173,7 @@
 				"capitol":        { },
 				"marketplace":    { },
 				"resourceSilo":   { "produce": { "ore": 1, "wood": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "firstAidTent" },
 
 				"special1":       { "requires" : [ "fort" ], "bonuses": [ { "type": "DARKNESS", "val": 20  } ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1", "requires" : [ "special3" ] },
@@ -182,7 +181,7 @@
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },
 				"special2":       { "requires" : [ "mageGuild1" ],
 					"bonuses": [ { "type": "UNDEAD_RAISE_PERCENTAGE", "val": 10, "propagator": "PLAYER_PROPAGATOR" } ] },
-				"special3":       { "type" : "creatureTransformer", "requires" : [ "dwellingLvl1" ] },
+				"special3":       { "requires" : [ "dwellingLvl1" ], "marketModes" : ["creature-undead"] },
 				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 },
 					"bonuses": [ { "type": "UNDEAD_RAISE_PERCENTAGE", "val": 20, "propagator": "PLAYER_PROPAGATOR" } ] },
 
