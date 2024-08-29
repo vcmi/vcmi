@@ -39,6 +39,7 @@ jobs:
             extension: dmg
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
+            conan_prebuilts: dependencies-mac-intel
             conan_options: --options with_apple_system_libs=True
             artifact_platform: intel
           - platform: mac-arm
@@ -49,6 +50,7 @@ jobs:
             extension: dmg
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
+            conan_prebuilts: dependencies-mac-arm
             conan_options: --options with_apple_system_libs=True
             artifact_platform: arm
           - platform: ios
@@ -59,6 +61,7 @@ jobs:
             extension: ipa
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
+            conan_prebuilts: dependencies-ios
             conan_options: --options with_apple_system_libs=True
           - platform: msvc
             os: windows-latest
@@ -88,11 +91,13 @@ jobs:
             cmake_args: -G Ninja
             preset: windows-mingw-conan-linux
             conan_profile: mingw32-linux.jinja
+            conan_prebuilts: dependencies-mingw-32
           - platform: android-32
             os: macos-14
             extension: apk
             preset: android-conan-ninja-release
             conan_profile: android-32
+            conan_prebuilts: dependencies-android-32
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: armeabi-v7a
           - platform: android-64
@@ -100,6 +105,7 @@ jobs:
             extension: apk
             preset: android-conan-ninja-release
             conan_profile: android-64
+            conan_prebuilts: dependencies-android-64
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
             artifact_platform: arm64-v8a
     runs-on: ${{ matrix.os }}
@@ -108,14 +114,19 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - name: Dependencies
+    - name: Prepare CI
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:
         VCMI_BUILD_PLATFORM: x64
+
+    - name: Install Conan Dependencies
+      if: "${{ matrix.conan_prebuilts != '' }}"
+      run: source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
