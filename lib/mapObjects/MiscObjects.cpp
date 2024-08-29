@@ -93,18 +93,6 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	flagMine(h->tempOwner);
-
-}
-
-void CGMine::newTurn(vstd::RNG & rand) const
-{
-	if(cb->getDate() == 1)
-		return;
-
-	if (tempOwner == PlayerColor::NEUTRAL)
-		return;
-
-	cb->giveResource(tempOwner, producedResource, getProducedQuantity());
 }
 
 void CGMine::initObj(vstd::RNG & rand)
@@ -139,10 +127,23 @@ bool CGMine::isAbandoned() const
 	return subID.getNum() >= 7;
 }
 
+const IOwnableObject * CGMine::asOwnable() const
+{
+	return this;
+}
+
+std::vector<CreatureID> CGMine::providedCreatures() const
+{
+	return {};
+}
+
 ResourceSet CGMine::dailyIncome() const
 {
 	ResourceSet result;
 	result[producedResource] += defaultResProduction();
+
+	const auto & playerSettings = cb->getPlayerSettings(getOwner());
+	result.applyHandicap(playerSettings->handicap.percentIncome);
 
 	return result;
 }
@@ -978,6 +979,21 @@ void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
 	handler.serializeStruct("text", message);
 }
 
+const IOwnableObject * CGGarrison::asOwnable() const
+{
+	return this;
+}
+
+ResourceSet CGGarrison::dailyIncome() const
+{
+	return {};
+}
+
+std::vector<CreatureID> CGGarrison::providedCreatures() const
+{
+	return {};
+}
+
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
 	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
@@ -1279,6 +1295,21 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			CTeamVisited::setPropertyDer(what, identifier);
 			break;
 	}
+}
+
+const IOwnableObject * CGLighthouse::asOwnable() const
+{
+	return this;
+}
+
+ResourceSet CGLighthouse::dailyIncome() const
+{
+	return {};
+}
+
+std::vector<CreatureID> CGLighthouse::providedCreatures() const
+{
+	return {};
 }
 
 void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const

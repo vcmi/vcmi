@@ -66,6 +66,7 @@ enum class ESerializationVersion : int32_t
 	NEW_TOWN_BUILDINGS, // 855 - old bonusing buildings have been removed
 	STATISTICS_SCREEN, // 856 - extent statistic functions
 	NEW_MARKETS, // 857 - reworked market classes
+	PLAYER_STATE_OWNED_OBJECTS, // 858 - player state stores all owned objects in a single list
 
-	CURRENT = NEW_MARKETS
+	CURRENT = PLAYER_STATE_OWNED_OBJECTS
 };

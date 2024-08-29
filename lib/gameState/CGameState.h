@@ -108,7 +108,6 @@ public:
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) override;
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
-	RumorState pickNewRumor();
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
@@ -157,6 +156,8 @@ public:
 		h & day;
 		h & map;
 		h & players;
+		if (h.version < Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
+			generateOwnedObjectsAfterDeserialize();
 		h & teams;
 		h & heroesPool;
 		h & globalEffects;
@@ -180,6 +181,7 @@ private:
 	void initGlobalBonuses();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
+	void initOwnedObjects();
 	void randomizeMapObjects();
 	void initPlayerStates();
 	void placeStartingHeroes();
@@ -195,6 +197,8 @@ private:
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();
+
+	void generateOwnedObjectsAfterDeserialize();
 
 	// ----- bonus system handling -----
 

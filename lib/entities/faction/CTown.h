@@ -69,7 +69,7 @@ public:
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
 	GameResID primaryRes;
-	ArtifactID warMachine;
+	CreatureID warMachineDeprecated;
 	SpellID moatAbility;
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set

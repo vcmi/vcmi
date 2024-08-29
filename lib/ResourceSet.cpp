@@ -64,6 +64,12 @@ void ResourceSet::positive()
 		vstd::amax(elem, 0);
 }
 
+void ResourceSet::applyHandicap(int percentage)
+{
+	for(auto & elem : *this)
+		elem = vstd::divideAndCeil(elem * percentage, 100);
+}
+
 static bool canAfford(const ResourceSet &res, const ResourceSet &price)
 {
 	assert(res.size() == price.size() && price.size() == GameConstants::RESOURCE_QUANTITY);

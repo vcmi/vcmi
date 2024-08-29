@@ -181,7 +181,9 @@ public:
 	std::set<BuildingID> getBuildings() const;
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
-	TResources dailyIncome() const; //calculates daily income of this town
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
+
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;
@@ -205,6 +207,11 @@ public:
 	/// INativeTerrainProvider
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
+
+	/// Returns ID of war machine that is produced by specified building or NONE if this is not built or if building does not produce war machines
+	ArtifactID getWarMachineInBuilding(BuildingID) const;
+	/// Returns true if provided war machine is available in any of built buildings of this town
+	bool isWarMachineAvailable(ArtifactID) const;
 
 	CGTownInstance(IGameCallback *cb);
 	virtual ~CGTownInstance();
@@ -236,7 +243,7 @@ private:
 	FactionID randomizeFaction(vstd::RNG & rand);
 	void setOwner(const PlayerColor & owner) const;
 	void onTownCaptured(const PlayerColor & winner) const;
-	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
+	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	void initializeConfigurableBuildings(vstd::RNG & rand);
 };

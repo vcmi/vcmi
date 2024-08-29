@@ -50,6 +50,11 @@ MapObjectSubID TownBuildingInstance::getObjTypeIndex() const
 	return 0;
 }
 
+const IOwnableObject * TownBuildingInstance::asOwnable() const
+{
+	return nullptr;
+}
+
 int3 TownBuildingInstance::visitablePos() const
 {
 	return town->visitablePos();

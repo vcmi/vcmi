@@ -1171,7 +1171,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		assert(beatenHero);
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
-		p->heroes -= beatenHero;
+		p->removeOwnedObject(beatenHero);
 
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
@@ -1417,7 +1417,7 @@ void HeroRecruited::applyGs(CGameState *gs)
 		gs->map->objects[h->id.getNum()] = h;
 
 	gs->map->heroesOnMap.emplace_back(h);
-	p->heroes.emplace_back(h);
+	p->addOwnedObject(h);
 	h->attachTo(*p);
 	gs->map->addBlockVisTiles(h);
 
@@ -1452,7 +1452,7 @@ void GiveHero::applyGs(CGameState *gs)
 	h->setMovementPoints(h->movementPointsLimit(true));
 	h->pos = h->convertFromVisitablePos(oldVisitablePos);
 	gs->map->heroesOnMap.emplace_back(h);
-	gs->getPlayerState(h->getOwner())->heroes.emplace_back(h);
+	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
@@ -1901,30 +1901,22 @@ void NewTurn::applyGs(CGameState *gs)
 	gs->globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
-	for(const NewTurn::Hero & h : heroes) //give mana/movement point
-	{
-		CGHeroInstance *hero = gs->getHero(h.id);
-		if(!hero)
-		{
-			logGlobal->error("Hero %d not found in NewTurn::applyGs", h.id.getNum());
-			continue;
-		}
+	for(auto & manaPack : heroesMana)
+		manaPack.applyGs(gs);
 
-		hero->setMovementPoints(h.move);
-		hero->mana = h.mana;
-	}
+	for(auto & movePack : heroesMovement)
+		movePack.applyGs(gs);
 
 	gs->heroesPool->onNewDay();
 
-	for(const auto & re : res)
+	for(auto & entry : playerIncome)
 	{
-		assert(re.first.isValidPlayer());
-		gs->getPlayerState(re.first)->resources = re.second;
-		gs->getPlayerState(re.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
+		gs->getPlayerState(entry.first)->resources += entry.second;
+		gs->getPlayerState(entry.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
 	}
 
-	for(auto & creatureSet : cres) //set available creatures in towns
-		creatureSet.second.applyGs(gs);
+	for(auto & creatureSet : availableCreatures) //set available creatures in towns
+		creatureSet.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
 		t->built = 0;
@@ -1943,6 +1935,18 @@ void SetObjectProperty::applyGs(CGameState *gs)
 	}
 
 	auto * cai = dynamic_cast<CArmedInstance *>(obj);
+
+	if(what == ObjProperty::OWNER && obj->asOwnable())
+	{
+		PlayerColor oldOwner = obj->getOwner();
+		PlayerColor newOwner = identifier.as<PlayerColor>();
+		if(oldOwner.isValidPlayer())
+			gs->getPlayerState(oldOwner)->removeOwnedObject(obj);;
+
+		if(newOwner.isValidPlayer())
+			gs->getPlayerState(newOwner)->addOwnedObject(obj);;
+	}
+
 	if(what == ObjProperty::OWNER && cai)
 	{
 		if(obj->ID == Obj::TOWN)
@@ -1954,17 +1958,13 @@ void SetObjectProperty::applyGs(CGameState *gs)
 			if(oldOwner.isValidPlayer())
 			{
 				auto * state = gs->getPlayerState(oldOwner);
-				state->towns -= t;
-
-				if(state->towns.empty())
+				if(state->getTowns().empty())
 					state->daysWithoutCastle = 0;
 			}
 			if(identifier.as<PlayerColor>().isValidPlayer())
 			{
-				PlayerState * p = gs->getPlayerState(identifier.as<PlayerColor>());
-				p->towns.emplace_back(t);
-
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
+				PlayerState * p = gs->getPlayerState(identifier.as<PlayerColor>());
 				if(p->daysWithoutCastle)
 					p->daysWithoutCastle = std::nullopt;
 			}

@@ -207,7 +207,7 @@ public:
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override {}
-	void changeFogOfWar(std::unordered_set<int3> & tiles, PlayerColor player, ETileVisibility mode) override {}
+	void changeFogOfWar(const std::unordered_set<int3> & tiles, PlayerColor player, ETileVisibility mode) override {}
 
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override {};
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {};

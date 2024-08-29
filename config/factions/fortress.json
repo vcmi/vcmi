@@ -147,7 +147,6 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
-			"warMachine" : "firstAidTent",
 			"moatAbility" : "fortressMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
@@ -165,9 +164,9 @@
 				"townHall":       { },
 				"cityHall":       { },
 				"capitol":        { },
-				"marketplace":    { "marketModes" : ["resource-resource", "resource-player"] },
+				"marketplace":    { },
 				"resourceSilo":   { "produce": { "wood": 1, "ore": 1 } },
-				"blacksmith":     { },
+				"blacksmith":     { "warMachine" : "firstAidTent" },
 
 				"special1":       {
 					"requires" : [ "allOf", [ "townHall" ], [ "special2" ] ],

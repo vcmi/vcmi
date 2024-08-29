@@ -504,6 +504,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/CRewardableObject.h
 	mapObjects/IMarket.h
 	mapObjects/IObjectInterface.h
+	mapObjects/IOwnableObject.h
 	mapObjects/MapObjects.h
 	mapObjects/MiscObjects.h
 	mapObjects/ObjectTemplate.h

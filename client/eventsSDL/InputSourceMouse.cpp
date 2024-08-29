@@ -23,6 +23,7 @@
 
 #include <SDL_events.h>
 #include <SDL_hints.h>
+#include <SDL_version.h>
 
 InputSourceMouse::InputSourceMouse()
 	:mouseToleranceDistance(settings["input"]["mouseToleranceDistance"].Integer())
@@ -69,7 +70,11 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 
 void InputSourceMouse::handleEventMouseWheel(const SDL_MouseWheelEvent & wheel)
 {
-	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y) / GH.screenHandler().getScalingFactor(), GH.getCursorPosition());
+#if SDL_VERSION_ATLEAST(2,26,0)
+	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), Point(wheel.mouseX, wheel.mouseY) / GH.screenHandler().getScalingFactor());
+#else
+	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), GH.getCursorPosition());
+#endif
 }
 
 void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & button)

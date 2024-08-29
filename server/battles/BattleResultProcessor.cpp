@@ -484,7 +484,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		if(!finishingBattle->isDraw())
 		{
 			ConstTransitivePtr<CGHeroInstance> strongestHero = nullptr;
-			for(auto & hero : gameHandler->gameState()->getPlayerState(finishingBattle->loser)->heroes)
+			for(auto & hero : gameHandler->gameState()->getPlayerState(finishingBattle->loser)->getHeroes())
 				if(!strongestHero || hero->exp > strongestHero->exp)
 					strongestHero = hero;
 			if(strongestHero->id == finishingBattle->loserHero->id && strongestHero->level > 5)
