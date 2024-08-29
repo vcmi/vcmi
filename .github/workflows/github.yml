@@ -68,7 +68,7 @@ jobs:
             extension: exe
             preset: windows-msvc-release
           - platform: mingw
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             test: 0
             pack: 1
             pack_type: Release
@@ -77,8 +77,9 @@ jobs:
             cmake_args: -G Ninja
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
+            conan_prebuilts: dependencies-mingw
           - platform: mingw-32
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             test: 0
             pack: 1
             pack_type: Release
