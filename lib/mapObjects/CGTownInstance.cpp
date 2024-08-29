@@ -476,8 +476,46 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 		}
 	}
 	initializeConfigurableBuildings(rand);
+	initializeNeutralTownGarrison(rand);
 	recreateBuildingsBonuses();
 	updateAppearance();
+}
+
+void CGTownInstance::initializeNeutralTownGarrison(vstd::RNG & rand)
+{
+	struct RandomGuardsInfo{
+		int tier;
+		int chance;
+		int min;
+		int max;
+	};
+
+	constexpr std::array<RandomGuardsInfo, 4> randomGuards = {
+		RandomGuardsInfo{ 0, 33, 8, 15 },
+		RandomGuardsInfo{ 1, 33, 5,  7 },
+		RandomGuardsInfo{ 2, 20, 3,  5 },
+		RandomGuardsInfo{ 3, 14, 1,  3 },
+	};
+
+	// Only neutral towns may get initial garrison
+	if (getOwner().isValidPlayer())
+		return;
+
+	// Only towns with garrison not set in map editor may get initial garrison
+	// FIXME: H3 editor allow explicitly empty garrison, but vcmi loses this flag on load
+	if (stacksCount() > 0)
+		return;
+
+	for (auto const & guard : randomGuards)
+	{
+		if (rand.nextInt(99) >= guard.chance)
+			continue;
+
+		CreatureID guardID = getTown()->creatures[guard.tier].at(0);
+		int guardSize = rand.nextInt(guard.min, guard.max);
+
+		putStack(getFreeSlot(), new CStackInstance(guardID, guardSize));
+	}
 }
 
 void CGTownInstance::newTurn(vstd::RNG & rand) const
