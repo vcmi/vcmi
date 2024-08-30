@@ -502,10 +502,18 @@ ServerCallback * HypotheticBattle::getServerCallback()
 	return serverCallback.get();
 }
 
+void HypotheticBattle::makeWait(const battle::Unit * activeStack)
+{
+	auto unit = getForUpdate(activeStack->unitId());
+
+	resetActiveUnit();
+	unit->waiting = true;
+	unit->waitedThisTurn = true;
+}
+
 HypotheticBattle::HypotheticServerCallback::HypotheticServerCallback(HypotheticBattle * owner_)
 	:owner(owner_)
 {
-
 }
 
 void HypotheticBattle::HypotheticServerCallback::complain(const std::string & problem)
