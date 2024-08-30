@@ -42,7 +42,7 @@
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="101"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="118"/>
         <source>New event</source>
         <translation>Nouvel évènement</translation>
     </message>
@@ -65,12 +65,32 @@
         <translation>Description de la carte</translation>
     </message>
     <message>
-        <location filename="../mapsettings/generalsettings.ui" line="76"/>
+        <location filename="../mapsettings/generalsettings.ui" line="52"/>
+        <source>Author</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/generalsettings.ui" line="62"/>
+        <source>Author contact (e.g. email)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/generalsettings.ui" line="72"/>
+        <source>Map Creation Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/generalsettings.ui" line="86"/>
+        <source>Map Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/generalsettings.ui" line="120"/>
         <source>Limit maximum heroes level</source>
         <translation>Limiter le niveau maximum des héros</translation>
     </message>
     <message>
-        <location filename="../mapsettings/generalsettings.ui" line="85"/>
+        <location filename="../mapsettings/generalsettings.ui" line="129"/>
         <source>Difficulty</source>
         <translation>Difficulté</translation>
     </message>
@@ -339,7 +359,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1051"/>
-        <location filename="../mainwindow.cpp" line="806"/>
+        <location filename="../mainwindow.cpp" line="822"/>
         <source>View underground</source>
         <translation>Voir le sous-sol</translation>
     </message>
@@ -421,9 +441,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1205"/>
-        <location filename="../mainwindow.cpp" line="1077"/>
-        <location filename="../mainwindow.cpp" line="1081"/>
-        <location filename="../mainwindow.cpp" line="1138"/>
+        <location filename="../mainwindow.cpp" line="1093"/>
+        <location filename="../mainwindow.cpp" line="1097"/>
+        <location filename="../mainwindow.cpp" line="1154"/>
         <source>Update appearance</source>
         <translation>Mettre à jour l&apos;apparence</translation>
     </message>
@@ -554,92 +574,92 @@
         <translation>Ctrl+Maj+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="280"/>
+        <location filename="../mainwindow.cpp" line="296"/>
         <source>Confirmation</source>
         <translation>Confirmation</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="280"/>
+        <location filename="../mainwindow.cpp" line="296"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="406"/>
+        <location filename="../mainwindow.cpp" line="422"/>
         <source>Open map</source>
         <translation>Ouvrir la carte</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="408"/>
+        <location filename="../mainwindow.cpp" line="424"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Toutes les cartes prises en charge (*.vmap *.h3m);;Cartes VCMI (*.vmap);;Cartes HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="459"/>
+        <location filename="../mainwindow.cpp" line="475"/>
         <source>Save map</source>
         <translation>Enregistrer la carte</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="459"/>
+        <location filename="../mainwindow.cpp" line="475"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Cartes VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="648"/>
+        <location filename="../mainwindow.cpp" line="664"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="810"/>
+        <location filename="../mainwindow.cpp" line="826"/>
         <source>View surface</source>
         <translation>Afficher la surface</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1077"/>
+        <location filename="../mainwindow.cpp" line="1093"/>
         <source>No objects selected</source>
         <translation>Pas d&apos;objets sélectionnés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1081"/>
+        <location filename="../mainwindow.cpp" line="1097"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Cette opération est irreversible. Voulez-vous continuer ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1138"/>
+        <location filename="../mainwindow.cpp" line="1154"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Erreur rencontrée. %1 objets n&apos;ont pas étés mis à jour</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1194"/>
         <source>Save to image</source>
         <translation>Sauvegarder en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1197"/>
+        <location filename="../mainwindow.cpp" line="1213"/>
         <source>Select maps to convert</source>
         <translation>Sélectionner les cartes à convertir</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1199"/>
+        <location filename="../mainwindow.cpp" line="1215"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>Cartes HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1203"/>
+        <location filename="../mainwindow.cpp" line="1219"/>
         <source>Choose directory to save converted maps</source>
         <translation>Sélectionner le dossier ou sauvegarder les cartes converties</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1216"/>
+        <location filename="../mainwindow.cpp" line="1232"/>
         <source>Operation completed</source>
         <translation>Opération terminée</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1216"/>
+        <location filename="../mainwindow.cpp" line="1232"/>
         <source>Successfully converted %1 maps</source>
         <translation>Conversion éffectuée avec succès des %1 cartes</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1220"/>
+        <location filename="../mainwindow.cpp" line="1236"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Erreur de conversion de carte. Opération annulée</translation>
     </message>
@@ -824,7 +844,7 @@
         <translation>(par défaut)</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="111"/>
+        <location filename="../playerparams.cpp" line="110"/>
         <source>Player ID: %1</source>
         <translation>Identifiant du joueur : %1</translation>
     </message>
@@ -923,6 +943,21 @@
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>UNFLAGGABLE</source>
         <translation>INCLASSABLE</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="405"/>
+        <source>Can&apos;t place object</source>
+        <translation type="unfinished">Impossible de placer l&apos;objet</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="577"/>
+        <source>There can only be one grail object on the map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="583"/>
+        <source>Hero %1 cannot be created as NEUTRAL.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1456,17 +1491,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townbuildingswidget.cpp" line="77"/>
+        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
         <source>Type</source>
         <translation type="unfinished">Type</translation>
     </message>
     <message>
-        <location filename="../inspector/townbuildingswidget.cpp" line="77"/>
+        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/townbuildingswidget.cpp" line="77"/>
+        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
         <source>Built</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1529,22 +1564,22 @@
         <translation type="unfinished">Bâtiments</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.ui" line="216"/>
+        <location filename="../inspector/towneventdialog.ui" line="219"/>
         <source>Creatures</source>
         <translation type="unfinished">Créatures</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.ui" line="255"/>
+        <location filename="../inspector/towneventdialog.ui" line="258"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="177"/>
+        <location filename="../inspector/towneventdialog.cpp" line="163"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="219"/>
+        <location filename="../inspector/towneventdialog.cpp" line="205"/>
         <source>Day %1 - %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1572,12 +1607,12 @@
         <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="105"/>
+        <location filename="../inspector/towneventswidget.cpp" line="106"/>
         <source>Day %1 - %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="126"/>
+        <location filename="../inspector/towneventswidget.cpp" line="127"/>
         <source>New event</source>
         <translation type="unfinished">Nouvel évènement</translation>
     </message>
@@ -1695,107 +1730,107 @@
         <translation>Aucune carte n&apos;est chargée</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="72"/>
+        <location filename="../validator.cpp" line="74"/>
         <source>No factions allowed for player %1</source>
         <translation>Pas de factions autorisées pour le joueur %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="75"/>
+        <location filename="../validator.cpp" line="77"/>
         <source>No players allowed to play this map</source>
         <translation>Aucun joueur autorisé à jouer sur cette carte</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="77"/>
+        <location filename="../validator.cpp" line="79"/>
         <source>Map is allowed for one player and cannot be started</source>
         <translation>La carte est autorisée pour un joueur et ne peut pas être démarrée</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="79"/>
+        <location filename="../validator.cpp" line="81"/>
         <source>No human players allowed to play this map</source>
         <translation>Aucun joueur humain n&apos;est autorisé à jouer sur cette carte</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="95"/>
+        <location filename="../validator.cpp" line="97"/>
         <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
         <translation>L&apos;instance blindée %1 est IMMARQUABLE mais doit avoir un propriétaire NEUTRE ou joueur</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="101"/>
+        <location filename="../validator.cpp" line="103"/>
         <source>Object %1 is assigned to non-playable player %2</source>
         <translation>L&apos;objet %1 est attribué au joueur non jouable %2</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="108"/>
-        <source>Town %1 has undefined owner %2</source>
-        <translation>La ville %1 a le propriétaire indéfini %2</translation>
+        <location filename="../validator.cpp" line="148"/>
+        <source>Spell scroll % 1 doesn&apos;t have instance assigned and must be removed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="118"/>
+        <location filename="../validator.cpp" line="154"/>
+        <source>Artifact % 1 is prohibited by map settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="168"/>
+        <source>Player %1 has no towns and heroes assigned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="116"/>
         <source>Prison %1 must be a NEUTRAL</source>
         <translation>La prison %1 doit être NEUTRE</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="124"/>
+        <location filename="../validator.cpp" line="121"/>
         <source>Hero %1 must have an owner</source>
         <translation>Le héros %1 doit avoir un propriétaire</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="129"/>
+        <location filename="../validator.cpp" line="128"/>
         <source>Hero %1 is prohibited by map settings</source>
         <translation>Le héros %1 est interdit par les paramètres de la carte</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="132"/>
+        <location filename="../validator.cpp" line="131"/>
         <source>Hero %1 has duplicate on map</source>
         <translation>Le héros %1 a un doublon sur la carte</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="135"/>
+        <location filename="../validator.cpp" line="134"/>
         <source>Hero %1 has an empty type and must be removed</source>
         <translation>Le héros %1 a un type vide et doit être supprimé</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="146"/>
+        <location filename="../validator.cpp" line="145"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
         <translation>Le défilement des sorts %1 est interdit par les paramètres de la carte</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="149"/>
-        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation>Le parchemin de sort %1 n&apos;a pas d&apos;instance assignée et doit être supprimé</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="155"/>
-        <source>Artifact %1 is prohibited by map settings</source>
-        <translation>L&apos;artefact %1 est interdit par les paramètres de la carte</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="164"/>
+        <location filename="../validator.cpp" line="170"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
         <translation>Le joueur %1 n&apos;a pas de ville de départ</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="168"/>
+        <location filename="../validator.cpp" line="176"/>
         <source>Map name is not specified</source>
         <translation>Le nom de la carte n&apos;est pas spécifié</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="170"/>
+        <location filename="../validator.cpp" line="178"/>
         <source>Map description is not specified</source>
         <translation>La description de la carte n&apos;est pas spécifiée</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="177"/>
+        <location filename="../validator.cpp" line="185"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
         <translation>La carte contient des objets du mod &quot;%1&quot;, mais il n&apos;est pas requis</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="183"/>
+        <location filename="../validator.cpp" line="191"/>
         <source>Exception occurs during validation: %1</source>
         <translation>Une exception se produit lors de la validation : %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="187"/>
+        <location filename="../validator.cpp" line="195"/>
         <source>Unknown exception occurs during validation</source>
         <translation>Une exception inconnue se produit lors de la validation</translation>
     </message>
@@ -1828,47 +1863,47 @@
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="36"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="38"/>
         <source>No special victory</source>
         <translation>Pas de victoire spéciale</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="37"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
         <source>Capture artifact</source>
         <translation>Récupérer l&apos;artefact</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="38"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
         <source>Hire creatures</source>
         <translation>Engagez des créatures</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
         <source>Accumulate resources</source>
         <translation>Accumuler des resources</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Construct building</source>
         <translation>Construire un bâtiment</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Capture town</source>
         <translation>Conquérir une ville</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Defeat hero</source>
         <translation>Battre un héros</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
         <source>Transport artifact</source>
         <translation>Transporter un artefact</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Kill monster</source>
         <translation>Tuer un monster</translation>
     </message>
@@ -2040,17 +2075,17 @@
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="246"/>
+        <location filename="../windownewmap.cpp" line="248"/>
         <source>No template</source>
         <translation>Pas de modèle</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="246"/>
+        <location filename="../windownewmap.cpp" line="248"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>Pas de modèles pour les paramètres spécifiés. La carte aléatoire ne peut pas être générée.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="266"/>
+        <location filename="../windownewmap.cpp" line="268"/>
         <source>RMG failure</source>
         <translation>Echec de RMG</translation>
     </message>
