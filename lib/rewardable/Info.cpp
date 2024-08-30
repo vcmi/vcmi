@@ -174,6 +174,8 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 	reward.removeObject = source["removeObject"].Bool();
 	reward.bonuses = randomizer.loadBonuses(source["bonuses"]);
 
+	reward.guards = randomizer.loadCreatures(source["guards"], rng, variables);
+
 	reward.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
 	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
 
@@ -376,6 +378,16 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd:
 		replaceTextPlaceholders(onEmpty.message, object.variables);
 
 		object.info.push_back(onEmpty);
+	}
+
+	if (!parameters["onGuardedMessage"].isNull())
+	{
+		Rewardable::VisitInfo onGuarded;
+		onGuarded.visitType = Rewardable::EEventType::EVENT_GUARDED;
+		onGuarded.message = loadMessage(parameters["onGuardedMessage"], TextIdentifier(objectTextID, "onGuarded"));
+		replaceTextPlaceholders(onGuarded.message, object.variables);
+
+		object.info.push_back(onGuarded);
 	}
 
 	configureResetInfo(object, rng, object.resetParameters, parameters["resetParameters"]);

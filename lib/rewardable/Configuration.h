@@ -44,7 +44,8 @@ enum class EEventType
 	EVENT_INVALID = 0,
 	EVENT_FIRST_VISIT,
 	EVENT_ALREADY_VISITED,
-	EVENT_NOT_AVAILABLE
+	EVENT_NOT_AVAILABLE,
+	EVENT_GUARDED
 };
 
 constexpr std::array<std::string_view, 4> SelectModeString{"selectFirst", "selectPlayer", "selectRandom", "selectAll"};

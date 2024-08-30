@@ -45,7 +45,14 @@ protected:
 	std::string getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const;
 	std::vector<Component> getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const;
 
+	void doHeroVisit(const CGHeroInstance *h) const;
+
+	/// Returns true if this object might have guards present, whether they were cleared or not
+	bool guardedPotentially() const;
+	/// Returns true if this object is currently guarded
+	bool guardedPresently() const;
 public:
+
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(const CGHeroInstance * h) const override;
@@ -55,6 +62,8 @@ public:
 	
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(const CGHeroInstance *h) const override;
+
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 
 	///possibly resets object state
 	void newTurn(vstd::RNG & rand) const override;
@@ -66,6 +75,8 @@ public:
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	void initObj(vstd::RNG & rand) override;
+
+	void initializeGuards();
 	
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 

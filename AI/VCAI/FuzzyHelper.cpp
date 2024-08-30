@@ -302,6 +302,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 		return iat.army.getStrength();
 	}
 	case Obj::MONSTER:
+	case Obj::CRYPT:
 	{
 		//TODO!!!!!!!!
 		const CGCreature * cre = dynamic_cast<const CGCreature *>(obj);
@@ -319,7 +320,6 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
 		return a->getArmyStrength();
 	}
-	case Obj::CRYPT: //crypt
 	case Obj::CREATURE_BANK: //crebank
 	case Obj::DRAGON_UTOPIA:
 	case Obj::SHIPWRECK: //shipwreck

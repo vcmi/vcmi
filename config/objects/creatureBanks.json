@@ -833,7 +833,7 @@
 	},
 	"crypt" : {
 		"index" :84,
-		"handler": "bank",
+		"handler": "configurable",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPDEAD"],
@@ -843,16 +843,27 @@
 		"types" : {
 			"crypt" : {
 				"index" : 0,
-				"resetDuration" : 0,
 				"name" : "Crypt",
 				"aiValue" : 1500,
+
 				"rmg" : {
 					"value"		: 1000,
 					"rarity"	: 100
 				},
-				"levels": [
+
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"onGuardedMessage" : 119, // Do you want to search the graves?
+				"onVisited" : [
 					{
-						"chance": 30,
+						"message" : 120, // Such a despicable act reduces your army's morale.
+						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE" } ]
+					}
+				],
+
+				"rewards": [
+					{
+						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards": [
 							{ "amount": 10, "type": "skeleton" },
 							{ "amount": 10, "type": "walkingDead" },
@@ -860,17 +871,14 @@
 							{ "amount": 10, "type": "skeleton" },
 							{ "amount": 10, "type": "skeleton" }
 						],
-						"combat_value": 75,
-						"reward" : {
-							"value": 1500,
-							"resources":
-							{
-								"gold" : 1500
-							}
+						"message" : 121, // you search the graves and find something
+						"resources":
+						{
+							"gold" : 1500
 						}
 					},
 					{
-						"chance": 30,
+						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards": [
 							{ "amount": 13, "type": "skeleton" },
 							{ "amount": 10, "type": "walkingDead" },
@@ -878,50 +886,42 @@
 							{ "amount": 10, "type": "walkingDead" },
 							{ "amount": 12, "type": "skeleton" }
 						],
-						"combat_value": 94,
-						"reward" : {
-							"value": 2000,
-							"resources":
-							{
-								"gold" : 2000
-							}
+						"message" : 121, // you search the graves and find something
+						"resources":
+						{
+							"gold" : 2000
 						}
 					},
 					{
-						"chance": 30,
+						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards": [
 							{ "amount": 20, "type": "skeleton" },
 							{ "amount": 20, "type": "walkingDead" },
 							{ "amount": 10, "type": "wight" },
 							{ "amount": 5, "type": "vampire" }
 						],
-						"combat_value": 169,
-						"reward" : {
-							"value": 3500,
-							"resources":
-							{
-								"gold" : 2500
-							},
-							"artifacts": [ { "class" : "TREASURE" } ]
+						"message" : 121, // you search the graves and find something
+						"resources":
+						{
+							"gold" : 2500
+						},
+						"artifacts": [ { "class" : "TREASURE" } ]
 						}
 					},
 					{
-						"chance": 10,
+						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards": [
 							{ "amount": 20, "type": "skeleton" },
 							{ "amount": 20, "type": "walkingDead" },
 							{ "amount": 10, "type": "wight" },
 							{ "amount": 10, "type": "vampire" }
 						],
-						"combat_value": 225,
-						"reward" : {
-							"value": 6000,
-							"resources":
-							{
-								"gold" : 5000
-							},
-							"artifacts": [ { "class" : "TREASURE" } ]
-						}
+						"message" : 121, // you search the graves and find something
+						"resources":
+						{
+							"gold" : 5000
+						},
+						"artifacts": [ { "class" : "TREASURE" } ]
 					}
 				]
 			}

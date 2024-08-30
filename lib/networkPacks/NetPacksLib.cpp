@@ -2434,6 +2434,7 @@ void SetRewardableConfiguration::applyGs(CGameState *gs)
 		auto * rewardablePtr = dynamic_cast<CRewardableObject *>(objectPtr);
 		assert(rewardablePtr);
 		rewardablePtr->configuration = configuration;
+		rewardablePtr->initializeGuards();
 	}
 	else
 	{

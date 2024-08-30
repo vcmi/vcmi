@@ -15,7 +15,6 @@
 #include <vcmi/spells/Service.h>
 
 #include "../texts/CGeneralTextHandler.h"
-#include "../CSoundBase.h"
 #include "../IGameSettings.h"
 #include "../CPlayerState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -156,23 +155,18 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	case Obj::DRAGON_UTOPIA:
 		banktext = 47;
 		break;
-	case Obj::CRYPT:
-		banktext = 119;
-		break;
 	case Obj::SHIPWRECK:
 		banktext = 122;
 		break;
 	case Obj::PYRAMID:
 		banktext = 105;
 		break;
-	case Obj::CREATURE_BANK:
 	default:
 		banktext = 32;
 		break;
 	}
 	BlockingDialog bd(true, false);
 	bd.player = h->getOwner();
-	bd.soundID = soundBase::invalid; // Sound is handled in json files, else two sounds are played
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, banktext);
 	bd.components = getPopupComponents(h->getOwner());
 	if (banktext == 32)
@@ -196,17 +190,12 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		case Obj::DERELICT_SHIP:
 			textID = 43;
 			break;
-		case Obj::CRYPT:
-			textID = 121;
-			break;
 		case Obj::SHIPWRECK:
 			textID = 124;
 			break;
 		case Obj::PYRAMID:
 			textID = 106;
 			break;
-		case Obj::CREATURE_BANK:
-		case Obj::DRAGON_UTOPIA:
 		default:
 			textID = 34;
 			break;
@@ -218,7 +207,6 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		{
 		case Obj::SHIPWRECK:
 		case Obj::DERELICT_SHIP:
-		case Obj::CRYPT:
 		{
 			GiveBonus gbonus;
 			gbonus.id = hero->id;
@@ -237,14 +225,9 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				textID = 42;
 				gbonus.bonus.description = MetaString::createFromTextID("core.arraytxt.101");
 				break;
-			case Obj::CRYPT:
-				textID = 120;
-				gbonus.bonus.description = MetaString::createFromTextID("core.arraytxt.98");
-				break;
 			}
 			cb->giveHeroBonus(&gbonus);
 			iw.components.emplace_back(ComponentType::MORALE, -1);
-			iw.soundID = soundBase::invalid;
 			break;
 		}
 		case Obj::PYRAMID:
@@ -258,8 +241,6 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.components.emplace_back(ComponentType::LUCK, -2);
 			break;
 		}
-		case Obj::CREATURE_BANK:
-		case Obj::DRAGON_UTOPIA:
 		default:
 			iw.text.appendRawString(VLC->generaltexth->advobtxt[33]);// This was X, now is completely empty
 			iw.text.replaceRawString(getObjectName());
