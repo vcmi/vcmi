@@ -67,22 +67,22 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="52"/>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation>作者</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="62"/>
         <source>Author contact (e.g. email)</source>
-        <translation type="unfinished"></translation>
+        <translation>作者联系方式（例如电子邮件）</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="72"/>
         <source>Map Creation Time</source>
-        <translation type="unfinished"></translation>
+        <translation>地图创建时间</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="86"/>
         <source>Map Version</source>
-        <translation type="unfinished"></translation>
+        <translation>地图版本</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
@@ -947,17 +947,17 @@
     <message>
         <location filename="../mapcontroller.cpp" line="405"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">无法放置物体</translation>
+        <translation>无法放置物体</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="577"/>
         <source>There can only be one grail object on the map.</source>
-        <translation type="unfinished"></translation>
+        <translation>只能放置一个神器在地图上。</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="583"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄 %1 无法在中立阵营被创建。</translation>
     </message>
 </context>
 <context>
@@ -1762,17 +1762,17 @@
     <message>
         <location filename="../validator.cpp" line="148"/>
         <source>Spell scroll % 1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation type="unfinished"></translation>
+        <translation>魔法卷轴 %1 没有分配任何实例，需要被移除</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="154"/>
         <source>Artifact % 1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>宝物 %1 被地图设置禁止</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="168"/>
         <source>Player %1 has no towns and heroes assigned</source>
-        <translation type="unfinished"></translation>
+        <translation>玩家 %1 没有分配任何城镇或英雄</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="116"/>

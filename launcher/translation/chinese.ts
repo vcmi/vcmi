@@ -656,7 +656,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="893"/>
         <source>Downscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>图像缩小过滤器</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="931"/>
@@ -681,7 +681,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>自动（线性）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="798"/>
@@ -696,27 +696,27 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1166"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>自动</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1171"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>无</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1176"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1181"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1186"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="138"/>
