@@ -113,8 +113,6 @@ class CSpellWindow : public CWindowObject
 	void turnPageLeft();
 	void turnPageRight();
 
-	std::shared_ptr<IImage> createBigSpellBook();
-
 	bool openOnBattleSpells;
 	std::function<void(SpellID)> onSpellSelect; //external processing of selected spell
 

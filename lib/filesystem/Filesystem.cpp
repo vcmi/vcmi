@@ -183,9 +183,16 @@ void CResourceHandler::initialize()
 	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
 	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
 
+	if(boost::filesystem::is_directory(VCMIDirs::get().userDataPath() / "Generated"))
+		boost::filesystem::remove_all(VCMIDirs::get().userDataPath() / "Generated");
+	knownLoaders["gen_data"] = new CFilesystemLoader("DATA/", VCMIDirs::get().userDataPath() / "Generated" / "Data");
+	knownLoaders["gen_sprites"] = new CFilesystemLoader("SPRITES/", VCMIDirs::get().userDataPath() / "Generated" / "Sprites");
+
 	auto * localFS = new CFilesystemList();
 	localFS->addLoader(knownLoaders["saves"], true);
 	localFS->addLoader(knownLoaders["config"], true);
+	localFS->addLoader(knownLoaders["gen_data"], true);
+	localFS->addLoader(knownLoaders["gen_sprites"], true);
 
 	addFilesystem("root", "initial", createInitial());
 	addFilesystem("root", "data", new CFilesystemList());

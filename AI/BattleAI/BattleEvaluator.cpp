@@ -66,7 +66,6 @@ BattleEvaluator::BattleEvaluator(
 	damageCache.buildDamageCache(hb, side);
 
 	targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
-	cachedScore = EvaluationResult::INEFFECTIVE_SCORE;
 }
 
 BattleEvaluator::BattleEvaluator(
@@ -85,7 +84,6 @@ BattleEvaluator::BattleEvaluator(
 	damageCache(damageCache), strengthRatio(strengthRatio), battleID(battleID), simulationTurnsCount(simulationTurnsCount)
 {
 	targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
-	cachedScore = EvaluationResult::INEFFECTIVE_SCORE;
 }
 
 std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
@@ -178,8 +176,10 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		auto evaluationResult = scoreEvaluator.findBestTarget(stack, *targets, damageCache, hb);
 		auto & bestAttack = evaluationResult.bestAttack;
 
-		cachedAttack = bestAttack;
-		cachedScore = evaluationResult.score;
+		cachedAttack.ap = bestAttack;
+		cachedAttack.score = evaluationResult.score;
+		cachedAttack.turn = 0;
+		cachedAttack.waited = evaluationResult.wait;
 
 		//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
 		if(bestSpellcast.has_value() && bestSpellcast->value > bestAttack.damageDiff())
@@ -239,8 +239,9 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 	if(moveTarget.score > score)
 	{
 		score = moveTarget.score;
-		cachedAttack = moveTarget.cachedAttack;
-		cachedScore = score;
+		cachedAttack.ap = moveTarget.cachedAttack;
+		cachedAttack.score = score;
+		cachedAttack.turn = moveTarget.turnsToRich;
 
 		if(stack->waited())
 		{
@@ -255,6 +256,8 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		}
 		else
 		{
+			cachedAttack.waited = true;
+
 			return BattleAction::makeWait(stack);
 		}
 	}
@@ -627,7 +630,15 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				auto & ps = possibleCasts[i];
 
 #if BATTLE_TRACE_LEVEL >= 1
-				logAi->trace("Evaluating %s to %d", ps.spell->getNameTranslated(), ps.dest.at(0).hexValue.hex );
+				if(ps.dest.empty())
+					logAi->trace("Evaluating %s", ps.spell->getNameTranslated());
+				else
+				{
+					auto psFirst = ps.dest.front();
+					auto strWhere = psFirst.unitValue ? psFirst.unitValue->getDescription() : std::to_string(psFirst.hexValue.hex);
+
+					logAi->trace("Evaluating %s at %s", ps.spell->getNameTranslated(), strWhere);
+				}
 #endif
 
 				auto state = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
@@ -645,9 +656,15 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 				DamageCache safeCopy = damageCache;
 				DamageCache innerCache(&safeCopy);
+
 				innerCache.buildDamageCache(state, side);
 
-				if(needFullEval || !cachedAttack)
+				if(cachedAttack.ap && cachedAttack.waited)
+				{
+					state->makeWait(activeStack);
+				}
+
+				if(needFullEval || !cachedAttack.ap)
 				{
 #if BATTLE_TRACE_LEVEL >= 1
 					logAi->trace("Full evaluation is started due to stack speed affected.");
@@ -656,22 +673,34 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					PotentialTargets innerTargets(activeStack, innerCache, state);
 					BattleExchangeEvaluator innerEvaluator(state, env, strengthRatio, simulationTurnsCount);
 
+					innerEvaluator.updateReachabilityMap(state);
+
+					auto moveTarget = innerEvaluator.findMoveTowardsUnreachable(activeStack, innerTargets, innerCache, state);
+
 					if(!innerTargets.possibleAttacks.empty())
 					{
-						innerEvaluator.updateReachabilityMap(state);
-
 						auto newStackAction = innerEvaluator.findBestTarget(activeStack, innerTargets, innerCache, state);
 
-						ps.value = newStackAction.score;
+						ps.value = std::max(moveTarget.score, newStackAction.score);
 					}
 					else
 					{
-						ps.value = 0;
+						ps.value = moveTarget.score;
 					}
 				}
 				else
 				{
-					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack, 0, *targets, innerCache, state);
+					auto updatedAttacker = state->getForUpdate(cachedAttack.ap->attack.attacker->unitId());
+					auto updatedDefender = state->getForUpdate(cachedAttack.ap->attack.defender->unitId());
+					auto updatedBai = BattleAttackInfo(
+						updatedAttacker.get(),
+						updatedDefender.get(),
+						cachedAttack.ap->attack.chargeDistance,
+						cachedAttack.ap->attack.shooting);
+
+					auto updatedAttack = AttackPossibility::evaluate(updatedBai, cachedAttack.ap->from, innerCache, state);
+
+					ps.value = scoreEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
 				}
 
 				//! Some units may be dead alltogether. So if they existed before but not now, we know they were killed by the spell
@@ -730,9 +759,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				}
 				for(const auto & unit : allUnits)
 				{
-					if (!unit->isValidTarget())
+					if(!unit->isValidTarget(true))
 						continue;
-					
+
 					auto newHealth = unit->getAvailableHealth();
 					auto oldHealth = vstd::find_or(healthOfStack, unit->unitId(), 0); // old health value may not exist for newly summoned units
 
@@ -743,7 +772,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 						auto dpsReduce = AttackPossibility::calculateDamageReduce(
 							nullptr,
-							originalDefender &&  originalDefender->alive() ? originalDefender : unit,
+							originalDefender && originalDefender->alive() ? originalDefender : unit,
 							damage,
 							innerCache,
 							state);
@@ -753,13 +782,18 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 						if(ourUnit * goodEffect == 1)
 						{
-							if(ourUnit && goodEffect && (unit->isClone() || unit->isGhost()))
+							auto isMagical = state->getForUpdate(unit->unitId())->summoned
+								|| unit->isClone()
+								|| unit->isGhost();
+
+							if(ourUnit && goodEffect && isMagical)
 								continue;
 
 							ps.value += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
 						}
 						else
-							ps.value -= dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
+							// discourage AI making collateral damage with spells
+							ps.value -= 4 * dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
 
 #if BATTLE_TRACE_LEVEL >= 1
 						logAi->trace(
@@ -774,6 +808,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 #endif
 					}
 				}
+
 #if BATTLE_TRACE_LEVEL >= 1
 				logAi->trace("Total score: %2f", ps.value);
 #endif
@@ -784,13 +819,12 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 	LOGFL("Evaluation took %d ms", timer.getDiff());
 
-	auto pscValue = [](const PossibleSpellcast &ps) -> float
-	{
-		return ps.value;
-	};
-	auto castToPerform = *vstd::maxElementByFun(possibleCasts, pscValue);
+	auto castToPerform = *vstd::maxElementByFun(possibleCasts, [](const PossibleSpellcast & ps) -> float
+		{
+			return ps.value;
+		});
 
-	if(castToPerform.value > cachedScore && castToPerform.value > 0)
+	if(castToPerform.value > cachedAttack.score && !vstd::isAlmostEqual(castToPerform.value, cachedAttack.score))
 	{
 		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
