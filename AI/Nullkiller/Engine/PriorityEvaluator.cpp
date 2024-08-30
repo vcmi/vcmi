@@ -1205,10 +1205,10 @@ public:
 		evaluationContext.goldReward += 7 * bi.dailyIncome[EGameResID::GOLD] / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
-		int32_t cost = bi.buildCostWithPrerequisites[EGameResID::GOLD];
+		int32_t cost = bi.buildCost[EGameResID::GOLD];
 		evaluationContext.goldCost += cost;
 		evaluationContext.closestWayRatio = 1;
-		evaluationContext.buildingCost += bi.buildCostWithPrerequisites;
+		evaluationContext.buildingCost += bi.buildCost;
 		if (bi.id == BuildingID::MARKETPLACE || bi.dailyIncome[EGameResID::WOOD] > 0)
 			evaluationContext.isTradeBuilding = true;
 
@@ -1230,13 +1230,6 @@ public:
 				evaluationContext.addNonCriticalStrategicalValue(potentialUpgradeValue / 10000.0f / (float)bi.prerequisitesCount);
 				evaluationContext.armyReward += potentialUpgradeValue / (float)bi.prerequisitesCount;
 			}
-			int sameTownBonus = 0;
-			for (auto town : evaluationContext.evaluator.ai->cb->getTownsInfo())
-			{
-				if (buildThis.town->getFaction() == town->getFaction())
-					sameTownBonus+=town->getTownLevel();
-			}
-			evaluationContext.armyReward *= sameTownBonus;
 		}
 		else if(bi.id == BuildingID::CITADEL || bi.id == BuildingID::CASTLE)
 		{
@@ -1251,6 +1244,13 @@ public:
 				evaluationContext.armyInvolvement += hero->getArmyCost();
 			}
 		}
+		int sameTownBonus = 0;
+		for (auto town : evaluationContext.evaluator.ai->cb->getTownsInfo())
+		{
+			if (buildThis.town->getFaction() == town->getFaction())
+				sameTownBonus += town->getTownLevel();
+		}
+		evaluationContext.armyReward *= sameTownBonus;
 		
 		if(evaluationContext.goldReward)
 		{
