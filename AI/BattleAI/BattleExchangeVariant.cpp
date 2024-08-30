@@ -376,11 +376,14 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 				logAi->trace("New high score");
 #endif
 
-				for(BattleHex enemyHex : enemy->getAttackableHexes(activeStack))
+				for(const BattleHex & initialEnemyHex : enemy->getAttackableHexes(activeStack))
 				{
-					while(!flying && dists.distances[enemyHex] > speed)
+					BattleHex enemyHex = initialEnemyHex;
+
+					while(!flying && dists.distances[enemyHex] > speed && dists.predecessors.at(enemyHex).isValid())
 					{
 						enemyHex = dists.predecessors.at(enemyHex);
+
 						if(dists.accessibility[enemyHex] == EAccessibility::ALIVE_STACK)
 						{
 							auto defenderToBypass = hb->battleGetUnitByPos(enemyHex);

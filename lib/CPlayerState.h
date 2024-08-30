@@ -104,7 +104,7 @@ public:
 
 	bool checkVanquished() const
 	{
-		return ownedObjects.empty();
+		return getHeroes().empty() && getTowns().empty();
 	}
 
 	template <typename Handler> void serialize(Handler &h)
