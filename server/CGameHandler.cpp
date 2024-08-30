@@ -1066,10 +1066,13 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 
 	if ((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4))
 	{
-		for (const CGTownInstance * t : getPlayerState(owner)->getTowns())
+		if (owner.isValidPlayer())
 		{
-			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
-				setPortalDwelling(t);//set initial creatures for all portals of summoning
+			for (const CGTownInstance * t : getPlayerState(owner)->getTowns())
+			{
+				if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
+					setPortalDwelling(t);//set initial creatures for all portals of summoning
+			}
 		}
 	}
 }
