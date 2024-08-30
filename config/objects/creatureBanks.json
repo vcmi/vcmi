@@ -1,7 +1,7 @@
 {
 	"creatureBank" : {
 		"index" :16,
-		"handler": "bank",
+		"handler" : "configurable",
 		"lastReservedIndex" : 6,
 		"base" : {
 			"sounds" : {
@@ -21,106 +21,97 @@
 					"value"		: 3000,
 					"rarity"	: 100
 				},
-				"levels": [
+				"onGuardedMessage" : 32,
+				"onVisitedMessage" : 33,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 4, "type": "cyclop" },
-							{ "amount": 4, "type": "cyclop" },
-							{ "amount": 4, "type": "cyclop", "upgradeChance": 50 },
-							{ "amount": 4, "type": "cyclop" },
-							{ "amount": 4, "type": "cyclop" }
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 4, "type" : "cyclop" },
+							{ "amount" : 4, "type" : "cyclop" },
+							{ "amount" : 4, "type" : "cyclop", "upgradeChance" : 50 },
+							{ "amount" : 4, "type" : "cyclop" },
+							{ "amount" : 4, "type" : "cyclop" }
 						],
 
-						"combat_value": 506,
-						"reward" : {
-							"value": 10000,
-							"resources": 
-							{
-								"wood" : 4,
-								"mercury" : 4,
-								"ore" : 4,
-								"sulfur" : 4,
-								"crystal" : 4,
-								"gems" : 4
-							}
+						"resources" : 
+						{
+							"wood" : 4,
+							"mercury" : 4,
+							"ore" : 4,
+							"sulfur" : 4,
+							"crystal" : 4,
+							"gems" : 4
 						}
 					},
 
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 6, "type": "cyclop" },
-							{ "amount": 6, "type": "cyclop" },
-							{ "amount": 6, "type": "cyclop", "upgradeChance": 50 },
-							{ "amount": 6, "type": "cyclop" },
-							{ "amount": 6, "type": "cyclop" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 6, "type" : "cyclop" },
+							{ "amount" : 6, "type" : "cyclop" },
+							{ "amount" : 6, "type" : "cyclop", "upgradeChance" : 50 },
+							{ "amount" : 6, "type" : "cyclop" },
+							{ "amount" : 6, "type" : "cyclop" }
 						],
-						"combat_value": 760,
-						"reward" : {
-							"value": 15000,
-							"resources": 
-							{
-								"wood" : 6,
-								"mercury" : 6,
-								"ore" : 6,
-								"sulfur" : 6,
-								"crystal" : 6,
-								"gems" : 6
-							}
+						"resources" : 
+						{
+							"wood" : 6,
+							"mercury" : 6,
+							"ore" : 6,
+							"sulfur" : 6,
+							"crystal" : 6,
+							"gems" : 6
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 8, "type": "cyclop" },
-							{ "amount": 8, "type": "cyclop" },
-							{ "amount": 8, "type": "cyclop", "upgradeChance": 50 },
-							{ "amount": 8, "type": "cyclop" },
-							{ "amount": 8, "type": "cyclop" }
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 8, "type" : "cyclop" },
+							{ "amount" : 8, "type" : "cyclop" },
+							{ "amount" : 8, "type" : "cyclop", "upgradeChance" : 50 },
+							{ "amount" : 8, "type" : "cyclop" },
+							{ "amount" : 8, "type" : "cyclop" }
 						],
-						"combat_value": 1013,
-						"reward" : {
-							"value": 20000,
-							"resources":
-							{
-								"wood" : 8,
-								"mercury" : 8,
-								"ore" : 8,
-								"sulfur" : 8,
-								"crystal" : 8,
-								"gems" : 8
-							}
+						"resources" :
+						{
+							"wood" : 8,
+							"mercury" : 8,
+							"ore" : 8,
+							"sulfur" : 8,
+							"crystal" : 8,
+							"gems" : 8
 						}
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 10, "type": "cyclop" },
-							{ "amount": 10, "type": "cyclop" },
-							{ "amount": 10, "type": "cyclop", "upgradeChance": 50 },
-							{ "amount": 10, "type": "cyclop" },
-							{ "amount": 10, "type": "cyclop" }
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 10, "type" : "cyclop" },
+							{ "amount" : 10, "type" : "cyclop" },
+							{ "amount" : 10, "type" : "cyclop", "upgradeChance" : 50 },
+							{ "amount" : 10, "type" : "cyclop" },
+							{ "amount" : 10, "type" : "cyclop" }
 						],
-						"combat_value": 1266,
-						"reward" : {
-							"value": 25000,
-							"resources":
-							{
-								"wood" : 10,
-								"mercury" : 10,
-								"ore" : 10,
-								"sulfur" : 10,
-								"crystal" : 10,
-								"gems" : 10
-							}
+						"resources" :
+						{
+							"wood" : 10,
+							"mercury" : 10,
+							"ore" : 10,
+							"sulfur" : 10,
+							"crystal" : 10,
+							"gems" : 10
 						}
 					}
 				]
 			},
 			"dwarvenTreasury" : {
 				"index" : 1,
-				"resetDuration" : 0,
 				"name" : "Dwarven Treasury",
 				"aiValue" : 2000,
 				"sounds" : {
@@ -130,88 +121,79 @@
 					"value"		: 2000,
 					"rarity"	: 100
 				},
-				"levels": [
+				"onGuardedMessage" : 32,
+				"onVisitedMessage" : 33,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 10, "type": "dwarf" },
-							{ "amount": 10, "type": "dwarf" },
-							{ "amount": 10, "type": "dwarf", "upgradeChance": 50 },
-							{ "amount": 10, "type": "dwarf" },
-							{ "amount": 10, "type": "dwarf" }
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 10, "type" : "dwarf" },
+							{ "amount" : 10, "type" : "dwarf" },
+							{ "amount" : 10, "type" : "dwarf", "upgradeChance" : 50 },
+							{ "amount" : 10, "type" : "dwarf" },
+							{ "amount" : 10, "type" : "dwarf" }
 						],
-						"combat_value": 194,
-						"reward" : {
-						"value": 3500,
-							"resources":
-							{
-								"crystal" : 2,
-								"gold" : 2500
-							}
+						"resources" :
+						{
+							"crystal" : 2,
+							"gold" : 2500
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 15, "type": "dwarf" },
-							{ "amount": 15, "type": "dwarf" },
-							{ "amount": 15, "type": "dwarf", "upgradeChance": 50 },
-							{ "amount": 15, "type": "dwarf" },
-							{ "amount": 15, "type": "dwarf" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 15, "type" : "dwarf" },
+							{ "amount" : 15, "type" : "dwarf" },
+							{ "amount" : 15, "type" : "dwarf", "upgradeChance" : 50 },
+							{ "amount" : 15, "type" : "dwarf" },
+							{ "amount" : 15, "type" : "dwarf" }
 						],
-						"combat_value": 291,
-						"reward" : {
-							"value": 5500,
-							"resources":
-							{
-								"crystal" : 3,
-								"gold" : 4000
-							}
+						"resources" :
+						{
+							"crystal" : 3,
+							"gold" : 4000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 20, "type": "dwarf" },
-							{ "amount": 20, "type": "dwarf" },
-							{ "amount": 20, "type": "dwarf", "upgradeChance": 50 },
-							{ "amount": 20, "type": "dwarf" },
-							{ "amount": 20, "type": "dwarf" }
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 20, "type" : "dwarf" },
+							{ "amount" : 20, "type" : "dwarf" },
+							{ "amount" : 20, "type" : "dwarf", "upgradeChance" : 50 },
+							{ "amount" : 20, "type" : "dwarf" },
+							{ "amount" : 20, "type" : "dwarf" }
 						],
-						"combat_value": 388,
-						"reward" : {
-							"value": 7500,
-							"resources":
-							{
-								"crystal" : 5,
-								"gold" : 5000
-							}
+						"resources" :
+						{
+							"crystal" : 5,
+							"gold" : 5000
 						}
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 30, "type": "dwarf" },
-							{ "amount": 30, "type": "dwarf" },
-							{ "amount": 30, "type": "dwarf", "upgradeChance": 50 },
-							{ "amount": 30, "type": "dwarf" },
-							{ "amount": 30, "type": "dwarf" }
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 30, "type" : "dwarf" },
+							{ "amount" : 30, "type" : "dwarf" },
+							{ "amount" : 30, "type" : "dwarf", "upgradeChance" : 50 },
+							{ "amount" : 30, "type" : "dwarf" },
+							{ "amount" : 30, "type" : "dwarf" }
 						],
-						"combat_value": 582,
-						"reward" : {
-							"value": 12500,
-							"resources":
-							{
-								"crystal" : 10,
-								"gold" : 7500
-							}
+						"resources" :
+						{
+							"crystal" : 10,
+							"gold" : 7500
 						}
 					}
 				]
 			},
 			"griffinConservatory" : {
 				"index" : 2,
-				"resetDuration" : 0,
 				"name" : "Griffin Conservatory",
 				"aiValue" : 9000,
 				"sounds" : {
@@ -221,72 +203,63 @@
 					"value"		: 2000,
 					"rarity"	: 100
 				},
-				"levels": [
+				"onGuardedMessage" : 32,
+				"onVisitedMessage" : 33,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 10, "type": "griffin" },
-							{ "amount": 10, "type": "griffin" },
-							{ "amount": 10, "type": "griffin", "upgradeChance": 50 },
-							{ "amount": 10, "type": "griffin" },
-							{ "amount": 10, "type": "griffin" }
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 10, "type" : "griffin" },
+							{ "amount" : 10, "type" : "griffin" },
+							{ "amount" : 10, "type" : "griffin", "upgradeChance" : 50 },
+							{ "amount" : 10, "type" : "griffin" },
+							{ "amount" : 10, "type" : "griffin" }
 						],
-						"combat_value": 351,
-						"reward" : {
-							"value": 3000,
-							"creatures": [ { "amount": 1, "type": "angel" } ]
-						}
+						"creatures" : [ { "amount" : 1, "type" : "angel" } ]
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 20, "type": "griffin" },
-							{ "amount": 20, "type": "griffin" },
-							{ "amount": 20, "type": "griffin", "upgradeChance": 50 },
-							{ "amount": 20, "type": "griffin" },
-							{ "amount": 20, "type": "griffin" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 20, "type" : "griffin" },
+							{ "amount" : 20, "type" : "griffin" },
+							{ "amount" : 20, "type" : "griffin", "upgradeChance" : 50 },
+							{ "amount" : 20, "type" : "griffin" },
+							{ "amount" : 20, "type" : "griffin" }
 						],
-						"combat_value": 702,
-						"reward" : {
-							"value": 6000,
-							"creatures": [ { "amount": 2, "type": "angel" } ]
-						}
+						"creatures" : [ { "amount" : 2, "type" : "angel" } ]
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 30, "type": "griffin" },
-							{ "amount": 30, "type": "griffin" },
-							{ "amount": 30, "type": "griffin", "upgradeChance": 50 },
-							{ "amount": 30, "type": "griffin" },
-							{ "amount": 30, "type": "griffin" }
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 30, "type" : "griffin" },
+							{ "amount" : 30, "type" : "griffin" },
+							{ "amount" : 30, "type" : "griffin", "upgradeChance" : 50 },
+							{ "amount" : 30, "type" : "griffin" },
+							{ "amount" : 30, "type" : "griffin" }
 						],
-						"combat_value": 1053,
-						"reward" : {
-							"value": 9000,
-							"creatures": [ { "amount": 3, "type": "angel" } ]
-						}
+						"creatures" : [ { "amount" : 3, "type" : "angel" } ]
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 40, "type": "griffin" },
-							{ "amount": 40, "type": "griffin" },
-							{ "amount": 40, "type": "griffin", "upgradeChance": 50 },
-							{ "amount": 40, "type": "griffin" },
-							{ "amount": 40, "type": "griffin" }
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 40, "type" : "griffin" },
+							{ "amount" : 40, "type" : "griffin" },
+							{ "amount" : 40, "type" : "griffin", "upgradeChance" : 50 },
+							{ "amount" : 40, "type" : "griffin" },
+							{ "amount" : 40, "type" : "griffin" }
 						],
-						"combat_value": 1404,
-						"reward" : {
-							"value": 12000,
-							"creatures": [ { "amount": 4, "type": "angel" } ]
-						}
+						"creatures" : [ { "amount" : 4, "type" : "angel" } ]
 					}
 				]
 			},
 			"inpCache" :  {
 				"index" : 3,
-				"resetDuration" : 0,
 				"name" : "Imp Cache",
 				"aiValue" : 1500,
 				"sounds" : {
@@ -296,87 +269,78 @@
 					"value"		: 5000,
 					"rarity"	: 100
 				},
-				"levels": [
+				"onGuardedMessage" : 32,
+				"onVisitedMessage" : 33,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 20, "type": "imp" },
-							{ "amount": 20, "type": "imp" },
-							{ "amount": 20, "type": "imp", "upgradeChance": 50 },
-							{ "amount": 20, "type": "imp" },
-							{ "amount": 20, "type": "imp" }
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 20, "type" : "imp" },
+							{ "amount" : 20, "type" : "imp" },
+							{ "amount" : 20, "type" : "imp", "upgradeChance" : 50 },
+							{ "amount" : 20, "type" : "imp" },
+							{ "amount" : 20, "type" : "imp" }
 						],
-						"combat_value": 100,
-						"reward" : {
-							"value": 2000,
-							"resources":
-							{
-								"gold" : 1000
-							}
+						"resources" :
+						{
+							"gold" : 1000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 30, "type": "imp" },
-							{ "amount": 30, "type": "imp" },
-							{ "amount": 30, "type": "imp", "upgradeChance": 50 },
-							{ "amount": 30, "type": "imp" },
-							{ "amount": 30, "type": "imp" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 30, "type" : "imp" },
+							{ "amount" : 30, "type" : "imp" },
+							{ "amount" : 30, "type" : "imp", "upgradeChance" : 50 },
+							{ "amount" : 30, "type" : "imp" },
+							{ "amount" : 30, "type" : "imp" }
 						],
-						"combat_value": 150,
-						"reward" : {
-							"value": 3000,
-							"resources":
-							{
-								"mercury" : 3,
-								"gold" : 1500
-							}
+						"resources" :
+						{
+							"mercury" : 3,
+							"gold" : 1500
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 40, "type": "imp" },
-							{ "amount": 40, "type": "imp" },
-							{ "amount": 40, "type": "imp", "upgradeChance": 50 },
-							{ "amount": 40, "type": "imp" },
-							{ "amount": 40, "type": "imp" }
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 40, "type" : "imp" },
+							{ "amount" : 40, "type" : "imp" },
+							{ "amount" : 40, "type" : "imp", "upgradeChance" : 50 },
+							{ "amount" : 40, "type" : "imp" },
+							{ "amount" : 40, "type" : "imp" }
 						],
-						"combat_value": 200,
-						"reward" : {
-							"value": 4000,
-							"resources":
-							{
-								"mercury" : 4,
-								"gold" : 2000
-							}
+						"resources" :
+						{
+							"mercury" : 4,
+							"gold" : 2000
 						}
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 60, "type": "imp" },
-							{ "amount": 60, "type": "imp" },
-							{ "amount": 60, "type": "imp", "upgradeChance": 50 },
-							{ "amount": 60, "type": "imp" },
-							{ "amount": 60, "type": "imp" }
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 60, "type" : "imp" },
+							{ "amount" : 60, "type" : "imp" },
+							{ "amount" : 60, "type" : "imp", "upgradeChance" : 50 },
+							{ "amount" : 60, "type" : "imp" },
+							{ "amount" : 60, "type" : "imp" }
 						],
-						"combat_value": 300,
-						"reward" : {
-							"value": 6000,
-							"resources":
-							{
-								"mercury" : 6,
-								"gold" : 3000
-							}
+						"resources" :
+						{
+							"mercury" : 6,
+							"gold" : 3000
 						}
 					}
 				]
 			},
 			"medusaStore" : {
 				"index" : 4,
-				"resetDuration" : 0,
 				"name" : "Medusa Stores",
 				"aiValue" : 1500,
 				"sounds" : {
@@ -386,88 +350,79 @@
 					"value"		: 1500,
 					"rarity"	: 100
 				},
-				"levels": [
+				"onGuardedMessage" : 32,
+				"onVisitedMessage" : 33,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 4, "type": "medusa" },
-							{ "amount": 4, "type": "medusa" },
-							{ "amount": 4, "type": "medusa", "upgradeChance": 50 },
-							{ "amount": 4, "type": "medusa" },
-							{ "amount": 4, "type": "medusa" }
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 4, "type" : "medusa" },
+							{ "amount" : 4, "type" : "medusa" },
+							{ "amount" : 4, "type" : "medusa", "upgradeChance" : 50 },
+							{ "amount" : 4, "type" : "medusa" },
+							{ "amount" : 4, "type" : "medusa" }
 						],
-						"combat_value": 207,
-						"reward" : {
-							"value": 4500,
-							"resources":
-							{
-								"sulfur" : 5,
-								"gold" : 2000
-							}
+						"resources" :
+						{
+							"sulfur" : 5,
+							"gold" : 2000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 6, "type": "medusa" },
-							{ "amount": 6, "type": "medusa" },
-							{ "amount": 6, "type": "medusa", "upgradeChance": 50 },
-							{ "amount": 6, "type": "medusa" },
-							{ "amount": 6, "type": "medusa" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 6, "type" : "medusa" },
+							{ "amount" : 6, "type" : "medusa" },
+							{ "amount" : 6, "type" : "medusa", "upgradeChance" : 50 },
+							{ "amount" : 6, "type" : "medusa" },
+							{ "amount" : 6, "type" : "medusa" }
 						],
-						"combat_value": 310,
-						"reward" : {
-							"value": 6000,
-							"resources":
-							{
-								"sulfur" : 6,
-								"gold" : 3000
-							}
+						"resources" :
+						{
+							"sulfur" : 6,
+							"gold" : 3000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 8, "type": "medusa" },
-							{ "amount": 8, "type": "medusa" },
-							{ "amount": 8, "type": "medusa", "upgradeChance": 50 },
-							{ "amount": 8, "type": "medusa" },
-							{ "amount": 8, "type": "medusa" }
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 8, "type" : "medusa" },
+							{ "amount" : 8, "type" : "medusa" },
+							{ "amount" : 8, "type" : "medusa", "upgradeChance" : 50 },
+							{ "amount" : 8, "type" : "medusa" },
+							{ "amount" : 8, "type" : "medusa" }
 						],
-						"combat_value": 414,
-						"reward" : {
-							"value": 8000,
-							"resources":
-							{
-								"sulfur" : 8,
-								"gold" : 4000
-							}
+						"resources" :
+						{
+							"sulfur" : 8,
+							"gold" : 4000
 						}
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 10, "type": "medusa" },
-							{ "amount": 10, "type": "medusa" },
-							{ "amount": 10, "type": "medusa", "upgradeChance": 50 },
-							{ "amount": 10, "type": "medusa" },
-							{ "amount": 10, "type": "medusa" }
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 10, "type" : "medusa" },
+							{ "amount" : 10, "type" : "medusa" },
+							{ "amount" : 10, "type" : "medusa", "upgradeChance" : 50 },
+							{ "amount" : 10, "type" : "medusa" },
+							{ "amount" : 10, "type" : "medusa" }
 						],
-						"combat_value": 517,
-						"reward" : {
-							"value": 10000,
-							"resources":
-							{
-								"sulfur" : 10,
-								"gold" : 5000
-							}
+						"resources" :
+						{
+							"sulfur" : 10,
+							"gold" : 5000
 						}
 					}
 				]
 			},
 			"nagaBank" : {
 				"index" : 5,
-				"resetDuration" : 0,
 				"name" : "Naga Bank",
 				"aiValue" : 3000,
 				"sounds" : {
@@ -477,88 +432,79 @@
 					"value"		: 3000,
 					"rarity"	: 100
 				},
-				"levels": [
+				"onGuardedMessage" : 32,
+				"onVisitedMessage" : 33,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 2, "type": "naga" },
-							{ "amount": 2, "type": "naga" },
-							{ "amount": 2, "type": "naga", "upgradeChance": 50 },
-							{ "amount": 2, "type": "naga" },
-							{ "amount": 2, "type": "naga" }
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 2, "type" : "naga" },
+							{ "amount" : 2, "type" : "naga" },
+							{ "amount" : 2, "type" : "naga", "upgradeChance" : 50 },
+							{ "amount" : 2, "type" : "naga" },
+							{ "amount" : 2, "type" : "naga" }
 						],
-						"combat_value": 403,
-						"reward" : {
-							"value": 8000,
-							"resources":
-							{
-								"gems" : 8,
-								"gold" : 4000
-							}
+						"resources" :
+						{
+							"gems" : 8,
+							"gold" : 4000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 3, "type": "naga" },
-							{ "amount": 3, "type": "naga" },
-							{ "amount": 3, "type": "naga", "upgradeChance": 50 },
-							{ "amount": 3, "type": "naga" },
-							{ "amount": 3, "type": "naga" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 3, "type" : "naga" },
+							{ "amount" : 3, "type" : "naga" },
+							{ "amount" : 3, "type" : "naga", "upgradeChance" : 50 },
+							{ "amount" : 3, "type" : "naga" },
+							{ "amount" : 3, "type" : "naga" }
 						],
-						"combat_value": 605,
-						"reward" : {
-							"value": 12000,
-							"resources":
-							{
-								"gems" : 12,
-								"gold" : 6000
-							}
+						"resources" :
+						{
+							"gems" : 12,
+							"gold" : 6000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 4, "type": "naga" },
-							{ "amount": 4, "type": "naga" },
-							{ "amount": 4, "type": "naga", "upgradeChance": 50 },
-							{ "amount": 4, "type": "naga" },
-							{ "amount": 4, "type": "naga" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 4, "type" : "naga" },
+							{ "amount" : 4, "type" : "naga" },
+							{ "amount" : 4, "type" : "naga", "upgradeChance" : 50 },
+							{ "amount" : 4, "type" : "naga" },
+							{ "amount" : 4, "type" : "naga" }
 						],
-						"combat_value": 806,
-						"reward" : {
-							"value": 16000,
-							"resources":
-							{
-								"gems" : 16,
-								"gold" : 8000
-							}
+						"resources" :
+						{
+							"gems" : 16,
+							"gold" : 8000
 						}
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 6, "type": "naga" },
-							{ "amount": 6, "type": "naga" },
-							{ "amount": 6, "type": "naga", "upgradeChance": 50 },
-							{ "amount": 6, "type": "naga" },
-							{ "amount": 6, "type": "naga" }
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 6, "type" : "naga" },
+							{ "amount" : 6, "type" : "naga" },
+							{ "amount" : 6, "type" : "naga", "upgradeChance" : 50 },
+							{ "amount" : 6, "type" : "naga" },
+							{ "amount" : 6, "type" : "naga" }
 						],
-						"combat_value": 1210,
-						"reward" : {
-							"value": 24000,
-							"resources":
-							{
-								"gems" : 24,
-								"gold" : 12000
-							}
+						"resources" :
+						{
+							"gems" : 24,
+							"gold" : 12000
 						}
 					}
 				]
 			},
 			"dragonFlyHive" : {
 				"index" : 6,
-				"resetDuration" : 0,
 				"name" : "Dragon Fly Hive",
 				"aiValue" : 9000,
 				"sounds" : {
@@ -568,66 +514,58 @@
 					"value"		: 9000,
 					"rarity"	: 100
 				},
-				"levels": [
+				"onGuardedMessage" : 32,
+				"onVisitedMessage" : 33,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 6, "type": "fireDragonFly" },
-							{ "amount": 6, "type": "fireDragonFly" },
-							{ "amount": 6, "type": "fireDragonFly" },
-							{ "amount": 6, "type": "fireDragonFly" },
-							{ "amount": 6, "type": "fireDragonFly" }
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 6, "type" : "fireDragonFly" },
+							{ "amount" : 6, "type" : "fireDragonFly" },
+							{ "amount" : 6, "type" : "fireDragonFly" },
+							{ "amount" : 6, "type" : "fireDragonFly" },
+							{ "amount" : 6, "type" : "fireDragonFly" }
 						],
-						"combat_value": 154,
-						"reward" : {
-							"value": 3200,
-							"creatures": [ { "amount": 4, "type": "wyvern" } ]
-						}
+						"creatures" : [ { "amount" : 4, "type" : "wyvern" } ]
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 9, "type": "fireDragonFly" },
-							{ "amount": 9, "type": "fireDragonFly" },
-							{ "amount": 9, "type": "fireDragonFly" },
-							{ "amount": 9, "type": "fireDragonFly" },
-							{ "amount": 9, "type": "fireDragonFly" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 9, "type" : "fireDragonFly" },
+							{ "amount" : 9, "type" : "fireDragonFly" },
+							{ "amount" : 9, "type" : "fireDragonFly" },
+							{ "amount" : 9, "type" : "fireDragonFly" },
+							{ "amount" : 9, "type" : "fireDragonFly" }
 						],
-						"combat_value": 230,
-						"reward" : {
-							"value": 4800,
-							"creatures": [ { "amount": 6, "type": "wyvern" } ]
-						}
+						"creatures" : [ { "amount" : 6, "type" : "wyvern" } ]
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 12, "type": "fireDragonFly" },
-							{ "amount": 12, "type": "fireDragonFly" },
-							{ "amount": 12, "type": "fireDragonFly" },
-							{ "amount": 12, "type": "fireDragonFly" },
-							{ "amount": 12, "type": "fireDragonFly" }
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 12, "type" : "fireDragonFly" },
+							{ "amount" : 12, "type" : "fireDragonFly" },
+							{ "amount" : 12, "type" : "fireDragonFly" },
+							{ "amount" : 12, "type" : "fireDragonFly" },
+							{ "amount" : 12, "type" : "fireDragonFly" }
 						],
-						"combat_value": 307,
-						"reward" : {
-							"value": 6400,
-							"creatures": [ { "amount": 8, "type": "wyvern" } ]
-						}
+						"creatures" : [ { "amount" : 8, "type" : "wyvern" } ]
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 18, "type": "fireDragonFly" },
-							{ "amount": 18, "type": "fireDragonFly" },
-							{ "amount": 18, "type": "fireDragonFly" },
-							{ "amount": 18, "type": "fireDragonFly" },
-							{ "amount": 18, "type": "fireDragonFly" }
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 18, "type" : "fireDragonFly" },
+							{ "amount" : 18, "type" : "fireDragonFly" },
+							{ "amount" : 18, "type" : "fireDragonFly" },
+							{ "amount" : 18, "type" : "fireDragonFly" },
+							{ "amount" : 18, "type" : "fireDragonFly" }
 						],
-						"combat_value": 461,
-						"reward" : {
-							"value": 9600,
-							"creatures": [ { "amount": 12, "type": "wyvern" } ]
-						}
+						"creatures" : [ { "amount" : 12, "type" : "wyvern" } ]
 					}
 				]
 			}
@@ -635,7 +573,7 @@
 	},
 	"shipwreck" : {
 		"index" :85,
-		"handler": "bank",
+		"handler" : "configurable",
 		"base" : {
 			"sounds" : {
 				"visit" : ["ROGUE"]
@@ -644,7 +582,7 @@
 		"types" : {
 			"shipwreck" : {
 				"index" : 0,
-				"resetDuration" : 0,
+
 				"blockedVisitable" : true,
 				"coastVisitable" : true,
 				"name" : "Shipwreck",
@@ -653,80 +591,77 @@
 					"value"		: 2000,
 					"rarity"	: 100
 				},
-				"levels": [
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"onGuardedMessage" : 122,
+				"onVisited" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 2, "type": "wight" },
-							{ "amount": 2, "type": "wight" },
-							{ "amount": 2, "type": "wight" },
-							{ "amount": 2, "type": "wight" },
-							{ "amount": 2, "type": "wight" }
+						"message" : 123, // Such a despicable act reduces your army's morale.
+						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "description" : 99 } ]
+					}
+				],
+				"rewards" : [
+					{
+						"message" : 124,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 2, "type" : "wight" },
+							{ "amount" : 2, "type" : "wight" },
+							{ "amount" : 2, "type" : "wight" },
+							{ "amount" : 2, "type" : "wight" },
+							{ "amount" : 2, "type" : "wight" }
 						],
-						"combat_value": 31,
-						"reward" : {
-							"value": 2000,
-							"resources":
-							{
-								"gold" : 2000
-							}
+						"resources" :
+						{
+							"gold" : 2000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 3, "type": "wight" },
-							{ "amount": 3, "type": "wight" },
-							{ "amount": 3, "type": "wight" },
-							{ "amount": 3, "type": "wight" },
-							{ "amount": 3, "type": "wight" }
+						"message" : 124,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 3, "type" : "wight" },
+							{ "amount" : 3, "type" : "wight" },
+							{ "amount" : 3, "type" : "wight" },
+							{ "amount" : 3, "type" : "wight" },
+							{ "amount" : 3, "type" : "wight" }
 						],
-						"combat_value": 46,
-						"reward" : {
-							"value": 3000,
-							"resources":
-							{
-								"gold" : 3000
-							}
+						"resources" :
+						{
+							"gold" : 3000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 5, "type": "wight" },
-							{ "amount": 5, "type": "wight" },
-							{ "amount": 5, "type": "wight" },
-							{ "amount": 5, "type": "wight" },
-							{ "amount": 5, "type": "wight" }
+						"message" : 124,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 5, "type" : "wight" },
+							{ "amount" : 5, "type" : "wight" },
+							{ "amount" : 5, "type" : "wight" },
+							{ "amount" : 5, "type" : "wight" },
+							{ "amount" : 5, "type" : "wight" }
 						],
-						"combat_value": 77,
-						"reward" : {
-							"value": 5000,
-							"resources":
-							{
-								"gold" : 4000
-							},
-							"artifacts": [ { "class" : "TREASURE" } ]
-						}
+						"resources" :
+						{
+							"gold" : 4000
+						},
+						"artifacts" : [ { "class" : "TREASURE" } ]
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 10, "type": "wight" },
-							{ "amount": 10, "type": "wight" },
-							{ "amount": 10, "type": "wight" },
-							{ "amount": 10, "type": "wight" },
-							{ "amount": 10, "type": "wight" }
+						"message" : 124,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 10, "type" : "wight" },
+							{ "amount" : 10, "type" : "wight" },
+							{ "amount" : 10, "type" : "wight" },
+							{ "amount" : 10, "type" : "wight" },
+							{ "amount" : 10, "type" : "wight" }
 						],
-						"combat_value": 154,
-						"reward" : {
-							"value": 7000,
-							"resources":
-							{
-								"gold" : 5000
-							},
-							"artifacts": [ { "class" : "MINOR" } ]
-						}
+						"resources" :
+						{
+							"gold" : 5000
+						},
+						"artifacts" : [ { "class" : "MINOR" } ]
 					}
 				]
 			}
@@ -734,7 +669,7 @@
 	},
 	"derelictShip" : {
 		"index" :24,
-		"handler": "bank",
+		"handler" : "configurable",
 		"base" : {
 			"sounds" : {
 				"visit" : ["ROGUE"]
@@ -743,7 +678,7 @@
 		"types" : {
 			"derelictShip" : {
 				"index" : 0,
-				"resetDuration" : 0,
+
 				"blockedVisitable" : true,
 				"name" : "Derelict Ship",
 				"aiValue" : 4000,
@@ -751,81 +686,75 @@
 					"value"		: 4000,
 					"rarity"	: 20
 				},
-				"levels": [
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"onGuardedMessage" : 41,
+				"onVisited" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 4, "type": "waterElemental" },
-							{ "amount": 4, "type": "waterElemental" },
-							{ "amount": 4, "type": "waterElemental" },
-							{ "amount": 4, "type": "waterElemental" },
-							{ "amount": 4, "type": "waterElemental" }
+						"message" : 42, // Such a despicable act reduces your army's morale.
+						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "description" : 101 } ]
+					}
+				],
+				"rewards" : [
+					{
+						"message" : 43,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 4, "type" : "waterElemental" },
+							{ "amount" : 4, "type" : "waterElemental" },
+							{ "amount" : 4, "type" : "waterElemental" },
+							{ "amount" : 4, "type" : "waterElemental" },
+							{ "amount" : 4, "type" : "waterElemental" }
 						],
-						"combat_value": 138,
-						"reward" : {
-							"value": 3000,
-							"resources":
-							{
-								"gold" : 3000
-							}
+						"resources" :
+						{
+							"gold" : 3000
 						}
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 6, "type": "waterElemental" },
-							{ "amount": 6, "type": "waterElemental" },
-							{ "amount": 6, "type": "waterElemental" },
-							{ "amount": 6, "type": "waterElemental" },
-							{ "amount": 6, "type": "waterElemental" }
+						"message" : 43,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 6, "type" : "waterElemental" },
+							{ "amount" : 6, "type" : "waterElemental" },
+							{ "amount" : 6, "type" : "waterElemental" },
+							{ "amount" : 6, "type" : "waterElemental" },
+							{ "amount" : 6, "type" : "waterElemental" }
 						],
-						"combat_value": 207,
-						"reward" : {
-							"value": 4000,
-							"resources":
-							{
-								"gold" : 3000
-							},
-							"artifacts": [ { "class" : "TREASURE" } ]
-						}
+						"resources" : {
+							"gold" : 3000
+						},
+						"artifacts" : [ { "class" : "TREASURE" } ]
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 8, "type": "waterElemental" },
-							{ "amount": 8, "type": "waterElemental" },
-							{ "amount": 8, "type": "waterElemental" },
-							{ "amount": 8, "type": "waterElemental" },
-							{ "amount": 8, "type": "waterElemental" }
+						"message" : 43,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 8, "type" : "waterElemental" },
+							{ "amount" : 8, "type" : "waterElemental" },
+							{ "amount" : 8, "type" : "waterElemental" },
+							{ "amount" : 8, "type" : "waterElemental" },
+							{ "amount" : 8, "type" : "waterElemental" }
 						],
-						"combat_value": 276,
-						"reward" : {
-							"value": 5000,
-							"resources":
-							{
-								"gold" : 4000
-							},
-							"artifacts": [ { "class" : "TREASURE" } ]
-						}
+						"resources" : {
+							"gold" : 4000
+						},
+						"artifacts" : [ { "class" : "TREASURE" } ]
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 12, "type": "waterElemental" },
-							{ "amount": 12, "type": "waterElemental" },
-							{ "amount": 12, "type": "waterElemental" },
-							{ "amount": 12, "type": "waterElemental" },
-							{ "amount": 12, "type": "waterElemental" }
+						"message" : 43,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 12, "type" : "waterElemental" },
+							{ "amount" : 12, "type" : "waterElemental" },
+							{ "amount" : 12, "type" : "waterElemental" },
+							{ "amount" : 12, "type" : "waterElemental" },
+							{ "amount" : 12, "type" : "waterElemental" }
 						],
-						"combat_value": 414,
-						"reward" : {
-							"value": 8000,
-							"resources":
-							{
-								"gold" : 6000
-							},
-							"artifacts": [ { "class" : "MINOR" } ]
-						}
+						"resources" : {
+							"gold" : 6000
+						},
+						"artifacts" : [ { "class" : "MINOR" } ]
 					}
 				]
 			}
@@ -833,7 +762,7 @@
 	},
 	"crypt" : {
 		"index" :84,
-		"handler": "configurable",
+		"handler" : "configurable",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPDEAD"],
@@ -860,68 +789,66 @@
 						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE" } ]
 					}
 				],
-
-				"rewards": [
+				"rewards" : [
 					{
 						"appearChance" : { "min" : 0, "max" : 30 },
-						"guards": [
-							{ "amount": 10, "type": "skeleton" },
-							{ "amount": 10, "type": "walkingDead" },
-							{ "amount": 10, "type": "walkingDead" },
-							{ "amount": 10, "type": "skeleton" },
-							{ "amount": 10, "type": "skeleton" }
+						"guards" : [
+							{ "amount" : 10, "type" : "skeleton" },
+							{ "amount" : 10, "type" : "walkingDead" },
+							{ "amount" : 10, "type" : "walkingDead" },
+							{ "amount" : 10, "type" : "skeleton" },
+							{ "amount" : 10, "type" : "skeleton" }
 						],
 						"message" : 121, // you search the graves and find something
-						"resources":
+						"resources" :
 						{
 							"gold" : 1500
 						}
 					},
 					{
 						"appearChance" : { "min" : 30, "max" : 60 },
-						"guards": [
-							{ "amount": 13, "type": "skeleton" },
-							{ "amount": 10, "type": "walkingDead" },
-							{ "amount": 5, "type": "wight" },
-							{ "amount": 10, "type": "walkingDead" },
-							{ "amount": 12, "type": "skeleton" }
+						"guards" : [
+							{ "amount" : 13, "type" : "skeleton" },
+							{ "amount" : 10, "type" : "walkingDead" },
+							{ "amount" : 5, "type" : "wight" },
+							{ "amount" : 10, "type" : "walkingDead" },
+							{ "amount" : 12, "type" : "skeleton" }
 						],
 						"message" : 121, // you search the graves and find something
-						"resources":
+						"resources" :
 						{
 							"gold" : 2000
 						}
 					},
 					{
 						"appearChance" : { "min" : 60, "max" : 90 },
-						"guards": [
-							{ "amount": 20, "type": "skeleton" },
-							{ "amount": 20, "type": "walkingDead" },
-							{ "amount": 10, "type": "wight" },
-							{ "amount": 5, "type": "vampire" }
+						"guards" : [
+							{ "amount" : 20, "type" : "skeleton" },
+							{ "amount" : 20, "type" : "walkingDead" },
+							{ "amount" : 10, "type" : "wight" },
+							{ "amount" : 5, "type" : "vampire" }
 						],
 						"message" : 121, // you search the graves and find something
-						"resources":
+						"resources" :
 						{
 							"gold" : 2500
 						},
-						"artifacts": [ { "class" : "TREASURE" } ]
-						}
+						"artifacts" : [ { "class" : "TREASURE" } ]
 					},
 					{
 						"appearChance" : { "min" : 90, "max" : 100 },
-						"guards": [
-							{ "amount": 20, "type": "skeleton" },
-							{ "amount": 20, "type": "walkingDead" },
-							{ "amount": 10, "type": "wight" },
-							{ "amount": 10, "type": "vampire" }
+						"guards" : [
+							{ "amount" : 20, "type" : "skeleton" },
+							{ "amount" : 20, "type" : "walkingDead" },
+							{ "amount" : 10, "type" : "wight" },
+							{ "amount" : 10, "type" : "vampire" }
 						],
 						"message" : 121, // you search the graves and find something
-						"resources":
+						"resources" :
 						{
 							"gold" : 5000
 						},
-						"artifacts": [ { "class" : "TREASURE" } ]
+						"artifacts" : [ { "class" : "TREASURE" } ]
 					}
 				]
 			}
@@ -929,7 +856,7 @@
 	},
 	"dragonUtopia" : {
 		"index" :25,
-		"handler": "bank",
+		"handler" : "configurable",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPDRAG"],
@@ -939,105 +866,98 @@
 		"types" : {
 			"dragonUtopia" : {
 				"index" : 0,
-				"resetDuration" : 0,
+
 				"name" : "Dragon Utopia",
 				"aiValue" : 11000,
 				"rmg" : {
 					"value"		: 10000,
 					"rarity"	: 100
 				},
-				"levels": [
+
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"onGuardedMessage" : 47,
+				"onVisitedMessage" : 33,
+				"rewards" : [
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 8, "type": "greenDragon" },
-							{ "amount": 5, "type": "redDragon" },
-							{ "amount": 2, "type": "goldDragon" },
-							{ "amount": 1, "type": "blackDragon" }
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 8, "type" : "greenDragon" },
+							{ "amount" : 5, "type" : "redDragon" },
+							{ "amount" : 2, "type" : "goldDragon" },
+							{ "amount" : 1, "type" : "blackDragon" }
 						],
-						"combat_value": 769,
-						"reward" : {
-							"value": 38000,
-							"resources":
-							{
-								"gold" : 20000
-							},
-							"artifacts": [
-								{ "class" : "TREASURE" },
-								{ "class" : "MINOR" },
-								{ "class" : "MAJOR" },
-								{ "class" : "RELIC" }
-							]
-						}
+						"resources" :
+						{
+							"gold" : 20000
+						},
+						"artifacts" : [
+							{ "class" : "TREASURE" },
+							{ "class" : "MINOR" },
+							{ "class" : "MAJOR" },
+							{ "class" : "RELIC" }
+						]
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 8, "type": "greenDragon" },
-							{ "amount": 6, "type": "redDragon" },
-							{ "amount": 3, "type": "goldDragon" },
-							{ "amount": 2, "type": "blackDragon" }
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 8, "type" : "greenDragon" },
+							{ "amount" : 6, "type" : "redDragon" },
+							{ "amount" : 3, "type" : "goldDragon" },
+							{ "amount" : 2, "type" : "blackDragon" }
 						],
-						"combat_value": 209,
-						"reward" : {
-							"value": 57000,
-							"resources":
-							{
-								"gold" : 30000
-							},
-							"artifacts": [
-								{ "class" : "MINOR" },
-								{ "class" : "MAJOR" },
-								{ "class" : "RELIC" },
-								{ "class" : "RELIC" }
-							]
-						}
+						"resources" :
+						{
+							"gold" : 30000
+						},
+						"artifacts" : [
+							{ "class" : "MINOR" },
+							{ "class" : "MAJOR" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" }
+						]
 					},
 					{
-						"chance": 30,
-						"guards": [
-							{ "amount": 8, "type": "greenDragon" },
-							{ "amount": 6, "type": "redDragon" },
-							{ "amount": 4, "type": "goldDragon" },
-							{ "amount": 3, "type": "blackDragon" }
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 8, "type" : "greenDragon" },
+							{ "amount" : 6, "type" : "redDragon" },
+							{ "amount" : 4, "type" : "goldDragon" },
+							{ "amount" : 3, "type" : "blackDragon" }
 						],
-						"combat_value": 556,
-						"reward" : {
-							"value": 75000,
-							"resources":
-							{
-								"gold" : 40000
-							},
-							"artifacts": [
-								{ "class" : "MAJOR" },
-								{ "class" : "RELIC" },
-								{ "class" : "RELIC" },
-								{ "class" : "RELIC" }
-							]
-						}
+						"resources" :
+						{
+							"gold" : 40000
+						},
+						"artifacts" : [
+							{ "class" : "MAJOR" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" }
+						]
 					},
 					{
-						"chance": 10,
-						"guards": [
-							{ "amount": 8, "type": "greenDragon" },
-							{ "amount": 7, "type": "redDragon" },
-							{ "amount": 6, "type": "goldDragon" },
-							{ "amount": 5, "type": "blackDragon" }
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 8, "type" : "greenDragon" },
+							{ "amount" : 7, "type" : "redDragon" },
+							{ "amount" : 6, "type" : "goldDragon" },
+							{ "amount" : 5, "type" : "blackDragon" }
 						],
-						"combat_value": 343,
-						"reward" : {
-							"value": 90000,
-							"resources":
-							{
-								"gold" : 50000
-							},
-							"artifacts": [
-								{ "class" : "RELIC" },
-								{ "class" : "RELIC" },
-								{ "class" : "RELIC" },
-								{ "class" : "RELIC" }
-							]
-						}
+						"resources" :
+						{
+							"gold" : 50000
+						},
+						"artifacts" : [
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" }
+						]
 					}
 				]
 			}
@@ -1045,7 +965,7 @@
 	},
 	"pyramid" : {
 		"index" :63,
-		"handler": "bank",
+		"handler" : "configurable",
 		"base" : {
 			"sounds" : {
 				"visit" : ["MYSTERY"]
@@ -1054,26 +974,32 @@
 		"types" : {
 			"pyramid" : {
 				"index" : 0,
-				"resetDuration" : 0,
+
 				"name" : "Pyramid",
 				"aiValue" : 8000,
 				"rmg" : {
 					"value"		: 5000,
 					"rarity"	: 20
 				},
-				"levels": [
+				
+				"onGuardedMessage" : 105,
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"onVisited" : [
 					{
-						"chance": 100,
-						"guards": [
-							{ "amount": 40, "type": "goldGolem" },
-							{ "amount": 10, "type": "diamondGolem" },
-							{ "amount": 10, "type": "diamondGolem" }
+						"message" : 107,
+						"bonuses" : [ { "type" : "LUCK", "val" : -2, "duration" : "ONE_BATTLE", "description" : 70 } ]
+					}
+				],
+				"rewards" : [
+					{
+						"message" : 106,
+						"guards" : [
+							{ "amount" : 40, "type" : "goldGolem" },
+							{ "amount" : 10, "type" : "diamondGolem" },
+							{ "amount" : 10, "type" : "diamondGolem" }
 						],
-						"combat_value": 786,
-						"reward" : {
-							"value": 15000,
-							"spells" : [ { "level" : 5 } ]
-						}
+						"spells" : [ { "level" : 5 } ]
 					}
 				]
 			}

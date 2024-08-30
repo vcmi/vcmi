@@ -2750,8 +2750,6 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;
-	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods
-		return true;
 
 	switch(obj->ID)
 	{

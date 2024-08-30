@@ -16,7 +16,6 @@
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
-#include "../../lib/mapObjects/CBank.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGDwelling.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
@@ -60,25 +59,6 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 	logAi->debug("FuzzyHelper returned goal %s, priority=%.4f", result->name(), result->priority);
 
 	return result;
-}
-
-ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
-{
-	//this one is not fuzzy anymore, just calculate weighted average
-
-	auto objectInfo = bank->getObjectHandler()->getObjectInfo(bank->appearance);
-
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
-
-	ui64 totalStrength = 0;
-	ui8 totalChance = 0;
-	for(auto config : bankInfo->getPossibleGuards(bank->cb))
-	{
-		totalStrength += config.second.totalStrength * config.first;
-		totalChance += config.first;
-	}
-	return totalStrength / std::max<ui8>(totalChance, 1); //avoid division by zero
-
 }
 
 float FuzzyHelper::evaluate(Goals::VisitTile & g)
@@ -302,7 +282,6 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 		return iat.army.getStrength();
 	}
 	case Obj::MONSTER:
-	case Obj::CRYPT:
 	{
 		//TODO!!!!!!!!
 		const CGCreature * cre = dynamic_cast<const CGCreature *>(obj);
@@ -320,12 +299,16 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
 		return a->getArmyStrength();
 	}
+	case Obj::CRYPT:
 	case Obj::CREATURE_BANK: //crebank
 	case Obj::DRAGON_UTOPIA:
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
 	case Obj::PYRAMID:
-		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
+	{
+		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
+		return a->getArmyStrength();
+	}
 	default:
 		return 0;
 	}

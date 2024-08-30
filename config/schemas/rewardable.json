@@ -98,6 +98,9 @@
 						"max" : { "type" : "number", "exclusiveMinimum" : 0, "maximum" : 100 }
 					}
 				},
+
+				"guards"  : {}, //TODO
+				
 				"limiter" : { "$ref" : "#/definitions/limiter" },
 				"message" : { "$ref" : "#/definitions/message" },
 				"description" : { "$ref" : "#/definitions/message" },
@@ -256,6 +259,9 @@
 			},
 		},
 
+		"onGuardedMessage" : {
+			"$ref" : "#/definitions/message"
+		},
 		"onSelectMessage" : {
 			"$ref" : "#/definitions/message"
 		},
