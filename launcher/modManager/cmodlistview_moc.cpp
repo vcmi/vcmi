@@ -837,7 +837,10 @@ void CModListView::installFiles(QStringList files)
 		installMaps(maps);
 
 	if(!exe.empty())
-		ChroniclesExtractor::installExe(this, exe);
+	{
+		ChroniclesExtractor ce(this);
+		ce.installChronicles(exe, [](float progress) { });
+	}
 
 	if(!images.empty())
 		loadScreenshots();

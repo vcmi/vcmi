@@ -15,6 +15,18 @@ class ChroniclesExtractor : public QObject
 {
 	Q_OBJECT
 
+	QWidget *parent;
+	std::function<void(float percent)> cb;
+
+	QDir tempDir;
+	int extractionFile;
+	int fileCount;
+
+	bool handleTempDir(bool create);
+	int getChronicleNo(QFile & file);
+	bool extractGogInstaller(QString filePath);
 public:
-	static void installExe(QWidget *parent, QStringList exe);
+	void installChronicles(QStringList exe);
+
+	ChroniclesExtractor(QWidget *p, std::function<void(float percent)> cb = nullptr);
 };
