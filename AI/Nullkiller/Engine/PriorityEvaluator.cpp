@@ -1398,9 +1398,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 		switch (priorityTier)
 		{
-			case 1: //Take towns
+			case 1: //Take towns / kill heroes in immediate reach
 			{
-				//score += evaluationContext.conquestValue * 1000;
+				if (evaluationContext.turn > 0)
+					return 0;
 				if(evaluationContext.conquestValue > 0)
 					score = 1000;
 				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
@@ -1419,7 +1420,20 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score *= evaluationContext.closestWayRatio;
 				break;
 			}
-			case 3: //Collect unguarded stuff
+			case 3: //Take towns / kill heroes that are further away
+			{
+				if (evaluationContext.conquestValue > 0)
+					score = 1000;
+				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
+					return 0;
+				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
+					return 0;
+				score *= evaluationContext.closestWayRatio;
+				if (evaluationContext.movementCost > 0)
+					score /= evaluationContext.movementCost;
+				break;
+			}
+			case 4: //Collect unguarded stuff
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1)
 					return 0;
@@ -1449,7 +1463,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score /= evaluationContext.movementCost;
 				break;
 			}
-			case 4: //Collect guarded stuff
+			case 5: //Collect guarded stuff
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend)
 					return 0;
@@ -1475,7 +1489,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				}
 				break;
 			}
-			case 5: //Defend whatever if nothing else is to do
+			case 6: //Defend whatever if nothing else is to do
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.isExchange)
 					return 0;
