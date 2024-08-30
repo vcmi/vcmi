@@ -118,9 +118,10 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 		EResType::ARCHIVE_SND,
 		EResType::ARCHIVE_ZIP };
 	static const std::set<EResType> initialTypes(initArray, initArray + std::size(initArray));
-
-	assert(boost::filesystem::is_directory(baseDirectory));
 	std::unordered_map<ResourcePath, boost::filesystem::path> fileList;
+
+	if(!boost::filesystem::is_directory(baseDirectory))
+		return fileList;
 
 	std::vector<boost::filesystem::path> path; //vector holding relative path to our file
 

@@ -6,7 +6,7 @@
 		{
 			"name": "background",
 			"type": "picture",
-			"image": "ADVOPTBK",
+			"image": "AdventureOptionsBackgroundClear",
 			"position": {"x": 0, "y": 6}
 		},
 		{
@@ -34,31 +34,6 @@
 			"text": "vcmi.optionsTab.extraOptions.help",
 			"rect": {"x": 60, "y": 48, "w": 320, "h": 0},
 			"adoptHeight": true
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 54, "y": 127, "w": 335, "h": 2},
-			"color": [24, 41, 90, 255]
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 159, "y": 90, "w": 2, "h": 38},
-			"color": [24, 41, 90, 255]
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 235, "y": 90, "w": 2, "h": 38},
-			"color": [24, 41, 90, 255]
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 311, "y": 90, "w": 2, "h": 38},
-			"color": [24, 41, 90, 255]
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 55, "y": 556, "w": 335, "h": 19},
-			"color": [24, 41, 90, 255]
 		},
 		{
 			"name": "ExtraOptionsButtons",
