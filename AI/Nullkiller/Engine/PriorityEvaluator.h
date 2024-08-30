@@ -81,6 +81,7 @@ struct DLL_EXPORT EvaluationContext
 	bool isTradeBuilding;
 	bool isChain;
 	bool isEnemy;
+	bool isExchange;
 
 	EvaluationContext(const Nullkiller * ai);
 

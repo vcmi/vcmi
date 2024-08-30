@@ -63,7 +63,8 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	involvesSailing(false),
 	isTradeBuilding(false),
 	isChain(false),
-	isEnemy(false)
+	isEnemy(false),
+	isExchange(false)
 {
 }
 
@@ -899,6 +900,7 @@ public:
 		evaluationContext.addNonCriticalStrategicalValue(2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength());
 		evaluationContext.conquestValue += 2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength();
 		evaluationContext.heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroExchange.hero);
+		evaluationContext.isExchange = true;
 	}
 };
 
@@ -1396,25 +1398,25 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 		switch (priorityTier)
 		{
-			case 1: //Defend immediately threatened towns
-			{
-				if (evaluationContext.isDefend && evaluationContext.threatTurns == 0 && evaluationContext.turn == 0)
-					score = evaluationContext.armyInvolvement;
-				score *= evaluationContext.closestWayRatio;
-				break;
-			}
-			case 2: //Take towns
+			case 1: //Take towns
 			{
 				//score += evaluationContext.conquestValue * 1000;
 				if(evaluationContext.conquestValue > 0)
 					score = 1000;
-				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.turn > 0 && !ai->cb->getTownsInfo().empty()))
+				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
 				score *= evaluationContext.closestWayRatio;
 				if (evaluationContext.movementCost > 0)
 					score /= evaluationContext.movementCost;
+				break;
+			}
+			case 2: //Defend immediately threatened towns
+			{
+				if (evaluationContext.isDefend && evaluationContext.threatTurns == 0 && evaluationContext.turn == 0)
+					score = evaluationContext.armyInvolvement;
+				score *= evaluationContext.closestWayRatio;
 				break;
 			}
 			case 3: //Collect unguarded stuff
@@ -1475,6 +1477,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case 5: //Defend whatever if nothing else is to do
 			{
+				if (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.isExchange)
+					return 0;
 				if (evaluationContext.isDefend)
 					score = evaluationContext.armyInvolvement;
 				score *= evaluationContext.closestWayRatio;
