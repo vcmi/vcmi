@@ -30,6 +30,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/modding/CModVersion.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 static double mbToBytes(double mb)
 {
@@ -838,8 +839,14 @@ void CModListView::installFiles(QStringList files)
 
 	if(!exe.empty())
 	{
-		ChroniclesExtractor ce(this);
-		ce.installChronicles(exe, [](float progress) { });
+		ChroniclesExtractor ce(this, [](float progress) { });
+		ce.installChronicles(exe);
+
+		//update
+		CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
+		manager->loadMods();
+		modModel->reloadRepositories();
+		emit modsChanged();
 	}
 
 	if(!images.empty())

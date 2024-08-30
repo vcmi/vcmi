@@ -25,6 +25,20 @@ class ChroniclesExtractor : public QObject
 	bool handleTempDir(bool create);
 	int getChronicleNo(QFile & file);
 	bool extractGogInstaller(QString filePath);
+	void createBaseMod();
+	void createChronicleMod(int no);
+	void extractFiles(int no);
+
+	const std::map<int, QByteArray> chronicles = {
+		{1, QByteArray{reinterpret_cast<const char*>(u"Warlords of the Wasteland"), 50}},
+		{2, QByteArray{reinterpret_cast<const char*>(u"Conquest of the Underworld"), 52}},
+		{3, QByteArray{reinterpret_cast<const char*>(u"Masters of the Elements"), 46}},
+		{4, QByteArray{reinterpret_cast<const char*>(u"Clash of the Dragons"), 40}},
+		{5, QByteArray{reinterpret_cast<const char*>(u"The World Tree"), 28}},
+		{6, QByteArray{reinterpret_cast<const char*>(u"The Fiery Moon"), 28}},
+		{7, QByteArray{reinterpret_cast<const char*>(u"Revolt of the Beastmasters"), 52}},
+		{8, QByteArray{reinterpret_cast<const char*>(u"The Sword of Frost"), 36}}
+	};
 public:
 	void installChronicles(QStringList exe);
 

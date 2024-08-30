@@ -12,6 +12,7 @@
 #include "chroniclesextractor.h"
 
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/filesystem/CArchiveLoader.h"
 
 #ifdef ENABLE_INNOEXTRACT
 #include "cli/extract.hpp"
@@ -60,16 +61,6 @@ int ChroniclesExtractor::getChronicleNo(QFile & file)
 	}
 
 	QByteArray dataBegin = file.read(1'000'000);
-	const std::map<int, QByteArray> chronicles = {
-		{1, QByteArray{reinterpret_cast<const char*>(u"Heroes Chronicles - Warlords of the Wasteland"), 90}},
-		{2, QByteArray{reinterpret_cast<const char*>(u"Heroes Chronicles - Conquest of the Underworld"), 92}},
-		{3, QByteArray{reinterpret_cast<const char*>(u"Heroes Chronicles - Masters of the Elements"), 86}},
-		{4, QByteArray{reinterpret_cast<const char*>(u"Heroes Chronicles - Clash of the Dragons"), 80}},
-		{5, QByteArray{reinterpret_cast<const char*>(u"Heroes Chronicles - The World Tree"), 68}},
-		{6, QByteArray{reinterpret_cast<const char*>(u"Heroes Chronicles - The Fiery Moon"), 68}},
-		{7, QByteArray{reinterpret_cast<const char*>(u"Heroes Chronicles - Revolt of the Beastmasters"), 92}},
-		{8, QByteArray{reinterpret_cast<const char*>(u"Heroes Chronicles - The Sword of Frost"), 76}}
-	};
 	int chronicle = 0;
 	for (const auto& kv : chronicles) {
 		if(dataBegin.contains(kv.second))
@@ -142,6 +133,69 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 #endif
 }
 
+void ChroniclesExtractor::createBaseMod()
+{
+	QDir dir(pathToQString(VCMIDirs::get().userDataPath() / "Mods"));
+	dir.mkdir("chronicles");
+	dir.cd("chronicles");
+	dir.mkdir("Mods");
+
+	QJsonObject mod
+	{
+		{ "modType", "Extension" },
+		{ "name", "Heroes Chronicles" },
+		{ "description", "" },
+		{ "author", "3DO" },
+		{ "version", "1.0" },
+	};
+
+	QFile jsonFile(dir.filePath("mod.json"));
+    jsonFile.open(QFile::WriteOnly);
+    jsonFile.write(QJsonDocument(mod).toJson());
+}
+
+void ChroniclesExtractor::createChronicleMod(int no)
+{
+	QDir dir(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods"));
+	dir.mkdir("chronicles_" + QString::number(no));
+	dir.cd("chronicles_" + QString::number(no));
+
+	QJsonObject mod
+	{
+		{ "modType", "Extension" },
+		{ "name", "Heroes Chronicles - " + QString::number(no) },
+		{ "description", "" },
+		{ "author", "3DO" },
+		{ "version", "1.0" },
+	};
+
+	QFile jsonFile(dir.filePath("mod.json"));
+    jsonFile.open(QFile::WriteOnly);
+    jsonFile.write(QJsonDocument(mod).toJson());
+
+	dir.mkdir("Data");
+	dir.mkdir("Sprites");
+	extractFiles(no);
+}
+
+void ChroniclesExtractor::extractFiles(int no)
+{
+	QByteArray tmpChronicles = chronicles.at(no);
+	tmpChronicles.replace('\0', "");
+
+	QDir tmpDir = tempDir.filePath(tempDir.entryList({"app"}, QDir::Filter::Dirs).front());
+	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({QString(tmpChronicles)}, QDir::Filter::Dirs).front()));
+	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front()));
+	QDir outDirData(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "Data"));
+	QDir outDirSprites(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "Sprites"));
+
+	CArchiveLoader archive("", tmpDir.filePath("xBitmap.lod").toStdString(), false);
+	for(auto & entry : archive.getEntries())
+		archive.extractToFolder(outDirData.absolutePath().toStdString(), "", entry.second, true);
+	for(auto & entry : outDirData.entryList())
+		outDirData.rename(entry, "Hc" + QString::number(no) + "_" + entry);
+}
+
 void ChroniclesExtractor::installChronicles(QStringList exe)
 {
 	extractionFile = -1;
@@ -160,8 +214,10 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 
 		if(!extractGogInstaller(f))
 			continue;
+		
+		createBaseMod();
+		createChronicleMod(chronicleNo);
 
-		if(!handleTempDir(false))
-			continue;
+		handleTempDir(false);
 	}
 }
