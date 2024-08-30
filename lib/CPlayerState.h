@@ -153,6 +153,8 @@ public:
 	//TODO: boost::array, bool if possible
 	boost::multi_array<ui8, 3> fogOfWarMap; //[z][x][y] true - visible, false - hidden
 
+	std::set<ObjectInstanceID> scoutedObjects;
+
 	TeamState();
 
 	template <typename Handler> void serialize(Handler &h)
@@ -173,6 +175,9 @@ public:
 
 		h & fogOfWarMap;
 		h & static_cast<CBonusSystemNode&>(*this);
+
+		if (h.version >= Handler::Version::TEAM_STATE_SCOUTED_OBJECTS)
+			h & scoutedObjects;
 	}
 
 };

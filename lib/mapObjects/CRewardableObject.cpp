@@ -108,24 +108,30 @@ bool CRewardableObject::guardedPresently() const
 	return stacksCount() > 0;
 }
 
-void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
+void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 {
+	if(!wasScouted(hero->getOwner()))
+	{
+		ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_SCOUTED, id, hero->id);
+		cb->sendAndApply(&cov);
+	}
+
 	if (guardedPresently())
 	{
-		auto guardedIndexes = getAvailableRewards(h, Rewardable::EEventType::EVENT_GUARDED);
+		auto guardedIndexes = getAvailableRewards(hero, Rewardable::EEventType::EVENT_GUARDED);
 		auto guardedReward = configuration.info.at(guardedIndexes.at(0));
 
 		// ask player to confirm attack
 		BlockingDialog bd(true, false);
-		bd.player = h->getOwner();
+		bd.player = hero->getOwner();
 		bd.text = guardedReward.message;
-		bd.components = getPopupComponents(h->getOwner());
+		bd.components = getPopupComponents(hero->getOwner());
 
 		cb->showBlockingDialog(&bd);
 	}
 	else
 	{
-		doHeroVisit(h);
+		doHeroVisit(hero);
 	}
 }
 
@@ -192,7 +198,7 @@ void CRewardableObject::doHeroVisit(const CGHeroInstance *h) const
 
 		if(!objectRemovalPossible && getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 		{
-			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
 			cb->sendAndApply(&cov);
 		}
 	}
@@ -202,7 +208,7 @@ void CRewardableObject::doHeroVisit(const CGHeroInstance *h) const
 
 		if (!wasVisited(h->getOwner()))
 		{
-			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
 			cb->sendAndApply(&cov);
 		}
 
@@ -236,27 +242,6 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int3
 	}
 	else
 	{
-		if(answer == 0)
-		{
-			switch(configuration.visitMode)
-			{
-				case Rewardable::VISIT_UNLIMITED:
-				case Rewardable::VISIT_BONUS:
-				case Rewardable::VISIT_HERO:
-				case Rewardable::VISIT_LIMITER:
-				{
-					// workaround for object with refusable reward not getting marked as visited
-					// TODO: better solution that would also work for player-visitable objects
-					if(!wasScouted(hero->getOwner()))
-					{
-						ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, hero->id);
-						cb->sendAndApply(&cov);
-					}
-				}
-			}
-			return; // player refused
-		}
-
 		if(answer > 0 && answer - 1 < configuration.info.size())
 		{
 			auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
@@ -274,7 +259,7 @@ void CRewardableObject::markAsVisited(const CGHeroInstance * hero) const
 {
 	cb->setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, true);
 
-	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_HERO, id, hero->id);
 	cb->sendAndApply(&cov);
 }
 
@@ -330,7 +315,7 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 
 bool CRewardableObject::wasScouted(PlayerColor player) const
 {
-	return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
+	return vstd::contains(cb->getPlayerTeam(player)->scoutedObjects, ObjectInstanceID(id));
 }
 
 bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
@@ -418,9 +403,6 @@ std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor pla
 	if (!wasScouted(player))
 		return {};
 
-	if (!configuration.showScoutedPreview)
-		return {};
-
 	if (guardedPresently())
 	{
 		if (!VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
@@ -442,6 +424,9 @@ std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor pla
 	}
 	else
 	{
+		if (!configuration.showScoutedPreview)
+			return {};
+
 		auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
 		if (rewardIndices.empty() && !configuration.info.empty())
 		{

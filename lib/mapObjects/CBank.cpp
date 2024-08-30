@@ -137,7 +137,7 @@ bool CBank::wasVisited (PlayerColor player) const
 
 void CBank::onHeroVisit(const CGHeroInstance * h) const
 {
-	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
 	cb->sendAndApply(&cov);
 
 	if(!bankConfig && (ID.toEnum() == Obj::CREATURE_BANK || ID.toEnum() == Obj::DRAGON_UTOPIA))
