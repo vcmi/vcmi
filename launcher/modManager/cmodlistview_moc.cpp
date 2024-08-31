@@ -839,14 +839,31 @@ void CModListView::installFiles(QStringList files)
 
 	if(!exe.empty())
 	{
-		ChroniclesExtractor ce(this, [](float progress) { });
-		ce.installChronicles(exe);
+		ui->progressBar->setFormat(tr("Installing chronicles"));
 
-		//update
-		CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
-		manager->loadMods();
-		modModel->reloadRepositories();
-		emit modsChanged();
+		float prog = 0.0;
+
+		auto futureExtract = std::async(std::launch::async, [this, exe, &prog]()
+		{
+			ChroniclesExtractor ce(this, [this, &prog](float progress) { prog = progress; });
+			ce.installChronicles(exe);
+			return true;
+		});
+		
+		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
+		{
+			emit extractionProgress(int(prog * 1000.f), 1000);
+			qApp->processEvents();
+		}
+		
+		if(futureExtract.get())
+		{
+			//update
+			CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
+			manager->loadMods();
+			modModel->reloadRepositories();
+			emit modsChanged();
+		}
 	}
 
 	if(!images.empty())

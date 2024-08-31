@@ -142,7 +142,7 @@ void ChroniclesExtractor::createBaseMod()
 
 	QJsonObject mod
 	{
-		{ "modType", "Extension" },
+		{ "modType", "Expansion" },
 		{ "name", "Heroes Chronicles" },
 		{ "description", "" },
 		{ "author", "3DO" },
@@ -156,13 +156,13 @@ void ChroniclesExtractor::createBaseMod()
 
 void ChroniclesExtractor::createChronicleMod(int no)
 {
-	QDir dir(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods"));
-	dir.mkdir("chronicles_" + QString::number(no));
-	dir.cd("chronicles_" + QString::number(no));
+	QDir dir(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no))));
+	dir.removeRecursively();
+	dir.mkpath(".");
 
 	QJsonObject mod
 	{
-		{ "modType", "Extension" },
+		{ "modType", "Expansion" },
 		{ "name", "Heroes Chronicles - " + QString::number(no) },
 		{ "description", "" },
 		{ "author", "3DO" },
@@ -174,11 +174,7 @@ void ChroniclesExtractor::createChronicleMod(int no)
     jsonFile.write(QJsonDocument(mod).toJson());
 
 	dir.cd("content");
-	dir.removeRecursively();
-	dir.mkdir(".");
-
-	dir.mkdir("Data");
-	dir.mkdir("Sprites");
+	
 	extractFiles(no);
 }
 
