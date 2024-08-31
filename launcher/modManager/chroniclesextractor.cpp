@@ -173,8 +173,9 @@ void ChroniclesExtractor::createChronicleMod(int no)
     jsonFile.open(QFile::WriteOnly);
     jsonFile.write(QJsonDocument(mod).toJson());
 
-	dir.mkdir("content");
 	dir.cd("content");
+	dir.removeRecursively();
+	dir.mkdir(".");
 
 	dir.mkdir("Data");
 	dir.mkdir("Sprites");
@@ -195,24 +196,31 @@ void ChroniclesExtractor::extractFiles(int no)
 	QDir outDirSounds(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Sounds"));
 	QDir outDirMaps(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Maps"));
 
-	auto extract = [tmpDir, no](QDir dest, QString file){
-		CArchiveLoader archive("", tmpDir.filePath(tmpDir.entryList({file}).front()).toStdString(), false);
+	auto extract = [no](QDir scrDir, QDir dest, QString file, std::vector<std::string> files = {}){
+		CArchiveLoader archive("", scrDir.filePath(scrDir.entryList({file}).front()).toStdString(), false);
 		for(auto & entry : archive.getEntries())
-			archive.extractToFolder(dest.absolutePath().toStdString(), "", entry.second, true);
+			if(files.empty())
+				archive.extractToFolder(dest.absolutePath().toStdString(), "", entry.second, true);
+			else
+			{
+				for(auto & item : files)
+					if(!boost::algorithm::to_lower_copy(entry.second.name).find(boost::algorithm::to_lower_copy(item)))
+						archive.extractToFolder(dest.absolutePath().toStdString(), "", entry.second, true);
+			}
 	};
-	auto rename = [tmpDir, no](QDir dest){
+	auto rename = [no](QDir dest){
 		dest.refresh();
 		for(auto & entry : dest.entryList())
 			if(!entry.startsWith("Hc" + QString::number(no) + "_"))
 				dest.rename(entry, "Hc" + QString::number(no) + "_" + entry);
 	};
 
-	extract(outDirData, "xBitmap.lod");
-	extract(outDirData, "xlBitmap.lod");
-	extract(outDirSprites, "xSprite.lod");
-	extract(outDirSprites, "xlSprite.lod");
-	extract(outDirVideo, "xVideo.vid");
-	extract(outDirSounds, "xSound.snd");
+	extract(tmpDir, outDirData, "xBitmap.lod");
+	extract(tmpDir, outDirData, "xlBitmap.lod");
+	extract(tmpDir, outDirSprites, "xSprite.lod");
+	extract(tmpDir, outDirSprites, "xlSprite.lod");
+	extract(tmpDir, outDirVideo, "xVideo.vid");
+	extract(tmpDir, outDirSounds, "xSound.snd");
 
 	tmpDir.cdUp();
 	if(tmpDir.entryList({"maps"}, QDir::Filter::Dirs).size())
@@ -221,6 +229,10 @@ void ChroniclesExtractor::extractFiles(int no)
 		for(auto & entry : tmpDirMaps.entryList())
 			QFile(tmpDirMaps.filePath(entry)).copy(outDirData.filePath(entry));
 	}
+
+	tmpDir.cdUp();
+	QDir tmpDirData = tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front());
+	extract(tmpDirData, outDirData, "bitmap.lod", std::vector<std::string>{"HPL003sh", "HPL102br", "HPL139", "HPS006kn", "HPS137", "HPS141", "HPL004sh", "hpl112bs", "HPL140", "hps007sh", "HPS138", "HPS142", "HPL006kn", "HPL137", "HPS003sh", "HPS102br", "HPS139", "HPS143", "hpl007sh", "HPL138", "HPS004sh", "hps112bs", "HPS140"});
 
 	rename(outDirData);
 	rename(outDirSprites);
