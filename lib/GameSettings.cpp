@@ -33,23 +33,10 @@ std::vector<int> IGameSettings::getVector(EGameSettings option) const
 	return getValue(option).convertTo<std::vector<int>>();
 }
 
+GameSettings::GameSettings() = default;
 GameSettings::~GameSettings() = default;
 
-GameSettings::GameSettings()
-	: gameSettings(static_cast<size_t>(EGameSettings::OPTIONS_COUNT))
-{
-}
-
-void GameSettings::load(const JsonNode & input)
-{
-	struct SettingOption
-	{
-		EGameSettings setting;
-		std::string group;
-		std::string key;
-	};
-
-	static const std::vector<SettingOption> optionPath = {
+const std::vector<GameSettings::SettingOption> GameSettings::settingProperties = {
 		{EGameSettings::BONUSES_GLOBAL,                         "bonuses",   "global"                           },
 		{EGameSettings::BONUSES_PER_HERO,                       "bonuses",   "perHero"                          },
 		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR,      "combat",    "attackPointDamageFactor"          },
@@ -114,7 +101,9 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"          },
 	};
 
-	for(const auto & option : optionPath)
+void GameSettings::loadBase(const JsonNode & input)
+{
+	for(const auto & option : settingProperties)
 	{
 		const JsonNode & optionValue = input[option.group][option.key];
 		size_t index = static_cast<size_t>(option.setting);
@@ -122,16 +111,59 @@ void GameSettings::load(const JsonNode & input)
 		if(optionValue.isNull())
 			continue;
 
-		JsonUtils::mergeCopy(gameSettings[index], optionValue);
+		JsonUtils::mergeCopy(baseSettings[index], optionValue);
 	}
+	actualSettings = baseSettings;
+}
+
+void GameSettings::loadOverrides(const JsonNode & input)
+{
+	for(const auto & option : settingProperties)
+	{
+		const JsonNode & optionValue = input[option.group][option.key];
+		if (!optionValue.isNull())
+			addOverride(option.setting, optionValue);
+	}
+}
+
+void GameSettings::addOverride(EGameSettings option, const JsonNode & input)
+{
+	size_t index = static_cast<size_t>(option);
+
+	overridenSettings[index] = input;
+	JsonNode newValue = baseSettings[index];
+	JsonUtils::mergeCopy(newValue, input);
+	actualSettings[index] = newValue;
 }
 
 const JsonNode & GameSettings::getValue(EGameSettings option) const
 {
 	auto index = static_cast<size_t>(option);
 
-	assert(!gameSettings.at(index).isNull());
-	return gameSettings.at(index);
+	assert(!actualSettings.at(index).isNull());
+	return actualSettings.at(index);
+}
+
+JsonNode GameSettings::getFullConfig() const
+{
+	JsonNode result;
+	for(const auto & option : settingProperties)
+		result[option.group][option.key] = getValue(option.setting);
+
+	return result;
+}
+
+JsonNode GameSettings::getAllOverrides() const
+{
+	JsonNode result;
+	for(const auto & option : settingProperties)
+	{
+		const JsonNode & value = overridenSettings[static_cast<int32_t>(option.setting)];
+		if (!value.isNull())
+			result[option.group][option.key] = value;
+	}
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

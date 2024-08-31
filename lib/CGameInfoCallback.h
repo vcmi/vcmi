@@ -18,6 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class Player;
 class Team;
+class IGameSettings;
 
 struct InfoWindow;
 struct PlayerSettings;
@@ -148,6 +149,7 @@ public:
 	bool isAllowed(SpellID id) const override;
 	bool isAllowed(ArtifactID id) const override;
 	bool isAllowed(SecondarySkill id) const override;
+	const IGameSettings & getSettings() const;
 
 	//player
 	std::optional<PlayerColor> getPlayerID() const override;

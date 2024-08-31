@@ -15,7 +15,7 @@
 #include "entities/faction/CTownHandler.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
@@ -519,7 +519,7 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses) con
 
 std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_CREATURE);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -704,7 +704,7 @@ const std::vector<std::string> & CCreatureHandler::getTypeNames() const
 
 void CCreatureHandler::loadCrExpMod()
 {
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
+	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
 	{
 		//Calculate rank exp values, formula appears complicated bu no parsing needed
 		expRanks.resize(8);
@@ -754,7 +754,7 @@ void CCreatureHandler::loadCrExpMod()
 
 void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 {
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
+	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
 	{
 		logGlobal->debug("\tLoading stack experience bonuses");
 		auto addBonusForAllCreatures = [&](std::shared_ptr<Bonus> b) {
@@ -833,7 +833,7 @@ void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
 	parser.endLine(); // header
 	parser.endLine();
 
-	for(int dd = 0; dd < VLC->settings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
+	for(int dd = 0; dd < VLC->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
 	{
 		while (parser.isNextEntryEmpty() && parser.endLine()) // skip empty lines
 			;

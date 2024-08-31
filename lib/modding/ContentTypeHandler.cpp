@@ -22,7 +22,7 @@
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../IHandlerBase.h"
 #include "../ObstacleHandler.h"
 #include "../mapObjects/ObstacleSetHandler.h"

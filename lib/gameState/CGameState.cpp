@@ -21,7 +21,7 @@
 #include "../CHeroHandler.h"
 #include "../CPlayerState.h"
 #include "../CStopWatch.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
 #include "../VCMIDirs.h"
@@ -151,6 +151,11 @@ CGameState::~CGameState()
 	map.dellNull();
 	scenarioOps.dellNull();
 	initialOpts.dellNull();
+}
+
+const IGameSettings & CGameState::getSettings() const
+{
+	return map->getSettings();
 }
 
 void CGameState::preInit(Services * newServices, IGameCallback * newCallback)
@@ -356,7 +361,7 @@ void CGameState::generateOwnedObjectsAfterDeserialize()
 
 void CGameState::initGlobalBonuses()
 {
-	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_GLOBAL);
+	const JsonNode & baseBonuses = getSettings().getValue(EGameSettings::BONUSES_GLOBAL);
 	logGlobal->debug("\tLoading global bonuses");
 	for(const auto & b : baseBonuses.Struct())
 	{
@@ -807,7 +812,7 @@ void CGameState::initTowns()
 			if(vti->tempOwner != PlayerColor::NEUTRAL)
 				vti->addBuilding(BuildingID::TAVERN);
 
-			auto definesBuildingsChances = VLC->settings()->getVector(EGameSettings::TOWNS_STARTING_DWELLING_CHANCES);
+			auto definesBuildingsChances = getSettings().getVector(EGameSettings::TOWNS_STARTING_DWELLING_CHANCES);
 
 			for(int i = 0; i < definesBuildingsChances.size(); i++)
 			{

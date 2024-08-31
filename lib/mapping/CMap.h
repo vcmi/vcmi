@@ -32,7 +32,10 @@ class IQuestObject;
 class CInputStream;
 class CMapEditManager;
 class JsonSerializeFormat;
+class IGameSettings;
+class GameSettings;
 struct TeleportChannel;
+enum class EGameSettings;
 
 /// The rumor struct consists of a rumor name and text.
 struct DLL_LINKAGE Rumor
@@ -76,6 +79,7 @@ struct DLL_LINKAGE DisposedHero
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
 class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 {
+	std::unique_ptr<GameSettings> gameSettings;
 public:
 	explicit CMap(IGameCallback *cb);
 	~CMap();
@@ -176,6 +180,9 @@ public:
 	std::vector<const CArtifact *> townMerchantArtifacts;
 	std::vector<TradeItemBuy> townUniversitySkills;
 
+	void overrideGameSetting(EGameSettings option, const JsonNode & input);
+	const IGameSettings & getSettings() const;
+
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	boost::multi_array<TerrainTile, 3> terrain;
@@ -215,6 +222,9 @@ public:
 		h & townUniversitySkills;
 
 		h & instanceNames;
+
+		if (h.version >= Handler::Version::PER_MAP_GAME_SETTINGS)
+			h & *gameSettings;
 	}
 };
 

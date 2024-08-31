@@ -53,7 +53,7 @@
 #include "../lib/gameState/TavernHeroesPool.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/GameSettings.h"
+#include "../lib/IGameSettings.h"
 #include "ConditionalWait.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSkillHandler.h"
@@ -153,7 +153,7 @@ void CRecruitmentWindow::buy()
 	if(!dstslot.validSlot() && (selected->creature->warMachine == ArtifactID::NONE)) //no available slot
 	{
 		std::pair<SlotID, SlotID> toMerge;
-		bool allowMerge = CGI->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
+		bool allowMerge = LOCPLINT->cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
 
 		if (allowMerge && dst->mergeableStacks(toMerge))
 		{
@@ -491,7 +491,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		recruit->addHoverText(EButtonState::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(true) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
+	else if(LOCPLINT->cb->howManyHeroes(true) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
 	{
 		MetaString message;
 		message.appendTextID("core.tvrninfo.1");
@@ -501,7 +501,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		recruit->addHoverText(EButtonState::NORMAL, message.toString());
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+	else if(LOCPLINT->cb->howManyHeroes(false) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 	{
 		MetaString message;
 		message.appendTextID("core.tvrninfo.1");
@@ -534,7 +534,7 @@ void CTavernWindow::addInvite()
 {
 	OBJECT_CONSTRUCTION;
 
-	if(!VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
+	if(!LOCPLINT->cb->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
 		return;
 
 	const auto & heroesPool = CSH->client->gameState()->heroesPool;

@@ -14,6 +14,7 @@
 #include "../VCMI_Lib.h"
 #include "../CCreatureHandler.h"
 #include "../CHeroHandler.h"
+#include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
@@ -208,6 +209,9 @@ CMap::CMap(IGameCallback * cb)
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
 	allowedSpells = VLC->spellh->getDefaultAllowed();
+
+	gameSettings = std::make_unique<GameSettings>();
+	gameSettings->loadBase(VLC->settingsHandler->getFullConfig());
 }
 
 CMap::~CMap()
@@ -780,5 +784,16 @@ void CMap::reindexObjects()
 		objects[i]->id = ObjectInstanceID(i);
 	}
 }
+
+const IGameSettings & CMap::getSettings() const
+{
+	return *gameSettings;
+}
+
+void CMap::overrideGameSetting(EGameSettings option, const JsonNode & input)
+{
+	return gameSettings->addOverride(option, input);
+}
+
 
 VCMI_LIB_NAMESPACE_END

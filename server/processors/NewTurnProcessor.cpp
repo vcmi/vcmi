@@ -15,7 +15,7 @@
 #include "../CGameHandler.h"
 
 #include "../../lib/CPlayerState.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -479,7 +479,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			return { EWeekType::DEITYOFFIRE, CreatureID::IMP };
 	}
 
-	if(!VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
+	if(!gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
 		return { EWeekType::NORMAL, CreatureID::NONE};
 
 	int monthType = gameHandler->getRandomGenerator().nextInt(99);
@@ -487,7 +487,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 	{
 		if (monthType < 40) //double growth
 		{
-			if (VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
+			if (gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 			{
 				CreatureID creatureID = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
