@@ -65,6 +65,7 @@ public:
 	bool levelROE = false;
 	bool levelAB = false;
 	bool levelSOD = false;
+	bool levelCHR = false;
 	bool levelWOG = false;
 	bool levelHOTA0 = false;
 	bool levelHOTA1 = false;

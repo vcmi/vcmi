@@ -208,8 +208,12 @@ void ChroniclesExtractor::extractFiles(int no)
 	auto rename = [no](QDir dest){
 		dest.refresh();
 		for(auto & entry : dest.entryList())
+		{
+			if(entry.startsWith("HPS"))
+				dest.rename(entry, "Hc_" + entry);
 			if(!entry.startsWith("Hc" + QString::number(no) + "_"))
 				dest.rename(entry, "Hc" + QString::number(no) + "_" + entry);
+		}
 	};
 
 	extract(tmpDir, outDirData, "xBitmap.lod");
@@ -229,7 +233,7 @@ void ChroniclesExtractor::extractFiles(int no)
 
 	tmpDir.cdUp();
 	QDir tmpDirData = tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front());
-	extract(tmpDirData, outDirData, "bitmap.lod", std::vector<std::string>{"HPL003sh", "HPL102br", "HPL139", "HPS006kn", "HPS137", "HPS141", "HPL004sh", "hpl112bs", "HPL140", "hps007sh", "HPS138", "HPS142", "HPL006kn", "HPL137", "HPS003sh", "HPS102br", "HPS139", "HPS143", "hpl007sh", "HPL138", "HPS004sh", "hps112bs", "HPS140"});
+	extract(tmpDirData, outDirData, "bitmap.lod", std::vector<std::string>{"HPS137", "HPS138", "HPL139", "HPS140", "HPS141", "HPS142", "HPL137", "HPL138", "HPL139", "HPL140", "HPL141", "HPL142"});
 	extract(tmpDirData, outDirData, "lbitmap.lod", std::vector<std::string>{"INTRORIM"});
 
 	rename(outDirData);

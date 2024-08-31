@@ -202,5 +202,71 @@
 		],
 		"skills" : [],
 		"specialty" : {}
+	},
+	"portraitTarnumBarbarian" :
+	{
+		"class" : "barbarian",
+		"special" : false,
+		"images": {
+			"large" : "Hc_HPL137",
+			"small" : "Hc_HPS137",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		}
+	},
+	"portraitTarnumKnight" :
+	{
+		"class" : "knight",
+		"special" : false,
+		"images": {
+			"large" : "Hc_HPL138",
+			"small" : "Hc_HPS138",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		}
+	},
+	"portraitTarnumWizard" :
+	{
+		"class" : "wizard",
+		"special" : false,
+		"images": {
+			"large" : "Hc_HPL139",
+			"small" : "Hc_HPS139",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		}
+	},
+	"portraitTarnumRanger" :
+	{
+		"class" : "ranger",
+		"special" : false,
+		"images": {
+			"large" : "Hc_HPL140",
+			"small" : "Hc_HPS140",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		}
+	},
+	"portraitTarnumOverlord" :
+	{
+		"class" : "overlord",
+		"special" : false,
+		"images": {
+			"large" : "Hc_HPL141",
+			"small" : "Hc_HPS141",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		}
+	},
+	"portraitTarnumBeastmaster" :
+	{
+		"class" : "beastmaster",
+		"special" : false,
+		"images": {
+			"large" : "Hc_HPL142",
+			"small" : "Hc_HPS142",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		}
 	}
 }

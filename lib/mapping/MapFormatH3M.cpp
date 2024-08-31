@@ -135,6 +135,8 @@ static MapIdentifiersH3M generateMapping(EMapFormat format)
 		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
 	if(features.levelSOD)
 		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+	if(features.levelCHR)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
 	if(features.levelWOG)
 		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
 	if(features.levelHOTA0)

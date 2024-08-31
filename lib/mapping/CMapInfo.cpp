@@ -172,6 +172,8 @@ int CMapInfo::getMapSizeFormatIconId() const
 			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
 		case EMapFormat::SOD:
 			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
+		case EMapFormat::CHR:
+			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["iconIndex"].Integer();
 		case EMapFormat::WOG:
 			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
 		case EMapFormat::HOTA:

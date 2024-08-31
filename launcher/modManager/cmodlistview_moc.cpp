@@ -845,7 +845,7 @@ void CModListView::installFiles(QStringList files)
 
 		auto futureExtract = std::async(std::launch::async, [this, exe, &prog]()
 		{
-			ChroniclesExtractor ce(this, [this, &prog](float progress) { prog = progress; });
+			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
 			return true;
 		});

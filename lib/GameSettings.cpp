@@ -79,6 +79,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA,      "mapFormat", "restorationOfErathia"             },
 		{EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE,           "mapFormat", "armageddonsBlade"                 },
 		{EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH,             "mapFormat", "shadowOfDeath"                    },
+		{EGameSettings::MAP_FORMAT_CHRONICLES,                  "mapFormat", "chronicles"                       },
 		{EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS,           "mapFormat", "hornOfTheAbyss"                   },
 		{EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS,         "mapFormat", "inTheWakeOfGods"                  },
 		{EGameSettings::MAP_FORMAT_JSON_VCMI,                   "mapFormat", "jsonVCMI"                         },

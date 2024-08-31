@@ -271,6 +271,19 @@
 					"portraitYoungYog" : 162
 				}
 			},
+			"chronicles" : { 
+				"supported" : true,
+				"iconIndex" : 2,
+				
+				"portraits" : {
+					"portraitTarnumBarbarian" : 137,
+					"portraitTarnumKnight" : 138,
+					"portraitTarnumWizard" : 139,
+					"portraitTarnumRanger" : 140,
+					"portraitTarnumOverlord" : 141,
+					"portraitTarnumBeastmaster" : 142
+				}
+			},
 			"jsonVCMI" : { 
 				"supported" : true,
 				"iconIndex" : 3

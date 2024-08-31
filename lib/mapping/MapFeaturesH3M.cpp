@@ -112,6 +112,9 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesSOD()
 MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesCHR()
 {
 	MapFormatFeaturesH3M result = getFeaturesSOD();
+	result.levelCHR = true;
+
+	result.heroesPortraitsCount = 169; // +6x tarnum
 
 	return result;
 }
