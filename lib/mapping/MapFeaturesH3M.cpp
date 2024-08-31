@@ -25,6 +25,8 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format, uint32_t hota
 			return getFeaturesAB();
 		case EMapFormat::SOD:
 			return getFeaturesSOD();
+		case EMapFormat::CHR:
+			return getFeaturesCHR();
 		case EMapFormat::WOG:
 			return getFeaturesWOG();
 		case EMapFormat::HOTA:
@@ -103,6 +105,13 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesSOD()
 	result.heroesPortraitsCount = 163; // +Finneas +young Gem +young Sandro +young Yog
 
 	result.artifactSlotsCount = 19; // + MISC_5 slot
+
+	return result;
+}
+
+MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesCHR()
+{
+	MapFormatFeaturesH3M result = getFeaturesSOD();
 
 	return result;
 }
