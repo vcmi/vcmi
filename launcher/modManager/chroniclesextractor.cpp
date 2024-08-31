@@ -235,7 +235,7 @@ void ChroniclesExtractor::extractFiles(int no)
 
 	tmpDir.cdUp();
 	QDir tmpDirData = tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front());
-	extract(tmpDirData, outDirData, "bitmap.lod", std::vector<std::string>{"HPS137", "HPS138", "HPL139", "HPS140", "HPS141", "HPS142", "HPL137", "HPL138", "HPL139", "HPL140", "HPL141", "HPL142"});
+	extract(tmpDirData, outDirData, "bitmap.lod", std::vector<std::string>{"HPS137", "HPS138", "HPS139", "HPS140", "HPS141", "HPS142", "HPL137", "HPL138", "HPL139", "HPL140", "HPL141", "HPL142"});
 	extract(tmpDirData, outDirData, "lbitmap.lod", std::vector<std::string>{"INTRORIM"});
 
 	rename(outDirData);
