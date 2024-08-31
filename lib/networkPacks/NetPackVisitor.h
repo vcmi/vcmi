@@ -78,7 +78,7 @@ public:
 	virtual void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) {}
 	virtual void visitBulkSmartRebalanceStacks(BulkSmartRebalanceStacks & pack) {}
 	virtual void visitPutArtifact(PutArtifact & pack) {}
-	virtual void visitEraseArtifact(EraseArtifact & pack) {}
+	virtual void visitEraseArtifact(BulkEraseArtifacts & pack) {}
 	virtual void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) {}
 	virtual void visitAssembledArtifact(AssembledArtifact & pack) {}
 	virtual void visitDisassembledArtifact(DisassembledArtifact & pack) {}

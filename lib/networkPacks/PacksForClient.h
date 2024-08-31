@@ -998,16 +998,20 @@ struct DLL_LINKAGE NewArtifact : public CArtifactOperationPack
 	}
 };
 
-struct DLL_LINKAGE EraseArtifact : CArtifactOperationPack
+struct DLL_LINKAGE BulkEraseArtifacts : CArtifactOperationPack
 {
-	ArtifactLocation al;
+	ObjectInstanceID artHolder;
+	std::vector<ArtifactPosition> posPack;
+	std::optional<SlotID> creature;
 
 	void applyGs(CGameState * gs) override;
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & al;
+		h & artHolder;
+		h & posPack;
+		h & creature;
 	}
 };
 
