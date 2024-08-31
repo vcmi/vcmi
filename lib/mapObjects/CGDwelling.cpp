@@ -505,7 +505,7 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answ
 	if(stacksCount() > 0  && relations == PlayerRelations::ENEMIES) //guards present
 	{
 		if(answer)
-			cb->startBattleI(hero, this);
+			cb->startBattle(hero, this);
 	}
 	else if(answer)
 	{

@@ -160,7 +160,7 @@ public:
 	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
 	std::vector<SpellID> getUsedSpells(BattleSide side) const override;
 	int3 getLocation() const override;
-	bool isCreatureBank() const override;
+	BattleLayout getLayout() const override;
 
 	int64_t getTreeVersion() const;
 

@@ -25,6 +25,7 @@
 				"onVisitedMessage" : 33,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+				"guardsLayout" : "creatureBankNarrow",
 				"rewards" : [
 					{
 						"message" : 34,
@@ -125,6 +126,7 @@
 				"onVisitedMessage" : 33,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+				"guardsLayout" : "creatureBankNarrow",
 				"rewards" : [
 					{
 						"message" : 34,
@@ -207,6 +209,7 @@
 				"onVisitedMessage" : 33,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+				"guardsLayout" : "creatureBankWide",
 				"rewards" : [
 					{
 						"message" : 34,
@@ -273,6 +276,7 @@
 				"onVisitedMessage" : 33,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+				"guardsLayout" : "creatureBankNarrow",
 				"rewards" : [
 					{
 						"message" : 34,
@@ -354,6 +358,7 @@
 				"onVisitedMessage" : 33,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+				"guardsLayout" : "creatureBankWide",
 				"rewards" : [
 					{
 						"message" : 34,
@@ -436,6 +441,7 @@
 				"onVisitedMessage" : 33,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+				"guardsLayout" : "creatureBankWide",
 				"rewards" : [
 					{
 						"message" : 34,
@@ -518,6 +524,7 @@
 				"onVisitedMessage" : 33,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+				"guardsLayout" : "creatureBankNarrow",
 				"rewards" : [
 					{
 						"message" : 34,
@@ -600,6 +607,7 @@
 						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "description" : 99 } ]
 					}
 				],
+				"guardsLayout" : "creatureBankNarrow",
 				"rewards" : [
 					{
 						"message" : 124,
@@ -695,6 +703,7 @@
 						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "description" : 101 } ]
 					}
 				],
+				"guardsLayout" : "creatureBankWide",
 				"rewards" : [
 					{
 						"message" : 43,
@@ -789,6 +798,7 @@
 						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE" } ]
 					}
 				],
+				"guardsLayout" : "creatureBankNarrow",
 				"rewards" : [
 					{
 						"appearChance" : { "min" : 0, "max" : 30 },
@@ -878,6 +888,7 @@
 				"selectMode" : "selectFirst",
 				"onGuardedMessage" : 47,
 				"onVisitedMessage" : 33,
+				"guardsLayout" : "creatureBankWide",
 				"rewards" : [
 					{
 						"message" : 34,
@@ -991,6 +1002,7 @@
 						"bonuses" : [ { "type" : "LUCK", "val" : -2, "duration" : "ONE_BATTLE", "description" : 70 } ]
 					}
 				],
+				"guardsLayout" : "default",
 				"rewards" : [
 					{
 						"message" : 106,

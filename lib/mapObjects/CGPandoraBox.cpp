@@ -193,7 +193,7 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, int32_t an
 		if(stacksCount() > 0) //if pandora's box is protected by army
 		{
 			hero->showInfoDialog(16, 0, EInfoWindowMode::MODAL);
-			cb->startBattleI(hero, this); //grants things after battle
+			cb->startBattle(hero, this); //grants things after battle
 		}
 		else if(getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 		{
@@ -332,7 +332,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		else
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);
-		cb->startBattleI(h, this);
+		cb->startBattle(h, this);
 	}
 	else
 	{

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/int3.h"
 
 class BattleStateMock : public IBattleState
@@ -37,7 +38,7 @@ public:
 	MOCK_CONST_METHOD3(getActualDamage, int64_t(const DamageRange &, int32_t, vstd::RNG &));
 	MOCK_CONST_METHOD0(getBattleID, BattleID());
 	MOCK_CONST_METHOD0(getLocation, int3());
-	MOCK_CONST_METHOD0(isCreatureBank, bool());
+	MOCK_CONST_METHOD0(getLayout, BattleLayout());
 	MOCK_CONST_METHOD1(getUsedSpells, std::vector<SpellID>(BattleSide));
 
 	MOCK_METHOD0(nextRound, void());

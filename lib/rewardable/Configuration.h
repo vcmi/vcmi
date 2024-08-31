@@ -156,6 +156,8 @@ struct DLL_LINKAGE Configuration
 	/// Limiter that will be used to determine that object is visited. Only if visit mode is set to "limiter"
 	Rewardable::Limiter visitLimiter;
 
+	std::string guardsLayout;
+
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse = false;
 
@@ -192,8 +194,11 @@ struct DLL_LINKAGE Configuration
 		h & canRefuse;
 		h & showScoutedPreview;
 		h & infoWindowType;
-		if (h.version >= Handler::Version::BANK_UNIT_PLACEMENT)
+		if (h.version >= Handler::Version::REWARDABLE_BANKS)
+		{
 			h & coastVisitable;
+			h & guardsLayout;
+		}
 		else
 			coastVisitable = false;
 	}

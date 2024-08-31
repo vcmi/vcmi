@@ -48,6 +48,7 @@ set(lib_MAIN_SRCS
 	battle/BattleAttackInfo.cpp
 	battle/BattleHex.cpp
 	battle/BattleInfo.cpp
+	battle/BattleLayout.cpp
 	battle/BattleProxy.cpp
 	battle/BattleStateInfoForRetreat.cpp
 	battle/CBattleInfoCallback.cpp
@@ -404,6 +405,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleAttackInfo.h
 	battle/BattleHex.h
 	battle/BattleInfo.h
+	battle/BattleLayout.h
 	battle/BattleSide.h
 	battle/BattleStateInfoForRetreat.h
 	battle/BattleProxy.h

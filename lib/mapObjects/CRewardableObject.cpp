@@ -14,6 +14,7 @@
 #include "../CPlayerState.h"
 #include "../GameSettings.h"
 #include "../IGameCallback.h"
+#include "../battle/BattleLayout.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -127,7 +128,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 		bd.text = guardedReward.message;
 		bd.components = getPopupComponents(hero->getOwner());
 
-		cb->showBlockingDialog(&bd);
+		cb->showBlockingDialog(this, &bd);
 	}
 	else
 	{
@@ -238,7 +239,10 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int3
 	if(guardedPresently())
 	{
 		if (answer)
-			cb->startBattleI(hero, this, true);
+		{
+			auto layout = BattleLayout::createLayout(cb, configuration.guardsLayout, hero, this);
+			cb->startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
+		}
 	}
 	else
 	{
@@ -405,7 +409,7 @@ std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor pla
 
 	if (guardedPresently())
 	{
-		if (!VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
+		if (!cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
 			return {};
 
 		std::map<CreatureID, int> guardsAmounts;
