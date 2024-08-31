@@ -246,6 +246,7 @@ private:
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	void initializeConfigurableBuildings(vstd::RNG & rand);
+	void initializeNeutralTownGarrison(vstd::RNG & rand);
 };
 
 VCMI_LIB_NAMESPACE_END
