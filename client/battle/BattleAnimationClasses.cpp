@@ -161,7 +161,7 @@ ECreatureAnimType AttackAnimation::findValidGroup( const std::vector<ECreatureAn
 const CCreature * AttackAnimation::getCreature() const
 {
 	if (attackingStack->unitType()->getId() == CreatureID::ARROW_TOWERS)
-		return owner.siegeController->getTurretCreature();
+		return owner.siegeController->getTurretCreature(attackingStack->initialPosition);
 	else
 		return attackingStack->unitType();
 }

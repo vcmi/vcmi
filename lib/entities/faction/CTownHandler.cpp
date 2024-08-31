@@ -299,6 +299,31 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
 
+	const JsonNode & fortifications = source["fortifications"];
+	if (!fortifications.isNull())
+	{
+		VLC->identifiers()->requestIdentifierOptional("creature", fortifications["citadelShooter"], [=](si32 identifier)
+		{
+			ret->fortifications.citadelShooter = CreatureID(identifier);
+		});
+
+		VLC->identifiers()->requestIdentifierOptional("creature", fortifications["upperTowerShooter"], [=](si32 identifier)
+		{
+			ret->fortifications.upperTowerShooter = CreatureID(identifier);
+		});
+
+		VLC->identifiers()->requestIdentifierOptional("creature", fortifications["lowerTowerShooter"], [=](si32 identifier)
+		{
+			ret->fortifications.lowerTowerShooter = CreatureID(identifier);
+		});
+
+		ret->fortifications.wallsHealth = fortifications["wallsHealth"].Integer();
+		ret->fortifications.citadelHealth = fortifications["citadelHealth"].Integer();
+		ret->fortifications.upperTowerHealth = fortifications["upperTowerHealth"].Integer();
+		ret->fortifications.lowerTowerHealth = fortifications["lowerTowerHealth"].Integer();
+		ret->fortifications.hasMoat = fortifications["hasMoat"].Bool();
+	}
+
 	loadBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
 
 	if(!source["configuration"].isNull())
@@ -477,7 +502,9 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source) const
 				, town.faction->getNameTranslated()
 				, (*VLC->creh)[crId]->getNameSingularTranslated());
 
-		town.clientInfo.siegeShooter = crId;
+		town.fortifications.citadelShooter = crId;
+		town.fortifications.upperTowerShooter = crId;
+		town.fortifications.lowerTowerShooter = crId;
 	});
 
 	auto & pos = town.clientInfo.siegePositions;
@@ -581,14 +608,14 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		VLC->identifiers()->requestIdentifier( "spell", source["moatAbility"], [=](si32 ability)
 		{
-			town->moatAbility = SpellID(ability);
+			town->fortifications.moatSpell = SpellID(ability);
 		});
 	}
 	else
 	{
 		VLC->identifiers()->requestIdentifier( source.getModScope(), "spell", "castleMoat", [=](si32 ability)
 		{
-			town->moatAbility = SpellID(ability);
+			town->fortifications.moatSpell = SpellID(ability);
 		});
 	}
 

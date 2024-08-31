@@ -191,7 +191,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 	{
 		assert(owner.siegeController);
 
-		const CCreature *turretCreature = owner.siegeController->getTurretCreature();
+		const CCreature *turretCreature = owner.siegeController->getTurretCreature(stack->initialPosition);
 
 		stackAnimation[stack->unitId()] = AnimationControls::getAnimation(turretCreature);
 		stackAnimation[stack->unitId()]->pos.h = turretCreatureAnimationHeight;

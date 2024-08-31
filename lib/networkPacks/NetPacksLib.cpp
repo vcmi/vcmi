@@ -33,6 +33,7 @@
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
 #include "entities/building/CBuilding.h"
+#include "entities/building/TownFortifications.h"
 #include "mapObjects/CBank.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
@@ -2338,7 +2339,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 	if(!town)
 		return;
 
-	if(town->fortLevel() == CGTownInstance::NONE)
+	if(town->fortificationsLevel().wallsHealth == 0)
 		return;
 
 	for(const auto & part : attackedParts)

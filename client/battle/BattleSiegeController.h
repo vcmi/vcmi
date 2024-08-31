@@ -104,7 +104,7 @@ public:
 	/// queries from other battle controllers
 	bool isAttackableByCatapult(BattleHex hex) const;
 	ImagePath getBattleBackgroundName() const;
-	const CCreature *getTurretCreature() const;
+	const CCreature *getTurretCreature(BattleHex turretPosition) const;
 	Point getTurretCreaturePosition( BattleHex position ) const;
 
 	const CGTownInstance *getSiegedTown() const;

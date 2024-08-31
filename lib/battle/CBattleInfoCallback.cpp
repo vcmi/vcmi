@@ -18,6 +18,7 @@
 #include "CObstacleInstance.h"
 #include "DamageCalculator.h"
 #include "PossiblePlayerBattleAction.h"
+#include "../entities/building/TownFortifications.h"
 #include "../spells/ObstacleCasterProxy.h"
 #include "../spells/ISpellMechanics.h"
 #include "../spells/Problem.h"
@@ -237,7 +238,7 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest,
 bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, BattleHex shooterPosition, BattleHex destHex) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	if(!battleGetSiegeLevel())
+	if(battleGetFortifications().wallsHealth == 0)
 		return false;
 
 	const std::string cachingStrNoWallPenalty = "type_NO_WALL_PENALTY";
@@ -288,7 +289,7 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
 
 		const auto * siegedTown = battleGetDefendedTown();
-		if(siegedTown && siegedTown->hasFort() && stack->hasBonusOfType(BonusType::CATAPULT)) //TODO: check shots
+		if(siegedTown && siegedTown->fortificationsLevel().wallsHealth > 0 && stack->hasBonusOfType(BonusType::CATAPULT)) //TODO: check shots
 			allowedActionList.push_back(PossiblePlayerBattleAction::CATAPULT);
 		if(stack->hasBonusOfType(BonusType::HEALER))
 			allowedActionList.push_back(PossiblePlayerBattleAction::HEAL);
@@ -943,7 +944,7 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 	}
 
 	//gate -> should be before stacks
-	if(battleGetSiegeLevel() > 0)
+	if(battleGetFortifications().wallsHealth > 0)
 	{
 		EAccessibility accessibility = EAccessibility::ACCESSIBLE;
 		switch(battleGetGateState())
@@ -975,7 +976,7 @@ AccessibilityInfo CBattleInfoCallback::getAccessibility() const
 	}
 
 	//walls
-	if(battleGetSiegeLevel() > 0)
+	if(battleGetFortifications().wallsHealth > 0)
 	{
 		static const int permanentlyLocked[] = {12, 45, 62, 112, 147, 165};
 		for(auto hex : permanentlyLocked)
@@ -1612,7 +1613,7 @@ bool CBattleInfoCallback::isWallPartAttackable(EWallPart wallPart) const
 	if(isWallPartPotentiallyAttackable(wallPart))
 	{
 		auto wallState = battleGetWallState(wallPart);
-		return (wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED);
+		return (wallState != EWallState::NONE && wallState != EWallState::DESTROYED);
 	}
 	return false;
 }
