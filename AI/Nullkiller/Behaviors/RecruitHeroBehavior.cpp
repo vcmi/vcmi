@@ -64,9 +64,15 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 		{
 			closestThreat = std::min(closestThreat, threat.turn);
 		}
-		//Don' hire a hero in a threatened town as one would have to stay outside
-		if (closestThreat <= 1 && (town->visitingHero || town->garrisonHero))
+		//Don't hire a hero where there already is one present
+		if (town->visitingHero || town->garrisonHero)
 			continue;
+		float visitability = 0;
+		for (auto checkHero : ourHeroes)
+		{
+			if (ai->dangerHitMap->getClosestTown(checkHero.first.get()->pos) == town)
+				visitability++;
+		}
 		if(ai->heroManager->canRecruitHero(town))
 		{
 			auto availableHeroes = ai->cb->getAvailableHeroes(town);
@@ -81,7 +87,10 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 				score *= hero->getArmyCost();
 				if (hero->type->heroClass->faction == town->getFaction())
 					score *= 1.5;
-				score *= town->getTownLevel();
+				if (visitability == 0)
+					score *= 30 * town->getTownLevel();
+				else
+					score *= town->getTownLevel() / visitability;
 				if (score > bestScore)
 				{
 					bestScore = score;

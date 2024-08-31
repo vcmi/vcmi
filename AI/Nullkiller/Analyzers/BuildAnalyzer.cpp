@@ -148,6 +148,7 @@ void BuildAnalyzer::update()
 	auto towns = ai->cb->getTownsInfo();
 
 	float economyDevelopmentCost = 0;
+	TResources nonGoldEconomyResources;
 
 	for(const CGTownInstance* town : towns)
 	{
@@ -164,7 +165,10 @@ void BuildAnalyzer::update()
 		for(auto building : developmentInfo.toBuild)
 		{
 			if (building.dailyIncome[EGameResID::GOLD] > 0)
+			{
 				economyDevelopmentCost += building.buildCostWithPrerequisites[EGameResID::GOLD];
+				nonGoldEconomyResources += building.buildCostWithPrerequisites;
+			}
 		}
 		armyCost += developmentInfo.armyCost;
 
@@ -173,6 +177,10 @@ void BuildAnalyzer::update()
 			logAi->trace("Building preferences %s", bi.toString());
 		}
 	}
+	nonGoldEconomyResources[EGameResID::GOLD] = 0;
+	//If we don't have the non-gold-resources to build a structure, we also don't need to save gold for it and can consider building something else instead
+	if (!ai->getFreeResources().canAfford(nonGoldEconomyResources))
+		economyDevelopmentCost = 0;
 
 	std::sort(developmentInfos.begin(), developmentInfos.end(), [](const TownDevelopmentInfo & t1, const TownDevelopmentInfo & t2) -> bool
 	{
