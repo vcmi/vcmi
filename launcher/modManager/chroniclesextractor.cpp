@@ -168,10 +168,13 @@ void ChroniclesExtractor::createChronicleMod(int no)
 		{ "author", "3DO" },
 		{ "version", "1.0" },
 	};
-
+	
 	QFile jsonFile(dir.filePath("mod.json"));
     jsonFile.open(QFile::WriteOnly);
     jsonFile.write(QJsonDocument(mod).toJson());
+
+	dir.mkdir("content");
+	dir.cd("content");
 
 	dir.mkdir("Data");
 	dir.mkdir("Sprites");
@@ -186,14 +189,42 @@ void ChroniclesExtractor::extractFiles(int no)
 	QDir tmpDir = tempDir.filePath(tempDir.entryList({"app"}, QDir::Filter::Dirs).front());
 	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({QString(tmpChronicles)}, QDir::Filter::Dirs).front()));
 	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front()));
-	QDir outDirData(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "Data"));
-	QDir outDirSprites(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "Sprites"));
+	QDir outDirData(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Data"));
+	QDir outDirSprites(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Sprites"));
+	QDir outDirVideo(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Video"));
+	QDir outDirSounds(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Sounds"));
 
-	CArchiveLoader archive("", tmpDir.filePath("xBitmap.lod").toStdString(), false);
-	for(auto & entry : archive.getEntries())
-		archive.extractToFolder(outDirData.absolutePath().toStdString(), "", entry.second, true);
-	for(auto & entry : outDirData.entryList())
-		outDirData.rename(entry, "Hc" + QString::number(no) + "_" + entry);
+	auto extract = [tmpDir, no](QDir dest, QString file){
+		CArchiveLoader archive("", tmpDir.filePath(tmpDir.entryList({file}).front()).toStdString(), false);
+		for(auto & entry : archive.getEntries())
+			archive.extractToFolder(dest.absolutePath().toStdString(), "", entry.second, true);
+	};
+	auto rename = [tmpDir, no](QDir dest){
+		dest.refresh();
+		for(auto & entry : dest.entryList())
+			if(!entry.startsWith("Hc"))
+				dest.rename(entry, "Hc" + QString::number(no) + "_" + entry);
+	};
+
+	extract(outDirData, "xBitmap.lod");
+	extract(outDirData, "xlBitmap.lod");
+	extract(outDirSprites, "xSprite.lod");
+	extract(outDirSprites, "xlSprite.lod");
+	extract(outDirVideo, "xVideo.vid");
+	extract(outDirSounds, "xSound.snd");
+
+	tmpDir.cdUp();
+	if(tmpDir.entryList({"maps"}, QDir::Filter::Dirs).size())
+	{
+		QDir tmpDirMaps = tmpDir.filePath(tmpDir.entryList({"maps"}, QDir::Filter::Dirs).front());
+		for(auto & entry : tmpDirMaps.entryList())
+			QFile(tmpDirMaps.filePath(entry)).copy(outDirData.filePath(entry));
+	}
+
+	rename(outDirData);
+	rename(outDirSprites);
+	rename(outDirVideo);
+	rename(outDirSounds);
 }
 
 void ChroniclesExtractor::installChronicles(QStringList exe)
