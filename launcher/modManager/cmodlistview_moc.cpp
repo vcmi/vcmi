@@ -32,6 +32,8 @@
 #include "../../lib/modding/CModVersion.h"
 #include "../../lib/filesystem/Filesystem.h"
 
+#include <future>
+
 static double mbToBytes(double mb)
 {
 	return mb * 1024 * 1024;
