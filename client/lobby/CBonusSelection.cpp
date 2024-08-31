@@ -28,6 +28,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/IImage.h"
@@ -57,6 +58,20 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+
+CampaignIntroVideo::CampaignIntroVideo(VideoPath video, ImagePath rim, std::shared_ptr<CBonusSelection> bonusSel)
+	: CWindowObject(BORDERED), bonusSel(bonusSel)
+{
+	OBJECT_CONSTRUCTION;
+	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, [this](){ exit(); });
+	setBackground(rim);
+}
+
+void CampaignIntroVideo::exit()
+{
+	close();
+	GH.windows().pushWindow(bonusSel);
+}
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {

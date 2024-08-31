@@ -35,6 +35,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/campaign/CampaignState.h"
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
@@ -203,7 +204,10 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	if(!lobby->bonusSel && handler.si->campState && handler.getState() == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
-		GH.windows().pushWindow(lobby->bonusSel);
+		if(!handler.si->campState->conqueredScenarios().size())
+			GH.windows().createAndPushWindow<CampaignIntroVideo>(VideoPath::builtin("Hc1_Intro"), ImagePath::builtin("INTRORIM"), lobby->bonusSel);
+		else
+			GH.windows().pushWindow(lobby->bonusSel);
 	}
 
 	if(lobby->bonusSel)
