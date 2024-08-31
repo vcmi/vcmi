@@ -19,6 +19,7 @@
 #include "../../bonuses/Limiters.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../entities/building/TownFortifications.h"
 #include "../../json/JsonBonus.h"
 #include "../../serializer/JsonSerializeFormat.h"
 #include "../../networkPacks/PacksForClient.h"
@@ -85,7 +86,7 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 		//Moat battlefield effect is always permanent
 		nb.duration = BonusDuration::ONE_BATTLE;
 
-		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetFortifications().hasMoat)
 		{
 			nb.sid = BonusSourceID(m->battle()->battleGetDefendedTown()->town->buildings.at(BuildingID::CITADEL)->getUniqueTypeID());
 			nb.source = BonusSource::TOWN_STRUCTURE;
@@ -109,7 +110,7 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 {
 	assert(m->isMassive());
 	assert(m->battle()->battleGetDefendedTown());
-	if(m->isMassive() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+	if(m->isMassive() && m->battle()->battleGetFortifications().hasMoat)
 	{
 		EffectTarget moat;
 		placeObstacles(server, m, moat);

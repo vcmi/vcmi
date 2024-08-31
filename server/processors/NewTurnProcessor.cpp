@@ -27,6 +27,7 @@
 #include "../../lib/mapObjects/IOwnableObject.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/networkPacks/PacksForClient.h"
+#include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/pathfinder/TurnInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -290,6 +291,110 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 	return sac;
 }
 
+void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int currentWeek) const
+{
+	assert(t);
+	assert(!t->getOwner().isValidPlayer());
+
+	constexpr int randomRollsCounts = 3; // H3 makes around 3 random rolls to make simple bell curve distribution
+	constexpr int upgradeChance = 5; // Chance for a unit to get an upgrade
+	constexpr int growthChanceFort = 80; // Chance for growth to occur in towns with fort built
+	constexpr int growthChanceVillage = 40; // Chance for growth to occur in towns without fort
+
+	const auto & takeFromAvailable = [this, t](CreatureID creatureID)
+	{
+		int tierToSubstract = -1;
+		for (int i = 0; i < t->getTown()->creatures.size(); ++i)
+			if (vstd::contains(t->getTown()->creatures[i], creatureID))
+				tierToSubstract = i;
+
+		if (tierToSubstract == -1)
+			return; // impossible?
+
+		int creaturesAvailable = t->creatures[tierToSubstract].first;
+		int creaturesRecruited = creatureID.toCreature()->getGrowth();
+		int creaturesLeft = std::max(0, creaturesAvailable - creaturesRecruited);
+
+		if (creaturesLeft != creaturesAvailable)
+		{
+			SetAvailableCreatures sac;
+			sac.tid = t->id;
+			sac.creatures = t->creatures;
+			sac.creatures[tierToSubstract].first = creaturesLeft;
+			gameHandler->sendAndApply(&sac);
+		}
+	};
+
+	int growthChance = t->hasFort()	? growthChanceFort : growthChanceVillage;
+	int growthRoll = gameHandler->getRandomGenerator().nextInt(0, 99);
+
+	if (growthRoll >= growthChance)
+		return;
+
+	int tierRoll = 0;
+	for(int i = 0; i < randomRollsCounts; ++i)
+		tierRoll += gameHandler->getRandomGenerator().nextInt(0, currentWeek);
+
+	// NOTE: determined by observing H3 games, might not match H3 100%
+	int tierToGrow = std::clamp(tierRoll / randomRollsCounts, 0, 6) + 1;
+
+	bool upgradeUnit = gameHandler->getRandomGenerator().nextInt(0, 99) < upgradeChance;
+
+	// Check if town garrison already has unit of specified tier
+	for(const auto & slot : t->Slots())
+	{
+		const auto * creature = slot.second->type;
+
+		if (creature->getFaction() != t->getFaction())
+			continue;
+
+		if (creature->getLevel() != tierToGrow)
+			continue;
+
+		StackLocation stackLocation(t, slot.first);
+		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), false);
+		takeFromAvailable(creature->getGrowth());
+
+		if (upgradeUnit && !creature->upgrades.empty())
+		{
+			CreatureID upgraded = *RandomGeneratorUtil::nextItem(creature->upgrades, gameHandler->getRandomGenerator());
+			gameHandler->changeStackType(stackLocation, upgraded.toCreature());
+		}
+		else
+			gameHandler->changeStackType(stackLocation, creature);
+		return;
+	}
+
+	// No existing creatures in garrison, but we have a free slot we can use
+	SlotID freeSlotID = t->getFreeSlot();
+	if (freeSlotID.validSlot())
+	{
+		for (auto const & tierVector : t->getTown()->creatures)
+		{
+			CreatureID baseCreature	= tierVector.at(0);
+
+			if (baseCreature.toEntity(VLC)->getLevel() != tierToGrow)
+				continue;
+
+			StackLocation stackLocation(t, freeSlotID);
+
+			if (upgradeUnit && !baseCreature.toCreature()->upgrades.empty())
+			{
+				CreatureID upgraded = *RandomGeneratorUtil::nextItem(baseCreature.toCreature()->upgrades, gameHandler->getRandomGenerator());
+				gameHandler->insertNewStack(stackLocation, upgraded.toCreature(), upgraded.toCreature()->getGrowth());
+				takeFromAvailable(upgraded.toCreature()->getGrowth());
+			}
+			else
+			{
+				gameHandler->insertNewStack(stackLocation, baseCreature.toCreature(), baseCreature.toCreature()->getGrowth());
+				takeFromAvailable(baseCreature.toCreature()->getGrowth());
+			}
+
+			return;
+		}
+	}
+}
+
 RumorState NewTurnProcessor::pickNewRumor()
 {
 	RumorState newRumor;
@@ -548,6 +653,7 @@ void NewTurnProcessor::onNewTurn()
 {
 	NewTurn n = generateNewTurnPack();
 
+	bool firstTurn = !gameHandler->getDate(Date::DAY);
 	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
 	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
 
@@ -558,6 +664,15 @@ void NewTurnProcessor::onNewTurn()
 		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
 			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				gameHandler->setPortalDwelling(t, true, (n.specialWeek == EWeekType::PLAGUE ? true : false)); //set creatures for Portal of Summoning
+	}
+
+	if (newWeek && !firstTurn)
+	{
+		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+		{
+			if (!t->getOwner().isValidPlayer())
+				updateNeutralTownGarrison(t, 1 + gameHandler->getDate(Date::DAY) / 7);
+		}
 	}
 
 	//spawn wandering monsters

@@ -145,8 +145,7 @@ public:
 		h & modName;
 		h & music;
 		h & encoding;
-		if (h.version >= Handler::Version::RELEASE_143)
-			h & textContainer;
+		h & textContainer;
 		if (h.version >= Handler::Version::CHRONICLES_SUPPORT)
 		{
 			h & loadingBackground;
@@ -352,8 +351,7 @@ public:
 		h & currentMap;
 		h & chosenCampaignBonuses;
 		h & campaignSet;
-		if (h.version >= Handler::Version::CAMPAIGN_MAP_TRANSLATIONS)
-			h & mapTranslations;
+		h & mapTranslations;
 		if (h.version >= Handler::Version::HIGHSCORE_PARAMETERS)
 			h & highscoreParameters;
 	}

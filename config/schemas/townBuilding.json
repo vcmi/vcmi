@@ -65,6 +65,22 @@
 			"description" : "Optional, configuration of building that can be activated by visiting hero",
 			"$ref" : "rewardable.json"
 		},
+		"firtufications" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Fortifications provided by this buildings, if any",
+			"properties" : {
+				"citadelShooter" :    { "type" : "string", "description" : "Creature ID of shooter located in central keep (citadel). Used only if citadel is present." },
+				"upperTowerShooter" : { "type" : "string", "description" : "Creature ID of shooter located in upper tower. Used only if upper tower is present." },
+				"lowerTowerShooter" : { "type" : "string", "description" : "Creature ID of shooter located in lower tower. Used only if lower tower is present." },
+
+				"wallsHealth" :       { "type" : "number", "description" : "Maximum health of destructible walls. Walls are only present if their health is above zero" },
+				"citadelHealth" :     { "type" : "number", "description" : "Maximum health of central tower or 0 if not present. Requires walls presence." },
+				"upperTowerHealth" :  { "type" : "number", "description" : "Maximum health of upper tower or 0 if not present. Requires walls presence." },
+				"lowerTowerHealth" :  { "type" : "number", "description" : "Maximum health of lower tower or 0 if not present. Requires walls presence." },
+				"hasMoat" :           { "type" : "boolean","description" : "If set to true, moat will be placed in front of the walls. Requires walls presence." }
+			}
+		},
 		"cost" : {
 			"type" : "object",
 			"additionalProperties" : false,

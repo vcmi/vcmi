@@ -450,6 +450,7 @@ set(lib_MAIN_HEADERS
 
 	entities/building/CBuilding.h
 	entities/building/CBuildingHandler.h
+	entities/building/TownFortifications.h
 	entities/faction/CFaction.h
 	entities/faction/CTown.h
 	entities/faction/CTownHandler.h

@@ -18,6 +18,7 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../mapObjects/CGTownInstance.h"
+#include "../../entities/building/TownFortifications.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -39,7 +40,7 @@ bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
 
-	if(CGTownInstance::NONE == town->fortLevel())
+	if(town->fortificationsLevel().wallsHealth == 0)
 	{
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}

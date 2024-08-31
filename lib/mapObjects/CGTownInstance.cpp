@@ -225,6 +225,9 @@ TResources CGTownInstance::dailyIncome() const
 		}
 	}
 
+	if (!getOwner().isValidPlayer())
+		return ret;
+
 	const auto & playerSettings = cb->getPlayerSettings(getOwner());
 	ret.applyHandicap(playerSettings->handicap.percentIncome);
 	return ret;
@@ -243,6 +246,19 @@ bool CGTownInstance::hasFort() const
 bool CGTownInstance::hasCapitol() const
 {
 	return hasBuilt(BuildingID::CAPITOL);
+}
+
+TownFortifications CGTownInstance::fortificationsLevel() const
+{
+	auto result = town->fortifications;
+
+	for (auto const	& buildingID : builtBuildings)
+		result += town->buildings.at(buildingID)->fortifications;
+
+	if (result.wallsHealth == 0)
+		return TownFortifications();
+
+	return result;
 }
 
 CGTownInstance::CGTownInstance(IGameCallback *cb):
@@ -384,8 +400,6 @@ void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
 
 DamageRange CGTownInstance::getTowerDamageRange() const
 {
-	assert(hasBuilt(BuildingID::CASTLE));
-
 	// http://heroes.thelazy.net/wiki/Arrow_tower
 	// base damage, irregardless of town level
 	static constexpr int baseDamage = 6;
@@ -402,8 +416,6 @@ DamageRange CGTownInstance::getTowerDamageRange() const
 
 DamageRange CGTownInstance::getKeepDamageRange() const
 {
-	assert(hasBuilt(BuildingID::CITADEL));
-
 	// http://heroes.thelazy.net/wiki/Arrow_tower
 	// base damage, irregardless of town level
 	static constexpr int baseDamage = 10;
@@ -473,67 +485,50 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 		}
 	}
 	initializeConfigurableBuildings(rand);
+	initializeNeutralTownGarrison(rand);
 	recreateBuildingsBonuses();
 	updateAppearance();
 }
 
+void CGTownInstance::initializeNeutralTownGarrison(vstd::RNG & rand)
+{
+	struct RandomGuardsInfo{
+		int tier;
+		int chance;
+		int min;
+		int max;
+	};
+
+	constexpr std::array<RandomGuardsInfo, 4> randomGuards = {
+		RandomGuardsInfo{ 0, 33, 8, 15 },
+		RandomGuardsInfo{ 1, 33, 5,  7 },
+		RandomGuardsInfo{ 2, 20, 3,  5 },
+		RandomGuardsInfo{ 3, 14, 1,  3 },
+	};
+
+	// Only neutral towns may get initial garrison
+	if (getOwner().isValidPlayer())
+		return;
+
+	// Only towns with garrison not set in map editor may get initial garrison
+	// FIXME: H3 editor allow explicitly empty garrison, but vcmi loses this flag on load
+	if (stacksCount() > 0)
+		return;
+
+	for (auto const & guard : randomGuards)
+	{
+		if (rand.nextInt(99) >= guard.chance)
+			continue;
+
+		CreatureID guardID = getTown()->creatures[guard.tier].at(0);
+		int guardSize = rand.nextInt(guard.min, guard.max);
+
+		putStack(getFreeSlot(), new CStackInstance(guardID, guardSize));
+	}
+}
+
 void CGTownInstance::newTurn(vstd::RNG & rand) const
 {
-	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
-	{
-		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
-		{
-			std::vector<SlotID> nativeCrits; //slots
-			for(const auto & elem : Slots())
-			{
-				if (elem.second->type->getFaction() == getFaction()) //native
-				{
-					nativeCrits.push_back(elem.first); //collect matching slots
-				}
-			}
-			if(!nativeCrits.empty())
-			{
-				SlotID pos = *RandomGeneratorUtil::nextItem(nativeCrits, rand);
-				StackLocation sl(this, pos);
-				
-				const CCreature *c = getCreature(pos);
-				if (rand.nextInt(99) < 90 || c->upgrades.empty()) //increase number if no upgrade available
-				{
-					cb->changeStackCount(sl, c->getGrowth());
-				}
-				else //upgrade
-				{
-					cb->changeStackType(sl, c->upgrades.begin()->toCreature());
-				}
-			}
-			if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
-			{
-				int i = rand.nextInt(std::min((int)town->creatures.size(), cb->getDate(Date::MONTH) << 1) - 1);
-				if (!town->creatures[i].empty())
-				{
-					CreatureID c = town->creatures[i][0];
-					SlotID n;
-					
-					TQuantity count = creatureGrowth(i);
-					if (!count) // no dwelling
-						count = VLC->creatures()->getById(c)->getGrowth();
-					
-					{//no lower tiers or above current month
-						
-						if ((n = getSlotFor(c)).validSlot())
-						{
-							StackLocation sl(this, n);
-							if (slotEmpty(n))
-								cb->insertNewStack(sl, c.toCreature(), count);
-							else //add to existing
-								cb->changeStackCount(sl, count);
-						}
-					}
-				}
-			}
-		}
-	}
-	
 	for(const auto & building : rewardableBuildings)
 		building.second->newTurn(rand);
 		
@@ -545,12 +540,7 @@ void CGTownInstance::newTurn(vstd::RNG & rand) const
 		cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, bonusValue.second - 500);
 	}
 }
-/*
-int3 CGTownInstance::getSightCenter() const
-{
-	return pos - int3(2,0,0);
-}
-*/
+
 bool CGTownInstance::passableFor(PlayerColor color) const
 {
 	if (!armedGarrison())//empty castle - anyone can visit

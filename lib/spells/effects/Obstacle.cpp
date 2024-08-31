@@ -16,6 +16,7 @@
 
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../entities/building/TownFortifications.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -239,7 +240,7 @@ bool Obstacle::isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & 
 		if(i->obstacleType != CObstacleInstance::MOAT)
 			return false;
 
-	if(cb->battleGetSiegeLevel() != 0)
+	if(cb->battleGetFortifications().wallsHealth != 0)
 	{
 		EWallPart part = cb->battleHexToWallPart(hex);
 

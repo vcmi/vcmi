@@ -136,6 +136,7 @@ public:
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos = ArtifactPosition::FIRST_AVAILABLE) override;
 	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override;
 	void removeArtifact(const ArtifactLocation &al) override;
+	void removeArtifact(const ObjectInstanceID & srcId, const std::vector<ArtifactPosition> & slotsPack);
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	bool bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
 	bool scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left);
@@ -243,9 +244,7 @@ public:
 		h & *heroPool;
 		h & *playerMessages;
 		h & *turnOrder;
-
-		if (h.version >= Handler::Version::TURN_TIMERS_STATE)
-			h & *turnTimerHandler;
+		h & *turnTimerHandler;
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;

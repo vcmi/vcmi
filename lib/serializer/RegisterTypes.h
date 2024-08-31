@@ -223,7 +223,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<InsertNewStack>(166);
 	s.template registerType<RebalanceStacks>(167);
 	s.template registerType<PutArtifact>(169);
-	s.template registerType<EraseArtifact>(170);
+	s.template registerType<BulkEraseArtifacts>(170);
 	s.template registerType<AssembledArtifact>(171);
 	s.template registerType<DisassembledArtifact>(172);
 	s.template registerType<BulkMoveArtifacts>(173);
