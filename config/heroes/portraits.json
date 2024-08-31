@@ -212,7 +212,25 @@
 			"small" : "Hc_HPS137",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
-		}
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "goblin",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
 	},
 	"portraitTarnumKnight" :
 	{
@@ -223,7 +241,25 @@
 			"small" : "Hc_HPS138",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
-		}
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "pikeman",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
 	},
 	"portraitTarnumWizard" :
 	{
@@ -234,7 +270,25 @@
 			"small" : "Hc_HPS139",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
-		}
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "enchanter",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
 	},
 	"portraitTarnumRanger" :
 	{
@@ -245,7 +299,25 @@
 			"small" : "Hc_HPS140",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
-		}
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "sharpshooter",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
 	},
 	"portraitTarnumOverlord" :
 	{
@@ -256,7 +328,25 @@
 			"small" : "Hc_HPS141",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
-		}
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "troglodyte",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
 	},
 	"portraitTarnumBeastmaster" :
 	{
@@ -267,6 +357,24 @@
 			"small" : "Hc_HPS142",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
-		}
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "gnoll",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
 	}
 }

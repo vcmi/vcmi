@@ -144,9 +144,10 @@ void ChroniclesExtractor::createBaseMod()
 	{
 		{ "modType", "Expansion" },
 		{ "name", "Heroes Chronicles" },
-		{ "description", "" },
+		{ "description", "Heroes Chronicles" },
 		{ "author", "3DO" },
 		{ "version", "1.0" },
+		{ "contact", "vcmi.eu" },
 	};
 
 	QFile jsonFile(dir.filePath("mod.json"));
@@ -164,9 +165,10 @@ void ChroniclesExtractor::createChronicleMod(int no)
 	{
 		{ "modType", "Expansion" },
 		{ "name", "Heroes Chronicles - " + QString::number(no) },
-		{ "description", "" },
+		{ "description", "Heroes Chronicles - " + QString::number(no) },
 		{ "author", "3DO" },
 		{ "version", "1.0" },
+		{ "contact", "vcmi.eu" },
 	};
 	
 	QFile jsonFile(dir.filePath("mod.json"));
