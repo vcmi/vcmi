@@ -99,7 +99,7 @@
 					}
 				},
 
-				"guards"  : {}, //TODO
+				"guards"  : { "$ref" : "#/definitions/identifierWithValueList" },
 				
 				"limiter" : { "$ref" : "#/definitions/limiter" },
 				"message" : { "$ref" : "#/definitions/message" },
@@ -293,14 +293,16 @@
 			"type" : "boolean"
 		},
 		
+		"coastVisitable": {
+			"type" : "boolean"
+		},
+		
 		"visitMode": {
 			"enum" : [ "unlimited", "once", "hero", "bonus", "limiter", "player" ],
 			"type" : "string"
 		},
 		
-		"visitLimiter": {
-			"type" : "object"
-		},
+		"visitLimiter": { "$ref" : "#/definitions/limiter" },
 		
 		"selectMode": {
 			"enum" : [ "selectFirst", "selectPlayer", "selectRandom", "selectAll" ],

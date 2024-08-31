@@ -76,6 +76,8 @@ public:
 
 	void initObj(vstd::RNG & rand) override;
 
+	bool isCoastVisitable() const override;
+
 	void initializeGuards();
 	
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;

@@ -176,7 +176,7 @@ public:
 		h & fogOfWarMap;
 		h & static_cast<CBonusSystemNode&>(*this);
 
-		if (h.version >= Handler::Version::TEAM_STATE_SCOUTED_OBJECTS)
+		if (h.version >= Handler::Version::REWARDABLE_BANKS)
 			h & scoutedObjects;
 	}
 

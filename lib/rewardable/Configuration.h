@@ -162,6 +162,8 @@ struct DLL_LINKAGE Configuration
 	/// if true - right-clicking object will show preview of object rewards
 	bool showScoutedPreview = false;
 
+	bool coastVisitable = false;
+
 	/// if true - object info will shown in infobox (like resource pickup)
 	EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
 	
@@ -190,6 +192,10 @@ struct DLL_LINKAGE Configuration
 		h & canRefuse;
 		h & showScoutedPreview;
 		h & infoWindowType;
+		if (h.version >= Handler::Version::BANK_UNIT_PLACEMENT)
+			h & coastVisitable;
+		else
+			coastVisitable = false;
 	}
 };
 

@@ -517,4 +517,9 @@ void CRewardableObject::initializeGuards()
 	}
 }
 
+bool CRewardableObject::isCoastVisitable() const
+{
+	return configuration.coastVisitable;
+}
+
 VCMI_LIB_NAMESPACE_END
