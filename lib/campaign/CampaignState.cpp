@@ -20,6 +20,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
+#include "../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -136,6 +137,20 @@ void CampaignHeader::loadLegacyData(ui8 campId)
 {
 	campaignRegions = CampaignRegions::getLegacy(campId);
 	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
+}
+
+void CampaignHeader::loadLegacyData(CampaignRegions regions, int numOfScenario)
+{
+	campaignRegions = regions;
+	numberOfScenarios = numOfScenario;
+}
+
+void CampaignHeader::overrideCampaign()
+{
+	JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
+	for (auto & entry : node.Struct())
+	if(filename == entry.first && !entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
+		loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
 }
 
 bool CampaignHeader::playerSelectedDifficulty() const

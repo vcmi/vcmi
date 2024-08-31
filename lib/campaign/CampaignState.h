@@ -101,6 +101,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	bool difficultyChosenByPlayer = false;
 
 	void loadLegacyData(ui8 campId);
+	void loadLegacyData(CampaignRegions regions, int numOfScenario);
 
 	TextContainerRegistrable textContainer;
 
@@ -121,6 +122,8 @@ public:
 
 	const CampaignRegions & getRegions() const;
 	TextContainerRegistrable & getTexts();
+
+	void overrideCampaign();
 
 	template <typename Handler> void serialize(Handler &h)
 	{

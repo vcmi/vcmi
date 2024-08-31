@@ -203,7 +203,7 @@ void ChroniclesExtractor::extractFiles(int no)
 	auto rename = [tmpDir, no](QDir dest){
 		dest.refresh();
 		for(auto & entry : dest.entryList())
-			if(!entry.startsWith("Hc"))
+			if(!entry.startsWith("Hc" + QString::number(no) + "_"))
 				dest.rename(entry, "Hc" + QString::number(no) + "_" + entry);
 	};
 

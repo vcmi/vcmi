@@ -1,0 +1,22 @@
+{
+	"MAPS/HC1_MAIN" : { // Heroes Chronicles 1
+		"regions":
+		{
+			"background": "Hc1_CamBkHc",
+			"prefix": "Hc1_HcSc",
+			"suffix": ["_1", "_2", "_3"],
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "1", "x": 27, "y": 43 },
+				{ "infix": "2", "x": 225, "y": 43 },
+				{ "infix": "3", "x": 27, "y": 173 },
+				{ "infix": "4", "x": 225, "y": 173 },
+				{ "infix": "5", "x": 27, "y": 303 },
+				{ "infix": "6", "x": 225, "y": 303 },
+				{ "infix": "7", "x": 27, "y": 433 },
+				{ "infix": "8", "x": 225, "y": 433 }
+			]
+		},
+		"scenarioCount": 8
+	}
+}

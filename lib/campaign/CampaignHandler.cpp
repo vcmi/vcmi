@@ -38,6 +38,7 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 		CBinaryReader reader(&stream);
 
 		readHeaderFromMemory(*ret, reader, filename, modName, encoding);
+		ret->overrideCampaign();
 
 		for(int g = 0; g < ret->numberOfScenarios; ++g)
 		{
