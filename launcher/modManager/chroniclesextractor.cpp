@@ -190,13 +190,14 @@ void ChroniclesExtractor::extractFiles(int no)
 	QDir tmpDir = tempDir.filePath(tempDir.entryList({"app"}, QDir::Filter::Dirs).front());
 	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({QString(tmpChronicles)}, QDir::Filter::Dirs).front()));
 	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front()));
-	QDir outDirData(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Data"));
-	QDir outDirSprites(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Sprites"));
-	QDir outDirVideo(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Video"));
-	QDir outDirSounds(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Sounds"));
-	QDir outDirMaps(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Maps"));
+	auto basePath = VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content";
+	QDir outDirData(pathToQString(basePath / "Data"));
+	QDir outDirSprites(pathToQString(basePath / "Sprites"));
+	QDir outDirVideo(pathToQString(basePath / "Video"));
+	QDir outDirSounds(pathToQString(basePath / "Sounds"));
+	QDir outDirMaps(pathToQString(basePath / "Maps"));
 
-	auto extract = [no](QDir scrDir, QDir dest, QString file, std::vector<std::string> files = {}){
+	auto extract = [](QDir scrDir, QDir dest, QString file, std::vector<std::string> files = {}){
 		CArchiveLoader archive("", scrDir.filePath(scrDir.entryList({file}).front()).toStdString(), false);
 		for(auto & entry : archive.getEntries())
 			if(files.empty())
