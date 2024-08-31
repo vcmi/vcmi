@@ -67,6 +67,7 @@ enum class ESerializationVersion : int32_t
 	STATISTICS_SCREEN, // 856 - extent statistic functions
 	NEW_MARKETS, // 857 - reworked market classes
 	PLAYER_STATE_OWNED_OBJECTS, // 858 - player state stores all owned objects in a single list
+	CHRONICLES_SUPPORT, // 859 - support for heroes chronicles
 
-	CURRENT = PLAYER_STATE_OWNED_OBJECTS
+	CURRENT = CHRONICLES_SUPPORT
 };

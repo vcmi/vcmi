@@ -27,6 +27,7 @@
 			{ "voiceProlog": "Hc1_G2C" },
 			{ "voiceProlog": "Hc1_ABvoFL3" },
 			{ "voiceProlog": "Hc1_H3x2BBf", "voiceEpilog": "Hc1_N1C_D" }
-		]
+		],
+		"loadingBackground": "Hc1_LoadBar"
 	}
 }

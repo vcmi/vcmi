@@ -205,6 +205,11 @@ AudioPath CampaignHeader::getMusic() const
 	return music;
 }
 
+ImagePath CampaignHeader::getLoadingBackground() const
+{
+	return loadingBackground;
+}
+
 const CampaignRegions & CampaignHeader::getRegions() const
 {
 	return campaignRegions;
@@ -472,6 +477,8 @@ void Campaign::overrideCampaign(bool scenario)
 		{
 			if(!entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
 				loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
+			if(!entry.second["loadingBackground"].isNull())
+				loadingBackground = ImagePath::builtin(entry.second["loadingBackground"].String());
 		}
 		else
 		{

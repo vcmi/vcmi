@@ -629,7 +629,12 @@ void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 }
 
 CLoadingScreen::CLoadingScreen()
-	: CWindowObject(BORDERED, getBackground())
+	: CLoadingScreen(getBackground())
+{
+}
+
+CLoadingScreen::CLoadingScreen(ImagePath background)
+	: CWindowObject(BORDERED, background)
 {
 	OBJECT_CONSTRUCTION;
 	

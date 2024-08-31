@@ -168,6 +168,7 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
+	ret.loadingBackground = ImagePath::fromJson(reader["loadingBackground"]);
 }
 
 CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
