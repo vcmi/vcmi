@@ -38,13 +38,14 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 		CBinaryReader reader(&stream);
 
 		readHeaderFromMemory(*ret, reader, filename, modName, encoding);
-		ret->overrideCampaign();
+		ret->overrideCampaign(false);
 
 		for(int g = 0; g < ret->numberOfScenarios; ++g)
 		{
 			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
 			ret->scenarios[scenarioID] = readScenarioFromMemory(reader, *ret);
 		}
+		ret->overrideCampaign(true);
 	}
 	else // text format (json)
 	{

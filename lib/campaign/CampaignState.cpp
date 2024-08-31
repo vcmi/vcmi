@@ -145,14 +145,6 @@ void CampaignHeader::loadLegacyData(CampaignRegions regions, int numOfScenario)
 	numberOfScenarios = numOfScenario;
 }
 
-void CampaignHeader::overrideCampaign()
-{
-	JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
-	for (auto & entry : node.Struct())
-	if(filename == entry.first && !entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
-		loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
-}
-
 bool CampaignHeader::playerSelectedDifficulty() const
 {
 	return difficultyChosenByPlayer;
@@ -468,6 +460,36 @@ std::set<CampaignScenarioID> Campaign::allScenarios() const
 	}
 
 	return result;
+}
+
+void Campaign::overrideCampaign(bool scenario)
+{
+	JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
+	for (auto & entry : node.Struct())
+	if(filename == entry.first)
+	{
+		if(!scenario)
+		{
+			if(!entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
+				loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
+		}
+		else
+		{
+			if(!entry.second["scenarios"].isNull())
+			{
+				auto sc = entry.second["scenarios"].Vector();
+				for(int i = 0; i < sc.size(); i++)
+				{
+					auto it = scenarios.begin();
+					std::advance(it, i);
+					if(!sc.at(i)["voiceProlog"].isNull())
+						it->second.prolog.prologVoice = AudioPath::builtin(sc.at(i)["voiceProlog"].String());
+					if(!sc.at(i)["voiceEpilog"].isNull())
+						it->second.epilog.prologVoice = AudioPath::builtin(sc.at(i)["voiceEpilog"].String());
+				}
+			}
+		}
+	}
 }
 
 int Campaign::scenariosCount() const

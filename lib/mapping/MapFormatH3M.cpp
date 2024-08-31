@@ -161,6 +161,7 @@ static std::map<EMapFormat, MapIdentifiersH3M> generateMappings()
 	addMapping(EMapFormat::ROE);
 	addMapping(EMapFormat::AB);
 	addMapping(EMapFormat::SOD);
+	addMapping(EMapFormat::CHR);
 	addMapping(EMapFormat::HOTA);
 	addMapping(EMapFormat::WOG);
 

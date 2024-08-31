@@ -83,6 +83,7 @@ public:
 class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
 	friend class CampaignHandler;
+	friend class Campaign;
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -122,8 +123,6 @@ public:
 
 	const CampaignRegions & getRegions() const;
 	TextContainerRegistrable & getTexts();
-
-	void overrideCampaign();
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -250,6 +249,8 @@ public:
 	const CampaignScenario & scenario(CampaignScenarioID which) const;
 	std::set<CampaignScenarioID> allScenarios() const;
 	int scenariosCount() const;
+
+	void overrideCampaign(bool scenario);
 
 	template <typename Handler> void serialize(Handler &h)
 	{

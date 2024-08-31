@@ -4,7 +4,7 @@
 		{
 			"background": "Hc1_CamBkHc",
 			"prefix": "Hc1_HcSc",
-			"suffix": ["_1", "_2", "_3"],
+			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
 				{ "infix": "1", "x": 27, "y": 43 },
@@ -17,6 +17,16 @@
 				{ "infix": "8", "x": 225, "y": 433 }
 			]
 		},
-		"scenarioCount": 8
+		"scenarioCount": 8,
+		"scenarios": [
+			{ "voiceProlog": "Hc1_ABvoFL4" },
+			{ "voiceProlog": "Hc1_H3x2UAe" },
+			{ "voiceProlog": "Hc1_H3x2BBa" },
+			{ "voiceProlog": "Hc1_H3x2RNd" },
+			{ "voiceProlog": "Hc1_G1C" },
+			{ "voiceProlog": "Hc1_G2C" },
+			{ "voiceProlog": "Hc1_ABvoFL3" },
+			{ "voiceProlog": "Hc1_H3x2BBf", "voiceEpilog": "Hc1_N1C_D" }
+		]
 	}
 }
