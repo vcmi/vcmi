@@ -209,7 +209,7 @@ void ChroniclesExtractor::extractFiles(int no)
 		dest.refresh();
 		for(auto & entry : dest.entryList())
 		{
-			if(entry.startsWith("HPS"))
+			if(entry.toUpper().startsWith("HPS") || entry.toUpper().startsWith("HPL"))
 				dest.rename(entry, "Hc_" + entry);
 			if(!entry.startsWith("Hc" + QString::number(no) + "_"))
 				dest.rename(entry, "Hc" + QString::number(no) + "_" + entry);

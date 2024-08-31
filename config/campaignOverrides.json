@@ -8,13 +8,13 @@
 			"color_suffix_length": 0,
 			"desc": [
 				{ "infix": "1", "x": 27, "y": 43 },
-				{ "infix": "2", "x": 225, "y": 43 },
-				{ "infix": "3", "x": 27, "y": 173 },
-				{ "infix": "4", "x": 225, "y": 173 },
-				{ "infix": "5", "x": 27, "y": 303 },
-				{ "infix": "6", "x": 225, "y": 303 },
-				{ "infix": "7", "x": 27, "y": 433 },
-				{ "infix": "8", "x": 225, "y": 433 }
+				{ "infix": "2", "x": 231, "y": 43 },
+				{ "infix": "3", "x": 27, "y": 178 },
+				{ "infix": "4", "x": 231, "y": 178 },
+				{ "infix": "5", "x": 27, "y": 312 },
+				{ "infix": "6", "x": 231, "y": 312 },
+				{ "infix": "7", "x": 27, "y": 447 },
+				{ "infix": "8", "x": 231, "y": 447 }
 			]
 		},
 		"scenarioCount": 8,
@@ -31,5 +31,224 @@
 		"loadingBackground": "Hc1_LoadBar",
 		"introVideoRim": "Hc1_INTRORIM",
 		"introVideo": "Hc1_Intro"
+	},
+	"MAPS/HC2_MAIN" : { // Heroes Chronicles 2
+		"regions":
+		{
+			"background": "Hc2_CamBkHc",
+			"prefix": "Hc2_HcSc",
+			"suffix": ["1", "2", "3"],
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "1", "x": 27, "y": 43 },
+				{ "infix": "2", "x": 231, "y": 43 },
+				{ "infix": "3", "x": 27, "y": 178 },
+				{ "infix": "4", "x": 231, "y": 178 },
+				{ "infix": "5", "x": 27, "y": 312 },
+				{ "infix": "6", "x": 231, "y": 312 },
+				{ "infix": "7", "x": 27, "y": 447 },
+				{ "infix": "8", "x": 231, "y": 447 }
+			]
+		},
+		"scenarioCount": 8,
+		"scenarios": [
+			{ "voiceProlog": "Hc2_ABvoFL4" },
+			{ "voiceProlog": "Hc2_H3x2UAe" },
+			{ "voiceProlog": "Hc2_H3x2BBa" },
+			{ "voiceProlog": "Hc2_H3x2RNd" },
+			{ "voiceProlog": "Hc2_G1C" },
+			{ "voiceProlog": "Hc2_G2C" },
+			{ "voiceProlog": "Hc2_ABvoFL3" },
+			{ "voiceProlog": "Hc2_H3x2BBf", "voiceEpilog": "Hc2_N1C_D" }
+		],
+		"loadingBackground": "Hc2_LoadBar",
+		"introVideoRim": "Hc2_INTRORIM",
+		"introVideo": "Hc2_Intro"
+	},
+	"MAPS/HC3_MAIN" : { // Heroes Chronicles 3
+		"regions":
+		{
+			"background": "Hc3_CamBkHc",
+			"prefix": "Hc3_HcSc",
+			"suffix": ["1", "2", "3"],
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "1", "x": 27, "y": 43 },
+				{ "infix": "2", "x": 231, "y": 43 },
+				{ "infix": "3", "x": 27, "y": 178 },
+				{ "infix": "4", "x": 231, "y": 178 },
+				{ "infix": "5", "x": 27, "y": 312 },
+				{ "infix": "6", "x": 231, "y": 312 },
+				{ "infix": "7", "x": 27, "y": 447 },
+				{ "infix": "8", "x": 231, "y": 447 }
+			]
+		},
+		"scenarioCount": 8,
+		"scenarios": [
+			{ "voiceProlog": "Hc3_ABvoFL4" },
+			{ "voiceProlog": "Hc3_H3x2UAe" },
+			{ "voiceProlog": "Hc3_H3x2BBa" },
+			{ "voiceProlog": "Hc3_H3x2RNd" },
+			{ "voiceProlog": "Hc3_G1C" },
+			{ "voiceProlog": "Hc3_G2C" },
+			{ "voiceProlog": "Hc3_ABvoFL3" },
+			{ "voiceProlog": "Hc3_H3x2BBf", "voiceEpilog": "Hc3_N1C_D" }
+		],
+		"loadingBackground": "Hc3_LoadBar",
+		"introVideoRim": "Hc3_INTRORIM",
+		"introVideo": "Hc3_Intro"
+	},
+	"MAPS/HC4_MAIN" : { // Heroes Chronicles 4
+		"regions":
+		{
+			"background": "Hc4_CamBkHc",
+			"prefix": "Hc4_HcSc",
+			"suffix": ["1", "2", "3"],
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "1", "x": 27, "y": 43 },
+				{ "infix": "2", "x": 231, "y": 43 },
+				{ "infix": "3", "x": 27, "y": 178 },
+				{ "infix": "4", "x": 231, "y": 178 },
+				{ "infix": "5", "x": 27, "y": 312 },
+				{ "infix": "6", "x": 231, "y": 312 },
+				{ "infix": "7", "x": 27, "y": 447 },
+				{ "infix": "8", "x": 231, "y": 447 }
+			]
+		},
+		"scenarioCount": 8,
+		"scenarios": [
+			{ "voiceProlog": "Hc4_ABvoFL4" },
+			{ "voiceProlog": "Hc4_H3x2UAe" },
+			{ "voiceProlog": "Hc4_H3x2BBa" },
+			{ "voiceProlog": "Hc4_H3x2RNd" },
+			{ "voiceProlog": "Hc4_G1C" },
+			{ "voiceProlog": "Hc4_G2C" },
+			{ "voiceProlog": "Hc4_ABvoFL3" },
+			{ "voiceProlog": "Hc4_H3x2BBf", "voiceEpilog": "Hc4_N1C_D" }
+		],
+		"loadingBackground": "Hc4_LoadBar",
+		"introVideoRim": "Hc4_INTRORIM",
+		"introVideo": "Hc4_Intro"
+	},
+	"MAPS/HC5_MAIN" : { // Heroes Chronicles 5
+		"regions":
+		{
+			"background": "Hc5_CamBkHc",
+			"prefix": "Hc5_HcSc",
+			"suffix": ["1", "2", "3"],
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "1", "x": 34, "y": 184 },
+				{ "infix": "2", "x": 235, "y": 184 },
+				{ "infix": "3", "x": 34, "y": 320 },
+				{ "infix": "4", "x": 235, "y": 320 },
+				{ "infix": "5", "x": 129, "y": 459 }
+			]
+		},
+		"scenarioCount": 5,
+		"scenarios": [
+			{ "voiceProlog": "Hc5_ABvoFL4" },
+			{ "voiceProlog": "Hc5_H3x2UAe" },
+			{ "voiceProlog": "Hc5_H3x2BBa" },
+			{ "voiceProlog": "Hc5_H3x2RNd" },
+			{ "voiceProlog": "Hc5_G1C" }
+		],
+		"loadingBackground": "Hc5_LoadBar",
+		"introVideoRim": "Hc5_INTRORIM",
+		"introVideo": "Hc5_Intro"
+	},
+	"MAPS/HC6_MAIN" : { // Heroes Chronicles 6
+		"regions":
+		{
+			"background": "Hc6_CamBkHc",
+			"prefix": "Hc6_HcSc",
+			"suffix": ["1", "2", "3"],
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "1", "x": 34, "y": 184 },
+				{ "infix": "2", "x": 235, "y": 184 },
+				{ "infix": "3", "x": 34, "y": 320 },
+				{ "infix": "4", "x": 235, "y": 320 },
+				{ "infix": "5", "x": 129, "y": 459 }
+			]
+		},
+		"scenarioCount": 5,
+		"scenarios": [
+			{ "voiceProlog": "Hc6_ABvoFL4" },
+			{ "voiceProlog": "Hc6_H3x2UAe" },
+			{ "voiceProlog": "Hc6_H3x2BBa" },
+			{ "voiceProlog": "Hc6_H3x2RNd" },
+			{ "voiceProlog": "Hc6_G1C" }
+		],
+		"loadingBackground": "Hc6_LoadBar",
+		"introVideoRim": "Hc6_INTRORIM",
+		"introVideo": "Hc6_Intro"
+	},
+	"MAPS/HC7_MAIN" : { // Heroes Chronicles 7
+		"regions":
+		{
+			"background": "Hc7_CamBkHc",
+			"prefix": "Hc7_HcSc",
+			"suffix": ["1", "2", "3"],
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "1", "x": 27, "y": 43 },
+				{ "infix": "2", "x": 231, "y": 43 },
+				{ "infix": "3", "x": 27, "y": 178 },
+				{ "infix": "4", "x": 231, "y": 178 },
+				{ "infix": "5", "x": 27, "y": 312 },
+				{ "infix": "6", "x": 231, "y": 312 },
+				{ "infix": "7", "x": 27, "y": 447 },
+				{ "infix": "8", "x": 231, "y": 447 }
+			]
+		},
+		"scenarioCount": 8,
+		"scenarios": [
+			{ "voiceProlog": "Hc7_ABvoFL4" },
+			{ "voiceProlog": "Hc7_H3x2UAe" },
+			{ "voiceProlog": "Hc7_H3x2BBa" },
+			{ "voiceProlog": "Hc7_H3x2RNd" },
+			{ "voiceProlog": "Hc7_G1C" },
+			{ "voiceProlog": "Hc7_G2C" },
+			{ "voiceProlog": "Hc7_ABvoFL3" },
+			{ "voiceProlog": "Hc7_H3x2BBf", "voiceEpilog": "Hc7_N1C_D" }
+		],
+		"loadingBackground": "Hc7_LoadBar",
+		"introVideoRim": "Hc7_INTRORIM",
+		"introVideo": "Hc7_Intro5"
+	},
+	"MAPS/HC8_MAIN" : { // Heroes Chronicles 8
+		"regions":
+		{
+			"background": "Hc8_CamBkHc",
+			"prefix": "Hc8_HcSc",
+			"suffix": ["1", "2", "3"],
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "1", "x": 27, "y": 43 },
+				{ "infix": "2", "x": 231, "y": 43 },
+				{ "infix": "3", "x": 27, "y": 178 },
+				{ "infix": "4", "x": 231, "y": 178 },
+				{ "infix": "5", "x": 27, "y": 312 },
+				{ "infix": "6", "x": 231, "y": 312 },
+				{ "infix": "7", "x": 27, "y": 447 },
+				{ "infix": "8", "x": 231, "y": 447 }
+			]
+		},
+		"scenarioCount": 8,
+		"scenarios": [
+			{ "voiceProlog": "Hc8_ABvoFL4" },
+			{ "voiceProlog": "Hc8_H3x2UAe" },
+			{ "voiceProlog": "Hc8_H3x2BBa" },
+			{ "voiceProlog": "Hc8_H3x2RNd" },
+			{ "voiceProlog": "Hc8_G1C" },
+			{ "voiceProlog": "Hc8_G2C" },
+			{ "voiceProlog": "Hc8_ABvoFL3" },
+			{ "voiceProlog": "Hc8_H3x2BBf", "voiceEpilog": "Hc8_N1C_D" }
+		],
+		"loadingBackground": "Hc8_LoadBar",
+		"introVideoRim": "Hc8_INTRORIM",
+		"introVideo": "Hc8_Intro6"
 	}
 }
