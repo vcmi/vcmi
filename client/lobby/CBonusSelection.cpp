@@ -63,14 +63,33 @@ CampaignIntroVideo::CampaignIntroVideo(VideoPath video, ImagePath rim, std::shar
 	: CWindowObject(BORDERED), bonusSel(bonusSel)
 {
 	OBJECT_CONSTRUCTION;
-	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, [this](){ exit(); });
+
+	addUsedEvents(LCLICK | KEYBOARD);
+
+	pos = center(Rect(0, 0, 800, 600));
+
+	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
 	setBackground(rim);
+
+	audioVol = CCS->musich->getVolume();
+	CCS->musich->setVolume(0);
 }
 
 void CampaignIntroVideo::exit()
 {
 	close();
+	CCS->musich->setVolume(audioVol);
 	GH.windows().pushWindow(bonusSel);
+}
+
+void CampaignIntroVideo::clickPressed(const Point & cursorPosition)
+{
+	exit();
+}
+
+void CampaignIntroVideo::keyPressed(EShortcut key)
+{
+	exit();
 }
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()

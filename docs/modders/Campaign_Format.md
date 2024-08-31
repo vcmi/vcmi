@@ -53,6 +53,8 @@ In header are parameters describing campaign properties
 - `"creationDateTime"` unix time of campaign creation
 - `"allowDifficultySelection"` is a boolean field (`true`/`false`) which allows or disallows to choose difficulty before scenario start
 - `"loadingBackground"` is for setting a different loading screen background
+- `"introVideo"` is for defining an optional intro video
+- `"introVideoRim"` is for the Rim around the optional video (default is INTRORIM)
 
 ## Scenario description
 

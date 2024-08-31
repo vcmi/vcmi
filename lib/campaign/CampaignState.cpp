@@ -210,6 +210,16 @@ ImagePath CampaignHeader::getLoadingBackground() const
 	return loadingBackground;
 }
 
+ImagePath CampaignHeader::getIntroVideoRim() const
+{
+	return introVideoRim;
+}
+
+VideoPath CampaignHeader::getIntroVideo() const
+{
+	return introVideo;
+}
+
 const CampaignRegions & CampaignHeader::getRegions() const
 {
 	return campaignRegions;
@@ -479,6 +489,10 @@ void Campaign::overrideCampaign(bool scenario)
 				loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
 			if(!entry.second["loadingBackground"].isNull())
 				loadingBackground = ImagePath::builtin(entry.second["loadingBackground"].String());
+			if(!entry.second["introVideoRim"].isNull())
+				introVideoRim = ImagePath::builtin(entry.second["introVideoRim"].String());
+			if(!entry.second["introVideo"].isNull())
+				introVideo = VideoPath::builtin(entry.second["introVideo"].String());
 		}
 		else
 		{

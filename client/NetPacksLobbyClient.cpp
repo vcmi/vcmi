@@ -204,8 +204,8 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	if(!lobby->bonusSel && handler.si->campState && handler.getState() == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
-		if(!handler.si->campState->conqueredScenarios().size())
-			GH.windows().createAndPushWindow<CampaignIntroVideo>(VideoPath::builtin("Hc1_Intro"), ImagePath::builtin("INTRORIM"), lobby->bonusSel);
+		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty())
+			GH.windows().createAndPushWindow<CampaignIntroVideo>(handler.si->campState->getIntroVideo(), handler.si->campState->getIntroVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getIntroVideoRim(), lobby->bonusSel);
 		else
 			GH.windows().pushWindow(lobby->bonusSel);
 	}

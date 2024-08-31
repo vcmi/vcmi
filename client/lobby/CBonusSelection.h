@@ -38,9 +38,14 @@ class CampaignIntroVideo : public CWindowObject
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
 	std::shared_ptr<CBonusSelection> bonusSel;
 
+	ui32 audioVol;
+
 	void exit();
 public:
 	CampaignIntroVideo(VideoPath video, ImagePath rim, std::shared_ptr<CBonusSelection> bonusSel);
+
+	void clickPressed(const Point & cursorPosition) override;
+	void keyPressed(EShortcut key) override;
 };
 
 /// Campaign screen where you can choose one out of three starting bonuses

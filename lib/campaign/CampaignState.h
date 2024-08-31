@@ -98,6 +98,8 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	std::string modName;
 	std::string encoding;
 	ImagePath loadingBackground;
+	ImagePath introVideoRim;
+	VideoPath introVideo;
 
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
@@ -122,6 +124,8 @@ public:
 	std::string getEncoding() const;
 	AudioPath getMusic() const;
 	ImagePath getLoadingBackground() const;
+	ImagePath getIntroVideoRim() const;
+	VideoPath getIntroVideo() const;
 
 	const CampaignRegions & getRegions() const;
 	TextContainerRegistrable & getTexts();
@@ -149,6 +153,8 @@ public:
 		if (h.version >= Handler::Version::CHRONICLES_SUPPORT)
 		{
 			h & loadingBackground;
+			h & introVideoRim;
+			h & introVideo;
 		}
 	}
 };
