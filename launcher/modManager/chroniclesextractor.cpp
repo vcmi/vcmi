@@ -193,6 +193,7 @@ void ChroniclesExtractor::extractFiles(int no)
 	QDir outDirSprites(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Sprites"));
 	QDir outDirVideo(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Video"));
 	QDir outDirSounds(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Sounds"));
+	QDir outDirMaps(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content" / "Maps"));
 
 	auto extract = [tmpDir, no](QDir dest, QString file){
 		CArchiveLoader archive("", tmpDir.filePath(tmpDir.entryList({file}).front()).toStdString(), false);
@@ -225,6 +226,11 @@ void ChroniclesExtractor::extractFiles(int no)
 	rename(outDirSprites);
 	rename(outDirVideo);
 	rename(outDirSounds);
+
+	if(!outDirMaps.exists())
+		outDirMaps.mkpath(".");
+	QString campaignFileName = "Hc" + QString::number(no) + "_Main.h3c";
+	QFile(outDirData.filePath(outDirData.entryList({campaignFileName}).front())).copy(outDirMaps.filePath(campaignFileName));
 }
 
 void ChroniclesExtractor::installChronicles(QStringList exe)
