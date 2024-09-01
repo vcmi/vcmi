@@ -261,7 +261,8 @@ public:
 	std::set<CampaignScenarioID> allScenarios() const;
 	int scenariosCount() const;
 
-	void overrideCampaign(bool scenario);
+	void overrideCampaign();
+	void overrideCampaignScenarios();
 
 	template <typename Handler> void serialize(Handler &h)
 	{

@@ -38,8 +38,6 @@ class CampaignIntroVideo : public CWindowObject
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
 	std::shared_ptr<CBonusSelection> bonusSel;
 
-	ui32 audioVol;
-
 	void exit();
 public:
 	CampaignIntroVideo(VideoPath video, ImagePath rim, std::shared_ptr<CBonusSelection> bonusSel);

@@ -477,37 +477,40 @@ std::set<CampaignScenarioID> Campaign::allScenarios() const
 	return result;
 }
 
-void Campaign::overrideCampaign(bool scenario)
+void Campaign::overrideCampaign()
 {
-	JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
+	const JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
 	for (auto & entry : node.Struct())
 		if(filename == entry.first)
 		{
-			if(!scenario)
+			if(!entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
+				loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
+			if(!entry.second["loadingBackground"].isNull())
+				loadingBackground = ImagePath::builtin(entry.second["loadingBackground"].String());
+			if(!entry.second["introVideoRim"].isNull())
+				introVideoRim = ImagePath::builtin(entry.second["introVideoRim"].String());
+			if(!entry.second["introVideo"].isNull())
+				introVideo = VideoPath::builtin(entry.second["introVideo"].String());
+		}
+}
+
+void Campaign::overrideCampaignScenarios()
+{
+	const JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
+	for (auto & entry : node.Struct())
+		if(filename == entry.first)
+		{
+			if(!entry.second["scenarios"].isNull())
 			{
-				if(!entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
-					loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
-				if(!entry.second["loadingBackground"].isNull())
-					loadingBackground = ImagePath::builtin(entry.second["loadingBackground"].String());
-				if(!entry.second["introVideoRim"].isNull())
-					introVideoRim = ImagePath::builtin(entry.second["introVideoRim"].String());
-				if(!entry.second["introVideo"].isNull())
-					introVideo = VideoPath::builtin(entry.second["introVideo"].String());
-			}
-			else
-			{
-				if(!entry.second["scenarios"].isNull())
+				auto sc = entry.second["scenarios"].Vector();
+				for(int i = 0; i < sc.size(); i++)
 				{
-					auto sc = entry.second["scenarios"].Vector();
-					for(int i = 0; i < sc.size(); i++)
-					{
-						auto it = scenarios.begin();
-						std::advance(it, i);
-						if(!sc.at(i)["voiceProlog"].isNull())
-							it->second.prolog.prologVoice = AudioPath::builtin(sc.at(i)["voiceProlog"].String());
-						if(!sc.at(i)["voiceEpilog"].isNull())
-							it->second.epilog.prologVoice = AudioPath::builtin(sc.at(i)["voiceEpilog"].String());
-					}
+					auto it = scenarios.begin();
+					std::advance(it, i);
+					if(!sc.at(i)["voiceProlog"].isNull())
+						it->second.prolog.prologVoice = AudioPath::builtin(sc.at(i)["voiceProlog"].String());
+					if(!sc.at(i)["voiceEpilog"].isNull())
+						it->second.epilog.prologVoice = AudioPath::builtin(sc.at(i)["voiceEpilog"].String());
 				}
 			}
 		}

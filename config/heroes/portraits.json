@@ -206,7 +206,7 @@
 	"portraitTarnumBarbarian" :
 	{
 		"class" : "barbarian",
-		"special" : false,
+		"special" : true,
 		"images": {
 			"large" : "Hc_HPL137",
 			"small" : "Hc_HPS137",
@@ -235,7 +235,7 @@
 	"portraitTarnumKnight" :
 	{
 		"class" : "knight",
-		"special" : false,
+		"special" : true,
 		"images": {
 			"large" : "Hc_HPL138",
 			"small" : "Hc_HPS138",
@@ -264,7 +264,7 @@
 	"portraitTarnumWizard" :
 	{
 		"class" : "wizard",
-		"special" : false,
+		"special" : true,
 		"images": {
 			"large" : "Hc_HPL139",
 			"small" : "Hc_HPS139",
@@ -293,7 +293,7 @@
 	"portraitTarnumRanger" :
 	{
 		"class" : "ranger",
-		"special" : false,
+		"special" : true,
 		"images": {
 			"large" : "Hc_HPL140",
 			"small" : "Hc_HPS140",
@@ -322,7 +322,7 @@
 	"portraitTarnumOverlord" :
 	{
 		"class" : "overlord",
-		"special" : false,
+		"special" : true,
 		"images": {
 			"large" : "Hc_HPL141",
 			"small" : "Hc_HPS141",
@@ -351,7 +351,7 @@
 	"portraitTarnumBeastmaster" :
 	{
 		"class" : "beastmaster",
-		"special" : false,
+		"special" : true,
 		"images": {
 			"large" : "Hc_HPL142",
 			"small" : "Hc_HPS142",

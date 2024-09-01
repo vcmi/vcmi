@@ -38,14 +38,14 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 		CBinaryReader reader(&stream);
 
 		readHeaderFromMemory(*ret, reader, filename, modName, encoding);
-		ret->overrideCampaign(false);
+		ret->overrideCampaign();
 
 		for(int g = 0; g < ret->numberOfScenarios; ++g)
 		{
 			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
 			ret->scenarios[scenarioID] = readScenarioFromMemory(reader, *ret);
 		}
-		ret->overrideCampaign(true);
+		ret->overrideCampaignScenarios();
 	}
 	else // text format (json)
 	{
@@ -397,7 +397,7 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 {
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
 	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
-	if(ret.version != CampaignVersion::Chr)
+	if(ret.version != CampaignVersion::Chr) // For chronicles: Will be overridden later; Chronicles uses own logic (reusing OH3 ID's)
 		ret.loadLegacyData(campId);
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));

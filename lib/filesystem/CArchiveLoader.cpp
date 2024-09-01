@@ -197,7 +197,7 @@ std::string CArchiveLoader::getMountPoint() const
 	return mountPoint;
 }
 
-std::unordered_map<ResourcePath, ArchiveEntry> CArchiveLoader::getEntries() const
+const std::unordered_map<ResourcePath, ArchiveEntry> & CArchiveLoader::getEntries() const
 {
 	return entries;
 }

@@ -71,14 +71,16 @@ CampaignIntroVideo::CampaignIntroVideo(VideoPath video, ImagePath rim, std::shar
 	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
 	setBackground(rim);
 
-	audioVol = CCS->musich->getVolume();
-	CCS->musich->setVolume(0);
+	CCS->musich->stopMusic();
 }
 
 void CampaignIntroVideo::exit()
 {
 	close();
-	CCS->musich->setVolume(audioVol);
+	
+	if (!CSH->si->campState->getMusic().empty())
+		CCS->musich->playMusic(CSH->si->campState->getMusic(), true, false);
+
 	GH.windows().pushWindow(bonusSel);
 }
 
@@ -127,7 +129,9 @@ CBonusSelection::CBonusSelection()
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
 	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(), Rect(480, 86, 286, 117), 1);
 
-	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated(), CSH->getState() == EClientState::GAMEPLAY ? 225 : 285); //if video button active theres fewer space
+	bool videoButtonActive = CSH->getState() == EClientState::GAMEPLAY;
+	int availableSpace = videoButtonActive ? 225 : 285;
+	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated(), availableSpace );
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 292, 108), 1);
 

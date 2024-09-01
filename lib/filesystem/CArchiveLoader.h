@@ -63,7 +63,7 @@ public:
 	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
 	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
-	std::unordered_map<ResourcePath, ArchiveEntry> getEntries() const;
+	const std::unordered_map<ResourcePath, ArchiveEntry> & getEntries() const;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	/** Extracts one archive entry to the specified subfolder. Used for Video and Sound */
