@@ -369,6 +369,8 @@ void Nullkiller::makeTurn()
 	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		auto start = std::chrono::high_resolution_clock::now();
+		//TODO: It's only necessary to do a resetAiState when the last action was UnlockCluster
+		resetAiState();
 		updateAiState(i);
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
