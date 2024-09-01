@@ -1547,6 +1547,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 		}
 		result = score;
+		//TODO: Figure out the root cause for why evaluationContext.closestWayRatio has become -nan(ind).
+		if (std::isnan(result))
+			return 0;
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
