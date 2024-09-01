@@ -180,7 +180,7 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 			for(size_t i = r.begin(); i != r.end(); i++)
 			{
 				auto task = tasks[i];
-				if (task->asTask()->priority <= 0 || priorityTier != 3)
+				if (task->asTask()->priority <= 0 || priorityTier != 0)
 					task->asTask()->priority = evaluator->evaluate(task, priorityTier);
 			}
 		});
@@ -385,7 +385,7 @@ void Nullkiller::makeTurn()
 
 			if(bestTask->priority > 0)
 			{
-				logAi->info("Performing task %s with prio: %d", bestTask->toString(), bestTask->priority);
+				logAi->info("Pass %d: Performing task %s with prio: %d", bestTask->toString(), bestTask->priority);
 				if(!executeTask(bestTask))
 					return;
 
