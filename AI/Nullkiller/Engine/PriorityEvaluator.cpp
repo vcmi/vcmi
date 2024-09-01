@@ -1208,7 +1208,7 @@ public:
 		int32_t cost = bi.buildCost[EGameResID::GOLD];
 		evaluationContext.goldCost += cost;
 		evaluationContext.closestWayRatio = 1;
-		evaluationContext.buildingCost += bi.buildCost;
+		evaluationContext.buildingCost += bi.buildCostWithPrerequisites;
 		if (bi.id == BuildingID::MARKETPLACE || bi.dailyIncome[EGameResID::WOOD] > 0)
 			evaluationContext.isTradeBuilding = true;
 
@@ -1502,6 +1502,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			case 0: //For buildings and buying army
 			{
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
+					return 0;
+				//If we already have locked resources, we don't look at other buildings
+				if (ai->getLockedResources().marketValue() > 0)
 					return 0;
 				score += evaluationContext.conquestValue * 1000;
 				score += evaluationContext.strategicalValue * 1000;
