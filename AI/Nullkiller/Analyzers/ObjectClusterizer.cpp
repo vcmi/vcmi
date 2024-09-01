@@ -467,7 +467,7 @@ void ObjectClusterizer::clusterizeObject(
 
 				heroesProcessed.insert(path.targetHero);
 
-				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), 5);
+				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), PriorityEvaluator::PriorityTier::HUNTER_GATHER);
 
 				if(ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 					continue;
@@ -490,7 +490,7 @@ void ObjectClusterizer::clusterizeObject(
 
 		heroesProcessed.insert(path.targetHero);
 
-		float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), 5);
+		float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), PriorityEvaluator::PriorityTier::HUNTER_GATHER);
 
 		if (ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 			continue;

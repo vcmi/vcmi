@@ -104,7 +104,18 @@ public:
 	~PriorityEvaluator();
 	void initVisitTile();
 
-	float evaluate(Goals::TSubgoal task, int priorityTier = 0);
+	float evaluate(Goals::TSubgoal task, int priorityTier = BUILDINGS);
+
+	enum PriorityTier : int32_t
+	{
+		BUILDINGS = 0,
+		INSTAKILL,
+		INSTADEFEND,
+		KILL,
+		GATHER,
+		HUNTER_GATHER,
+		DEFEND
+	};
 
 private:
 	const Nullkiller * ai;
