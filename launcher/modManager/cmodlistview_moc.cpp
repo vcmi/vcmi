@@ -854,7 +854,7 @@ void CModListView::installFiles(QStringList files)
 		
 		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 		{
-			emit extractionProgress(int(prog * 1000.f), 1000);
+			emit extractionProgress(static_cast<int>(prog * 1000.f), 1000);
 			qApp->processEvents();
 		}
 		

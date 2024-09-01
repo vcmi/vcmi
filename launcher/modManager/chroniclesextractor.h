@@ -25,9 +25,9 @@ class ChroniclesExtractor : public QObject
 	bool handleTempDir(bool create);
 	int getChronicleNo(QFile & file);
 	bool extractGogInstaller(QString filePath);
-	void createBaseMod();
+	void createBaseMod() const;
 	void createChronicleMod(int no);
-	void extractFiles(int no);
+	void extractFiles(int no) const;
 
 	const std::map<int, QByteArray> chronicles = {
 		{1, QByteArray{reinterpret_cast<const char*>(u"Warlords of the Wasteland"), 50}},

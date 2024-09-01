@@ -100,7 +100,7 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 		try
 		{
 			process_file(file.toStdString(), o, [this](float progress) {
-				float overallProgress = ((1.0 / float(fileCount)) * float(extractionFile)) + (progress / float(fileCount));
+				float overallProgress = ((1.0 / static_cast<float>(fileCount)) * static_cast<float>(extractionFile)) + (progress / static_cast<float>(fileCount));
 				if(cb)
 					cb(overallProgress);
 			});
@@ -133,7 +133,7 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 #endif
 }
 
-void ChroniclesExtractor::createBaseMod()
+void ChroniclesExtractor::createBaseMod() const
 {
 	QDir dir(pathToQString(VCMIDirs::get().userDataPath() / "Mods"));
 	dir.mkdir("chronicles");
@@ -180,7 +180,7 @@ void ChroniclesExtractor::createChronicleMod(int no)
 	extractFiles(no);
 }
 
-void ChroniclesExtractor::extractFiles(int no)
+void ChroniclesExtractor::extractFiles(int no) const
 {
 	QByteArray tmpChronicles = chronicles.at(no);
 	tmpChronicles.replace('\0', "");
@@ -202,14 +202,14 @@ void ChroniclesExtractor::extractFiles(int no)
 				archive.extractToFolder(dest.absolutePath().toStdString(), "", entry.second, true);
 			else
 			{
-				for(auto & item : files)
+				for(const auto & item : files)
 					if(!boost::algorithm::to_lower_copy(entry.second.name).find(boost::algorithm::to_lower_copy(item)))
 						archive.extractToFolder(dest.absolutePath().toStdString(), "", entry.second, true);
 			}
 	};
 	auto rename = [no](QDir dest){
 		dest.refresh();
-		for(auto & entry : dest.entryList())
+		for(const auto & entry : dest.entryList())
 		{
 			if(entry.toUpper().startsWith("HPS") || entry.toUpper().startsWith("HPL"))
 				dest.rename(entry, "Hc_" + entry);
@@ -229,7 +229,7 @@ void ChroniclesExtractor::extractFiles(int no)
 	if(tmpDir.entryList({"maps"}, QDir::Filter::Dirs).size())
 	{
 		QDir tmpDirMaps = tmpDir.filePath(tmpDir.entryList({"maps"}, QDir::Filter::Dirs).front());
-		for(auto & entry : tmpDirMaps.entryList())
+		for(const auto & entry : tmpDirMaps.entryList())
 			QFile(tmpDirMaps.filePath(entry)).copy(outDirData.filePath(entry));
 	}
 
