@@ -641,6 +641,9 @@ void CModListView::on_installFromFileButton_clicked()
 	QTimer::singleShot(0, this, [this]
 	{
 		QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json *.exe);;" + tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Configs") + " (*.json);;" + tr("Mods") + " (*.zip);;" + tr("Gog files") + " (*.exe)";
+#if defined(VCMI_MOBILE)
+		filter = tr("All files (*.*)"); //Workaround for sometimes incorrect mime for some extensions (e.g. for exe)
+#endif
 		QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns, gog files) to install..."), QDir::homePath(), filter);
 
 		for(const auto & file : files)
