@@ -53,6 +53,7 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 
 	for(auto & developmentInfo : developmentInfos)
 	{
+		bool emergencyDefense = false;
 		uint8_t closestThreat = UINT8_MAX;
 		for (auto threat : ai->dangerHitMap->getTownThreats(developmentInfo.town))
 		{
@@ -63,13 +64,17 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 			if (closestThreat <= 1 && developmentInfo.town->fortLevel() < CGTownInstance::EFortLevel::CASTLE && !buildingInfo.notEnoughRes)
 			{
 				if (buildingInfo.id == BuildingID::FORT || buildingInfo.id == BuildingID::CITADEL || buildingInfo.id == BuildingID::CASTLE)
+				{
 					tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
+					emergencyDefense = true;
+				}
 			}
 		}
-		if (tasks.empty())
+		if (!emergencyDefense)
 		{
 			for (auto& buildingInfo : developmentInfo.toBuild)
 			{
+				logAi->trace("Looking at %s", buildingInfo.toString());
 				if (isGoldPressureLow || buildingInfo.dailyIncome[EGameResID::GOLD] > 0)
 				{
 					if (buildingInfo.notEnoughRes)
@@ -81,11 +86,14 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 
 						composition.addNext(BuildThis(buildingInfo, developmentInfo));
 						composition.addNext(SaveResources(buildingInfo.buildCost));
-
+						logAi->trace("Generate task to build: %s", buildingInfo.toString());
 						tasks.push_back(sptr(composition));
 					}
 					else
+					{
 						tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
+						logAi->trace("Generate task to build: %s", buildingInfo.toString());
+					}
 				}
 			}
 		}
