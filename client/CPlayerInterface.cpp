@@ -13,7 +13,6 @@
 #include <vcmi/Artifact.h>
 
 #include "CGameInfo.h"
-#include "CMT.h"
 #include "CServerHandler.h"
 #include "HeroMovementController.h"
 #include "PlayerLocalState.h"

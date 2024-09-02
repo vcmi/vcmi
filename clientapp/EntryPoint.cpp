@@ -1,5 +1,5 @@
 /*
- * CMT.cpp, part of VCMI engine
+ * EntryPoint.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,38 +8,38 @@
  *
  */
 
-// CMT.cpp : Defines the entry point for the console application.
+// EntryPoint.cpp : Defines the entry point for the console application.
+
 #include "StdInc.h"
-#include "CMT.h"
+#include "../Global.h"
 
-#include "CGameInfo.h"
-#include "mainmenu/CMainMenu.h"
-#include "media/CEmptyVideoPlayer.h"
-#include "media/CMusicHandler.h"
-#include "media/CSoundHandler.h"
-#include "media/CVideoHandler.h"
-#include "gui/CursorHandler.h"
-#include "eventsSDL/InputHandler.h"
-#include "CPlayerInterface.h"
-#include "gui/CGuiHandler.h"
-#include "gui/WindowHandler.h"
-#include "CServerHandler.h"
-#include "ClientCommandManager.h"
-#include "windows/CMessage.h"
-#include "windows/InfoWindows.h"
-#include "render/IScreenHandler.h"
-#include "render/IRenderHandler.h"
-#include "render/Graphics.h"
+#include "../client/CGameInfo.h"
+#include "../client/ClientCommandManager.h"
+#include "../client/CMT.h"
+#include "../client/CPlayerInterface.h"
+#include "../client/CServerHandler.h"
+#include "../client/eventsSDL/InputHandler.h"
+#include "../client/gui/CGuiHandler.h"
+#include "../client/gui/CursorHandler.h"
+#include "../client/gui/WindowHandler.h"
+#include "../client/mainmenu/CMainMenu.h"
+#include "../client/media/CEmptyVideoPlayer.h"
+#include "../client/media/CMusicHandler.h"
+#include "../client/media/CSoundHandler.h"
+#include "../client/media/CVideoHandler.h"
+#include "../client/render/Graphics.h"
+#include "../client/render/IRenderHandler.h"
+#include "../client/render/IScreenHandler.h"
+#include "../client/windows/CMessage.h"
+#include "../client/windows/InfoWindows.h"
 
-#include "../lib/CConfigHandler.h"
-#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/ExceptionsCommon.h"
-#include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
 #include "../lib/filesystem/Filesystem.h"
-
 #include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/texts/CGeneralTextHandler.h"
+#include "../lib/VCMI_Lib.h"
+#include "../lib/VCMIDirs.h"
 
 #include <boost/program_options.hpp>
 #include <vstd/StringUtils.h>
@@ -525,6 +525,8 @@ void handleQuit(bool ask)
 		CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 }
 
+/// Notify user about encountered fatal error and terminate the game
+/// TODO: decide on better location for this method
 void handleFatalError(const std::string & message, bool terminate)
 {
 	logGlobal->error("FATAL ERROR ENCOUNTERED, VCMI WILL NOW TERMINATE");

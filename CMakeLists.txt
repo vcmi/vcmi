@@ -680,6 +680,7 @@ endif()
 
 if (ENABLE_CLIENT)
 	add_subdirectory(client)
+	add_subdirectory(clientapp)
 endif()
 
 if(ENABLE_SERVER)
