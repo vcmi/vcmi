@@ -638,8 +638,8 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 	if(!surf || !width || !height)
 		return nullptr;
 
-	if (surf->w * 2 == width && surf->h * 2 == height)
-		return scaleSurfaceIntegerFactor(surf, 2);
+	// TODO: use xBRZ if possible? E.g. when scaling to 150% do 100% -> 200% via xBRZ and then linear downscale 200% -> 150%?
+	// Need to investigate which is optimal	for performance and for visuals
 
 	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
 	SDL_Surface * ret = newSurface(Point(width, height), intermediate);
@@ -654,7 +654,7 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface * surf, int width, int height)
 	return ret;
 }
 
-SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor)
+SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor, EScalingAlgorithm algorithm)
 {
 	if(surf == nullptr || factor == 0)
 		return nullptr;
@@ -662,7 +662,7 @@ SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor
 	int newWidth = surf->w * factor;
 	int newHight = surf->h * factor;
 
-	SDL_Surface * intermediate = SDL_ConvertSurface(surf, screen->format, 0);
+	SDL_Surface * intermediate = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
 	SDL_Surface * ret = newSurface(Point(newWidth, newHight), intermediate);
 
 	assert(intermediate->pitch == intermediate->w * 4);
@@ -675,10 +675,23 @@ SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor
 	// TODO: compare performance and size of images, recheck values for potentially better parameters
 	const int granulation = std::clamp(surf->h / 64 * 8, 8, 64);
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate](const tbb::blocked_range<size_t> & r)
+	switch (algorithm)
 	{
-		xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, xbrz::ColorFormat::ARGB, {}, r.begin(), r.end());
-	});
+		case EScalingAlgorithm::NEAREST:
+			xbrz::nearestNeighborScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);
+			break;
+		case EScalingAlgorithm::BILINEAR:
+			xbrz::bilinearScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);
+			break;
+		case EScalingAlgorithm::XBRZ:
+			tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate](const tbb::blocked_range<size_t> & r)
+			{
+				xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, xbrz::ColorFormat::ARGB, {}, r.begin(), r.end());
+			});
+			break;
+		default:
+			throw std::runtime_error("invalid scaling algorithm!");
+	}
 
 	SDL_FreeSurface(intermediate);
 

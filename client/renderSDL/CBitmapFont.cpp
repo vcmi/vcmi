@@ -25,6 +25,7 @@
 #include "../../lib/VCMI_Lib.h"
 
 #include <SDL_surface.h>
+#include <SDL_image.h>
 
 struct AtlasLayout
 {
@@ -199,10 +200,14 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 
 	if (GH.screenHandler().getScalingFactor() != 1)
 	{
-		auto scaledSurface = CSDL_Ext::scaleSurfaceIntegerFactor(atlasImage, GH.screenHandler().getScalingFactor());
+		// scale using nearest neighbour - looks way better with H3 fonts than more high-quality xBRZ
+		// TODO: make configurable?
+		auto scaledSurface = CSDL_Ext::scaleSurfaceIntegerFactor(atlasImage, GH.screenHandler().getScalingFactor(), EScalingAlgorithm::NEAREST);
 		SDL_FreeSurface(atlasImage);
 		atlasImage = scaledSurface;
 	}
+
+	IMG_SavePNG(atlasImage, ("/home/ivan/font_" + filename).c_str());
 }
 
 CBitmapFont::~CBitmapFont()
