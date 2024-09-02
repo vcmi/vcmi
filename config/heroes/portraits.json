@@ -208,8 +208,8 @@
 		"class" : "barbarian",
 		"special" : true,
 		"images": {
-			"large" : "Hc_HPL137",
-			"small" : "Hc_HPS137",
+			"large" : "HPL137",
+			"small" : "HPS137",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
 		},
@@ -237,8 +237,8 @@
 		"class" : "knight",
 		"special" : true,
 		"images": {
-			"large" : "Hc_HPL138",
-			"small" : "Hc_HPS138",
+			"large" : "HPL138",
+			"small" : "HPS138",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
 		},
@@ -266,8 +266,8 @@
 		"class" : "wizard",
 		"special" : true,
 		"images": {
-			"large" : "Hc_HPL139",
-			"small" : "Hc_HPS139",
+			"large" : "HPL139",
+			"small" : "HPS139",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
 		},
@@ -295,8 +295,8 @@
 		"class" : "ranger",
 		"special" : true,
 		"images": {
-			"large" : "Hc_HPL140",
-			"small" : "Hc_HPS140",
+			"large" : "HPL140",
+			"small" : "HPS140",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
 		},
@@ -324,8 +324,8 @@
 		"class" : "overlord",
 		"special" : true,
 		"images": {
-			"large" : "Hc_HPL141",
-			"small" : "Hc_HPS141",
+			"large" : "HPL141",
+			"small" : "HPS141",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
 		},
@@ -353,8 +353,8 @@
 		"class" : "beastmaster",
 		"special" : true,
 		"images": {
-			"large" : "Hc_HPL142",
-			"small" : "Hc_HPS142",
+			"large" : "HPL142",
+			"small" : "HPS142",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
 		},

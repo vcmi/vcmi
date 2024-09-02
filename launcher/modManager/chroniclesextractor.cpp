@@ -185,14 +185,16 @@ void ChroniclesExtractor::extractFiles(int no) const
 	QByteArray tmpChronicles = chronicles.at(no);
 	tmpChronicles.replace('\0', "");
 
+	std::string chroniclesDir = "chronicles_" + std::to_string(no);
 	QDir tmpDir = tempDir.filePath(tempDir.entryList({"app"}, QDir::Filter::Dirs).front());
 	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({QString(tmpChronicles)}, QDir::Filter::Dirs).front()));
 	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front()));
-	auto basePath = VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / ("chronicles_" + std::to_string(no)) / "content";
-	QDir outDirData(pathToQString(basePath / "Data"));
-	QDir outDirSprites(pathToQString(basePath / "Sprites"));
-	QDir outDirVideo(pathToQString(basePath / "Video"));
-	QDir outDirSounds(pathToQString(basePath / "Sounds"));
+	auto basePath = VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / chroniclesDir / "content";
+	QDir outDirDataPortraits(pathToQString(VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "content" / "Data"));
+	QDir outDirData(pathToQString(basePath / "Data" / chroniclesDir));
+	QDir outDirSprites(pathToQString(basePath / "Sprites" / chroniclesDir));
+	QDir outDirVideo(pathToQString(basePath / "Video" / chroniclesDir));
+	QDir outDirSounds(pathToQString(basePath / "Sounds" / chroniclesDir));
 	QDir outDirMaps(pathToQString(basePath / "Maps"));
 
 	auto extract = [](QDir scrDir, QDir dest, QString file, std::vector<std::string> files = {}){
@@ -203,19 +205,9 @@ void ChroniclesExtractor::extractFiles(int no) const
 			else
 			{
 				for(const auto & item : files)
-					if(!boost::algorithm::to_lower_copy(entry.second.name).find(boost::algorithm::to_lower_copy(item)))
+					if(boost::algorithm::to_lower_copy(entry.second.name).find(boost::algorithm::to_lower_copy(item)) != std::string::npos)
 						archive.extractToFolder(dest.absolutePath().toStdString(), "", entry.second, true);
 			}
-	};
-	auto rename = [no](QDir dest){
-		dest.refresh();
-		for(const auto & entry : dest.entryList())
-		{
-			if(entry.toUpper().startsWith("HPS") || entry.toUpper().startsWith("HPL"))
-				dest.rename(entry, "Hc_" + entry);
-			if(!entry.startsWith("Hc" + QString::number(no) + "_"))
-				dest.rename(entry, "Hc" + QString::number(no) + "_" + entry);
-		}
 	};
 
 	extract(tmpDir, outDirData, "xBitmap.lod");
@@ -226,7 +218,7 @@ void ChroniclesExtractor::extractFiles(int no) const
 	extract(tmpDir, outDirSounds, "xSound.snd");
 
 	tmpDir.cdUp();
-	if(tmpDir.entryList({"maps"}, QDir::Filter::Dirs).size())
+	if(tmpDir.entryList({"maps"}, QDir::Filter::Dirs).size()) // special case for "The World Tree": the map is in the "Maps" folder instead of inside the lod
 	{
 		QDir tmpDirMaps = tmpDir.filePath(tmpDir.entryList({"maps"}, QDir::Filter::Dirs).front());
 		for(const auto & entry : tmpDirMaps.entryList())
@@ -235,18 +227,14 @@ void ChroniclesExtractor::extractFiles(int no) const
 
 	tmpDir.cdUp();
 	QDir tmpDirData = tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front());
-	extract(tmpDirData, outDirData, "bitmap.lod", std::vector<std::string>{"HPS137", "HPS138", "HPS139", "HPS140", "HPS141", "HPS142", "HPL137", "HPL138", "HPL139", "HPL140", "HPL141", "HPL142"});
+	auto tarnumPortraits = std::vector<std::string>{"HPS137", "HPS138", "HPS139", "HPS140", "HPS141", "HPS142", "HPL137", "HPL138", "HPL139", "HPL140", "HPL141", "HPL142"};
+	extract(tmpDirData, outDirDataPortraits, "bitmap.lod", tarnumPortraits);
 	extract(tmpDirData, outDirData, "lbitmap.lod", std::vector<std::string>{"INTRORIM"});
-
-	rename(outDirData);
-	rename(outDirSprites);
-	rename(outDirVideo);
-	rename(outDirSounds);
 
 	if(!outDirMaps.exists())
 		outDirMaps.mkpath(".");
 	QString campaignFileName = "Hc" + QString::number(no) + "_Main.h3c";
-	QFile(outDirData.filePath(outDirData.entryList({campaignFileName}).front())).copy(outDirMaps.filePath(campaignFileName));
+	QFile(outDirData.filePath(outDirData.entryList({"Main.h3c"}).front())).copy(outDirMaps.filePath(campaignFileName));
 }
 
 void ChroniclesExtractor::installChronicles(QStringList exe)

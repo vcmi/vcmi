@@ -2,8 +2,8 @@
 	"MAPS/HC1_MAIN" : { // Heroes Chronicles 1
 		"regions":
 		{
-			"background": "Hc1_CamBkHc",
-			"prefix": "Hc1_HcSc",
+			"background": "chronicles_1/CamBkHc",
+			"prefix": "chronicles_1/HcSc",
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
@@ -19,24 +19,24 @@
 		},
 		"scenarioCount": 8,
 		"scenarios": [
-			{ "voiceProlog": "Hc1_ABVOFL4" },
-			{ "voiceProlog": "Hc1_H3X2UAE" },
-			{ "voiceProlog": "Hc1_H3X2BBA" },
-			{ "voiceProlog": "Hc1_H3X2RND" },
-			{ "voiceProlog": "Hc1_G1C" },
-			{ "voiceProlog": "Hc1_G2C" },
-			{ "voiceProlog": "Hc1_ABVOFL3" },
-			{ "voiceProlog": "Hc1_H3X2BBF", "voiceEpilog": "Hc1_N1C_D" }
+			{ "voiceProlog": "chronicles_1/ABVOFL4" },
+			{ "voiceProlog": "chronicles_1/H3X2UAE" },
+			{ "voiceProlog": "chronicles_1/H3X2BBA" },
+			{ "voiceProlog": "chronicles_1/H3X2RND" },
+			{ "voiceProlog": "chronicles_1/G1C" },
+			{ "voiceProlog": "chronicles_1/G2C" },
+			{ "voiceProlog": "chronicles_1/ABVOFL3" },
+			{ "voiceProlog": "chronicles_1/H3X2BBF", "voiceEpilog": "chronicles_1/N1C_D" }
 		],
-		"loadingBackground": "Hc1_LoadBar",
-		"introVideoRim": "Hc1_INTRORIM",
-		"introVideo": "Hc1_Intro"
+		"loadingBackground": "chronicles_1/LoadBar",
+		"introVideoRim": "chronicles_1/INTRORIM",
+		"introVideo": "chronicles_1/Intro"
 	},
 	"MAPS/HC2_MAIN" : { // Heroes Chronicles 2
 		"regions":
 		{
-			"background": "Hc2_CamBkHc",
-			"prefix": "Hc2_HcSc",
+			"background": "chronicles_2/CamBkHc",
+			"prefix": "chronicles_2/HcSc",
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
@@ -52,24 +52,24 @@
 		},
 		"scenarioCount": 8,
 		"scenarios": [
-			{ "voiceProlog": "Hc2_H3X2ELB" },
-			{ "voiceProlog": "Hc2_H3X2NBA" },
-			{ "voiceProlog": "Hc2_H3X2RNA" },
-			{ "voiceProlog": "Hc2_ABVOAB8" },
-			{ "voiceProlog": "Hc2_H3X2UAL" },
-			{ "voiceProlog": "Hc2_E1A" },
-			{ "voiceProlog": "Hc2_ABVOAB2" },
-			{ "voiceProlog": "Hc2_G1A", "voiceEpilog": "Hc2_S1C" }
+			{ "voiceProlog": "chronicles_2/H3X2ELB" },
+			{ "voiceProlog": "chronicles_2/H3X2NBA" },
+			{ "voiceProlog": "chronicles_2/H3X2RNA" },
+			{ "voiceProlog": "chronicles_2/ABVOAB8" },
+			{ "voiceProlog": "chronicles_2/H3X2UAL" },
+			{ "voiceProlog": "chronicles_2/E1A" },
+			{ "voiceProlog": "chronicles_2/ABVOAB2" },
+			{ "voiceProlog": "chronicles_2/G1A", "voiceEpilog": "chronicles_2/S1C" }
 		],
-		"loadingBackground": "Hc2_LoadBar",
-		"introVideoRim": "Hc2_INTRORIM",
-		"introVideo": "Hc2_Intro"
+		"loadingBackground": "chronicles_2/LoadBar",
+		"introVideoRim": "chronicles_2/INTRORIM",
+		"introVideo": "chronicles_2/Intro"
 	},
 	"MAPS/HC3_MAIN" : { // Heroes Chronicles 3
 		"regions":
 		{
-			"background": "Hc3_CamBkHc",
-			"prefix": "Hc3_HcSc",
+			"background": "chronicles_3/CamBkHc",
+			"prefix": "chronicles_3/HcSc",
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
@@ -85,24 +85,24 @@
 		},
 		"scenarioCount": 8,
 		"scenarios": [
-			{ "voiceProlog": "Hc3_G2C" },
-			{ "voiceProlog": "Hc3_ABVOAB1" },
-			{ "voiceProlog": "Hc3_G2D" },
-			{ "voiceProlog": "Hc3_E1B" },
-			{ "voiceProlog": "Hc3_ABVOAB2" },
-			{ "voiceProlog": "Hc3_ABVOAB4" },
-			{ "voiceProlog": "Hc3_ABVOAB6" },
-			{ "voiceProlog": "Hc3_G3B", "voiceEpilog": "Hc3_ABVOFL2" }
+			{ "voiceProlog": "chronicles_3/G2C" },
+			{ "voiceProlog": "chronicles_3/ABVOAB1" },
+			{ "voiceProlog": "chronicles_3/G2D" },
+			{ "voiceProlog": "chronicles_3/E1B" },
+			{ "voiceProlog": "chronicles_3/ABVOAB2" },
+			{ "voiceProlog": "chronicles_3/ABVOAB4" },
+			{ "voiceProlog": "chronicles_3/ABVOAB6" },
+			{ "voiceProlog": "chronicles_3/G3B", "voiceEpilog": "chronicles_3/ABVOFL2" }
 		],
-		"loadingBackground": "Hc3_LoadBar",
-		"introVideoRim": "Hc3_INTRORIM",
-		"introVideo": "Hc3_Intro"
+		"loadingBackground": "chronicles_3/LoadBar",
+		"introVideoRim": "chronicles_3/INTRORIM",
+		"introVideo": "chronicles_3/Intro"
 	},
 	"MAPS/HC4_MAIN" : { // Heroes Chronicles 4
 		"regions":
 		{
-			"background": "Hc4_CamBkHc",
-			"prefix": "Hc4_HcSc",
+			"background": "chronicles_4/CamBkHc",
+			"prefix": "chronicles_4/HcSc",
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
@@ -118,24 +118,24 @@
 		},
 		"scenarioCount": 8,
 		"scenarios": [
-			{ "voiceProlog": "Hc4_ABVOAB1" },
-			{ "voiceProlog": "Hc4_ABVODB4" },
-			{ "voiceProlog": "Hc4_H3X2ELC" },
-			{ "voiceProlog": "Hc4_ABVODS2" },
-			{ "voiceProlog": "Hc4_ABVODS1" },
-			{ "voiceProlog": "Hc4_ABVODS3" },
-			{ "voiceProlog": "Hc4_ABVODS4" },
-			{ "voiceProlog": "Hc4_H3X2NBD", "voiceEpilog": "Hc4_S1C" }
+			{ "voiceProlog": "chronicles_4/ABVOAB1" },
+			{ "voiceProlog": "chronicles_4/ABVODB4" },
+			{ "voiceProlog": "chronicles_4/H3X2ELC" },
+			{ "voiceProlog": "chronicles_4/ABVODS2" },
+			{ "voiceProlog": "chronicles_4/ABVODS1" },
+			{ "voiceProlog": "chronicles_4/ABVODS3" },
+			{ "voiceProlog": "chronicles_4/ABVODS4" },
+			{ "voiceProlog": "chronicles_4/H3X2NBD", "voiceEpilog": "chronicles_4/S1C" }
 		],
-		"loadingBackground": "Hc4_LoadBar",
-		"introVideoRim": "Hc4_INTRORIM",
-		"introVideo": "Hc4_Intro"
+		"loadingBackground": "chronicles_4/LoadBar",
+		"introVideoRim": "chronicles_4/INTRORIM",
+		"introVideo": "chronicles_4/Intro"
 	},
 	"MAPS/HC5_MAIN" : { // Heroes Chronicles 5
 		"regions":
 		{
-			"background": "Hc5_CamBkHc",
-			"prefix": "Hc5_HcSc",
+			"background": "chronicles_5/CamBkHc",
+			"prefix": "chronicles_5/HcSc",
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
@@ -148,21 +148,21 @@
 		},
 		"scenarioCount": 5,
 		"scenarios": [
-			{ "voiceProlog": "Hc5_ABVOAB1" },
-			{ "voiceProlog": "Hc5_H3X2RNA" },
-			{ "voiceProlog": "Hc5_ABVOFL2" },
-			{ "voiceProlog": "Hc5_ABVOFL4" },
-			{ "voiceProlog": "Hc5_H3X2UAH", "voiceEpilog": "Hc5_N1C_D"  }
+			{ "voiceProlog": "chronicles_5/ABVOAB1" },
+			{ "voiceProlog": "chronicles_5/H3X2RNA" },
+			{ "voiceProlog": "chronicles_5/ABVOFL2" },
+			{ "voiceProlog": "chronicles_5/ABVOFL4" },
+			{ "voiceProlog": "chronicles_5/H3X2UAH", "voiceEpilog": "chronicles_5/N1C_D"  }
 		],
-		"loadingBackground": "Hc5_LoadBar",
-		"introVideoRim": "Hc5_INTRORIM",
-		"introVideo": "Hc5_Intro"
+		"loadingBackground": "chronicles_5/LoadBar",
+		"introVideoRim": "chronicles_5/INTRORIM",
+		"introVideo": "chronicles_5/Intro"
 	},
 	"MAPS/HC6_MAIN" : { // Heroes Chronicles 6
 		"regions":
 		{
-			"background": "Hc6_CamBkHc",
-			"prefix": "Hc6_HcSc",
+			"background": "chronicles_6/CamBkHc",
+			"prefix": "chronicles_6/HcSc",
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
@@ -175,21 +175,21 @@
 		},
 		"scenarioCount": 5,
 		"scenarios": [
-			{ "voiceProlog": "Hc6_H3X2ELB" },
-			{ "voiceProlog": "Hc6_E1A" },
-			{ "voiceProlog": "Hc6_H3X2BBA" },
-			{ "voiceProlog": "Hc6_ABVOAB2" },
-			{ "voiceProlog": "Hc6_ABVOAB5", "voiceEpilog": "Hc6_ABVODB2"  }
+			{ "voiceProlog": "chronicles_6/H3X2ELB" },
+			{ "voiceProlog": "chronicles_6/E1A" },
+			{ "voiceProlog": "chronicles_6/H3X2BBA" },
+			{ "voiceProlog": "chronicles_6/ABVOAB2" },
+			{ "voiceProlog": "chronicles_6/ABVOAB5", "voiceEpilog": "chronicles_6/ABVODB2"  }
 		],
-		"loadingBackground": "Hc6_LoadBar",
-		"introVideoRim": "Hc6_INTRORIM",
-		"introVideo": "Hc6_Intro"
+		"loadingBackground": "chronicles_6/LoadBar",
+		"introVideoRim": "chronicles_6/INTRORIM",
+		"introVideo": "chronicles_6/Intro"
 	},
 	"MAPS/HC7_MAIN" : { // Heroes Chronicles 7
 		"regions":
 		{
-			"background": "Hc7_CamBkHc",
-			"prefix": "Hc7_HcSc",
+			"background": "chronicles_7/CamBkHc",
+			"prefix": "chronicles_7/HcSc",
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
@@ -205,24 +205,24 @@
 		},
 		"scenarioCount": 8,
 		"scenarios": [
-			{ "voiceProlog": "Hc7_ABVOFL2" },
-			{ "voiceProlog": "Hc7_ABVOFL3" },
-			{ "voiceProlog": "Hc7_N1C_D" },
-			{ "voiceProlog": "Hc7_S1C" },
-			{ "voiceProlog": "Hc7_H3X2UAB" },
-			{ "voiceProlog": "Hc7_E2C" },
-			{ "voiceProlog": "Hc7_H3X2NBE" },
-			{ "voiceProlog": "Hc7_ABVOFW4", "voiceEpilog": "Hc7_ABVOAB1" }
+			{ "voiceProlog": "chronicles_7/ABVOFL2" },
+			{ "voiceProlog": "chronicles_7/ABVOFL3" },
+			{ "voiceProlog": "chronicles_7/N1C_D" },
+			{ "voiceProlog": "chronicles_7/S1C" },
+			{ "voiceProlog": "chronicles_7/H3X2UAB" },
+			{ "voiceProlog": "chronicles_7/E2C" },
+			{ "voiceProlog": "chronicles_7/H3X2NBE" },
+			{ "voiceProlog": "chronicles_7/ABVOFW4", "voiceEpilog": "chronicles_7/ABVOAB1" }
 		],
-		"loadingBackground": "Hc7_LoadBar",
-		"introVideoRim": "Hc7_INTRORIM",
-		"introVideo": "Hc7_Intro5"
+		"loadingBackground": "chronicles_7/LoadBar",
+		"introVideoRim": "chronicles_7/INTRORIM",
+		"introVideo": "chronicles_7/Intro5"
 	},
 	"MAPS/HC8_MAIN" : { // Heroes Chronicles 8
 		"regions":
 		{
-			"background": "Hc8_CamBkHc",
-			"prefix": "Hc8_HcSc",
+			"background": "chronicles_8/CamBkHc",
+			"prefix": "chronicles_8/HcSc",
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
@@ -238,17 +238,17 @@
 		},
 		"scenarioCount": 8,
 		"scenarios": [
-			{ "voiceProlog": "Hc8_H3X2RNB" },
-			{ "voiceProlog": "Hc8_ABVOAB9" },
-			{ "voiceProlog": "Hc8_H3X2BBB" },
-			{ "voiceProlog": "Hc8_ABVODS1" },
-			{ "voiceProlog": "Hc8_H3X2ELA" },
-			{ "voiceProlog": "Hc8_E1B" },
-			{ "voiceProlog": "Hc8_H3X2BBD" },
-			{ "voiceProlog": "Hc8_H3X2ELE", "voiceEpilog": "Hc8_ABVOAB7" }
+			{ "voiceProlog": "chronicles_8/H3X2RNB" },
+			{ "voiceProlog": "chronicles_8/ABVOAB9" },
+			{ "voiceProlog": "chronicles_8/H3X2BBB" },
+			{ "voiceProlog": "chronicles_8/ABVODS1" },
+			{ "voiceProlog": "chronicles_8/H3X2ELA" },
+			{ "voiceProlog": "chronicles_8/E1B" },
+			{ "voiceProlog": "chronicles_8/H3X2BBD" },
+			{ "voiceProlog": "chronicles_8/H3X2ELE", "voiceEpilog": "chronicles_8/ABVOAB7" }
 		],
-		"loadingBackground": "Hc8_LoadBar",
-		"introVideoRim": "Hc8_INTRORIM",
-		"introVideo": "Hc8_Intro6"
+		"loadingBackground": "chronicles_8/LoadBar",
+		"introVideoRim": "chronicles_8/INTRORIM",
+		"introVideo": "chronicles_8/Intro6"
 	}
 }

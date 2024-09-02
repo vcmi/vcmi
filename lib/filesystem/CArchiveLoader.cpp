@@ -222,7 +222,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInput
 	fileStream.seek(entry.offset);
 	fileStream.read(data.data(), entry.fullSize);
 
-	boost::filesystem::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name , absolute);
+	boost::filesystem::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name, absolute);
 
 	// writeToOutputFile
 	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
