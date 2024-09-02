@@ -477,7 +477,7 @@
 					},
 					{
 						"message" : 34,
-						"appearChance" : { "min" : 30, "max" : 60 },
+						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 4, "type" : "naga" },
 							{ "amount" : 4, "type" : "naga" },

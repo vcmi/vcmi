@@ -481,11 +481,11 @@ BattleInfo::BattleInfo(const BattleLayout & layout):
 }
 
 BattleInfo::BattleInfo():
+	layout(std::make_unique<BattleLayout>()),
 	round(-1),
 	activeStack(-1),
 	town(nullptr),
 	tile(-1,-1,-1),
-	layout(std::make_unique<BattleLayout>()),
 	battlefieldType(BattleField::NONE),
 	tacticsSide(BattleSide::NONE),
 	tacticDistance(0)

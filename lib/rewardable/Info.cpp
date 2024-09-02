@@ -266,14 +266,55 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const
 {
-	for (const auto & artifact : info.reward.artifacts )
-		target.replaceName(artifact);
+	if (!info.reward.guards.empty())
+	{
+		CreatureID strongest = info.reward.guards.at(0).getId();
 
-	for (const auto & spell : info.reward.spells )
-		target.replaceName(spell);
+		for (const auto & guard : info.reward.guards )
+		{
+			if (strongest.toEntity(VLC)->getFightValue() < guard.getId().toEntity(VLC)->getFightValue())
+				strongest = guard.getId();
+		}
+		target.replaceNamePlural(strongest); // FIXME: use singular if only 1 such unit is in guards
 
-	for (const auto & secondary : info.reward.secondary )
-		target.replaceName(secondary.first);
+		MetaString loot;
+
+		for (GameResID it : GameResID::ALL_RESOURCES())
+		{
+			if (info.reward.resources[it] != 0)
+			{
+				loot.appendRawString("%d %s");
+				loot.replaceNumber(info.reward.resources[it]);
+				loot.replaceName(it);
+			}
+		}
+
+		for (const auto & artifact : info.reward.artifacts )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(artifact);
+		}
+
+		for (const auto & spell : info.reward.spells )
+		{
+			target.replaceName(spell);
+		}
+
+		for (const auto & secondary : info.reward.secondary )
+			target.replaceName(secondary.first);
+	}
+	else
+	{
+
+		for (const auto & artifact : info.reward.artifacts )
+			target.replaceName(artifact);
+
+		for (const auto & spell : info.reward.spells )
+			target.replaceName(spell);
+
+		for (const auto & secondary : info.reward.secondary )
+			target.replaceName(secondary.first);
+	}
 
 	replaceTextPlaceholders(target, variables);
 }

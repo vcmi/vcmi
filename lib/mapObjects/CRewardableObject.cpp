@@ -508,6 +508,11 @@ void CRewardableObject::initializeGuards()
 {
 	clearSlots();
 
+	// Workaround for default creature banks strings that has placeholder for object name
+	// TODO: find better location for this code
+	for (auto & visitInfo : configuration.info)
+		visitInfo.message.replaceRawString(getObjectName());
+
 	for (auto const & visitInfo : configuration.info)
 	{
 		for (auto const & guard : visitInfo.reward.guards)
