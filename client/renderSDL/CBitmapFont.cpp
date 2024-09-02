@@ -16,13 +16,14 @@
 #include "../render/Colors.h"
 #include "../render/IScreenHandler.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
+#include "../../lib/VCMI_Lib.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/vcmi_endian.h"
-#include "../../lib/VCMI_Lib.h"
 
 #include <SDL_surface.h>
 #include <SDL_image.h>
@@ -200,9 +201,15 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 
 	if (GH.screenHandler().getScalingFactor() != 1)
 	{
-		// scale using nearest neighbour - looks way better with H3 fonts than more high-quality xBRZ
-		// TODO: make configurable?
-		auto scaledSurface = CSDL_Ext::scaleSurfaceIntegerFactor(atlasImage, GH.screenHandler().getScalingFactor(), EScalingAlgorithm::NEAREST);
+		static const std::map<std::string, EScalingAlgorithm> filterNameToEnum = {
+			{ "nearest", EScalingAlgorithm::NEAREST},
+			{ "bilinear", EScalingAlgorithm::BILINEAR},
+			{ "xbrz", EScalingAlgorithm::XBRZ}
+		};
+
+		auto filterName = settings["video"]["fontUpscalingFilter"].String();
+		EScalingAlgorithm algorithm = filterNameToEnum.at(filterName);
+		auto scaledSurface = CSDL_Ext::scaleSurfaceIntegerFactor(atlasImage, GH.screenHandler().getScalingFactor(), algorithm);
 		SDL_FreeSurface(atlasImage);
 		atlasImage = scaledSurface;
 	}
