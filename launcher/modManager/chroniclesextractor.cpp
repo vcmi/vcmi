@@ -14,34 +14,31 @@
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/CArchiveLoader.h"
 
-#ifdef ENABLE_INNOEXTRACT
-#include "cli/extract.hpp"
-#include "setup/version.hpp"
-#endif
+#include "../innoextract.h"
 
 ChroniclesExtractor::ChroniclesExtractor(QWidget *p, std::function<void(float percent)> cb) :
 	parent(p), cb(cb)
 {
 }
 
-bool ChroniclesExtractor::handleTempDir(bool create)
+bool ChroniclesExtractor::createTempDir()
 {
-	if(create)
+	tempDir = QDir(pathToQString(VCMIDirs::get().userDataPath()));
+	if(tempDir.cd("tmp"))
 	{
-		tempDir = QDir(pathToQString(VCMIDirs::get().userDataPath()));
-		if(tempDir.cd("tmp"))
-		{
-			tempDir.removeRecursively(); // remove if already exists (e.g. previous run)
-			tempDir.cdUp();
-		}
-		tempDir.mkdir("tmp");
-		if(!tempDir.cd("tmp"))
-			return false; // should not happen - but avoid deleting wrong folder in any case
+		tempDir.removeRecursively(); // remove if already exists (e.g. previous run)
+		tempDir.cdUp();
 	}
-	else
-		tempDir.removeRecursively();
+	tempDir.mkdir("tmp");
+	if(!tempDir.cd("tmp"))
+		return false; // should not happen - but avoid deleting wrong folder in any case
 
 	return true;
+}
+
+void ChroniclesExtractor::removeTempDir()
+{
+	tempDir.removeRecursively();
 }
 
 int ChroniclesExtractor::getChronicleNo(QFile & file)
@@ -79,58 +76,19 @@ int ChroniclesExtractor::getChronicleNo(QFile & file)
 
 bool ChroniclesExtractor::extractGogInstaller(QString file)
 {
-#ifndef ENABLE_INNOEXTRACT
-		QMessageBox::critical(parent, tr("Innoextract functionality missing"), "VCMI was compiled without innoextract support, which is needed to extract chroncles!");
+	QString errorText = Innoextract::extract(file, tempDir.path(), [this](float progress) {
+		float overallProgress = ((1.0 / static_cast<float>(fileCount)) * static_cast<float>(extractionFile)) + (progress / static_cast<float>(fileCount));
+		if(cb)
+			cb(overallProgress);
+	});
+
+	if(!errorText.isEmpty())
+	{
+		QMessageBox::critical(parent, tr("Extracting error!"), errorText);
 		return false;
-#else
-		::extract_options o;
-		o.extract = true;
+	}
 
-		// standard settings
-		o.gog_galaxy = true;
-		o.codepage = 0U;
-		o.output_dir = tempDir.path().toStdString();
-		o.extract_temp = true;
-		o.extract_unknown = true;
-		o.filenames.set_expand(true);
-
-		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completely
-
-		QString errorText = "";
-		try
-		{
-			process_file(file.toStdString(), o, [this](float progress) {
-				float overallProgress = ((1.0 / static_cast<float>(fileCount)) * static_cast<float>(extractionFile)) + (progress / static_cast<float>(fileCount));
-				if(cb)
-					cb(overallProgress);
-			});
-		}
-		catch(const std::ios_base::failure & e)
-		{
-			errorText = tr("Stream error while extracting files!\nerror reason: ");
-			errorText += e.what();
-		}
-		catch(const format_error & e)
-		{
-			errorText = e.what();
-		}
-		catch(const std::runtime_error & e)
-		{
-			errorText = e.what();
-		}
-		catch(const setup::version_error &)
-		{
-			errorText = tr("Not a supported Inno Setup installer!");
-		}
-
-		if(!errorText.isEmpty())
-		{
-			QMessageBox::critical(parent, tr("Extracting error!"), errorText);
-			return false;
-		}
-
-		return true;
-#endif
+	return true;
 }
 
 void ChroniclesExtractor::createBaseMod() const
@@ -143,8 +101,8 @@ void ChroniclesExtractor::createBaseMod() const
 	QJsonObject mod
 	{
 		{ "modType", "Expansion" },
-		{ "name", "Heroes Chronicles" },
-		{ "description", "Heroes Chronicles" },
+		{ "name", tr("Heroes Chronicles") },
+		{ "description", tr("Heroes Chronicles") },
 		{ "author", "3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
@@ -161,11 +119,14 @@ void ChroniclesExtractor::createChronicleMod(int no)
 	dir.removeRecursively();
 	dir.mkpath(".");
 
+	QByteArray tmpChronicles = chronicles.at(no);
+	tmpChronicles.replace('\0', "");
+
 	QJsonObject mod
 	{
 		{ "modType", "Expansion" },
-		{ "name", "Heroes Chronicles - " + QString::number(no) },
-		{ "description", "Heroes Chronicles - " + QString::number(no) },
+		{ "name", QString::number(no) + " - " + QString(tmpChronicles) },
+		{ "description", tr("Heroes Chronicles") + " - " + QString::number(no) + " - " + QString(tmpChronicles) },
 		{ "author", "3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
@@ -250,7 +211,7 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		if(!chronicleNo)
 			continue;
 
-		if(!handleTempDir(true))
+		if(!createTempDir())
 			continue;
 
 		if(!extractGogInstaller(f))
@@ -259,6 +220,6 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		createBaseMod();
 		createChronicleMod(chronicleNo);
 
-		handleTempDir(false);
+		removeTempDir();
 	}
 }

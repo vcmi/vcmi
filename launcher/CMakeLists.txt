@@ -17,6 +17,7 @@ set(launcher_SRCS
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
 		helper.cpp
+		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
 		launcherdirs.cpp
@@ -53,6 +54,7 @@ set(launcher_HEADERS
 		updatedialog_moc.h
 		main.h
 		helper.h
+		innoextract.h
 		prepare.h
 )
 

@@ -22,7 +22,8 @@ class ChroniclesExtractor : public QObject
 	int extractionFile;
 	int fileCount;
 
-	bool handleTempDir(bool create);
+	bool createTempDir();
+	void removeTempDir();
 	int getChronicleNo(QFile & file);
 	bool extractGogInstaller(QString filePath);
 	void createBaseMod() const;
