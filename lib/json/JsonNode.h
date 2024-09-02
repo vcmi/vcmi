@@ -152,16 +152,7 @@ public:
 	void serialize(Handler & h)
 	{
 		h & modScope;
-
-		if(h.version >= Handler::Version::JSON_FLAGS)
-		{
-			h & overrideFlag;
-		}
-		else
-		{
-			std::vector<std::string> oldFlags;
-			h & oldFlags;
-		}
+		h & overrideFlag;
 		h & data;
 	}
 };

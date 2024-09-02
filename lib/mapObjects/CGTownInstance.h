@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CCastleEvent;
 class CTown;
 class TownBuildingInstance;
+struct TownFortifications;
 class TownRewardableBuildingInstance;
 struct DamageRange;
 
@@ -162,6 +163,7 @@ public:
 
 	bool needsLastStack() const override;
 	CGTownInstance::EFortLevel fortLevel() const;
+	TownFortifications fortificationsLevel() const;
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int mageGuildLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int getHordeLevel(const int & HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
@@ -246,6 +248,7 @@ private:
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	void initializeConfigurableBuildings(vstd::RNG & rand);
+	void initializeNeutralTownGarrison(vstd::RNG & rand);
 };
 
 VCMI_LIB_NAMESPACE_END

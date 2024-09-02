@@ -137,13 +137,11 @@ public:
 		h & daysWithoutCastle;
 		h & cheated;
 		h & battleBonuses;
-		if (h.version >= Handler::Version::ARTIFACT_COSTUMES)
-			h & costumesArtifacts;
+		h & costumesArtifacts;
 		h & enteredLosingCheatCode;
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
-		if (h.version >= Handler::Version::DESTROYED_OBJECTS)
-			h & destroyedObjects;
+		h & destroyedObjects;
 	}
 };
 

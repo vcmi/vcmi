@@ -9,12 +9,15 @@
  */
 #include "StdInc.h"
 #include "CBattleInfoEssentials.h"
+
 #include "../CStack.h"
 #include "BattleInfo.h"
 #include "CObstacleInstance.h"
-#include "../mapObjects/CGTownInstance.h"
-#include "../gameState/InfoAboutArmy.h"
+
 #include "../constants/EntityIdentifiers.h"
+#include "../entities/building/TownFortifications.h"
+#include "../gameState/InfoAboutArmy.h"
+#include "../mapObjects/CGTownInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -345,10 +348,10 @@ bool CBattleInfoEssentials::playerHasAccessToHeroInfo(const PlayerColor & player
 	return false;
 }
 
-ui8 CBattleInfoEssentials::battleGetSiegeLevel() const
+TownFortifications CBattleInfoEssentials::battleGetFortifications() const
 {
-	RETURN_IF_NOT_BATTLE(CGTownInstance::NONE);
-	return getBattle()->getDefendedTown() ? getBattle()->getDefendedTown()->fortLevel() : CGTownInstance::NONE;
+	RETURN_IF_NOT_BATTLE(TownFortifications());
+	return getBattle()->getDefendedTown() ? getBattle()->getDefendedTown()->fortificationsLevel() : TownFortifications();
 }
 
 bool CBattleInfoEssentials::battleCanSurrender(const PlayerColor & player) const
@@ -371,7 +374,7 @@ bool CBattleInfoEssentials::battleHasHero(BattleSide side) const
 EWallState CBattleInfoEssentials::battleGetWallState(EWallPart partOfWall) const
 {
 	RETURN_IF_NOT_BATTLE(EWallState::NONE);
-	if(battleGetSiegeLevel() == CGTownInstance::NONE)
+	if(battleGetFortifications().wallsHealth == 0)
 		return EWallState::NONE;
 
 	return getBattle()->getWallState(partOfWall);
@@ -380,7 +383,7 @@ EWallState CBattleInfoEssentials::battleGetWallState(EWallPart partOfWall) const
 EGateState CBattleInfoEssentials::battleGetGateState() const
 {
 	RETURN_IF_NOT_BATTLE(EGateState::NONE);
-	if(battleGetSiegeLevel() == CGTownInstance::NONE)
+	if(battleGetFortifications().wallsHealth == 0)
 		return EGateState::NONE;
 
 	return getBattle()->getGateState();
@@ -389,7 +392,7 @@ EGateState CBattleInfoEssentials::battleGetGateState() const
 bool CBattleInfoEssentials::battleIsGatePassable() const
 {
 	RETURN_IF_NOT_BATTLE(true);
-	if(battleGetSiegeLevel() == CGTownInstance::NONE)
+	if(battleGetFortifications().wallsHealth == 0)
 		return true;
 
 	return battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED; 

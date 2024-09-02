@@ -33,6 +33,7 @@
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
 #include "entities/building/CBuilding.h"
+#include "entities/building/TownFortifications.h"
 #include "mapObjects/CBank.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
@@ -336,7 +337,7 @@ void PutArtifact::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPutArtifact(*this);
 }
 
-void EraseArtifact::visitTyped(ICPackVisitor & visitor)
+void BulkEraseArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitEraseArtifact(*this);
 }
@@ -1611,9 +1612,10 @@ void RebalanceStacks::applyGs(CGameState *gs)
 					//else - artifact can be lost :/
 					else
 					{
-						EraseArtifact ea;
-						ea.al = ArtifactLocation(dstHero->id, ArtifactPosition::CREATURE_SLOT);
-						ea.al.creature = dst.slot;
+						BulkEraseArtifacts ea;
+						ea.artHolder = dstHero->id;
+						ea.posPack.emplace_back(ArtifactPosition::CREATURE_SLOT);
+						ea.creature = dst.slot;
 						ea.applyGs(gs);
 						logNetwork->warn("Cannot move artifact! No free slots");
 					}
@@ -1701,37 +1703,46 @@ void PutArtifact::applyGs(CGameState *gs)
 	art->putAt(*hero, al.slot);
 }
 
-void EraseArtifact::applyGs(CGameState *gs)
+void BulkEraseArtifacts::applyGs(CGameState *gs)
 {
-	const auto artSet = gs->getArtSet(al.artHolder);
+	const auto artSet = gs->getArtSet(artHolder);
 	assert(artSet);
-	const auto slot = artSet->getSlot(al.slot);
-	if(slot->locked)
-	{
-		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
-		DisassembledArtifact dis;
-		dis.al.artHolder = al.artHolder;
-		
-		for(auto & slotInfo : artSet->artifactsWorn)
+
+	std::sort(posPack.begin(), posPack.end(), [](const ArtifactPosition & slot0, const ArtifactPosition & slot1) -> bool
 		{
-			auto art = slotInfo.second.artifact;
-			if(art->isCombined() && art->isPart(slot->artifact))
-			{
-				dis.al.slot = artSet->getArtPos(art);
-				break;
-			}
-		}
-		assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->artType->getNameTranslated());
-		dis.applyGs(gs);
-	}
-	else
+			return slot0.num > slot1.num;
+		});
+
+	for(const auto & slot : posPack)
 	{
-		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getNameTranslated());
+		const auto slotInfo = artSet->getSlot(slot);
+		if(slotInfo->locked)
+		{
+			logGlobal->debug("Erasing locked artifact: %s", slotInfo->artifact->artType->getNameTranslated());
+			DisassembledArtifact dis;
+			dis.al.artHolder = artHolder;
+
+			for(auto & slotInfoWorn : artSet->artifactsWorn)
+			{
+				auto art = slotInfoWorn.second.artifact;
+				if(art->isCombined() && art->isPart(slotInfo->getArt()))
+				{
+					dis.al.slot = artSet->getArtPos(art);
+					break;
+				}
+			}
+			assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
+			logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->artType->getNameTranslated());
+			dis.applyGs(gs);
+		}
+		else
+		{
+			logGlobal->debug("Erasing artifact %s", slotInfo->artifact->artType->getNameTranslated());
+		}
+		auto art = artSet->getArt(slot);
+		assert(art);
+		art->removeFrom(*artSet, slot);
 	}
-	auto art = artSet->getArt(al.slot);
-	assert(art);
-	art->removeFrom(*artSet, al.slot);
 }
 
 void BulkMoveArtifacts::applyGs(CGameState *gs)
@@ -2328,7 +2339,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 	if(!town)
 		return;
 
-	if(town->fortLevel() == CGTownInstance::NONE)
+	if(town->fortificationsLevel().wallsHealth == 0)
 		return;
 
 	for(const auto & part : attackedParts)

@@ -18,7 +18,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CTown::CTown()
-	: faction(nullptr), mageLevel(0), primaryRes(0), moatAbility(SpellID::NONE), defaultTavernChance(0)
+	: faction(nullptr), mageLevel(0), primaryRes(0), defaultTavernChance(0)
 {
 }
 

@@ -52,9 +52,10 @@ struct DLL_LINKAGE SimturnsInfo
 		h & optionalTurns;
 		h & allowHumanWithAI;
 
-		static_assert(Handler::Version::RELEASE_143 < Handler::Version::CURRENT, "Please add ignoreAlliedContacts to serialization for 1.6");
-		// disabled to allow multiplayer compatibility between 1.5.2 and 1.5.1
-		// h & ignoreAlliedContacts
+		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
+			h & ignoreAlliedContacts;
+		else
+			ignoreAlliedContacts = true;
 	}
 };
 
@@ -183,10 +184,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
-		if(h.version >= Handler::Version::HAS_EXTRA_OPTIONS)
-			h & extraOptionsInfo;
-		else
-			extraOptionsInfo = ExtraOptionsInfo();
+		h & extraOptionsInfo;
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;

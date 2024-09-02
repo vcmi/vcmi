@@ -190,6 +190,12 @@ void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::fun
 	requestIdentifier(ObjectCallback::fromNameWithType(name.getModScope(), name.String(), callback, false));
 }
 
+void CIdentifierStorage::requestIdentifierOptional(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
+{
+	if (!name.isNull())
+		requestIdentifier(type, name, callback);
+}
+
 void CIdentifierStorage::tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const
 {
 	requestIdentifier(ObjectCallback::fromNameAndType(scope, type, name, callback, true));
