@@ -25,6 +25,7 @@
 #include "CMT.h"
 #include "GameChatHandler.h"
 #include "CServerHandler.h"
+#include "PlayerLocalState.h"
 
 #include "../CCallback.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -101,7 +102,7 @@ void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & bat
 {
 	assert(cl.gameState()->getBattle(battleID));
 
-	if (!cl.gameState()->getBattle(battleID))
+	if(!cl.gameState()->getBattle(battleID))
 	{
 		logGlobal->error("Attempt to call battle interface without ongoing battle!");
 		return;
@@ -161,7 +162,7 @@ void ApplyClientNetPackVisitor::visitSetMana(SetMana & pack)
 	if(settings["session"]["headless"].Bool())
 		return;
 
-	for (auto window : GH.windows().findWindows<BattleWindow>())
+	for(auto window : GH.windows().findWindows<BattleWindow>())
 		window->heroManaPointsChanged(h);
 }
 
@@ -230,6 +231,15 @@ void ApplyClientNetPackVisitor::visitEraseStack(EraseStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
 	cl.invalidatePaths(); //it is possible to remove last non-native unit for current terrain and lose movement penalty
+	
+	if(LOCPLINT)
+	{
+		for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
+		{
+			if(hero->id == pack.army)
+				LOCPLINT->localState->verifyPath(hero);
+		}
+	}
 }
 
 void ApplyClientNetPackVisitor::visitSwapStacks(SwapStacks & pack)
@@ -237,15 +247,32 @@ void ApplyClientNetPackVisitor::visitSwapStacks(SwapStacks & pack)
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
 
 	if(pack.srcArmy != pack.dstArmy)
+	{
 		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
+		if(LOCPLINT)
+		{
+			for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
+			{
+				if(hero->id == pack.dstArmy)
+					LOCPLINT->localState->verifyPath(hero);
+			}
+		}
+	}
 }
 
 void ApplyClientNetPackVisitor::visitInsertNewStack(InsertNewStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
 
-	if(gs.getHero(pack.army))
+	auto hero = gs.getHero(pack.army);
+	if(hero)
+	{
 		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
+		if(LOCPLINT)
+		{
+			LOCPLINT->localState->verifyPath(hero);
+		}
+	}
 }
 
 void ApplyClientNetPackVisitor::visitRebalanceStacks(RebalanceStacks & pack)
@@ -253,7 +280,17 @@ void ApplyClientNetPackVisitor::visitRebalanceStacks(RebalanceStacks & pack)
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
 
 	if(pack.srcArmy != pack.dstArmy)
+	{
 		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
+		if(LOCPLINT)
+		{
+			for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
+			{
+				if(hero->id == pack.dstArmy || hero->id == pack.srcArmy)
+					LOCPLINT->localState->verifyPath(hero);
+			}
+		}
+	}
 }
 
 void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & pack)
@@ -266,7 +303,18 @@ void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & p
 		dispatchGarrisonChange(cl, pack.moves[0].srcArmy, destArmy);
 
 		if(pack.moves[0].srcArmy != destArmy)
+		{
 			cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
+			if(LOCPLINT)
+			{
+				// update all paths
+				for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
+				{
+					if(hero->id == destArmy || hero->id == pack.moves[0].srcArmy)
+						LOCPLINT->localState->verifyPath(hero);
+				}
+			}
+		}
 	}
 }
 
@@ -313,6 +361,15 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 				callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 
 			cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
+			
+			if(LOCPLINT)
+			{
+				for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
+				{
+					if(hero->id == pack.srcArtHolder || hero->id == pack.dstArtHolder)
+						LOCPLINT->localState->verifyPath(hero);
+				}
+			}
 		}
 	};
 
@@ -343,6 +400,15 @@ void ApplyClientNetPackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactAssembled, pack.al);
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
+	if(LOCPLINT)
+	{
+		for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
+		{
+			if(hero->id == pack.al.artHolder)
+				LOCPLINT->localState->verifyPath(hero);
+		}
+	}
+
 }
 
 void ApplyClientNetPackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack)
@@ -350,6 +416,14 @@ void ApplyClientNetPackVisitor::visitDisassembledArtifact(DisassembledArtifact &
 	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactDisassembled, pack.al);
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
+	if(LOCPLINT)
+	{
+		for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
+		{
+			if(hero->id == pack.al.artHolder)
+				LOCPLINT->localState->verifyPath(hero);
+		}
+	}
 }
 
 void ApplyClientNetPackVisitor::visitHeroVisit(HeroVisit & pack)
@@ -363,7 +437,7 @@ void ApplyClientNetPackVisitor::visitNewTurn(NewTurn & pack)
 {
 	cl.invalidatePaths();
 
-	if (pack.newWeekNotification)
+	if(pack.newWeekNotification)
 	{
 		const auto & newWeek = *pack.newWeekNotification;
 
@@ -380,7 +454,7 @@ void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 	case GiveBonus::ETarget::OBJECT:
 		{
 			const CGHeroInstance *h = gs.getHero(pack.id.as<ObjectInstanceID>());
-			if (h)
+			if(h)
 				callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, true);
 		}
 		break;
@@ -419,7 +493,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 
 	bool lastHumanEndsGame = CSH->howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
 
-	if (lastHumanEndsGame)
+	if(lastHumanEndsGame)
 	{
 		assert(adventureInt);
 		if(adventureInt)
@@ -446,9 +520,9 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 	{
 		cl.initPlayerInterfaces();
 
-		for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 		{
-			if (cl.gameState()->isPlayerMakingTurn(player))
+			if(cl.gameState()->isPlayerMakingTurn(player))
 			{
 				callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
 				callOnlyThatInterface(cl, player, &CGameInterface::yourTurn, QueryID::NONE);
@@ -482,7 +556,7 @@ void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 	case GiveBonus::ETarget::OBJECT:
 		{
 			const CGHeroInstance *h = gs.getHero(pack.whoID.as<ObjectInstanceID>());
-			if (h)
+			if(h)
 				callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, false);
 		}
 		break;
@@ -701,7 +775,7 @@ void ApplyFirstClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & 
 	}
 
 	// invalidate section of map view with our object and force an update with new flag color
-	if (pack.what == ObjProperty::OWNER && CGI->mh)
+	if(pack.what == ObjProperty::OWNER && CGI->mh)
 	{
 		auto object = gs.getObjInstance(pack.id);
 		CGI->mh->onObjectInstantRemove(object, object->getOwner());
@@ -718,7 +792,7 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 	}
 
 	// invalidate section of map view with our object and force an update with new flag color
-	if (pack.what == ObjProperty::OWNER && CGI->mh)
+	if(pack.what == ObjProperty::OWNER && CGI->mh)
 	{
 		auto object = gs.getObjInstance(pack.id);
 		CGI->mh->onObjectInstantAdd(object, object->getOwner());
@@ -807,7 +881,7 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 
 	const CStack *activated = gs.getBattle(pack.battleID)->battleGetStackByID(pack.stack);
 	PlayerColor playerToCall; //pack.player that will move activated stack
-	if (activated->hasBonusOfType(BonusType::HYPNOTIZED))
+	if(activated->hasBonusOfType(BonusType::HYPNOTIZED))
 	{
 		playerToCall = gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color == activated->unitOwner()
 			? gs.getBattle(pack.battleID)->getSide(BattleSide::DEFENDER).color
