@@ -226,36 +226,11 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 					{
 						return BattleAction::makeDefend(stack);
 					}
-
-					auto enemyMellee = hb->getUnitsIf([this](const battle::Unit * u) -> bool
-						{
-							return u->unitSide() == BattleSide::ATTACKER && !hb->battleCanShoot(u);
-						});
-
-					bool isTargetOutsideFort = bestAttack.dest.getY() < GameConstants::BFIELD_WIDTH - 4;
-					bool siegeDefense = stack->unitSide() == BattleSide::DEFENDER
-						&& !bestAttack.attack.shooting
-						&& hb->battleGetFortifications().hasMoat
-						&& !enemyMellee.empty()
-						&& isTargetOutsideFort;
-
-					if(siegeDefense)
+					else
 					{
-						logAi->trace("Evaluating exchange at %d self-defense", stack->getPosition().hex);
-
-						BattleAttackInfo bai(stack, stack, 0, false);
-						AttackPossibility apDefend(stack->getPosition(), stack->getPosition(), bai);
-
-						float defenseValue = scoreEvaluator.evaluateExchange(apDefend, 0, *targets, damageCache, hb);
-
-						if((defenseValue > score && score <= 0) || (defenseValue > 2 * score && score > 0))
-						{
-							return BattleAction::makeDefend(stack);
-						}
+						activeActionMade = true;
+						return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defenderPos, bestAttack.from);
 					}
-					
-					activeActionMade = true;
-					return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defenderPos, bestAttack.from);
 				}
 			}
 		}

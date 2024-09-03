@@ -28,12 +28,6 @@ float BattleExchangeVariant::trackAttack(
 	std::shared_ptr<HypotheticBattle> hb,
 	DamageCache & damageCache)
 {
-	if(!ap.attackerState)
-	{
-		logAi->trace("Skipping fake ap attack");
-		return 0;
-	}
-
 	auto attacker = hb->getForUpdate(ap.attack.attacker->unitId());
 
 	float attackValue = ap.attackValue();

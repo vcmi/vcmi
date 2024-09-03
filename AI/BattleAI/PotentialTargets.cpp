@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "PotentialTargets.h"
 #include "../../lib/CStack.h"//todo: remove
-#include "../../lib/mapObjects/CGTownInstance.h"
 
 PotentialTargets::PotentialTargets(
 	const battle::Unit * attacker,

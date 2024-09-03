@@ -12,10 +12,6 @@
 #include "../../lib/CStack.h" // TODO: remove
                               // Eventually only IBattleInfoCallback and battle::Unit should be used, 
                               // CUnitState should be private and CStack should be removed completely
-#include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/spells/ObstacleCasterProxy.h"
-#include "../../lib/battle/CObstacleInstance.h"
 
 uint64_t averageDmg(const DamageRange & range)
 {
@@ -29,55 +25,9 @@ void DamageCache::cacheDamage(const battle::Unit * attacker, const battle::Unit 
 	damageCache[attacker->unitId()][defender->unitId()] = static_cast<float>(damage) / attacker->getCount();
 }
 
-void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side)
-{
-	for(const auto & obst : hb->battleGetAllObstacles(side))
-	{
-		auto spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obst.get());
-
-		if(!spellObstacle || !obst->triggersEffects())
-			continue;
-
-		auto triggerAbility = VLC->spells()->getById(obst->getTrigger());
-		auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
-
-		if(!triggerIsNegative)
-			continue;
-
-		const auto * hero = hb->battleGetFightingHero(spellObstacle->casterSide);
-		auto caster = spells::ObstacleCasterProxy(hb->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
-
-		auto affectedHexes = obst->getAffectedTiles();
-		auto stacks = hb->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->alive(); });
-
-		for(auto stack : stacks)
-		{
-			std::shared_ptr<HypotheticBattle> inner = std::make_shared<HypotheticBattle>(hb->env, hb);
-			auto cast = spells::BattleCast(hb.get(), &caster, spells::Mode::PASSIVE, obst->getTrigger().toSpell());
-			auto updated = inner->getForUpdate(stack->unitId());
-
-			spells::Target target;
-			target.push_back(spells::Destination(updated.get()));
-
-			cast.castEval(inner->getServerCallback(), target);
-
-			auto damageDealt = stack->getAvailableHealth() - updated->getAvailableHealth();
-
-			for(auto hex : affectedHexes)
-			{
-				obstacleDamage[hex][stack->unitId()] = damageDealt;
-			}
-		}
-	}
-}
 
 void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side)
 {
-	if(parent == nullptr)
-	{
-		buildObstacleDamageCache(hb, side);
-	}
-
 	auto stacks = hb->battleGetUnitsIf([=](const battle::Unit * u) -> bool
 		{
 			return u->isValidTarget();
@@ -118,23 +68,6 @@ int64_t DamageCache::getDamage(const battle::Unit * attacker, const battle::Unit
 		cacheDamage(attacker, defender, hb);
 
 	return damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
-}
-
-int64_t DamageCache::getObstacleDamage(BattleHex hex, const battle::Unit * defender)
-{
-	if(parent)
-		return parent->getObstacleDamage(hex, defender);
-
-	auto damages = obstacleDamage.find(hex);
-
-	if(damages == obstacleDamage.end())
-		return 0;
-
-	auto damage = damages->second.find(defender->unitId());
-
-	return damage == damages->second.end()
-		? 0
-		: damage->second;
 }
 
 int64_t DamageCache::getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)
@@ -354,15 +287,6 @@ AttackPossibility AttackPossibility::evaluate(
 			if(!vstd::contains_if(retaliatedUnits, [attacker](const battle::Unit * u) -> bool { return u->unitId() == attacker->unitId(); }))
 			{
 				retaliatedUnits.push_back(attacker);
-			}
-
-			auto obstacleDamage = damageCache.getObstacleDamage(hex, attacker);
-
-			if(obstacleDamage > 0)
-			{
-				ap.attackerDamageReduce += calculateDamageReduce(nullptr, attacker, obstacleDamage, damageCache, state);
-
-				ap.attackerState->damage(obstacleDamage);
 			}
 		}
 
