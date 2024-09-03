@@ -171,13 +171,13 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				switch(std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 				{
 				case 0:
-					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE); };
 				case 1:
 					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
-					return []() { CMainMenu::openLobby(ESelectionScreen::campaignList, true, {}, ELoadMode::NONE);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::campaignList, true, {}, ELoadMode::NONE); };
 				case 3:
-					return std::bind(CMainMenu::startTutorial);
+					return []() { CMainMenu::startTutorial(); };
 				}
 				break;
 			}
@@ -186,25 +186,25 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				switch(std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 				{
 				case 0:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::SINGLE);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::SINGLE); };
 				case 1:
 					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::CAMPAIGN);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::CAMPAIGN); };
 				case 3:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::TUTORIAL);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::TUTORIAL); };
 
 				}
 			}
 			break;
 			case 4: //exit
 			{
-				return std::bind(CInfoWindow::showYesNoDialog, CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
+				return []() { CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1)); };
 			}
 			break;
 			case 5: //highscores
 			{
-				return std::bind(CMainMenu::openHighScoreScreen);
+				return []() { CMainMenu::openHighScoreScreen(); };
 			}
 			}
 		}
