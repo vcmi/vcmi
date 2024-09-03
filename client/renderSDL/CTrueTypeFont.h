@@ -30,7 +30,8 @@ class CTrueTypeFont final : public IFont
 
 	std::pair<std::unique_ptr<ui8[]>, ui64> loadData(const JsonNode & config);
 	TTF_Font * loadFont(const JsonNode & config);
-	int getFontStyle(const JsonNode & config);
+	int getPointSize(const JsonNode & config) const;
+	int getFontStyle(const JsonNode & config) const;
 
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 public:
