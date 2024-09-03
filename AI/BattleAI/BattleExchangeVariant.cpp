@@ -491,18 +491,15 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 		vstd::concatenate(allReachableUnits, turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex));
 	}
 
-	if(!ap.attack.attacker->isTurret())
+	for(auto hex : ap.attack.attacker->getHexes())
 	{
-		for(auto hex : ap.attack.attacker->getHexes())
+		auto unitsReachingAttacker = turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex);
+		for(auto unit : unitsReachingAttacker)
 		{
-			auto unitsReachingAttacker = turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex);
-			for(auto unit : unitsReachingAttacker)
+			if(unit->unitSide() != ap.attack.attacker->unitSide())
 			{
-				if(unit->unitSide() != ap.attack.attacker->unitSide())
-				{
-					allReachableUnits.push_back(unit);
-					result.enemyUnitsReachingAttacker.insert(unit->unitId());
-				}
+				allReachableUnits.push_back(unit);
+				result.enemyUnitsReachingAttacker.insert(unit->unitId());
 			}
 		}
 	}

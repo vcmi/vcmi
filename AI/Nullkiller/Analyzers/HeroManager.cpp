@@ -126,22 +126,19 @@ void HeroManager::update()
 	}
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
-	
-	std::map<HeroPtr, HeroRole> newHeroRoles;
+	heroRoles.clear();
 
 	for(auto hero : myHeroes)
 	{
 		if(hero->patrol.patrolling)
 		{
-			newHeroRoles[hero] = HeroRole::MAIN;
+			heroRoles[hero] = HeroRole::MAIN;
 		}
 		else
 		{
-			newHeroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+			heroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
 		}
 	}
-
-	heroRoles = std::move(newHeroRoles);
 
 	for(auto hero : myHeroes)
 	{
