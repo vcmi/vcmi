@@ -478,7 +478,7 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 		BuildingID buildID = BuildingID(BuildingID::getDwellingFromLevel(level, 0));
 		int upgradeNum = 0;
 
-		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(town->creatures.size()))
+		for (; town->buildings.count(buildID); upgradeNum++, BuildingID::advanceDwelling(buildID))
 		{
 			if (hasBuilt(buildID) && town->creatures.at(level).size() > upgradeNum)
 				creatures[level].second.push_back(town->creatures[level][upgradeNum]);
