@@ -239,7 +239,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<ArrangeStacks>(183);
 	s.template registerType<DisbandCreature>(184);
 	s.template registerType<BuildStructure>(185);
-	s.template registerType<TriggerTownSpecialBuildingAction>(186);
+	s.template registerType<VisitTownBuilding>(186);
 	s.template registerType<RecruitCreatures>(187);
 	s.template registerType<UpgradeCreature>(188);
 	s.template registerType<GarrisonHeroSwap>(189);

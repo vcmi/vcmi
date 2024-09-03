@@ -1181,7 +1181,10 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
 	for (auto & building : t->rewardableBuildings)
-		building.second->onHeroVisit(h);
+	{
+		if (!t->town->buildings.at(building.first)->manualHeroVisit)
+			building.second->onHeroVisit(h);
+	}
 }
 
 void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
@@ -2148,20 +2151,39 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	return true;
 }
 
-bool CGameHandler::triggerTownSpecialBuildingAction(ObjectInstanceID tid, BuildingSubID::EBuildingSubID sid)
+bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 {
 	const CGTownInstance * t = getTown(tid);
 
-	if(t->town->getBuildingType(sid) == BuildingID::NONE)
+	if(!t->hasBuilt(bid))
 		return false;
 
-	if(sid == BuildingSubID::EBuildingSubID::BANK)
+	auto subID = t->town->buildings.at(bid)->subId;
+
+	if(subID == BuildingSubID::EBuildingSubID::BANK)
 	{
 		TResources res;
 		res[EGameResID::GOLD] = 2500;
 		giveResources(t->getOwner(), res);
 
 		setObjPropertyValue(t->id, ObjProperty::BONUS_VALUE_SECOND, 2500);
+		return true;
+	}
+
+	if (t->rewardableBuildings.count(bid))
+	{
+		auto & hero = t->garrisonHero ? t->garrisonHero : t->visitingHero;
+		auto * building = t->rewardableBuildings.at(bid);
+
+		if (hero && t->town->buildings.at(bid)->manualHeroVisit)
+		{
+			// FIXME: query might produce unintended side effects, double check
+			auto visitQuery = std::make_shared<CObjectVisitQuery>(this, t, hero, t->visitablePos());
+			queries->addQuery(visitQuery);
+			building->onHeroVisit(hero);
+			queries->popIfTop(visitQuery);
+			return true;
+		}
 	}
 
 	return true;

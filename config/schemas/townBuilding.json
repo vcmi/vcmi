@@ -61,11 +61,15 @@
 			"description" : "If set to true, this building will replace all bonuses from base building, leaving only bonuses defined by this building",
 			"type" : "boolean"
 		},
+		"manualHeroVisit" : {
+			"description" : "If set to true, this building will not automatically activate on new day or on entering town and needs to be activated manually on click",
+			"type" : "boolean"
+		},
 		"configuration" : {
 			"description" : "Optional, configuration of building that can be activated by visiting hero",
 			"$ref" : "rewardable.json"
 		},
-		"firtufications" : {
+		"fortifications" : {
 			"type" : "object",
 			"additionalProperties" : false,
 			"description" : "Fortifications provided by this buildings, if any",

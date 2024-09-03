@@ -139,12 +139,12 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
-void ApplyGhNetPackVisitor::visitTriggerTownSpecialBuildingAction(TriggerTownSpecialBuildingAction & pack)
+void ApplyGhNetPackVisitor::visitVisitTownBuilding(VisitTownBuilding & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.tid);
 	gh.throwIfPlayerNotActive(&pack);
 
-	result = gh.triggerTownSpecialBuildingAction(pack.tid, pack.sid);
+	result = gh.visitTownBuilding(pack.tid, pack.bid);
 }
 
 void ApplyGhNetPackVisitor::visitRecruitCreatures(RecruitCreatures & pack)
