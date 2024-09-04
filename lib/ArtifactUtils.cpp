@@ -14,7 +14,6 @@
 #include "GameSettings.h"
 #include "spells/CSpellHandler.h"
 
-#include "mapping/CMap.h"
 #include "mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -256,33 +255,23 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const A
 	return ArtifactUtils::createNewArtifactInstance(aid.toArtifact());
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(const ArtifactID & aid, SpellID spellID)
 {
-	CArtifactInstance * art = nullptr;
 	if(aid.getNum() >= 0)
 	{
 		if(spellID == SpellID::NONE)
 		{
-			art = ArtifactUtils::createNewArtifactInstance(aid);
+			return ArtifactUtils::createNewArtifactInstance(aid);
 		}
 		else
 		{
-			art = ArtifactUtils::createScroll(spellID);
+			return ArtifactUtils::createScroll(spellID);
 		}
 	}
 	else
 	{
-		art = new CArtifactInstance(); // random, empty
+		return new CArtifactInstance(); // random, empty
 	}
-	map->addNewArtifactInstance(art);
-	if(art->artType && art->isCombined())
-	{
-		for(auto & part : art->getPartsInfo())
-		{
-			map->addNewArtifactInstance(part.art);
-		}
-	}
-	return art;
 }
 
 DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, const SpellID & sid)

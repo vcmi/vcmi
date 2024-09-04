@@ -1686,7 +1686,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spellBook", spells);
 
 	if(handler.saving)
-		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", nullptr);
+		CArtifactSet::serializeJsonArtifacts(handler, "artifacts");
 }
 
 void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)

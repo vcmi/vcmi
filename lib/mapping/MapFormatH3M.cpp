@@ -954,10 +954,11 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	// H3 bug workaround - Enemy hero on 3rd scenario of Good1.h3c campaign ("Long Live The Queen")
 	// He has Shackles of War (normally - MISC slot artifact) in LEFT_HAND slot set in editor
 	// Artifact seems to be missing in game, so skip artifacts that don't fit target slot
-	auto * artifact = ArtifactUtils::createArtifact(map, artifactID);
+	auto * artifact = ArtifactUtils::createArtifact(artifactID);
 	if(artifact->canBePutAt(hero, ArtifactPosition(slot)))
 	{
 		artifact->putAt(*hero, ArtifactPosition(slot));
+		map->addNewArtifactInstance(artifact);
 	}
 	else
 	{
@@ -1305,7 +1306,8 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 		artID = ArtifactID(objectTemplate->subid);
 	}
 
-	object->storedArtifact = ArtifactUtils::createArtifact(map, artID, spellID.getNum());
+	object->storedArtifact = ArtifactUtils::createArtifact(artID, spellID.getNum());
+	map->addNewArtifactInstance(object->storedArtifact);
 	return object;
 }
 

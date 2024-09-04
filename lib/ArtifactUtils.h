@@ -21,7 +21,6 @@ class CGHeroInstance;
 class CArtifactSet;
 class CArtifactInstance;
 struct ArtSlotInfo;
-class CMap;
 
 namespace ArtifactUtils
 {
@@ -43,7 +42,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE CArtifactInstance * createScroll(const SpellID & sid);
 	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(const CArtifact * art);
 	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(const ArtifactID & aid);
-	DLL_LINKAGE CArtifactInstance * createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID = SpellID::NONE);
+	DLL_LINKAGE CArtifactInstance * createArtifact(const ArtifactID & aid, SpellID spellID = SpellID::NONE);
 	DLL_LINKAGE void insertScrrollSpellName(std::string & description, const SpellID & sid);
 }
 
