@@ -280,7 +280,7 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 
 		if (weekType == EWeekType::PLAGUE)
 			resultingCreatures = creaturesBefore / 2;
-		else if (weekType == EWeekType::DOUBLE_GROWTH)
+		else if (weekType == EWeekType::DOUBLE_GROWTH && vstd::contains(t->creatures.at(k).second, creatureWeek))
 			resultingCreatures = (creaturesBefore + creatureGrowth) * 2;
 		else
 			resultingCreatures = creaturesBefore + creatureGrowth;

@@ -536,7 +536,14 @@ void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 
 const IOwnableObject * CGDwelling::asOwnable() const
 {
-	return this;
+	switch (ID.toEnum())
+	{
+		case Obj::WAR_MACHINE_FACTORY:
+		case Obj::REFUGEE_CAMP:
+			return nullptr; // can't be owned
+		default:
+			return this;
+	}
 }
 
 ResourceSet CGDwelling::dailyIncome() const
