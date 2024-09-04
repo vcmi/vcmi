@@ -180,6 +180,7 @@ public:
 	std::vector<const CArtifact *> townMerchantArtifacts;
 	std::vector<TradeItemBuy> townUniversitySkills;
 
+	void overrideGameSettings(const JsonNode & input);
 	void overrideGameSetting(EGameSettings option, const JsonNode & input);
 	const IGameSettings & getSettings() const;
 

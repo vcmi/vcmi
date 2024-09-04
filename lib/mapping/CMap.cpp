@@ -795,5 +795,9 @@ void CMap::overrideGameSetting(EGameSettings option, const JsonNode & input)
 	return gameSettings->addOverride(option, input);
 }
 
+void CMap::overrideGameSettings(const JsonNode & input)
+{
+	return gameSettings->loadOverrides(input);
+}
 
 VCMI_LIB_NAMESPACE_END
