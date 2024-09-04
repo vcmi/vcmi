@@ -407,8 +407,10 @@ CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node, CMap
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	if (map)
+	{
 		hero->serializeJsonArtifacts(handler, "artifacts");
-	map->addNewArtifactInstance(*hero);
+		map->addNewArtifactInstance(*hero);
+	}
 	return hero;
 }
 

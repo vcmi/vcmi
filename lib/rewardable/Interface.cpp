@@ -157,7 +157,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 	}
 
 	for(const ArtifactID & art : info.reward.artifacts)
-		cb->giveHeroNewArtifact(hero, art.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(hero, art, ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!info.reward.spells.empty())
 	{

@@ -163,7 +163,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			for(const auto & ci : parts)
 			{
 				if(ci.art->getTypeId() != elem)
-					cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
+					cb->giveHeroNewArtifact(h, ci.art->getTypeId(), ArtifactPosition::BACKPACK_START);
 			}
 		}
 	}

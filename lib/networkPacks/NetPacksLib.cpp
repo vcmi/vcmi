@@ -1472,9 +1472,9 @@ void NewObject::applyGs(CGameState *gs)
 
 void NewArtifact::applyGs(CGameState *gs)
 {
-	auto art = ArtifactUtils::createArtifact(id);
+	auto art = ArtifactUtils::createArtifact(artId, spellId);
 	gs->map->addNewArtifactInstance(art);
-	PutArtifact pa(ArtifactLocation(artHolder, pos));
+	PutArtifact pa(ArtifactLocation(artHolder, pos), false);
 	pa.art = art;
 	pa.applyGs(gs);
 }

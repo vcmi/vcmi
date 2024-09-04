@@ -605,7 +605,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
-		cb->giveHeroNewArtifact(h, gainedArtifact.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(h, gainedArtifact, ArtifactPosition::FIRST_AVAILABLE);
 		iw.components.emplace_back(ComponentType::ARTIFACT, gainedArtifact);
 	}
 

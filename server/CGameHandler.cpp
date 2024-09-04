@@ -2267,7 +2267,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
 		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid war machine artifact");
 
-		return giveHeroNewArtifact(hero, art);
+		return giveHeroNewArtifact(hero, artId, ArtifactPosition::FIRST_AVAILABLE);
 	}
 	else
 	{
@@ -2502,7 +2502,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 
 	auto hero = getHero(dst.artHolder);
 	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstSlot))
-		giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
 	if(src.artHolder != dst.artHolder)
@@ -2543,7 +2543,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 			if(auto dstHero = getHero(dstId))
 			{
 				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
-					giveHeroNewArtifact(dstHero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+					giveHeroNewArtifact(dstHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 			}
 		}
 	};
@@ -2736,7 +2736,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		}
 		
 		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
-			giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+			giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 		AssembledArtifact aa;
 		aa.al = dstLoc;
@@ -2793,7 +2793,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 			return false;
 
 		giveResource(hero->getOwner(),EGameResID::GOLD,-GameConstants::SPELLBOOK_GOLD_COST);
-		giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 		assert(hero->getArt(ArtifactPosition::SPELLBOOK));
 		giveSpells(town,hero);
 		return true;
@@ -2821,7 +2821,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 			}
 
 			giveResource(hero->getOwner(),EGameResID::GOLD,-price);
-			return giveHeroNewArtifact(hero, art);
+			return giveHeroNewArtifact(hero, aid, ArtifactPosition::FIRST_AVAILABLE);
 		}
 		else
 			COMPLAIN_RET("This machine is unavailable here!");
@@ -2874,7 +2874,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 		COMPLAIN_RET("Cannot find selected artifact on the list");
 
 	sendAndApply(&saa);
-	giveHeroNewArtifact(h, aid.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+	giveHeroNewArtifact(h, aid, ArtifactPosition::FIRST_AVAILABLE);
 	return true;
 }
 
@@ -3416,7 +3416,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the " ...
 		iw.text.appendName(grail); // ... " The Grail"
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
-		giveHeroNewArtifact(h, grail.toArtifact(), ArtifactPosition::FIRST_AVAILABLE); //give grail
+		giveHeroNewArtifact(h, grail, ArtifactPosition::FIRST_AVAILABLE); //give grail
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
@@ -3756,13 +3756,15 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInsta
 	}
 }
 
-bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos)
+bool CGameHandler::giveHeroNewArtifact(
+	const CGHeroInstance * h, const CArtifact * artType, const SpellID & spellId, const ArtifactPosition & pos)
 {
 	assert(artType);
 
 	NewArtifact na;
 	na.artHolder = h->id;
-	na.id = artType->getId();
+	na.artId = artType->getId();
+	na.spellId = spellId;
 	na.pos = pos;
 
 	if(pos == ArtifactPosition::FIRST_AVAILABLE)
@@ -3782,6 +3784,16 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 	}
 	sendAndApply(&na);
 	return true;
+}
+
+bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos)
+{
+	return giveHeroNewArtifact(h, artId.toArtifact(), SpellID::NONE, pos);
+}
+
+bool CGameHandler::giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos)
+{
+	return giveHeroNewArtifact(h, ArtifactID(ArtifactID::SPELL_SCROLL).toArtifact(), spellId, pos);
 }
 
 void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
