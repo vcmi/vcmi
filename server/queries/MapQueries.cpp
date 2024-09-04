@@ -71,14 +71,14 @@ void CObjectVisitQuery::onExposure(QueryPtr topQuery)
 {
 	//Object may have been removed and deleted.
 	if(gh->isValidObject(visitedObject))
-		topQuery->notifyObjectAboutRemoval(*this);
+		topQuery->notifyObjectAboutRemoval(visitedObject, visitingHero);
 
 	owner->popIfTop(*this);
 }
 
-void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	objectVisit.visitedObject->garrisonDialogClosed(objectVisit.visitingHero);
+	visitedObject->garrisonDialogClosed(visitingHero);
 }
 
 CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance * up, const CArmedInstance * down):
@@ -150,10 +150,10 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 	return CDialogQuery::blocksPack(pack);
 }
 
-void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CBlockingDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(answer);
-	objectVisit.visitedObject->blockingDialogAnswered(objectVisit.visitingHero, *answer);
+	visitedObject->blockingDialogAnswered(visitingHero, *answer);
 }
 
 CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog & bd):
@@ -223,12 +223,12 @@ bool OpenWindowQuery::blocksPack(const CPack *pack) const
 	return CDialogQuery::blocksPack(pack);
 }
 
-void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CTeleportDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	// do not change to dynamic_ptr_cast - SIGSEGV!
-	auto obj = dynamic_cast<const CGTeleport*>(objectVisit.visitedObject);
+	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
 	if(obj)
-		obj->teleportDialogAnswered(objectVisit.visitingHero, *answer, td.exits);
+		obj->teleportDialogAnswered(visitingHero, *answer, td.exits);
 	else
 		logGlobal->error("Invalid instance in teleport query");
 }
@@ -254,9 +254,9 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
-void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
+	visitedObject->heroLevelUpDone(visitingHero);
 }
 
 CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp & Clu, const CGHeroInstance * Hero):
@@ -273,9 +273,9 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->levelUpCommander(hero->commander, clu.skills[*answer]);
 }
 
-void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
+	visitedObject->heroLevelUpDone(visitingHero);
 }
 
 CHeroMovementQuery::CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):

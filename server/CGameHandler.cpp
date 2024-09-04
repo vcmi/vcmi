@@ -3851,7 +3851,7 @@ bool CGameHandler::isValidObject(const CGObjectInstance *obj) const
 
 bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 {
-	if (!strcmp(typeid(*pack).name(), typeid(PlayerMessage).name()))
+	if (dynamic_cast<const PlayerMessage *>(pack) != nullptr)
 		return false;
 
 	auto query = queries->topQuery(player);

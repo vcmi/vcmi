@@ -87,7 +87,7 @@ bool CQuery::blocksPack(const CPack * pack) const
 	return false;
 }
 
-void CQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 
 }

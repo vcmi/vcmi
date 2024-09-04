@@ -23,12 +23,12 @@
 #include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/Cast.h"
 
-void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CBattleQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(result);
 
 	if(result)
-		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
+		visitedObject->battleFinished(visitingHero, *result);
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):

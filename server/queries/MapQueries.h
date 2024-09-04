@@ -73,7 +73,7 @@ public:
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
 	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 	bool blocksPack(const CPack *pack) const override;
 };
 
@@ -85,7 +85,7 @@ public:
 
 	CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog &bd);
 
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
 
 class OpenWindowQuery : public CDialogQuery
@@ -105,7 +105,7 @@ public:
 
 	CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog &td);
 
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
 
 class CHeroLevelUpDialogQuery : public CDialogQuery
@@ -114,7 +114,7 @@ public:
 	CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp &Hlu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 
 	HeroLevelUp hlu;
 	const CGHeroInstance * hero;
@@ -126,7 +126,7 @@ public:
 	CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp &Clu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 
 	CommanderLevelUp clu;
 	const CGHeroInstance * hero;
