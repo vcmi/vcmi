@@ -3760,9 +3760,15 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 {
 	assert(artType);
 
+	NewArtifact na;
+	na.artHolder = h->id;
+	na.id = artType->getId();
+	na.pos = pos;
+
 	if(pos == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		if(!artType->canBePutAt(h, ArtifactUtils::getArtAnyPosition(h, artType->getId())))
+		na.pos = ArtifactUtils::getArtAnyPosition(h, artType->getId());
+		if(!artType->canBePutAt(h, na.pos))
 			COMPLAIN_RET("Cannot put artifact in that slot!");
 	}
 	else if(ArtifactUtils::isSlotBackpack(pos))
@@ -3774,18 +3780,8 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 	{
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 	}
-
-	auto * newArtInst = new CArtifactInstance();
-	newArtInst->artType = artType; // *NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
-
-	NewArtifact na;
-	na.art = newArtInst;
-	sendAndApply(&na); // -> updates newArtInst!!!
-
-	if(putArtifact(ArtifactLocation(h->id, pos), newArtInst, false))
-		return true;
-	else
-		return false;
+	sendAndApply(&na);
+	return true;
 }
 
 void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)

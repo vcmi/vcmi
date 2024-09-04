@@ -987,14 +987,18 @@ struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 
 struct DLL_LINKAGE NewArtifact : public CArtifactOperationPack
 {
-	ConstTransitivePtr<CArtifactInstance> art;
+	ObjectInstanceID artHolder;
+	ArtifactID id;
+	ArtifactPosition pos;
 
 	void applyGs(CGameState * gs) override;
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & art;
+		h & artHolder;
+		h & id;
+		h & pos;
 	}
 };
 
