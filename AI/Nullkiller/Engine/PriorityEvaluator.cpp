@@ -62,8 +62,6 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	threatTurns(INT_MAX),
 	involvesSailing(false),
 	isTradeBuilding(false),
-	isChain(false),
-	isEnemy(false),
 	isExchange(false)
 {
 }
@@ -1031,7 +1029,6 @@ public:
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
-		evaluationContext.isChain = true;
 
 		std::map<const CGHeroInstance *, float> costsPerHero;
 
@@ -1069,8 +1066,6 @@ public:
 			evaluationContext.conquestValue += evaluationContext.evaluator.getConquestValue(target);
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 			evaluationContext.armyInvolvement += army->getArmyCost();
-			if (target->tempOwner != PlayerColor::NEUTRAL)
-				evaluationContext.isEnemy = true;
 		}
 
 		vstd::amax(evaluationContext.armyLossPersentage, path.getTotalArmyLoss() / (double)path.getHeroStrength());
@@ -1118,9 +1113,6 @@ public:
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army) / boost;
 			evaluationContext.movementCostByRole[role] += objInfo.second.movementCost / boost;
 			evaluationContext.movementCost += objInfo.second.movementCost / boost;
-
-			if (target->tempOwner != PlayerColor::NEUTRAL)
-				evaluationContext.isEnemy = true;
 
 			vstd::amax(evaluationContext.turn, objInfo.second.turn / boost);
 
@@ -1372,7 +1364,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	{
 		float score = 0;
 		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
-
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, isDefend: %d, fuzzy: %f",
 			priorityTier,
 			task->toString(),
@@ -1395,6 +1387,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.enemyHeroDangerRatio,
 			evaluationContext.isDefend,
 			fuzzyResult);
+#endif
 
 		switch (priorityTier)
 		{

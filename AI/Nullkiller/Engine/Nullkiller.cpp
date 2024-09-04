@@ -350,6 +350,11 @@ void Nullkiller::makeTurn()
 
 	const int MAX_DEPTH = 10;
 
+	resetAiState();
+
+	Goals::TGoalVec bestTasks;
+
+#if NKAI_TRACE_LEVEL >= 1
 	float totalHeroStrength = 0;
 	int totalTownLevel = 0;
 	for (auto heroInfo : cb->getHeroesInfo())
@@ -360,12 +365,8 @@ void Nullkiller::makeTurn()
 	{
 		totalTownLevel += townInfo->getTownLevel();
 	}
-
-	resetAiState();
-
-	Goals::TGoalVec bestTasks;
-
 	logAi->info("Beginning: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
+#endif
 	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		auto start = std::chrono::high_resolution_clock::now();
@@ -385,7 +386,9 @@ void Nullkiller::makeTurn()
 
 			if(bestTask->priority > 0)
 			{
+#if NKAI_TRACE_LEVEL >= 1
 				logAi->info("Pass %d: Performing task %s with prio: %d", i, bestTask->toString(), bestTask->priority);
+#endif
 				if(!executeTask(bestTask))
 					return;
 
@@ -485,7 +488,9 @@ void Nullkiller::makeTurn()
 
 				continue;
 			}
+#if NKAI_TRACE_LEVEL >= 1
 			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, bestTask->toString(), bestTask->priority);
+#endif
 			if(!executeTask(bestTask))
 			{
 				if(hasAnySuccess)
@@ -501,6 +506,17 @@ void Nullkiller::makeTurn()
 		if(!hasAnySuccess)
 		{
 			logAi->trace("Nothing was done this turn. Ending turn.");
+#if NKAI_TRACE_LEVEL >= 1
+			for (auto heroInfo : cb->getHeroesInfo())
+			{
+				totalHeroStrength += heroInfo->getTotalStrength();
+			}
+			for (auto townInfo : cb->getTownsInfo())
+			{
+				totalTownLevel += townInfo->getTownLevel();
+			}
+			logAi->info("End: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
+#endif
 			return;
 		}
 
@@ -509,15 +525,6 @@ void Nullkiller::makeTurn()
 			logAi->warn("Maxpass exceeded. Terminating AI turn.");
 		}
 	}
-	for (auto heroInfo : cb->getHeroesInfo())
-	{
-		totalHeroStrength += heroInfo->getTotalStrength();
-	}
-	for (auto townInfo : cb->getTownsInfo())
-	{
-		totalTownLevel += townInfo->getTownLevel();
-	}
-	logAi->info("End: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
 }
 
 bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
@@ -611,10 +618,10 @@ bool Nullkiller::handleTrading()
 				TResources required = buildAnalyzer->getTotalResourcesRequired();
 				TResources income = buildAnalyzer->getDailyIncome();
 				TResources available = cb->getResourceAmount();
-
+#if NKAI_TRACE_LEVEL >= 2
 				logAi->debug("Available %s", available.toString());
 				logAi->debug("Required  %s", required.toString());
-
+#endif
 				int mostWanted = -1;
 				int mostExpendable = -1;
 				float minRatio = std::numeric_limits<float>::max();
@@ -660,9 +667,9 @@ bool Nullkiller::handleTrading()
 						mostExpendable = i;
 					}
 				}
-
+#if NKAI_TRACE_LEVEL >= 2
 				logAi->debug("mostExpendable: %d mostWanted: %d", mostExpendable, mostWanted);
-
+#endif
 				if (mostExpendable == mostWanted || mostWanted == -1 || mostExpendable == -1)
 					return false;
 
@@ -674,7 +681,9 @@ bool Nullkiller::handleTrading()
 				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
 				{
 					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
+#if NKAI_TRACE_LEVEL >= 1
 					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
+#endif
 					haveTraded = true;
 					shouldTryToTrade = true;
 				}

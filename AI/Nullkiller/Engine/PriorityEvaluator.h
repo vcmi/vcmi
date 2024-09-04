@@ -79,8 +79,6 @@ struct DLL_EXPORT EvaluationContext
 	TResources buildingCost;
 	bool involvesSailing;
 	bool isTradeBuilding;
-	bool isChain;
-	bool isEnemy;
 	bool isExchange;
 
 	EvaluationContext(const Nullkiller * ai);
