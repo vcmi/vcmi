@@ -232,7 +232,7 @@ public:
 
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
-	void objectVisitEnded(const CObjectVisitQuery &query);
+	void objectVisitEnded(const CGHeroInstance *h, PlayerColor player);
 	bool dig(const CGHeroInstance *h);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 

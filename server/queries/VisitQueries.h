@@ -13,17 +13,35 @@
 
 //Created when hero visits object.
 //Removed when query above is resolved (or immediately after visit if no queries were created)
-class CObjectVisitQuery : public CQuery
+class VisitQuery : public CQuery
 {
+protected:
+	VisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero);
+
 public:
 	const CGObjectInstance *visitedObject;
 	const CGHeroInstance *visitingHero;
 
+	bool blocksPack(const CPack *pack) const final;
+	void onExposure(QueryPtr topQuery) final;
+};
+
+class MapObjectVisitQuery final : public VisitQuery
+{
+public:
 	bool removeObjectAfterVisit;
 
-	CObjectVisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero);
+	MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero);
 
-	bool blocksPack(const CPack *pack) const override;
-	void onRemoval(PlayerColor color) override;
-	void onExposure(QueryPtr topQuery) override;
+	void onRemoval(PlayerColor color) final;
+};
+
+class TownBuildingVisitQuery final : public VisitQuery
+{
+public:
+	BuildingID visitedBuilding;
+
+	TownBuildingVisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero, BuildingID buildingToVisit);
+
+	void onRemoval(PlayerColor color) final;
 };

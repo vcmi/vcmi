@@ -2178,8 +2178,7 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 
 		if (hero && t->town->buildings.at(bid)->manualHeroVisit)
 		{
-			// FIXME: query might produce unintended side effects, double check
-			auto visitQuery = std::make_shared<CObjectVisitQuery>(this, t, hero);
+			auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, hero, bid);
 			queries->addQuery(visitQuery);
 			building->onHeroVisit(hero);
 			queries->popIfTop(visitQuery);
@@ -3208,7 +3207,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 		throw std::runtime_error("Can not visit object that is being visited");
 	}
 
-	std::shared_ptr<CObjectVisitQuery> visitQuery;
+	std::shared_ptr<MapObjectVisitQuery> visitQuery;
 
 	auto startVisit = [&](ObjectVisitStarted & event)
 	{
@@ -3227,7 +3226,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 					visitedObject = visitedTown;
 			}
 		}
-		visitQuery = std::make_shared<CObjectVisitQuery>(this, visitedObject, h);
+		visitQuery = std::make_shared<MapObjectVisitQuery>(this, visitedObject, h);
 		queries->addQuery(visitQuery); //TODO real visit pos
 
 		HeroVisit hv;
@@ -3246,11 +3245,11 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 		queries->popIfTop(visitQuery); //visit ends here if no queries were created
 }
 
-void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
+void CGameHandler::objectVisitEnded(const CGHeroInstance *h, PlayerColor player)
 {
 	using events::ObjectVisitEnded;
 
-	logGlobal->debug("%s visit ends.\n", query.visitingHero->nodeName());
+	logGlobal->debug("%s visit ends.\n", h->nodeName());
 
 	auto endVisit = [&](ObjectVisitEnded & event)
 	{
@@ -3263,7 +3262,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
 
 	//TODO: ObjectVisitEnded should also have id of visited object,
 	//but this requires object being deleted only by `removeAfterVisit()` but not `removeObject()`
-	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, query.players.front(), query.visitingHero->id);
+	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, player, h->id);
 }
 
 bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
@@ -3874,7 +3873,7 @@ void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 	//If the object is being visited, there must be a matching query
 	for (const auto &query : queries->allQueries())
 	{
-		if (auto someVistQuery = std::dynamic_pointer_cast<CObjectVisitQuery>(query))
+		if (auto someVistQuery = std::dynamic_pointer_cast<MapObjectVisitQuery>(query))
 		{
 			if (someVistQuery->visitedObject == object)
 			{
@@ -3938,7 +3937,7 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 
 	for(const auto & query : queries->allQueries())
 	{
-		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		auto visit = std::dynamic_pointer_cast<const VisitQuery>(query);
 		if (visit && visit->visitedObject == obj)
 			return visit->visitingHero;
 	}
@@ -3951,7 +3950,7 @@ const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *h
 
 	for(const auto & query : queries->allQueries())
 	{
-		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		auto visit = std::dynamic_pointer_cast<const VisitQuery>(query);
 		if (visit && visit->visitingHero == hero)
 			return visit->visitedObject;
 	}
@@ -3968,7 +3967,7 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 	// visitation query is covered by other query that must be answered first
 
 	if (auto topQuery = queries->topQuery(hero->getOwner()))
-		if (auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(topQuery))
+		if (auto visit = std::dynamic_pointer_cast<const VisitQuery>(topQuery))
 			return !(visit->visitedObject == obj && visit->visitingHero == hero);
 
 	return true;
