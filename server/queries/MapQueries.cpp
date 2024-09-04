@@ -120,11 +120,12 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 void CBlockingDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(answer);
-	visitedObject->blockingDialogAnswered(visitingHero, *answer);
+	caller->blockingDialogAnswered(visitingHero, *answer);
 }
 
-CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog & bd):
-	CDialogQuery(owner)
+CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog & bd):
+	CDialogQuery(owner),
+	caller(caller)
 {
 	this->bd = bd;
 	addPlayer(bd.player);

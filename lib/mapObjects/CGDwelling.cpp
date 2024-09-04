@@ -244,7 +244,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		else
 			bd.text.replaceLocalString(EMetaText::ARRAY_TXT, 173 + (int)Slots().begin()->second->getQuantityID()*3);
 		bd.text.replaceName(*Slots().begin()->second);
-		cb->showBlockingDialog(&bd);
+		cb->showBlockingDialog(this, &bd);
 		return;
 	}
 
@@ -280,7 +280,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.flags |= BlockingDialog::SAFE_TO_AUTOACCEPT;
 	}
 
-	cb->showBlockingDialog(&bd);
+	cb->showBlockingDialog(this, &bd);
 }
 
 void CGDwelling::newTurn(vstd::RNG & rand) const

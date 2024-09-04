@@ -178,7 +178,7 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	if (banktext == 32)
 		bd.text.replaceRawString(getObjectName());
 
-	cb->showBlockingDialog(&bd);
+	cb->showBlockingDialog(this, &bd);
 }
 
 void CBank::doVisit(const CGHeroInstance * hero) const

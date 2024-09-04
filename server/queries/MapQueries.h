@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGObjectInstance;
+class IObjectInterface;
 VCMI_LIB_NAMESPACE_END
 
 //Created when player starts turn or when player puts game on [ause
@@ -60,9 +61,10 @@ public:
 class CBlockingDialogQuery : public CDialogQuery
 {
 public:
+	const IObjectInterface * caller;
 	BlockingDialog bd; //copy of pack... debug purposes
 
-	CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog &bd);
+	CBlockingDialogQuery(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog &bd);
 
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
