@@ -27,7 +27,6 @@
 #include "../lib/battle/Unit.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
-#include "../lib/serializer/Cast.h"
 
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {

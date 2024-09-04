@@ -51,7 +51,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include "../lib/serializer/Cast.h"
 #include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>

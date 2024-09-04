@@ -21,6 +21,7 @@
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
 #include "queries/MapQueries.h"
+#include "queries/VisitQueries.h"
 
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
@@ -2178,7 +2179,7 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 		if (hero && t->town->buildings.at(bid)->manualHeroVisit)
 		{
 			// FIXME: query might produce unintended side effects, double check
-			auto visitQuery = std::make_shared<CObjectVisitQuery>(this, t, hero, t->visitablePos());
+			auto visitQuery = std::make_shared<CObjectVisitQuery>(this, t, hero);
 			queries->addQuery(visitQuery);
 			building->onHeroVisit(hero);
 			queries->popIfTop(visitQuery);
@@ -3226,7 +3227,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 					visitedObject = visitedTown;
 			}
 		}
-		visitQuery = std::make_shared<CObjectVisitQuery>(this, visitedObject, h, visitedObject->visitablePos());
+		visitQuery = std::make_shared<CObjectVisitQuery>(this, visitedObject, h);
 		queries->addQuery(visitQuery); //TODO real visit pos
 
 		HeroVisit hv;
