@@ -230,17 +230,11 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	{
-		CArtifactInstance * a = new CArtifactInstance();
-		a->artType = const_cast<CArtifact *>(ArtifactID(ArtifactID::BALLISTA).toArtifact());
-
 		NewArtifact na;
-		na.art = a;
+		na.artHolder = defender->id;
+		na.artId = ArtifactID::BALLISTA;
+		na.pos = ArtifactPosition::MACH1;
 		gameCallback->sendAndApply(&na);
-
-		PutArtifact pack;
-		pack.al = ArtifactLocation(defender->id, ArtifactPosition::MACH1);
-		pack.art = a;
-		gameCallback->sendAndApply(&pack);
 	}
 
 	startTestBattle(attacker, defender);
@@ -324,17 +318,11 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 	attacker->mana = attacker->manaLimit();
 
 	{
-		CArtifactInstance * a = new CArtifactInstance();
-		a->artType = const_cast<CArtifact *>(ArtifactID(ArtifactID::SPELLBOOK).toArtifact());
-
 		NewArtifact na;
-		na.art = a;
+		na.artHolder = attacker->id;
+		na.artId = ArtifactID::SPELLBOOK;
+		na.pos = ArtifactPosition::SPELLBOOK;
 		gameCallback->sendAndApply(&na);
-
-		PutArtifact pack;
-		pack.al = ArtifactLocation(attacker->id, ArtifactPosition::SPELLBOOK);
-		pack.art = a;
-		gameCallback->sendAndApply(&pack);
 	}
 
 	startTestBattle(attacker, defender);

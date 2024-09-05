@@ -1472,17 +1472,11 @@ void NewObject::applyGs(CGameState *gs)
 
 void NewArtifact::applyGs(CGameState *gs)
 {
-	assert(!vstd::contains(gs->map->artInstances, art));
-	assert(!art->getParentNodes().size());
-	assert(art->artType);
-
-	art->setType(art->artType);
-	if(art->isCombined())
-	{
-		for(const auto & part : art->artType->getConstituents())
-			art->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
-	}
+	auto art = ArtifactUtils::createArtifact(artId, spellId);
 	gs->map->addNewArtifactInstance(art);
+	PutArtifact pa(ArtifactLocation(artHolder, pos), false);
+	pa.art = art;
+	pa.applyGs(gs);
 }
 
 const CStackInstance * StackLocation::getStack()
@@ -1700,6 +1694,7 @@ void PutArtifact::applyGs(CGameState *gs)
 	auto hero = gs->getHero(al.artHolder);
 	assert(hero);
 	assert(art && art->canBePutAt(hero, al.slot));
+	assert(ArtifactUtils::checkIfSlotValid(*hero, al.slot));
 	art->putAt(*hero, al.slot);
 }
 

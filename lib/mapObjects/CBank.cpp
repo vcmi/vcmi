@@ -292,7 +292,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
 			loot.replaceName(elem);
-			cb->giveHeroNewArtifact(hero, elem.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+			cb->giveHeroNewArtifact(hero, elem, ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())

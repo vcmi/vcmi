@@ -20,6 +20,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CArtifactInstance;
+class CArtifactSet;
 class CGObjectInstance;
 class CGHeroInstance;
 class CCommanderInstance;
@@ -102,6 +103,7 @@ public:
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
 	void calculateGuardingGreaturePositions();
 
+	void addNewArtifactInstance(CArtifactSet & artSet);
 	void addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art);
 	void eraseArtifactInstance(CArtifactInstance * art);
 

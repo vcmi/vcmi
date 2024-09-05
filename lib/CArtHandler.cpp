@@ -964,7 +964,7 @@ void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
 			node->attachTo(*elem.second.artifact);
 }
 
-void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map)
+void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName)
 {
 	//todo: creature and commander artifacts
 	if(handler.saving && artifactsInBackpack.empty() && artifactsWorn.empty())
@@ -972,7 +972,6 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 
 	if(!handler.saving)
 	{
-		assert(map);
 		artifactsInBackpack.clear();
 		artifactsWorn.clear();
 	}
@@ -982,13 +981,13 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 	switch(bearerType())
 	{
 	case ArtBearer::HERO:
-		serializeJsonHero(handler, map);
+		serializeJsonHero(handler);
 		break;
 	case ArtBearer::CREATURE:
-		serializeJsonCreature(handler, map);
+		serializeJsonCreature(handler);
 		break;
 	case ArtBearer::COMMANDER:
-		serializeJsonCommander(handler, map);
+		serializeJsonCommander(handler);
 		break;
 	default:
 		assert(false);
@@ -996,11 +995,11 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 	}
 }
 
-void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
+void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler)
 {
 	for(const auto & slot : ArtifactUtils::allWornSlots())
 	{
-		serializeJsonSlot(handler, slot, map);
+		serializeJsonSlot(handler, slot);
 	}
 
 	std::vector<ArtifactID> backpackTemp;
@@ -1016,7 +1015,7 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 	{
 		for(const ArtifactID & artifactID : backpackTemp)
 		{
-			auto * artifact = ArtifactUtils::createArtifact(map, artifactID);
+			auto * artifact = ArtifactUtils::createArtifact(artifactID);
 			auto slot = ArtifactPosition::BACKPACK_START + artifactsInBackpack.size();
 			if(artifact->artType->canBePutAt(this, slot))
 			{
@@ -1027,17 +1026,17 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 	}
 }
 
-void CArtifactSet::serializeJsonCreature(JsonSerializeFormat & handler, CMap * map)
+void CArtifactSet::serializeJsonCreature(JsonSerializeFormat & handler)
 {
 	logGlobal->error("CArtifactSet::serializeJsonCreature not implemented");
 }
 
-void CArtifactSet::serializeJsonCommander(JsonSerializeFormat & handler, CMap * map)
+void CArtifactSet::serializeJsonCommander(JsonSerializeFormat & handler)
 {
 	logGlobal->error("CArtifactSet::serializeJsonCommander not implemented");
 }
 
-void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map)
+void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot)
 {
 	ArtifactID artifactID;
 
@@ -1057,7 +1056,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 
 		if(artifactID != ArtifactID::NONE)
 		{
-			auto * artifact = ArtifactUtils::createArtifact(map, artifactID.toEnum());
+			auto * artifact = ArtifactUtils::createArtifact(artifactID.toEnum());
 
 			if(artifact->artType->canBePutAt(this, slot))
 			{

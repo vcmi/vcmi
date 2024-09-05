@@ -46,6 +46,7 @@ class PlayerMessageProcessor
 	void cheatGiveArmy(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatGiveMachines(PlayerColor player, const CGHeroInstance * hero);
 	void cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
+	void cheatGiveScrolls(PlayerColor player, const CGHeroInstance * hero);
 	void cheatLevelup(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatExperience(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatMovement(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);

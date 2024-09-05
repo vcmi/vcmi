@@ -519,10 +519,26 @@ void CMap::checkForObjectives()
 	}
 }
 
+void CMap::addNewArtifactInstance(CArtifactSet & artSet)
+{
+	for(const auto & [slot, slotInfo] : artSet.artifactsWorn)
+	{
+		if(!slotInfo.locked && slotInfo.getArt())
+			addNewArtifactInstance(slotInfo.artifact);
+	}
+	for(const auto & slotInfo : artSet.artifactsInBackpack)
+		addNewArtifactInstance(slotInfo.artifact);
+}
+
 void CMap::addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art)
 {
+	assert(art);
+	assert(art->getId() == -1);
 	art->setId(static_cast<ArtifactInstanceID>(artInstances.size()));
 	artInstances.emplace_back(art);
+		
+	for(const auto & partInfo : art->getPartsInfo())
+		addNewArtifactInstance(partInfo.art);
 }
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
