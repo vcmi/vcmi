@@ -54,7 +54,7 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 	for(auto & developmentInfo : developmentInfos)
 	{
 		bool emergencyDefense = false;
-		uint8_t closestThreat = UINT8_MAX;
+		uint8_t closestThreat = std::numeric_limits<uint8_t>::max();
 		for (auto threat : ai->dangerHitMap->getTownThreats(developmentInfo.town))
 		{
 			closestThreat = std::min(closestThreat, threat.turn);
@@ -74,7 +74,6 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 		{
 			for (auto& buildingInfo : developmentInfo.toBuild)
 			{
-				logAi->trace("Looking at %s", buildingInfo.toString());
 				if (isGoldPressureLow || buildingInfo.dailyIncome[EGameResID::GOLD] > 0)
 				{
 					if (buildingInfo.notEnoughRes)
@@ -86,13 +85,11 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 
 						composition.addNext(BuildThis(buildingInfo, developmentInfo));
 						composition.addNext(SaveResources(buildingInfo.buildCost));
-						logAi->trace("Generate task to build: %s", buildingInfo.toString());
 						tasks.push_back(sptr(composition));
 					}
 					else
 					{
 						tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
-						logAi->trace("Generate task to build: %s", buildingInfo.toString());
 					}
 				}
 			}
