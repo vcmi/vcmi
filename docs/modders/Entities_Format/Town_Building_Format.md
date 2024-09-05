@@ -136,6 +136,9 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 		"gold" : 10000
 	}, 
 	
+	// Artifact ID of a war machine produced in this town building, if any
+	"warMachine" : "ballista",
+	
 	// Allows to define additional functionality of this building, usually using logic of one of original H3 town building
 	// Generally only needs to be specified for "special" buildings
 	// See 'List of unique town buildings' section below for detailed description of this field
@@ -154,9 +157,33 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 	"produce" : { 
 		"sulfur" : 1,
 		"gold" : 2000
-	}, 
+	},
+	
+	// Optional, allows this building to add fortifications during siege
+	"fortifications" : {
+		// Maximum health of destructible walls. Walls are only present if their health is above zero".
+		// Presence of walls is required for all other fortification types
+		"wallsHealth" : 3,
 
-    //determine how this building can be built. Possible values are:
+		// If set to true, moat will be placed in front of the walls. Requires walls presence.
+		"hasMoat" : true
+
+		// Maximum health of central tower or 0 if not present. Requires walls presence.
+		"citadelHealth" : 2,
+		// Maximum health of upper tower or 0 if not present. Requires walls presence.
+		"upperTowerHealth" : 2,
+		// Maximum health of lower tower or 0 if not present. Requires walls presence.
+		"lowerTowerHealth" : 2,
+
+		// Creature ID of shooter located in central keep (citadel). Used only if citadel is present.
+		"citadelShooter" : "archer",
+		// Creature ID of shooter located in upper tower. Used only if upper tower is present.
+		"upperTowerShooter" : "archer",
+		// Creature ID of shooter located in lower tower. Used only if lower tower is present.
+		"lowerTowerShooter" : "archer",
+	},
+
+	//determine how this building can be built. Possible values are:
 	// normal  - default value. Fulfill requirements, use resources, spend one day
 	// auto    - building appears when all requirements are built
 	// special - building can not be built manually
@@ -207,14 +234,12 @@ Following Heroes III buildings can be used as unique buildings for a town. Their
 - `castleGate`
 - `creatureTransformer`
 - `portalOfSummoning`
-- `ballistaYard`
 - `library`
 - `escapeTunnel`
 - `treasury`
 
 #### Buildings from other Heroes III mods
 Following HotA buildings can be used as unique building for a town. Functionality should match corresponding HotA building:
-- `thievesGuild`
 - `bank`
 
 #### Custom buildings

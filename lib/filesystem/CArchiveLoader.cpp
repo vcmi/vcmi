@@ -197,6 +197,11 @@ std::string CArchiveLoader::getMountPoint() const
 	return mountPoint;
 }
 
+const std::unordered_map<ResourcePath, ArchiveEntry> & CArchiveLoader::getEntries() const
+{
+	return entries;
+}
+
 std::unordered_set<ResourcePath> CArchiveLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
 	std::unordered_set<ResourcePath> foundID;
@@ -209,7 +214,7 @@ std::unordered_set<ResourcePath> CArchiveLoader::getFilteredFiles(std::function<
 	return foundID;
 }
 
-void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, const ArchiveEntry & entry) const
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, const ArchiveEntry & entry, bool absolute) const
 {
 	si64 currentPosition = fileStream.tell(); // save filestream position
 
@@ -217,7 +222,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInput
 	fileStream.seek(entry.offset);
 	fileStream.read(data.data(), entry.fullSize);
 
-	boost::filesystem::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
+	boost::filesystem::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name, absolute);
 
 	// writeToOutputFile
 	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
@@ -227,17 +232,17 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInput
 	fileStream.seek(currentPosition); // restore filestream position
 }
 
-void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry) const
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry, bool absolute) const
 {
 	std::unique_ptr<CInputStream> inputStream = load(ResourcePath(mountPoint + entry.name));
 
 	entry.offset = 0;
-	extractToFolder(outputSubFolder, *inputStream, entry);
+	extractToFolder(outputSubFolder, *inputStream, entry, absolute);
 }
 
-boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
+boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName, bool absolute)
 {
-	boost::filesystem::path extractionFolderPath = VCMIDirs::get().userExtractedPath() / outputSubFolder;
+	boost::filesystem::path extractionFolderPath = absolute ? outputSubFolder : VCMIDirs::get().userExtractedPath() / outputSubFolder;
 	boost::filesystem::path extractedFilePath = extractionFolderPath / entryName;
 
 	boost::filesystem::create_directories(extractionFolderPath);

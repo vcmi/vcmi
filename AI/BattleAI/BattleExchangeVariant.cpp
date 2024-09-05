@@ -28,6 +28,12 @@ float BattleExchangeVariant::trackAttack(
 	std::shared_ptr<HypotheticBattle> hb,
 	DamageCache & damageCache)
 {
+	if(!ap.attackerState)
+	{
+		logAi->trace("Skipping fake ap attack");
+		return 0;
+	}
+
 	auto attacker = hb->getForUpdate(ap.attack.attacker->unitId());
 
 	float attackValue = ap.attackValue();
@@ -219,9 +225,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 		auto hbWaited = std::make_shared<HypotheticBattle>(env.get(), hb);
 
-		hbWaited->resetActiveUnit();
-		hbWaited->getForUpdate(activeStack->unitId())->waiting = true;
-		hbWaited->getForUpdate(activeStack->unitId())->waitedThisTurn = true;
+		hbWaited->makeWait(activeStack);
 
 		updateReachabilityMap(hbWaited);
 
@@ -378,11 +382,14 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 				logAi->trace("New high score");
 #endif
 
-				for(BattleHex enemyHex : enemy->getAttackableHexes(activeStack))
+				for(const BattleHex & initialEnemyHex : enemy->getAttackableHexes(activeStack))
 				{
-					while(!flying && dists.distances[enemyHex] > speed)
+					BattleHex enemyHex = initialEnemyHex;
+
+					while(!flying && dists.distances[enemyHex] > speed && dists.predecessors.at(enemyHex).isValid())
 					{
 						enemyHex = dists.predecessors.at(enemyHex);
+
 						if(dists.accessibility[enemyHex] == EAccessibility::ALIVE_STACK)
 						{
 							auto defenderToBypass = hb->battleGetUnitByPos(enemyHex);
@@ -484,15 +491,18 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 		vstd::concatenate(allReachableUnits, turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex));
 	}
 
-	for(auto hex : ap.attack.attacker->getHexes())
+	if(!ap.attack.attacker->isTurret())
 	{
-		auto unitsReachingAttacker = turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex);
-		for(auto unit : unitsReachingAttacker)
+		for(auto hex : ap.attack.attacker->getHexes())
 		{
-			if(unit->unitSide() != ap.attack.attacker->unitSide())
+			auto unitsReachingAttacker = turn == 0 ? reachabilityMap.at(hex) : getOneTurnReachableUnits(turn, hex);
+			for(auto unit : unitsReachingAttacker)
 			{
-				allReachableUnits.push_back(unit);
-				result.enemyUnitsReachingAttacker.insert(unit->unitId());
+				if(unit->unitSide() != ap.attack.attacker->unitSide())
+				{
+					allReachableUnits.push_back(unit);
+					result.enemyUnitsReachingAttacker.insert(unit->unitId());
+				}
 			}
 		}
 	}

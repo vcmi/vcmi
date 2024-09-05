@@ -787,6 +787,8 @@ bool SelectionTab::isMapSupported(const CMapInfo & info)
 			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["supported"].Bool();
 		case EMapFormat::SOD:
 			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["supported"].Bool();
+		case EMapFormat::CHR:
+			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["supported"].Bool();
 		case EMapFormat::WOG:
 			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["supported"].Bool();
 		case EMapFormat::HOTA:

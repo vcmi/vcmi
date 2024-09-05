@@ -532,7 +532,10 @@ void CServerHandler::sendGuiAction(ui8 action) const
 
 void CServerHandler::sendRestartGame() const
 {
-	GH.windows().createAndPushWindow<CLoadingScreen>();
+	if(si->campState && !si->campState->getLoadingBackground().empty())
+		GH.windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+	else
+		GH.windows().createAndPushWindow<CLoadingScreen>();
 	
 	LobbyRestartGame endGame;
 	sendLobbyPack(endGame);
@@ -576,7 +579,12 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 
 	if(!settings["session"]["headless"].Bool())
-		GH.windows().createAndPushWindow<CLoadingScreen>();
+	{
+		if(si->campState && !si->campState->getLoadingBackground().empty())
+			GH.windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+		else
+			GH.windows().createAndPushWindow<CLoadingScreen>();
+	}
 	
 	LobbyPrepareStartGame lpsg;
 	sendLobbyPack(lpsg);

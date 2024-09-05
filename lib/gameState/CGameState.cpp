@@ -194,6 +194,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	initRandomFactionsForPlayers();
 	randomizeMapObjects();
 	placeStartingHeroes();
+	initOwnedObjects();
 	initDifficulty();
 	initHeroes();
 	initStartingBonus();
@@ -344,6 +345,15 @@ void CGameState::initCampaign()
 	map = campaign->getCurrentMap().release();
 }
 
+void CGameState::generateOwnedObjectsAfterDeserialize()
+{
+	for (auto & object : map->objects)
+	{
+		if (object && object->asOwnable() && object->getOwner().isValidPlayer())
+			players.at(object->getOwner()).addOwnedObject(object.get());
+	}
+}
+
 void CGameState::initGlobalBonuses()
 {
 	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_GLOBAL);
@@ -486,6 +496,15 @@ void CGameState::randomizeMapObjects()
 	}
 }
 
+void CGameState::initOwnedObjects()
+{
+	for(CGObjectInstance *object : map->objects)
+	{
+		if (object && object->getOwner().isValidPlayer())
+			getPlayerState(object->getOwner())->addOwnedObject(object);
+	}
+}
+
 void CGameState::initPlayerStates()
 {
 	logGlobal->debug("\tCreating player entries in gs");
@@ -574,7 +593,6 @@ void CGameState::initHeroes()
 		}
 
 		hero->initHero(getRandomGenerator());
-		getPlayerState(hero->getOwner())->heroes.push_back(hero);
 		map->allHeroes[hero->getHeroType().getNum()] = hero;
 	}
 
@@ -699,14 +717,14 @@ void CGameState::initStartingBonus()
 			}
 		case PlayerStartingBonus::ARTIFACT:
 			{
-				if(elem.second.heroes.empty())
+				if(elem.second.getHeroes().empty())
 				{
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
 				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
 
-				CGHeroInstance *hero = elem.second.heroes[0];
+				CGHeroInstance *hero = elem.second.getHeroes()[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
 					logGlobal->error("Cannot give starting artifact - no free slots!");
 			}
@@ -893,8 +911,6 @@ void CGameState::initTowns()
 			vti->possibleSpells -= s->id;
 		}
 		vti->possibleSpells.clear();
-		if(vti->getOwner() != PlayerColor::NEUTRAL)
-			getPlayerState(vti->getOwner())->towns.emplace_back(vti);
 	}
 }
 
@@ -937,9 +953,9 @@ void CGameState::placeHeroesInTowns()
 		if(player.first == PlayerColor::NEUTRAL)
 			continue;
 
-		for(CGHeroInstance * h : player.second.heroes)
+		for(CGHeroInstance * h : player.second.getHeroes())
 		{
-			for(CGTownInstance * t : player.second.towns)
+			for(CGTownInstance * t : player.second.getTowns())
 			{
 				if(h->visitablePos().z != t->visitablePos().z)
 					continue;
@@ -971,9 +987,9 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 			continue;
 
 		//init visiting and garrisoned heroes
-		for(CGHeroInstance * h : player.second.heroes)
+		for(CGHeroInstance * h : player.second.getHeroes())
 		{
-			for(CGTownInstance * t : player.second.towns)
+			for(CGTownInstance * t : player.second.getTowns())
 			{
 				if(h->visitablePos().z != t->visitablePos().z)
 					continue;
@@ -1197,82 +1213,6 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
-RumorState CGameState::pickNewRumor()
-{
-	RumorState newRumor;
-
-	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
-	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
-		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
-	if(map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
-		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
-
-	int rumorId = -1;
-	int rumorExtra = -1;
-	auto & rand = getRandomGenerator();
-	newRumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
-
-	do
-	{
-		switch(newRumor.type)
-		{
-		case RumorState::TYPE_SPECIAL:
-		{
-			SThievesGuildInfo tgi;
-			obtainPlayersStats(tgi, 20);
-			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
-			if(rumorId == RumorState::RUMOR_GRAIL)
-			{
-				rumorExtra = getTile(map->grailPos)->terType->getIndex();
-				break;
-			}
-
-			std::vector<PlayerColor> players = {};
-			switch(rumorId)
-			{
-			case RumorState::RUMOR_OBELISKS:
-				players = tgi.obelisks[0];
-				break;
-
-			case RumorState::RUMOR_ARTIFACTS:
-				players = tgi.artifacts[0];
-				break;
-
-			case RumorState::RUMOR_ARMY:
-				players = tgi.army[0];
-				break;
-
-			case RumorState::RUMOR_INCOME:
-				players = tgi.income[0];
-				break;
-			}
-			rumorExtra = RandomGeneratorUtil::nextItem(players, rand)->getNum();
-
-			break;
-		}
-		case RumorState::TYPE_MAP:
-			// Makes sure that map rumors only used if there enough rumors too choose from
-			if(!map->rumors.empty() && (map->rumors.size() > 1 || !currentRumor.last.count(RumorState::TYPE_MAP)))
-			{
-				rumorId = rand.nextInt((int)map->rumors.size() - 1);
-				break;
-			}
-			else
-				newRumor.type = RumorState::TYPE_RAND;
-			[[fallthrough]];
-
-		case RumorState::TYPE_RAND:
-			auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
-			rumorId = rand.nextInt((int)vector.size() - 1);
-
-			break;
-		}
-	}
-	while(!newRumor.update(rumorId, rumorExtra));
-
-	return newRumor;
-}
-
 bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const
 {
 	if (!map->isInTheMap(pos))
@@ -1371,7 +1311,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::HAVE_ARTIFACT: //check if any hero has winning artifact
 		{
-			for(const auto & elem : p->heroes)
+			for(const auto & elem : p->getHeroes())
 				if(elem->hasArt(condition.objectType.as<ArtifactID>()))
 					return true;
 			return false;
@@ -1405,7 +1345,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			}
 			else // any town
 			{
-				for (const CGTownInstance * t : p->towns)
+				for (const CGTownInstance * t : p->getTowns())
 				{
 					if (t->hasBuilt(condition.objectType.as<BuildingID>()))
 						return true;
@@ -1550,9 +1490,9 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	if(level >= 0) //num of towns & num of heroes
 	{
 		//num of towns
-		FILL_FIELD(numOfTowns, g->second.towns.size())
+		FILL_FIELD(numOfTowns, g->second.getTowns().size())
 		//num of heroes
-		FILL_FIELD(numOfHeroes, g->second.heroes.size())
+		FILL_FIELD(numOfHeroes, g->second.getHeroes().size())
 	}
 	if(level >= 1) //best hero's portrait
 	{
@@ -1624,7 +1564,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			if(playerInactive(player.second.color)) //do nothing for neutral player
 				continue;
 			CreatureID bestCre; //best creature's ID
-			for(const auto & elem : player.second.heroes)
+			for(const auto & elem : player.second.getHeroes())
 			{
 				for(const auto & it : elem->Slots())
 				{

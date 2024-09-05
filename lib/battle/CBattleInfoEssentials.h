@@ -18,6 +18,7 @@ class CGHeroInstance;
 class CStack;
 class IBonusBearer;
 struct InfoAboutHero;
+struct TownFortifications;
 class CArmedInstance;
 
 using TStacks = std::vector<const CStack *>;
@@ -75,7 +76,7 @@ public:
 	BattleSide playerToSide(const PlayerColor & player) const;
 	PlayerColor sideToPlayer(BattleSide side) const;
 	bool playerHasAccessToHeroInfo(const PlayerColor & player, const CGHeroInstance * h) const;
-	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
+	TownFortifications battleGetFortifications() const;
 	bool battleHasHero(BattleSide side) const;
 	uint32_t battleCastSpells(BattleSide side) const; //how many spells has given side cast
 	const CGHeroInstance * battleGetFightingHero(BattleSide side) const; //deprecated for players callback, easy to get wrong

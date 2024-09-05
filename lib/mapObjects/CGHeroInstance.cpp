@@ -1822,4 +1822,27 @@ bool CGHeroInstance::isCampaignGem() const
 	return true;
 }
 
+ResourceSet CGHeroInstance::dailyIncome() const
+{
+	ResourceSet income;
+
+	for (GameResID k : GameResID::ALL_RESOURCES())
+		income[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
+	const auto & playerSettings = cb->getPlayerSettings(getOwner());
+	income.applyHandicap(playerSettings->handicap.percentIncome);
+	return income;
+}
+
+std::vector<CreatureID> CGHeroInstance::providedCreatures() const
+{
+	return {};
+}
+
+const IOwnableObject * CGHeroInstance::asOwnable() const
+{
+	return this;
+}
+
+
 VCMI_LIB_NAMESPACE_END

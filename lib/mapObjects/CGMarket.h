@@ -31,7 +31,8 @@ public:
 	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
 	std::set<EMarketMode> availableModes() const override;
 
-	template <typename Handler> void serialize(Handler &h)
+	template <typename Handler>
+	void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		if (h.version < Handler::Version::NEW_MARKETS)
@@ -53,6 +54,7 @@ public:
 	template <typename Handler> void serializeArtifactsAltar(Handler &h)
 	{
 		serialize(h);
+		IMarket::serializeArtifactsAltar(h);
 	}
 };
 

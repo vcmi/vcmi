@@ -13,7 +13,6 @@
 #include <vcmi/Artifact.h>
 
 #include "CGameInfo.h"
-#include "CMT.h"
 #include "CServerHandler.h"
 #include "HeroMovementController.h"
 #include "PlayerLocalState.h"
@@ -1639,15 +1638,6 @@ void CPlayerInterface::showMarketWindow(const IMarket * market, const CGHeroInst
 		cb->selectionMade(0, queryID);
 	};
 
-	if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && market->getArtifactsStorage() == nullptr)
-	{
-		// compatibility check, safe to remove for 1.6
-		// 1.4 saves loaded in 1.5 will not be able to visit Altar of Sacrifice due to Altar now requiring different map object class
-		static_assert(ESerializationVersion::RELEASE_143 < ESerializationVersion::CURRENT, "Please remove this compatibility check once it no longer needed");
-		onWindowClosed();
-		return;
-	}
-
 	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
 		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
@@ -1673,7 +1663,7 @@ void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroI
 	auto onWindowClosed = [this, queryID](){
 		cb->selectionMade(0, queryID);
 	};
-	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, market, onWindowClosed);
+	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, BuildingID::NONE, market, onWindowClosed);
 }
 
 void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)

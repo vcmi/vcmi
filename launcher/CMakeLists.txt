@@ -12,10 +12,12 @@ set(launcher_SRCS
 		modManager/cmodlistview_moc.cpp
 		modManager/cmodmanager.cpp
 		modManager/imageviewer_moc.cpp
+		modManager/chroniclesextractor.cpp
 		settingsView/csettingsview_moc.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
 		helper.cpp
+		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
 		launcherdirs.cpp
@@ -42,6 +44,7 @@ set(launcher_HEADERS
 		modManager/cmodlistview_moc.h
 		modManager/cmodmanager.h
 		modManager/imageviewer_moc.h
+		modManager/chroniclesextractor.h
 		settingsView/csettingsview_moc.h
 		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
@@ -51,6 +54,7 @@ set(launcher_HEADERS
 		updatedialog_moc.h
 		main.h
 		helper.h
+		innoextract.h
 		prepare.h
 )
 

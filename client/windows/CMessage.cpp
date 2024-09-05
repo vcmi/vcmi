@@ -73,20 +73,19 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 	// each iteration generates one output line
 	while(text.length())
 	{
-		ui32 lineWidth = 0; //in characters or given char metric
 		ui32 wordBreak = -1; //last position for line break (last space character)
 		ui32 currPos = 0; //current position in text
 		bool opened = false; //set to true when opening brace is found
 		std::string color; //color found
 
 		size_t symbolSize = 0; // width of character, in bytes
-		size_t glyphWidth = 0; // width of printable glyph, pixels
+
+		std::string printableString;
 
 		// loops till line is full or end of text reached
-		while(currPos < text.length() && text[currPos] != 0x0a && lineWidth < maxLineWidth)
+		while(currPos < text.length() && text[currPos] != 0x0a)
 		{
 			symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
-			glyphWidth = graphics->fonts[font]->getGlyphWidth(text.data() + currPos);
 
 			// candidate for line break
 			if(ui8(text[currPos]) <= ui8(' '))
@@ -116,7 +115,14 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 				color = "";
 			}
 			else
-				lineWidth += glyphWidth;
+			{
+				std::string newPrintableString = printableString;
+				newPrintableString.append(text.data() + currPos, symbolSize);
+				if (graphics->fonts[font]->getStringWidth(newPrintableString) < maxLineWidth)
+					printableString.append(text.data() + currPos, symbolSize);
+				else
+					break;
+			}
 			currPos += symbolSize;
 		}
 

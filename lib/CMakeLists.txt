@@ -450,6 +450,7 @@ set(lib_MAIN_HEADERS
 
 	entities/building/CBuilding.h
 	entities/building/CBuildingHandler.h
+	entities/building/TownFortifications.h
 	entities/faction/CFaction.h
 	entities/faction/CTown.h
 	entities/faction/CTownHandler.h
@@ -504,6 +505,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/CRewardableObject.h
 	mapObjects/IMarket.h
 	mapObjects/IObjectInterface.h
+	mapObjects/IOwnableObject.h
 	mapObjects/MapObjects.h
 	mapObjects/MiscObjects.h
 	mapObjects/ObjectTemplate.h

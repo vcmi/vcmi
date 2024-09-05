@@ -277,12 +277,16 @@ public:
 		h & width;
 		h & height;
 		h & twoLevel;
-		// FIXME: we should serialize enum's according to their underlying type
-		// should be fixed when we are making breaking change to save compatibility
-		static_assert(Handler::Version::MINIMAL < Handler::Version::RELEASE_143);
-		uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
-		h & difficultyInteger;
-		difficulty = static_cast<EMapDifficulty>(difficultyInteger);
+
+		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
+			h & difficulty;
+		else
+		{
+			uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
+			h & difficultyInteger;
+			difficulty = static_cast<EMapDifficulty>(difficultyInteger);
+		}
+
 		h & levelLimit;
 		h & areAnyPlayers;
 		h & players;

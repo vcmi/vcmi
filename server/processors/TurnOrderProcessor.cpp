@@ -121,7 +121,7 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 		}
 	}
 
-	for(const auto & hero : leftInfo->heroes)
+	for(const auto & hero : leftInfo->getHeroes())
 	{
 		CPathsInfo out(mapSize, hero);
 		auto config = std::make_shared<SingleHeroPathfinderConfig>(out, gameHandler->gameState(), hero);
@@ -137,7 +137,7 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 						leftReachability[z][x][y] = true;
 	}
 
-	for(const auto & hero : rightInfo->heroes)
+	for(const auto & hero : rightInfo->getHeroes())
 	{
 		CPathsInfo out(mapSize, hero);
 		auto config = std::make_shared<SingleHeroPathfinderConfig>(out, gameHandler->gameState(), hero);

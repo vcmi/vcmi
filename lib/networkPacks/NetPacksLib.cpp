@@ -33,6 +33,7 @@
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
 #include "entities/building/CBuilding.h"
+#include "entities/building/TownFortifications.h"
 #include "mapObjects/CBank.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
@@ -336,7 +337,7 @@ void PutArtifact::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPutArtifact(*this);
 }
 
-void EraseArtifact::visitTyped(ICPackVisitor & visitor)
+void BulkEraseArtifacts::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitEraseArtifact(*this);
 }
@@ -1171,7 +1172,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		assert(beatenHero);
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
-		p->heroes -= beatenHero;
+		p->removeOwnedObject(beatenHero);
 
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
@@ -1417,7 +1418,7 @@ void HeroRecruited::applyGs(CGameState *gs)
 		gs->map->objects[h->id.getNum()] = h;
 
 	gs->map->heroesOnMap.emplace_back(h);
-	p->heroes.emplace_back(h);
+	p->addOwnedObject(h);
 	h->attachTo(*p);
 	gs->map->addBlockVisTiles(h);
 
@@ -1452,7 +1453,7 @@ void GiveHero::applyGs(CGameState *gs)
 	h->setMovementPoints(h->movementPointsLimit(true));
 	h->pos = h->convertFromVisitablePos(oldVisitablePos);
 	gs->map->heroesOnMap.emplace_back(h);
-	gs->getPlayerState(h->getOwner())->heroes.emplace_back(h);
+	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
@@ -1611,9 +1612,10 @@ void RebalanceStacks::applyGs(CGameState *gs)
 					//else - artifact can be lost :/
 					else
 					{
-						EraseArtifact ea;
-						ea.al = ArtifactLocation(dstHero->id, ArtifactPosition::CREATURE_SLOT);
-						ea.al.creature = dst.slot;
+						BulkEraseArtifacts ea;
+						ea.artHolder = dstHero->id;
+						ea.posPack.emplace_back(ArtifactPosition::CREATURE_SLOT);
+						ea.creature = dst.slot;
 						ea.applyGs(gs);
 						logNetwork->warn("Cannot move artifact! No free slots");
 					}
@@ -1701,37 +1703,46 @@ void PutArtifact::applyGs(CGameState *gs)
 	art->putAt(*hero, al.slot);
 }
 
-void EraseArtifact::applyGs(CGameState *gs)
+void BulkEraseArtifacts::applyGs(CGameState *gs)
 {
-	const auto artSet = gs->getArtSet(al.artHolder);
+	const auto artSet = gs->getArtSet(artHolder);
 	assert(artSet);
-	const auto slot = artSet->getSlot(al.slot);
-	if(slot->locked)
-	{
-		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
-		DisassembledArtifact dis;
-		dis.al.artHolder = al.artHolder;
-		
-		for(auto & slotInfo : artSet->artifactsWorn)
+
+	std::sort(posPack.begin(), posPack.end(), [](const ArtifactPosition & slot0, const ArtifactPosition & slot1) -> bool
 		{
-			auto art = slotInfo.second.artifact;
-			if(art->isCombined() && art->isPart(slot->artifact))
-			{
-				dis.al.slot = artSet->getArtPos(art);
-				break;
-			}
-		}
-		assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->artType->getNameTranslated());
-		dis.applyGs(gs);
-	}
-	else
+			return slot0.num > slot1.num;
+		});
+
+	for(const auto & slot : posPack)
 	{
-		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getNameTranslated());
+		const auto slotInfo = artSet->getSlot(slot);
+		if(slotInfo->locked)
+		{
+			logGlobal->debug("Erasing locked artifact: %s", slotInfo->artifact->artType->getNameTranslated());
+			DisassembledArtifact dis;
+			dis.al.artHolder = artHolder;
+
+			for(auto & slotInfoWorn : artSet->artifactsWorn)
+			{
+				auto art = slotInfoWorn.second.artifact;
+				if(art->isCombined() && art->isPart(slotInfo->getArt()))
+				{
+					dis.al.slot = artSet->getArtPos(art);
+					break;
+				}
+			}
+			assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
+			logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->artType->getNameTranslated());
+			dis.applyGs(gs);
+		}
+		else
+		{
+			logGlobal->debug("Erasing artifact %s", slotInfo->artifact->artType->getNameTranslated());
+		}
+		auto art = artSet->getArt(slot);
+		assert(art);
+		art->removeFrom(*artSet, slot);
 	}
-	auto art = artSet->getArt(al.slot);
-	assert(art);
-	art->removeFrom(*artSet, al.slot);
 }
 
 void BulkMoveArtifacts::applyGs(CGameState *gs)
@@ -1901,30 +1912,22 @@ void NewTurn::applyGs(CGameState *gs)
 	gs->globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
-	for(const NewTurn::Hero & h : heroes) //give mana/movement point
-	{
-		CGHeroInstance *hero = gs->getHero(h.id);
-		if(!hero)
-		{
-			logGlobal->error("Hero %d not found in NewTurn::applyGs", h.id.getNum());
-			continue;
-		}
+	for(auto & manaPack : heroesMana)
+		manaPack.applyGs(gs);
 
-		hero->setMovementPoints(h.move);
-		hero->mana = h.mana;
-	}
+	for(auto & movePack : heroesMovement)
+		movePack.applyGs(gs);
 
 	gs->heroesPool->onNewDay();
 
-	for(const auto & re : res)
+	for(auto & entry : playerIncome)
 	{
-		assert(re.first.isValidPlayer());
-		gs->getPlayerState(re.first)->resources = re.second;
-		gs->getPlayerState(re.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
+		gs->getPlayerState(entry.first)->resources += entry.second;
+		gs->getPlayerState(entry.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
 	}
 
-	for(auto & creatureSet : cres) //set available creatures in towns
-		creatureSet.second.applyGs(gs);
+	for(auto & creatureSet : availableCreatures) //set available creatures in towns
+		creatureSet.applyGs(gs);
 
 	for(CGTownInstance* t : gs->map->towns)
 		t->built = 0;
@@ -1943,6 +1946,18 @@ void SetObjectProperty::applyGs(CGameState *gs)
 	}
 
 	auto * cai = dynamic_cast<CArmedInstance *>(obj);
+
+	if(what == ObjProperty::OWNER && obj->asOwnable())
+	{
+		PlayerColor oldOwner = obj->getOwner();
+		PlayerColor newOwner = identifier.as<PlayerColor>();
+		if(oldOwner.isValidPlayer())
+			gs->getPlayerState(oldOwner)->removeOwnedObject(obj);;
+
+		if(newOwner.isValidPlayer())
+			gs->getPlayerState(newOwner)->addOwnedObject(obj);;
+	}
+
 	if(what == ObjProperty::OWNER && cai)
 	{
 		if(obj->ID == Obj::TOWN)
@@ -1954,17 +1969,13 @@ void SetObjectProperty::applyGs(CGameState *gs)
 			if(oldOwner.isValidPlayer())
 			{
 				auto * state = gs->getPlayerState(oldOwner);
-				state->towns -= t;
-
-				if(state->towns.empty())
+				if(state->getTowns().empty())
 					state->daysWithoutCastle = 0;
 			}
 			if(identifier.as<PlayerColor>().isValidPlayer())
 			{
-				PlayerState * p = gs->getPlayerState(identifier.as<PlayerColor>());
-				p->towns.emplace_back(t);
-
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
+				PlayerState * p = gs->getPlayerState(identifier.as<PlayerColor>());
 				if(p->daysWithoutCastle)
 					p->daysWithoutCastle = std::nullopt;
 			}
@@ -2328,7 +2339,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 	if(!town)
 		return;
 
-	if(town->fortLevel() == CGTownInstance::NONE)
+	if(town->fortificationsLevel().wallsHealth == 0)
 		return;
 
 	for(const auto & part : attackedParts)

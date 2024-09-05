@@ -27,6 +27,13 @@ class Point;
 
 VCMI_LIB_NAMESPACE_END
 
+enum class EScalingAlgorithm : int8_t
+{
+	NEAREST,
+	BILINEAR,
+	XBRZ
+};
+
 namespace CSDL_Ext
 {
 
@@ -92,7 +99,7 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 
 	// bilinear filtering. Always returns rgba surface
 	SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height);
-	SDL_Surface * scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor);
+	SDL_Surface * scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor, EScalingAlgorithm scaler);
 
 	template<int bpp>
 	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);

@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "TownFortifications.h"
+
 #include "../../constants/EntityIdentifiers.h"
 #include "../../LogicalExpression.h"
 #include "../../ResourceSet.h"
@@ -34,6 +36,8 @@ public:
 	TResources resources;
 	TResources produce;
 	TRequired requirements;
+	ArtifactID warMachine;
+	TownFortifications fortifications;
 	std::set<EMarketMode> marketModes;
 
 	BuildingID bid; //structure ID

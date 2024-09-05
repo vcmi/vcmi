@@ -84,6 +84,9 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// shows object graph
 	void handleVsLog(std::istringstream & singleWordBuffer);
 
+	// generate all assets
+	void handleGenerateAssets();
+
 	// Prints in Chat the given message
 	void printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType = ELogLevel::NOT_SET);
 	void giveTurn(const PlayerColor &color);

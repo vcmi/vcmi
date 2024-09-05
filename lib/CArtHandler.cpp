@@ -460,7 +460,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	}
 
 	const JsonNode & warMachine = node["warMachine"];
-	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && !warMachine.String().empty())
+	if(!warMachine.isNull())
 	{
 		VLC->identifiers()->requestIdentifier("creature", warMachine, [=](si32 id)
 		{

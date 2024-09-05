@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CArmedInstance.h"
+#include "IOwnableObject.h"
 #include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -59,7 +60,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGGarrison : public CArmedInstance
+class DLL_LINKAGE CGGarrison : public CArmedInstance, public IOwnableObject
 {
 public:
 	using CArmedInstance::CArmedInstance;
@@ -71,6 +72,10 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 
+	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
@@ -79,6 +84,7 @@ public:
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	void addAntimagicGarrisonBonus();
+
 };
 
 class DLL_LINKAGE CGArtifact : public CArmedInstance
@@ -148,16 +154,13 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGMine : public CArmedInstance
+class DLL_LINKAGE CGMine : public CArmedInstance, public IOwnableObject
 {
 public:
 	GameResID producedResource;
 	ui32 producedQuantity;
 	std::set<GameResID> abandonedMineResources;
-	
 	bool isAbandoned() const;
-	ResourceSet dailyIncome() const;
-
 private:
 	using CArmedInstance::CArmedInstance;
 
@@ -166,7 +169,6 @@ private:
 	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	void flagMine(const PlayerColor & player) const;
-	void newTurn(vstd::RNG & rand) const override;
 	void initObj(vstd::RNG & rand) override;
 
 	std::string getObjectName() const override;
@@ -182,6 +184,10 @@ public:
 	}
 	ui32 defaultResProduction() const;
 	ui32 getProducedQuantity() const;
+
+	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -340,7 +346,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard
+class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard, public IOwnableObject
 {
 	friend class ShipyardInstanceConstructor;
 
@@ -351,6 +357,10 @@ protected:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	const IObjectInterface * getObject() const override;
 	BoatId getBoatType() const override;
+
+	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
 
 public:
 	using CGObjectInstance::CGObjectInstance;
@@ -403,13 +413,17 @@ protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 };
 
-class DLL_LINKAGE CGLighthouse : public CGObjectInstance
+class DLL_LINKAGE CGLighthouse : public CGObjectInstance, public IOwnableObject
 {
 public:
 	using CGObjectInstance::CGObjectInstance;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(vstd::RNG & rand) override;
+
+	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

@@ -10,13 +10,40 @@
 			{
 				"type": "MORALE",
 				"val": 1
+			},
+			{
+				"propagator": "PLAYER_PROPAGATOR",
+				"type": "THIEVES_GUILD_ACCESS",
+				"val": 1
 			}
 		]
 	},
 	"shipyard":       { "id" : 6 },
-	"fort":           { "id" : 7 },
-	"citadel":        { "id" : 8,  "upgrades" : "fort" },
-	"castle":         { "id" : 9,  "upgrades" : "citadel" },
+	"fort": {
+		"id" : 7,
+		"fortifications" : {
+			"wallsHealth" : 2
+		}
+	},
+	
+	"citadel": {
+		"id" : 8,
+		"upgrades" : "fort",
+		"fortifications" : {
+			"citadelHealth" : 2,
+			"hasMoat" : true
+		}
+	},
+	
+	"castle": {
+		"id" : 9,
+		"upgrades" : "citadel",
+		"fortifications" : {
+			"wallsHealth" : 3,
+			"upperTowerHealth" : 2,
+			"lowerTowerHealth" : 2
+		}
+	},
 	
 	"villageHall": {
 		"id" : 10,
@@ -43,7 +70,10 @@
 		"produce": { "gold": 4000 }
 	},
 
-	"marketplace":    { "id" : 14 },
+	"marketplace":    { 
+		"id" : 14,
+		"marketModes" : ["resource-resource", "resource-player"]
+	},
 	"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ] },
 	"blacksmith":     { "id" : 16 },
 
@@ -198,5 +228,39 @@
 				}
 			]
 		}
+	},
+	
+	// Section 3 - markets
+	"artifactMerchant" : {
+		"requires" : [ "marketplace" ],
+		"marketModes" : ["resource-artifact", "artifact-resource"]
+	},
+	
+	"freelancersGuild" : {
+		"requires" : [ "marketplace" ],
+		"marketModes" : ["creature-resource"]
+	},
+	
+	"magicUniversity" : {
+		"marketModes" : ["resource-skill"]
+	},
+	
+	"creatureTransformer" : {
+		"marketModes" : ["creature-undead"]
+	},
+	
+	// Section 4 - buildings that now have dedicated mechanics
+	"ballistaYard": {
+		"blacksmith" : "ballista"
+	},
+	
+	"thievesGuild" : {
+		"bonuses": [
+			{
+				"propagator": "PLAYER_PROPAGATOR",
+				"type": "THIEVES_GUILD_ACCESS",
+				"val": 2
+			}
+		]
 	}
 }

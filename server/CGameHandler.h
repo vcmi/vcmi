@@ -51,6 +51,7 @@ class TurnOrderProcessor;
 class TurnTimerHandler;
 class QueriesProcessor;
 class CObjectVisitQuery;
+class NewTurnProcessor;
 
 class CGameHandler : public IGameCallback, public Environment
 {
@@ -62,6 +63,7 @@ public:
 	std::unique_ptr<QueriesProcessor> queries;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
+	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
 	std::unique_ptr<CRandomGenerator> randomNumberGenerator;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -134,6 +136,7 @@ public:
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos = ArtifactPosition::FIRST_AVAILABLE) override;
 	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override;
 	void removeArtifact(const ArtifactLocation &al) override;
+	void removeArtifact(const ObjectInstanceID & srcId, const std::vector<ArtifactPosition> & slotsPack);
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	bool bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
 	bool scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left);
@@ -157,7 +160,7 @@ public:
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override;
-	void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player,ETileVisibility mode) override;
+	void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player,ETileVisibility mode) override;
 	
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
 
@@ -227,8 +230,6 @@ public:
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
 
-	void handleTimeEvents(PlayerColor player);
-	void handleTownEvents(CGTownInstance *town);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void objectVisitEnded(const CObjectVisitQuery &query);
@@ -243,9 +244,7 @@ public:
 		h & *heroPool;
 		h & *playerMessages;
 		h & *turnOrder;
-
-		if (h.version >= Handler::Version::TURN_TIMERS_STATE)
-			h & *turnTimerHandler;
+		h & *turnTimerHandler;
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;

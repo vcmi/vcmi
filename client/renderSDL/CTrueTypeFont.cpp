@@ -27,19 +27,25 @@ std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode &
 	return CResourceHandler::get()->load(ResourcePath(filename, EResType::TTF_FONT))->readAll();
 }
 
+int CTrueTypeFont::getPointSize(const JsonNode & config) const
+{
+	int scalingFactor = getScalingFactor();
+
+	if (config.isNumber())
+		return config.Integer() * scalingFactor;
+	else
+		return config[scalingFactor-1].Integer();
+}
+
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)
 {
-	int pointSizeBase = static_cast<int>(config["size"].Float());
-	int scalingFactor = getScalingFactor();
-	int pointSize = pointSizeBase * scalingFactor;
-
 	if(!TTF_WasInit() && TTF_Init()==-1)
 		throw std::runtime_error(std::string("Failed to initialize true type support: ") + TTF_GetError() + "\n");
 
-	return TTF_OpenFontRW(SDL_RWFromConstMem(data.first.get(), (int)data.second), 1, pointSize);
+	return TTF_OpenFontRW(SDL_RWFromConstMem(data.first.get(), data.second), 1, getPointSize(config["size"]));
 }
 
-int CTrueTypeFont::getFontStyle(const JsonNode &config)
+int CTrueTypeFont::getFontStyle(const JsonNode &config) const
 {
 	const JsonVector & names = config["style"].Vector();
 	int ret = 0;

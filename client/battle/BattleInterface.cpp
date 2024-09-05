@@ -85,7 +85,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	this->army2 = army2;
 
 	const CGTownInstance *town = getBattle()->battleGetDefendedTown();
-	if(town && town->hasFort())
+	if(town && town->fortificationsLevel().wallsHealth > 0)
 		siegeController.reset(new BattleSiegeController(*this, town));
 
 	windowObject = std::make_shared<BattleWindow>(*this);

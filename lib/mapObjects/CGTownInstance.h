@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CCastleEvent;
 class CTown;
 class TownBuildingInstance;
+struct TownFortifications;
 class TownRewardableBuildingInstance;
 struct DamageRange;
 
@@ -162,6 +163,7 @@ public:
 
 	bool needsLastStack() const override;
 	CGTownInstance::EFortLevel fortLevel() const;
+	TownFortifications fortificationsLevel() const;
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int mageGuildLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int getHordeLevel(const int & HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
@@ -181,7 +183,9 @@ public:
 	std::set<BuildingID> getBuildings() const;
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
-	TResources dailyIncome() const; //calculates daily income of this town
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
+
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;
@@ -205,6 +209,11 @@ public:
 	/// INativeTerrainProvider
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
+
+	/// Returns ID of war machine that is produced by specified building or NONE if this is not built or if building does not produce war machines
+	ArtifactID getWarMachineInBuilding(BuildingID) const;
+	/// Returns true if provided war machine is available in any of built buildings of this town
+	bool isWarMachineAvailable(ArtifactID) const;
 
 	CGTownInstance(IGameCallback *cb);
 	virtual ~CGTownInstance();
@@ -236,9 +245,10 @@ private:
 	FactionID randomizeFaction(vstd::RNG & rand);
 	void setOwner(const PlayerColor & owner) const;
 	void onTownCaptured(const PlayerColor & winner) const;
-	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
+	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	void initializeConfigurableBuildings(vstd::RNG & rand);
+	void initializeNeutralTownGarrison(vstd::RNG & rand);
 };
 
 VCMI_LIB_NAMESPACE_END

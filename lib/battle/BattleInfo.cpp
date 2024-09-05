@@ -14,6 +14,7 @@
 #include "bonuses/Updaters.h"
 #include "../CStack.h"
 #include "../CHeroHandler.h"
+#include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -202,28 +203,25 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	}
 
 	//setting up siege obstacles
-	if (town && town->hasFort())
+	if (town && town->fortificationsLevel().wallsHealth != 0)
 	{
+		auto fortification = town->fortificationsLevel();
+
 		curB->si.gateState = EGateState::CLOSED;
 
 		curB->si.wallState[EWallPart::GATE] = EWallState::INTACT;
 
 		for(const auto wall : {EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL})
-		{
-			if (town->hasBuilt(BuildingID::CASTLE))
-				curB->si.wallState[wall] = EWallState::REINFORCED;
-			else
-				curB->si.wallState[wall] = EWallState::INTACT;
-		}
+			curB->si.wallState[wall] = static_cast<EWallState>(fortification.wallsHealth);
 
-		if (town->hasBuilt(BuildingID::CITADEL))
-			curB->si.wallState[EWallPart::KEEP] = EWallState::INTACT;
+		if (fortification.citadelHealth != 0)
+			curB->si.wallState[EWallPart::KEEP] = static_cast<EWallState>(fortification.citadelHealth);
 
-		if (town->hasBuilt(BuildingID::CASTLE))
-		{
-			curB->si.wallState[EWallPart::UPPER_TOWER] = EWallState::INTACT;
-			curB->si.wallState[EWallPart::BOTTOM_TOWER] = EWallState::INTACT;
-		}
+		if (fortification.upperTowerHealth != 0)
+			curB->si.wallState[EWallPart::UPPER_TOWER] = static_cast<EWallState>(fortification.upperTowerHealth);
+
+		if (fortification.lowerTowerHealth != 0)
+			curB->si.wallState[EWallPart::BOTTOM_TOWER] = static_cast<EWallState>(fortification.lowerTowerHealth);
 	}
 
 	//randomize obstacles
@@ -369,7 +367,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			handleWarMachine(BattleSide::ATTACKER, ArtifactPosition::MACH1, 52);
 			handleWarMachine(BattleSide::ATTACKER, ArtifactPosition::MACH2, 18);
 			handleWarMachine(BattleSide::ATTACKER, ArtifactPosition::MACH3, 154);
-			if(town && town->hasFort())
+			if(town && town->fortificationsLevel().wallsHealth > 0)
 				handleWarMachine(BattleSide::ATTACKER, ArtifactPosition::MACH4, 120);
 		}
 
@@ -419,18 +417,16 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 	}
 
-	if (curB->town && curB->town->fortLevel() >= CGTownInstance::CITADEL)
+	if (curB->town)
 	{
-		// keep tower
-		curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_CENTRAL_TOWER);
+		if (curB->town->fortificationsLevel().citadelHealth != 0)
+			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_CENTRAL_TOWER);
 
-		if (curB->town->fortLevel() >= CGTownInstance::CASTLE)
-		{
-			// lower tower + upper tower
+		if (curB->town->fortificationsLevel().upperTowerHealth != 0)
 			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_UPPER_TOWER);
 
+		if (curB->town->fortificationsLevel().lowerTowerHealth != 0)
 			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
-		}
 
 		//Moat generating is done on server
 	}

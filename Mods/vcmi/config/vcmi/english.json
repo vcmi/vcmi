@@ -660,5 +660,7 @@
 	"core.bonus.WATER_IMMUNITY.name": "Water immunity",
 	"core.bonus.WATER_IMMUNITY.description": "Immune to all spells from the school of Water magic",
 	"core.bonus.WIDE_BREATH.name": "Wide breath",
-	"core.bonus.WIDE_BREATH.description": "Wide breath attack (multiple hexes)"
+	"core.bonus.WIDE_BREATH.description": "Wide breath attack (multiple hexes)",
+	"core.bonus.DISINTEGRATE.name": "Disintegrate",
+	"core.bonus.DISINTEGRATE.description": "No corpse remains after death"
 }

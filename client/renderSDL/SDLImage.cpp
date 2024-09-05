@@ -270,30 +270,10 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 	if (factor <= 0)
 		throw std::runtime_error("Unable to scale by integer value of " + std::to_string(factor));
 
-	if (palette && surf->format->palette)
+	if (palette && surf && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 
-	/// Convert current surface to ARGB format suitable for xBRZ
-	/// TODO: skip its creation if this is format matches current surface (even if unlikely)
-	SDL_Surface * intermediate = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
-	SDL_Surface * scaled = CSDL_Ext::newSurface(Point(surf->w * factor, surf->h * factor), intermediate);
-
-	assert(intermediate->pitch == intermediate->w * 4);
-	assert(scaled->pitch == scaled->w * 4);
-
-	const uint32_t * srcPixels = static_cast<const uint32_t*>(intermediate->pixels);
-	uint32_t * dstPixels = static_cast<uint32_t*>(scaled->pixels);
-
-	// avoid excessive granulation - xBRZ prefers at least 8-16 lines per task
-	// TODO: compare performance and size of images, recheck values for potentially better parameters
-	const int granulation = std::clamp(surf->h / 64 * 8, 8, 64);
-
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, intermediate->h, granulation), [factor, srcPixels, dstPixels, intermediate](const tbb::blocked_range<size_t> & r)
-	{
-		xbrz::scale(factor, srcPixels, dstPixels, intermediate->w, intermediate->h, xbrz::ColorFormat::ARGB, {}, r.begin(), r.end());
-	});
-
-	SDL_FreeSurface(intermediate);
+	SDL_Surface * scaled = CSDL_Ext::scaleSurfaceIntegerFactor(surf, factor, EScalingAlgorithm::XBRZ);
 
 	auto ret = std::make_shared<SDLImageShared>(scaled);
 
@@ -307,7 +287,7 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleInteger(int factor, SDL_Palet
 	// erase our own reference
 	SDL_FreeSurface(scaled);
 
-	if (surf->format->palette)
+	if (surf && surf->format->palette)
 		SDL_SetSurfacePalette(surf, originalPalette);
 
 	return ret;
@@ -472,13 +452,11 @@ void SDLImageIndexed::setShadowTransparency(float factor)
 	};
 
 	// seems to be used unconditionally
+	colorsSDL[0] = CSDL_Ext::toSDL(Colors::TRANSPARENCY);
 	colorsSDL[1] = CSDL_Ext::toSDL(shadow25);
 	colorsSDL[4] = CSDL_Ext::toSDL(shadow50);
 
 	// seems to be used only if color matches
-	if (colorsSimilar(originalPalette->colors[0], sourcePalette[0]))
-		colorsSDL[0] = CSDL_Ext::toSDL(Colors::TRANSPARENCY);
-
 	if (colorsSimilar(originalPalette->colors[2], sourcePalette[2]))
 		colorsSDL[2] = CSDL_Ext::toSDL(shadow25);
 
@@ -501,6 +479,9 @@ void SDLImageIndexed::setShadowEnabled(bool on)
 {
 	if (on)
 		setShadowTransparency(1.0);
+
+	if (!on && blitMode == EImageBlitMode::ALPHA)
+		setShadowTransparency(0.0);
 
 	shadowEnabled = on;
 }

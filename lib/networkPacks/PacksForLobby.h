@@ -55,18 +55,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 
 		h & clientId;
 		h & hostClientId;
-
-		try
-		{
-			if (h.version >= Handler::Version::RELEASE_152)
-				h & version;
-			else
-				version = ESerializationVersion::RELEASE_150;
-		}
-		 catch (const std::runtime_error &)
-		{
-			version = ESerializationVersion::RELEASE_150;
-		}
+		h & version;
 	}
 };
 

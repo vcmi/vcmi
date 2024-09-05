@@ -83,6 +83,7 @@ public:
 class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
 	friend class CampaignHandler;
+	friend class Campaign;
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -96,11 +97,15 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	std::string filename;
 	std::string modName;
 	std::string encoding;
+	ImagePath loadingBackground;
+	ImagePath introVideoRim;
+	VideoPath introVideo;
 
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
 
 	void loadLegacyData(ui8 campId);
+	void loadLegacyData(CampaignRegions regions, int numOfScenario);
 
 	TextContainerRegistrable textContainer;
 
@@ -118,6 +123,9 @@ public:
 	std::string getModName() const;
 	std::string getEncoding() const;
 	AudioPath getMusic() const;
+	ImagePath getLoadingBackground() const;
+	ImagePath getIntroVideoRim() const;
+	VideoPath getIntroVideo() const;
 
 	const CampaignRegions & getRegions() const;
 	TextContainerRegistrable & getTexts();
@@ -141,8 +149,13 @@ public:
 		h & modName;
 		h & music;
 		h & encoding;
-		if (h.version >= Handler::Version::RELEASE_143)
-			h & textContainer;
+		h & textContainer;
+		if (h.version >= Handler::Version::CHRONICLES_SUPPORT)
+		{
+			h & loadingBackground;
+			h & introVideoRim;
+			h & introVideo;
+		}
 	}
 };
 
@@ -248,6 +261,9 @@ public:
 	std::set<CampaignScenarioID> allScenarios() const;
 	int scenariosCount() const;
 
+	void overrideCampaign();
+	void overrideCampaignScenarios();
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CampaignHeader&>(*this);
@@ -342,8 +358,7 @@ public:
 		h & currentMap;
 		h & chosenCampaignBonuses;
 		h & campaignSet;
-		if (h.version >= Handler::Version::CAMPAIGN_MAP_TRANSLATIONS)
-			h & mapTranslations;
+		h & mapTranslations;
 		if (h.version >= Handler::Version::HIGHSCORE_PARAMETERS)
 			h & highscoreParameters;
 	}
