@@ -109,7 +109,8 @@ public:
 	FactionID getFaction() const override;
 
 	virtual ui64 getPower() const;
-	virtual ui64 getCost() const;
+	/// Returns total market value of resources needed to recruit this unit
+	virtual ui64 getMarketValue() const;
 	CCreature::CreatureQuantityId getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
