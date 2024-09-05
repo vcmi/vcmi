@@ -1426,36 +1426,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score /= evaluationContext.movementCost;
 				break;
 			}
-			case PriorityTier::GATHER: //Collect unguarded stuff
-			{
-				if (evaluationContext.enemyHeroDangerRatio > 1)
-					return 0;
-				if (evaluationContext.isDefend)
-					return 0;
-				if (evaluationContext.armyLossPersentage > 0)
-					return 0;
-				if (evaluationContext.involvesSailing && evaluationContext.movementCostByRole[HeroRole::MAIN] > 0)
-					return 0;
-				if (evaluationContext.buildingCost.marketValue() > 0)
-					return 0;
-				if (evaluationContext.closestWayRatio < 1)
-					return 0;
-				score += evaluationContext.strategicalValue * 1000;
-				score += evaluationContext.goldReward;
-				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
-				score += evaluationContext.armyReward;
-				score += evaluationContext.armyGrowth;
-				if (score <= 0)
-					return 0;
-				else
-					score = 1000;
-				score *= evaluationContext.closestWayRatio;
-				if (evaluationContext.threat > evaluationContext.armyInvolvement && !evaluationContext.isDefend)
-					score *= evaluationContext.armyInvolvement / evaluationContext.threat;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
-				break;
-			}
 			case PriorityTier::HUNTER_GATHER: //Collect guarded stuff
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend)
