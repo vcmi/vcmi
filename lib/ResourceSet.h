@@ -148,19 +148,19 @@ public:
 		return ret;
 	}
 
-	//Returns how many items of "this" we can afford with provided income
-	int maxPurchasableCount(const ResourceSet& income) {
+	//Returns how many items of "this" we can afford with provided funds
+	int maxPurchasableCount(const ResourceSet& availableFunds) {
 		int ret = 0; // Initialize to 0 because we want the maximum number of accumulations
 
 		for (size_t i = 0; i < container.size(); ++i) {
 			if (container.at(i) > 0) { // We only care about fulfilling positive needs
-				if (income[i] == 0) {
+				if (availableFunds[i] == 0) {
 					// If income is 0 and we need a positive amount, it's impossible to fulfill
 					return INT_MAX;
 				}
 				else {
 					// Calculate the number of times we need to accumulate income to fulfill the need
-					int ceiledResult = vstd::divideAndCeil(container.at(i), income[i]);
+					int ceiledResult = vstd::divideAndCeil(container.at(i), availableFunds[i]);
 					ret = std::max(ret, ceiledResult);
 				}
 			}
