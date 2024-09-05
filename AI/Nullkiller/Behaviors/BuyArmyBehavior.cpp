@@ -39,17 +39,6 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 
 	for(auto town : cb->getTownsInfo())
 	{
-		//If we can recruit a hero that comes with more army than he costs, we are better off spending our gold on them
-		if (ai->heroManager->canRecruitHero(town))
-		{
-			auto availableHeroes = ai->cb->getAvailableHeroes(town);
-			for (auto hero : availableHeroes)
-			{
-				if (hero->getArmyCost() > GameConstants::HERO_GOLD_COST)
-					return tasks;
-			}
-		}
-
 		uint8_t closestThreat = UINT8_MAX;
 		for (auto threat : ai->dangerHitMap->getTownThreats(town))
 		{
