@@ -1328,36 +1328,36 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	
 	double result = 0;
 
-	float fuzzyResult = 0;
-	try
-	{
-		armyLossPersentageVariable->setValue(evaluationContext.armyLossPersentage);
-		heroRoleVariable->setValue(evaluationContext.heroRole);
-		mainTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::MAIN]);
-		scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
-		goldRewardVariable->setValue(goldRewardPerTurn);
-		armyRewardVariable->setValue(evaluationContext.armyReward);
-		armyGrowthVariable->setValue(evaluationContext.armyGrowth);
-		skillRewardVariable->setValue(evaluationContext.skillReward);
-		dangerVariable->setValue(evaluationContext.danger);
-		rewardTypeVariable->setValue(rewardType);
-		closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
-		strategicalValueVariable->setValue(evaluationContext.strategicalValue);
-		goldPressureVariable->setValue(ai->buildAnalyzer->getGoldPressure());
-		goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->getFreeResources()[EGameResID::GOLD] + (float)ai->buildAnalyzer->getDailyIncome()[EGameResID::GOLD] + 1.0f));
-		turnVariable->setValue(evaluationContext.turn);
-		fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
-
-		engine->process();
-
-		fuzzyResult = value->getValue();
-	}
-	catch (fl::Exception& fe)
-	{
-		logAi->error("evaluate VisitTile: %s", fe.getWhat());
-	}
 	if (ai->settings->isUseFuzzy())
 	{
+		float fuzzyResult = 0;
+		try
+		{
+			armyLossPersentageVariable->setValue(evaluationContext.armyLossPersentage);
+			heroRoleVariable->setValue(evaluationContext.heroRole);
+			mainTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::MAIN]);
+			scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
+			goldRewardVariable->setValue(goldRewardPerTurn);
+			armyRewardVariable->setValue(evaluationContext.armyReward);
+			armyGrowthVariable->setValue(evaluationContext.armyGrowth);
+			skillRewardVariable->setValue(evaluationContext.skillReward);
+			dangerVariable->setValue(evaluationContext.danger);
+			rewardTypeVariable->setValue(rewardType);
+			closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
+			strategicalValueVariable->setValue(evaluationContext.strategicalValue);
+			goldPressureVariable->setValue(ai->buildAnalyzer->getGoldPressure());
+			goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->getFreeResources()[EGameResID::GOLD] + (float)ai->buildAnalyzer->getDailyIncome()[EGameResID::GOLD] + 1.0f));
+			turnVariable->setValue(evaluationContext.turn);
+			fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
+
+			engine->process();
+
+			fuzzyResult = value->getValue();
+		}
+		catch (fl::Exception& fe)
+		{
+			logAi->error("evaluate VisitTile: %s", fe.getWhat());
+		}
 		result = fuzzyResult;
 	}
 	else
@@ -1520,7 +1520,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					auto resourcesAvailable = evaluationContext.evaluator.ai->getFreeResources();
 					auto income = ai->buildAnalyzer->getDailyIncome();
 					score /= evaluationContext.buildingCost.marketValue();
-					if (resourcesAvailable < evaluationContext.buildingCost)
+					if (resourcesAvailable.canAfford(evaluationContext.buildingCost))
 					{
 						TResources needed = evaluationContext.buildingCost - resourcesAvailable;
 						needed.positive();

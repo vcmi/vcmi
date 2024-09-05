@@ -189,17 +189,6 @@ public:
 		return this->container == rhs.container;
 	}
 
-// WARNING: comparison operators are used for "can afford" relation: a <= b means that foreach i a[i] <= b[i]
-// that doesn't work the other way: a > b doesn't mean that a cannot be afforded with b, it's still b can afford a
- 	bool operator<(const ResourceSet &rhs)
- 	{
- 		for(int i = 0; i < size(); i++)
-			if (this->container.at(i) < rhs[i])
- 				return true;
-
- 		return false;
- 	}
-
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & container;
