@@ -148,7 +148,8 @@ public:
 		return ret;
 	}
 
-	int div(const ResourceSet& income) {
+	//Returns how many items of "this" we can afford with provided income
+	int maxPurchasableCount(const ResourceSet& income) {
 		int ret = 0; // Initialize to 0 because we want the maximum number of accumulations
 
 		for (size_t i = 0; i < container.size(); ++i) {
