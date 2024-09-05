@@ -56,6 +56,7 @@ enum class ESerializationVersion : int32_t
 	NEW_MARKETS, // 857 - reworked market classes
 	PLAYER_STATE_OWNED_OBJECTS, // 858 - player state stores all owned objects in a single list
 	SAVE_COMPATIBILITY_FIXES, // 859 - implementation of previoulsy postponed changes to serialization
+	CHRONICLES_SUPPORT, // 860 - support for heroes chronicles
 
-	CURRENT = SAVE_COMPATIBILITY_FIXES
+	CURRENT = CHRONICLES_SUPPORT
 };
