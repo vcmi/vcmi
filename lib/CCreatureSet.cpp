@@ -370,7 +370,7 @@ ui64 CCreatureSet::getArmyCost() const
 {
 	ui64 ret = 0;
 	for (const auto& elem : stacks)
-		ret += elem.second->getCost();
+		ret += elem.second->getMarketValue();
 	return ret;
 }
 
@@ -866,7 +866,7 @@ ui64 CStackInstance::getPower() const
 	return type->getAIValue() * count;
 }
 
-ui64 CStackInstance::getCost() const
+ui64 CStackInstance::getMarketValue() const
 {
 	assert(type);
 	return type->getFullRecruitCost().marketValue() * count;
