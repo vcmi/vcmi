@@ -280,16 +280,16 @@ struct DLL_LINKAGE BuildStructure : public CPackForServer
 	}
 };
 
-struct DLL_LINKAGE TriggerTownSpecialBuildingAction : public CPackForServer
+struct DLL_LINKAGE VisitTownBuilding : public CPackForServer
 {
-	TriggerTownSpecialBuildingAction() = default;
-	TriggerTownSpecialBuildingAction(const ObjectInstanceID & TID, const BuildingSubID::EBuildingSubID SID)
+	VisitTownBuilding() = default;
+	VisitTownBuilding(const ObjectInstanceID & TID, const BuildingID BID)
 		: tid(TID)
-		, sid(SID)
+		, bid(BID)
 	{
 	}
 	ObjectInstanceID tid;
-	BuildingSubID::EBuildingSubID sid;
+	BuildingID bid;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -297,7 +297,7 @@ struct DLL_LINKAGE TriggerTownSpecialBuildingAction : public CPackForServer
 	{
 		h & static_cast<CPackForServer &>(*this);
 		h & tid;
-		h & sid;
+		h & bid;
 	}
 };
 

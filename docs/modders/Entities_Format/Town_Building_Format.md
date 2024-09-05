@@ -16,18 +16,18 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 ##### Order of Fire from Inferno:
 ```jsonc
 "special4": {
-    "requires" : [ "mageGuild1" ],
+	"requires" : [ "mageGuild1" ],
 	"name" : "Order of Fire",
 	"description" : "Increases spellpower of visiting hero",
 	"cost" : {
-	    "mercury" : 5,
+		"mercury" : 5,
 		"gold" : 1000
 	},
 	"configuration" : {
-	    "visitMode" : "hero",
+		"visitMode" : "hero",
 		"rewards" : [
-		    {
-			    // NOTE: this forces vcmi to load string from H3 text file. In order to define own string simply write your own message without '@' symbol
+			{
+				// NOTE: this forces vcmi to load string from H3 text file. In order to define own string simply write your own message without '@' symbol
 				"message" : "@core.genrltxt.582", 
 				"primary" : { "spellpower" : 1 }
 			}
@@ -39,22 +39,22 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 ##### Mana Vortex from Dungeon
 ```jsonc
 "special2": {
-    "requires" : [ "mageGuild1" ],
+	"requires" : [ "mageGuild1" ],
 	"name" : "Mana Vortex",
 	"description" : "Doubles mana points of the first visiting hero each week",
 	"cost" : {
-	    "gold" : 5000
+		"gold" : 5000
 	},
 	"configuration" : {
-	    "resetParameters" : {
-		    "period" : 7,
+		"resetParameters" : {
+			"period" : 7,
 			"visitors" : true
 		},
 		"visitMode" : "once",
 		"rewards" : [
-		    {
-			    "limiter" : {
-				    "noneOf" : [ { "manaPercentage" : 200 } ]
+			{
+				"limiter" : {
+					"noneOf" : [ { "manaPercentage" : 200 } ]
 				},
 				"message" : "As you near the mana vortex your body is filled with new energy. You have doubled your normal spell points.",
 				"manaPercentage" : 200
@@ -67,14 +67,14 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 #### Resource Silo with custom production
 ```jsonc
 "resourceSilo": {
-    "name" : "Wood Resource Silo",
+	"name" : "Wood Resource Silo",
 	"description" : "Produces 2 wood every day",
 	"cost" : {
-	    "wood" : 10,
+		"wood" : 10,
 		"gold" : 5000
 	},
 	"produce" : {
-	    "wood": 2
+		"wood": 2
 	}
 },
 ```
@@ -193,11 +193,15 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 	// Buildings which bonuses should be overridden with bonuses of the current building
 	"overrides" : [ "anotherBuilding ]
 	
-    // Bonuses provided by this special building if this building or any of its upgrades are constructed in town
+	// Bonuses provided by this special building if this building or any of its upgrades are constructed in town
 	"bonuses" : [ BONUS_FORMAT ]
 	
-    // If set to true, this building will replace all bonuses from base building, leaving only bonuses defined by this building"
-	"upgradeReplacesBonuses" : false,
+	// If set to true, this building will not automatically activate on new day or on entering town and needs to be activated manually on click
+	"manualHeroVisit" : false,
+	
+	// Bonuses provided by this special building if this building or any of its upgrades are constructed in town
+	"bonuses" : [ BONUS_FORMAT ]
+	
 	
 	// If the building is a market, it requires market mode.
 	"marketModes" : [ "resource-resource", "resource-player" ],
@@ -209,18 +213,18 @@ Building requirements can be described using logical expressions:
 ```jsonc
 "requires" :
 [
-    "allOf", // Normal H3 "build all" mode
-    [ "mageGuild1" ],
-    [
-        "noneOf",  // available only when none of these building are built
-        [ "dwelling5A" ],
-        [ "dwelling5AUpgrade" ]
-    ],
-    [
-        "anyOf", // any non-zero number of these buildings must be built
-        [ "tavern" ],
-        [ "blacksmith" ]
-    ]
+	"allOf", // Normal H3 "build all" mode
+	[ "mageGuild1" ],
+	[
+		"noneOf",  // available only when none of these building are built
+		[ "dwelling5A" ],
+		[ "dwelling5AUpgrade" ]
+	],
+	[
+		"anyOf", // any non-zero number of these buildings must be built
+		[ "tavern" ],
+		[ "blacksmith" ]
+	]
 ]
 ```
 ### List of unique town buildings

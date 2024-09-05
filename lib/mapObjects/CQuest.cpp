@@ -851,7 +851,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.text.appendLocalString (EMetaText::ADVOB_TXT, 17);
-		cb->showBlockingDialog (&bd);
+		cb->showBlockingDialog (this, &bd);
 	}
 	else
 	{

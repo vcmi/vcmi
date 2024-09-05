@@ -164,7 +164,7 @@ public:
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs = false) override {};
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs = false) override {};
 
-	void showBlockingDialog(BlockingDialog * iw) override {};
+	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw) override {};
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
 	void showTeleportDialog(TeleportDialog * iw) override {};
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};

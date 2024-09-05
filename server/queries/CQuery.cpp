@@ -14,7 +14,6 @@
 
 #include "../CGameHandler.h"
 
-#include "../../lib/serializer/Cast.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 
 std::ostream & operator<<(std::ostream & out, const CQuery & query)
@@ -87,7 +86,7 @@ bool CQuery::blocksPack(const CPack * pack) const
 	return false;
 }
 
-void CQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 
 }
@@ -116,7 +115,7 @@ void CQuery::setReply(std::optional<int32_t> reply)
 bool CQuery::blockAllButReply(const CPack * pack) const
 {
 	//We accept only query replies from correct player
-	if(auto reply = dynamic_ptr_cast<QueryReply>(pack))
+	if(auto reply = dynamic_cast<const QueryReply*>(pack))
 		return !vstd::contains(players, reply->player);
 
 	return true;

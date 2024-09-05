@@ -167,10 +167,11 @@ public:
 
 	void enterDwelling(int level);
 	void enterTownHall();
+	void enterRewardable(BuildingID building);
 	void enterMagesGuild();
 	void enterAnyMarket();
 	void enterAnyThievesGuild();
-	void enterBank();
+	void enterBank(BuildingID building);
 	void enterToTheQuickRecruitmentWindow();
 
 	bool buildingTryActivateCustomUI(BuildingID buildingToTest, BuildingID buildingTarget);

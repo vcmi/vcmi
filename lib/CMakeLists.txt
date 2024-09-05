@@ -620,7 +620,6 @@ set(lib_MAIN_HEADERS
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h
 	serializer/JsonUpdater.h
-	serializer/Cast.h
 	serializer/ESerializationVersion.h
 	serializer/RegisterTypes.h
 	serializer/Serializeable.h

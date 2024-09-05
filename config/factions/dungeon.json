@@ -179,7 +179,7 @@
 							"period" : 7,
 							"visitors" : true
 						},
-						"visitMode" : "hero", // Should be 'once' to match (somewhat buggy) H3 logic
+						"visitMode" : "once",
 						"rewards" : [
 							{
 								"limiter" : {

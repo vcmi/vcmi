@@ -164,7 +164,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
 			ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
-			cb->showBlockingDialog(&ynd);
+			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
 	default: //join for gold
@@ -180,7 +180,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
 			boost::algorithm::replace_first(tmp,"%s",VLC->creatures()->getById(getCreature())->getNamePluralTranslated());
 			ynd.text.appendRawString(tmp);
-			cb->showBlockingDialog(&ynd);
+			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
 	}
@@ -475,7 +475,7 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	ynd.player = h->tempOwner;
 	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
 	ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
-	cb->showBlockingDialog(&ynd);
+	cb->showBlockingDialog(this, &ynd);
 }
 
 void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const

@@ -9,6 +9,7 @@ set(vcmiservercommon_SRCS
 		queries/BattleQueries.cpp
 		queries/CQuery.cpp
 		queries/MapQueries.cpp
+		queries/VisitQueries.cpp
 		queries/QueriesProcessor.cpp
 
 		processors/HeroPoolProcessor.cpp
@@ -36,6 +37,7 @@ set(vcmiservercommon_HEADERS
 		queries/BattleQueries.h
 		queries/CQuery.h
 		queries/MapQueries.h
+		queries/VisitQueries.h
 		queries/QueriesProcessor.h
 
 		processors/HeroPoolProcessor.h

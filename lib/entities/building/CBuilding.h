@@ -44,6 +44,7 @@ public:
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
 	BuildingSubID::EBuildingSubID subId; /// subtype for special buildings, -1 = the building is not special
 	bool upgradeReplacesBonuses = false;
+	bool manualHeroVisit = false;
 	BonusList buildingBonuses;
 
 	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings

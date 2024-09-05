@@ -13,10 +13,9 @@
 #include "QueriesProcessor.h"
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
-#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/networkPacks/PacksForServer.h"
-#include "../../lib/serializer/Cast.h"
 
 TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	CQuery(owner)
@@ -44,41 +43,9 @@ bool TimerPauseQuery::endsByPlayerAnswer() const
 	return true;
 }
 
-CObjectVisitQuery::CObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, int3 Tile):
-	CQuery(owner), visitedObject(Obj), visitingHero(Hero), tile(Tile), removeObjectAfterVisit(false)
+void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	addPlayer(Hero->tempOwner);
-}
-
-bool CObjectVisitQuery::blocksPack(const CPack *pack) const
-{
-	//During the visit itself ALL actions are blocked.
-	//(However, the visit may trigger a query above that'll pass some.)
-	return true;
-}
-
-void CObjectVisitQuery::onRemoval(PlayerColor color)
-{
-	gh->objectVisitEnded(*this);
-
-	//TODO or should it be destructor?
-	//Can object visit affect 2 players and what would be desired behavior?
-	if(removeObjectAfterVisit)
-		gh->removeObject(visitedObject, color);
-}
-
-void CObjectVisitQuery::onExposure(QueryPtr topQuery)
-{
-	//Object may have been removed and deleted.
-	if(gh->isValidObject(visitedObject))
-		topQuery->notifyObjectAboutRemoval(*this);
-
-	owner->popIfTop(*this);
-}
-
-void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
-{
-	objectVisit.visitedObject->garrisonDialogClosed(objectVisit.visitingHero);
+	visitedObject->garrisonDialogClosed(visitingHero);
 }
 
 CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance * up, const CArmedInstance * down):
@@ -97,22 +64,22 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 	ourIds.insert(this->exchangingArmies[0]->id);
 	ourIds.insert(this->exchangingArmies[1]->id);
 
-	if(auto stacks = dynamic_ptr_cast<ArrangeStacks>(pack))
+	if(auto stacks = dynamic_cast<const ArrangeStacks*>(pack))
 		return !vstd::contains(ourIds, stacks->id1) || !vstd::contains(ourIds, stacks->id2);
 
-	if(auto stacks = dynamic_ptr_cast<BulkSplitStack>(pack))
+	if(auto stacks = dynamic_cast<const BulkSplitStack*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
-	if(auto stacks = dynamic_ptr_cast<BulkMergeStacks>(pack))
+	if(auto stacks = dynamic_cast<const BulkMergeStacks*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
-	if(auto stacks = dynamic_ptr_cast<BulkSmartSplitStack>(pack))
+	if(auto stacks = dynamic_cast<const BulkSmartSplitStack*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
-	if(auto stacks = dynamic_ptr_cast<BulkMoveArmy>(pack))
+	if(auto stacks = dynamic_cast<const BulkMoveArmy*>(pack))
 		return !vstd::contains(ourIds, stacks->srcArmy) || !vstd::contains(ourIds, stacks->destArmy);
 
-	if(auto arts = dynamic_ptr_cast<ExchangeArtifacts>(pack))
+	if(auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
 	{
 		if(auto id1 = arts->src.artHolder)
 			if(!vstd::contains(ourIds, id1))
@@ -123,41 +90,42 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 				return true;
 		return false;
 	}
-	if(auto dismiss = dynamic_ptr_cast<DisbandCreature>(pack))
+	if(auto dismiss = dynamic_cast<const DisbandCreature*>(pack))
 		return !vstd::contains(ourIds, dismiss->id);
 
-	if(auto arts = dynamic_ptr_cast<BulkExchangeArtifacts>(pack))
+	if(auto arts = dynamic_cast<const BulkExchangeArtifacts*>(pack))
 		return !vstd::contains(ourIds, arts->srcHero) || !vstd::contains(ourIds, arts->dstHero);
 
-	if(auto arts = dynamic_ptr_cast<ManageBackpackArtifacts>(pack))
+	if(auto arts = dynamic_cast<const ManageBackpackArtifacts*>(pack))
 		return !vstd::contains(ourIds, arts->artHolder);
 
-	if(auto art = dynamic_ptr_cast<EraseArtifactByClient>(pack))
+	if(auto art = dynamic_cast<const EraseArtifactByClient*>(pack))
 	{
 		if(auto id = art->al.artHolder)
 			return !vstd::contains(ourIds, id);
 	}
 
-	if(auto dismiss = dynamic_ptr_cast<AssembleArtifacts>(pack))
+	if(auto dismiss = dynamic_cast<const AssembleArtifacts*>(pack))
 		return !vstd::contains(ourIds, dismiss->heroID);
 
-	if(auto upgrade = dynamic_ptr_cast<UpgradeCreature>(pack))
+	if(auto upgrade = dynamic_cast<const UpgradeCreature*>(pack))
 		return !vstd::contains(ourIds, upgrade->id);
 
-	if(auto formation = dynamic_ptr_cast<SetFormation>(pack))
+	if(auto formation = dynamic_cast<const SetFormation*>(pack))
 		return !vstd::contains(ourIds, formation->hid);
 
 	return CDialogQuery::blocksPack(pack);
 }
 
-void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CBlockingDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(answer);
-	objectVisit.visitedObject->blockingDialogAnswered(objectVisit.visitingHero, *answer);
+	caller->blockingDialogAnswered(visitingHero, *answer);
 }
 
-CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog & bd):
-	CDialogQuery(owner)
+CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog & bd):
+	CDialogQuery(owner),
+	caller(caller)
 {
 	this->bd = bd;
 	addPlayer(bd.player);
@@ -179,56 +147,55 @@ bool OpenWindowQuery::blocksPack(const CPack *pack) const
 {
 	if (mode == EOpenWindowMode::RECRUITMENT_FIRST || mode == EOpenWindowMode::RECRUITMENT_ALL)
 	{
-		if(dynamic_ptr_cast<RecruitCreatures>(pack) != nullptr)
+		if(dynamic_cast<const RecruitCreatures*>(pack) != nullptr)
 			return false;
 
 		// If hero has no free slots, he might get some stacks merged automatically
-		if(dynamic_ptr_cast<ArrangeStacks>(pack) != nullptr)
+		if(dynamic_cast<const ArrangeStacks*>(pack) != nullptr)
 			return false;
 	}
 
 	if (mode == EOpenWindowMode::TAVERN_WINDOW)
 	{
-		if(dynamic_ptr_cast<HireHero>(pack) != nullptr)
+		if(dynamic_cast<const HireHero*>(pack) != nullptr)
 			return false;
 	}
 
 	if (mode == EOpenWindowMode::UNIVERSITY_WINDOW)
 	{
-		if(dynamic_ptr_cast<TradeOnMarketplace>(pack) != nullptr)
+		if(dynamic_cast<const TradeOnMarketplace*>(pack) != nullptr)
 			return false;
 	}
 
 	if (mode == EOpenWindowMode::MARKET_WINDOW)
 	{
-		if(dynamic_ptr_cast<ExchangeArtifacts>(pack) != nullptr)
+		if(dynamic_cast<const ExchangeArtifacts*>(pack) != nullptr)
 			return false;
 
-		if(dynamic_ptr_cast<BulkExchangeArtifacts>(pack) != nullptr)
+		if(dynamic_cast<const BulkExchangeArtifacts*>(pack) != nullptr)
 			return false;
 
-		if(dynamic_ptr_cast<ManageBackpackArtifacts>(pack) != nullptr)
+		if(dynamic_cast<const ManageBackpackArtifacts*>(pack) != nullptr)
 			return false;
 
-		if(dynamic_ptr_cast<AssembleArtifacts>(pack))
+		if(dynamic_cast<const AssembleArtifacts*>(pack))
 			return false;
 
-		if(dynamic_ptr_cast<EraseArtifactByClient>(pack))
+		if(dynamic_cast<const EraseArtifactByClient*>(pack))
 			return false;
 
-		if(dynamic_ptr_cast<TradeOnMarketplace>(pack) != nullptr)
+		if(dynamic_cast<const TradeOnMarketplace*>(pack) != nullptr)
 			return false;
 	}
 
 	return CDialogQuery::blocksPack(pack);
 }
 
-void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CTeleportDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	// do not change to dynamic_ptr_cast - SIGSEGV!
-	auto obj = dynamic_cast<const CGTeleport*>(objectVisit.visitedObject);
+	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
 	if(obj)
-		obj->teleportDialogAnswered(objectVisit.visitingHero, *answer, td.exits);
+		obj->teleportDialogAnswered(visitingHero, *answer, td.exits);
 	else
 		logGlobal->error("Invalid instance in teleport query");
 }
@@ -254,9 +221,9 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
-void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
+	visitedObject->heroLevelUpDone(visitingHero);
 }
 
 CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp & Clu, const CGHeroInstance * Hero):
@@ -273,9 +240,9 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->levelUpCommander(hero->commander, clu.skills[*answer]);
 }
 
-void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
+	visitedObject->heroLevelUpDone(visitingHero);
 }
 
 CHeroMovementQuery::CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):

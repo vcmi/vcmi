@@ -33,6 +33,7 @@ class CStackBasicDescriptor;
 class CGCreature;
 class CSaveFile;
 class CLoadFile;
+class IObjectInterface;
 enum class EOpenWindowMode : uint8_t;
 
 namespace spells
@@ -98,7 +99,7 @@ public:
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0;
-	virtual void showBlockingDialog(BlockingDialog *iw) =0;
+	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;

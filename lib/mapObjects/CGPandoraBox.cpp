@@ -175,7 +175,7 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 	BlockingDialog bd (true, false);
 	bd.player = h->getOwner();
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, 14);
-	cb->showBlockingDialog(&bd);
+	cb->showBlockingDialog(this, &bd);
 }
 
 void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const

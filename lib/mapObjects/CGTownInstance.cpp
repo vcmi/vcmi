@@ -301,12 +301,6 @@ void CGTownInstance::setOwner(const PlayerColor & player) const
 	cb->setOwner(this, player);
 }
 
-void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
-{
-	for (auto building : rewardableBuildings)
-		building.second->blockingDialogAnswered(hero, answer); // FIXME: why call for every building?
-}
-
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	if(cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)

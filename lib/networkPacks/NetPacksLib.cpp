@@ -582,9 +582,9 @@ void BuildStructure::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBuildStructure(*this);
 }
 
-void TriggerTownSpecialBuildingAction::visitTyped(ICPackVisitor & visitor)
+void VisitTownBuilding::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitTriggerTownSpecialBuildingAction(*this);
+	visitor.visitVisitTownBuilding(*this);
 }
 
 void RazeStructure::visitTyped(ICPackVisitor & visitor)

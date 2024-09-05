@@ -15,11 +15,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGObjectInstance;
-class int3;
+class IObjectInterface;
 VCMI_LIB_NAMESPACE_END
-
-
-class TurnTimerHandler;
 
 //Created when player starts turn or when player puts game on [ause
 //Removed when player accepts a turn or continur play
@@ -32,23 +29,6 @@ public:
 	void onAdding(PlayerColor color) override;
 	void onRemoval(PlayerColor color) override;
 	bool endsByPlayerAnswer() const override;
-};
-
-//Created when hero visits object.
-//Removed when query above is resolved (or immediately after visit if no queries were created)
-class CObjectVisitQuery : public CQuery
-{
-public:
-	const CGObjectInstance *visitedObject;
-	const CGHeroInstance *visitingHero;
-	int3 tile; //may be different than hero pos -> eg. visit via teleport
-	bool removeObjectAfterVisit;
-
-	CObjectVisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero, int3 Tile);
-
-	bool blocksPack(const CPack *pack) const override;
-	void onRemoval(PlayerColor color) override;
-	void onExposure(QueryPtr topQuery) override;
 };
 
 //Created when hero attempts move and something happens
@@ -73,7 +53,7 @@ public:
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
 	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 	bool blocksPack(const CPack *pack) const override;
 };
 
@@ -81,11 +61,12 @@ public:
 class CBlockingDialogQuery : public CDialogQuery
 {
 public:
+	const IObjectInterface * caller;
 	BlockingDialog bd; //copy of pack... debug purposes
 
-	CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog &bd);
+	CBlockingDialogQuery(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog &bd);
 
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
 
 class OpenWindowQuery : public CDialogQuery
@@ -105,7 +86,7 @@ public:
 
 	CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog &td);
 
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
 
 class CHeroLevelUpDialogQuery : public CDialogQuery
@@ -114,7 +95,7 @@ public:
 	CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp &Hlu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 
 	HeroLevelUp hlu;
 	const CGHeroInstance * hero;
@@ -126,7 +107,7 @@ public:
 	CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp &Clu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 
 	CommanderLevelUp clu;
 	const CGHeroInstance * hero;
