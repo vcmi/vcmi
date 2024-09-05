@@ -224,8 +224,10 @@ public:
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 
 	double getFightingStrength() const; // takes attack / defense skill into account
-	double getMagicStrength() const; // takes knowledge / spell power skill into account
+	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account
+	double getMagicStrengthForCampaign() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength
+	double getHeroStrengthForCampaign() const; // includes fighting and the for-campaign-version of magic strength
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 

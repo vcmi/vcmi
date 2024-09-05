@@ -663,9 +663,19 @@ double CGHeroInstance::getMagicStrength() const
 	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * mana / manaLimit()) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER) * mana / manaLimit()));
 }
 
+double CGHeroInstance::getMagicStrengthForCampaign() const
+{
+	return sqrt((1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05 * getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
+}
+
 double CGHeroInstance::getHeroStrength() const
 {
 	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrength(), 2.0));
+}
+
+double CGHeroInstance::getHeroStrengthForCampaign() const
+{
+	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrengthForCampaign(), 2.0));
 }
 
 ui64 CGHeroInstance::getTotalStrength() const
