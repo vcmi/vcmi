@@ -159,8 +159,7 @@ public:
 				}
 				else {
 					// Calculate the number of times we need to accumulate income to fulfill the need
-					float divisionResult = static_cast<float>(container.at(i)) / static_cast<float>(income[i]);
-					int ceiledResult = static_cast<int>(std::ceil(divisionResult));
+					int ceiledResult = vstd::divideAndCeil(container.at(i), income[i]);
 					ret = std::max(ret, ceiledResult);
 				}
 			}
