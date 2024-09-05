@@ -11,7 +11,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>Têm uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós</translation>
+        <translation>Tem uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
@@ -341,7 +341,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
         <source>Required VCMI version</source>
-        <translation>Versão do VCMI requerida</translation>
+        <translation>Versão do VCMI necessária</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
@@ -884,7 +884,7 @@ Instalar o download realizado com sucesso?</translation>
         <translation>Ativado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="389"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="391"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -1173,7 +1173,7 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="441"/>
-        <source>Heroes III data files</source>
+       <source>Heroes III data files</source>
         <translation>Arquivos de dados do Heroes III</translation>
     </message>
     <message>
@@ -1260,6 +1260,28 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
         <translation>Dados do GOG</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
+        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
+        <translation>Você forneceu o instalador do GOG Galaxy! Este arquivo não contém o jogo. Por favor, faça o download do instalador offline de backup do jogo!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
+        <source>Stream error while extracting files!
+error reason: </source>
+        <translation>Erro de fluxo ao extrair arquivos!
+Motivo do erro: </translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
+        <source>Not a supported Inno Setup installer!</source>
+        <translation>Instalador Inno Setup não suportado!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
+        <source>Extracting error!</source>
+        <translation>Erro ao extrair!</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
         <source>No Heroes III data!</source>
         <translation>Nenhum dado do Heroes III!</translation>
@@ -1283,28 +1305,6 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
 Please select directory with installed Heroes III data.</source>
         <translation>Falha ao detectar dados válidos do Heroes III no diretório escolhido.
 Por favor, selecione o diretório com os dados do Heroes III instalados.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
-        <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation>Você forneceu o instalador do GOG Galaxy! Este arquivo não contém o jogo. Por favor, faça o download do instalador offline de backup do jogo!</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
-        <source>Stream error while extracting files!
-error reason: </source>
-        <translation>Erro de fluxo ao extrair arquivos!
-Motivo do erro: </translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
-        <source>Not a supported Inno Setup installer!</source>
-        <translation>Instalador do Inno Setup não suportado!</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
-        <source>Extracting error!</source>
-        <translation>Erro ao extrair!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
@@ -1488,7 +1488,7 @@ Motivo: %2</translation>
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation>Já possui a versão mais recente</translation>
+        <translation>Já tem a versão mais recente</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
