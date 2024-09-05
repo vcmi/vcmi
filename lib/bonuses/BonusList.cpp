@@ -104,8 +104,8 @@ int BonusList::totalValue() const
 	};
 
 	BonusCollection accumulated;
-	bool hasIndepMax = false;
-	bool hasIndepMin = false;
+	int indexMaxCount = 0;
+	int indexMinCount = 0;
 
 	std::array<int, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> percentToSource = {};
 
@@ -141,12 +141,12 @@ int BonusList::totalValue() const
 		case BonusValueType::ADDITIVE_VALUE:
 			accumulated.additive += valModified;
 			break;
-		case BonusValueType::INDEPENDENT_MAX:
-			hasIndepMax = true;
+		case BonusValueType::INDEPENDENT_MAX: // actual meaning: at least this value
+			indexMaxCount++;
 			vstd::amax(accumulated.indepMax, valModified);
 			break;
-		case BonusValueType::INDEPENDENT_MIN:
-			hasIndepMin = true;
+		case BonusValueType::INDEPENDENT_MIN: // actual meaning: at most this value
+			indexMinCount++;
 			vstd::amin(accumulated.indepMin, valModified);
 			break;
 		}
@@ -156,21 +156,18 @@ int BonusList::totalValue() const
 	accumulated.base += accumulated.additive;
 	auto valFirst = applyPercentage(accumulated.base ,accumulated.percentToAll);
 
-	if(hasIndepMin && hasIndepMax && accumulated.indepMin < accumulated.indepMax)
+	if(indexMinCount && indexMaxCount && accumulated.indepMin < accumulated.indepMax)
 		accumulated.indepMax = accumulated.indepMin;
 
-	const int notIndepBonuses = static_cast<int>(std::count_if(bonuses.cbegin(), bonuses.cend(), [](const std::shared_ptr<Bonus>& b)
-	{
-		return b->valType != BonusValueType::INDEPENDENT_MAX && b->valType != BonusValueType::INDEPENDENT_MIN;
-	}));
+	const int notIndepBonuses = bonuses.size() - indexMaxCount - indexMinCount;
 
 	if(notIndepBonuses)
 		return std::clamp(valFirst, accumulated.indepMax, accumulated.indepMin);
 
-	if (hasIndepMin)
+	if (indexMinCount)
 		return accumulated.indepMin;
 
-	if (hasIndepMax)
+	if (indexMaxCount)
 		return accumulated.indepMax;
 
 	return 0;

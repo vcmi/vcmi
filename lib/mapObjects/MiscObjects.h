@@ -346,7 +346,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard
+class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard, public IOwnableObject
 {
 	friend class ShipyardInstanceConstructor;
 
@@ -357,6 +357,10 @@ protected:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	const IObjectInterface * getObject() const override;
 	BoatId getBoatType() const override;
+
+	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
 
 public:
 	using CGObjectInstance::CGObjectInstance;

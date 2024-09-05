@@ -1227,6 +1227,21 @@ BoatId CGShipyard::getBoatType() const
 	return createdBoat;
 }
 
+const IOwnableObject * CGShipyard::asOwnable() const
+{
+	return this;
+}
+
+ResourceSet CGShipyard::dailyIncome() const
+{
+	return {};
+}
+
+std::vector<CreatureID> CGShipyard::providedCreatures() const
+{
+	return {};
+}
+
 void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
 {
 	cb->showObjectWindow(this, EOpenWindowMode::THIEVES_GUILD, h, false);

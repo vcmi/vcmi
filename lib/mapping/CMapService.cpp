@@ -157,6 +157,7 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 			case static_cast<int>(EMapFormat::AB)  :
 			case static_cast<int>(EMapFormat::ROE) :
 			case static_cast<int>(EMapFormat::SOD) :
+			case static_cast<int>(EMapFormat::CHR) :
 			case static_cast<int>(EMapFormat::HOTA) :
 				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(mapName, modName, encoding, stream.get()));
 			default :

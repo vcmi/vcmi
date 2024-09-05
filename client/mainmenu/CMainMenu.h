@@ -192,6 +192,7 @@ class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progre
 
 public:	
 	CLoadingScreen();
+	CLoadingScreen(ImagePath background);
 	~CLoadingScreen();
 
 	void tick(uint32_t msPassed) override;

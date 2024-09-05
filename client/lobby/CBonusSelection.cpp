@@ -28,6 +28,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/IImage.h"
@@ -57,6 +58,41 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+
+CampaignIntroVideo::CampaignIntroVideo(VideoPath video, ImagePath rim, std::shared_ptr<CBonusSelection> bonusSel)
+	: CWindowObject(BORDERED), bonusSel(bonusSel)
+{
+	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(LCLICK | KEYBOARD);
+
+	pos = center(Rect(0, 0, 800, 600));
+
+	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
+	setBackground(rim);
+
+	CCS->musich->stopMusic();
+}
+
+void CampaignIntroVideo::exit()
+{
+	close();
+	
+	if (!CSH->si->campState->getMusic().empty())
+		CCS->musich->playMusic(CSH->si->campState->getMusic(), true, false);
+
+	GH.windows().pushWindow(bonusSel);
+}
+
+void CampaignIntroVideo::clickPressed(const Point & cursorPosition)
+{
+	exit();
+}
+
+void CampaignIntroVideo::keyPressed(EShortcut key)
+{
+	exit();
+}
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
@@ -93,7 +129,9 @@ CBonusSelection::CBonusSelection()
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
 	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(), Rect(480, 86, 286, 117), 1);
 
-	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated(), 285);
+	bool videoButtonActive = CSH->getState() == EClientState::GAMEPLAY;
+	int availableSpace = videoButtonActive ? 225 : 285;
+	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated(), availableSpace );
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 292, 108), 1);
 

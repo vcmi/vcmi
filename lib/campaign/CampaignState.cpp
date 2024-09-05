@@ -20,6 +20,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
+#include "../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -138,6 +139,12 @@ void CampaignHeader::loadLegacyData(ui8 campId)
 	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
 }
 
+void CampaignHeader::loadLegacyData(CampaignRegions regions, int numOfScenario)
+{
+	campaignRegions = regions;
+	numberOfScenarios = numOfScenario;
+}
+
 bool CampaignHeader::playerSelectedDifficulty() const
 {
 	return difficultyChosenByPlayer;
@@ -196,6 +203,21 @@ std::string CampaignHeader::getEncoding() const
 AudioPath CampaignHeader::getMusic() const
 {
 	return music;
+}
+
+ImagePath CampaignHeader::getLoadingBackground() const
+{
+	return loadingBackground;
+}
+
+ImagePath CampaignHeader::getIntroVideoRim() const
+{
+	return introVideoRim;
+}
+
+VideoPath CampaignHeader::getIntroVideo() const
+{
+	return introVideo;
 }
 
 const CampaignRegions & CampaignHeader::getRegions() const
@@ -453,6 +475,45 @@ std::set<CampaignScenarioID> Campaign::allScenarios() const
 	}
 
 	return result;
+}
+
+void Campaign::overrideCampaign()
+{
+	const JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
+	for (auto & entry : node.Struct())
+		if(filename == entry.first)
+		{
+			if(!entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
+				loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
+			if(!entry.second["loadingBackground"].isNull())
+				loadingBackground = ImagePath::builtin(entry.second["loadingBackground"].String());
+			if(!entry.second["introVideoRim"].isNull())
+				introVideoRim = ImagePath::builtin(entry.second["introVideoRim"].String());
+			if(!entry.second["introVideo"].isNull())
+				introVideo = VideoPath::builtin(entry.second["introVideo"].String());
+		}
+}
+
+void Campaign::overrideCampaignScenarios()
+{
+	const JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
+	for (auto & entry : node.Struct())
+		if(filename == entry.first)
+		{
+			if(!entry.second["scenarios"].isNull())
+			{
+				auto sc = entry.second["scenarios"].Vector();
+				for(int i = 0; i < sc.size(); i++)
+				{
+					auto it = scenarios.begin();
+					std::advance(it, i);
+					if(!sc.at(i)["voiceProlog"].isNull())
+						it->second.prolog.prologVoice = AudioPath::builtin(sc.at(i)["voiceProlog"].String());
+					if(!sc.at(i)["voiceEpilog"].isNull())
+						it->second.epilog.prologVoice = AudioPath::builtin(sc.at(i)["voiceEpilog"].String());
+				}
+			}
+		}
 }
 
 int Campaign::scenariosCount() const

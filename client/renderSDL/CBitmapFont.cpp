@@ -16,15 +16,17 @@
 #include "../render/Colors.h"
 #include "../render/IScreenHandler.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
+#include "../../lib/VCMI_Lib.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/vcmi_endian.h"
-#include "../../lib/VCMI_Lib.h"
 
 #include <SDL_surface.h>
+#include <SDL_image.h>
 
 struct AtlasLayout
 {
@@ -199,10 +201,20 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 
 	if (GH.screenHandler().getScalingFactor() != 1)
 	{
-		auto scaledSurface = CSDL_Ext::scaleSurfaceIntegerFactor(atlasImage, GH.screenHandler().getScalingFactor());
+		static const std::map<std::string, EScalingAlgorithm> filterNameToEnum = {
+			{ "nearest", EScalingAlgorithm::NEAREST},
+			{ "bilinear", EScalingAlgorithm::BILINEAR},
+			{ "xbrz", EScalingAlgorithm::XBRZ}
+		};
+
+		auto filterName = settings["video"]["fontUpscalingFilter"].String();
+		EScalingAlgorithm algorithm = filterNameToEnum.at(filterName);
+		auto scaledSurface = CSDL_Ext::scaleSurfaceIntegerFactor(atlasImage, GH.screenHandler().getScalingFactor(), algorithm);
 		SDL_FreeSurface(atlasImage);
 		atlasImage = scaledSurface;
 	}
+
+	IMG_SavePNG(atlasImage, ("/home/ivan/font_" + filename).c_str());
 }
 
 CBitmapFont::~CBitmapFont()

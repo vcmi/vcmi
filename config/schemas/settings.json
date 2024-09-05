@@ -167,6 +167,7 @@
 				"targetfps",
 				"vsync",
 				"upscalingFilter",
+				"fontUpscalingFilter",
 				"downscalingFilter"
 			],
 			"properties" : {
@@ -230,6 +231,11 @@
 				"vsync" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"fontUpscalingFilter" : {
+					"type" : "string",
+					"enum" : [ "nearest", "bilinear", "xbrz" ],
+					"default" : "nearest"
 				},
 				"upscalingFilter" : {
 					"type" : "string",

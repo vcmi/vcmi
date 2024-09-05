@@ -601,6 +601,12 @@ void RandomMapTab::loadOptions()
 		{
 			w->setItem(mapGenOptions->getMapTemplate());
 		}
+	} else
+	{
+		// Default settings
+		mapGenOptions->setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
+		mapGenOptions->setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
+		mapGenOptions->setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
 	}
 	updateMapInfoByHost();
 
