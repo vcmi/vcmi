@@ -19,7 +19,11 @@
 	// Should be in format:
 	// <replaced bitmap font name, case-sensetive> : <true type font description>
 	// "file" - file to load font from, must be in data/ directory
-	// "size" - point size of font
+	// "size" - point size of font. Can be defined in two forms:
+	// a) single number, e.g. 10. In this case, game will automatically multiply font size by upscaling factor when xBRZ is in use, 
+	//    so xbrz 2x will use 20px, xbrz 3x will use 30px, etc
+	// b) list of scaling factors for each scaling mode, e.g. [ 10, 16, 22, 26]. In this case game will select point size according to xBRZ scaling factor
+	//    so unscaled mode will use 10px, xbrz2 will use 16px, and xbrz3 will use 22
 	// "style" - italic and\or bold, indicates font style
 	// "blend" - if set to true, font will be antialiased
 	"trueType":
