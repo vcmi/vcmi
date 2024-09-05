@@ -21,7 +21,9 @@
 #include "globalLobby/GlobalLobbyClient.h"
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
+#include "lobby/CBonusSelection.h"
 #include "windows/InfoWindows.h"
+#include "media/CMusicHandler.h"
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
@@ -704,7 +706,15 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		else
 		{
 			CMM->openCampaignScreen(ourCampaign->campaignSet);
-			GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
+			if(!ourCampaign->getOutroVideo().empty())
+			{
+				CCS->musich->stopMusic();
+				GH.windows().createAndPushWindow<CampaignRimVideo>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), [campaignScoreCalculator, statistic](){
+					GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
+				});
+			}
+			else
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 		}
 	};
 

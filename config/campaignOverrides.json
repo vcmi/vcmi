@@ -1,4 +1,7 @@
 {
+	"DATA/GOOD3" : { // RoE - "Song for the Father"
+		"outroVideo": "Endgame"
+	},
 	"MAPS/HC1_MAIN" : { // Heroes Chronicles 1
 		"regions":
 		{
@@ -29,7 +32,7 @@
 			{ "voiceProlog": "chronicles_1/H3X2BBF", "voiceEpilog": "chronicles_1/N1C_D" }
 		],
 		"loadingBackground": "chronicles_1/LoadBar",
-		"introVideoRim": "chronicles_1/INTRORIM",
+		"videoRim": "chronicles_1/INTRORIM",
 		"introVideo": "chronicles_1/Intro"
 	},
 	"MAPS/HC2_MAIN" : { // Heroes Chronicles 2
@@ -62,7 +65,7 @@
 			{ "voiceProlog": "chronicles_2/G1A", "voiceEpilog": "chronicles_2/S1C" }
 		],
 		"loadingBackground": "chronicles_2/LoadBar",
-		"introVideoRim": "chronicles_2/INTRORIM",
+		"videoRim": "chronicles_2/INTRORIM",
 		"introVideo": "chronicles_2/Intro"
 	},
 	"MAPS/HC3_MAIN" : { // Heroes Chronicles 3
@@ -95,7 +98,7 @@
 			{ "voiceProlog": "chronicles_3/G3B", "voiceEpilog": "chronicles_3/ABVOFL2" }
 		],
 		"loadingBackground": "chronicles_3/LoadBar",
-		"introVideoRim": "chronicles_3/INTRORIM",
+		"videoRim": "chronicles_3/INTRORIM",
 		"introVideo": "chronicles_3/Intro"
 	},
 	"MAPS/HC4_MAIN" : { // Heroes Chronicles 4
@@ -128,7 +131,7 @@
 			{ "voiceProlog": "chronicles_4/H3X2NBD", "voiceEpilog": "chronicles_4/S1C" }
 		],
 		"loadingBackground": "chronicles_4/LoadBar",
-		"introVideoRim": "chronicles_4/INTRORIM",
+		"videoRim": "chronicles_4/INTRORIM",
 		"introVideo": "chronicles_4/Intro"
 	},
 	"MAPS/HC5_MAIN" : { // Heroes Chronicles 5
@@ -155,7 +158,7 @@
 			{ "voiceProlog": "chronicles_5/H3X2UAH", "voiceEpilog": "chronicles_5/N1C_D"  }
 		],
 		"loadingBackground": "chronicles_5/LoadBar",
-		"introVideoRim": "chronicles_5/INTRORIM",
+		"videoRim": "chronicles_5/INTRORIM",
 		"introVideo": "chronicles_5/Intro"
 	},
 	"MAPS/HC6_MAIN" : { // Heroes Chronicles 6
@@ -182,7 +185,7 @@
 			{ "voiceProlog": "chronicles_6/ABVOAB5", "voiceEpilog": "chronicles_6/ABVODB2"  }
 		],
 		"loadingBackground": "chronicles_6/LoadBar",
-		"introVideoRim": "chronicles_6/INTRORIM",
+		"videoRim": "chronicles_6/INTRORIM",
 		"introVideo": "chronicles_6/Intro"
 	},
 	"MAPS/HC7_MAIN" : { // Heroes Chronicles 7
@@ -215,7 +218,7 @@
 			{ "voiceProlog": "chronicles_7/ABVOFW4", "voiceEpilog": "chronicles_7/ABVOAB1" }
 		],
 		"loadingBackground": "chronicles_7/LoadBar",
-		"introVideoRim": "chronicles_7/INTRORIM",
+		"videoRim": "chronicles_7/INTRORIM",
 		"introVideo": "chronicles_7/Intro5"
 	},
 	"MAPS/HC8_MAIN" : { // Heroes Chronicles 8
@@ -248,7 +251,7 @@
 			{ "voiceProlog": "chronicles_8/H3X2ELE", "voiceEpilog": "chronicles_8/ABVOAB7" }
 		],
 		"loadingBackground": "chronicles_8/LoadBar",
-		"introVideoRim": "chronicles_8/INTRORIM",
+		"videoRim": "chronicles_8/INTRORIM",
 		"introVideo": "chronicles_8/Intro6"
 	}
 }
