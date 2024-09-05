@@ -1397,7 +1397,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if(evaluationContext.conquestValue > 0)
 					score = 1000;
-				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
+				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
@@ -1417,7 +1417,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			{
 				if (evaluationContext.conquestValue > 0)
 					score = 1000;
-				if (score == 0 || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
+				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossPersentage < 0)
 					return 0;
@@ -1524,7 +1524,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					{
 						TResources needed = evaluationContext.buildingCost - resourcesAvailable;
 						needed.positive();
-						int turnsTo = needed.div(income);
+						int turnsTo = needed.maxPurchasableCount(income);
 						if (turnsTo == INT_MAX)
 							return 0;
 						else
@@ -1533,7 +1533,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				}
 				else
 				{
-					if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend && evaluationContext.conquestValue == 0)
+					if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend && vstd::isAlmostZero(evaluationContext.conquestValue))
 						return 0;
 				}
 				break;
