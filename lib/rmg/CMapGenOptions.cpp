@@ -30,9 +30,6 @@ CMapGenOptions::CMapGenOptions()
 	customizedPlayers(false)
 {
 	initPlayersMap();
-	setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
-	setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
-	setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
 }
 
 si32 CMapGenOptions::getWidth() const
