@@ -410,10 +410,8 @@ void Nullkiller::makeTurn()
 			decompose(bestTasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
-		int prioOfTask = 0;
 		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::DEFEND; ++prio)
 		{
-			prioOfTask = prio;
 			selectedTasks = buildPlan(bestTasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 				break;
