@@ -260,11 +260,13 @@ jobs:
       if: ${{ matrix.pack == 1 }}
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-        CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
-        counter=0; until "$CPACK_PATH" -C ${{matrix.pack_type}} ${{ matrix.cpack_args }} || ((counter > 20)); do sleep 3; ((counter++)); done
-        test -f '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' \
-          && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
-        rm -rf _CPack_Packages
+
+        # Workaround for CPack bug on macOS 13
+        counter=0
+        until cpack -C ${{matrix.pack_type}} || ((counter > 20))
+            do sleep 3
+            ((counter++))
+        done
 
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
