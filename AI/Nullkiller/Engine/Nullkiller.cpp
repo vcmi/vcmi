@@ -635,8 +635,6 @@ bool Nullkiller::handleTrading()
 				{
 					if (required[i] <= 0)
 						continue;
-					if (i != 6 && income[i] > 0)
-						continue;
 					float ratio = static_cast<float>(available[i]) / required[i];
 
 					if (ratio < minRatio) {
