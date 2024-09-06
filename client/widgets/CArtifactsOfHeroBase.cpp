@@ -137,9 +137,9 @@ void CArtifactsOfHeroBase::scrollBackpack(bool left)
 	LOCPLINT->cb->scrollBackpackArtifacts(curHero->id, left);
 }
 
-void CArtifactsOfHeroBase::markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved)
+void CArtifactsOfHeroBase::markPossibleSlots(const CArtifact * art, bool assumeDestRemoved)
 {
-	for(auto artPlace : artWorn)
+	for(const auto & artPlace : artWorn)
 		artPlace.second->selectSlot(art->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
 }
 

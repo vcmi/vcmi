@@ -62,15 +62,12 @@ const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact() const
 
 const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact() const
 {
-	const CArtifactInstance * art = nullptr;
-
 	for(const auto & artSet : artSets)
 		if(const auto pickedArt = artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS))
 		{
-			art = pickedArt;
-			break;
+			return pickedArt;
 		}
-	return art;
+	return nullptr;
 }
 
 void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
@@ -202,7 +199,7 @@ void CWindowWithArtifacts::markPossibleSlots() const
 				continue;
 
 			if(getHeroPickedArtifact() == hero || !std::dynamic_pointer_cast<CArtifactsOfHeroKingdom>(artSet))
-				artSet->markPossibleSlots(pickedArtInst, hero->tempOwner == LOCPLINT->playerID);
+				artSet->markPossibleSlots(pickedArtInst->artType, hero->tempOwner == LOCPLINT->playerID);
 		}
 	}
 }

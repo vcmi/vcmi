@@ -552,6 +552,34 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 	artInstances[art->getId().getNum()].dellNull();
 }
 
+void CMap::moveArtifactInstance(
+	CArtifactSet & srcSet, const ArtifactPosition & srcSlot,
+	CArtifactSet & dstSet, const ArtifactPosition & dstSlot)
+{
+	auto art = srcSet.getArt(srcSlot);
+	removeArtifactInstance(srcSet, srcSlot);
+	putArtifactInstance(dstSet, art, dstSlot);
+}
+
+void CMap::putArtifactInstance(CArtifactSet & set, CArtifactInstance * art, const ArtifactPosition & slot)
+{
+	art->addPlacementMap(set.putArtifact(slot, art));
+}
+
+void CMap::removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot)
+{
+	auto art = set.getArt(slot);
+	assert(art);
+	set.removeArtifact(slot);
+	CArtifactSet::ArtPlacementMap partsMap;
+	for(auto & part : art->getPartsInfo())
+	{
+		if(part.slot != ArtifactPosition::PRE_FIRST)
+			partsMap.try_emplace(part.art, ArtifactPosition::PRE_FIRST);
+	}
+	art->addPlacementMap(partsMap);
+}
+
 void CMap::addNewQuestInstance(CQuest* quest)
 {
 	quest->qid = static_cast<si32>(quests.size());

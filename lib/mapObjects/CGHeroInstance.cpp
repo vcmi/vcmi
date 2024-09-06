@@ -1201,7 +1201,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		getArt(ArtifactPosition::SPELLBOOK)->removeFrom(*this, ArtifactPosition::SPELLBOOK);
+		//VLC->arth->removeArtifactFrom(*this, ArtifactPosition::SPELLBOOK);
 	}
 }
 

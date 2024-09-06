@@ -25,7 +25,7 @@ protected:
 public:
 	struct PartInfo
 	{
-		ConstTransitivePtr<CArtifactInstance> art;
+		CArtifactInstance * art;
 		ArtifactPosition slot;
 		template <typename Handler> void serialize(Handler & h)
 		{
@@ -39,7 +39,7 @@ public:
 	// Checks if supposed part inst is part of this combined art inst
 	bool isPart(const CArtifactInstance * supposedPart) const;
 	const std::vector<PartInfo> & getPartsInfo() const;
-	void addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap);
+	void addPlacementMap(const CArtifactSet::ArtPlacementMap & placementMap);
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -88,9 +88,6 @@ public:
 		bool assumeDestRemoved = false) const;
 	bool isCombined() const;
 	bool isScroll() const;
-	void putAt(CArtifactSet & set, const ArtifactPosition slot);
-	void removeFrom(CArtifactSet & set, const ArtifactPosition slot);
-	void move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot);
 	
 	void deserializationFix();
 	template <typename Handler> void serialize(Handler & h)

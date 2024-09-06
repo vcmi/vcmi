@@ -959,7 +959,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	if(ArtifactID(artifactID).toArtifact()->canBePutAt(hero, ArtifactPosition(slot)))
 	{
 		auto * artifact = ArtifactUtils::createArtifact(artifactID);
-		artifact->putAt(*hero, ArtifactPosition(slot));
+		map->putArtifactInstance(*hero, artifact, slot);
 		map->addNewArtifactInstance(artifact);
 	}
 	else

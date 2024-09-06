@@ -188,7 +188,7 @@ public:
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;};
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override {return false;};
 	bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) override {return false;};
-	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;};
+	bool putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble) override {return false;};
 	void removeArtifact(const ArtifactLocation & al) override {};
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};
 

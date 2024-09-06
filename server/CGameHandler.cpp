@@ -3757,9 +3757,10 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 	}
 }
 
-bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble)
+bool CGameHandler::putArtifact(const ArtifactLocation & al, const ArtifactInstanceID & id, std::optional<bool> askAssemble)
 {
-	assert(art && art->artType);
+	const auto artInst = getArtInstance(id);
+	assert(artInst && artInst->artType);
 	ArtifactLocation dst(al.artHolder, ArtifactPosition::PRE_FIRST);
 	dst.creature = al.creature;
 	auto putTo = getArtSet(al);
@@ -3767,11 +3768,11 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInsta
 
 	if(al.slot == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		dst.slot = ArtifactUtils::getArtAnyPosition(putTo, art->getTypeId());
+		dst.slot = ArtifactUtils::getArtAnyPosition(putTo, artInst->getTypeId());
 	}
 	else if(ArtifactUtils::isSlotBackpack(al.slot) && !al.creature.has_value())
 	{
-		dst.slot = ArtifactUtils::getArtBackpackPosition(putTo, art->getTypeId());
+		dst.slot = ArtifactUtils::getArtBackpackPosition(putTo, artInst->getTypeId());
 	}
 	else
 	{
@@ -3786,10 +3787,9 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInsta
 			askAssemble = false;
 	}
 
-	if(art->canBePutAt(putTo, dst.slot))
+	if(artInst->canBePutAt(putTo, dst.slot))
 	{
-		PutArtifact pa(dst, askAssemble.value());
-		pa.art = art;
+		PutArtifact pa(id, dst, askAssemble.value());
 		sendAndApply(&pa);
 		return true;
 	}

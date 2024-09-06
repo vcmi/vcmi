@@ -1638,7 +1638,7 @@ bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 	 auto slot = ArtifactUtils::getArtAnyPosition(h, aid);
 	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 	 {
-		 ai->putAt(*h, slot);
+		 map->putArtifactInstance(*h, ai, slot);
 		 return true;
 	 }
 	 else
