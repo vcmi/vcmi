@@ -378,4 +378,4 @@ jobs:
         - name: Validate JSON
           run: |
             sudo apt install python3-jstyleson
-            python3 CI/linux-qt6/validate_json.py
+            python3 CI/validate_json.py
