@@ -47,9 +47,7 @@ class VCMI(ConanFile):
         self.options["freetype"].shared = self.settings.os == "Android"
 
         # SDL_image and Qt depend on it, in iOS both are static
-        # Enable static libpng due to https://github.com/conan-io/conan-center-index/issues/15440,
-        # which leads to VCMI crashes of MinGW
-        self.options["libpng"].shared = not (self.settings.os == "Windows" and cross_building(self)) and self.settings.os != "iOS"
+        self.options["libpng"].shared = not self.settings.os != "iOS"
         # static Qt for iOS is the only viable option at the moment
         self.options["qt"].shared = self.settings.os != "iOS"
 
@@ -173,12 +171,12 @@ class VCMI(ConanFile):
         self.options["sdl"].vulkan = False
 
         # bmp, png are the only ones that needs to be supported
-        # pcx is also enabled since some people might use it due to H3 using format named 'pcx' (but unrelated to sdl_image pcx)
         # dds support may be useful for HD edition, but not supported by sdl_image at the moment
         self.options["sdl_image"].gif = False
         self.options["sdl_image"].lbm = False
         self.options["sdl_image"].pnm = False
-        self.options["sdl_image"].qoi = False
+        self.options["sdl_image"].pcx = False
+        #self.options["sdl_image"].qoi = False # sdl_image >=2.6
         self.options["sdl_image"].svg = False
         self.options["sdl_image"].tga = False
         self.options["sdl_image"].with_libjpeg = False
