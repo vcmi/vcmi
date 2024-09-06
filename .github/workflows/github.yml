@@ -23,14 +23,17 @@ jobs:
           - platform: linux-qt6
             os: ubuntu-24.04
             test: 0
+            before_install: linux_qt6.sh
             preset: linux-clang-test
           - platform: linux
             os: ubuntu-24.04
             test: 1
+            before_install: linux_qt5.sh
             preset: linux-gcc-test
           - platform: linux
             os: ubuntu-20.04
             test: 0
+            before_install: linux_qt5.sh
             preset: linux-gcc-debug
           - platform: mac-intel
             os: macos-13
@@ -38,6 +41,7 @@ jobs:
             pack: 1
             pack_type: Release
             extension: dmg
+            before_install: macos.sh
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
             conan_prebuilts: dependencies-mac-intel
@@ -49,6 +53,7 @@ jobs:
             pack: 1
             pack_type: Release
             extension: dmg
+            before_install: macos.sh
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
             conan_prebuilts: dependencies-mac-arm
@@ -60,6 +65,7 @@ jobs:
             pack: 1
             pack_type: Release
             extension: ipa
+            before_install: macos.sh
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
             conan_prebuilts: dependencies-ios
@@ -70,6 +76,7 @@ jobs:
             pack: 1
             pack_type: RelWithDebInfo
             extension: exe
+            before_install: msvc.sh
             preset: windows-msvc-release
           - platform: mingw
             os: ubuntu-24.04
@@ -79,6 +86,7 @@ jobs:
             extension: exe
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
+            before_install: mingw_x86_64.sh
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
             conan_prebuilts: dependencies-mingw
@@ -90,6 +98,7 @@ jobs:
             extension: exe
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
+            before_install: mingw_x86.sh
             preset: windows-mingw-conan-linux
             conan_profile: mingw32-linux.jinja
             conan_prebuilts: dependencies-mingw-32
@@ -121,7 +130,8 @@ jobs:
         submodules: recursive
 
     - name: Prepare CI
-      run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
+      if: "${{ matrix.before_install != '' }}"
+      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
       env:
         VCMI_BUILD_PLATFORM: x64
 
