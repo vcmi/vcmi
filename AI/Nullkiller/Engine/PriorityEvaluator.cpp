@@ -944,6 +944,8 @@ public:
 		Goals::StayAtTown & stayAtTown = dynamic_cast<Goals::StayAtTown &>(*task);
 
 		evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero());
+		if (evaluationContext.armyReward == 0)
+			evaluationContext.isDefend = true;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += stayAtTown.getMovementWasted();
 		evaluationContext.movementCost += stayAtTown.getMovementWasted();
 	}
@@ -1365,7 +1367,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		float score = 0;
 		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, isDefend: %d, fuzzy: %f",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, isDefend: %d",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
@@ -1385,8 +1387,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.conquestValue,
 			evaluationContext.closestWayRatio,
 			evaluationContext.enemyHeroDangerRatio,
-			evaluationContext.isDefend,
-			fuzzyResult);
+			evaluationContext.isDefend);
 #endif
 
 		switch (priorityTier)
@@ -1443,6 +1444,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossPersentage;
 				if (score > 0)
 				{
+					score = 1000;
 					score *= evaluationContext.closestWayRatio;
 					if (evaluationContext.enemyHeroDangerRatio > 1)
 						score /= evaluationContext.enemyHeroDangerRatio;
@@ -1457,7 +1459,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.isExchange)
 					return 0;
 				if (evaluationContext.isDefend)
-					score = evaluationContext.armyInvolvement;
+					score = 1000;
 				score *= evaluationContext.closestWayRatio;
 				score /= (evaluationContext.turn + 1);
 				break;
@@ -1516,7 +1518,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
-	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, fuzzy: %f, result %f",
+	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, result %f",
 		priorityTier,
 		task->toString(),
 		evaluationContext.armyLossPersentage,
@@ -1536,7 +1538,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		evaluationContext.conquestValue,
 		evaluationContext.closestWayRatio,
 		evaluationContext.enemyHeroDangerRatio,
-		fuzzyResult,
 		result);
 #endif
 
