@@ -77,45 +77,43 @@ jobs:
             extension: exe
             before_install: msvc.sh
             preset: windows-msvc-release
-          - platform: mingw
+          - platform: mingw_x86_64
             os: ubuntu-24.04
             test: 0
             pack: 1
             pack_type: Release
             extension: exe
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
             before_install: mingw_x86_64.sh
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
-            conan_prebuilts: dependencies-mingw
-          - platform: mingw-32
+            conan_prebuilts: dependencies-mingw-x86-64
+          - platform: mingw_x86
             os: ubuntu-24.04
             test: 0
             pack: 1
             pack_type: Release
             extension: exe
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
             before_install: mingw_x86.sh
             preset: windows-mingw-conan-linux
             conan_profile: mingw32-linux.jinja
-            conan_prebuilts: dependencies-mingw-32
+            conan_prebuilts: dependencies-mingw-x86
           - platform: android-32
-            os: macos-14
+            os: ubuntu-24.04
             extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-32
-            conan_prebuilts: dependencies-android-32
-            conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
+            before_install: android.sh
+            conan_profile: android-32-ndk
+            conan_prebuilts: dependencies-android-armeabi-v7a
             artifact_platform: armeabi-v7a
           - platform: android-64
-            os: macos-14
+            os: ubuntu-24.04
             extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-64
-            conan_prebuilts: dependencies-android-64
-            conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
+            before_install: android.sh
+            conan_profile: android-64-ndk
+            conan_prebuilts: dependencies-android-arm64-v8a
             artifact_platform: arm64-v8a
     runs-on: ${{ matrix.os }}
     defaults:
