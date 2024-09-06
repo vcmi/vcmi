@@ -511,6 +511,8 @@ void Nullkiller::makeTurn()
 		{
 			logAi->trace("Nothing was done this turn. Ending turn.");
 #if NKAI_TRACE_LEVEL >= 1
+			totalHeroStrength = 0;
+			totalTownLevel = 0;
 			for (auto heroInfo : cb->getHeroesInfo())
 			{
 				totalHeroStrength += heroInfo->getTotalStrength();
