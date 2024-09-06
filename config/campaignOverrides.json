@@ -2,6 +2,10 @@
 	"DATA/GOOD3" : { // RoE - "Song for the Father"
 		"outroVideo": "Endgame"
 	},
+	"DATA/AB" : { // AB Intro
+		"introVideo": "H3X1intr",
+		"videoRim": "IntroRm2"
+	},
 	"MAPS/HC1_MAIN" : { // Heroes Chronicles 1
 		"regions":
 		{

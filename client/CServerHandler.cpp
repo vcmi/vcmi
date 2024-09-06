@@ -24,6 +24,8 @@
 #include "lobby/CBonusSelection.h"
 #include "windows/InfoWindows.h"
 #include "media/CMusicHandler.h"
+#include "media/IVideoPlayer.h"
+
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
@@ -706,7 +708,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		else
 		{
 			CMM->openCampaignScreen(ourCampaign->campaignSet);
-			if(!ourCampaign->getOutroVideo().empty())
+			if(!ourCampaign->getOutroVideo().empty() && CCS->videoh->open(ourCampaign->getOutroVideo(), false))
 			{
 				CCS->musich->stopMusic();
 				GH.windows().createAndPushWindow<CampaignRimVideo>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), [campaignScoreCalculator, statistic](){
