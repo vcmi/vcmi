@@ -88,7 +88,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
 		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187);
-		cb->showBlockingDialog(&ynd);
+		cb->showBlockingDialog(this, &ynd);
 		return;
 	}
 
@@ -310,7 +310,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text = message;
-			cb->showBlockingDialog(&ynd);
+			cb->showBlockingDialog(this, &ynd);
 		}
 		else
 		{
@@ -879,7 +879,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					ynd.text.replaceRawString(getArmyDescription());
 					ynd.text.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
 				}
-				cb->showBlockingDialog(&ynd);
+				cb->showBlockingDialog(this, &ynd);
 			}
 			break;
 		case Obj::SPELL_SCROLL:
@@ -889,7 +889,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
 					ynd.text = message;
-					cb->showBlockingDialog(&ynd);
+					cb->showBlockingDialog(this, &ynd);
 				}
 				else
 					blockingDialogAnswered(h, true);

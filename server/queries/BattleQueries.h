@@ -29,7 +29,7 @@ public:
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi); //TODO
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 	bool blocksPack(const CPack *pack) const override;
 	void onRemoval(PlayerColor color) override;
 	void onExposure(QueryPtr topQuery) override;

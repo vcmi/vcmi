@@ -21,14 +21,13 @@
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
-#include "../../lib/serializer/Cast.h"
 
-void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CBattleQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(result);
 
 	if(result)
-		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
+		visitedObject->battleFinished(visitingHero, *result);
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
@@ -51,10 +50,10 @@ CBattleQuery::CBattleQuery(CGameHandler * owner):
 
 bool CBattleQuery::blocksPack(const CPack * pack) const
 {
-	if(dynamic_ptr_cast<MakeAction>(pack) != nullptr)
+	if(dynamic_cast<const MakeAction*>(pack) != nullptr)
 		return false;
 
-	if(dynamic_ptr_cast<GamePause>(pack) != nullptr)
+	if(dynamic_cast<const GamePause*>(pack) != nullptr)
 		return false;
 
 	return true;

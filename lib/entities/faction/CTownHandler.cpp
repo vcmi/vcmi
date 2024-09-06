@@ -299,6 +299,9 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
 
+	ret->manualHeroVisit = source["manualHeroVisit"].Bool();
+	ret->upgradeReplacesBonuses = source["upgradeReplacesBonuses"].Bool();
+
 	const JsonNode & fortifications = source["fortifications"];
 	if (!fortifications.isNull())
 	{

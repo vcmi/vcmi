@@ -165,7 +165,7 @@ void MapController::repairMap(CMap * map) const
 			{
 				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
 				if(!nih->getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
-					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK));
 			}
 			
 		}

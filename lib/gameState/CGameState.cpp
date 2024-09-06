@@ -1628,7 +1628,7 @@ void CGameState::attachArmedObjects()
 
 bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 {
-	 CArtifactInstance * ai = ArtifactUtils::createNewArtifactInstance(aid);
+	 CArtifactInstance * ai = ArtifactUtils::createArtifact(aid);
 	 map->addNewArtifactInstance(ai);
 	 auto slot = ArtifactUtils::getArtAnyPosition(h, aid);
 	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))

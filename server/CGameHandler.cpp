@@ -21,6 +21,7 @@
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
 #include "queries/MapQueries.h"
+#include "queries/VisitQueries.h"
 
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
@@ -1077,9 +1078,9 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	}
 }
 
-void CGameHandler::showBlockingDialog(BlockingDialog *iw)
+void CGameHandler::showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw)
 {
-	auto dialogQuery = std::make_shared<CBlockingDialogQuery>(this, *iw);
+	auto dialogQuery = std::make_shared<CBlockingDialogQuery>(this, caller, *iw);
 	queries->addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendToAllClients(iw);
@@ -1181,7 +1182,10 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
 	for (auto & building : t->rewardableBuildings)
-		building.second->onHeroVisit(h);
+	{
+		if (!t->town->buildings.at(building.first)->manualHeroVisit)
+			building.second->onHeroVisit(h);
+	}
 }
 
 void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
@@ -2148,20 +2152,38 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	return true;
 }
 
-bool CGameHandler::triggerTownSpecialBuildingAction(ObjectInstanceID tid, BuildingSubID::EBuildingSubID sid)
+bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 {
 	const CGTownInstance * t = getTown(tid);
 
-	if(t->town->getBuildingType(sid) == BuildingID::NONE)
+	if(!t->hasBuilt(bid))
 		return false;
 
-	if(sid == BuildingSubID::EBuildingSubID::BANK)
+	auto subID = t->town->buildings.at(bid)->subId;
+
+	if(subID == BuildingSubID::EBuildingSubID::BANK)
 	{
 		TResources res;
 		res[EGameResID::GOLD] = 2500;
 		giveResources(t->getOwner(), res);
 
 		setObjPropertyValue(t->id, ObjProperty::BONUS_VALUE_SECOND, 2500);
+		return true;
+	}
+
+	if (t->rewardableBuildings.count(bid))
+	{
+		auto & hero = t->garrisonHero ? t->garrisonHero : t->visitingHero;
+		auto * building = t->rewardableBuildings.at(bid);
+
+		if (hero && t->town->buildings.at(bid)->manualHeroVisit)
+		{
+			auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, hero, bid);
+			queries->addQuery(visitQuery);
+			building->onHeroVisit(hero);
+			queries->popIfTop(visitQuery);
+			return true;
+		}
 	}
 
 	return true;
@@ -2267,7 +2289,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
 		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid war machine artifact");
 
-		return giveHeroNewArtifact(hero, art);
+		return giveHeroNewArtifact(hero, artId, ArtifactPosition::FIRST_AVAILABLE);
 	}
 	else
 	{
@@ -2502,7 +2524,7 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 
 	auto hero = getHero(dst.artHolder);
 	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstSlot))
-		giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
 	if(src.artHolder != dst.artHolder)
@@ -2543,7 +2565,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 			if(auto dstHero = getHero(dstId))
 			{
 				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
-					giveHeroNewArtifact(dstHero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+					giveHeroNewArtifact(dstHero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 			}
 		}
 	};
@@ -2736,7 +2758,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		}
 		
 		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
-			giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+			giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 		AssembledArtifact aa;
 		aa.al = dstLoc;
@@ -2793,7 +2815,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 			return false;
 
 		giveResource(hero->getOwner(),EGameResID::GOLD,-GameConstants::SPELLBOOK_GOLD_COST);
-		giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 		assert(hero->getArt(ArtifactPosition::SPELLBOOK));
 		giveSpells(town,hero);
 		return true;
@@ -2821,7 +2843,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 			}
 
 			giveResource(hero->getOwner(),EGameResID::GOLD,-price);
-			return giveHeroNewArtifact(hero, art);
+			return giveHeroNewArtifact(hero, aid, ArtifactPosition::FIRST_AVAILABLE);
 		}
 		else
 			COMPLAIN_RET("This machine is unavailable here!");
@@ -2874,7 +2896,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 		COMPLAIN_RET("Cannot find selected artifact on the list");
 
 	sendAndApply(&saa);
-	giveHeroNewArtifact(h, aid.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+	giveHeroNewArtifact(h, aid, ArtifactPosition::FIRST_AVAILABLE);
 	return true;
 }
 
@@ -3185,7 +3207,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 		throw std::runtime_error("Can not visit object that is being visited");
 	}
 
-	std::shared_ptr<CObjectVisitQuery> visitQuery;
+	std::shared_ptr<MapObjectVisitQuery> visitQuery;
 
 	auto startVisit = [&](ObjectVisitStarted & event)
 	{
@@ -3204,7 +3226,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 					visitedObject = visitedTown;
 			}
 		}
-		visitQuery = std::make_shared<CObjectVisitQuery>(this, visitedObject, h, visitedObject->visitablePos());
+		visitQuery = std::make_shared<MapObjectVisitQuery>(this, visitedObject, h);
 		queries->addQuery(visitQuery); //TODO real visit pos
 
 		HeroVisit hv;
@@ -3223,11 +3245,11 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 		queries->popIfTop(visitQuery); //visit ends here if no queries were created
 }
 
-void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
+void CGameHandler::objectVisitEnded(const CGHeroInstance *h, PlayerColor player)
 {
 	using events::ObjectVisitEnded;
 
-	logGlobal->debug("%s visit ends.\n", query.visitingHero->nodeName());
+	logGlobal->debug("%s visit ends.\n", h->nodeName());
 
 	auto endVisit = [&](ObjectVisitEnded & event)
 	{
@@ -3240,7 +3262,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
 
 	//TODO: ObjectVisitEnded should also have id of visited object,
 	//but this requires object being deleted only by `removeAfterVisit()` but not `removeObject()`
-	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, query.players.front(), query.visitingHero->id);
+	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, player, h->id);
 }
 
 bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
@@ -3416,7 +3438,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the " ...
 		iw.text.appendName(grail); // ... " The Grail"
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
-		giveHeroNewArtifact(h, grail.toArtifact(), ArtifactPosition::FIRST_AVAILABLE); //give grail
+		giveHeroNewArtifact(h, grail, ArtifactPosition::FIRST_AVAILABLE); //give grail
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
@@ -3756,13 +3778,21 @@ bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInsta
 	}
 }
 
-bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos)
+bool CGameHandler::giveHeroNewArtifact(
+	const CGHeroInstance * h, const CArtifact * artType, const SpellID & spellId, const ArtifactPosition & pos)
 {
 	assert(artType);
 
+	NewArtifact na;
+	na.artHolder = h->id;
+	na.artId = artType->getId();
+	na.spellId = spellId;
+	na.pos = pos;
+
 	if(pos == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		if(!artType->canBePutAt(h, ArtifactUtils::getArtAnyPosition(h, artType->getId())))
+		na.pos = ArtifactUtils::getArtAnyPosition(h, artType->getId());
+		if(!artType->canBePutAt(h, na.pos))
 			COMPLAIN_RET("Cannot put artifact in that slot!");
 	}
 	else if(ArtifactUtils::isSlotBackpack(pos))
@@ -3774,18 +3804,18 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 	{
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 	}
+	sendAndApply(&na);
+	return true;
+}
 
-	auto * newArtInst = new CArtifactInstance();
-	newArtInst->artType = artType; // *NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
+bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos)
+{
+	return giveHeroNewArtifact(h, artId.toArtifact(), SpellID::NONE, pos);
+}
 
-	NewArtifact na;
-	na.art = newArtInst;
-	sendAndApply(&na); // -> updates newArtInst!!!
-
-	if(putArtifact(ArtifactLocation(h->id, pos), newArtInst, false))
-		return true;
-	else
-		return false;
+bool CGameHandler::giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos)
+{
+	return giveHeroNewArtifact(h, ArtifactID(ArtifactID::SPELL_SCROLL).toArtifact(), spellId, pos);
 }
 
 void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
@@ -3829,7 +3859,7 @@ bool CGameHandler::isValidObject(const CGObjectInstance *obj) const
 
 bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 {
-	if (!strcmp(typeid(*pack).name(), typeid(PlayerMessage).name()))
+	if (dynamic_cast<const PlayerMessage *>(pack) != nullptr)
 		return false;
 
 	auto query = queries->topQuery(player);
@@ -3851,7 +3881,7 @@ void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 	//If the object is being visited, there must be a matching query
 	for (const auto &query : queries->allQueries())
 	{
-		if (auto someVistQuery = std::dynamic_pointer_cast<CObjectVisitQuery>(query))
+		if (auto someVistQuery = std::dynamic_pointer_cast<MapObjectVisitQuery>(query))
 		{
 			if (someVistQuery->visitedObject == object)
 			{
@@ -3915,7 +3945,7 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 
 	for(const auto & query : queries->allQueries())
 	{
-		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		auto visit = std::dynamic_pointer_cast<const VisitQuery>(query);
 		if (visit && visit->visitedObject == obj)
 			return visit->visitingHero;
 	}
@@ -3928,7 +3958,7 @@ const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *h
 
 	for(const auto & query : queries->allQueries())
 	{
-		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		auto visit = std::dynamic_pointer_cast<const VisitQuery>(query);
 		if (visit && visit->visitingHero == hero)
 			return visit->visitedObject;
 	}
@@ -3945,7 +3975,7 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 	// visitation query is covered by other query that must be answered first
 
 	if (auto topQuery = queries->topQuery(hero->getOwner()))
-		if (auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(topQuery))
+		if (auto visit = std::dynamic_pointer_cast<const VisitQuery>(topQuery))
 			return !(visit->visitedObject == obj && visit->visitingHero == hero);
 
 	return true;

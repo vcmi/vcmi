@@ -27,7 +27,6 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForClient.h"
-#include "../../lib/serializer/Cast.h"
 #include "../../lib/spells/CSpellHandler.h"
 
 #include <vstd/RNG.h>
@@ -81,7 +80,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 			else if(warMachine != ArtifactID::CATAPULT && st->getCount() <= 0)
 			{
 				logGlobal->debug("War machine has been destroyed");
-				auto hero = dynamic_ptr_cast<CGHeroInstance> (army);
+				auto hero = dynamic_cast<const CGHeroInstance*> (army);
 				if (hero)
 					removedWarMachines.push_back (ArtifactLocation(hero->id, hero->getArtPos(warMachine, true)));
 				else

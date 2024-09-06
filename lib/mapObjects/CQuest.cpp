@@ -163,7 +163,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			for(const auto & ci : parts)
 			{
 				if(ci.art->getTypeId() != elem)
-					cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
+					cb->giveHeroNewArtifact(h, ci.art->getTypeId(), ArtifactPosition::BACKPACK_START);
 			}
 		}
 	}
@@ -851,7 +851,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.text.appendLocalString (EMetaText::ADVOB_TXT, 17);
-		cb->showBlockingDialog (&bd);
+		cb->showBlockingDialog (this, &bd);
 	}
 	else
 	{

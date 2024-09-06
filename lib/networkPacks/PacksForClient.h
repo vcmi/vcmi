@@ -965,7 +965,7 @@ struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 {
 	PutArtifact() = default;
-	explicit PutArtifact(ArtifactLocation & dst, bool askAssemble = true)
+	explicit PutArtifact(const ArtifactLocation & dst, bool askAssemble = true)
 		: al(dst), askAssemble(askAssemble)
 	{
 	}
@@ -987,14 +987,20 @@ struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 
 struct DLL_LINKAGE NewArtifact : public CArtifactOperationPack
 {
-	ConstTransitivePtr<CArtifactInstance> art;
+	ObjectInstanceID artHolder;
+	ArtifactID artId;
+	SpellID spellId;
+	ArtifactPosition pos;
 
 	void applyGs(CGameState * gs) override;
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & art;
+		h & artHolder;
+		h & artId;
+		h & spellId;
+		h & pos;
 	}
 };
 

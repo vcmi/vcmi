@@ -343,7 +343,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		// hero starts with default spellbook presence status
 		if(!getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
 		{
-			auto artifact = ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK);
+			auto artifact = ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK);
 			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
 		}
 	}
@@ -352,7 +352,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if(!getArt(ArtifactPosition::MACH4))
 	{
-		auto artifact = ArtifactUtils::createNewArtifactInstance(ArtifactID::CATAPULT);
+		auto artifact = ArtifactUtils::createArtifact(ArtifactID::CATAPULT);
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
 	}
 
@@ -468,7 +468,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 				if(!getArt(slot))
 				{
-					auto artifact = ArtifactUtils::createNewArtifactInstance(aid);
+					auto artifact = ArtifactUtils::createArtifact(aid);
 					putArtifact(slot, artifact);
 				}
 				else
@@ -1709,7 +1709,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spellBook", spells);
 
 	if(handler.saving)
-		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", nullptr);
+		CArtifactSet::serializeJsonArtifacts(handler, "artifacts");
 }
 
 void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)

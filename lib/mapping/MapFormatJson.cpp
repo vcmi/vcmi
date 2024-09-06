@@ -1107,13 +1107,15 @@ void CMapLoaderJson::MapObjectLoader::configure()
 			artID = art->getArtifact();
 		}
 
-		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID.getNum());
+		art->storedArtifact = ArtifactUtils::createArtifact(artID, spellID.getNum());
+		owner->map->addNewArtifactInstance(art->storedArtifact);
 	}
 
 	if(auto * hero = dynamic_cast<CGHeroInstance *>(instance))
 	{
 		auto o = handler.enterStruct("options");
-		hero->serializeJsonArtifacts(handler, "artifacts", owner->map);
+		hero->serializeJsonArtifacts(handler, "artifacts");
+		owner->map->addNewArtifactInstance(*hero);
 	}
 }
 

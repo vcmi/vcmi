@@ -743,6 +743,12 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 		}
 	}
 
+	if (town->rewardableBuildings.count(buildingToTest) && town->town->buildings.at(buildingToTest)->manualHeroVisit)
+	{
+		enterRewardable(buildingToTest);
+		return true;
+	}
+
 	if (buildingToTest >= BuildingID::DWELL_FIRST)
 	{
 		enterDwelling((BuildingID::getLevelFromDwelling(buildingToTest)));
@@ -820,7 +826,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 						return true;
 
 				case BuildingSubID::BANK:
-						enterBank();
+						enterBank(buildingTarget);
 						return true;
 				}
 		}
@@ -835,6 +841,11 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 		}
 	}
 	return false;
+}
+
+void CCastleBuildings::enterRewardable(BuildingID building)
+{
+	LOCPLINT->cb->visitTownBuilding(town, building);
 }
 
 void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactID)
@@ -1053,7 +1064,7 @@ void CCastleBuildings::enterAnyThievesGuild()
 	LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 }
 
-void CCastleBuildings::enterBank()
+void CCastleBuildings::enterBank(BuildingID building)
 {
 	std::vector<std::shared_ptr<CComponent>> components;
 	if(town->bonusValue.second > 0)
@@ -1064,7 +1075,7 @@ void CCastleBuildings::enterBank()
 	else{
 	
 		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID(GameResID::GOLD), 2500));
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.townStructure.bank.borrow"), [this](){ LOCPLINT->cb->triggerTownSpecialBuildingAction(town, BuildingSubID::BANK); }, nullptr, components);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.townStructure.bank.borrow"), [this, building](){ LOCPLINT->cb->visitTownBuilding(town, building); }, nullptr, components);
 	}
 }
 

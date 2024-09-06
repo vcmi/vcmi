@@ -52,7 +52,7 @@ void CRewardableObject::selectRewardWithMessage(const CGHeroInstance * contextHe
 	sd.player = contextHero->tempOwner;
 	sd.text = dialog;
 	sd.components = loadComponents(contextHero, rewardIndices);
-	cb->showBlockingDialog(&sd);
+	cb->showBlockingDialog(this, &sd);
 
 }
 

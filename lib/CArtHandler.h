@@ -25,7 +25,6 @@ class CArtHandler;
 class CGHeroInstance;
 class CArtifactSet;
 class CArtifactInstance;
-class CMap;
 class JsonSerializeFormat;
 
 #define ART_BEARER_LIST \
@@ -233,16 +232,16 @@ public:
 
 	void artDeserializationFix(CBonusSystemNode *node);
 
-	void serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map);
+	void serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName);
 protected:
 	std::pair<const CArtifactInstance *, const CArtifactInstance *> searchForConstituent(const ArtifactID & aid) const;
 
 private:
-	void serializeJsonHero(JsonSerializeFormat & handler, CMap * map);
-	void serializeJsonCreature(JsonSerializeFormat & handler, CMap * map);
-	void serializeJsonCommander(JsonSerializeFormat & handler, CMap * map);
+	void serializeJsonHero(JsonSerializeFormat & handler);
+	void serializeJsonCreature(JsonSerializeFormat & handler);
+	void serializeJsonCommander(JsonSerializeFormat & handler);
 
-	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
+	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot);//normal slots
 };
 
 // Used to try on artifacts before the claimed changes have been applied

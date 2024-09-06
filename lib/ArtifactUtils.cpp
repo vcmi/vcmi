@@ -14,7 +14,6 @@
 #include "GameSettings.h"
 #include "spells/CSpellHandler.h"
 
-#include "mapping/CMap.h"
 #include "mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -222,67 +221,47 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 	return arts;
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & sid)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & spellId)
 {
-	auto ret = new CArtifactInstance(ArtifactID(ArtifactID::SPELL_SCROLL).toArtifact());
-	auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
-		BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(sid));
-	ret->addNewBonus(bonus);
-	return ret;
+	return ArtifactUtils::createArtifact(ArtifactID::SPELL_SCROLL, spellId);
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const CArtifact * art)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(const ArtifactID & artId, const SpellID & spellId)
 {
-	assert(art);
-
-	auto * artInst = new CArtifactInstance(art);
-	if(art->isCombined())
+	const std::function<CArtifactInstance*(const CArtifact*)> createArtInst =
+		[&createArtInst, &spellId](const CArtifact * art) -> CArtifactInstance*
 	{
-		for(const auto & part : art->getConstituents())
-			artInst->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
-	}
-	if(art->isGrowing())
-	{
-		auto bonus = std::make_shared<Bonus>();
-		bonus->type = BonusType::LEVEL_COUNTER;
-		bonus->val = 0;
-		artInst->addNewBonus(bonus);
-	}
-	return artInst;
-}
+		assert(art);
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const ArtifactID & aid)
-{
-	return ArtifactUtils::createNewArtifactInstance(aid.toArtifact());
-}
-
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID)
-{
-	CArtifactInstance * art = nullptr;
-	if(aid.getNum() >= 0)
-	{
-		if(spellID == SpellID::NONE)
+		auto * artInst = new CArtifactInstance(art);
+		if(art->isCombined())
 		{
-			art = ArtifactUtils::createNewArtifactInstance(aid);
+			for(const auto & part : art->getConstituents())
+				artInst->addPart(createArtInst(part), ArtifactPosition::PRE_FIRST);
 		}
-		else
+		if(art->isGrowing())
 		{
-			art = ArtifactUtils::createScroll(spellID);
+			auto bonus = std::make_shared<Bonus>();
+			bonus->type = BonusType::LEVEL_COUNTER;
+			bonus->val = 0;
+			artInst->addNewBonus(bonus);
 		}
+		if(art->isScroll())
+		{
+			artInst->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
+				BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(spellId)));
+		}
+		return artInst;
+	};
+
+	if(artId.getNum() >= 0)
+	{
+		return createArtInst(artId.toArtifact());
 	}
 	else
 	{
-		art = new CArtifactInstance(); // random, empty
+		return new CArtifactInstance(); // random, empty
 	}
-	map->addNewArtifactInstance(art);
-	if(art->artType && art->isCombined())
-	{
-		for(auto & part : art->getPartsInfo())
-		{
-			map->addNewArtifactInstance(part.art);
-		}
-	}
-	return art;
 }
 
 DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, const SpellID & sid)

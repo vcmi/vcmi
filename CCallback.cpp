@@ -217,12 +217,12 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 	return true;
 }
 
-bool CCallback::triggerTownSpecialBuildingAction(const CGTownInstance *town, BuildingSubID::EBuildingSubID subBuildingID)
+bool CCallback::visitTownBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
 	if(town->tempOwner!=player)
 		return false;
 
-	TriggerTownSpecialBuildingAction pack(town->id, subBuildingID);
+	VisitTownBuilding pack(town->id, buildingID);
 	sendRequest(&pack);
 	return true;
 }

@@ -178,7 +178,7 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	if (banktext == 32)
 		bd.text.replaceRawString(getObjectName());
 
-	cb->showBlockingDialog(&bd);
+	cb->showBlockingDialog(this, &bd);
 }
 
 void CBank::doVisit(const CGHeroInstance * hero) const
@@ -292,7 +292,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
 			loot.replaceName(elem);
-			cb->giveHeroNewArtifact(hero, elem.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+			cb->giveHeroNewArtifact(hero, elem, ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())

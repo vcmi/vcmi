@@ -29,6 +29,7 @@
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/serializer/Connection.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../lib/VCMIDirs.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
@@ -343,7 +344,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 
 	///Give hero spellbook
 	if (!hero->hasSpellbook())
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	///Give all spells with bonus (to allow banned spells)
 	GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
@@ -421,11 +422,11 @@ void PlayerMessageProcessor::cheatGiveMachines(PlayerColor player, const CGHeroI
 		return;
 
 	if (!hero->getArt(ArtifactPosition::MACH1))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::BALLISTA).toArtifact(), ArtifactPosition::MACH1);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::BALLISTA, ArtifactPosition::MACH1);
 	if (!hero->getArt(ArtifactPosition::MACH2))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::AMMO_CART).toArtifact(), ArtifactPosition::MACH2);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::AMMO_CART, ArtifactPosition::MACH2);
 	if (!hero->getArt(ArtifactPosition::MACH3))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::FIRST_AID_TENT).toArtifact(), ArtifactPosition::MACH3);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::FIRST_AID_TENT, ArtifactPosition::MACH3);
 }
 
 void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -439,7 +440,7 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		{
 			auto artID = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", word, false);
 			if(artID &&  VLC->arth->objects[*artID])
-				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID).toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
 	else
@@ -447,9 +448,21 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
 		{
 			if(VLC->arth->objects[g]->canBePutAt(hero))
-				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g).toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
+}
+
+void PlayerMessageProcessor::cheatGiveScrolls(PlayerColor player, const CGHeroInstance * hero)
+{
+	if(!hero)
+		return;
+
+	for(const auto & spell : VLC->spellh->objects)
+		if(gameHandler->gameState()->isAllowed(spell->getId()) && !spell->isSpecial())
+		{
+			gameHandler->giveHeroNewScroll(hero, spell->getId(), ArtifactPosition::FIRST_AVAILABLE);
+		}
 }
 
 void PlayerMessageProcessor::cheatLevelup(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -675,7 +688,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcmiolorin",              "vcmiexp",
 		"vcmiluck",                                   "nwcfollowthewhiterabbit", 
 		"vcmimorale",                                 "nwcmorpheus",
-		"vcmigod",                                    "nwctheone"
+		"vcmigod",                                    "nwctheone",
+		"vcmiscrolls"
 	};
 
 	if (!vstd::contains(townTargetedCheats, cheatName) && !vstd::contains(playerTargetedCheats, cheatName) && !vstd::contains(heroTargetedCheats, cheatName))
@@ -752,6 +766,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatRevealPuzzle = [&]() { cheatPuzzleReveal(player); };
 	const auto & doCheatMaxLuck = [&]() { cheatMaxLuck(player, hero); };
 	const auto & doCheatMaxMorale = [&]() { cheatMaxMorale(player, hero); };
+	const auto & doCheatGiveScrolls = [&]() { cheatGiveScrolls(player, hero); };
 	const auto & doCheatTheOne = [&]()
 	{
 		if(!hero)
@@ -820,6 +835,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"nwcmorpheus",             doCheatMaxMorale      },
 		{"vcmigod",                 doCheatTheOne         },
 		{"nwctheone",               doCheatTheOne         },
+		{"vcmiscrolls",             doCheatGiveScrolls    },
 	};
 
 	assert(callbacks.count(cheatName));
