@@ -24,7 +24,7 @@ jobs:
             test: 0
             preset: linux-clang-test
           - platform: linux-appimage
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             test: 0
             preset: linux-appimage-release
             extension: AppImage
