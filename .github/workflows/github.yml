@@ -23,6 +23,11 @@ jobs:
             os: ubuntu-24.04
             test: 0
             preset: linux-clang-test
+          - platform: linux-appimage
+            os: ubuntu-20.04
+            test: 0
+            preset: linux-appimage-release
+            extension: AppImage
           - platform: linux
             os: ubuntu-24.04
             test: 1
@@ -248,6 +253,19 @@ jobs:
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
+    - name: AppImage build
+      if: ${{ startsWith(matrix.platform, 'linux-appimage') }}
+      run: |
+        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
+        ninja -k0
+        DESTDIR=AppDir ninja install
+        curl -fLO https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        curl -fLO https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+        chmod +x linuxdeploy*.AppImage
+        ARCH=x86_64 ./linuxdeploy-x86_64.AppImage --appimage-extract-and-run --appdir AppDir/ --plugin qt --output appimage
+        APPIMAGE_PATH="$(ls ${{ github.workspace }}/out/build/${{matrix.preset}}/VCMI*.${{ matrix.extension }})"
+        echo "APPIMAGE_PATH=$APPIMAGE_PATH" >> $GITHUB_ENV
+
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v4
@@ -275,6 +293,14 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
+          
+    - name: AppImage artifacts
+      if: ${{ startsWith(matrix.platform, 'linux-appimage') }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        path: |
+          ${{ env.APPIMAGE_PATH }}
 
     - name: Android aab artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}

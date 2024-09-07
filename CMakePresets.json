@@ -67,6 +67,22 @@
             }
         },
         {
+            "name": "linux-appimage-release",
+            "displayName": "AppImage x86_64-pc-linux-gnu",
+            "description": "VCMI Linux AppImage",
+            "inherits": "linux-release",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "ENABLE_LUA" : "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "ENABLE_APPIMAGE": "ON",
+                "ENABLE_STATIC_LIBS": "ON",
+                "CMAKE_INSTALL_PREFIX": "/usr",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
             "name": "linux-clang-release-ccache",
             "displayName": "Clang x86_64-pc-linux-gnu with ccache",
             "description": "VCMI Linux Clang with ccache",
@@ -320,6 +336,11 @@
         {
             "name": "linux-clang-release",
             "configurePreset": "linux-clang-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-appimage-release",
+            "configurePreset": "linux-appimage-release",
             "inherits": "default-release"
         },
         {

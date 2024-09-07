@@ -230,7 +230,7 @@ enable_pch(vcmieditor)
 install(TARGETS vcmieditor DESTINATION ${BIN_DIR})
 
 # Install icons and desktop file on Linux
-if(NOT WIN32 AND NOT APPLE)
+if(NOT WIN32 AND NOT APPLE AND NOT ENABLE_APPIMAGE)
 	foreach(iconSize 32 48 64 128 256)
 		install(FILES "icons/mapeditor.${iconSize}x${iconSize}.png"
 			DESTINATION "share/icons/hicolor/${iconSize}x${iconSize}/apps"
