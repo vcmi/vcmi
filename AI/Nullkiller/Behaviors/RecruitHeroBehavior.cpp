@@ -70,7 +70,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 		float visitability = 0;
 		for (auto checkHero : ourHeroes)
 		{
-			if (ai->dangerHitMap->getClosestTown(checkHero.first.get()->pos) == town)
+			if (ai->dangerHitMap->getClosestTown(checkHero.first.get()->visitablePos()) == town)
 				visitability++;
 		}
 		if(ai->heroManager->canRecruitHero(town))
