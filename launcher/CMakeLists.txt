@@ -24,6 +24,7 @@ set(launcher_SRCS
 		jsonutils.cpp
 		updatedialog_moc.cpp
 		prepare.cpp
+		sdlHandler.cpp
 )
 if(APPLE_IOS)
 	list(APPEND launcher_SRCS
@@ -56,6 +57,7 @@ set(launcher_HEADERS
 		helper.h
 		innoextract.h
 		prepare.h
+		sdlHandler.h
 )
 
 set(launcher_FORMS
@@ -201,9 +203,9 @@ endif()
 
 if(ANDROID)
 	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::AndroidExtras)
-elseif(NOT APPLE_IOS)
-	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
+
+target_link_libraries(vcmilauncher SDL2::SDL2)
 
 target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher

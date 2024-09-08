@@ -23,10 +23,6 @@
 
 #include "../../lib/CConfigHandler.h"
 
-#ifndef VCMI_MOBILE
-#include <SDL2/SDL.h>
-#endif
-
 static QString resolutionToString(const QSize & resolution)
 {
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
@@ -232,58 +228,6 @@ void CSettingsView::fillValidScalingRange()
 
 #ifndef VCMI_MOBILE
 
-static QStringList getAvailableRenderingDrivers()
-{
-	SDL_Init(SDL_INIT_VIDEO);
-	QStringList result;
-
-	result += QString(); // empty value for autoselection
-
-	int driversCount = SDL_GetNumRenderDrivers();
-
-	for(int it = 0; it < driversCount; it++)
-	{
-		SDL_RendererInfo info;
-		if (SDL_GetRenderDriverInfo(it, &info) == 0)
-			result += QString::fromLatin1(info.name);
-	}
-
-	SDL_Quit();
-	return result;
-}
-
-static QVector<QSize> findAvailableResolutions(int displayIndex)
-{
-	// Ugly workaround since we don't actually need SDL in Launcher
-	// However Qt at the moment provides no way to query list of available resolutions
-	QVector<QSize> result;
-	SDL_Init(SDL_INIT_VIDEO);
-
-	int modesCount = SDL_GetNumDisplayModes(displayIndex);
-
-	for (int i =0; i < modesCount; ++i)
-	{
-		SDL_DisplayMode mode;
-		if (SDL_GetDisplayMode(displayIndex, i, &mode) != 0)
-			continue;
-
-		QSize resolution(mode.w, mode.h);
-
-		result.push_back(resolution);
-	}
-
-	boost::range::sort(result, [](const auto & left, const auto & right)
-	{
-		return left.height() * left.width() < right.height() * right.width();
-	});
-
-	result.erase(boost::unique(result).end(), result.end());
-
-	SDL_Quit();
-
-	return result;
-}
-
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
 	QSignalBlocker guard(ui->comboBoxResolution); // avoid saving wrong resolution after adding first item from the list
@@ -295,7 +239,7 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 
 	if (!fullscreen || realFullscreen)
 	{
-		QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
+		QVector<QSize> resolutions = SdlHandler::findAvailableResolutions(screenIndex);
 
 		for(const auto & entry : resolutions)
 			ui->comboBoxResolution->addItem(resolutionToString(entry));
@@ -322,7 +266,7 @@ void CSettingsView::fillValidRenderers()
 
 	ui->comboBoxRendererType->clear();
 
-	auto driversList = getAvailableRenderingDrivers();
+	auto driversList = SdlHandler::getAvailableRenderingDrivers();
 	ui->comboBoxRendererType->addItems(driversList);
 
 	std::string rendererName = settings["video"]["driver"].String();

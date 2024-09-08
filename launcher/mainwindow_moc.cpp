@@ -22,6 +22,7 @@
 #include "updatedialog_moc.h"
 #include "main.h"
 #include "helper.h"
+#include "sdlHandler.h"
 
 void MainWindow::load()
 {
@@ -65,9 +66,13 @@ void MainWindow::computeSidePanelSizes()
 }
 
 MainWindow::MainWindow(QWidget * parent)
-	: QMainWindow(parent), ui(new Ui::MainWindow)
+	: QMainWindow(parent), ui(new Ui::MainWindow), sdlHandler(new SdlHandler()), sdlEventHandlerTimer(new QTimer(parent))
 {
 	load(); // load FS before UI
+
+	connect(sdlEventHandlerTimer, &QTimer::timeout, this, [this]{ sdlHandler->eventHandler(); });
+	sdlEventHandlerTimer->start();
+	sdlHandler->setGameControllerButtonCallback([this](SDL_GameControllerButton button){ if(button == SDL_CONTROLLER_BUTTON_START) ui->startGameButton->animateClick(); });
 
 	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
 

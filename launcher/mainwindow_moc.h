@@ -12,6 +12,8 @@
 #include <QStringList>
 #include <QTranslator>
 
+#include "sdlHandler.h"
+
 namespace Ui
 {
 class MainWindow;
@@ -31,6 +33,8 @@ class MainWindow : public QMainWindow
 	QTranslator translator;
 #endif
 	Ui::MainWindow * ui;
+	SdlHandler * sdlHandler;
+	QTimer * sdlEventHandlerTimer;
 
 	void load();
 
