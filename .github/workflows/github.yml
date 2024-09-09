@@ -260,7 +260,7 @@ jobs:
       if: ${{ matrix.pack == 1 }}
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-
+        
         # Workaround for CPack bug on macOS 13
         counter=0
         until cpack -C ${{matrix.pack_type}} || ((counter > 20))
@@ -288,15 +288,15 @@ jobs:
         echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
         echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
 
-    - name: Android apk artifacts
-      if: ${{ startsWith(matrix.platform, 'android')  }}
+    - name: Upload android apk artifacts
+      if: ${{ startsWith(matrix.platform, 'android') }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
 
-    - name: Android aab artifacts
+    - name: Upload Android aab artifacts
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
       uses: actions/upload-artifact@v4
       with:
@@ -304,7 +304,7 @@ jobs:
         path: |
           ${{ env.ANDROID_AAB_PATH }}
 
-    - name: Symbols
+    - name: Upload debug symbols
       if: ${{ matrix.platform == 'msvc' }}
       uses: actions/upload-artifact@v4
       with:
