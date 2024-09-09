@@ -37,7 +37,7 @@ Note: if you wish to build 1.0 release in non-`Release` configuration, you shoul
 ### Homebrew
 
 1. [Install Homebrew](https://brew.sh/)
-2. Install dependencies: `brew install boost minizip sdl2 sdl2_image sdl2_mixer sdl2_ttf tbb`
+2. Install dependencies: `brew install boost@1.85 minizip sdl2 sdl2_image sdl2_mixer sdl2_ttf tbb`
 3. If you want to watch in-game videos, also install FFmpeg: `brew install ffmpeg@4`
 4. Install Qt dependency in either of the ways (note that you can skip this if you're not going to build Launcher):
     - `brew install qt@5` for Qt 5 or `brew install qt` for Qt 6
@@ -66,11 +66,12 @@ Note that if you wish to use Qt Creator IDE, you should skip this step and confi
 6. You can also pass `-Wno-dev` if you're not interested in CMake developer warnings
 7. Next step depends on the dependency manager you have picked:
     - Conan: pass `-D CMAKE_TOOLCHAIN_FILE=conan-generated/conan_toolchain.cmake` where **conan-generated** must be replaced with your directory choice
-    - Homebrew: if you installed FFmpeg or Qt 5, you need to pass `-D "CMAKE_PREFIX_PATH="` variable. See below what you can insert after `=` (but **before the closing quote**), multiple values must be separated with `;` (semicolon):
+    - Homebrew: you need to pass `-D "CMAKE_PREFIX_PATH="` variable. See below what you can insert after `=` (but **before the closing quote**), multiple values must be separated with `;` (semicolon):
+        - for boost@1.85, insert `$(brew --prefix boost@1.85)`
         - if you installed FFmpeg, insert `$(brew --prefix ffmpeg@4)`
         - if you installed Qt 5 from Homebrew, insert:`$(brew --prefix qt@5)`
         - if you installed Qt from Online Installer, insert your path to Qt directory, for example: `/Users/kambala/dev/Qt-libs/5.15.2/Clang64`
-        - example for FFmpeg + Qt 5: `-D "CMAKE_PREFIX_PATH=$(brew --prefix ffmpeg@4);$(brew --prefix qt@5)"`
+        - example for FFmpeg + Qt 5: `-D "CMAKE_PREFIX_PATH=$(brew --prefix boost@1.85);$(brew --prefix ffmpeg@4);$(brew --prefix qt@5)"`
 8. If you want to speed up the recompilation, add `-D ENABLE_CCACHE=ON`
 9. Now press Return
 
