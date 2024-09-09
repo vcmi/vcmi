@@ -57,7 +57,8 @@ enum class ESerializationVersion : int32_t
 	PLAYER_STATE_OWNED_OBJECTS, // 858 - player state stores all owned objects in a single list
 	SAVE_COMPATIBILITY_FIXES, // 859 - implementation of previoulsy postponed changes to serialization
 	CHRONICLES_SUPPORT, // 860 - support for heroes chronicles
-	CAMPAIGN_OUTRO_SUPPORT, // 861 - support for campaign outro video
+	PER_MAP_GAME_SETTINGS, // 861 - game settings are now stored per-map
+	CAMPAIGN_OUTRO_SUPPORT, // 862 - support for campaign outro video
 
 	CURRENT = CAMPAIGN_OUTRO_SUPPORT
 };

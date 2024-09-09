@@ -354,6 +354,7 @@
 			// if stack experience is on, creatures on map will get specified amount of experience daily 
 			"dailyStackExperience" : 100,
 			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire" 
+			// NOTE: on HotA maps, this setting has no effect. Value provided in map will be used instead.
 			"allowRandomSpecialWeeks" : true,
 			// if enabled, every creature can get double growth month, ignoring predefined list
 			"allowAllForDoubleMonth" : false

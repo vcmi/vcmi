@@ -12,9 +12,6 @@
 #include "../CHeroHandler.h"
 #include "../CPlayerState.h"
 #include "../CStack.h"
-#include "../RiverHandler.h"
-#include "../RoadHandler.h"
-#include "../TerrainHandler.h"
 #include "../battle/BattleInfo.h"
 #include "../battle/CObstacleInstance.h"
 #include "../bonuses/Limiters.h"
@@ -31,17 +28,14 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/MiscObjects.h"
-#include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/TownBuildingInstance.h"
 #include "../mapping/CMap.h"
-#include "../mapping/CMapInfo.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/PacksForLobby.h"
 #include "../networkPacks/PacksForServer.h"
 #include "../networkPacks/SetRewardableConfiguration.h"
 #include "../networkPacks/SetStackEffect.h"
-#include "../rmg/CMapGenOptions.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

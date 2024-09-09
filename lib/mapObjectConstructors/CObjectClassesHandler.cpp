@@ -16,7 +16,7 @@
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CSoundBase.h"
 
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
@@ -103,7 +103,7 @@ CObjectClassesHandler::~CObjectClassesHandler() = default;
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_OBJECT);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
 
 	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"));
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
@@ -346,7 +346,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 			return mapObjectTypes.front()->objectTypeHandlers.front();
 
 		auto subID = subtype.getNum();
-		if (type == Obj::PRISON)
+		if (type == Obj::PRISON || type == Obj::HERO_PLACEHOLDER)
 			subID = 0;
 		auto result = mapObjectTypes.at(type.getNum())->objectTypeHandlers.at(subID);
 

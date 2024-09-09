@@ -30,7 +30,7 @@
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CBonusTypeHandler.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
@@ -801,8 +801,8 @@ void CStackWindow::initSections()
 {
 	OBJECT_CONSTRUCTION;
 
-	bool showArt = CGI->settings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
-	bool showExp = (CGI->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) || info->commander != nullptr) && info->stackNode;
+	bool showArt = LOCPLINT->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
+	bool showExp = (LOCPLINT->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) || info->commander != nullptr) && info->stackNode;
 
 	mainSection = std::make_shared<MainSection>(this, pos.h, showExp, showArt);
 

@@ -16,7 +16,7 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CPlayerState.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -24,7 +24,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/TavernHeroesPool.h"
 #include "../../lib/gameState/TavernSlot.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 
 HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
@@ -158,15 +158,15 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	if (playerState->resources[EGameResID::GOLD] < GameConstants::HERO_GOLD_COST && gameHandler->complain("Not enough gold for buying hero!"))
 		return false;
 
-	if (gameHandler->getHeroCount(player, false) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && gameHandler->complain("Cannot hire hero, too many wandering heroes already!"))
+	if (gameHandler->getHeroCount(player, false) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && gameHandler->complain("Cannot hire hero, too many wandering heroes already!"))
 		return false;
 
-	if (gameHandler->getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))
+	if (gameHandler->getHeroCount(player, true) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))
 		return false;
 
 	if (nextHero != HeroTypeID::NONE) // player attempts to invite next hero
 	{
-		if(!VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && gameHandler->complain("Inviting heroes not allowed!"))
+		if(!gameHandler->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && gameHandler->complain("Inviting heroes not allowed!"))
 			return false;
 
 		if(!heroesPool->unusedHeroesFromPool().count(nextHero) && gameHandler->complain("Cannot invite specified hero!"))

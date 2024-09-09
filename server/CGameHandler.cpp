@@ -36,7 +36,7 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameConstants.h"
 #include "../lib/UnlockGuard.h"
-#include "../lib/GameSettings.h"
+#include "../lib/IGameSettings.h"
 #include "../lib/ScriptHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"
@@ -823,7 +823,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	tmh.movePoints = h->movementPointsRemaining();
 
 	//check if destination tile is available
-	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
+	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions(this));
 	auto ti = pathfinderHelper->getTurnInfo();
 
 	const bool canFly = pathfinderHelper->hasBonusOfType(BonusType::FLYING_MOVEMENT) || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
@@ -966,7 +966,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		if (blockingVisit()) // e.g. hero on the other side of teleporter
 			return true;
 
-		EGuardLook guardsCheck = (VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && movementMode == EMovementMode::DIMENSION_DOOR)
+		EGuardLook guardsCheck = (getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && movementMode == EMovementMode::DIMENSION_DOOR)
 			? CHECK_FOR_GUARDS
 			: IGNORE_GUARDS;
 
@@ -2427,7 +2427,7 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 	}
 	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
 	{
-		int mapCap = VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		int mapCap = getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 		//check if moving hero out of town will break wandering heroes limit
 		if (getHeroCount(town->garrisonHero->tempOwner,false) >= mapCap)
 		{
@@ -2718,7 +2718,7 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 				estimateBackpackSize++;
 			}
 		
-		const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+		const auto backpackCap = getSettings().getInteger(EGameSettings::HEROES_BACKPACK_CAP);
 		if((backpackCap < 0 || estimateBackpackSize <= backpackCap) && !bma.artsPack0.empty())
 			sendAndApply(&bma);
 	}
