@@ -32,9 +32,11 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 
 	auto ourHeroes = ai->heroManager->getHeroRoles();
 	auto minScoreToHireMain = std::numeric_limits<float>::max();
+	int currentArmyValue = 0;
 
 	for(auto hero : ourHeroes)
 	{
+		currentArmyValue += hero.first->getArmyCost();
 		if(hero.second != HeroRole::MAIN)
 			continue;
 
@@ -84,7 +86,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 				{
 					score *= score / minScoreToHireMain;
 				}
-				score *= hero->getArmyCost();
+				score *= (hero->getArmyCost() + currentArmyValue);
 				if (hero->type->heroClass->faction == town->getFaction())
 					score *= 1.5;
 				if (vstd::isAlmostZero(visitability))
