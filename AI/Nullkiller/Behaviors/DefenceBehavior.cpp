@@ -404,6 +404,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * ai) const
 {
+	if (threat.turn > 0)
+		return;
+	
 	if(town->hasBuilt(BuildingID::TAVERN)
 		&& ai->cb->getResourceAmount(EGameResID::GOLD) > GameConstants::HERO_GOLD_COST)
 	{
