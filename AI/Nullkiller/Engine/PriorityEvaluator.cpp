@@ -62,7 +62,8 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	threatTurns(INT_MAX),
 	involvesSailing(false),
 	isTradeBuilding(false),
-	isExchange(false)
+	isExchange(false),
+	isExplore(false)
 {
 }
 
@@ -930,6 +931,7 @@ public:
 		int tilesDiscovered = task->value;
 
 		evaluationContext.addNonCriticalStrategicalValue(0.03f * tilesDiscovered);
+		evaluationContext.isExplore = true;
 	}
 };
 
@@ -1444,7 +1446,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossPersentage;
 				if (score > 0)
 				{
-					score = 1000;
+					if(!evaluationContext.isExplore)
+						score = 1000;
 					score *= evaluationContext.closestWayRatio;
 					if (evaluationContext.enemyHeroDangerRatio > 1)
 						score /= evaluationContext.enemyHeroDangerRatio;
