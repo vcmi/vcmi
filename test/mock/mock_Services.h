@@ -28,7 +28,7 @@ public:
 	MOCK_CONST_METHOD0(skills, const SkillService * ());
 	MOCK_CONST_METHOD0(battlefields, const BattleFieldService *());
 	MOCK_CONST_METHOD0(obstacles, const ObstacleService *());
-	MOCK_CONST_METHOD0(settings, const IGameSettings *());
+	MOCK_CONST_METHOD0(engineSettings, const IGameSettings *());
 
 	MOCK_METHOD3(updateEntity, void(Metatype, int32_t, const JsonNode &));
 

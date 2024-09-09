@@ -16,7 +16,7 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSoundBase.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CPlayerState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
@@ -68,7 +68,7 @@ std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
 	if (!wasVisited(player))
 		return {};
 
-	if (!VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
+	if (!cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
 		return {};
 
 	if (bankConfig == nullptr)

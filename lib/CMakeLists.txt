@@ -694,6 +694,7 @@ set(lib_MAIN_HEADERS
 	IBonusTypeHandler.h
 	IGameCallback.h
 	IGameEventsReceiver.h
+	IGameSettings.h
 	IHandlerBase.h
 	int3.h
 	LoadProgress.h

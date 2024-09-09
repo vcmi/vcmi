@@ -44,7 +44,7 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "campaign/CampaignState.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1580,7 +1580,7 @@ void RebalanceStacks::applyGs(CGameState *gs)
 
 	const CCreature * srcType = src.army->getCreature(src.slot);
 	TQuantity srcCount = src.army->getStackCount(src.slot);
-	bool stackExp = VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
+	bool stackExp = gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
 
 	if(srcCount == count) //moving whole stack
 	{
@@ -2109,7 +2109,7 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 		}
 	}
 
-	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+	if(gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		if(heroResult[BattleSide::ATTACKER].army)
 			heroResult[BattleSide::ATTACKER].army->giveStackExp(heroResult[BattleSide::ATTACKER].exp);

@@ -20,7 +20,7 @@
 #include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
@@ -393,7 +393,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	// are not attached to global bonus node but need access to some global bonuses
 	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
-	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_PER_HERO);
+	const JsonNode & baseBonuses = cb->getSettings().getValue(EGameSettings::BONUSES_PER_HERO);
 	for(const auto & b : baseBonuses.Struct())
 	{
 		auto bonus = JsonUtils::parseBonus(b.second);
@@ -403,7 +403,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		addNewBonus(bonus);
 	}
 
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && type->heroClass->commander.hasValue())
+	if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && type->heroClass->commander.hasValue())
 	{
 		commander = new CCommanderInstance(type->heroClass->commander);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
@@ -430,7 +430,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 	int warMachinesGiven = 0;
 
-	auto stacksCountChances = VLC->settings()->getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
+	auto stacksCountChances = cb->getSettings().getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 	int stacksCountInitRandomNumber = rand.nextInt(1, 100);
 
 	size_t maxStacksCount = std::min(stacksCountChances.size(), type->initialArmy.size());
@@ -517,7 +517,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if(ID == Obj::PRISON)
 	{
-		if (cb->getHeroCount(h->tempOwner, false) < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))//free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))//free hero slot
 		{
 			//update hero parameters
 			SetMovePoints smp;

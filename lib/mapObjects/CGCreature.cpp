@@ -14,7 +14,7 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -280,15 +280,15 @@ void CGCreature::newTurn(vstd::RNG & rand) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{
-		if (stacks.begin()->second->count < VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+		if (stacks.begin()->second->count < cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
-			ui32 power = static_cast<ui32>(temppower * (100 + VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
-			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
+			ui32 power = static_cast<ui32>(temppower * (100 + cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
+			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
 			cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
 	}
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, VLC->settings()->getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
+	if (cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, cb->getSettings().getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
 }
 void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {

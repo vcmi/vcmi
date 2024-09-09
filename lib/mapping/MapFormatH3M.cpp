@@ -21,7 +21,7 @@
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
@@ -130,17 +130,17 @@ static MapIdentifiersH3M generateMapping(EMapFormat format)
 	MapIdentifiersH3M identifierMapper;
 
 	if(features.levelROE)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
 	if(features.levelAB)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
 	if(features.levelSOD)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
 	if(features.levelCHR)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
 	if(features.levelWOG)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
 	if(features.levelHOTA0)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
 
 	return identifierMapper;
 }
@@ -737,8 +737,7 @@ void CMapLoaderH3M::readMapOptions()
 	{
 		//TODO: HotA
 		bool allowSpecialMonths = reader->readBool();
-		if(!allowSpecialMonths)
-			logGlobal->warn("Map '%s': Option 'allow special months' is not implemented!", mapName);
+		map->overrideGameSetting(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS, JsonNode(allowSpecialMonths));
 		reader->skipZero(3);
 	}
 

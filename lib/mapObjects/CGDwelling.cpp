@@ -24,7 +24,7 @@
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CConfigHandler.h"
 
 #include <vstd/RNG.h>
@@ -309,9 +309,9 @@ void CGDwelling::newTurn(vstd::RNG & rand) const
 			bool creaturesAccumulate = false;
 
 			if (tempOwner.isValidPlayer())
-				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
+				creaturesAccumulate = cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
 			else
-				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
+				creaturesAccumulate = cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
 
 			const CCreature * cre =creatures[i].second[0].toCreature();
 			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(BonusType::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(cre->getLevel()));
@@ -418,7 +418,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		if(count) //there are available creatures
 		{
 
-			if (VLC->settings()->getBoolean(EGameSettings::DWELLINGS_MERGE_ON_RECRUIT))
+			if (cb->getSettings().getBoolean(EGameSettings::DWELLINGS_MERGE_ON_RECRUIT))
 			{
 				SlotID testSlot = h->getSlotFor(crid);
 				if(!testSlot.validSlot()) //no available slot - try merging army of visiting hero
