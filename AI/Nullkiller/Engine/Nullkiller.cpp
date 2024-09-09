@@ -62,7 +62,7 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 		return false;
 	}
 
-	return true;
+	return cb->getStartInfo()->difficulty >= 3;
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
