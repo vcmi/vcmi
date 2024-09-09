@@ -346,7 +346,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 			return mapObjectTypes.front()->objectTypeHandlers.front();
 
 		auto subID = subtype.getNum();
-		if (type == Obj::PRISON)
+		if (type == Obj::PRISON || type == Obj::HERO_PLACEHOLDER)
 			subID = 0;
 		auto result = mapObjectTypes.at(type.getNum())->objectTypeHandlers.at(subID);
 
