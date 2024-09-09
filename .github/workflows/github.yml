@@ -177,15 +177,13 @@ jobs:
         mkdir -p ~/.local/share/vcmi/
         mv h3_assets/* ~/.local/share/vcmi/
 
-    - uses: actions/setup-python@v5
+    - name: Install Conan
       if: "${{ matrix.conan_profile != '' }}"
-      with:
-        python-version: '3.10'
+      run: pipx install 'conan<2.0'
 
-    - name: Conan setup
+    - name: Install Conan profile
       if: "${{ matrix.conan_profile != '' }}"
       run: |
-        pip3 install 'conan<2.0'
         conan profile new default --detect
         conan install . \
           --install-folder=conan-generated \
@@ -362,11 +360,6 @@ jobs:
         shell: bash
     steps:
         - uses: actions/checkout@v4
-
-        - uses: actions/setup-python@v5
-          if: "${{ matrix.conan_profile != '' }}"
-          with:
-            python-version: '3.10'
 
         - name: Ensure LF line endings
           run: |
