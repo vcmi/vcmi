@@ -410,6 +410,8 @@ void playIntro()
 
 	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK")))
 		return;
+
+	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"));
 }
 
 static void mainLoop()

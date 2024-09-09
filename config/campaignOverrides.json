@@ -1,11 +1,8 @@
 {
-	"DATA/GOOD1" : { // RoE - "Long Live the Queen"
-		"introVideo": "H3INTRO"
-	},
 	"DATA/GOOD3" : { // RoE - "Song for the Father"
 		"outroVideo": "Endgame"
 	},
-	"DATA/AB" : { // AB - "Armageddon's Blade"
+	"DATA/AB" : { // AB Intro
 		"introVideo": "H3X1intr",
 		"videoRim": "IntroRm2"
 	},
