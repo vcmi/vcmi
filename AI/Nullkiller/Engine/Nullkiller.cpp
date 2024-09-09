@@ -655,7 +655,7 @@ bool Nullkiller::handleTrading()
 
 					bool okToSell = false;
 
-					if (i == 6)
+					if (i == GameResID::GOLD)
 					{
 						if (income[i] > 0 && !buildAnalyzer->isGoldPressureHigh())
 							okToSell = true;
