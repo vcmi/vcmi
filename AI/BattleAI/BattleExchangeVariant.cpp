@@ -290,7 +290,7 @@ ReachabilityInfo getReachabilityWithEnemyBypass(
 				continue;
 
 			auto dmg = damageCache.getOriginalDamage(activeStack, unit, state);
-			auto turnsToKill = unit->getAvailableHealth() / std::max(dmg, 1);
+			auto turnsToKill = unit->getAvailableHealth() / std::max(dmg, 1LL);
 
 			vstd::amin(turnsToKill, 100);
 
