@@ -12,7 +12,7 @@
 
 #include "ArtifactUtils.h"
 #include "ExceptionsCommon.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "mapObjects/MapObjects.h"
 #include "constants/StringConstants.h"
 #include "json/JsonBonus.h"
@@ -327,7 +327,7 @@ CArtHandler::~CArtHandler() = default;
 
 std::vector<JsonNode> CArtHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -656,10 +656,10 @@ bool CArtHandler::legalArtifact(const ArtifactID & id) const
 	if(art->possibleSlots.count(ArtBearer::HERO) && !art->possibleSlots.at(ArtBearer::HERO).empty())
 		return true;
 
-	if(art->possibleSlots.count(ArtBearer::CREATURE) && !art->possibleSlots.at(ArtBearer::CREATURE).empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
+	if(art->possibleSlots.count(ArtBearer::CREATURE) && !art->possibleSlots.at(ArtBearer::CREATURE).empty() && VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
 		return true;
 
-	if(art->possibleSlots.count(ArtBearer::COMMANDER) && !art->possibleSlots.at(ArtBearer::COMMANDER).empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
+	if(art->possibleSlots.count(ArtBearer::COMMANDER) && !art->possibleSlots.at(ArtBearer::COMMANDER).empty() && VLC->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
 		return true;
 
 	return false;

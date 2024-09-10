@@ -92,9 +92,9 @@ const ObstacleService * CGameInfo::obstacles() const
 	return globalServices->obstacles();
 }
 
-const IGameSettings * CGameInfo::settings() const
+const IGameSettings * CGameInfo::engineSettings() const
 {
-	return globalServices->settings();
+	return globalServices->engineSettings();
 }
 
 spells::effects::Registry * CGameInfo::spellEffects()

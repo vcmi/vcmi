@@ -9,105 +9,65 @@
  */
 #pragma once
 
+#include "IGameSettings.h"
+#include "json/JsonNode.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
-
-class JsonNode;
-
-enum class EGameSettings
-{
-	BONUSES_GLOBAL,
-	BONUSES_PER_HERO,
-	COMBAT_ATTACK_POINT_DAMAGE_FACTOR,
-	COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP,
-	COMBAT_BAD_LUCK_DICE,
-	COMBAT_BAD_MORALE_DICE,
-	COMBAT_DEFENSE_POINT_DAMAGE_FACTOR,
-	COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP,
-	COMBAT_GOOD_LUCK_DICE,
-	COMBAT_GOOD_MORALE_DICE,
-	CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH,
-	CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS,
-	CREATURES_DAILY_STACK_EXPERIENCE,
-	CREATURES_WEEKLY_GROWTH_CAP,
-	CREATURES_WEEKLY_GROWTH_PERCENT,
-	DWELLINGS_ACCUMULATE_WHEN_NEUTRAL,
-	DWELLINGS_ACCUMULATE_WHEN_OWNED,
-	DWELLINGS_MERGE_ON_RECRUIT,
-	HEROES_PER_PLAYER_ON_MAP_CAP,
-	HEROES_PER_PLAYER_TOTAL_CAP,
-	HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,
-	HEROES_STARTING_STACKS_CHANCES,
-	HEROES_BACKPACK_CAP,
-	HEROES_TAVERN_INVITE,
-	HEROES_MINIMAL_PRIMARY_SKILLS,
-	MARKETS_BLACK_MARKET_RESTOCK_PERIOD,
-	BANKS_SHOW_GUARDS_COMPOSITION,
-	MODULE_COMMANDERS,
-	MODULE_STACK_ARTIFACT,
-	MODULE_STACK_EXPERIENCE,
-	TEXTS_ARTIFACT,
-	TEXTS_CREATURE,
-	TEXTS_FACTION,
-	TEXTS_HERO,
-	TEXTS_HERO_CLASS,
-	TEXTS_OBJECT,
-	TEXTS_RIVER,
-	TEXTS_ROAD,
-	TEXTS_SPELL,
-	TEXTS_TERRAIN,
-	MAP_FORMAT_RESTORATION_OF_ERATHIA,
-	MAP_FORMAT_ARMAGEDDONS_BLADE,
-	MAP_FORMAT_SHADOW_OF_DEATH,
-	MAP_FORMAT_CHRONICLES,
-	MAP_FORMAT_HORN_OF_THE_ABYSS,
-	MAP_FORMAT_JSON_VCMI,
-	MAP_FORMAT_IN_THE_WAKE_OF_GODS,
-	PATHFINDER_USE_BOAT,
-	PATHFINDER_IGNORE_GUARDS,
-	PATHFINDER_USE_MONOLITH_TWO_WAY,
-	PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE,
-	PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM,
-	PATHFINDER_USE_WHIRLPOOL,
-	PATHFINDER_ORIGINAL_FLY_RULES,
-	TOWNS_BUILDINGS_PER_TURN_CAP,
-	TOWNS_STARTING_DWELLING_CHANCES,
-	COMBAT_ONE_HEX_TRIGGERS_OBSTACLES,
-	DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES,
-	DIMENSION_DOOR_EXPOSES_TERRAIN_TYPE,
-	DIMENSION_DOOR_FAILURE_SPENDS_POINTS,
-	DIMENSION_DOOR_TRIGGERS_GUARDS,
-	DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT,
-
-	OPTIONS_COUNT
-};
-
-class DLL_LINKAGE IGameSettings
-{
-public:
-	virtual const JsonNode & getValue(EGameSettings option) const = 0;
-	virtual ~IGameSettings() = default;
-
-	bool getBoolean(EGameSettings option) const;
-	int64_t getInteger(EGameSettings option) const;
-	double getDouble(EGameSettings option) const;
-	std::vector<int> getVector(EGameSettings option) const;
-};
 
 class DLL_LINKAGE GameSettings final : public IGameSettings, boost::noncopyable
 {
-	std::vector<JsonNode> gameSettings;
+	struct SettingOption
+	{
+		EGameSettings setting;
+		std::string group;
+		std::string key;
+	};
+
+	static constexpr int32_t OPTIONS_COUNT = static_cast<int32_t>(EGameSettings::OPTIONS_COUNT);
+	static const std::vector<SettingOption> settingProperties;
+
+	// contains base settings, like those defined in base game or mods
+	std::array<JsonNode, OPTIONS_COUNT> baseSettings;
+	// contains settings that were overriden, in map or in random map template
+	std::array<JsonNode, OPTIONS_COUNT> overridenSettings;
+	// for convenience / performance, contains actual settings - combined version of base and override settings
+	std::array<JsonNode, OPTIONS_COUNT> actualSettings;
+
+	// converts all existing overrides into a single json node for serialization
+	JsonNode getAllOverrides() const;
 
 public:
 	GameSettings();
 	~GameSettings();
 
-	void load(const JsonNode & input);
+	/// Loads settings as 'base settings' that can be overriden
+	/// For settings defined in vcmi or in mods
+	void loadBase(const JsonNode & input);
+
+	/// Loads setting as an override, for use in maps or rmg templates
+	/// undefined behavior if setting was already overriden (TODO: decide which approach is better - replace or append)
+	void addOverride(EGameSettings option, const JsonNode & input);
+
+	// loads all overrides from provided json node, for deserialization
+	void loadOverrides(const JsonNode &);
+
+	JsonNode getFullConfig() const override;
 	const JsonNode & getValue(EGameSettings option) const override;
 
 	template<typename Handler>
 	void serialize(Handler & h)
 	{
-		h & gameSettings;
+		if (h.saving)
+		{
+			JsonNode overrides = getAllOverrides();
+			h & overrides;
+		}
+		else
+		{
+			JsonNode overrides;
+			h & overrides;
+			loadOverrides(overrides);
+		}
 	}
 };
 

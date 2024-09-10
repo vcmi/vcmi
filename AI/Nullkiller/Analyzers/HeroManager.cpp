@@ -12,7 +12,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/CHeroHandler.h"
-#include "../../../lib/GameSettings.h"
+#include "../../../lib/IGameSettings.h"
 
 namespace NKAI
 {
@@ -196,8 +196,8 @@ bool HeroManager::heroCapReached() const
 
 	return heroCount >= ALLOWED_ROAMING_HEROES
 		|| heroCount >= ai->settings->getMaxRoamingHeroes()
-		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
-		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
+		|| heroCount >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
+		|| heroCount >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
 }
 
 float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const

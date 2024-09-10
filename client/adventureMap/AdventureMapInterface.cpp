@@ -39,7 +39,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -617,7 +617,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		case SpellID::DIMENSION_DOOR:
 			if(isValidAdventureSpellTarget(targetPosition))
 			{
-				if(VLC->settings()->getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
+				if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && LOCPLINT->cb->isTileGuardedUnchecked(targetPosition))
 					CCS->curh->set(Cursor::Map::T1_ATTACK);
 				else
 					CCS->curh->set(Cursor::Map::TELEPORT);

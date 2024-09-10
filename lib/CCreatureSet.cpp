@@ -14,7 +14,7 @@
 #include "CConfigHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "modding/ModScope.h"
 #include "IGameCallback.h"
@@ -432,7 +432,7 @@ void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)
 {
 	assert(hasStackAtSlot(slot));
 	assert(stacks[slot]->count + count > 0);
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) && count > stacks[slot]->count)
+	if (count > stacks[slot]->count)
 		stacks[slot]->experience = static_cast<TExpType>(stacks[slot]->experience * (count / static_cast<double>(stacks[slot]->count)));
 	stacks[slot]->count = count;
 	armyChanged();
@@ -713,7 +713,7 @@ CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
 
 int CStackInstance::getExpRank() const
 {
-	if (!VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+	if (!VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 		return 0;
 	int tier = type->getLevel();
 	if (vstd::iswithin(tier, 1, 7))
@@ -767,7 +767,7 @@ void CStackInstance::setType(const CCreature *c)
 	if(type)
 	{
 		detachFromSource(*type);
-		if (type->isMyUpgrade(c) && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+		if (type->isMyUpgrade(c) && VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
 	}
 

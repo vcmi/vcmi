@@ -10,7 +10,9 @@
 #include "StdInc.h"
 #include "CHeroOverview.h"
 
+#include "../CCallback.h"
 #include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
@@ -21,7 +23,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CHeroHandler.h"
@@ -123,7 +125,7 @@ void CHeroOverview::genControls()
     r = Rect(302, 3 * borderOffset + yOffset + 62, 292, 32);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
 
-    auto stacksCountChances = CGI->settings()->getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
+    auto stacksCountChances = LOCPLINT->cb->getSettings().getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 
     // army
     int space = (260 - 7 * 32) / 6;

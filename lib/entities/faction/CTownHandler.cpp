@@ -16,7 +16,7 @@
 
 #include "../../CCreatureHandler.h"
 #include "../../CHeroHandler.h"
-#include "../../GameSettings.h"
+#include "../../IGameSettings.h"
 #include "../../TerrainHandler.h"
 #include "../../VCMI_Lib.h"
 
@@ -76,7 +76,7 @@ const TPropagatorPtr & CTownHandler::emptyPropagator()
 
 std::vector<JsonNode> CTownHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_FACTION);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_FACTION);
 
 	std::vector<JsonNode> dest(dataSize);
 	objects.resize(dataSize);

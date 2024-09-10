@@ -12,7 +12,7 @@
 
 #include "CLegacyConfigParser.h"
 #include "CConfigHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "Languages.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CQuest.h"
@@ -303,7 +303,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 			scenariosCountPerCampaign.push_back(region);
 		}
 	}
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
+	if (VLC->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
 	{
 		if(CResourceHandler::get()->existsResource(TextPath::builtin("DATA/ZNPC00.TXT")))
 			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );

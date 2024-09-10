@@ -70,7 +70,7 @@ public:
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
 	const ObstacleService * obstacles() const override;
-	const IGameSettings * settings() const override;
+	const IGameSettings * engineSettings() const override;
 
 	const spells::effects::Registry * spellEffects() const override;
 	spells::effects::Registry * spellEffects() override;
