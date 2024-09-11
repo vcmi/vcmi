@@ -139,27 +139,14 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 			return 0;
 		[[fallthrough]];
 	}
-	case Obj::MONSTER:
-	case Obj::GARRISON:
-	case Obj::GARRISON2:
-	case Obj::CREATURE_GENERATOR1:
-	case Obj::CREATURE_GENERATOR4:
-	case Obj::MINE:
-	case Obj::ABANDONED_MINE:
-	case Obj::PANDORAS_BOX:
-	case Obj::CRYPT: //crypt
-	case Obj::CREATURE_BANK: //crebank
-	case Obj::DRAGON_UTOPIA:
-	case Obj::SHIPWRECK: //shipwreck
-	case Obj::DERELICT_SHIP: //derelict ship
-	case Obj::PYRAMID:
+	default:
 	{
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
-		return a->getArmyStrength();
+		if (a)
+			return a->getArmyStrength();
+		else
+			return 0;
 	}
-	default:
-		return 0;
 	}
 }
-
 }

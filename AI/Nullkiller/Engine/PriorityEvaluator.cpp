@@ -118,25 +118,6 @@ int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, cons
 	return booster * (town->hasFort() && town->tempOwner != PlayerColor::NEUTRAL  ? booster * 500 : 250);
 }
 
-TResources getCreatureBankResources(const CGObjectInstance * target, const CGHeroInstance * hero)
-{
-	//Fixme: unused variable hero
-
-	auto objectInfo = target->getObjectHandler()->getObjectInfo(target->appearance);
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
-	auto resources = bankInfo->getPossibleResourcesReward();
-	TResources result = TResources();
-	int sum = 0;
-
-	for(auto & reward : resources)
-	{
-		result += reward.data * reward.chance;
-		sum += reward.chance;
-	}
-
-	return sum > 1 ? result / sum : result;
-}
-
 int32_t getResourcesGoldReward(const TResources & res)
 {
 	int32_t result = 0;
@@ -303,22 +284,13 @@ uint64_t RewardEvaluator::getArmyReward(
 	{
 	case Obj::HILL_FORT:
 		return ai->armyManager->calculateCreaturesUpgrade(army, target, ai->cb->getResourceAmount()).upgradeValue;
-	case Obj::CREATURE_BANK:
-		return getCreatureBankArmyReward(target, hero);
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
 		return getDwellingArmyValue(ai->cb.get(), target, checkGold);
-	case Obj::CRYPT:
-	case Obj::SHIPWRECK:
-	case Obj::SHIPWRECK_SURVIVOR:
-	case Obj::WARRIORS_TOMB:
-		return 1000;
 	case Obj::ARTIFACT:
 		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact->artType);
-	case Obj::DRAGON_UTOPIA:
-		return 10000;
 	case Obj::HERO:
 		return  relations == PlayerRelations::ENEMIES
 			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
@@ -553,13 +525,6 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 		return getResourceRequirementStrength(res);
 	}
 
-	case Obj::CREATURE_BANK:
-	{
-		auto resourceReward = getCreatureBankResources(target, nullptr);
-		
-		return getResourceRequirementStrength(resourceReward);
-	}
-
 	case Obj::TOWN:
 	{
 		if(ai->buildAnalyzer->getDevelopmentInfo().empty())
@@ -670,8 +635,6 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::PANDORAS_BOX:
 		//Can contains experience, spells, or skills (only on custom maps)
 		return 2.5f;
-	case Obj::PYRAMID:
-		return 6.0f;
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
@@ -778,22 +741,6 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 		auto * mine = dynamic_cast<const CGMine*>(target);
 		return dailyIncomeMultiplier * (mine->producedResource == GameResID::GOLD ? 1000 : 75);
 	}
-	case Obj::MYSTICAL_GARDEN:
-	case Obj::WINDMILL:
-		return 100;
-	case Obj::CAMPFIRE:
-		return 800;
-	case Obj::WAGON:
-		return 100;
-	case Obj::CREATURE_BANK:
-		return getResourcesGoldReward(getCreatureBankResources(target, hero));
-	case Obj::CRYPT:
-	case Obj::DERELICT_SHIP:
-		return 3000;
-	case Obj::DRAGON_UTOPIA:
-		return 10000;
-	case Obj::SEA_CHEST:
-		return 1500;
 	case Obj::PANDORAS_BOX:
 		return 2500;
 	case Obj::PRISON:

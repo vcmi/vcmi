@@ -281,35 +281,13 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 		cb->getTownInfo(obj, iat);
 		return iat.army.getStrength();
 	}
-	case Obj::MONSTER:
-	{
-		//TODO!!!!!!!!
-		const CGCreature * cre = dynamic_cast<const CGCreature *>(obj);
-		return cre->getArmyStrength();
-	}
-	case Obj::CREATURE_GENERATOR1:
-	case Obj::CREATURE_GENERATOR4:
-	{
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
-		return d->getArmyStrength();
-	}
-	case Obj::MINE:
-	case Obj::ABANDONED_MINE:
-	{
-		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
-		return a->getArmyStrength();
-	}
-	case Obj::CRYPT:
-	case Obj::CREATURE_BANK: //crebank
-	case Obj::DRAGON_UTOPIA:
-	case Obj::SHIPWRECK: //shipwreck
-	case Obj::DERELICT_SHIP: //derelict ship
-	case Obj::PYRAMID:
-	{
-		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
-		return a->getArmyStrength();
-	}
 	default:
-		return 0;
+	{
+		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
+		if (a)
+			return a->getArmyStrength();
+		else
+			return 0;
+	}
 	}
 }
