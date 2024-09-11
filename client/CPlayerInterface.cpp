@@ -172,10 +172,11 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 void CPlayerInterface::closeAllDialogs()
 {
 	// remove all active dialogs that do not expect query answer
-	for (;;)
+	while(true)
 	{
 		auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
 		auto infoWindow = GH.windows().topWindow<CInfoWindow>();
+		auto topWindow = GH.windows().topWindow<WindowBase>();
 
 		if(adventureWindow != nullptr)
 			break;
@@ -183,16 +184,8 @@ void CPlayerInterface::closeAllDialogs()
 		if(infoWindow && infoWindow->ID != QueryID::NONE)
 			break;
 
-		if (infoWindow)
-			infoWindow->close();
-		else
-			GH.windows().popWindows(1);
+		topWindow->close();
 	}
-
-	if(castleInt)
-		castleInt->close();
-
-	castleInt = nullptr;
 }
 
 void CPlayerInterface::playerEndsTurn(PlayerColor player)
