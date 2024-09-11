@@ -973,12 +973,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		doMove(TryMoveHero::TELEPORTATION, guardsCheck, DONT_VISIT_DEST, LEAVING_TILE);
 
 		// visit town for town portal \ castle gates
-		// do not use generic visitObjectOnTile to avoid double-teleporting
-		// if this moveHero call was triggered by teleporter
+		// do not visit any other objects, e.g. monoliths to avoid double-teleporting
 		if (objectToVisit)
 		{
 			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(objectToVisit))
-				town->onHeroVisit(h);
+				objectVisited(town, h);
 		}
 
 		return true;
