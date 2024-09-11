@@ -268,6 +268,8 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 {
 	if (!info.reward.guards.empty())
 	{
+		replaceTextPlaceholders(target, variables);
+
 		CreatureID strongest = info.reward.guards.at(0).getId();
 
 		for (const auto & guard : info.reward.guards )
@@ -297,15 +299,20 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 		for (const auto & spell : info.reward.spells )
 		{
-			target.replaceName(spell);
+			loot.appendRawString("%s");
+			loot.replaceName(spell);
 		}
 
 		for (const auto & secondary : info.reward.secondary )
-			target.replaceName(secondary.first);
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(secondary.first);
+		}
+
+		target.replaceRawString(loot.buildList());
 	}
 	else
 	{
-
 		for (const auto & artifact : info.reward.artifacts )
 			target.replaceName(artifact);
 
@@ -314,9 +321,9 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 		for (const auto & secondary : info.reward.secondary )
 			target.replaceName(secondary.first);
-	}
 
-	replaceTextPlaceholders(target, variables);
+		replaceTextPlaceholders(target, variables);
+	}
 }
 
 void Rewardable::Info::configureRewards(

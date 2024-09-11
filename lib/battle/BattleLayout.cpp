@@ -59,16 +59,16 @@ BattleLayout BattleLayout::createLayout(IGameCallback * cb, const std::string & 
 		result.warMachines[BattleSide::DEFENDER][i] = loadHex(config["attackerWarMachines"][i]);
 
 	if (attacker->formation == EArmyFormation::LOOSE && !config["attackerUnitsLoose"].isNull())
-		result.units[BattleSide::ATTACKER] = loadUnits(config["attackerUnitsLoose"][attacker->stacksCount()]);
+		result.units[BattleSide::ATTACKER] = loadUnits(config["attackerUnitsLoose"][attacker->stacksCount() - 1]);
 	else if (attacker->formation == EArmyFormation::TIGHT && !config["attackerUnitsTight"].isNull())
-		result.units[BattleSide::ATTACKER] = loadUnits(config["attackerUnitsTight"][attacker->stacksCount()]);
+		result.units[BattleSide::ATTACKER] = loadUnits(config["attackerUnitsTight"][attacker->stacksCount() - 1]);
 	else
 		result.units[BattleSide::ATTACKER] = loadUnits(config["attackerUnits"]);
 
 	if (attacker->formation == EArmyFormation::LOOSE && !config["defenderUnitsLoose"].isNull())
-		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnitsLoose"][attacker->stacksCount()]);
+		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnitsLoose"][attacker->stacksCount() - 1]);
 	else if (attacker->formation == EArmyFormation::TIGHT && !config["defenderUnitsTight"].isNull())
-		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnitsTight"][attacker->stacksCount()]);
+		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnitsTight"][attacker->stacksCount() - 1]);
 	else
 		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnits"]);
 

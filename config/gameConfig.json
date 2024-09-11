@@ -57,6 +57,7 @@
 		"config/objects/magicWell.json",
 		"config/objects/moddables.json",
 		"config/objects/observatory.json",
+		"config/objects/pyramid.json",
 		"config/objects/rewardableBonusing.json",
 		"config/objects/rewardableOncePerHero.json",
 		"config/objects/rewardableOncePerWeek.json",
