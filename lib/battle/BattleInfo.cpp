@@ -353,9 +353,6 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		{
 			const BattleHex & pos = layout.units.at(side).at(k);
 
-			//if(creatureBank && i->second->type->isDoubleWide())
-			//	pos += side == BattleSide::RIGHT_SIDE ? BattleHex::LEFT : BattleHex::RIGHT;
-
 			if (pos.isValid())
 				curB->generateNewStack(curB->nextUnitId(), *i->second, side, i->first, pos);
 		}
