@@ -2142,10 +2142,13 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	// now when everything is built - reveal tiles for lookout tower
 	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
-	if(t->garrisonHero) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		objectVisited(t, t->garrisonHero);
-	if(t->visitingHero)
-		objectVisited(t, t->visitingHero);
+	if (!force)
+	{
+		if(t->garrisonHero) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+			objectVisited(t, t->garrisonHero);
+		if(t->visitingHero)
+			objectVisited(t, t->visitingHero);
+	}
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;
