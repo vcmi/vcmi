@@ -10,16 +10,20 @@
 
 #include "StdInc.h"
 #include "CRewardableObject.h"
-#include "../gameState/CGameState.h"
-#include "../texts/CGeneralTextHandler.h"
+
 #include "../CPlayerState.h"
+#include "../GameSettings.h"
 #include "../IGameCallback.h"
+#include "../battle/BattleLayout.h"
+#include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -91,7 +95,48 @@ std::vector<Component> CRewardableObject::loadComponents(const CGHeroInstance * 
 	return result;
 }
 
-void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
+bool CRewardableObject::guardedPotentially() const
+{
+	for (auto const & visitInfo : configuration.info)
+		if (!visitInfo.reward.guards.empty())
+			return true;
+
+	return false;
+}
+
+bool CRewardableObject::guardedPresently() const
+{
+	return stacksCount() > 0;
+}
+
+void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
+{
+	if(!wasScouted(hero->getOwner()))
+	{
+		ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_SCOUTED, id, hero->id);
+		cb->sendAndApply(&cov);
+	}
+
+	if (guardedPresently())
+	{
+		auto guardedIndexes = getAvailableRewards(hero, Rewardable::EEventType::EVENT_GUARDED);
+		auto guardedReward = configuration.info.at(guardedIndexes.at(0));
+
+		// ask player to confirm attack
+		BlockingDialog bd(true, false);
+		bd.player = hero->getOwner();
+		bd.text = guardedReward.message;
+		bd.components = getPopupComponents(hero->getOwner());
+
+		cb->showBlockingDialog(this, &bd);
+	}
+	else
+	{
+		doHeroVisit(hero);
+	}
+}
+
+void CRewardableObject::doHeroVisit(const CGHeroInstance *h) const
 {
 	if(!wasVisitedBefore(h))
 	{
@@ -154,7 +199,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 
 		if(!objectRemovalPossible && getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 		{
-			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
 			cb->sendAndApply(&cov);
 		}
 	}
@@ -164,7 +209,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 
 		if (!wasVisited(h->getOwner()))
 		{
-			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, h->id);
 			cb->sendAndApply(&cov);
 		}
 
@@ -181,39 +226,36 @@ void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 	grantRewardAfterLevelup(cb, configuration.info.at(selectedReward), this, hero);
 }
 
-void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CRewardableObject::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(answer == 0)
+	if (result.winner == BattleSide::ATTACKER)
 	{
-		switch (configuration.visitMode)
-		{
-			case Rewardable::VISIT_UNLIMITED:
-			case Rewardable::VISIT_BONUS:
-			case Rewardable::VISIT_HERO:
-			case Rewardable::VISIT_LIMITER:
-			{
-				// workaround for object with refusable reward not getting marked as visited
-				// TODO: better solution that would also work for player-visitable objects
-				if (!wasScouted(hero->getOwner()))
-				{
-					ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, hero->id);
-					cb->sendAndApply(&cov);
-				}
-			}
-		}
-
-		return; // player refused
+		doHeroVisit(hero);
 	}
+}
 
-	if(answer > 0 && answer-1 < configuration.info.size())
+void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const
+{
+	if(guardedPresently())
 	{
-		auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-		markAsVisited(hero);
-		grantReward(list[answer - 1], hero);
+		if (answer)
+		{
+			auto layout = BattleLayout::createLayout(cb, configuration.guardsLayout, hero, this);
+			cb->startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
+		}
 	}
 	else
 	{
-		throw std::runtime_error("Unhandled choice");
+		if(answer > 0 && answer - 1 < configuration.info.size())
+		{
+			auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+			markAsVisited(hero);
+			grantReward(list[answer - 1], hero);
+		}
+		else
+		{
+			throw std::runtime_error("Unhandled choice");
+		}
 	}
 }
 
@@ -221,7 +263,7 @@ void CRewardableObject::markAsVisited(const CGHeroInstance * hero) const
 {
 	cb->setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, true);
 
-	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_HERO, id, hero->id);
 	cb->sendAndApply(&cov);
 }
 
@@ -277,7 +319,7 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 
 bool CRewardableObject::wasScouted(PlayerColor player) const
 {
-	return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
+	return vstd::contains(cb->getPlayerTeam(player)->scoutedObjects, ObjectInstanceID(id));
 }
 
 bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
@@ -365,22 +407,44 @@ std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor pla
 	if (!wasScouted(player))
 		return {};
 
-	if (!configuration.showScoutedPreview)
-		return {};
-
-	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-	if (rewardIndices.empty() && !configuration.info.empty())
+	if (guardedPresently())
 	{
-		// Object has valid config, but current hero has no rewards that he can receive.
-		// Usually this happens if hero has already visited this object -> show reward using context without any hero
-		// since reward may be context-sensitive - e.g. Witch Hut that gives 1 skill, but always at basic level
-		return loadComponents(nullptr, {0});
+		if (!cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
+			return {};
+
+		std::map<CreatureID, int> guardsAmounts;
+		std::vector<Component> result;
+
+		for (auto const & slot : Slots())
+			if (slot.second)
+				guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
+
+		for (auto const & guard : guardsAmounts)
+		{
+			Component comp(ComponentType::CREATURE, guard.first, guard.second);
+			result.push_back(comp);
+		}
+		return result;
 	}
+	else
+	{
+		if (!configuration.showScoutedPreview)
+			return {};
 
-	if (rewardIndices.empty())
-		return {};
+		auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+		if (rewardIndices.empty() && !configuration.info.empty())
+		{
+			// Object has valid config, but current hero has no rewards that he can receive.
+			// Usually this happens if hero has already visited this object -> show reward using context without any hero
+			// since reward may be context-sensitive - e.g. Witch Hut that gives 1 skill, but always at basic level
+			return loadComponents(nullptr, {0});
+		}
 
-	return loadComponents(hero, rewardIndices);
+		if (rewardIndices.empty())
+			return {};
+
+		return loadComponents(hero, rewardIndices);
+	}
 }
 
 std::vector<Component> CRewardableObject::getPopupComponents(PlayerColor player) const
@@ -438,6 +502,33 @@ void CRewardableObject::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CArmedInstance::serializeJsonOptions(handler);
 	handler.serializeStruct("rewardable", static_cast<Rewardable::Interface&>(*this));
+}
+
+void CRewardableObject::initializeGuards()
+{
+	clearSlots();
+
+	// Workaround for default creature banks strings that has placeholder for object name
+	// TODO: find better location for this code
+	for (auto & visitInfo : configuration.info)
+		visitInfo.message.replaceRawString(getObjectName());
+
+	for (auto const & visitInfo : configuration.info)
+	{
+		for (auto const & guard : visitInfo.reward.guards)
+		{
+			auto slotID = getFreeSlot();
+			if (!slotID.validSlot())
+				return;
+
+			putStack(slotID, new CStackInstance(guard.getId(), guard.getCount()));
+		}
+	}
+}
+
+bool CRewardableObject::isCoastVisitable() const
+{
+	return configuration.coastVisitable;
 }
 
 VCMI_LIB_NAMESPACE_END

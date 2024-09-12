@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class ObstacleChanges;
 class UnitChanges;
 struct Bonus;
+struct BattleLayout;
 class JsonNode;
 class JsonSerializeFormat;
 class BattleField;
@@ -72,7 +73,7 @@ public:
 	virtual int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const = 0;
 
 	virtual int3 getLocation() const = 0;
-	virtual bool isCreatureBank() const = 0;
+	virtual BattleLayout getLayout() const = 0;
 };
 
 class DLL_LINKAGE IBattleState : public IBattleInfo

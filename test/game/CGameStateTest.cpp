@@ -24,6 +24,7 @@
 #include "../../lib/TerrainHandler.h"
 
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
@@ -197,10 +198,11 @@ public:
 
 		auto terrain = t.terType->getId();
 		BattleField terType(0);
+		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->callback, attacker, defender);
 
 		//send info about battles
 
-		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, false, nullptr);
+		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
 
 		BattleStart bs;
 		bs.info = battle;

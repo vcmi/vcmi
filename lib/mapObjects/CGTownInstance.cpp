@@ -15,6 +15,7 @@
 #include "../spells/CSpellHandler.h"
 #include "../bonuses/Bonus.h"
 #include "../battle/IBattleInfoCallback.h"
+#include "../battle/BattleLayout.h"
 #include "../CConfigHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
@@ -321,7 +322,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 
 				const_cast<CGHeroInstance *>(defendingHero)->inTownGarrison = false; //hack to return visitor from garrison after battle
 			}
-			cb->startBattlePrimary(h, defendingArmy, getSightCenter(), h, defendingHero, false, (isBattleOutside ? nullptr : this));
+			cb->startBattle(h, defendingArmy, getSightCenter(), h, defendingHero, BattleLayout::createDefaultLayout(cb, h, defendingArmy), (isBattleOutside ? nullptr : this));
 		}
 		else
 		{

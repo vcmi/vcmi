@@ -1459,7 +1459,7 @@ CGObjectInstance * CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::sha
 CGObjectInstance * CMapLoaderH3M::readPyramid(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	if(objectTemplate->subid == 0)
-		return new CBank(map->cb);
+		return readGeneric(mapPosition, objectTemplate);
 
 	return new CGObjectInstance(map->cb);
 }

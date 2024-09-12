@@ -22,10 +22,12 @@ class CStack;
 class CStackInstance;
 class CStackBasicDescriptor;
 class BattleField;
+struct BattleLayout;
 
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
 	BattleSideArray<SideInBattle> sides; //sides[0] - attacker, sides[1] - defender
+	std::unique_ptr<BattleLayout> layout;
 public:
 	BattleID battleID = BattleID(0);
 
@@ -33,7 +35,6 @@ public:
 	si32 activeStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
-	bool creatureBank; //auxiliary field, do not serialize
 	bool replayAllowed;
 	std::vector<CStack*> stacks;
 	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
@@ -65,6 +66,7 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	BattleInfo(const BattleLayout & layout);
 	BattleInfo();
 	virtual ~BattleInfo();
 
@@ -108,7 +110,7 @@ public:
 	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
 
 	int3 getLocation() const override;
-	bool isCreatureBank() const override;
+	BattleLayout getLayout() const override;
 
 	std::vector<SpellID> getUsedSpells(BattleSide side) const override;
 
@@ -152,7 +154,7 @@ public:
 	const CGHeroInstance * getHero(const PlayerColor & player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-	static BattleInfo * setupBattle(const int3 & tile, TerrainId, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, bool creatureBank, const CGTownInstance * town);
+	static BattleInfo * setupBattle(const int3 & tile, TerrainId, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town);
 
 	BattleSide whatSide(const PlayerColor & player) const;
 

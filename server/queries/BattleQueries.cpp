@@ -17,6 +17,7 @@
 
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/SideInBattle.h"
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -95,14 +96,14 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	assert(answer);
 	if(*answer == 1)
 	{
-		gh->battles->restartBattlePrimary(
+		gh->battles->restartBattle(
 			bi->getBattleID(),
 			bi->getSideArmy(BattleSide::ATTACKER),
 			bi->getSideArmy(BattleSide::DEFENDER),
 			bi->getLocation(),
 			bi->getSideHero(BattleSide::ATTACKER),
 			bi->getSideHero(BattleSide::DEFENDER),
-			bi->isCreatureBank(),
+			bi->getLayout(),
 			bi->getDefendedTown()
 		);
 	}
