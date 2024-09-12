@@ -4114,17 +4114,12 @@ void CGameHandler::newObject(CGObjectInstance * object, PlayerColor initiator)
 	sendAndApply(&no);
 }
 
-void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, const CGTownInstance *town)
+void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
-	battles->startBattlePrimary(army1, army2, tile, hero1, hero2, creatureBank, town);
+	battles->startBattle(army1, army2, tile, hero1, hero2, layout, town);
 }
 
-void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank )
+void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance *army2 )
 {
-	battles->startBattleI(army1, army2, tile, creatureBank);
-}
-
-void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank )
-{
-	battles->startBattleI(army1, army2, creatureBank);
+	battles->startBattle(army1, army2);
 }

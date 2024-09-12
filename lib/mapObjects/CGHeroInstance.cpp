@@ -512,7 +512,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			if(visitedTown) //we're in town
 				visitedTown->onHeroVisit(h); //town will handle attacking
 			else
-				cb->startBattleI(h,	this);
+				cb->startBattle(h,	this);
 		}
 	}
 	else if(ID == Obj::PRISON)

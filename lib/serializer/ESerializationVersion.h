@@ -58,6 +58,8 @@ enum class ESerializationVersion : int32_t
 	SAVE_COMPATIBILITY_FIXES, // 859 - implementation of previoulsy postponed changes to serialization
 	CHRONICLES_SUPPORT, // 860 - support for heroes chronicles
 	PER_MAP_GAME_SETTINGS, // 861 - game settings are now stored per-map
+	CAMPAIGN_OUTRO_SUPPORT, // 862 - support for campaign outro video
+	REWARDABLE_BANKS, // 863 - team state contains list of scouted objects, coast visitable rewardable objects
 
-	CURRENT = PER_MAP_GAME_SETTINGS
+	CURRENT = REWARDABLE_BANKS
 };

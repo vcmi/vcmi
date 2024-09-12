@@ -10,12 +10,6 @@
 #pragma once
 #include "FuzzyEngines.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-class CBank;
-
-VCMI_LIB_NAMESPACE_END
-
 class DLL_EXPORT FuzzyHelper
 {
 public:
@@ -41,8 +35,6 @@ public:
 	float evaluate(Goals::Invalid & g);
 	float evaluate(Goals::AbstractGoal & g);
 	void setPriority(Goals::TSubgoal & g);
-
-	ui64 estimateBankDanger(const CBank * bank); //TODO: move to another class?
 
 	Goals::TSubgoal chooseSolution(Goals::TGoalVec vec);
 	//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec);

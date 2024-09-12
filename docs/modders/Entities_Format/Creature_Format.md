@@ -1,5 +1,7 @@
 # Creature Format
 
+This page tells you what you need to do to make your creature work. For help, tips and advices, read the [creature help](Creature_Help.md).
+
 ## Required data
 
 In order to make functional creature you also need:

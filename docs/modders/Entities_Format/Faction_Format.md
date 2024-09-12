@@ -1,8 +1,10 @@
 # Faction Format
 
+This page tells you what you need to do to make your faction work. For help, tips and advices, read the [faction help](Faction_Help.md).
+
 ## Required data
 
-In order to make functional town you also need:
+In order to make functional town, you also need:
 
 ### Images
 
