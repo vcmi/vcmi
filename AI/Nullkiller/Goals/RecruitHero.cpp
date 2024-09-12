@@ -75,9 +75,6 @@ void RecruitHero::accept(AIGateway * ai)
 		ai->nullkiller->heroManager->update();
 		ai->nullkiller->objectClusterizer->reset();
 	}
-
-	if(t->visitingHero)
-		ai->moveHeroToTile(t->visitablePos(), t->visitingHero.get());
 }
 
 }
