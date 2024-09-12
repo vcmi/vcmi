@@ -46,4 +46,9 @@ struct ImageLocator
 	ImageLocator copyFile() const;
 	ImageLocator copyFileTransform() const;
 	ImageLocator copyFileTransformScale() const;
+
+	// generates string representation of this image locator
+	// guaranteed to be a valid file path with no extension
+	// but may contain '/' if source file is in directory
+	std::string toString() const;
 };

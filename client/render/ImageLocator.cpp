@@ -90,3 +90,37 @@ ImageLocator ImageLocator::copyFileTransformScale() const
 {
 	return *this; // full copy
 }
+
+std::string ImageLocator::toString() const
+{
+	std::string result;
+	if (empty())
+		return "invalid";
+
+	if (image)
+		result += image->getOriginalName();
+
+	if (defFile)
+	{
+		result += defFile->getOriginalName();
+		result += "-" + std::to_string(defGroup);
+		result += "-" + std::to_string(defFrame);
+	}
+
+	if (verticalFlip)
+		result += "-vflip";
+
+	if (horizontalFlip)
+		result += "-hflip";
+
+	if (scalingFactor > 1)
+		result += "-scale" + std::to_string(scalingFactor);
+
+	if (playerColored.isValidPlayer())
+		result += "-player" + playerColored.toString();
+
+	if (layer != EImageLayer::ALL)
+		result =+ "-layer" + std::to_string(static_cast<int>(layer));
+
+	return result;
+}
