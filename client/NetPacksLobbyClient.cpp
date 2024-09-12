@@ -33,6 +33,7 @@
 #include "widgets/TextControls.h"
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"
+#include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -210,7 +211,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && CCS->videoh->open(handler.si->campState->getIntroVideo(), 1))
 		{
 			CCS->musich->stopMusic();
-			GH.windows().createAndPushWindow<CampaignRimVideo>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
+			GH.windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
 				if(!CSH->si->campState->getMusic().empty())
 					CCS->musich->playMusic(CSH->si->campState->getMusic(), true, false);
 				GH.windows().pushWindow(bonusSel);

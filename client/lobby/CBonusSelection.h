@@ -34,22 +34,6 @@ class CBonusSelection;
 class CFilledTexture;
 
 
-class CampaignRimVideo : public CWindowObject
-{
-	std::shared_ptr<VideoWidgetOnce> videoPlayer;
-	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
-
-	std::function<void(bool)> closeCb;
-
-	void exit(bool skipped);
-public:
-	CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool)> closeCb);
-
-	void clickPressed(const Point & cursorPosition) override;
-	void keyPressed(EShortcut key) override;
-	bool receiveEvent(const Point & position, int eventType) const override;
-};
-
 /// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CWindowObject
 {
