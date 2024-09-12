@@ -59,8 +59,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 
-CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void()> closeCb)
-	: CWindowObject(BORDERED), closeCb(closeCb)
+CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool skipped)> closeCb)
+	: CWindowObject(BORDERED | NEEDS_ANIMATED_BACKGROUND), closeCb(closeCb)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -68,12 +68,12 @@ CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, bool showBack
 
 	if(!rim.empty())
 	{
-		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(false); });
 		pos = center(Rect(0, 0, 800, 600));
 	}
 	else
 	{
-		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, [this](){ exit(); });
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, [this](){ exit(false); });
 		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
 	}
 
@@ -84,21 +84,21 @@ CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, bool showBack
 		setBackground(rim);
 }
 
-void CampaignRimVideo::exit()
+void CampaignRimVideo::exit(bool skipped)
 {
 	close();
 	if(closeCb)
-		closeCb();
+		closeCb(skipped);
 }
 
 void CampaignRimVideo::clickPressed(const Point & cursorPosition)
 {
-	exit();
+	exit(true);
 }
 
 void CampaignRimVideo::keyPressed(EShortcut key)
 {
-	exit();
+	exit(true);
 }
 
 bool CampaignRimVideo::receiveEvent(const Point & position, int eventType) const

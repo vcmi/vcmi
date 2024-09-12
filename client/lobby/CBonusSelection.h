@@ -39,11 +39,11 @@ class CampaignRimVideo : public CWindowObject
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
 	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
 
-	std::function<void()> closeCb;
+	std::function<void(bool)> closeCb;
 
-	void exit();
+	void exit(bool skipped);
 public:
-	CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void()> closeCb);
+	CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool)> closeCb);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;

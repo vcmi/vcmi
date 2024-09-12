@@ -146,6 +146,8 @@ class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shar
 
 	CMainMenu(bool playVideoIntro); //Use CMainMenu::create
 
+	void playIntroVideos(bool playVideoIntro);
+
 public:
 	std::shared_ptr<CMenuScreen> menu;
 

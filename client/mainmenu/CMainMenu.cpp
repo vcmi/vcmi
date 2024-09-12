@@ -293,30 +293,42 @@ CMainMenu::CMainMenu(bool playVideoIntro)
 	OBJECT_CONSTRUCTION;
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 
-	if(playVideoIntro)
-	{
-		auto playVideo = [](std::string video, bool rim, float scaleFactor, std::function<void()> cb){
-			if(CCS->videoh->open(VideoPath::builtin(video), scaleFactor))
-				GH.windows().createAndPushWindow<CampaignRimVideo>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](){ cb(); });
-			else
-				cb();
-		};
-		playVideo("3DOLOGO.SMK", false, 1, [playVideo](){
-			playVideo("NWCLOGO.SMK", false, 2, [playVideo](){
-				playVideo("H3INTRO.SMK", true, 1, [](){
-					CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
-				});
-			});
-		});
-	}
-	else
-		CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
+	playIntroVideos(playVideoIntro);
 }
 
 CMainMenu::~CMainMenu()
 {
 	if(GH.curInt == this)
 		GH.curInt = nullptr;
+}
+
+void CMainMenu::playIntroVideos(bool playVideoIntro)
+{
+	auto playMusic = [](){ CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true); };
+	if(playVideoIntro)
+	{
+		auto playVideo = [](std::string video, bool rim, float scaleFactor, std::function<void(bool)> cb){
+			if(CCS->videoh->open(VideoPath::builtin(video), scaleFactor))
+				GH.windows().createAndPushWindow<CampaignRimVideo>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](bool skipped){ cb(skipped); });
+			else
+				cb(true);
+		};
+		playVideo("3DOLOGO.SMK", false, 1, [playVideo, playMusic](bool skipped){
+			if(!skipped)
+				playVideo("NWCLOGO.SMK", false, 2, [playVideo, playMusic](bool skipped){
+					if(!skipped)
+						playVideo("H3INTRO.SMK", true, 1, [playMusic](bool skipped){
+							playMusic();
+						});
+					else
+						playMusic();
+				});
+			else
+				playMusic();
+		});
+	}
+	else
+		playMusic();
 }
 
 void CMainMenu::activate()
