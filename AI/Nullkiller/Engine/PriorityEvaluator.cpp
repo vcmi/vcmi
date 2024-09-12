@@ -1441,7 +1441,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score += 1000;
 					auto resourcesAvailable = evaluationContext.evaluator.ai->getFreeResources();
 					auto income = ai->buildAnalyzer->getDailyIncome();
-					score /= evaluationContext.buildingCost.marketValue();
+					if(ai->buildAnalyzer->isGoldPressureHigh())
+						score /= evaluationContext.buildingCost.marketValue();
 					if (!resourcesAvailable.canAfford(evaluationContext.buildingCost))
 					{
 						TResources needed = evaluationContext.buildingCost - resourcesAvailable;
