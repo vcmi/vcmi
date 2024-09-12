@@ -33,14 +33,15 @@ class VideoWidgetOnce;
 class CBonusSelection;
 
 
-class CampaignIntroVideo : public CWindowObject
+class CampaignRimVideo : public CWindowObject
 {
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
-	std::shared_ptr<CBonusSelection> bonusSel;
+
+	std::function<void()> closeCb;
 
 	void exit();
 public:
-	CampaignIntroVideo(VideoPath video, ImagePath rim, std::shared_ptr<CBonusSelection> bonusSel);
+	CampaignRimVideo(VideoPath video, ImagePath rim, std::function<void()> closeCb);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
