@@ -56,7 +56,7 @@ BattleLayout BattleLayout::createLayout(IGameCallback * cb, const std::string & 
 		result.warMachines[BattleSide::ATTACKER][i] = loadHex(config["attackerWarMachines"][i]);
 
 	for (size_t i = 0; i < 4; ++i)
-		result.warMachines[BattleSide::DEFENDER][i] = loadHex(config["attackerWarMachines"][i]);
+		result.warMachines[BattleSide::DEFENDER][i] = loadHex(config["defenderWarMachines"][i]);
 
 	if (attacker->formation == EArmyFormation::LOOSE && !config["attackerUnitsLoose"].isNull())
 		result.units[BattleSide::ATTACKER] = loadUnits(config["attackerUnitsLoose"][attacker->stacksCount() - 1]);
