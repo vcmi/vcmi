@@ -43,7 +43,7 @@ class CampaignRimVideo : public CWindowObject
 
 	void exit();
 public:
-	CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, std::function<void()> closeCb);
+	CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void()> closeCb);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;

@@ -59,7 +59,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 
-CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, std::function<void()> closeCb)
+CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void()> closeCb)
 	: CWindowObject(BORDERED), closeCb(closeCb)
 {
 	OBJECT_CONSTRUCTION;
@@ -73,8 +73,8 @@ CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, bool showBack
 	}
 	else
 	{
-		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, [this](){ exit(); });
-		pos = center(Rect(0, 0, videoPlayer->size().x, videoPlayer->size().y));
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, [this](){ exit(); });
+		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
 	}
 
 	if(showBackground)

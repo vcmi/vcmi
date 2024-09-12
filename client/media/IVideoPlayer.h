@@ -42,7 +42,7 @@ public:
 	virtual void playSpellbookAnimation(const VideoPath & name, const Point & position) = 0;
 
 	/// Load video from specified path. Returns nullptr on failure
-	virtual std::unique_ptr<IVideoInstance> open(const VideoPath & name, const Point & scale) = 0;
+	virtual std::unique_ptr<IVideoInstance> open(const VideoPath & name, float scaleFactor) = 0;
 
 	/// Extracts audio data from provided video in wav format
 	virtual std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) = 0;

@@ -22,6 +22,7 @@ class VideoWidgetBase : public CIntObject
 	std::pair<std::unique_ptr<ui8[]>, si64> audioData = {nullptr, 0};
 	int audioHandle = -1;
 	bool playAudio = false;
+	float scaleFactor = 1.0;
 
 	void loadAudio(const VideoPath & file);
 	void startAudio();
@@ -29,6 +30,7 @@ class VideoWidgetBase : public CIntObject
 
 protected:
 	VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio);
+	VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor);
 
 	virtual void onPlaybackFinished() = 0;
 	void playVideo(const VideoPath & video);
@@ -41,8 +43,6 @@ public:
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
-
-	Point size();
 
 	void setPlaybackFinishedCallback(std::function<void()>);
 };
@@ -64,4 +64,5 @@ class VideoWidgetOnce final: public VideoWidgetBase
 	void onPlaybackFinished() final;
 public:
 	VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, const std::function<void()> & callback);
+	VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor, const std::function<void()> & callback);
 };

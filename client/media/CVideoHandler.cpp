@@ -173,18 +173,10 @@ void CVideoInstance::openVideo()
 	openCodec(findVideoStream());
 }
 
-void CVideoInstance::prepareOutput(Point scale, bool useTextureOutput)
+void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
 {
 	//setup scaling
-	if(scale.x > 0 && scale.y > 0)
-	{
-		dimensions.x = scale.x * GH.screenHandler().getScalingFactor();
-		dimensions.y = scale.y * GH.screenHandler().getScalingFactor();
-	}
-	else
-	{
-		dimensions = Point(getCodecContext()->width, getCodecContext()->height) * GH.screenHandler().getScalingFactor();
-	}
+	dimensions = Point(getCodecContext()->width * scaleFactor, getCodecContext()->height * scaleFactor) * GH.screenHandler().getScalingFactor();
 
 	// Allocate a place to put our YUV image on that screen
 	if (useTextureOutput)
@@ -352,10 +344,7 @@ FFMpegStream::~FFMpegStream()
 
 Point CVideoInstance::size()
 {
-	if(!getCurrentFrame())
-		throw std::runtime_error("Invalid video frame!");
-
-	return Point(getCurrentFrame()->width, getCurrentFrame()->height);
+	return dimensions;
 }
 
 void CVideoInstance::show(const Point & position, Canvas & canvas)
@@ -587,7 +576,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		return true;
 
 	instance.openVideo();
-	instance.prepareOutput(Point(0, 0), true);
+	instance.prepareOutput(1, true);
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
 
@@ -638,7 +627,7 @@ void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & 
 	openAndPlayVideoImpl(name, position * GH.screenHandler().getScalingFactor(), false, false);
 }
 
-std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, const Point & scale)
+std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float scaleFactor)
 {
 	auto result = std::make_unique<CVideoInstance>();
 
@@ -646,7 +635,7 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, const
 		return nullptr;
 
 	result->openVideo();
-	result->prepareOutput(scale, false);
+	result->prepareOutput(scaleFactor, false);
 	result->loadNextFrame(); // prepare 1st frame
 
 	return result;

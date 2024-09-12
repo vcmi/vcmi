@@ -19,7 +19,7 @@ public:
 	}
 
 	/// Load video from specified path
-	std::unique_ptr<IVideoInstance> open(const VideoPath & name, const Point & scale) override
+	std::unique_ptr<IVideoInstance> open(const VideoPath & name, float scaleFactor) override
 	{
 		return nullptr;
 	};

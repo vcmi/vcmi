@@ -708,10 +708,10 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		else
 		{
 			CMM->openCampaignScreen(ourCampaign->campaignSet);
-			if(!ourCampaign->getOutroVideo().empty() && CCS->videoh->open(ourCampaign->getOutroVideo(), Point(0, 0)))
+			if(!ourCampaign->getOutroVideo().empty() && CCS->videoh->open(ourCampaign->getOutroVideo(), 1))
 			{
 				CCS->musich->stopMusic();
-				GH.windows().createAndPushWindow<CampaignRimVideo>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), false, [campaignScoreCalculator, statistic](){
+				GH.windows().createAndPushWindow<CampaignRimVideo>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), false, 1, [campaignScoreCalculator, statistic](){
 					GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 				});
 			}

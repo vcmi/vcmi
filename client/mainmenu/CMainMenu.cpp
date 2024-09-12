@@ -295,15 +295,19 @@ CMainMenu::CMainMenu(bool playVideoIntro)
 
 	if(playVideoIntro)
 	{
-		auto playVideo = [](std::string video, bool rim, std::function<void()> cb){
-			if(CCS->videoh->open(VideoPath::builtin(video), Point(0, 0)))
-				GH.windows().createAndPushWindow<CampaignRimVideo>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, [cb](){ cb(); });
+		auto playVideo = [](std::string video, bool rim, float scaleFactor, std::function<void()> cb){
+			if(CCS->videoh->open(VideoPath::builtin(video), scaleFactor))
+				GH.windows().createAndPushWindow<CampaignRimVideo>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](){ cb(); });
 			else
 				cb();
 		};
-		playVideo("3DOLOGO.SMK", false, [playVideo](){ playVideo("NWCLOGO.SMK", false, [playVideo](){ playVideo("H3INTRO.SMK", true, [](){
-			CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
-		}); }); });
+		playVideo("3DOLOGO.SMK", false, 1, [playVideo](){
+			playVideo("NWCLOGO.SMK", false, 2, [playVideo](){
+				playVideo("H3INTRO.SMK", true, 1, [](){
+					CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
+				});
+			});
+		});
 	}
 	else
 		CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
