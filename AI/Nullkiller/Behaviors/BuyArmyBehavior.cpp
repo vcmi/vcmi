@@ -39,11 +39,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 
 	for(auto town : cb->getTownsInfo())
 	{
-		uint8_t closestThreat = UINT8_MAX;
-		for (auto threat : ai->dangerHitMap->getTownThreats(town))
-		{
-			closestThreat = std::min(closestThreat, threat.turn);
-		}
+		uint8_t closestThreat = ai->dangerHitMap->getTileThreat(town->visitablePos()).fastestDanger.turn;
 
 		if (closestThreat >=2 && ai->buildAnalyzer->isGoldPressureHigh() && !town->hasBuilt(BuildingID::CITY_HALL) && cb->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
 		{
