@@ -1631,6 +1631,8 @@ VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, fl
 
 	if(!rim.empty())
 		setBackground(rim);
+	
+	updateShadow();
 }
 
 void VideoWindow::exit(bool skipped)
