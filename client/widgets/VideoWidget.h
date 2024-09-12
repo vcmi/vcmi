@@ -42,6 +42,8 @@ public:
 	void showAll(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 
+	Point size();
+
 	void setPlaybackFinishedCallback(std::function<void()>);
 };
 

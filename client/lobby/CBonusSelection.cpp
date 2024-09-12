@@ -59,17 +59,29 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 
-CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, std::function<void()> closeCb)
+CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, bool showBackground, std::function<void()> closeCb)
 	: CWindowObject(BORDERED), closeCb(closeCb)
 {
 	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(LCLICK | KEYBOARD);
 
-	pos = center(Rect(0, 0, 800, 600));
+	if(!rim.empty())
+	{
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
+		pos = center(Rect(0, 0, 800, 600));
+	}
+	else
+	{
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, [this](){ exit(); });
+		pos = center(Rect(0, 0, videoPlayer->size().x, videoPlayer->size().y));
+	}
 
-	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
-	setBackground(rim);
+	if(showBackground)
+		backgroundAroundWindow = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
+
+	if(!rim.empty())
+		setBackground(rim);
 }
 
 void CampaignRimVideo::exit()
@@ -87,6 +99,11 @@ void CampaignRimVideo::clickPressed(const Point & cursorPosition)
 void CampaignRimVideo::keyPressed(EShortcut key)
 {
 	exit();
+}
+
+bool CampaignRimVideo::receiveEvent(const Point & position, int eventType) const
+{
+	return true;  // capture click also outside of window
 }
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()

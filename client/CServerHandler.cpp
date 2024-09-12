@@ -664,7 +664,7 @@ void CServerHandler::endGameplay()
 	}
 	else
 	{
-		GH.curInt = CMainMenu::create().get();
+		GH.curInt = CMainMenu::create(false).get();
 	}
 }
 
@@ -708,10 +708,10 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		else
 		{
 			CMM->openCampaignScreen(ourCampaign->campaignSet);
-			if(!ourCampaign->getOutroVideo().empty() && CCS->videoh->open(ourCampaign->getOutroVideo(), false))
+			if(!ourCampaign->getOutroVideo().empty() && CCS->videoh->open(ourCampaign->getOutroVideo(), Point(0, 0)))
 			{
 				CCS->musich->stopMusic();
-				GH.windows().createAndPushWindow<CampaignRimVideo>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), [campaignScoreCalculator, statistic](){
+				GH.windows().createAndPushWindow<CampaignRimVideo>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), false, [campaignScoreCalculator, statistic](){
 					GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 				});
 			}

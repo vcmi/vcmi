@@ -14,18 +14,12 @@
 class CEmptyVideoPlayer final : public IVideoPlayer
 {
 public:
-	/// Plays video on top of the screen, returns only after playback is over
-	bool playIntroVideo(const VideoPath & name) override
-	{
-		return false;
-	};
-
 	void playSpellbookAnimation(const VideoPath & name, const Point & position) override
 	{
 	}
 
 	/// Load video from specified path
-	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) override
+	std::unique_ptr<IVideoInstance> open(const VideoPath & name, const Point & scale) override
 	{
 		return nullptr;
 	};

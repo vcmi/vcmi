@@ -28,7 +28,7 @@ VideoWidgetBase::~VideoWidgetBase() = default;
 
 void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 {
-	videoInstance = CCS->videoh->open(fileToPlay, false);
+	videoInstance = CCS->videoh->open(fileToPlay, Point(0, 0));
 	if (videoInstance)
 	{
 		pos.w = videoInstance->size().x;
@@ -117,6 +117,11 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 			onPlaybackFinished();
 		}
 	}
+}
+
+Point VideoWidgetBase::size()
+{
+	return videoInstance->size();
 }
 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)

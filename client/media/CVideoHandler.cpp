@@ -173,13 +173,13 @@ void CVideoInstance::openVideo()
 	openCodec(findVideoStream());
 }
 
-void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput)
+void CVideoInstance::prepareOutput(Point scale, bool useTextureOutput)
 {
 	//setup scaling
-	if(scaleToScreenSize)
+	if(scale.x > 0 && scale.y > 0)
 	{
-		dimensions.x = screen->w;
-		dimensions.y = screen->h;
+		dimensions.x = scale.x * GH.screenHandler().getScalingFactor();
+		dimensions.y = scale.y * GH.screenHandler().getScalingFactor();
 	}
 	else
 	{
@@ -575,7 +575,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey)
+bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool stopOnKey)
 {
 	CVideoInstance instance;
 	CAudioInstance audio;
@@ -587,7 +587,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		return true;
 
 	instance.openVideo();
-	instance.prepareOutput(scale, true);
+	instance.prepareOutput(Point(0, 0), true);
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
 
@@ -633,17 +633,12 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	return true;
 }
 
-bool CVideoPlayer::playIntroVideo(const VideoPath & name)
-{
-	return openAndPlayVideoImpl(name, Point(0, 0), true, true, true);
-}
-
 void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
 {
-	openAndPlayVideoImpl(name, position * GH.screenHandler().getScalingFactor(), false, false, false);
+	openAndPlayVideoImpl(name, position * GH.screenHandler().getScalingFactor(), false, false);
 }
 
-std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool scaleToScreen)
+std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, const Point & scale)
 {
 	auto result = std::make_unique<CVideoInstance>();
 
@@ -651,7 +646,7 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool 
 		return nullptr;
 
 	result->openVideo();
-	result->prepareOutput(scaleToScreen, false);
+	result->prepareOutput(scale, false);
 	result->loadNextFrame(); // prepare 1st frame
 
 	return result;

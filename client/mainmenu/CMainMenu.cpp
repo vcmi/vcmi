@@ -18,6 +18,7 @@
 #include "../lobby/CSelectionBase.h"
 #include "../lobby/CLobbyScreen.h"
 #include "../media/IMusicPlayer.h"
+#include "../media/IVideoPlayer.h"
 #include "../gui/CursorHandler.h"
 #include "../windows/GUIClasses.h"
 #include "../gui/CGuiHandler.h"
@@ -117,7 +118,6 @@ void CMenuScreen::show(Canvas & to)
 
 void CMenuScreen::activate()
 {
-	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
 	CIntObject::activate();
 }
 
@@ -284,7 +284,7 @@ const JsonNode & CMainMenuConfig::getCampaigns() const
 	return campaignSets;
 }
 
-CMainMenu::CMainMenu()
+CMainMenu::CMainMenu(bool playVideoIntro)
 {
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
@@ -292,6 +292,21 @@ CMainMenu::CMainMenu()
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
 	OBJECT_CONSTRUCTION;
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
+
+	if(playVideoIntro)
+	{
+		auto playVideo = [](std::string video, bool rim, std::function<void()> cb){
+			if(CCS->videoh->open(VideoPath::builtin(video), Point(0, 0)))
+				GH.windows().createAndPushWindow<CampaignRimVideo>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, [cb](){ cb(); });
+			else
+				cb();
+		};
+		playVideo("3DOLOGO.SMK", false, [playVideo](){ playVideo("NWCLOGO.SMK", false, [playVideo](){ playVideo("H3INTRO.SMK", true, [](){
+			CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
+		}); }); });
+	}
+	else
+		CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
 }
 
 CMainMenu::~CMainMenu()
@@ -418,10 +433,10 @@ void CMainMenu::openHighScoreScreen()
 	return;
 }
 
-std::shared_ptr<CMainMenu> CMainMenu::create()
+std::shared_ptr<CMainMenu> CMainMenu::create(bool playVideoIntro)
 {
 	if(!CMM)
-		CMM = std::shared_ptr<CMainMenu>(new CMainMenu());
+		CMM = std::shared_ptr<CMainMenu>(new CMainMenu(playVideoIntro));
 
 	return CMM;
 }
