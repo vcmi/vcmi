@@ -146,7 +146,6 @@ class WindowBase : public CIntObject
 {
 public:
 	WindowBase(int used_ = 0, Point pos_ = Point());
-protected:
 	virtual void close();
 };
 
