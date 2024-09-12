@@ -46,7 +46,6 @@ class RenderHandler : public IRenderHandler
 
 	int getScalingFactor() const;
 
-	std::shared_ptr<IImage> createImageReference(const ImageLocator & locator, std::shared_ptr<ISharedImage> input, EImageBlitMode mode);
 public:
 
 	// IRenderHandler implementation

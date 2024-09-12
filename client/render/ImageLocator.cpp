@@ -70,6 +70,7 @@ bool ImageLocator::empty() const
 ImageLocator ImageLocator::copyFile() const
 {
 	ImageLocator result;
+	result.scalingFactor = 1;
 	result.image = image;
 	result.defFile = defFile;
 	result.defFrame = defFrame;

@@ -136,14 +136,6 @@ int RenderHandler::getScalingFactor() const
 	return GH.screenHandler().getScalingFactor();
 }
 
-std::shared_ptr<IImage> RenderHandler::createImageReference(const ImageLocator & locator, std::shared_ptr<ISharedImage> input, EImageBlitMode mode)
-{
-	if (getScalingFactor() == 1 || locator.scalingFactor != 1 || locator.empty())
-		return input->createImageReference(mode);
-	else
-		return std::make_shared<ImageScaled>(locator, input, mode);
-}
-
 ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group)
 {
 	const auto & layout = getAnimationLayout(path);
@@ -248,23 +240,46 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator, EImageBlitMode mode)
 {
-	return createImageReference(locator, loadImageImpl(locator), mode);
+	if (locator.scalingFactor == 0 && getScalingFactor() != 1 )
+	{
+		auto unscaledLocator = locator;
+		auto scaledLocator = locator;
+
+		unscaledLocator.scalingFactor = 1;
+		scaledLocator.scalingFactor = getScalingFactor();
+		auto unscaledImage = loadImageImpl(unscaledLocator);
+
+		return std::make_shared<ImageScaled>(scaledLocator, unscaledImage, mode);
+	}
+
+	if (locator.scalingFactor == 0)
+	{
+		auto scaledLocator = locator;
+		scaledLocator.scalingFactor = getScalingFactor();
+
+		return loadImageImpl(scaledLocator)->createImageReference(mode);
+	}
+	else
+	{
+		return loadImageImpl(locator)->createImageReference(mode);
+	}
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int frame, int group, EImageBlitMode mode)
 {
-	auto locator = getLocatorForAnimationFrame(path, frame, group);
+	ImageLocator locator = getLocatorForAnimationFrame(path, frame, group);
 	return loadImage(locator, mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
-	return loadImage(ImageLocator(path), mode);
+	ImageLocator locator(path);
+	return loadImage(locator, mode);
 }
 
 std::shared_ptr<IImage> RenderHandler::createImage(SDL_Surface * source)
 {
-	return createImageReference(ImageLocator(), std::make_shared<SDLImageShared>(source), EImageBlitMode::ALPHA);
+	return std::make_shared<SDLImageShared>(source)->createImageReference(EImageBlitMode::ALPHA);
 }
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)
