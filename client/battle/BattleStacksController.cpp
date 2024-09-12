@@ -27,6 +27,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
+#include "../render/AssetGenerator.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
@@ -79,24 +80,12 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	stackToActivate(nullptr),
 	animIDhelper(0)
 {
+	AssetGenerator::createCombatUnitNumberWindow();
 	//preparing graphics for displaying amounts of creatures
-	amountNormal     = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountPositive   = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountNegative   = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountEffNeutral = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-
-	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
-	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
-	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
-	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
-
-	// do not change border color
-	static const int32_t ignoredMask = 1 << 26;
-
-	amountNormal->adjustPalette(shifterNormal, ignoredMask);
-	amountPositive->adjustPalette(shifterPositive, ignoredMask);
-	amountNegative->adjustPalette(shifterNegative, ignoredMask);
-	amountEffNeutral->adjustPalette(shifterNeutral, ignoredMask);
+	amountNormal     = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowDefault"), EImageBlitMode::COLORKEY);
+	amountPositive   = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowPositive"), EImageBlitMode::COLORKEY);
+	amountNegative   = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNegative"), EImageBlitMode::COLORKEY);
+	amountEffNeutral = GH.renderHandler().loadImage(ImagePath::builtin("combatUnitNumberWindowNeutral"), EImageBlitMode::COLORKEY);
 
 	std::vector<const CStack*> stacks = owner.getBattle()->battleGetAllStacks(true);
 	for(const CStack * s : stacks)

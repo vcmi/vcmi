@@ -20,4 +20,5 @@ public:
 	static void createAdventureOptionsCleanBackground();
 	static void createBigSpellBook();
 	static void createPlayerColoredBackground(const PlayerColor & player);
+	static void createCombatUnitNumberWindow();
 };

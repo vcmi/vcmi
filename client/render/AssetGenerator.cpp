@@ -159,3 +159,44 @@ void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
 	texture->adjustPalette(filters[player.getNum()], 0);
 	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
+
+void AssetGenerator::createCombatUnitNumberWindow()
+{
+	std::string filenameToSave = "data/combatUnitNumberWindow";
+
+	ResourcePath savePathDefault(filenameToSave + "Default.png", EResType::IMAGE);
+	ResourcePath savePathNeutral(filenameToSave + "Neutral.png", EResType::IMAGE);
+	ResourcePath savePathPositive(filenameToSave + "Positive.png", EResType::IMAGE);
+	ResourcePath savePathNegative(filenameToSave + "Negative.png", EResType::IMAGE);
+
+	if(CResourceHandler::get()->existsResource(savePathDefault)) // overridden by mod, no generation
+		return;
+
+	if(!CResourceHandler::get("local")->createResource(savePathDefault.getOriginalName() + ".png") ||
+	   !CResourceHandler::get("local")->createResource(savePathNeutral.getOriginalName() + ".png") ||
+	   !CResourceHandler::get("local")->createResource(savePathPositive.getOriginalName() + ".png") ||
+	   !CResourceHandler::get("local")->createResource(savePathNegative.getOriginalName() + ".png"))
+		return;
+
+	auto locator = ImageLocator(ImagePath::builtin("CMNUMWIN"));
+	locator.scalingFactor = 1;
+
+	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+
+	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
+	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
+	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
+	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
+
+	// do not change border color
+	static const int32_t ignoredMask = 1 << 26;
+
+	texture->adjustPalette(shifterNormal, ignoredMask);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathDefault));
+	texture->adjustPalette(shifterPositive, ignoredMask);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathPositive));
+	texture->adjustPalette(shifterNegative, ignoredMask);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathNegative));
+	texture->adjustPalette(shifterNeutral, ignoredMask);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathNeutral));
+}
