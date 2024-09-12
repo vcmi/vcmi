@@ -31,7 +31,6 @@ class ISelectionScreenInfo;
 class ExtraOptionsTab;
 class VideoWidgetOnce;
 class CBonusSelection;
-class CFilledTexture;
 
 
 /// Campaign screen where you can choose one out of three starting bonuses

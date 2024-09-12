@@ -344,7 +344,7 @@ FFMpegStream::~FFMpegStream()
 
 Point CVideoInstance::size()
 {
-	return dimensions;
+	return dimensions / GH.screenHandler().getScalingFactor();
 }
 
 void CVideoInstance::show(const Point & position, Canvas & canvas)

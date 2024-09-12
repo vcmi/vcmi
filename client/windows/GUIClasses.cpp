@@ -1609,7 +1609,7 @@ void CObjectListWindow::keyPressed(EShortcut key)
 }
 
 VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool skipped)> closeCb)
-	: CWindowObject(BORDERED | NEEDS_ANIMATED_BACKGROUND), closeCb(closeCb)
+	: CWindowObject(BORDERED | SHADOW_DISABLED | NEEDS_ANIMATED_BACKGROUND), closeCb(closeCb)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -1631,8 +1631,6 @@ VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, fl
 
 	if(!rim.empty())
 		setBackground(rim);
-	
-	updateShadow();
 }
 
 void VideoWindow::exit(bool skipped)
