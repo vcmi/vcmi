@@ -566,16 +566,19 @@ std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNo
 std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CFilledTexture");
-	auto image = ImagePath::fromJson(config["image"]);
 	auto rect = readRect(config["rect"]);
 	auto playerColor = readPlayerColor(config["color"]);
 	if(playerColor.isValidPlayer())
 	{
-		auto result = std::make_shared<FilledTexturePlayerColored>(image, rect);
+		auto result = std::make_shared<FilledTexturePlayerColored>(rect);
 		result->setPlayerColor(playerColor);
 		return result;
 	}
-	return std::make_shared<CFilledTexture>(image, rect);
+	else
+	{
+		auto image = ImagePath::fromJson(config["image"]);
+		return std::make_shared<CFilledTexture>(image, rect);
+	}
 }
 
 std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonNode & config)

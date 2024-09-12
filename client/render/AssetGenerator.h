@@ -9,10 +9,15 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+class PlayerColor;
+VCMI_LIB_NAMESPACE_END
+
 class AssetGenerator
 {
 public:
-    static void generateAll();
-    static void createAdventureOptionsCleanBackground();
-    static void createBigSpellBook();
+	static void generateAll();
+	static void createAdventureOptionsCleanBackground();
+	static void createBigSpellBook();
+	static void createPlayerColoredBackground(const PlayerColor & player);
 };

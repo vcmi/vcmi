@@ -22,6 +22,7 @@
 
 #include <tbb/parallel_for.h>
 #include <SDL_surface.h>
+#include <SDL_image.h>
 
 class SDLImageLoader;
 
@@ -327,9 +328,13 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Pa
 	return ret;
 }
 
-void SDLImageShared::exportBitmap(const boost::filesystem::path& path) const
+void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palette * palette) const
 {
-	SDL_SaveBMP(surf, path.string().c_str());
+	if (palette && surf->format->palette)
+		SDL_SetSurfacePalette(surf, palette);
+	IMG_SavePNG(surf, path.string().c_str());
+	if (palette && surf->format->palette)
+		SDL_SetSurfacePalette(surf, originalPalette);
 }
 
 void SDLImageIndexed::playerColored(PlayerColor player)
@@ -532,6 +537,11 @@ void SDLImageIndexed::draw(SDL_Surface * where, const Point & pos, const Rect * 
 	image->draw(where, currentPalette, pos, src, Colors::WHITE_TRUE, alphaValue, blitMode);
 }
 
+void SDLImageIndexed::exportBitmap(const boost::filesystem::path & path) const
+{
+	image->exportBitmap(path, currentPalette);
+}
+
 void SDLImageIndexed::scaleTo(const Point & size)
 {
 	image = image->scaleTo(size, currentPalette);
@@ -552,9 +562,9 @@ void SDLImageRGB::scaleInteger(int factor)
 	image = image->scaleInteger(factor, nullptr);
 }
 
-void SDLImageBase::exportBitmap(const boost::filesystem::path & path) const
+void SDLImageRGB::exportBitmap(const boost::filesystem::path & path) const
 {
-	image->exportBitmap(path);
+	image->exportBitmap(path, nullptr);
 }
 
 bool SDLImageBase::isTransparent(const Point & coords) const

@@ -51,7 +51,7 @@ void ImageScaled::scaleTo(const Point & size)
 
 void ImageScaled::exportBitmap(const boost::filesystem::path &path) const
 {
-	source->exportBitmap(path);
+	source->exportBitmap(path, nullptr);
 }
 
 bool ImageScaled::isTransparent(const Point &coords) const

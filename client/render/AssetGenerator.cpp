@@ -14,6 +14,7 @@
 #include "../render/IImage.h"
 #include "../render/IImageLoader.h"
 #include "../render/Canvas.h"
+#include "../render/ColorFilter.h"
 #include "../render/IRenderHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
@@ -22,11 +23,13 @@ void AssetGenerator::generateAll()
 {
 	createBigSpellBook();
 	createAdventureOptionsCleanBackground();
+	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+		createPlayerColoredBackground(PlayerColor(i));
 }
 
 void AssetGenerator::createAdventureOptionsCleanBackground()
 {
-	std::string filename = "data/AdventureOptionsBackgroundClear.bmp";
+	std::string filename = "data/AdventureOptionsBackgroundClear.png";
 
 	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
 		return;
@@ -56,7 +59,7 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 
 void AssetGenerator::createBigSpellBook()
 {
-	std::string filename = "data/SpellBookLarge.bmp";
+	std::string filename = "data/SpellBookLarge.png";
 
 	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
 		return;
@@ -115,4 +118,44 @@ void AssetGenerator::createBigSpellBook()
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+}
+
+void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
+{
+	std::string filename = "data/DialogBoxBackground_" + player.toString() + ".png";
+
+	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
+		return;
+
+	if(!CResourceHandler::get("local")->createResource(filename))
+		return;
+
+	ResourcePath savePath(filename, EResType::IMAGE);
+
+	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"));
+	locator.scalingFactor = 1;
+
+	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+
+	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
+		ColorFilter::genRangeShifter(  0.25,  0,     0,     1.25, 0.00, 0.00 ), // red
+		ColorFilter::genRangeShifter(  0,     0,     0,     0.45, 1.20, 4.50 ), // blue
+		ColorFilter::genRangeShifter(  0.40,  0.27,  0.23,  1.10, 1.20, 1.15 ), // tan
+		ColorFilter::genRangeShifter( -0.27,  0.10, -0.27,  0.70, 1.70, 0.70 ), // green
+		ColorFilter::genRangeShifter(  0.47,  0.17, -0.27,  1.60, 1.20, 0.70 ), // orange
+		ColorFilter::genRangeShifter(  0.12, -0.1,   0.25,  1.15, 1.20, 2.20 ), // purple
+		ColorFilter::genRangeShifter( -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ), // teal
+		ColorFilter::genRangeShifter(  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 )  // pink
+	};
+
+	assert(player.isValidPlayer());
+	if (!player.isValidPlayer())
+	{
+		logGlobal->error("Unable to colorize to invalid player color %d!", static_cast<int>(player.getNum()));
+		return;
+	}
+
+	texture->adjustPalette(filters[player.getNum()], 0);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
 }
