@@ -50,6 +50,15 @@ ObjectInfo & ObjectInfo::operator=(const ObjectInfo & other)
 	return *this;
 }
 
+void ObjectInfo::setAllTemplates(MapObjectID type, MapObjectSubID subtype)
+{
+	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
+	if(!templHandler)
+		return;
+	
+	templates = templHandler->getTemplates();
+}
+
 void ObjectInfo::setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrainType)
 {
 	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
@@ -66,6 +75,20 @@ void ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
 	bannedObjects.push_back(objid);
 
 	logGlobal->info("Banned object of type %d.%d", objid.primaryID, objid.secondaryID);
+}
+
+void ObjectConfig::addCustomObject(const ObjectInfo & object, const CompoundMapObjectID & objid)
+{
+	// FIXME: Need id / subId
+
+	// FIXME: Add templates and possibly other info
+	customObjects.push_back(object);
+	auto & lastObject = customObjects.back();
+	lastObject.setAllTemplates(objid.primaryID, objid.secondaryID);
+
+	assert(lastObject.templates.size() > 0);
+	auto temp = lastObject.templates.front();
+	logGlobal->info("Added custom object of type %d.%d", temp->id, temp->subid);
 }
 
 void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
@@ -87,73 +110,105 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 		(EObjectCategory::QUEST_ARTIFACT, "questArtifact")
 		(EObjectCategory::SEER_HUT, "seerHut");
 
-	auto categories = handler.enterArray("bannedCategories");
-	if (handler.saving)
-	{
-		for (const auto& category : bannedObjectCategories)
-		{
-			auto str = OBJECT_CATEGORY_STRINGS.left.at(category);
-			categories.serializeString(categories.size(), str);
-		}
-	}
-	else
-	{
-		std::vector<std::string> categoryNames;
-		categories.serializeArray(categoryNames);
 
-		for (const auto & categoryName : categoryNames)
+	// TODO: Separate into individual methods to enforce RAII destruction?
+	{
+		auto categories = handler.enterArray("bannedCategories");
+		if (handler.saving)
 		{
-			auto it = OBJECT_CATEGORY_STRINGS.right.find(categoryName);
-			if (it != OBJECT_CATEGORY_STRINGS.right.end())
+			for (const auto& category : bannedObjectCategories)
 			{
-				bannedObjectCategories.push_back(it->second);
+				auto str = OBJECT_CATEGORY_STRINGS.left.at(category);
+				categories.serializeString(categories.size(), str);
 			}
 		}
-	}
-	
-	auto bannedObjectData = handler.enterArray("bannedObjects");	
-	if (handler.saving)
-	{
-
-		// FIXME: Do we even need to serialize / store banned objects?
-		/*
-		for (const auto & object : bannedObjects)
+		else
 		{
-			// TODO: Translate id back to string?
+			std::vector<std::string> categoryNames;
+			categories.serializeArray(categoryNames);
 
-
-			JsonNode node;
-			node.String() = VLC->objtypeh->getHandlerFor(object.primaryID, object.secondaryID);
-			// TODO: Check if AI-generated code is right
-
-
-		}
-		// handler.serializeRaw("bannedObjects", node, std::nullopt);
-
-		*/
-	}
-	else
-	{
-		/*
-			auto zonesData = handler.enterStruct("zones");
-			for(const auto & idAndZone : zonesData->getCurrent().Struct())
+			for (const auto & categoryName : categoryNames)
 			{
-				auto guard = handler.enterStruct(idAndZone.first);
-				auto zone = std::make_shared<ZoneOptions>();
-				zone->setId(decodeZoneId(idAndZone.first));
-				zone->serializeJson(handler);
-				zones[zone->getId()] = zone;
-			}
-		*/
-		std::vector<std::string> objectNames;
-		bannedObjectData.serializeArray(objectNames);
-
-		for (const auto & objectName : objectNames)
-		{
-			VLC->objtypeh->resolveObjectCompoundId(objectName,
-				[this](CompoundMapObjectID objid)
+				auto it = OBJECT_CATEGORY_STRINGS.right.find(categoryName);
+				if (it != OBJECT_CATEGORY_STRINGS.right.end())
 				{
-					addBannedObject(objid);
+					bannedObjectCategories.push_back(it->second);
+				}
+			}
+		}
+	}
+
+	// FIXME: Doesn't seem to use this field at all
+	
+	{
+		auto bannedObjectData = handler.enterArray("bannedObjects");	
+		if (handler.saving)
+		{
+
+			// FIXME: Do we even need to serialize / store banned objects?
+			/*
+			for (const auto & object : bannedObjects)
+			{
+				// TODO: Translate id back to string?
+
+
+				JsonNode node;
+				node.String() = VLC->objtypeh->getHandlerFor(object.primaryID, object.secondaryID);
+				// TODO: Check if AI-generated code is right
+
+
+			}
+			// handler.serializeRaw("bannedObjects", node, std::nullopt);
+
+			*/
+		}
+		else
+		{
+			std::vector<std::string> objectNames;
+			bannedObjectData.serializeArray(objectNames);
+
+			for (const auto & objectName : objectNames)
+			{
+				VLC->objtypeh->resolveObjectCompoundId(objectName,
+					[this](CompoundMapObjectID objid)
+					{
+						addBannedObject(objid);
+					}
+				);
+				
+			}
+		}
+	}
+
+	auto commonObjectData = handler.getCurrent()["commonObjects"].Vector();	
+	if (handler.saving)
+	{
+
+		//TODO?
+	}
+	else
+	{
+		for (const auto & objectConfig : commonObjectData)
+		{
+			auto objectName = objectConfig["id"].String();
+			auto rmg = objectConfig["rmg"].Struct();
+
+			// TODO: Use common code with default rmg config
+			auto objectValue = rmg["value"].Integer();
+			auto objectProbability = rmg["rarity"].Integer();
+			auto objectMaxPerZone = rmg["zoneLimit"].Integer();
+
+			VLC->objtypeh->resolveObjectCompoundId(objectName,
+				[this, objectValue, objectProbability, objectMaxPerZone](CompoundMapObjectID objid)
+				{
+					ObjectInfo object;
+					
+					// TODO: Configure basic generateObject function
+
+					object.value = objectValue;
+					object.probability = objectProbability;
+					object.maxPerZone = objectMaxPerZone;
+					addCustomObject(object, objid);
 				}
 			);
 			

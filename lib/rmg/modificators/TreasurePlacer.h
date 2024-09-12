@@ -34,6 +34,7 @@ public:
 	
 	void createTreasures(ObjectManager & manager);
 	void addObjectToRandomPool(const ObjectInfo& oi);
+	void setBasicProperties(ObjectInfo & oi, CompoundMapObjectID objid) const;
 
 	// TODO: Can be defaulted to addAllPossibleObjects, but then each object will need to be configured
 	void addCommonObjects();
@@ -69,7 +70,7 @@ protected:
 		void addObject(const ObjectInfo & info);
 		void updateObject(MapObjectID id, MapObjectSubID subid, ObjectInfo info);
 		std::vector<ObjectInfo> & getPossibleObjects();
-		void patchWithZoneConfig(const Zone & zone);
+		void patchWithZoneConfig(const Zone & zone, TreasurePlacer * tp);
 		void sortPossibleObjects();
 		void discardObjectsAboveValue(ui32 value);
 

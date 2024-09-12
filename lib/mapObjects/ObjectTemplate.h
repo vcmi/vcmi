@@ -46,6 +46,8 @@ public:
 	/// H3 ID/subID of this object
 	MapObjectID id;
 	MapObjectSubID subid;
+
+	// TODO: get compound id
 	/// print priority, objects with higher priority will be print first, below everything else
 	si32 printPriority;
 	/// animation file that should be used to display object

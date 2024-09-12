@@ -50,7 +50,7 @@ void TreasurePlacer::process()
 	// Get default objects
 	addAllPossibleObjects();
 	// Override with custom objects
-	objects.patchWithZoneConfig(zone);
+	objects.patchWithZoneConfig(zone, this);
 
 	auto * m = zone.getModificator<ObjectManager>();
 	if(m)
@@ -64,6 +64,8 @@ void TreasurePlacer::init()
 	DEPENDENCY(ConnectionsPlacer);
 	DEPENDENCY_ALL(PrisonHeroPlacer);
 	DEPENDENCY(RoadPlacer);
+
+	// FIXME: Starting zones get Pandoras with neutral creatures
 
 	// Add all native creatures
 	for(auto const & cre : VLC->creh->objects)
@@ -79,7 +81,6 @@ void TreasurePlacer::init()
 
 void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
 {
-	// FIXME: It is never the case - objects must be erased or badly copied after this
 	if (oi.templates.empty())
 	{
 		logGlobal->error("Attempt to add ObjectInfo with no templates! Value: %d", oi.value);
@@ -126,20 +127,26 @@ void TreasurePlacer::addCommonObjects()
 					//Skip objects with per-map limit here
 					continue;
 				}
+				setBasicProperties(oi, CompoundMapObjectID(primaryID, secondaryID));
 
-				oi.generateObject = [this, primaryID, secondaryID]() -> CGObjectInstance *
-				{
-					return VLC->objtypeh->getHandlerFor(primaryID, secondaryID)->create(map.mapInstance->cb, nullptr);
-				};
 				oi.value = rmgInfo.value;
 				oi.probability = rmgInfo.rarity;
-				oi.setTemplates(primaryID, secondaryID, zone.getTerrainType());
+
 				oi.maxPerZone = rmgInfo.zoneLimit;
 				if(!oi.templates.empty())
 					addObjectToRandomPool(oi);
 			}
 		}
 	}
+}
+
+void TreasurePlacer::setBasicProperties(ObjectInfo & oi, CompoundMapObjectID objid) const
+{
+	oi.generateObject = [this, objid]() -> CGObjectInstance *
+	{
+		return VLC->objtypeh->getHandlerFor(objid)->create(map.mapInstance->cb, nullptr);
+	};
+	oi.setTemplates(objid.primaryID, objid.secondaryID, zone.getTerrainType());
 }
 
 void TreasurePlacer::addPrisons()
@@ -1116,7 +1123,7 @@ void TreasurePlacer::ObjectPool::updateObject(MapObjectID id, MapObjectSubID sub
 	customObjects[CompoundMapObjectID(id, subid)] = info;
 }
 
-void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone)
+void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, TreasurePlacer * tp)
 {
 	// FIXME: Wycina wszystkie obiekty poza pandorami i dwellami :?
 
@@ -1145,18 +1152,27 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone)
 		if (categoriesSet.count(category))
 		{
 			logGlobal->info("Removing object %s from possible objects", oi.templates.front()->stringID);
+			/* FIXME:
+			Removing object normal from possible objects
+			Removing object base from possible objects
+			Removing object default from possible objects
+			*/
 			return true;
 		}
 		return false;
 	});
 
-	vstd::erase_if(possibleObjects, [&zone](const ObjectInfo & object)
+	auto bannedObjects = zone.getBannedObjects();
+	auto bannedObjectsSet = std::set<CompoundMapObjectID>(bannedObjects.begin(), bannedObjects.end());
+	vstd::erase_if(possibleObjects, [&bannedObjectsSet](const ObjectInfo & object)
 	{
 		for (const auto & templ : object.templates)
 		{
 			CompoundMapObjectID key(templ->id, templ->subid);
-			if (vstd::contains(zone.getBannedObjects(), key))
+			if (bannedObjectsSet.count(key))
 			{
+				// FIXME: Stopped working, nothing is banned
+				logGlobal->info("Banning object %s from possible objects", templ->stringID);
 				return true;
 			}
 		}
@@ -1164,6 +1180,15 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone)
 	});
 
 	auto configuredObjects = zone.getConfiguredObjects();
+
+	// FIXME: Access TreasurePlacer from ObjectPool
+	for (auto & object : configuredObjects)
+	{
+		auto temp = object.templates.front();
+		tp->setBasicProperties(object, CompoundMapObjectID(temp->id, temp->subid));
+		addObject(object);
+		logGlobal->info("Added custom object of type %d.%d", temp->id, temp->subid);
+	}
 	// TODO: Overwrite or add to possibleObjects
 
 	// FIXME: Protect with mutex as well?

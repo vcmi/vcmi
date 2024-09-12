@@ -32,6 +32,7 @@ struct DLL_LINKAGE ObjectInfo
 	std::function<CGObjectInstance *()> generateObject;
 	std::function<void(CGObjectInstance *)> destroyObject;
 	
+	void setAllTemplates(MapObjectID type, MapObjectSubID subtype);
 	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);
 
 	//bool matchesId(const CompoundMapObjectID & id) const;
@@ -61,7 +62,7 @@ public:
 	};
 
 	void addBannedObject(const CompoundMapObjectID & objid);
-	void addCustomObject(const ObjectInfo & object);
+	void addCustomObject(const ObjectInfo & object, const CompoundMapObjectID & objid);
 	void clearBannedObjects();
 	void clearCustomObjects();
 	const std::vector<CompoundMapObjectID> & getBannedObjects() const;

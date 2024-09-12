@@ -40,6 +40,8 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/CLegacyConfigParser.h"
 
+#include <vstd/StringUtils.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CObjectClassesHandler::CObjectClassesHandler()
@@ -396,6 +398,9 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 
 	if(id)
 	{
+		if (subtype.empty())
+			return CompoundMapObjectID(id.value(), 0);
+
 		const auto & object = objects.at(id.value());
 		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
 
@@ -410,45 +415,32 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 
 CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
 {
-	// FIXME: Crash with no further log
+	// TODO: Use existing utilities for parsing id:
+	// CIdentifierStorage::ObjectCallback::fromNameAndType
 
-	// TODO: Use existing utilities for parsing id?	
-	JsonNode node(objectName);
-	auto modScope = node.getModScope();
+	std::string subtype = "object"; //Default for objects with no subIds
+	std::string type;
 
-	std::string scope, type, subtype;
-	size_t firstColon = objectName.find(':');
-	size_t lastDot = objectName.find_last_of('.');
-
-	// TODO: Ignore object class, there should not be objects with same names within one scope anyway
+	auto scopeAndFullName = vstd::splitStringToPair(objectName, ':');
+	logGlobal->debug("scopeAndFullName: %s, %s", scopeAndFullName.first, scopeAndFullName.second);
 	
-	if(firstColon != std::string::npos)
+	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
+	logGlobal->debug("typeAndName: %s, %s", typeAndName.first, typeAndName.second);
+	
+	auto nameAndSubtype = vstd::splitStringToPair(typeAndName.second, '.');
+	logGlobal->debug("nameAndSubtype: %s, %s", nameAndSubtype.first, nameAndSubtype.second);
+
+	if (!nameAndSubtype.first.empty())
 	{
-		scope = objectName.substr(0, firstColon);
-		if(lastDot != std::string::npos && lastDot > firstColon)
-		{
-			type = objectName.substr(firstColon + 1, lastDot - firstColon - 1);
-			subtype = objectName.substr(lastDot + 1);
-		}
-		else
-		{
-			type = objectName.substr(firstColon + 1);
-		}
+		type = nameAndSubtype.first;
+		subtype = nameAndSubtype.second;
 	}
 	else
 	{
-		if(lastDot != std::string::npos)
-		{
-			type = objectName.substr(0, lastDot);
-			subtype = objectName.substr(lastDot + 1);
-		}
-		else
-		{
-			type = objectName;
-		}
+		type = typeAndName.second;
 	}
-
-	return getCompoundIdentifier(scope, type, subtype);
+	
+	return getCompoundIdentifier(scopeAndFullName.first, type, subtype);
 }
 
 std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
