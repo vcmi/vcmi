@@ -436,9 +436,11 @@ SDLImageIndexed::SDLImageIndexed(const std::shared_ptr<ISharedImage> & image, SD
 	currentPalette = SDL_AllocPalette(originalPalette->ncolors);
 	SDL_SetPaletteColors(currentPalette, originalPalette->colors, 0, originalPalette->ncolors);
 
-	setOverlayColor(Colors::TRANSPARENCY);
 	if (mode == EImageBlitMode::ALPHA)
+	{
+		setOverlayColor(Colors::TRANSPARENCY);
 		setShadowTransparency(1.0);
+	}
 }
 
 SDLImageIndexed::~SDLImageIndexed()
@@ -476,7 +478,9 @@ void SDLImageIndexed::setShadowTransparency(float factor)
 
 void SDLImageIndexed::setOverlayColor(const ColorRGBA & color)
 {
-	for (int i : {5,6,7})
+	currentPalette->colors[5] = CSDL_Ext::toSDL(addColors(targetPalette[5], color));
+
+	for (int i : {6,7})
 	{
 		if (colorsSimilar(originalPalette->colors[i], sourcePalette[i]))
 			currentPalette->colors[i] = CSDL_Ext::toSDL(addColors(targetPalette[i], color));
@@ -508,8 +512,10 @@ void SDLImageIndexed::setOverlayEnabled(bool on)
 {
 	if (on)
 		setOverlayColor(Colors::WHITE_TRUE);
-	else
+
+	if (!on && blitMode == EImageBlitMode::ALPHA)
 		setOverlayColor(Colors::TRANSPARENCY);
+
 	overlayEnabled = on;
 }
 

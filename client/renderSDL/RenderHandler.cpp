@@ -238,9 +238,12 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 
 	assert(locator.scalingFactor != 1); // should be filtered-out before
 
-	handle->setOverlayEnabled(locator.layer == EImageLayer::ALL || locator.layer == EImageLayer::OVERLAY);
 	handle->setBodyEnabled(locator.layer == EImageLayer::ALL || locator.layer == EImageLayer::BODY);
-	handle->setShadowEnabled(locator.layer == EImageLayer::ALL || locator.layer == EImageLayer::SHADOW);
+	if (locator.layer != EImageLayer::ALL)
+	{
+		handle->setOverlayEnabled(locator.layer == EImageLayer::OVERLAY);
+		handle->setShadowEnabled( locator.layer == EImageLayer::SHADOW);
+	}
 	if (locator.layer == EImageLayer::ALL && locator.playerColored != PlayerColor::CANNOT_DETERMINE)
 		handle->playerColored(locator.playerColored);
 
