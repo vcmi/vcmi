@@ -261,6 +261,8 @@ static uint64_t evaluateArtifactArmyValue(const CArtifact * art)
 
 	switch(art->aClass)
 	{
+	case CArtifact::EartClass::ART_TREASURE:
+		//FALL_THROUGH
 	case CArtifact::EartClass::ART_MINOR:
 		classValue = 1000;
 		break;
@@ -299,6 +301,8 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
 		return getDwellingArmyValue(ai->cb.get(), target, checkGold);
+	case Obj::SPELL_SCROLL:
+		//FALL_THROUGH
 	case Obj::ARTIFACT:
 		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact->artType);
 	case Obj::HERO:
