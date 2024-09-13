@@ -33,6 +33,7 @@ class RenderHandler : public IRenderHandler
 
 	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 	void addImageListEntries(const EntityService * service);
+	void storeCachedImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image);
 
 	std::shared_ptr<ISharedImage> loadImageImpl(const ImageLocator & config);
 

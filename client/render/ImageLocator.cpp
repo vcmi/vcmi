@@ -98,11 +98,15 @@ std::string ImageLocator::toString() const
 		return "invalid";
 
 	if (image)
+	{
 		result += image->getOriginalName();
+		assert(!result.empty());
+	}
 
 	if (defFile)
 	{
 		result += defFile->getOriginalName();
+		assert(!result.empty());
 		result += "-" + std::to_string(defGroup);
 		result += "-" + std::to_string(defFrame);
 	}
@@ -120,7 +124,7 @@ std::string ImageLocator::toString() const
 		result += "-player" + playerColored.toString();
 
 	if (layer != EImageLayer::ALL)
-		result =+ "-layer" + std::to_string(static_cast<int>(layer));
+		result += "-layer" + std::to_string(static_cast<int>(layer));
 
 	return result;
 }

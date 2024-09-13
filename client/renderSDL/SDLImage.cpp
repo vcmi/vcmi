@@ -330,6 +330,9 @@ std::shared_ptr<ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Pa
 
 void SDLImageShared::exportBitmap(const boost::filesystem::path& path, SDL_Palette * palette) const
 {
+	if (!surf)
+		return;
+
 	if (palette && surf->format->palette)
 		SDL_SetSurfacePalette(surf, palette);
 	IMG_SavePNG(surf, path.string().c_str());

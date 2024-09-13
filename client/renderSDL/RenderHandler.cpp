@@ -23,6 +23,7 @@
 
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/VCMIDirs.h"
 
 #include <vcmi/ArtifactService.h>
 #include <vcmi/CreatureService.h>
@@ -188,13 +189,26 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	throw std::runtime_error("Invalid image locator received!");
 }
 
+void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<ISharedImage> image)
+{
+	imageFiles[locator] = image;
+
+#if 0
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "imageCache" / (locator.toString() + ".png");
+	boost::filesystem::path outDir = outPath;
+	outDir.remove_filename();
+	boost::filesystem::create_directories(outDir);
+	image->exportBitmap(outPath , nullptr);
+#endif
+}
+
 std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFile(const ImageLocator & locator)
 {
 	if (imageFiles.count(locator))
 		return imageFiles.at(locator);
 
 	auto result = loadImageFromFileUncached(locator);
-	imageFiles[locator] = result;
+	storeCachedImage(locator, result);
 	return result;
 }
 
@@ -211,7 +225,7 @@ std::shared_ptr<ISharedImage> RenderHandler::transformImage(const ImageLocator &
 	if (locator.horizontalFlip)
 		result = result->horizontalFlip();
 
-	imageFiles[locator] = result;
+	storeCachedImage(locator, result);
 	return result;
 }
 
@@ -234,7 +248,7 @@ std::shared_ptr<ISharedImage> RenderHandler::scaleImage(const ImageLocator & loc
 
 	// TODO: try to optimize image size (possibly even before scaling?) - trim image borders if they are completely transparent
 	auto result = handle->getSharedImage();
-	imageFiles[locator] = result;
+	storeCachedImage(locator, result);
 	return result;
 }
 
