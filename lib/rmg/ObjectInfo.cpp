@@ -18,15 +18,24 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ObjectInfo::ObjectInfo():
+ObjectInfo::ObjectInfo(si32 ID, si32 subID):
+	primaryID(ID),
+	secondaryID(subID),
 	destroyObject([](CGObjectInstance * obj){}),
 	maxPerZone(std::numeric_limits<ui32>::max())
+{
+}
+
+ObjectInfo::ObjectInfo(CompoundMapObjectID id):
+	ObjectInfo(id.primaryID, id.secondaryID)
 {
 }
 
 ObjectInfo::ObjectInfo(const ObjectInfo & other)
 {
 	templates = other.templates;
+	primaryID = other.primaryID;
+	secondaryID = other.secondaryID;
 	value = other.value;
 	probability = other.probability;
 	maxPerZone = other.maxPerZone;
@@ -40,6 +49,8 @@ ObjectInfo & ObjectInfo::operator=(const ObjectInfo & other)
 		return *this;
 
 	templates = other.templates;
+	primaryID = other.primaryID;
+	secondaryID = other.secondaryID;
 	value = other.value;
 	probability = other.probability;
 	maxPerZone = other.maxPerZone;
@@ -64,6 +75,11 @@ void ObjectInfo::setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainI
 		return;
 	
 	templates = templHandler->getTemplates(terrainType);
+}
+
+CompoundMapObjectID ObjectInfo::getCompoundID() const
+{
+	return CompoundMapObjectID(primaryID, secondaryID);
 }
 
 VCMI_LIB_NAMESPACE_END

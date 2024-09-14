@@ -47,6 +47,16 @@ void TreasurePlacer::process()
 		return;
 	}
 
+	tierValues = generator.getConfig().pandoraCreatureValues;
+	// Add all native creatures
+	for(auto const & cre : VLC->creh->objects)
+	{
+		if(!cre->special && cre->getFaction() == zone.getTownType())
+		{
+			creatures.push_back(cre.get());
+		}
+	}
+
 	// Get default objects
 	addAllPossibleObjects();
 	// Override with custom objects
@@ -64,19 +74,6 @@ void TreasurePlacer::init()
 	DEPENDENCY(ConnectionsPlacer);
 	DEPENDENCY_ALL(PrisonHeroPlacer);
 	DEPENDENCY(RoadPlacer);
-
-	// FIXME: Starting zones get Pandoras with neutral creatures
-
-	// Add all native creatures
-	for(auto const & cre : VLC->creh->objects)
-	{
-		if(!cre->special && cre->getFaction() == zone.getTownType())
-		{
-			creatures.push_back(cre.get());
-		}
-	}
-
-	tierValues = generator.getConfig().pandoraCreatureValues;
 }
 
 void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
@@ -112,8 +109,6 @@ void TreasurePlacer::addAllPossibleObjects()
 
 void TreasurePlacer::addCommonObjects()
 {
-	ObjectInfo oi;
-	
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
 		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
@@ -127,12 +122,13 @@ void TreasurePlacer::addCommonObjects()
 					//Skip objects with per-map limit here
 					continue;
 				}
+				ObjectInfo oi(primaryID, secondaryID);
 				setBasicProperties(oi, CompoundMapObjectID(primaryID, secondaryID));
 
 				oi.value = rmgInfo.value;
 				oi.probability = rmgInfo.rarity;
-
 				oi.maxPerZone = rmgInfo.zoneLimit;
+
 				if(!oi.templates.empty())
 					addObjectToRandomPool(oi);
 			}
@@ -172,7 +168,7 @@ void TreasurePlacer::addPrisons()
 		size_t prisonsLeft = getMaxPrisons();
 		for (int i = prisonsLevels - 1; i >= 0; i--)
 		{
-			ObjectInfo oi; // Create new instance which will hold destructor operation
+			ObjectInfo oi(Obj::PRISON, 0); // Create new instance which will hold destructor operation
 
 			oi.value = generator.getConfig().prisonValues[i];
 			if (oi.value > zone.getMaxTreasureValue())
@@ -216,9 +212,7 @@ void TreasurePlacer::addDwellings()
 {
 	if(zone.getType() == ETemplateZoneType::WATER)
 		return;
-	
-	ObjectInfo oi;
-	
+
 	//dwellings
 	auto dwellingTypes = {Obj::CREATURE_GENERATOR1, Obj::CREATURE_GENERATOR4};
 	
@@ -245,6 +239,9 @@ void TreasurePlacer::addDwellings()
 			if(cre->getFaction() == zone.getTownType())
 			{
 				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFaction()));
+				ObjectInfo oi(dwellingType, secondaryID);
+				setBasicProperties(oi, CompoundMapObjectID(dwellingType, secondaryID));
+
 				oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
 				oi.probability = 40;
 				
@@ -254,7 +251,6 @@ void TreasurePlacer::addDwellings()
 					obj->tempOwner = PlayerColor::NEUTRAL;
 					return obj;
 				};
-				oi.setTemplates(dwellingType, secondaryID, zone.getTerrainType());
 				if(!oi.templates.empty())
 					addObjectToRandomPool(oi);
 			}
@@ -267,7 +263,7 @@ void TreasurePlacer::addScrolls()
 	if(zone.getType() == ETemplateZoneType::WATER)
 		return;
 
-	ObjectInfo oi;
+	ObjectInfo oi(Obj::SPELL_SCROLL, 0);
 
 	for(int i = 0; i < generator.getConfig().scrollValues.size(); i++)
 	{
@@ -308,8 +304,7 @@ void TreasurePlacer::addPandoraBoxes()
 
 void TreasurePlacer::addPandoraBoxesWithGold()
 {
-	ObjectInfo oi;
-	//pandora box with gold
+	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
 	for(int i = 1; i < 5; i++)
 	{
 		oi.generateObject = [this, i]() -> CGObjectInstance *
@@ -334,8 +329,7 @@ void TreasurePlacer::addPandoraBoxesWithGold()
 
 void TreasurePlacer::addPandoraBoxesWithExperience()
 {
-	ObjectInfo oi;
-	//pandora box with experience
+	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
 	for(int i = 1; i < 5; i++)
 	{
 		oi.generateObject = [this, i]() -> CGObjectInstance *
@@ -360,9 +354,7 @@ void TreasurePlacer::addPandoraBoxesWithExperience()
 
 void TreasurePlacer::addPandoraBoxesWithCreatures()
 {
-	ObjectInfo oi;
-	//pandora box with creatures
-
+	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
 	for(auto * creature : creatures)
 	{
 		int creaturesAmount = creatureToCount(creature);
@@ -391,7 +383,7 @@ void TreasurePlacer::addPandoraBoxesWithCreatures()
 
 void TreasurePlacer::addPandoraBoxesWithSpells()
 {
-	ObjectInfo oi;
+	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
 	//Pandora with 12 spells of certain level
 	for(int i = 1; i <= GameConstants::SPELL_LEVELS; i++)
 	{
@@ -494,7 +486,7 @@ void TreasurePlacer::addSeerHuts()
 {
 	//Seer huts with creatures or generic rewards
 
-	ObjectInfo oi;
+	ObjectInfo oi(Obj::SEER_HUT, 0);
 
 	if(zone.getConnectedZoneIds().size()) //Unlikely, but...
 	{
@@ -1120,7 +1112,7 @@ void TreasurePlacer::ObjectPool::updateObject(MapObjectID id, MapObjectSubID sub
 		- Pandora Boxes
 	*/
 	// FIXME: This will drop all templates
-	customObjects[CompoundMapObjectID(id, subid)] = info;
+	customObjects.insert(std::make_pair(CompoundMapObjectID(id, subid), info));
 }
 
 void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, TreasurePlacer * tp)
@@ -1147,8 +1139,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 
 	vstd::erase_if(possibleObjects, [this, &categoriesSet](const ObjectInfo & oi) -> bool
 	{
-		auto temp = oi.templates.front();
-		auto category = getObjectCategory(CompoundMapObjectID(temp->id, temp->subid));
+		auto category = getObjectCategory(oi.getCompoundID());
 		if (categoriesSet.count(category))
 		{
 			logGlobal->info("Removing object %s from possible objects", oi.templates.front()->stringID);
@@ -1168,7 +1159,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 	{
 		for (const auto & templ : object.templates)
 		{
-			CompoundMapObjectID key(templ->id, templ->subid);
+			CompoundMapObjectID key = object.getCompoundID();
 			if (bannedObjectsSet.count(key))
 			{
 				// FIXME: Stopped working, nothing is banned
@@ -1184,10 +1175,9 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 	// FIXME: Access TreasurePlacer from ObjectPool
 	for (auto & object : configuredObjects)
 	{
-		auto temp = object.templates.front();
-		tp->setBasicProperties(object, CompoundMapObjectID(temp->id, temp->subid));
+		tp->setBasicProperties(object, object.getCompoundID());
 		addObject(object);
-		logGlobal->info("Added custom object of type %d.%d", temp->id, temp->subid);
+		logGlobal->info("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 	}
 	// TODO: Overwrite or add to possibleObjects
 

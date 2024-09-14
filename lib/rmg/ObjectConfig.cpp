@@ -32,16 +32,12 @@ void ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
 
 void ObjectConfig::addCustomObject(const ObjectInfo & object, const CompoundMapObjectID & objid)
 {
-	// FIXME: Need id / subId
-
-	// FIXME: Add templates and possibly other info
 	customObjects.push_back(object);
 	auto & lastObject = customObjects.back();
 	lastObject.setAllTemplates(objid.primaryID, objid.secondaryID);
 
 	assert(lastObject.templates.size() > 0);
-	auto temp = lastObject.templates.front();
-	logGlobal->info("Added custom object of type %d.%d", temp->id, temp->subid);
+	logGlobal->info("Added custom object of type %d.%d", objid.primaryID, objid.secondaryID);
 }
 
 void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
@@ -154,7 +150,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			VLC->objtypeh->resolveObjectCompoundId(objectName,
 				[this, objectValue, objectProbability, objectMaxPerZone](CompoundMapObjectID objid)
 				{
-					ObjectInfo object;
+					ObjectInfo object(objid.primaryID, objid.secondaryID);
 					
 					// TODO: Configure basic generateObject function
 

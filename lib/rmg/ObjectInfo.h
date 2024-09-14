@@ -20,11 +20,14 @@ class CGObjectInstance;
 
 struct DLL_LINKAGE ObjectInfo
 {
-	ObjectInfo();
+	ObjectInfo(si32 ID, si32 subID);
+	ObjectInfo(CompoundMapObjectID id);
 	ObjectInfo(const ObjectInfo & other);
 	ObjectInfo & operator=(const ObjectInfo & other);
 
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
+	si32 primaryID;
+	si32 secondaryID;
 	ui32 value = 0;
 	ui16 probability = 0;
 	ui32 maxPerZone = 1;
@@ -35,6 +38,7 @@ struct DLL_LINKAGE ObjectInfo
 	void setAllTemplates(MapObjectID type, MapObjectSubID subtype);
 	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);
 
+	CompoundMapObjectID getCompoundID() const;
 	//bool matchesId(const CompoundMapObjectID & id) const;
 };
 
