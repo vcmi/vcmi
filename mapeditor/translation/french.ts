@@ -1761,12 +1761,12 @@
     </message>
     <message>
         <location filename="../validator.cpp" line="148"/>
-        <source>Spell scroll % 1 doesn&apos;t have instance assigned and must be removed</source>
+        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation>Le défilement de sort %1 n&apos;a pas d&apos;instance assignée et doit être enlevé</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="154"/>
-        <source>Artifact % 1 is prohibited by map settings</source>
+        <source>Artifact %1 is prohibited by map settings</source>
         <translation>L&apos;artéfact %1 est interdit par la configuration de la carte</translation>
     </message>
     <message>
