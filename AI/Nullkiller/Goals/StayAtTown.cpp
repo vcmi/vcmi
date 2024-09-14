@@ -36,7 +36,8 @@ std::string StayAtTown::toString() const
 {
 	return "Stay at town " + town->getNameTranslated()
 		+ " hero " + hero->getNameTranslated()
-		+ ", mana: " + std::to_string(hero->mana);
+		+ ", mana: " + std::to_string(hero->mana)
+		+ " / " + std::to_string(hero->manaLimit());
 }
 
 void StayAtTown::accept(AIGateway * ai)
