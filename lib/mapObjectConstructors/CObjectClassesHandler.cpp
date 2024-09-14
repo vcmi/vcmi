@@ -415,9 +415,6 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 
 CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
 {
-	// TODO: Use existing utilities for parsing id:
-	// CIdentifierStorage::ObjectCallback::fromNameAndType
-
 	std::string subtype = "object"; //Default for objects with no subIds
 	std::string type;
 

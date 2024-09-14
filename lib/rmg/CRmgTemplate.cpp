@@ -11,9 +11,9 @@
 #include "StdInc.h"
 #include <vstd/ContainerUtils.h>
 #include <boost/bimap.hpp>
-
 #include "CRmgTemplate.h"
 #include "Functions.h"
+
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
 #include "../constants/StringConstants.h"
@@ -351,6 +351,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	SERIALIZE_ZONE_LINK(terrainTypeLikeZone);
 	SERIALIZE_ZONE_LINK(treasureLikeZone);
 	SERIALIZE_ZONE_LINK(customObjectsLikeZone);
+
 	#undef SERIALIZE_ZONE_LINK
 
 	if(terrainTypeLikeZone == NO_ZONE)

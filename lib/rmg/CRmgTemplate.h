@@ -14,6 +14,7 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 #include "ObjectInfo.h"
+#include "ObjectConfig.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
