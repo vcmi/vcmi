@@ -521,7 +521,7 @@ void OptionsTab::SelectionWindow::recreate(int sliderPos)
 	int sliderWidth = ((amountLines > MAX_LINES) ? 16 : 0);
 
 	pos = Rect(pos.x, pos.y, x + sliderWidth, y);
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w - sliderWidth, pos.h));
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w - sliderWidth, pos.h));
 	backgroundTexture->setPlayerColor(PlayerColor(1));
 	updateShadow();
 
@@ -803,7 +803,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 
 	pos = Rect(0, 0, 660, 100 + SEL->getStartInfo()->playerInfos.size() * 30);
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(pos);
 	backgroundTexture->setPlayerColor(PlayerColor(1));
 
 	labels.push_back(std::make_shared<CLabel>(pos.w / 2 + 8, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.handicap")));

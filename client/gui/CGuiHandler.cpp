@@ -181,17 +181,18 @@ Point CGuiHandler::screenDimensions() const
 
 void CGuiHandler::drawFPSCounter()
 {
-	int x = 7;
-	int y = screen->h-20;
-	int width3digitFPSIncludingPadding = 48;
-	int heightFPSTextIncludingPadding = 11;
+	int scaling = screenHandlerInstance->getScalingFactor();
+	int x = 7 * scaling;
+	int y = screen->h-20 * scaling;
+	int width3digitFPSIncludingPadding = 48 * scaling;
+	int heightFPSTextIncludingPadding = 11 * scaling;
 	SDL_Rect overlay = { x, y, width3digitFPSIncludingPadding, heightFPSTextIncludingPadding};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
 
 	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
 
-	graphics->fonts[FONT_SMALL]->renderTextLeft(screen, fps, Colors::WHITE, Point(8, screen->h-22));
+	graphics->fonts[FONT_SMALL]->renderTextLeft(screen, fps, Colors::WHITE, Point(8 * scaling, screen->h-22 * scaling));
 }
 
 bool CGuiHandler::amIGuiThread()

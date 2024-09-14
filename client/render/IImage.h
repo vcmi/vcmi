@@ -90,7 +90,7 @@ class ISharedImage
 {
 public:
 	virtual Point dimensions() const = 0;
-	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
+	virtual void exportBitmap(const boost::filesystem::path & path, SDL_Palette * palette) const = 0;
 	virtual bool isTransparent(const Point & coords) const = 0;
 	virtual void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const = 0;
 

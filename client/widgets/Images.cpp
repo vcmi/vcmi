@@ -14,6 +14,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../render/AssetGenerator.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
@@ -172,28 +173,18 @@ void FilledTexturePlayerIndexed::setPlayerColor(PlayerColor player)
 	texture->playerColored(player);
 }
 
+FilledTexturePlayerColored::FilledTexturePlayerColored(Rect position)
+	:CFilledTexture(ImagePath::builtin("DiBoxBck"), position)
+{
+}
+
 void FilledTexturePlayerColored::setPlayerColor(PlayerColor player)
 {
-	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
-	std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
-		ColorFilter::genRangeShifter(  0.25,  0,     0,     1.25, 0.00, 0.00 ), // red
-		ColorFilter::genRangeShifter(  0,     0,     0,     0.45, 1.20, 4.50 ), // blue
-		ColorFilter::genRangeShifter(  0.40,  0.27,  0.23,  1.10, 1.20, 1.15 ), // tan
-		ColorFilter::genRangeShifter( -0.27,  0.10, -0.27,  0.70, 1.70, 0.70 ), // green
-		ColorFilter::genRangeShifter(  0.47,  0.17, -0.27,  1.60, 1.20, 0.70 ), // orange
-		ColorFilter::genRangeShifter(  0.12, -0.1,   0.25,  1.15, 1.20, 2.20 ), // purple
-		ColorFilter::genRangeShifter( -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ), // teal
-		ColorFilter::genRangeShifter(  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 )  // pink
-	};
+	AssetGenerator::createPlayerColoredBackground(player);
 
-	assert(player.isValidPlayer());
-	if (!player.isValidPlayer())
-	{
-		logGlobal->error("Unable to colorize to invalid player color %d!", static_cast<int>(player.getNum()));
-		return;
-	}
+	ImagePath imagePath = ImagePath::builtin("DialogBoxBackground_" + player.toString() + ".bmp");
 
-	texture->adjustPalette(filters[player.getNum()], 0);
+	texture = GH.renderHandler().loadImage(imagePath, EImageBlitMode::COLORKEY);
 }
 
 CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):

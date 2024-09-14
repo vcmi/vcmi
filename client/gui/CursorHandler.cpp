@@ -17,6 +17,7 @@
 #include "../renderSDL/CursorHardware.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/IScreenHandler.h"
 #include "../render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -175,7 +176,7 @@ Point CursorHandler::getPivotOffsetMap(size_t index)
 
 	assert(offsets.size() == size_t(Cursor::Map::COUNT)); //Invalid number of pivot offsets for cursor
 	assert(index < offsets.size());
-	return offsets[index];
+	return offsets[index] * GH.screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffsetCombat(size_t index)
@@ -205,12 +206,12 @@ Point CursorHandler::getPivotOffsetCombat(size_t index)
 
 	assert(offsets.size() == size_t(Cursor::Combat::COUNT)); //Invalid number of pivot offsets for cursor
 	assert(index < offsets.size());
-	return offsets[index];
+	return offsets[index] * GH.screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffsetSpellcast()
 {
-	return { 18, 28};
+	return Point(18, 28) * GH.screenHandler().getScalingFactor();
 }
 
 Point CursorHandler::getPivotOffset()

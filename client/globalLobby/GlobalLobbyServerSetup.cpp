@@ -34,7 +34,7 @@ GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 	pos.w = 284;
 	pos.h = 340;
 
-	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.room.create"));
 	labelPlayerLimit = std::make_shared<CLabel>( pos.w / 2, 48, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.room.players.limit"));
 	labelRoomType = std::make_shared<CLabel>( pos.w / 2, 108, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.room.type"));
