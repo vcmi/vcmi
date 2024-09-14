@@ -2209,6 +2209,7 @@ void StartAction::applyGs(CGameState *gs)
 				st->waiting = false;
 				st->defendingAnim = false;
 				st->movedThisRound = true;
+				st->usedSpell = ba.actionType == EActionType::MONSTER_SPELL ? ba.spell : SpellID::NONE;
 				break;
 		}
 	}
