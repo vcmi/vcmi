@@ -21,7 +21,7 @@
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
@@ -130,15 +130,17 @@ static MapIdentifiersH3M generateMapping(EMapFormat format)
 	MapIdentifiersH3M identifierMapper;
 
 	if(features.levelROE)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
 	if(features.levelAB)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
 	if(features.levelSOD)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+	if(features.levelCHR)
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
 	if(features.levelWOG)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
 	if(features.levelHOTA0)
-		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
+		identifierMapper.loadMapping(VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
 
 	return identifierMapper;
 }
@@ -161,6 +163,7 @@ static std::map<EMapFormat, MapIdentifiersH3M> generateMappings()
 	addMapping(EMapFormat::ROE);
 	addMapping(EMapFormat::AB);
 	addMapping(EMapFormat::SOD);
+	addMapping(EMapFormat::CHR);
 	addMapping(EMapFormat::HOTA);
 	addMapping(EMapFormat::WOG);
 
@@ -734,8 +737,7 @@ void CMapLoaderH3M::readMapOptions()
 	{
 		//TODO: HotA
 		bool allowSpecialMonths = reader->readBool();
-		if(!allowSpecialMonths)
-			logGlobal->warn("Map '%s': Option 'allow special months' is not implemented!", mapName);
+		map->overrideGameSetting(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS, JsonNode(allowSpecialMonths));
 		reader->skipZero(3);
 	}
 
@@ -954,14 +956,15 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	// H3 bug workaround - Enemy hero on 3rd scenario of Good1.h3c campaign ("Long Live The Queen")
 	// He has Shackles of War (normally - MISC slot artifact) in LEFT_HAND slot set in editor
 	// Artifact seems to be missing in game, so skip artifacts that don't fit target slot
-	auto * artifact = ArtifactUtils::createArtifact(map, artifactID);
-	if(artifact->canBePutAt(hero, ArtifactPosition(slot)))
+	if(ArtifactID(artifactID).toArtifact()->canBePutAt(hero, ArtifactPosition(slot)))
 	{
+		auto * artifact = ArtifactUtils::createArtifact(artifactID);
 		artifact->putAt(*hero, ArtifactPosition(slot));
+		map->addNewArtifactInstance(artifact);
 	}
 	else
 	{
-		logGlobal->warn("Map '%s': Artifact '%s' can't be put at the slot %d", mapName, artifact->artType->getNameTranslated(), slot);
+		logGlobal->warn("Map '%s': Artifact '%s' can't be put at the slot %d", mapName, ArtifactID(artifactID).toArtifact()->getNameTranslated(), slot);
 		return false;
 	}
 
@@ -1305,7 +1308,8 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 		artID = ArtifactID(objectTemplate->subid);
 	}
 
-	object->storedArtifact = ArtifactUtils::createArtifact(map, artID, spellID.getNum());
+	object->storedArtifact = ArtifactUtils::createArtifact(artID, spellID.getNum());
+	map->addNewArtifactInstance(object->storedArtifact);
 	return object;
 }
 
@@ -1455,7 +1459,7 @@ CGObjectInstance * CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::sha
 CGObjectInstance * CMapLoaderH3M::readPyramid(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	if(objectTemplate->subid == 0)
-		return new CBank(map->cb);
+		return readGeneric(mapPosition, objectTemplate);
 
 	return new CGObjectInstance(map->cb);
 }
@@ -2198,7 +2202,10 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)
 	{
-		reader->readBitmaskBuildings(object->builtBuildings, faction);
+		std::set<BuildingID> builtBuildings;
+		reader->readBitmaskBuildings(builtBuildings, faction);
+		for(const auto & building : builtBuildings)
+			object->addBuilding(building);
 		reader->readBitmaskBuildings(object->forbiddenBuildings, faction);
 	}
 	// Standard buildings
@@ -2206,10 +2213,10 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	{
 		bool hasFort = reader->readBool();
 		if(hasFort)
-			object->builtBuildings.insert(BuildingID::FORT);
+			object->addBuilding(BuildingID::FORT);
 
 		//means that set of standard building should be included
-		object->builtBuildings.insert(BuildingID::DEFAULT);
+		object->addBuilding(BuildingID::DEFAULT);
 	}
 
 	if(features.levelAB)
@@ -2244,7 +2251,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 		reader->readResources(event.resources);
 
-		event.players = reader->readUInt8();
+		reader->readBitmaskPlayers(event.players, false);
 		if(features.levelSOD)
 			event.humanAffected = reader->readBool();
 		else
@@ -2313,7 +2320,7 @@ void CMapLoaderH3M::readEvents()
 		event.message.appendTextID(readLocalizedString(TextIdentifier("event", eventID, "description")));
 
 		reader->readResources(event.resources);
-		event.players = reader->readUInt8();
+		reader->readBitmaskPlayers(event.players, false);
 		if(features.levelSOD)
 		{
 			event.humanAffected = reader->readBool();

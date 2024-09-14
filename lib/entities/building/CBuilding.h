@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "TownFortifications.h"
+
 #include "../../constants/EntityIdentifiers.h"
 #include "../../LogicalExpression.h"
 #include "../../ResourceSet.h"
@@ -34,13 +36,16 @@ public:
 	TResources resources;
 	TResources produce;
 	TRequired requirements;
+	ArtifactID warMachine;
+	TownFortifications fortifications;
+	std::set<EMarketMode> marketModes;
 
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
 	BuildingSubID::EBuildingSubID subId; /// subtype for special buildings, -1 = the building is not special
-	std::set<BuildingID> overrideBids; /// the building which bonuses should be overridden with bonuses of the current building
+	bool upgradeReplacesBonuses = false;
+	bool manualHeroVisit = false;
 	BonusList buildingBonuses;
-	BonusList onVisitBonuses;
 
 	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings
 
@@ -66,7 +71,7 @@ public:
 
 	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
 
-	const BuildingTypeUniqueID getUniqueTypeID() const;
+	BuildingTypeUniqueID getUniqueTypeID() const;
 
 	std::string getJsonKey() const;
 
@@ -86,24 +91,7 @@ public:
 	STRONG_INLINE
 		bool IsTradeBuilding() const
 	{
-		return bid == BuildingID::MARKETPLACE || subId == BuildingSubID::ARTIFACT_MERCHANT || subId == BuildingSubID::FREELANCERS_GUILD;
-	}
-
-	STRONG_INLINE
-		bool IsWeekBonus() const
-	{
-		return subId == BuildingSubID::STABLES || subId == BuildingSubID::MANA_VORTEX;
-	}
-
-	STRONG_INLINE
-		bool IsVisitingBonus() const
-	{
-		return subId == BuildingSubID::ATTACK_VISITING_BONUS ||
-			   subId == BuildingSubID::DEFENSE_VISITING_BONUS ||
-			   subId == BuildingSubID::SPELL_POWER_VISITING_BONUS ||
-			   subId == BuildingSubID::KNOWLEDGE_VISITING_BONUS ||
-			   subId == BuildingSubID::EXPERIENCE_VISITING_BONUS ||
-			   subId == BuildingSubID::CUSTOM_VISITING_BONUS;
+		return !marketModes.empty();
 	}
 
 	void addNewBonus(const std::shared_ptr<Bonus> & b, BonusList & bonusList) const;

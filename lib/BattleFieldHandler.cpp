@@ -73,6 +73,11 @@ std::string BattleFieldInfo::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string BattleFieldInfo::getModScope() const
+{
+	return modScope;
+}
+
 std::string BattleFieldInfo::getNameTextID() const
 {
 	return name;

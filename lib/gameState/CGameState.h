@@ -15,6 +15,7 @@
 #include "../ConstTransitivePtr.h"
 
 #include "RumorState.h"
+#include "GameStatistics.h"
 
 namespace boost
 {
@@ -36,9 +37,7 @@ class CGameStateCampaign;
 class TavernHeroesPool;
 struct SThievesGuildInfo;
 class CRandomGenerator;
-
-template<typename T> class CApplier;
-class CBaseForGSApply;
+class GameSettings;
 
 struct UpgradeInfo
 {
@@ -55,7 +54,6 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheck
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable
 {
 	friend class CGameStateCampaign;
-
 public:
 	/// Stores number of times each artifact was placed on map via randomization
 	std::map<ArtifactID, int> allocatedArtifacts;
@@ -90,6 +88,8 @@ public:
 	CBonusSystemNode globalEffects;
 	RumorState currentRumor;
 
+	StatisticDataSet statistic;
+
 	static boost::shared_mutex mutex;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
@@ -98,7 +98,7 @@ public:
 	/// picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
-	void apply(CPack *pack);
+	void apply(CPackForClient *pack);
 	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & rand);
 
 	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
@@ -108,7 +108,6 @@ public:
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) override;
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
-	RumorState pickNewRumor();
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
@@ -131,10 +130,12 @@ public:
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
+	const IGameSettings & getSettings() const;
 
 	bool isVisible(int3 pos, const std::optional<PlayerColor> & player) const override;
 	bool isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const override;
 
+	static int getDate(int day, Date mode);
 	int getDate(Date mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
 	// ----- getters, setters -----
@@ -156,6 +157,8 @@ public:
 		h & day;
 		h & map;
 		h & players;
+		if (h.version < Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
+			generateOwnedObjectsAfterDeserialize();
 		h & teams;
 		h & heroesPool;
 		h & globalEffects;
@@ -167,6 +170,8 @@ public:
 		h & currentRumor;
 		h & campaign;
 		h & allocatedArtifacts;
+		if (h.version >= Handler::Version::STATISTICS)
+			h & statistic;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
@@ -177,6 +182,7 @@ private:
 	void initGlobalBonuses();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
+	void initOwnedObjects();
 	void randomizeMapObjects();
 	void initPlayerStates();
 	void placeStartingHeroes();
@@ -192,6 +198,8 @@ private:
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();
+
+	void generateOwnedObjectsAfterDeserialize();
 
 	// ----- bonus system handling -----
 
@@ -209,7 +217,6 @@ private:
 	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----
-	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
 	Services * services;
 
 	/// Pointer to campaign state manager. Nullptr for single scenarios

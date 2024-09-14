@@ -18,11 +18,9 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/serializer/CTypeList.h"
-#include "../../lib/serializer/BinarySerializer.h"
-#include "../../lib/serializer/BinaryDeserializer.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"
@@ -570,6 +568,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	LOG_TRACE(logAi);
 	myCb = CB;
 	cbc = CB;
+	this->env = env;
 
 	NET_EVENT_HANDLER;
 	playerID = *myCb->getPlayerID();
@@ -1148,7 +1147,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 	}
 }
 
-void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
+void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
@@ -1490,7 +1489,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
+					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
 					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName());
 				}

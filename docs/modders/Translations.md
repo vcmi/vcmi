@@ -35,9 +35,15 @@ VCMI allows translating game data into languages other than English. In order to
 - Copy existing translation, such as English translation from here: https://github.com/vcmi-mods/h3-for-vcmi-englisation (delete sound and video folders)
 - Rename mod to indicate your language, preferred form is "(language)-translation"
 - Update mod.json to match your mod
-- Translate all texts strings from game.json, campaigns.json and maps.json
+- Translate all texts strings from `game.json`, `campaigns.json` and `maps.json`
 - Replace images in data and sprites with translated ones (or delete it if you don't want to translate them)
 - If unicode characters needed for language: Create a submod with a free font like here: https://github.com/vcmi-mods/vietnamese-translation/tree/vcmi-1.4/vietnamese-translation/mods/VietnameseTrueTypeFonts
+
+If you can't produce some content on your own (like the images or the sounds):
+- Create a `README.md` file at the root of the mod
+- Write into the file the translations and the <ins>detailled</ins> location
+
+This way, a contributor that is not a native speaker can do it for you in the future.
 
 If you have already existing Heroes III translation you can:
 
@@ -75,7 +81,7 @@ After this, you can set language in Launcher to your language and start game. Al
 VCMI Launcher and Map Editor use translation system provided by Qt framework so it requires slightly different approach than in-game translations:
 
 - Install Qt Linguist. You can find find standalone version here: https://download.qt.io/linguist_releases/
-- Open `<VCMI Sources>/launcher/translation/` directory, copy english.ts file and rename it to your language
+- Open `<VCMI Sources>/launcher/translation/` directory, copy `english.ts` file and rename it to your language
 - Launch Qt Linguist, select Open and navigate to your copied file
 - Select any untranslated string, enter translation in field below, and click "Done and Next" (Ctrl+Return) to navigate to next untranslated string
 - Once translation has been finished, save resulting file.
@@ -129,7 +135,7 @@ After that, start Launcher, switch to Help tab and open "log files directory". Y
 If your mod also contains maps or campaigns that you want to translate, then use '/translate maps' command instead.
 
 ### Translating mod information
-In order to display information in Launcher in language selected by user add following block into your mod.json:
+In order to display information in Launcher in language selected by user add following block into your `mod.json`:
 ```
 	"<language>" : {
 		"name" : "<translated name>",
@@ -140,7 +146,7 @@ In order to display information in Launcher in language selected by user add fol
 		]
 	},
 ```
-However, normally you don't need to use block for English. Instead, English text should remain in root section of your mod.json file, to be used when game can not find translated version.
+However, normally you don't need to use block for English. Instead, English text should remain in root section of your `mod.json` file, to be used when game can not find translated version.
 
 ### Translating in-game strings
 
@@ -152,8 +158,8 @@ Use any text editor (Notepad++ is recommended for Windows) and translate all str
 
 ### Adding new languages
 In order to add new language it needs to be added in multiple locations in source code:
-- Generate new .ts files for launcher and map editor, either by running `lupdate` with name of new .ts or by copying english.ts and editing language tag in the header.
-- Add new language into lib/Languages.h entry. This will trigger static_assert's in places that needs an update in code
+- Generate new .ts files for launcher and map editor, either by running `lupdate` with name of new .ts or by copying `english.ts` and editing language tag in the header.
+- Add new language into `lib/Languages.h` entry. This will trigger static_assert's in places that needs an update in code
 - Add new language into json schemas validation list - settings schema and mod schema
 - Add new language into mod json format - in order to allow translation into new language
 
@@ -161,14 +167,14 @@ Also, make full search for a name of an existing language to ensure that there a
 
 ### Updating translation of Launcher and Map Editor to include new strings
 
-At the moment, build system will generate binary translation files (.qs) that can be opened by Qt.
+At the moment, build system will generate binary translation files (`.qs`) that can be opened by Qt.
 However, any new or changed lines will not be added into existing .ts files.
-In order to update .ts files manually, open command line shell in `mapeditor` or `launcher` source directories and execute command
+In order to update `.ts` files manually, open command line shell in `mapeditor` or `launcher` source directories and execute command
 ```
 lupdate -no-obsolete * -ts translation/*.ts
 ```
 
-This will remove any no longer existing lines from translation and add any new lines for all translations. If you want to keep old lines, remove `-no-obsolete` key from the command
+This will remove any no longer existing lines from translation and add any new lines for all translations. If you want to keep old lines, remove `-no-obsolete` key from the command.
 There *may* be a way to do the same via QtCreator UI or via CMake, if you find one feel free to update this information.
 
 ### Updating translation of Launcher and Map Editor using new .ts file from translators

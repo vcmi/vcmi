@@ -24,8 +24,7 @@ CIntObject::CIntObject(int used_, Point pos_):
 	redrawParent(false),
 	inputEnabled(true),
 	used(used_),
-	recActions(GH.defActionsDef),
-	defActions(GH.defActionsDef),
+	recActions(ALL_ACTIONS),
 	pos(pos_, Point())
 {
 	if(GH.captureChildren)
@@ -38,12 +37,7 @@ CIntObject::~CIntObject()
 		deactivate();
 
 	while(!children.empty())
-	{
-		if((defActions & DISPOSE) && (children.front()->recActions & DISPOSE))
-			delete children.front();
-		else
-			removeChild(children.front());
-	}
+		removeChild(children.front());
 
 	if(parent_m)
 		parent_m->removeChild(this);
@@ -51,20 +45,16 @@ CIntObject::~CIntObject()
 
 void CIntObject::show(Canvas & to)
 {
-	if(defActions & UPDATE)
-		for(auto & elem : children)
-			if(elem->recActions & UPDATE)
-				elem->show(to);
+	for(auto & elem : children)
+		if(elem->recActions & UPDATE)
+			elem->show(to);
 }
 
 void CIntObject::showAll(Canvas & to)
 {
-	if(defActions & SHOWALL)
-	{
-		for(auto & elem : children)
-			if(elem->recActions & SHOWALL)
-				elem->showAll(to);
-	}
+	for(auto & elem : children)
+		if(elem->recActions & SHOWALL)
+			elem->showAll(to);
 }
 
 void CIntObject::activate()
@@ -79,10 +69,9 @@ void CIntObject::activate()
 
 	assert(isActive());
 
-	if(defActions & ACTIVATE)
-		for(auto & elem : children)
-			if(elem->recActions & ACTIVATE)
-				elem->activate();
+	for(auto & elem : children)
+		if(elem->recActions & ACTIVATE)
+			elem->activate();
 }
 
 void CIntObject::deactivate()
@@ -94,10 +83,9 @@ void CIntObject::deactivate()
 
 	assert(!isActive());
 
-	if(defActions & DEACTIVATE)
-		for(auto & elem : children)
-			if(elem->recActions & DEACTIVATE)
-				elem->deactivate();
+	for(auto & elem : children)
+		if(elem->recActions & DEACTIVATE)
+			elem->deactivate();
 }
 
 void CIntObject::addUsedEvents(ui16 newActions)
@@ -119,7 +107,7 @@ void CIntObject::disable()
 	if(isActive())
 		deactivate();
 
-	recActions = DISPOSE;
+	recActions = NO_ACTIONS;
 }
 
 void CIntObject::enable()
@@ -130,7 +118,7 @@ void CIntObject::enable()
 		redraw();
 	}
 
-	recActions = 255;
+	recActions = ALL_ACTIONS;
 }
 
 void CIntObject::setEnabled(bool on)
@@ -169,11 +157,16 @@ void CIntObject::setRedrawParent(bool on)
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
 {
+	fitToRect(Rect(Point(0, 0), GH.screenDimensions()), borderWidth, propagate);
+}
+
+void CIntObject::fitToRect(Rect rect, int borderWidth, bool propagate)
+{
 	Point newPos = pos.topLeft();
-	vstd::amax(newPos.x, borderWidth);
-	vstd::amax(newPos.y, borderWidth);
-	vstd::amin(newPos.x, GH.screenDimensions().x - borderWidth - pos.w);
-	vstd::amin(newPos.y, GH.screenDimensions().y - borderWidth - pos.h);
+	vstd::amax(newPos.x, rect.x + borderWidth);
+	vstd::amax(newPos.y, rect.y + borderWidth);
+	vstd::amin(newPos.x, rect.x + rect.w - borderWidth - pos.w);
+	vstd::amin(newPos.y, rect.y + rect.h - borderWidth - pos.h);
 	if (newPos != pos.topLeft())
 		moveTo(newPos, propagate);
 }
@@ -245,17 +238,26 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			Canvas buffer = Canvas::createFromSurface(screenBuf);
+			Canvas buffer = Canvas::createFromSurface(screenBuf, CanvasScalingPolicy::AUTO);
 
 			showAll(buffer);
 			if(screenBuf != screen)
 			{
-				Canvas screenBuffer = Canvas::createFromSurface(screen);
+				Canvas screenBuffer = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
 
 				showAll(screenBuffer);
 			}
 		}
 	}
+}
+
+void CIntObject::moveChildForeground(const CIntObject * childToMove)
+{
+	for(auto child = children.begin(); child != children.end(); child++)
+		if(*child == childToMove && child != children.end())
+		{
+			std::rotate(child, child + 1, children.end());
+		}
 }
 
 bool CIntObject::receiveEvent(const Point & position, int eventType) const

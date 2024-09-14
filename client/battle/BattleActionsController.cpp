@@ -312,8 +312,8 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 	heroSpellToCast = std::make_shared<BattleAction>();
 	heroSpellToCast->actionType = EActionType::HERO_SPELL;
 	heroSpellToCast->spell = spellID;
-	heroSpellToCast->stackNumber = (owner.attackingHeroInstance->tempOwner == owner.curInt->playerID) ? -1 : -2;
-	heroSpellToCast->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
+	heroSpellToCast->stackNumber = -1;
+	heroSpellToCast->side = owner.curInt->cb->getBattle(owner.getBattleID())->battleGetMySide();
 
 	//choosing possible targets
 	const CGHeroInstance *castingHero = (owner.attackingHeroInstance->tempOwner == owner.curInt->playerID) ? owner.attackingHeroInstance : owner.defendingHeroInstance;
@@ -499,9 +499,12 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
+				const auto * attacker = owner.stacksController->getActiveStack();
 				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
+				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex] : 0;
 				DamageEstimation retaliation;
-				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(owner.stacksController->getActiveStack(), targetStack, attackFromHex, &retaliation);
+				BattleAttackInfo attackInfo(attacker, targetStack, distance, false );
+				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(attackInfo, &retaliation);
 				estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
 				estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
 				bool enemyMayBeKilled = estimation.kills.max == targetStack->getCount();
@@ -514,7 +517,8 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			const auto * shooter = owner.stacksController->getActiveStack();
 
 			DamageEstimation retaliation;
-			DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(shooter, targetStack, shooter->getPosition(), &retaliation);
+			BattleAttackInfo attackInfo(shooter, targetStack, 0, true );
+			DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(attackInfo, &retaliation);
 			estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
 			estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
 			return formatRangedAttack(estimation, targetStack->getName(), shooter->shots.available());

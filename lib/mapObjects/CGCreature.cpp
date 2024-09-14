@@ -14,7 +14,7 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -164,7 +164,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
 			ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
-			cb->showBlockingDialog(&ynd);
+			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
 	default: //join for gold
@@ -180,7 +180,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
 			boost::algorithm::replace_first(tmp,"%s",VLC->creatures()->getById(getCreature())->getNamePluralTranslated());
 			ynd.text.appendRawString(tmp);
-			cb->showBlockingDialog(&ynd);
+			cb->showBlockingDialog(this, &ynd);
 			break;
 		}
 	}
@@ -280,15 +280,15 @@ void CGCreature::newTurn(vstd::RNG & rand) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{
-		if (stacks.begin()->second->count < VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+		if (stacks.begin()->second->count < cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
-			ui32 power = static_cast<ui32>(temppower * (100 + VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
-			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
+			ui32 power = static_cast<ui32>(temppower * (100 + cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
+			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
 			cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
 	}
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, VLC->settings()->getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
+	if (cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, cb->getSettings().getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
 }
 void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
@@ -465,7 +465,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 		}
 	}
 
-	cb->startBattleI(h, this);
+	cb->startBattle(h, this);
 
 }
 
@@ -475,17 +475,17 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	ynd.player = h->tempOwner;
 	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
 	ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
-	cb->showBlockingDialog(&ynd);
+	cb->showBlockingDialog(this, &ynd);
 }
 
 void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0)
+	if(result.winner == BattleSide::ATTACKER)
 	{
 		giveReward(hero);
 		cb->removeObject(this, hero->getOwner());
 	}
-	else if(result.winner > 1) // draw
+	else if(result.winner == BattleSide::NONE) // draw
 	{
 		// guarded reward is lost forever on draw
 		cb->removeObject(this, hero->getOwner());
@@ -523,7 +523,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	}
 }
 
-void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	auto action = takenAction(hero);
 	if(!refusedJoining && action >= JOIN_FOR_FREE) //higher means price
@@ -605,7 +605,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
-		cb->giveHeroNewArtifact(h, gainedArtifact.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(h, gainedArtifact, ArtifactPosition::FIRST_AVAILABLE);
 		iw.components.emplace_back(ComponentType::ARTIFACT, gainedArtifact);
 	}
 

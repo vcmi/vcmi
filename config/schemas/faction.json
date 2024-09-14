@@ -89,7 +89,7 @@
 			"additionalProperties" : false,
 			"required" : [
 				"mapObject", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
-				"hallBackground", "hallSlots", "horde", "mageGuild", "moatAbility", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground", "warMachine"
+				"hallBackground", "hallSlots", "horde", "mageGuild", "moatAbility", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground"
 			],
 			"description" : "town",
 			"properties" : {
@@ -132,10 +132,6 @@
 				"primaryResource" : {
 					"type" : "string",
 					"description" : "Primary resource for this town. Produced by Silo and offered as starting bonus"
-				},
-				"warMachine" : {
-					"type" : "string",
-					"description" : "Identifier of war machine produced by blacksmith in town"
 				},
 				"horde" : {
 					"type" : "array",

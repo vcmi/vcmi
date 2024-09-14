@@ -54,9 +54,9 @@
 	"vcmi.radialWheel.moveUp" : "上移",
 	"vcmi.radialWheel.moveDown" : "下移",
 	"vcmi.radialWheel.moveBottom" : "移到底端",
-	
+
 	"vcmi.spellBook.search" : "搜索中...",
-	
+
 	"vcmi.mainMenu.serverConnecting" : "连接中...",
 	"vcmi.mainMenu.serverAddressEnter" : "使用地址:",
 	"vcmi.mainMenu.serverConnectionFailed" : "连接失败",
@@ -72,6 +72,11 @@
 	"vcmi.lobby.noUnderground" : "无地下部分",
 	"vcmi.lobby.sortDate" : "以修改时间排序地图",
 	"vcmi.lobby.backToLobby" : "返回大厅",
+	"vcmi.lobby.author" : "作者",
+	"vcmi.lobby.handicap" : "障碍",
+	"vcmi.lobby.handicap.resource" : "给予玩家起始资源以外的更多资源，允许负值，但总量不会低于0（玩家永远不会能以负资源开始游戏）。",
+	"vcmi.lobby.handicap.income" : "按百分比改变玩家的各种收入，向上取整。",
+	"vcmi.lobby.handicap.growth" : "改变玩家拥有的城镇的生物增长率，向上取整。",
 
 	"vcmi.lobby.login.title" : "VCMI大厅",
 	"vcmi.lobby.login.username" : "用户名:",
@@ -157,6 +162,38 @@
 	"vcmi.systemOptions.otherGroup" : "其他设置", // unused right now
 	"vcmi.systemOptions.townsGroup" : "城镇画面",
 
+	"vcmi.statisticWindow.statistics" : "统计",
+	"vcmi.statisticWindow.tsvCopy" : "复制到剪切板",
+	"vcmi.statisticWindow.selectView" : "选择视角",
+	"vcmi.statisticWindow.value" : "值",
+	"vcmi.statisticWindow.title.overview" : "概况",
+	"vcmi.statisticWindow.title.resources" : "资源",
+	"vcmi.statisticWindow.title.income" : "收入",
+	"vcmi.statisticWindow.title.numberOfHeroes" : "英雄数量",
+	"vcmi.statisticWindow.title.numberOfTowns" : "城镇数量",
+	"vcmi.statisticWindow.title.numberOfArtifacts" : "宝物数量",
+	"vcmi.statisticWindow.title.numberOfDwellings" : "野外巢穴数量",
+	"vcmi.statisticWindow.title.numberOfMines" : "矿井数量",
+	"vcmi.statisticWindow.title.armyStrength" : "部队强度",
+	"vcmi.statisticWindow.title.experience" : "经验",
+	"vcmi.statisticWindow.title.resourcesSpentArmy" : "部队花费",
+	"vcmi.statisticWindow.title.resourcesSpentBuildings" : "建造花费",
+	"vcmi.statisticWindow.title.mapExplored" : "地图探索比例",
+	"vcmi.statisticWindow.param.playerName" : "玩家名称",
+	"vcmi.statisticWindow.param.daysSurvived" : "存活天数",
+	"vcmi.statisticWindow.param.maxHeroLevel" : "最大英雄等级",
+	"vcmi.statisticWindow.param.battleWinRatioHero" : "胜率（对英雄）",
+	"vcmi.statisticWindow.param.battleWinRatioNeutral" : "胜率（对中立生物）",
+	"vcmi.statisticWindow.param.battlesHero" : "战斗（对英雄）",
+	"vcmi.statisticWindow.param.battlesNeutral" : "战斗（对中立生物）",
+	"vcmi.statisticWindow.param.maxArmyStrength" : "最大部队强度",
+	"vcmi.statisticWindow.param.tradeVolume" : "交易量",
+	"vcmi.statisticWindow.param.obeliskVisited" : "方尖塔访问",
+	"vcmi.statisticWindow.icon.townCaptured" : "占领城镇",
+	"vcmi.statisticWindow.icon.strongestHeroDefeated" : "击败对手最强英雄",
+	"vcmi.statisticWindow.icon.grailFound" : "找到神器",
+	"vcmi.statisticWindow.icon.defeated" : "被击败",
+
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "全屏 (无边框)",
 	"vcmi.systemOptions.fullscreenBorderless.help"  : "{全屏}\n\n选中时，VCMI将以无边框全屏模式运行。该模式下，游戏会始终和桌面分辨率保持一致，无视设置的分辨率。 ",
 	"vcmi.systemOptions.fullscreenExclusive.hover"  : "全屏 (独占)",
@@ -237,6 +274,8 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{跳过战斗开始音乐}\n\n战斗开始音乐播放期间，你也能够进行操作。",
 	"vcmi.battleOptions.endWithAutocombat.hover": "结束战斗",
 	"vcmi.battleOptions.endWithAutocombat.help": "{结束战斗}\n\n以自动战斗立即结束剩余战斗过程",
+	"vcmi.battleOptions.showQuickSpell.hover": "展示快捷法术面板",
+	"vcmi.battleOptions.showQuickSpell.help": "{展示快捷法术面板}\n\n展示快捷选择法术的面板。",
 
 	"vcmi.adventureMap.revisitObject.hover" : "重新访问",
 	"vcmi.adventureMap.revisitObject.help" : "{重新访问}\n\n让当前英雄重新访问地图建筑或城镇。",
@@ -285,17 +324,9 @@
 
 	"vcmi.townHall.missingBase"             : "必须先建造基础建筑 %s",
 	"vcmi.townHall.noCreaturesToRecruit"    : "没有可供招募的生物。",
-	"vcmi.townHall.greetingManaVortex"      : "接近%s时，你会全身充满活力，并且你的魔法值会加倍。",
-	"vcmi.townHall.greetingKnowledge"       : "你研究了%s的浮雕，洞察了魔法的秘密(知识+1)。",
-	"vcmi.townHall.greetingSpellPower"      : "%s教你如何运用魔法力量(力量+1)。",
-	"vcmi.townHall.greetingExperience"      : "参观%s可以让你学会许多新的技能(经验值+1000)。",
-	"vcmi.townHall.greetingAttack"          : "在%s中稍待片刻可以让你学会更有效的战斗技巧(攻击力+1)。",
-	"vcmi.townHall.greetingDefence"         : "在%s中稍待片刻，富有战斗经验的战士会教你防御技巧(防御力+1)。",
-	"vcmi.townHall.hasNotProduced"          : "本周%s并没有产生什么资源。",
-	"vcmi.townHall.hasProduced"             : "本周%s产生了%d个%s。",
-	"vcmi.townHall.greetingCustomBonus"     : "%s 给予英雄 +%d %s%s。",
-	"vcmi.townHall.greetingCustomUntil"     : "直到下一场战斗。",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s使你的魔法值恢复到最大值。",
+
+	"vcmi.townStructure.bank.borrow" : "你走进银行。一位银行职员看到你，说道：“我们为您提供了一个特别优惠。您可以向我们借2500金币，期限为5天。您每天需要偿还500金币。”",
+	"vcmi.townStructure.bank.payBack" : "你走进银行。一位银行职员看到你，说道：“您已经获得了贷款。还清之前，不能再申请新的贷款。”",
 
 	"vcmi.logicalExpressions.anyOf"  : "以下任一前提：",
 	"vcmi.logicalExpressions.allOf"  : "以下所有前提：",
@@ -629,5 +660,7 @@
 	"core.bonus.WATER_IMMUNITY.name": "水系免疫",
 	"core.bonus.WATER_IMMUNITY.description": "免疫水系魔法",
 	"core.bonus.WIDE_BREATH.name": "弧形焰息",
-	"core.bonus.WIDE_BREATH.description": "大范围喷吐攻击(目标左右以及后方共6格)"
+	"core.bonus.WIDE_BREATH.description": "大范围喷吐攻击(目标左右以及后方共6格)",
+	"core.bonus.DISINTEGRATE.name": "解体",
+	"core.bonus.DISINTEGRATE.description": "死亡后不会留下尸体"
 }

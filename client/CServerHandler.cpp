@@ -21,7 +21,11 @@
 #include "globalLobby/GlobalLobbyClient.h"
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
+#include "lobby/CBonusSelection.h"
 #include "windows/InfoWindows.h"
+#include "media/CMusicHandler.h"
+#include "media/IVideoPlayer.h"
+
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
@@ -35,6 +39,8 @@
 #include "../lib/TurnTimerInfo.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/gameState/CGameState.h"
+#include "../lib/gameState/HighScore.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -43,72 +49,15 @@
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include "../lib/serializer/Cast.h"
 #include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
-
-template<typename T> class CApplyOnLobby;
-
-class CBaseForLobbyApply
-{
-public:
-	virtual bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const = 0;
-	virtual void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const = 0;
-	virtual ~CBaseForLobbyApply(){};
-	template<typename U> static CBaseForLobbyApply * getApplier(const U * t = nullptr)
-	{
-		return new CApplyOnLobby<U>();
-	}
-};
-
-template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
-{
-public:
-	bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const override
-	{
-		auto & ref = static_cast<T&>(pack);
-		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
-
-		logNetwork->trace("\tImmediately apply on lobby: %s", typeid(ref).name());
-		ref.visit(visitor);
-
-		return visitor.getResult();
-	}
-
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const override
-	{
-		auto & ref = static_cast<T &>(pack);
-		ApplyOnLobbyScreenNetPackVisitor visitor(*handler, lobby);
-
-		logNetwork->trace("\tApply on lobby from queue: %s", typeid(ref).name());
-		ref.visit(visitor);
-	}
-};
-
-template<> class CApplyOnLobby<CPack>: public CBaseForLobbyApply
-{
-public:
-	bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-		return false;
-	}
-
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-	}
-};
 
 CServerHandler::~CServerHandler()
 {
@@ -147,7 +96,6 @@ CServerHandler::CServerHandler()
 	: networkHandler(INetworkHandler::createHandler())
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
 	, gameChat(std::make_unique<GameChatHandler>())
-	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, threadNetwork(&CServerHandler::threadRunNetwork, this)
 	, state(EClientState::NONE)
 	, serverPort(0)
@@ -158,12 +106,6 @@ CServerHandler::CServerHandler()
 	, client(nullptr)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
-	registerTypesLobbyPacks(*applier);
-}
-
-void CServerHandler::setHighScoreCalc(const std::shared_ptr<HighScoreCalculation> &newHighScoreCalc)
-{
-	campaignScoreCalculator = newHighScoreCalc;
 }
 
 void CServerHandler::threadRunNetwork()
@@ -324,8 +266,8 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 
 void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
 {
-	const CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(&pack)); //find the applier
-	apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
+	ApplyOnLobbyScreenNetPackVisitor visitor(*this, dynamic_cast<CLobbyScreen *>(SEL));
+	pack.visit(visitor);
 	GH.windows().totalRedraw();
 }
 
@@ -497,6 +439,14 @@ void CServerHandler::setPlayerName(PlayerColor color, const std::string & name) 
 	sendLobbyPack(lspn);
 }
 
+void CServerHandler::setPlayerHandicap(PlayerColor color, Handicap handicap) const
+{
+	LobbySetPlayerHandicap lsph;
+	lsph.color = color;
+	lsph.handicap = handicap;
+	sendLobbyPack(lsph);
+}
+
 void CServerHandler::setPlayerOption(ui8 what, int32_t value, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;
@@ -585,7 +535,10 @@ void CServerHandler::sendGuiAction(ui8 action) const
 
 void CServerHandler::sendRestartGame() const
 {
-	GH.windows().createAndPushWindow<CLoadingScreen>();
+	if(si->campState && !si->campState->getLoadingBackground().empty())
+		GH.windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+	else
+		GH.windows().createAndPushWindow<CLoadingScreen>();
 	
 	LobbyRestartGame endGame;
 	sendLobbyPack(endGame);
@@ -629,7 +582,12 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 
 	if(!settings["session"]["headless"].Bool())
-		GH.windows().createAndPushWindow<CLoadingScreen>();
+	{
+		if(si->campState && !si->campState->getLoadingBackground().empty())
+			GH.windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+		else
+			GH.windows().createAndPushWindow<CLoadingScreen>();
+	}
 	
 	LobbyPrepareStartGame lpsg;
 	sendLobbyPack(lpsg);
@@ -655,7 +613,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		break;
 	case EStartMode::CAMPAIGN:
 		if(si->campState->conqueredScenarios().empty())
-			campaignScoreCalculator.reset();
+			si->campState->highscoreParameters.clear();
 		client->newGame(gameState);
 		break;
 	case EStartMode::LOAD_GAME:
@@ -669,43 +627,13 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	setState(EClientState::GAMEPLAY);
 }
 
-HighScoreParameter CServerHandler::prepareHighScores(PlayerColor player, bool victory)
+void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
-	const auto * gs = client->gameState();
-	const auto * playerState = gs->getPlayerState(player);
-
-	HighScoreParameter param;
-	param.difficulty = gs->getStartInfo()->difficulty;
-	param.day = gs->getDate();
-	param.townAmount = gs->howManyTowns(player);
-	param.usedCheat = gs->getPlayerState(player)->cheated;
-	param.hasGrail = false;
-	for(const CGHeroInstance * h : playerState->heroes)
-		if(h->hasArt(ArtifactID::GRAIL))
-			param.hasGrail = true;
-	for(const CGTownInstance * t : playerState->towns)
-		if(t->builtBuildings.count(BuildingID::GRAIL))
-			param.hasGrail = true;
-	param.allDefeated = true;
-	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)
-	{
-		auto ps = gs->getPlayerState(otherPlayer, false);
-		if(ps && otherPlayer != player && !ps->checkVanquished())
-			param.allDefeated = false;
-	}
-	param.scenarioName = gs->getMapHeader()->name.toString();
-	param.playerName = gs->getStartInfo()->playerInfos.find(player)->second.name;
-
-	return param;
-}
-
-void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory)
-{
-	HighScoreParameter param = prepareHighScores(player, victory);
+	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
 
 	if(victory && client->gameState()->getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState()->getStartInfo()->campState);
+		startCampaignScenario(param, client->gameState()->getStartInfo()->campState, statistic);
 	}
 	else
 	{
@@ -714,9 +642,8 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 		scenarioHighScores.isCampaign = false;
 
 		endGameplay();
-		GH.defActionsDef = 63;
 		CMM->menu->switchToTab("main");
-		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores);
+		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
 	}
 }
 
@@ -749,26 +676,23 @@ void CServerHandler::restartGameplay()
 	logicConnection->enterLobbyConnectionMode();
 }
 
-void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)
+void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, const StatisticDataSet & statistic)
 {
 	std::shared_ptr<CampaignState> ourCampaign = cs;
 
 	if (!cs)
 		ourCampaign = si->campState;
 
-	if(campaignScoreCalculator == nullptr)
-	{
-		campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
-		campaignScoreCalculator->isCampaign = true;
-		campaignScoreCalculator->parameters.clear();
-	}
 	param.campaignName = cs->getNameTranslated();
-	campaignScoreCalculator->parameters.push_back(param);
+	cs->highscoreParameters.push_back(param);
+	auto campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
+	campaignScoreCalculator->isCampaign = true;
+	campaignScoreCalculator->parameters = cs->highscoreParameters;
 
 	endGameplay();
 
 	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
-	auto finisher = [this, ourCampaign]()
+	auto finisher = [ourCampaign, campaignScoreCalculator, statistic]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{
@@ -784,7 +708,15 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		else
 		{
 			CMM->openCampaignScreen(ourCampaign->campaignSet);
-			GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator);
+			if(!ourCampaign->getOutroVideo().empty() && CCS->videoh->open(ourCampaign->getOutroVideo(), false))
+			{
+				CCS->musich->stopMusic();
+				GH.windows().createAndPushWindow<CampaignRimVideo>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), [campaignScoreCalculator, statistic](){
+					GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
+				});
+			}
+			else
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 		}
 	};
 
@@ -948,7 +880,6 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	if(client)
 	{
 		endGameplay();
-		GH.defActionsDef = 63;
 		CMM->menu->switchToTab("main");
 		showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
@@ -991,7 +922,10 @@ void CServerHandler::waitForServerShutdown()
 
 void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 {
-	if(applier->getApplier(CTypeList::getInstance().getTypeID(&lobbyPack))->applyOnLobbyHandler(this, lobbyPack))
+	ApplyOnLobbyHandlerNetPackVisitor visitor(*this);
+	lobbyPack.visit(visitor);
+
+	if(visitor.getResult())
 	{
 		if(!settings["session"]["headless"].Bool())
 			applyPackOnLobbyScreen(lobbyPack);

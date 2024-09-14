@@ -18,7 +18,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CTown::CTown()
-	: faction(nullptr), mageLevel(0), primaryRes(0), moatAbility(SpellID::NONE), defaultTavernChance(0)
+	: faction(nullptr), mageLevel(0), primaryRes(0), defaultTavernChance(0)
 {
 }
 
@@ -76,16 +76,6 @@ BuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
 {
 	const auto * building = getSpecialBuilding(subID);
 	return building == nullptr ? BuildingID::NONE : building->bid.num;
-}
-
-std::string CTown::getGreeting(BuildingSubID::EBuildingSubID subID) const
-{
-	return CTownHandler::getMappedValue<const std::string, BuildingSubID::EBuildingSubID>(subID, std::string(), specialMessages, false);
-}
-
-void CTown::setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const
-{
-	specialMessages.insert(std::pair<BuildingSubID::EBuildingSubID, const std::string>(subID, message));
 }
 
 VCMI_LIB_NAMESPACE_END

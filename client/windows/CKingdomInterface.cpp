@@ -35,8 +35,9 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
@@ -55,7 +56,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 	addUsedEvents(LCLICK | SHOW_POPUP);
 	EFonts font = (size < SIZE_MEDIUM)? FONT_SMALL: FONT_MEDIUM;
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos+=position;
 
 	image = std::make_shared<CAnimImage>(data->getImageName(size), data->getImageIndex());
@@ -461,7 +462,7 @@ void InfoBoxCustom::prepareMessage(std::string & text, std::shared_ptr<CComponen
 CKingdomInterface::CKingdomInterface()
 	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(OVERVIEW_BACKGROUND))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	ui32 footerPos = OVERVIEW_SIZE * 116;
 
 	tabArea = std::make_shared<CTabbedInt>(std::bind(&CKingdomInterface::createMainTab, this, _1), Point(4,4));
@@ -584,17 +585,16 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 			const CGMine * mine = dynamic_cast<const CGMine *>(object);
 			assert(mine);
 			minesCount[mine->producedResource]++;
-
-			if (mine->producedResource == EGameResID::GOLD)
-				totalIncome += mine->producedQuantity;
+			totalIncome += mine->dailyIncome()[EGameResID::GOLD];
 		}
 	}
 
 	//Heroes can produce gold as well - skill, specialty or arts
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
+	auto * playerSettings = LOCPLINT->cb->getPlayerSettings(LOCPLINT->playerID);
 	for(auto & hero : heroes)
 	{
-		totalIncome += hero->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD))));
+		totalIncome += hero->dailyIncome()[EGameResID::GOLD];
 	}
 
 	//Add town income of all towns
@@ -605,8 +605,8 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	}
 
 	//if player has some modded boosts we want to show that as well
-	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD)));
-	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size();
+	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * playerSettings->handicap.percentIncome / 100;
+	totalIncome += LOCPLINT->cb->getPlayerState(LOCPLINT->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size() * playerSettings->handicap.percentIncome / 100;
 
 	for(int i=0; i<7; i++)
 	{
@@ -689,7 +689,7 @@ bool CKingdomInterface::holdsGarrison(const CArmedInstance * army)
 
 CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onCreateHeroItemCallback)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
 	title->setPlayerColor(LOCPLINT->playerID);
 	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[0]);
@@ -733,7 +733,7 @@ bool CKingdHeroList::holdsGarrison(const CArmedInstance * army)
 
 CKingdTownList::CKingdTownList(size_t maxSize)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"), 16, 0);
 	title->setPlayerColor(LOCPLINT->playerID);
 	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[3]);
@@ -789,7 +789,7 @@ std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 CTownItem::CTownItem(const CGTownInstance * Town)
 	: town(Town)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 6);
 	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 
@@ -800,7 +800,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
@@ -820,7 +820,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 
 	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
 	{
-		if(town->builtBuildings.count(BuildingID::TAVERN))
+		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 	}, [&]{
 		if(!town->town->faction->getDescriptionTranslated().empty())
@@ -831,7 +831,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 		for(auto & town : towns)
 		{
-			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+			if(town->hasBuilt(BuildingID::MARKETPLACE))
 			{
 				GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				return;
@@ -881,7 +881,7 @@ public:
 
 	ArtSlotsTab()
 	{
-		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 4);
 		pos = background->pos;
 		for(int i=0; i<9; i++)
@@ -899,7 +899,7 @@ public:
 
 	BackpackTab()
 	{
-		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 5);
 		pos = background->pos;
 		btnLeft = std::make_shared<CButton>(Point(269, 66), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), 0);
@@ -912,7 +912,7 @@ public:
 CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	: hero(Hero)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	artTabs.resize(3);
 	auto arts1 = std::make_shared<ArtSlotsTab>();

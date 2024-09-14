@@ -13,9 +13,6 @@
 #include "CStack.h"
 #include "VCMIDirs.h"
 
-#include "serializer/BinaryDeserializer.h"
-#include "serializer/BinarySerializer.h"
-
 #ifdef STATIC_AI
 # include "AI/VCAI/VCAI.h"
 # include "AI/Nullkiller/AIGateway.h"
@@ -168,7 +165,7 @@ void CAdventureAI::battleCatapultAttacked(const BattleID & battleID, const Catap
 }
 
 void CAdventureAI::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile,
-							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
+							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed)
 {
 	assert(!battleAI);
 	assert(cbc);

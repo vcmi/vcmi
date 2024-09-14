@@ -9,9 +9,11 @@ set(vcmiservercommon_SRCS
 		queries/BattleQueries.cpp
 		queries/CQuery.cpp
 		queries/MapQueries.cpp
+		queries/VisitQueries.cpp
 		queries/QueriesProcessor.cpp
 
 		processors/HeroPoolProcessor.cpp
+		processors/NewTurnProcessor.cpp
 		processors/PlayerMessageProcessor.cpp
 		processors/TurnOrderProcessor.cpp
 
@@ -35,9 +37,11 @@ set(vcmiservercommon_HEADERS
 		queries/BattleQueries.h
 		queries/CQuery.h
 		queries/MapQueries.h
+		queries/VisitQueries.h
 		queries/QueriesProcessor.h
 
 		processors/HeroPoolProcessor.h
+		processors/NewTurnProcessor.h
 		processors/PlayerMessageProcessor.h
 		processors/TurnOrderProcessor.h
 

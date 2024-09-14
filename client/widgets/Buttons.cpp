@@ -73,7 +73,7 @@ void CButton::addPopupCallback(const std::function<void()> & callback)
 
 void ButtonBase::setTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	setOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
 	update();
 }
@@ -92,7 +92,7 @@ void ButtonBase::setOverlay(const std::shared_ptr<CIntObject>& newOverlay)
 
 void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButton)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	configurable.reset();
 	image = std::make_shared<CAnimImage>(defName, vstd::to_underlying(getState()));
@@ -125,7 +125,7 @@ const JsonNode & ButtonBase::getCurrentConfig() const
 
 void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredButton)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	config = std::make_unique<JsonNode>(jsonName);
 
@@ -162,7 +162,7 @@ void ButtonBase::setStateImpl(EButtonState newState)
 
 	if (configurable)
 	{
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION;
 		configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
 		pos = configurable->pos;
 
@@ -356,7 +356,6 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 	hoverable(false),
 	soundDisabled(false)
 {
-	defActions = 255-DISPOSE;
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 	hoverTexts[0] = help.first;
 }
@@ -447,10 +446,13 @@ void CToggleBase::setAllowDeselection(bool on)
 }
 
 CToggleButton::CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
-							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton):
+							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton,
+				  			 CFunctionList<void()> callbackSelected):
   CButton(position, defName, help, 0, key, playerColoredButton),
-  CToggleBase(callback)
+  CToggleBase(callback),
+  callbackSelected(callbackSelected)
 {
+	addUsedEvents(DOUBLECLICK);
 }
 
 void CToggleButton::doSelect(bool on)
@@ -515,6 +517,12 @@ void CToggleButton::clickCancel(const Point & cursorPosition)
 		return;
 
 	doSelect(isSelected());
+}
+
+void CToggleButton::clickDouble(const Point & cursorPosition)
+{
+	if(callbackSelected)
+		callbackSelected();
 }
 
 void CToggleGroup::addCallback(const std::function<void(int)> & callback)

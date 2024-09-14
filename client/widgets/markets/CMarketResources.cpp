@@ -22,7 +22,7 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
-#include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/mapObjects/IMarket.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -32,7 +32,7 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 		[this](){CMarketResources::updateSubtitles();})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
@@ -60,7 +60,7 @@ void CMarketResources::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getSelectedItemId()),
+		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getSelectedItemId()),
 			GameResID(offerTradePanel->highlightedSlot->id), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();

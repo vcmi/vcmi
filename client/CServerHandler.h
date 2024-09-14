@@ -13,6 +13,7 @@
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
+#include "../lib/gameState/GameStatistics.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,7 +29,7 @@ struct CPack;
 struct CPackForLobby;
 struct CPackForClient;
 
-template<typename T> class CApplier;
+class HighScoreParameter;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -37,9 +38,6 @@ class CBaseForLobbyApply;
 class GlobalLobbyClient;
 class GameChatHandler;
 class IServerRunner;
-
-class HighScoreCalculation;
-class HighScoreParameter;
 
 enum class ESelectionScreen : ui8;
 enum class ELoadMode : ui8;
@@ -81,6 +79,7 @@ public:
 	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
 	virtual void setPlayerName(PlayerColor color, const std::string & name) const = 0;
+	virtual void setPlayerHandicap(PlayerColor color, Handicap handicap) const = 0;
 	virtual void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const = 0;
 	virtual void setDifficulty(int to) const = 0;
 	virtual void setTurnTimerInfo(const TurnTimerInfo &) const = 0;
@@ -101,11 +100,9 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::shared_ptr<INetworkConnection> networkConnection;
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<GameChatHandler> gameChat;
-	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::unique_ptr<IServerRunner> serverRunner;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
-	std::shared_ptr<HighScoreCalculation> campaignScoreCalculator;
 
 	boost::thread threadNetwork;
 
@@ -126,8 +123,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	ui16 serverPort;
 
 	bool isServerLocal() const;
-
-	HighScoreParameter prepareHighScores(PlayerColor player, bool victory);
 
 public:
 	/// High-level connection overlay that is capable of (de)serializing network data
@@ -191,6 +186,7 @@ public:
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
 	void setPlayer(PlayerColor color) const override;
 	void setPlayerName(PlayerColor color, const std::string & name) const override;
+	void setPlayerHandicap(PlayerColor color, Handicap handicap) const override;
 	void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const override;
 	void setDifficulty(int to) const override;
 	void setTurnTimerInfo(const TurnTimerInfo &) const override;
@@ -206,11 +202,11 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
-	void showHighScoresAndEndGameplay(PlayerColor player, bool victory);
+	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic);
 	void endNetwork();
 	void endGameplay();
 	void restartGameplay();
-	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});
+	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, const StatisticDataSet & statistic);
 	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
@@ -219,7 +215,6 @@ public:
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);
-	void setHighScoreCalc(const std::shared_ptr<HighScoreCalculation> &newHighScoreCalc);
 };
 
 extern CServerHandler * CSH;

@@ -97,7 +97,7 @@ public:
 	void joinTCP();
 
 	/// Get all configured player names. The first name would always be present and initialized to its default value.
-	const std::vector<std::string> getPlayersNames();
+	std::vector<std::string> getPlayersNames();
 
 	void onNameChange(std::string newText);
 };
@@ -192,6 +192,7 @@ class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progre
 
 public:	
 	CLoadingScreen();
+	CLoadingScreen(ImagePath background);
 	~CLoadingScreen();
 
 	void tick(uint32_t msPassed) override;

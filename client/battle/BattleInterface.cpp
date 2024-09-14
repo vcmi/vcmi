@@ -85,7 +85,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	this->army2 = army2;
 
 	const CGTownInstance *town = getBattle()->battleGetDefendedTown();
-	if(town && town->hasFort())
+	if(town && town->fortificationsLevel().wallsHealth > 0)
 		siegeController.reset(new BattleSiegeController(*this, town));
 
 	windowObject = std::make_shared<BattleWindow>(*this);
@@ -229,19 +229,19 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 {
 	stacksController->stacksAreAttacked(attackedInfos);
 
-	std::array<int, 2> killedBySide = {0, 0};
+	BattleSideArray<int> killedBySide;
 
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
-		ui8 side = attackedInfo.defender->unitSide();
+		BattleSide side = attackedInfo.defender->unitSide();
 		killedBySide.at(side) += attackedInfo.amountKilled;
 	}
 
-	for(ui8 side = 0; side < 2; side++)
+	for(BattleSide side : { BattleSide::ATTACKER, BattleSide::DEFENDER })
 	{
-		if(killedBySide.at(side) > killedBySide.at(1-side))
+		if(killedBySide.at(side) > killedBySide.at(getBattle()->otherSide(side)))
 			setHeroAnimation(side, EHeroAnimType::DEFEAT);
-		else if(killedBySide.at(side) < killedBySide.at(1-side))
+		else if(killedBySide.at(side) < killedBySide.at(getBattle()->otherSide(side)))
 			setHeroAnimation(side, EHeroAnimType::VICTORY);
 	}
 }
@@ -271,14 +271,14 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, SpellID sp
 	}
 
 	auto side = getBattle()->playerToSide(curInt->playerID);
-	if(!side)
+	if(side == BattleSide::NONE)
 	{
 		logGlobal->error("Player %s is not in battle", curInt->playerID.toString());
 		return;
 	}
 
 	BattleAction ba;
-	ba.side = side.value();
+	ba.side = side;
 	ba.actionType = action;
 	ba.aimToHex(tile);
 	ba.spell = spell;
@@ -409,7 +409,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		}
 		else
 		{
-			auto hero = sc->side ? defendingHero : attackingHero;
+			auto hero = sc->side == BattleSide::DEFENDER ? defendingHero : attackingHero;
 			assert(hero);
 
 			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]()
@@ -466,11 +466,11 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		Point leftHero = Point(15, 30);
 		Point rightHero = Point(755, 30);
-		bool side = sc->side;
+		BattleSide side = sc->side;
 
 		addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
-			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_A.DEF" : "SP07_B.DEF"), leftHero));
-			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_B.DEF" : "SP07_A.DEF"), rightHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side == BattleSide::DEFENDER ? "SP07_A.DEF" : "SP07_B.DEF"), leftHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side == BattleSide::DEFENDER ? "SP07_B.DEF" : "SP07_A.DEF"), rightHero));
 		});
 	}
 
@@ -483,7 +483,7 @@ void BattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 		fieldController->redrawBackgroundWithHexes();
 }
 
-void BattleInterface::setHeroAnimation(ui8 side, EHeroAnimType phase)
+void BattleInterface::setHeroAnimation(BattleSide side, EHeroAnimType phase)
 {
 	if(side == BattleSide::ATTACKER)
 	{
@@ -656,7 +656,7 @@ void BattleInterface::tacticPhaseEnd()
 	tacticsMode = false;
 
 	auto side = tacticianInterface->cb->getBattle(battleID)->playerToSide(tacticianInterface->playerID);
-	auto action = BattleAction::makeEndOFTacticPhase(*side);
+	auto action = BattleAction::makeEndOFTacticPhase(side);
 
 	tacticianInterface->cb->battleMakeTacticAction(battleID, action);
 }

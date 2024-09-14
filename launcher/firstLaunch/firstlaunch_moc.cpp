@@ -21,11 +21,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../helper.h"
 #include "../languages.h"
-
-#ifdef ENABLE_INNOEXTRACT
-#include "cli/extract.hpp"
-#include "setup/version.hpp"
-#endif
+#include "../innoextract.h"
 
 #ifdef VCMI_IOS
 #include "ios/selectdirectory.h"
@@ -386,44 +382,11 @@ void FirstLaunchView::extractGogData()
 		if(isGogGalaxyExe(tmpFileExe))
 			errorText = tr("You've provided GOG Galaxy installer! This file doesn't contain the game. Please download the offline backup game installer!");
 
-		::extract_options o;
-		o.extract = true;
-
-		// standard settings
-		o.gog_galaxy = true;
-		o.codepage = 0U;
-		o.output_dir = tempDir.path().toStdString();
-		o.extract_temp = true;
-		o.extract_unknown = true;
-		o.filenames.set_expand(true);
-
-		o.preserve_file_times = true; // also correctly closes file -> without it: on Windows the files are not written completely
-
-		try
-		{
-			if(errorText.isEmpty())
-				process_file(tmpFileExe.toStdString(), o, [this](float progress) {
-					ui->progressBarGog->setValue(progress * 100);
-					qApp->processEvents();
-				});
-		}
-		catch(const std::ios_base::failure & e)
-		{
-			errorText = tr("Stream error while extracting files!\nerror reason: ");
-			errorText += e.what();
-		}
-		catch(const format_error & e)
-		{
-			errorText = e.what();
-		}
-		catch(const std::runtime_error & e)
-		{
-			errorText = e.what();
-		}
-		catch(const setup::version_error &)
-		{
-			errorText = tr("Not a supported Inno Setup installer!");
-		}
+		if(errorText.isEmpty())
+			errorText = Innoextract::extract(tmpFileExe, tempDir.path(), [this](float progress) {
+				ui->progressBarGog->setValue(progress * 100);
+				qApp->processEvents();
+			});
 
 		ui->progressBarGog->setVisible(false);
 		ui->pushButtonGogInstall->setVisible(true);

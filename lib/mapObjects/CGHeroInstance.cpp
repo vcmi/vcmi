@@ -20,7 +20,7 @@
 #include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
@@ -31,6 +31,7 @@
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../battle/CBattleInfoEssentials.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
 #include "../pathfinder/TurnInfo.h"
@@ -342,7 +343,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		// hero starts with default spellbook presence status
 		if(!getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
 		{
-			auto artifact = ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK);
+			auto artifact = ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK);
 			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
 		}
 	}
@@ -351,7 +352,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if(!getArt(ArtifactPosition::MACH4))
 	{
-		auto artifact = ArtifactUtils::createNewArtifactInstance(ArtifactID::CATAPULT);
+		auto artifact = ArtifactUtils::createArtifact(ArtifactID::CATAPULT);
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
 	}
 
@@ -392,7 +393,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	// are not attached to global bonus node but need access to some global bonuses
 	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : VLC->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
-	const JsonNode & baseBonuses = VLC->settings()->getValue(EGameSettings::BONUSES_PER_HERO);
+	const JsonNode & baseBonuses = cb->getSettings().getValue(EGameSettings::BONUSES_PER_HERO);
 	for(const auto & b : baseBonuses.Struct())
 	{
 		auto bonus = JsonUtils::parseBonus(b.second);
@@ -402,7 +403,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		addNewBonus(bonus);
 	}
 
-	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && type->heroClass->commander.hasValue())
+	if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && type->heroClass->commander.hasValue())
 	{
 		commander = new CCommanderInstance(type->heroClass->commander);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
@@ -429,7 +430,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 	int warMachinesGiven = 0;
 
-	auto stacksCountChances = VLC->settings()->getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
+	auto stacksCountChances = cb->getSettings().getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 	int stacksCountInitRandomNumber = rand.nextInt(1, 100);
 
 	size_t maxStacksCount = std::min(stacksCountChances.size(), type->initialArmy.size());
@@ -467,7 +468,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 				if(!getArt(slot))
 				{
-					auto artifact = ArtifactUtils::createNewArtifactInstance(aid);
+					auto artifact = ArtifactUtils::createArtifact(aid);
 					putArtifact(slot, artifact);
 				}
 				else
@@ -511,12 +512,12 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			if(visitedTown) //we're in town
 				visitedTown->onHeroVisit(h); //town will handle attacking
 			else
-				cb->startBattleI(h,	this);
+				cb->startBattle(h,	this);
 		}
 	}
 	else if(ID == Obj::PRISON)
 	{
-		if (cb->getHeroCount(h->tempOwner, false) < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))//free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))//free hero slot
 		{
 			//update hero parameters
 			SetMovePoints smp;
@@ -880,7 +881,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double necromancySkill = valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE) / 100.0;
 		const ui8 necromancyLevel = valOfBonuses(BonusType::IMPROVED_NECROMANCY);
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
-		const std::map<CreatureID,si32> &casualties = battleResult.casualties[!battleResult.winner];
+		const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
@@ -1685,7 +1686,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spellBook", spells);
 
 	if(handler.saving)
-		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", nullptr);
+		CArtifactSet::serializeJsonArtifacts(handler, "artifacts");
 }
 
 void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -1704,6 +1705,16 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			setHeroTypeName(typeName);
 	}
 
+	if(!handler.saving)
+	{
+		if(!appearance)
+		{
+			// crossoverDeserialize
+			type = getHeroType().toHeroType();
+			appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
+		}
+	}
+
 	CArmedInstance::serializeJsonOptions(handler);
 
 	{
@@ -1719,13 +1730,6 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		if(!handler.saving)
 		{
-			if(!appearance)
-			{
-				// crossoverDeserialize
-				type = getHeroType().toHeroType();
-				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
-			}
-
 			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
 			patrol.initialPos = visitablePos();
 			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
@@ -1817,5 +1821,28 @@ bool CGHeroInstance::isCampaignGem() const
 
 	return true;
 }
+
+ResourceSet CGHeroInstance::dailyIncome() const
+{
+	ResourceSet income;
+
+	for (GameResID k : GameResID::ALL_RESOURCES())
+		income[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
+	const auto & playerSettings = cb->getPlayerSettings(getOwner());
+	income.applyHandicap(playerSettings->handicap.percentIncome);
+	return income;
+}
+
+std::vector<CreatureID> CGHeroInstance::providedCreatures() const
+{
+	return {};
+}
+
+const IOwnableObject * CGHeroInstance::asOwnable() const
+{
+	return this;
+}
+
 
 VCMI_LIB_NAMESPACE_END

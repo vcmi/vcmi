@@ -165,7 +165,7 @@ void MapController::repairMap(CMap * map) const
 			{
 				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
 				if(!nih->getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
-					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK));
 			}
 			
 		}
@@ -174,10 +174,11 @@ void MapController::repairMap(CMap * map) const
 		{
 			if(tnh->getTown())
 			{
-				vstd::erase_if(tnh->builtBuildings, [tnh](BuildingID bid)
+				for(const auto & building : tnh->getBuildings())
 				{
-					return !tnh->getTown()->buildings.count(bid);
-				});
+					if(!tnh->getTown()->buildings.count(building))
+						tnh->removeBuilding(building);
+				}
 				vstd::erase_if(tnh->forbiddenBuildings, [tnh](BuildingID bid)
 				{
 					return !tnh->getTown()->buildings.count(bid);
@@ -381,9 +382,15 @@ void MapController::pasteFromClipboard(int level)
 	if(_clipboardShiftIndex == int3::getDirs().size())
 		_clipboardShiftIndex = 0;
 	
+	QStringList errors;
 	for(auto & objUniquePtr : _clipboard)
 	{
 		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		QString errorMsg;
+		if (!canPlaceObject(level, obj, errorMsg))
+		{
+			errors.push_back(std::move(errorMsg));
+		}
 		auto newPos = objUniquePtr->pos + shift;
 		if(_map->isInTheMap(newPos))
 			obj->pos = newPos;
@@ -394,6 +401,8 @@ void MapController::pasteFromClipboard(int level)
 		_scenes[level]->selectionObjectsView.selectObject(obj);
 		_mapHandler->invalidate(obj);
 	}
+
+	QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
 	
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->passabilityView.update();
@@ -565,13 +574,13 @@ bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString
 	{
 		auto typeName = QString::fromStdString(newObj->typeName);
 		auto subTypeName = QString::fromStdString(newObj->subTypeName);
-		error = QString("There can be only one grail object on the map");
+		error = QObject::tr("There can only be one grail object on the map.");
 		return false; //maplimit reached
 	}
 	
 	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
 	{
-		error = "Hero cannot be created as NEUTRAL";
+		error = QObject::tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(newObj->instanceName));
 		return false;
 	}
 	
@@ -613,16 +622,49 @@ ModCompatibilityInfo MapController::modAssessmentAll()
 ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 {
 	ModCompatibilityInfo result;
+
+	auto extractEntityMod = [&result](const auto & entity) 
+	{
+		auto modScope = entity->getModScope();
+		if(modScope != "core")
+			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
+	};
+
 	for(auto obj : map.objects)
 	{
-		if(obj->ID == Obj::HERO)
-			continue; //stub! 
-		
 		auto handler = obj->getObjectHandler();
-		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
-		if(modName != "core")
-			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+		auto modScope = handler->getModScope();
+		if(modScope != "core")
+			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
+
+		if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
+		{
+			auto town = dynamic_cast<CGTownInstance *>(obj.get());
+			for(const auto & spellID : town->possibleSpells)
+			{
+				if(spellID == SpellID::PRESET)
+					continue;
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+
+			for(const auto & spellID : town->obligatorySpells)
+			{
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+		}
+
+		if(obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO)
+		{
+			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
+			for(const auto & spellID : hero->getSpellsInSpellbook())
+			{
+				if(spellID == SpellID::PRESET || spellID == SpellID::SPELLBOOK_PRESET)
+					continue;
+				extractEntityMod(spellID.toEntity(VLC));
+			}
+		}
 	}
-	//TODO: terrains?
+
+	//TODO: terrains, artifacts?
 	return result;
 }

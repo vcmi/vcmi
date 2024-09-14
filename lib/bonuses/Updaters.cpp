@@ -145,7 +145,7 @@ JsonNode ArmyMovementUpdater::toJsonNode() const
 }
 std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE)
+	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE || context.getNodeType() == CBonusSystemNode::COMMANDER)
 	{
 		int level = dynamic_cast<const CStackInstance &>(context).getLevel();
 		auto newBonus = std::make_shared<Bonus>(*b);
@@ -155,11 +155,18 @@ std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::sha
 	else if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
 	{
 		const auto & stack = dynamic_cast<const CStack &>(context);
-		//only update if stack doesn't have an instance (summons, war machines)
-		//otherwise we'd end up multiplying twice
+		//update if stack doesn't have an instance (summons, war machines)
 		if(stack.base == nullptr)
 		{
 			int level = stack.unitType()->getLevel();
+			auto newBonus = std::make_shared<Bonus>(*b);
+			newBonus->val *= level;
+			return newBonus;
+		}
+		// If these are not handled here, the final outcome may potentially be incorrect.
+		else
+		{
+			int level = dynamic_cast<const CStackInstance*>(stack.base)->getLevel();
 			auto newBonus = std::make_shared<Bonus>(*b);
 			newBonus->val *= level;
 			return newBonus;

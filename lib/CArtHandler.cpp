@@ -12,7 +12,7 @@
 
 #include "ArtifactUtils.h"
 #include "ExceptionsCommon.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "mapObjects/MapObjects.h"
 #include "constants/StringConstants.h"
 #include "json/JsonBonus.h"
@@ -104,6 +104,11 @@ int32_t CArtifact::getIconIndex() const
 std::string CArtifact::getJsonKey() const
 {
 	return modScope + ':' + identifier;
+}
+
+std::string CArtifact::getModScope() const
+{
+	return modScope;
 }
 
 void CArtifact::registerIcons(const IconRegistar & cb) const
@@ -322,7 +327,7 @@ CArtHandler::~CArtHandler() = default;
 
 std::vector<JsonNode> CArtHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -455,7 +460,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	}
 
 	const JsonNode & warMachine = node["warMachine"];
-	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && !warMachine.String().empty())
+	if(!warMachine.isNull())
 	{
 		VLC->identifiers()->requestIdentifier("creature", warMachine, [=](si32 id)
 		{
@@ -651,10 +656,10 @@ bool CArtHandler::legalArtifact(const ArtifactID & id) const
 	if(art->possibleSlots.count(ArtBearer::HERO) && !art->possibleSlots.at(ArtBearer::HERO).empty())
 		return true;
 
-	if(art->possibleSlots.count(ArtBearer::CREATURE) && !art->possibleSlots.at(ArtBearer::CREATURE).empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
+	if(art->possibleSlots.count(ArtBearer::CREATURE) && !art->possibleSlots.at(ArtBearer::CREATURE).empty() && VLC->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
 		return true;
 
-	if(art->possibleSlots.count(ArtBearer::COMMANDER) && !art->possibleSlots.at(ArtBearer::COMMANDER).empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
+	if(art->possibleSlots.count(ArtBearer::COMMANDER) && !art->possibleSlots.at(ArtBearer::COMMANDER).empty() && VLC->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
 		return true;
 
 	return false;
@@ -755,7 +760,7 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanc
 	return nullptr;
 }
 
-const ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance * artInst) const
+ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance * artInst) const
 {
 	if(artInst)
 	{
@@ -959,7 +964,7 @@ void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
 			node->attachTo(*elem.second.artifact);
 }
 
-void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map)
+void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName)
 {
 	//todo: creature and commander artifacts
 	if(handler.saving && artifactsInBackpack.empty() && artifactsWorn.empty())
@@ -967,7 +972,6 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 
 	if(!handler.saving)
 	{
-		assert(map);
 		artifactsInBackpack.clear();
 		artifactsWorn.clear();
 	}
@@ -977,13 +981,13 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 	switch(bearerType())
 	{
 	case ArtBearer::HERO:
-		serializeJsonHero(handler, map);
+		serializeJsonHero(handler);
 		break;
 	case ArtBearer::CREATURE:
-		serializeJsonCreature(handler, map);
+		serializeJsonCreature(handler);
 		break;
 	case ArtBearer::COMMANDER:
-		serializeJsonCommander(handler, map);
+		serializeJsonCommander(handler);
 		break;
 	default:
 		assert(false);
@@ -991,11 +995,11 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 	}
 }
 
-void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
+void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler)
 {
 	for(const auto & slot : ArtifactUtils::allWornSlots())
 	{
-		serializeJsonSlot(handler, slot, map);
+		serializeJsonSlot(handler, slot);
 	}
 
 	std::vector<ArtifactID> backpackTemp;
@@ -1011,7 +1015,7 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 	{
 		for(const ArtifactID & artifactID : backpackTemp)
 		{
-			auto * artifact = ArtifactUtils::createArtifact(map, artifactID);
+			auto * artifact = ArtifactUtils::createArtifact(artifactID);
 			auto slot = ArtifactPosition::BACKPACK_START + artifactsInBackpack.size();
 			if(artifact->artType->canBePutAt(this, slot))
 			{
@@ -1022,17 +1026,17 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 	}
 }
 
-void CArtifactSet::serializeJsonCreature(JsonSerializeFormat & handler, CMap * map)
+void CArtifactSet::serializeJsonCreature(JsonSerializeFormat & handler)
 {
 	logGlobal->error("CArtifactSet::serializeJsonCreature not implemented");
 }
 
-void CArtifactSet::serializeJsonCommander(JsonSerializeFormat & handler, CMap * map)
+void CArtifactSet::serializeJsonCommander(JsonSerializeFormat & handler)
 {
 	logGlobal->error("CArtifactSet::serializeJsonCommander not implemented");
 }
 
-void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map)
+void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot)
 {
 	ArtifactID artifactID;
 
@@ -1052,7 +1056,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 
 		if(artifactID != ArtifactID::NONE)
 		{
-			auto * artifact = ArtifactUtils::createArtifact(map, artifactID.toEnum());
+			auto * artifact = ArtifactUtils::createArtifact(artifactID.toEnum());
 
 			if(artifact->artType->canBePutAt(this, slot))
 			{

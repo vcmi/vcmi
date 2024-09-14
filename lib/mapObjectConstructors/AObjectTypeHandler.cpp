@@ -29,6 +29,11 @@ std::string AObjectTypeHandler::getJsonKey() const
 	return modScope + ':' + subTypeName;
 }
 
+std::string AObjectTypeHandler::getModScope() const
+{
+	return modScope;
+}
+
 si32 AObjectTypeHandler::getIndex() const
 {
 	return type;

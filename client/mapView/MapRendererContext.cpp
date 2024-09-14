@@ -113,7 +113,7 @@ const CGPath * MapRendererBaseContext::currentPath() const
 
 size_t MapRendererBaseContext::objectGroupIndex(ObjectInstanceID objectID) const
 {
-	static const std::vector<size_t> idleGroups = {0, 13, 0, 1, 2, 3, 4, 15, 14};
+	static const std::array<size_t, 9> idleGroups = {0, 13, 0, 1, 2, 3, 4, 15, 14};
 	return idleGroups[getObjectRotation(objectID)];
 }
 
@@ -291,7 +291,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 	if (!tile.visitable)
 		return {};
 
-	auto * object = tile.visitableObjects.back();
+	const auto * object = tile.visitableObjects.back();
 
 	if (object->getOwner() == LOCPLINT->playerID)
 		return { 0, 192, 0};
@@ -403,7 +403,7 @@ size_t MapRendererAdventureMovingContext::objectGroupIndex(ObjectInstanceID obje
 {
 	if(target == objectID)
 	{
-		static const std::vector<size_t> moveGroups = {0, 10, 5, 6, 7, 8, 9, 12, 11};
+		static const std::array<size_t, 9> moveGroups = {0, 10, 5, 6, 7, 8, 9, 12, 11};
 		return moveGroups[getObjectRotation(objectID)];
 	}
 	return MapRendererAdventureContext::objectGroupIndex(objectID);

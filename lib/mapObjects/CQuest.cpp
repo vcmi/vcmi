@@ -163,7 +163,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			for(const auto & ci : parts)
 			{
 				if(ci.art->getTypeId() != elem)
-					cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
+					cb->giveHeroNewArtifact(h, ci.art->getTypeId(), ArtifactPosition::BACKPACK_START);
 			}
 		}
 	}
@@ -660,7 +660,7 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 	return dynamic_cast<const CGCreature *>(o);
 }
 
-void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	CRewardableObject::blockingDialogAnswered(hero, answer);
 	if(answer)
@@ -851,7 +851,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.text.appendLocalString (EMetaText::ADVOB_TXT, 17);
-		cb->showBlockingDialog (&bd);
+		cb->showBlockingDialog (this, &bd);
 	}
 	else
 	{
@@ -865,7 +865,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 	}
 }
 
-void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if (answer)
 		cb->removeObject(this, hero->getOwner());

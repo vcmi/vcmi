@@ -14,6 +14,7 @@
 #include "../VCMI_Lib.h"
 #include "../CCreatureHandler.h"
 #include "../CHeroHandler.h"
+#include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
@@ -44,8 +45,7 @@ DisposedHero::DisposedHero() : heroId(0), portrait(255)
 }
 
 CMapEvent::CMapEvent()
-	: players(0)
-	, humanAffected(false)
+	: humanAffected(false)
 	, computerAffected(false)
 	, firstOccurrence(0)
 	, nextOccurrence(0)
@@ -53,21 +53,51 @@ CMapEvent::CMapEvent()
 
 }
 
-bool CMapEvent::earlierThan(const CMapEvent & other) const
+bool CMapEvent::occursToday(int currentDay) const
 {
-	return firstOccurrence < other.firstOccurrence;
+	if (currentDay == firstOccurrence + 1)
+		return true;
+
+	if (nextOccurrence == 0)
+		return false;
+
+	if (currentDay < firstOccurrence)
+		return false;
+
+	return (currentDay - firstOccurrence - 1) % nextOccurrence == 0;
 }
 
-bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
+bool CMapEvent::affectsPlayer(PlayerColor color, bool isHuman) const
 {
-	return firstOccurrence <= other.firstOccurrence;
+	if (players.count(color) == 0)
+		return false;
+
+	if (!isHuman && !computerAffected)
+		return false;
+
+	if (isHuman && !humanAffected)
+		return false;
+
+	return true;
 }
 
 void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
 	handler.serializeStruct("message", message);
-	handler.serializeInt("players", players);
+	if (!handler.saving && handler.getCurrent()["players"].isNumber())
+	{
+		// compatibility for old maps
+		int playersMask = 0;
+		handler.serializeInt("players", playersMask);
+		for (int i = 0; i < 8; ++i)
+			if ((playersMask & (1 << i)) != 0)
+				players.insert(PlayerColor(i));
+	}
+	else
+	{
+		handler.serializeIdArray("players", players);
+	}
 	handler.serializeInt("humanAffected", humanAffected);
 	handler.serializeInt("computerAffected", computerAffected);
 	handler.serializeInt("firstOccurrence", firstOccurrence);
@@ -179,6 +209,9 @@ CMap::CMap(IGameCallback * cb)
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
 	allowedSpells = VLC->spellh->getDefaultAllowed();
+
+	gameSettings = std::make_unique<GameSettings>();
+	gameSettings->loadBase(VLC->settingsHandler->getFullConfig());
 }
 
 CMap::~CMap()
@@ -301,11 +334,6 @@ bool CMap::isCoastalTile(const int3 & pos) const
 	}
 
 	return false;
-}
-
-bool CMap::isInTheMap(const int3 & pos) const
-{
-	return pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < width && pos.y < height && pos.z <= (twoLevel ? 1 : 0);
 }
 
 TerrainTile & CMap::getTile(const int3 & tile)
@@ -495,10 +523,26 @@ void CMap::checkForObjectives()
 	}
 }
 
+void CMap::addNewArtifactInstance(CArtifactSet & artSet)
+{
+	for(const auto & [slot, slotInfo] : artSet.artifactsWorn)
+	{
+		if(!slotInfo.locked && slotInfo.getArt())
+			addNewArtifactInstance(slotInfo.artifact);
+	}
+	for(const auto & slotInfo : artSet.artifactsInBackpack)
+		addNewArtifactInstance(slotInfo.artifact);
+}
+
 void CMap::addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art)
 {
+	assert(art);
+	assert(art->getId() == -1);
 	art->setId(static_cast<ArtifactInstanceID>(artInstances.size()));
 	artInstances.emplace_back(art);
+		
+	for(const auto & partInfo : art->getPartsInfo())
+		addNewArtifactInstance(partInfo.art);
 }
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
@@ -739,6 +783,21 @@ void CMap::reindexObjects()
 	{
 		objects[i]->id = ObjectInstanceID(i);
 	}
+}
+
+const IGameSettings & CMap::getSettings() const
+{
+	return *gameSettings;
+}
+
+void CMap::overrideGameSetting(EGameSettings option, const JsonNode & input)
+{
+	return gameSettings->addOverride(option, input);
+}
+
+void CMap::overrideGameSettings(const JsonNode & input)
+{
+	return gameSettings->loadOverrides(input);
 }
 
 VCMI_LIB_NAMESPACE_END

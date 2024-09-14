@@ -18,6 +18,7 @@
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "render/IRenderHandler.h"
+#include "render/AssetGenerator.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
@@ -38,7 +39,6 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
-#include "CMT.h"
 #include "../lib/serializer/Connection.h"
 
 #ifdef SCRIPTING_ENABLED
@@ -502,6 +502,12 @@ void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
 	logVisual->setKey(key);
 }
 
+void ClientCommandManager::handleGenerateAssets()
+{
+	AssetGenerator::generateAll();
+	printCommandMessage("All assets generated");
+}
+
 void ClientCommandManager::printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType)
 {
 	switch(messageType)
@@ -623,6 +629,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "vslog")
 		handleVsLog(singleWordBuffer);
+
+	else if(message=="generate assets")
+		handleGenerateAssets();
 
 	else
 	{

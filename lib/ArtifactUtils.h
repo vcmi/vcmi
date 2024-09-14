@@ -21,7 +21,6 @@ class CGHeroInstance;
 class CArtifactSet;
 class CArtifactInstance;
 struct ArtSlotInfo;
-class CMap;
 
 namespace ArtifactUtils
 {
@@ -40,10 +39,8 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
 	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid, const bool onlyEquiped = false);
-	DLL_LINKAGE CArtifactInstance * createScroll(const SpellID & sid);
-	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(const CArtifact * art);
-	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(const ArtifactID & aid);
-	DLL_LINKAGE CArtifactInstance * createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID = SpellID::NONE);
+	DLL_LINKAGE CArtifactInstance * createScroll(const SpellID & spellId);
+	DLL_LINKAGE CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
 	DLL_LINKAGE void insertScrrollSpellName(std::string & description, const SpellID & sid);
 }
 

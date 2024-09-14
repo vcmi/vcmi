@@ -63,12 +63,13 @@ public:
 	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
 	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
+	const std::unordered_map<ResourcePath, ArchiveEntry> & getEntries() const;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	/** Extracts one archive entry to the specified subfolder. Used for Video and Sound */
-	void extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, const ArchiveEntry & entry) const;
+	void extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, const ArchiveEntry & entry, bool absolute = false) const;
 	/** Extracts one archive entry to the specified subfolder. Used for Images, Sprites, etc */
-	void extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry) const;
+	void extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry, bool absolute = false) const;
 
 private:
 	/**
@@ -105,6 +106,6 @@ private:
 };
 
 /** Constructs the file path for the extracted file. Creates the subfolder hierarchy aswell **/
-boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName);
+boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName, bool absolute);
 
 VCMI_LIB_NAMESPACE_END

@@ -29,7 +29,6 @@
 #include "../CCallback.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileInfo.h"
-#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -108,8 +107,8 @@ void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & bat
 		return;
 	}
 
-	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->sides[0].color, ptr, std::forward<Args2>(args)...);
-	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->sides[1].color, ptr, std::forward<Args2>(args)...);
+	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->getSide(BattleSide::ATTACKER).color, ptr, std::forward<Args2>(args)...);
+	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->getSide(BattleSide::DEFENDER).color, ptr, std::forward<Args2>(args)...);
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && LOCPLINT->battleInt)
 	{
 		callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, ptr, std::forward<Args2>(args)...);
@@ -291,9 +290,10 @@ void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 		callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::askToAssembleArtifact, pack.al);
 }
 
-void ApplyClientNetPackVisitor::visitEraseArtifact(EraseArtifact & pack)
+void ApplyClientNetPackVisitor::visitEraseArtifact(BulkEraseArtifacts & pack)
 {
-	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactRemoved, pack.al);
+	for(const auto & slotErase : pack.posPack)
+		callInterfaceIfPresent(cl, cl.getOwner(pack.artHolder), &IGameEventsReceiver::artifactRemoved, ArtifactLocation(pack.artHolder, slotErase));
 }
 
 void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
@@ -362,6 +362,14 @@ void ApplyClientNetPackVisitor::visitHeroVisit(HeroVisit & pack)
 void ApplyClientNetPackVisitor::visitNewTurn(NewTurn & pack)
 {
 	cl.invalidatePaths();
+
+	if (pack.newWeekNotification)
+	{
+		const auto & newWeek = *pack.newWeekNotification;
+
+		std::string str = newWeek.text.toString();
+		callAllInterfaces(cl, &CGameInterface::showInfoDialog, newWeek.type, str, newWeek.components,(soundBase::soundID)newWeek.soundID);
+	}
 }
 
 void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
@@ -420,7 +428,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 			adventureInt.reset();
 		}
 
-		CSH->showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory());
+		CSH->showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
 	}
 
 	// In auto testing pack.mode we always close client if red pack.player won or lose
@@ -769,12 +777,12 @@ void ApplyClientNetPackVisitor::visitMapObjectSelectDialog(MapObjectSelectDialog
 void ApplyFirstClientNetPackVisitor::visitBattleStart(BattleStart & pack)
 {
 	// Cannot use the usual code because curB is not set yet
-	callOnlyThatBattleInterface(cl, pack.info->sides[0].color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
-		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
-	callOnlyThatBattleInterface(cl, pack.info->sides[1].color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
-		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
-	callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
-		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
+	callOnlyThatBattleInterface(cl, pack.info->getSide(BattleSide::ATTACKER).color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSide(BattleSide::ATTACKER).armyObject, pack.info->getSide(BattleSide::DEFENDER).armyObject,
+		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSide(BattleSide::DEFENDER).hero);
+	callOnlyThatBattleInterface(cl, pack.info->getSide(BattleSide::DEFENDER).color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSide(BattleSide::ATTACKER).armyObject, pack.info->getSide(BattleSide::DEFENDER).armyObject,
+		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSide(BattleSide::DEFENDER).hero);
+	callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSide(BattleSide::ATTACKER).armyObject, pack.info->getSide(BattleSide::DEFENDER).armyObject,
+		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSide(BattleSide::DEFENDER).hero);
 }
 
 void ApplyClientNetPackVisitor::visitBattleStart(BattleStart & pack)
@@ -801,9 +809,9 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 	PlayerColor playerToCall; //pack.player that will move activated stack
 	if (activated->hasBonusOfType(BonusType::HYPNOTIZED))
 	{
-		playerToCall = (gs.getBattle(pack.battleID)->sides[0].color == activated->unitOwner()
-			? gs.getBattle(pack.battleID)->sides[1].color
-			: gs.getBattle(pack.battleID)->sides[0].color);
+		playerToCall = gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color == activated->unitOwner()
+			? gs.getBattle(pack.battleID)->getSide(BattleSide::DEFENDER).color
+			: gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color;
 	}
 	else
 	{
@@ -999,7 +1007,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::UNIVERSITY_WINDOW:
 		{
 			//displays University window (when hero enters University on adventure map)
-			const auto * market = dynamic_cast<const IMarket*>(cl.getObj(ObjectInstanceID(pack.object)));
+			const auto * market = cl.getMarket(ObjectInstanceID(pack.object));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
 			callInterfaceIfPresent(cl, hero->tempOwner, &IGameEventsReceiver::showUniversityWindow, market, hero, pack.queryID);
 		}
@@ -1009,7 +1017,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
-			const auto *market = dynamic_cast<const IMarket*>(obj);
+			const auto market = cl.getMarket(pack.object);
 			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, hero, pack.queryID);
 		}
 		break;

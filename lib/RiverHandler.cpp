@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "RiverHandler.h"
 #include "texts/CGeneralTextHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "VCMI_Lib.h"
 
@@ -63,7 +63,7 @@ const std::vector<std::string> & RiverTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_RIVER);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_RIVER);
 
 	objects.resize(dataSize);
 	return {};
@@ -72,6 +72,11 @@ std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 std::string RiverType::getJsonKey() const
 {
 	return modScope + ":" + identifier;
+}
+
+std::string RiverType::getModScope() const
+{
+	return modScope;
 }
 
 std::string RiverType::getNameTextID() const

@@ -29,6 +29,8 @@
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/serializer/Connection.h"
+#include "../../lib/spells/CSpellHandler.h"
+#include "../lib/VCMIDirs.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
 	:gameHandler(gameHandler)
@@ -133,12 +135,24 @@ void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vect
 		broadcastSystemMessage("No cheaters registered!");
 }
 
+void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vector<std::string> & words)
+{
+	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
+	if(!isHost)
+		return;
+
+	std::string path = gameHandler->gameState()->statistic.writeCsv();
+
+	broadcastSystemMessage("Statistic files can be found in " + path + " directory\n");
+}
+
 void PlayerMessageProcessor::commandHelp(PlayerColor player, const std::vector<std::string> & words)
 {
 	broadcastSystemMessage("Available commands to host:");
 	broadcastSystemMessage("'!exit' - immediately ends current game");
 	broadcastSystemMessage("'!kick <player>' - kick specified player from the game");
 	broadcastSystemMessage("'!save <filename>' - save game under specified filename");
+	broadcastSystemMessage("'!statistic' - save game statistics as csv file");
 	broadcastSystemMessage("Available commands to all players:");
 	broadcastSystemMessage("'!help' - display this help");
 	broadcastSystemMessage("'!cheaters' - list players that entered cheat command during game");
@@ -319,6 +333,8 @@ void PlayerMessageProcessor::handleCommand(PlayerColor player, const std::string
 		commandSave(player, words);
 	if(words[0] == "!cheaters")
 		commandCheaters(player, words);
+	if(words[0] == "!statistic")
+		commandStatistic(player, words);
 }
 
 void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroInstance * hero)
@@ -328,7 +344,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 
 	///Give hero spellbook
 	if (!hero->hasSpellbook())
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
 	///Give all spells with bonus (to allow banned spells)
 	GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
@@ -406,11 +422,11 @@ void PlayerMessageProcessor::cheatGiveMachines(PlayerColor player, const CGHeroI
 		return;
 
 	if (!hero->getArt(ArtifactPosition::MACH1))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::BALLISTA).toArtifact(), ArtifactPosition::MACH1);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::BALLISTA, ArtifactPosition::MACH1);
 	if (!hero->getArt(ArtifactPosition::MACH2))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::AMMO_CART).toArtifact(), ArtifactPosition::MACH2);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::AMMO_CART, ArtifactPosition::MACH2);
 	if (!hero->getArt(ArtifactPosition::MACH3))
-		gameHandler->giveHeroNewArtifact(hero, ArtifactID(ArtifactID::FIRST_AID_TENT).toArtifact(), ArtifactPosition::MACH3);
+		gameHandler->giveHeroNewArtifact(hero, ArtifactID::FIRST_AID_TENT, ArtifactPosition::MACH3);
 }
 
 void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -424,7 +440,7 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		{
 			auto artID = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", word, false);
 			if(artID &&  VLC->arth->objects[*artID])
-				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID).toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
 	else
@@ -432,9 +448,21 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
 		{
 			if(VLC->arth->objects[g]->canBePutAt(hero))
-				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g).toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
+				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
+}
+
+void PlayerMessageProcessor::cheatGiveScrolls(PlayerColor player, const CGHeroInstance * hero)
+{
+	if(!hero)
+		return;
+
+	for(const auto & spell : VLC->spellh->objects)
+		if(gameHandler->gameState()->isAllowed(spell->getId()) && !spell->isSpecial())
+		{
+			gameHandler->giveHeroNewScroll(hero, spell->getId(), ArtifactPosition::FIRST_AVAILABLE);
+		}
 }
 
 void PlayerMessageProcessor::cheatLevelup(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -660,7 +688,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcmiolorin",              "vcmiexp",
 		"vcmiluck",                                   "nwcfollowthewhiterabbit", 
 		"vcmimorale",                                 "nwcmorpheus",
-		"vcmigod",                                    "nwctheone"
+		"vcmigod",                                    "nwctheone",
+		"vcmiscrolls"
 	};
 
 	if (!vstd::contains(townTargetedCheats, cheatName) && !vstd::contains(playerTargetedCheats, cheatName) && !vstd::contains(heroTargetedCheats, cheatName))
@@ -695,11 +724,11 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 			executeCheatCode(cheatName, i.first, ObjectInstanceID::NONE, parameters);
 
 		if (vstd::contains(townTargetedCheats, cheatName))
-			for (const auto & t : i.second.towns)
+			for (const auto & t : i.second.getTowns())
 				executeCheatCode(cheatName, i.first, t->id, parameters);
 
 		if (vstd::contains(heroTargetedCheats, cheatName))
-			for (const auto & h : i.second.heroes)
+			for (const auto & h : i.second.getHeroes())
 				executeCheatCode(cheatName, i.first, h->id, parameters);
 	}
 
@@ -737,6 +766,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatRevealPuzzle = [&]() { cheatPuzzleReveal(player); };
 	const auto & doCheatMaxLuck = [&]() { cheatMaxLuck(player, hero); };
 	const auto & doCheatMaxMorale = [&]() { cheatMaxMorale(player, hero); };
+	const auto & doCheatGiveScrolls = [&]() { cheatGiveScrolls(player, hero); };
 	const auto & doCheatTheOne = [&]()
 	{
 		if(!hero)
@@ -805,6 +835,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"nwcmorpheus",             doCheatMaxMorale      },
 		{"vcmigod",                 doCheatTheOne         },
 		{"nwctheone",               doCheatTheOne         },
+		{"vcmiscrolls",             doCheatGiveScrolls    },
 	};
 
 	assert(callbacks.count(cheatName));

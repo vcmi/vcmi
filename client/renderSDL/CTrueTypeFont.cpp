@@ -27,17 +27,25 @@ std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode &
 	return CResourceHandler::get()->load(ResourcePath(filename, EResType::TTF_FONT))->readAll();
 }
 
+int CTrueTypeFont::getPointSize(const JsonNode & config) const
+{
+	int scalingFactor = getScalingFactor();
+
+	if (config.isNumber())
+		return config.Integer() * scalingFactor;
+	else
+		return config[scalingFactor-1].Integer();
+}
+
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)
 {
-	int pointSize = static_cast<int>(config["size"].Float());
-
 	if(!TTF_WasInit() && TTF_Init()==-1)
 		throw std::runtime_error(std::string("Failed to initialize true type support: ") + TTF_GetError() + "\n");
 
-	return TTF_OpenFontRW(SDL_RWFromConstMem(data.first.get(), (int)data.second), 1, pointSize);
+	return TTF_OpenFontRW(SDL_RWFromConstMem(data.first.get(), data.second), 1, getPointSize(config["size"]));
 }
 
-int CTrueTypeFont::getFontStyle(const JsonNode &config)
+int CTrueTypeFont::getFontStyle(const JsonNode &config) const
 {
 	const JsonVector & names = config["style"].Vector();
 	int ret = 0;
@@ -74,7 +82,7 @@ size_t CTrueTypeFont::getLineHeight() const
 	if (fallbackFont)
 		return fallbackFont->getLineHeight();
 
-	return TTF_FontHeight(font.get());
+	return TTF_FontHeight(font.get()) / getScalingFactor();
 }
 
 size_t CTrueTypeFont::getGlyphWidth(const char *data) const
@@ -83,19 +91,16 @@ size_t CTrueTypeFont::getGlyphWidth(const char *data) const
 		return fallbackFont->getGlyphWidth(data);
 
 	return getStringWidth(std::string(data, TextOperations::getUnicodeCharacterSize(*data)));
-	int advance;
-	TTF_GlyphMetrics(font.get(), *data, nullptr, nullptr, nullptr, nullptr, &advance);
-	return advance;
 }
 
 size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 {
 	if (fallbackFont && fallbackFont->canRepresentString(data))
-		return fallbackFont->getStringWidth(data);
+		return fallbackFont->getStringWidth(data) / getScalingFactor();
 
 	int width;
 	TTF_SizeUTF8(font.get(), data.c_str(), &width, nullptr);
-	return width;
+	return width / getScalingFactor();
 }
 
 void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
@@ -107,7 +112,7 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 	}
 
 	if (dropShadow && color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
-		renderText(surface, data, Colors::BLACK, pos + Point(1,1));
+		renderText(surface, data, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
 
 	if (!data.empty())
 	{

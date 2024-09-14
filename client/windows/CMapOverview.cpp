@@ -41,11 +41,11 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 
-CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, std::string author, std::string version, ResourcePath resource, ESelectionScreen tabType)
+CMapOverview::CMapOverview(const std::string & mapName, const std::string & fileName, const std::string & date, const std::string & author, const std::string & version, const ResourcePath & resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), author(author), version(version), tabType(tabType)
 {
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	widget = std::make_shared<CMapOverviewWidget>(*this);
 
@@ -60,7 +60,7 @@ CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::strin
 
 Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const
 {
-	Canvas canvas = Canvas(Point(map->width, map->height));
+	Canvas canvas = Canvas(Point(map->width, map->height), CanvasScalingPolicy::IGNORE);
 
 	for (int y = 0; y < map->height; ++y)
 		for (int x = 0; x < map->width; ++x)
@@ -139,7 +139,7 @@ std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & 
 	double resize = maxSideLengthSrc / maxSideLengthDst;
 	Point newMinimapSize = Point(minimapRect.w / resize, minimapRect.h / resize);
 
-	Canvas canvasScaled = Canvas(Point(rect.w, rect.h));
+	Canvas canvasScaled = Canvas(Point(rect.w, rect.h), CanvasScalingPolicy::AUTO);
 	canvasScaled.drawScaled(minimaps[id], Point((rect.w - newMinimapSize.x) / 2, (rect.h - newMinimapSize.y) / 2), newMinimapSize);
 	std::shared_ptr<IImage> img = GH.renderHandler().createImage(canvasScaled.getInternalSurface());
 

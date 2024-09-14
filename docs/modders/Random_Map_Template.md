@@ -25,6 +25,15 @@
 
 	///Optional parameter allowing to prohibit some water modes. All modes are allowed if parameter is not specified
 	"allowedWaterContent" : ["none", "normal", "islands"]
+	
+	/// List of game settings that were overriden by this template. See config/gameConfig.json in vcmi install directory for possible values
+	/// Settings defined here will always override any settings from vcmi or from mods
+	"settings" : {
+			"heroes" : {
+				"perPlayerOnMapCap" : 1
+			}
+		}
+	},
 
 	/// List of named zones, see below for format description
 	"zones" :
@@ -38,7 +47,7 @@
 		{ "a" : "zoneA", "b" : "zoneB", "guard" : 5000, "road" : "false" },
 		{ "a" : "zoneA", "b" : "zoneC", "guard" : 5000, "road" : "random" },
 		{ "a" : "zoneB", "b" : "zoneC", "type" : "wide" }
-		//"type" can be "guarded" (default), "wide", "fictive" or "repulsive"
+		//"type" can be "guarded" (default), "wide", "fictive", "repulsive" or "forcePortal"
 		//"wide" connections have no border, or guard. "fictive" and "repulsive" connections are virtual -
 		//they do not create actual path, but only attract or repulse zones, respectively
 	]

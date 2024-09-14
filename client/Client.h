@@ -21,13 +21,9 @@ struct CPackForServer;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
 class CGameInterface;
-class BinaryDeserializer;
-class BinarySerializer;
 class BattleAction;
 class BattleInfo;
 struct BankConfig;
-
-template<typename T> class CApplier;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -147,7 +143,7 @@ public:
 
 	static ThreadSafeVector<int> waitingRequest; //FIXME: make this normal field (need to join all threads before client destruction)
 
-	void handlePack(CPack * pack); //applies the given pack and deletes it
+	void handlePack(CPackForClient * pack); //applies the given pack and deletes it
 	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
@@ -168,7 +164,7 @@ public:
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs = false) override {};
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs = false) override {};
 
-	void showBlockingDialog(BlockingDialog * iw) override {};
+	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw) override {};
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
 	void showTeleportDialog(TeleportDialog * iw) override {};
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};
@@ -188,7 +184,8 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance * object) override {};
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;};
-	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override {return false;};
+	bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) override {return false;};
 	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;};
 	void removeArtifact(const ArtifactLocation & al) override {};
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};
@@ -196,9 +193,8 @@ public:
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
-	void startBattlePrimary(const CArmedInstance * army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank = false, const CGTownInstance * town = nullptr) override {}; //use hero=nullptr for no hero
-	void startBattleI(const CArmedInstance * army1, const CArmedInstance * army2, int3 tile, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used
-	void startBattleI(const CArmedInstance * army1, const CArmedInstance * army2, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
+	void startBattle(const CArmedInstance * army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, const BattleLayout & layout, const CGTownInstance * town) override {}; //use hero=nullptr for no hero
+	void startBattle(const CArmedInstance * army1, const CArmedInstance * army2) override {}; //if any of armies is hero, hero will be used
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;};
 	void giveHeroBonus(GiveBonus * bonus) override {};
 	void setMovePoints(SetMovePoints * smp) override {};
@@ -211,7 +207,7 @@ public:
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override {}
-	void changeFogOfWar(std::unordered_set<int3> & tiles, PlayerColor player, ETileVisibility mode) override {}
+	void changeFogOfWar(const std::unordered_set<int3> & tiles, PlayerColor player, ETileVisibility mode) override {}
 
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override {};
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {};
@@ -236,8 +232,6 @@ private:
 	std::shared_ptr<scripting::PoolImpl> clientScripts;
 #endif
 	std::unique_ptr<events::EventBus> clientEventBus;
-
-	std::shared_ptr<CApplier<CBaseForCLApply>> applier;
 
 	mutable boost::mutex pathCacheMutex;
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;

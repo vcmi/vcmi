@@ -110,7 +110,7 @@ static const std::map<int, int> hexEdgeMaskToFrameIndex =
 BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	//preparing cells and hexes
 	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
@@ -123,6 +123,8 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
 	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
+
+	cellShade->setShadowEnabled(true);
 
 	if(!owner.siegeController)
 	{
@@ -142,7 +144,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	pos.w = background->width();
 	pos.h = background->height();
 
-	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
+	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()), CanvasScalingPolicy::AUTO);
 
 	updateAccessibleHexes();
 	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE);
@@ -156,7 +158,7 @@ void BattleFieldController::activate()
 
 void BattleFieldController::createHeroes()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	// create heroes as part of our constructor for correct positioning inside battlefield
 	if(owner.attackingHeroInstance)

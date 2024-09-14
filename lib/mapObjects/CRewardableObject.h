@@ -45,7 +45,14 @@ protected:
 	std::string getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const;
 	std::vector<Component> getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const;
 
+	void doHeroVisit(const CGHeroInstance *h) const;
+
+	/// Returns true if this object might have guards present, whether they were cleared or not
+	bool guardedPotentially() const;
+	/// Returns true if this object is currently guarded
+	bool guardedPresently() const;
 public:
+
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(const CGHeroInstance * h) const override;
@@ -56,6 +63,8 @@ public:
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(const CGHeroInstance *h) const override;
 
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
+
 	///possibly resets object state
 	void newTurn(vstd::RNG & rand) const override;
 
@@ -63,9 +72,13 @@ public:
 	void heroLevelUpDone(const CGHeroInstance *hero) const override;
 
 	/// applies player selection of reward
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 
 	void initObj(vstd::RNG & rand) override;
+
+	bool isCoastVisitable() const override;
+
+	void initializeGuards();
 	
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
@@ -89,14 +102,6 @@ public:
 };
 
 //TODO:
-
-// MAX
-// class DLL_LINKAGE CBank : public CArmedInstance
-// class DLL_LINKAGE CGPyramid : public CBank
-
-// EXTRA
-// class DLL_LINKAGE COPWBonus : public CGTownBuilding
-// class DLL_LINKAGE CTownBonus : public CGTownBuilding
 // class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 // class DLL_LINKAGE CGKeymasterTent : public CGKeys
 // class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject

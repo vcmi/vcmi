@@ -27,7 +27,6 @@
 #include "../lib/battle/Unit.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
-#include "../lib/serializer/Cast.h"
 
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
@@ -139,6 +138,14 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
+void ApplyGhNetPackVisitor::visitVisitTownBuilding(VisitTownBuilding & pack)
+{
+	gh.throwIfWrongOwner(&pack, pack.tid);
+	gh.throwIfPlayerNotActive(&pack);
+
+	result = gh.visitTownBuilding(pack.tid, pack.bid);
+}
+
 void ApplyGhNetPackVisitor::visitRecruitCreatures(RecruitCreatures & pack)
 {
 	gh.throwIfWrongPlayer(&pack);
@@ -176,7 +183,7 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	if(dynamic_cast<const IMarket*>(gh.getObj(pack.srcHero)) == nullptr)
+	if(gh.getMarket(pack.srcHero) == nullptr)
 		gh.throwIfWrongOwner(&pack, pack.srcHero);
 	if(pack.swap)
 		gh.throwIfWrongOwner(&pack, pack.dstHero);
@@ -242,7 +249,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
 	const CGObjectInstance * object = gh.getObj(pack.marketId);
 	const CGHeroInstance * hero = gh.getHero(pack.heroId);
-	const auto * market = dynamic_cast<const IMarket*>(object);
+	const auto * market = gh.getMarket(pack.marketId);
 
 	gh.throwIfWrongPlayer(&pack);
 	gh.throwIfPlayerNotActive(&pack);

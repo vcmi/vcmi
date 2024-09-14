@@ -35,11 +35,13 @@ using TAccessibilityArray = std::array<EAccessibility, GameConstants::BFIELD_SIZ
 
 struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 {
+	std::map<BattleHex, ui8> destructibleEnemyTurns;
+
 	public:
 		bool accessible(BattleHex tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide
-		bool accessible(BattleHex tile, bool doubleWide, ui8 side) const; //checks for both tiles if stack is double wide
+		bool accessible(BattleHex tile, bool doubleWide, BattleSide side) const; //checks for both tiles if stack is double wide
 	private:
-		bool tileAccessibleWithGate(BattleHex tile, ui8 side) const;
+		bool tileAccessibleWithGate(BattleHex tile, BattleSide side) const;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -79,7 +79,8 @@ enum class EConnectionType
 	GUARDED = 0, //default
 	FICTIVE,
 	REPULSIVE,
-	WIDE
+	WIDE,
+	FORCE_PORTAL
 };
 
 enum class ERoadOption
@@ -235,7 +236,7 @@ protected:
 }
 
 /// The CRmgTemplate describes a random map template.
-class DLL_LINKAGE CRmgTemplate
+class DLL_LINKAGE CRmgTemplate : boost::noncopyable
 {
 public:
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<rmg::ZoneOptions>>;
@@ -259,6 +260,7 @@ public:
 	};
 
 	CRmgTemplate();
+	~CRmgTemplate();
 
 	bool matchesSize(const int3 & value) const;
 	bool isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const;
@@ -274,6 +276,7 @@ public:
 	const CPlayerCountRange & getHumanPlayers() const;
 	std::pair<int3, int3> getMapSizes() const;
 	const Zones & getZones() const;
+	const JsonNode & getMapSettings() const;
 	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
 
 	void validate() const; /// Tests template on validity and throws exception on failure
@@ -292,6 +295,7 @@ private:
 	Zones zones;
 	std::vector<rmg::ZoneConnection> connectedZoneIds;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
+	std::unique_ptr<JsonNode> mapSettings;
 
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

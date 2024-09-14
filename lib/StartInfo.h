@@ -16,6 +16,7 @@
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
 #include "serializer/Serializeable.h"
+#include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -51,9 +52,10 @@ struct DLL_LINKAGE SimturnsInfo
 		h & optionalTurns;
 		h & allowHumanWithAI;
 
-		static_assert(Handler::Version::RELEASE_143 < Handler::Version::CURRENT, "Please add ignoreAlliedContacts to serialization for 1.6");
-		// disabled to allow multiplayer compatibility between 1.5.2 and 1.5.1
-		// h & ignoreAlliedContacts
+		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
+			h & ignoreAlliedContacts;
+		else
+			ignoreAlliedContacts = true;
 	}
 };
 
@@ -63,6 +65,20 @@ enum class PlayerStartingBonus : int8_t
 	ARTIFACT =  0,
 	GOLD     =  1,
 	RESOURCE =  2
+};
+
+struct DLL_LINKAGE Handicap {
+	TResources startBonus = TResources();
+	int percentIncome = 100;
+	int percentGrowth = 100;
+
+	template <typename Handler>
+	void serialize(Handler &h)
+	{
+		h & startBonus;
+		h & percentIncome;
+		h & percentGrowth;
+	}
 };
 
 /// Struct which describes the name, the color, the starting bonus of a player
@@ -77,8 +93,8 @@ struct DLL_LINKAGE PlayerSettings
 
 	std::string heroNameTextId;
 	PlayerColor color; //from 0 -
-	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
-	EHandicap handicap;//0-no, 1-mild, 2-severe
+
+	Handicap handicap;
 
 	std::string name;
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
@@ -92,7 +108,14 @@ struct DLL_LINKAGE PlayerSettings
 		h & heroNameTextId;
 		h & bonus;
 		h & color;
-		h & handicap;
+		if (h.version >= Handler::Version::PLAYER_HANDICAP)
+			h & handicap;
+		else
+		{
+			enum EHandicap {NO_HANDICAP, MILD, SEVERE};
+			EHandicap handicapLegacy = NO_HANDICAP;
+			h & handicapLegacy;
+		}
 		h & name;
 		h & connectedPlayerIDs;
 		h & compOnly;
@@ -161,10 +184,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
-		if(h.version >= Handler::Version::HAS_EXTRA_OPTIONS)
-			h & extraOptionsInfo;
-		else
-			extraOptionsInfo = ExtraOptionsInfo();
+		h & extraOptionsInfo;
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;

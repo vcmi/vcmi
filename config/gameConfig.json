@@ -57,6 +57,7 @@
 		"config/objects/magicWell.json",
 		"config/objects/moddables.json",
 		"config/objects/observatory.json",
+		"config/objects/pyramid.json",
 		"config/objects/rewardableBonusing.json",
 		"config/objects/rewardableOncePerHero.json",
 		"config/objects/rewardableOncePerWeek.json",
@@ -271,6 +272,19 @@
 					"portraitYoungYog" : 162
 				}
 			},
+			"chronicles" : { 
+				"supported" : true,
+				"iconIndex" : 2,
+				
+				"portraits" : {
+					"portraitTarnumBarbarian" : 163,
+					"portraitTarnumKnight" : 164,
+					"portraitTarnumWizard" : 165,
+					"portraitTarnumRanger" : 166,
+					"portraitTarnumOverlord" : 167,
+					"portraitTarnumBeastmaster" : 168
+				}
+			},
 			"jsonVCMI" : { 
 				"supported" : true,
 				"iconIndex" : 3
@@ -296,7 +310,9 @@
 			// number of artifacts that can fit in a backpack. -1 is unlimited.
 			"backpackSize"		: -1,
 			// if heroes are invitable in tavern
-			"tavernInvite"            : false
+			"tavernInvite"            : false,
+			// minimai primary skills for heroes
+			"minimalPrimarySkills": [ 0, 0, 1, 1]
 		},
 
 		"towns":
@@ -327,8 +343,77 @@
 			// limit of damage reduction that can be achieved by overpowering defense points
 			"defensePointDamageFactorCap": 0.7,
 			// If set to true, double-wide creatures will trigger obstacle effect when moving one tile forward or backwards
-			"oneHexTriggersObstacles": false
-		},	
+			"oneHexTriggersObstacles": false,
+			
+			// Positions of units on start of the combat
+			// If battle does not defines specific configuration, 'default' configuration will be used
+			// Configuration must define either 'attackerUnits' list of 7 elements or both 'attackerUnitsLoose' and 'attackerUnitsTight' lists of 7 elements, 1..7 elements each
+			// Similarly, for defender configuration must have either 'defenderUnits' or both 'defenderUnitsLoose' and 'defenderUnitsTight'
+			"layouts" : {
+				"default" : {
+					"tacticsAllowed" : true,
+					"obstaclesAllowed" : true,
+					"attackerCommander" : 88,
+					"defenderCommander" : 98,
+					"attackerWarMachines" : [ 52, 18, 154, 120 ],
+					"defenderWarMachines" : [ 66, 32, 168, 134 ],
+					"attackerUnitsLoose": [
+						[            86                ],
+						[ 35,                 137      ],
+						[ 35,        86,      137      ],
+						[ 1,     69,     103,      171 ],
+						[ 1, 35,     86,      137, 171 ],
+						[ 1, 35, 69,     103, 137, 171 ],
+						[ 1, 35, 69, 86, 103, 137, 171 ]
+					],
+					"defenderUnitsLoose": [
+						[             100                ],
+						[     49,               151      ],
+						[     49,     100,      151      ],
+						[ 15,     83,      117,      185 ],
+						[ 15, 49,     100,      151, 185 ],
+						[ 15, 49, 83,      117, 151, 185 ],
+						[ 15, 49, 83, 100, 117, 151, 185 ]
+					],
+					"attackerUnitsTight": [
+						[             86                ],
+						[         69,     103           ],
+						[         69, 86, 103           ],
+						[     35, 69,     103, 137      ],
+						[     35, 69, 86, 103, 137      ],
+						[  1, 35, 69,     103, 137, 171 ],
+						[  1, 35, 69, 86, 103, 137, 171 ]
+					],
+					"defenderUnitsTight": [
+						[             100                ],
+						[         83,      117           ],
+						[         83, 100, 117           ],
+						[     49, 83,      117, 151      ],
+						[     49, 83, 100, 117, 151      ],
+						[ 15, 49, 83,      117, 151, 185 ],
+						[ 15, 49, 83, 100, 117, 151, 185 ]
+					]
+				},
+				// Configuration for creature banks with single-tile enemies
+				"creatureBankNarrow" : {
+					"tacticsAllowed" : false,
+					"obstaclesAllowed" : false,
+					"attackerCommander" : 95,
+					"defenderCommander" : 8,
+					"attackerUnits": [ 57, 61, 90, 93, 96, 125, 129 ],
+					"defenderUnits": [ 15, 185, 172, 2, 100, 87, 8 ]
+				},
+				// Configuration for creature banks with double-wide enemies
+				"creatureBankWide" : {
+					"tacticsAllowed" : false,
+					"obstaclesAllowed" : false,
+					"attackerCommander" : 95,
+					"defenderCommander" : 8,
+					"attackerUnits": [ 57, 61, 90, 93, 96, 125, 129 ],
+					"defenderUnits": [ 15, 185, 171, 1, 100, 86, 8 ]
+				}
+			}
+		},
 
 		"creatures":
 		{
@@ -339,6 +424,7 @@
 			// if stack experience is on, creatures on map will get specified amount of experience daily 
 			"dailyStackExperience" : 100,
 			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire" 
+			// NOTE: on HotA maps, this setting has no effect. Value provided in map will be used instead.
 			"allowRandomSpecialWeeks" : true,
 			// if enabled, every creature can get double growth month, ignoring predefined list
 			"allowAllForDoubleMonth" : false

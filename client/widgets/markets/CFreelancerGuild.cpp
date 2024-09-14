@@ -23,7 +23,7 @@
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/mapObjects/IMarket.h"
 
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -32,7 +32,7 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 		[this](){CMarketBase::updateSubtitlesForBid(EMarketMode::CREATURE_RESOURCE, bidTradePanel->getSelectedItemId());})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		VLC->generaltexth->translate("object.core.freelancersGuild.name")));
@@ -69,7 +69,7 @@ void CFreelancerGuild::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market, EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getSelectedItemId()), bidQty * toTrade, hero);
+		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getSelectedItemId()), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
 	}

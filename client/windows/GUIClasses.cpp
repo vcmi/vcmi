@@ -53,7 +53,7 @@
 #include "../lib/gameState/TavernHeroesPool.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/GameSettings.h"
+#include "../lib/IGameSettings.h"
 #include "ConditionalWait.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSkillHandler.h"
@@ -66,7 +66,7 @@ CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, co
 	creature(crea),
 	amount(totalAmount)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	animation = std::make_shared<CCreaturePic>(1, 1, creature, true, true);
 	// 1 + 1 px for borders
 	pos.w = animation->pos.w + 2;
@@ -153,7 +153,7 @@ void CRecruitmentWindow::buy()
 	if(!dstslot.validSlot() && (selected->creature->warMachine == ArtifactID::NONE)) //no available slot
 	{
 		std::pair<SlotID, SlotID> toMerge;
-		bool allowMerge = CGI->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
+		bool allowMerge = LOCPLINT->cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
 
 		if (allowMerge && dst->mergeableStacks(toMerge))
 		{
@@ -213,7 +213,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, c
 {
 	moveBy(Point(0, y_offset));
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
@@ -238,7 +238,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, c
 
 void CRecruitmentWindow::availableCreaturesChanged()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	size_t selectedIndex = 0;
 
@@ -316,7 +316,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	leftMin(leftMin_),
 	rightMin(rightMin_)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	int total = leftAmount + rightAmount;
 	int leftMax = total - rightMin;
@@ -398,7 +398,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("LVLUPBKG")),
 	cb(callback)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	LOCPLINT->showingDialog->setBusy();
 
@@ -453,7 +453,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	tavernObj(TavernObj),
 	heroToInvite(nullptr)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(TavernObj);
 	if(h.size() < 2)
@@ -491,7 +491,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		recruit->addHoverText(EButtonState::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(true) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
+	else if(LOCPLINT->cb->howManyHeroes(true) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
 	{
 		MetaString message;
 		message.appendTextID("core.tvrninfo.1");
@@ -501,7 +501,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		recruit->addHoverText(EButtonState::NORMAL, message.toString());
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+	else if(LOCPLINT->cb->howManyHeroes(false) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 	{
 		MetaString message;
 		message.appendTextID("core.tvrninfo.1");
@@ -532,9 +532,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 
 void CTavernWindow::addInvite()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
-	if(!VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
+	if(!LOCPLINT->cb->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
 		return;
 
 	const auto & heroesPool = CSH->client->gameState()->heroesPool;
@@ -630,7 +630,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 	: CIntObject(LCLICK | DOUBLECLICK | SHOW_POPUP | HOVER),
 	h(H), _sel(&sel), _id(id), onChoose(OnChoose)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	h = H;
 	pos.x += x;
 	pos.y += y;
@@ -669,7 +669,7 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 CTavernWindow::HeroSelector::HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose)
 	: CWindowObject(BORDERED), inviteableHeroes(InviteableHeroes), onChoose(OnChoose)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos = Rect(
 		pos.x,
@@ -701,7 +701,7 @@ void CTavernWindow::HeroSelector::sliderMove(int slidPos)
 
 void CTavernWindow::HeroSelector::recreate()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	int sliderLine = slider ? slider->getValue() : 0;
 	int x = 0;
@@ -729,7 +729,7 @@ void CTavernWindow::HeroSelector::recreate()
 CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boatType, const std::function<void()> & onBuy)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPSHIP"))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	bgWater = std::make_shared<CPicture>(ImagePath::builtin("TPSHIPBK"), 100, 69);
 
@@ -803,7 +803,7 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent_, int size_, int id
 	size(size_),
 	parent(parent_)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	left = true;
 	pos.w = 58;
 	pos.h = 64;
@@ -819,7 +819,7 @@ void CTransformerWindow::makeDeal()
 	for(auto & elem : items)
 	{
 		if(!elem->left)
-			LOCPLINT->cb->trade(market, EMarketMode::CREATURE_UNDEAD, SlotID(elem->id), {}, {}, hero);
+			LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_UNDEAD, SlotID(elem->id), {}, {}, hero);
 	}
 }
 
@@ -850,7 +850,7 @@ CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInst
 	onWindowClosed(onWindowClosed),
 	market(_market)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if(hero)
 		army = hero;
 	else
@@ -889,7 +889,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	ID(_ID),
 	parent(_parent)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos.x += X;
 	pos.y += Y;
 
@@ -929,7 +929,7 @@ void CUniversityWindow::CItem::update()
 	else
 		image = ImagePath::builtin("UNIVRED");
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	topBar = std::make_shared<CPicture>(image, Point(-28, -22));
 	bottomBar = std::make_shared<CPicture>(image, Point(-28, 48));
 
@@ -946,13 +946,13 @@ void CUniversityWindow::CItem::hover(bool on)
 		GH.statusbar()->clear();
 }
 
-CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed)
+CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
 	hero(_hero),
 	onWindowClosed(onWindowClosed),
 	market(_market)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 
 	std::string titleStr = CGI->generaltexth->allTexts[602];
@@ -961,8 +961,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
 		auto faction = town->town->faction->getId();
-		auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
-		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
+		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, building);
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
@@ -1005,14 +1004,14 @@ void CUniversityWindow::updateSecondarySkills()
 
 void CUniversityWindow::makeDeal(SecondarySkill skill)
 {
-	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_SKILL, GameResID(GameResID::GOLD), skill, 1, hero);
+	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_SKILL, GameResID(GameResID::GOLD), skill, 1, hero);
 }
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkill SKILL, bool available)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("UNIVERS2.PCX")),
 	owner(owner_)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	std::string text = CGI->generaltexth->allTexts[608];
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
@@ -1052,7 +1051,7 @@ void CUnivConfirmWindow::makeDeal(SecondarySkill skill)
 CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("GARRISON"))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down, removableUnits);
 	{
@@ -1100,7 +1099,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 	fort(object),
 	hero(visitor)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	title = std::make_shared<CLabel>(325, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, fort->getObjectName());
 
@@ -1303,7 +1302,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("TpRank")),
 	owner(_owner)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
@@ -1431,7 +1430,7 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 	parent(_parent),
 	index(_id)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	if(parent->images.size() > index)
 		icon = std::make_shared<CPicture>(parent->images[index], Point(1, 1));
 	border = std::make_shared<CPicture>(ImagePath::builtin("TPGATES"));
@@ -1484,7 +1483,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	selected(initialSelection),
 	images(images)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	items.reserve(_items.size());
 
 	for(int id : _items)
@@ -1501,7 +1500,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	selected(initialSelection),
 	images(images)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	items.reserve(_items.size());
 
 	for(size_t i=0; i<_items.size(); i++)
@@ -1521,7 +1520,6 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	if(titleWidget)
 	{
 		addChild(titleWidget.get());
-		titleWidget->recActions = 255-DISPOSE;
 		titleWidget->pos.x = pos.w/2 + pos.x - titleWidget->pos.w/2;
 		titleWidget->pos.y =75 + pos.y - titleWidget->pos.h/2;
 	}

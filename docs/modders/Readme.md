@@ -19,8 +19,10 @@ Example of how directory structure of your mod may look like:
                 music/   - music files. Mp3 and ogg/vorbis are supported
                 sounds/  - sound files, in wav format.
                 sprites/ - animation, image sets (H3 .def files or VCMI .json files)
-                video/   - video files, .bik or .smk
+                video/   - video files, .bik, .smk, .ogv .webm
 ```
+See [File Formats](File_Formats.md) page for more information on which formats are supported or recommended for vcmi
+
 
 ## Creating mod file
 
@@ -54,8 +56,10 @@ Random Map Generator:
 
 Game Entities:
 - [Artifact](Entities_Format/Artifact_Format.md)
-- [Creature](Entities_Format/Creature_Format.md)
-- [Faction](Entities_Format/Faction_Format.md)
+- [Creature Requirement](Entities_Format/Creature_Format.md)
+- [Creature Help](Entities_Format/Creature_Help.md)
+- [Faction Requirement](Entities_Format/Faction_Format.md)
+- [Faction Help](Entities_Format/Faction_Help.md)
 - [Hero Class](Entities_Format/Hero_Class_Format.md)
 - [Hero Type](Entities_Format/Hero_Type_Format.md)
 - [Spell](Entities_Format/Spell_Format.md)

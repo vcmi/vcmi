@@ -28,9 +28,13 @@ struct TeleportDialog;
 struct StackLocation;
 struct ArtifactLocation;
 struct BankConfig;
+struct BattleLayout;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
+class CSaveFile;
+class CLoadFile;
+class IObjectInterface;
 enum class EOpenWindowMode : uint8_t;
 
 namespace spells
@@ -74,11 +78,8 @@ public:
 	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
-	template<typename Saver>
-	void saveCommonState(Saver &out) const; //stores GS and VLC
-
-	template<typename Loader>
-	void loadCommonState(Loader &in); //loads GS and VLC
+	void saveCommonState(CSaveFile &out) const; //stores GS and VLC
+	void loadCommonState(CLoadFile &in); //loads GS and VLC
 };
 
 class DLL_LINKAGE IGameEventCallback
@@ -99,7 +100,7 @@ public:
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0;
-	virtual void showBlockingDialog(BlockingDialog *iw) =0;
+	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;
@@ -119,17 +120,17 @@ public:
 
 	virtual void removeAfterVisit(const CGObjectInstance *object) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
-	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) = 0;
+	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) = 0;
+	virtual bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) = 0;
 	virtual bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble = std::nullopt) = 0;
-	virtual void removeArtifact(const ArtifactLocation &al) = 0;
+	virtual void removeArtifact(const ArtifactLocation& al) = 0;
 	virtual bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) = 0;
 
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
-	virtual void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr)=0; //use hero=nullptr for no hero
-	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
-	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
+	virtual void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)=0; //use hero=nullptr for no hero
+	virtual void startBattle(const CArmedInstance *army1, const CArmedInstance *army2)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveMove, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL)=0;
 	virtual bool swapGarrisonOnSiege(ObjectInstanceID tid)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
@@ -141,7 +142,7 @@ public:
 	virtual void sendAndApply(CPackForClient * pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) = 0;
-	virtual void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
+	virtual void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
 	
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 

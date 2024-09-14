@@ -24,7 +24,7 @@ class HypotheticBattle;
 class RNGStub final : public vstd::RNG
 {
 public:
-	virtual int nextInt() override
+	int nextInt() override
 	{
 		return 0;
 	}
@@ -85,13 +85,13 @@ public:
 	int32_t unitBaseAmount() const override;
 
 	uint32_t unitId() const override;
-	ui8 unitSide() const override;
+	BattleSide unitSide() const override;
 	PlayerColor unitOwner() const override;
 	SlotID unitSlot() const override;
 
 	///IBonusBearer
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit,
-		const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
+		const std::string & cachingStr = "") const override;
 
 	int64_t getTreeVersion() const override;
 
@@ -111,7 +111,7 @@ private:
 	const CCreature * type;
 	ui32 baseAmount;
 	uint32_t id;
-	ui8 side;
+	BattleSide side;
 	PlayerColor player;
 	SlotID slot;
 };
@@ -158,11 +158,18 @@ public:
 	uint32_t nextUnitId() const override;
 
 	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
-	std::vector<SpellID> getUsedSpells(ui8 side) const override;
+	std::vector<SpellID> getUsedSpells(BattleSide side) const override;
 	int3 getLocation() const override;
-	bool isCreatureBank() const override;
+	BattleLayout getLayout() const override;
 
 	int64_t getTreeVersion() const;
+
+	void makeWait(const battle::Unit * activeStack);
+
+	void resetActiveUnit()
+	{
+		activeUnitId = -1;
+	}
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;

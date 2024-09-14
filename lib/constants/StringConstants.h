@@ -56,7 +56,7 @@ namespace NSecondarySkill
 
 namespace EBuildingType
 {
-	const std::string names [44] =
+	const std::string names [46] =
 	{
 		"mageGuild1",       "mageGuild2",       "mageGuild3",       "mageGuild4",       "mageGuild5",       //  5
 		"tavern",           "shipyard",         "fort",             "citadel",          "castle",           // 10
@@ -66,7 +66,8 @@ namespace EBuildingType
 		"horde2Upgr",       "grail",            "extraTownHall",    "extraCityHall",    "extraCapitol",     // 30
 		"dwellingLvl1",     "dwellingLvl2",     "dwellingLvl3",     "dwellingLvl4",     "dwellingLvl5",     // 35
 		"dwellingLvl6",     "dwellingLvl7",     "dwellingUpLvl1",   "dwellingUpLvl2",   "dwellingUpLvl3",   // 40
-		"dwellingUpLvl4",   "dwellingUpLvl5",   "dwellingUpLvl6",   "dwellingUpLvl7"
+		"dwellingUpLvl4",   "dwellingUpLvl5",   "dwellingUpLvl6",   "dwellingUpLvl7",   "dwellingLvl8",
+		"dwellingUpLvl8"
 	};
 }
 
@@ -163,6 +164,7 @@ namespace MappedKeys
 		{ "dwellingLvl5", BuildingID::DWELL_LVL_5 },
 		{ "dwellingLvl6", BuildingID::DWELL_LVL_6 },
 		{ "dwellingLvl7", BuildingID::DWELL_LVL_7 },
+		{ "dwellingLvl8", BuildingID::DWELL_LVL_8 },
 		{ "dwellingUpLvl1", BuildingID::DWELL_LVL_1_UP },
 		{ "dwellingUpLvl2", BuildingID::DWELL_LVL_2_UP },
 		{ "dwellingUpLvl3", BuildingID::DWELL_LVL_3_UP },
@@ -170,36 +172,18 @@ namespace MappedKeys
 		{ "dwellingUpLvl5", BuildingID::DWELL_LVL_5_UP },
 		{ "dwellingUpLvl6", BuildingID::DWELL_LVL_6_UP },
 		{ "dwellingUpLvl7", BuildingID::DWELL_LVL_7_UP },
+		{ "dwellingUpLvl8", BuildingID::DWELL_LVL_8_UP },
 	};
 
 	static const std::map<std::string, BuildingSubID::EBuildingSubID> SPECIAL_BUILDINGS =
 	{
 		{ "mysticPond", BuildingSubID::MYSTIC_POND },
-		{ "artifactMerchant", BuildingSubID::ARTIFACT_MERCHANT },
-		{ "freelancersGuild", BuildingSubID::FREELANCERS_GUILD },
-		{ "magicUniversity", BuildingSubID::MAGIC_UNIVERSITY },
 		{ "castleGate", BuildingSubID::CASTLE_GATE },
-		{ "creatureTransformer", BuildingSubID::CREATURE_TRANSFORMER },//only skeleton transformer yet
 		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
-		{ "ballistaYard", BuildingSubID::BALLISTA_YARD },
-		{ "stables", BuildingSubID::STABLES },
-		{ "manaVortex", BuildingSubID::MANA_VORTEX },
-		{ "lookoutTower", BuildingSubID::LOOKOUT_TOWER },
 		{ "library", BuildingSubID::LIBRARY },
-		{ "brotherhoodOfSword", BuildingSubID::BROTHERHOOD_OF_SWORD },//morale garrison bonus
-		{ "fountainOfFortune", BuildingSubID::FOUNTAIN_OF_FORTUNE },//luck garrison bonus
-		{ "spellPowerGarrisonBonus", BuildingSubID::SPELL_POWER_GARRISON_BONUS },//such as 'stormclouds', but this name is not ok for good towns
-		{ "attackGarrisonBonus", BuildingSubID::ATTACK_GARRISON_BONUS },
-		{ "defenseGarrisonBonus", BuildingSubID::DEFENSE_GARRISON_BONUS },
 		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },
-		{ "attackVisitingBonus", BuildingSubID::ATTACK_VISITING_BONUS },
-		{ "defenceVisitingBonus", BuildingSubID::DEFENSE_VISITING_BONUS },
-		{ "spellPowerVisitingBonus", BuildingSubID::SPELL_POWER_VISITING_BONUS },
-		{ "knowledgeVisitingBonus", BuildingSubID::KNOWLEDGE_VISITING_BONUS },
-		{ "experienceVisitingBonus", BuildingSubID::EXPERIENCE_VISITING_BONUS },
-		{ "lighthouse", BuildingSubID::LIGHTHOUSE },
 		{ "treasury", BuildingSubID::TREASURY },
-		{ "thievesGuild", BuildingSubID::THIEVES_GUILD }
+		{ "bank", BuildingSubID::BANK }
 	};
 
 	static const std::map<std::string, EMarketMode> MARKET_NAMES_TO_TYPES =

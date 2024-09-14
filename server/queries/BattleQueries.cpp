@@ -17,43 +17,44 @@
 
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/SideInBattle.h"
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
-#include "../../lib/serializer/Cast.h"
 
-void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
+void CBattleQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(result);
 
 	if(result)
-		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
+		visitedObject->battleFinished(visitingHero, *result);
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 	CQuery(owner),
 	battleID(bi->getBattleID())
 {
-	belligerents[0] = bi->getSideArmy(0);
-	belligerents[1] = bi->getSideArmy(1);
+	belligerents[BattleSide::ATTACKER] = bi->getSideArmy(BattleSide::ATTACKER);
+	belligerents[BattleSide::DEFENDER] = bi->getSideArmy(BattleSide::DEFENDER);
 
-	addPlayer(bi->getSidePlayer(0));
-	addPlayer(bi->getSidePlayer(1));
+	addPlayer(bi->getSidePlayer(BattleSide::ATTACKER));
+	addPlayer(bi->getSidePlayer(BattleSide::DEFENDER));
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner):
 	CQuery(owner)
 {
-	belligerents[0] = belligerents[1] = nullptr;
+	belligerents[BattleSide::ATTACKER] = nullptr;
+	belligerents[BattleSide::DEFENDER] = nullptr;
 }
 
 bool CBattleQuery::blocksPack(const CPack * pack) const
 {
-	if(dynamic_ptr_cast<MakeAction>(pack) != nullptr)
+	if(dynamic_cast<const MakeAction*>(pack) != nullptr)
 		return false;
 
-	if(dynamic_ptr_cast<GamePause>(pack) != nullptr)
+	if(dynamic_cast<const GamePause*>(pack) != nullptr)
 		return false;
 
 	return true;
@@ -81,8 +82,8 @@ CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo *
 	bi(bi),
 	result(Br)
 {
-	addPlayer(bi->getSidePlayer(0));
-	addPlayer(bi->getSidePlayer(1));
+	addPlayer(bi->getSidePlayer(BattleSide::ATTACKER));
+	addPlayer(bi->getSidePlayer(BattleSide::DEFENDER));
 }
 
 void CBattleDialogQuery::onRemoval(PlayerColor color)
@@ -95,14 +96,14 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	assert(answer);
 	if(*answer == 1)
 	{
-		gh->battles->restartBattlePrimary(
+		gh->battles->restartBattle(
 			bi->getBattleID(),
-			bi->getSideArmy(0),
-			bi->getSideArmy(1),
+			bi->getSideArmy(BattleSide::ATTACKER),
+			bi->getSideArmy(BattleSide::DEFENDER),
 			bi->getLocation(),
-			bi->getSideHero(0),
-			bi->getSideHero(1),
-			bi->isCreatureBank(),
+			bi->getSideHero(BattleSide::ATTACKER),
+			bi->getSideHero(BattleSide::DEFENDER),
+			bi->getLayout(),
 			bi->getDefendedTown()
 		);
 	}

@@ -16,13 +16,15 @@
 #include "../TurnTimerHandler.h"
 
 #include "../../lib/CStack.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/spells/BonusCaster.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
 
@@ -34,7 +36,7 @@ BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler *
 {
 }
 
-void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
+void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
 {
 	int x = targetPosition.getX();
 	int y = targetPosition.getY();
@@ -113,13 +115,18 @@ void BattleFlowProcessor::tryPlaceMoats(const CBattleInfoCallback & battle)
 {
 	const auto * town = battle.battleGetDefendedTown();
 
+	if (!town)
+		return;
+
+	const auto & fortifications = town->fortificationsLevel();
+
 	//Moat should be initialized here, because only here we can use spellcasting
-	if (town && town->fortLevel() >= CGTownInstance::CITADEL)
+	if (fortifications.hasMoat)
 	{
 		const auto * h = battle.battleGetFightingHero(BattleSide::DEFENDER);
 		const auto * actualCaster = h ? static_cast<const spells::Caster*>(h) : nullptr;
 		auto moatCaster = spells::SilentCaster(battle.sideToPlayer(BattleSide::DEFENDER), actualCaster);
-		auto cast = spells::BattleCast(&battle, &moatCaster, spells::Mode::PASSIVE, town->town->moatAbility.toSpell());
+		auto cast = spells::BattleCast(&battle, &moatCaster, spells::Mode::PASSIVE, fortifications.moatSpell.toSpell());
 		auto target = spells::Target();
 		cast.cast(gameHandler->spellEnv, target);
 	}
@@ -128,7 +135,7 @@ void BattleFlowProcessor::tryPlaceMoats(const CBattleInfoCallback & battle)
 void BattleFlowProcessor::onBattleStarted(const CBattleInfoCallback & battle)
 {
 	tryPlaceMoats(battle);
-	
+
 	gameHandler->turnTimerHandler->onBattleStart(battle.getBattle()->getBattleID());
 
 	if (battle.battleGetTacticDist() == 0)
@@ -185,7 +192,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 
 void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 {
-	for (int i = 0; i < 2; ++i)
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
 		auto h = battle.battleGetFightingHero(i);
 		if (!h)
@@ -321,13 +328,15 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 		if(!removeGhosts.changedStacks.empty())
 			gameHandler->sendAndApply(&removeGhosts);
-		
+
 		gameHandler->turnTimerHandler->onBattleNextStack(battle.getBattle()->getBattleID(), *next);
 
 		if (!tryMakeAutomaticAction(battle, next))
 		{
-			setActiveStack(battle, next);
-			break;
+			if(next->alive()) {
+				setActiveStack(battle, next);
+				break;
+			}
 		}
 	}
 }
@@ -338,7 +347,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	int nextStackMorale = next->moraleVal();
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 	{
-		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
+		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
 		size_t diceIndex = std::min<size_t>(diceSize.size(), -nextStackMorale) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
@@ -517,7 +526,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 		&& next->canMove()
 		&& nextStackMorale > 0)
 	{
-		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
+		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
 		size_t diceIndex = std::min<size_t>(diceSize.size(), nextStackMorale) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
@@ -742,7 +751,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			return b->subtype.as<SpellID>() == SpellID::NONE;
 		});
 
-		int side = *battle.playerToSide(st->unitOwner());
+		BattleSide side = battle.playerToSide(st->unitOwner());
 		if(st->canCast() && battle.battleGetEnchanterCounter(side) == 0)
 		{
 			bool cast = false;
@@ -757,8 +766,14 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				});
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
 				parameters.setSpellLevel(bonus->val);
-				parameters.massive = true;
-				parameters.smart = true;
+
+				auto &levelInfo = spell->getLevelInfo(bonus->val);
+				bool isDamageSpell = spell->isDamage() || spell->isOffensive();
+				if (!isDamageSpell || levelInfo.smartTarget || !levelInfo.range.empty())
+				{
+					parameters.massive = true;
+					parameters.smart = true;
+				}
 				//todo: recheck effect level
 				if(parameters.castIfPossible(gameHandler->spellEnv, spells::Target(1, spells::Destination())))
 				{

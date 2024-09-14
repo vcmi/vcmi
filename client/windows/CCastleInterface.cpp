@@ -46,7 +46,7 @@
 #include "../../lib/CSoundBase.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/StartInfo.h"
@@ -145,7 +145,7 @@ void CBuildingRect::clickPressed(const Point & cursorPosition)
 	if(getBuilding() && area && (parent->selectedBuilding==this))
 	{
 		auto building = getBuilding();
-		parent->buildingClicked(building->bid, building->subId, building->upgrade);
+		parent->buildingClicked(building->bid);
 	}
 }
 
@@ -163,7 +163,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	}
 	else
 	{
-		int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
+		int level = BuildingID::getLevelFromDwelling(bid);
 		GH.windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 	}
 }
@@ -237,7 +237,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 		return town->town->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
-		auto & availableCreatures = town->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second;
+		auto & availableCreatures = town->creatures[(bid-30)%town->town->creatures.size()].second;
 		if(availableCreatures.size())
 		{
 			int creaID = availableCreatures.back();//taking last of available creatures
@@ -270,7 +270,7 @@ bool CBuildingRect::receiveEvent(const Point & position, int eventType) const
 CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstance * Town, int level)
 	: CWindowObject(RCLICK_POPUP, ImagePath::builtin("CRTOINFO"), Point(centerX, centerY))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	background->setPlayerColor(Town->tempOwner);
 
 	const CCreature * creature = Town->creatures.at(level).second.back().toCreature();
@@ -306,7 +306,7 @@ CDwellingInfoBox::~CDwellingInfoBox() = default;
 
 CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance * h, HeroSlots * Owner)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	owner = Owner;
 	pos.x += x;
@@ -482,7 +482,7 @@ void CHeroGSlot::setHighlight(bool on)
 
 void CHeroGSlot::set(const CGHeroInstance * newHero)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	hero = newHero;
 
@@ -507,7 +507,7 @@ HeroSlots::HeroSlots(const CGTownInstance * Town, Point garrPos, Point visitPos,
 	town(Town),
 	garr(Garrison)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	garrisonedHero = std::make_shared<CHeroGSlot>(garrPos.x, garrPos.y, 0, town->garrisonHero, this);
 	visitingHero = std::make_shared<CHeroGSlot>(visitPos.x, visitPos.y, 1, town->visitingHero, this);
 }
@@ -527,7 +527,7 @@ void HeroSlots::swapArmies()
 	//moving hero out of town - check if it is allowed
 	if (town->garrisonHero)
 	{
-		if (!town->visitingHero && LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+		if (!town->visitingHero && LOCPLINT->cb->howManyHeroes(false) >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 		{
 			std::string text = CGI->generaltexth->translate("core.genrltxt.18"); //You already have %d adventuring heroes under your command.
 			boost::algorithm::replace_first(text,"%d",std::to_string(LOCPLINT->cb->howManyHeroes(false)));
@@ -563,7 +563,7 @@ CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 	town(Town),
 	selectedBuilding(nullptr)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(town->town->clientInfo.townBackground);
 	background->needRefresh = true;
@@ -579,16 +579,16 @@ CCastleBuildings::~CCastleBuildings() = default;
 void CCastleBuildings::recreate()
 {
 	selectedBuilding = nullptr;
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	buildings.clear();
 	groups.clear();
 
 	//Generate buildings list
 
-	auto buildingsCopy = town->builtBuildings;// a bit modified copy of built buildings
+	auto buildingsCopy = town->getBuildings();// a bit modified copy of built buildings
 
-	if(vstd::contains(town->builtBuildings, BuildingID::SHIPYARD))
+	if(town->hasBuilt(BuildingID::SHIPYARD))
 	{
 		auto bayPos = town->bestLocation();
 		if(!bayPos.valid())
@@ -681,18 +681,82 @@ const CGHeroInstance * CCastleBuildings::getHero()
 		return town->garrisonHero;
 }
 
-void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades)
+void CCastleBuildings::buildingClicked(BuildingID building)
 {
-	logGlobal->trace("You've clicked on %d", (int)building.toEnum());
-	const CBuilding *b = town->town->buildings.find(building)->second;
-
-	if (building >= BuildingID::DWELL_FIRST)
+	BuildingID buildingToEnter = building;
+	for(;;)
 	{
-		enterDwelling((building-BuildingID::DWELL_FIRST)%GameConstants::CREATURES_PER_TOWN);
+		const CBuilding *b = town->town->buildings.find(buildingToEnter)->second;
+
+		if (buildingTryActivateCustomUI(buildingToEnter, building))
+			return;
+
+		if (!b->upgrade.hasValue())
+		{
+			enterBuilding(building);
+			return;
+		}
+
+		buildingToEnter = b->upgrade;
+	}
+}
+
+bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, BuildingID buildingTarget)
+{
+	logGlobal->trace("You've clicked on %d", (int)buildingToTest.toEnum());
+	const CBuilding *b = town->town->buildings.at(buildingToTest);
+
+	if (town->getWarMachineInBuilding(buildingToTest).hasValue())
+	{
+		enterBlacksmith(buildingTarget, town->getWarMachineInBuilding(buildingToTest));
+		return true;
+	}
+
+	if (!b->marketModes.empty())
+	{
+		switch (*b->marketModes.begin())
+		{
+			case EMarketMode::CREATURE_UNDEAD:
+				GH.windows().createAndPushWindow<CTransformerWindow>(town, getHero(), nullptr);
+				return true;
+
+			case EMarketMode::RESOURCE_SKILL:
+				if (getHero())
+					GH.windows().createAndPushWindow<CUniversityWindow>(getHero(), buildingTarget, town, nullptr);
+				return true;
+
+			case EMarketMode::RESOURCE_RESOURCE:
+				// can't use allied marketplace
+				if (town->getOwner() == LOCPLINT->playerID)
+				{
+					GH.windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
+					return true;
+				}
+				else
+					return false;
+			default:
+				if(getHero())
+					GH.windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, *b->marketModes.begin());
+				else
+					LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
+				return true;
+		}
+	}
+
+	if (town->rewardableBuildings.count(buildingToTest) && town->town->buildings.at(buildingToTest)->manualHeroVisit)
+	{
+		enterRewardable(buildingToTest);
+		return true;
+	}
+
+	if (buildingToTest >= BuildingID::DWELL_FIRST)
+	{
+		enterDwelling((BuildingID::getLevelFromDwelling(buildingToTest)));
+		return true;
 	}
 	else
 	{
-		switch(building)
+		switch(buildingToTest)
 		{
 		case BuildingID::MAGES_GUILD_1:
 		case BuildingID::MAGES_GUILD_2:
@@ -700,139 +764,96 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 		case BuildingID::MAGES_GUILD_4:
 		case BuildingID::MAGES_GUILD_5:
 				enterMagesGuild();
-				break;
+				return true;
 
 		case BuildingID::TAVERN:
 				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
-				break;
+				return true;
 
 		case BuildingID::SHIPYARD:
 				if(town->shipyardStatus() == IBoatGenerator::GOOD)
+				{
 					LOCPLINT->showShipyardDialog(town);
+					return true;
+				}
 				else if(town->shipyardStatus() == IBoatGenerator::BOAT_ALREADY_BUILT)
+				{
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]);
-				break;
+					return true;
+				}
+				return false;
 
 		case BuildingID::FORT:
 		case BuildingID::CITADEL:
 		case BuildingID::CASTLE:
 				GH.windows().createAndPushWindow<CFortScreen>(town);
-				break;
+				return true;
 
 		case BuildingID::VILLAGE_HALL:
 		case BuildingID::CITY_HALL:
 		case BuildingID::TOWN_HALL:
 		case BuildingID::CAPITOL:
 				enterTownHall();
-				break;
-
-		case BuildingID::MARKETPLACE:
-				// can't use allied marketplace
-				if (town->getOwner() == LOCPLINT->playerID)
-					GH.windows().createAndPushWindow<CMarketWindow>(town, town->visitingHero, nullptr, EMarketMode::RESOURCE_RESOURCE);
-				else
-					enterBuilding(building);
-				break;
-
-		case BuildingID::BLACKSMITH:
-				enterBlacksmith(town->town->warMachine);
-				break;
+				return true;
 
 		case BuildingID::SHIP:
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
-			break;
+			return true;
 
 		case BuildingID::SPECIAL_1:
 		case BuildingID::SPECIAL_2:
 		case BuildingID::SPECIAL_3:
 		case BuildingID::SPECIAL_4:
-				switch (subID)
+				switch (b->subId)
 				{
-				case BuildingSubID::NONE:
-						enterBuilding(building);
-						break;
-
 				case BuildingSubID::MYSTIC_POND:
-						enterFountain(building, subID, upgrades);
-						break;
-
-				case BuildingSubID::ARTIFACT_MERCHANT:
-						if(town->visitingHero)
-							GH.windows().createAndPushWindow<CMarketWindow>(town, town->visitingHero, nullptr, EMarketMode::RESOURCE_ARTIFACT);
-						else
-							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
-						break;
-
-				case BuildingSubID::FOUNTAIN_OF_FORTUNE:
-						enterFountain(building, subID, upgrades);
-					break;
-
-				case BuildingSubID::FREELANCERS_GUILD:
-						if(getHero())
-							GH.windows().createAndPushWindow<CMarketWindow>(town, getHero(), nullptr, EMarketMode::CREATURE_RESOURCE);
-						else
-							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
-						break;
-
-				case BuildingSubID::MAGIC_UNIVERSITY:
-						if (getHero())
-							GH.windows().createAndPushWindow<CUniversityWindow>(getHero(), town, nullptr);
-						else
-							enterBuilding(building);
-						break;
-
-				case BuildingSubID::BROTHERHOOD_OF_SWORD:
-						if(upgrades == BuildingID::TAVERN)
-							LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
-						else
-							enterBuilding(building);
-						break;
+						enterFountain(buildingToTest, b->subId, buildingTarget);
+						return true;
 
 				case BuildingSubID::CASTLE_GATE:
 						if (LOCPLINT->makingTurn)
+						{
 							enterCastleGate();
-						else
-							enterBuilding(building);
-						break;
-
-				case BuildingSubID::CREATURE_TRANSFORMER: //Skeleton Transformer
-						GH.windows().createAndPushWindow<CTransformerWindow>(town, getHero(), nullptr);
-						break;
+							return true;
+						}
+						return false;
 
 				case BuildingSubID::PORTAL_OF_SUMMONING:
-						if (town->creatures[GameConstants::CREATURES_PER_TOWN].second.empty())//No creatures
+						if (town->creatures[town->town->creatures.size()].second.empty())//No creatures
 							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30]);
 						else
-							enterDwelling(GameConstants::CREATURES_PER_TOWN);
-						break;
+							enterDwelling(town->town->creatures.size());
+						return true;
 
-				case BuildingSubID::BALLISTA_YARD:
-						enterBlacksmith(ArtifactID::BALLISTA);
-						break;
-
-				case BuildingSubID::THIEVES_GUILD:
-						enterAnyThievesGuild();
-						break;
-
-				default:
-						enterBuilding(building);
-						break;
+				case BuildingSubID::BANK:
+						enterBank(buildingTarget);
+						return true;
 				}
-				break;
-
-		default:
-				enterBuilding(building);
-				break;
 		}
 	}
+
+	for (auto const & bonus : b->buildingBonuses)
+	{
+		if (bonus->type == BonusType::THIEVES_GUILD_ACCESS)
+		{
+			enterAnyThievesGuild();
+			return true;
+		}
+	}
+	return false;
 }
 
-void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
+void CCastleBuildings::enterRewardable(BuildingID building)
+{
+	LOCPLINT->cb->visitTownBuilding(town, building);
+}
+
+void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactID)
 {
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
 	{
-		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->getNameTranslated()));
+		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(building)->second->getNameTranslated()));
 		return;
 	}
 	auto art = artifactID.toArtifact();
@@ -843,7 +864,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 	{
 		for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
 		{
-			if(hero->getArt(slot) == nullptr)
+			if(hero->getArt(slot) == nullptr || hero->getArt(slot)->getTypeId() != artifactID)
 			{
 				possible = true;
 				break;
@@ -854,8 +875,9 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 			}
 		}
 	}
-	CreatureID cre = art->getWarMachine();
-	GH.windows().createAndPushWindow<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
+
+	CreatureID creatureID = artifactID.toArtifact()->getWarMachine();
+	GH.windows().createAndPushWindow<CBlacksmithDialog>(possible, creatureID, artifactID, hero->id);
 }
 
 void CCastleBuildings::enterBuilding(BuildingID building)
@@ -885,7 +907,7 @@ void CCastleBuildings::enterCastleGate()
 			if(settings["general"]["enableUiEnhancements"].Bool())
 			{
 				auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->town->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
-				image->scaleFast(Point(35, 23));
+				image->scaleTo(Point(35, 23));
 				images.push_back(image);
 			}
 		}
@@ -917,8 +939,8 @@ void CCastleBuildings::enterDwelling(int level)
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 {
 	const auto beginIt = town->creatures.cbegin();
-	const auto afterLastIt = town->creatures.size() > GameConstants::CREATURES_PER_TOWN
-		? std::next(beginIt, GameConstants::CREATURES_PER_TOWN)
+	const auto afterLastIt = town->creatures.size() > town->town->creatures.size()
+		? std::next(beginIt, town->town->creatures.size())
 		: town->creatures.cend();
 	const auto hasSomeoneToRecruit = std::any_of(beginIt, afterLastIt,
 		[](const auto & creatureInfo) { return creatureInfo.first > 0; });
@@ -935,20 +957,8 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 	std::string hasNotProduced;
 	std::string hasProduced;
 
-	if(this->town->town->faction->getIndex() == ETownType::RAMPART)
-	{
-		hasNotProduced = CGI->generaltexth->allTexts[677];
-		hasProduced = CGI->generaltexth->allTexts[678];
-	}
-	else
-	{
-		auto buildingName = town->town->getSpecialBuilding(subID)->getNameTranslated();
-
-		hasNotProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasNotProduced"));
-		hasProduced = std::string(CGI->generaltexth->translate("vcmi.townHall.hasProduced"));
-		boost::algorithm::replace_first(hasNotProduced, "%s", buildingName);
-		boost::algorithm::replace_first(hasProduced, "%s", buildingName);
-	}
+	hasNotProduced = CGI->generaltexth->allTexts[677];
+	hasProduced = CGI->generaltexth->allTexts[678];
 
 	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND
 		|| (upgrades != BuildingID::NONE
@@ -1008,7 +1018,7 @@ void CCastleBuildings::enterMagesGuild()
 void CCastleBuildings::enterTownHall()
 {
 	if(town->visitingHero && town->visitingHero->hasArt(ArtifactID::GRAIL) &&
-		!vstd::contains(town->builtBuildings, BuildingID::GRAIL)) //hero has grail, but town does not have it
+		!town->hasBuilt(BuildingID::GRAIL)) //hero has grail, but town does not have it
 	{
 		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
 		{
@@ -1045,7 +1055,7 @@ void CCastleBuildings::enterAnyThievesGuild()
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & ownedTown : towns)
 	{
-		if(ownedTown->builtBuildings.count(BuildingID::TAVERN))
+		if(ownedTown->hasBuilt(BuildingID::TAVERN))
 		{
 			LOCPLINT->showThievesGuildWindow(ownedTown);
 			return;
@@ -1054,9 +1064,24 @@ void CCastleBuildings::enterAnyThievesGuild()
 	LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 }
 
+void CCastleBuildings::enterBank(BuildingID building)
+{
+	std::vector<std::shared_ptr<CComponent>> components;
+	if(town->bonusValue.second > 0)
+	{
+		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE_PER_DAY, GameResID(GameResID::GOLD), -500));
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.townStructure.bank.payBack"), components);
+	}
+	else{
+	
+		components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID(GameResID::GOLD), 2500));
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.townStructure.bank.borrow"), [this, building](){ LOCPLINT->cb->visitTownBuilding(town, building); }, nullptr, components);
+	}
+}
+
 void CCastleBuildings::enterAnyMarket()
 {
-	if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+	if(town->hasBuilt(BuildingID::MARKETPLACE))
 	{
 		GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 		return;
@@ -1065,7 +1090,7 @@ void CCastleBuildings::enterAnyMarket()
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & town : towns)
 	{
-		if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+		if(town->hasBuilt(BuildingID::MARKETPLACE))
 		{
 			GH.windows().createAndPushWindow<CMarketWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 			return;
@@ -1079,7 +1104,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 	level(Level),
 	showAvailable(_showAvailable)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos += position;
 
 	if(town->creatures.size() <= level || town->creatures[level].second.empty())
@@ -1189,7 +1214,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance * Town, bool townH
 	: town(Town),
 	building(nullptr)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	addUsedEvents(SHOW_POPUP | HOVER);
 	pos.x += posX;
 	pos.y += posY;
@@ -1237,7 +1262,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	CWindowObject(PLAYER_COLORED | BORDERED),
 	town(Town)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	LOCPLINT->castleInt = this;
 	addUsedEvents(KEYBOARD);
@@ -1362,8 +1387,8 @@ void CCastleInterface::removeBuilding(BuildingID bid)
 
 void CCastleInterface::recreateIcons()
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	OBJECT_CONSTRUCTION;
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->built >= LOCPLINT->cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();
@@ -1382,7 +1407,7 @@ void CCastleInterface::recreateIcons()
 	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [this]() { builds->enterAnyMarket(); });
 	fastTavern = std::make_shared<LRClickableArea>(Rect(15, 387, 58, 64), [&]()
 	{
-		if(town->builtBuildings.count(BuildingID::TAVERN))
+		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 	}, [this]{
 		if(!town->town->faction->getDescriptionTranslated().empty())
@@ -1469,7 +1494,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	town(Town),
 	building(Building)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos.x += x;
 	pos.y += y;
@@ -1532,7 +1557,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	CWindowObject(PLAYER_COLORED | BORDERED, Town->town->clientInfo.hallBackground),
 	town(Town)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	resdatabar = std::make_shared<CMinorResDataBar>();
 	resdatabar->moveBy(pos.topLeft(), true);
@@ -1560,7 +1585,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 				}
 
 				const CBuilding * current = town->town->buildings.at(buildingID);
-				if(vstd::contains(town->builtBuildings, buildingID))
+				if(town->hasBuilt(buildingID))
 				{
 					building = current;
 				}
@@ -1587,7 +1612,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	town(Town),
 	building(Building)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	icon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, building->bid, 0, 125, 50);
 	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
@@ -1690,7 +1715,7 @@ std::string CBuildWindow::getTextForState(EBuildingState state)
 
 LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int min, int max)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos.x+=size.x;
 	pos.y+=size.y;
 	pos.w = size.w;
@@ -1700,7 +1725,7 @@ LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int m
 
 LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int val)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos.x+=size.x;
 	pos.y+=size.y;
 	pos.w = size.w;
@@ -1738,9 +1763,9 @@ void LabeledValue::hover(bool on)
 CFortScreen::CFortScreen(const CGTownInstance * town):
 	CWindowObject(PLAYER_COLORED | BORDERED, getBgName(town))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
-	if(fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
+	if(fortSize > town->town->creatures.size() && town->creatures.back().second.empty())
 		fortSize--;
 
 	const CBuilding * fortBuilding = town->town->buildings.at(BuildingID(town->fortLevel()+6));
@@ -1758,25 +1783,25 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 
 	if(fortSize == GameConstants::CREATURES_PER_TOWN)
 	{
-		positions.push_back(Point(206,421));
+		positions.push_back(Point(10, 421));
+		positions.push_back(Point(404,421));
 	}
 	else
 	{
-		positions.push_back(Point(10, 421));
-		positions.push_back(Point(404,421));
+		positions.push_back(Point(206,421));
 	}
 
 	for(ui32 i=0; i<fortSize; i++)
 	{
 		BuildingID buildingID;
-		if(fortSize == GameConstants::CREATURES_PER_TOWN)
+		if(fortSize == town->town->creatures.size())
 		{
-			BuildingID dwelling = BuildingID::DWELL_UP_FIRST+i;
+			BuildingID dwelling = BuildingID::getDwellingFromLevel(i, 1);
 
-			if(vstd::contains(town->builtBuildings, dwelling))
-				buildingID = BuildingID(BuildingID::DWELL_UP_FIRST+i);
+			if(town->hasBuilt(dwelling))
+				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, 1));
 			else
-				buildingID = BuildingID(BuildingID::DWELL_FIRST+i);
+				buildingID = BuildingID(BuildingID::getDwellingFromLevel(i, 0));
 		}
 		else
 		{
@@ -1798,13 +1823,13 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 ImagePath CFortScreen::getBgName(const CGTownInstance * town)
 {
 	ui32 fortSize = static_cast<ui32>(town->creatures.size());
-	if(fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
+	if(fortSize > town->town->creatures.size() && town->creatures.back().second.empty())
 		fortSize--;
 
 	if(fortSize == GameConstants::CREATURES_PER_TOWN)
-		return ImagePath::builtin("TPCASTL7");
-	else
 		return ImagePath::builtin("TPCASTL8");
+	else
+		return ImagePath::builtin("TPCASTL7");
 }
 
 void CFortScreen::creaturesChangedEventHandler()
@@ -1820,7 +1845,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	level(Level),
 	availableCount(nullptr)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	pos.x +=posX;
 	pos.y +=posY;
 	pos.w = 386;
@@ -1838,7 +1863,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		buildingIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, getMyBuilding()->bid, 0, 4, 21);
 		buildingName = std::make_shared<CLabel>(78, 101, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyBuilding()->getNameTranslated(), 152);
 
-		if(vstd::contains(town->builtBuildings, getMyBuilding()->bid))
+		if(town->hasBuilt(getMyBuilding()->bid))
 		{
 			ui32 available = town->creatures[level].first;
 			std::string availableText = CGI->generaltexth->allTexts[217]+ std::to_string(available);
@@ -1878,9 +1903,9 @@ const CCreature * CFortScreen::RecruitArea::getMyCreature()
 
 const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 {
-	BuildingID myID = BuildingID(BuildingID::DWELL_FIRST + level);
+	BuildingID myID = BuildingID(BuildingID::getDwellingFromLevel(level, 0));
 
-	if (level == GameConstants::CREATURES_PER_TOWN)
+	if (level == town->town->creatures.size())
 		return town->town->getSpecialBuilding(BuildingSubID::PORTAL_OF_SUMMONING);
 
 	if (!town->town->buildings.count(myID))
@@ -1891,8 +1916,9 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 	{
 		if (town->hasBuilt(myID))
 			build = town->town->buildings.at(myID);
-		myID.advance(GameConstants::CREATURES_PER_TOWN);
+		BuildingID::advanceDwelling(myID);
 	}
+
 	return build;
 }
 
@@ -1927,7 +1953,7 @@ void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & imagename)
 	: CWindowObject(BORDERED, imagename)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	window = std::make_shared<CPicture>(owner->town->town->clientInfo.guildWindow, 332, 76);
 
@@ -1966,7 +1992,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 	: spell(Spell)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos += position;
@@ -1996,7 +2022,7 @@ void CMageGuildScreen::Scroll::hover(bool on)
 CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, ArtifactID aid, ObjectInstanceID hid):
 	CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPSMITH"))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	Rect barRect(8, pos.h - 26, pos.w - 16, 19);
 

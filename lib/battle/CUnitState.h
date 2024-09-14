@@ -282,14 +282,14 @@ public:
 	explicit CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_);
 
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit,
-		const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
+		const std::string & cachingStr = "") const override;
 
 	int64_t getTreeVersion() const override;
 
 	CUnitStateDetached & operator= (const CUnitState & other);
 
 	uint32_t unitId() const override;
-	ui8 unitSide() const override;
+	BattleSide unitSide() const override;
 
 	const CCreature * unitType() const override;
 	PlayerColor unitOwner() const override;

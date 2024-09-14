@@ -103,7 +103,7 @@
 				"type":
 				{
 					"type" : "string",
-					"enum" : ["wide", "fictive", "repulsive"]
+					"enum" : ["wide", "fictive", "repulsive", "forcePortal"]
 				}
 			}
 		},
@@ -134,6 +134,13 @@
 		"maxSize" : {
 			"description" : "Maximal size of the map, e.g. 'm+u' or '120x120x1",
 			"type": "string"
+		},
+		"settings" : {
+			"description" : "List of changed game settings by template",
+			"type" : "object",
+			"additionalProperties" : {
+				"type" : "object"
+			}
 		},
 		"name" : {
 			"description" : "Optional name - useful to have several template variations with same name",

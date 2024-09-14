@@ -59,7 +59,7 @@ public:
 	virtual const SkillService * skills() const = 0;
 	virtual const BattleFieldService * battlefields() const = 0;
 	virtual const ObstacleService * obstacles() const = 0;
-	virtual const IGameSettings * settings() const = 0;
+	virtual const IGameSettings * engineSettings() const = 0;
 
 	virtual const spells::effects::Registry * spellEffects() const = 0;
 	virtual spells::effects::Registry * spellEffects() = 0;

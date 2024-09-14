@@ -23,14 +23,14 @@
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/mapObjects/IMarket.h"
 
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
 	, CMarketSlider(std::bind(&CAltarCreatures::onOfferSliderMoved, this, _1))
 	, CMarketTraderText(Point(28, 31), FONT_MEDIUM, Colors::YELLOW)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("ALTSACR.DEF"),
 		CGI->generaltexth->zelp[584], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);
@@ -157,7 +157,7 @@ void CAltarCreatures::makeDeal()
 		}
 	}
 
-	LOCPLINT->cb->trade(market, EMarketMode::CREATURE_EXP, ids, {}, toSacrifice, hero);
+	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_EXP, ids, {}, toSacrifice, hero);
 
 	for(int & units : unitsOnAltar)
 		units = 0;

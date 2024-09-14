@@ -28,7 +28,12 @@ int32_t ObstacleInfo::getIconIndex() const
 
 std::string ObstacleInfo::getJsonKey() const
 {
-	return identifier;
+	return modScope + ':' + identifier;
+}
+
+std::string ObstacleInfo::getModScope() const
+{
+	return modScope;
 }
 
 std::string ObstacleInfo::getNameTranslated() const
@@ -91,6 +96,7 @@ std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & 
 
 	auto info = std::make_shared<ObstacleInfo>(Obstacle(index), identifier);
 	
+	info->modScope = scope;
 	info->animation = AnimationPath::fromJson(json["animation"]);
 	info->width = json["width"].Integer();
 	info->height = json["height"].Integer();

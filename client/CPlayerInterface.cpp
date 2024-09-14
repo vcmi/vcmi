@@ -13,7 +13,6 @@
 #include <vcmi/Artifact.h>
 
 #include "CGameInfo.h"
-#include "CMT.h"
 #include "CServerHandler.h"
 #include "HeroMovementController.h"
 #include "PlayerLocalState.h"
@@ -100,9 +99,8 @@
 
 #include "../lib/pathfinder/CGPathNode.h"
 
-#include "../lib/serializer/BinaryDeserializer.h"
-#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/serializer/CTypeList.h"
+#include "../lib/serializer/ESerializationVersion.h"
 
 #include "../lib/spells/CSpellHandler.h"
 
@@ -137,7 +135,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
-	GH.defActionsDef = 0;
 	LOCPLINT = this;
 	playerID=Player;
 	human=true;
@@ -171,40 +168,44 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	adventureInt.reset(new AdventureMapInterface());
 }
 
+void CPlayerInterface::closeAllDialogs()
+{
+	// remove all active dialogs that do not expect query answer
+	for (;;)
+	{
+		auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
+		auto infoWindow = GH.windows().topWindow<CInfoWindow>();
+
+		if(adventureWindow != nullptr)
+			break;
+
+		if(infoWindow && infoWindow->ID != QueryID::NONE)
+			break;
+
+		if (infoWindow)
+			infoWindow->close();
+		else
+			GH.windows().popWindows(1);
+	}
+
+	if(castleInt)
+		castleInt->close();
+
+	castleInt = nullptr;
+}
+
 void CPlayerInterface::playerEndsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (player == playerID)
 	{
 		makingTurn = false;
-
-		// remove all active dialogs that do not expect query answer
-		for (;;)
-		{
-			auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
-			auto infoWindow = GH.windows().topWindow<CInfoWindow>();
-
-			if(adventureWindow != nullptr)
-				break;
-
-			if(infoWindow && infoWindow->ID != QueryID::NONE)
-				break;
-
-			if (infoWindow)
-				infoWindow->close();
-			else
-				GH.windows().popWindows(1);
-		}
-
-		if(castleInt)
-			castleInt->close();
-
-		castleInt = nullptr;
+		closeAllDialogs();
 
 		// remove all pending dialogs that do not expect query answer
 		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
-			return window->ID == QueryID::NONE;
-		});
+						   return window->ID == QueryID::NONE;
+					   });
 	}
 }
 
@@ -286,6 +287,7 @@ void CPlayerInterface::gamePause(bool pause)
 
 void CPlayerInterface::yourTurn(QueryID queryID)
 {
+	closeAllDialogs();
 	CTutorialWindow::openWindowFirstTime(TutorialMode::TOUCH_ADVENTUREMAP);
 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -620,12 +622,10 @@ void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreat
 {
 	movementController->onBattleStarted();
 
-	//Don't wait for dialogs when we are non-active hot-seat player
-	if (LOCPLINT == this)
-		waitForAllDialogs();
+	waitForAllDialogs();
 }
 
-void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed)
+void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
@@ -645,9 +645,7 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 		cb->registerBattleInterface(autofightingAI);
 	}
 
-	//Don't wait for dialogs when we are non-active hot-seat player
-	if (LOCPLINT == this)
-		waitForAllDialogs();
+	waitForAllDialogs();
 
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
@@ -1014,7 +1012,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 	std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(text, playerID, components);
 
-	if (makingTurn && GH.windows().count() > 0 && LOCPLINT == this)
+	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && GH.windows().count() > 0 && LOCPLINT == this)
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->setBusy();
@@ -1146,7 +1144,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 		if(t)
 		{
 			auto image = GH.renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->town->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
-			image->scaleFast(Point(35, 23));
+			image->scaleTo(Point(35, 23));
 			images.push_back(image);
 		}
 	}
@@ -1477,7 +1475,7 @@ void CPlayerInterface::update()
 		return;
 
 	//if there are any waiting dialogs, show them
-	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->isBusy())
+	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
 	{
 		showingDialog->setBusy();
 		GH.windows().pushWindow(dialogs.front());
@@ -1633,21 +1631,12 @@ void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
 	battleInt->newRoundFirst();
 }
 
-void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
+void CPlayerInterface::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onWindowClosed = [this, queryID](){
 		cb->selectionMade(0, queryID);
 	};
-
-	if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && dynamic_cast<const CGArtifactsAltar*>(market) == nullptr)
-	{
-		// compatibility check, safe to remove for 1.6
-		// 1.4 saves loaded in 1.5 will not be able to visit Altar of Sacrifice due to Altar now requiring different map object class
-		static_assert(ESerializationVersion::RELEASE_143 < ESerializationVersion::CURRENT, "Please remove this compatibility check once it no longer needed");
-		onWindowClosed();
-		return;
-	}
 
 	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
 		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
@@ -1655,8 +1644,17 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
 		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor, onWindowClosed);
-	else if(!market->availableModes().empty())
-		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, market->availableModes().front());
+	else if (!market->availableModes().empty())
+		for(auto mode = EMarketMode::RESOURCE_RESOURCE; mode != EMarketMode::MARKET_AFTER_LAST_PLACEHOLDER; mode = vstd::next(mode, 1))
+		{
+			if(vstd::contains(market->availableModes(), mode))
+			{
+				GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, mode);
+				break;
+			}
+		}
+	else
+		onWindowClosed();
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
@@ -1665,7 +1663,7 @@ void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroI
 	auto onWindowClosed = [this, queryID](){
 		cb->selectionMade(0, queryID);
 	};
-	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, market, onWindowClosed);
+	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, BuildingID::NONE, market, onWindowClosed);
 }
 
 void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
@@ -1761,6 +1759,9 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 
 void CPlayerInterface::waitForAllDialogs()
 {
+	if (!makingTurn)
+		return;
+
 	while(!dialogs.empty())
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
@@ -1776,7 +1777,6 @@ void CPlayerInterface::proposeLoadingGame()
 		[]()
 		{
 			CSH->endGameplay();
-			GH.defActionsDef = 63;
 			CMM->menu->switchToTab("load");
 		},
 		nullptr

@@ -25,6 +25,8 @@ class CTown;
 
 class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFaction, FactionService>
 {
+	JsonNode buildingsLibrary;
+
 	struct BuildingRequirementsHelper
 	{
 		JsonNode json;
@@ -32,24 +34,17 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 		CTown * town;
 	};
 
-	std::map<CTown *, JsonNode> warMachinesToLoad;
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
 	static const TPropagatorPtr & emptyPropagator();
 
 	void initializeRequirements();
-	void initializeOverridden();
-	void initializeWarMachines();
 
 	/// loads CBuilding's into town
 	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad) const;
 	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown * town, const JsonNode & source);
-
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val) const;
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype) const;
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, const TPropagatorPtr & prop) const;
 
 	/// loads CStructure's into town
 	void loadStructure(CTown & town, const std::string & stringID, const JsonNode & source) const;
@@ -68,11 +63,6 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	void loadRandomFaction();
 
 public:
-	template<typename R, typename K>
-	static R getMappedValue(const K key, const R defval, const std::map<K, R> & map, bool required = true);
-	template<typename R>
-	static R getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required = true);
-
 	CTown * randomTown;
 	CFaction * randomFaction;
 
@@ -83,40 +73,19 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
-	void addBonusesForVanilaBuilding(CBuilding * building) const;
 
 	void loadCustom() override;
 	void afterLoadFinalization() override;
+	void beforeValidate(JsonNode & object) override;
 
 	std::set<FactionID> getDefaultAllowed() const;
 	std::set<FactionID> getAllowedFactions(bool withTown = true) const;
 
-	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);
-
 protected:
+
+	void loadBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building) const;
 	const std::vector<std::string> & getTypeNames() const override;
 	std::shared_ptr<CFaction> loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };
-
-template<typename R, typename K>
-R CTownHandler::getMappedValue(const K key, const R defval, const std::map<K, R> & map, bool required)
-{
-	auto it = map.find(key);
-
-	if(it != map.end())
-		return it->second;
-
-	if(required)
-		logMod->warn("Warning: Property: '%s' is unknown. Correct the typo or update VCMI.", key);
-	return defval;
-}
-
-template<typename R>
-R CTownHandler::getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required)
-{
-	if(!node.isNull() && node.getType() == JsonNode::JsonType::DATA_STRING)
-		return getMappedValue<R, std::string>(node.String(), defval, map, required);
-	return defval;
-}
 
 VCMI_LIB_NAMESPACE_END

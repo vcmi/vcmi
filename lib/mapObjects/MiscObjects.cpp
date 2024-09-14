@@ -23,6 +23,7 @@
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../StartInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -87,23 +88,11 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
 		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187);
-		cb->showBlockingDialog(&ynd);
+		cb->showBlockingDialog(this, &ynd);
 		return;
 	}
 
 	flagMine(h->tempOwner);
-
-}
-
-void CGMine::newTurn(vstd::RNG & rand) const
-{
-	if(cb->getDate() == 1)
-		return;
-
-	if (tempOwner == PlayerColor::NEUTRAL)
-		return;
-
-	cb->giveResource(tempOwner, producedResource, producedQuantity);
 }
 
 void CGMine::initObj(vstd::RNG & rand)
@@ -138,10 +127,23 @@ bool CGMine::isAbandoned() const
 	return subID.getNum() >= 7;
 }
 
+const IOwnableObject * CGMine::asOwnable() const
+{
+	return this;
+}
+
+std::vector<CreatureID> CGMine::providedCreatures() const
+{
+	return {};
+}
+
 ResourceSet CGMine::dailyIncome() const
 {
 	ResourceSet result;
 	result[producedResource] += defaultResProduction();
+
+	const auto & playerSettings = cb->getPlayerSettings(getOwner());
+	result.applyHandicap(playerSettings->handicap.percentIncome);
 
 	return result;
 }
@@ -177,7 +179,7 @@ void CGMine::flagMine(const PlayerColor & player) const
 	iw.type = EInfoWindowMode::AUTO;
 	iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get()); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
-	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, producedQuantity);
+	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, getProducedQuantity());
 	cb->showInfoDialog(&iw);
 }
 
@@ -195,9 +197,16 @@ ui32 CGMine::defaultResProduction() const
 	}
 }
 
+ui32 CGMine::getProducedQuantity() const
+{
+	auto * playerSettings = cb->getPlayerSettings(getOwner());
+	// always round up income - we don't want mines to always produce zero if handicap in use
+	return vstd::divideAndCeil(producedQuantity * playerSettings->handicap.percentIncome, 100);
+}
+
 void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 	{
 		if(isAbandoned())
 		{
@@ -207,10 +216,10 @@ void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &resu
 	}
 }
 
-void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattleI(hero, this);
+		cb->startBattle(hero, this);
 }
 
 void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -301,7 +310,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text = message;
-			cb->showBlockingDialog(&ynd);
+			cb->showBlockingDialog(this, &ynd);
 		}
 		else
 		{
@@ -336,14 +345,14 @@ void CGResource::collectRes(const PlayerColor & player) const
 
 void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 		collectRes(hero->getOwner());
 }
 
-void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattleI(hero, this);
+		cb->startBattle(hero, this);
 }
 
 void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -870,7 +879,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					ynd.text.replaceRawString(getArmyDescription());
 					ynd.text.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
 				}
-				cb->showBlockingDialog(&ynd);
+				cb->showBlockingDialog(this, &ynd);
 			}
 			break;
 		case Obj::SPELL_SCROLL:
@@ -880,7 +889,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
 					ynd.text = message;
-					cb->showBlockingDialog(&ynd);
+					cb->showBlockingDialog(this, &ynd);
 				}
 				else
 					blockingDialogAnswered(h, true);
@@ -903,14 +912,14 @@ BattleField CGArtifact::getBattlefield() const
 
 void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner == 0) //attacker won
+	if(result.winner == BattleSide::ATTACKER) //attacker won
 		pick(hero);
 }
 
-void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattleI(hero, this);
+		cb->startBattle(hero, this);
 }
 
 void CGArtifact::afterAddToMap(CMap * map)
@@ -970,12 +979,27 @@ void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
 	handler.serializeStruct("text", message);
 }
 
+const IOwnableObject * CGGarrison::asOwnable() const
+{
+	return this;
+}
+
+ResourceSet CGGarrison::dailyIncome() const
+{
+	return {};
+}
+
+std::vector<CreatureID> CGGarrison::providedCreatures() const
+{
+	return {};
+}
+
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
 	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
 	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
-		cb->startBattleI(h, this);
+		cb->startBattle(h, this);
 		return;
 	}
 
@@ -1002,7 +1026,7 @@ bool CGGarrison::passableFor(PlayerColor player) const
 
 void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if (result.winner == 0)
+	if (result.winner == BattleSide::ATTACKER)
 		onHeroVisit(hero);
 }
 
@@ -1203,6 +1227,21 @@ BoatId CGShipyard::getBoatType() const
 	return createdBoat;
 }
 
+const IOwnableObject * CGShipyard::asOwnable() const
+{
+	return this;
+}
+
+ResourceSet CGShipyard::dailyIncome() const
+{
+	return {};
+}
+
+std::vector<CreatureID> CGShipyard::providedCreatures() const
+{
+	return {};
+}
+
 void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
 {
 	cb->showObjectWindow(this, EOpenWindowMode::THIEVES_GUILD, h, false);
@@ -1271,6 +1310,21 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 			CTeamVisited::setPropertyDer(what, identifier);
 			break;
 	}
+}
+
+const IOwnableObject * CGLighthouse::asOwnable() const
+{
+	return this;
+}
+
+ResourceSet CGLighthouse::dailyIncome() const
+{
+	return {};
+}
+
+std::vector<CreatureID> CGLighthouse::providedCreatures() const
+{
+	return {};
 }
 
 void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const

@@ -208,12 +208,6 @@ float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, c
 		enemyFlyers->setValue(enemyStructure.flyers);
 		enemySpeed->setValue(enemyStructure.maxSpeed);
 
-		bool bank = dynamic_cast<const CBank *>(enemy);
-		if(bank)
-			bankPresent->setValue(1);
-		else
-			bankPresent->setValue(0);
-
 		const CGTownInstance * fort = dynamic_cast<const CGTownInstance *>(enemy);
 		if(fort)
 			castleWalls->setValue(fort->fortLevel());

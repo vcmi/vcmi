@@ -193,16 +193,16 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 		return adaptProblem(ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL, problem);
 
 	const PlayerColor player = caster->getCasterOwner();
-	const auto side = battle()->playerToSide(player);
+	const BattleSide side = battle()->playerToSide(player);
 
-	if(!side)
+	if(side == BattleSide::NONE)
 		return adaptProblem(ESpellCastProblem::INVALID, problem);
 
 	//effect like Recanter's Cloak. Blocks also passive casting.
 	//TODO: check creature abilities to block
 	//TODO: check any possible caster
 
-	if(battle()->battleMaxSpellLevel(side.value()) < getSpellLevel() || battle()->battleMinSpellLevel(side.value()) > getSpellLevel())
+	if(battle()->battleMaxSpellLevel(side) < getSpellLevel() || battle()->battleMinSpellLevel(side) > getSpellLevel())
 		return adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
 
 	return effects->applicable(problem, this);
@@ -284,7 +284,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	const CGHeroInstance * otherHero = nullptr;
 	{
 		//check it there is opponent hero
-		const ui8 otherSide = battle()->otherSide(casterSide);
+		const BattleSide otherSide = battle()->otherSide(casterSide);
 
 		if(battle()->battleHasHero(otherSide))
 			otherHero = battle()->battleGetFightingHero(otherSide);
@@ -505,62 +505,14 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 	using namespace SRSLPraserHelpers;
 
 	std::set<BattleHex> ret;
-	std::string rng = owner->getLevelInfo(getRangeLevel()).range + ','; //copy + artificial comma for easier handling
+	std::vector<int> rng = owner->getLevelInfo(getRangeLevel()).range;
 
-	if(rng.size() >= 2 && rng[0] != 'X') //there is at least one hex in range (+artificial comma)
+	for(auto & elem : rng)
 	{
-		std::string number1;
-		std::string number2;
-		int beg = 0;
-		int end = 0;
-		bool readingFirst = true;
-		for(auto & elem : rng)
-		{
-			if(std::isdigit(elem) ) //reading number
-			{
-				if(readingFirst)
-					number1 += elem;
-				else
-					number2 += elem;
-			}
-			else if(elem == ',') //comma
-			{
-				//calculating variables
-				if(readingFirst)
-				{
-					beg = std::stoi(number1);
-					number1 = "";
-				}
-				else
-				{
-					end = std::stoi(number2);
-					number2 = "";
-				}
-				//obtaining new hexes
-				std::set<ui16> curLayer;
-				if(readingFirst)
-				{
-					curLayer = getInRange(centralHex, beg, beg);
-				}
-				else
-				{
-					curLayer = getInRange(centralHex, beg, end);
-					readingFirst = true;
-				}
-				//adding obtained hexes
-				for(const auto & curLayer_it : curLayer)
-				{
-					ret.insert(curLayer_it);
-				}
-
-			}
-			else if(elem == '-') //dash
-			{
-				beg = std::stoi(number1);
-				number1 = "";
-				readingFirst = false;
-			}
-		}
+		std::set<ui16> curLayer = getInRange(centralHex, elem, elem);
+		//adding obtained hexes
+		for(const auto & curLayer_it : curLayer)
+			ret.insert(curLayer_it);
 	}
 
 	return ret;

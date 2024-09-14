@@ -34,9 +34,6 @@ struct DLL_LINKAGE CPack : public Serializeable
 		throw std::runtime_error("CPack serialized... this should not happen!");
 	}
 
-	void applyGs(CGameState * gs)
-	{}
-
 	void visit(ICPackVisitor & cpackVisitor);
 
 protected:
@@ -53,6 +50,8 @@ protected:
 
 struct DLL_LINKAGE CPackForClient : public CPack
 {
+	virtual void applyGs(CGameState * gs) = 0;
+
 protected:
 	void visitBasic(ICPackVisitor & cpackVisitor) override;
 };

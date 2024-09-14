@@ -33,6 +33,7 @@ class ResourceSet;
 class int3;
 class MetaString;
 class PlayerColor;
+class IOwnableObject;
 
 class DLL_LINKAGE IObjectInterface : public GameCallbackHolder, public virtual Serializeable
 {
@@ -61,12 +62,14 @@ public:
 	//Called when queries created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the query
 	virtual void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const;
-	virtual void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const;
+	virtual void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const;
 	virtual void garrisonDialogClosed(const CGHeroInstance *hero) const;
 	virtual void heroLevelUpDone(const CGHeroInstance *hero) const;
 
 	//unified helper to show info dialog for object owner
 	virtual void showInfoDialog(const ui32 txtID, const ui16 soundID = 0, EInfoWindowMode mode = EInfoWindowMode::AUTO) const;
+
+	virtual const IOwnableObject * asOwnable() const = 0;
 
 	//unified interface, AI helpers
 	virtual bool wasVisited (PlayerColor player) const;

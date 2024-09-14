@@ -38,7 +38,7 @@
 
 CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QueryID askID)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
@@ -94,7 +94,7 @@ void CSelWindow::madeChoiceAndClose()
 
 CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCompsInfo & comps, const TButtonsInfo & Buttons)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
@@ -248,8 +248,6 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our)
 {
 	CCS->curh->hide();
-	defActions = 255-DISPOSE;
-	our->recActions = defActions;
 	inner = our;
 	addChild(our.get(), false);
 }
@@ -273,9 +271,9 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), toScreen(position))
 {
 	InfoAboutTown iah;
-	LOCPLINT->cb->getTownInfo(town, iah, LOCPLINT->localState->getCurrentTown()); //todo: should this be nearest hero?
+	LOCPLINT->cb->getTownInfo(town, iah, LOCPLINT->localState->getCurrentArmy()); //todo: should this be nearest hero?
 
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
 }
 
@@ -283,9 +281,9 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("HEROQVBK"), toScreen(position))
 {
 	InfoAboutHero iah;
-	LOCPLINT->cb->getHeroInfo(hero, iah, LOCPLINT->localState->getCurrentHero()); //todo: should this be nearest hero?
+	LOCPLINT->cb->getHeroInfo(hero, iah, LOCPLINT->localState->getCurrentArmy()); //todo: should this be nearest hero?
 
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
 }
 
@@ -295,14 +293,14 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 	InfoAboutTown iah;
 	LOCPLINT->cb->getTownInfo(garr, iah);
 
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
 	: CWindowObject(RCLICK_POPUP | BORDERED, ImagePath::builtin("DIBOXBCK"), toScreen(position))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CreatureTooltip>(Point(9, 10), creature);
 }
 

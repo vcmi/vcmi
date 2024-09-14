@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../building/TownFortifications.h"
 #include "../../ConstTransitivePtr.h"
 #include "../../Point.h"
 #include "../../constants/EntityIdentifiers.h"
@@ -49,8 +50,6 @@ public:
 	std::string getBuildingScope() const;
 	std::set<si32> getAllBuildings() const;
 	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;
-	std::string getGreeting(BuildingSubID::EBuildingSubID subID) const;
-	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const; //may affect only mutable field
 	BuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
 
 	std::string getRandomNameTextID(size_t index) const;
@@ -71,8 +70,11 @@ public:
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
 	GameResID primaryRes;
-	ArtifactID warMachine;
-	SpellID moatAbility;
+	CreatureID warMachineDeprecated;
+
+	/// Base state of fortifications for empty town.
+	/// Used to define shooter units and moat spell ID
+	TownFortifications fortifications;
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
@@ -101,15 +103,10 @@ public:
 
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
-		CreatureID siegeShooter; // shooter creature ID
 		std::string towerIconSmall;
 		std::string towerIconLarge;
 
 	} clientInfo;
-
-private:
-	///generated bonusing buildings messages for all towns of this type.
-	mutable std::map<BuildingSubID::EBuildingSubID, const std::string> specialMessages; //may be changed by CGTownBuilding::getVisitingBonusGreeting() const
 };
 
 VCMI_LIB_NAMESPACE_END

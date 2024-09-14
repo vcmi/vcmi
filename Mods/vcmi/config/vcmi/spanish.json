@@ -219,17 +219,6 @@
 
 	"vcmi.townHall.missingBase"             : "Primero se debe construir el edificio base %s",
 	"vcmi.townHall.noCreaturesToRecruit"    : "¡No hay criaturas para reclutar!",
-	"vcmi.townHall.greetingManaVortex"      : "Al acercarte a %s, tu cuerpo se llena de nueva energía. Has duplicado tus puntos de hechizo normales.",
-	"vcmi.townHall.greetingKnowledge"       : "Estudias los glifos en %s y obtienes una visión de los entresijos de varias magias (+1 conocimiento).",
-	"vcmi.townHall.greetingSpellPower"      : "El %s te enseña nuevas formas de enfocar tus poderes mágicos (+1 Poder).",
-	"vcmi.townHall.greetingExperience"      : "Una visita a %s te enseña muchas habilidades nuevas (+1000 Experiencia).",
-	"vcmi.townHall.greetingAttack"          : "El tiempo dedicado en %s te permite aprender habilidades de combate más efectivas (+1 habilidad de ataque).",
-	"vcmi.townHall.greetingDefence"         : "Pasando tiempo en %s, los guerreros experimentados allí te enseñan habilidades defensivas adicionales (+1 Defensa).",
-	"vcmi.townHall.hasNotProduced"          : "%s aún no ha producido nada.",
-	"vcmi.townHall.hasProduced"             : "%s ha producido %d %s esta semana.",
-	"vcmi.townHall.greetingCustomBonus"     : "%s te da +%d %s%s",
-	"vcmi.townHall.greetingCustomUntil"     : " hasta la próxima batalla.",
-	"vcmi.townHall.greetingInTownMagicWell" : "%s ha restaurado tus puntos de hechizo al máximo.",
 
 	"vcmi.logicalExpressions.anyOf"  : "Cualquiera de lo siguiente:",
 	"vcmi.logicalExpressions.allOf"  : "Todo lo siguiente:",

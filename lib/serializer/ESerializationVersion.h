@@ -31,25 +31,14 @@ enum class ESerializationVersion : int32_t
 {
 	NONE = 0,
 
-	MINIMAL = 831,
-
-	RELEASE_143, // 832 +text container in campaigns, +starting hero in RMG options
-	HAS_EXTRA_OPTIONS, // 833 +extra options struct as part of startinfo
-	DESTROYED_OBJECTS, // 834 +list of objects destroyed by player
-	CAMPAIGN_MAP_TRANSLATIONS, // 835 +campaigns include translations for its maps
-	JSON_FLAGS, // 836 json uses new format for flags
-	MANA_LIMIT,	// 837 change MANA_PER_KNOWLEDGE to percentage
-	BONUS_META_STRING,	// 838 bonuses use MetaString instead of std::string for descriptions
-	TURN_TIMERS_STATE, // 839 current state of turn timers is serialized
-	ARTIFACT_COSTUMES, // 840 swappable artifacts set added
-
-	RELEASE_150 = ARTIFACT_COSTUMES, // for convenience
+	RELEASE_150 = 840,
+	MINIMAL = RELEASE_150,
 
 	VOTING_SIMTURNS, // 841 - allow modification of simturns duration via vote
 	REMOVE_TEXT_CONTAINER_SIZE_T, // 842 Fixed serialization of size_t from text containers
 	BANK_UNIT_PLACEMENT, // 843 Banks have unit placement flag
 
-	RELEASE_152 = BANK_UNIT_PLACEMENT,
+	RELEASE_156 = BANK_UNIT_PLACEMENT,
 
 	COMPACT_STRING_SERIALIZATION, // 844 - optimized serialization of previously encountered strings
 	COMPACT_INTEGER_SERIALIZATION, // 845 - serialize integers in forms similar to protobuf
@@ -57,6 +46,20 @@ enum class ESerializationVersion : int32_t
 	SIMPLE_TEXT_CONTAINER_SERIALIZATION, // 847 - text container is serialized using common routine instead of custom approach
 	MAP_FORMAT_ADDITIONAL_INFOS, // 848 - serialize new infos in map format
 	REMOVE_LIB_RNG, // 849 - removed random number generators from library classes
+	HIGHSCORE_PARAMETERS, // 850 - saves parameter for campaign
+	PLAYER_HANDICAP, // 851 - player handicap selection at game start
+	STATISTICS, // 852 - removed random number generators from library classes
+	CAMPAIGN_REGIONS, // 853 - configurable campaign regions
+	EVENTS_PLAYER_SET, // 854 - map & town events use std::set instead of bitmask to store player list
+	NEW_TOWN_BUILDINGS, // 855 - old bonusing buildings have been removed
+	STATISTICS_SCREEN, // 856 - extent statistic functions
+	NEW_MARKETS, // 857 - reworked market classes
+	PLAYER_STATE_OWNED_OBJECTS, // 858 - player state stores all owned objects in a single list
+	SAVE_COMPATIBILITY_FIXES, // 859 - implementation of previoulsy postponed changes to serialization
+	CHRONICLES_SUPPORT, // 860 - support for heroes chronicles
+	PER_MAP_GAME_SETTINGS, // 861 - game settings are now stored per-map
+	CAMPAIGN_OUTRO_SUPPORT, // 862 - support for campaign outro video
+	REWARDABLE_BANKS, // 863 - team state contains list of scouted objects, coast visitable rewardable objects
 
-	CURRENT = REMOVE_LIB_RNG
+	CURRENT = REWARDABLE_BANKS
 };

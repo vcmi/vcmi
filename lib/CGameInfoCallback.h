@@ -18,12 +18,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class Player;
 class Team;
+class IGameSettings;
 
 struct InfoWindow;
 struct PlayerSettings;
 struct CPackForClient;
 struct TerrainTile;
-struct PlayerState;
+class PlayerState;
 class CTown;
 struct StartInfo;
 struct CPathsInfo;
@@ -48,6 +49,7 @@ class CGHeroInstance;
 class CGDwelling;
 class CGTeleport;
 class CGTownInstance;
+class IMarket;
 
 class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
 {
@@ -56,7 +58,7 @@ public:
 
 //	//various
 	virtual int getDate(Date mode=Date::DAY) const = 0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-//	const StartInfo * getStartInfo(bool beforeRandomization = false)const;
+	virtual const StartInfo * getStartInfo(bool beforeRandomization = false) const = 0;
 	virtual bool isAllowed(SpellID id) const = 0;
 	virtual bool isAllowed(ArtifactID id) const = 0;
 	virtual bool isAllowed(SecondarySkill id) const = 0;
@@ -143,10 +145,11 @@ protected:
 public:
 	//various
 	int getDate(Date mode=Date::DAY)const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	virtual const StartInfo * getStartInfo(bool beforeRandomization = false)const;
+	const StartInfo * getStartInfo(bool beforeRandomization = false) const override;
 	bool isAllowed(SpellID id) const override;
 	bool isAllowed(ArtifactID id) const override;
 	bool isAllowed(SecondarySkill id) const override;
+	const IGameSettings & getSettings() const;
 
 	//player
 	std::optional<PlayerColor> getPlayerID() const override;
@@ -189,6 +192,7 @@ public:
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	virtual const CGObjectInstance * getTopObj (int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
+	virtual const IMarket * getMarket(ObjectInstanceID objid) const;
 
 	//map
 	virtual int3 guardingCreaturePosition (int3 pos) const;
@@ -245,7 +249,6 @@ public:
 	virtual const CGTownInstance* getTownBySerial(int serialId) const; // serial id is [0, number of towns)
 	virtual const CGHeroInstance* getHeroBySerial(int serialId, bool includeGarrisoned=true) const; // serial id is [0, number of heroes)
 	virtual std::vector <const CGHeroInstance *> getHeroesInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
-	virtual std::vector <const CGDwelling *> getMyDwellings() const; //returns all dwellings that belong to player
 	virtual std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 	virtual std::vector <QuestInfo> getMyQuests() const;
 

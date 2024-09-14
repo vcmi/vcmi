@@ -252,7 +252,7 @@ public:
 
 	const Caster * caster;
 
-	ui8 casterSide;
+	BattleSide casterSide;
 
 protected:
 	Mechanics();

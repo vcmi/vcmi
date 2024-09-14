@@ -25,8 +25,6 @@ struct PlayerSettings;
 class PlayerColor;
 class MetaString;
 
-template<typename T> class CApplier;
-
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -52,7 +50,6 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	std::unique_ptr<INetworkHandler> networkHandler;
 
-	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	EServerState state = EServerState::LOBBY;
 
 	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
@@ -117,6 +114,7 @@ public:
 	// Work with LobbyInfo
 	void setPlayer(PlayerColor clickedColor);
 	void setPlayerName(PlayerColor player, std::string name);
+	void setPlayerHandicap(PlayerColor player, Handicap handicap);
 	void optionNextHero(PlayerColor player, int dir); //dir == -1 or +1
 	void optionSetHero(PlayerColor player, HeroTypeID id);
 	HeroTypeID nextAllowedHero(PlayerColor player, HeroTypeID id, int direction);

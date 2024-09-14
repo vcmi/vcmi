@@ -143,9 +143,9 @@ static const std::vector<BuildingID> basicGoldSource = { BuildingID::TOWN_HALL, 
 static const std::vector<BuildingID> defence = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE };
 static const std::vector<BuildingID> capitolAndRequirements = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::CAPITOL };
 static const std::vector<BuildingID> unitsSource = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
-BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
+BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7, BuildingID::DWELL_LVL_8 };
 static const std::vector<BuildingID> unitsUpgrade = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
-BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP };
+BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP, BuildingID::DWELL_LVL_8_UP };
 static const std::vector<BuildingID> unitGrowth = { BuildingID::HORDE_1, BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR };
 static const std::vector<BuildingID> _spells = { BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
 BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5 };
@@ -196,7 +196,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 		return true;
 
 	//workaround for mantis #2696 - build capitol with separate algorithm if it is available
-	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
+	if(t->hasBuilt(BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
 	{
 		if(tryBuildNextStructure(t, capitolAndRequirements))
 			return true;

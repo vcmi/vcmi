@@ -346,6 +346,12 @@ void ApplyOnServerNetPackVisitor::visitLobbySetPlayerName(LobbySetPlayerName & p
 	result = true;
 }
 
+void ApplyOnServerNetPackVisitor::visitLobbySetPlayerHandicap(LobbySetPlayerHandicap & pack)
+{
+	srv.setPlayerHandicap(pack.color, pack.handicap);
+	result = true;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetSimturns(LobbySetSimturns & pack)
 {
 	srv.si->simturnsInfo = pack.simturnsInfo;

@@ -58,7 +58,9 @@ public:
 	LegacyTextContainer turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
 
 	//towns
-	LegacyTextContainer tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
+	LegacyTextContainer tcommands; //texts for town screen,
+	LegacyTextContainer hcommands; // town hall screen
+	LegacyTextContainer fcommands; // fort screen
 	LegacyTextContainer tavernInfo;
 	LegacyTextContainer tavernRumors;
 

@@ -14,6 +14,7 @@
 
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,7 +26,6 @@ class CGHeroInstance;
 class CGMarket;
 class CHeroClass;
 class CGCreature;
-class CBank;
 class CGBoat;
 class CFaction;
 class CStackBasicDescriptor;
@@ -126,6 +126,8 @@ public:
 	CGMarket * createObject(IGameCallback * cb) const override;
 	void initializeObject(CGMarket * object) const override;
 	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
+
+	const std::set<EMarketMode> & availableModes() const;
 
 };
 

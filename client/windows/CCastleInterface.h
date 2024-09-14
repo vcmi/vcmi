@@ -150,7 +150,7 @@ class CCastleBuildings : public CIntObject
 
 	const CGHeroInstance* getHero();//Select hero for buildings usage
 
-	void enterBlacksmith(ArtifactID artifactID);//support for blacksmith + ballista yard
+	void enterBlacksmith(BuildingID building, ArtifactID artifactID);//support for blacksmith + ballista yard
 	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
 	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
@@ -167,12 +167,15 @@ public:
 
 	void enterDwelling(int level);
 	void enterTownHall();
+	void enterRewardable(BuildingID building);
 	void enterMagesGuild();
 	void enterAnyMarket();
 	void enterAnyThievesGuild();
+	void enterBank(BuildingID building);
 	void enterToTheQuickRecruitmentWindow();
 
-	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);
+	bool buildingTryActivateCustomUI(BuildingID buildingToTest, BuildingID buildingTarget);
+	void buildingClicked(BuildingID building);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
 };

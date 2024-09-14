@@ -49,7 +49,7 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 	owner(Owner),
 	lastAlternativeAction(PossiblePlayerBattleAction::INVALID)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.w = 800;
 	pos.h = 600;
 	pos = center();
@@ -123,7 +123,7 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 
 void BattleWindow::createQueue()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	//create stack queue and adjust our own position
 	bool embedQueue;
@@ -150,7 +150,7 @@ void BattleWindow::createQueue()
 
 void BattleWindow::createStickyHeroInfoWindows()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	if(owner.defendingHeroInstance)
 	{
@@ -181,7 +181,7 @@ void BattleWindow::createStickyHeroInfoWindows()
 
 void BattleWindow::createQuickSpellWindow()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	quickSpellWindow = std::make_shared<QuickSpellPanel>(owner);
 	quickSpellWindow->moveTo(Point(pos.x - 67, pos.y));
@@ -218,7 +218,9 @@ void BattleWindow::showStickyQuickSpellWindow()
 	Settings showStickyQuickSpellWindow = settings.write["battle"]["enableQuickSpellPanel"];
 	showStickyQuickSpellWindow->Bool() = true;
 
-	if(GH.screenDimensions().x >= 1050 && owner.getBattle()->battleGetMyHero()->hasSpellbook())
+	auto hero = owner.getBattle()->battleGetMyHero();
+
+	if(GH.screenDimensions().x >= 1050 && hero != nullptr && hero->hasSpellbook())
 	{
 		quickSpellWindow->enable();
 		quickSpellWindow->isEnabled = true;
@@ -236,7 +238,7 @@ void BattleWindow::showStickyQuickSpellWindow()
 
 void BattleWindow::createTimerInfoWindows()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
 
@@ -273,16 +275,13 @@ std::shared_ptr<BattleConsole> BattleWindow::buildBattleConsole(const JsonNode &
 
 void BattleWindow::useSpellIfPossible(int slot)
 {
-	std::string spellIdentifier = persistentStorage["quickSpell"][std::to_string(slot)].String();
 	SpellID id;
-	try
-	{
-		id = SpellID::decode(spellIdentifier);
-	}
-	catch(const IdentifierResolutionException& e)
-	{
+	bool fromSettings;
+	std::tie(id, fromSettings) = quickSpellWindow->getSpells()[slot];
+
+	if(id == SpellID::NONE)
 		return;
-	}
+
 	if(id.hasValue() && owner.getBattle()->battleGetMyHero() && id.toSpell()->canBeCast(owner.getBattle().get(), spells::Mode::HERO, owner.getBattle()->battleGetMyHero()))
 	{
 		owner.castThisSpell(id);
@@ -417,7 +416,7 @@ void BattleWindow::updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero
 
 void BattleWindow::updateStackInfoWindow(const CStack * stack)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
 

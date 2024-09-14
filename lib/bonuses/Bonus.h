@@ -95,15 +95,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & source;
 		h & val;
 		h & sid;
-		if (h.version < Handler::Version::BONUS_META_STRING)
-		{
-			std::string oldDescription;
-			h & oldDescription;
-			description = MetaString::createFromRawString(oldDescription);
-		}
-		else
-			h & description;
-
+		h & description;
 		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;
@@ -114,11 +106,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & updater;
 		h & propagationUpdater;
 		h & targetSourceType;
-		if (h.version < Handler::Version::MANA_LIMIT && type == BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE)
-		{
-			if (valType == BonusValueType::ADDITIVE_VALUE || valType == BonusValueType::BASE_NUMBER)
-				val *= 100;
-		}
 	}
 
 	template <typename Ptr>

@@ -18,13 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
 public:
-	
-	std::set<EMarketMode> marketModes;
 	int marketEfficiency;
-	
-	//window variables
-	std::string title;
-	std::string speech; //currently shown only in university
 	
 	CGMarket(IGameCallback *cb);
 	///IObjectInterface
@@ -32,18 +26,35 @@ public:
 	void initObj(vstd::RNG & rand) override;//set skills for trade
 
 	///IMarket
+	ObjectInstanceID getObjInstanceID() const override;
 	int getMarketEfficiency() const override;
-	bool allowsTrade(EMarketMode mode) const override;
 	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
-	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
+	std::set<EMarketMode> availableModes() const override;
 
-	template <typename Handler> void serialize(Handler &h)
+	template <typename Handler>
+	void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & marketModes;
+		if (h.version < Handler::Version::NEW_MARKETS)
+		{
+			std::set<EMarketMode> marketModes;
+			h & marketModes;
+		}
+
 		h & marketEfficiency;
-		h & title;
-		h & speech;
+		if (h.version < Handler::Version::NEW_MARKETS)
+		{
+			std::string speech;
+			std::string title;
+			h & speech;
+			h & title;
+		}
+	}
+
+	template <typename Handler> void serializeArtifactsAltar(Handler &h)
+	{
+		serialize(h);
+		IMarket::serializeArtifactsAltar(h);
 	}
 };
 
@@ -68,6 +79,8 @@ class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
 	using CGMarket::CGMarket;
+	std::string speech; //currently shown only in university
+	std::string title;
 
 	std::vector<TradeItemBuy> skills; //available skills
 
@@ -78,20 +91,11 @@ public:
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & skills;
-	}
-};
-
-class DLL_LINKAGE CGArtifactsAltar : public CGMarket, public CArtifactSet
-{
-public:
-	using CGMarket::CGMarket;
-
-	ArtBearer::ArtBearer bearerType() const override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & static_cast<CGMarket&>(*this);
-		h & static_cast<CArtifactSet&>(*this);
+		if (h.version >= Handler::Version::NEW_MARKETS)
+		{
+			h & speech;
+			h & title;
+		}
 	}
 };
 

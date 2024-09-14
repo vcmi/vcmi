@@ -174,6 +174,8 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 	reward.removeObject = source["removeObject"].Bool();
 	reward.bonuses = randomizer.loadBonuses(source["bonuses"]);
 
+	reward.guards = randomizer.loadCreatures(source["guards"], rng, variables);
+
 	reward.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
 	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
 
@@ -264,16 +266,64 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const
 {
-	for (const auto & artifact : info.reward.artifacts )
-		target.replaceName(artifact);
+	if (!info.reward.guards.empty())
+	{
+		replaceTextPlaceholders(target, variables);
 
-	for (const auto & spell : info.reward.spells )
-		target.replaceName(spell);
+		CreatureID strongest = info.reward.guards.at(0).getId();
 
-	for (const auto & secondary : info.reward.secondary )
-		target.replaceName(secondary.first);
+		for (const auto & guard : info.reward.guards )
+		{
+			if (strongest.toEntity(VLC)->getFightValue() < guard.getId().toEntity(VLC)->getFightValue())
+				strongest = guard.getId();
+		}
+		target.replaceNamePlural(strongest); // FIXME: use singular if only 1 such unit is in guards
 
-	replaceTextPlaceholders(target, variables);
+		MetaString loot;
+
+		for (GameResID it : GameResID::ALL_RESOURCES())
+		{
+			if (info.reward.resources[it] != 0)
+			{
+				loot.appendRawString("%d %s");
+				loot.replaceNumber(info.reward.resources[it]);
+				loot.replaceName(it);
+			}
+		}
+
+		for (const auto & artifact : info.reward.artifacts )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(artifact);
+		}
+
+		for (const auto & spell : info.reward.spells )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(spell);
+		}
+
+		for (const auto & secondary : info.reward.secondary )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(secondary.first);
+		}
+
+		target.replaceRawString(loot.buildList());
+	}
+	else
+	{
+		for (const auto & artifact : info.reward.artifacts )
+			target.replaceName(artifact);
+
+		for (const auto & spell : info.reward.spells )
+			target.replaceName(spell);
+
+		for (const auto & secondary : info.reward.secondary )
+			target.replaceName(secondary.first);
+
+		replaceTextPlaceholders(target, variables);
+	}
 }
 
 void Rewardable::Info::configureRewards(
@@ -339,6 +389,7 @@ void Rewardable::Info::configureRewards(
 void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb) const
 {
 	object.info.clear();
+	object.variables.values.clear();
 
 	configureVariables(object, rng, cb, parameters["variables"]);
 
@@ -377,10 +428,22 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd:
 		object.info.push_back(onEmpty);
 	}
 
+	if (!parameters["onGuardedMessage"].isNull())
+	{
+		Rewardable::VisitInfo onGuarded;
+		onGuarded.visitType = Rewardable::EEventType::EVENT_GUARDED;
+		onGuarded.message = loadMessage(parameters["onGuardedMessage"], TextIdentifier(objectTextID, "onGuarded"));
+		replaceTextPlaceholders(onGuarded.message, object.variables);
+
+		object.info.push_back(onGuarded);
+	}
+
 	configureResetInfo(object, rng, object.resetParameters, parameters["resetParameters"]);
 
 	object.canRefuse = parameters["canRefuse"].Bool();
 	object.showScoutedPreview = parameters["showScoutedPreview"].Bool();
+	object.guardsLayout = parameters["guardsLayout"].String();
+	object.coastVisitable = parameters["coastVisitable"].Bool();
 
 	if(parameters["showInInfobox"].isNull())
 		object.infoWindowType = EInfoWindowMode::AUTO;

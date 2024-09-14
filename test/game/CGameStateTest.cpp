@@ -24,6 +24,7 @@
 #include "../../lib/TerrainHandler.h"
 
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
@@ -175,8 +176,6 @@ public:
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = HeroTypeID(pinfo.mainCustomHeroPortrait);
 			}
-
-			pset.handicap = PlayerSettings::NO_HANDICAP;
 		}
 
 
@@ -190,8 +189,8 @@ public:
 
 	void startTestBattle(const CGHeroInstance * attacker, const CGHeroInstance * defender)
 	{
-		const CGHeroInstance * heroes[2] = {attacker, defender};
-		const CArmedInstance * armedInstancies[2] = {attacker, defender};
+		BattleSideArray<const CGHeroInstance *> heroes = {attacker, defender};
+		BattleSideArray<const CArmedInstance *> armedInstancies = {attacker, defender};
 
 		int3 tile(4,4,0);
 
@@ -199,10 +198,11 @@ public:
 
 		auto terrain = t.terType->getId();
 		BattleField terType(0);
+		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->callback, attacker, defender);
 
 		//send info about battles
 
-		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, false, nullptr);
+		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
 
 		BattleStart bs;
 		bs.info = battle;
@@ -232,17 +232,11 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	{
-		CArtifactInstance * a = new CArtifactInstance();
-		a->artType = const_cast<CArtifact *>(ArtifactID(ArtifactID::BALLISTA).toArtifact());
-
 		NewArtifact na;
-		na.art = a;
+		na.artHolder = defender->id;
+		na.artId = ArtifactID::BALLISTA;
+		na.pos = ArtifactPosition::MACH1;
 		gameCallback->sendAndApply(&na);
-
-		PutArtifact pack;
-		pack.al = ArtifactLocation(defender->id, ArtifactPosition::MACH1);
-		pack.art = a;
-		gameCallback->sendAndApply(&pack);
 	}
 
 	startTestBattle(attacker, defender);
@@ -326,17 +320,11 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 	attacker->mana = attacker->manaLimit();
 
 	{
-		CArtifactInstance * a = new CArtifactInstance();
-		a->artType = const_cast<CArtifact *>(ArtifactID(ArtifactID::SPELLBOOK).toArtifact());
-
 		NewArtifact na;
-		na.art = a;
+		na.artHolder = attacker->id;
+		na.artId = ArtifactID::SPELLBOOK;
+		na.pos = ArtifactPosition::SPELLBOOK;
 		gameCallback->sendAndApply(&na);
-
-		PutArtifact pack;
-		pack.al = ArtifactLocation(attacker->id, ArtifactPosition::SPELLBOOK);
-		pack.art = a;
-		gameCallback->sendAndApply(&pack);
 	}
 
 	startTestBattle(attacker, defender);

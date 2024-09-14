@@ -103,4 +103,6 @@ public:
 	bool isKeyboardShiftDown() const;
 
 	InputMode getCurrentInputMode();
+
+	void copyToClipBoard(const std::string & text);
 };

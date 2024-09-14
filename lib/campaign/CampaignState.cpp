@@ -20,6 +20,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
+#include "../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -45,7 +46,9 @@ CampaignRegions CampaignRegions::fromJson(const JsonNode & node)
 {
 	CampaignRegions cr;
 	cr.campPrefix = node["prefix"].String();
-	cr.colorSuffixLength = static_cast<int>(node["color_suffix_length"].Float());
+	cr.colorSuffixLength = static_cast<int>(node["colorSuffixLength"].Float());
+	cr.campSuffix = node["suffix"].isNull() ? std::vector<std::string>() : std::vector<std::string>{node["suffix"].Vector()[0].String(), node["suffix"].Vector()[1].String(), node["suffix"].Vector()[2].String()};
+	cr.campBackground = node["background"].isNull() ? "" : node["background"].String();
 
 	for(const JsonNode & desc : node["desc"].Vector())
 		cr.regions.push_back(CampaignRegions::RegionDescription::fromJson(desc));
@@ -68,7 +71,10 @@ CampaignRegions CampaignRegions::getLegacy(int campId)
 
 ImagePath CampaignRegions::getBackgroundName() const
 {
-	return ImagePath::builtin(campPrefix + "_BG.BMP");
+	if(campBackground.empty())
+		return ImagePath::builtin(campPrefix + "_BG.BMP");
+	else
+		return ImagePath::builtin(campBackground);
 }
 
 Point CampaignRegions::getPosition(CampaignScenarioID which) const
@@ -81,30 +87,39 @@ ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, 
 {
 	auto const & region = regions[which.getNum()];
 
-	static const std::string colors[2][8] =
-	{
-		{"R", "B", "N", "G", "O", "V", "T", "P"},
-		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
-	};
+	static const std::array<std::array<std::string, 8>, 3> colors = {{
+		{ "", "", "", "", "", "", "", "" },
+		{ "R", "B", "N", "G", "O", "V", "T", "P" },
+		{ "Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi" }
+	}};
 
-	std::string color = colors[colorSuffixLength - 1][colorIndex];
+	std::string color = colors[colorSuffixLength][colorIndex];
 
 	return ImagePath::builtin(campPrefix + region.infix + "_" + type + color + ".BMP");
 }
 
 ImagePath CampaignRegions::getAvailableName(CampaignScenarioID which, int color) const
 {
-	return getNameFor(which, color, "En");
+	if(campSuffix.empty())
+		return getNameFor(which, color, "En");
+	else
+		return getNameFor(which, color, campSuffix[0]);
 }
 
 ImagePath CampaignRegions::getSelectedName(CampaignScenarioID which, int color) const
 {
-	return getNameFor(which, color, "Se");
+	if(campSuffix.empty())
+		return getNameFor(which, color, "Se");
+	else
+		return getNameFor(which, color, campSuffix[1]);
 }
 
 ImagePath CampaignRegions::getConqueredName(CampaignScenarioID which, int color) const
 {
-	return getNameFor(which, color, "Co");
+	if(campSuffix.empty())
+		return getNameFor(which, color, "Co");
+	else
+		return getNameFor(which, color, campSuffix[2]);
 }
 
 
@@ -122,6 +137,12 @@ void CampaignHeader::loadLegacyData(ui8 campId)
 {
 	campaignRegions = CampaignRegions::getLegacy(campId);
 	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
+}
+
+void CampaignHeader::loadLegacyData(CampaignRegions regions, int numOfScenario)
+{
+	campaignRegions = regions;
+	numberOfScenarios = numOfScenario;
 }
 
 bool CampaignHeader::playerSelectedDifficulty() const
@@ -144,6 +165,26 @@ std::string CampaignHeader::getNameTranslated() const
 	return name.toString();
 }
 
+std::string CampaignHeader::getAuthor() const
+{
+	return authorContact.toString();
+}
+
+std::string CampaignHeader::getAuthorContact() const
+{
+	return authorContact.toString();
+}
+
+std::string CampaignHeader::getCampaignVersion() const
+{
+	return campaignVersion.toString();
+}
+
+time_t CampaignHeader::getCreationDateTime() const
+{
+	return creationDateTime;
+}
+
 std::string CampaignHeader::getFilename() const
 {
 	return filename;
@@ -162,6 +203,26 @@ std::string CampaignHeader::getEncoding() const
 AudioPath CampaignHeader::getMusic() const
 {
 	return music;
+}
+
+ImagePath CampaignHeader::getLoadingBackground() const
+{
+	return loadingBackground;
+}
+
+ImagePath CampaignHeader::getVideoRim() const
+{
+	return videoRim;
+}
+
+VideoPath CampaignHeader::getIntroVideo() const
+{
+	return introVideo;
+}
+
+VideoPath CampaignHeader::getOutroVideo() const
+{
+	return outroVideo;
 }
 
 const CampaignRegions & CampaignHeader::getRegions() const
@@ -373,7 +434,10 @@ CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node, CMap
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	if (map)
-		hero->serializeJsonArtifacts(handler, "artifacts", map);
+	{
+		hero->serializeJsonArtifacts(handler, "artifacts");
+		map->addNewArtifactInstance(*hero);
+	}
 	return hero;
 }
 
@@ -419,6 +483,47 @@ std::set<CampaignScenarioID> Campaign::allScenarios() const
 	}
 
 	return result;
+}
+
+void Campaign::overrideCampaign()
+{
+	const JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
+	for (auto & entry : node.Struct())
+		if(filename == entry.first)
+		{
+			if(!entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
+				loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
+			if(!entry.second["loadingBackground"].isNull())
+				loadingBackground = ImagePath::builtin(entry.second["loadingBackground"].String());
+			if(!entry.second["videoRim"].isNull())
+				videoRim = ImagePath::builtin(entry.second["videoRim"].String());
+			if(!entry.second["introVideo"].isNull())
+				introVideo = VideoPath::builtin(entry.second["introVideo"].String());
+			if(!entry.second["outroVideo"].isNull())
+				outroVideo = VideoPath::builtin(entry.second["outroVideo"].String());
+		}
+}
+
+void Campaign::overrideCampaignScenarios()
+{
+	const JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
+	for (auto & entry : node.Struct())
+		if(filename == entry.first)
+		{
+			if(!entry.second["scenarios"].isNull())
+			{
+				auto sc = entry.second["scenarios"].Vector();
+				for(int i = 0; i < sc.size(); i++)
+				{
+					auto it = scenarios.begin();
+					std::advance(it, i);
+					if(!sc.at(i)["voiceProlog"].isNull())
+						it->second.prolog.prologVoice = AudioPath::builtin(sc.at(i)["voiceProlog"].String());
+					if(!sc.at(i)["voiceEpilog"].isNull())
+						it->second.epilog.prologVoice = AudioPath::builtin(sc.at(i)["voiceEpilog"].String());
+				}
+			}
+		}
 }
 
 int Campaign::scenariosCount() const

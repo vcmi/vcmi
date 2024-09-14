@@ -15,6 +15,7 @@
 #include "../texts/TextLocalizationContainer.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
+#include "../gameState/HighScore.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,6 +33,8 @@ class IGameCallback;
 class DLL_LINKAGE CampaignRegions
 {
 	std::string campPrefix;
+	std::vector<std::string> campSuffix;
+	std::string campBackground;
 	int colorSuffixLength;
 
 	struct DLL_LINKAGE RegionDescription
@@ -66,6 +69,11 @@ public:
 		h & campPrefix;
 		h & colorSuffixLength;
 		h & regions;
+		if (h.version >= Handler::Version::CAMPAIGN_REGIONS)
+		{
+			h & campSuffix;
+			h & campBackground;
+		}
 	}
 
 	static CampaignRegions fromJson(const JsonNode & node);
@@ -75,6 +83,7 @@ public:
 class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
 	friend class CampaignHandler;
+	friend class Campaign;
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -88,11 +97,16 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	std::string filename;
 	std::string modName;
 	std::string encoding;
+	ImagePath loadingBackground;
+	ImagePath videoRim;
+	VideoPath introVideo;
+	VideoPath outroVideo;
 
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
 
 	void loadLegacyData(ui8 campId);
+	void loadLegacyData(CampaignRegions regions, int numOfScenario);
 
 	TextContainerRegistrable textContainer;
 
@@ -102,10 +116,18 @@ public:
 
 	std::string getDescriptionTranslated() const;
 	std::string getNameTranslated() const;
+	std::string getAuthor() const;
+	std::string getAuthorContact() const;
+	std::string getCampaignVersion() const;
+	time_t getCreationDateTime() const;
 	std::string getFilename() const;
 	std::string getModName() const;
 	std::string getEncoding() const;
 	AudioPath getMusic() const;
+	ImagePath getLoadingBackground() const;
+	ImagePath getVideoRim() const;
+	VideoPath getIntroVideo() const;
+	VideoPath getOutroVideo() const;
 
 	const CampaignRegions & getRegions() const;
 	TextContainerRegistrable & getTexts();
@@ -129,8 +151,15 @@ public:
 		h & modName;
 		h & music;
 		h & encoding;
-		if (h.version >= Handler::Version::RELEASE_143)
-			h & textContainer;
+		h & textContainer;
+		if (h.version >= Handler::Version::CHRONICLES_SUPPORT)
+		{
+			h & loadingBackground;
+			h & videoRim;
+			h & introVideo;
+		}
+		if (h.version >= Handler::Version::CAMPAIGN_OUTRO_SUPPORT)
+			h & outroVideo;
 	}
 };
 
@@ -236,6 +265,9 @@ public:
 	std::set<CampaignScenarioID> allScenarios() const;
 	int scenariosCount() const;
 
+	void overrideCampaign();
+	void overrideCampaignScenarios();
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CampaignHeader&>(*this);
@@ -318,6 +350,8 @@ public:
 
 	std::string campaignSet;
 
+	std::vector<HighScoreParameter> highscoreParameters;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<Campaign&>(*this);
@@ -328,8 +362,9 @@ public:
 		h & currentMap;
 		h & chosenCampaignBonuses;
 		h & campaignSet;
-		if (h.version >= Handler::Version::CAMPAIGN_MAP_TRANSLATIONS)
-			h & mapTranslations;
+		h & mapTranslations;
+		if (h.version >= Handler::Version::HIGHSCORE_PARAMETERS)
+			h & highscoreParameters;
 	}
 };
 

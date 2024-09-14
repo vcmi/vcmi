@@ -20,6 +20,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CArtifactInstance;
+class CArtifactSet;
 class CGObjectInstance;
 class CGHeroInstance;
 class CCommanderInstance;
@@ -31,7 +32,10 @@ class IQuestObject;
 class CInputStream;
 class CMapEditManager;
 class JsonSerializeFormat;
+class IGameSettings;
+class GameSettings;
 struct TeleportChannel;
+enum class EGameSettings;
 
 /// The rumor struct consists of a rumor name and text.
 struct DLL_LINKAGE Rumor
@@ -75,6 +79,7 @@ struct DLL_LINKAGE DisposedHero
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
 class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 {
+	std::unique_ptr<GameSettings> gameSettings;
 public:
 	explicit CMap(IGameCallback *cb);
 	~CMap();
@@ -84,8 +89,15 @@ public:
 	TerrainTile & getTile(const int3 & tile);
 	const TerrainTile & getTile(const int3 & tile) const;
 	bool isCoastalTile(const int3 & pos) const;
-	bool isInTheMap(const int3 & pos) const;
 	bool isWaterTile(const int3 & pos) const;
+	inline bool isInTheMap(const int3 & pos) const
+	{
+		// Check whether coord < 0 is done implicitly. Negative signed int overflows to unsigned number larger than all signed ints.
+		return
+			static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
+			static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
+			static_cast<uint32_t>(pos.z) <= (twoLevel ? 1 : 0);
+	}
 
 	bool canMoveBetween(const int3 &src, const int3 &dst) const;
 	bool checkForVisitableDir(const int3 & src, const TerrainTile * pom, const int3 & dst) const;
@@ -95,6 +107,7 @@ public:
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
 	void calculateGuardingGreaturePositions();
 
+	void addNewArtifactInstance(CArtifactSet & artSet);
 	void addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art);
 	void eraseArtifactInstance(CArtifactInstance * art);
 
@@ -136,7 +149,7 @@ public:
 	std::set<SpellID> allowedSpells;
 	std::set<ArtifactID> allowedArtifact;
 	std::set<SecondarySkill> allowedAbilities;
-	std::list<CMapEvent> events;
+	std::vector<CMapEvent> events;
 	int3 grailPos;
 	int grailRadius;
 
@@ -167,6 +180,10 @@ public:
 	std::vector<const CArtifact *> townMerchantArtifacts;
 	std::vector<TradeItemBuy> townUniversitySkills;
 
+	void overrideGameSettings(const JsonNode & input);
+	void overrideGameSetting(EGameSettings option, const JsonNode & input);
+	const IGameSettings & getSettings() const;
+
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	boost::multi_array<TerrainTile, 3> terrain;
@@ -189,14 +206,6 @@ public:
 		h & quests;
 		h & allHeroes;
 
-		if (h.version < Handler::Version::DESTROYED_OBJECTS)
-		{
-			// old save compatibility
-			//FIXME: remove this field after save-breaking change
-			h & questIdentifierToId;
-			resolveQuestIdentifiers();
-		}
-
 		//TODO: viccondetails
 		h & terrain;
 		h & guardingCreaturePositions;
@@ -214,6 +223,9 @@ public:
 		h & townUniversitySkills;
 
 		h & instanceNames;
+
+		if (h.version >= Handler::Version::PER_MAP_GAME_SETTINGS)
+			h & *gameSettings;
 	}
 };
 

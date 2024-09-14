@@ -354,12 +354,13 @@ void TreasurePlacer::addPandoraBoxesWithExperience()
 
 void TreasurePlacer::addPandoraBoxesWithCreatures()
 {
-	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
 	for(auto * creature : creatures)
 	{
 		int creaturesAmount = creatureToCount(creature);
 		if(!creaturesAmount)
 			continue;
+
+		ObjectInfo oi(Obj::PANDORAS_BOX, 0);
 		
 		oi.generateObject = [this, creature, creaturesAmount]() -> CGObjectInstance *
 		{
@@ -374,7 +375,7 @@ void TreasurePlacer::addPandoraBoxesWithCreatures()
 			return obj;
 		};
 		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = static_cast<ui32>((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFaction())) / map.getTotalZoneCount())) / 3);
+		oi.value = static_cast<ui32>(creature->getAIValue() * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFaction())) / map.getTotalZoneCount()));
 		oi.probability = 3;
 		if(!oi.templates.empty())
 			addObjectToRandomPool(oi);

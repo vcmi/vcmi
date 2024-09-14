@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "TerrainHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
 #include "texts/CGeneralTextHandler.h"
@@ -133,7 +133,7 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_TERRAIN);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
 
 	objects.resize(dataSize);
 
@@ -189,6 +189,11 @@ bool TerrainType::isTransitionRequired() const
 std::string TerrainType::getJsonKey() const
 {
 	return modScope + ":" + identifier;
+}
+
+std::string TerrainType::getModScope() const
+{
+	return modScope;
 }
 
 std::string TerrainType::getNameTextID() const

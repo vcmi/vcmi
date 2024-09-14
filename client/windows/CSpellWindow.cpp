@@ -29,11 +29,9 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/Buttons.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../render/IRenderHandler.h"
-#include "../render/IImage.h"
-#include "../render/IImageLoader.h"
-#include "../render/Canvas.h"
+#include "../render/AssetGenerator.h"
 
 #include "../../CCallback.h"
 
@@ -97,7 +95,7 @@ public:
 	}
 };
 
-CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells, std::function<void(SpellID)> onSpellSelect):
+CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells, const std::function<void(SpellID)> & onSpellSelect):
 	CWindowObject(PLAYER_COLORED | (settings["gameTweaks"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
@@ -114,11 +112,12 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	offT(-37),
 	offB(56)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	if(isBigSpellbook)
 	{
-		background = std::make_shared<CPicture>(createBigSpellBook(), Point(0, 0));
+		AssetGenerator::createBigSpellBook();
+		background = std::make_shared<CPicture>(ImagePath::builtin("SpellBookLarge"), 0, 0);
 		updateShadow();
 	}
 	else
@@ -130,9 +129,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
+	Rect r(90, isBigSpellbook ? 480 : 420, isBigSpellbook ? 160 : 110, 16);
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
-		Rect r(90, isBigSpellbook ? 480 : 420, isBigSpellbook ? 160 : 110, 16);
 		const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
 		const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
 		const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
@@ -141,6 +140,13 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, ETextAlignment::CENTER, true);
 		searchBox->setCallback(std::bind(&CSpellWindow::searchInput, this));
+	}
+
+	if(onSpellSelect)
+	{
+		Point boxPos = r.bottomLeft() + Point(-2, 5);
+		showAllSpells = std::make_shared<CToggleButton>(boxPos, AnimationPath::builtin("sysopchk.def"), CButton::tooltip(CGI->generaltexth->translate("core.help.458.hover"), CGI->generaltexth->translate("core.help.458.hover")), [this](bool state){ searchInput(); });
+		showAllSpellsDescription = std::make_shared<CLabel>(boxPos.x + 40, boxPos.y + 12, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, CGI->generaltexth->translate("core.help.458.hover"));
 	}
 
 	processSpells();
@@ -213,55 +219,6 @@ CSpellWindow::~CSpellWindow()
 {
 }
 
-std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
-{
-	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"), EImageBlitMode::OPAQUE);
-	Canvas canvas = Canvas(Point(800, 600));
-	// edges
-	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
-	canvas.draw(img, Point(0, 460), Rect(15, 400, 90, 141));
-	canvas.draw(img, Point(705, 0), Rect(509, 38, 95, 45));
-	canvas.draw(img, Point(705, 460), Rect(509, 400, 95, 141));
-	// left / right
-	Canvas tmp1 = Canvas(Point(90, 355 - 45));
-	tmp1.draw(img, Point(0, 0), Rect(15, 38 + 45, 90, 355 - 45));
-	canvas.drawScaled(tmp1, Point(0, 45), Point(90, 415));
-	Canvas tmp2 = Canvas(Point(95, 355 - 45));
-	tmp2.draw(img, Point(0, 0), Rect(509, 38 + 45, 95, 355 - 45));
-	canvas.drawScaled(tmp2, Point(705, 45), Point(95, 415));
-	// top / bottom
-	Canvas tmp3 = Canvas(Point(409, 45));
-	tmp3.draw(img, Point(0, 0), Rect(100, 38, 409, 45));
-	canvas.drawScaled(tmp3, Point(90, 0), Point(615, 45));
-	Canvas tmp4 = Canvas(Point(409, 141));
-	tmp4.draw(img, Point(0, 0), Rect(100, 400, 409, 141));
-	canvas.drawScaled(tmp4, Point(90, 460), Point(615, 141));
-	// middle
-	Canvas tmp5 = Canvas(Point(409, 141));
-	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 15, 400 - 38));
-	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
-	// carpet
-	Canvas tmp6 = Canvas(Point(590, 59));
-	tmp6.draw(img, Point(0, 0), Rect(15, 484, 590, 59));
-	canvas.drawScaled(tmp6, Point(0, 545), Point(800, 59));
-	// remove bookmarks
-	for (int i = 0; i < 56; i++)
-		canvas.draw(Canvas(canvas, Rect(i < 30 ? 268 : 327, 464, 1, 46)), Point(269 + i, 464));
-	for (int i = 0; i < 56; i++)
-		canvas.draw(Canvas(canvas, Rect(469, 464, 1, 42)), Point(470 + i, 464));
-	for (int i = 0; i < 57; i++)
-		canvas.draw(Canvas(canvas, Rect(i < 30 ? 564 : 630, 464, 1, 44)), Point(565 + i, 464));
-	for (int i = 0; i < 56; i++)
-		canvas.draw(Canvas(canvas, Rect(656, 464, 1, 47)), Point(657 + i, 464));
-	// draw bookmarks
-	canvas.draw(img, Point(278, 464), Rect(220, 405, 37, 47));
-	canvas.draw(img, Point(481, 465), Rect(354, 406, 37, 41));
-	canvas.draw(img, Point(575, 465), Rect(417, 406, 37, 45));
-	canvas.draw(img, Point(667, 465), Rect(478, 406, 37, 47));
-
-	return GH.renderHandler().createImage(canvas.getInternalSurface());
-}
-
 void CSpellWindow::searchInput()
 {
 	if(searchBox)
@@ -288,7 +245,7 @@ void CSpellWindow::processSpells()
 
 		if(onSpellSelect)
 		{
-			if(spell->isCombat() == openOnBattleSpells && !spell->isSpecial() && !spell->isCreatureAbility() && searchTextFound)
+			if(spell->isCombat() == openOnBattleSpells && !spell->isSpecial() && !spell->isCreatureAbility() && searchTextFound && (showAllSpells->isSelected() || myHero->canCastThisSpell(spell.get())))
 				mySpells.push_back(spell.get());
 			continue;
 		}
@@ -358,6 +315,9 @@ void CSpellWindow::fexitb()
 {
 	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
 	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbookLastPageAdvmap) = currentPage;
+
+	if(onSpellSelect)
+		onSpellSelect(SpellID::NONE);
 
 	close();
 }
@@ -524,13 +484,13 @@ void CSpellWindow::setCurrentPage(int value)
 void CSpellWindow::turnPageLeft()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNLFT.SMK"), pos.topLeft() + Point(13, 15));
+		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNLFT.SMK"), pos.topLeft() + Point(13, 14));
 }
 
 void CSpellWindow::turnPageRight()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNRGH.SMK"), pos.topLeft() + Point(13, 15));
+		CCS->videoh->playSpellbookAnimation(VideoPath::builtin("PGTRNRGH.SMK"), pos.topLeft() + Point(13, 14));
 }
 
 void CSpellWindow::keyPressed(EShortcut key)
@@ -583,7 +543,7 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 	schoolLevel = -1;
 	mySpell = nullptr;
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("Spells"), 0, 0);
 	image->visible = false;
@@ -605,7 +565,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		if(owner->onSpellSelect)
 		{
 			owner->onSpellSelect(mySpell->id);
-			owner->fexitb();
+			owner->close();
 			return;
 		}
 
@@ -733,7 +693,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		image->visible = true;
 
 		{
-			OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+			OBJECT_CONSTRUCTION;
 
 			static const std::array schoolBorders = {
 				AnimationPath::builtin("SplevA.def"),

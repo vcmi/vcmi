@@ -28,6 +28,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/VideoWidget.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/IImage.h"
@@ -58,6 +59,36 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 
+CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, std::function<void()> closeCb)
+	: CWindowObject(BORDERED), closeCb(closeCb)
+{
+	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(LCLICK | KEYBOARD);
+
+	pos = center(Rect(0, 0, 800, 600));
+
+	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
+	setBackground(rim);
+}
+
+void CampaignRimVideo::exit()
+{
+	close();
+	if(closeCb)
+		closeCb();
+}
+
+void CampaignRimVideo::clickPressed(const Point & cursorPosition)
+{
+	exit();
+}
+
+void CampaignRimVideo::keyPressed(EShortcut key)
+{
+	exit();
+}
+
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
 	return CSH->si->campState;
@@ -66,7 +97,7 @@ std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 CBonusSelection::CBonusSelection()
 	: CWindowObject(BORDERED)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	setBackground(getCampaign()->getRegions().getBackgroundName());
 
@@ -86,14 +117,16 @@ CBonusSelection::CBonusSelection()
 	buttonVideo = std::make_shared<CButton>(Point(705, 214), AnimationPath::builtin("CBVIDEB.DEF"), CButton::tooltip(), playVideo, EShortcut::LOBBY_REPLAY_VIDEO);
 	buttonBack = std::make_shared<CButton>(Point(624, 536), AnimationPath::builtin("CBCANCB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), EShortcut::GLOBAL_CANCEL);
 
-	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
+	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName(), 250);
 
 	iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 735, 26);
 
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
 	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(), Rect(480, 86, 286, 117), 1);
 
-	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated());
+	bool videoButtonActive = CSH->getState() == EClientState::GAMEPLAY;
+	int availableSpace = videoButtonActive ? 225 : 285;
+	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getNameTranslated(), availableSpace );
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 292, 108), 1);
 
@@ -145,7 +178,7 @@ CBonusSelection::CBonusSelection()
 
 void CBonusSelection::createBonusesIcons()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	const CampaignScenario & scenario = getCampaign()->scenario(CSH->campaignMap);
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
@@ -312,7 +345,10 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		}
 
-		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()));
+		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()), nullptr, EShortcut::NONE, false, [this](){
+			if(buttonStart->isActive() && !buttonStart->isBlocked())	
+				CBonusSelection::startMap();
+		});
 
 		if(picNumber != -1)
 			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));
@@ -474,7 +510,7 @@ void CBonusSelection::decreaseDifficulty()
 CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool selectable, const CampaignRegions & campDsc)
 	: CIntObject(LCLICK | SHOW_POPUP), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
 {
-	OBJ_CONSTRUCTION;
+	OBJECT_CONSTRUCTION;
 
 	pos += campDsc.getPosition(id);
 

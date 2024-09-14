@@ -33,7 +33,7 @@ static void setIntSetting(std::string group, std::string field, int value)
 AdventureOptionsTab::AdventureOptionsTab()
 		: InterfaceObjectConfigurable()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
 #ifdef VCMI_MOBILE

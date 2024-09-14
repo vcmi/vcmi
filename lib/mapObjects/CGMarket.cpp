@@ -15,13 +15,19 @@
 #include "../IGameCallback.h"
 #include "../CCreatureHandler.h"
 #include "CGTownInstance.h"
-#include "../GameSettings.h"
+#include "../IGameSettings.h"
 #include "../CSkillHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/CommonConstructors.h"
 #include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+ObjectInstanceID CGMarket::getObjInstanceID() const
+{
+	return id;
+}
 
 void CGMarket::initObj(vstd::RNG & rand)
 {
@@ -38,21 +44,17 @@ int CGMarket::getMarketEfficiency() const
 	return marketEfficiency;
 }
 
-bool CGMarket::allowsTrade(EMarketMode mode) const
-{
-	return marketModes.count(mode);
-}
-
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 {
 	return -1;
 }
 
-std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
+std::set<EMarketMode> CGMarket::availableModes() const
 {
-	if(allowsTrade(mode))
-		return IMarket::availableItemsIds(mode);
-	return std::vector<TradeItemBuy>();
+	const auto & baseHandler = getObjectHandler();
+	const auto & ourHandler = std::dynamic_pointer_cast<MarketInstanceConstructor>(baseHandler);
+
+	return ourHandler->availableModes();
 }
 
 CGMarket::CGMarket(IGameCallback *cb):
@@ -63,8 +65,6 @@ std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) con
 {
 	switch(mode)
 	{
-	case EMarketMode::ARTIFACT_RESOURCE:
-		return IMarket::availableItemsIds(mode);
 	case EMarketMode::RESOURCE_ARTIFACT:
 		{
 			std::vector<TradeItemBuy> ret;
@@ -82,10 +82,10 @@ std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) con
 
 void CGBlackMarket::newTurn(vstd::RNG & rand) const
 {
-	int resetPeriod = VLC->settings()->getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
+	int resetPeriod = cb->getSettings().getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
 
 	bool isFirstDay = cb->getDate(Date::DAY) == 1;
-	bool regularResetTriggered = resetPeriod != 0 && ((cb->getDate(Date::DAY)-1) % resetPeriod) != 0;
+	bool regularResetTriggered = resetPeriod != 0 && ((cb->getDate(Date::DAY)-1) % resetPeriod) == 0;
 
 	if (!isFirstDay && !regularResetTriggered)
 		return;
@@ -111,11 +111,6 @@ std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) cons
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
 	cb->showObjectWindow(this, EOpenWindowMode::UNIVERSITY_WINDOW, h, true);
-}
-
-ArtBearer::ArtBearer CGArtifactsAltar::bearerType() const
-{
-	return ArtBearer::ALTAR;
 }
 
 VCMI_LIB_NAMESPACE_END

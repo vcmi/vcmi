@@ -11,6 +11,7 @@
 #include "StdInc.h"
 
 #include "CHighScoreScreen.h"
+#include "CStatisticScreen.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
@@ -32,81 +33,15 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
-
-auto HighScoreCalculation::calculate()
-{
-	struct Result
-	{
-		int basic = 0;
-		int total = 0;
-		int sumDays = 0;
-		bool cheater = false;
-	};
-	
-	Result firstResult;
-	Result summary;
-	const std::array<double, 5> difficultyMultipliers{0.8, 1.0, 1.3, 1.6, 2.0}; 
-	for(auto & param : parameters)
-	{
-		double tmp = 200 - (param.day + 10) / (param.townAmount + 5) + (param.allDefeated ? 25 : 0) + (param.hasGrail ? 25 : 0);
-		firstResult = Result{static_cast<int>(tmp), static_cast<int>(tmp * difficultyMultipliers.at(param.difficulty)), param.day, param.usedCheat};
-		summary.basic += firstResult.basic * 5.0 / parameters.size();
-		summary.total += firstResult.total * 5.0 / parameters.size();
-		summary.sumDays += firstResult.sumDays;
-		summary.cheater |= firstResult.cheater;
-	}
-
-	if(parameters.size() == 1)
-		return firstResult;
-
-	return summary;
-}
-
-struct HighScoreCreature
-{
-	CreatureID creature;
-	int min;
-	int max;
-};
-
-static std::vector<HighScoreCreature> getHighscoreCreaturesList()
-{
-	JsonNode configCreatures(JsonPath::builtin("CONFIG/highscoreCreatures.json"));
-
-	std::vector<HighScoreCreature> ret;
-
-	for(auto & json : configCreatures["creatures"].Vector())
-	{
-		HighScoreCreature entry;
-		entry.creature = CreatureID::decode(json["creature"].String());
-		entry.max = json["max"].isNull() ? std::numeric_limits<int>::max() : json["max"].Integer();
-		entry.min = json["min"].isNull() ? std::numeric_limits<int>::min() : json["min"].Integer();
-
-		ret.push_back(entry);
-	}
-
-	return ret;
-}
-
-CreatureID HighScoreCalculation::getCreatureForPoints(int points, bool campaign)
-{
-	static const std::vector<HighScoreCreature> creatures = getHighscoreCreaturesList();
-
-	int divide = campaign ? 5 : 1;
-
-	for(auto & creature : creatures)
-		if(points / divide <= creature.max && points / divide >= creature.min)
-			return creature.creature;
-
-	throw std::runtime_error("Unable to find creature for score " + std::to_string(points));
-}
+#include "../../lib/gameState/HighScore.h"
+#include "../../lib/gameState/GameStatistics.h"
 
 CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 	: CWindowObject(BORDERED), highscorepage(highscorepage), highlighted(highlighted)
 {
 	addUsedEvents(SHOW_POPUP);
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
 
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
@@ -133,7 +68,7 @@ void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
 
 void CHighScoreScreen::addButtons()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	
 	buttons.clear();
 
@@ -145,7 +80,7 @@ void CHighScoreScreen::addButtons()
 
 void CHighScoreScreen::addHighScores()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin(highscorepage == HighScorePage::SCENARIO ? "HISCORE" : "HISCORE2"));
 
@@ -208,7 +143,7 @@ void CHighScoreScreen::buttonCampaignClick()
 
 void CHighScoreScreen::buttonScenarioClick()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	highscorepage = HighScorePage::SCENARIO;
 	addHighScores();
 	addButtons();
@@ -237,12 +172,12 @@ void CHighScoreScreen::buttonExitClick()
 	close();
 }
 
-CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc)
-	: CWindowObject(BORDERED), won(won), calc(calc)
+CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc, const StatisticDataSet & statistic)
+	: CWindowObject(BORDERED), won(won), calc(calc), stat(statistic)
 {
 	addUsedEvents(LCLICK | KEYBOARD);
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
 
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
@@ -270,6 +205,12 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 	{
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), VideoPath::builtin("LOSEGAME.SMK"), true, [this](){close();});
 		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
+	}
+
+	if (settings["general"]["enableUiEnhancements"].Bool())
+	{
+		statisticButton = std::make_shared<CButton>(Point(726, 10), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistics")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTICS);
+		texts.push_back(std::make_shared<CLabel>(716, 25, EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistics") + ":"));
 	}
 }
 
@@ -320,7 +261,10 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	if(statisticButton->pos.isInside(cursorPosition))
+		return;
+
+	OBJECT_CONSTRUCTION;
 
 	if(!won)
 	{
@@ -347,13 +291,15 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 
 void CHighScoreInputScreen::keyPressed(EShortcut key)
 {
+	if(key == EShortcut::HIGH_SCORES_STATISTICS) // ignore shortcut for skipping video with key
+		return;
 	clickPressed(Point());
 }
 
 CHighScoreInput::CHighScoreInput(std::string playerName, std::function<void(std::string text)> readyCB)
 	: CWindowObject(NEEDS_ANIMATED_BACKGROUND, ImagePath::builtin("HIGHNAME")), ready(readyCB)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	pos = center(Rect(0, 0, 232, 212));
 	updateShadow();

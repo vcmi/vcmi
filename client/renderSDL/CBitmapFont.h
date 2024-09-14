@@ -11,32 +11,44 @@
 
 #include "../render/IFont.h"
 
+#include "../../lib/Rect.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class ResourcePath;
 VCMI_LIB_NAMESPACE_END
 
-class CBitmapFont : public IFont
+class CBitmapFont final : public IFont
 {
+	SDL_Surface * atlasImage;
+
 	using CodePoint = uint32_t;
 
-	struct BitmapChar
+	struct EntryFNT
 	{
 		int32_t leftOffset;
 		uint32_t width;
 		uint32_t height;
 		int32_t rightOffset;
-		std::vector<uint8_t> pixels; // pixels of this character, part of BitmapFont::data
+		std::vector<uint8_t> pixels;
+	};
+
+	struct BitmapChar
+	{
+		Rect positionInAtlas;
+		int32_t leftOffset;
+		int32_t rightOffset;
 	};
 
 	std::unordered_map<CodePoint, BitmapChar> chars;
 	uint32_t maxHeight;
 
-	void loadModFont(const std::string & modName, const ResourcePath & resource);
+	void loadModFont(const std::string & modName, const ResourcePath & resource, std::unordered_map<CodePoint, EntryFNT> & loadedChars);
 
 	void renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const;
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 public:
 	explicit CBitmapFont(const std::string & filename);
+	~CBitmapFont();
 
 	size_t getLineHeight() const override;
 	size_t getGlyphWidth(const char * data) const override;

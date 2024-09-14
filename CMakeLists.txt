@@ -403,7 +403,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT WIN32)
 			# For gcc 14+ we can use -fhardened instead
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection -fcf-protection=full")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_ASSERTIONS -fstack-protector-strong -fstack-clash-protection")
+			if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+				set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcf-protection=full")
+			endif()
 		endif()
 	endif()
 
@@ -519,7 +522,7 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	endif()
 endif()
 
-if(ENABLE_CLIENT)
+if(NOT ENABLE_MINIMAL_LIB)
 	find_package(TBB REQUIRED)
 endif()
 
@@ -677,6 +680,7 @@ endif()
 
 if (ENABLE_CLIENT)
 	add_subdirectory(client)
+	add_subdirectory(clientapp)
 endif()
 
 if(ENABLE_SERVER)
@@ -722,6 +726,10 @@ endif()
 
 
 if(WIN32)
+	if(TBB_FOUND AND MSVC)
+		   install_vcpkg_imported_tgt(TBB::tbb)
+	endif()
+
 	if(USING_CONAN)
 		#Conan imports enabled
 		vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")

@@ -280,6 +280,27 @@ struct DLL_LINKAGE BuildStructure : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE VisitTownBuilding : public CPackForServer
+{
+	VisitTownBuilding() = default;
+	VisitTownBuilding(const ObjectInstanceID & TID, const BuildingID BID)
+		: tid(TID)
+		, bid(BID)
+	{
+	}
+	ObjectInstanceID tid;
+	BuildingID bid;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & tid;
+		h & bid;
+	}
+};
+
 struct DLL_LINKAGE RazeStructure : public BuildStructure
 {
 	void visitTyped(ICPackVisitor & visitor) override;

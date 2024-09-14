@@ -22,23 +22,19 @@ class CStack;
 class CStackInstance;
 class CStackBasicDescriptor;
 class BattleField;
+struct BattleLayout;
 
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
+	BattleSideArray<SideInBattle> sides; //sides[0] - attacker, sides[1] - defender
+	std::unique_ptr<BattleLayout> layout;
 public:
 	BattleID battleID = BattleID(0);
 
-	enum BattleSide
-	{
-		ATTACKER = 0,
-		DEFENDER
-	};
-	std::array<SideInBattle, 2> sides; //sides[0] - attacker, sides[1] - defender
 	si32 round;
 	si32 activeStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
-	bool creatureBank; //auxiliary field, do not serialize
 	bool replayAllowed;
 	std::vector<CStack*> stacks;
 	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
@@ -47,7 +43,7 @@ public:
 	BattleField battlefieldType; //like !!BA:B
 	TerrainId terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
 
-	ui8 tacticsSide; //which side is requested to play tactics phase
+	BattleSide tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
 
 	template <typename Handler> void serialize(Handler &h)
@@ -70,6 +66,7 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	BattleInfo(const BattleLayout & layout);
 	BattleInfo();
 	virtual ~BattleInfo();
 
@@ -92,19 +89,19 @@ public:
 
 	ObstacleCList getAllObstacles() const override;
 
-	PlayerColor getSidePlayer(ui8 side) const override;
-	const CArmedInstance * getSideArmy(ui8 side) const override;
-	const CGHeroInstance * getSideHero(ui8 side) const override;
+	PlayerColor getSidePlayer(BattleSide side) const override;
+	const CArmedInstance * getSideArmy(BattleSide side) const override;
+	const CGHeroInstance * getSideHero(BattleSide side) const override;
 
 	ui8 getTacticDist() const override;
-	ui8 getTacticsSide() const override;
+	BattleSide getTacticsSide() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
 	EWallState getWallState(EWallPart partOfWall) const override;
 	EGateState getGateState() const override;
 
-	uint32_t getCastSpells(ui8 side) const override;
-	int32_t getEnchanterCounter(ui8 side) const override;
+	uint32_t getCastSpells(BattleSide side) const override;
+	int32_t getEnchanterCounter(BattleSide side) const override;
 
 	const IBonusBearer * getBonusBearer() const override;
 
@@ -113,9 +110,9 @@ public:
 	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
 
 	int3 getLocation() const override;
-	bool isCreatureBank() const override;
+	BattleLayout getLayout() const override;
 
-	std::vector<SpellID> getUsedSpells(ui8 side) const override;
+	std::vector<SpellID> getUsedSpells(BattleSide side) const override;
 
 	//////////////////////////////////////////////////////////////////////////
 	// IBattleState
@@ -144,19 +141,22 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	CStack * getStack(int stackID, bool onlyAlive = true);
 	using CBattleInfoEssentials::battleGetArmyObject;
-	CArmedInstance * battleGetArmyObject(ui8 side) const;
+	CArmedInstance * battleGetArmyObject(BattleSide side) const;
 	using CBattleInfoEssentials::battleGetFightingHero;
-	CGHeroInstance * battleGetFightingHero(ui8 side) const;
+	CGHeroInstance * battleGetFightingHero(BattleSide side) const;
 
-	CStack * generateNewStack(uint32_t id, const CStackInstance & base, ui8 side, const SlotID & slot, BattleHex position);
-	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor & base, ui8 side, const SlotID & slot, BattleHex position);
+	CStack * generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, BattleHex position);
+	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, BattleHex position);
+
+	const SideInBattle & getSide(BattleSide side) const;
+	SideInBattle & getSide(BattleSide side);
 
 	const CGHeroInstance * getHero(const PlayerColor & player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-	static BattleInfo * setupBattle(const int3 & tile, TerrainId, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
+	static BattleInfo * setupBattle(const int3 & tile, TerrainId, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town);
 
-	ui8 whatSide(const PlayerColor & player) const;
+	BattleSide whatSide(const PlayerColor & player) const;
 
 protected:
 #if SCRIPTING_ENABLED
@@ -169,10 +169,10 @@ class DLL_LINKAGE CMP_stack
 {
 	int phase; //rules of which phase will be used
 	int turn;
-	uint8_t side;
+	BattleSide side;
 public:
 	bool operator()(const battle::Unit * a, const battle::Unit * b) const;
-	CMP_stack(int Phase = 1, int Turn = 0, uint8_t Side = BattleSide::ATTACKER);
+	CMP_stack(int Phase = 1, int Turn = 0, BattleSide Side = BattleSide::ATTACKER);
 };
 
 VCMI_LIB_NAMESPACE_END

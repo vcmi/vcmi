@@ -55,18 +55,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 
 		h & clientId;
 		h & hostClientId;
-
-		try
-		{
-			if (h.version >= Handler::Version::RELEASE_152)
-				h & version;
-			else
-				version = ESerializationVersion::RELEASE_150;
-		}
-		 catch (const std::runtime_error &)
-		{
-			version = ESerializationVersion::RELEASE_150;
-		}
+		h & version;
 	}
 };
 
@@ -282,6 +271,20 @@ struct DLL_LINKAGE LobbySetPlayerName : public CLobbyPackToServer
 	{
 		h & color;
 		h & name;
+	}
+};
+
+struct DLL_LINKAGE LobbySetPlayerHandicap : public CLobbyPackToServer
+{
+	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
+	Handicap handicap = Handicap();
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & color;
+		h & handicap;
 	}
 };
 

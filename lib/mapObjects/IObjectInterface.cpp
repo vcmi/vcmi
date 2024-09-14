@@ -68,7 +68,7 @@ void IObjectInterface::preInit()
 void IObjectInterface::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {}
 
-void IObjectInterface::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void IObjectInterface::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
 {}
 
 void IObjectInterface::garrisonDialogClosed(const CGHeroInstance *hero) const

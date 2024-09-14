@@ -55,8 +55,6 @@ public:
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}
 	virtual void visitUpdateArtHandlerLists(UpdateArtHandlerLists & pack) {}
-	virtual void visitUpdateMapEvents(UpdateMapEvents & pack) {}
-	virtual void visitUpdateCastleEvents(UpdateCastleEvents & pack) {}
 	virtual void visitChangeFormation(ChangeFormation & pack) {}
 	virtual void visitRemoveObject(RemoveObject & pack) {}
 	virtual void visitTryMoveHero(TryMoveHero & pack) {}
@@ -80,7 +78,7 @@ public:
 	virtual void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) {}
 	virtual void visitBulkSmartRebalanceStacks(BulkSmartRebalanceStacks & pack) {}
 	virtual void visitPutArtifact(PutArtifact & pack) {}
-	virtual void visitEraseArtifact(EraseArtifact & pack) {}
+	virtual void visitEraseArtifact(BulkEraseArtifacts & pack) {}
 	virtual void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) {}
 	virtual void visitAssembledArtifact(AssembledArtifact & pack) {}
 	virtual void visitDisassembledArtifact(DisassembledArtifact & pack) {}
@@ -128,6 +126,7 @@ public:
 	virtual void visitBulkSmartSplitStack(BulkSmartSplitStack & pack) {}
 	virtual void visitDisbandCreature(DisbandCreature & pack) {}
 	virtual void visitBuildStructure(BuildStructure & pack) {}
+	virtual void visitVisitTownBuilding(VisitTownBuilding & pack) {}
 	virtual void visitRazeStructure(RazeStructure & pack) {}
 	virtual void visitRecruitCreatures(RecruitCreatures & pack) {}
 	virtual void visitUpgradeCreature(UpgradeCreature & pack) {}
@@ -168,6 +167,7 @@ public:
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) {}
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) {}
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
+	virtual void visitLobbySetPlayerHandicap(LobbySetPlayerHandicap & pack) {}
 	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) {}
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) {}
 	virtual void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) {}

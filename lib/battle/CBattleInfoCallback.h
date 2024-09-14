@@ -56,7 +56,7 @@ struct DLL_LINKAGE BattleClientInterfaceData
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
 public:
-	std::optional<int> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
+	std::optional<BattleSide> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const override;
 	std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const std::set<BattleHex> & passed) const override;
@@ -70,9 +70,9 @@ public:
 	///returns all alive units excluding turrets
 	battle::Units battleAliveUnits() const;
 	///returns all alive units from particular side excluding turrets
-	battle::Units battleAliveUnits(ui8 side) const;
+	battle::Units battleAliveUnits(BattleSide side) const;
 
-	void battleGetTurnOrder(std::vector<battle::Units> & out, const size_t maxUnits, const int maxTurns, const int turn = 0, int8_t lastMoved = -1) const;
+	void battleGetTurnOrder(std::vector<battle::Units> & out, const size_t maxUnits, const int maxTurns, const int turn = 0, BattleSide lastMoved = BattleSide::NONE) const;
 
 	///returns reachable hexes (valid movement destinations), DOES contain stack current position
 	std::vector<BattleHex> battleGetAvailableHexes(const battle::Unit * unit, bool obtainMovementRange, bool addOccupiable, std::vector<BattleHex> * attackable) const;
@@ -116,8 +116,8 @@ public:
 	bool isWallPartAttackable(EWallPart wallPart) const; // returns true if the wall part is actually attackable, false if not
 	std::vector<BattleHex> getAttackableBattleHexes() const;
 
-	si8 battleMinSpellLevel(ui8 side) const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
-	si8 battleMaxSpellLevel(ui8 side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
+	si8 battleMinSpellLevel(BattleSide side) const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
+	si8 battleMaxSpellLevel(BattleSide side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	int32_t battleGetSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const; //returns true if there are no general issues preventing from casting a spell
 
@@ -131,11 +131,30 @@ public:
 	bool isInTacticRange(BattleHex dest) const;
 	si8 battleGetTacticDist() const; //returns tactic distance for calling player or 0 if this player is not in tactic phase (for ALL_KNOWING actual distance for tactic side)
 
-	AttackableTiles getPotentiallyAttackableHexes(const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const; //TODO: apply rotation to two-hex attacker
+	AttackableTiles getPotentiallyAttackableHexes(
+		const  battle::Unit* attacker,
+		const  battle::Unit* defender,
+		BattleHex destinationTile,
+		BattleHex attackerPos,
+		BattleHex defenderPos) const; //TODO: apply rotation to two-hex attacker
+
+	AttackableTiles getPotentiallyAttackableHexes(
+		const  battle::Unit * attacker,
+		BattleHex destinationTile,
+		BattleHex attackerPos) const;
+
 	AttackableTiles getPotentiallyShootableHexes(const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const;
-	std::vector<const battle::Unit *> getAttackedBattleUnits(const battle::Unit* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+
+	std::vector<const battle::Unit *> getAttackedBattleUnits(
+		const battle::Unit* attacker,
+		const  battle::Unit * defender,
+		BattleHex destinationTile,
+		bool rangedAttack,
+		BattleHex attackerPos = BattleHex::INVALID,
+		BattleHex defenderPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+	
 	std::set<const CStack*> getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
-	bool isToReverse(const battle::Unit * attacker, const battle::Unit * defender) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
+	bool isToReverse(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerHex = BattleHex::INVALID, BattleHex defenderHex = BattleHex::INVALID) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
 
 	ReachabilityInfo getReachability(const battle::Unit * unit) const;
 	ReachabilityInfo getReachability(const ReachabilityInfo::Parameters & params) const;
@@ -144,12 +163,12 @@ public:
 	AccessibilityInfo getAccessibility(const std::vector<BattleHex> & accessibleHexes) const; //given hexes will be marked as accessible
 	std::pair<const battle::Unit *, BattleHex> getNearestStack(const battle::Unit * closest) const;
 
-	BattleHex getAvailableHex(const CreatureID & creID, ui8 side, int initialPos = -1) const; //find place for adding new stack
+	BattleHex getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos = -1) const; //find place for adding new stack
 protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters & params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;
 	bool isInObstacle(BattleHex hex, const std::set<BattleHex> & obstacles, const ReachabilityInfo::Parameters & params) const;
-	std::set<BattleHex> getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
+	std::set<BattleHex> getStoppers(BattleSide whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
 };
 
 VCMI_LIB_NAMESPACE_END

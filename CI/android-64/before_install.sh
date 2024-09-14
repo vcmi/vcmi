@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-DEPS_FILENAME=aarch64-v8a
+DEPS_FILENAME=dependencies-android-64
 . CI/android/before_install.sh

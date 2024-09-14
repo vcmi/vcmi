@@ -41,6 +41,11 @@ std::string CFaction::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CFaction::getModScope() const
+{
+	return modScope;
+}
+
 void CFaction::registerIcons(const IconRegistar & cb) const
 {
 	if(town)

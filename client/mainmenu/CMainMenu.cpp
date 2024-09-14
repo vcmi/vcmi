@@ -47,7 +47,6 @@
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
-#include "../../lib/serializer/CTypeList.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
 #include "../../lib/mapping/CMapInfo.h"
@@ -73,13 +72,19 @@ static void do_quit()
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	: CWindowObject(BORDERED), config(configNode)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(ImagePath::fromJson(config["background"]));
 	if(config["scalable"].Bool())
 		background->scaleTo(GH.screenDimensions());
 
 	pos = background->center();
+
+	if(!config["video"].isNull())
+	{
+		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
+		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]), false);
+	}
 
 	for(const JsonNode & node : config["items"].Vector())
 		menuNameToEntry.push_back(node["name"].String());
@@ -91,12 +96,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	menuNameToEntry.push_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
-	if(!config["video"].isNull())
-	{
-		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
-		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]), false);
-	}
-	else
+	if(config["video"].isNull())
 		tabs->setRedrawParent(true);
 
 }
@@ -171,13 +171,13 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				switch(std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 				{
 				case 0:
-					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE); };
 				case 1:
 					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
-					return []() { CMainMenu::openLobby(ESelectionScreen::campaignList, true, {}, ELoadMode::NONE);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::campaignList, true, {}, ELoadMode::NONE); };
 				case 3:
-					return std::bind(CMainMenu::startTutorial);
+					return []() { CMainMenu::startTutorial(); };
 				}
 				break;
 			}
@@ -186,25 +186,25 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				switch(std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 				{
 				case 0:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::SINGLE);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::SINGLE); };
 				case 1:
 					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::CAMPAIGN);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::CAMPAIGN); };
 				case 3:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::TUTORIAL);};
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::TUTORIAL); };
 
 				}
 			}
 			break;
 			case 4: //exit
 			{
-				return std::bind(CInfoWindow::showYesNoDialog, CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
+				return []() { CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1)); };
 			}
 			break;
 			case 5: //highscores
 			{
-				return std::bind(CMainMenu::openHighScoreScreen);
+				return []() { CMainMenu::openHighScoreScreen(); };
 			}
 			}
 		}
@@ -245,7 +245,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 
 CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 	pos = parent->pos;
 
@@ -289,9 +289,8 @@ CMainMenu::CMainMenu()
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
 
-	GH.defActionsDef = 63;
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 }
 
@@ -435,7 +434,7 @@ std::shared_ptr<CPicture> CMainMenu::createPicture(const JsonNode & config)
 CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 
 	background = std::make_shared<CPicture>(ImagePath::builtin("MUPOPUP.bmp"));
 	pos = background->center(); //center, window has size of bg graphic
@@ -476,7 +475,7 @@ void CMultiMode::joinTCP()
 	GH.windows().createAndPushWindow<CMultiPlayers>(getPlayersNames(), savedScreenType, false, ELoadMode::MULTI);
 }
 
-const std::vector<std::string> CMultiMode::getPlayersNames()
+std::vector<std::string> CMultiMode::getPlayersNames()
 {
 	std::vector<std::string> playerNames;
 
@@ -506,7 +505,7 @@ void CMultiMode::onNameChange(std::string newText)
 CMultiPlayers::CMultiPlayers(const std::vector<std::string> & playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode)
 	: loadMode(LoadMode), screenType(ScreenType), host(Host)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin("MUHOTSEA.bmp"));
 	pos = background->center(); //center, window has size of bg graphic
 
@@ -571,7 +570,7 @@ void CMultiPlayers::enterSelectionScreen()
 
 CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin("MUDIALOG.bmp")); // address background
 	pos = background->center(); //center, window has size of bg graphic (x,y = 396,278 w=232 h=212)
 
@@ -630,9 +629,14 @@ void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 }
 
 CLoadingScreen::CLoadingScreen()
-	: CWindowObject(BORDERED, getBackground())
+	: CLoadingScreen(getBackground())
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+}
+
+CLoadingScreen::CLoadingScreen(ImagePath background)
+	: CWindowObject(BORDERED, background)
+{
+	OBJECT_CONSTRUCTION;
 	
 	addUsedEvents(TIME);
 	

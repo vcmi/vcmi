@@ -367,6 +367,11 @@ void MetaString::appendName(const CreatureID & id, TQuantity count)
 		appendNamePlural(id);
 }
 
+void MetaString::appendName(const GameResID& id)
+{
+	appendTextID(TextIdentifier("core.restypes", id.getNum()).get());
+}
+
 void MetaString::appendNameSingular(const CreatureID & id)
 {
 	appendTextID(id.toEntity(VLC)->getNameSingularTextID());

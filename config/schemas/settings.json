@@ -166,7 +166,9 @@
 				"showfps",
 				"targetfps",
 				"vsync",
-				"scalingMode"
+				"upscalingFilter",
+				"fontUpscalingFilter",
+				"downscalingFilter"
 			],
 			"properties" : {
 				"resolution" : {
@@ -230,7 +232,17 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"scalingMode" : {
+				"fontUpscalingFilter" : {
+					"type" : "string",
+					"enum" : [ "nearest", "bilinear", "xbrz" ],
+					"default" : "nearest"
+				},
+				"upscalingFilter" : {
+					"type" : "string",
+					"enum" : [ "auto", "none", "xbrz2", "xbrz3", "xbrz4" ],
+					"default" : "auto"
+				},
+				"downscalingFilter" : {
 					"type" : "string",
 					"enum" : [ "nearest", "linear", "best" ],
 					"default" : "best"
@@ -587,7 +599,7 @@
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.5.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.6.json",
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",

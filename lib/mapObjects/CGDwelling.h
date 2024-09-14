@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CArmedInstance.h"
+#include "IOwnableObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,7 +31,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CGDwelling : public CArmedInstance
+class DLL_LINKAGE CGDwelling : public CArmedInstance, public IOwnableObject
 {
 public:
 	using TCreaturesSet = std::vector<std::pair<ui32, std::vector<CreatureID> > >;
@@ -40,6 +41,10 @@ public:
 
 	CGDwelling(IGameCallback *cb);
 	~CGDwelling() override;
+
+	const IOwnableObject * asOwnable() const final;
+	ResourceSet dailyIncome() const override;
+	std::vector<CreatureID> providedCreatures() const override;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -54,7 +59,7 @@ private:
 	void newTurn(vstd::RNG & rand) const override;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
 	void updateGuards() const;

@@ -50,7 +50,7 @@ public:
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override {}
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override {}
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}
-	void showBlockingDialog(BlockingDialog *iw) override {}
+	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override {}
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {} //cb will be called when player closes garrison window
 	void showTeleportDialog(TeleportDialog *iw) override {}
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};
@@ -70,7 +70,8 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance *object) override {} //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
-	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override {return false;}
+	bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) override {return false;}
 	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;}
 	void removeArtifact(const ArtifactLocation &al) override {}
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;}
@@ -78,9 +79,8 @@ public:
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {}
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {}
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override {}
-	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override {} //use hero=nullptr for no hero
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override {} //if any of armies is hero, hero will be used
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override {} //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
+	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town) override {} //use hero=nullptr for no hero
+	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2) override {}
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;}
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;}
 	void giveHeroBonus(GiveBonus * bonus) override {}
@@ -91,7 +91,7 @@ public:
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {}
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {} //when two heroes meet on adventure map
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override {}
-	void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) override {}
+	void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) override {}
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {}
 
 	///useful callback methods

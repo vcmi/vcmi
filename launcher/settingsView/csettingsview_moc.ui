@@ -48,8 +48,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>730</width>
-        <height>1691</height>
+        <width>729</width>
+        <height>1396</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="2,0,1,1,1">
@@ -57,7 +57,6 @@
         <widget class="QLabel" name="labelGeneral">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -301,7 +300,6 @@
         <widget class="QLabel" name="labelArtificialIntelligence">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -516,7 +514,6 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <widget class="QLabel" name="labelVideo">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -532,7 +529,6 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <widget class="QLabel" name="labelAudio">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -606,7 +602,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         </widget>
        </item>
        <item row="23" column="1" colspan="4">
-        <widget class="QComboBox" name="comboBoxUpscalingFilter">
+        <widget class="QComboBox" name="comboBoxDownscalingFilter">
          <item>
           <property name="text">
            <string>Nearest</string>
@@ -619,7 +615,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </item>
          <item>
           <property name="text">
-           <string>Best (Linear)</string>
+           <string>Automatic (Linear)</string>
           </property>
          </item>
         </widget>
@@ -747,7 +743,6 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <widget class="QLabel" name="labelInputMouse_2">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -852,7 +847,6 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <widget class="QLabel" name="labelNetwork">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -894,9 +888,9 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         </widget>
        </item>
        <item row="23" column="0">
-        <widget class="QLabel" name="labelUpscalingFilter">
+        <widget class="QLabel" name="labelDownscalingFilter">
          <property name="text">
-          <string>Upscaling Filter</string>
+          <string>Downscaling Filter</string>
          </property>
         </widget>
        </item>
@@ -942,7 +936,6 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <widget class="QLabel" name="labelInputMouse">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -1020,7 +1013,6 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <widget class="QLabel" name="labelInputMouse_3">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -1158,6 +1150,42 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          <property name="text">
           <string>Reset</string>
          </property>
+        </widget>
+       </item>
+       <item row="22" column="0">
+        <widget class="QLabel" name="labelUpscalingFilter">
+         <property name="text">
+          <string>Upscaling Filter</string>
+         </property>
+        </widget>
+       </item>
+       <item row="22" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxUpscalingFilter">
+         <item>
+          <property name="text">
+           <string>Automatic</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>None</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>xBRZ x2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>xBRZ x3</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>xBRZ x4</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>

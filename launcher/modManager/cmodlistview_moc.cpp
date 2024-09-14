@@ -20,6 +20,7 @@
 #include "cmodlistmodel_moc.h"
 #include "cmodmanager.h"
 #include "cdownloadmanager_moc.h"
+#include "chroniclesextractor.h"
 #include "../settingsView/csettingsview_moc.h"
 #include "../launcherdirs.h"
 #include "../jsonutils.h"
@@ -29,6 +30,9 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/modding/CModVersion.h"
+#include "../../lib/filesystem/Filesystem.h"
+
+#include <future>
 
 static double mbToBytes(double mb)
 {
@@ -55,7 +59,7 @@ void CModListView::dragEnterEvent(QDragEnterEvent* event)
 {
 	if(event->mimeData()->hasUrls())
 		for(const auto & url : event->mimeData()->urls())
-			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp", ".json"}))
+			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp", ".json", ".exe"}))
 				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
 				{
 					event->acceptProposedAction();
@@ -636,8 +640,16 @@ void CModListView::on_installFromFileButton_clicked()
 	// https://bugreports.qt.io/browse/QTBUG-98651
 	QTimer::singleShot(0, this, [this]
 	{
-		QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json);;" + tr("Maps") + " (*.h3m *.vmap);;" + tr("Campaigns") + " (*.h3c *.vcmp);;" + tr("Configs") + " (*.json);;" + tr("Mods") + " (*.zip)";
-		QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns) to install..."), QDir::homePath(), filter);
+		QString filter = tr("All supported files") + " (*.h3m *.vmap *.h3c *.vcmp *.zip *.json *.exe);;" + 
+			tr("Maps") + " (*.h3m *.vmap);;" + 
+			tr("Campaigns") + " (*.h3c *.vcmp);;" + 
+			tr("Configs") + " (*.json);;" + 
+			tr("Mods") + " (*.zip);;" + 
+			tr("Gog files") + " (*.exe)";
+#if defined(VCMI_MOBILE)
+		filter = tr("All files (*.*)"); //Workaround for sometimes incorrect mime for some extensions (e.g. for exe)
+#endif
+		QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files (configs, mods, maps, campaigns, gog files) to install..."), QDir::homePath(), filter);
 
 		for(const auto & file : files)
 		{
@@ -786,6 +798,7 @@ void CModListView::installFiles(QStringList files)
 	QStringList mods;
 	QStringList maps;
 	QStringList images;
+	QStringList exe;
 	QVector<QVariantMap> repositories;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
@@ -795,6 +808,8 @@ void CModListView::installFiles(QStringList files)
 			mods.push_back(filename);
 		else if(filename.endsWith(".h3m", Qt::CaseInsensitive) || filename.endsWith(".h3c", Qt::CaseInsensitive) || filename.endsWith(".vmap", Qt::CaseInsensitive) || filename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
+		if(filename.endsWith(".exe", Qt::CaseInsensitive))
+			exe.push_back(filename);
 		else if(filename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
@@ -831,6 +846,35 @@ void CModListView::installFiles(QStringList files)
 
 	if(!maps.empty())
 		installMaps(maps);
+
+	if(!exe.empty())
+	{
+		ui->progressBar->setFormat(tr("Installing chronicles"));
+
+		float prog = 0.0;
+
+		auto futureExtract = std::async(std::launch::async, [this, exe, &prog]()
+		{
+			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
+			ce.installChronicles(exe);
+			return true;
+		});
+		
+		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
+		{
+			emit extractionProgress(static_cast<int>(prog * 1000.f), 1000);
+			qApp->processEvents();
+		}
+		
+		if(futureExtract.get())
+		{
+			//update
+			CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
+			manager->loadMods();
+			modModel->reloadRepositories();
+			emit modsChanged();
+		}
+	}
 
 	if(!images.empty())
 		loadScreenshots();

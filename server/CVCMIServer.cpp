@@ -17,7 +17,12 @@
 
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
-#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
+#include "../lib/campaign/CampaignState.h"
+#include "../lib/gameState/CGameState.h"
+#include "../lib/mapping/CMapDefines.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
+#include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -27,64 +32,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/program_options.hpp>
-
-template<typename T> class CApplyOnServer;
-
-class CBaseForServerApply
-{
-public:
-	virtual bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const =0;
-	virtual void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const =0;
-	virtual ~CBaseForServerApply() {}
-	template<typename U> static CBaseForServerApply * getApplier(const U * t = nullptr)
-	{
-		return new CApplyOnServer<U>();
-	}
-};
-
-template <typename T> class CApplyOnServer : public CBaseForServerApply
-{
-public:
-	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
-	{
-		T * ptr = static_cast<T *>(pack);
-		ClientPermissionsCheckerNetPackVisitor checker(*srv);
-		ptr->visit(checker);
-
-		if(checker.getResult())
-		{
-			ApplyOnServerNetPackVisitor applier(*srv);
-			ptr->visit(applier);
-			return applier.getResult();
-		}
-		else
-			return false;
-	}
-
-	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
-	{
-		T * ptr = static_cast<T *>(pack);
-		ApplyOnServerAfterAnnounceNetPackVisitor applier(*srv);
-		ptr->visit(applier);
-	}
-};
-
-template <>
-class CApplyOnServer<CPack> : public CBaseForServerApply
-{
-public:
-	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-		return false;
-	}
-	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
-	{
-		logGlobal->error("Cannot apply plain CPack!");
-		assert(0);
-	}
-};
 
 class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
@@ -126,8 +73,6 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
-	applier = std::make_shared<CApplier<CBaseForServerApply>>();
-	registerTypesLobbyPacks(*applier);
 
 	networkHandler = INetworkHandler::createHandler();
 }
@@ -376,9 +321,16 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 
 void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
 {
-	CBaseForServerApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()));
-	if(apply->applyOnServerBefore(this, pack.get()))
-		announcePack(std::move(pack));
+	ClientPermissionsCheckerNetPackVisitor checker(*this);
+	pack->visit(checker);
+
+	if(checker.getResult())
+	{
+		ApplyOnServerNetPackVisitor applier(*this);
+		pack->visit(applier);
+		if (applier.getResult())
+			announcePack(std::move(pack));
+	}
 }
 
 void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
@@ -392,7 +344,8 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 		activeConnection->sendPack(pack.get());
 	}
 
-	applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
+	ApplyOnServerAfterAnnounceNetPackVisitor applier(*this);
+	pack->visit(applier);
 }
 
 void CVCMIServer::announceMessage(const MetaString & txt)
@@ -624,8 +577,6 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = pinfo.mainCustomHeroPortrait;
 			}
-
-			pset.handicap = PlayerSettings::NO_HANDICAP;
 		}
 
 		if(mi->isRandomMap && mapGenOpts)
@@ -763,6 +714,60 @@ void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
 
 	playerNames[nameID].name = name;
 	setPlayerConnectedId(player, nameID);
+}
+
+void CVCMIServer::setPlayerHandicap(PlayerColor color, Handicap handicap)
+{
+	if(color == PlayerColor::CANNOT_DETERMINE)
+		return;
+
+	si->playerInfos[color].handicap = handicap;
+
+	int humanPlayer = 0;
+	for (const auto & pi : si->playerInfos)
+		if(pi.second.isControlledByHuman())
+			humanPlayer++;
+
+	if(humanPlayer < 2) // Singleplayer
+		return;
+
+	MetaString str;
+	str.appendTextID("vcmi.lobby.handicap");
+	str.appendRawString(" ");
+	str.appendName(color);
+	str.appendRawString(":");
+
+	if(handicap.startBonus.empty() && handicap.percentIncome == 100 && handicap.percentGrowth == 100)
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.genrltxt.523");
+		announceTxt(str);
+		return;
+	}
+
+	for(auto & res : EGameResID::ALL_RESOURCES())
+		if(handicap.startBonus[res] != 0)
+		{
+			str.appendRawString(" ");
+			str.appendName(res);
+			str.appendRawString(":");
+			str.appendRawString(std::to_string(handicap.startBonus[res]));
+		}
+	if(handicap.percentIncome != 100)
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.jktext.32");
+		str.appendRawString(":");
+		str.appendRawString(std::to_string(handicap.percentIncome) + "%");
+	}
+	if(handicap.percentGrowth != 100)
+	{
+		str.appendRawString(" ");
+		str.appendTextID("core.genrltxt.194");
+		str.appendRawString(":");
+		str.appendRawString(std::to_string(handicap.percentGrowth) + "%");
+	}
+	announceTxt(str);
 }
 
 void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
@@ -1010,6 +1015,39 @@ void CVCMIServer::multiplayerWelcomeMessage()
 		return;
 
 	gh->playerMessages->broadcastSystemMessage("Use '!help' to list available commands");
+
+	for (const auto & pi : si->playerInfos)
+		if(!pi.second.handicap.startBonus.empty() || pi.second.handicap.percentIncome != 100 || pi.second.handicap.percentGrowth != 100)
+		{
+			MetaString str;
+			str.appendTextID("vcmi.lobby.handicap");
+			str.appendRawString(" ");
+			str.appendName(pi.first);
+			str.appendRawString(":");
+			for(auto & res : EGameResID::ALL_RESOURCES())
+				if(pi.second.handicap.startBonus[res] != 0)
+				{
+					str.appendRawString(" ");
+					str.appendName(res);
+					str.appendRawString(":");
+					str.appendRawString(std::to_string(pi.second.handicap.startBonus[res]));
+				}
+			if(pi.second.handicap.percentIncome != 100)
+			{
+				str.appendRawString(" ");
+				str.appendTextID("core.jktext.32");
+				str.appendRawString(":");
+				str.appendRawString(std::to_string(pi.second.handicap.percentIncome) + "%");
+			}
+			if(pi.second.handicap.percentGrowth != 100)
+			{
+				str.appendRawString(" ");
+				str.appendTextID("core.genrltxt.194");
+				str.appendRawString(":");
+				str.appendRawString(std::to_string(pi.second.handicap.percentGrowth) + "%");
+			}
+			gh->playerMessages->broadcastSystemMessage(str);
+		}
 
 	std::vector<std::string> optionIds;
 	if(si->extraOptionsInfo.cheatsAllowed)

@@ -73,7 +73,7 @@ void CMinimapInstance::redrawMinimap()
 
 CMinimapInstance::CMinimapInstance(CMinimap *Parent, int Level):
 	parent(Parent),
-	minimap(new Canvas(Point(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y))),
+	minimap(new Canvas(Point(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y), CanvasScalingPolicy::IGNORE)),
 	level(Level)
 {
 	pos.w = parent->pos.w;
@@ -90,7 +90,7 @@ CMinimap::CMinimap(const Rect & position)
 	: CIntObject(LCLICK | SHOW_POPUP | DRAG | MOVE | GESTURE, position.topLeft()),
 	level(0)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	double maxSideLengthSrc = std::max(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y);
 	double maxSideLengthDst = std::max(position.w, position.h);
@@ -202,7 +202,7 @@ void CMinimap::update()
 	if(aiShield->recActions & UPDATE) //AI turn is going on. There is no need to update minimap
 		return;
 
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION;
 	minimap = std::make_shared<CMinimapInstance>(this, level);
 	redraw();
 }

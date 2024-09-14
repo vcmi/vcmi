@@ -16,11 +16,12 @@
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CStack.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
@@ -65,7 +66,7 @@ bool BattleActionProcessor::doRetreatAction(const CBattleInfoCallback & battle, 
 		return false;
 	}
 
-	owner->setBattleResult(battle, EBattleResult::ESCAPE, !ba.side);
+	owner->setBattleResult(battle, EBattleResult::ESCAPE, battle.otherSide(ba.side));
 	return true;
 }
 
@@ -86,7 +87,7 @@ bool BattleActionProcessor::doSurrenderAction(const CBattleInfoCallback & battle
 	}
 
 	gameHandler->giveResource(player, EGameResID::GOLD, -cost);
-	owner->setBattleResult(battle, EBattleResult::SURRENDER, !ba.side);
+	owner->setBattleResult(battle, EBattleResult::SURRENDER, battle.otherSide(ba.side));
 	return true;
 }
 
@@ -496,7 +497,7 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	else
 		destStack = battle.battleGetUnitByPos(target.at(0).hexValue);
 
-	if(stack == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype == BonusSubtypeID())
+	if(stack == nullptr || destStack == nullptr || !healerAbility || !healerAbility->subtype.hasValue())
 	{
 		gameHandler->complain("There is either no healer, no destination, or healer cannot heal :P");
 	}
@@ -651,7 +652,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 	bool canUseGate = false;
 	auto dbState = battle.battleGetGateState();
-	if(battle.battleGetSiegeLevel() > 0 && curStack->unitSide() == BattleSide::DEFENDER &&
+	if(battle.battleGetFortifications().wallsHealth > 0 && curStack->unitSide() == BattleSide::DEFENDER &&
 		dbState != EGateState::DESTROYED &&
 		dbState != EGateState::BLOCKED)
 	{
@@ -890,7 +891,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		}
 	}
 	//handle last hex separately for deviation
-	if (VLC->settings()->getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
+	if (gameHandler->getSettings().getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
 	{
 		if (dest == battle::Unit::occupiedHex(start, curStack->doubleWide(), curStack->unitSide())
 			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->unitSide()))
@@ -929,7 +930,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	if(attackerLuck > 0)
 	{
-		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE);
+		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE);
 		size_t diceIndex = std::min<size_t>(diceSize.size(), attackerLuck) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
@@ -938,7 +939,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	if(attackerLuck < 0)
 	{
-		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE);
+		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_LUCK_DICE);
 		size_t diceIndex = std::min<size_t>(diceSize.size(), -attackerLuck) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
@@ -973,7 +974,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	}
 
 	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
-	if(bonus && ranged) //TODO: make it work in melee?
+	if(bonus && ranged && bonus->subtype.hasValue()) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
 		bat.flags |= BattleAttack::SPELL_LIKE;
@@ -1267,7 +1268,7 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 	vstd::amin(chanceToKill, 1); //cap at 100%
 	int killedCreatures = gameHandler->getRandomGenerator().nextBinomialInt(attacker->getCount(), chanceToKill);
 
-	int maxToKill = (attacker->getCount() * singleCreatureKillChancePercent + 99) / 100;
+	int maxToKill = vstd::divideAndCeil(attacker->getCount() * singleCreatureKillChancePercent, 100);
 	vstd::amin(killedCreatures, maxToKill);
 
 	killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
@@ -1574,7 +1575,7 @@ bool BattleActionProcessor::makeAutomaticBattleAction(const CBattleInfoCallback 
 
 bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction &ba)
 {
-	if (ba.side != 0 && ba.side != 1 && gameHandler->complain("Can not make action - invalid battle side!"))
+	if (ba.side != BattleSide::ATTACKER && ba.side != BattleSide::DEFENDER && gameHandler->complain("Can not make action - invalid battle side!"))
 		return false;
 
 	if(battle.battleGetTacticDist() != 0)

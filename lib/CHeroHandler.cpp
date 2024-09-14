@@ -15,7 +15,7 @@
 #include "constants/StringConstants.h"
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
-#include "GameSettings.h"
+#include "IGameSettings.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"
 #include "bonuses/Limiters.h"
@@ -51,6 +51,11 @@ int32_t CHero::getIconIndex() const
 std::string CHero::getJsonKey() const
 {
 	return modScope + ':' + identifier;
+}
+
+std::string CHero::getModScope() const
+{
+	return modScope;
 }
 
 HeroTypeID CHero::getId() const
@@ -189,6 +194,11 @@ std::string CHeroClass::getJsonKey() const
 	return modScope + ':' + identifier;
 }
 
+std::string CHeroClass::getModScope() const
+{
+	return modScope;
+}
+
 HeroClassID CHeroClass::getId() const
 {
 	return id;
@@ -230,8 +240,7 @@ void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass *
 {
 	const auto & skillName = NPrimarySkill::names[pSkill.getNum()];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
-	//minimal value is 0 for attack and defense and 1 for spell power and knowledge
-	auto primarySkillLegalMinimum = (pSkill == PrimarySkill::ATTACK || pSkill == PrimarySkill::DEFENSE) ? 0 : 1;
+	int primarySkillLegalMinimum = VLC->engineSettings()->getVector(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS)[pSkill.getNum()];
 
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{
@@ -341,7 +350,7 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 
 std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_HERO_CLASS);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_HERO_CLASS);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -708,7 +717,7 @@ static std::string genRefName(std::string input)
 
 std::vector<JsonNode> CHeroHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_HERO);
+	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_HERO);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;

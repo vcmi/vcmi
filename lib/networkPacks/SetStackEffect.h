@@ -19,7 +19,7 @@ class IBattleState;
 
 struct DLL_LINKAGE SetStackEffect : public CPackForClient
 {
-	void applyGs(CGameState * gs);
+	void applyGs(CGameState * gs) override;
 	void applyBattle(IBattleState * battleState);
 
 	BattleID battleID = BattleID::NONE;

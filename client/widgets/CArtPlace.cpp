@@ -80,7 +80,7 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
 	, ourArt(art)
 	, locked(false)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+	OBJECT_CONSTRUCTION;
 
 	imageIndex = 0;
 	if(locked)
@@ -90,6 +90,7 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
 
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
 	image->disable();
+	moveSelectionForeground();
 }
 
 const CArtifactInstance * CArtPlace::getArt() const

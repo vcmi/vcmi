@@ -27,7 +27,7 @@
 
 CScenarioInfoScreen::CScenarioInfoScreen()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	OBJECT_CONSTRUCTION;
 	pos.w = 800;
 	pos.h = 600;
 	pos = center();

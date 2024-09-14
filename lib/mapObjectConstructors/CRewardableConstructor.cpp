@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CRewardableConstructor.h"
 
+#include "../json/JsonUtils.h"
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
@@ -23,6 +24,8 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 
 	if (!config["name"].isNull())
 		VLC->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"].String());
+
+	JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
 	
 }
 
@@ -59,17 +62,20 @@ Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCal
 
 void CRewardableConstructor::configureObject(CGObjectInstance * object, vstd::RNG & rng) const
 {
-	if(auto * rewardableObject = dynamic_cast<CRewardableObject*>(object))
-	{
-		rewardableObject->configuration = generateConfiguration(object->cb, rng, object->ID);
+	auto * rewardableObject = dynamic_cast<CRewardableObject*>(object);
 
-		if (rewardableObject->configuration.info.empty())
-		{
-			if (objectInfo.getParameters()["rewards"].isNull())
-				logMod->error("Object %s has invalid configuration! No defined rewards found!", getJsonKey());
-			else
-				logMod->error("Object %s has invalid configuration! Make sure that defined appear chances are continuous!", getJsonKey());
-		}
+	if (!rewardableObject)
+		throw std::runtime_error("Object " + std::to_string(object->getObjGroupIndex()) + ", " + std::to_string(object->getObjTypeIndex()) + " is not a rewardable object!" );
+
+	rewardableObject->configuration = generateConfiguration(object->cb, rng, object->ID);
+	rewardableObject->initializeGuards();
+
+	if (rewardableObject->configuration.info.empty())
+	{
+		if (objectInfo.getParameters()["rewards"].isNull())
+			logMod->error("Object %s has invalid configuration! No defined rewards found!", getJsonKey());
+		else
+			logMod->error("Object %s has invalid configuration! Make sure that defined appear chances are continuous!", getJsonKey());
 	}
 }
 

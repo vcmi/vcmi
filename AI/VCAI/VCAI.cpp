@@ -21,7 +21,7 @@
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/GameSettings.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
@@ -31,8 +31,6 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/CTypeList.h"
-#include "../../lib/serializer/BinarySerializer.h"
-#include "../../lib/serializer/BinaryDeserializer.h"
 
 #include "AIhelper.h"
 
@@ -1319,7 +1317,7 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
-	if(cb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+	if(cb->getHeroesInfo().size() >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 		return false;
 	if(!cb->getAvailableHeroes(t).size())
 		return false;
@@ -1566,7 +1564,7 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 
 }
 
-void VCAI::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
+void VCAI::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
@@ -2130,7 +2128,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
+					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
 					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName());
 				}
@@ -2752,8 +2750,6 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;
-	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods
-		return true;
 
 	switch(obj->ID)
 	{
@@ -2854,12 +2850,12 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->myCb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		return ai->myCb->getHeroesInfo().size() < cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 	case Obj::TAVERN:
 	{
 		//TODO: make AI actually recruit heroes
 		//TODO: only on request
-		if(ai->myCb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+		if(ai->myCb->getHeroesInfo().size() >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 			return false;
 		else if(ai->ah->freeGold() < GameConstants::HERO_GOLD_COST)
 			return false;

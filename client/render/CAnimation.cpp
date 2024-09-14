@@ -13,6 +13,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
+#include "../render/IScreenHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonUtils.h"
@@ -161,13 +162,13 @@ void CAnimation::verticalFlip()
 
 void CAnimation::horizontalFlip(size_t frame, size_t group)
 {
-	try
+	auto i1 = images.find(group);
+	if(i1 != images.end())
 	{
-		images.at(group).at(frame) = nullptr;
-	}
-	catch (const std::out_of_range &)
-	{
-		// ignore - image not loaded
+		auto i2 = i1->second.find(frame);
+
+		if(i2 != i1->second.end())
+			i2->second = nullptr;
 	}
 
 	auto locator = getImageLocator(frame, group);
@@ -177,13 +178,13 @@ void CAnimation::horizontalFlip(size_t frame, size_t group)
 
 void CAnimation::verticalFlip(size_t frame, size_t group)
 {
-	try
+	auto i1 = images.find(group);
+	if(i1 != images.end())
 	{
-		images.at(group).at(frame) = nullptr;
-	}
-	catch (const std::out_of_range &)
-	{
-		// ignore - image not loaded
+		auto i2 = i1->second.find(frame);
+
+		if(i2 != i1->second.end())
+			i2->second = nullptr;
 	}
 
 	auto locator = getImageLocator(frame, group);

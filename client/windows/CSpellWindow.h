@@ -27,6 +27,7 @@ class CPlayerInterface;
 class CSpellWindow;
 class CTextInput;
 class TransparentFilledRectangle;
+class CToggleButton;
 
 /// The spell window
 class CSpellWindow : public CWindowObject
@@ -82,6 +83,9 @@ class CSpellWindow : public CWindowObject
 	std::shared_ptr<TransparentFilledRectangle> searchBoxRectangle;
 	std::shared_ptr<CLabel> searchBoxDescription;
 
+	std::shared_ptr<CToggleButton> showAllSpells;
+	std::shared_ptr<CLabel> showAllSpellsDescription;
+
 	bool isBigSpellbook;
 	int spellsPerPage;
 	int offL;
@@ -109,13 +113,11 @@ class CSpellWindow : public CWindowObject
 	void turnPageLeft();
 	void turnPageRight();
 
-	std::shared_ptr<IImage> createBigSpellBook();
-
 	bool openOnBattleSpells;
 	std::function<void(SpellID)> onSpellSelect; //external processing of selected spell
 
 public:
-	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true, std::function<void(SpellID)> onSpellSelect = nullptr);
+	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true, const std::function<void(SpellID)> & onSpellSelect = nullptr);
 	~CSpellWindow();
 
 	void fexitb();
