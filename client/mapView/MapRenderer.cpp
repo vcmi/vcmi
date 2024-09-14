@@ -479,13 +479,21 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 
 	image->setAlpha(transparency);
 	image->setShadowEnabled(true);
-	image->setOverlayEnabled(object->getOwner().isValidPlayer() || object->getOwner() == PlayerColor::NEUTRAL);
+	if (object->ID != Obj::HERO)
+	{
+		image->setOverlayEnabled(object->getOwner().isValidPlayer() || object->getOwner() == PlayerColor::NEUTRAL);
 
-	if (object->getOwner().isValidPlayer())
-		image->setOverlayColor(graphics->playerColors[object->getOwner().getNum()]);
+		if (object->getOwner().isValidPlayer())
+			image->setOverlayColor(graphics->playerColors[object->getOwner().getNum()]);
 
-	if (object->getOwner() == PlayerColor::NEUTRAL)
-		image->setOverlayColor(graphics->neutralColor);
+		if (object->getOwner() == PlayerColor::NEUTRAL)
+			image->setOverlayColor(graphics->neutralColor);
+	}
+	else
+	{
+		// heroes use separate image with flag instead of player-colored palette
+		image->setOverlayEnabled(false);
+	}
 
 	Point offsetPixels = context.objectImageOffset(object->id, coordinates);
 

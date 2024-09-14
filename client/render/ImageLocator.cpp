@@ -70,6 +70,7 @@ bool ImageLocator::empty() const
 ImageLocator ImageLocator::copyFile() const
 {
 	ImageLocator result;
+	result.scalingFactor = 1;
 	result.image = image;
 	result.defFile = defFile;
 	result.defFrame = defFrame;
@@ -88,4 +89,42 @@ ImageLocator ImageLocator::copyFileTransform() const
 ImageLocator ImageLocator::copyFileTransformScale() const
 {
 	return *this; // full copy
+}
+
+std::string ImageLocator::toString() const
+{
+	std::string result;
+	if (empty())
+		return "invalid";
+
+	if (image)
+	{
+		result += image->getOriginalName();
+		assert(!result.empty());
+	}
+
+	if (defFile)
+	{
+		result += defFile->getOriginalName();
+		assert(!result.empty());
+		result += "-" + std::to_string(defGroup);
+		result += "-" + std::to_string(defFrame);
+	}
+
+	if (verticalFlip)
+		result += "-vflip";
+
+	if (horizontalFlip)
+		result += "-hflip";
+
+	if (scalingFactor > 1)
+		result += "-scale" + std::to_string(scalingFactor);
+
+	if (playerColored.isValidPlayer())
+		result += "-player" + playerColored.toString();
+
+	if (layer != EImageLayer::ALL)
+		result += "-layer" + std::to_string(static_cast<int>(layer));
+
+	return result;
 }

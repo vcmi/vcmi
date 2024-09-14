@@ -47,7 +47,7 @@ CStatisticScreen::CStatisticScreen(const StatisticDataSet & stat)
 {
 	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 800, 600));
-	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	filledBackground->setPlayerColor(PlayerColor(1));
 
 	contentArea = Rect(10, 40, 780, 510);
@@ -225,7 +225,7 @@ StatisticSelector::StatisticSelector(const std::vector<std::string> & texts, con
 {
 	OBJECT_CONSTRUCTION;
 	pos = center(Rect(0, 0, 128 + 16, std::min(static_cast<int>(texts.size()), LINES) * 40));
-	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	filledBackground->setPlayerColor(PlayerColor(1));
 
 	slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, [this](int to){ update(to); redraw(); }, LINES, texts.size(), 0, Orientation::VERTICAL, CSlider::BLUE);

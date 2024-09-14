@@ -14,6 +14,7 @@
 #include "../render/IImage.h"
 #include "../render/IImageLoader.h"
 #include "../render/Canvas.h"
+#include "../render/ColorFilter.h"
 #include "../render/IRenderHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
@@ -22,11 +23,13 @@ void AssetGenerator::generateAll()
 {
 	createBigSpellBook();
 	createAdventureOptionsCleanBackground();
+	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+		createPlayerColoredBackground(PlayerColor(i));
 }
 
 void AssetGenerator::createAdventureOptionsCleanBackground()
 {
-	std::string filename = "data/AdventureOptionsBackgroundClear.bmp";
+	std::string filename = "data/AdventureOptionsBackgroundClear.png";
 
 	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
 		return;
@@ -35,9 +38,10 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
 
-	auto res = ImagePath::builtin("ADVOPTBK");
+	auto locator = ImageLocator(ImagePath::builtin("ADVOPTBK"));
+	locator.scalingFactor = 1;
 
-	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
 
 	Canvas canvas = Canvas(Point(575, 585), CanvasScalingPolicy::IGNORE);
 	canvas.draw(img, Point(0, 0), Rect(0, 0, 575, 585));
@@ -55,7 +59,7 @@ void AssetGenerator::createAdventureOptionsCleanBackground()
 
 void AssetGenerator::createBigSpellBook()
 {
-	std::string filename = "data/SpellBookLarge.bmp";
+	std::string filename = "data/SpellBookLarge.png";
 
 	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
 		return;
@@ -64,9 +68,10 @@ void AssetGenerator::createBigSpellBook()
 		return;
 	ResourcePath savePath(filename, EResType::IMAGE);
 
-	auto res = ImagePath::builtin("SpelBack");
+	auto locator = ImageLocator(ImagePath::builtin("SpelBack"));
+	locator.scalingFactor = 1;
 
-	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(res, EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
 	Canvas canvas = Canvas(Point(800, 600), CanvasScalingPolicy::IGNORE);
 	// edges
 	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
@@ -113,4 +118,85 @@ void AssetGenerator::createBigSpellBook()
 	std::shared_ptr<IImage> image = GH.renderHandler().createImage(canvas.getInternalSurface());
 
 	image->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+}
+
+void AssetGenerator::createPlayerColoredBackground(const PlayerColor & player)
+{
+	std::string filename = "data/DialogBoxBackground_" + player.toString() + ".png";
+
+	if(CResourceHandler::get()->existsResource(ResourcePath(filename))) // overridden by mod, no generation
+		return;
+
+	if(!CResourceHandler::get("local")->createResource(filename))
+		return;
+
+	ResourcePath savePath(filename, EResType::IMAGE);
+
+	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"));
+	locator.scalingFactor = 1;
+
+	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+
+	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
+		ColorFilter::genRangeShifter(  0.25,  0,     0,     1.25, 0.00, 0.00 ), // red
+		ColorFilter::genRangeShifter(  0,     0,     0,     0.45, 1.20, 4.50 ), // blue
+		ColorFilter::genRangeShifter(  0.40,  0.27,  0.23,  1.10, 1.20, 1.15 ), // tan
+		ColorFilter::genRangeShifter( -0.27,  0.10, -0.27,  0.70, 1.70, 0.70 ), // green
+		ColorFilter::genRangeShifter(  0.47,  0.17, -0.27,  1.60, 1.20, 0.70 ), // orange
+		ColorFilter::genRangeShifter(  0.12, -0.1,   0.25,  1.15, 1.20, 2.20 ), // purple
+		ColorFilter::genRangeShifter( -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ), // teal
+		ColorFilter::genRangeShifter(  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 )  // pink
+	};
+
+	assert(player.isValidPlayer());
+	if (!player.isValidPlayer())
+	{
+		logGlobal->error("Unable to colorize to invalid player color %d!", static_cast<int>(player.getNum()));
+		return;
+	}
+
+	texture->adjustPalette(filters[player.getNum()], 0);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePath));
+}
+
+void AssetGenerator::createCombatUnitNumberWindow()
+{
+	std::string filenameToSave = "data/combatUnitNumberWindow";
+
+	ResourcePath savePathDefault(filenameToSave + "Default.png", EResType::IMAGE);
+	ResourcePath savePathNeutral(filenameToSave + "Neutral.png", EResType::IMAGE);
+	ResourcePath savePathPositive(filenameToSave + "Positive.png", EResType::IMAGE);
+	ResourcePath savePathNegative(filenameToSave + "Negative.png", EResType::IMAGE);
+
+	if(CResourceHandler::get()->existsResource(savePathDefault)) // overridden by mod, no generation
+		return;
+
+	if(!CResourceHandler::get("local")->createResource(savePathDefault.getOriginalName() + ".png") ||
+	   !CResourceHandler::get("local")->createResource(savePathNeutral.getOriginalName() + ".png") ||
+	   !CResourceHandler::get("local")->createResource(savePathPositive.getOriginalName() + ".png") ||
+	   !CResourceHandler::get("local")->createResource(savePathNegative.getOriginalName() + ".png"))
+		return;
+
+	auto locator = ImageLocator(ImagePath::builtin("CMNUMWIN"));
+	locator.scalingFactor = 1;
+
+	std::shared_ptr<IImage> texture = GH.renderHandler().loadImage(locator, EImageBlitMode::OPAQUE);
+
+	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
+	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
+	static const auto shifterNegative = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 0.2f, 0.2f );
+	static const auto shifterNeutral  = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 1.0f, 1.0f, 0.2f );
+
+	// do not change border color
+	static const int32_t ignoredMask = 1 << 26;
+
+	texture->adjustPalette(shifterNormal, ignoredMask);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathDefault));
+	texture->adjustPalette(shifterPositive, ignoredMask);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathPositive));
+	texture->adjustPalette(shifterNegative, ignoredMask);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathNegative));
+	texture->adjustPalette(shifterNeutral, ignoredMask);
+	texture->exportBitmap(*CResourceHandler::get("local")->getResourceName(savePathNeutral));
 }

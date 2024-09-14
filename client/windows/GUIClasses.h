@@ -296,7 +296,7 @@ public:
 class CShipyardWindow : public CStatusbarWindow
 {
 	std::shared_ptr<CPicture> bgWater;
-	std::shared_ptr<CAnimImage> bgShip;
+	std::shared_ptr<CShowableAnim> bgShip;
 
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> costLabel;

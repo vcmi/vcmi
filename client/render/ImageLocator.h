@@ -32,7 +32,7 @@ struct ImageLocator
 
 	bool verticalFlip = false;
 	bool horizontalFlip = false;
-	int8_t scalingFactor = 1;
+	int8_t scalingFactor = 0; // 0 = auto / use default scaling
 	EImageLayer layer = EImageLayer::ALL;
 
 	ImageLocator() = default;
@@ -46,4 +46,9 @@ struct ImageLocator
 	ImageLocator copyFile() const;
 	ImageLocator copyFileTransform() const;
 	ImageLocator copyFileTransformScale() const;
+
+	// generates string representation of this image locator
+	// guaranteed to be a valid file path with no extension
+	// but may contain '/' if source file is in directory
+	std::string toString() const;
 };

@@ -744,8 +744,9 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 		AnimationPath boatFilename = boatConstructor->getBoatAnimationName();
 
 		Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
-		bgShip = std::make_shared<CAnimImage>(boatFilename, 0, 7, 120, 96, 0);
+		bgShip = std::make_shared<CShowableAnim>(120, 96, boatFilename, CShowableAnim::CREATURE_MODE, 100, 7);
 		bgShip->center(waterCenter);
+		bgWater->needRefresh = true;
 	}
 
 	// Create resource icons and costs.
