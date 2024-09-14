@@ -13,6 +13,7 @@
 #include "../int3.h"
 #include "../filesystem/ResourcePath.h"
 #include "../serializer/Serializeable.h"
+#include "../mapObjects/CompoundMapObjectID.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -47,7 +48,6 @@ public:
 	MapObjectID id;
 	MapObjectSubID subid;
 
-	// TODO: get compound id
 	/// print priority, objects with higher priority will be print first, below everything else
 	si32 printPriority;
 	/// animation file that should be used to display object
@@ -123,6 +123,8 @@ public:
 
 	// Checks if object can be placed on specific terrain
 	bool canBePlacedAt(TerrainId terrain) const;
+
+	CompoundMapObjectID getCompoundID() const;
 
 	ObjectTemplate();
 

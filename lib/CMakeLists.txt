@@ -502,6 +502,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/IObjectInterface.h
 	mapObjects/MapObjects.h
 	mapObjects/MiscObjects.h
+	mapObjects/CompoundMapObjectID.h
 	mapObjects/ObjectTemplate.h
 	mapObjects/ObstacleSetHandler.h
 

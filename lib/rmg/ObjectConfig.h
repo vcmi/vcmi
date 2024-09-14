@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../constants/EntityIdentifiers.h"
+#include "../mapObjects/CompoundMapObjectID.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

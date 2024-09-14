@@ -508,6 +508,11 @@ bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 	return vstd::contains(allowedTerrains, terrainID);
 }
 
+CompoundMapObjectID ObjectTemplate::getCompoundID() const
+{
+	return CompoundMapObjectID(id, subid);
+}
+
 void ObjectTemplate::recalculate()
 {
 	calculateWidth();

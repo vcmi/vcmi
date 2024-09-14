@@ -21,7 +21,6 @@ class ObjectManager;
 class RmgMap;
 class CMapGenerator;
 class ObjectConfig;
-struct CompoundMapObjectID;
 
 class TreasurePlacer: public Modificator
 {

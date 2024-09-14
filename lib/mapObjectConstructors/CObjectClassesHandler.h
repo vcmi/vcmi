@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../constants/EntityIdentifiers.h"
+#include "../mapObjects/CompoundMapObjectID.h"
 #include "../IHandlerBase.h"
 #include "../json/JsonNode.h"
 
@@ -18,27 +18,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class AObjectTypeHandler;
 class ObjectTemplate;
 struct SObjectSounds;
-
-struct DLL_LINKAGE CompoundMapObjectID
-{
-	si32 primaryID;
-	si32 secondaryID;
-
-	CompoundMapObjectID(si32 primID, si32 secID) : primaryID(primID), secondaryID(secID) {};
-
-	bool operator<(const CompoundMapObjectID& other) const
-	{
-		if(this->primaryID != other.primaryID)
-			return this->primaryID < other.primaryID;
-		else
-			return this->secondaryID < other.secondaryID;
-	}
-
-	bool operator==(const CompoundMapObjectID& other) const
-	{
-		return (this->primaryID == other.primaryID) && (this->secondaryID == other.secondaryID);
-	}
-};
 
 class CGObjectInstance;
 

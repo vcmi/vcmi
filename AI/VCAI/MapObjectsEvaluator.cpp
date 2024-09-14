@@ -13,6 +13,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/mapObjects/CompoundMapObjectID.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
