@@ -209,7 +209,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	}
 
 	//randomize obstacles
-	if (layout.obstaclesAllowed)
+	if (layout.obstaclesAllowed && !town)
  	{
 		RandGen r{};
 		auto ourRand = [&](){ return r.rand(); };
