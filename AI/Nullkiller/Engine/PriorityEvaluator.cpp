@@ -63,7 +63,8 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	involvesSailing(false),
 	isTradeBuilding(false),
 	isExchange(false),
-	isExplore(false)
+	isArmyUpgrade(false),
+	explorePriority(0)
 {
 }
 
@@ -493,7 +494,7 @@ uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
 	return result;
 }
 
-uint64_t RewardEvaluator::getManaRecoveryArmyReward(const CGHeroInstance * hero) const
+float RewardEvaluator::getManaRecoveryArmyReward(const CGHeroInstance * hero) const
 {
 	return ai->heroManager->getMagicStrength(hero) * 10000 * (1.0f - std::sqrt(static_cast<float>(hero->mana) / hero->manaLimit()));
 }
@@ -868,6 +869,7 @@ public:
 
 		evaluationContext.armyReward += upgradeValue;
 		evaluationContext.addNonCriticalStrategicalValue(upgradeValue / (float)armyUpgrade.hero->getArmyStrength());
+		evaluationContext.isArmyUpgrade = true;
 	}
 };
 
@@ -882,7 +884,24 @@ public:
 		int tilesDiscovered = task->value;
 
 		evaluationContext.addNonCriticalStrategicalValue(0.03f * tilesDiscovered);
-		evaluationContext.isExplore = true;
+		for (auto obj : evaluationContext.evaluator.ai->cb->getVisitableObjs(task->tile))
+		{
+			switch (obj->ID.num)
+			{
+			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+			case Obj::MONOLITH_TWO_WAY:
+			case Obj::SUBTERRANEAN_GATE:
+			case Obj::WHIRLPOOL:
+				evaluationContext.explorePriority = 1;
+				break;
+			case Obj::REDWOOD_OBSERVATORY:
+			case Obj::PILLAR_OF_FIRE:
+				evaluationContext.explorePriority = 2;
+				break;
+			}
+		}
+		if (evaluationContext.explorePriority == 0)
+			evaluationContext.explorePriority = 3;
 	}
 };
 
@@ -1320,7 +1339,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		float score = 0;
 		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, isDefend: %d",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
@@ -1340,6 +1359,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.conquestValue,
 			evaluationContext.closestWayRatio,
 			evaluationContext.enemyHeroDangerRatio,
+			evaluationContext.explorePriority,
 			evaluationContext.isDefend);
 #endif
 
@@ -1369,7 +1389,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
 			{
-				if (evaluationContext.conquestValue > 0)
+				if (evaluationContext.conquestValue > 0 || evaluationContext.explorePriority == 1)
 					score = 1000;
 				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
 					return 0;
@@ -1388,6 +1408,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.isDefend && (evaluationContext.enemyHeroDangerRatio < 1 || evaluationContext.threatTurns > 0 || evaluationContext.turn > 0))
 					return 0;
+				if (evaluationContext.explorePriority == 3)
+					return 0;
+				if (evaluationContext.isArmyUpgrade)
+					return 0;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
 				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossPersentage) * 0.05;
@@ -1397,8 +1421,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossPersentage;
 				if (score > 0)
 				{
-					if(!evaluationContext.isExplore)
-						score = 1000;
 					score *= evaluationContext.closestWayRatio;
 					if (evaluationContext.enemyHeroDangerRatio > 1)
 						score /= evaluationContext.enemyHeroDangerRatio;
@@ -1408,11 +1430,23 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				}
 				break;
 			}
+			case PriorityTier::LOW_PRIO_EXPLORE:
+			{
+				if (evaluationContext.enemyHeroDangerRatio > 1)
+					return 0;
+				if (evaluationContext.explorePriority != 3)
+					return 0;
+				score = 1000;
+				score *= evaluationContext.closestWayRatio;
+				if (evaluationContext.movementCost > 0)
+					score /= evaluationContext.movementCost;
+				break;
+			}
 			case PriorityTier::DEFEND: //Defend whatever if nothing else is to do
 			{
 				if (evaluationContext.enemyHeroDangerRatio > 1 && evaluationContext.isExchange)
 					return 0;
-				if (evaluationContext.isDefend)
+				if (evaluationContext.isDefend || evaluationContext.isArmyUpgrade)
 					score = 1000;
 				score *= evaluationContext.closestWayRatio;
 				score /= (evaluationContext.turn + 1);

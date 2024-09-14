@@ -49,7 +49,7 @@ public:
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
 	const HitMapInfo & getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
 	uint64_t townArmyGrowth(const CGTownInstance * town) const;
-	uint64_t getManaRecoveryArmyReward(const CGHeroInstance * hero) const;
+	float getManaRecoveryArmyReward(const CGHeroInstance * hero) const;
 };
 
 struct DLL_EXPORT EvaluationContext
@@ -80,7 +80,8 @@ struct DLL_EXPORT EvaluationContext
 	bool involvesSailing;
 	bool isTradeBuilding;
 	bool isExchange;
-	bool isExplore;
+	bool isArmyUpgrade;
+	int explorePriority;
 
 	EvaluationContext(const Nullkiller * ai);
 
@@ -112,6 +113,7 @@ public:
 		INSTADEFEND,
 		KILL,
 		HUNTER_GATHER,
+		LOW_PRIO_EXPLORE,
 		DEFEND
 	};
 

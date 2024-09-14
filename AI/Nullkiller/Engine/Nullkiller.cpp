@@ -387,7 +387,7 @@ void Nullkiller::makeTurn()
 			if(bestTask->priority > 0)
 			{
 #if NKAI_TRACE_LEVEL >= 1
-				logAi->info("Pass %d: Performing task %s with prio: %d", i, bestTask->toString(), bestTask->priority);
+				logAi->info("Pass %d: Performing prio 0 task %s with prio: %d", i, bestTask->toString(), bestTask->priority);
 #endif
 				if(!executeTask(bestTask))
 					return;
