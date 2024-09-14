@@ -891,7 +891,6 @@ public:
 			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 			case Obj::MONOLITH_TWO_WAY:
 			case Obj::SUBTERRANEAN_GATE:
-			case Obj::WHIRLPOOL:
 				evaluationContext.explorePriority = 1;
 				break;
 			case Obj::REDWOOD_OBSERVATORY:
