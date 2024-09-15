@@ -11,6 +11,8 @@
 #include "VisitQueries.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/TownBuildingInstance.h"
 #include "../CGameHandler.h"
 #include "QueriesProcessor.h"
 
@@ -29,7 +31,7 @@ bool VisitQuery::blocksPack(const CPack * pack) const
 	return true;
 }
 
-void VisitQuery::onExposure(QueryPtr topQuery)
+void MapObjectVisitQuery::onExposure(QueryPtr topQuery)
 {
 	//Object may have been removed and deleted.
 	if(gh->isValidObject(visitedObject))
@@ -54,13 +56,31 @@ void MapObjectVisitQuery::onRemoval(PlayerColor color)
 		gh->removeObject(visitedObject, color);
 }
 
-TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, BuildingID buildingToVisit)
-	: VisitQuery(owner, Obj, Hero)
-	, visitedBuilding(buildingToVisit)
+TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
+	: VisitQuery(owner, Obj, heroes.front())
+	, visitedTown(Obj)
 {
+	// generate in reverse order - first building-hero pair to handle must be in the end of vector
+	for (auto const * hero : boost::adaptors::reverse(heroes))
+		for (auto const & building : boost::adaptors::reverse(buildingToVisit))
+			visitedBuilding.push_back({ hero, building});
 }
 
-void TownBuildingVisitQuery::onRemoval(PlayerColor color)
+void TownBuildingVisitQuery::onExposure(QueryPtr topQuery)
 {
+	onAdded(players.front());
+}
 
+void TownBuildingVisitQuery::onAdded(PlayerColor color)
+{
+	while (!visitedBuilding.empty() && owner->topQuery(color).get() == this)
+	{
+		visitingHero = visitedBuilding.back().hero;
+		auto * building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
+		building->onHeroVisit(visitingHero);
+		visitedBuilding.pop_back();
+	}
+
+	if (visitedBuilding.empty() && owner->topQuery(color).get() == this)
+		owner->popIfTop(*this);
 }
