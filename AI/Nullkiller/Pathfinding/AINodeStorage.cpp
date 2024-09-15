@@ -721,6 +721,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 		if(node->action == EPathNodeAction::BATTLE
 			|| node->action == EPathNodeAction::TELEPORT_BATTLE
 			|| node->action == EPathNodeAction::TELEPORT_NORMAL
+			|| node->action == EPathNodeAction::DISEMBARK
 			|| node->action == EPathNodeAction::TELEPORT_BLOCKING_VISIT)
 		{
 			continue;
