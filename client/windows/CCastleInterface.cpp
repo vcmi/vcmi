@@ -845,7 +845,18 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 
 void CCastleBuildings::enterRewardable(BuildingID building)
 {
-	LOCPLINT->cb->visitTownBuilding(town, building);
+	if (town->visitingHero == nullptr)
+	{
+		MetaString message;
+		message.appendTextID("core.genrltxt.273"); // only visiting heroes may visit %s
+		message.replaceTextID(town->town->buildings.at(building)->getNameTextID());
+
+		LOCPLINT->showInfoDialog(message.toString());
+	}
+	else
+	{
+		LOCPLINT->cb->visitTownBuilding(town, building);
+	}
 }
 
 void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactID)

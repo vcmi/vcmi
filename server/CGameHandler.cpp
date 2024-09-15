@@ -2175,7 +2175,7 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 
 	if (t->rewardableBuildings.count(bid))
 	{
-		auto & hero = t->garrisonHero ? t->garrisonHero : t->visitingHero;
+		auto & hero = t->visitingHero;
 		auto * building = t->rewardableBuildings.at(bid);
 
 		if (hero && t->town->buildings.at(bid)->manualHeroVisit)
