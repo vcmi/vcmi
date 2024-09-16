@@ -82,6 +82,7 @@ VCMI Launcher and Map Editor use translation system provided by Qt framework so 
 
 - Install Qt Linguist. You can find find standalone version here: https://download.qt.io/linguist_releases/
 - Open `<VCMI Sources>/launcher/translation/` directory, copy `english.ts` file and rename it to your language
+- Open `<VCMI Sources>/launcher/CMakeLists.txt` file with a text editor. In there you need to find list of existing translation files and add new file to the list.
 - Launch Qt Linguist, select Open and navigate to your copied file
 - Select any untranslated string, enter translation in field below, and click "Done and Next" (Ctrl+Return) to navigate to next untranslated string
 - Once translation has been finished, save resulting file.
