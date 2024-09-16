@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>444</width>
-    <height>445</height>
+    <height>506</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -52,7 +52,7 @@
       <x>0</x>
       <y>20</y>
       <width>281</width>
-      <height>68</height>
+      <height>73</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,0,1">
@@ -72,7 +72,7 @@
         </size>
        </property>
        <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
+        <set>Qt::InputMethodHint::ImhDigitsOnly</set>
        </property>
        <property name="text">
         <string notr="true">36</string>
@@ -98,7 +98,7 @@
         </size>
        </property>
        <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
+        <set>Qt::InputMethodHint::ImhDigitsOnly</set>
        </property>
        <property name="text">
         <string notr="true">36</string>
@@ -132,10 +132,10 @@
        <item>
         <spacer name="horizontalSpacer_5">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
+          <enum>QSizePolicy::Policy::Fixed</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -207,7 +207,7 @@
      <x>10</x>
      <y>140</y>
      <width>431</width>
-     <height>301</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -237,7 +237,7 @@
        <x>10</x>
        <y>20</y>
        <width>391</width>
-       <height>68</height>
+       <height>72</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0">
@@ -546,7 +546,7 @@
          </size>
         </property>
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -675,7 +675,104 @@
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>411</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>480</width>
+      <height>96</height>
+     </size>
+    </property>
+    <property name="title">
+     <string>Roads</string>
+    </property>
+    <widget class="QWidget" name="layoutWidget4_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>20</y>
+       <width>411</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0,0,0,1">
+      <item>
+       <widget class="QCheckBox" name="roadDirt">
+        <property name="text">
+         <string>Dirt</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="roadGravel">
+        <property name="text">
+         <string>Gravel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="roadCobblestone">
+        <property name="text">
+         <string>Cobblestone</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -692,9 +789,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>230</y>
+      <y>280</y>
       <width>411</width>
-      <height>32</height>
+      <height>34</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -732,37 +829,37 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLineEdit" name="lineSeed">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>270</y>
-      <width>131</width>
-      <height>21</height>
+      <x>80</x>
+      <y>320</y>
+      <width>283</width>
+      <height>33</height>
      </rect>
     </property>
-    <property name="inputMethodHints">
-     <set>Qt::ImhDigitsOnly</set>
-    </property>
-    <property name="text">
-     <string>0</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkSeed">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>270</y>
-      <width>161</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Custom seed</string>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QCheckBox" name="checkSeed">
+       <property name="text">
+        <string>Custom seed</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineSeed">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QCheckBox" name="randomMapCheck">

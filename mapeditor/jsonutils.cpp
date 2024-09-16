@@ -108,10 +108,11 @@ JsonNode toJson(QVariant object)
 
 	if(object.canConvert<QVariantMap>())
 		ret.Struct() = VariantToMap(object.toMap());
-	else if(object.canConvert<QVariantList>())
-		ret.Vector() = VariantToList(object.toList());
 	else if(object.userType() == QMetaType::QString)
 		ret.String() = object.toString().toUtf8().data();
+	//QStirng can be converted to QVariantList, need to check first
+	else if(object.canConvert<QVariantList>())
+		ret.Vector() = VariantToList(object.toList());
 	else if(object.userType() == QMetaType::Bool)
 		ret.Bool() = object.toBool();
 	else if(object.canConvert<double>())
