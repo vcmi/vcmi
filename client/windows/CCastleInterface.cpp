@@ -54,6 +54,7 @@
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/TownBuildingInstance.h"
 
 
 static bool useCompactCreatureBox()
@@ -855,7 +856,10 @@ void CCastleBuildings::enterRewardable(BuildingID building)
 	}
 	else
 	{
-		LOCPLINT->cb->visitTownBuilding(town, building);
+		if (town->rewardableBuildings.at(building)->wasVisited(town->visitingHero))
+			enterBuilding(building);
+		else
+			LOCPLINT->cb->visitTownBuilding(town, building);
 	}
 }
 
