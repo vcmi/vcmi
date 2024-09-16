@@ -30,9 +30,10 @@ TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
 	ui->eventFirstOccurrence->setValue(params.value("firstOccurrence").toInt());
 	ui->eventRepeatAfter->setValue(params.value("nextOccurrence").toInt());
 
+	auto playerList = params.value("players").toList();
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
-		bool isAffected = (1 << i) & params.value("players").toInt();
+		bool isAffected = playerList.contains(QString::fromStdString(PlayerColor(i).toString()));
 		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
@@ -69,12 +70,12 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	descriptor["firstOccurrence"] = QVariant::fromValue(ui->eventFirstOccurrence->value());
 	descriptor["nextOccurrence"] = QVariant::fromValue(ui->eventRepeatAfter->value());
 
-	int players = 0;
+	QVariantList players;
 	for(int i = 0; i < ui->playersAffected->count(); ++i)
 	{
 		auto * item = ui->playersAffected->item(i);
 		if(item->checkState() == Qt::Checked)
-			players |= 1 << i;
+			players.push_back(QString::fromStdString(PlayerColor(i).toString()));
 	}
 	descriptor["players"] = QVariant::fromValue(players);
 

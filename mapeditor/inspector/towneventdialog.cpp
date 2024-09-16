@@ -63,9 +63,10 @@ TownEventDialog::~TownEventDialog()
 
 void TownEventDialog::initPlayers()
 {
+	auto playerList = params.value("players").toList();
 	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
-		bool isAffected = (1 << i) & params.value("players").toInt();
+		bool isAffected = playerList.contains(QString::fromStdString(PlayerColor(i).toString()));
 		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
 		item->setData(MapEditorRoles::PlayerIDRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
@@ -213,12 +214,12 @@ void TownEventDialog::on_TownEventDialog_finished(int result)
 
 QVariant TownEventDialog::playersToVariant()
 {
-	int players = 0;
+	QVariantList players;
 	for (int i = 0; i < ui->playersAffected->count(); ++i)
 	{
 		auto * item = ui->playersAffected->item(i);
 		if (item->checkState() == Qt::Checked)
-			players |= 1 << i;
+			players.push_back(QString::fromStdString(PlayerColor(i).toString()));
 	}
 	return QVariant::fromValue(players);
 }
