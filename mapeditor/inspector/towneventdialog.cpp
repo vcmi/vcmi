@@ -155,7 +155,12 @@ void TownEventDialog::initCreatures()
 {
 	auto creatures = params.value("creatures").toList();
 	auto * ctown = town.town;
-	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; ++i)
+	if (!ctown)
+		ui->creaturesTable->setRowCount(GameConstants::CREATURES_PER_TOWN);
+	else 
+		ui->creaturesTable->setRowCount(ctown->creatures.size());
+
+	for (int i = 0; i < ui->creaturesTable->rowCount(); ++i)
 	{
 		QString creatureNames;
 		if (!ctown)
@@ -239,7 +244,7 @@ QVariantList TownEventDialog::buildingsToVariant()
 QVariantList TownEventDialog::creaturesToVariant()
 {
 	QVariantList creaturesList;
-	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; ++i)
+	for (int i = 0; i < ui->creaturesTable->rowCount(); ++i)
 	{
 		auto * item = static_cast<QSpinBox *>(ui->creaturesTable->cellWidget(i, 1));
 		creaturesList.push_back(item->value());

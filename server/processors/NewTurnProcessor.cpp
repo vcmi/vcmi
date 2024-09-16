@@ -110,7 +110,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 
 			for (si32 i=0;i<event.creatures.size();i++) //creature growths
 			{
-				if (!town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
+				if (i < town->creatures.size() && !town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
 				{
 					sac.creatures[i].first += event.creatures.at(i);
 					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
