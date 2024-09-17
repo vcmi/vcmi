@@ -20,6 +20,7 @@
 	"vcmi.adventureMap.playerAttacked"         : "Gracz został zaatakowany: %s",
 	"vcmi.adventureMap.moveCostDetails"        : "Punkty ruchu - Koszt: %TURNS tury + %POINTS punkty, Pozostałe punkty: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Punkty ruchu - Koszt: %POINTS punkty, Pozostałe punkty: %REMAINING",
+	"vcmi.adventureMap.movementPointsHeroInfo" : "(Punkty ruchu: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Wybacz, powtórka ruchu wroga nie została jeszcze zaimplementowana!",
 
 	"vcmi.capitalColors.0" : "Czerwony",

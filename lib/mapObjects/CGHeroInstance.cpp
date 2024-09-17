@@ -566,6 +566,25 @@ std::string CGHeroInstance::getObjectName() const
 		return VLC->objtypeh->getObjectName(ID, 0);
 }
 
+std::string CGHeroInstance::getHoverText(PlayerColor player) const
+{
+	std::string hoverText = CArmedInstance::getHoverText(player) + getMovementPointsTextIfOwner(player);
+	return hoverText;
+}
+
+std::string CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) const
+{
+	std::string output = "";
+	if(player == getOwner())
+	{
+		output += " " + VLC->generaltexth->translate("vcmi.adventureMap.movementPointsHeroInfo");
+		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit(!boat)));
+		boost::replace_first(output, "%REMAINING", std::to_string(movementPointsRemaining()));
+	}
+
+	return output;
+}
+
 ui8 CGHeroInstance::maxlevelsToMagicSchool() const
 {
 	return type->heroClass->isMagicHero() ? 3 : 4;

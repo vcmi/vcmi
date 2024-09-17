@@ -20,6 +20,7 @@
 	"vcmi.adventureMap.playerAttacked"                   : "Player has been attacked: %s",
 	"vcmi.adventureMap.moveCostDetails"                  : "Movement points - Cost: %TURNS turns + %POINTS points, Remaining points: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Movement points - Cost: %POINTS points, Remaining points: %REMAINING",
+	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
 
 	"vcmi.capitalColors.0" : "Red",
