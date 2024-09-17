@@ -16,11 +16,16 @@
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
 
+QString toQString(const PlayerColor & player)
+{
+	return QString::fromStdString(player.toString());
+}
+
 QVariant toVariant(const std::set<PlayerColor> & players)
 {
 	QVariantList result;
 	for(auto const id : players)
-		result.push_back(QString::fromStdString(id.toString()));
+		result.push_back(toQString(id));
 	return result;
 }
 

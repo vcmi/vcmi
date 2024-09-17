@@ -15,6 +15,7 @@ namespace Ui {
 class EventSettings;
 }
 
+QString toQString(const PlayerColor & player);
 QVariant toVariant(const TResources & resources);
 QVariant toVariant(const std::set<PlayerColor> & players);
 

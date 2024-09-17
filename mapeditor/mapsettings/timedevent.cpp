@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "timedevent.h"
 #include "ui_timedevent.h"
+#include "eventsettings.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/constants/StringConstants.h"
 
@@ -33,7 +34,7 @@ TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
 	auto playerList = params.value("players").toList();
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
-		bool isAffected = playerList.contains(QString::fromStdString(PlayerColor(i).toString()));
+		bool isAffected = playerList.contains(toQString(PlayerColor(i)));
 		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
@@ -75,7 +76,7 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	{
 		auto * item = ui->playersAffected->item(i);
 		if(item->checkState() == Qt::Checked)
-			players.push_back(QString::fromStdString(PlayerColor(i).toString()));
+			players.push_back(toQString(PlayerColor(i)));
 	}
 	descriptor["players"] = QVariant::fromValue(players);
 
