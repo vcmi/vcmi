@@ -54,6 +54,7 @@
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/TownBuildingInstance.h"
 
 
 static bool useCompactCreatureBox()
@@ -845,7 +846,21 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 
 void CCastleBuildings::enterRewardable(BuildingID building)
 {
-	LOCPLINT->cb->visitTownBuilding(town, building);
+	if (town->visitingHero == nullptr)
+	{
+		MetaString message;
+		message.appendTextID("core.genrltxt.273"); // only visiting heroes may visit %s
+		message.replaceTextID(town->town->buildings.at(building)->getNameTextID());
+
+		LOCPLINT->showInfoDialog(message.toString());
+	}
+	else
+	{
+		if (town->rewardableBuildings.at(building)->wasVisited(town->visitingHero))
+			enterBuilding(building);
+		else
+			LOCPLINT->cb->visitTownBuilding(town, building);
+	}
 }
 
 void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactID)
