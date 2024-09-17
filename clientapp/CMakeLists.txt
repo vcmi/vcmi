@@ -119,7 +119,6 @@ endif()
 
 #install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE AND NOT ANDROID)
-	#FIXME: move to client makefile?
 	foreach(iconSize 16 22 32 48 64 128 256 512 1024 2048)
 		install(FILES "icons/vcmiclient.${iconSize}x${iconSize}.png"
 			DESTINATION "share/icons/hicolor/${iconSize}x${iconSize}/apps"
