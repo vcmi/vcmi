@@ -141,6 +141,7 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 		|| blocker->ID == Obj::BORDERGUARD
 		|| blocker->ID == Obj::BORDER_GATE
 		|| blocker->ID == Obj::SHIPYARD
+		|| blocker->ID == Obj::PANDORAS_BOX
 		|| (blocker->ID == Obj::QUEST_GUARD && node.actionIsBlocked))
 	{
 		return blocker;
