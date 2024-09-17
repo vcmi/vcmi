@@ -101,6 +101,9 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
+		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterLevel.title");
+		hoverName += std::to_string(VLC->creatures()->getById(getCreature())->getLevel());
+
 		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
 		int choice;
