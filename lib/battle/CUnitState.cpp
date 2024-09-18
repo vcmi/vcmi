@@ -330,7 +330,7 @@ CUnitState::CUnitState():
 	drainedMana(false),
 	fear(false),
 	hadMorale(false),
-	usedSpell(SpellID::NONE),
+	castSpellThisTurn(false),
 	ghost(false),
 	ghostPending(false),
 	movedThisRound(false),
@@ -363,7 +363,7 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 	drainedMana = other.drainedMana;
 	fear = other.fear;
 	hadMorale = other.hadMorale;
-	usedSpell = other.usedSpell;
+	castSpellThisTurn = other.castSpellThisTurn;
 	ghost = other.ghost;
 	ghostPending = other.ghostPending;
 	movedThisRound = other.movedThisRound;
@@ -534,7 +534,7 @@ bool CUnitState::hasClone() const
 
 bool CUnitState::canCast() const
 {
-	return casts.canUse(1) && usedSpell == SpellID::NONE;//do not check specific cast abilities here
+	return casts.canUse(1) && !castSpellThisTurn;//do not check specific cast abilities here
 }
 
 bool CUnitState::isCaster() const
@@ -750,7 +750,7 @@ void CUnitState::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("drainedMana", drainedMana);
 	handler.serializeBool("fear", fear);
 	handler.serializeBool("hadMorale", hadMorale);
-	handler.serializeInt("usedSpell", usedSpell);
+	handler.serializeBool("castSpellThisTurn", castSpellThisTurn);
 	handler.serializeBool("ghost", ghost);
 	handler.serializeBool("ghostPending", ghostPending);
 	handler.serializeBool("moved", movedThisRound);
@@ -785,7 +785,7 @@ void CUnitState::reset()
 	drainedMana = false;
 	fear = false;
 	hadMorale = false;
-	usedSpell = SpellID::NONE;
+	castSpellThisTurn = false;
 	ghost = false;
 	ghostPending = false;
 	movedThisRound = false;
@@ -868,7 +868,7 @@ void CUnitState::afterNewRound()
 	waitedThisTurn = false;
 	movedThisRound = false;
 	hadMorale = false;
-	usedSpell = SpellID::NONE;
+	castSpellThisTurn = false;
 	fear = false;
 	drainedMana = false;
 	counterAttacks.reset();

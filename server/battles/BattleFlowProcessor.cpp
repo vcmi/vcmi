@@ -571,7 +571,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		assert(activeStack != nullptr);
 		assert(actedStack != nullptr);
 
-		if(actedStack->usedSpell != SpellID::NONE && SpellID(actedStack->usedSpell).toSpell()->canCastWithoutSkip())
+		if(actedStack->castSpellThisTurn && SpellID(ba.spell).toSpell()->canCastWithoutSkip())
 		{
 			setActiveStack(battle, actedStack);
 			return;
