@@ -415,6 +415,10 @@ void SDLImageIndexed::shiftPalette(uint32_t firstColorID, uint32_t colorsToMove,
 
 void SDLImageIndexed::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask)
 {
+	// If shadow is enabled, following colors must be skipped unconditionally
+	if (shadowEnabled)
+		colorsToSkipMask |= (1 << 0) + (1 << 1) + (1 << 4);
+
 	// Note: here we skip first colors in the palette that are predefined in H3 images
 	for(int i = 0; i < currentPalette->ncolors; i++)
 	{
