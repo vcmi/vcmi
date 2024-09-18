@@ -25,6 +25,7 @@ void AssetGenerator::generateAll()
 	createAdventureOptionsCleanBackground();
 	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 		createPlayerColoredBackground(PlayerColor(i));
+	createCombatUnitNumberWindow();
 }
 
 void AssetGenerator::createAdventureOptionsCleanBackground()
