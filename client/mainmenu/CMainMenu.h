@@ -144,9 +144,7 @@ class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shar
 
 	std::vector<VideoPath> videoPlayList;
 
-	CMainMenu(bool playVideoIntro); //Use CMainMenu::create
-
-	void playIntroVideos(bool playVideoIntro);
+	CMainMenu(); //Use CMainMenu::create
 
 public:
 	std::shared_ptr<CMenuScreen> menu;
@@ -162,10 +160,12 @@ public:
 	static void openHighScoreScreen();
 	void openCampaignScreen(std::string name);
 
-	static std::shared_ptr<CMainMenu> create(bool playVideoIntro);
+	static std::shared_ptr<CMainMenu> create();
 
 	static std::shared_ptr<CPicture> createPicture(const JsonNode & config);
 
+	void playIntroVideos();
+	void playMusic();
 };
 
 /// Simple window to enter the server's address.

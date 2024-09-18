@@ -662,10 +662,13 @@ void CServerHandler::endGameplay()
 	{
 		GH.curInt = CMM.get();
 		CMM->enable();
+		CMM->playMusic();
 	}
 	else
 	{
-		GH.curInt = CMainMenu::create(false).get();
+		auto mainMenu = CMainMenu::create();
+		GH.curInt = mainMenu.get();
+		mainMenu->playMusic();
 	}
 }
 

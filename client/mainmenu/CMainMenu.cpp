@@ -284,7 +284,7 @@ const JsonNode & CMainMenuConfig::getCampaigns() const
 	return campaignSets;
 }
 
-CMainMenu::CMainMenu(bool playVideoIntro)
+CMainMenu::CMainMenu()
 {
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
@@ -292,8 +292,6 @@ CMainMenu::CMainMenu(bool playVideoIntro)
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
 	OBJECT_CONSTRUCTION;
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
-
-	playIntroVideos(playVideoIntro);
 }
 
 CMainMenu::~CMainMenu()
@@ -302,33 +300,33 @@ CMainMenu::~CMainMenu()
 		GH.curInt = nullptr;
 }
 
-void CMainMenu::playIntroVideos(bool playVideoIntro)
+void CMainMenu::playIntroVideos()
 {
-	auto playMusic = [](){ CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true); };
-	if(playVideoIntro)
-	{
-		auto playVideo = [](std::string video, bool rim, float scaleFactor, std::function<void(bool)> cb){
-			if(CCS->videoh->open(VideoPath::builtin(video), scaleFactor))
-				GH.windows().createAndPushWindow<VideoWindow>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](bool skipped){ cb(skipped); });
-			else
-				cb(true);
-		};
-		playVideo("3DOLOGO.SMK", false, 1.25, [playVideo, playMusic](bool skipped){
-			if(!skipped)
-				playVideo("NWCLOGO.SMK", false, 2, [playVideo, playMusic](bool skipped){
-					if(!skipped)
-						playVideo("H3INTRO.SMK", true, 1, [playMusic](bool skipped){
-							playMusic();
-						});
-					else
+	auto playVideo = [](std::string video, bool rim, float scaleFactor, std::function<void(bool)> cb){
+		if(CCS->videoh->open(VideoPath::builtin(video), scaleFactor))
+			GH.windows().createAndPushWindow<VideoWindow>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](bool skipped){ cb(skipped); });
+		else
+			cb(true);
+	};
+
+	playVideo("3DOLOGO.SMK", false, 1.25, [playVideo, this](bool skipped){
+		if(!skipped)
+			playVideo("NWCLOGO.SMK", false, 2, [playVideo, this](bool skipped){
+				if(!skipped)
+					playVideo("H3INTRO.SMK", true, 1, [this](bool skipped){
 						playMusic();
-				});
-			else
-				playMusic();
-		});
-	}
-	else
-		playMusic();
+					});
+				else
+					playMusic();
+			});
+		else
+			playMusic();
+	});
+}
+
+void CMainMenu::playMusic()
+{
+	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
 }
 
 void CMainMenu::activate()
@@ -449,10 +447,10 @@ void CMainMenu::openHighScoreScreen()
 	return;
 }
 
-std::shared_ptr<CMainMenu> CMainMenu::create(bool playVideoIntro)
+std::shared_ptr<CMainMenu> CMainMenu::create()
 {
 	if(!CMM)
-		CMM = std::shared_ptr<CMainMenu>(new CMainMenu(playVideoIntro));
+		CMM = std::shared_ptr<CMainMenu>(new CMainMenu());
 
 	return CMM;
 }

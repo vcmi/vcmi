@@ -372,9 +372,14 @@ int main(int argc, char * argv[])
 	}
 	else
 	{
-		bool playIntroVideo = !settings["session"]["headless"].Bool() && !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
-		auto mmenu = CMainMenu::create(playIntroVideo);
+		auto mmenu = CMainMenu::create();
 		GH.curInt = mmenu.get();
+
+		bool playIntroVideo = !settings["session"]["headless"].Bool() && !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
+		if(playIntroVideo)
+			mmenu->playIntroVideos();
+		else
+			mmenu->playMusic();
 	}
 	
 	std::vector<std::string> names;
