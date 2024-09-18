@@ -555,7 +555,8 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
 			if(LOCPLINT->localState->hasPath(currentHero) &&
-			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition)//we'll be moving
+			   LOCPLINT->localState->getPath(currentHero).endPos() == targetPosition &&
+			   !GH.isKeyboardShiftDown())//we'll be moving
 			{
 				assert(!CGI->mh->hasOngoingAnimations());
 				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
