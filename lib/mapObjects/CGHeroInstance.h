@@ -297,6 +297,8 @@ public:
 	void pickRandomObject(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
+	std::string getHoverText(PlayerColor player) const override;
+	std::string getMovementPointsTextIfOwner(PlayerColor player) const;
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
