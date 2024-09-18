@@ -12,7 +12,7 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Overpowering",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Deadly",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossible",
-	"vcmi.adventureMap.monsterLevel.title"     : "\n\nLevel: ",
+	"vcmi.adventureMap.monsterLevel"            : "\n\n%TOWN unit of level %LEVEL",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",
