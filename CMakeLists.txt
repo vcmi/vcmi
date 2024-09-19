@@ -740,7 +740,8 @@ if(WIN32)
 				${dep_files}
 				"${CMAKE_SYSROOT}/bin/*.dll" 
 				"${CMAKE_SYSROOT}/lib/*.dll" 
-				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_seh-1.dll"
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_dw2-1.dll" # for 32-bit only?
+				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_seh-1.dll" # for 64-bit only?
 				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libstdc++-6.dll")
 	else()
 		file(GLOB dep_files
