@@ -18,6 +18,7 @@
 #include "../lobby/CSelectionBase.h"
 #include "../lobby/CLobbyScreen.h"
 #include "../media/IMusicPlayer.h"
+#include "../media/IVideoPlayer.h"
 #include "../gui/CursorHandler.h"
 #include "../windows/GUIClasses.h"
 #include "../gui/CGuiHandler.h"
@@ -117,7 +118,6 @@ void CMenuScreen::show(Canvas & to)
 
 void CMenuScreen::activate()
 {
-	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
 	CIntObject::activate();
 }
 
@@ -298,6 +298,35 @@ CMainMenu::~CMainMenu()
 {
 	if(GH.curInt == this)
 		GH.curInt = nullptr;
+}
+
+void CMainMenu::playIntroVideos()
+{
+	auto playVideo = [](std::string video, bool rim, float scaleFactor, std::function<void(bool)> cb){
+		if(CCS->videoh->open(VideoPath::builtin(video), scaleFactor))
+			GH.windows().createAndPushWindow<VideoWindow>(VideoPath::builtin(video), rim ? ImagePath::builtin("INTRORIM") : ImagePath::builtin(""), true, scaleFactor, [cb](bool skipped){ cb(skipped); });
+		else
+			cb(true);
+	};
+
+	playVideo("3DOLOGO.SMK", false, 1.25, [playVideo, this](bool skipped){
+		if(!skipped)
+			playVideo("NWCLOGO.SMK", false, 2, [playVideo, this](bool skipped){
+				if(!skipped)
+					playVideo("H3INTRO.SMK", true, 1, [this](bool skipped){
+						playMusic();
+					});
+				else
+					playMusic();
+			});
+		else
+			playMusic();
+	});
+}
+
+void CMainMenu::playMusic()
+{
+	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
 }
 
 void CMainMenu::activate()

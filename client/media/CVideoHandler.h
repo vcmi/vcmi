@@ -80,7 +80,7 @@ class CVideoInstance final : public IVideoInstance, public FFMpegStream
 	/// video playback current progress, in seconds
 	double frameTime = 0.0;
 
-	void prepareOutput(bool scaleToScreenSize, bool useTextureOutput);
+	void prepareOutput(float scaleFactor, bool useTextureOutput);
 
 public:
 	~CVideoInstance();
@@ -97,13 +97,12 @@ public:
 
 class CVideoPlayer final : public IVideoPlayer
 {
-	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey);
+	bool openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool stopOnKey);
 	void openVideoFile(CVideoInstance & state, const VideoPath & fname);
 
 public:
-	bool playIntroVideo(const VideoPath & name) final;
 	void playSpellbookAnimation(const VideoPath & name, const Point & position) final;
-	std::unique_ptr<IVideoInstance> open(const VideoPath & name, bool scaleToScreen) final;
+	std::unique_ptr<IVideoInstance> open(const VideoPath & name, float scaleFactor) final;
 	std::pair<std::unique_ptr<ui8[]>, si64> getAudio(const VideoPath & videoToOpen) final;
 };
 

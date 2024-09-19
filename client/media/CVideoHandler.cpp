@@ -173,18 +173,10 @@ void CVideoInstance::openVideo()
 	openCodec(findVideoStream());
 }
 
-void CVideoInstance::prepareOutput(bool scaleToScreenSize, bool useTextureOutput)
+void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
 {
 	//setup scaling
-	if(scaleToScreenSize)
-	{
-		dimensions.x = screen->w;
-		dimensions.y = screen->h;
-	}
-	else
-	{
-		dimensions = Point(getCodecContext()->width, getCodecContext()->height) * GH.screenHandler().getScalingFactor();
-	}
+	dimensions = Point(getCodecContext()->width * scaleFactor, getCodecContext()->height * scaleFactor) * GH.screenHandler().getScalingFactor();
 
 	// Allocate a place to put our YUV image on that screen
 	if (useTextureOutput)
@@ -352,10 +344,7 @@ FFMpegStream::~FFMpegStream()
 
 Point CVideoInstance::size()
 {
-	if(!getCurrentFrame())
-		throw std::runtime_error("Invalid video frame!");
-
-	return Point(getCurrentFrame()->width, getCurrentFrame()->height);
+	return dimensions / GH.screenHandler().getScalingFactor();
 }
 
 void CVideoInstance::show(const Point & position, Canvas & canvas)
@@ -575,7 +564,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CAudioInstance::extractAudio(const Vide
 	return dat;
 }
 
-bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool scale, bool stopOnKey)
+bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & position, bool useOverlay, bool stopOnKey)
 {
 	CVideoInstance instance;
 	CAudioInstance audio;
@@ -587,7 +576,7 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 		return true;
 
 	instance.openVideo();
-	instance.prepareOutput(scale, true);
+	instance.prepareOutput(1, true);
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
 
@@ -633,17 +622,12 @@ bool CVideoPlayer::openAndPlayVideoImpl(const VideoPath & name, const Point & po
 	return true;
 }
 
-bool CVideoPlayer::playIntroVideo(const VideoPath & name)
-{
-	return openAndPlayVideoImpl(name, Point(0, 0), true, true, true);
-}
-
 void CVideoPlayer::playSpellbookAnimation(const VideoPath & name, const Point & position)
 {
-	openAndPlayVideoImpl(name, position * GH.screenHandler().getScalingFactor(), false, false, false);
+	openAndPlayVideoImpl(name, position * GH.screenHandler().getScalingFactor(), false, false);
 }
 
-std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool scaleToScreen)
+std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, float scaleFactor)
 {
 	auto result = std::make_unique<CVideoInstance>();
 
@@ -651,7 +635,7 @@ std::unique_ptr<IVideoInstance> CVideoPlayer::open(const VideoPath & name, bool 
 		return nullptr;
 
 	result->openVideo();
-	result->prepareOutput(scaleToScreen, false);
+	result->prepareOutput(scaleFactor, false);
 	result->loadNextFrame(); // prepare 1st frame
 
 	return result;
