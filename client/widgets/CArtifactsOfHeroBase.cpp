@@ -271,7 +271,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 			arts.try_emplace(combinedArt->getId(), std::vector<ArtifactID>{});
 			for(const auto part : combinedArt->getConstituents())
 			{
-				if(curHero->hasArt(part->getId(), false, false, false))
+				if(curHero->hasArt(part->getId(), false, false))
 					arts.at(combinedArt->getId()).emplace_back(part->getId());
 			}
 		}

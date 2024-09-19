@@ -966,7 +966,7 @@ struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 {
 	PutArtifact() = default;
 	explicit PutArtifact(const ArtifactInstanceID & id, const ArtifactLocation & dst, bool askAssemble = true)
-		: id(id), al(dst), askAssemble(askAssemble)
+		: al(dst), askAssemble(askAssemble), id(id)
 	{
 	}
 

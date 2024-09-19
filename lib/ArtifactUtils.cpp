@@ -209,7 +209,7 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 
 		for(const auto constituent : artifact->getConstituents()) //check if all constituents are available
 		{
-			if(!artSet->hasArt(constituent->getId(), onlyEquiped, false, false))
+			if(!artSet->hasArt(constituent->getId(), onlyEquiped, false))
 			{
 				possible = false;
 				break;

@@ -2718,15 +2718,15 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 		// Second, find the necessary artifacts for the costume
 		for(const auto & artPos : costumeArtMap)
 		{
-			if(const auto availableArts = artFittingSet.getAllArtPositions(artPos.second, false, false, false); !availableArts.empty())
+			if(const auto slot = artFittingSet.getArtPos(artPos.second, false, false); slot != ArtifactPosition::PRE_FIRST)
 			{
 				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots
 					{
-						artSet->getArtPos(artFittingSet.getArt(availableArts.front())),
+						artSet->getArtPos(artFittingSet.getArt(slot)),
 						artPos.first
 					});
-				artFittingSet.removeArtifact(availableArts.front());
-				if(ArtifactUtils::isSlotBackpack(availableArts.front()))
+				artFittingSet.removeArtifact(slot);
+				if(ArtifactUtils::isSlotBackpack(slot))
 					estimateBackpackSize--;
 			}
 		}

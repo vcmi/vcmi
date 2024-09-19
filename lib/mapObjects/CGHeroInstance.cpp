@@ -1156,7 +1156,7 @@ std::string CGHeroInstance::getBiographyTextID() const
 	return ""; //for random hero
 }
 
-CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
+CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(const ArtifactPosition & pos, CArtifactInstance * art)
 {
 	assert(art->canBePutAt(this, pos));
 
@@ -1165,7 +1165,7 @@ CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(ArtifactPosition pos
 	return CArtifactSet::putArtifact(pos, art);
 }
 
-void CGHeroInstance::removeArtifact(ArtifactPosition pos)
+void CGHeroInstance::removeArtifact(const ArtifactPosition & pos)
 {
 	auto art = getArt(pos);
 	assert(art);
@@ -1201,7 +1201,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		//VLC->arth->removeArtifactFrom(*this, ArtifactPosition::SPELLBOOK);
+		cb->removeArtifact(ArtifactLocation(this->id, ArtifactPosition::SPELLBOOK));
 	}
 }
 

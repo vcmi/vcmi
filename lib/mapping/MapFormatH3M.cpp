@@ -917,7 +917,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 		hero->artifactsInBackpack.clear();
 		while(!hero->artifactsWorn.empty())
-			hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
+			hero->removeArtifact(hero->artifactsWorn.begin()->first);
 	}
 
 	for(int i = 0; i < features.artifactSlotsCount; i++)
