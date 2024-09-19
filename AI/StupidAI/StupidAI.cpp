@@ -296,7 +296,11 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 	for(auto hex : hexes)
 	{
 		if(vstd::contains(avHexes, hex))
+		{
+			if(stack->position == hex)
+				return BattleAction::makeDefend(stack);
 			return BattleAction::makeMove(stack, hex);
+		}
 
 		if(stack->coversPos(hex))
 		{
@@ -336,7 +340,11 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 			}
 
 			if(vstd::contains(avHexes, currentDest))
+			{
+				if(stack->position == currentDest)
+					return BattleAction::makeDefend(stack);
 				return BattleAction::makeMove(stack, currentDest);
+			}
 
 			currentDest = reachability.predecessors[currentDest];
 		}
