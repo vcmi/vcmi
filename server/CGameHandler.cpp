@@ -456,26 +456,28 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 	{
 		sendPackageResponse(false);
 	}
-
-	bool result;
-	try
-	{
-		ApplyGhNetPackVisitor applier(*this);
-		pack->visit(applier);
-		result = applier.getResult();
-	}
-	catch(ExceptionNotAllowedAction &)
-	{
-		result = false;
-	}
-
-	if(result)
-		logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
 	else
-		complain((boost::format("Got false in applying %s... that request must have been fishy!")
-			% typeid(*pack).name()).str());
+	{
+		bool result;
+		try
+		{
+			ApplyGhNetPackVisitor applier(*this);
+			pack->visit(applier);
+			result = applier.getResult();
+		}
+		catch(ExceptionNotAllowedAction &)
+		{
+			result = false;
+		}
 
-	sendPackageResponse(true);
+		if(result)
+			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
+		else
+			complain((boost::format("Got false in applying %s... that request must have been fishy!")
+				% typeid(*pack).name()).str());
+
+		sendPackageResponse(true);
+	}
 	vstd::clear_pointer(pack);
 }
 
