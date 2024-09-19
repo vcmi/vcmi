@@ -34,7 +34,7 @@ InputSourceMouse::InputSourceMouse()
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {
 	Point newPosition = Point(motion.x, motion.y) / GH.screenHandler().getScalingFactor();
-	Point distance= Point(-motion.xrel, -motion.yrel) / GH.screenHandler().getScalingFactor();
+	Point distance = Point(-motion.xrel, -motion.yrel) / GH.screenHandler().getScalingFactor();
 
 	mouseButtonsMask = motion.state;
 
@@ -42,6 +42,8 @@ void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motio
 		GH.events().dispatchGesturePanning(middleClickPosition, newPosition, distance);
 	else if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_LEFT))
 		GH.events().dispatchMouseDragged(newPosition, distance);
+	else if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		GH.events().dispatchMouseDraggedPopup(newPosition, distance);
 	else
 		GH.input().setCursorPosition(newPosition);
 }

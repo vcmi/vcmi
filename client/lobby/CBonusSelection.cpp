@@ -58,37 +58,6 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-
-CampaignRimVideo::CampaignRimVideo(VideoPath video, ImagePath rim, std::function<void()> closeCb)
-	: CWindowObject(BORDERED), closeCb(closeCb)
-{
-	OBJECT_CONSTRUCTION;
-
-	addUsedEvents(LCLICK | KEYBOARD);
-
-	pos = center(Rect(0, 0, 800, 600));
-
-	videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(); });
-	setBackground(rim);
-}
-
-void CampaignRimVideo::exit()
-{
-	close();
-	if(closeCb)
-		closeCb();
-}
-
-void CampaignRimVideo::clickPressed(const Point & cursorPosition)
-{
-	exit();
-}
-
-void CampaignRimVideo::keyPressed(EShortcut key)
-{
-	exit();
-}
-
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
 	return CSH->si->campState;

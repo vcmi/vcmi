@@ -30,6 +30,7 @@
 #include "../client/render/Graphics.h"
 #include "../client/render/IRenderHandler.h"
 #include "../client/render/IScreenHandler.h"
+#include "../client/lobby/CBonusSelection.h"
 #include "../client/windows/CMessage.h"
 #include "../client/windows/InfoWindows.h"
 
@@ -65,7 +66,6 @@ static std::optional<std::string> criticalInitializationError;
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
 #endif
-void playIntro();
 [[noreturn]] static void quitApplication();
 static void mainLoop();
 
@@ -319,13 +319,6 @@ int main(int argc, char * argv[])
 	init();
 #endif
 
-	if(!settings["session"]["headless"].Bool())
-	{
-		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
-			playIntro();
-		GH.screenHandler().clearScreen();
-	}
-
 #ifndef VCMI_NO_THREADED_LOAD
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
 	{
@@ -381,6 +374,12 @@ int main(int argc, char * argv[])
 	{
 		auto mmenu = CMainMenu::create();
 		GH.curInt = mmenu.get();
+
+		bool playIntroVideo = !settings["session"]["headless"].Bool() && !vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool();
+		if(playIntroVideo)
+			mmenu->playIntroVideos();
+		else
+			mmenu->playMusic();
 	}
 	
 	std::vector<std::string> names;
@@ -400,18 +399,6 @@ int main(int argc, char * argv[])
 	}
 
 	return 0;
-}
-
-//plays intro, ends when intro is over or button has been pressed (handles events)
-void playIntro()
-{
-	if(!CCS->videoh->playIntroVideo(VideoPath::builtin("3DOLOGO.SMK")))
-		return;
-
-	if (!CCS->videoh->playIntroVideo(VideoPath::builtin("NWCLOGO.SMK")))
-		return;
-
-	CCS->videoh->playIntroVideo(VideoPath::builtin("H3INTRO.SMK"));
 }
 
 static void mainLoop()

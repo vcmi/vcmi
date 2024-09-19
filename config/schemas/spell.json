@@ -171,6 +171,10 @@
 			"type" : "boolean",
 			"description" : "If used as creature spell, unit can cast this spell on itself"
 		},
+		"canCastWithoutSkip" : {
+			"type" : "boolean",
+			"description" : "If used the creature will not skip the turn after casting a spell."
+		},
 		"gainChance" : {
 			"type" : "object",
 			"description" : "Chance for this spell to appear in Mage Guild of a specific faction",

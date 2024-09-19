@@ -298,6 +298,11 @@ bool CSpell::canCastOnSelf() const
 	return castOnSelf;
 }
 
+bool CSpell::canCastWithoutSkip() const
+{
+	return castWithoutSkip;
+}
+
 const std::string & CSpell::getIconImmune() const
 {
 	return iconImmune;
@@ -779,6 +784,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	}
 
 	spell->castOnSelf = json["canCastOnSelf"].Bool();
+	spell->castWithoutSkip = json["canCastWithoutSkip"].Bool();
 	spell->level = static_cast<si32>(json["level"].Integer());
 	spell->power = static_cast<si32>(json["power"].Integer());
 

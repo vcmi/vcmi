@@ -142,6 +142,8 @@ class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shar
 {
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
+	std::vector<VideoPath> videoPlayList;
+
 	CMainMenu(); //Use CMainMenu::create
 
 public:
@@ -162,6 +164,8 @@ public:
 
 	static std::shared_ptr<CPicture> createPicture(const JsonNode & config);
 
+	void playIntroVideos();
+	void playMusic();
 };
 
 /// Simple window to enter the server's address.
