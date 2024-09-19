@@ -1023,3 +1023,7 @@ Internal bonus, do not use
 ### DISINTEGRATE
 
 After death of unit no corpse remains
+
+### INVINCIBLE
+
+Cannot be target of attacks and spells and cannot be affected by anything

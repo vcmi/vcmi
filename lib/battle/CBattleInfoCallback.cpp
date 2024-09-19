@@ -685,6 +685,9 @@ bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const batt
 	if (!stack || !target)
 		return false;
 
+	if(target->hasBonusOfType(BonusType::INVINCIBLE))
+		return false;
+
 	if(!battleMatchOwner(stack, target))
 		return false;
 
@@ -728,6 +731,9 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 
 	const battle::Unit * defender = battleGetUnitByPos(dest);
 	if(!attacker || !defender)
+		return false;
+
+	if(defender->hasBonusOfType(BonusType::INVINCIBLE))
 		return false;
 
 	if(battleMatchOwner(attacker, defender) && defender->alive())
