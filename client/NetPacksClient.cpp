@@ -297,6 +297,7 @@ void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 
 void ApplyClientNetPackVisitor::visitEraseArtifact(BulkEraseArtifacts & pack)
 {
+	cl.updatePath(pack.artHolder);
 	for(const auto & slotErase : pack.posPack)
 		callInterfaceIfPresent(cl, cl.getOwner(pack.artHolder), &IGameEventsReceiver::artifactRemoved, ArtifactLocation(pack.artHolder, slotErase));
 }
