@@ -25,7 +25,6 @@
 #include "CMT.h"
 #include "GameChatHandler.h"
 #include "CServerHandler.h"
-#include "PlayerLocalState.h"
 
 #include "../CCallback.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -169,7 +168,7 @@ void ApplyClientNetPackVisitor::visitSetMana(SetMana & pack)
 void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)
 {
 	const CGHeroInstance *h = cl.getHero(pack.hid);
-	cl.invalidatePaths();
+	cl.updatePath(h);
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroMovePointsChanged, h);
 }
 
@@ -230,16 +229,7 @@ void ApplyClientNetPackVisitor::visitSetStackType(SetStackType & pack)
 void ApplyClientNetPackVisitor::visitEraseStack(EraseStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
-	cl.invalidatePaths(); //it is possible to remove last non-native unit for current terrain and lose movement penalty
-	
-	if(LOCPLINT)
-	{
-		for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
-		{
-			if(hero->id == pack.army)
-				LOCPLINT->localState->verifyPath(hero);
-		}
-	}
+	cl.updatePath(pack.army); //it is possible to remove last non-native unit for current terrain and lose movement penalty
 }
 
 void ApplyClientNetPackVisitor::visitSwapStacks(SwapStacks & pack)
@@ -247,32 +237,14 @@ void ApplyClientNetPackVisitor::visitSwapStacks(SwapStacks & pack)
 	dispatchGarrisonChange(cl, pack.srcArmy, pack.dstArmy);
 
 	if(pack.srcArmy != pack.dstArmy)
-	{
-		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
-		if(LOCPLINT)
-		{
-			for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
-			{
-				if(hero->id == pack.dstArmy)
-					LOCPLINT->localState->verifyPath(hero);
-			}
-		}
-	}
+		cl.updatePath(pack.dstArmy); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitInsertNewStack(InsertNewStack & pack)
 {
 	dispatchGarrisonChange(cl, pack.army, ObjectInstanceID());
 
-	auto hero = gs.getHero(pack.army);
-	if(hero)
-	{
-		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
-		if(LOCPLINT)
-		{
-			LOCPLINT->localState->verifyPath(hero);
-		}
-	}
+	cl.updatePath(pack.army); // adding/removing units may change terrain type penalty based on creature native terrains
 }
 
 void ApplyClientNetPackVisitor::visitRebalanceStacks(RebalanceStacks & pack)
@@ -281,15 +253,8 @@ void ApplyClientNetPackVisitor::visitRebalanceStacks(RebalanceStacks & pack)
 
 	if(pack.srcArmy != pack.dstArmy)
 	{
-		cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
-		if(LOCPLINT)
-		{
-			for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
-			{
-				if(hero->id == pack.dstArmy || hero->id == pack.srcArmy)
-					LOCPLINT->localState->verifyPath(hero);
-			}
-		}
+		cl.updatePath(pack.srcArmy); // adding/removing units may change terrain type penalty based on creature native terrains
+		cl.updatePath(pack.dstArmy);
 	}
 }
 
@@ -304,16 +269,8 @@ void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & p
 
 		if(pack.moves[0].srcArmy != destArmy)
 		{
-			cl.invalidatePaths(); // adding/removing units may change terrain type penalty based on creature native terrains
-			if(LOCPLINT)
-			{
-				// update all paths
-				for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
-				{
-					if(hero->id == destArmy || hero->id == pack.moves[0].srcArmy)
-						LOCPLINT->localState->verifyPath(hero);
-				}
-			}
+			cl.updatePath(destArmy); // adding/removing units may change terrain type penalty based on creature native terrains
+			cl.updatePath(pack.moves[0].srcArmy);
 		}
 	}
 }
@@ -360,16 +317,8 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 			if(pack.interfaceOwner != dstOwner)
 				callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 
-			cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
-			
-			if(LOCPLINT)
-			{
-				for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
-				{
-					if(hero->id == pack.srcArtHolder || hero->id == pack.dstArtHolder)
-						LOCPLINT->localState->verifyPath(hero);
-				}
-			}
+			cl.updatePath(pack.srcArtHolder); // hero might have equipped/unequipped Angel Wings
+			cl.updatePath(pack.dstArtHolder);
 		}
 	};
 
@@ -399,31 +348,14 @@ void ApplyClientNetPackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 {
 	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactAssembled, pack.al);
 
-	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
-	if(LOCPLINT)
-	{
-		for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
-		{
-			if(hero->id == pack.al.artHolder)
-				LOCPLINT->localState->verifyPath(hero);
-		}
-	}
-
+	cl.updatePath(pack.al.artHolder); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack)
 {
 	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactDisassembled, pack.al);
 
-	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
-	if(LOCPLINT)
-	{
-		for(const auto hero : LOCPLINT->localState->getWanderingHeroes())
-		{
-			if(hero->id == pack.al.artHolder)
-				LOCPLINT->localState->verifyPath(hero);
-		}
-	}
+	cl.updatePath(pack.al.artHolder); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitHeroVisit(HeroVisit & pack)
