@@ -13,6 +13,7 @@
 
 #include "CGameInfo.h"
 #include "CPlayerInterface.h"
+#include "PlayerLocalState.h"
 #include "CServerHandler.h"
 #include "ClientNetPackVisitors.h"
 #include "adventureMap/AdventureMapInterface.h"
@@ -493,6 +494,19 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	{
 		battleint->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
 	}
+}
+
+void CClient::updatePath(const ObjectInstanceID & id)
+{
+	invalidatePaths();
+	auto hero = getHero(id);
+	updatePath(hero);
+}
+
+void CClient::updatePath(const CGHeroInstance * hero)
+{
+	if(LOCPLINT && hero)
+		LOCPLINT->localState->verifyPath(hero);
 }
 
 void CClient::invalidatePaths()

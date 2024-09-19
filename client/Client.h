@@ -150,7 +150,9 @@ public:
 	void battleFinished(const BattleID & battleID);
 	void startPlayerBattleAction(const BattleID & battleID, PlayerColor color);
 
-	void invalidatePaths();
+	void invalidatePaths(); // clears this->pathCache()
+	void updatePath(const ObjectInstanceID & heroID); // invalidatePaths and update displayed hero path 
+	void updatePath(const CGHeroInstance * hero);
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
 
 	friend class CCallback; //handling players actions
