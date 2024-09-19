@@ -273,17 +273,8 @@
 				}
 			},
 			"chronicles" : { 
-				"supported" : true,
-				"iconIndex" : 2,
-				
-				"portraits" : {
-					"portraitTarnumBarbarian" : 163,
-					"portraitTarnumKnight" : 164,
-					"portraitTarnumWizard" : 165,
-					"portraitTarnumRanger" : 166,
-					"portraitTarnumOverlord" : 167,
-					"portraitTarnumBeastmaster" : 168
-				}
+				"supported" : false,
+				"iconIndex" : 2
 			},
 			"jsonVCMI" : { 
 				"supported" : true,

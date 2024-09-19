@@ -106,6 +106,18 @@ void ChroniclesExtractor::createBaseMod() const
 		{ "author", "3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
+		{ "heroes", QJsonArray({"config/heroes/portraitsChronicles.json"}) },
+		{ "settings", QJsonObject({{"mapFormat", QJsonObject({{"chronicles", QJsonObject({{
+			{"supported", true},
+			{"portraits", QJsonObject({
+				{"portraitTarnumBarbarian", 163},
+				{"portraitTarnumKnight", 164},
+				{"portraitTarnumWizard", 165},
+				{"portraitTarnumRanger", 166},
+				{"portraitTarnumOverlord", 167},
+				{"portraitTarnumBeastmaster", 168},
+			})},
+		}})}})}})},
 	};
 
 	QFile jsonFile(dir.filePath("mod.json"));
