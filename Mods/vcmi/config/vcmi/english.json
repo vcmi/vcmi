@@ -665,5 +665,7 @@
 	"core.bonus.WIDE_BREATH.name": "Wide breath",
 	"core.bonus.WIDE_BREATH.description": "Wide breath attack (multiple hexes)",
 	"core.bonus.DISINTEGRATE.name": "Disintegrate",
-	"core.bonus.DISINTEGRATE.description": "No corpse remains after death"
+	"core.bonus.DISINTEGRATE.description": "No corpse remains after death",
+	"core.bonus.INVINCIBLE.name": "Invincible",
+	"core.bonus.INVINCIBLE.description": "Cannot be affected by anything"
 }

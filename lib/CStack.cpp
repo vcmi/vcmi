@@ -296,6 +296,9 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 
 bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
+	if(defender->hasBonusOfType(BonusType::INVINCIBLE))
+		return false;
+		
 	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
 }
 

@@ -228,8 +228,11 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 			mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
 		}
 
-		if (mainTarget && mainTarget == caster)
+		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
+
+		if(mainTarget && mainTarget->hasBonusOfType(BonusType::INVINCIBLE))
+			return false;
 	}
 
 	return effects->applicable(problem, this, target, spellTarget);
