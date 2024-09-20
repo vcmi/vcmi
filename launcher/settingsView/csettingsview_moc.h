@@ -14,9 +14,13 @@ namespace Ui
 class CSettingsView;
 }
 
+class MainWindow;
+
 class CSettingsView : public QWidget
 {
 	Q_OBJECT
+
+	MainWindow * getMainWindow();
 
 public:
 	explicit CSettingsView(QWidget * parent = nullptr);
@@ -83,6 +87,8 @@ private slots:
 	void on_sliderControllerSticksAcceleration_valueChanged(int value);
 
 	void on_sliderControllerSticksSensitivity_valueChanged(int value);
+
+	void on_buttonTtfFont_toggled(bool value);
 
 private:
 	Ui::CSettingsView * ui;
