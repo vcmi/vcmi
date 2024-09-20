@@ -176,7 +176,6 @@ private:
 
 	const CPlayerSpecificInfoCallback * cb;
 	const Nullkiller * ai;
-	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	AISharedStorage nodes;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
@@ -284,11 +283,6 @@ public:
 	void clear();
 	bool calculateHeroChain();
 	bool calculateHeroChainFinal();
-
-	inline uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero, bool checkGuards) const
-	{
-		return dangerEvaluator->evaluateDanger(tile, hero, checkGuards);
-	}
 
 	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const;
 

@@ -97,8 +97,6 @@ AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
 {
 	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
-
-	dangerEvaluator.reset(new FuzzyHelper(ai));
 }
 
 AINodeStorage::~AINodeStorage() = default;
@@ -1419,7 +1417,7 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.targetHero = node.actor->hero;
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
-		path.targetObjectDanger = evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
+		path.targetObjectDanger = ai->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
 
 		if(path.targetObjectDanger > 0)
 		{

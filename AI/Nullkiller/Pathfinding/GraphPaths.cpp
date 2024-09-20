@@ -291,7 +291,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 			}
 
 			path.armyLoss += loss;
-			path.targetObjectDanger = ai->pathfinder->getStorage()->evaluateDanger(tile, path.targetHero, !allowBattle);
+			path.targetObjectDanger = ai->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
 			path.targetObjectArmyLoss = ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
 			paths.push_back(path);
@@ -356,7 +356,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 			path.heroArmy = entryPath.heroArmy;
 			path.exchangeCount = entryPath.exchangeCount;
 			path.armyLoss = entryPath.armyLoss + ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), danger);
-			path.targetObjectDanger = ai->pathfinder->getStorage()->evaluateDanger(tile, path.targetHero, !allowBattle);
+			path.targetObjectDanger = ai->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
 			path.targetObjectArmyLoss = ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
 			AIPathNodeInfo n;
