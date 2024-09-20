@@ -302,7 +302,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			{
 				const auto * strongest = boost::range::max_element(bankConfig->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
 				{
-					return a.type->getFightValue() < b.type->getFightValue();
+					return a.type->getAIValue() < b.type->getAIValue();
 				})->type;
 
 				iw.text.replaceNamePlural(strongest->getId());
