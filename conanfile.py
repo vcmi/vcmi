@@ -19,7 +19,7 @@ class VCMI(ConanFile):
         "sdl_image/[~2.0.5]",
         "sdl_mixer/[~2.0.4]",
         "sdl_ttf/[~2.0.18]",
-        "onetbb/[^2021.7 <2021.10]",  # 2021.10+ breaks mobile builds due to added hwloc dependency
+        "onetbb/[^2021.3]",
         "xz_utils/[>=5.2.5]", # Required for innoextract
     ]
 
@@ -145,6 +145,10 @@ class VCMI(ConanFile):
         #    self.options["ffmpeg"].avfilter = True
         #    self.options["ffmpeg"].with_sdl = True
         #    self.options["ffmpeg"].enable_filters = "aresample,scale"
+
+        self.options["onetbb"].tbbmalloc = False
+        self.options["onetbb"].tbbproxy = False
+        self.options["onetbb"].tbbbind = False
 
         self.options["sdl"].sdl2main = self.settings.os != "iOS"
         self.options["sdl"].vulkan = False
