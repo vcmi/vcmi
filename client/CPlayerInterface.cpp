@@ -1489,6 +1489,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
 			makingTurn = true; //workaround for stiff showInfoDialog implementation
 			showInfoDialog(msg, cmp);
+			waitWhileDialog();
 			makingTurn = false;
 		}
 	}
