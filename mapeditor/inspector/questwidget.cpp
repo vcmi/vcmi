@@ -48,11 +48,10 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill artifacts
-	for(auto const & artifactPtr : VLC->arth->objects)
+	for(const auto artifactPtr : VLC->arth->objects)
 	{
 		auto artifactIndex = artifactPtr->getIndex();
 		auto * item = new QListWidgetItem(QString::fromStdString(artifactPtr->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(artifactIndex));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
 		if(controller.map()->allowedArtifact.count(artifactIndex) == 0)
@@ -61,11 +60,10 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill spells
-	for(auto const & spellPtr : VLC->spellh->objects)
+	for(const auto spellPtr : VLC->spellh->objects)
 	{
 		auto spellIndex = spellPtr->getIndex();
 		auto * item = new QListWidgetItem(QString::fromStdString(spellPtr->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(spellIndex));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
 		if(controller.map()->allowedSpells.count(spellIndex) == 0)
@@ -75,14 +73,13 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	
 	//fill skills
 	ui->lSkills->setRowCount(VLC->skillh->objects.size());
-	for(auto const & skillPtr : VLC->skillh->objects)
+	for(const auto skillPtr : VLC->skillh->objects)
 	{
 		auto skillIndex = skillPtr->getIndex();
 		auto * item = new QTableWidgetItem(QString::fromStdString(skillPtr->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(skillIndex));
 		
 		auto * widget = new QComboBox;
-		for(auto & s : NSecondarySkill::levels)
+		for(const auto & s : NSecondarySkill::levels)
 			widget->addItem(QString::fromStdString(s));
 		
 		if(controller.map()->allowedAbilities.count(skillIndex) == 0)
