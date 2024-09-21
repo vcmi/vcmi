@@ -52,7 +52,49 @@
 					}
 				},
 				"customObjects" : {
-					"type" : "object"
+					"type" : "object",
+					"properties": {
+						"bannedCategories": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["all", "dwelling", "creatureBank", "randomArtifact", "bonus", "resource", "resourceGenerator", "spellScroll", "pandorasBox", "questArtifact", "seerHut"]
+							}
+						},
+						"bannedObjects": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"commonObjects": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"rmg": {
+										"type": "object",
+										"properties": {
+											"value": {
+												"type": "integer"
+											},
+											"rarity": {
+												"type": "integer"
+											},
+											"zoneLimit": {
+												"type": "integer"
+											}
+										},
+										"required": ["value", "rarity"]
+									}
+								},
+								"required": ["id", "rmg"]
+							}
+						}
+					}
 				}
 			}
 		},
