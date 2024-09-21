@@ -96,7 +96,7 @@ size_t CTrueTypeFont::getGlyphWidth(const char *data) const
 size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 {
 	if (fallbackFont && fallbackFont->canRepresentString(data))
-		return fallbackFont->getStringWidth(data) / getScalingFactor();
+		return fallbackFont->getStringWidth(data);
 
 	int width;
 	TTF_SizeUTF8(font.get(), data.c_str(), &width, nullptr);
