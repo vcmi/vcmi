@@ -244,6 +244,7 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeIdArray("colors", players);
 	handler.serializeInt("manaPoints", manaPoints);
 	handler.serializeIdArray("artifacts", artifacts);
+	handler.serializeIdArray("spells", spells);
 	handler.enterArray("creatures").serializeStruct(creatures);
 	handler.enterArray("primary").serializeArray(primary);
 	{
