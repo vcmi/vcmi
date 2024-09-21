@@ -165,6 +165,11 @@ void TownRewardableBuildingInstance::grantReward(ui32 rewardID, const CGHeroInst
 	}
 }
 
+bool TownRewardableBuildingInstance::wasVisited(const CGHeroInstance * contextHero) const
+{
+	return wasVisitedBefore(contextHero);
+}
+
 bool TownRewardableBuildingInstance::wasVisitedBefore(const CGHeroInstance * contextHero) const
 {
 	switch (configuration.visitMode)

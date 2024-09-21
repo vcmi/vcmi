@@ -13,6 +13,7 @@
 #include "towneventdialog.h"
 #include "ui_towneventdialog.h"
 #include "mapeditorroles.h"
+#include "../mapsettings/eventsettings.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/constants/NumericConstants.h"
@@ -63,9 +64,10 @@ TownEventDialog::~TownEventDialog()
 
 void TownEventDialog::initPlayers()
 {
+	auto playerList = params.value("players").toList();
 	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
-		bool isAffected = (1 << i) & params.value("players").toInt();
+		bool isAffected = playerList.contains(toQString(PlayerColor(i)));
 		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
 		item->setData(MapEditorRoles::PlayerIDRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
@@ -155,7 +157,12 @@ void TownEventDialog::initCreatures()
 {
 	auto creatures = params.value("creatures").toList();
 	auto * ctown = town.town;
-	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; ++i)
+	if (!ctown)
+		ui->creaturesTable->setRowCount(GameConstants::CREATURES_PER_TOWN);
+	else 
+		ui->creaturesTable->setRowCount(ctown->creatures.size());
+
+	for (int i = 0; i < ui->creaturesTable->rowCount(); ++i)
 	{
 		QString creatureNames;
 		if (!ctown)
@@ -208,12 +215,12 @@ void TownEventDialog::on_TownEventDialog_finished(int result)
 
 QVariant TownEventDialog::playersToVariant()
 {
-	int players = 0;
+	QVariantList players;
 	for (int i = 0; i < ui->playersAffected->count(); ++i)
 	{
 		auto * item = ui->playersAffected->item(i);
 		if (item->checkState() == Qt::Checked)
-			players |= 1 << i;
+			players.push_back(toQString(PlayerColor(i)));
 	}
 	return QVariant::fromValue(players);
 }
@@ -239,7 +246,7 @@ QVariantList TownEventDialog::buildingsToVariant()
 QVariantList TownEventDialog::creaturesToVariant()
 {
 	QVariantList creaturesList;
-	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; ++i)
+	for (int i = 0; i < ui->creaturesTable->rowCount(); ++i)
 	{
 		auto * item = static_cast<QSpinBox *>(ui->creaturesTable->cellWidget(i, 1));
 		creaturesList.push_back(item->value());

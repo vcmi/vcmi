@@ -625,13 +625,6 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 	}
 }
 
-TBonusListPtr CBonusSystemNode::limitBonuses(const BonusList &allBonuses) const
-{
-	auto ret = std::make_shared<BonusList>();
-	limitBonuses(allBonuses, *ret);
-	return ret;
-}
-
 void CBonusSystemNode::treeHasChanged()
 {
 	treeChanged++;

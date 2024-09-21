@@ -92,7 +92,7 @@ public:
 class FilledTexturePlayerColored : public CFilledTexture
 {
 public:
-	using CFilledTexture::CFilledTexture;
+	FilledTexturePlayerColored(Rect position);
 
 	void setPlayerColor(PlayerColor player);
 };

@@ -95,6 +95,9 @@ public:
 	/// returns true if mod is currently enabled
 	bool isModEnabled(const QString & modName);
 
+	/// returns true if mod is currently installed
+	bool isModInstalled(const QString & modName);
+
 public slots:
 	void enableModByName(QString modName);
 	void disableModByName(QString modName);

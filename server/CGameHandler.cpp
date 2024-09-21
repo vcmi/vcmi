@@ -456,26 +456,28 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 	{
 		sendPackageResponse(false);
 	}
-
-	bool result;
-	try
-	{
-		ApplyGhNetPackVisitor applier(*this);
-		pack->visit(applier);
-		result = applier.getResult();
-	}
-	catch(ExceptionNotAllowedAction &)
-	{
-		result = false;
-	}
-
-	if(result)
-		logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
 	else
-		complain((boost::format("Got false in applying %s... that request must have been fishy!")
-			% typeid(*pack).name()).str());
+	{
+		bool result;
+		try
+		{
+			ApplyGhNetPackVisitor applier(*this);
+			pack->visit(applier);
+			result = applier.getResult();
+		}
+		catch(ExceptionNotAllowedAction &)
+		{
+			result = false;
+		}
 
-	sendPackageResponse(true);
+		if(result)
+			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
+		else
+			complain((boost::format("Got false in applying %s... that request must have been fishy!")
+				% typeid(*pack).name()).str());
+
+		sendPackageResponse(true);
+	}
 	vstd::clear_pointer(pack);
 }
 
@@ -1171,7 +1173,6 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 		sendAndApply(&vc);
 	}
 	visitCastleObjects(obj, hero);
-	giveSpells (obj, hero);
 
 	if (obj->visitingHero && obj->garrisonHero)
 		useScholarSkill(obj->visitingHero->id, obj->garrisonHero->id);
@@ -1180,10 +1181,27 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
+	std::vector<const CGHeroInstance * > visitors;
+	visitors.push_back(h);
+	visitCastleObjects(t, visitors);
+}
+
+void CGameHandler::visitCastleObjects(const CGTownInstance * t, std::vector<const CGHeroInstance * > visitors)
+{
+	std::vector<BuildingID> buildingsToVisit;
+	for (auto const & hero : visitors)
+		giveSpells (t, hero);
+
 	for (auto & building : t->rewardableBuildings)
 	{
 		if (!t->town->buildings.at(building.first)->manualHeroVisit)
-			building.second->onHeroVisit(h);
+			buildingsToVisit.push_back(building.first);
+	}
+
+	if (!buildingsToVisit.empty())
+	{
+		auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, visitors, buildingsToVisit);
+		queries->addQuery(visitQuery);
 	}
 }
 
@@ -2144,10 +2162,15 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 
 	if (!force)
 	{
-		if(t->garrisonHero) //garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-			objectVisited(t, t->garrisonHero);
-		if(t->visitingHero)
-			objectVisited(t, t->visitingHero);
+		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+		std::vector<const CGHeroInstance *> visitors;
+		if (t->garrisonHero)
+			visitors.push_back(t->garrisonHero);
+		if (t->visitingHero)
+			visitors.push_back(t->visitingHero);
+
+		if (!visitors.empty())
+			visitCastleObjects(t, visitors);
 	}
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
@@ -2173,19 +2196,15 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
 		return true;
 	}
 
-	if (t->rewardableBuildings.count(bid))
+	if (t->rewardableBuildings.count(bid) && t->visitingHero && t->town->buildings.at(bid)->manualHeroVisit)
 	{
-		auto & hero = t->garrisonHero ? t->garrisonHero : t->visitingHero;
-		auto * building = t->rewardableBuildings.at(bid);
-
-		if (hero && t->town->buildings.at(bid)->manualHeroVisit)
-		{
-			auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, hero, bid);
-			queries->addQuery(visitQuery);
-			building->onHeroVisit(hero);
-			queries->popIfTop(visitQuery);
-			return true;
-		}
+		std::vector<BuildingID> buildingsToVisit;
+		std::vector<const CGHeroInstance*> visitors;
+		buildingsToVisit.push_back(bid);
+		visitors.push_back(t->visitingHero);
+		auto visitQuery = std::make_shared<TownBuildingVisitQuery>(this, t, visitors, buildingsToVisit);
+		queries->addQuery(visitQuery);
+		return true;
 	}
 
 	return true;

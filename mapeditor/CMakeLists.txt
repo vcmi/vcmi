@@ -196,6 +196,7 @@ endif()
 target_sources(vcmieditor PRIVATE
 	${editor_SRCS}
 	${editor_HEADERS}
+	${editor_FORMS}
 	${editor_RESOURCES}
 )
 

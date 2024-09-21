@@ -56,7 +56,7 @@ BattleLayout BattleLayout::createLayout(IGameCallback * cb, const std::string & 
 		result.warMachines[BattleSide::ATTACKER][i] = loadHex(config["attackerWarMachines"][i]);
 
 	for (size_t i = 0; i < 4; ++i)
-		result.warMachines[BattleSide::DEFENDER][i] = loadHex(config["attackerWarMachines"][i]);
+		result.warMachines[BattleSide::DEFENDER][i] = loadHex(config["defenderWarMachines"][i]);
 
 	if (attacker->formation == EArmyFormation::LOOSE && !config["attackerUnitsLoose"].isNull())
 		result.units[BattleSide::ATTACKER] = loadUnits(config["attackerUnitsLoose"][attacker->stacksCount() - 1]);
@@ -65,10 +65,10 @@ BattleLayout BattleLayout::createLayout(IGameCallback * cb, const std::string & 
 	else
 		result.units[BattleSide::ATTACKER] = loadUnits(config["attackerUnits"]);
 
-	if (attacker->formation == EArmyFormation::LOOSE && !config["defenderUnitsLoose"].isNull())
-		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnitsLoose"][attacker->stacksCount() - 1]);
-	else if (attacker->formation == EArmyFormation::TIGHT && !config["defenderUnitsTight"].isNull())
-		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnitsTight"][attacker->stacksCount() - 1]);
+	if (defender->formation == EArmyFormation::LOOSE && !config["defenderUnitsLoose"].isNull())
+		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnitsLoose"][defender->stacksCount() - 1]);
+	else if (defender->formation == EArmyFormation::TIGHT && !config["defenderUnitsTight"].isNull())
+		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnitsTight"][defender->stacksCount() - 1]);
 	else
 		result.units[BattleSide::DEFENDER] = loadUnits(config["defenderUnits"]);
 

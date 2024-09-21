@@ -33,20 +33,6 @@ class VideoWidgetOnce;
 class CBonusSelection;
 
 
-class CampaignRimVideo : public CWindowObject
-{
-	std::shared_ptr<VideoWidgetOnce> videoPlayer;
-
-	std::function<void()> closeCb;
-
-	void exit();
-public:
-	CampaignRimVideo(VideoPath video, ImagePath rim, std::function<void()> closeCb);
-
-	void clickPressed(const Point & cursorPosition) override;
-	void keyPressed(EShortcut key) override;
-};
-
 /// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CWindowObject
 {

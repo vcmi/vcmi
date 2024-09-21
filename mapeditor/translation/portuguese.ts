@@ -67,22 +67,22 @@
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="52"/>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="62"/>
         <source>Author contact (e.g. email)</source>
-        <translation type="unfinished"></translation>
+        <translation>Contato do autor (ex.: e-mail)</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="72"/>
         <source>Map Creation Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Data de Criação do Mapa</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="86"/>
         <source>Map Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versão do Mapa</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
@@ -947,17 +947,17 @@
     <message>
         <location filename="../mapcontroller.cpp" line="405"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Não é possível colocar objeto</translation>
+        <translation>Não é possível colocar objeto</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="577"/>
         <source>There can only be one grail object on the map.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pode haver apenas um objeto graal no mapa.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="583"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished"></translation>
+        <translation>O herói %1 não pode ser criado como NEUTRO.</translation>
     </message>
 </context>
 <context>
@@ -1761,18 +1761,18 @@
     </message>
     <message>
         <location filename="../validator.cpp" line="148"/>
-        <source>Spell scroll % 1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation type="unfinished"></translation>
+        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
+        <translation>O pergaminho de feitiço %1 não tem uma instância atribuída e deve ser removido</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="154"/>
-        <source>Artifact % 1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <source>Artifact %1 is prohibited by map settings</source>
+        <translation>O artefato %1 é proibido pelas configurações do mapa</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="168"/>
         <source>Player %1 has no towns and heroes assigned</source>
-        <translation type="unfinished"></translation>
+        <translation>O jogador %1 não tem cidades e heróis atribuídos</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="116"/>

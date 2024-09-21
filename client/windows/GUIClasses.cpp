@@ -744,8 +744,9 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 		AnimationPath boatFilename = boatConstructor->getBoatAnimationName();
 
 		Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
-		bgShip = std::make_shared<CAnimImage>(boatFilename, 0, 7, 120, 96, 0);
+		bgShip = std::make_shared<CShowableAnim>(120, 96, boatFilename, CShowableAnim::CREATURE_MODE, 100, 7);
 		bgShip->center(waterCenter);
+		bgWater->needRefresh = true;
 	}
 
 	// Create resource icons and costs.
@@ -1606,4 +1607,51 @@ void CObjectListWindow::keyPressed(EShortcut key)
 	vstd::abetween<int>(sel, 0, items.size()-1);
 	list->scrollTo(sel);
 	changeSelection(sel);
+}
+
+VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, float scaleFactor, std::function<void(bool skipped)> closeCb)
+	: CWindowObject(BORDERED | SHADOW_DISABLED | NEEDS_ANIMATED_BACKGROUND), closeCb(closeCb)
+{
+	OBJECT_CONSTRUCTION;
+
+	addUsedEvents(LCLICK | KEYBOARD);
+
+	if(!rim.empty())
+	{
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(false); });
+		pos = center(Rect(0, 0, 800, 600));
+	}
+	else
+	{
+		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, [this](){ exit(false); });
+		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
+	}
+
+	if(showBackground)
+		backgroundAroundWindow = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
+
+	if(!rim.empty())
+		setBackground(rim);
+}
+
+void VideoWindow::exit(bool skipped)
+{
+	close();
+	if(closeCb)
+		closeCb(skipped);
+}
+
+void VideoWindow::clickPressed(const Point & cursorPosition)
+{
+	exit(true);
+}
+
+void VideoWindow::keyPressed(EShortcut key)
+{
+	exit(true);
+}
+
+bool VideoWindow::receiveEvent(const Point & position, int eventType) const
+{
+	return true;  // capture click also outside of window
 }

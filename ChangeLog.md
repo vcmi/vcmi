@@ -1,27 +1,32 @@
-# 1.5.5 -> 1.6.0 (in development)
+# 1.5.7 -> 1.6.0 (in development)
+
+### Major changes
+* Implemented handicap system, with options to reduce income and growth in addition to starting resources restriction
+* Game will now show statistics after scenario completion, such as resources or army strength over time
+* Implemented spell quick selection panel in combat
+* Implemented adventure map overlay accessible via Alt key that highlights all interactive objects on screen
+* Implemented xBRZ upscaling filter
+* It is now possible to import data from Heroes Chronicles (gog.com installer only) as custom campaigns
 
 ### General
 * Saved game size reduced by approximately 3 times, especially for large maps or games with a large number of mods.
 * Added option to start vcmi server on randomly selected TCP port
 * Fixed potential desynchronization between server and clients on randomization of map objects if client and server run on different operating systems
-* It is now possible to generate game statistics using `!statistic` command in game chat
 
 ### Stability
 * Fixed possible crash on connecting bluetooth mouse during gameplay on Android
 * VCMI will now write more detailed information to log file on crash due to uncaught exception
-
-### Multiplayer
-* Implemented handicap system, with options to reduce income and growth in addition to starting resources restriction
 
 ### Mechanics
 * Arrow tower will now prefer to attack more units that are viewed most dangerous instead of simply attacking top-most unit
 * Score in campaigns will now be correctly tracked for games loaded from a save
 * Fixed incorrect direction of Dragon Breath attack in some cases if wide creature attacks another wide creature
 * Map events and town events are now triggered on start of turn of player affected by event, in line with H3 instead of triggering on start of new day for all players
+* Neutral towns should now have initial garrison and weekly growth of garrison identical to H3
+* It is now possible to buy a new war machine in town if hero has different war machine in the slot
 
 ### Interface
-* Implemented spell quick selection panel in combat
-* Implemented adventure map overlay accessible via Alt key that highlights all interactive objects on screen
+* Added option to drag map with right-click
 * Added hotkeys to reorder list of owned towns or heroes
 * The number of units resurrected using the Life Drain ability is now written to the combat log.
 * Fixed playback of audio stream with different formats from video files in some Heroes 3 versions
@@ -29,6 +34,7 @@
 * When resuming video playback, the video will now be continued instead of being restarted.
 * Reduced video decompression artefacts for video formats that store RGB rather than YUV data.
 * Fixed order of popup dialogs after battle.
+* Right-click on wandering monster on adventure map will now also show creature level and faction it belongs to
 * Added additional information to map right-click popup dialog: map author, map creation date, map version
 * Added scrollbars for selection of starting town, starting hero, and tavern invite if number of objects is too large to fit into the screen
 * Fixed incorrect battle turn queue displaying incorrect turn order when all units have waited
@@ -37,10 +43,26 @@
 * Added unassigned by default shortcuts for toggling visibility of visitable and blocked tiles
 * Spellbook button in battle is now blocked if hero has no spellbook 
 * Adventure map will no longer scroll if window is not in focus
+* Removed second info window when player loses his last town
+* Fixed hero path not updating correctly after hiring or dismissing creatures
+* Fixed missing description of a stack artifact when accessed through unit window
+* Fixed text overflow on campaign scenario window if campaign name is too long
+* Intro videos are now played inside a frame on resolutions higher than 800x600 instead of filling entire screen
 
 ### Random Maps Generator
 * Implemented connection option 'forcePortal'
 * It is now possible to connect zone to itself using pair of portals
+* It is now possible for a random map template to change game settings
+* Road settings will now be correctly loaded when opening random map setup tab
+
+### Campaigns
+* It is now possible to use .zip archive for VCMI campaigns instead of raw gzip stream
+* Fixed handling of hero placeholders in VCMI map format (.vmap)
+* Fixed not functioning hero carryover in VCMI campaigns
+* Added support for campaign outro videos, such as outro in "Song for the Father" campaign
+* Added support for rim image for intro video, such as opening videos in Heroes Chronicles
+* Added support for custom loading screen in campaigns
+* Added support for custom region definitions (such as background images) for VCMI campaigns 
 
 ### AI
 * Fixed bug where BattleAI attempts to move double-wide unit to an unreachable hex
@@ -48,6 +70,13 @@
 * Nullkiller is now capable of visiting configurable objects from mods
 * Nullkiller now uses whirlpools for map movement
 * AI can now correctly estimate effect of Dragon Breath and other similar abilities
+* Battle AI should now avoid ending turn on the moat
+* Fixed case where BattleAI will go around the map to attack ranged units if direct path is blocked by another unit
+* Fixed evaluation of effects of waiting if unit is under haste effect by Battle AI
+* Battle AI can now use location spells
+
+### Launcher
+* Added Swedish translation
 
 ### Map Editor
 * Implemented tracking of building requirements for Building Dialog
@@ -55,20 +84,35 @@
 * It is now possible to set spells allowed or required to be present in Mages Guild
 * It is now possible to add timed events to a town
 * Fixed editor not marking mod as dependency if spells from mod are used in town Mages Guild or in hero starting spells
+* It is now possible to choose road types for random map generation in editor
+* Validator will now warn in case if map has players with no heroes or towns
 
 ### Modding
 * Fixed multiple issues with configurable town buildings
 * Added documentation for configurable town buildings. See docs/Moddders/Entities_Format/Town_Buildings_Format.md
 * Replaced some of hardcoded town buildings with configurable buildings. These building types are now deprecated and will be removed in future.
+* Added support for explicitly visitable town buildings that will activate only on click and not on construction or on hero visit (Mana Vortex from HotA)
+* It is now possible to add guards to a configurable objects. All H3 creature banks are now implemented as configurable object.
+* It is now possible to define starting position of units in a guarded configurable object
+* Added `canCastWithoutSkip` parameter to a spell. If such spell is cast by a creature, its turn will not end after a spellcast
+* Mod can now provide pregenerated assets in place of autogenerated, such as large spellbook.
 * Added support for custom music and opening sound for a battlefield
 * Added support for multiple music tracks for towns
 * Added support for multiple music tracks for terrains on adventure map
 * Fixed several cases where vcmi will report errors in json without specifying filename of invalid file
-* It is now possible to use .zip archive for VCMI campaigns instead of raw gzip stream
-* Added support for custom region definitions (such as background images) for VCMI campaigns 
 * It is now possible to change minimal values of primary skills for heroes
-* Added support for HotA bank building from Factory
+* Added support for HotA Bank building from Factory
+* Added support for HotA Grotto buiding from Cove
 * Added support for HotA-style 8th creature in town
+* Town building can now define war machine produced in this building (Blacksmith or Ballista Yard)
+* Town building can now define provided fortifications - health of walls, towers, presence of moat, identifier of creature shooter on tower
+* Added DISINTEGRATE bonus
+* Added INVINCIBLE bonus
+* Added THIEVES_GUILD_ACCESS bonus that changes amount of information available in thieves guild
+* TimesStackLevelUpdater now supports commanders
+* Black market restock period setting now correctly restocks on specified date instead of restocking on all dates other than specified one
+* Game now supports vp8 and vp9 encoding for video files on all platforms
+* Json Validator will now attempt to detect typos when encountering unknown property in Json
 
 # 1.5.6 -> 1.5.7
 

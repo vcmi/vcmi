@@ -61,6 +61,7 @@ public:
 	virtual void wheelScrolled(int distance) {}
 	virtual void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) {}
 	virtual void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) {}
+	virtual void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) {}
 
 	/// Called when UI element hover status changes
 	virtual void hover(bool on) {}
@@ -97,7 +98,8 @@ public:
 		TEXTINPUT = 512,
 		GESTURE = 1024,
 		DRAG = 2048,
-		INPUT_MODE_CHANGE = 4096
+		INPUT_MODE_CHANGE = 4096,
+		DRAG_POPUP = 8192
 	};
 
 	/// Returns true if element is currently hovered by mouse

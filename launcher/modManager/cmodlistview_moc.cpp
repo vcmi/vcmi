@@ -1080,6 +1080,12 @@ bool CModListView::isModEnabled(const QString & modName)
 	return mod.isEnabled();
 }
 
+bool CModListView::isModInstalled(const QString & modName)
+{
+	auto mod = modModel->getMod(modName);
+	return mod.isInstalled();
+}
+
 QString CModListView::getTranslationModName(const QString & language)
 {
 	for(const auto & modName : modModel->getModList())

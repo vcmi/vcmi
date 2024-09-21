@@ -12,6 +12,7 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Overpowering",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Deadly",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossible",
+	"vcmi.adventureMap.monsterLevel"            : "\n\nLevel %LEVEL %TOWN unit",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",
@@ -234,8 +235,10 @@
 	"vcmi.adventureOptions.borderScroll.help" : "{Border Scrolling}\n\nScroll adventure map when cursor is adjacent to window edge. Can be disabled by holding down CTRL key.",
 	"vcmi.adventureOptions.infoBarCreatureManagement.hover" : "Info Panel Creature Management",
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Info Panel Creature Management}\n\nAllows rearranging creatures in info panel instead of cycling between default components.",
-	"vcmi.adventureOptions.leftButtonDrag.hover" : "Left Click Drag Map",
-	"vcmi.adventureOptions.leftButtonDrag.help" : "{Left Click Drag Map}\n\nWhen enabled, moving mouse with left button pressed will drag adventure map view.",
+	"vcmi.adventureOptions.leftButtonDrag.hover" : "Left Click Drag",
+	"vcmi.adventureOptions.leftButtonDrag.help" : "{Left Click Drag}\n\nWhen enabled, moving mouse with left button pressed will drag adventure map view.",
+	"vcmi.adventureOptions.rightButtonDrag.hover" : "Right Click Drag",
+	"vcmi.adventureOptions.rightButtonDrag.help" : "{Right Click Drag}\n\nWhen enabled, moving mouse with right button pressed will drag adventure map view.",
 	"vcmi.adventureOptions.smoothDragging.hover" : "Smooth Map Dragging",
 	"vcmi.adventureOptions.smoothDragging.help" : "{Smooth Map Dragging}\n\nWhen enabled, map dragging has a modern run out effect.",
 	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "Skip fading effects",
@@ -662,5 +665,7 @@
 	"core.bonus.WIDE_BREATH.name": "Wide breath",
 	"core.bonus.WIDE_BREATH.description": "Wide breath attack (multiple hexes)",
 	"core.bonus.DISINTEGRATE.name": "Disintegrate",
-	"core.bonus.DISINTEGRATE.description": "No corpse remains after death"
+	"core.bonus.DISINTEGRATE.description": "No corpse remains after death",
+	"core.bonus.INVINCIBLE.name": "Invincible",
+	"core.bonus.INVINCIBLE.description": "Cannot be affected by anything"
 }

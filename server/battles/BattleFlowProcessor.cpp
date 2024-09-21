@@ -565,6 +565,19 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 	if(battle.battleGetTacticDist() != 0)
 		return;
 
+	// creature will not skip the turn after casting a spell if spell uses canCastWithoutSkip
+	if(ba.actionType == EActionType::MONSTER_SPELL)
+	{
+		assert(activeStack != nullptr);
+		assert(actedStack != nullptr);
+
+		if(actedStack->castSpellThisTurn && SpellID(ba.spell).toSpell()->canCastWithoutSkip())
+		{
+			setActiveStack(battle, actedStack);
+			return;
+		}
+	}
+
 	if (ba.isUnitAction())
 	{
 		assert(activeStack != nullptr);
