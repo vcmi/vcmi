@@ -134,9 +134,7 @@
 		"settings" : {
 			"description" : "List of changed game settings by template",
 			"type" : "object",
-			"additionalProperties" : {
-				"type" : "object"
-			}
+			"$ref" : "gameSettings.json"
 		},
 		"name" : {
 			"description" : "Optional name - useful to have several template variations with same name",
