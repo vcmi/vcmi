@@ -145,9 +145,15 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			// TODO: Use common code with default rmg config
 			auto objectValue = rmg["value"].Integer();
 			auto objectProbability = rmg["rarity"].Integer();
+
 			auto objectMaxPerZone = rmg["zoneLimit"].Integer();
+			if (objectMaxPerZone == 0)
+			{
+				objectMaxPerZone = std::numeric_limits<int>::max();
+			}
 
 			VLC->objtypeh->resolveObjectCompoundId(objectName,
+
 				[this, objectValue, objectProbability, objectMaxPerZone](CompoundMapObjectID objid)
 				{
 					ObjectInfo object(objid.primaryID, objid.secondaryID);
