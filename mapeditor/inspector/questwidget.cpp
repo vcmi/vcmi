@@ -48,7 +48,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill artifacts
-	for(const auto artifactPtr : VLC->arth->objects)
+	for(const auto & artifactPtr : VLC->arth->objects)
 	{
 		auto artifactIndex = artifactPtr->getIndex();
 		auto * item = new QListWidgetItem(QString::fromStdString(artifactPtr->getNameTranslated()));
@@ -60,7 +60,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill spells
-	for(const auto spellPtr : VLC->spellh->objects)
+	for(const auto & spellPtr : VLC->spellh->objects)
 	{
 		auto spellIndex = spellPtr->getIndex();
 		auto * item = new QListWidgetItem(QString::fromStdString(spellPtr->getNameTranslated()));
@@ -73,7 +73,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	
 	//fill skills
 	ui->lSkills->setRowCount(VLC->skillh->objects.size());
-	for(const auto skillPtr : VLC->skillh->objects)
+	for(const auto & skillPtr : VLC->skillh->objects)
 	{
 		auto skillIndex = skillPtr->getIndex();
 		auto * item = new QTableWidgetItem(QString::fromStdString(skillPtr->getNameTranslated()));
