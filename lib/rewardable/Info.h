@@ -68,6 +68,8 @@ public:
 
 	bool givesBonuses() const override;
 
+	bool hasGuards() const override;
+
 	void configureObject(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb) const;
 
 	void init(const JsonNode & objectConfig, const std::string & objectTextID);

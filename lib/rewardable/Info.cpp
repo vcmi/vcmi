@@ -525,6 +525,11 @@ bool Rewardable::Info::givesBonuses() const
 	return testForKey(parameters, "bonuses");
 }
 
+bool Rewardable::Info::hasGuards() const
+{
+	return testForKey(parameters, "guards");
+}
+
 const JsonNode & Rewardable::Info::getParameters() const
 {
 	return parameters;

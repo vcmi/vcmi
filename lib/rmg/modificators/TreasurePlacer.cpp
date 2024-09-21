@@ -1138,38 +1138,41 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 	auto bannedObjectCategories = zone.getBannedObjectCategories();
 	auto categoriesSet = std::unordered_set<ObjectConfig::EObjectCategory>(bannedObjectCategories.begin(), bannedObjectCategories.end());
 
-	vstd::erase_if(possibleObjects, [this, &categoriesSet](const ObjectInfo & oi) -> bool
+	if (categoriesSet.count(ObjectConfig::EObjectCategory::ALL))
 	{
-		auto category = getObjectCategory(oi.getCompoundID());
-		if (categoriesSet.count(category))
-		{
-			logGlobal->info("Removing object %s from possible objects", oi.templates.front()->stringID);
-			/* FIXME:
-			Removing object normal from possible objects
-			Removing object base from possible objects
-			Removing object default from possible objects
-			*/
-			return true;
-		}
-		return false;
-	});
+		possibleObjects.clear();
+	}
+	else
+	{
+		vstd::erase_if(possibleObjects, [this, &categoriesSet](const ObjectInfo & oi) -> bool
 
-	auto bannedObjects = zone.getBannedObjects();
-	auto bannedObjectsSet = std::set<CompoundMapObjectID>(bannedObjects.begin(), bannedObjects.end());
-	vstd::erase_if(possibleObjects, [&bannedObjectsSet](const ObjectInfo & object)
-	{
-		for (const auto & templ : object.templates)
 		{
-			CompoundMapObjectID key = object.getCompoundID();
-			if (bannedObjectsSet.count(key))
+			auto category = getObjectCategory(oi.getCompoundID());
+			if (categoriesSet.count(category))
 			{
-				// FIXME: Stopped working, nothing is banned
-				logGlobal->info("Banning object %s from possible objects", templ->stringID);
+				logGlobal->info("Removing object %s from possible objects", oi.templates.front()->stringID);
 				return true;
 			}
-		}
-		return false;
-	});
+			return false;
+		});
+
+		auto bannedObjects = zone.getBannedObjects();
+		auto bannedObjectsSet = std::set<CompoundMapObjectID>(bannedObjects.begin(), bannedObjects.end());
+		vstd::erase_if(possibleObjects, [&bannedObjectsSet](const ObjectInfo & object)
+		{
+			for (const auto & templ : object.templates)
+			{
+				CompoundMapObjectID key = object.getCompoundID();
+				if (bannedObjectsSet.count(key))
+				{
+					// FIXME: Stopped working, nothing is banned
+					logGlobal->info("Banning object %s from possible objects", templ->stringID);
+					return true;
+				}
+			}
+			return false;
+		});
+	}
 
 	auto configuredObjects = zone.getConfiguredObjects();
 
@@ -1219,16 +1222,20 @@ ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(Comp
 
 	if (name == "configurable")
 	{
-		// TODO: Access Rewardable::Info by ID
-
 		auto handler = VLC->objtypeh->getHandlerFor(id.primaryID, id.secondaryID);
 		if (!handler)
 		{
 			return ObjectConfig::EObjectCategory::NONE;
 		}
+
 		auto temp = handler->getTemplates().front();
 		auto info = handler->getObjectInfo(temp);
-		if (info->givesResources())
+
+		if (info->hasGuards())
+		{
+			return ObjectConfig::EObjectCategory::CREATURE_BANK;
+		}
+		else if (info->givesResources())
 		{
 			return ObjectConfig::EObjectCategory::RESOURCE;
 		}
