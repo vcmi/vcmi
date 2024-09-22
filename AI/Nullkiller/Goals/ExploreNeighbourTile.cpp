@@ -59,7 +59,7 @@ void ExploreNeighbourTile::accept(AIGateway * ai)
 			return;
 		}
 
-		auto danger = ai->nullkiller->pathfinder->getStorage()->evaluateDanger(target, hero, true);
+		auto danger = ai->nullkiller->dangerEvaluator->evaluateDanger(target, hero, true);
 
 		if(danger > 0 || !ai->moveHeroToTile(target, hero))
 		{

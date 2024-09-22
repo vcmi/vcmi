@@ -164,7 +164,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 				auto from = path.targetHero->visitablePos();
 				auto fromObj = actorObjectMap[path.targetHero];
 
-				auto danger = ai->pathfinder->getStorage()->evaluateDanger(pos, path.targetHero, true);
+				auto danger = ai->dangerEvaluator->evaluateDanger(pos, path.targetHero, true);
 				auto updated = target->tryAddConnection(
 					from,
 					pos,
@@ -220,7 +220,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 					continue;
 			}
 
-			auto danger = ai->pathfinder->getStorage()->evaluateDanger(pos2, path1.targetHero, true);
+			auto danger = ai->dangerEvaluator->evaluateDanger(pos2, path1.targetHero, true);
 
 			auto updated = target->tryAddConnection(
 				pos1,

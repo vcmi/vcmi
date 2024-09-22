@@ -227,7 +227,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		auto danger = nodeStorage->evaluateDanger(destination.coord, nodeStorage->getHero(destination.node), true);
+		auto danger = ai->dangerEvaluator->evaluateDanger(destination.coord, nodeStorage->getHero(destination.node), true);
 
 		if(danger)
 		{
@@ -313,7 +313,7 @@ namespace AIPathfinding
 		}
 
 		auto hero = nodeStorage->getHero(source.node);
-		uint64_t danger = nodeStorage->evaluateDanger(destination.coord, hero, true);
+		uint64_t danger = ai->dangerEvaluator->evaluateDanger(destination.coord, hero, true);
 		uint64_t actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
 		uint64_t loss = nodeStorage->evaluateArmyLoss(hero, actualArmyValue, danger);
 
