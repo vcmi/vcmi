@@ -44,24 +44,30 @@ void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb,
 		if(!triggerIsNegative)
 			continue;
 
-		const auto * hero = hb->battleGetFightingHero(spellObstacle->casterSide);
-		auto caster = spells::ObstacleCasterProxy(hb->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
+		std::unique_ptr<spells::BattleCast> cast = nullptr;
+		if(spellObstacle->obstacleType == SpellCreatedObstacle::EObstacleType::SPELL_CREATED)
+		{
+			const auto * hero = hb->battleGetFightingHero(spellObstacle->casterSide);
+			auto caster = spells::ObstacleCasterProxy(hb->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
+			cast = std::make_unique<spells::BattleCast>(spells::BattleCast(hb.get(), &caster, spells::Mode::PASSIVE, obst->getTrigger().toSpell()));
+		}
 
 		auto affectedHexes = obst->getAffectedTiles();
 		auto stacks = hb->battleGetUnitsIf([](const battle::Unit * u) -> bool {
 			return u->alive() && !u->isTurret() && u->getPosition().isValid();
 		});
 
+		std::shared_ptr<HypotheticBattle> inner = std::make_shared<HypotheticBattle>(hb->env, hb);
+
 		for(auto stack : stacks)
 		{
-			std::shared_ptr<HypotheticBattle> inner = std::make_shared<HypotheticBattle>(hb->env, hb);
-			auto cast = spells::BattleCast(hb.get(), &caster, spells::Mode::PASSIVE, obst->getTrigger().toSpell());
 			auto updated = inner->getForUpdate(stack->unitId());
 
 			spells::Target target;
 			target.push_back(spells::Destination(updated.get()));
 
-			cast.castEval(inner->getServerCallback(), target);
+			if(cast)
+				cast->castEval(inner->getServerCallback(), target);
 
 			auto damageDealt = stack->getAvailableHealth() - updated->getAvailableHealth();
 

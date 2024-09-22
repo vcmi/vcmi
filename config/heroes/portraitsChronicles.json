@@ -1,12 +1,40 @@
 {
-	// additional empty heroes for correct loading of hero portraits set in map editor
-	"portraitGeneralKendal" :
+	"portraitTarnumBarbarian" : // 163
+	{
+		"class" : "barbarian",
+		"special" : true,
+		"images": {
+			"large" : "HPL137",
+			"small" : "HPS137",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "goblin",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumKnight" : // 164
 	{
 		"class" : "knight",
 		"special" : true,
 		"images": {
-			"large" : "HPL129MK",
-			"small" : "HPS129MK",
+			"large" : "HPL138",
+			"small" : "HPS138",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
 		},
@@ -29,158 +57,13 @@
 		"skills" : [],
 		"specialty" : {}
 	},
-	"portraitYoungCristian" :
-	{
-		"class" : "knight",
-		"special" : true,
-		"images": {
-			"large" : "HPL002SH",
-			"small" : "HPS002SH",
-			"specialtySmall" : "default",
-			"specialtyLarge" : "default"
-		},
-		"texts" : {
-			"name" : "",
-			"biography" : "",
-			"specialty" : {
-				"description" : "",
-				"tooltip" : "",
-				"name" : ""
-			}
-		},
-		"army" : [
-			{
-				"creature" : "pikeman",
-				"min" : 1,
-				"max" : 1
-			}
-		],
-		"skills" : [],
-		"specialty" : {}
-	},
-	"portraitOrdwald" :
-	{
-		"class" : "druid",
-		"special" : true,
-		"images": {
-			"large" : "HPL132Wl",
-			"small" : "HPS132Wl",
-			"specialtySmall" : "default",
-			"specialtyLarge" : "default"
-		},
-		"texts" : {
-			"name" : "",
-			"biography" : "",
-			"specialty" : {
-				"description" : "",
-				"tooltip" : "",
-				"name" : ""
-			}
-		},
-		"army" : [
-			{
-				"creature" : "centaur",
-				"min" : 1,
-				"max" : 1
-			}
-		],
-		"skills" : [],
-		"specialty" : {}
-	},
-	"portraitFinneas" :
-	{
-		"class" : "necromancer",
-		"special" : true,
-		"images": {
-			"large" : "HPL133Nc",
-			"small" : "HPS133Nc",
-			"specialtySmall" : "default",
-			"specialtyLarge" : "default"
-		},
-		"texts" : {
-			"name" : "",
-			"biography" : "",
-			"specialty" : {
-				"description" : "",
-				"tooltip" : "",
-				"name" : ""
-			}
-		},
-		"army" : [
-			{
-				"creature" : "skeleton",
-				"min" : 1,
-				"max" : 1
-			}
-		],
-		"skills" : [],
-		"specialty" : {}
-	},
-	"portraitYoungGem" :
-	{
-		"class" : "druid",
-		"special" : true,
-		"images": {
-			"large" : "HPL134Nc",
-			"small" : "HPS134Nc",
-			"specialtySmall" : "default",
-			"specialtyLarge" : "default"
-		},
-		"texts" : {
-			"name" : "",
-			"biography" : "",
-			"specialty" : {
-				"description" : "",
-				"tooltip" : "",
-				"name" : ""
-			}
-		},
-		"army" : [
-			{
-				"creature" : "centaur",
-				"min" : 1,
-				"max" : 1
-			}
-		],
-		"skills" : [],
-		"specialty" : {}
-	},
-	"portraitYoungSandro" :
-	{
-		"class" : "necromancer",
-		"special" : true,
-		"images": {
-			"large" : "HPL135Wi",
-			"small" : "HPS135Wi",
-			"specialtySmall" : "default",
-			"specialtyLarge" : "default"
-		},
-		"texts" : {
-			"name" : "",
-			"biography" : "",
-			"specialty" : {
-				"description" : "",
-				"tooltip" : "",
-				"name" : ""
-			}
-		},
-		"army" : [
-			{
-				"creature" : "skeleton",
-				"min" : 1,
-				"max" : 1
-			}
-		],
-		"skills" : [],
-		"specialty" : {}
-	},
-	"portraitYoungYog" :
+	"portraitTarnumWizard" : // 165
 	{
 		"class" : "wizard",
 		"special" : true,
 		"images": {
-			"large" : "HPL136Wi",
-			"small" : "HPS136Wi",
+			"large" : "HPL139",
+			"small" : "HPS139",
 			"specialtySmall" : "default",
 			"specialtyLarge" : "default"
 		},
@@ -195,7 +78,94 @@
 		},
 		"army" : [
 			{
-				"creature" : "gremlin",
+				"creature" : "enchanter",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumRanger" : // 166
+	{
+		"class" : "ranger",
+		"special" : true,
+		"images": {
+			"large" : "HPL140",
+			"small" : "HPS140",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "sharpshooter",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumOverlord" : // 167
+	{
+		"class" : "overlord",
+		"special" : true,
+		"images": {
+			"large" : "HPL141",
+			"small" : "HPS141",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "troglodyte",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitTarnumBeastmaster" : // 168
+	{
+		"class" : "beastmaster",
+		"special" : true,
+		"images": {
+			"large" : "HPL142",
+			"small" : "HPS142",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "gnoll",
 				"min" : 1,
 				"max" : 1
 			}

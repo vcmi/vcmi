@@ -719,7 +719,7 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 	faction->identifier = identifier;
 
 	VLC->generaltexth->registerString(scope, faction->getNameTextID(), source["name"].String());
-	VLC->generaltexth->registerString(scope, faction->getDescriptionTranslated(), source["description"].String());
+	VLC->generaltexth->registerString(scope, faction->getDescriptionTextID(), source["description"].String());
 
 	faction->creatureBg120 = ImagePath::fromJson(source["creatureBackground"]["120px"]);
 	faction->creatureBg130 = ImagePath::fromJson(source["creatureBackground"]["130px"]);

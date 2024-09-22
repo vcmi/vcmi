@@ -600,6 +600,15 @@
 			"icon":  "zvs/Lib1.res/DISINTEGRATE"
 		}
 
+	},
+
+	"INVINCIBLE":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/INVINCIBLE"
+		}
+
 	}
 }
 

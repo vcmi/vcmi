@@ -367,6 +367,10 @@
 					"type" : "boolean",
 					"default" : false
 				},
+				"rightButtonDrag" : {
+					"type" : "boolean",
+					"default" : false
+				},
 				"smoothDragging" : {
 					"type" : "boolean",
 					"default" : true

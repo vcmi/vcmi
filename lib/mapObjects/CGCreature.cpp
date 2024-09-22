@@ -22,6 +22,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../entities/faction/CTownHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -101,6 +102,11 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
+		std::string monsterLevel = VLC->generaltexth->translate("vcmi.adventureMap.monsterLevel");
+		boost::replace_first(monsterLevel, "%TOWN", (*VLC->townh)[VLC->creatures()->getById(getCreature())->getFaction()]->getNameTranslated());
+		boost::replace_first(monsterLevel, "%LEVEL", std::to_string(VLC->creatures()->getById(getCreature())->getLevel()));
+		hoverName += monsterLevel;
+
 		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
 		int choice;

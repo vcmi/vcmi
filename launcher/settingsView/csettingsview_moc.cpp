@@ -54,6 +54,14 @@ static constexpr std::array downscalingFilterTypes =
 	"best"
 };
 
+MainWindow * CSettingsView::getMainWindow()
+{
+	foreach(QWidget *w, qApp->allWidgets())
+		if(QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
+			return dynamic_cast<MainWindow *>(mainWin);
+	return nullptr;
+}
+
 void CSettingsView::setDisplayList()
 {
 	QStringList list;
@@ -166,6 +174,17 @@ void CSettingsView::loadSettings()
 	ui->sliderControllerSticksAcceleration->setValue(settings["input"]["controllerAxisScale"].Float() * 100);
 	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
 	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
+	
+	auto mainWindow = getMainWindow();
+	if(mainWindow)
+	{
+		bool fontModAvailable = mainWindow->getModView()->isModInstalled("vcmi-extras.truetypefonts");
+		if(!fontModAvailable)
+		{
+			ui->labelTtfFont->hide();
+			ui->buttonTtfFont->hide();
+		}
+	}
 
 	loadToggleButtonSettings();
 }
@@ -190,6 +209,10 @@ void CSettingsView::loadToggleButtonSettings()
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
+
+	auto mainWindow = getMainWindow();
+	if(mainWindow)
+		setCheckbuttonState(ui->buttonTtfFont, mainWindow->getModView()->isModEnabled("vcmi-extras.truetypefonts"));
 }
 
 void CSettingsView::fillValidResolutions()
@@ -442,8 +465,7 @@ void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 	QString selectedLanguage = ui->comboBoxLanguage->itemData(index).toString();
 	node->String() = selectedLanguage.toStdString();
 
-	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
-		mainWindow->updateTranslation();
+	getMainWindow()->updateTranslation();
 }
 
 void CSettingsView::changeEvent(QEvent *event)
@@ -475,7 +497,7 @@ void CSettingsView::loadTranslation()
 {
 	QString baseLanguage = Languages::getHeroesDataLanguage();
 
-	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+	auto * mainWindow = getMainWindow();
 
 	if (!mainWindow)
 		return;
@@ -518,7 +540,7 @@ void CSettingsView::loadTranslation()
 
 void CSettingsView::on_pushButtonTranslation_clicked()
 {
-	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+	auto * mainWindow = getMainWindow();
 
 	assert(mainWindow);
 	if (!mainWindow)
@@ -582,7 +604,7 @@ void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
 
 void CSettingsView::on_refreshRepositoriesButton_clicked()
 {
-	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+	auto * mainWindow = getMainWindow();
 
 	assert(mainWindow);
 	if (!mainWindow)
@@ -746,4 +768,14 @@ void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
 {
 	Settings node = settings.write["input"]["controllerAxisSpeed"];
 	node->Integer() = value;
+}
+
+void CSettingsView::on_buttonTtfFont_toggled(bool value)
+{
+	auto mainWindow = getMainWindow();
+	if(value)
+		mainWindow->getModView()->enableModByName("vcmi-extras.truetypefonts");
+	else
+		mainWindow->getModView()->disableModByName("vcmi-extras.truetypefonts");
+	updateCheckbuttonText(ui->buttonTtfFont);
 }
