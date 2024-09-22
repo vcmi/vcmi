@@ -737,14 +737,12 @@ bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker)
 	{
 		auto bonus = attacker->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 		const CSpell * spell = bonus->subtype.as<SpellID>().toSpell();
-		if(spell->isDamage())
+		spells::BattleCast cast(this, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
+		BattleHex dummySpellTarget = BattleHex(50); //check arbitrary hex for general spell range since currently there is no general way to access amount of hexes
+
+		if(spell->battleMechanics(&cast)->rangeInHexes(dummySpellTarget).size() > 1)
 		{
-			spells::BattleCast cast(this, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
-			BattleHex dummySpellTarget = BattleHex(50); //check arbitrary hex for general spell range since currently there is no general way to access amount of hexes
-			if(spell->battleMechanics(&cast)->rangeInHexes(dummySpellTarget).size() > 1)
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 
