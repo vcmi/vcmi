@@ -17,6 +17,7 @@
 #include "BattleInfo.h"
 #include "CObstacleInstance.h"
 #include "DamageCalculator.h"
+#include "IGameSettings.h"
 #include "PossiblePlayerBattleAction.h"
 #include "../entities/building/TownFortifications.h"
 #include "../spells/ObstacleCasterProxy.h"
@@ -728,6 +729,9 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker) const
 {
 	RETURN_IF_NOT_BATTLE(false);
+
+	if(!VLC->engineSettings()->getBoolean(EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX))
+		return false;
 
 	if(attacker->hasBonusOfType(BonusType::SPELL_LIKE_ATTACK))
 	{
