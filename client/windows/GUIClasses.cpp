@@ -1628,10 +1628,10 @@ VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, fl
 	}
 	else
 	{
-		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
-		blackBackground->addBox(Point(0, 0), Point(pos.w, pos.h), Colors::BLACK);
+		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y));
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, [this](){ exit(false); });
 		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
+		blackBackground->addBox(Point(0, 0), Point(pos.x, pos.y), Colors::BLACK);
 	}
 
 	if(backgroundAroundWindow)
