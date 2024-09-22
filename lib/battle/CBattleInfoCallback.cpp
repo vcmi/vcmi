@@ -740,8 +740,8 @@ bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker)
 		if(spell->isDamage())
 		{
 			spells::BattleCast cast(this, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
-
-			if(vstd::find(spell->battleMechanics(&cast)->getTargetTypes(), spells::AimType::LOCATION) != spell->battleMechanics(&cast)->getTargetTypes().end())
+			BattleHex dummySpellTarget = BattleHex(50); //check arbitrary hex for general spell range since currently there is no general way to access amount of hexes
+			if(spell->battleMechanics(&cast)->rangeInHexes(dummySpellTarget).size() > 1)
 			{
 				return true;
 			}

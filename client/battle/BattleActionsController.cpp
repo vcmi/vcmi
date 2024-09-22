@@ -532,7 +532,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			if(targetStack == nullptr) //should be true only for spell-like attack
 			{
 				auto spellLikeAttackBonus = owner.stacksController->getActiveStack()->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
-				assert(bonus != nullptr);
+				assert(spellLikeAttackBonus != nullptr);
 				return boost::str(boost::format(CGI->generaltexth->allTexts[26]) % spellLikeAttackBonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
 			}
 

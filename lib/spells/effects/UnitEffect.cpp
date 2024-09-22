@@ -164,6 +164,7 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 
 	if(m->alwaysHitFirstTarget())
 	{
+		//TODO: examine if adjustments needed related to INVINCIBLE bonus
 		if(!aimPoint.empty() && aimPoint.front().unitValue)
 			targets.insert(aimPoint.front().unitValue);
 	}

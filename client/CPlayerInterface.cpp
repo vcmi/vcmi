@@ -937,7 +937,7 @@ void CPlayerInterface::battleAttack(const BattleID & battleID, const BattleAttac
 			info.secondaryDefender.push_back(cb->getBattle(battleID)->battleGetStackByID(elem.stackAttacked));
 		}
 	}
-	assert(info.defender != nullptr);
+	assert(info.defender != nullptr || (info.spellEffect != SpellID::NONE && info.indirectAttack));
 	assert(info.attacker != nullptr);
 
 	battleInt->stackAttacking(info);
