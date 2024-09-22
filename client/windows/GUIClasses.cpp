@@ -1617,6 +1617,9 @@ VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, fl
 
 	addUsedEvents(LCLICK | KEYBOARD);
 
+	if(showBackground)
+		backgroundAroundWindow = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y));
+	
 	if(!rim.empty())
 	{
 		setBackground(rim);
@@ -1625,18 +1628,15 @@ VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, fl
 	}
 	else
 	{
+		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
+		blackBackground->addBox(Point(0, 0), Point(pos.w, pos.h), Colors::BLACK);
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), video, true, scaleFactor, [this](){ exit(false); });
 		pos = center(Rect(0, 0, videoPlayer->pos.w, videoPlayer->pos.h));
 	}
 
-	if(showBackground)
-		backgroundAroundWindow = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
+	if(backgroundAroundWindow)
+		backgroundAroundWindow->pos.moveTo(Point(0, 0));
 
-	if(rim.empty())
-	{
-		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
-		blackBackground->addBox(Point(0, 0), Point(pos.w, pos.h), Colors::BLACK);
-	}
 }
 
 void VideoWindow::exit(bool skipped)
