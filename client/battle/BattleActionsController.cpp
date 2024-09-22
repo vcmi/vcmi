@@ -175,6 +175,18 @@ void BattleActionsController::enterCreatureCastingMode()
 	if (!owner.stacksController->getActiveStack())
 		return;
 
+	if(owner.getBattle()->battleCanTargetEmptyHex(owner.stacksController->getActiveStack()))
+	{
+		auto actionFilterPredicate = [](const PossiblePlayerBattleAction x)
+		{
+			return x.get() != PossiblePlayerBattleAction::SHOOT;
+		};
+
+		vstd::erase_if(possibleActions, actionFilterPredicate);
+		GH.fakeMouseMove();
+		return;
+	}
+
 	if (!isActiveStackSpellcaster())
 		return;
 
@@ -263,6 +275,9 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 				return 2;
 				break;
 			case PossiblePlayerBattleAction::SHOOT:
+				if(targetStack == nullptr || targetStack->unitSide() == stack->unitSide())
+					return 100; //bottom priority
+
 				return 4;
 				break;
 			case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
@@ -514,6 +529,13 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 		case PossiblePlayerBattleAction::SHOOT:
 		{
+			if(targetStack == nullptr) //should be true only for spell-like attack
+			{
+				auto spellLikeAttackBonus = owner.stacksController->getActiveStack()->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+				assert(bonus != nullptr);
+				return boost::str(boost::format(CGI->generaltexth->allTexts[26]) % spellLikeAttackBonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
+			}
+
 			const auto * shooter = owner.stacksController->getActiveStack();
 
 			DamageEstimation retaliation;
@@ -1020,7 +1042,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 {
 	auto spellcastActionPredicate = [](PossiblePlayerBattleAction & action)
 	{
-		return action.spellcast();
+		return action.spellcast() || action.get() == PossiblePlayerBattleAction::SHOOT;
 	};
 
 	bool isCurrentStackInSpellcastMode = !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastActionPredicate);
