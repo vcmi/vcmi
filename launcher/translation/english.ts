@@ -1220,7 +1220,7 @@ Offline installer consists of two parts, .exe and .bin. Make sure you download b
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
-        <source>File cannot opened</source>
+        <source>File cannot be opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

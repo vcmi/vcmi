@@ -1241,7 +1241,7 @@ Der Offline-Installer besteht aus zwei Teilen, .exe und .bin. Stellen Sie sicher
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
-        <source>File cannot opened</source>
+        <source>File cannot be opened</source>
         <translation>Datei kann nicht geöffnet werden</translation>
     </message>
     <message>

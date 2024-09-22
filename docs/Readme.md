@@ -52,12 +52,15 @@ Please see corresponding installation guide articles for details for your platfo
 - [Cheat codes](players/Cheat_Codes.md)
 - [Privacy Policy](players/Privacy_Policy.md)
 
+## Documentation and guidelines for translators
+
+- [Translations](translators/Translations.md)
+
 ## Documentation and guidelines for game modders
 
 - [Modding Guidelines](modders/Readme.md)
 - [Mod File Format](modders/Mod_File_Format.md)
 - [Bonus Format](modders/Bonus_Format.md)
-- [Translations](modders/Translations.md)
 - [Map Editor](modders/Map_Editor.md)
 - [Campaign Format](modders/Campaign_Format.md)
 - [Configurable Widgets](modders/Configurable_Widgets.md)
