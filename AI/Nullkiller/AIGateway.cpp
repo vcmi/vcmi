@@ -649,7 +649,14 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, hero.get());
 				auto ratio = static_cast<float>(danger) / hero->getTotalStrength();
 
-				answer = topObj->id == goalObjectID; // no if we do not aim to visit this object
+				answer = 1;
+				
+				if(topObj->id != goalObjectID && nullkiller->dangerEvaluator->evaluateDanger(topObj) > 0)
+				{
+					// no if we do not aim to visit this object
+					answer = 0;
+				}
+				
 				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name(), ratio);
 
 				if(cb->getObj(goalObjectID, false))
