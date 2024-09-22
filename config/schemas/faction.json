@@ -96,7 +96,7 @@
 				"creatures" : {
 					"type" : "array",
 					"minItems" : 7,
-					"maxItems" : 7,
+					"maxItems" : 8,
 					"description" : "List of creatures available for recruitment on each level",
 					"items" : {
 						"type" : "array",
