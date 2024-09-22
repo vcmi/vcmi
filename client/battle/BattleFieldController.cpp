@@ -566,7 +566,9 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
 	}
 
-	bool useSpellRangeForMouse = hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex());
+	bool useSpellRangeForMouse = hoveredHex != BattleHex::INVALID
+		&& (owner.actionsController->currentActionSpellcasting(getHoveredHex())
+			|| owner.actionsController->creatureSpellcastingModeActive()); //at least shooting with SPELL_LIKE_ATTACK can operate in spellcasting mode without being actual spellcast
 	bool useMoveRangeForMouse = !hoveredMoveHexes.empty() || !settings["battle"]["mouseShadow"].Bool();
 
 	const auto & hoveredMouseHexes = useSpellRangeForMouse ? hoveredSpellHexes : ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);

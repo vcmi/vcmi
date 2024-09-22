@@ -371,6 +371,12 @@ const CSpell * BattleActionsController::getStackSpellToCast(BattleHex hoveredHex
 
 	auto action = selectAction(hoveredHex);
 
+	if(owner.stacksController->getActiveStack()->hasBonusOfType(BonusType::SPELL_LIKE_ATTACK))
+	{
+		auto bonus = owner.stacksController->getActiveStack()->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+		return bonus->subtype.as<SpellID>().toSpell();
+	}
+
 	if (action.spell() == SpellID::NONE)
 		return nullptr;
 
@@ -793,7 +799,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 				}
 			}
 
-			if (!spellcastingModeActive())
+			if (!heroSpellcastingModeActive())
 			{
 				if (action.spell().hasValue())
 				{
@@ -1040,14 +1046,9 @@ void BattleActionsController::activateStack()
 
 void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 {
-	auto spellcastActionPredicate = [](PossiblePlayerBattleAction & action)
-	{
-		return action.spellcast() || action.get() == PossiblePlayerBattleAction::SHOOT;
-	};
+	bool isCurrentStackInSpellcastMode = creatureSpellcastingModeActive();
 
-	bool isCurrentStackInSpellcastMode = !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastActionPredicate);
-
-	if (spellcastingModeActive() || isCurrentStackInSpellcastMode)
+	if (heroSpellcastingModeActive() || isCurrentStackInSpellcastMode)
 	{
 		endCastingSpell();
 		CRClickPopup::createAndPush(CGI->generaltexth->translate("core.genrltxt.731")); // spell cancelled
@@ -1066,9 +1067,19 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 		owner.defendingHero->heroRightClicked();
 }
 
-bool BattleActionsController::spellcastingModeActive() const
+bool BattleActionsController::heroSpellcastingModeActive() const
 {
 	return heroSpellToCast != nullptr;
+}
+
+bool BattleActionsController::creatureSpellcastingModeActive() const
+{
+	auto spellcastModePredicate = [](const PossiblePlayerBattleAction & action)
+	{
+		return action.spellcast() || action.get() == PossiblePlayerBattleAction::SHOOT; //for hotkey-eligible SPELL_LIKE_ATTACK creature should have only SHOOT action
+	};
+
+	return !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastModePredicate);
 }
 
 bool BattleActionsController::currentActionSpellcasting(BattleHex hoveredHex)
