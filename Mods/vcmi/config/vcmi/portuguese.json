@@ -12,6 +12,7 @@
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Dominante",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Mortal",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossível",
+	"vcmi.adventureMap.monsterLevel" : "\n\nNível %LEVEL, unidade de %TOWN",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Tem certeza de que deseja reiniciar o jogo?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "Não há mercados disponíveis!",
@@ -234,8 +235,10 @@
 	"vcmi.adventureOptions.borderScroll.help" : "{Rolagem de Borda}\n\nFaz o mapa de aventura rolar quando o cursor está adjacente à borda da janela. Pode ser desativado mantendo pressionada a tecla CTRL.",
 	"vcmi.adventureOptions.infoBarCreatureManagement.hover" : "Gerenciar Criaturas no Painel de Info.",
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Gerencia as Criaturas no Painel de Informações}\n\nPermite reorganizar criaturas no painel de informações em vez de alternar entre os componentes padrão.",
-	"vcmi.adventureOptions.leftButtonDrag.hover" : "Arrastar Mapa com o Botão Esquerdo",
+	"vcmi.adventureOptions.leftButtonDrag.hover" : "Botão Esq. Arrasta",
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Arrastar Mapa com o Botão Esquerdo}\n\nQuando ativado, mover o mouse com o botão esquerdo pressionado irá arrastar a visualização do mapa de aventura.",
+	"vcmi.adventureOptions.rightButtonDrag.hover" : "Botão Dir. Arrasta",
+	"vcmi.adventureOptions.rightButtonDrag.help" : "{Arrastar Mapa com o Botão Direito}\n\nQuando ativado, mover o mouse com o botão direito pressionado irá arrastar a visualização do mapa de aventura.",
 	"vcmi.adventureOptions.smoothDragging.hover" : "Arrastar Suavemente o Mapa",
 	"vcmi.adventureOptions.smoothDragging.help" : "{Arrasta o Mapa Suavemente}\n\nQuando ativado, o arrasto do mapa tem um efeito de movimento moderno.",
 	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "Omitir Efeitos de Desvanecimento",
@@ -663,4 +666,6 @@
 	"core.bonus.WIDE_BREATH.description" : "Ataque de sopro amplo (vários hexágonos)",
 	"core.bonus.DISINTEGRATE.name": "Desintegrar",
 	"core.bonus.DISINTEGRATE.description": "Nenhum corpo permanece após a morte"
+	"core.bonus.INVINCIBLE.name": "Invencível",
+	"core.bonus.INVINCIBLE.description": "Não pode ser afetado por nada"
 }
