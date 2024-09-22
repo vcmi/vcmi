@@ -653,7 +653,20 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return false;
 
 		case PossiblePlayerBattleAction::SHOOT:
-			return owner.getBattle()->battleCanShoot(owner.stacksController->getActiveStack(), targetHex);
+			{
+				auto currentStack = owner.stacksController->getActiveStack();
+				if(!owner.getBattle()->battleCanShoot(currentStack, targetHex))
+					return false;
+
+				if(targetStack == nullptr && owner.getBattle()->battleCanTargetEmptyHex(currentStack))
+				{
+					auto spellLikeAttackBonus = currentStack->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+					const CSpell * spellDataToCheck = spellLikeAttackBonus->subtype.as<SpellID>().toSpell();
+					return isCastingPossibleHere(spellDataToCheck, nullptr, targetHex);
+				}
+
+				return true;
+			}
 
 		case PossiblePlayerBattleAction::NO_LOCATION:
 			return false;
