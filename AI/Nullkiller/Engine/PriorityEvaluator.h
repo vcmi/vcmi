@@ -82,6 +82,7 @@ struct DLL_EXPORT EvaluationContext
 	bool isExchange;
 	bool isArmyUpgrade;
 	bool isHero;
+	bool isEnemy;
 	int explorePriority;
 
 	EvaluationContext(const Nullkiller * ai);

@@ -65,6 +65,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	isExchange(false),
 	isArmyUpgrade(false),
 	isHero(false),
+	isEnemy(false),
 	explorePriority(0)
 {
 }
@@ -1040,6 +1041,8 @@ public:
 			evaluationContext.conquestValue += evaluationContext.evaluator.getConquestValue(target);
 			if (target->ID == Obj::HERO)
 				evaluationContext.isHero = true;
+			if (target->getOwner() != PlayerColor::NEUTRAL && ai->cb->getPlayerRelations(ai->playerID, target->getOwner()) == PlayerRelations::ENEMIES)
+				evaluationContext.isEnemy = true;
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 			evaluationContext.armyInvolvement += army->getArmyCost();
 		}
@@ -1353,6 +1356,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.5 * powerRatio;
 
+		bool arriveNextWeek = false;
+		if (ai->cb->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7)
+			arriveNextWeek = true;
+
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d powerRatio: %d",
 			priorityTier,
@@ -1406,6 +1413,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
 			{
 				if (evaluationContext.turn > 0 && evaluationContext.isHero)
+					return 0;
+				if (arriveNextWeek && evaluationContext.isEnemy)
 					return 0;
 				if (evaluationContext.conquestValue > 0 || evaluationContext.explorePriority == 1)
 					score = 1000;
