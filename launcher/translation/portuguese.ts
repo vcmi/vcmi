@@ -11,7 +11,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>Tem uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós</translation>
+        <translation>Tem uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós!</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
@@ -756,7 +756,7 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1194"/>
         <source>Use scalable fonts</source>
-        <translation>Usar fontes escaláveis</translation>
+        <translation>Usar Fontes Escaláveis</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="854"/>
