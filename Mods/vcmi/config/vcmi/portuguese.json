@@ -9,7 +9,7 @@
 	"vcmi.adventureMap.monsterThreat.levels.6"  : "Forte",
 	"vcmi.adventureMap.monsterThreat.levels.7"  : "Muito Forte",
 	"vcmi.adventureMap.monsterThreat.levels.8"  : "Desafiante",
-	"vcmi.adventureMap.monsterThreat.levels.9"  : "Avassalador",
+	"vcmi.adventureMap.monsterThreat.levels.9"  : "Avassaladora",
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Mortal",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossível",
 	"vcmi.adventureMap.monsterLevel" : "\n\nNível %LEVEL, unidade de %TOWN",
