@@ -34,6 +34,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/VideoWidget.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
@@ -1618,6 +1619,7 @@ VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, fl
 
 	if(!rim.empty())
 	{
+		setBackground(rim);
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(80, 186), video, true, [this](){ exit(false); });
 		pos = center(Rect(0, 0, 800, 600));
 	}
@@ -1630,8 +1632,11 @@ VideoWindow::VideoWindow(VideoPath video, ImagePath rim, bool showBackground, fl
 	if(showBackground)
 		backgroundAroundWindow = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, GH.screenDimensions().x, GH.screenDimensions().y));
 
-	if(!rim.empty())
-		setBackground(rim);
+	if(rim.empty())
+	{
+		blackBackground = std::make_shared<GraphicalPrimitiveCanvas>(Rect(0, 0, pos.w, pos.h));
+		blackBackground->addBox(Point(0, 0), Point(pos.w, pos.h), Colors::BLACK);
+	}
 }
 
 void VideoWindow::exit(bool skipped)
