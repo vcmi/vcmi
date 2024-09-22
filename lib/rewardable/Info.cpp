@@ -105,6 +105,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	loadString(parameters["visitedTooltip"], TextIdentifier(objectName, "visitedTooltip"));
 	loadString(parameters["onVisitedMessage"], TextIdentifier(objectName, "onVisited"));
 	loadString(parameters["onEmptyMessage"], TextIdentifier(objectName, "onEmpty"));
+	loadString(parameters["onGuardedMessage"], TextIdentifier(objectName, "onGuarded"));
 }
 
 Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const
