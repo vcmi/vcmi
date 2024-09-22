@@ -64,6 +64,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	isTradeBuilding(false),
 	isExchange(false),
 	isArmyUpgrade(false),
+	isHero(false),
 	explorePriority(0)
 {
 }
@@ -1037,6 +1038,8 @@ public:
 			evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, heroRole);
 			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.evaluator.getStrategicalValue(target));
 			evaluationContext.conquestValue += evaluationContext.evaluator.getConquestValue(target);
+			if (target->ID == Obj::HERO)
+				evaluationContext.isHero = true;
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 			evaluationContext.armyInvolvement += army->getArmyCost();
 		}
@@ -1336,9 +1339,22 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	else
 	{
 		float score = 0;
-		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
+		float myPower = 0;
+		float totalPower = 0;
+		for (auto heroInfo : ai->cb->getHeroesInfo(false))
+		{
+			if (heroInfo->getOwner() == ai->cb->getPlayerID())
+				myPower += heroInfo->getTotalStrength();
+			totalPower += heroInfo->getTotalStrength();
+		}
+		float powerRatio = 1;
+		if (totalPower > 0)
+			powerRatio = myPower / totalPower;
+
+		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.5 * powerRatio;
+
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d powerRatio: %d",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
@@ -1359,7 +1375,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.closestWayRatio,
 			evaluationContext.enemyHeroDangerRatio,
 			evaluationContext.explorePriority,
-			evaluationContext.isDefend);
+			evaluationContext.isDefend,
+			powerRatio);
 #endif
 
 		switch (priorityTier)
@@ -1388,6 +1405,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
 			{
+				if (evaluationContext.turn > 0 && evaluationContext.isHero)
+					return 0;
 				if (evaluationContext.conquestValue > 0 || evaluationContext.explorePriority == 1)
 					score = 1000;
 				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > 1 && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !ai->cb->getTownsInfo().empty()))
