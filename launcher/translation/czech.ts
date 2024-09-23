@@ -1241,7 +1241,7 @@ Offline instalátor obsahuje dvě části, .exe a .bin. Ujistěte se, že stahuj
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
-        <source>File cannot opened</source>
+        <source>File cannot be opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

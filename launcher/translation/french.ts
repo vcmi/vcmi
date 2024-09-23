@@ -1246,7 +1246,7 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
-        <source>File cannot opened</source>
+        <source>File cannot be opened</source>
         <translation>Le fichier ne peut pas être ouvert</translation>
     </message>
     <message>
