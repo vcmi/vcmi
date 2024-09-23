@@ -1419,6 +1419,10 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
 		path.targetObjectDanger = ai->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
+		for (auto pathNode : path.nodes)
+		{
+			path.targetObjectDanger = std::max(ai->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node.actor->allowBattle), path.targetObjectDanger);
+		}
 
 		if(path.targetObjectDanger > 0)
 		{
