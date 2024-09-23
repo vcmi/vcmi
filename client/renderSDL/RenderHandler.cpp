@@ -23,6 +23,7 @@
 #include "../render/ColorFilter.h"
 #include "../render/IScreenHandler.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
@@ -352,7 +353,7 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 
 	std::shared_ptr<const IFont> loadedFont;
 
-	if (ttfConf[filename].isNull())
+	if(ttfConf[filename].isNull() || settings["video"]["scalableFonts"].Bool() == false)
 		loadedFont = std::make_shared<CBitmapFont>(filename);
 	else
 		loadedFont = std::make_shared<CTrueTypeFont>(ttfConf[filename]);

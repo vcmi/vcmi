@@ -175,17 +175,6 @@ void CSettingsView::loadSettings()
 	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
 	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
 	
-	auto mainWindow = getMainWindow();
-	if(mainWindow)
-	{
-		bool fontModAvailable = mainWindow->getModView()->isModInstalled("vcmi-extras.truetypefonts");
-		if(!fontModAvailable)
-		{
-			ui->labelTtfFont->hide();
-			ui->buttonTtfFont->hide();
-		}
-	}
-
 	loadToggleButtonSettings();
 }
 
@@ -206,13 +195,11 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
+	setCheckbuttonState(ui->buttonTtfFont, settings["video"]["scalableFonts"].Bool());
+
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
-
-	auto mainWindow = getMainWindow();
-	if(mainWindow)
-		setCheckbuttonState(ui->buttonTtfFont, mainWindow->getModView()->isModEnabled("vcmi-extras.truetypefonts"));
 }
 
 void CSettingsView::fillValidResolutions()
@@ -772,10 +759,7 @@ void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
 
 void CSettingsView::on_buttonTtfFont_toggled(bool value)
 {
-	auto mainWindow = getMainWindow();
-	if(value)
-		mainWindow->getModView()->enableModByName("vcmi-extras.truetypefonts");
-	else
-		mainWindow->getModView()->disableModByName("vcmi-extras.truetypefonts");
+	Settings node = settings.write["video"]["scalableFonts"];
+	node->Bool() = value;
 	updateCheckbuttonText(ui->buttonTtfFont);
 }
