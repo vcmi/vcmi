@@ -1265,6 +1265,17 @@ ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(Comp
 		return ObjectConfig::EObjectCategory::RESOURCE;
 	else if (name == "randomArtifact") //"artifact"
 		return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
+	else if (name == "artifact")
+	{
+		if (id.primaryID == Obj::SPELL_SCROLL ) // randomArtifactTreasure
+		{
+			return ObjectConfig::EObjectCategory::SPELL_SCROLL;
+		}
+		else
+		{
+			return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
+		}
+	}
 	else if (name == "denOfThieves")
 		return ObjectConfig::EObjectCategory::OTHER;
 	else if (name == "lighthouse")
