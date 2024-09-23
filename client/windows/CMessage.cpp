@@ -133,7 +133,10 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 			{
 				currPos = wordBreak;
 				if(text.substr(0, currPos).find('{') == std::string::npos)
+				{
 					opened = false;
+					color = "";
+				}
 			}
 			else
 				currPos -= symbolSize;
