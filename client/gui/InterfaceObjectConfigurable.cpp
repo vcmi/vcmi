@@ -285,7 +285,7 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 			return EFonts::FONT_CALLI;
 	}
 	logGlobal->debug("Unknown font attribute");
-	return EFonts::FONT_TIMES;
+	return EFonts::FONT_MEDIUM;
 }
 
 std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(const JsonNode & config) const

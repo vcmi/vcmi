@@ -26,6 +26,7 @@ class CTrueTypeFont final : public IFont
 
 	const std::unique_ptr<TTF_Font, void (*)(TTF_Font*)> font;
 	const bool blended;
+	const bool outline;
 	const bool dropShadow;
 
 	std::pair<std::unique_ptr<ui8[]>, ui64> loadData(const JsonNode & config);

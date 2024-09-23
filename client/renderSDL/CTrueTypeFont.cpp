@@ -62,12 +62,14 @@ int CTrueTypeFont::getFontStyle(const JsonNode &config) const
 CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
 	data(loadData(fontConfig)),
 	font(loadFont(fontConfig), TTF_CloseFont),
-	dropShadow(fontConfig["blend"].Bool()),
-	blended(fontConfig["blend"].Bool())
+	dropShadow(!fontConfig["noShadow"].Bool()),
+	outline(fontConfig["outline"].Bool()),
+	blended(true)
 {
 	assert(font);
 
 	TTF_SetFontStyle(font.get(), getFontStyle(fontConfig));
+	TTF_SetFontHinting(font.get(),TTF_HINTING_MONO);
 
 	std::string fallbackName = fontConfig["fallback"].String();
 
@@ -111,8 +113,14 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 		return;
 	}
 
-	if (dropShadow && color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
-		renderText(surface, data, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
+	if (color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
+	{
+		if (outline)
+			renderText(surface, data, Colors::BLACK, pos - Point(1,1) * getScalingFactor());
+
+		if (dropShadow || outline)
+			renderText(surface, data, Colors::BLACK, pos + Point(1,1) * getScalingFactor());
+	}
 
 	if (!data.empty())
 	{
