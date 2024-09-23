@@ -440,7 +440,7 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 		type = typeAndName.second;
 	}
 	
-	return getCompoundIdentifier(scopeAndFullName.first, type, subtype);
+	return getCompoundIdentifier(boost::to_lower_copy(scopeAndFullName.first), type, subtype);
 }
 
 std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
