@@ -60,6 +60,19 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 				if (event.resources[i])
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
+
+		//remove objects specified by event
+		for(int3 coordinate : event.deletedObjectsCoordinates)
+		{
+			if(gameHandler->isInTheMap(coordinate))
+			{
+				auto objects = gameHandler->getBlockingObjs(coordinate);
+				for(const CGObjectInstance * object : objects)
+				{
+					gameHandler->removeObject(object, PlayerColor::NEUTRAL);
+				}
+			}
+		}
 		gameHandler->sendAndApply(&iw); //show dialog
 	}
 }

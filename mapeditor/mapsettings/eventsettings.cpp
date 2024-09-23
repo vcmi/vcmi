@@ -55,6 +55,28 @@ TResources resourcesFromVariant(const QVariant & v)
 	return TResources(vJson);
 }
 
+QVariant toVariant(std::vector<int3> positions)
+{
+	QVariantList result;
+	for(int3 position : positions)
+	{
+		result.push_back(QVariant::fromValue<int3>(position));
+	}
+	return result;
+}
+
+std::vector<int3> deletedObjectsPositionsFromVariant(const QVariant & v)
+{
+	std::vector<int3> result;
+	for (auto positionAsVariant : v.toList())
+	{
+		int3 position = positionAsVariant.value<int3>();
+		result.push_back(position);
+	}
+
+	return result;
+}
+
 QVariant toVariant(const CMapEvent & event)
 {
 	QVariantMap result;
@@ -66,6 +88,7 @@ QVariant toVariant(const CMapEvent & event)
 	result["firstOccurrence"] = QVariant::fromValue(event.firstOccurrence);
 	result["nextOccurrence"] = QVariant::fromValue(event.nextOccurrence);
 	result["resources"] = toVariant(event.resources);
+	result["deletedObjectsPositions"] = toVariant(event.deletedObjectsCoordinates);
 	return QVariant(result);
 }
 
@@ -81,6 +104,7 @@ CMapEvent eventFromVariant(CMapHeader & mapHeader, const QVariant & variant)
 	result.firstOccurrence = v.value("firstOccurrence").toInt();
 	result.nextOccurrence = v.value("nextOccurrence").toInt();
 	result.resources = resourcesFromVariant(v.value("resources"));
+	result.deletedObjectsCoordinates = deletedObjectsPositionsFromVariant(v.value("deletedObjectsPositions"));
 	return result;
 }
 
