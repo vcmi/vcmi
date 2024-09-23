@@ -19,9 +19,6 @@
 #include <vcmi/spells/Service.h>
 
 #include "../renderSDL/SDL_Extensions.h"
-#include "../renderSDL/CBitmapFont.h"
-#include "../renderSDL/CBitmapHanFont.h"
-#include "../renderSDL/CTrueTypeFont.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 
