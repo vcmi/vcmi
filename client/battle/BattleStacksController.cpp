@@ -318,7 +318,8 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 			boxPosition = owner.fieldController->hexPositionLocal(frontPos).center() + Point(-8, -14);
 	}
 
-	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + graphics->fonts[EFonts::FONT_TINY]->getLineHeight() - 6);
+	const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + font->getLineHeight() - 6);
 
 	canvas.draw(amountBG, boxPosition);
 	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::TOPCENTER, TextOperations::formatMetric(stack->getCount(), 4));

@@ -12,6 +12,8 @@
 
 #include "SDLImage.h"
 #include "ImageScaled.h"
+#include "CBitmapFont.h"
+#include "CTrueTypeFont.h"
 
 #include "../gui/CGuiHandler.h"
 
@@ -334,4 +336,27 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 	addImageListEntries(services->factions());
 	addImageListEntries(services->spells());
 	addImageListEntries(services->skills());
+}
+
+std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
+{
+	if (fonts.count(font))
+		return fonts.at(font);
+
+	const int8_t index = static_cast<int8_t>(font);
+	const JsonNode config(JsonPath::builtin("config/fonts.json"));
+	const JsonVector & bmpConf = config["bitmap"].Vector();
+	const JsonNode   & ttfConf = config["trueType"];
+
+	std::string filename = bmpConf[index].String();
+
+	std::shared_ptr<const IFont> loadedFont;
+
+	if (ttfConf[filename].isNull())
+		loadedFont = std::make_shared<CBitmapFont>(filename);
+	else
+		loadedFont = std::make_shared<CTrueTypeFont>(ttfConf[filename]);
+
+	fonts[font] = loadedFont;
+	return loadedFont;
 }
