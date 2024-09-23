@@ -665,7 +665,7 @@
 	"core.bonus.WIDE_BREATH.name" : "Sopro Amplo",
 	"core.bonus.WIDE_BREATH.description" : "Ataque de sopro amplo (vários hexágonos)",
 	"core.bonus.DISINTEGRATE.name": "Desintegrar",
-	"core.bonus.DISINTEGRATE.description": "Nenhum corpo permanece após a morte"
+	"core.bonus.DISINTEGRATE.description": "Nenhum corpo permanece após a morte",
 	"core.bonus.INVINCIBLE.name": "Invencível",
 	"core.bonus.INVINCIBLE.description": "Não pode ser afetado por nada"
 }
