@@ -68,6 +68,8 @@ TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTow
 
 void TownBuildingVisitQuery::onExposure(QueryPtr topQuery)
 {
+	topQuery->notifyObjectAboutRemoval(visitedObject, visitingHero);
+
 	onAdded(players.front());
 }
 
