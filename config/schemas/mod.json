@@ -124,12 +124,7 @@
 		"settings" : {
 			"type" : "object",
 			"description" : "List of changed game settings by mod",
-			"additionalProperties" : {
-				"type" : "object",
-				"properties" : { 
-					"type" : "object"
-				}
-			}
+			"$ref" : "gameSettings.json"
 		},
 		"filesystem" : {
 			"type" : "object",

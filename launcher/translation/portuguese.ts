@@ -1241,7 +1241,7 @@ O instalador offline consiste em duas partes, .exe e .bin. Certifique-se de baix
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
-        <source>File cannot opened</source>
+        <source>File cannot be opened</source>
         <translation>O arquivo não pode ser aberto</translation>
     </message>
     <message>

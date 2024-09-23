@@ -48,48 +48,48 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	}
 	
 	//fill artifacts
-	for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
+	for(const auto & artifactPtr : VLC->arth->objects)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->artifacts()->getByIndex(i)->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		auto artifactIndex = artifactPtr->getIndex();
+		auto * item = new QListWidgetItem(QString::fromStdString(artifactPtr->getNameTranslated()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
-		if(controller.map()->allowedArtifact.count(i) == 0)
+		if(controller.map()->allowedArtifact.count(artifactIndex) == 0)
 			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 		ui->lArtifacts->addItem(item);
 	}
 	
 	//fill spells
-	for(int i = 0; i < controller.map()->allowedSpells.size(); ++i)
+	for(const auto & spellPtr : VLC->spellh->objects)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(VLC->spells()->getByIndex(i)->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		auto spellIndex = spellPtr->getIndex();
+		auto * item = new QListWidgetItem(QString::fromStdString(spellPtr->getNameTranslated()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
-		if(controller.map()->allowedSpells.count(i) == 0)
+		if(controller.map()->allowedSpells.count(spellIndex) == 0)
 			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 		ui->lSpells->addItem(item);
 	}
 	
 	//fill skills
-	ui->lSkills->setRowCount(controller.map()->allowedAbilities.size());
-	for(int i = 0; i < controller.map()->allowedAbilities.size(); ++i)
+	ui->lSkills->setRowCount(VLC->skillh->objects.size());
+	for(const auto & skillPtr : VLC->skillh->objects)
 	{
-		auto * item = new QTableWidgetItem(QString::fromStdString(VLC->skills()->getByIndex(i)->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		auto skillIndex = skillPtr->getIndex();
+		auto * item = new QTableWidgetItem(QString::fromStdString(skillPtr->getNameTranslated()));
 		
 		auto * widget = new QComboBox;
-		for(auto & s : NSecondarySkill::levels)
+		for(const auto & s : NSecondarySkill::levels)
 			widget->addItem(QString::fromStdString(s));
 		
-		if(controller.map()->allowedAbilities.count(i) == 0)
+		if(controller.map()->allowedAbilities.count(skillIndex) == 0)
 		{
 			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 			widget->setEnabled(false);
 		}
 			
-		ui->lSkills->setItem(i, 0, item);
-		ui->lSkills->setCellWidget(i, 1, widget);
+		ui->lSkills->setItem(skillIndex, 0, item);
+		ui->lSkills->setCellWidget(skillIndex, 1, widget);
 	}
 	
 	//fill creatures
@@ -156,7 +156,7 @@ void QuestWidget::obtainData()
 	for(auto i : quest.mission.artifacts)
 		ui->lArtifacts->item(VLC->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto i : quest.mission.spells)
-		ui->lArtifacts->item(VLC->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+		ui->lSpells->item(VLC->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto & i : quest.mission.secondary)
 	{
 		int index = VLC->skills()->getById(i.first)->getIndex();
