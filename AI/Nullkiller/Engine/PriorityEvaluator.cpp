@@ -1412,6 +1412,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case PriorityTier::KILL: //Take towns / kill heroes that are further away
 			{
+				//TODO: This is a workaround for duplicating the same capture town-task being given to several heroes. A better solution ought to be found.
+				if (evaluationContext.movementCostByRole[HeroRole::MAIN] == 0)
+					return 0;
 				if (evaluationContext.turn > 0 && evaluationContext.isHero)
 					return 0;
 				if (arriveNextWeek && evaluationContext.isEnemy)
