@@ -254,6 +254,10 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 				i->mouseClickedState = isPressed;
 				i->clickCancel(position);
 			}
+			else if(isPressed)
+			{
+				i->notFocusedClick();
+			}
 		}
 	}
 }

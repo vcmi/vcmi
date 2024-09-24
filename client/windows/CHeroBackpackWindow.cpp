@@ -77,6 +77,7 @@ CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, 
 	addSet(arts);
 	arts->setHero(hero);
 	addUsedEvents(GESTURE);
+	addUsedEvents(LCLICK);
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + windowMargin;
 }
@@ -94,6 +95,11 @@ void CHeroQuickBackpackWindow::gesturePanning(const Point & initialPosition, con
 {
 	arts->selectSlotAt(currentPosition);
 	redraw();
+}
+
+void CHeroQuickBackpackWindow::notFocusedClick()
+{
+	close();
 }
 
 void CHeroQuickBackpackWindow::showAll(Canvas & to)
