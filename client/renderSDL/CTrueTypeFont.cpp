@@ -94,7 +94,16 @@ size_t CTrueTypeFont::getGlyphWidthScaled(const char *data) const
 
 bool CTrueTypeFont::canRepresentCharacter(const char * data) const
 {
-	return TTF_GlyphIsProvided32(font.get(), TextOperations::getUnicodeCodepoint(data, TextOperations::getUnicodeCharacterSize(*data)));
+	uint32_t codepoint = TextOperations::getUnicodeCodepoint(data, TextOperations::getUnicodeCharacterSize(*data));
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
+	return TTF_GlyphIsProvided32(font.get(), codepoint);
+#elif SDL_TTF_VERSION_ATLEAST(2, 0, 12)
+	if (codepoint <= 0xffff)
+		return TTF_GlyphIsProvided(font.get(), codepoint);
+	return true;
+#else
+	return true;
+#endif
 }
 
 size_t CTrueTypeFont::getStringWidthScaled(const std::string & data) const
