@@ -356,7 +356,8 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 		const JsonNode   & ttfConf = config["trueType"];
 
 		bitmapPath = bmpConf[index].String();
-		loadedFont->addTrueTypeFont(ttfConf[bitmapPath]);
+		if (!ttfConf[bitmapPath].isNull())
+			loadedFont->addTrueTypeFont(ttfConf[bitmapPath]);
 	}
 	loadedFont->addBitmapFont(bitmapPath);
 

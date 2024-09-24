@@ -39,17 +39,36 @@ size_t FontChain::getFontAscentScaled() const
 	return maxHeight;
 }
 
+bool FontChain::bitmapFontsPrioritized() const
+{
+	const std::string & fontType = settings["video"]["fontsType"].String();
+	if (fontType == "original")
+		return true;
+	if (fontType == "scalable")
+		return false;
+
+	// else - autoselection.
+
+	if (getScalingFactor() != 1)
+		return false; // If xbrz in use ttf/scalable fonts are preferred
+
+	if (!vstd::isAlmostEqual(1.0, settings["video"]["fontScalingFactor"].Float()))
+		return false; // If player requested non-100% scaling - use scalable fonts
+
+	return true; // else - use original bitmap fonts
+}
+
 void FontChain::addTrueTypeFont(const JsonNode & trueTypeConfig)
 {
-	chain.push_back(std::make_unique<CTrueTypeFont>(trueTypeConfig));
+	chain.insert(chain.begin(), std::make_unique<CTrueTypeFont>(trueTypeConfig));
 }
 
 void FontChain::addBitmapFont(const std::string & bitmapFilename)
 {
-	if (settings["video"]["scalableFonts"].Bool())
-		chain.push_back(std::make_unique<CBitmapFont>(bitmapFilename));
-	else
+	if (bitmapFontsPrioritized())
 		chain.insert(chain.begin(), std::make_unique<CBitmapFont>(bitmapFilename));
+	else
+		chain.push_back(std::make_unique<CBitmapFont>(bitmapFilename));
 }
 
 bool FontChain::canRepresentCharacter(const char * data) const

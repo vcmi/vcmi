@@ -174,7 +174,14 @@ void CSettingsView::loadSettings()
 	ui->sliderControllerSticksAcceleration->setValue(settings["input"]["controllerAxisScale"].Float() * 100);
 	ui->lineEditGameLobbyHost->setText(QString::fromStdString(settings["lobby"]["hostname"].String()));
 	ui->spinBoxNetworkPortLobby->setValue(settings["lobby"]["port"].Integer());
-	
+
+	if (settings["video"]["fontsType"].String() == "auto")
+		ui->buttonFontAuto->setChecked(true);
+	else if (settings["video"]["fontsType"].String() == "original")
+		ui->buttonFontOriginal->setChecked(true);
+	else
+		ui->buttonFontScalable->setChecked(true);
+
 	loadToggleButtonSettings();
 }
 
@@ -195,11 +202,13 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
-	setCheckbuttonState(ui->buttonTtfFont, settings["video"]["scalableFonts"].Bool());
-
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
+
+	int fontScalingPercentage = settings["video"]["fontScalingFactor"].Float() * 100;
+	ui->sliderScalingFont->setValue(fontScalingPercentage / 5);
+
 }
 
 void CSettingsView::fillValidResolutions()
@@ -757,9 +766,28 @@ void CSettingsView::on_sliderControllerSticksSensitivity_valueChanged(int value)
 	node->Integer() = value;
 }
 
-void CSettingsView::on_buttonTtfFont_toggled(bool value)
+void CSettingsView::on_sliderScalingFont_valueChanged(int value)
 {
-	Settings node = settings.write["video"]["scalableFonts"];
-	node->Bool() = value;
-	updateCheckbuttonText(ui->buttonTtfFont);
+	int actualValuePercentage = value * 5;
+	ui->labelScalingFontValue->setText(QString("%1%").arg(actualValuePercentage));
+	Settings node = settings.write["video"]["fontScalingFactor"];
+	node->Float() = actualValuePercentage / 100.0;
+}
+
+void CSettingsView::on_buttonFontAuto_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "auto";
+}
+
+void CSettingsView::on_buttonFontScalable_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "scalable";
+}
+
+void CSettingsView::on_buttonFontOriginal_clicked(bool checked)
+{
+	Settings node = settings.write["video"]["fontsType"];
+	node->String() = "original";
 }
