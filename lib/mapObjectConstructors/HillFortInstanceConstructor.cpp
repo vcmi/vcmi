@@ -25,13 +25,6 @@ void HillFortInstanceConstructor::initTypeData(const JsonNode & config)
 void HillFortInstanceConstructor::initializeObject(HillFort * fort) const
 {
 	fort->upgradeCostPercentage = parameters["upgradeCostFactor"].convertTo<std::vector<int>>();
-	fort->descriptionToolTip = VLC->generaltexth->translate(TextIdentifier(getBaseTextID(), "description").get());
-	if (fort->descriptionToolTip.empty())
-		fort->descriptionToolTip = parameters["description"].String();		
-
-	fort->unavailableUpgradeMessage = VLC->generaltexth->translate(TextIdentifier(getBaseTextID(), "unavailableUpgradeMessage").get());
-	if (fort->unavailableUpgradeMessage.empty())
-		fort->unavailableUpgradeMessage = parameters["unavailableUpgradeMessage"].String();
 }
 
 VCMI_LIB_NAMESPACE_END

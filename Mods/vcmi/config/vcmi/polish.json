@@ -513,7 +513,9 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Zamknięte do %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Zamknięte do %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Zamknięte do %s.",
-	"mapObject.core.hillFort.object.description" : "Ulepsza jednostki. Koszt ulepszenia dla poziomów 1 - 4 jest bardziej korzystny niż w mieście",
+	
+	"mapObject.core.hillFort.object.description" : "Ulepsza jednostki. Koszt ulepszenia dla poziomów 1 - 4 jest bardziej korzystny niż w mieście.",
+	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Podwójne Uderzenie",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Atakuje dwa razy",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Dodatkowy odwet",

@@ -517,7 +517,7 @@
 	"core.seerhut.quest.reachDate.visit.4" : "Closed till %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Closed till %s.",
 	
-	"mapObject.core.hillFort.object.description" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town",
+	"mapObject.core.hillFort.object.description" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town.",
 	
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",

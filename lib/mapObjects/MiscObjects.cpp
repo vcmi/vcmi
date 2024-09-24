@@ -1403,4 +1403,14 @@ void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) 
 	}
 }
 
+std::string HillFort::getDescriptionToolTip() const
+{
+	return TextIdentifier(getObjectHandler()->getBaseTextID(), "description").get();
+}
+
+std::string HillFort::getUnavailableUpgradeMessage() const
+{
+	return TextIdentifier(getObjectHandler()->getBaseTextID(), "unavailableUpgradeMessage").get();
+}
+
 VCMI_LIB_NAMESPACE_END

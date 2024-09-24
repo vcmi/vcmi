@@ -1130,7 +1130,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 
 	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);
 
-	statusbar->write(dynamic_cast<const HillFort *>(fort)->getDescriptionToolTip());
+	statusbar->write(VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getDescriptionToolTip()));
 
 	updateGarrisons();
 }
@@ -1270,9 +1270,11 @@ void CHillFortWindow::makeDeal(SlotID slot)
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case State::UNAVAILABLE:
-			LOCPLINT->showInfoDialog(dynamic_cast<const HillFort*>(fort)->getUnavailableUpgradeMessage(),
-									 std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
+		{
+			std::string message = VLC->generaltexth->translate(dynamic_cast<const HillFort *>(fort)->getUnavailableUpgradeMessage());
+			LOCPLINT->showInfoDialog(message, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
+		}
 		case State::MAKE_UPGRADE:
 			for(int i = 0; i < slotsCount; i++)
 			{
