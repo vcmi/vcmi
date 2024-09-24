@@ -15,6 +15,7 @@
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/TextOperations.h"
@@ -29,12 +30,13 @@ std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode &
 
 int CTrueTypeFont::getPointSize(const JsonNode & config) const
 {
+	float fontScale = settings["video"]["fontScalingFactor"].Float();
 	int scalingFactor = getScalingFactor();
 
 	if (config.isNumber())
-		return config.Integer() * scalingFactor;
+		return std::round(config.Integer() * scalingFactor * fontScale);
 	else
-		return config[scalingFactor-1].Integer();
+		return std::round(config[scalingFactor-1].Integer() * fontScale);
 }
 
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)
@@ -71,48 +73,39 @@ CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
 	TTF_SetFontStyle(font.get(), getFontStyle(fontConfig));
 	TTF_SetFontHinting(font.get(),TTF_HINTING_MONO);
 
-	std::string fallbackName = fontConfig["fallback"].String();
-
-	if (!fallbackName.empty())
-		fallbackFont = std::make_unique<CBitmapFont>(fallbackName);
 }
 
 CTrueTypeFont::~CTrueTypeFont() = default;
 
-size_t CTrueTypeFont::getLineHeight() const
+size_t CTrueTypeFont::getFontAscentScaled() const
 {
-	if (fallbackFont)
-		return fallbackFont->getLineHeight();
-
-	return TTF_FontHeight(font.get()) / getScalingFactor();
+	return TTF_FontAscent(font.get());
 }
 
-size_t CTrueTypeFont::getGlyphWidth(const char *data) const
+size_t CTrueTypeFont::getLineHeightScaled() const
 {
-	if (fallbackFont && fallbackFont->canRepresentCharacter(data))
-		return fallbackFont->getGlyphWidth(data);
-
-	return getStringWidth(std::string(data, TextOperations::getUnicodeCharacterSize(*data)));
+	return TTF_FontHeight(font.get());
 }
 
-size_t CTrueTypeFont::getStringWidth(const std::string & data) const
+size_t CTrueTypeFont::getGlyphWidthScaled(const char *data) const
 {
-	if (fallbackFont && fallbackFont->canRepresentString(data))
-		return fallbackFont->getStringWidth(data);
+	return getStringWidthScaled(std::string(data, TextOperations::getUnicodeCharacterSize(*data)));
+}
 
+bool CTrueTypeFont::canRepresentCharacter(const char * data) const
+{
+	return TTF_GlyphIsProvided32(font.get(), TextOperations::getUnicodeCodepoint(data, TextOperations::getUnicodeCharacterSize(*data)));
+}
+
+size_t CTrueTypeFont::getStringWidthScaled(const std::string & data) const
+{
 	int width;
 	TTF_SizeUTF8(font.get(), data.c_str(), &width, nullptr);
-	return width / getScalingFactor();
+	return width;
 }
 
 void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
-	if (fallbackFont && fallbackFont->canRepresentString(data))
-	{
-		fallbackFont->renderText(surface, data, color, pos);
-		return;
-	}
-
 	if (color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
 	{
 		if (outline)

@@ -12,8 +12,7 @@
 
 #include "SDLImage.h"
 #include "ImageScaled.h"
-#include "CBitmapFont.h"
-#include "CTrueTypeFont.h"
+#include "FontChain.h"
 
 #include "../gui/CGuiHandler.h"
 
@@ -22,8 +21,6 @@
 #include "../render/Colors.h"
 #include "../render/ColorFilter.h"
 #include "../render/IScreenHandler.h"
-
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
@@ -345,18 +342,23 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 		return fonts.at(font);
 
 	const int8_t index = static_cast<int8_t>(font);
-	const JsonNode config(JsonPath::builtin("config/fonts.json"));
-	const JsonVector & bmpConf = config["bitmap"].Vector();
-	const JsonNode   & ttfConf = config["trueType"];
+	auto configList = CResourceHandler::get()->getResourcesWithName(JsonPath::builtin("config/fonts.json"));
+	std::shared_ptr<FontChain> loadedFont = std::make_shared<FontChain>();
+	std::string bitmapPath;
 
-	std::string filename = bmpConf[index].String();
+	for(auto & loader : configList)
+	{
+		auto stream = loader->load(JsonPath::builtin("config/fonts.json"));
+		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+		stream->read(textData.get(), stream->getSize());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize(), "config/fonts.json");
+		const JsonVector & bmpConf = config["bitmap"].Vector();
+		const JsonNode   & ttfConf = config["trueType"];
 
-	std::shared_ptr<const IFont> loadedFont;
-
-	if(ttfConf[filename].isNull() || settings["video"]["scalableFonts"].Bool() == false)
-		loadedFont = std::make_shared<CBitmapFont>(filename);
-	else
-		loadedFont = std::make_shared<CTrueTypeFont>(ttfConf[filename]);
+		bitmapPath = bmpConf[index].String();
+		loadedFont->addTrueTypeFont(ttfConf[bitmapPath]);
+	}
+	loadedFont->addBitmapFont(bitmapPath);
 
 	fonts[font] = loadedFont;
 	return loadedFont;

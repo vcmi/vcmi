@@ -40,9 +40,10 @@ class CBitmapFont final : public IFont
 	};
 
 	std::unordered_map<CodePoint, BitmapChar> chars;
-	uint32_t maxHeight;
+	uint32_t height;
+	uint32_t ascent;
 
-	void loadModFont(const std::string & modName, const ResourcePath & resource, std::unordered_map<CodePoint, EntryFNT> & loadedChars);
+	void loadFont(const ResourcePath & resource, std::unordered_map<CodePoint, EntryFNT> & loadedChars);
 
 	void renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const;
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
@@ -50,11 +51,12 @@ public:
 	explicit CBitmapFont(const std::string & filename);
 	~CBitmapFont();
 
-	size_t getLineHeight() const override;
-	size_t getGlyphWidth(const char * data) const override;
+	size_t getFontAscentScaled() const override;
+	size_t getLineHeightScaled() const override;
+	size_t getGlyphWidthScaled(const char * data) const override;
 
 	/// returns true if this font contains provided utf-8 character
-	bool canRepresentCharacter(const char * data) const;
+	bool canRepresentCharacter(const char * data) const override;
 	bool canRepresentString(const std::string & data) const;
 
 	friend class CBitmapHanFont;
