@@ -39,6 +39,16 @@ CampaignRegions::RegionDescription CampaignRegions::RegionDescription::fromJson(
 	rd.infix = node["infix"].String();
 	rd.xpos = static_cast<int>(node["x"].Float());
 	rd.ypos = static_cast<int>(node["y"].Float());
+	if(!node["labelPos"].isNull())
+	{
+		rd.xLabelpos = static_cast<int>(node["labelPos"]["x"].Float());
+		rd.yLabelpos = static_cast<int>(node["labelPos"]["y"].Float());
+	}
+	else
+	{
+		rd.xLabelpos = std::nullopt;
+		rd.yLabelpos = std::nullopt;
+	}
 	return rd;
 }
 
@@ -81,6 +91,15 @@ Point CampaignRegions::getPosition(CampaignScenarioID which) const
 {
 	auto const & region = regions[which.getNum()];
 	return Point(region.xpos, region.ypos);
+}
+
+std::optional<Point> CampaignRegions::getLabelPosition(CampaignScenarioID which) const
+{
+	auto const & region = regions[which.getNum()];
+	if(region.xLabelpos && region.yLabelpos)
+		return Point(*region.xLabelpos, *region.yLabelpos);
+	else
+		return std::nullopt;
 }
 
 ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, std::string type) const

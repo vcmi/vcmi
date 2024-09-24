@@ -42,12 +42,19 @@ class DLL_LINKAGE CampaignRegions
 		std::string infix;
 		int xpos;
 		int ypos;
+		std::optional<int> xLabelpos;
+		std::optional<int> yLabelpos;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
 			h & infix;
 			h & xpos;
 			h & ypos;
+			if (h.version >= Handler::Version::REGION_LABEL)
+			{
+				h & xLabelpos;
+				h & yLabelpos;
+			}
 		}
 
 		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
@@ -60,6 +67,7 @@ class DLL_LINKAGE CampaignRegions
 public:
 	ImagePath getBackgroundName() const;
 	Point getPosition(CampaignScenarioID which) const;
+	std::optional<Point> getLabelPosition(CampaignScenarioID which) const;
 	ImagePath getAvailableName(CampaignScenarioID which, int color) const;
 	ImagePath getSelectedName(CampaignScenarioID which, int color) const;
 	ImagePath getConqueredName(CampaignScenarioID which, int color) const;
