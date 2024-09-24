@@ -55,6 +55,7 @@
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMapHeader.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
@@ -402,6 +403,7 @@ void CBonusSelection::goBack()
 		CSH->state = EClientState::LOBBY;
 	}
 */
+	CMM->playMusic();
 }
 
 void CBonusSelection::startMap()
@@ -498,7 +500,10 @@ CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool s
 
 	auto labelPos = campDsc.getLabelPosition(id);
 	if(labelPos)
-		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CSH->si->campState->scenario(idOfMapAndRegion).scenarioName.toString());
+	{
+		auto mapHeader = CSH->si->campState->getMapHeader(idOfMapAndRegion);
+		label = std::make_shared<CLabel>((*labelPos).x, (*labelPos).y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, mapHeader->name.toString());
+	}
 }
 
 void CBonusSelection::CRegion::updateState()
