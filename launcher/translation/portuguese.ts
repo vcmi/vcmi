@@ -11,7 +11,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>Tem uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós</translation>
+        <translation>Tem uma pergunta? Encontrou algum erro? Quer ajudar? Junte-se a nós!</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
@@ -649,11 +649,6 @@ Instalar o download realizado com sucesso?</translation>
         <translation>Repositório adicional</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="893"/>
-        <source>Downscaling Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="931"/>
         <source>Adventure Map Allies</source>
         <translation>Aliados do Mapa de Aventura</translation>
@@ -676,7 +671,7 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="618"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>Automático (Linear)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="798"/>
@@ -691,27 +686,27 @@ Instalar o download realizado com sucesso?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1166"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automático</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1171"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhum</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1176"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1181"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1186"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="138"/>
@@ -757,6 +752,11 @@ Instalar o download realizado com sucesso?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="1151"/>
         <source>Reset</source>
         <translation>Redefinir</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1194"/>
+        <source>Use scalable fonts</source>
+        <translation>Usar Fontes Escaláveis</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="854"/>
@@ -837,6 +837,11 @@ Instalar o download realizado com sucesso?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="777"/>
         <source>Autosave limit (0 = off)</source>
         <translation>Limite de salvamento automático (0 = sem limite)</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="893"/>
+        <source>Downscaling Filter</source>
+    <translation>Filtro de Redução de Escala</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1030"/>
