@@ -72,7 +72,9 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 
 void InputSourceMouse::handleEventMouseWheel(const SDL_MouseWheelEvent & wheel)
 {
-#if SDL_VERSION_ATLEAST(2,26,0)
+	//NOTE: while mouseX / mouseY properties are available since 2.26.0, they are not converted into logical coordinates so don't account for resolution scaling
+	// This SDL bug was fixed in 2.30.1: https://github.com/libsdl-org/SDL/issues/9097
+#if SDL_VERSION_ATLEAST(2,30,1)
 	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), Point(wheel.mouseX, wheel.mouseY) / GH.screenHandler().getScalingFactor());
 #else
 	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), GH.getCursorPosition());

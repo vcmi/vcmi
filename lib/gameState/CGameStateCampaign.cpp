@@ -139,10 +139,14 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 				bool locked = hero.hero->getSlot(al.slot)->locked;
 
 				if (!locked && takeable)
+				{
+					logGlobal->debug("Artifact %s from slot %d of hero %s will be transferred to next scenario", art->artType->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
 					hero.transferrableArtifacts.push_back(artifactPosition);
+				}
 
 				if (!locked && !takeable)
 				{
+					logGlobal->debug("Removing artifact %s from slot %d of hero %s", art->artType->getJsonKey(), al.slot.getNum(), hero.hero->getHeroTypeName());
 					hero.hero->getArt(al.slot)->removeFrom(*hero.hero, al.slot);
 					return true;
 				}
@@ -413,16 +417,18 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 		if (!donorHero)
 			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString());
 
-		for (auto const & artLocation : campaignHeroReplacement.transferrableArtifacts)
+		// process in reverse - 2nd artifact from a backpack must be processed before 1st one to avoid invalidation of artifact positions
+		for (auto const & artLocation : boost::adaptors::reverse(campaignHeroReplacement.transferrableArtifacts))
 		{
 			auto * artifact = donorHero->getArt(artLocation);
-			if (!donorHero)
-				throw std::runtime_error("Failed to find artifacts to transfer to travelling hero! Scenario: " + gameState->map->name.toString());
 
+			logGlobal->debug("Removing artifact %s from slot %d of hero %s for transfer", artifact->artType->getJsonKey(), artLocation.getNum(), donorHero->getHeroTypeName());
 			artifact->removeFrom(*donorHero, artLocation);
 
 			if (receiver)
 			{
+				logGlobal->debug("Granting artifact %s to hero %s for transfer", artifact->artType->getJsonKey(), receiver->getHeroTypeName());
+
 				const auto slot = ArtifactUtils::getArtAnyPosition(receiver, artifact->getTypeId());
 				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 					artifact->putAt(*receiver, slot);

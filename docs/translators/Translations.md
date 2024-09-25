@@ -33,6 +33,7 @@ The page will be automatically updated once a week.
 VCMI allows translating game data into languages other than English. In order to translate Heroes III in your language easiest approach is to:
 
 - Copy existing translation, such as English translation from here: https://github.com/vcmi-mods/h3-for-vcmi-englisation (delete sound and video folders)
+- Copy text-free images from here: https://github.com/vcmi-mods/empty-translation
 - Rename mod to indicate your language, preferred form is "(language)-translation"
 - Update mod.json to match your mod
 - Translate all texts strings from `game.json`, `campaigns.json` and `maps.json`
