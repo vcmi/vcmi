@@ -1342,26 +1342,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	else
 	{
 		float score = 0;
-		float myPower = 0;
-		float totalPower = 0;
-		for (auto heroInfo : ai->cb->getHeroesInfo(false))
-		{
-			if (heroInfo->getOwner() == ai->cb->getPlayerID())
-				myPower += heroInfo->getTotalStrength();
-			totalPower += heroInfo->getTotalStrength();
-		}
-		float powerRatio = 1;
-		if (totalPower > 0)
-			powerRatio = myPower / totalPower;
-
-		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.5 * powerRatio;
+		float maxWillingToLose = ai->cb->getTownsInfo().empty() ? 1 : 0.25;
 
 		bool arriveNextWeek = false;
 		if (ai->cb->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7)
 			arriveNextWeek = true;
 
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d powerRatio: %d",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, explorePriority: %d isDefend: %d",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossPersentage,
@@ -1382,8 +1370,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.closestWayRatio,
 			evaluationContext.enemyHeroDangerRatio,
 			evaluationContext.explorePriority,
-			evaluationContext.isDefend,
-			powerRatio);
+			evaluationContext.isDefend);
 #endif
 
 		switch (priorityTier)
