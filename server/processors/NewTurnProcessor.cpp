@@ -62,16 +62,9 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		}
 
 		//remove objects specified by event
-		for(int3 coordinate : event.deletedObjectsCoordinates)
+		for(const CGObjectInstance * objectToRemove : event.deletedObjectsInstances)
 		{
-			if(gameHandler->isInTheMap(coordinate))
-			{
-				auto objects = gameHandler->getBlockingObjs(coordinate);
-				for(const CGObjectInstance * object : objects)
-				{
-					gameHandler->removeObject(object, PlayerColor::NEUTRAL);
-				}
-			}
+			gameHandler->removeObject(objectToRemove, PlayerColor::NEUTRAL);
 		}
 		gameHandler->sendAndApply(&iw); //show dialog
 	}

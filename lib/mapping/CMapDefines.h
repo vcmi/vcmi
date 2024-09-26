@@ -44,8 +44,10 @@ public:
 	ui32 nextOccurrence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
 
 	std::vector<int3> deletedObjectsCoordinates;
+	std::set<const CGObjectInstance*> deletedObjectsInstances;
 
 	std::vector<int3> unused;
+	std::set<const CGObjectInstance*> unused2;
 
 	template <typename Handler>
 	void serialize(Handler & h)
@@ -70,9 +72,15 @@ public:
 		h & firstOccurrence;
 		h & nextOccurrence;
 		if(h.version >= Handler::Version::EVENT_OBJECTS_DELETION)
+		{
 			h & deletedObjectsCoordinates;
+			h & deletedObjectsInstances;
+		}
 		else
+		{
 			h & unused;
+			h & unused2;
+		}
 	}
 	
 	virtual void serializeJson(JsonSerializeFormat & handler);
