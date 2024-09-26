@@ -20,6 +20,8 @@
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
+#include "../../CCallback.h"
+
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
@@ -41,11 +43,16 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	};
 	addSet(arts);
 	arts->setHero(hero);
+	
 	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
 		[this]() { WindowBase::close(); }, EShortcut::GLOBAL_RETURN);
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + quitButton->pos.h + 3 * windowMargin;
 	quitButton->moveTo(Point(pos.x + pos.w / 2 - quitButton->pos.w / 2, pos.y + arts->pos.h + 2 * windowMargin));
+	
+	sortBySlot = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
+		[hero]() { LOCPLINT->cb->sortBackpackArtifactsBySlot(hero->id); }, EShortcut::GLOBAL_RETURN);
+	sortBySlot->moveTo(Point(pos.x + windowMargin, quitButton->pos.y));
 	statusbar = CGStatusBar::create(0, pos.h, ImagePath::builtin("ADROLLVR.bmp"), pos.w);
 	pos.h += statusbar->pos.h;
 

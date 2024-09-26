@@ -197,22 +197,7 @@ void ApplyGhNetPackVisitor::visitManageBackpackArtifacts(ManageBackpackArtifacts
 	gh.throwIfPlayerNotActive(&pack);
 
 	if(gh.getPlayerRelations(pack.player, gh.getOwner(pack.artHolder)) != PlayerRelations::ENEMIES)
-	{
-		if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT)
-			result = gh.scrollBackpackArtifacts(pack.player, pack.artHolder, true);
-		else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_RIGHT)
-			result = gh.scrollBackpackArtifacts(pack.player, pack.artHolder, false);
-		else
-		{
-			gh.throwIfWrongOwner(&pack, pack.artHolder);
-			if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
-				result = true;
-			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
-				result = true;
-			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
-				result = true;
-		}
-	}
+		result = gh.manageBackpackArtifacts(pack.player, pack.artHolder, pack.cmd);
 }
 
 void ApplyGhNetPackVisitor::visitManageEquippedArtifacts(ManageEquippedArtifacts & pack)

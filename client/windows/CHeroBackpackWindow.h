@@ -21,6 +21,7 @@ public:
 protected:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;
 	std::shared_ptr<CButton> quitButton;
+	std::shared_ptr<CButton> sortBySlot;
 	std::shared_ptr<CFilledTexture> stretchedBackground;
 	const int windowMargin = 5;
 
