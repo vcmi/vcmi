@@ -962,12 +962,7 @@ void CGameState::initTimedEventsRemovableObjects()
 			{
 				for(const CGObjectInstance * object : getBlockingObjs(coordinate))
 				{
-					timedEvent.deletedObjectsInstances.insert(object);
-				}
-
-				for(const CGObjectInstance * object : getVisitableObjs(coordinate))
-				{
-					timedEvent.deletedObjectsInstances.insert(object);
+					timedEvent.deletedObjectsInstances.push_back(object);
 				}
 			}
 		}
