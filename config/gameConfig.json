@@ -311,7 +311,9 @@
 			// How many new building can be built in a town per day
 			"buildingsPerTurnCap" : 1,
 			// Chances for a town with default buildings to receive corresponding dwelling level built in start
-			"startingDwellingChances": [100, 50] 
+			"startingDwellingChances": [100, 50],
+			// Enable spell research in mage guild
+			"spellResearch": false
 		},
 
 		"combat":

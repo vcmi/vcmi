@@ -52,7 +52,8 @@
 			"additionalProperties" : false,
 			"properties" : {
 				"buildingsPerTurnCap"  :    { "type" : "number" },
-				"startingDwellingChances" : { "type" : "array" }
+				"startingDwellingChances" : { "type" : "array" },
+				"spellResearch" :           { "type" : "boolean" }
 			}
 		},
 		"combat": {
