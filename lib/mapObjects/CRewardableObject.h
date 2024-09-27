@@ -25,27 +25,21 @@ protected:
 	/// reward selected by player, no serialize
 	ui16 selectedReward = 0;
 	
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
-	void markAsVisited(const CGHeroInstance * hero) const;
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
+	void markAsVisited(const CGHeroInstance * hero) const override;
+
+	const IObjectInterface * getObject() const override;
+	void markAsScouted(const CGHeroInstance * hero) const override;
 	
 	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
 	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
-	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+	bool wasVisitedBefore(const CGHeroInstance * contextHero) const override;
 	
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	
-	virtual void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
-	virtual void selectRewardWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const;
-
-	virtual void grantAllRewardsWithMessage(const CGHeroInstance * contextHero, const std::vector<ui32>& rewardIndices, bool markAsVisit) const;
-
-	std::vector<Component> loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const;
-
 	std::string getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const;
 	std::string getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const;
 	std::vector<Component> getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const;
-
-	void doHeroVisit(const CGHeroInstance *h) const;
 
 	/// Returns true if this object is currently guarded
 	bool isGuarded() const;

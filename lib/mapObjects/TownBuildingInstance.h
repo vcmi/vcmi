@@ -63,10 +63,14 @@ class DLL_LINKAGE TownRewardableBuildingInstance : public TownBuildingInstance, 
 	ui16 selectedReward = 0;
 	std::set<ObjectInstanceID> visitors;
 
-	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
+	bool wasVisitedBefore(const CGHeroInstance * contextHero) const override;
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
 	Rewardable::Configuration generateConfiguration(vstd::RNG & rand) const;
 
+	const IObjectInterface * getObject() const override;
+	bool wasVisited(PlayerColor player) const override;
+	void markAsVisited(const CGHeroInstance * hero) const override;
+	void markAsScouted(const CGHeroInstance * hero) const override;
 public:
 	void setProperty(ObjProperty what, ObjPropertyID identifier) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
