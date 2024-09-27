@@ -191,9 +191,9 @@ Predefined campaign regions are located in file `campaign_regions.json`
     "prefix": "G3",
     "colorSuffixLength": 1,
     "desc": [
-        { "infix": "A", "x": 289, "y": 376 },
-        { "infix": "B", "x": 60, "y": 147 },
-        { "infix": "C", "x": 131, "y": 202 }
+        { "infix": "A", "x": 289, "y": 376, "labelPos": { "x": 98, "y": 112 } },
+        { "infix": "B", "x": 60, "y": 147, "labelPos": { "x": 98, "y": 112 } },
+        { "infix": "C", "x": 131, "y": 202, "labelPos": { "x": 98, "y": 112 } }
     ]
 },
 ```
@@ -202,6 +202,7 @@ Predefined campaign regions are located in file `campaign_regions.json`
 - `"prefix"` used to identify all images related to campaign. In this example (if background parameter wouldn't exists), background picture will be `G3_BG`
 - `"suffix"` optional - use other suffixes than the default `En`, `Se` and `Co` for the three different images
 - `"infix"` used to identify all images related to region. In this example, it will be pictures whose files names begin with `G3A_..., G3B_..., G3C_..."` 
+- `"labelPos"` optional -  to add scenario name as label on map
 - `"colorSuffixLength"` identifies suffix length for region colourful frames. 0 is no color suffix (no colorisation), 1 is used for `R, B, N, G, O, V, T, P`, value 2 is used for `Re, Bl, Br, Gr, Or, Vi, Te, Pi`
 
 ## Packing campaign
