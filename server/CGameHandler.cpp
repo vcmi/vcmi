@@ -2256,6 +2256,24 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot)
 	
 	if(level == -1 && complain("Spell for replacement not found!"))
 		return false;
+	
+	int daysSinceLastResearch = gs->getDate(Date::DAY) - t->lastSpellResearchDay;
+	if(!daysSinceLastResearch && complain("Already researched today!"))
+		return false;
+
+	TResources cost;
+	cost[EGameResID::GOLD] = 1000;
+	cost[EGameResID::MERCURY] = (level + 1) * 2;
+	cost[EGameResID::SULFUR] = (level + 1) * 2;
+	cost[EGameResID::CRYSTAL] = (level + 1) * 2;
+	cost[EGameResID::GEMS] = (level + 1) * 2;
+
+	if(!getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
+		return false;
+
+	giveResources(t->getOwner(), -cost);
+
+	t->lastSpellResearchDay = gs->getDate(Date::DAY);
 
 	auto spells = t->spells.at(level);
 
