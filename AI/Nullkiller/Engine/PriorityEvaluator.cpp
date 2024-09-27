@@ -1047,7 +1047,7 @@ public:
 			evaluationContext.armyInvolvement += army->getArmyCost();
 		}
 
-		vstd::amax(evaluationContext.armyLossPersentage, path.getTotalArmyLoss() / (double)path.getHeroStrength());
+		vstd::amax(evaluationContext.armyLossPersentage, (float)path.getTotalArmyLoss() / (float)army->getArmyStrength());
 		addTileDanger(evaluationContext, path.targetTile(), path.turn(), path.getHeroStrength());
 		vstd::amax(evaluationContext.turn, path.turn());
 	}
@@ -1394,6 +1394,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			{
 				if (evaluationContext.isDefend && evaluationContext.threatTurns == 0 && evaluationContext.turn == 0)
 					score = evaluationContext.armyInvolvement;
+				if (evaluationContext.isEnemy)
+					score *= (maxWillingToLose - evaluationContext.armyLossPersentage);
 				score *= evaluationContext.closestWayRatio;
 				break;
 			}
