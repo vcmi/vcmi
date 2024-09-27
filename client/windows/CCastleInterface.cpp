@@ -1966,7 +1966,7 @@ void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & imagename)
-	: CWindowObject(BORDERED, imagename), town(owner->town)
+	: CWindowObject(BORDERED, imagename), townId(owner->town->id)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -1982,6 +1982,12 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 
 	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1.DEF"), CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
+	update();
+}
+
+void CMageGuildScreen::update()
+{
+	OBJECT_CONSTRUCTION;
 	static const std::vector<std::vector<Point> > positions =
 	{
 		{Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445)},
@@ -1991,21 +1997,28 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 		{Point(491,325), Point(591,325)}
 	};
 
-	for(size_t i=0; i<owner->town->town->mageLevel; i++)
+	spells.clear();
+	emptyScrolls.clear();
+
+	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
+
+	for(size_t i=0; i<town->town->mageLevel; i++)
 	{
-		size_t spellCount = owner->town->spellsAtLevel((int)i+1,false); //spell at level with -1 hmmm?
+		size_t spellCount = town->spellsAtLevel((int)i+1,false); //spell at level with -1 hmmm?
 		for(size_t j=0; j<spellCount; j++)
 		{
-			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()>j)
-				spells.push_back(std::make_shared<Scroll>(positions[i][j], owner->town->spells[i][j].toSpell(), town));
+			if(i<town->mageGuildLevel() && town->spells[i].size()>j)
+				spells.push_back(std::make_shared<Scroll>(positions[i][j], town->spells[i][j].toSpell(), townId));
 			else
 				emptyScrolls.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TPMAGES.DEF"), 1, 0, positions[i][j].x, positions[i][j].y));
 		}
 	}
+
+	redraw();
 }
 
-CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, const CGTownInstance *town)
-	: spell(Spell), town(town)
+CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, ObjectInstanceID townId)
+	: spell(Spell), townId(townId)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -2017,6 +2030,7 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, const CGTo
 
 void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
+	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
 	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH))
 		LOCPLINT->cb->spellResearch(town);
 	else

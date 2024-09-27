@@ -14,6 +14,7 @@
 #include "CPlayerInterface.h"
 #include "CGameInfo.h"
 #include "windows/GUIClasses.h"
+#include "windows/CCastleInterface.h"
 #include "mapView/mapHandler.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "adventureMap/CInGameConsole.h"
@@ -170,6 +171,12 @@ void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)
 	const CGHeroInstance *h = cl.getHero(pack.hid);
 	cl.updatePath(h);
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroMovePointsChanged, h);
+}
+
+void ApplyClientNetPackVisitor::visitSetTownSpells(SetTownSpells & pack)
+{
+	for(const auto & win : GH.windows().findWindows<CMageGuildScreen>())
+		win->update();
 }
 
 void ApplyClientNetPackVisitor::visitFoWChange(FoWChange & pack)

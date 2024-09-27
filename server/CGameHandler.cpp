@@ -2248,21 +2248,17 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid)
 		return false;
 
 	CGTownInstance *t = gs->getTown(tid);
-	auto spells = t->spells.at(1);
+	auto spells = t->spells.at(0);
 	auto spell = SpellID(SpellID::FLY);
 	spells.at(0) = spell;
-	setTownSpells(t, 1, spells);
-	spellResearchFinished(tid);
-	return true;
-}
+	setTownSpells(t, 0, spells);
 
-void CGameHandler::spellResearchFinished(ObjectInstanceID tid)
-{
-	const CGTownInstance * t = getTown(tid);
 	if(t->visitingHero)
 		giveSpells(t, t->visitingHero);
 	if(t->garrisonHero)
 		giveSpells(t, t->garrisonHero);
+
+	return true;
 }
 
 bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl, PlayerColor player)
