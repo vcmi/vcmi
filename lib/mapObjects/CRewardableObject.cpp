@@ -95,16 +95,7 @@ std::vector<Component> CRewardableObject::loadComponents(const CGHeroInstance * 
 	return result;
 }
 
-bool CRewardableObject::guardedPotentially() const
-{
-	for (auto const & visitInfo : configuration.info)
-		if (!visitInfo.reward.guards.empty())
-			return true;
-
-	return false;
-}
-
-bool CRewardableObject::guardedPresently() const
+bool CRewardableObject::isGuarded() const
 {
 	return stacksCount() > 0;
 }
@@ -117,7 +108,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 		cb->sendAndApply(&cov);
 	}
 
-	if (guardedPresently())
+	if (isGuarded())
 	{
 		auto guardedIndexes = getAvailableRewards(hero, Rewardable::EEventType::EVENT_GUARDED);
 		auto guardedReward = configuration.info.at(guardedIndexes.at(0));
@@ -236,7 +227,7 @@ void CRewardableObject::battleFinished(const CGHeroInstance *hero, const BattleR
 
 void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const
 {
-	if(guardedPresently())
+	if(isGuarded())
 	{
 		if (answer)
 		{
@@ -410,7 +401,7 @@ std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor pla
 	if (!wasScouted(player))
 		return {};
 
-	if (guardedPresently())
+	if (isGuarded())
 	{
 		if (!cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
 			return {};

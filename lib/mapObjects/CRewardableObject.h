@@ -47,10 +47,8 @@ protected:
 
 	void doHeroVisit(const CGHeroInstance *h) const;
 
-	/// Returns true if this object might have guards present, whether they were cleared or not
-	bool guardedPotentially() const;
 	/// Returns true if this object is currently guarded
-	bool guardedPresently() const;
+	bool isGuarded() const;
 public:
 
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
