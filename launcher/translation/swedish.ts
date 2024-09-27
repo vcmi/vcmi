@@ -238,7 +238,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
         <source>Description</source>
         <translation>Beskrivning</translation>
     </message>
@@ -293,179 +293,189 @@
         <translation>Avbryt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="289"/>
         <source>Mod name</source>
         <translation>Modd-namn</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="286"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="290"/>
         <source>Installed version</source>
         <translation>Installerad version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="291"/>
         <source>Latest version</source>
         <translation>Senaste version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="290"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
         <source>Size</source>
         <translation>Storlek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
         <source>Download size</source>
         <translation>Nedladdnings-storlek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="298"/>
         <source>Authors</source>
         <translation>Författare</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="297"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="301"/>
         <source>License</source>
         <translation>Licens</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="300"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="304"/>
         <source>Contact</source>
         <translation>Kontakt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="309"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
         <source>Compatibility</source>
         <translation>Kompatibilitet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
         <source>Required VCMI version</source>
         <translation>VCMI-version som krävs</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
         <source>Supported VCMI version</source>
         <translation>VCMI-version som stöds</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="317"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
         <source>please upgrade mod</source>
         <translation>vänligen uppdatera modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="189"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="809"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="193"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="824"/>
         <source>mods repository index</source>
         <translation>Modd-repositorie-index</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
         <source>or newer</source>
         <translation>eller nyare</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="326"/>
         <source>Supported VCMI versions</source>
         <translation>VCMI-versioner som stöds</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
         <source>Languages</source>
         <translation>Språk</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="348"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>Required mods</source>
         <translation>Moddar som krävs</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
         <source>Conflicting mods</source>
         <translation>Modd-konflikter</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>Denna modd kan inte installeras eller aktiveras eftersom följande beroenden inte finns</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>Denna modd kan inte aktiveras eftersom följande moddar är inkompatibla med den</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="356"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>Denna modd kan inte inaktiveras eftersom den krävs för följande modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="357"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>Denna modd kan inte avinstalleras eller uppdateras eftersom den krävs för följande modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Detta är en undermodd/submodd och den kan inte installeras eller avinstalleras separat från huvud-modden</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="373"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
         <source>Notes</source>
         <translation>Anteckningar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="643"/>
         <source>All supported files</source>
         <translation>Alla filer som stöds</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="644"/>
         <source>Maps</source>
         <translation>Kartor</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="645"/>
         <source>Campaigns</source>
         <translation>Kampanjer</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="646"/>
         <source>Configs</source>
         <translation>Konfigurationer</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="639"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="647"/>
         <source>Mods</source>
         <translation>Moddar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="640"/>
-        <source>Select files (configs, mods, maps, campaigns) to install...</source>
-        <translation>Välj filer att installera (konfigurationer, moddar, kartor, kampanjer)...</translation>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="648"/>
+        <source>Gog files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="665"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="650"/>
+        <source>All files (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="652"/>
+        <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
         <source>Replace config file?</source>
         <translation>Byt ut konfigurationsfilen?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="665"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="677"/>
         <source>Do you want to replace %1?</source>
         <translation>Vill du ersätta %1?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="708"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="720"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Laddar ner %1. %p% (%v MB av %m MB) slutfört</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="733"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="745"/>
         <source>Download failed</source>
         <translation>Nedladdning misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="734"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="746"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -478,7 +488,7 @@ Fel påträffat:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="735"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="747"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -487,34 +497,39 @@ Install successfully downloaded?</source>
 Installation framgångsrikt nedladdad?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="881"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
+        <source>Installing chronicles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="925"/>
         <source>Installing mod %1</source>
         <translation>Installera modd %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="950"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="994"/>
         <source>Operation failed</source>
         <translation>Åtgärden misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="951"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
         <source>Encountered errors:
 </source>
         <translation>Fel påträffades:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="986"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1030"/>
         <source>screenshots</source>
         <translation>skärmdumpar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="992"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1036"/>
         <source>Screenshot %1</source>
         <translation>Skärmbild %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="280"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
         <source>Mod is incompatible</source>
         <translation>Denna modd är inkompatibel</translation>
     </message>
@@ -619,7 +634,7 @@ Installation framgångsrikt nedladdad?</translation>
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="90"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="98"/>
         <source>Off</source>
         <translation>Inaktiverad</translation>
     </message>
@@ -629,7 +644,7 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Artificiell intelligens</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="88"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="96"/>
         <source>On</source>
         <translation>Aktiverad</translation>
     </message>
@@ -702,6 +717,11 @@ Installation framgångsrikt nedladdad?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="1186"/>
         <source>xBRZ x4</source>
         <translation>xBRZ x4</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1194"/>
+        <source>Use scalable fonts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="138"/>
@@ -966,29 +986,65 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
         <translation>Visa intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="503"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="525"/>
         <source>Active</source>
         <translation>Aktiv</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="508"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="530"/>
         <source>Disabled</source>
         <translation>Inaktiverad</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="509"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="531"/>
         <source>Enable</source>
         <translation>Aktivera</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="514"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="536"/>
         <source>Not Installed</source>
         <translation>Inte installerad</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="515"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="537"/>
         <source>Install</source>
         <translation>Installera</translation>
+    </message>
+</context>
+<context>
+    <name>ChroniclesExtractor</name>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="48"/>
+        <source>File cannot opened</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
+        <source>Invalid file selected</source>
+        <translation type="unfinished">Ogiltig fil vald</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="56"/>
+        <source>You have to select an gog installer file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="71"/>
+        <source>You have to select an chronicle installer file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="87"/>
+        <source>Extracting error!</source>
+        <translation type="unfinished">Extraktionsfel!</translation>
+    </message>
+    <message>
+        <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="141"/>
+        <source>Heroes Chronicles</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1059,7 +1115,7 @@ Exklusivt helskärmsläge - spelet kommer att täcka hela skärmen och använda 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data and Mp3 from the original game directory to VCMI data directory that you can see on top of this page</source>
-        <translation>Du kan manuellt kopiera mapparna 'Maps', 'Data' och 'Mp3' från den ursprungliga spel-mappen till VCMI-datamappen som du kan se överst på den här sidan</translation>
+        <translation>Du kan manuellt kopiera mapparna &apos;Maps&apos;, &apos;Data&apos; och &apos;Mp3&apos; från den ursprungliga spel-mappen till VCMI-datamappen som du kan se överst på den här sidan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
@@ -1207,112 +1263,100 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
         <translation>Installera en kompatibel version av &quot;In The Wake of Gods&quot; (en fantillverkad Heroes III-expansion)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="178"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
         <source>Heroes III installation found!</source>
         <translation>Heroes III-installationen hittades!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="178"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
         <source>Copy data to VCMI folder?</source>
         <translation>Kopiera data till VCMI-mappen?</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="317"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="313"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
         <translation>Välj filen %1 ...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="318"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="314"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
         <translation>Du behöver välja filen %1!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="320"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="316"/>
         <source>GOG file (*.*)</source>
         <translation>GOG-fil (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="321"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="317"/>
         <source>File selection</source>
         <translation>Filval</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="330"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="326"/>
         <source>File cannot be opened</source>
         <translation>Filen kan inte öppnas</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="332"/>
         <source>Invalid file selected</source>
         <translation>Ogiltig fil vald</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="346"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="342"/>
         <source>GOG installer</source>
         <translation>GOG-Installationsprogram</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="343"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="339"/>
         <source>GOG data</source>
         <translation>GOG-data</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>No Heroes III data!</source>
         <translation>Inga Heroes III-data!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>De valda filerna innehåller inte Heroes III-data!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="485"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="499"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="448"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
         <source>Heroes III data not found!</source>
         <translation>Heroes III-data hittades inte!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="482"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="445"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select directory with installed Heroes III data.</source>
         <translation>Misslyckades med att upptäcka giltiga Heroes III-data i den valda mappen. Vänligen välj en mapp där Heroes III-data finns installerat.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
         <source>You&apos;ve provided GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translation>Du har tillhandahållit installationsprogrammet för GOG Galaxy! Den här filen innehåller inte spelet. Ladda ner offline-installationsprogrammet för spelet!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="412"/>
-        <source>Stream error while extracting files!
-error reason: </source>
-        <translation>Strömningsfel vid extrahering av filer!
-Orsak till fel: </translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="425"/>
-        <source>Not a supported Inno Setup installer!</source>
-        <translation>Inno Setup-installationsprogrammet stöds inte!</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="436"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="399"/>
         <source>Extracting error!</source>
         <translation>Fel vid extrahering!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="469"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Heroes III HD Edition-filer stöds inte av VCMI.
 Vänligen välj en mapp som innehåller data från Heroes III: Complete Edition eller Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Okänd eller ostödd version av Heroes III.
@@ -1325,6 +1369,26 @@ Vänligen välj en mapp som innehåller data från Heroes III: Complete Edition 
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
         <translation>Bildvisare</translation>
+    </message>
+</context>
+<context>
+    <name>Innoextract</name>
+    <message>
+        <location filename="../innoextract.cpp" line="42"/>
+        <source>Stream error while extracting files!
+error reason: </source>
+        <translation type="unfinished">Strömningsfel vid extrahering av filer!
+Orsak till fel: </translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="55"/>
+        <source>Not a supported Inno Setup installer!</source>
+        <translation type="unfinished">Inno Setup-installationsprogrammet stöds inte!</translation>
+    </message>
+    <message>
+        <location filename="../innoextract.cpp" line="58"/>
+        <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
