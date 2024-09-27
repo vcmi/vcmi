@@ -2032,7 +2032,37 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
 	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
 	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH))
-		LOCPLINT->cb->spellResearch(town, spell->id);
+	{
+		int daysSinceLastResearch = LOCPLINT->cb->getDate(Date::DAY) - town->lastSpellResearchDay;
+		if(!daysSinceLastResearch)
+		{
+			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.comeAgain"));
+			return;
+		}
+
+		int level = -1;
+		for(int i = 0; i < town->spells.size(); i++)
+			if(vstd::find_pos(town->spells[i], spell->id) != -1)
+				level = i;
+
+		TResources cost;
+		cost[EGameResID::GOLD] = 1000;
+		cost[EGameResID::MERCURY] = (level + 1) * 2;
+		cost[EGameResID::SULFUR] = (level + 1) * 2;
+		cost[EGameResID::CRYSTAL] = (level + 1) * 2;
+		cost[EGameResID::GEMS] = (level + 1) * 2;
+
+		std::vector<std::shared_ptr<CComponent>> resComps;
+		for(TResources::nziterator i(cost); i.valid(); i++)
+		{
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
+		}
+
+		if(LOCPLINT->cb->getResourceAmount().canAfford(cost))
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.spellResearch.pay"), [this, town](){ LOCPLINT->cb->spellResearch(town, spell->id); }, nullptr, resComps);
+		else
+			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.canNotAfford"), resComps);
+	}
 	else
 		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 }

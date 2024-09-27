@@ -944,6 +944,7 @@ void SetTownSpells::applyGs(CGameState *gs)
 	CGTownInstance *town = gs->getTown(tid);
 
 	town->spells[level] = spells;
+	town->lastSpellResearchDay = gs->getDate(Date::DAY);
 }
 
 void SetMana::applyGs(CGameState *gs)

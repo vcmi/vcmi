@@ -58,6 +58,10 @@
 
 	"vcmi.spellBook.search" : "suchen...",
 
+	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, einen Zauberspruch zu erforschen.",
+	"vcmi.spellResearch.comeAgain" : "Die Forschung wurde heute bereits abgeschlossen. Kommt morgen wieder.",
+	"vcmi.spellResearch.pay" : "Möchtet Ihr einen neuen Zauberspruch erforschen und diesen ersetzen?",
+
 	"vcmi.mainMenu.serverConnecting" : "Verbinde...",
 	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Verbindung fehlgeschlagen",

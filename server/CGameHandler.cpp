@@ -2273,8 +2273,6 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot)
 
 	giveResources(t->getOwner(), -cost);
 
-	t->lastSpellResearchDay = gs->getDate(Date::DAY);
-
 	auto spells = t->spells.at(level);
 
 	std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));

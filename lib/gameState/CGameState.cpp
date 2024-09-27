@@ -915,7 +915,7 @@ void CGameState::initTowns()
 			vti->spells[s->getLevel()-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
-		vti->possibleSpells.clear(); //SR
+		vti->possibleSpells.clear();
 	}
 }
 

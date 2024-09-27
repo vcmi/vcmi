@@ -59,6 +59,10 @@
 
 	"vcmi.spellBook.search" : "search...",
 
+	"vcmi.spellResearch.canNotAfford" : "You can't afford to research a spell.",
+	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
+	"vcmi.spellResearch.pay" : "Would you like to research a new spell and replace this?",
+
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Failed to connect",
