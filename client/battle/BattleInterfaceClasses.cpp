@@ -328,7 +328,7 @@ void BattleHero::setPhase(EHeroAnimType newPhase)
 
 void BattleHero::heroLeftClicked()
 {
-	if(owner.actionsController->spellcastingModeActive()) //we are casting a spell
+	if(owner.actionsController->heroSpellcastingModeActive()) //we are casting a spell
 		return;
 
 	if(!hero || !owner.makingTurn())

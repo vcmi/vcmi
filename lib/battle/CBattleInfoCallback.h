@@ -86,9 +86,11 @@ public:
 	ReachabilityInfo::TDistances battleGetDistances(const battle::Unit * unit, BattleHex assumedPosition) const;
 	std::set<BattleHex> battleGetAttackedHexes(const battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
 	bool isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosition, const battle::Unit * defenderUnit, unsigned int range) const;
+	bool isHexWithinSpecifiedRange(BattleHex attackerPosition, BattleHex targetPosition, unsigned int range) const;
 
 	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, const battle::Unit * stack) const;
 
+	bool battleCanTargetEmptyHex(const battle::Unit * attacker) const; //determines of stack with given ID can target empty hex to attack - currently used only for SPELL_LIKE_ATTACK shooting
 	bool battleCanAttack(const battle::Unit * stack, const battle::Unit * target, BattleHex dest) const; //determines if stack with given ID can attack target at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle

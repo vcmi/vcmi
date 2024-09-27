@@ -17,6 +17,7 @@
 #include "BattleInfo.h"
 #include "CObstacleInstance.h"
 #include "DamageCalculator.h"
+#include "IGameSettings.h"
 #include "PossiblePlayerBattleAction.h"
 #include "../entities/building/TownFortifications.h"
 #include "../spells/ObstacleCasterProxy.h"
@@ -725,18 +726,49 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 			|| attacker->hasBonusOfType(BonusType::FREE_SHOOTING));
 }
 
+bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+
+	if(!VLC->engineSettings()->getBoolean(EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX))
+		return false;
+
+	if(attacker->hasBonusOfType(BonusType::SPELL_LIKE_ATTACK))
+	{
+		auto bonus = attacker->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+		const CSpell * spell = bonus->subtype.as<SpellID>().toSpell();
+		spells::BattleCast cast(this, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
+		BattleHex dummySpellTarget = BattleHex(50); //check arbitrary hex for general spell range since currently there is no general way to access amount of hexes
+
+		if(spell->battleMechanics(&cast)->rangeInHexes(dummySpellTarget).size() > 1)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHex dest) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
 	const battle::Unit * defender = battleGetUnitByPos(dest);
-	if(!attacker || !defender)
+	if(!attacker)
 		return false;
 
-	if(defender->hasBonusOfType(BonusType::INVINCIBLE))
-		return false;
+	bool emptyHexAreaAttack = battleCanTargetEmptyHex(attacker);
 
-	if(battleMatchOwner(attacker, defender) && defender->alive())
+	if(!emptyHexAreaAttack)
+	{
+		if(!defender)
+			return false;
+
+		if(defender->hasBonusOfType(BonusType::INVINCIBLE))
+			return false;
+	}
+
+	if(emptyHexAreaAttack || (battleMatchOwner(attacker, defender) && defender->alive()))
 	{
 		if(battleCanShoot(attacker))
 		{
@@ -747,7 +779,11 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 			}
 
 			int shootingRange = limitedRangeBonus->val;
-			return isEnemyUnitWithinSpecifiedRange(attacker->getPosition(), defender, shootingRange);
+
+			if(defender)
+				return isEnemyUnitWithinSpecifiedRange(attacker->getPosition(), defender, shootingRange);
+			else
+				return isHexWithinSpecifiedRange(attacker->getPosition(), dest, shootingRange);
 		}
 	}
 
@@ -1590,6 +1626,14 @@ bool CBattleInfoCallback::isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosi
 		if(BattleHex::getDistance(attackerPosition, hex) <= range)
 			return true;
 	
+	return false;
+}
+
+bool CBattleInfoCallback::isHexWithinSpecifiedRange(BattleHex attackerPosition, BattleHex targetPosition, unsigned int range) const
+{
+	if(BattleHex::getDistance(attackerPosition, targetPosition) <= range)
+		return true;
+
 	return false;
 }
 
