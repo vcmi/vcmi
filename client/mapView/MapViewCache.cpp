@@ -188,6 +188,8 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 
 	if(context->showTextOverlay())
 	{
+		const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+
 		for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 		{
 			for(int x = dimensions.left(); x < dimensions.right(); ++x)
@@ -203,8 +205,6 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 						position.y += targetRect.h / 4;
 					else
 						position.y -= targetRect.h / 4;
-
-					const auto font = graphics->fonts[EFonts::FONT_TINY];
 
 					Point dimensions(font->getStringWidth(overlay), font->getLineHeight());
 					Rect textRect = Rect(position - dimensions / 2, dimensions).resize(2);

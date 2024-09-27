@@ -95,10 +95,10 @@ set(vcmiclientcommon_SRCS
 	render/ImageLocator.cpp
 
 	renderSDL/CBitmapFont.cpp
-	renderSDL/CBitmapHanFont.cpp
 	renderSDL/CTrueTypeFont.cpp
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
+	renderSDL/FontChain.cpp
 	renderSDL/ImageScaled.cpp
 	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
@@ -303,10 +303,10 @@ set(vcmiclientcommon_HEADERS
 	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
-	renderSDL/CBitmapHanFont.h
 	renderSDL/CTrueTypeFont.h
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
+	renderSDL/FontChain.h
 	renderSDL/ImageScaled.h
 	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h

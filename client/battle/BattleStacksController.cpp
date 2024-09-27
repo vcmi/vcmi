@@ -318,10 +318,10 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 			boxPosition = owner.fieldController->hexPositionLocal(frontPos).center() + Point(-8, -14);
 	}
 
-	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + graphics->fonts[EFonts::FONT_TINY]->getLineHeight() - 6);
+	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + amountBG->dimensions().y/2);
 
 	canvas.draw(amountBG, boxPosition);
-	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::TOPCENTER, TextOperations::formatMetric(stack->getCount(), 4));
+	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)

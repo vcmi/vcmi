@@ -15,7 +15,7 @@
 
 struct SDL_Surface;
 class IImage;
-enum EFonts : int;
+enum EFonts : int8_t;
 
 enum class CanvasScalingPolicy
 {

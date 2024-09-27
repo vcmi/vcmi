@@ -166,6 +166,8 @@
 				"showfps",
 				"targetfps",
 				"vsync",
+				"fontsType",
+				"fontScalingFactor",
 				"upscalingFilter",
 				"fontUpscalingFilter",
 				"downscalingFilter"
@@ -231,6 +233,15 @@
 				"vsync" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"fontsType" : {
+					"type" : "string",
+					"enum" : [ "auto", "original", "scalable" ],
+					"default" : "auto"
+				},
+				"fontScalingFactor" : {
+					"type" : "number",
+					"default" : 1
 				},
 				"fontUpscalingFilter" : {
 					"type" : "string",

@@ -1,5 +1,5 @@
 /*
- * CTrueTypeFont.h, part of VCMI engine
+ * FontChain.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -15,33 +15,29 @@ VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
-class CBitmapFont;
-
-using TTF_Font = struct _TTF_Font;
-
-class CTrueTypeFont final : public IFont
+class FontChain final : public IFont
 {
-	const std::pair<std::unique_ptr<ui8[]>, ui64> data;
+	struct TextChunk
+	{
+		const IFont * font;
+		std::string text;
+	};
 
-	const std::unique_ptr<TTF_Font, void (*)(TTF_Font*)> font;
-	const bool blended;
-	const bool outline;
-	const bool dropShadow;
+	std::vector<TextChunk> splitTextToChunks(const std::string & data) const;
 
-	std::pair<std::unique_ptr<ui8[]>, ui64> loadData(const JsonNode & config);
-	TTF_Font * loadFont(const JsonNode & config);
-	int getPointSize(const JsonNode & config) const;
-	int getFontStyle(const JsonNode & config) const;
+	std::vector<std::unique_ptr<IFont>> chain;
 
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 	size_t getFontAscentScaled() const override;
+	bool bitmapFontsPrioritized() const;
 public:
-	CTrueTypeFont(const JsonNode & fontConfig);
-	~CTrueTypeFont();
+	FontChain() = default;
 
-	bool canRepresentCharacter(const char * data) const override;
+	void addTrueTypeFont(const JsonNode & trueTypeConfig);
+	void addBitmapFont(const std::string & bitmapFilename);
 
 	size_t getLineHeightScaled() const override;
 	size_t getGlyphWidthScaled(const char * data) const override;
 	size_t getStringWidthScaled(const std::string & data) const override;
+	bool canRepresentCharacter(const char * data) const override;
 };
