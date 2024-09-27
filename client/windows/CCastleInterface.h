@@ -379,9 +379,10 @@ class CMageGuildScreen : public CStatusbarWindow
 	{
 		const CSpell * spell;
 		std::shared_ptr<CAnimImage> image;
+		const CGTownInstance *town;
 
 	public:
-		Scroll(Point position, const CSpell *Spell);
+		Scroll(Point position, const CSpell *Spell, const CGTownInstance *town);
 		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
@@ -392,6 +393,8 @@ class CMageGuildScreen : public CStatusbarWindow
 	std::vector<std::shared_ptr<CAnimImage>> emptyScrolls;
 
 	std::shared_ptr<CMinorResDataBar> resdatabar;
+
+	const CGTownInstance *town;
 
 public:
 	CMageGuildScreen(CCastleInterface * owner, const ImagePath & image);

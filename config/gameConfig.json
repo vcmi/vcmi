@@ -313,7 +313,7 @@
 			// Chances for a town with default buildings to receive corresponding dwelling level built in start
 			"startingDwellingChances": [100, 50],
 			// Enable spell research in mage guild
-			"spellResearch": false
+			"spellResearch": true
 		},
 
 		"combat":

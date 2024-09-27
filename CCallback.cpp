@@ -249,6 +249,12 @@ int CBattleCallback::sendRequest(const CPackForServer * request)
 	return requestID;
 }
 
+void CCallback::spellResearch( const CGTownInstance *town )
+{
+	SpellResearch pack(town->id);
+	sendRequest(&pack);
+}
+
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
 	if(town->tempOwner == *player || (town->garrisonHero && town->garrisonHero->tempOwner == *player ))

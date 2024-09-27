@@ -1966,7 +1966,7 @@ void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & imagename)
-	: CWindowObject(BORDERED, imagename)
+	: CWindowObject(BORDERED, imagename), town(owner->town)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -1997,15 +1997,15 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 		for(size_t j=0; j<spellCount; j++)
 		{
 			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()>j)
-				spells.push_back(std::make_shared<Scroll>(positions[i][j], owner->town->spells[i][j].toSpell()));
+				spells.push_back(std::make_shared<Scroll>(positions[i][j], owner->town->spells[i][j].toSpell(), town));
 			else
 				emptyScrolls.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TPMAGES.DEF"), 1, 0, positions[i][j].x, positions[i][j].y));
 		}
 	}
 }
 
-CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
-	: spell(Spell)
+CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, const CGTownInstance *town)
+	: spell(Spell), town(town)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -2017,7 +2017,10 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 
 void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
-	LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
+	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH))
+		LOCPLINT->cb->spellResearch(town);
+	else
+		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 }
 
 void CMageGuildScreen::Scroll::showPopupWindow(const Point & cursorPosition)

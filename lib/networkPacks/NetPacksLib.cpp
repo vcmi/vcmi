@@ -162,6 +162,10 @@ void ChangeSpells::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeSpells(*this);
 }
 
+void SetTownSpells::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetTownSpells(*this);
+}
 void SetMana::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetMana(*this);
@@ -592,6 +596,11 @@ void RazeStructure::visitTyped(ICPackVisitor & visitor)
 	visitor.visitRazeStructure(*this);
 }
 
+void SpellResearch::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSpellResearch(*this);
+}
+
 void RecruitCreatures::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitRecruitCreatures(*this);
@@ -928,6 +937,13 @@ void ChangeSpells::applyGs(CGameState *gs)
 	else
 		for(const auto & sid : spells)
 			hero->removeSpellFromSpellbook(sid);
+}
+
+void SetTownSpells::applyGs(CGameState *gs)
+{
+	CGTownInstance *town = gs->getTown(tid);
+
+	town->spells[level] = spells;
 }
 
 void SetMana::applyGs(CGameState *gs)

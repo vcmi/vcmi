@@ -1235,6 +1235,15 @@ void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const st
 	sendAndApply(&cs);
 }
 
+void CGameHandler::setTownSpells(const CGTownInstance * town, int level, const std::vector<SpellID> spells)
+{
+	SetTownSpells cs;
+	cs.tid = town->id;
+	cs.spells = spells;
+	cs.level = level;
+	sendAndApply(&cs);
+}
+
 void CGameHandler::giveHeroBonus(GiveBonus * bonus)
 {
 	sendAndApply(bonus);
@@ -2231,6 +2240,29 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 // 		sendAndApply(&rb);
 // 	}
 	return true;
+}
+
+bool CGameHandler::spellResearch(ObjectInstanceID tid)
+{
+	if(!getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && complain("Spell research not allowed!"))
+		return false;
+
+	CGTownInstance *t = gs->getTown(tid);
+	auto spells = t->spells.at(1);
+	auto spell = SpellID(SpellID::FLY);
+	spells.at(0) = spell;
+	setTownSpells(t, 1, spells);
+	spellResearchFinished(tid);
+	return true;
+}
+
+void CGameHandler::spellResearchFinished(ObjectInstanceID tid)
+{
+	const CGTownInstance * t = getTown(tid);
+	if(t->visitingHero)
+		giveSpells(t, t->visitingHero);
+	if(t->garrisonHero)
+		giveSpells(t, t->garrisonHero);
 }
 
 bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl, PlayerColor player)
