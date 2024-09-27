@@ -107,7 +107,8 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 	if (bestHeroToHire && bestTownToHireFrom)
 	{
 		if (ai->cb->getHeroesInfo().size() < ai->cb->getTownsInfo().size() + 1
-			|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh() && haveCapitol))
+			|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh() && haveCapitol)
+			|| (ai->getFreeResources()[EGameResID::GOLD] > 30000 && !ai->buildAnalyzer->isGoldPressureHigh()))
 		{
 			tasks.push_back(Goals::sptr(Goals::RecruitHero(bestTownToHireFrom, bestHeroToHire).setpriority((float)3 / (ourHeroes.size() + 1))));
 		}
