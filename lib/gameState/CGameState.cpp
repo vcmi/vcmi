@@ -210,6 +210,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
+	initTimedEventsRemovableObjects();
 
 	for(auto & elem : teams)
 	{
@@ -949,6 +950,23 @@ void CGameState::initMapObjects()
 	CGSubterraneanGate::postInit(callback); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
+}
+
+void CGameState::initTimedEventsRemovableObjects()
+{
+	for(auto & timedEvent : map->events)
+	{
+		for(int3 coordinate : timedEvent.deletedObjectsCoordinates)
+		{
+			if(isInTheMap(coordinate))
+			{
+				for(const CGObjectInstance * object : getBlockingObjs(coordinate))
+				{
+					timedEvent.deletedObjectsInstances.push_back(object);
+				}
+			}
+		}
+	}
 }
 
 void CGameState::placeHeroesInTowns()

@@ -196,6 +196,7 @@ private:
 	void initTowns();
 	void initTownNames();
 	void initMapObjects();
+	void initTimedEventsRemovableObjects();
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();
 
