@@ -78,7 +78,7 @@ public:
 	virtual bool visitTownBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
 	virtual void recruitCreatures(const CGDwelling *obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
-	virtual void spellResearch(const CGTownInstance *town)=0;
+	virtual void spellResearch(const CGTownInstance *town, SpellID spellAtSlot)=0;
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
 	virtual void trade(const ObjectInstanceID marketId, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
@@ -188,7 +188,7 @@ public:
 	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos) override;
 	bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE) override;
 	void endTurn() override;
-	void spellResearch(const CGTownInstance *town) override;
+	void spellResearch(const CGTownInstance *town, SpellID spellAtSlot) override;
 	void swapGarrisonHero(const CGTownInstance *town) override;
 	void buyArtifact(const CGHeroInstance *hero, ArtifactID aid) override;
 	void trade(const ObjectInstanceID marketId, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;

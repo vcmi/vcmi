@@ -140,7 +140,7 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 
 void ApplyGhNetPackVisitor::visitSpellResearch(SpellResearch & pack)
 {
-	result = gh.spellResearch(pack.tid);
+	result = gh.spellResearch(pack.tid, pack.spellAtSlot);
 }
 
 void ApplyGhNetPackVisitor::visitVisitTownBuilding(VisitTownBuilding & pack)

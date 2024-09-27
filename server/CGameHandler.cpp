@@ -2242,16 +2242,28 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 	return true;
 }
 
-bool CGameHandler::spellResearch(ObjectInstanceID tid)
+bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot)
 {
 	if(!getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && complain("Spell research not allowed!"))
 		return false;
 
 	CGTownInstance *t = gs->getTown(tid);
-	auto spells = t->spells.at(0);
-	auto spell = SpellID(SpellID::FLY);
-	spells.at(0) = spell;
-	setTownSpells(t, 0, spells);
+
+	int level = -1;
+	for(int i = 0; i < t->spells.size(); i++)
+		if(vstd::find_pos(t->spells[i], spellAtSlot) != -1)
+			level = i;
+	
+	if(level == -1 && complain("Spell for replacement not found!"))
+		return false;
+
+	auto spells = t->spells.at(level);
+
+	std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+	auto it = spells.begin() + t->spellsAtLevel(level, false);
+	std::rotate(it, it + 1, spells.end()); // move to end
+
+	setTownSpells(t, level, spells);
 
 	if(t->visitingHero)
 		giveSpells(t, t->visitingHero);

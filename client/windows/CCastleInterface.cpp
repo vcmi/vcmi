@@ -2032,7 +2032,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
 	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
 	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH))
-		LOCPLINT->cb->spellResearch(town);
+		LOCPLINT->cb->spellResearch(town, spell->id);
 	else
 		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 }
