@@ -276,7 +276,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	for (int i = 0; i < totalAttacks; ++i)
 	{
 		//first strike
-		if(i == 0 && firstStrike && retaliation && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION))
+		if(i == 0 && firstStrike && retaliation && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->hasBonusOfType(BonusType::INVINCIBLE))
 		{
 			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
 		}
@@ -303,6 +303,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		//we check retaliation twice, so if it unblocked during attack it will work only on next attack
 		if(stack->alive()
 			&& !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION)
+			&& !stack->hasBonusOfType(BonusType::INVINCIBLE)
 			&& (i == 0 && !firstStrike)
 			&& retaliation && destinationStack->ableToRetaliate())
 		{
