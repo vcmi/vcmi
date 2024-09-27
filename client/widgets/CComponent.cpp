@@ -21,6 +21,7 @@
 #include "../gui/Shortcut.h"
 #include "../render/Canvas.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
@@ -95,9 +96,11 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 		max = 80;
 
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const int height = static_cast<int>(fontPtr->getLineHeight());
+
 	for(auto & line : textLines)
 	{
-		int height = static_cast<int>(graphics->fonts[font]->getLineHeight());
 		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, ETextAlignment::CENTER, Colors::WHITE, line);
 
 		pos.h += height;

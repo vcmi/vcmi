@@ -5,12 +5,12 @@
 	"bitmap" :
 	[
 		"BIGFONT",  // Mostly used for window titles
-		"CALLI10R", // Unused in VCMI
-		"CREDITS",  // Used for credits menu
-		"HISCORE",  // Unused in VCMI
+		"CALLI10R", // Only in World View menu
+		"CREDITS",  // Only in Credits menu
+		"HISCORE",  // Only in High Scores menu
 		"MEDFONT",  // Some titles
 		"SMALFONT", // Most of the messages
-		"TIMES08R", // Used to display amounts on creature card 
+		"TIMES08R", // Unused in VCMI
 		"TINY",     // Some text
 		"VERD10B"   // Unused in VCMI
 	],
@@ -25,17 +25,18 @@
 	// b) list of scaling factors for each scaling mode, e.g. [ 10, 16, 22, 26]. In this case game will select point size according to xBRZ scaling factor
 	//    so unscaled mode will use 10px, xbrz2 will use 16px, and xbrz3 will use 22
 	// "style" - italic and\or bold, indicates font style
-	// "blend" - if set to true, font will be antialiased
+	// "outline" - if set, black shadow will be generated around entire text (instead of only bottom-right side)
+	// "noShadow" - if set, this font will not drop any shadow
 	"trueType":
 	{
-		//"BIGFONT"  : { "file" : "LiberationSerif-Bold.ttf", "size" : 22, "blend" : true},
-		//"CALLI10R" : { "file" : "Georgia.ttf",       "size" : 10},
-		//"CREDITS"  : { "file" : "LiberationSerif-Bold.ttf", "size" : 28},
-		//"HISCORE"  : { "file" : "Georgia.ttf",       "size" : 13},
-		//"MEDFONT"  : { "file" : "LiberationSerif-Bold.ttf", "size" : 16}, // breaks messages (from map events)
-		//"SMALFONT" : { "file" : "LiberationSerif-Regular.ttf",       "size" : 13, "blend" : true},
-		//"TIMES08R" : { "file" : "LiberationSerif-Regular.ttf", "size" :  11, "blend" : true},
-		//"TINY"     : { "file" : "LiberationSerif-Regular.ttf",       "size" : 11, "blend" : true},
-		//"VERD10B"  : { "file" : "Georgia.ttf",       "size" : 13}
+		"BIGFONT"  : { "file" : "NotoSerif-Bold.ttf",   "size" : [ 19, 39, 58, 78] },
+		"CALLI10R" : { "file" : "NotoSerif-Bold.ttf",   "size" : [ 12, 24, 36, 48] }, // TODO: find better matching font? This is likely non-free 'Callisto MT' font
+		"CREDITS"  : { "file" : "NotoSerif-Black.ttf",  "size" : [ 22, 44, 66, 88], "outline" : true },
+		"HISCORE"  : { "file" : "NotoSerif-Black.ttf",  "size" : [ 18, 36, 54, 72], "outline" : true },
+		"MEDFONT"  : { "file" : "NotoSerif-Bold.ttf",   "size" : [ 15, 31, 46, 62] },
+		"SMALFONT" : { "file" : "NotoSerif-Medium.ttf", "size" : [ 12, 24, 36, 48] },
+		"TIMES08R" : { "file" : "NotoSerif-Medium.ttf", "size" : [  8, 16, 24, 32] },
+		"TINY"     : { "file" : "NotoSans-Medium.ttf",  "size" : [  9, 19, 28, 38], "noShadow" : true }, // The only H3 font without shadow
+		"VERD10B"  : { "file" : "NotoSans-Medium.ttf",  "size" : [ 13, 26, 39, 52] }
 	}
 }
