@@ -192,7 +192,8 @@ void CGuiHandler::drawFPSCounter()
 
 	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
 
-	graphics->fonts[FONT_SMALL]->renderTextLeft(screen, fps, Colors::WHITE, Point(8 * scaling, screen->h-22 * scaling));
+	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	font->renderTextLeft(screen, fps, Colors::WHITE, Point(8 * scaling, screen->h-22 * scaling));
 }
 
 bool CGuiHandler::amIGuiThread()

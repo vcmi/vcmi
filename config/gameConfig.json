@@ -335,6 +335,8 @@
 			"defensePointDamageFactorCap": 0.7,
 			// If set to true, double-wide creatures will trigger obstacle effect when moving one tile forward or backwards
 			"oneHexTriggersObstacles": false,
+			// Allow area shooters with SPELL_LIKE_ATTACK bonus such as liches or magogs to target empty hexes
+			"areaShotCanTargetEmptyHex" : false,
 			
 			// Positions of units on start of the combat
 			// If battle does not defines specific configuration, 'default' configuration will be used

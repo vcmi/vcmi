@@ -86,6 +86,11 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 		if(allowExchange || hero->id == heroArtOwner->id)
 			putPickedArtifact(*hero, slot);
 	}
+	else if(GH.isKeyboardShiftDown())
+	{
+		if(ArtifactUtils::isSlotEquipment(slot))
+			GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
+	}
 	else if(auto art = hero->getArt(slot))
 	{
 		if(hero->getOwner() == LOCPLINT->playerID)

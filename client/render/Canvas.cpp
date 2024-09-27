@@ -11,6 +11,7 @@
 #include "Canvas.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "Colors.h"
@@ -169,23 +170,27 @@ void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 
 void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text )
 {
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+
 	switch (alignment)
 	{
-	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, transformPos(position));
-	case ETextAlignment::TOPCENTER:    return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, transformPos(position));
-	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, transformPos(position));
-	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, transformPos(position));
+	case ETextAlignment::TOPLEFT:      return fontPtr->renderTextLeft  (surface, text, colorDest, transformPos(position));
+	case ETextAlignment::TOPCENTER:    return fontPtr->renderTextCenter(surface, text, colorDest, transformPos(position));
+	case ETextAlignment::CENTER:       return fontPtr->renderTextCenter(surface, text, colorDest, transformPos(position));
+	case ETextAlignment::BOTTOMRIGHT:  return fontPtr->renderTextRight (surface, text, colorDest, transformPos(position));
 	}
 }
 
 void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::vector<std::string> & text )
 {
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+
 	switch (alignment)
 	{
-	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, transformPos(position));
-	case ETextAlignment::TOPCENTER:    return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, transformPos(position));
-	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, transformPos(position));
-	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, transformPos(position));
+	case ETextAlignment::TOPLEFT:      return fontPtr->renderTextLinesLeft  (surface, text, colorDest, transformPos(position));
+	case ETextAlignment::TOPCENTER:    return fontPtr->renderTextLinesCenter(surface, text, colorDest, transformPos(position));
+	case ETextAlignment::CENTER:       return fontPtr->renderTextLinesCenter(surface, text, colorDest, transformPos(position));
+	case ETextAlignment::BOTTOMRIGHT:  return fontPtr->renderTextLinesRight (surface, text, colorDest, transformPos(position));
 	}
 }
 

@@ -26,6 +26,7 @@ class RenderHandler : public IRenderHandler
 	std::map<AnimationPath, std::shared_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
 	std::map<ImageLocator, std::shared_ptr<ISharedImage>> imageFiles;
+	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
 	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path);
@@ -59,4 +60,7 @@ public:
 	std::shared_ptr<CAnimation> loadAnimation(const AnimationPath & path, EImageBlitMode mode) override;
 
 	std::shared_ptr<IImage> createImage(SDL_Surface * source) override;
+
+	/// Returns font with specified identifer
+	std::shared_ptr<const IFont> loadFont(EFonts font) override;
 };

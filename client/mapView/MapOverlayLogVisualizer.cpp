@@ -17,8 +17,10 @@
 #include "../render/Colors.h"
 #include "../render/EFont.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 #include "../gui/TextAlignment.h"
+#include "../gui/CGuiHandler.h"
 
 
 MapOverlayLogVisualizer::MapOverlayLogVisualizer(Canvas & target, std::shared_ptr<MapViewModel> model)
@@ -78,8 +80,10 @@ void MapOverlayLogVisualizer::drawText(
 
 	if(viewPort.isInside(pStart))
 	{
-		int w = graphics->fonts[EFonts::FONT_TINY]->getStringWidth(text);
-		int h = graphics->fonts[EFonts::FONT_TINY]->getLineHeight();
+		const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+
+		int w = font->getStringWidth(text);
+		int h = font->getLineHeight();
 
 		pStart.y += h * lineNumber;
 

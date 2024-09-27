@@ -17,7 +17,9 @@
 #include "../render/Colors.h"
 #include "../render/EFont.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../gui/TextAlignment.h"
+#include "../gui/CGuiHandler.h"
 #include "../render/Graphics.h"
 
 BattleOverlayLogVisualizer::BattleOverlayLogVisualizer(
@@ -30,7 +32,8 @@ BattleOverlayLogVisualizer::BattleOverlayLogVisualizer(
 void BattleOverlayLogVisualizer::drawText(BattleHex hex, int lineNumber, const std::string & text)
 {
 	Point offset = owner.fieldController->hexPositionLocal(hex).topLeft() + Point(20, 20);
-	int h = graphics->fonts[EFonts::FONT_TINY]->getLineHeight();
+	const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+	int h = font->getLineHeight();
 
 	offset.y += h * lineNumber;
 

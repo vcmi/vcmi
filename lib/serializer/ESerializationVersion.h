@@ -60,7 +60,8 @@ enum class ESerializationVersion : int32_t
 	PER_MAP_GAME_SETTINGS, // 861 - game settings are now stored per-map
 	CAMPAIGN_OUTRO_SUPPORT, // 862 - support for campaign outro video
 	REWARDABLE_BANKS, // 863 - team state contains list of scouted objects, coast visitable rewardable objects
-	EVENT_OBJECTS_DELETION, //864 - allow events to remove map objects
+	REGION_LABEL, // 864 - labels for campaign regions
+	EVENT_OBJECTS_DELETION, //865 - allow events to remove map objects
 
 	CURRENT = EVENT_OBJECTS_DELETION
 };

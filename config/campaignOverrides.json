@@ -6,7 +6,7 @@
 		"introVideo": "H3X1intr",
 		"videoRim": "IntroRm2"
 	},
-	"MAPS/HC1_MAIN" : { // Heroes Chronicles 1
+	"MAPS/CHRONICLES/HC1_MAIN" : { // Heroes Chronicles 1
 		"regions":
 		{
 			"background": "chronicles_1/CamBkHc",
@@ -14,14 +14,14 @@
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
-				{ "infix": "1", "x": 27, "y": 43 },
-				{ "infix": "2", "x": 231, "y": 43 },
-				{ "infix": "3", "x": 27, "y": 178 },
-				{ "infix": "4", "x": 231, "y": 178 },
-				{ "infix": "5", "x": 27, "y": 312 },
-				{ "infix": "6", "x": 231, "y": 312 },
-				{ "infix": "7", "x": 27, "y": 447 },
-				{ "infix": "8", "x": 231, "y": 447 }
+				{ "infix": "1", "x": 27, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "2", "x": 231, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "3", "x": 27, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "4", "x": 231, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "5", "x": 27, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "6", "x": 231, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "7", "x": 27, "y": 447, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "8", "x": 231, "y": 447, "labelPos": { "x": 98, "y": 112 } }
 			]
 		},
 		"scenarioCount": 8,
@@ -39,7 +39,7 @@
 		"videoRim": "chronicles_1/INTRORIM",
 		"introVideo": "chronicles_1/Intro"
 	},
-	"MAPS/HC2_MAIN" : { // Heroes Chronicles 2
+	"MAPS/CHRONICLES/HC2_MAIN" : { // Heroes Chronicles 2
 		"regions":
 		{
 			"background": "chronicles_2/CamBkHc",
@@ -47,14 +47,14 @@
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
-				{ "infix": "1", "x": 27, "y": 43 },
-				{ "infix": "2", "x": 231, "y": 43 },
-				{ "infix": "3", "x": 27, "y": 178 },
-				{ "infix": "4", "x": 231, "y": 178 },
-				{ "infix": "5", "x": 27, "y": 312 },
-				{ "infix": "6", "x": 231, "y": 312 },
-				{ "infix": "7", "x": 27, "y": 447 },
-				{ "infix": "8", "x": 231, "y": 447 }
+				{ "infix": "1", "x": 27, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "2", "x": 231, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "3", "x": 27, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "4", "x": 231, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "5", "x": 27, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "6", "x": 231, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "7", "x": 27, "y": 447, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "8", "x": 231, "y": 447, "labelPos": { "x": 98, "y": 112 } }
 			]
 		},
 		"scenarioCount": 8,
@@ -72,7 +72,7 @@
 		"videoRim": "chronicles_2/INTRORIM",
 		"introVideo": "chronicles_2/Intro"
 	},
-	"MAPS/HC3_MAIN" : { // Heroes Chronicles 3
+	"MAPS/CHRONICLES/HC3_MAIN" : { // Heroes Chronicles 3
 		"regions":
 		{
 			"background": "chronicles_3/CamBkHc",
@@ -80,14 +80,14 @@
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
-				{ "infix": "1", "x": 27, "y": 43 },
-				{ "infix": "2", "x": 231, "y": 43 },
-				{ "infix": "3", "x": 27, "y": 178 },
-				{ "infix": "4", "x": 231, "y": 178 },
-				{ "infix": "5", "x": 27, "y": 312 },
-				{ "infix": "6", "x": 231, "y": 312 },
-				{ "infix": "7", "x": 27, "y": 447 },
-				{ "infix": "8", "x": 231, "y": 447 }
+				{ "infix": "1", "x": 27, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "2", "x": 231, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "3", "x": 27, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "4", "x": 231, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "5", "x": 27, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "6", "x": 231, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "7", "x": 27, "y": 447, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "8", "x": 231, "y": 447, "labelPos": { "x": 98, "y": 112 } }
 			]
 		},
 		"scenarioCount": 8,
@@ -105,7 +105,7 @@
 		"videoRim": "chronicles_3/INTRORIM",
 		"introVideo": "chronicles_3/Intro"
 	},
-	"MAPS/HC4_MAIN" : { // Heroes Chronicles 4
+	"MAPS/CHRONICLES/HC4_MAIN" : { // Heroes Chronicles 4
 		"regions":
 		{
 			"background": "chronicles_4/CamBkHc",
@@ -113,14 +113,14 @@
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
-				{ "infix": "1", "x": 27, "y": 43 },
-				{ "infix": "2", "x": 231, "y": 43 },
-				{ "infix": "3", "x": 27, "y": 178 },
-				{ "infix": "4", "x": 231, "y": 178 },
-				{ "infix": "5", "x": 27, "y": 312 },
-				{ "infix": "6", "x": 231, "y": 312 },
-				{ "infix": "7", "x": 27, "y": 447 },
-				{ "infix": "8", "x": 231, "y": 447 }
+				{ "infix": "1", "x": 27, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "2", "x": 231, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "3", "x": 27, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "4", "x": 231, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "5", "x": 27, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "6", "x": 231, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "7", "x": 27, "y": 447, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "8", "x": 231, "y": 447, "labelPos": { "x": 98, "y": 112 } }
 			]
 		},
 		"scenarioCount": 8,
@@ -138,7 +138,7 @@
 		"videoRim": "chronicles_4/INTRORIM",
 		"introVideo": "chronicles_4/Intro"
 	},
-	"MAPS/HC5_MAIN" : { // Heroes Chronicles 5
+	"MAPS/CHRONICLES/HC5_MAIN" : { // Heroes Chronicles 5
 		"regions":
 		{
 			"background": "chronicles_5/CamBkHc",
@@ -146,11 +146,11 @@
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
-				{ "infix": "1", "x": 34, "y": 184 },
-				{ "infix": "2", "x": 235, "y": 184 },
-				{ "infix": "3", "x": 34, "y": 320 },
-				{ "infix": "4", "x": 235, "y": 320 },
-				{ "infix": "5", "x": 129, "y": 459 }
+				{ "infix": "1", "x": 34, "y": 184, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "2", "x": 235, "y": 184, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "3", "x": 34, "y": 320, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "4", "x": 235, "y": 320, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "5", "x": 129, "y": 459, "labelPos": { "x": 98, "y": 112 } }
 			]
 		},
 		"scenarioCount": 5,
@@ -165,7 +165,7 @@
 		"videoRim": "chronicles_5/INTRORIM",
 		"introVideo": "chronicles_5/Intro"
 	},
-	"MAPS/HC6_MAIN" : { // Heroes Chronicles 6
+	"MAPS/CHRONICLES/HC6_MAIN" : { // Heroes Chronicles 6
 		"regions":
 		{
 			"background": "chronicles_6/CamBkHc",
@@ -173,11 +173,11 @@
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
-				{ "infix": "1", "x": 34, "y": 184 },
-				{ "infix": "2", "x": 235, "y": 184 },
-				{ "infix": "3", "x": 34, "y": 320 },
-				{ "infix": "4", "x": 235, "y": 320 },
-				{ "infix": "5", "x": 129, "y": 459 }
+				{ "infix": "1", "x": 34, "y": 184, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "2", "x": 235, "y": 184, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "3", "x": 34, "y": 320, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "4", "x": 235, "y": 320, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "5", "x": 129, "y": 459, "labelPos": { "x": 98, "y": 112 } }
 			]
 		},
 		"scenarioCount": 5,
@@ -192,7 +192,7 @@
 		"videoRim": "chronicles_6/INTRORIM",
 		"introVideo": "chronicles_6/Intro"
 	},
-	"MAPS/HC7_MAIN" : { // Heroes Chronicles 7
+	"MAPS/CHRONICLES/HC7_MAIN" : { // Heroes Chronicles 7
 		"regions":
 		{
 			"background": "chronicles_7/CamBkHc",
@@ -200,14 +200,14 @@
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
-				{ "infix": "1", "x": 27, "y": 43 },
-				{ "infix": "2", "x": 231, "y": 43 },
-				{ "infix": "3", "x": 27, "y": 178 },
-				{ "infix": "4", "x": 231, "y": 178 },
-				{ "infix": "5", "x": 27, "y": 312 },
-				{ "infix": "6", "x": 231, "y": 312 },
-				{ "infix": "7", "x": 27, "y": 447 },
-				{ "infix": "8", "x": 231, "y": 447 }
+				{ "infix": "1", "x": 27, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "2", "x": 231, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "3", "x": 27, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "4", "x": 231, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "5", "x": 27, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "6", "x": 231, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "7", "x": 27, "y": 447, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "8", "x": 231, "y": 447, "labelPos": { "x": 98, "y": 112 } }
 			]
 		},
 		"scenarioCount": 8,
@@ -225,7 +225,7 @@
 		"videoRim": "chronicles_7/INTRORIM",
 		"introVideo": "chronicles_7/Intro5"
 	},
-	"MAPS/HC8_MAIN" : { // Heroes Chronicles 8
+	"MAPS/CHRONICLES/HC8_MAIN" : { // Heroes Chronicles 8
 		"regions":
 		{
 			"background": "chronicles_8/CamBkHc",
@@ -233,14 +233,14 @@
 			"suffix": ["1", "2", "3"],
 			"color_suffix_length": 0,
 			"desc": [
-				{ "infix": "1", "x": 27, "y": 43 },
-				{ "infix": "2", "x": 231, "y": 43 },
-				{ "infix": "3", "x": 27, "y": 178 },
-				{ "infix": "4", "x": 231, "y": 178 },
-				{ "infix": "5", "x": 27, "y": 312 },
-				{ "infix": "6", "x": 231, "y": 312 },
-				{ "infix": "7", "x": 27, "y": 447 },
-				{ "infix": "8", "x": 231, "y": 447 }
+				{ "infix": "1", "x": 27, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "2", "x": 231, "y": 43, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "3", "x": 27, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "4", "x": 231, "y": 178, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "5", "x": 27, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "6", "x": 231, "y": 312, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "7", "x": 27, "y": 447, "labelPos": { "x": 98, "y": 112 } },
+				{ "infix": "8", "x": 231, "y": 447, "labelPos": { "x": 98, "y": 112 } }
 			]
 		},
 		"scenarioCount": 8,

@@ -70,6 +70,8 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 
 	boost::algorithm::trim_right_if(text, boost::algorithm::is_any_of(std::string(" ")));
 
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
+
 	// each iteration generates one output line
 	while(text.length())
 	{
@@ -83,7 +85,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 		std::string printableString;
 
 		// loops till line is full or end of text reached
-		while(currPos < text.length() && text[currPos] != 0x0a && graphics->fonts[font]->getStringWidth(printableString) <= maxLineWidth)
+		while(currPos < text.length() && text[currPos] != 0x0a && fontPtr->getStringWidth(printableString) <= maxLineWidth)
 		{
 			symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
 
@@ -125,7 +127,14 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 		if(currPos < text.length() && (text[currPos] != 0x0a))
 		{
 			if(wordBreak != ui32(-1))
+			{
 				currPos = wordBreak;
+				if(text.substr(0, currPos).find('{') == std::string::npos)
+				{
+					opened = false;
+					color = "";
+				}
+			}
 			else
 				currPos -= symbolSize;
 		}
@@ -186,9 +195,9 @@ std::string CMessage::guessHeader(const std::string & msg)
 
 int CMessage::guessHeight(const std::string & txt, int width, EFonts font)
 {
-	const auto f = graphics->fonts[font];
+	const auto & fontPtr = GH.renderHandler().loadFont(font);
 	const auto lines = CMessage::breakText(txt, width, font);
-	size_t lineHeight = f->getLineHeight();
+	size_t lineHeight = fontPtr->getLineHeight();
 	return lineHeight * lines.size();
 }
 

@@ -88,7 +88,13 @@ private slots:
 
 	void on_sliderControllerSticksSensitivity_valueChanged(int value);
 
-	void on_buttonTtfFont_toggled(bool value);
+	//void on_buttonTtfFont_toggled(bool value);
+
+	void on_sliderScalingFont_valueChanged(int value);
+
+	void on_buttonFontAuto_clicked(bool checked);
+	void on_buttonFontScalable_clicked(bool checked);
+	void on_buttonFontOriginal_clicked(bool checked);
 
 private:
 	Ui::CSettingsView * ui;

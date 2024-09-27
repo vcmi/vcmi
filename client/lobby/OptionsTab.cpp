@@ -19,6 +19,7 @@
 #include "../gui/WindowHandler.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
@@ -1034,12 +1035,14 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, ETextAlignment::CENTER, false);
 		labelPlayerNameEdit->setText(name);
 	}
-	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+
+	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, font->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	auto hasHandicap = [this](){ return s->handicap.startBonus.empty() && s->handicap.percentIncome == 100 && s->handicap.percentGrowth == 100; };
 	std::string labelHandicapText = hasHandicap() ? CGI->generaltexth->arraytxt[210] : MetaString::createFromTextID("vcmi.lobby.handicap").toString();
-	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
-	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), [](){
+	labelHandicap = std::make_shared<CMultiLineLabel>(Rect(57, 24, 47, font->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, labelHandicapText);
+	handicap = std::make_shared<LRClickableArea>(Rect(56, 24, 49, font->getLineHeight()*2), [](){
 		if(!CSH->isHost())
 			return;
 		
