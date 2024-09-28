@@ -23,7 +23,7 @@ namespace effects
 class Summon : public Effect
 {
 public:
-	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
+	void adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const override;
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;

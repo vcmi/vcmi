@@ -36,14 +36,14 @@ bool ReachabilityInfo::isReachable(BattleHex hex) const
 }
 
 uint32_t ReachabilityInfo::distToNearestNeighbour(
-	const std::vector<BattleHex> & targetHexes,
+	const BattleHexArray & targetHexes,
 	BattleHex * chosenHex) const
 {
 	uint32_t ret = 1000000;
 
 	for(auto targetHex : targetHexes)
 	{
-		for(auto & n : targetHex.neighbouringTiles())
+		for(auto & n : BattleHexArray::generateNeighbouringTiles(targetHex))
 		{
 			if(distances[n] < ret)
 			{
@@ -70,15 +70,13 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 		{
 			// It can be back to back attack  o==o  or head to head  =oo=.
 			// In case of back-to-back the distance between heads (unit positions) may be up to 3 tiles
-			vstd::concatenate(attackableHexes, battle::Unit::getHexes(defender->occupiedHex(), true, defender->unitSide()));
+			attackableHexes.merge(battle::Unit::getHexes(defender->occupiedHex(), true, defender->unitSide()));
 		}
 		else
 		{
-			vstd::concatenate(attackableHexes, battle::Unit::getHexes(defender->getPosition(), true, defender->unitSide()));
+			attackableHexes.merge(battle::Unit::getHexes(defender->getPosition(), true, defender->unitSide()));
 		}
 	}
-
-	vstd::removeDuplicates(attackableHexes);
 
 	vstd::erase_if(attackableHexes, [defender](BattleHex h) -> bool
 		{

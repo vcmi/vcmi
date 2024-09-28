@@ -28,7 +28,7 @@ namespace spells
 namespace effects
 {
 
-void Summon::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
+void Summon::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	//no hexes affected
 }

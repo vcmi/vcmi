@@ -43,7 +43,7 @@ public:
 	//void battleResultsApplied() override; //called when all effects of last battle are applied
 	void battleNewRoundFirst(const BattleID & battleID) override; //called at the beginning of each turn before changes are applied;
 	void battleNewRound(const BattleID & battleID) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
+	void battleStackMoved(const BattleID & battleID, const CStack * stack, BattleHexArray dest, int distance, bool teleport) override;
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override;//called when a specific effect is set to stacks
 	//void battleTriggerEffect(const BattleTriggerEffect & bte) override;
@@ -51,6 +51,6 @@ public:
 	void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca) override; //called when catapult makes an attack
 
 private:
-	BattleAction goTowards(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> hexes) const;
+	BattleAction goTowards(const BattleID & battleID, const CStack * stack, BattleHexArray hexes) const;
 };
 

@@ -81,8 +81,8 @@ void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectT
 	pack.battleID = m->battle()->getBattle()->getBattleID();
 	pack.distance = 0;
 	pack.stack = targetUnit->unitId();
-	std::vector<BattleHex> tiles;
-	tiles.push_back(destination);
+	BattleHexArray tiles;
+	tiles.insert(destination);
 	pack.tilesToMove = tiles;
 	pack.teleporting = true;
 	server->apply(pack);

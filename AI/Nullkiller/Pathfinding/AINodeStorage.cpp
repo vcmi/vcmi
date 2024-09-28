@@ -399,7 +399,7 @@ void AINodeStorage::calculateNeighbours(
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
-			"Node %s added to neighbors of %s, layer %d",
+			"Node %s added to neighbours of %s, layer %d",
 			neighbour.toString(),
 			source.coord.toString(),
 			static_cast<int32_t>(layer));

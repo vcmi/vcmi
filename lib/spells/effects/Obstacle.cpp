@@ -95,7 +95,7 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("offsetY", offsetY);
 }
 
-void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
+void Obstacle::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	EffectTarget effectTarget = transformTarget(m, spellTarget, spellTarget);
 
@@ -180,11 +180,11 @@ void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectT
 {
 	if(patchCount > 0)
 	{
-		std::vector<BattleHex> availableTiles;
-		auto insertAvailable = [&m](const BattleHex & hex, std::vector<BattleHex> & availableTiles)
+		BattleHexArray availableTiles;
+		auto insertAvailable = [&m](const BattleHex & hex, BattleHexArray & availableTiles)
 		{
 			if(isHexAvailable(m->battle(), hex, true))
-				availableTiles.push_back(hex);
+				availableTiles.insert(hex);
 		};
 
 		if(m->isMassive())
@@ -309,7 +309,6 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.animationYOffset = options.offsetY;
 
 		obstacle.customSize.clear();
-		obstacle.customSize.reserve(options.shape.size());
 
 		for(const auto & shape : options.shape)
 		{
@@ -318,7 +317,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 			for(auto direction : shape)
 				hex.moveInDirection(direction, false);
 
-			obstacle.customSize.emplace_back(hex);
+			obstacle.customSize.insert(hex);
 		}
 
 		pack.changes.emplace_back();

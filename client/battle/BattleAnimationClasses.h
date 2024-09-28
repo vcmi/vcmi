@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/battle/BattleHex.h"
+#include "../../lib/battle/BattleHexArray.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "BattleConstants.h"
 
@@ -143,7 +143,7 @@ class MovementAnimation : public StackMoveAnimation
 private:
 	int moveSoundHandler; // sound handler used when moving a unit
 
-	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
+	BattleHexArray destTiles; //full path, includes already passed hexes
 	ui32 currentMoveIndex; // index of nextHex in destTiles
 
 	double begX, begY; // starting position
@@ -159,7 +159,7 @@ public:
 	bool init() override;
 	void tick(uint32_t msPassed) override;
 
-	MovementAnimation(BattleInterface & owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance);
+	MovementAnimation(BattleInterface & owner, const CStack *_stack, BattleHexArray _destTiles, int _distance);
 	~MovementAnimation();
 };
 
@@ -316,7 +316,7 @@ class EffectAnimation : public BattleAnimation
 
 	std::shared_ptr<CAnimation>	animation;
 	std::vector<Point> positions;
-	std::vector<BattleHex> battlehexes;
+	BattleHexArray battlehexes;
 
 	bool alignToBottom() const;
 	bool waitForSound() const;
@@ -344,7 +344,7 @@ public:
 
 	/// Create animation positioned at certain hex(es)
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex             , int effects = 0, float transparencyFactor = 1.0f, bool reversed = false);
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<BattleHex> hex, int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHexArray hex, int effects = 0, bool reversed = false);
 
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,   int effects = 0, bool reversed = false);
 	 ~EffectAnimation();
