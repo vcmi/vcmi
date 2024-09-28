@@ -429,7 +429,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 						}
 					}
 
-					result.positions.push_back(enemyHex);
+					result.positions.insert(enemyHex);
 				}
 
 				result.cachedAttack = attack;
@@ -458,12 +458,12 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(cons
 		auto hexes = stack->getSurroundingHexes();
 		for(auto hex : hexes)
 		{
-			auto neighbor = cb->battleGetUnitByPos(hex);
+			auto neighbour = cb->battleGetUnitByPos(hex);
 
-			if(neighbor && neighbor->unitSide() == stack->unitSide() && !vstd::contains(checkedStacks, neighbor))
+			if(neighbour && neighbour->unitSide() == stack->unitSide() && !vstd::contains(checkedStacks, neighbour))
 			{
-				queue.push(neighbor);
-				checkedStacks.push_back(neighbor);
+				queue.push(neighbour);
+				checkedStacks.push_back(neighbour);
 			}
 		}
 	}
@@ -482,7 +482,7 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 
 	auto hexes = ap.attack.defender->getSurroundingHexes();
 
-	if(!ap.attack.shooting) hexes.push_back(ap.from);
+	if(!ap.attack.shooting) hexes.insert(ap.from);
 
 	std::vector<const battle::Unit *> allReachableUnits = additionalUnits;
 	
@@ -939,9 +939,11 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 
 				if(hexStack && cb->battleMatchOwner(unit, hexStack, false))
 				{
-					for(BattleHex neighbor : hex.neighbouringTiles())
+					BattleHexArray neighbours;
+					neighbours.generateNeighbouringTiles(hex);
+					for(BattleHex neighbour : neighbours)
 					{
-						reachable = unitReachability.distances.at(neighbor) <= radius;
+						reachable = unitReachability.distances.at(neighbour) <= radius;
 
 						if(reachable) break;
 					}
@@ -1000,10 +1002,9 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 					if(hexStack && cb->battleMatchOwner(unit, hexStack, false))
 					{
 						enemyUnit = true;
-
-						for(BattleHex neighbor : hex.neighbouringTiles())
+						for(BattleHex neighbour : BattleHexArray::generateNeighbouringTiles(hex))
 						{
-							reachable = unitReachability.distances.at(neighbor) <= unitSpeed;
+							reachable = unitReachability.distances.at(neighbour) <= unitSpeed;
 
 							if(reachable) break;
 						}

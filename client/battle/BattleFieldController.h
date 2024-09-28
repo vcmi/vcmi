@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/battle/BattleHex.h"
+#include "../../lib/battle/BattleHexArray.h"
 #include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
 
@@ -50,39 +50,39 @@ class BattleFieldController : public CIntObject
 	BattleHex hoveredHex;
 
 	/// hexes to which currently active stack can move
-	std::vector<BattleHex> occupiableHexes;
+	BattleHexArray occupiableHexes;
 
 	/// hexes that when in front of a unit cause it's amount box to move back
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes;
 
 	void showHighlightedHex(Canvas & to, std::shared_ptr<IImage> highlight, BattleHex hex, bool darkBorder);
 
-	std::set<BattleHex> getHighlightedHexesForActiveStack();
-	std::set<BattleHex> getMovementRangeForHoveredStack();
-	std::set<BattleHex> getHighlightedHexesForSpellRange();
-	std::set<BattleHex> getHighlightedHexesForMovementTarget();
+	BattleHexArray getHighlightedHexesForActiveStack();
+	BattleHexArray getMovementRangeForHoveredStack();
+	BattleHexArray getHighlightedHexesForSpellRange();
+	BattleHexArray getHighlightedHexesForMovementTarget();
 
 	// Range limit highlight helpers
 
 	/// get all hexes within a certain distance of given hex
-	std::vector<BattleHex> getRangeHexes(BattleHex sourceHex, uint8_t distance);
+	BattleHexArray getRangeHexes(BattleHex sourceHex, uint8_t distance);
 
 	/// get only hexes at the limit of a range
-	std::vector<BattleHex> getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> hexRange, uint8_t distanceToLimit);
+	BattleHexArray getRangeLimitHexes(BattleHex hoveredHex, BattleHexArray hexRange, uint8_t distanceToLimit);
 
 	/// calculate if a hex is in range limit and return its index in range
-	bool IsHexInRangeLimit(BattleHex hex, std::vector<BattleHex> & rangeLimitHexes, int * hexIndexInRangeLimit);
+	bool IsHexInRangeLimit(BattleHex hex, BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit);
 
 	/// get an array that has for each hex in range, an array with all directions where an outside neighbour hex exists
-	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangeHexes, std::vector<BattleHex> rangeLimitHexes);
+	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(BattleHexArray rangeHexes, BattleHexArray rangeLimitHexes);
 
-	/// calculates what image to use as range limit, depending on the direction of neighbors
+	/// calculates what image to use as range limit, depending on the direction of neighbours
 	/// a mask is used internally to mark the directions of all neighbours
 	/// based on this mask the corresponding image is selected
 	std::vector<std::shared_ptr<IImage>> calculateRangeLimitHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages);
 
 	/// calculates all hexes for a range limit and what images to be shown as highlight for each of the hexes
-	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, std::vector<BattleHex> & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights);
+	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, BattleHexArray & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights);
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);

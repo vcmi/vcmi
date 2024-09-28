@@ -1256,10 +1256,10 @@ void xbrz::bilinearScale(const uint32_t* src, int srcWidth, int srcHeight,
 }
 
 
-void xbrz::nearestNeighborScale(const uint32_t* src, int srcWidth, int srcHeight,
+void xbrz::nearestneighbourScale(const uint32_t* src, int srcWidth, int srcHeight,
                                 /**/  uint32_t* trg, int trgWidth, int trgHeight)
 {
-    nearestNeighborScale(src, srcWidth, srcHeight, srcWidth * sizeof(uint32_t),
+    nearestneighbourScale(src, srcWidth, srcHeight, srcWidth * sizeof(uint32_t),
                          trg, trgWidth, trgHeight, trgWidth * sizeof(uint32_t),
     0, trgHeight, [](uint32_t pix) { return pix; });
 }

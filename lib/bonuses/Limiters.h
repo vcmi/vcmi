@@ -10,7 +10,7 @@
 
 #include "Bonus.h"
 
-#include "../battle/BattleHex.h"
+#include "../battle/BattleHexArray.h"
 #include "../serializer/Serializeable.h"
 #include "../constants/Enumerations.h"
 
@@ -108,6 +108,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
+<<<<<<< HEAD
 
 		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
 		{
@@ -118,6 +119,9 @@ public:
 		}
 		else
 			h & creatureID;
+=======
+		h & creature;
+>>>>>>> 153a8f877 (Fix serializer.)
 		h & includeUpgrades;
 	}
 };
@@ -263,9 +267,9 @@ public:
 class DLL_LINKAGE UnitOnHexLimiter : public ILimiter //works only on selected hexes
 {
 public:
-	std::set<BattleHex> applicableHexes;
+	BattleHexArray applicableHexes;
 
-	UnitOnHexLimiter(const std::set<BattleHex> & applicableHexes = {});
+	UnitOnHexLimiter(const BattleHexArray & applicableHexes = {});
 	EDecision limit(const BonusLimitationContext &context) const override;
 	JsonNode toJsonNode() const override;
 

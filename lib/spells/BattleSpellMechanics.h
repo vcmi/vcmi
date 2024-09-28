@@ -56,7 +56,7 @@ public:
 	bool isReceptive(const battle::Unit * target) const override;
 
 	/// Returns list of hexes that are affected by spell assuming cast at centralHex
-	std::vector<BattleHex> rangeInHexes(BattleHex centralHex) const override;
+	BattleHexArray rangeInHexes(BattleHex centralHex) const override;
 
 	const Spell * getSpell() const override;
 
@@ -75,7 +75,7 @@ private:
 
 	void doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
 
-	std::set<BattleHex> spellRangeInHexes(BattleHex centralHex) const;
+	BattleHexArray spellRangeInHexes(BattleHex centralHex) const;
 
 	Target transformSpellTarget(const Target & aimPoint) const;
 };

@@ -678,7 +678,7 @@ SDL_Surface * CSDL_Ext::scaleSurfaceIntegerFactor(SDL_Surface * surf, int factor
 	switch (algorithm)
 	{
 		case EScalingAlgorithm::NEAREST:
-			xbrz::nearestNeighborScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);
+			xbrz::nearestneighbourScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);
 			break;
 		case EScalingAlgorithm::BILINEAR:
 			xbrz::bilinearScale(srcPixels, intermediate->w, intermediate->h, dstPixels, ret->w, ret->h);

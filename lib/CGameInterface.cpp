@@ -204,7 +204,7 @@ void CAdventureAI::battleObstaclesChanged(const BattleID & battleID, const std::
 	battleAI->battleObstaclesChanged(battleID, obstacles);
 }
 
-void CAdventureAI::battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
+void CAdventureAI::battleStackMoved(const BattleID & battleID, const CStack * stack, BattleHexArray dest, int distance, bool teleport)
 {
 	battleAI->battleStackMoved(battleID, stack, dest, distance, teleport);
 }

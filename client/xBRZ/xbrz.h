@@ -68,7 +68,7 @@ void scale(size_t factor, //valid range: 2 - SCALE_FACTOR_MAX
 void bilinearScale(const uint32_t* src, int srcWidth, int srcHeight,
                    /**/  uint32_t* trg, int trgWidth, int trgHeight);
 
-void nearestNeighborScale(const uint32_t* src, int srcWidth, int srcHeight,
+void nearestneighbourScale(const uint32_t* src, int srcWidth, int srcHeight,
                           /**/  uint32_t* trg, int trgWidth, int trgHeight);
 
 

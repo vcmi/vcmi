@@ -56,9 +56,9 @@ void ObjectGraphCalculator::calculateConnections()
 	removeExtraConnections();
 }
 
-float ObjectGraphCalculator::getNeighborConnectionsCost(const int3 & pos, std::vector<AIPath> & pathCache)
+float ObjectGraphCalculator::getneighbourConnectionsCost(const int3 & pos, std::vector<AIPath> & pathCache)
 {
-	float neighborCost = std::numeric_limits<float>::max();
+	float neighbourCost = std::numeric_limits<float>::max();
 
 	if(NKAI_GRAPH_TRACE_LEVEL >= 2)
 	{
@@ -68,24 +68,24 @@ float ObjectGraphCalculator::getNeighborConnectionsCost(const int3 & pos, std::v
 	foreach_neighbour(
 		ai->cb.get(),
 		pos,
-		[this, &neighborCost, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & neighbor)
+		[this, &neighbourCost, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & neighbour)
 		{
-			ai->pathfinder->calculatePathInfo(pathCache, neighbor);
+			ai->pathfinder->calculatePathInfo(pathCache, neighbour);
 
 			auto costTotal = this->getConnectionsCost(pathCache);
 
-			if(costTotal.connectionsCount > 2 && costTotal.avg < neighborCost)
+			if(costTotal.connectionsCount > 2 && costTotal.avg < neighbourCost)
 			{
-				neighborCost = costTotal.avg;
+				neighbourCost = costTotal.avg;
 
 				if(NKAI_GRAPH_TRACE_LEVEL >= 2)
 				{
-					logAi->trace("Better node found at %s", neighbor.toString());
+					logAi->trace("Better node found at %s", neighbour.toString());
 				}
 			}
 		});
 
-	return neighborCost;
+	return neighbourCost;
 }
 
 void ObjectGraphCalculator::addMinimalDistanceJunctions()
@@ -105,9 +105,9 @@ void ObjectGraphCalculator::addMinimalDistanceJunctions()
 			if(currentCost.connectionsCount <= 2)
 				return;
 
-			float neighborCost = getNeighborConnectionsCost(pos, paths);
+			float neighbourCost = getneighbourConnectionsCost(pos, paths);
 
-			if(currentCost.avg < neighborCost)
+			if(currentCost.avg < neighbourCost)
 			{
 				junctions.insert(pos);
 			}
@@ -137,17 +137,17 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 		foreach_neighbour(
 			ai->cb.get(),
 			pos,
-			[this, &pos, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & neighbor)
+			[this, &pos, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & neighbour)
 			{
-				if(target->hasNodeAt(neighbor))
+				if(target->hasNodeAt(neighbour))
 				{
-					ai->pathfinder->calculatePathInfo(pathCache, neighbor);
+					ai->pathfinder->calculatePathInfo(pathCache, neighbour);
 
 					for(auto & path : pathCache)
 					{
 						if(pos == path.targetHero->visitablePos())
 						{
-							target->tryAddConnection(pos, neighbor, path.movementCost(), path.getTotalDanger());
+							target->tryAddConnection(pos, neighbour, path.movementCost(), path.getTotalDanger());
 						}
 					}
 				}

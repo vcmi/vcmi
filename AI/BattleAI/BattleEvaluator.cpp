@@ -87,9 +87,9 @@ BattleEvaluator::BattleEvaluator(
 	targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
 }
 
-std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
+BattleHexArray BattleEvaluator::getBrokenWallMoatHexes() const
 {
-	std::vector<BattleHex> result;
+	BattleHexArray result;
 
 	for(EWallPart wallPart : { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL })
 	{
@@ -101,7 +101,7 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 		auto wallHex = cb->getBattle(battleID)->wallPartToBattleHex(wallPart);
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
-		result.push_back(moatHex);
+		result.insert(moatHex);
 
 		moatHex = moatHex.cloneInDirection(BattleHex::LEFT);
 		auto obstaclesSecondRow = cb->getBattle(battleID)->battleGetAllObstaclesOnPos(moatHex, false);
@@ -110,7 +110,7 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 		{
 			if(obstacle->obstacleType == CObstacleInstance::EObstacleType::MOAT)
 			{
-				result.push_back(moatHex);
+				result.insert(moatHex);
 				break;
 			}
 		}
@@ -299,7 +299,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		{
 			activeActionMade = true;
 
-			if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
+			if(stack->doubleWide() && brokenWallMoat.contains(stack->getPosition()))
 				return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
 			else
 				return goTowardsNearest(stack, brokenWallMoat, *targets);
@@ -344,7 +344,7 @@ BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, BattleHex hex, 
 	}
 }
 
-BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes, const PotentialTargets & targets)
+BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, BattleHexArray hexes, const PotentialTargets & targets)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
 	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
@@ -354,27 +354,23 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 		return BattleAction::makeDefend(stack);
 	}
 
-	std::vector<BattleHex> targetHexes = hexes;
-
-	vstd::erase_if(targetHexes, [](const BattleHex & hex) { return !hex.isValid(); });
-
-	std::sort(targetHexes.begin(), targetHexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
+	std::sort(hexes.begin(), hexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
 		{
 			return reachability.distances[h1] < reachability.distances[h2];
 		});
 
-	BattleHex bestNeighbor = targetHexes.front();
+	BattleHex bestneighbour = hexes.front();
 
-	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
+	if(reachability.distances[bestneighbour] > GameConstants::BFIELD_SIZE)
 	{
 		logAi->trace("No richable hexes.");
 		return BattleAction::makeDefend(stack);
 	}
 
 	// this turn
-	for(auto hex : targetHexes)
+	for(auto hex : hexes)
 	{
-		if(vstd::contains(avHexes, hex))
+		if(avHexes.contains(hex))
 		{
 			return moveOrAttack(stack, hex, targets);
 		}
@@ -392,11 +388,11 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 
 	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
-		std::set<BattleHex> obstacleHexes;
+		BattleHexArray obstacleHexes;
 
-		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> & obstacleHexes) {
-			auto affectedHexes = spellObst.getAffectedTiles();
-			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
+		auto insertAffected = [](const CObstacleInstance & spellObst, BattleHexArray & obstacleHexes) {
+			BattleHexArray affectedHexes = spellObst.getAffectedTiles();
+			obstacleHexes.merge(affectedHexes);
 		};
 
 		const auto & obstacles = hb->battleGetAllObstacles();
@@ -419,9 +415,9 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
 
-			auto distance = BattleHex::getDistance(bestNeighbor, hex);
+			auto distance = BattleHex::getDistance(bestneighbour, hex);
 
-			if(vstd::contains(obstacleHexes, hex))
+			if(obstacleHexes.contains(hex))
 				distance += NEGATIVE_OBSTACLE_PENALTY;
 
 			return scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
@@ -431,7 +427,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 	}
 	else
 	{
-		BattleHex currentDest = bestNeighbor;
+		BattleHex currentDest = bestneighbour;
 		while(true)
 		{
 			if(!currentDest.isValid())
@@ -439,7 +435,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 				return BattleAction::makeDefend(stack);
 			}
 
-			if(vstd::contains(avHexes, currentDest)
+			if(avHexes.contains(currentDest)
 				&& !scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, currentDest))
 			{
 				return moveOrAttack(stack, currentDest, targets);

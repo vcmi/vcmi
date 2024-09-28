@@ -10,7 +10,7 @@
 #pragma once
 
 #include "networkPacks/EInfoWindowMode.h"
-#include "battle/BattleHex.h"
+#include "battle/BattleHexArray.h"
 #include "GameConstants.h"
 #include "int3.h"
 
@@ -63,7 +63,7 @@ public:
 	virtual void battleNewRoundFirst(const BattleID & battleID){}; //called at the beginning of each turn before changes are applied;
 	virtual void battleNewRound(const BattleID & battleID){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines){};
-	virtual void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport){};
+	virtual void battleStackMoved(const BattleID & battleID, const CStack * stack, BattleHexArray dest, int distance, bool teleport){};
 	virtual void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc){};
 	virtual void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte){}; //called for various one-shot effects
