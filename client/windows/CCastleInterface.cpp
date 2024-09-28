@@ -2053,9 +2053,11 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		cost[EGameResID::GEMS] = (level + 1) * 2;
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL_SCROLL, town->spells[level].at(town->spellsAtLevel(level, false))));
+		resComps.back()->newLine = true;
 		for(TResources::nziterator i(cost); i.valid(); i++)
 		{
-			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal, CComponent::ESize::medium));
 		}
 
 		if(LOCPLINT->cb->getResourceAmount().canAfford(cost))
