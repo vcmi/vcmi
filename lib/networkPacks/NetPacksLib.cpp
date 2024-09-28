@@ -1224,6 +1224,9 @@ void RemoveObject::applyGs(CGameState *gs)
 		}
 	}
 
+	if(initiator == PlayerColor::NEUTRAL && obj->tempOwner.isValidPlayer())
+		gs->getPlayerState(obj->tempOwner)->removeOwnedObject(obj); //object removed via map event
+
 	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[objectID.getNum()].dellNull();
 	gs->map->calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
