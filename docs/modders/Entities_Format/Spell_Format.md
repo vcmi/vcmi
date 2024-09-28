@@ -64,6 +64,9 @@
 		// If true, then creature capable of casting this spell can cast this spell on itself
 		// If false, then creature can only cast this spell on other units
 		"canCastOnSelf" : false,
+		
+		// If true, then creature capable of casting this spell can cast this spell only on itself
+		"canCastOnlyOnSelf" : false,
 
 		// If true the creature will not skip the turn after casting a spell
 		"canCastWithoutSkip": false,

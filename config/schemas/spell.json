@@ -171,6 +171,10 @@
 			"type" : "boolean",
 			"description" : "If used as creature spell, unit can cast this spell on itself"
 		},
+		"canCastOnlyOnSelf" : {
+			"type" : "boolean",
+			"description" : "If used as creature spell, unit can cast this spell only on itself"
+		},
 		"canCastWithoutSkip" : {
 			"type" : "boolean",
 			"description" : "If used the creature will not skip the turn after casting a spell."
