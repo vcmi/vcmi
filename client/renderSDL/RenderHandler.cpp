@@ -342,6 +342,8 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 		return fonts.at(font);
 
 	const int8_t index = static_cast<int8_t>(font);
+	logGlobal->debug("Loading font %d", static_cast<int>(index));
+
 	auto configList = CResourceHandler::get()->getResourcesWithName(JsonPath::builtin("config/fonts.json"));
 	std::shared_ptr<FontChain> loadedFont = std::make_shared<FontChain>();
 	std::string bitmapPath;

@@ -73,6 +73,14 @@ CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
 	TTF_SetFontStyle(font.get(), getFontStyle(fontConfig));
 	TTF_SetFontHinting(font.get(),TTF_HINTING_MONO);
 
+	logGlobal->debug("Loaded TTF font: '%s', point size %d, height %d, ascent %d, descent %d, line skip %d",
+					 fontConfig["file"].String(),
+					 getPointSize(fontConfig["size"]),
+					 TTF_FontHeight(font.get()),
+					 TTF_FontAscent(font.get()),
+					 TTF_FontDescent(font.get()),
+					 TTF_FontLineSkip(font.get())
+	);
 }
 
 CTrueTypeFont::~CTrueTypeFont() = default;
