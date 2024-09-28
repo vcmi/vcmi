@@ -51,12 +51,12 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"buildingsPerTurnCap"  :               { "type" : "number" },
-				"startingDwellingChances" :            { "type" : "array" },
-				"spellResearch" :                      { "type" : "boolean" },
-				"spellResearchCostBase" :              { "type" : "object" },
-				"spellResearchCostPerLevel" :          { "type" : "object" },
-				"spellResearchCostFactorPerResearch" : { "type" : "number" }
+				"buildingsPerTurnCap"  :                 { "type" : "number" },
+				"startingDwellingChances" :              { "type" : "array" },
+				"spellResearch" :                        { "type" : "boolean" },
+				"spellResearchCostBase" :                { "type" : "object" },
+				"spellResearchCostPerLevel" :            { "type" : "object" },
+				"spellResearchCostExponentPerResearch" : { "type" : "number" }
 			}
 		},
 		"combat": {

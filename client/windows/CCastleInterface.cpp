@@ -2047,7 +2047,8 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 
 		auto costBase = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_BASE));
 		auto costPerLevel = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_PER_LEVEL));
-		auto cost = (costBase + costPerLevel * (level + 1)) * (town->spellResearchCounter + 1);
+		auto costExponent = LOCPLINT->cb->getSettings().getDouble(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH);
+		auto cost = (costBase + costPerLevel * (level + 1)) * std::pow(town->spellResearchCounter + 1, costExponent);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, town->spells[level].at(town->spellsAtLevel(level, false))));
@@ -2057,10 +2058,28 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal, CComponent::ESize::medium));
 		}
 
-		if(LOCPLINT->cb->getResourceAmount().canAfford(cost))
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.spellResearch.pay"), [this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, true); }, nullptr, resComps);
-		else
-			LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.canNotAfford"), resComps);
+		auto showSpellResearchDialog = [this, resComps, town, cost](){
+			std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
+			pom.emplace_back(AnimationPath::builtin("ibuy30.DEF"), nullptr);
+			pom.emplace_back(AnimationPath::builtin("hsbtns4.DEF"), nullptr);
+			pom.emplace_back(AnimationPath::builtin("ICANCEL.DEF"), nullptr);
+			auto temp = std::make_shared<CInfoWindow>(CGI->generaltexth->translate("vcmi.spellResearch.pay"), LOCPLINT->playerID, resComps, pom);
+
+			temp->buttons[0]->addCallback([this, resComps, town, cost](){ 
+				if(LOCPLINT->cb->getResourceAmount().canAfford(cost))
+					LOCPLINT->cb->spellResearch(town, spell->id, true);
+				else
+					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.canNotAfford"), resComps);
+			});
+			temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.research")); });
+			temp->buttons[1]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, false); });
+			temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.skip")); });
+			temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.abort")); });
+
+			GH.windows().pushWindow(temp);
+		};
+
+		showSpellResearchDialog();
 	}
 	else
 		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(ComponentType::SPELL, spell->id));

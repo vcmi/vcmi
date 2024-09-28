@@ -310,7 +310,7 @@ struct DLL_LINKAGE SpellResearch : public CPackForServer
 {
 	SpellResearch() = default;
 	SpellResearch(const ObjectInstanceID & TID, SpellID spellAtSlot, bool accepted)
-		: tid(TID), spellAtSlot(spellAtSlot)
+		: tid(TID), spellAtSlot(spellAtSlot), accepted(accepted)
 	{
 	}
 	ObjectInstanceID tid;

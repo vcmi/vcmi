@@ -60,7 +60,10 @@
 
 	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, einen Zauberspruch zu erforschen.",
 	"vcmi.spellResearch.comeAgain" : "Die Forschung wurde heute bereits abgeschlossen. Kommt morgen wieder.",
-	"vcmi.spellResearch.pay" : "Möchtet Ihr diesen neuen Zauberspruch erforschen und den alten ersetzen?",
+	"vcmi.spellResearch.pay" : "Möchtet Ihr diesen neuen Zauberspruch erforschen und den alten ersetzen oder diesen überspringen?",
+	"vcmi.spellResearch.research" : "Erforsche diesen Zauberspruch",
+	"vcmi.spellResearch.skip" : "Überspringe diesen Zauberspruch",
+	"vcmi.spellResearch.abort" : "Abbruch",
 
 	"vcmi.mainMenu.serverConnecting" : "Verbinde...",
 	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",

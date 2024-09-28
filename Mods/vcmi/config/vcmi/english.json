@@ -61,7 +61,10 @@
 
 	"vcmi.spellResearch.canNotAfford" : "You can't afford to research a spell.",
 	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
-	"vcmi.spellResearch.pay" : "Would you like to research this new spell and replace the old one?",
+	"vcmi.spellResearch.pay" : "Would you like to research this new spell and replace the old one or skip this spell?",
+	"vcmi.spellResearch.research" : "Research this Spell",
+	"vcmi.spellResearch.skip" : "Skip this Spell",
+	"vcmi.spellResearch.abort" : "Abort",
 
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",

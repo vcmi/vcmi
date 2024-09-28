@@ -318,8 +318,8 @@
 			"spellResearchCostBase": { "gold": 1000 },
 			// Costs depends on level for an spell research
 			"spellResearchCostPerLevel": { "wood" : 2, "mercury": 2, "ore": 2, "sulfur": 2, "crystal": 2, "gems": 2 },
-			// Factor for increasing cost for each research
-			"spellResearchCostFactorPerResearch": 2.0
+			// Exponent for increasing cost for each research
+			"spellResearchCostExponentPerResearch": 1.5
 		},
 
 		"combat":

@@ -2257,21 +2257,31 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 	
 	if(level == -1 && complain("Spell for replacement not found!"))
 		return false;
+
+	auto spells = t->spells.at(level);
 	
 	int daysSinceLastResearch = gs->getDate(Date::DAY) - t->lastSpellResearchDay;
 	if(!daysSinceLastResearch && complain("Already researched today!"))
 		return false;
 
+	if(!accepted)
+	{
+		auto it = spells.begin() + t->spellsAtLevel(level, false);
+		std::rotate(it, it + 1, spells.end()); // move to end
+		setResearchedSpells(t, level, spells, accepted);
+		return true;
+	}
+
 	auto costBase = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_BASE));
 	auto costPerLevel = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_PER_LEVEL));
-	auto cost = (costBase + costPerLevel * (level + 1)) * (t->spellResearchCounter + 1);
+	auto costExponent = getSettings().getDouble(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH);
+
+	auto cost = (costBase + costPerLevel * (level + 1)) * std::pow(t->spellResearchCounter + 1, costExponent);
 
 	if(!getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
 		return false;
 
 	giveResources(t->getOwner(), -cost);
-
-	auto spells = t->spells.at(level);
 
 	std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
 	auto it = spells.begin() + t->spellsAtLevel(level, false);
