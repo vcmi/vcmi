@@ -398,7 +398,7 @@ class CMageGuildScreen : public CStatusbarWindow
 
 public:
 	CMageGuildScreen(CCastleInterface * owner, const ImagePath & image);
-	void updateSpells();
+	void updateSpells(ObjectInstanceID tID);
 };
 
 /// The blacksmith window where you can buy available in town war machine

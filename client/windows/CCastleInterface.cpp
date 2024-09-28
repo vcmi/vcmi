@@ -1982,11 +1982,14 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 
 	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1.DEF"), CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
-	updateSpells();
+	updateSpells(townId);
 }
 
-void CMageGuildScreen::updateSpells()
+void CMageGuildScreen::updateSpells(ObjectInstanceID tID)
 {
+	if(tID != townId)
+		return;
+
 	OBJECT_CONSTRUCTION;
 	static const std::vector<std::vector<Point> > positions =
 	{
@@ -2063,15 +2066,12 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			pom.emplace_back(AnimationPath::builtin("ibuy30.DEF"), nullptr);
 			pom.emplace_back(AnimationPath::builtin("hsbtns4.DEF"), nullptr);
 			pom.emplace_back(AnimationPath::builtin("ICANCEL.DEF"), nullptr);
-			auto temp = std::make_shared<CInfoWindow>(CGI->generaltexth->translate("vcmi.spellResearch.pay"), LOCPLINT->playerID, resComps, pom);
+			auto text = CGI->generaltexth->translate(LOCPLINT->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");
+			auto temp = std::make_shared<CInfoWindow>(text, LOCPLINT->playerID, resComps, pom);
 
-			temp->buttons[0]->addCallback([this, resComps, town, cost](){ 
-				if(LOCPLINT->cb->getResourceAmount().canAfford(cost))
-					LOCPLINT->cb->spellResearch(town, spell->id, true);
-				else
-					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.spellResearch.canNotAfford"), resComps);
-			});
+			temp->buttons[0]->addCallback([this, resComps, town, cost](){ LOCPLINT->cb->spellResearch(town, spell->id, true); });
 			temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.research")); });
+			temp->buttons[0]->setEnabled(LOCPLINT->cb->getResourceAmount().canAfford(cost));
 			temp->buttons[1]->addCallback([this, town](){ LOCPLINT->cb->spellResearch(town, spell->id, false); });
 			temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.skip")); });
 			temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(CGI->generaltexth->translate("vcmi.spellResearch.abort")); });

@@ -176,7 +176,7 @@ void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)
 void ApplyClientNetPackVisitor::visitSetResearchedSpells(SetResearchedSpells & pack)
 {
 	for(const auto & win : GH.windows().findWindows<CMageGuildScreen>())
-		win->updateSpells();
+		win->updateSpells(pack.tid);
 }
 
 void ApplyClientNetPackVisitor::visitFoWChange(FoWChange & pack)
