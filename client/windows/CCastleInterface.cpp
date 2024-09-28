@@ -1982,10 +1982,10 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 
 	exit = std::make_shared<CButton>(Point(748, 556), AnimationPath::builtin("TPMAGE1.DEF"), CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
-	update();
+	updateSpells();
 }
 
-void CMageGuildScreen::update()
+void CMageGuildScreen::updateSpells()
 {
 	OBJECT_CONSTRUCTION;
 	static const std::vector<std::vector<Point> > positions =
@@ -2031,7 +2031,7 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, ObjectInst
 void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
 	const CGTownInstance * town = LOCPLINT->cb->getTown(townId);
-	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH))
+	if(LOCPLINT->cb->getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && town->spellResearchAllowed)
 	{
 		int daysSinceLastResearch = LOCPLINT->cb->getDate(Date::DAY) - town->lastSpellResearchDay;
 		if(!daysSinceLastResearch)
@@ -2045,12 +2045,9 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			if(vstd::find_pos(town->spells[i], spell->id) != -1)
 				level = i;
 
-		TResources cost;
-		cost[EGameResID::GOLD] = 1000;
-		cost[EGameResID::MERCURY] = (level + 1) * 2;
-		cost[EGameResID::SULFUR] = (level + 1) * 2;
-		cost[EGameResID::CRYSTAL] = (level + 1) * 2;
-		cost[EGameResID::GEMS] = (level + 1) * 2;
+		auto costBase = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_BASE));
+		auto costPerLevel = TResources(LOCPLINT->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_PER_LEVEL));
+		auto cost = costBase + costPerLevel * (level + 1);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, town->spells[level].at(town->spellsAtLevel(level, false))));

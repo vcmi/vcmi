@@ -74,6 +74,7 @@ public:
 	std::vector<CCastleEvent> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond, factory = save debts);
 	int lastSpellResearchDay;
+	bool spellResearchAllowed;
 
 	//////////////////////////////////////////////////////////////////////////
 	template <typename Handler> void serialize(Handler &h)

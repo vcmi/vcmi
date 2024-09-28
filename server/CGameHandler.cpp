@@ -2244,10 +2244,10 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 
 bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot)
 {
-	if(!getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && complain("Spell research not allowed!"))
-		return false;
-
 	CGTownInstance *t = gs->getTown(tid);
+
+	if(!(getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && t->spellResearchAllowed) && complain("Spell research not allowed!"))
+		return false;
 
 	int level = -1;
 	for(int i = 0; i < t->spells.size(); i++)
@@ -2261,12 +2261,9 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot)
 	if(!daysSinceLastResearch && complain("Already researched today!"))
 		return false;
 
-	TResources cost;
-	cost[EGameResID::GOLD] = 1000;
-	cost[EGameResID::MERCURY] = (level + 1) * 2;
-	cost[EGameResID::SULFUR] = (level + 1) * 2;
-	cost[EGameResID::CRYSTAL] = (level + 1) * 2;
-	cost[EGameResID::GEMS] = (level + 1) * 2;
+	auto costBase = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_BASE));
+	auto costPerLevel = TResources(getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_PER_LEVEL));
+	auto cost = costBase + costPerLevel * (level + 1);
 
 	if(!getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
 		return false;

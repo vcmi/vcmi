@@ -51,9 +51,11 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"buildingsPerTurnCap"  :    { "type" : "number" },
-				"startingDwellingChances" : { "type" : "array" },
-				"spellResearch" :           { "type" : "boolean" }
+				"buildingsPerTurnCap"  :      { "type" : "number" },
+				"startingDwellingChances" :   { "type" : "array" },
+				"spellResearch" :             { "type" : "boolean" },
+				"spellResearchCostBase" :     { "type" : "object" },
+				"spellResearchCostPerLevel" : { "type" : "object" }
 			}
 		},
 		"combat": {

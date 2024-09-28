@@ -102,6 +102,8 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"              },
 		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"          },
 		{EGameSettings::TOWNS_SPELL_RESEARCH,                   "towns",     "spellResearch"                    },
+		{EGameSettings::TOWNS_SPELL_RESEARCH_COST_BASE,         "towns",     "spellResearchCostBase"            },
+		{EGameSettings::TOWNS_SPELL_RESEARCH_COST_PER_LEVEL,    "towns",     "spellResearchCostPerLevel"        },
 	};
 
 void GameSettings::loadBase(const JsonNode & input)
